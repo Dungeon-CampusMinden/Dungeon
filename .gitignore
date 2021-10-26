@@ -153,3 +153,12 @@ latex.out/
 ######################
 *.log
 *.sql
+
+
+# IntelliJ IDEA #
+#########
+.idea
+
+# Gradle #
+#########
+core/.gradle
