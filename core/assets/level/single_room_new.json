@@ -1,0 +1,23 @@
+[
+{
+	shape: [
+		{
+			class: de.pmdungeon.dungeonCreator.dungeonconverter.Coordinate
+		}
+		{
+			class: de.pmdungeon.dungeonCreator.dungeonconverter.Coordinate
+			y: 8
+		}
+		{
+			class: de.pmdungeon.dungeonCreator.dungeonconverter.Coordinate
+			x: 8
+			y: 8
+		}
+		{
+			class: de.pmdungeon.dungeonCreator.dungeonconverter.Coordinate
+			x: 8
+		}
+	]
+	position: {}
+}
+]
