@@ -161,4 +161,5 @@ latex.out/
 
 # Gradle #
 #########
-core/.gradle
+.gradle/
+war/
