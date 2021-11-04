@@ -1,4 +1,3 @@
 package graphic;
 
-public class HUD {
-}
+public class HUD {}

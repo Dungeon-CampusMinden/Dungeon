@@ -11,18 +11,20 @@ public final class DesktopLauncher {
         config.width = 640;
         config.height = 480;
         config.foregroundFPS = 30;
-        new LwjglApplication(new Game() {
-            public SpriteBatch batch;
+        new LwjglApplication(
+                new Game() {
+                    public SpriteBatch batch;
 
-            @Override
-            public void create() {
-                batch = new SpriteBatch();
-            }
+                    @Override
+                    public void create() {
+                        batch = new SpriteBatch();
+                    }
 
-            @Override
-            public void dispose() {
-                batch.dispose();
-            }
-        }, config);
+                    @Override
+                    public void dispose() {
+                        batch.dispose();
+                    }
+                },
+                config);
     }
 }
