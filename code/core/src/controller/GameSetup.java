@@ -1,4 +1,3 @@
 package controller;
 
-public final class GameSetup {
-}
+public final class GameSetup {}

@@ -1,4 +1,3 @@
 package graphic;
 
-public class Animation {
-}
+public class Animation {}

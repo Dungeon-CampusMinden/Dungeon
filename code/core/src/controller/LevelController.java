@@ -1,4 +1,3 @@
 package controller;
 
-public class LevelController {
-}
+public class LevelController {}

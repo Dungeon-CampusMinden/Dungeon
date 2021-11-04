@@ -1,4 +1,3 @@
 package controller;
 
-public class EntityController {
-}
+public class EntityController {}
