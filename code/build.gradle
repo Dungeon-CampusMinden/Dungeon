@@ -9,11 +9,13 @@ buildscript {
     dependencies {
         classpath 'org.wisepersist:gwt-gradle-plugin:+'
         classpath 'org.gretty:gretty:+'
+        classpath "com.github.spotbugs.snom:spotbugs-gradle-plugin:4.7.9"
     }
 }
 
 plugins {
     id 'java'
+    id 'com.github.spotbugs' version '4.7.9' apply false
 }
 
 allprojects {
@@ -76,6 +78,7 @@ project(":html") {
 
 project(":core") {
     apply plugin: "java-library"
+    apply plugin: 'com.github.spotbugs'
 
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
@@ -85,5 +88,20 @@ project(":core") {
 //        api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
         // https://mvnrepository.com/artifact/com.google.code.gson/gson
         // api 'com.google.code.gson:gson:2.8.8'
+    }
+
+    spotbugs {
+        toolVersion = '4.2.2'
+        ignoreFailures = true
+        showStackTraces = false
+    }
+
+    spotbugsMain {
+        reports {
+            xml {
+                enabled = true
+                destination = file("$buildDir/reports/spotbugsXml.xml")
+            }
+        }
     }
 }
