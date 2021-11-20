@@ -1,14 +1,9 @@
 sourceCompatibility = 11
-dependencies {
-    implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
-    implementation 'org.testng:testng:7.1.0'
-    testImplementation 'org.mockito:mockito-core:4.0.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-}
+
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 sourceSets.main.java.srcDirs = ["src/"]
-sourceSets.test.java.srcDirs=["test/"]
+sourceSets.test.java.srcDirs = ["test/"]
 
 eclipse.project.name = appName + "-core"
 
