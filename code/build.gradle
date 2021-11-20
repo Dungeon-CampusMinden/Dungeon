@@ -88,6 +88,11 @@ project(":core") {
 //        api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
         // https://mvnrepository.com/artifact/com.google.code.gson/gson
         // api 'com.google.code.gson:gson:2.8.8'
+
+        implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
+        implementation 'org.testng:testng:7.1.0'
+        testImplementation 'org.mockito:mockito-core:4.0.0'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     }
 
     spotbugs {
