@@ -21,6 +21,7 @@ public class EntityController {
     public void update() {
         dungeonEntities.removeIf(obj -> obj.removable());
         dungeonEntities.forEach(obj -> obj.update());
+        dungeonEntities.forEach(obj -> obj.draw());
     }
 
     /**

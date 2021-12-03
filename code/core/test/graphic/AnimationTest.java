@@ -68,7 +68,6 @@ public class AnimationTest {
         assertEquals(mockedTexture1, a.getNextAnimationTexture());
         assertEquals(mockedTexture2, a.getNextAnimationTexture());
         assertEquals(mockedTexture2, a.getNextAnimationTexture());
-        ;
     }
 
     @Test

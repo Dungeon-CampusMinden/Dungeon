@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Frustum;
 import graphic.DungeonCamera;
-import interfaces.IDrawable;
+import interfaces.IEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tools.Point;
@@ -15,7 +15,7 @@ public class GraphicControllerTest {
 
     private GraphicController gc;
     private DungeonCamera camera;
-    private IDrawable drawable;
+    private IEntity drawable;
     private Texture texture;
     private Point p;
     private SpriteBatch batch;
@@ -26,7 +26,7 @@ public class GraphicControllerTest {
     public void init() {
         camera = mock(DungeonCamera.class);
         gc = new GraphicController(camera);
-        drawable = mock(IDrawable.class);
+        drawable = mock(IEntity.class);
         texture = mock(Texture.class);
         p = new Point(3, 3);
         batch = mock(SpriteBatch.class);
