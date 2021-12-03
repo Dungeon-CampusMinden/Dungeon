@@ -11,10 +11,10 @@ public class Animation {
     private final List<Texture> animationFrames;
     /** The count of textures for the animation */
     private final int frames;
-    /** The count that represents the index of the NEXT texture that will be returned */
-    private int currentFrameIndex = 0;
     /** How many frame to wait before switching to the next one */
     private final int frameTime;
+    /** The count that represents the index of the NEXT texture that will be returned */
+    private int currentFrameIndex = 0;
     /** How many frames since the last texture switching */
     private int frameTimeCounter = 0;
 

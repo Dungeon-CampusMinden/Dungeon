@@ -35,7 +35,9 @@ public class EntityControllerTest {
         ec.removeEntity(e2);
         ec.update();
         verify(e1).update();
+        verify(e1).draw();
         verify(e2, never()).update();
+        verify(e2, never()).draw();
     }
 
     @Test
@@ -46,7 +48,9 @@ public class EntityControllerTest {
         ec.addEntity(e2);
         ec.update();
         verify(e1).update();
+        verify(e1).draw();
         verify(e2).update();
+        verify(e2).draw();
     }
 
     @Test
