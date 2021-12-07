@@ -9,16 +9,16 @@ import java.util.Set;
 
 /** Keeps a list of Hud elements and makes sure they are drawn */
 public class HUDController {
-    private GraphicController graphicController;
-    private HUDCamera hudCamera;
-    private SpriteBatch batch;
-    private Set<IHUDElement> elements;
+    private final GraphicController graphicController;
+    private final HUDCamera hudCamera;
+    private final SpriteBatch batch;
+    private final Set<IHUDElement> elements;
 
     /**
      * Keeps a list of Hud elements and makes sure they are drawn
      *
      * @param batch batch for the hud
-     * @param graphicController
+     * @param graphicController the GraphicController
      */
     public HUDController(SpriteBatch batch, GraphicController graphicController, HUDCamera camera) {
         this.batch = batch;
@@ -29,20 +29,12 @@ public class HUDController {
         this.graphicController = graphicController;
     }
 
-    /**
-     * Adds an element to the HUD
-     *
-     * @param element
-     */
+    /** Adds an element to the HUD */
     public void addElement(IHUDElement element) {
         elements.add(element);
     }
 
-    /**
-     * Removes an element from the HUD
-     *
-     * @param element
-     */
+    /** Removes an element from the HUD */
     public void removeElement(IHUDElement element) {
         elements.remove(element);
     }
@@ -52,7 +44,7 @@ public class HUDController {
     }
 
     /** @return List with all the elements on the hud */
-    public Set getElements() {
+    public Set<IHUDElement> getElements() {
         return elements;
     }
 

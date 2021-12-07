@@ -14,7 +14,7 @@ public final class HtmlLauncher extends GwtApplication {
         // return new GwtApplicationConfiguration(true);
         // Fixed size application:
         GwtApplicationConfiguration config =
-                new GwtApplicationConfiguration(Constants.WIDTH, Constants.HEIGHT);
+                new GwtApplicationConfiguration(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
         config.disableAudio = true;
         return config;
     }

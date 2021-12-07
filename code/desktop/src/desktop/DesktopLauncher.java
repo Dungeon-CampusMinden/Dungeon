@@ -9,9 +9,9 @@ import tools.Constants;
 public final class DesktopLauncher {
     public static void run(MainController mc) {
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-        config.width = Constants.WIDTH;
-        config.height = Constants.HEIGHT;
-        config.foregroundFPS = Constants.FRAMERATE;
+        config.width = Constants.WINDOW_WIDTH;
+        config.height = Constants.WINDOW_HEIGHT;
+        config.foregroundFPS = Constants.FRAME_RATE;
         new LwjglApplication(new GameSetup(mc), config);
     }
 

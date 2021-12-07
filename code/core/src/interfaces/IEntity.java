@@ -24,14 +24,10 @@ public interface IEntity {
 
     TextureFactory getFactory();
 
-    /**
-     * Each drawable should use this controller to draw itself
-     *
-     * @return
-     */
+    /** Each drawable should use this controller to draw itself */
     GraphicController getGraphicController();
 
-    /** draws this instance on the spritebatch */
+    /** Draws this instance on the spritebatch */
     default void draw() {
         getGraphicController().draw(getTexture(), getPosition(), getBatch());
     }

@@ -7,11 +7,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public final class GameSetup extends Game {
 
     private final MainController mc;
+
     /**
-     * This INSTANCE is necessary to draw ALL the stuff. Every Object that uses draw need to know
-     * THIS INSTANCE
+     * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
+     * batch
      */
     private SpriteBatch batch;
+
     /** ApplicationListener that delegates to the MainGameController. Just some setup. */
     public GameSetup(MainController mc) {
         this.mc = mc;

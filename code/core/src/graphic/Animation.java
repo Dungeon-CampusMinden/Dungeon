@@ -9,12 +9,16 @@ public class Animation {
 
     /** The set of textures that build the animation. */
     private final List<Texture> animationFrames;
+
     /** The count of textures for the animation */
     private final int frames;
+
     /** How many frame to wait before switching to the next one */
     private final int frameTime;
+
     /** The count that represents the index of the NEXT texture that will be returned */
     private int currentFrameIndex = 0;
+
     /** How many frames since the last texture switching */
     private int frameTimeCounter = 0;
 
@@ -25,9 +29,12 @@ public class Animation {
      * @param frameTime How many frames to wait, before switching to the next texture
      */
     public Animation(List<Texture> animationFrames, int frameTime) {
-        if (animationFrames.isEmpty())
+        if (animationFrames.isEmpty()) {
             throw new IllegalArgumentException("An animation must have at least 1 frame");
-        if (frameTime < 0) throw new IllegalArgumentException("frameTime cant be lower than 0");
+        }
+        if (frameTime < 0) {
+            throw new IllegalArgumentException("frameTime cant be lower than 0");
+        }
         this.animationFrames = animationFrames;
         this.frames = animationFrames.size();
         this.frameTime = frameTime;
@@ -45,7 +52,9 @@ public class Animation {
             // after the last frame is returned, go back to the first frame
             currentFrameIndex = (currentFrameIndex + 1) % frames;
             frameTimeCounter = 0;
-        } else frameTimeCounter++;
+        } else {
+            frameTimeCounter++;
+        }
         return animationFrames.get(returnFrame);
     }
 }
