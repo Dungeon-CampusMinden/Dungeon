@@ -14,11 +14,7 @@ public class Point {
         this.y = y;
     }
 
-    /**
-     * Copy Point
-     *
-     * @param p
-     */
+    /** Copys the point */
     public Point(Point p) {
         this.x = p.x;
         this.y = p.y;

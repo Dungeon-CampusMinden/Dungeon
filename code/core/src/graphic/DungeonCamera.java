@@ -24,7 +24,7 @@ public class DungeonCamera extends OrthographicCamera {
         if (follows != null) this.follows = follows;
     }
 
-    /** update camera position */
+    /** Update camera position */
     public void update() {
         if (follows != null)
             this.position.set(
@@ -39,7 +39,7 @@ public class DungeonCamera extends OrthographicCamera {
     }
 
     /**
-     * set the entity to follow
+     * Set the entity to follow
      *
      * @param follows entity to follow
      */
@@ -63,12 +63,8 @@ public class DungeonCamera extends OrthographicCamera {
     }
 
     /**
-     * Checks, if the point (x,y) is probably been seen on the screen. Otherwise, don't redender
-     * this point.
-     *
-     * @param x the x coordinate
-     * @param y the y coordinate
-     * @return if the point is displayable
+     * Checks if the point (x,y) is probably been seen on the screen. Otherwise, don't redender this
+     * point.
      */
     public boolean isPointInFrustum(float x, float y) {
         final float OFFSET = 1f;

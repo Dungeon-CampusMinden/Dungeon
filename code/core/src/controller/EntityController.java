@@ -19,25 +19,17 @@ public class EntityController {
      * calls the update method for every entity in the list. removes entity if deletable is set true
      */
     public void update() {
-        dungeonEntities.removeIf(obj -> obj.removable());
-        dungeonEntities.forEach(obj -> obj.update());
-        dungeonEntities.forEach(obj -> obj.draw());
+        dungeonEntities.removeIf(IEntity::removable);
+        dungeonEntities.forEach(IEntity::update);
+        dungeonEntities.forEach(IEntity::draw);
     }
 
-    /**
-     * add an entity to the list
-     *
-     * @param entity
-     */
+    /** add an entity to the list */
     public void addEntity(IEntity entity) {
         dungeonEntities.add(entity);
     }
 
-    /**
-     * removes entity from the list
-     *
-     * @param entity
-     */
+    /** removes entity from the list */
     public void removeEntity(IEntity entity) {
         dungeonEntities.remove(entity);
     }
