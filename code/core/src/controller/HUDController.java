@@ -4,10 +4,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import graphic.HUDCamera;
 import interfaces.IHUDElement;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
-/** Keeps a list of Hud elements and makes sure they are drawn */
 public class HUDController {
     private final GraphicController graphicController;
     private final HUDCamera hudCamera;
@@ -15,40 +16,51 @@ public class HUDController {
     private final Set<IHUDElement> elements;
 
     /**
-     * Keeps a list of Hud elements and makes sure they are drawn
+     * Keeps a set of HUD elements and makes sure they are drawn.
      *
-     * @param batch batch for the hud
-     * @param graphicController the GraphicController
+     * @param batch the batch for the HUD
+     * @param graphicController the <code>GraphicController</code> for the HUD
      */
     public HUDController(SpriteBatch batch, GraphicController graphicController, HUDCamera camera) {
         this.batch = batch;
         hudCamera = camera;
         hudCamera.getPosition().set(0, 0, 0);
         hudCamera.update();
-        elements = new HashSet<>();
+        elements = new LinkedHashSet<>();
         this.graphicController = graphicController;
     }
 
-    /** Adds an element to the HUD */
+    /** Registers an element to the HUD. */
     public void addElement(IHUDElement element) {
         elements.add(element);
     }
 
-    /** Removes an element from the HUD */
+    /** Returns <code>true</code> if the element is registered. */
+    public boolean containsElement(IHUDElement element) {
+        return elements.contains(element);
+    }
+
+    /** Removes an element from the HUD. */
     public void removeElement(IHUDElement element) {
         elements.remove(element);
     }
 
+    /** Clears all HUD elements. */
     public void clearHUD() {
-        this.elements.clear();
+        elements.clear();
     }
 
-    /** @return List with all the elements on the hud */
-    public Set<IHUDElement> getElements() {
-        return elements;
+    /** Returns a copy set with all elements on the HUD. */
+    public Set<IHUDElement> getElementsSet() {
+        return new LinkedHashSet<>(elements);
     }
 
-    /** redraw hud and hud elements */
+    /** Returns a copy list with all elements on the HUD. */
+    public List<IHUDElement> getElementsList() {
+        return new ArrayList<>(elements);
+    }
+
+    /** Redraws the HUD and all HUD elements. */
     public void update() {
         hudCamera.update();
         batch.setProjectionMatrix(hudCamera.combined);

@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import interfaces.IEntity;
 import tools.Point;
 
-/** Sauron's eye */
+/** Sauron's eye. */
 public class DungeonCamera extends OrthographicCamera {
     private IEntity follows;
     private Point focusPoint;
@@ -15,31 +15,33 @@ public class DungeonCamera extends OrthographicCamera {
     /**
      * Creates a new camera.
      *
-     * @param follows the entity the camera should follow, null for default coordinates.
-     * @param vw virtual Width
-     * @param vh virtual Height
+     * @param follows the entity the camera should follow, <code>null</code> for default coordinates
+     * @param vw virtual width
+     * @param vh virtual height
      */
     public DungeonCamera(IEntity follows, float vw, float vh) {
         super(vw, vh);
-        if (follows != null) this.follows = follows;
+        if (follows != null) {
+            this.follows = follows;
+        }
     }
 
-    /** Update camera position */
+    /** Updates camera position. */
     public void update() {
-        if (follows != null)
-            this.position.set(
-                    this.getFollowedObject().getPosition().x,
-                    this.getFollowedObject().getPosition().y,
-                    0);
-        else {
-            if (focusPoint == null) focusPoint = new Point(0, 0);
+        if (follows != null) {
+            Point fp = getFollowedObject().getPosition();
+            position.set(fp.x, fp.y, 0);
+        } else {
+            if (focusPoint == null) {
+                focusPoint = new Point(0, 0);
+            }
             position.set(focusPoint.x, focusPoint.y, 0);
         }
         super.update();
     }
 
     /**
-     * Set the entity to follow
+     * Sets the entity to follow.
      *
      * @param follows entity to follow
      */
@@ -49,13 +51,13 @@ public class DungeonCamera extends OrthographicCamera {
 
     /** @return the entity the camera currently follows */
     public IEntity getFollowedObject() {
-        return this.follows;
+        return follows;
     }
 
     /**
-     * Stops following and set the camera on a fix position
+     * Stops following and set the camera on a fix position.
      *
-     * @param focusPoint Point to set the camera on
+     * @param focusPoint <code>Point</code> to set the camera on
      */
     public void setFocusPoint(Point focusPoint) {
         follows = null;
@@ -75,6 +77,7 @@ public class DungeonCamera extends OrthographicCamera {
         return frustum.boundsInFrustum(bounds);
     }
 
+    /** @return the camara frustum */
     public Frustum getFrustum() {
         return frustum;
     }

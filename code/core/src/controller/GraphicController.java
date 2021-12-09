@@ -6,12 +6,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import graphic.DungeonCamera;
 import tools.Point;
 
-/** Uses libGDX to draw sprites on the various SpriteBatches. */
+/** Uses LibGDX to draw sprites on the various <code>SpriteBatch</code>es. */
 public class GraphicController {
     private final DungeonCamera camera;
 
     /**
-     * Uses libGDX to draw sprites on the various SpriteBatches.
+     * Uses LibGDX to draw sprites on the various <code>SpriteBatch</code>es.
      *
      * @param camera only objects that are in the camera are drawn
      */
@@ -29,7 +29,6 @@ public class GraphicController {
             Point position,
             SpriteBatch batch) {
         if (isPointInFrustum((int) position.x, (int) position.y)) {
-
             Sprite sprite = new Sprite(texture);
             // set up scaling of textures
             sprite.setSize(xScaling, yScaling);
@@ -48,7 +47,7 @@ public class GraphicController {
     /** Draws the instance based on its position with default offset and default scaling. */
     public void draw(Texture texture, Point position, SpriteBatch batch) {
         // the concrete offset values are best guesses
-        this.draw(
+        draw(
                 -0.85f,
                 -0.5f,
                 1,
@@ -58,11 +57,10 @@ public class GraphicController {
                 batch);
     }
 
-    /** Draws the instance based on its position with default scaling and specific offset */
-    @SuppressWarnings("unused")
+    /** Draws the instance based on its position with default scaling and specific offset. */
     public void draw(
             float xOffset, float yOffset, Texture texture, Point position, SpriteBatch batch) {
-        this.draw(
+        draw(
                 xOffset,
                 yOffset,
                 1,
@@ -73,7 +71,6 @@ public class GraphicController {
     }
 
     /** Draws the instance based on its position with default offset and specific scaling. */
-    @SuppressWarnings("unused")
     public void drawWithScaling(
             float xScaling, float yScaling, Texture texture, Point position, SpriteBatch batch) {
         draw(-0.85f, -0.5f, xScaling, yScaling, texture, position, batch);

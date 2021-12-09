@@ -35,7 +35,7 @@ public class HUDControllerTest {
         hc.addElement(e1);
         hc.addElement(e2);
         hc.clearHUD();
-        assertTrue(hc.getElements().isEmpty());
+        assertTrue(hc.getElementsList().isEmpty());
     }
 
     @Test
