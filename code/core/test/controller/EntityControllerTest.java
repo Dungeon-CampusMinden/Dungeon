@@ -23,7 +23,7 @@ public class EntityControllerTest {
         ec.addEntity(e1);
         ec.addEntity(e2);
         ec.removeAll();
-        assertTrue(ec.getEntities().isEmpty());
+        assertTrue(ec.getEntitiesList().isEmpty());
     }
 
     @Test

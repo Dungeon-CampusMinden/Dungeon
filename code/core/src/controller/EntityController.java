@@ -2,21 +2,18 @@ package controller;
 
 import interfaces.IEntity;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
-/** Keeps a set of entities and calls their update method every frame */
+/** Keeps a set of entities and calls their update method every frame. */
 public class EntityController {
     /** Contains all the entities this controller handles. */
-    private final Set<IEntity> dungeonEntities;
-
-    /** Keeps a list of entities and calls their update method every frame */
-    public EntityController() {
-        dungeonEntities = new LinkedHashSet<>();
-    }
+    private final Set<IEntity> dungeonEntities = new LinkedHashSet<>();
 
     /**
-     * calls the update method for every entity in the list. removes entity if deletable is set true
+     * Removes deletable entities and calls the update and draw method for every registered entity.
      */
     public void update() {
         dungeonEntities.removeIf(IEntity::removable);
@@ -24,23 +21,33 @@ public class EntityController {
         dungeonEntities.forEach(IEntity::draw);
     }
 
-    /** add an entity to the list */
+    /** Register an entity. */
     public void addEntity(IEntity entity) {
         dungeonEntities.add(entity);
     }
 
-    /** removes entity from the list */
+    /** Returns <code>true</code> if the entity is registered. */
+    public boolean containsEntity(IEntity entity) {
+        return dungeonEntities.contains(entity);
+    }
+
+    /** Removes an entity from the set. */
     public void removeEntity(IEntity entity) {
         dungeonEntities.remove(entity);
     }
 
-    /** removes all entities from the list */
+    /** Removes all entities from the set. */
     public void removeAll() {
         dungeonEntities.clear();
     }
 
-    /** returns entity list */
-    public Set<IEntity> getEntities() {
-        return dungeonEntities;
+    /** Returns a copy set of all entities. */
+    public Set<IEntity> getEntitiesSet() {
+        return new LinkedHashSet<>(dungeonEntities);
+    }
+
+    /** Returns a copy list of all entities. */
+    public List<IEntity> getEntitiesList() {
+        return new ArrayList<>(dungeonEntities);
     }
 }

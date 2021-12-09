@@ -3,10 +3,10 @@ package interfaces;
 import com.badlogic.gdx.graphics.Texture;
 import graphic.Animation;
 
-/** Should be implemented by all objects that have an animation */
+/** Should be implemented by all objects that have an <code>Animation</code>. */
 public interface IAnimatable extends IEntity {
 
-    /** @return the current active animation (example idle or run) */
+    /** @return the current active <code>Animation</code> (example: idle or run) */
     Animation getActiveAnimation();
 
     @Override

@@ -4,10 +4,11 @@ import com.badlogic.gdx.graphics.Texture;
 import graphic.TextureFactory;
 import tools.Point;
 
-/* Should be implemented by all hud objects */
+/** Should be implemented by all HUD objects. */
 public interface IHUDElement {
+
     /**
-     * The position of hud elements are based on virtual coordinates.
+     * The position of HUD elements are based on virtual coordinates.
      *
      * @return the position
      */
