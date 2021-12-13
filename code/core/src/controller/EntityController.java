@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 /** Keeps a set of entities and calls their update method every frame. */
-public class EntityController {
+public class EntityController implements IController<IEntity> {
     /** Contains all the entities this controller handles. */
     private final Set<IEntity> dungeonEntities = new LinkedHashSet<>();
 
@@ -21,33 +21,39 @@ public class EntityController {
         dungeonEntities.forEach(IEntity::draw);
     }
 
-    /** Register an entity. */
-    public void addEntity(IEntity entity) {
-        dungeonEntities.add(entity);
-    }
-
-    /** Returns <code>true</code> if the entity is registered. */
-    public boolean containsEntity(IEntity entity) {
-        return dungeonEntities.contains(entity);
+    /** Registers an entity. */
+    @Override
+    public void add(IEntity element) {
+        dungeonEntities.add(element);
     }
 
     /** Removes an entity from the set. */
-    public void removeEntity(IEntity entity) {
-        dungeonEntities.remove(entity);
+    @Override
+    public void remove(IEntity element) {
+        dungeonEntities.remove(element);
+    }
+
+    /** Returns <code>true</code> if the entity is registered. */
+    @Override
+    public boolean contains(IEntity element) {
+        return dungeonEntities.contains(element);
     }
 
     /** Removes all entities from the set. */
+    @Override
     public void removeAll() {
         dungeonEntities.clear();
     }
 
     /** Returns a copy set of all entities. */
-    public Set<IEntity> getEntitiesSet() {
+    @Override
+    public Set<IEntity> getSet() {
         return new LinkedHashSet<>(dungeonEntities);
     }
 
     /** Returns a copy list of all entities. */
-    public List<IEntity> getEntitiesList() {
+    @Override
+    public List<IEntity> getList() {
         return new ArrayList<>(dungeonEntities);
     }
 }

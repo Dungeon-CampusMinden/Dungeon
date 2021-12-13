@@ -3,8 +3,8 @@ package client;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
-import controller.GameSetup;
 import controller.MainController;
+import controller.LibgdxSetup;
 import tools.Constants;
 
 public final class HtmlLauncher extends GwtApplication {
@@ -21,6 +21,6 @@ public final class HtmlLauncher extends GwtApplication {
 
     @Override
     public ApplicationListener createApplicationListener() {
-        return new GameSetup(new MainController());
+        return new LibgdxSetup(new MainController());
     }
 }

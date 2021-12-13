@@ -1,14 +1,12 @@
 package graphic;
 
-import com.badlogic.gdx.graphics.Texture;
-
 import java.util.List;
 
 /** A list of textures from an animation. */
 public class Animation {
 
     /** The set of textures that build the animation. */
-    private final List<Texture> animationFrames;
+    private final List<String> animationFrames;
 
     /** The count of textures for the animation. */
     private final int frames;
@@ -28,7 +26,7 @@ public class Animation {
      * @param animationFrames The list of textures that builds the animation. Must be in order.
      * @param frameTime How many frames to wait, before switching to the next texture?
      */
-    public Animation(List<Texture> animationFrames, int frameTime) {
+    public Animation(List<String> animationFrames, int frameTime) {
         if (animationFrames.isEmpty()) {
             throw new IllegalArgumentException("An animation must have at least 1 frame");
         }
@@ -45,7 +43,7 @@ public class Animation {
      *
      * @return The texture of the next animation step (draw this).
      */
-    public Texture getNextAnimationTexture() {
+    public String getNextAnimationTexture() {
         int returnFrame = currentFrameIndex;
         // is it time to switch frame?
         if (frameTimeCounter == frameTime) {
