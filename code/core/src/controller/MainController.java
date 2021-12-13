@@ -5,6 +5,8 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import graphic.DungeonCamera;
 import graphic.HUDCamera;
+import graphic.Painter;
+import level.LevelAPI;
 import tools.Constants;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
@@ -12,11 +14,13 @@ import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 /** The heart of the framework. From here all strings are pulled. */
 public class MainController extends ScreenAdapter {
     protected SpriteBatch batch;
-    protected LevelController levelController;
+    protected SpriteBatch hudBatch;
+    protected HUDCamera hudCamera;
+    protected LevelAPI levelAPI;
     protected EntityController entityController;
     protected DungeonCamera camera;
     protected HUDController hud;
-    protected GraphicController graphicController;
+    protected Painter painter;
 
     private boolean doFirstFrame = true;
 
@@ -48,7 +52,7 @@ public class MainController extends ScreenAdapter {
         batch.setProjectionMatrix(camera.combined);
 
         beginFrame();
-        levelController.update();
+        levelAPI.update();
         entityController.update();
         camera.update();
         hud.update();
@@ -59,9 +63,11 @@ public class MainController extends ScreenAdapter {
         doFirstFrame = false;
         entityController = new EntityController();
         setupCamera();
-        graphicController = new GraphicController(camera);
-        hud = new HUDController(new SpriteBatch(), graphicController, new HUDCamera());
-        levelController = new LevelController(batch, graphicController);
+        painter = new Painter(camera);
+        hudBatch = new SpriteBatch();
+        hudCamera = new HUDCamera();
+        hud = new HUDController(hudBatch, hudCamera);
+        levelAPI = new LevelAPI(batch, painter);
         setup();
     }
 

@@ -1,6 +1,5 @@
 package graphic;
 
-import com.badlogic.gdx.graphics.Texture;
 import jdk.jfr.Description;
 import org.junit.jupiter.api.Test;
 
@@ -53,44 +52,44 @@ public class AnimationTest {
     @Test
     @Description("Rotate Animation with frameTime=1")
     public void getNextAnimation_FrameTime1_True() {
-        Texture mockedTexture1 = mock(Texture.class);
-        Texture mockedTexture2 = mock(Texture.class);
+        String texture1 = "t1";
+        String texture2 = "t2";
         when(mockedList.isEmpty()).thenReturn(false);
         when(mockedList.size()).thenReturn(2);
-        when(mockedList.get(0)).thenReturn(mockedTexture1);
-        when(mockedList.get(1)).thenReturn(mockedTexture2);
+        when(mockedList.get(0)).thenReturn(texture1);
+        when(mockedList.get(1)).thenReturn(texture2);
         Animation a = new Animation(mockedList, 1);
-        assertEquals(mockedTexture1, a.getNextAnimationTexture());
-        assertEquals(mockedTexture1, a.getNextAnimationTexture());
-        assertEquals(mockedTexture2, a.getNextAnimationTexture());
-        assertEquals(mockedTexture2, a.getNextAnimationTexture());
-        assertEquals(mockedTexture1, a.getNextAnimationTexture());
-        assertEquals(mockedTexture1, a.getNextAnimationTexture());
-        assertEquals(mockedTexture2, a.getNextAnimationTexture());
-        assertEquals(mockedTexture2, a.getNextAnimationTexture());
+        assertEquals(texture1, a.getNextAnimationTexture());
+        assertEquals(texture1, a.getNextAnimationTexture());
+        assertEquals(texture2, a.getNextAnimationTexture());
+        assertEquals(texture2, a.getNextAnimationTexture());
+        assertEquals(texture1, a.getNextAnimationTexture());
+        assertEquals(texture1, a.getNextAnimationTexture());
+        assertEquals(texture2, a.getNextAnimationTexture());
+        assertEquals(texture2, a.getNextAnimationTexture());
     }
 
     @Test
     @Description("Rotate Animation with frameTime=0")
     public void getNextAnimation_FrameTime0_True() {
-        Texture mockedTexture1 = mock(Texture.class);
-        Texture mockedTexture2 = mock(Texture.class);
+        String texture1 = "t1";
+        String texture2 = "t2";
         when(mockedList.isEmpty()).thenReturn(false);
         when(mockedList.size()).thenReturn(2);
-        when(mockedList.get(0)).thenReturn(mockedTexture1);
-        when(mockedList.get(1)).thenReturn(mockedTexture2);
+        when(mockedList.get(0)).thenReturn(texture1);
+        when(mockedList.get(1)).thenReturn(texture2);
         Animation a = new Animation(mockedList, 0);
-        assertEquals(mockedTexture1, a.getNextAnimationTexture());
-        assertEquals(mockedTexture2, a.getNextAnimationTexture());
-        assertEquals(mockedTexture1, a.getNextAnimationTexture());
-        assertEquals(mockedTexture2, a.getNextAnimationTexture());
+        assertEquals(texture1, a.getNextAnimationTexture());
+        assertEquals(texture2, a.getNextAnimationTexture());
+        assertEquals(texture1, a.getNextAnimationTexture());
+        assertEquals(texture2, a.getNextAnimationTexture());
     }
 
     @Test
     @Description("Rotate Animation with frameTime=2")
     public void getNextAnimation_FrameTime2_True() {
-        Texture mockedTexture1 = mock(Texture.class);
-        Texture mockedTexture2 = mock(Texture.class);
+        String mockedTexture1 = "t1";
+        String mockedTexture2 = "t2";
         when(mockedList.isEmpty()).thenReturn(false);
         when(mockedList.size()).thenReturn(2);
         when(mockedList.get(0)).thenReturn(mockedTexture1);

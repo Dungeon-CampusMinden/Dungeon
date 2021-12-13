@@ -1,7 +1,7 @@
 package interfaces;
 
-import com.badlogic.gdx.graphics.Texture;
-import graphic.TextureFactory;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import graphic.Painter;
 import tools.Point;
 
 /** Should be implemented by all HUD objects. */
@@ -14,15 +14,11 @@ public interface IHUDElement {
      */
     Point getPosition();
 
-    Texture getTexture();
+    String getTexture();
 
-    TextureFactory getFactory();
+    Painter getGraphicController();
 
-    default float getWidth() {
-        return 0.5f;
-    }
-
-    default float getHeight() {
-        return getTexture().getHeight() / 2f;
+    default void draw(SpriteBatch batch) {
+        getGraphicController().draw(getTexture(), getPosition(), batch);
     }
 }

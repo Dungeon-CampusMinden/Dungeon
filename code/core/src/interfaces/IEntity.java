@@ -1,9 +1,7 @@
 package interfaces;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import controller.GraphicController;
-import graphic.TextureFactory;
+import graphic.Painter;
 import tools.Point;
 
 /**
@@ -23,13 +21,11 @@ public interface IEntity {
     /** @return the exact position in the dungeon of this instance */
     Point getPosition();
 
-    /** @return the (current) <code>Texture</code> of the object */
-    Texture getTexture();
-
-    TextureFactory getFactory();
+    /** @return the (current) Texture-Path of the object */
+    String getTexture();
 
     /** Each drawable should use this <code>GraphicController</code> to draw itself. */
-    GraphicController getGraphicController();
+    Painter getGraphicController();
 
     /** Draws this instance on the batch. */
     default void draw() {
