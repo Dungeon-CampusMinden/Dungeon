@@ -3,8 +3,8 @@ package client;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
-import controller.MainController;
 import controller.LibgdxSetup;
+import controller.MainController;
 import tools.Constants;
 
 public final class HtmlLauncher extends GwtApplication {
