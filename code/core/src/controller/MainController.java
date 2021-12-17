@@ -7,6 +7,9 @@ import graphic.DungeonCamera;
 import graphic.HUDCamera;
 import graphic.Painter;
 import level.LevelAPI;
+import level.generator.IGenerator;
+import level.generator.dummy.DummyGenerator;
+import level.generator.dungeong.levelg.LevelG;
 import tools.Constants;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
@@ -21,6 +24,7 @@ public class MainController extends ScreenAdapter {
     protected DungeonCamera camera;
     protected HUDController hud;
     protected Painter painter;
+    protected IGenerator generator;
 
     private boolean doFirstFrame = true;
 
@@ -67,7 +71,9 @@ public class MainController extends ScreenAdapter {
         hudBatch = new SpriteBatch();
         hudCamera = new HUDCamera();
         hud = new HUDController(hudBatch, hudCamera);
-        levelAPI = new LevelAPI(batch, painter);
+        if (Constants.USE_DUMMY_GENERATOR) generator = new DummyGenerator();
+        else generator = new LevelG();
+        levelAPI = new LevelAPI(batch, painter, generator);
         setup();
     }
 

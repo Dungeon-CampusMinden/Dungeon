@@ -16,4 +16,6 @@ public final class Constants {
 
     /** 200% zoom. */
     public static final float DEFAULT_ZOOM_FACTOR = 0.5f;
+
+    public static final boolean USE_DUMMY_GENERATOR = true;
 }

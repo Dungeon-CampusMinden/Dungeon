@@ -87,7 +87,7 @@ project(":core") {
 //        api "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
 //        api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
         // https://mvnrepository.com/artifact/com.google.code.gson/gson
-        // api 'com.google.code.gson:gson:2.8.8'
+//        api 'com.google.code.gson:gson:2.8.8'
 
         implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
         implementation 'org.testng:testng:7.1.0'
