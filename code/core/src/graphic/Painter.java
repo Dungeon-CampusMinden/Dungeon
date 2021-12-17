@@ -8,6 +8,7 @@ import tools.Point;
 /** Uses LibGDX to draw sprites on the various <code>SpriteBatch</code>es. */
 public class Painter {
     private final DungeonCamera camera;
+    private final TextureMap textureMap = new TextureMap();
 
     /**
      * Uses LibGDX to draw sprites on the various <code>SpriteBatch</code>es.
@@ -28,7 +29,7 @@ public class Painter {
             Point position,
             SpriteBatch batch) {
         if (isPointInFrustum((int) position.x, (int) position.y)) {
-            Sprite sprite = new Sprite(new Texture(texture));
+            Sprite sprite = new Sprite(textureMap.getTexture(texture));
             // set up scaling of textures
             sprite.setSize(xScaling, yScaling);
             // where to draw the sprite
@@ -46,7 +47,7 @@ public class Painter {
     /** Draws the instance based on its position with default offset and default scaling. */
     public void draw(String texture, Point position, SpriteBatch batch) {
         // the concrete offset values are best guesses
-        Texture t = new Texture(texture);
+        Texture t = textureMap.getTexture(texture);
 
         draw(
                 -0.85f,
@@ -61,7 +62,7 @@ public class Painter {
     /** Draws the instance based on its position with default scaling and specific offset. */
     public void draw(
             float xOffset, float yOffset, String texture, Point position, SpriteBatch batch) {
-        Texture t = new Texture(texture);
+        Texture t = textureMap.getTexture(texture);
         draw(
                 xOffset,
                 yOffset,
