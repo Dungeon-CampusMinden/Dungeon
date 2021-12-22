@@ -4,66 +4,64 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import graphic.HUDCamera;
 import interfaces.IHUDElement;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import tools.Point;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.*;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({HUDController.class})
 public class HUDControllerTest {
-
-    private HUDController hc;
     private SpriteBatch batch;
     private HUDCamera camera;
+    private IHUDElement element1;
+    private IHUDElement element2;
+    private HUDController controller;
 
-    @BeforeEach
-    public void init() {
-        this.batch = mock(SpriteBatch.class);
-        this.camera = mock(HUDCamera.class);
-        when(camera.getPosition()).thenReturn(new Vector3());
-        this.hc = new HUDController(this.batch, this.camera);
+    @Before
+    public void setUp() {
+        batch = Mockito.mock(SpriteBatch.class);
+        camera = Mockito.mock(HUDCamera.class);
+        element1 = Mockito.mock(IHUDElement.class);
+        element2 = Mockito.mock(IHUDElement.class);
+
+        Vector3 vector3toReturn = new Vector3();
+        when(camera.getPosition()).thenReturn(vector3toReturn);
+
+        controller = new HUDController(batch, camera);
     }
 
     @Test
-    public void clearHUD_True() {
-        IHUDElement e1 = mock(IHUDElement.class);
-        IHUDElement e2 = mock(IHUDElement.class);
-        hc.add(e1);
-        hc.add(e2);
-        hc.removeAll();
-        assertTrue(hc.getList().isEmpty());
+    public void test_update() {
+        assumeTrue(controller.add(element1));
+        assumeTrue(controller.add(element2));
+
+        controller.update();
+        // verify HUDController constructor logic:
+        verify(camera).getPosition();
+        verify(camera, atLeastOnce()).update();
+        // verify update method logic:
+        verify(batch).setProjectionMatrix(camera.combined);
+        verify(element1).draw(batch);
+        verify(element2).draw(batch);
+        verifyNoMoreInteractions(camera, batch, element1, element2);
     }
 
     @Test
-    public void update_FilledList_verify() {
-        IHUDElement e1 = mock(IHUDElement.class);
-        IHUDElement e2 = mock(IHUDElement.class);
-        when(e1.getPosition()).thenReturn(mock(Point.class));
-        when(e2.getPosition()).thenReturn(mock(Point.class));
-        hc.add(e1);
-        hc.add(e2);
-        hc.update();
-        verify(e1).draw(batch);
-        verify(e2).draw(batch);
-    }
+    public void test_update_empty() {
+        assumeTrue(controller.isEmpty());
 
-    @Test
-    public void update_FilledListWithOneRemove_True() {
-        IHUDElement e1 = mock(IHUDElement.class);
-        IHUDElement e2 = mock(IHUDElement.class);
-        when(e1.getPosition()).thenReturn(mock(Point.class));
-        when(e2.getPosition()).thenReturn(mock(Point.class));
-        hc.add(e1);
-        hc.add(e2);
-        hc.remove(e2);
-        hc.update();
-        verify(e1).draw(batch);
-        verify(e2, never()).draw(batch);
-    }
-
-    @Test
-    public void update_EmptyList_NoException() {
-        hc.update();
+        controller.update();
+        // verify HUDController constructor logic:
+        verify(camera).getPosition();
+        verify(camera, atLeastOnce()).update();
+        // verify update method logic:
+        verify(batch).setProjectionMatrix(camera.combined);
+        verifyNoMoreInteractions(camera, batch, element1, element2);
     }
 }
