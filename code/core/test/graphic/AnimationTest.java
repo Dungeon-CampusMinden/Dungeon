@@ -1,111 +1,48 @@
 package graphic;
 
-import jdk.jfr.Description;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
 
-public class AnimationTest {
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Animation.class})
+class AnimationTest {
+    // Because of use of PowerMockRunner we need an empty constructor here
+    public AnimationTest() {}
 
-    private List mockedList = mock(List.class);
+    @Test(expected = NullPointerException.class)
+    public void test_constructor_1() {
+        new Animation(null, 10);
+    }
 
-    @Test
-    @Description("Create Animation with empty list")
-    public void constructor_EmptyTextureList_ThrowsException() {
-        when(mockedList.isEmpty()).thenReturn(true);
-        IllegalArgumentException exception =
-                assertThrows(
-                        IllegalArgumentException.class,
-                        () -> {
-                            new Animation(mockedList, 2);
-                        });
-        assertEquals("An animation must have at least 1 frame", exception.getMessage());
+    @Test(expected = IllegalArgumentException.class)
+    public void test_constructor_2() {
+        new Animation(new ArrayList<>(), 10);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_constructor_3() {
+        new Animation(List.of("someValidTexture"), -10);
     }
 
     @Test
-    @Description("Create Animation with 0 frameTime")
-    public void constructor_0FrameTime_NoException() {
-        when(mockedList.isEmpty()).thenReturn(false);
-        when(mockedList.size()).thenReturn(2);
-        new Animation(mockedList, 0);
-    }
+    public void test_getNextAnimationTexture() {
+        // Idea: An animation with 3 textures and a frame time of 10 should return 10 (or 11) times
+        // the current texture.
 
-    @Test
-    @Description("Create Animation with negative frameTime")
-    public void constructor_NegativeFrameTime_ThrowsException() {
-        when(mockedList.isEmpty()).thenReturn(false);
-        when(mockedList.size()).thenReturn(2);
-        IllegalArgumentException exception =
-                assertThrows(
-                        IllegalArgumentException.class,
-                        () -> {
-                            new Animation(mockedList, -1);
-                        });
-        assertEquals("frameTime cant be lower than 0", exception.getMessage());
-    }
+        Animation animation = new Animation(List.of("1", "2", "3"), 10);
+        for (int i = 0; i < 100; i++) {
+            for (int j = 0; j < 11; j++) {
+                assertEquals(String.valueOf(i % 3 + 1), animation.getNextAnimationTexture());
+            }
+        }
 
-    @Test
-    @Description("Rotate Animation with frameTime=1")
-    public void getNextAnimation_FrameTime1_True() {
-        String texture1 = "t1";
-        String texture2 = "t2";
-        when(mockedList.isEmpty()).thenReturn(false);
-        when(mockedList.size()).thenReturn(2);
-        when(mockedList.get(0)).thenReturn(texture1);
-        when(mockedList.get(1)).thenReturn(texture2);
-        Animation a = new Animation(mockedList, 1);
-        assertEquals(texture1, a.getNextAnimationTexture());
-        assertEquals(texture1, a.getNextAnimationTexture());
-        assertEquals(texture2, a.getNextAnimationTexture());
-        assertEquals(texture2, a.getNextAnimationTexture());
-        assertEquals(texture1, a.getNextAnimationTexture());
-        assertEquals(texture1, a.getNextAnimationTexture());
-        assertEquals(texture2, a.getNextAnimationTexture());
-        assertEquals(texture2, a.getNextAnimationTexture());
-    }
-
-    @Test
-    @Description("Rotate Animation with frameTime=0")
-    public void getNextAnimation_FrameTime0_True() {
-        String texture1 = "t1";
-        String texture2 = "t2";
-        when(mockedList.isEmpty()).thenReturn(false);
-        when(mockedList.size()).thenReturn(2);
-        when(mockedList.get(0)).thenReturn(texture1);
-        when(mockedList.get(1)).thenReturn(texture2);
-        Animation a = new Animation(mockedList, 0);
-        assertEquals(texture1, a.getNextAnimationTexture());
-        assertEquals(texture2, a.getNextAnimationTexture());
-        assertEquals(texture1, a.getNextAnimationTexture());
-        assertEquals(texture2, a.getNextAnimationTexture());
-    }
-
-    @Test
-    @Description("Rotate Animation with frameTime=2")
-    public void getNextAnimation_FrameTime2_True() {
-        String mockedTexture1 = "t1";
-        String mockedTexture2 = "t2";
-        when(mockedList.isEmpty()).thenReturn(false);
-        when(mockedList.size()).thenReturn(2);
-        when(mockedList.get(0)).thenReturn(mockedTexture1);
-        when(mockedList.get(1)).thenReturn(mockedTexture2);
-        Animation a = new Animation(mockedList, 2);
-        assertEquals(mockedTexture1, a.getNextAnimationTexture());
-        assertEquals(mockedTexture1, a.getNextAnimationTexture());
-        assertEquals(mockedTexture1, a.getNextAnimationTexture());
-        assertEquals(mockedTexture2, a.getNextAnimationTexture());
-        assertEquals(mockedTexture2, a.getNextAnimationTexture());
-        assertEquals(mockedTexture2, a.getNextAnimationTexture());
-        assertEquals(mockedTexture1, a.getNextAnimationTexture());
-        assertEquals(mockedTexture1, a.getNextAnimationTexture());
-        assertEquals(mockedTexture1, a.getNextAnimationTexture());
-        assertEquals(mockedTexture2, a.getNextAnimationTexture());
-        assertEquals(mockedTexture2, a.getNextAnimationTexture());
-        assertEquals(mockedTexture2, a.getNextAnimationTexture());
+        // Why 11 times the same value, when the frame time is 10?
     }
 }
