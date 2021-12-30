@@ -29,7 +29,6 @@ public class PainterTest {
         batch = Mockito.mock(SpriteBatch.class);
         painter = Mockito.spy(new Painter(cam));
         frustum = Mockito.mock(Frustum.class);
-
         Mockito.when(cam.getFrustum()).thenReturn(frustum);
         Mockito.when(frustum.pointInFrustum(anyFloat(), anyFloat(), anyFloat())).thenReturn(true);
     }

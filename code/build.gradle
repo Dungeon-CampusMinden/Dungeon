@@ -54,6 +54,7 @@ project(":desktop") {
 //        api "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
 //        api "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
 //        api "com.badlogicgames.gdx-controllers:gdx-controllers-desktop:$gdxControllersVersion"
+        api "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
     }
 }
 
@@ -67,7 +68,7 @@ project(":core") {
 //        api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
 //        api "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
 //        api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
-
+        api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
         // JUnit 4, Mockito and Powermock for testing:
 
         // https://mvnrepository.com/artifact/junit/junit
