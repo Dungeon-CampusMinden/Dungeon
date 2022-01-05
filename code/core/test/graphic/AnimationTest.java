@@ -16,17 +16,17 @@ class AnimationTest {
     // Because of use of PowerMockRunner we need an empty constructor here
     public AnimationTest() {}
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = AssertionError.class)
     public void test_constructor_1() {
         new Animation(null, 10);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = AssertionError.class)
     public void test_constructor_2() {
         new Animation(new ArrayList<>(), 10);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = AssertionError.class)
     public void test_constructor_3() {
         new Animation(List.of("someValidTexture"), -10);
     }
@@ -38,11 +38,9 @@ class AnimationTest {
 
         Animation animation = new Animation(List.of("1", "2", "3"), 10);
         for (int i = 0; i < 100; i++) {
-            for (int j = 0; j < 11; j++) {
+            for (int j = 0; j < 10; j++) {
                 assertEquals(String.valueOf(i % 3 + 1), animation.getNextAnimationTexture());
             }
         }
-
-        // Why 11 times the same value, when the frame time is 10?
     }
 }

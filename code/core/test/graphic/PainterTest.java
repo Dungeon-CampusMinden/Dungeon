@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import textures.TextureMap;
 import tools.Point;
 
 import static org.mockito.ArgumentMatchers.anyFloat;
@@ -24,7 +25,7 @@ public class PainterTest {
     Frustum frustum;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         cam = Mockito.mock(DungeonCamera.class);
         batch = Mockito.mock(SpriteBatch.class);
         painter = Mockito.spy(new Painter(cam));
