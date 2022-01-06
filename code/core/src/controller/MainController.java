@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import graphic.DungeonCamera;
 import graphic.HUDCamera;
 import graphic.Painter;
+import level.IOnLevelLoader;
 import level.LevelAPI;
 import level.generator.IGenerator;
 import level.generator.dummy.DummyGenerator;
@@ -15,7 +16,7 @@ import tools.Constants;
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
 /** The heart of the framework. From here all strings are pulled. */
-public class MainController extends ScreenAdapter {
+public abstract class MainController extends ScreenAdapter implements IOnLevelLoader {
     protected SpriteBatch batch;
     protected SpriteBatch hudBatch;
     protected HUDCamera hudCamera;
@@ -29,13 +30,12 @@ public class MainController extends ScreenAdapter {
     private boolean doFirstFrame = true;
 
     // --------------------------- OWN IMPLEMENTATION ---------------------------
-    protected void setup() {}
+    protected abstract void setup();
 
-    protected void beginFrame() {}
+    protected abstract void beginFrame();
 
-    protected void endFrame() {}
+    protected abstract void endFrame();
 
-    protected void onLevelLoad() {}
     // --------------------------- END OWN IMPLEMENTATION ------------------------
 
     /**
@@ -73,7 +73,7 @@ public class MainController extends ScreenAdapter {
         hud = new HUDController(hudBatch, hudCamera);
         if (Constants.USE_DUMMY_GENERATOR) generator = new DummyGenerator();
         else generator = new LevelG();
-        levelAPI = new LevelAPI(batch, painter, generator);
+        levelAPI = new LevelAPI(batch, painter, generator, this);
         setup();
     }
 

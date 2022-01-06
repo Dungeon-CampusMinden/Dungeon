@@ -30,4 +30,7 @@ public class MyController extends MainController {
     protected void endFrame() {
         camera.setFocusPoint(p);
     }
+
+    @Override
+    public void onLevelLoad() {}
 }
