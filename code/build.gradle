@@ -35,8 +35,11 @@ dependencies {
     implementation 'org.gretty:gretty:+'
     implementation "com.github.spotbugs.snom:spotbugs-gradle-plugin:4.7.9"
 
-    api "com.badlogicgames.gdx:gdx:$gdxVersion"
-    api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
 
     // JUnit 4, Mockito and Powermock for testing:
     // https://mvnrepository.com/artifact/junit/junit
@@ -47,7 +50,6 @@ dependencies {
     // https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito2
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.9'
 }
-
 
 test {
     testLogging {
@@ -68,4 +70,10 @@ spotbugsMain {
             destination = file("$buildDir/reports/spotbugsXml.xml")
         }
     }
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
 }
