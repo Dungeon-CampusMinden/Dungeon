@@ -1,23 +1,23 @@
 plugins {
-    id 'java'
-    id 'com.github.spotbugs' version '4.7.9' apply true
+    id "java"
+    id "com.github.spotbugs" version "4.7.9" apply true
     id "eclipse"
     id "java-library"
 }
 
-version = '1.0'
+version = "1.0"
 ext {
     appName = "pmdungeon"
-    gdxVersion = '1.10.0'
-    roboVMVersion = '2.3.12'
-    box2DLightsVersion = '1.5'
-    ashleyVersion = '1.7.3'
-    aiVersion = '1.8.2'
-    gdxControllersVersion = '2.1.0'
+    gdxVersion = "1.10.0"
+    roboVMVersion = "2.3.12"
+    box2DLightsVersion = "1.5"
+    ashleyVersion = "1.7.3"
+    aiVersion = "1.8.2"
+    gdxControllersVersion = "2.1.0"
 }
 
 sourceCompatibility = 17
-[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+[compileJava, compileTestJava]*.options*.encoding = "UTF-8"
 sourceSets.main.java.srcDirs = ["core/src/"]
 sourceSets.test.java.srcDirs = ["core/test/"]
 eclipse.project.name = appName + "-core"
@@ -31,10 +31,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.wisepersist:gwt-gradle-plugin:+'
-    implementation 'org.gretty:gretty:+'
-    implementation "com.github.spotbugs.snom:spotbugs-gradle-plugin:4.7.9"
-
+    // LibGDX
     implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
@@ -43,12 +40,12 @@ dependencies {
 
     // JUnit 4, Mockito and Powermock for testing:
     // https://mvnrepository.com/artifact/junit/junit
-    testImplementation 'junit:junit:4.13.2'
+    testImplementation "junit:junit:4.13.2"
 
     // https://mvnrepository.com/artifact/org.powermock/powermock-module-junit4
-    testImplementation 'org.powermock:powermock-module-junit4:2.0.9'
+    testImplementation "org.powermock:powermock-module-junit4:2.0.9"
     // https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito2
-    testImplementation 'org.powermock:powermock-api-mockito2:2.0.9'
+    testImplementation "org.powermock:powermock-api-mockito2:2.0.9"
 }
 
 test {
@@ -58,7 +55,7 @@ test {
 }
 
 spotbugs {
-    toolVersion = '4.2.2'
+    toolVersion = "4.2.2"
     ignoreFailures = true
     showStackTraces = false
 }
@@ -73,7 +70,7 @@ spotbugsMain {
 }
 
 jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+//    exclude "META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA"
 }
