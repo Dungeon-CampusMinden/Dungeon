@@ -4,8 +4,10 @@ plugins {
     id "eclipse"
     id "java-library"
     id "maven-publish"
+    id "signing"
 }
 
+group = "io.github.pm-dungeon"
 version = "1.0"
 ext {
     appName = "pmdungeon"
@@ -70,10 +72,9 @@ spotbugsMain {
     }
 }
 
-jar {
-//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-//    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-//    exclude "META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA"
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 publishing {
@@ -81,7 +82,7 @@ publishing {
         maven(MavenPublication) {
             groupId = "io.github.pm-dungeon"
             artifactId = "core"
-            version = "1.0.3"
+            version = "1.0.4"
 
             from components.java
         }
@@ -96,5 +97,23 @@ publishing {
                 password = System.getenv("MAVEN_PASSWORD")
             }
         }
+    }
+}
+
+signing {
+    useInMemoryPgpKeys("$System.env.GPG_PRIVATE_KEY", "$System.env.PASSPHRASE")
+    sign configurations.archives
+}
+
+tasks.withType(Javadoc) {
+    // failOnError false
+    options.addStringOption("Xdoclint:none", "-quiet")
+    options.addStringOption("encoding", "UTF-8")
+    options.addStringOption("charSet", "UTF-8")
+}
+
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption("html5", true)
     }
 }

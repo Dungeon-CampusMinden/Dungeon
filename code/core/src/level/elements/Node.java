@@ -12,11 +12,7 @@ public class Node {
         this.index = index;
     }
 
-    /**
-     * copy node
-     *
-     * @return
-     */
+    /** copy node */
     public Node(Node n) {
         this.setIndex(n.getIndex());
     }

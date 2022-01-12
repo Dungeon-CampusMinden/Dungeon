@@ -19,6 +19,9 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew assemble
         working-directory: code
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          PASSPHRASE: ${{ secrets.PASSPHRASE }}
   junit-test:
     needs: build
     name: JUnit Test
