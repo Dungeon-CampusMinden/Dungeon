@@ -82,9 +82,43 @@ publishing {
         maven(MavenPublication) {
             groupId = "io.github.pm-dungeon"
             artifactId = "core"
-            version = "1.0.4"
+            version = "1.0.5"
 
             from components.java
+
+            pom {
+                name = "PM-Dungeon core"
+                description = "The pmdungeon is a lightweight, libgdx based, Java framework for the development of a 2D rogue like."
+                url = "https://github.com/PM-Dungeon/core"
+                licenses {
+                    license {
+                        name = "MIT License"
+                        url = "https://github.com/PM-Dungeon/core/blob/master/LICENSE.md"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "AMatutat"
+                        name = "André Matutat"
+                        email = ""
+                    }
+                    developer {
+                        id = "cagix"
+                        name = "Carsten Gips"
+                        email = ""
+                    }
+                    developer {
+                        id = "Tobias321"
+                        name = "Tobias Grothe"
+                        email = ""
+                    }
+                }
+                scm {
+                    connection = "scm:git:https://github.com/PM-Dungeon/core.git"
+                    developerConnection = ""
+                    url = "https://github.com/PM-Dungeon/core"
+                }
+            }
         }
     }
 
@@ -102,7 +136,7 @@ publishing {
 
 signing {
     useInMemoryPgpKeys("$System.env.GPG_PRIVATE_KEY", "$System.env.PASSPHRASE")
-    sign configurations.archives
+    sign publishing.publications
 }
 
 tasks.withType(Javadoc) {
