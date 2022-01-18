@@ -6,7 +6,6 @@ import controller.MainController;
 import tools.Point;
 
 public class MyController extends MainController {
-
     Point p = new Point(3, 3);
 
     @Override
