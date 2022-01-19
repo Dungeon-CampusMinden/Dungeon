@@ -156,6 +156,4 @@ javadoc {
 nexusStaging {
     // required only for projects registered in Sonatype after 2021-02-24
     serverUrl = "https://s01.oss.sonatype.org/service/local/"
-    // optional if packageGroup == project.getGroup()
-    packageGroup = "io.github.pm-dungeon"
 }
