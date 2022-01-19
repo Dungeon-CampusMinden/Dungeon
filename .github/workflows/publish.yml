@@ -20,7 +20,7 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
       - name: Publish package
-        run: ./gradlew publish closeAndReleaseRepository
+        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
         working-directory: code
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
