@@ -1,7 +1,7 @@
 plugins {
     id "java"
-    id "com.github.spotbugs" version "4.7.9" apply true
     id "eclipse"
+    id "com.github.spotbugs" version "4.7.9"
     id "java-library"
     id "maven-publish"
     id "signing"
@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "io.github.pm-dungeon"
-version = "1.0.7"
+version = "1.0.8"
 ext {
     appName = "pmdungeon"
     gdxVersion = "1.10.0"
@@ -83,7 +83,7 @@ publishing {
         maven(MavenPublication) {
             groupId = "io.github.pm-dungeon"
             artifactId = "core"
-            version = "1.0.7"
+            version = project.version
 
             from components.java
 
@@ -101,17 +101,17 @@ publishing {
                     developer {
                         id = "AMatutat"
                         name = "André Matutat"
-                        email = ""
+                        email = "pm-dungeon@fh-bielefeld.de"
                     }
                     developer {
                         id = "cagix"
                         name = "Carsten Gips"
-                        email = ""
+                        email = "pm-dungeon@fh-bielefeld.de"
                     }
                     developer {
                         id = "Tobias321"
                         name = "Tobias Grothe"
-                        email = ""
+                        email = "pm-dungeon@fh-bielefeld.de"
                     }
                 }
                 scm {
