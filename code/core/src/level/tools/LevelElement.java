@@ -8,13 +8,14 @@ package level.tools;
 public enum LevelElement {
     SKIP(-2),
     /** This field can be replaced with another one */
-    WILDCARD(-1),
+    WILD(-1),
     /** This field is a floor-field */
     FLOOR(0),
     /** This field is a wall-field */
     WALL(1),
     /** This field is the exit-field to the next level */
-    EXIT(3);
+    EXIT(3),
+    DOOR(4);
 
     private int value;
 

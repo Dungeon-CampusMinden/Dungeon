@@ -3,16 +3,20 @@ package level;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import graphic.Painter;
 import level.elements.Level;
-import level.elements.Room;
-import level.elements.Tile;
+import level.elements.room.Room;
+import level.elements.room.Tile;
 import level.generator.IGenerator;
+import level.generator.dungeong.graphg.NoSolutionException;
+import level.tools.DesignLabel;
+import level.tools.LevelElement;
+import tools.Point;
 
 public class LevelAPI {
-    private Level currentLevel;
-    private SpriteBatch batch;
-    private Painter painter;
+    private final SpriteBatch batch;
+    private final Painter painter;
+    private final IOnLevelLoader onLevelLoader;
     private IGenerator gen;
-    private IOnLevelLoader onLevelLoader;
+    private Level currentLevel;
 
     public LevelAPI(
             SpriteBatch batch, Painter painter, IGenerator gen, IOnLevelLoader onLevelLoader) {
@@ -25,7 +29,12 @@ public class LevelAPI {
     public void loadLevel() {
         currentLevel = gen.getLevel();
         onLevelLoader.onLevelLoad();
-        // currentLevel = createDummyLevel();
+    }
+
+    public void loadLevel(int nodes, int edges, DesignLabel designLabel)
+            throws NoSolutionException {
+        currentLevel = gen.getLevel(nodes, edges, designLabel);
+        onLevelLoader.onLevelLoad();
     }
 
     public void update() {
@@ -41,7 +50,15 @@ public class LevelAPI {
             for (int y = 0; y < r.getLayout().length; y++)
                 for (int x = 0; x < r.getLayout()[0].length; x++) {
                     Tile t = r.getLayout()[y][x];
-                    painter.draw(t.getTexture(), t.getGlobalPosition(), batch);
+                    if (t.getLevelElement() != LevelElement.SKIP)
+                        painter.draw(
+                                t.getTexture(),
+                                new Point(t.getGlobalPosition().x, t.getGlobalPosition().y),
+                                batch);
                 }
+    }
+
+    public void setGenerator(IGenerator generator) {
+        gen = generator;
     }
 }

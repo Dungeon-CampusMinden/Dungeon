@@ -7,11 +7,6 @@ package level.tools;
  */
 public enum DesignLabel {
     DEFAULT,
-    FIRE,
-    FOREST,
-    WATER,
-    HELL,
-    DUNGEON,
     ICE,
     ALL
 }

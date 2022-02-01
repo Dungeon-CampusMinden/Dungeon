@@ -9,7 +9,6 @@ import graphic.Painter;
 import level.IOnLevelLoader;
 import level.LevelAPI;
 import level.generator.IGenerator;
-import level.generator.dummy.DummyGenerator;
 import level.generator.dungeong.levelg.LevelG;
 import tools.Constants;
 
@@ -71,8 +70,11 @@ public abstract class MainController extends ScreenAdapter implements IOnLevelLo
         hudBatch = new SpriteBatch();
         hudCamera = new HUDCamera();
         hud = new HUDController(hudBatch, hudCamera);
-        if (Constants.USE_DUMMY_GENERATOR) generator = new DummyGenerator();
-        else generator = new LevelG();
+        generator =
+                new LevelG(
+                        Constants.PATH_TO_ROOMTEMPLATES,
+                        Constants.PATH_TO_REPLACEMENTS,
+                        Constants.PATH_TO_GRAPH); // DungeonG
         levelAPI = new LevelAPI(batch, painter, generator, this);
         setup();
     }

@@ -1,22 +1,49 @@
 package level.generator.dungeong.graphg;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonValue;
-import level.elements.Graph;
-import level.elements.Node;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import level.elements.graph.Graph;
+import level.elements.graph.Node;
 
+import java.io.*;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/** @author Andre Matutat */
+/**
+ * Can read in graphs from .json or can generate new graphs.
+ *
+ * @author Andre Matutat
+ */
 public class GraphG {
+    private static final int MAX_SOLUTIONS = 1000;
+
+    /**
+     * Read in a graph from .json with the given configuration.
+     *
+     * @param nodes Number of nodes in the graph.
+     * @param edges Numbers of extra edges in the graph.
+     * @param path Path to the .json folder (not to the exact file).
+     * @return A graph. Can be null if no .json for this configuration was found.
+     */
     public Graph getGraph(int nodes, int edges, String path) {
         path += "/" + nodes + "_" + edges + ".json";
         List<Graph> sol = null;
         sol = readFromJson(path);
+        return sol.get(new Random().nextInt(sol.size()));
+    }
+    /**
+     * Read in a graph from a given .json.
+     *
+     * @param json Path to the exact json file.
+     * @return A graph. Can be null if no .json for this configuration was found.
+     */
+    public Graph getGraph(String json) {
+        List<Graph> sol = null;
+        sol = readFromJson(json);
         return sol.get(new Random().nextInt(sol.size()));
     }
 
@@ -51,9 +78,17 @@ public class GraphG {
         return solutions;
     }
 
+    /**
+     * Calculates all trees for the configuration.
+     *
+     * @param trees Already calculated trees.
+     * @param nodesLeft Number of nodes that are left to add to the graph.
+     * @return All trees.
+     */
     private List<Graph> calculateTrees(List<Graph> trees, int nodesLeft) {
         if (nodesLeft <= 0) return trees;
         else {
+            reduceGraph(trees);
             List<Graph> newTrees = new ArrayList<>();
             for (Graph t : trees)
                 for (Node n : t.getNodes()) {
@@ -66,9 +101,17 @@ public class GraphG {
         }
     }
 
+    /**
+     * Calculate all graphs.
+     *
+     * @param graphs Already caluclated graphs. Start with trees.
+     * @param edgesLeft Number of edges left to add to the graph.
+     * @return All graphs.
+     */
     private List<Graph> calculateGraphs(List<Graph> graphs, int edgesLeft) {
         if (edgesLeft <= 0) return graphs;
         else {
+            reduceGraph(graphs);
             List<Graph> newGraphs = new ArrayList<>();
             for (Graph g : graphs)
                 for (Node n1 : g.getNodes())
@@ -84,26 +127,51 @@ public class GraphG {
         }
     }
 
+    /**
+     * Read in a .json file with graphs
+     *
+     * @param path Path to json.
+     * @return All graphs in the file.
+     */
     private List<Graph> readFromJson(String path) {
-        Json json = new Json();
-        List<JsonValue> list = json.fromJson(List.class, Gdx.files.internal(path));
-        List<Graph> graphs = new ArrayList<>();
-        for (JsonValue v : list) {
-            graphs.add(json.readValue(Graph.class, v));
+        Type graphType = new TypeToken<ArrayList<Graph>>() {}.getType();
+        try {
+            JsonReader reader = new JsonReader(new FileReader(path, StandardCharsets.UTF_8));
+            return new Gson().fromJson(reader, graphType);
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found.");
+            e.printStackTrace();
+            return new ArrayList<>();
+        } catch (IOException e) {
+            System.out.println("File may be corrupted ");
+            e.printStackTrace();
+            return new ArrayList<>();
         }
-        return graphs;
     }
 
     /**
-     * Writes down the list to a json
+     * Writes down a list of graphs to a .json.
      *
-     * @param graphs the list of rooms to save
-     * @param path where to save
+     * @param graphs The list of rooms to save.
+     * @param path Where to save?
      */
     public void writeToJSON(List<Graph> graphs, String path) {
-        Json json = new Json();
-        String listInJson = json.toJson(graphs);
-        FileHandle file = Gdx.files.local(path);
-        file.writeString(listInJson, false);
+        Gson gson = new Gson();
+        String json = gson.toJson(graphs);
+        try {
+            BufferedWriter writer =
+                    new BufferedWriter(new FileWriter(path, StandardCharsets.UTF_8));
+            writer.write(json);
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("File" + path + " not found");
+        }
+    }
+
+    private void reduceGraph(List<Graph> graphs) {
+        Random r = new Random();
+        while (graphs.size() > MAX_SOLUTIONS) {
+            graphs.remove(r.nextInt(graphs.size()));
+        }
     }
 }

@@ -1,26 +1,27 @@
 package level.generator.dungeong.roomg;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonValue;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
 
+import java.io.*;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * loads and stores replacements from a jsons
+ * Loads and stores replacements from a .json.
  *
  * @author Andre Matutat
  */
 public class ReplacementLoader {
     private List<Replacement> replacements = new ArrayList<>();
-    ;
 
     /**
-     * Creates a ReplacementLoader and loads the replacements from the json. if the json is empty,
+     * Creates a ReplacementLoader and loads the replacements from the json. if the .json is empty,
      * the list is empty
      *
      * @param path path to json
@@ -30,23 +31,43 @@ public class ReplacementLoader {
     }
 
     /**
-     * Returns a list of Replacements that have the corresponding DesignLabel
+     * Writes down a list of replacments to a .json.
      *
-     * @param l the DesignLabel, use ALL if you don't care
-     * @return the list
+     * @param rep The list of replacements to save.
+     * @param path Where to save?
      */
-    public List<Replacement> getReplacements(DesignLabel l) {
+    public static void writeToJSON(List<Replacement> rep, String path) {
+        Gson gson = new Gson();
+        String json = gson.toJson(rep);
+        try {
+            BufferedWriter writer =
+                    new BufferedWriter(new FileWriter(path, StandardCharsets.UTF_8));
+            writer.write(json);
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("File" + path + " not found");
+        }
+    }
+
+    /**
+     * Returns a list of Replacements that have the corresponding DesignLabel.
+     *
+     * @param label The DesignLabel, use ALL if you don't care.
+     * @return The list with replacments.
+     */
+    public List<Replacement> getReplacements(DesignLabel label) {
         List<Replacement> results = new ArrayList<>(replacements);
-        if (l != DesignLabel.ALL) results.removeIf(r -> r.getDesign() != l);
+        if (label != DesignLabel.ALL)
+            results.removeIf(r -> r.getDesign() != label && r.getDesign() != DesignLabel.ALL);
         return results;
     }
 
     /**
-     * rotate the layout of the given replacement in 90 degree and create a new replacement with the
+     * Rotate the layout of the given replacement in 90 degree and create a new replacement with the
      * rotated layout
      *
-     * @param r the Replacement that holds the layout to rotate
-     * @return new Replacement with rotated layout
+     * @param r The Replacement that holds the layout to rotate
+     * @return New Replacement with rotated layout
      */
     private Replacement rotate90(final Replacement r) {
         LevelElement[][] originalLayout = r.getLayout();
@@ -60,40 +81,45 @@ public class ReplacementLoader {
     }
 
     /**
-     * adds a replacement to the list
+     * Adds a replacement to the list.
      *
-     * @param r the replacement to add
+     * @param r The replacement to add.
      */
     public void addReplacement(Replacement r) {
         if (!replacements.contains(r)) replacements.add(r);
     }
 
-    private void readFromJson(String path) {
-        Json json = new Json();
-        List<JsonValue> list = json.fromJson(List.class, Gdx.files.internal(path));
-        for (JsonValue v : list) replacements.add(json.readValue(Replacement.class, v));
-        List<Replacement> toRotate = new ArrayList<>(replacements);
-        toRotate.removeIf(r -> !r.canRotate());
-        for (Replacement r : toRotate) {
-            Replacement tmp = r;
-            // 90,180,270
-            for (int i = 0; i < 3; i++) {
-                tmp = rotate90(tmp);
-                replacements.add(tmp);
-            }
-        }
-    }
-
     /**
-     * Writes down the list to a json
+     * Read in replacments from a .json. Rotates them if necassary.
      *
-     * @param rep the list of replacements to save
-     * @param path where to save
+     * @param path Path to .json.
      */
-    public void writeToJSON(List<Replacement> rep, String path) {
-        Json json = new Json();
-        String listInJson = json.toJson(rep);
-        FileHandle file = Gdx.files.local(path);
-        file.writeString(listInJson, false);
+    private void readFromJson(String path) {
+        Type replacementType = new TypeToken<ArrayList<Replacement>>() {}.getType();
+        JsonReader reader = null;
+        try {
+            reader = new JsonReader(new FileReader(path, StandardCharsets.UTF_8));
+            replacements = new Gson().fromJson(reader, replacementType);
+            if (replacements == null) throw new NullPointerException("File is empty");
+            // add all rotations to list
+            List<Replacement> toRotate = new ArrayList<>(replacements);
+            toRotate.removeIf(r -> !r.canRotate());
+
+            for (Replacement r : toRotate) {
+                Replacement tmp = r;
+                // 90,180,270
+                for (int i = 0; i < 3; i++) {
+                    tmp = rotate90(tmp);
+                    replacements.add(tmp);
+                }
+            }
+
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found.");
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("File may be corrupted ");
+            e.printStackTrace();
+        }
     }
 }

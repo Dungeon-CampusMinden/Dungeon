@@ -4,19 +4,19 @@ import level.tools.DesignLabel;
 import level.tools.LevelElement;
 
 /**
- * can be used to replace placeholder in a room layout
+ * Will be used to replace placeholder in a room layout.
  *
  * @author Andre Matutat
  */
 public class Replacement {
 
+    private final DesignLabel label;
+    private final boolean rotate;
     private LevelElement[][] layout;
-    private DesignLabel label;
-    private boolean rotate;
 
     /**
-     * @param layout of the replacer, use placeholder in fields that should not be replaced
-     * @param rotate can the layout be rotated?
+     * @param layout Layout of the replacer, use placeholder in fields that should not be replaced
+     * @param rotate Can the layout be rotated?
      * @param label DesignLabel of the replacer
      */
     public Replacement(LevelElement[][] layout, boolean rotate, DesignLabel label) {
@@ -35,11 +35,9 @@ public class Replacement {
     }
 
     private LevelElement[][] copyLayout(LevelElement[][] toCopy) {
-        LevelElement[][] copy = new LevelElement[layout.length][layout[0].length];
+        LevelElement[][] copy = new LevelElement[toCopy.length][toCopy[0].length];
         for (int y = 0; y < toCopy.length; y++)
-            for (int x = 0; x < toCopy[0].length; x++) {
-                copy[y][x] = toCopy[y][x];
-            }
+            System.arraycopy(toCopy[y], 0, copy[y], 0, toCopy[0].length);
         return copy;
     }
 

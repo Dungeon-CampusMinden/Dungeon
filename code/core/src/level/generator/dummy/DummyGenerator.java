@@ -1,12 +1,12 @@
 package level.generator.dummy;
 
 import level.elements.Level;
-import level.elements.Node;
-import level.elements.Room;
+import level.elements.graph.Node;
+import level.elements.room.Room;
 import level.generator.IGenerator;
+import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
-import tools.Point;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,12 +53,12 @@ public class DummyGenerator implements IGenerator {
         layoutRoom3[0][7] = LevelElement.FLOOR;
 
         // hardcode positions
-        Point r1global = new Point(15, -6);
-        Point r1local = new Point(0, 0);
-        Point r2global = new Point(5, -2);
-        Point r2local = new Point(0, 0);
-        Point r3global = new Point(0, 0);
-        Point r3local = new Point(0, 0);
+        Coordinate r1global = new Coordinate(15, -6);
+        Coordinate r1local = new Coordinate(0, 0);
+        Coordinate r2global = new Coordinate(5, -2);
+        Coordinate r2local = new Coordinate(0, 0);
+        Coordinate r3global = new Coordinate(0, 0);
+        Coordinate r3local = new Coordinate(0, 0);
         // create rooms
 
         // setEnd
@@ -85,11 +85,11 @@ public class DummyGenerator implements IGenerator {
         graph.add(room2Node);
         graph.add(room3Node);
 
-        Level l = new Level(graph, roomlist);
-        l.setStartNode(room3Node);
-        l.setStartTile(l.getRoomToNode(room3Node).getRandomFloorTile());
-        l.setEndNode(room1Node);
-        l.setEndTile(l.getRoomToNode(room1Node).getLayout()[3][3]);
-        return l;
+        Level level = new Level(graph, roomlist);
+        level.setStartNode(room3Node);
+        level.setStartTile(level.getRoomToNode(room3Node).getRandomFloorTile());
+        level.setEndNode(room1Node);
+        level.setEndTile(level.getRoomToNode(room1Node).getLayout()[3][3]);
+        return level;
     }
 }

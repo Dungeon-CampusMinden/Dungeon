@@ -1,7 +1,7 @@
 package level.generator.dungeong.graphg;
 
 /**
- * Thrown when no solution could be found after several attempts
+ * Thrown when no solution could be found.
  *
  * @author Andre Matutat
  */
