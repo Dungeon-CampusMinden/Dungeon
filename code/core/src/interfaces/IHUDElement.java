@@ -16,9 +16,9 @@ public interface IHUDElement {
 
     String getTexture();
 
-    Painter getGraphicController();
+    Painter getPainter();
 
     default void draw(SpriteBatch batch) {
-        getGraphicController().draw(getTexture(), getPosition(), batch);
+        getPainter().draw(getTexture(), getPosition(), batch);
     }
 }

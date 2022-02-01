@@ -24,11 +24,11 @@ public interface IEntity {
     /** @return the (current) Texture-Path of the object */
     String getTexture();
 
-    /** Each drawable should use this <code>GraphicController</code> to draw itself. */
-    Painter getGraphicController();
+    /** Each drawable should use this <code>Painter</code> to draw itself. */
+    Painter getPainter();
 
     /** Draws this instance on the batch. */
     default void draw() {
-        getGraphicController().draw(getTexture(), getPosition(), getBatch());
+        getPainter().draw(getTexture(), getPosition(), getBatch());
     }
 }
