@@ -1,5 +1,7 @@
 package level.tools;
 
+import tools.Point;
+
 public class Coordinate {
 
     public int x;
@@ -26,5 +28,14 @@ public class Coordinate {
     public int hashCode() {
         assert false : "hashCode nit designed";
         return x + y; // any arbitrary constant will do
+    }
+
+    /**
+     * Convert Coordinate to Point
+     *
+     * @return
+     */
+    public Point toPoint() {
+        return new Point(x, y);
     }
 }
