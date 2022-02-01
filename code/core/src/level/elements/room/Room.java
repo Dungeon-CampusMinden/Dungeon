@@ -1,11 +1,10 @@
 package level.elements.room;
 
+import java.util.Random;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import level.tools.TileTextureFactory;
-
-import java.util.Random;
 
 /**
  * A Room is a collection of tiles and has a position in the global system.

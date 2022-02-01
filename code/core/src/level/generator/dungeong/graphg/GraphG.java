@@ -3,15 +3,14 @@ package level.generator.dungeong.graphg;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import level.elements.graph.Graph;
-import level.elements.graph.Node;
-
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import level.elements.graph.Graph;
+import level.elements.graph.Node;
 
 /**
  * Can read in graphs from .json or can generate new graphs.

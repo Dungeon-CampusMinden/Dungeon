@@ -1,13 +1,12 @@
 package level.generator.dungeong.roomg;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import level.elements.room.Room;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * A RoomTemplate is a blueprint for a room.

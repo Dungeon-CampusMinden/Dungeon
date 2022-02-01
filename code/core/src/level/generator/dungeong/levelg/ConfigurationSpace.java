@@ -1,13 +1,12 @@
 package level.generator.dungeong.levelg;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import level.elements.graph.Node;
 import level.generator.dungeong.roomg.RoomTemplate;
 import level.tools.Coordinate;
 import level.tools.LevelElement;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /** @author Andre Matutat */
 public class ConfigurationSpace {

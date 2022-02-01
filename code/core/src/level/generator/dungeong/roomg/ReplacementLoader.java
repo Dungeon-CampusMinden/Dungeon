@@ -3,14 +3,13 @@ package level.generator.dungeong.roomg;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import level.tools.DesignLabel;
-import level.tools.LevelElement;
-
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import level.tools.DesignLabel;
+import level.tools.LevelElement;
 
 /**
  * Loads and stores replacements from a .json.

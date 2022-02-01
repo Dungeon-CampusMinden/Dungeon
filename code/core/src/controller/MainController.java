@@ -1,5 +1,7 @@
 package controller;
 
+import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -11,8 +13,6 @@ import level.LevelAPI;
 import level.generator.IGenerator;
 import level.generator.dungeong.levelg.LevelG;
 import tools.Constants;
-
-import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
 /** The heart of the framework. From here all strings are pulled. */
 public abstract class MainController extends ScreenAdapter implements IOnLevelLoader {
