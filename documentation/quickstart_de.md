@@ -1,7 +1,7 @@
 # Quickstart
 
 Dieses Dokument liefert einen Einstieg in das PM-Dungeon. Es erläutert die Installation des Frameworks und die ersten Schritte, um eigene Inhalte zum Dungeon hinzuzufügen. Es dient als Grundlage für alle weiteren Praktika. Lesen Sie das Dokument daher aufmerksam durch und versuchen Sie sich zusätzlich selbst mit dem Aufbau vertraut zu machen.
-Das Framework ist in `core` und `desktop` aufgeteilt, wobei `core` das Framework und `desktop` ein Basis-Starter ist. 
+Das Framework ist in `core` und `desktop` aufgeteilt, wobei `core` das Framework und `desktop` ein Basis-Starter ist.
 
 *Hinweis: Achten Sie darauf, Daten nur dann in öffentliche Git-Repos zu laden, wenn Sie die nötigen Rechte an diesen Daten haben. Dies gilt insbesondere auch für Artefakte wie Bilder, Bitmaps, Musik oder Soundeffekte.*
 
@@ -10,7 +10,7 @@ Das Framework ist in `core` und `desktop` aufgeteilt, wobei `core` das Framework
 Um das PM-Dungeon-Framework zu nutzen haben Sie zwei Möglichkeiten.
 
 1. Erstellen Sie sich ein Fork des [`desktop`-Repository](https://github.com/PM-Dungeon/desktop) und ziehen Sie sich einen lokalen Klon auf Ihr Gerät. (Empfohlen)
-2. Erstellen Sie eigenständig ein neues Projekt und binden Sie [`core`](https://repo1.maven.org/maven2/io/github/pm-dungeon/core/) in Ihr Projekt ein. Beachten Sie dabei, dass Sie damit nur das "Backend" des Frameworks implementieren. Um das "Frontend" nutzen zu können, benötigen Sie einen libGDX-Launcher und die entsprechenden Abhängigkeiten; ein einfaches Basisbeispiel finden Sie im [`desktop`-Repository](https://github.com/PM-Dungeon/desktop). 
+2. Erstellen Sie eigenständig ein neues Projekt und binden Sie [`core`](https://repo1.maven.org/maven2/io/github/pm-dungeon/core/) als externe Abhängigkeit in Ihr Projekt ein. Beachten Sie dabei, dass Sie damit nur das "Backend" des Frameworks implementieren. Um das "Frontend" nutzen zu können, benötigen Sie einen libGDX-Launcher und die entsprechenden Abhängigkeiten; ein einfaches Basisbeispiel finden Sie im [`desktop`-Repository](https://github.com/PM-Dungeon/desktop).
 
 ## Arbeiten mit dem Framework
 
@@ -18,33 +18,33 @@ Zu Beginn einige grundlegende Prinzipien, die Sie verstanden haben sollten, bevo
 
 Das PM-Dungeon benutzt aktuell das Cross-Plattform Java-Framework [`libGDX`](https://libgdx.com) als Backend. Dieses ist im `core`- und `desktop`-Projekt bereits als Abhängigkeit in die Gradle-Konfiguration integriert, Sie müssen dieses nicht extra installieren. Die Ihnen zur Verfügung gestellten Vorgaben sind so umgesetzt, dass Sie kein tieferes Verständnis für das Framework oder `libGDX` benötigen, um die Aufgaben zu lösen. Sollten Sie allerdings einmal auf Probleme stoßen, kann es unter Umständen helfen, einen Blick in die Dokumentation von `libGDX` zu werfen.
 
-Das Framework ist in ein Frontend ([`desktop`]((https://github.com/PM-Dungeon/desktop))) und ein Backend ([`core`]((https://github.com/PM-Dungeon/core))) aufgeteilt. 
+Das Framework ist in ein Frontend ([`desktop`]((https://github.com/PM-Dungeon/desktop))) und ein Backend ([`core`]((https://github.com/PM-Dungeon/core))) aufgeteilt.
 Das Frontend setzt die Parameter, erzeugt ein Fenster und startet die Anwendung.
 Das Backend liefert die Schnittstellen, mit denen Sie arbeiten, und integriert die `libGDX`.
 
-Sie selbst schreiben die Logik des Spiels und implementieren die Helden/Monster/Gegenstände. Sie können Ihren Code am einfachsten in einem Fork des `desktop`-Projekts entwickeln. 
+Sie selbst schreiben die Logik des Spiels und implementieren die Helden/Monster/Gegenstände. Sie können Ihren Code am einfachsten in einem Fork des `desktop`-Projekts entwickeln.
 
-Bis auf seltene (dokumentierte) Ausnahmen werden Sie nicht gezwungen sein, an den Vorgaben Änderungen durchzuführen. 
+Bis auf seltene (dokumentierte) Ausnahmen werden Sie nicht gezwungen sein, an den Vorgaben Änderungen durchzuführen.
 
 Sie werden im Laufe der Praktika verschiedene Assets benötigen. Diese liegen per Default im `asset`-Verzeichnis. Sie können das Standardverzeichnis in der `build.gradle` anpassen.
   - Standardpfad für Texturen: `assets/`
-  - Standardpfad für Level: `assets/level` 
-  - Standardpfad für Level-Texturen: `assets/textures/level` 
+  - Standardpfad für Level: `assets/level`
+  - Standardpfad für Level-Texturen: `assets/textures/level`
 
-## Strukturen 
+## Strukturen
 
 Bevor wir mit der eigentlichen Implementierung des Spiels anfangen, eine kurze Erklärung über den Aufbau des Frameworks.
 
-- Das Framework verwendet sogenannte `Controller` um die einzelnen Aspekte des Spiels zu managen und Ihnen das Leben einfacher zu machen. 
-    - `EntityController`: Dieser verwaltet alle "aktiven" Elemente wie Helden, Monster, Items etc. 
-    - `LevelAPI`: Kümmert sich darum, dass neue Level erzeugt und geladen werden. 
-    - `HUDController`: Verwaltet alle Bildschirmanzeigen die Sie implementieren.  
-    - `MainController` Verwaltet die anderen `Controller` und beinhaltet die Game-Loop. Ihre Implementierung wird Teil des `MainController` 
+- Das Framework verwendet sogenannte `Controller` um die einzelnen Aspekte des Spiels zu managen und Ihnen das Leben einfacher zu machen.
+    - `EntityController`: Dieser verwaltet alle "aktiven" Elemente wie Helden, Monster, Items etc.
+    - `LevelAPI`: Kümmert sich darum, dass neue Level erzeugt und geladen werden.
+    - `HUDController`: Verwaltet alle Bildschirmanzeigen die Sie implementieren.
+    - `MainController` Verwaltet die anderen `Controller` und beinhaltet die Game-Loop. Ihre Implementierung wird Teil des `MainController`
 - Game-Loop: Die Game-Loop ist die wichtigste Komponente des Spieles. Sie ist eine Endlosschleife, welche einmal pro [Frame](https://de.wikipedia.org/wiki/Bildfrequenz) aufgerufen wird. Das Spiel läuft in 30-FPS (also 30 *frames per seconds*, zu Deutsch 30 Bildern pro Sekunde), die Game-Loop wird also 30mal in der Sekunde aufgerufen. Alle Aktionen, die wiederholt ausgeführt werden müssen, wie zum Beispiel das Bewegen und Zeichnen von Figuren, müssen innerhalb der Game-Loop stattfinden. Das Framework ermöglicht es Ihnen, eigene Aktionen in die Game-Loop zu integrieren. Wie genau das geht, erfahren Sie im Laufe dieser Anleitung. *Hinweis: Die Game-Loop wird automatisch ausgeführt, Sie müssen sie nicht aktiv aufrufen.*
-- Zusätzlich existieren noch eine Vielzahl an weiteren Helferklassen mit dem sie mal mehr oder mal weniger Kontakt haben werden. 
-- `Painter`: Kümmert sich darum, dass die Inhalte grafisch dargestellt werden. 
-- `DungeonCamera`: Ihr Auge in das Dungeon. 
-- Unterschiedliche Interfaces, welche Sie im Verlauf dieses Dokumentes kennen lernen werden. 
+- Zusätzlich existieren noch eine Vielzahl an weiteren Helferklassen mit dem sie mal mehr oder mal weniger Kontakt haben werden.
+- `Painter`: Kümmert sich darum, dass die Inhalte grafisch dargestellt werden.
+- `DungeonCamera`: Ihr Auge in das Dungeon.
+- Unterschiedliche Interfaces, welche Sie im Verlauf dieses Dokumentes kennen lernen werden.
 
 ## Erster Start
 
@@ -56,7 +56,7 @@ In diesen Abschnitt werden alle Schritte erläutert, die zum ersten Start der An
     - `setup()`
     - `beginFrame()`
     - `enFrame()`
-    - `onLevelLoad()`  
+    - `onLevelLoad()`
 - Rufen Sie zum Ende der `setup()`-Methode `levelAPI.loadLevel()` auf um das erste Level zu laden:
 
   ```java
@@ -65,7 +65,7 @@ In diesen Abschnitt werden alle Schritte erläutert, die zum ersten Start der An
     levelAPI.loadLevel();
   }
   ```
-  
+
 - Fügen Sie die `main`-Methode hinzu
 
   ```java
@@ -76,7 +76,7 @@ In diesen Abschnitt werden alle Schritte erläutert, die zum ersten Start der An
 
 - Passen Sie innerhalb der `code/build.gradle` den Programmeinstiegspunkt (`project.ext.mainClassName = "desktop.DesktopLauncher"`) an und legen Sie ihn auf Ihre Klasse (`MyGame`) fest. Vergessen Sie dabei nicht, auch das Package anzugeben.
 
-Das Spiel sollte nun starten und Sie sollten einen Ausschnitt des Levels sehen können. 
+Das Spiel sollte nun starten und Sie sollten einen Ausschnitt des Levels sehen können.
 
 Bevor wir nun unseren Helden implementieren sollten wir verstehen, was genau der `MainController` eigentlich ist. Wie der Name schon vermuten lässt, ist dies die Haupt-Steuerung des Spiels. Er bereitet alles für den Start des Spieles vor, verwaltet die anderen Controller und enthält die Game-Loop. Wir nutzen `MyGame` um selbst in die Game-Loop einzugreifen und unsere eigenen Objekte wie Helden und Monster zu verwalten. Der `MainController` ist der Punkt, an dem alle Fäden des Dungeons zusammenlaufen. Im Folgenden wird Ihnen erklärt, wie Sie erfolgreich mit dem `MainController` arbeiten.
 
@@ -87,23 +87,24 @@ Jetzt, wo Sie sichergestellt haben, dass das Dungeon ausgeführt werden kann, ge
 Fangen wir damit an eine neue Klasse für den Helden anzulegen. Da unser Held eine Animation haben soll, implementieren wir das Interface `IAnimatable`. Dies erlaubt es uns, unseren Helden zu animieren. Für Objekte, die keine Animation haben, sondern nur eine statische Textur, würden wir das Interface `IEntity` implementieren.
 
 ```java
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import graphic.Animation;
+import graphic.Painter;
 import interfaces.IAnimatable;
+import tools.Point;
 
 public class Hero implements IAnimatable {
-  //Die SpriteBatch ist "das Papier" auf dem unser Held dargestellt werden soll.   
-  private SpriteBatch batch; 
-  //Der Painter zeichnet den Helden.
-  private Painter painter;   
-  public Hero(SpriteBatch batch, Painter painter){
-      this.batch=batch;
-      this.painter=painter;
-  }
-    
-  @Override
-  public Animation getActiveAnimation() {
-    return null;
-  }
+    // Die SpriteBatch ist "das Papier" auf dem unser Held dargestellt werden soll.
+    private SpriteBatch batch;
+
+    // Der Painter zeichnet den Helden.
+    private Painter painter;
+
+    public Hero(SpriteBatch batch, Painter painter) {
+        this.batch = batch;
+        this.painter = painter;
+    }
+
     @Override
     public Animation getActiveAnimation() {
         return null;
@@ -131,7 +132,7 @@ public class Hero implements IAnimatable {
     public Painter getPainter() {
         return painter;
     }
-}      
+}
 ```
 
 ### Der bewegte (animierte) Held
@@ -141,17 +142,17 @@ Fangen wir damit an, die Animation für unseren Helden zu erstellen. Eine Animat
 ```java
 // Anlegen einer Animation
 private Animation idleAnimation;
-private SpriteBatch batch; 
-private Painter painter;   
+private SpriteBatch batch;
+private Painter painter;
 public Hero(SpriteBatch batch, Painter painter) {
     this.batch=batch;
     this.painter=painter;
-    
+
     // Erstellen einer ArrayList
     List<String> idle = new ArrayList<>();
-    // Laden der Texturen für die Animation (Pfad angeben)
-    idle.add(ASSETS_PATH_TO_TEXTURE_1.png);
-    idle.add(ASSETS_PATH_TO_TEXTURE_2.png);
+    // Laden der Texturen für die Animation (relativen Pfad angeben)
+    idle.add("assets_path_to_texture/texture_1.png");
+    idle.add("assets_path_to_texture/texture_2.png");
     // Erstellen einer Animation, als Parameter wird die Liste mit den Texturen
     // und die Wartezeit (in Frames) zwischen den Wechsel der Texturen angegeben
     idleAnimation = new Animation(idle, 8);
@@ -167,13 +168,13 @@ public Animation getActiveAnimation() {
 
 Super, jetzt hat unser Held eine Animation. Nun muss diese noch im Spiel gezeichnet werden.
 
-Da das Dungeon framebasiert ist, muss unser Held in jedem Frame (also 30-mal in der Sekunde) neu gezeichnet werden. Dazu verwenden wir den `EntityController`. 
+Da das Dungeon framebasiert ist, muss unser Held in jedem Frame (also 30-mal in der Sekunde) neu gezeichnet werden. Dazu verwenden wir den `EntityController`.
 
 Der `EntityController` verwendet das *Observer-Pattern* (vergleiche Vorlesung) um Instanzen vom Typen `IEntity` und `IAnimatable` zu verwalten. Er sorgt dafür, dass die vom Interface bereitgestellte `update`-Methode jeder Entität in der Game-Loop aufgerufen wird. Dazu hält er eine Liste mit allen ihm übergebenen Entitäten. Weiter unten sehen Sie, wie Sie den `EntityController` verwenden können, um unseren Helden managen zu lassen.
 
 *Hinweis: Der `MainController` verfügt bereits über einen `EntityController`, welchen Sie innerhalb von `MyGame` mit `entityController` ansprechen können.*
 
-Dafür implementieren wie nun die Methode `update`. 
+Dafür implementieren wie nun die Methode `update`.
 
 ```java
 @Override
@@ -201,7 +202,7 @@ public void setLevel(Level level) {
 }
 ```
 
-Jetzt wo unser Held erst einmal fertiggestellt ist, müssen wir ihn noch im Dungeon einfügen. Dies tun wir in `MyGame`
+Jetzt wo unser Held erst einmal fertiggestellt ist, müssen wir ihn noch im Dungeon einfügen. Dies tun wir in `MyGame`.
 
 Die Methode `setup` ermöglicht es uns, einmalig zu Beginn der Anwendung Vorbereitungen zu treffen. Wir nutzen dies nun, um unseren Helden anzulegen und ihn dem `EntityController` zu übergeben.
 
@@ -247,7 +248,7 @@ Zum Überprüfen, ob ein neues Level geladen werden soll, verwenden wir diesmal 
 ```java
 @Override
 public void endFrame() {
-    if (hero.getPosition().toCoordinate.equals(levelAPI.getCurrentLevel().getEndTile().getGlobalPosition()))
+    if (hero.getPosition().toCoordinate().equals(levelAPI.getCurrentLevel().getEndTile().getGlobalPosition()))
         levelAPI.loadLevel();
 }
 ```
@@ -363,7 +364,7 @@ public class MyGame extends MainController {
     .....
     Label levelLabel;
     int levelCounter=0;
-	
+
     public void onLevelLoad() {
         levelCounter++;
         if (levelCounter==1){
@@ -384,13 +385,13 @@ Genauere Informationen zu den Parametern entnehmen Sie bitte der JavaDoc.
 
 Das Framework verfügt über verschiedene Levelgeneratoren zwischen denen Sie wechseln können.
 
-1. `LevelG` : Wird per default verwendet und generiert beim Aufruf von `levelAPI.loadLevel()` "zufällig" ein neues Level. 
-2. `LevelLoader`: Lädt Level aus der `level.json` ein. Diese Level wurden von `LevelG` generiert und abgespeichert. Diese Variante ist deutlich Rechenzeiteffektiver. 
-3. `DummyGenerator`: Lädt ein statisch gecodedetes Level. Kann für Experimente genutzt werden. 
+1. `LevelG`: Wird per default verwendet und generiert beim Aufruf von `levelAPI.loadLevel()` "zufällig" ein neues Level.
+2. `LevelLoader`: Lädt Level aus der `level.json` ein. Diese Level wurden von `LevelG` generiert und abgespeichert. Diese Variante ist deutlich Rechenzeiteffektiver.
+3. `DummyGenerator`: Lädt ein statisch gecodedetes Level. Kann für Experimente genutzt werden.
 
-Um den Levelgenerator zu ändern, rufen Sie einfach `levelAPI.setGenerator(new {GENERATOR_TYPE})` auf. Ersetzten Sie `{GENERATOR_TYPE}` mit dem gewünschten Generatortypen. Unter umständen müssen Sie noch Parameter übergeben. Weitere Informationen finden Sie in der jeweiligen javadoc. 
+Um den Levelgenerator zu ändern, rufen Sie einfach `levelAPI.setGenerator(new {GENERATOR_TYPE})` auf. Ersetzten Sie `{GENERATOR_TYPE}` mit dem gewünschten Generatortypen. Unter umständen müssen Sie noch Parameter übergeben. Weitere Informationen finden Sie in der jeweiligen javadoc.
 
-### Level 
+### Level
 
 - tbd
 
