@@ -5,7 +5,10 @@ on: [ pull_request ]
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }} 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -22,7 +25,10 @@ jobs:
   junit-test:
     needs: build
     name: JUnit Test
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
