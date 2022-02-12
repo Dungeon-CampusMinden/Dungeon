@@ -24,9 +24,9 @@ jobs:
                 run: ./gradlew assemble
                 working-directory: code
 
-    junit-test:
+    junit:
         needs: build
-        name: JUnit Test
+        name: JUnit
         strategy:
             matrix:
                 os: [ ubuntu-latest, windows-latest, macos-latest ]
@@ -39,19 +39,18 @@ jobs:
                 with:
                     java-version: '17'
                     distribution: 'adopt'
-            -   name: Test with JUnit
-                run: |
-                    ./gradlew test
+            -   name: JUnit
+                run: ./gradlew test
                 working-directory: code
-            -   name: JUnit Test Report
+            -   name: JUnit Report
                 uses: mikepenz/action-junit-report@v2
                 if: always() # always run even if the previous step fails
                 with:
                     report_paths: '**/build/test-results/test/TEST-*.xml'
 
-    spotbugs-test:
+    spotbugs:
         needs: build
-        name: SpotBugs Test
+        name: SpotBugs
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout
@@ -61,20 +60,20 @@ jobs:
                 with:
                     java-version: '17'
                     distribution: 'adopt'
-            -   name: Test with SpotBugs
+            -   name: SpotBugs
                 run: |
                     ./gradlew spotbugsMain
                     ./gradlew spotbugsTest
                 working-directory: code
-            -   name: SpotBugs Test Report
+            -   name: SpotBugs Report
                 uses: jwgmeligmeyling/spotbugs-github-action@master
                 with:
                     path: '**/spotbugsXml.xml'
-                    name: 'SpotBugs Test Report'
+                    name: 'SpotBugs Report'
 
-    checkstyle-test:
+    checkstyle:
         needs: build
-        name: Checkstyle Test
+        name: Checkstyle
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout
@@ -84,16 +83,17 @@ jobs:
                 with:
                     java-version: '17'
                     distribution: 'adopt'
-            -   name: Test with Checkstyle
+            -   name: Checkstyle
                 run: ./gradlew check
                 working-directory: code
-            -   uses: jwgmeligmeyling/checkstyle-github-action@master
+            -   name: Checkstyle Report
+                uses: jwgmeligmeyling/checkstyle-github-action@master
                 with:
                     path: '**/checkstyle/*.xml'
 
-    spotless-java-format-test:
+    spotless-java-format:
         needs: build
-        name: Spotless Test
+        name: Spotless
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout
@@ -103,6 +103,6 @@ jobs:
                 with:
                     java-version: '17'
                     distribution: 'adopt'
-            -   name: Test with Spotless
+            -   name: Spotless
                 run: ./gradlew spotlessJavaCheck
                 working-directory: code
