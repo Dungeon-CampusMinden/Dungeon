@@ -1,7 +1,6 @@
 package level.generator.dungeong.levelg;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,7 +48,7 @@ public class LevelG implements IGenerator {
     }
 
     @Override
-    public Level getLevel() {
+    public Level getLevel() throws NoSolutionException {
         return getLevel(DesignLabel.values()[new Random().nextInt(DesignLabel.values().length)]);
     }
 
@@ -62,16 +61,12 @@ public class LevelG implements IGenerator {
     }
 
     @Override
-    public Level getLevel(DesignLabel designLabel) {
-        FileHandle handle = Gdx.files.local(Constants.PATH_TO_GRAPH);
-        FileHandle[] allGraphFiles = handle.list();
-        FileHandle graph = allGraphFiles[new Random().nextInt(allGraphFiles.length)];
-        try {
-            return getLevel(
-                    graphg.getGraph(Constants.PATH_TO_GRAPH + "/" + graph.name()), designLabel);
-        } catch (NoSolutionException e) {
-            return getLevel(designLabel);
-        }
+    public Level getLevel(DesignLabel designLabel) throws NoSolutionException {
+        File dir = new File(Constants.getPathToGraph());
+        File[] allGraphFiles = dir.listFiles();
+        assert (allGraphFiles != null && allGraphFiles.length > 0);
+        File graph = allGraphFiles[new Random().nextInt(allGraphFiles.length)];
+        return getLevel(graphg.getGraph(graph.getPath()), designLabel);
     }
 
     @Override

@@ -11,7 +11,7 @@ public interface IGenerator {
      *
      * @return The level.
      */
-    Level getLevel();
+    Level getLevel() throws NoSolutionException;
 
     /**
      * Get a leve with the given configuration.
@@ -19,7 +19,7 @@ public interface IGenerator {
      * @param designLabel The design of the level.
      * @return The level.
      */
-    default Level getLevel(DesignLabel designLabel) {
+    default Level getLevel(DesignLabel designLabel) throws NoSolutionException {
         return getLevel();
     }
 

@@ -1,5 +1,7 @@
 package tools;
 
+import java.net.URL;
+
 public final class Constants {
     public static final int WINDOW_WIDTH = 640;
 
@@ -17,9 +19,55 @@ public final class Constants {
     /** 200% zoom. */
     public static final float DEFAULT_ZOOM_FACTOR = 0.5f;
 
-    public static final String PATH_TO_LEVEL = "assets/level/files/";
-    public static final String PATH_TO_GRAPH = "assets/level/graphs/";
-    public static final String PATH_TO_ROOMTEMPLATES = "assets/level/roomTemplates.json";
-    public static final String PATH_TO_REPLACEMENTS = "assets/level/replacements.json";
     public static final boolean DISABLE_REPLACEMENTS = true;
+
+    /**
+     * @param path the relative path to the resource
+     * @return the absolute path of the internal resource
+     */
+    private static String getResourceString(String path) {
+        URL url = ClassLoader.getSystemClassLoader().getResource(path);
+        assert (url != null);
+        return url.getPath();
+    }
+
+    /**
+     * Returns the absolute path to the resource inside the "assets" folder. The location of the
+     * "assets" folder is determined dynamically.
+     *
+     * @return the absolute path to the resource inside the "assets" folder.
+     */
+    public static String getPathToLevel() {
+        return getResourceString("level/files");
+    }
+
+    /**
+     * Returns the absolute path to the resource inside the "assets" folder. The location of the
+     * "assets" folder is determined dynamically.
+     *
+     * @return the absolute path to the resource inside the "assets" folder.
+     */
+    public static String getPathToGraph() {
+        return getResourceString("level/graphs");
+    }
+
+    /**
+     * Returns the absolute path to the resource inside the "assets" folder. The location of the
+     * "assets" folder is determined dynamically.
+     *
+     * @return the absolute path to the resource inside the "assets" folder.
+     */
+    public static String getPathToRoomTemplates() {
+        return getResourceString("level/roomTemplates.json");
+    }
+
+    /**
+     * Returns the absolute path to the resource inside the "assets" folder. The location of the
+     * "assets" folder is determined dynamically.
+     *
+     * @return the absolute path to the resource inside the "assets" folder.
+     */
+    public static String getPathToReplacements() {
+        return getResourceString("level/replacements.json");
+    }
 }

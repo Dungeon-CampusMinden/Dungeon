@@ -26,7 +26,7 @@ public class LevelAPI {
         this.onLevelLoader = onLevelLoader;
     }
 
-    public void loadLevel() {
+    public void loadLevel() throws NoSolutionException {
         currentLevel = gen.getLevel();
         onLevelLoader.onLevelLoad();
     }

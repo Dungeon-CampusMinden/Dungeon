@@ -7,6 +7,7 @@ import graphic.DungeonCamera;
 import graphic.HUDCamera;
 import graphic.Painter;
 import level.LevelAPI;
+import level.generator.dungeong.levelg.LevelG;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,9 +16,10 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import tools.Constants;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({MainController.class, Gdx.class})
+@PrepareForTest({MainController.class, Gdx.class, Constants.class})
 class MainControllerTest {
     MainController controller;
     SpriteBatch batch;
@@ -54,6 +56,11 @@ class MainControllerTest {
         PowerMockito.whenNew(DungeonCamera.class)
                 .withAnyArguments()
                 .thenReturn(Mockito.mock(DungeonCamera.class));
+        PowerMockito.whenNew(LevelG.class)
+                .withAnyArguments()
+                .thenReturn(Mockito.mock(LevelG.class));
+
+        PowerMockito.mockStatic(Constants.class, invocation -> "abc");
     }
 
     @Test

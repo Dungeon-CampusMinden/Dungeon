@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "io.github.pm-dungeon"
-version = "1.0.9"
+version = "1.0.10"
 ext {
     appName = "pmdungeon"
     gdxVersion = "1.10.0"
