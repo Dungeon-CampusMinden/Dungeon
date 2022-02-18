@@ -41,10 +41,14 @@ Bevor wir mit der eigentlichen Implementierung des Spiels anfangen, eine kurze E
     - `HUDController`: Verwaltet alle Bildschirmanzeigen die Sie implementieren.
     - `MainController` Verwaltet die anderen `Controller` und beinhaltet die Game-Loop. Ihre Implementierung wird Teil des `MainController`
 - Game-Loop: Die Game-Loop ist die wichtigste Komponente des Spieles. Sie ist eine Endlosschleife, welche einmal pro [Frame](https://de.wikipedia.org/wiki/Bildfrequenz) aufgerufen wird. Das Spiel läuft in 30-FPS (also 30 *frames per seconds*, zu Deutsch 30 Bildern pro Sekunde), die Game-Loop wird also 30mal in der Sekunde aufgerufen. Alle Aktionen, die wiederholt ausgeführt werden müssen, wie zum Beispiel das Bewegen und Zeichnen von Figuren, müssen innerhalb der Game-Loop stattfinden. Das Framework ermöglicht es Ihnen, eigene Aktionen in die Game-Loop zu integrieren. Wie genau das geht, erfahren Sie im Laufe dieser Anleitung. *Hinweis: Die Game-Loop wird automatisch ausgeführt, Sie müssen sie nicht aktiv aufrufen.*
-- Zusätzlich existieren noch eine Vielzahl an weiteren Helferklassen mit dem sie mal mehr oder mal weniger Kontakt haben werden.
+- Zusätzlich existieren noch eine Vielzahl an weiteren Helferklassen mit dem Sie mal mehr oder mal weniger Kontakt haben werden.
 - `Painter`: Kümmert sich darum, dass die Inhalte grafisch dargestellt werden.
 - `DungeonCamera`: Ihr Auge in das Dungeon.
 - Unterschiedliche Interfaces, welche Sie im Verlauf dieses Dokumentes kennen lernen werden.
+
+Das untenstehende UML-Klassendiagramm soll Ihnen einen reduzierten und vereinfachten Überblick über den Aufbau des Frameworks geben. Es bildet daher nicht alle Klassen/Methoden/Attribute ab. Nutzen Sie es als Starpunkt und erforschen Sie die Codebase auf eigene Faust.
+
+![simple_uml](figs/simple_uml.png)
 
 ## Erster Start
 
