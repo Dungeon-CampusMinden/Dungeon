@@ -60,10 +60,15 @@ In diesen Abschnitt werden alle Schritte erläutert, die zum ersten Start der An
 - Rufen Sie zum Ende der `setup()`-Methode `levelAPI.loadLevel()` auf um das erste Level zu laden:
 
   ```java
-  @Override
-  protected void setup() {
-    levelAPI.loadLevel();
-  }
+    @Override
+    protected void setup() {
+        try {
+            levelAPI.loadLevel();
+        } catch (NoSolutionException e) {
+            System.out.println("Es konnte kein Level geladen werden, bitte den \"assets\" Ordner überprüfen.");
+            System.exit(0);
+        }
+    }
   ```
 
 - Fügen Sie die `main`-Methode hinzu
@@ -237,7 +242,11 @@ public void setup() {
     //unsere Kamera soll sich immer auf den Helden zentrieren.
     camera.follow(hero);
 
-    levelAPI.loadLevel();
+    try {
+        levelAPI.loadLevel();
+    } catch (NoSolutionException e) {
+        // ...
+    }
 }
 ```
 
@@ -267,8 +276,13 @@ Zum Überprüfen, ob ein neues Level geladen werden soll, verwenden wir diesmal 
 ```java
 @Override
 public void endFrame() {
-    if (hero.getPosition().toCoordinate().equals(levelAPI.getCurrentLevel().getEndTile().getGlobalPosition()))
-        levelAPI.loadLevel();
+    if (hero.getPosition().toCoordinate().equals(levelAPI.getCurrentLevel().getEndTile().getGlobalPosition())) {
+        try {
+            levelAPI.loadLevel();
+        } catch (NoSolutionException e) {
+            // ...
+        }
+    }
 }
 ```
 
