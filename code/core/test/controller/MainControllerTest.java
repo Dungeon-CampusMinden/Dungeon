@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import graphic.DungeonCamera;
-import graphic.HUDCamera;
 import graphic.Painter;
 import level.LevelAPI;
 import level.generator.dungeong.levelg.LevelG;
@@ -44,9 +43,6 @@ class MainControllerTest {
         PowerMockito.whenNew(SpriteBatch.class)
                 .withAnyArguments()
                 .thenReturn(Mockito.mock(SpriteBatch.class));
-        PowerMockito.whenNew(HUDCamera.class)
-                .withNoArguments()
-                .thenReturn(Mockito.mock(HUDCamera.class));
         PowerMockito.whenNew(HUDController.class)
                 .withAnyArguments()
                 .thenReturn(Mockito.mock(HUDController.class));

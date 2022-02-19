@@ -357,7 +357,7 @@ public class YourClass extends MainController {
     protected void setup() {
         ...
         // hinzufügen eines Elementes zum HUD
-        hud.add(new MyIcon(painter,new Point(0,0),"TEXTURE"));
+        hud.add(new MyIcon(hudPainter,new Point(0,0),"TEXTURE"));
         //so entfernt man ein Element
         //hud.remove(OBJECT);
     }

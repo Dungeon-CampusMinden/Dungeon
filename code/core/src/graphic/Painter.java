@@ -29,7 +29,7 @@ public class Painter {
             String texture,
             Point position,
             SpriteBatch batch) {
-        if (isPointInFrustum((int) position.x, (int) position.y)) {
+        if (camera.isPointInFrustum(position.x, position.y)) {
             Sprite sprite = new Sprite(textureMap.getTexture(texture));
             // set up scaling of textures
             sprite.setSize(xScaling, yScaling);
@@ -78,14 +78,5 @@ public class Painter {
     public void drawWithScaling(
             float xScaling, float yScaling, String texture, Point position, SpriteBatch batch) {
         draw(-0.85f, -0.5f, xScaling, yScaling, texture, position, batch);
-    }
-
-    private boolean isPointInFrustum(int x, int y) {
-        int buffer = 2;
-
-        return camera.getFrustum().pointInFrustum(x + buffer, y - buffer, 0)
-                || camera.getFrustum().pointInFrustum(x + buffer, y + buffer, 0)
-                || camera.getFrustum().pointInFrustum(x - buffer, y - buffer, 0)
-                || camera.getFrustum().pointInFrustum(x - buffer, y + buffer, 0);
     }
 }

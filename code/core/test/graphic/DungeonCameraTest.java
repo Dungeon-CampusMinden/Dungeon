@@ -140,15 +140,11 @@ public class DungeonCameraTest {
 
     @Test
     public void test_getFrustum() {
-        assertEquals(frustum, cam.getFrustum());
-        Mockito.verify(cam).getFrustum();
         Mockito.verifyNoMoreInteractions(cam, pos, frustum, entity);
     }
 
     @Test
     public void test_getFrustum_noFollow() {
-        assertEquals(frustum_noFollow, cam_noFollow.getFrustum());
-        Mockito.verify(cam_noFollow).getFrustum();
         Mockito.verifyNoMoreInteractions(cam_noFollow, pos_noFollow, frustum_noFollow);
     }
 }

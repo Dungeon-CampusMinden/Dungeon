@@ -34,6 +34,9 @@ repositories {
 }
 
 dependencies {
+    // https://mvnrepository.com/artifact/com.github.spotbugs/spotbugs-annotations
+    implementation "com.github.spotbugs:spotbugs-annotations:4.5.3"
+
     // LibGDX
     implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"

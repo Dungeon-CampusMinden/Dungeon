@@ -14,6 +14,8 @@ public class LibgdxSetup extends Game {
      */
     private SpriteBatch batch;
 
+    private SpriteBatch hudBatch;
+
     /**
      * <code>ApplicationListener</code> that delegates to the MainGameController. Just some setup.
      */
@@ -24,12 +26,15 @@ public class LibgdxSetup extends Game {
     @Override
     public void create() {
         batch = new SpriteBatch();
+        hudBatch = new SpriteBatch();
         mc.setSpriteBatch(batch);
+        mc.setHudBatch(hudBatch);
         setScreen(mc);
     }
 
     @Override
     public void dispose() {
         batch.dispose();
+        hudBatch.dispose();
     }
 }

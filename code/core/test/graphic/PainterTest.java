@@ -30,8 +30,7 @@ public class PainterTest {
         batch = Mockito.mock(SpriteBatch.class);
         painter = Mockito.spy(new Painter(cam));
         frustum = Mockito.mock(Frustum.class);
-        Mockito.when(cam.getFrustum()).thenReturn(frustum);
-        Mockito.when(frustum.pointInFrustum(anyFloat(), anyFloat(), anyFloat())).thenReturn(true);
+        Mockito.when(cam.isPointInFrustum(anyFloat(), anyFloat())).thenReturn(true);
     }
 
     @Test
@@ -45,8 +44,8 @@ public class PainterTest {
         Point p = Mockito.spy(new Point(12, 13));
 
         painter.draw(10, 11, 1.1f, 1.2f, "texture", p, batch);
+        Mockito.verify(cam).isPointInFrustum(p.x, p.y);
         Mockito.verify(painter).draw(10, 11, 1.1f, 1.2f, "texture", p, batch);
-        Mockito.verify(cam, Mockito.atLeastOnce()).getFrustum();
         Mockito.verify(batch).begin();
         Mockito.verify(batch).end();
         Mockito.verifyNoMoreInteractions(painter, batch, cam);
@@ -65,6 +64,7 @@ public class PainterTest {
 
         painter.draw("texture", p, batch);
         Mockito.verify(painter).draw("texture", p, batch);
+        Mockito.verify(cam).isPointInFrustum(p.x, p.y);
         Mockito.verify(painter)
                 .draw(
                         -0.85f,
@@ -74,7 +74,6 @@ public class PainterTest {
                         "texture",
                         p,
                         batch);
-        Mockito.verify(cam, Mockito.atLeastOnce()).getFrustum();
         Mockito.verify(batch).begin();
         Mockito.verify(batch).end();
         Mockito.verifyNoMoreInteractions(painter, batch, cam);
@@ -93,6 +92,7 @@ public class PainterTest {
 
         painter.draw(10, 11, "texture", p, batch);
         Mockito.verify(painter).draw(10, 11, "texture", p, batch);
+        Mockito.verify(cam).isPointInFrustum(p.x, p.y);
         Mockito.verify(painter)
                 .draw(
                         10,
@@ -102,7 +102,6 @@ public class PainterTest {
                         "texture",
                         p,
                         batch);
-        Mockito.verify(cam, Mockito.atLeastOnce()).getFrustum();
         Mockito.verify(batch).begin();
         Mockito.verify(batch).end();
         Mockito.verifyNoMoreInteractions(painter, batch, cam);
@@ -121,7 +120,7 @@ public class PainterTest {
         painter.drawWithScaling(1.1f, 1.2f, "texture", p, batch);
         Mockito.verify(painter).drawWithScaling(1.1f, 1.2f, "texture", p, batch);
         Mockito.verify(painter).draw(-0.85f, -0.5f, 1.1f, 1.2f, "texture", p, batch);
-        Mockito.verify(cam, Mockito.atLeastOnce()).getFrustum();
+        Mockito.verify(cam).isPointInFrustum(p.x, p.y);
         Mockito.verify(batch).begin();
         Mockito.verify(batch).end();
         Mockito.verifyNoMoreInteractions(painter, batch, cam);

@@ -1,24 +1,29 @@
 package interfaces;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import graphic.Painter;
+import graphic.HUDPainter;
 import tools.Point;
 
-/** Should be implemented by all HUD objects. */
 public interface IHUDElement {
+    /** Will be executed every frame. */
+    void update();
 
-    /**
-     * The position of HUD elements are based on virtual coordinates.
-     *
-     * @return the position
-     */
+    /** @return <code>true</code>, if this instance can be deleted; <code>false</code> otherwise */
+    boolean removable();
+
+    SpriteBatch getBatch();
+
+    /** @return the exact position in the dungeon of this instance */
     Point getPosition();
 
+    /** @return the (current) Texture-Path of the object */
     String getTexture();
 
-    Painter getPainter();
+    /** Each drawable should use this <code>Painter</code> to draw itself. */
+    HUDPainter getPainter();
 
-    default void draw(SpriteBatch batch) {
-        getPainter().draw(getTexture(), getPosition(), batch);
+    /** Draws this instance on the batch. */
+    default void draw() {
+        getPainter().draw(getTexture(), getPosition(), getBatch());
     }
 }

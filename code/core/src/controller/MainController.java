@@ -6,7 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import graphic.DungeonCamera;
-import graphic.HUDCamera;
+import graphic.HUDPainter;
 import graphic.Painter;
 import level.IOnLevelLoader;
 import level.LevelAPI;
@@ -17,13 +17,16 @@ import tools.Constants;
 /** The heart of the framework. From here all strings are pulled. */
 public abstract class MainController extends ScreenAdapter implements IOnLevelLoader {
     protected SpriteBatch batch;
-    protected SpriteBatch hudBatch;
-    protected HUDCamera hudCamera;
-    protected LevelAPI levelAPI;
     protected EntityController entityController;
     protected DungeonCamera camera;
-    protected HUDController hud;
     protected Painter painter;
+
+    protected SpriteBatch hudBatch;
+    protected HUDController hudController;
+
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings protected HUDPainter hudPainter;
+
+    protected LevelAPI levelAPI;
     protected IGenerator generator;
 
     private boolean doFirstFrame = true;
@@ -58,18 +61,17 @@ public abstract class MainController extends ScreenAdapter implements IOnLevelLo
         levelAPI.update();
         entityController.update();
         camera.update();
-        hud.update();
+        hudController.update();
         endFrame();
     }
 
     private void firstFrame() {
         doFirstFrame = false;
         entityController = new EntityController();
-        setupCamera();
+        setupCameras();
         painter = new Painter(camera);
-        hudBatch = new SpriteBatch();
-        hudCamera = new HUDCamera();
-        hud = new HUDController(hudBatch, hudCamera);
+        hudPainter = new HUDPainter();
+        hudController = new HUDController(hudBatch);
         generator =
                 new LevelG(
                         Constants.getPathToRoomTemplates(),
@@ -83,8 +85,11 @@ public abstract class MainController extends ScreenAdapter implements IOnLevelLo
         this.batch = batch;
     }
 
-    /** Setting up the camera. */
-    private void setupCamera() {
+    public void setHudBatch(SpriteBatch batch) {
+        this.hudBatch = batch;
+    }
+
+    private void setupCameras() {
         camera = new DungeonCamera(null, Constants.VIRTUAL_WIDTH, Constants.VIRTUAL_HEIGHT);
         camera.zoom = Constants.DEFAULT_ZOOM_FACTOR;
 

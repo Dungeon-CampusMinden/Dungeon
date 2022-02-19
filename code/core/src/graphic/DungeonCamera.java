@@ -1,7 +1,6 @@
 package graphic;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.math.Frustum;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import interfaces.IEntity;
@@ -75,10 +74,5 @@ public class DungeonCamera extends OrthographicCamera {
                         new Vector3(x - OFFSET, y - OFFSET, 0),
                         new Vector3(x + OFFSET, y + OFFSET, 0));
         return frustum.boundsInFrustum(bounds);
-    }
-
-    /** @return the camara frustum */
-    public Frustum getFrustum() {
-        return frustum;
     }
 }

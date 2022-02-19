@@ -7,33 +7,26 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import graphic.HUDCamera;
 import interfaces.IHUDElement;
 
 public class HUDController extends AbstractController<IHUDElement> {
-    private final HUDCamera hudCamera;
-    private final SpriteBatch batch;
-    private Stage textStage;
+    private final Stage textStage;
 
     /**
      * Keeps a set of HUD elements and makes sure they are drawn.
      *
      * @param batch the batch for the HUD
      */
-    public HUDController(SpriteBatch batch, HUDCamera camera) {
-        this.batch = batch;
-        hudCamera = camera;
+    public HUDController(SpriteBatch batch) {
         textStage = new Stage(new ScreenViewport(), batch);
-        hudCamera.getPosition().set(0, 0, 0);
-        hudCamera.update();
     }
 
     /** Redraws the HUD and all HUD elements. */
     @Override
     public void update() {
-        hudCamera.update();
-        batch.setProjectionMatrix(hudCamera.combined);
-        forEach(element -> element.draw(batch));
+        removeIf(IHUDElement::removable);
+        forEach(IHUDElement::update);
+        forEach(IHUDElement::draw);
         textStage.act();
         textStage.draw();
     }

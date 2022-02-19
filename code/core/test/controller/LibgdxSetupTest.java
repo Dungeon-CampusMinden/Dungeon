@@ -24,6 +24,7 @@ class LibgdxSetupTest {
         controller = Mockito.mock(MainController.class);
         batch = Mockito.mock(SpriteBatch.class);
         PowerMockito.whenNew(SpriteBatch.class).withNoArguments().thenReturn(batch);
+
         setup = Mockito.spy(new LibgdxSetup(controller));
         PowerMockito.doNothing().when(setup, "setScreen", controller);
         PowerMockito.doNothing().when(batch).dispose();
@@ -41,6 +42,7 @@ class LibgdxSetupTest {
     public void test_create() {
         Mockito.verify(setup).create();
         Mockito.verify(controller).setSpriteBatch(batch);
+        Mockito.verify(controller).setHudBatch(batch);
         Mockito.verify(setup).setScreen(controller);
         Mockito.verifyNoMoreInteractions(setup, batch, controller);
     }
@@ -49,12 +51,13 @@ class LibgdxSetupTest {
     public void test_dispose() {
         Mockito.verify(setup).create();
         Mockito.verify(controller).setSpriteBatch(batch);
+        Mockito.verify(controller).setHudBatch(batch);
         Mockito.verify(setup).setScreen(controller);
         Mockito.verifyNoMoreInteractions(setup, batch, controller);
 
         setup.dispose();
         Mockito.verify(setup).dispose();
-        Mockito.verify(batch).dispose();
+        Mockito.verify(batch, Mockito.times(2)).dispose();
         Mockito.verifyNoMoreInteractions(setup, batch, controller);
     }
 }
