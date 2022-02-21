@@ -320,14 +320,32 @@ Um eine Grafik auf dem HUD anzeigen zu können, erstellen wir zuerst eine neue K
 
 ```java
 public class MyIcon implements IHUDElement {
-    private String texture;
-    private Painter painter;
+    private SpriteBatch batch;
+    private HUDPainter painter;
     private Point position;
+    private String texture;
 
-    public MyIcon(Painter painter, Point position, String texture){
-        this.painter=painter;
-        this.position=position;
-        this.texture=texture;
+    public MyIcon(SpriteBatch batch, HUDPainter painter, Point position, String texture) {
+        this.batch = batch;
+        this.painter = painter;
+        this.position = position;
+        this.texture = texture;
+    }
+
+    @Override
+    public void update() {
+        this.draw();
+        // this.drawWithScaling(8, 4);
+    }
+
+    @Override
+    public boolean removable() {
+        return false;
+    }
+
+    @Override
+    public SpriteBatch getBatch() {
+        return batch;
     }
 
     @Override
@@ -341,7 +359,7 @@ public class MyIcon implements IHUDElement {
     }
 
     @Override
-    public Painter getPainter() {
+    public HUDPainter getPainter() {
         return painter;
     }
 }
@@ -357,7 +375,12 @@ public class YourClass extends MainController {
     protected void setup() {
         ...
         // hinzufügen eines Elementes zum HUD
-        hud.add(new MyIcon(hudPainter,new Point(0,0),"TEXTURE"));
+        hudController.add(
+                new MyIcon(
+                        hudBatch,
+                        hudPainter,
+                        new Point(0f, 0f),
+                        TextureHandler.getInstance().getTextures("ui_heart_full.png").get(0)));
         //so entfernt man ein Element
         //hud.remove(OBJECT);
     }
@@ -405,7 +428,7 @@ public class MyGame extends MainController {
     public void onLevelLoad() {
         levelCounter++;
         if (levelCounter==1){
-            levelLabel=hud.drawText("Level"+x,"PATH/TO/FONT.ttf",Color.RED,30,50,50,30,30);
+            levelLabel=hudController.drawText("Level"+x,"PATH/TO/FONT.ttf",Color.RED,30,50,50,30,30);
         }
         else{
             levelLabel.setText("Level"+x);

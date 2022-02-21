@@ -1,17 +1,16 @@
 package controller;
 
 import static org.junit.Assume.assumeTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import interfaces.IHUDElement;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +25,8 @@ import org.powermock.reflect.Whitebox;
 @PrepareForTest({HUDController.class})
 public class HUDControllerTest {
     private SpriteBatch batch;
+    private IHUDElement element1;
+    private IHUDElement element2;
     private Stage textStage;
     private HUDController controller;
     private HUDController controllerSpy;
@@ -34,9 +35,10 @@ public class HUDControllerTest {
     @Before
     public void setUp() throws Exception {
         batch = Mockito.mock(SpriteBatch.class);
+        element1 = Mockito.mock(IHUDElement.class);
+        element2 = Mockito.mock(IHUDElement.class);
         textStage = Mockito.mock(Stage.class);
         PowerMockito.whenNew(Stage.class).withAnyArguments().thenReturn(textStage);
-        Vector3 vector3toReturn = new Vector3();
 
         controller = new HUDController(batch);
 
@@ -52,11 +54,20 @@ public class HUDControllerTest {
 
     @Test
     public void test_update() {
+        assumeTrue(controller.add(element1));
+        assumeTrue(controller.add(element2));
 
         controller.update();
+        // verify HUDController constructor logic:
+        // verify update method logic:
+        verify(element1).removable();
+        verify(element1).update();
+        verify(element2).removable();
+        verify(element2).update();
 
         verify(textStage).act();
         verify(textStage).draw();
+        verifyNoMoreInteractions(element1, element2, batch, textStage);
     }
 
     @Test
@@ -65,11 +76,10 @@ public class HUDControllerTest {
 
         controller.update();
         // verify HUDController constructor logic:
-
         // verify update method logic:
-
         verify(textStage).act();
         verify(textStage).draw();
+        verifyNoMoreInteractions(element1, element2, batch, textStage);
     }
 
     /**

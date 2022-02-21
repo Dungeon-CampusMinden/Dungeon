@@ -26,7 +26,7 @@ public class HUDController extends AbstractController<IHUDElement> {
     public void update() {
         removeIf(IHUDElement::removable);
         forEach(IHUDElement::update);
-        forEach(IHUDElement::draw);
+
         textStage.act();
         textStage.draw();
     }

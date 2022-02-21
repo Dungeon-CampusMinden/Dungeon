@@ -26,4 +26,8 @@ public interface IHUDElement {
     default void draw() {
         getPainter().draw(getTexture(), getPosition(), getBatch());
     }
+
+    default void drawWithScaling(float xScaling, float yScaling) {
+        getPainter().drawWithScaling(xScaling, yScaling, getTexture(), getPosition(), getBatch());
+    }
 }

@@ -17,11 +17,16 @@ public class HUDPainter {
         Sprite sprite = new Sprite(texture1);
 
         // set up scaling of textures
-        sprite.setSize(texture1.getWidth() * 2, texture1.getHeight() * 2);
+        sprite.setSize(
+                texture1.getWidth() / Constants.DEFAULT_ZOOM_FACTOR,
+                texture1.getHeight() / Constants.DEFAULT_ZOOM_FACTOR);
 
         // where to draw the sprite
         sprite.setPosition(
-                position.x, Constants.WINDOW_HEIGHT - position.y - texture1.getHeight() * 2);
+                position.x,
+                Constants.WINDOW_HEIGHT
+                        - position.y
+                        - texture1.getHeight() / Constants.DEFAULT_ZOOM_FACTOR);
 
         // need to be called before drawing
         batch.begin();
@@ -34,6 +39,21 @@ public class HUDPainter {
     /** Draws the instance based on its position with default offset and specific scaling. */
     public void drawWithScaling(
             float xScaling, float yScaling, String texture, Point position, SpriteBatch batch) {
-        // fixme
+        Texture texture1 = textureMap.getTexture(texture);
+        Sprite sprite = new Sprite(texture1);
+
+        // set up scaling of textures
+        sprite.setSize(texture1.getWidth() * xScaling, texture1.getHeight() * yScaling);
+
+        // where to draw the sprite
+        sprite.setPosition(
+                position.x, Constants.WINDOW_HEIGHT - position.y - texture1.getHeight() * yScaling);
+
+        // need to be called before drawing
+        batch.begin();
+        // draw sprite
+        sprite.draw(batch);
+        // need to be called after drawing
+        batch.end();
     }
 }
