@@ -14,8 +14,8 @@ This is the `core` part of the project. It contains the actual framework without
 
 To create your own game using the PM-Dungeon framework, check out the quick start guide: 
 
-- [German](./documentation/quickstart_de.md)
-- [English](./documentation/quickstart_en.md)
+- [German](https://github.com/PM-Dungeon/desktop/blob/master/documentation/quickstart_de.md)
+- [English](https://github.com/PM-Dungeon/desktop/blob/master/documentation/quickstart_en.md)
 
 ## Contributing
 
