@@ -19,7 +19,6 @@ import level.generator.dungeong.roomg.RoomTemplate;
 import level.generator.dungeong.roomg.RoomTemplateLoader;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
-import level.tools.LevelElement;
 import tools.Constants;
 
 /**
@@ -28,7 +27,6 @@ import tools.Constants;
  * @author Andre Matutat
  */
 public class LevelG implements IGenerator {
-    private static final int DOOR_SIZE = 1;
     private final GraphG graphg = new GraphG();
     private final RoomTemplateLoader roomLoader;
     private final ReplacementLoader replacementLoader;
@@ -119,6 +117,7 @@ public class LevelG implements IGenerator {
         List<Replacement> replacements;
         if (Constants.DISABLE_REPLACEMENTS) replacements = new ArrayList<>();
         else replacements = replacementLoader.getReplacements(design);
+        placeDoors(configurationSpaces);
         // replace templates
         for (ConfigurationSpace cs : configurationSpaces) {
             RoomTemplate template = cs.getTemplate();
@@ -129,7 +128,6 @@ public class LevelG implements IGenerator {
         // in rare cases, the path to the target may be blocked.
         else return getLevel(solveSeq, graph, design);
     }
-
     /**
      * Split a graph in chains.
      *
@@ -291,7 +289,6 @@ public class LevelG implements IGenerator {
             throw new NoSolutionException(
                     "No way to convert the given graph into a level using the given templates.");
 
-        placeDoors(solution, graph);
         return solution;
     }
 
@@ -310,11 +307,16 @@ public class LevelG implements IGenerator {
             List<Node> notPlaced,
             List<ConfigurationSpace> partSolution,
             List<RoomTemplate> templates) {
+        // todo switch from bfs to dfs
+
         if (notPlaced.isEmpty()) return partSolution; // end solution found
+
         // take next node
         Node thisNode = notPlaced.get(0);
         List<Node> notPlacedAfterThis = new ArrayList<>(notPlaced);
         notPlacedAfterThis.remove(thisNode);
+
+        // todo bfs starts
 
         // calculate configuration spaces for thisNode
         List<ConfigurationSpace> spaces;
@@ -335,6 +337,8 @@ public class LevelG implements IGenerator {
 
         // add some random factor
         Collections.shuffle(spaces);
+
+        // todo bfs ends
 
         // go one step deeper
         for (ConfigurationSpace cs : spaces) {
@@ -379,21 +383,22 @@ public class LevelG implements IGenerator {
             List<RoomTemplate> templates,
             List<ConfigurationSpace> partSolution) {
         List<ConfigurationSpace> possibleSpaces = new ArrayList<>();
-        for (ConfigurationSpace cs : neighbourSpaces)
-            if (possibleSpaces.isEmpty()) possibleSpaces = calCS(cs, node, templates, partSolution);
+        for (ConfigurationSpace neighbourSpace : neighbourSpaces)
+            if (possibleSpaces.isEmpty())
+                possibleSpaces = calCS(neighbourSpace, node, templates, partSolution);
             else {
-                List<ConfigurationSpace> newSpaces = calCS(cs, node, templates, partSolution);
+                List<ConfigurationSpace> newSpaces =
+                        calCS(neighbourSpace, node, templates, partSolution);
                 List<ConfigurationSpace> drop = new ArrayList<>();
-                for (ConfigurationSpace ns : newSpaces) {
+
+                for (ConfigurationSpace newSpace : newSpaces) {
                     boolean equal = false;
-
-                    for (ConfigurationSpace ps : possibleSpaces) {
-                        if (ns.getGlobalPosition().equals(ps.getGlobalPosition())
-                                && ns.layoutEquals(ps)) equal = true;
+                    for (ConfigurationSpace possibleSpace : possibleSpaces) {
+                        if (newSpace.getGlobalPosition().equals(possibleSpace.getGlobalPosition())
+                                && newSpace.layoutEquals(possibleSpace)) equal = true;
                     }
-                    if (!equal) drop.add(ns);
+                    if (!equal) drop.add(newSpace);
                 }
-
                 possibleSpaces = newSpaces;
                 possibleSpaces.removeAll(drop);
             }
@@ -418,180 +423,78 @@ public class LevelG implements IGenerator {
 
         List<ConfigurationSpace> spaces = new ArrayList<>();
         for (RoomTemplate layout : template) {
-            List<Coordinate> possiblePoints = new ArrayList<>();
+            List<ConfigurationSpace> possibleCS = new ArrayList<>();
             // this the first node placed in the level.
             if (level.isEmpty()) {
-                possiblePoints.add(new Coordinate(0, 0));
+                possibleCS.add(new ConfigurationSpace(layout, dynamicNode, new Coordinate(0, 0)));
             } else {
-                possiblePoints = calAttachingPoints(staticSpace, layout);
+                possibleCS = getCSDoors(staticSpace, layout, dynamicNode);
             }
-            for (Coordinate position : possiblePoints) {
+            for (ConfigurationSpace possibleSpace : possibleCS) {
                 boolean isValid = true;
-                for (ConfigurationSpace sp : level)
-                    if (sp.overlap(layout, position)) {
+                for (ConfigurationSpace levelSpace : level)
+                    if (levelSpace.overlap(possibleSpace)) {
                         isValid = false;
                         break;
                     }
-                if (isValid)
-                    spaces.add(
-                            new ConfigurationSpace(
-                                    new RoomTemplate(layout), dynamicNode, position));
+                if (isValid) spaces.add(possibleSpace);
             }
         }
         return spaces;
     }
 
     /**
-     * Calculate where a dynamic room-template can be attached to a static room-template.
+     * Creates a ConfigurationSpace for each Door-Combination Doesn't check for overlapping.
      *
      * @param staticSpace Where to attach.
      * @param template What to attach.
-     * @return All possible positions for the global reference-point that will attach the two
-     *     templates.
+     * @return All ConfigurationSpaces where doors are connected.
      */
-    private List<Coordinate> calAttachingPoints(
-            ConfigurationSpace staticSpace, RoomTemplate template) {
+    private List<ConfigurationSpace> getCSDoors(
+            ConfigurationSpace staticSpace, RoomTemplate template, Node dynamicNode) {
         int difx = staticSpace.getGlobalPosition().x - staticSpace.getTemplate().getLocalRef().x;
         int dify = staticSpace.getGlobalPosition().y - staticSpace.getTemplate().getLocalRef().y;
-        LevelElement[][] layout = staticSpace.getTemplate().getLayout();
-        List<Coordinate> attachingPoints = new ArrayList<>();
-        List<Coordinate> outerWalls = staticSpace.getOuterWalls();
-
-        for (Coordinate wall : outerWalls) {
-            Coordinate localPoint = new Coordinate(wall.x - difx, wall.y - dify);
-            Coordinate moveSpeed = getTypeOfWall(localPoint, layout);
-            int xMovement = moveSpeed.x;
-            int yMovement = moveSpeed.y;
-            Coordinate position = new Coordinate(wall.x, wall.y);
-            if (yMovement != 0) {
-                Coordinate newPosition = new Coordinate(position.x, position.y + yMovement);
-                do {
-                    if (staticSpace.attached(template, newPosition, DOOR_SIZE))
-                        attachingPoints.add(newPosition);
-
-                    // move up or down
-                    newPosition = new Coordinate(newPosition.x, newPosition.y + yMovement);
-
-                    // moveleft
-                    moveTemplate(newPosition, -1, 0, attachingPoints, staticSpace, template);
-                    // move right
-                    moveTemplate(newPosition, 1, 0, attachingPoints, staticSpace, template);
-                } while (staticSpace.overlap(template, newPosition));
-
-            } else if (xMovement != 0) {
-                Coordinate newPosition = new Coordinate(position.x, position.y + yMovement);
-                do {
-                    if (staticSpace.attached(template, newPosition, DOOR_SIZE))
-                        attachingPoints.add(newPosition);
-
-                    // move left or right
-                    newPosition = new Coordinate(newPosition.x + xMovement, newPosition.y);
-
-                    // movedown
-                    moveTemplate(newPosition, 0, -1, attachingPoints, staticSpace, template);
-                    // move up
-                    moveTemplate(newPosition, 0, 1, attachingPoints, staticSpace, template);
-                } while (staticSpace.overlap(template, newPosition));
+        List<Coordinate> staticDoors = staticSpace.getTemplate().getDoors();
+        List<Coordinate> dynamicDoors = template.getDoors();
+        List<ConfigurationSpace> doorCS = new ArrayList<>();
+        for (Coordinate staticDoor : staticDoors) {
+            Coordinate staticDoorGlobal = new Coordinate(staticDoor.x + difx, staticDoor.y + dify);
+            for (Coordinate door : dynamicDoors) {
+                template.setLocalRef(door);
+                doorCS.add(new ConfigurationSpace(template, dynamicNode, staticDoorGlobal));
             }
         }
-
-        return attachingPoints;
+        return doorCS;
     }
 
     /**
-     * help method for calAttachingPoints. x=-1 y=0 if wall is on the left x=1 y=0 if wall is on the
-     * right x=0 y=-1 if wall is on the bottom x=0 y=1 if wall is on the top
+     * Checks each possible door and marks them as used if they are.
      *
-     * @param localPoint
-     * @param layout
-     * @return
+     * @param level The Level in his ConfigurationSpace format
      */
-    private Coordinate getTypeOfWall(Coordinate localPoint, LevelElement[][] layout) {
-        int xMovement;
-        int yMovement;
-        // wall is on the right
-        xMovement = 1;
-        yMovement = 0;
-        // or wall is on the left?
-        if (localPoint.x == 0
-                || layout[(int) localPoint.y][(int) localPoint.x - 1] == LevelElement.SKIP)
-            xMovement = -1;
-        // or wall is on the top?
-        else if (localPoint.y == layout.length - 1
-                || layout[(int) localPoint.y + 1][(int) localPoint.x] == LevelElement.SKIP) {
-            xMovement = 0;
-            yMovement = 1;
-        }
-        // or wall is on the bottom?
-        else if (localPoint.y == 0
-                || layout[(int) localPoint.y - 1][(int) localPoint.x] == LevelElement.SKIP) {
-            xMovement = 0;
-            yMovement = -1;
-        }
+    private void placeDoors(List<ConfigurationSpace> level) {
+        for (ConfigurationSpace cS : level)
+            for (Coordinate cD : cS.getTemplate().getDoors()) {
+                // calculate global door coordinate
+                int difx = cS.getGlobalPosition().x - cS.getTemplate().getLocalRef().x;
+                int dify = cS.getGlobalPosition().y - cS.getTemplate().getLocalRef().y;
+                Coordinate cdg = new Coordinate(cD.x + difx, cD.y + dify);
+                // check all other rooms for doors at the same coordinate
+                for (ConfigurationSpace oS : level)
+                    if (!cS.equals(oS))
+                        for (Coordinate oD : oS.getTemplate().getDoors()) {
+                            // calculate global door coordinate
+                            int odifx = oS.getGlobalPosition().x - oS.getTemplate().getLocalRef().x;
+                            int odify = oS.getGlobalPosition().y - oS.getTemplate().getLocalRef().y;
+                            Coordinate odg = new Coordinate(oD.x + odifx, oD.y + odify);
 
-        return new Coordinate(xMovement, yMovement);
-    }
-
-    /**
-     * moves a template in the given direction and checks, if it can be attached. stops if out of
-     * range-
-     *
-     * @param position where to start
-     * @param xMovement go left or right?
-     * @param yMovement go down or up?
-     * @param attachingPoints where to add the attachingPoints?
-     * @param staticSpace space to attach on
-     * @param template RoomTemplate to use
-     */
-    private void moveTemplate(
-            Coordinate position,
-            int xMovement,
-            int yMovement,
-            List<Coordinate> attachingPoints,
-            ConfigurationSpace staticSpace,
-            RoomTemplate template) {
-        Coordinate newPosition = new Coordinate(position);
-        do {
-            newPosition = new Coordinate(newPosition.x, newPosition.y);
-            newPosition.y += yMovement;
-            newPosition.x += xMovement;
-            if (staticSpace.attached(template, newPosition, DOOR_SIZE)) {
-                attachingPoints.add(newPosition);
+                            // if doors are on the same spot, mark them as used
+                            if (cdg.equals(odg)) {
+                                cS.getTemplate().useDoor(cD);
+                                oS.getTemplate().useDoor(oD);
+                            }
+                        }
             }
-        } while (staticSpace.overlap(template, newPosition));
-    }
-
-    /**
-     * Remove walls in room-templates to create doors.
-     *
-     * @param levelLayout All rooms and there positions in the level.
-     * @param graph Graph of the level.
-     */
-    private void placeDoors(List<ConfigurationSpace> levelLayout, Graph graph) {
-        for (Node node : graph.getNodes()) {
-            ConfigurationSpace nodeCS = getSpaceToNode(levelLayout, node);
-            assert nodeCS != null;
-            LevelElement[][] layout = nodeCS.getTemplate().getLayout();
-            List<Node> neighbourNodes = new ArrayList<>();
-            node.getNeighbours().forEach(index -> neighbourNodes.add(graph.getNodes().get(index)));
-            neighbourNodes.removeIf(neighbour -> neighbour.getIndex() < node.getIndex());
-            List<ConfigurationSpace> neighbourSpaces = new ArrayList<>();
-            neighbourNodes.forEach(
-                    neighbourSpace ->
-                            neighbourSpaces.add(getSpaceToNode(levelLayout, neighbourSpace)));
-            for (ConfigurationSpace neighbourSpace : neighbourSpaces) {
-                List<Coordinate> localDoorPositions = nodeCS.getAttachingPoints(neighbourSpace);
-                Coordinate myDoor = localDoorPositions.get(2);
-                Coordinate otherDoor = localDoorPositions.get(3);
-
-                layout[myDoor.y][myDoor.x] = LevelElement.DOOR;
-
-                LevelElement[][] otherLayout = neighbourSpace.getTemplate().getLayout();
-                otherLayout[otherDoor.y][otherDoor.x] = LevelElement.DOOR;
-                neighbourSpace.getTemplate().setLayout(otherLayout);
-            }
-            nodeCS.getTemplate().setLayout(layout);
-        }
     }
 
     /**

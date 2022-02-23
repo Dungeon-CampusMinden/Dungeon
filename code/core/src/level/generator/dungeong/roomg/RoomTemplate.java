@@ -17,6 +17,7 @@ public class RoomTemplate {
     private LevelElement[][] layout;
     private DesignLabel design;
     private Coordinate localRef;
+    private List<Coordinate> doors;
 
     /**
      * A RoomTemplate can be used to create a room.
@@ -39,6 +40,17 @@ public class RoomTemplate {
         layout = r.getLayout();
         design = r.getDesign();
         localRef = r.getLocalRef();
+        doors = new ArrayList<>();
+        for (Coordinate c : r.getDoors()) doors.add(c);
+    }
+
+    private void calculateDoors() {
+        if (doors == null) {
+            doors = new ArrayList<>();
+            for (int x = 0; x < layout[0].length; x++)
+                for (int y = 0; y < layout.length; y++)
+                    if (layout[y][x] == LevelElement.DOOR) doors.add(new Coordinate(x, y));
+        }
     }
 
     /** @return A new template with a 90degree rotated layout. */
@@ -50,6 +62,7 @@ public class RoomTemplate {
         for (int row = 0; row < mSize; row++)
             for (int col = 0; col < nSize; col++)
                 rotatedLayout[col][mSize - 1 - row] = originalLayout[row][col];
+
         return new RoomTemplate(rotatedLayout, getDesign(), getLocalRef());
     }
 
@@ -64,6 +77,7 @@ public class RoomTemplate {
         allRotations.add(r180.rotateTemplate());
         return allRotations;
     }
+
     /**
      * Replace all placeholder with the replacements in the list.
      *
@@ -110,7 +124,8 @@ public class RoomTemplate {
         for (int y = 0; y < layoutHeight; y++)
             for (int x = 0; x < layoutWidth; x++)
                 if (roomLayout[y][x] == LevelElement.WILD) roomLayout[y][x] = LevelElement.FLOOR;
-
+                else if (roomLayout[y][x] == LevelElement.DOOR)
+                    roomLayout[y][x] = LevelElement.WALL;
         return new Room(roomLayout, design, localRef, globalRef);
     }
 
@@ -187,6 +202,11 @@ public class RoomTemplate {
         return copy;
     }
 
+    public List<Coordinate> getDoors() {
+        if (doors == null) calculateDoors();
+        return doors;
+    }
+
     public DesignLabel getDesign() {
         return design;
     }
@@ -196,6 +216,14 @@ public class RoomTemplate {
     }
 
     public Coordinate getLocalRef() {
-        return localRef;
+        return new Coordinate(localRef.x, localRef.y);
+    }
+
+    public void setLocalRef(Coordinate c) {
+        localRef = c;
+    }
+
+    public void useDoor(Coordinate c) {
+        layout[c.y][c.x] = LevelElement.FLOOR;
     }
 }

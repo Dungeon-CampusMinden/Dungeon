@@ -1,7 +1,8 @@
 package controller;
 
 import static org.junit.Assume.assumeTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;

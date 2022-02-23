@@ -52,7 +52,7 @@ public class ReplacementLoader {
      * Returns a list of Replacements that have the corresponding DesignLabel.
      *
      * @param label The DesignLabel, use ALL if you don't care.
-     * @return The list with replacments.
+     * @return The list with replacements.
      */
     public List<Replacement> getReplacements(DesignLabel label) {
         List<Replacement> results = new ArrayList<>(replacements);
