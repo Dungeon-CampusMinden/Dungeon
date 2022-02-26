@@ -17,7 +17,7 @@ jobs:
                 uses: actions/setup-java@v2
                 with:
                     java-version: '17'
-                    distribution: 'adopt'
+                    distribution: 'temurin'
             -   name: Validate Gradle wrapper
                 uses: gradle/wrapper-validation-action@v1
             -   name: Build with Gradle
@@ -38,7 +38,7 @@ jobs:
                 uses: actions/setup-java@v2
                 with:
                     java-version: '17'
-                    distribution: 'adopt'
+                    distribution: 'temurin'
             -   name: JUnit
                 run: ./gradlew test
                 working-directory: code
@@ -59,7 +59,7 @@ jobs:
                 uses: actions/setup-java@v2
                 with:
                     java-version: '17'
-                    distribution: 'adopt'
+                    distribution: 'temurin'
             -   name: SpotBugs
                 run: |
                     ./gradlew spotbugsMain
@@ -82,7 +82,7 @@ jobs:
                 uses: actions/setup-java@v2
                 with:
                     java-version: '17'
-                    distribution: 'adopt'
+                    distribution: 'temurin'
             -   name: Checkstyle
                 run: ./gradlew check
                 working-directory: code
@@ -102,7 +102,7 @@ jobs:
                 uses: actions/setup-java@v2
                 with:
                     java-version: '17'
-                    distribution: 'adopt'
+                    distribution: 'temurin'
             -   name: Spotless
                 run: ./gradlew spotlessJavaCheck
                 working-directory: code
