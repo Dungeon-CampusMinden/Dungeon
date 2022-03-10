@@ -15,8 +15,8 @@ import level.tools.LevelElement;
  */
 public class Tile {
 
-    private final Array<Connection<Tile>> connections = new Array<>();
     private final Coordinate globalPosition;
+    private transient Array<Connection<Tile>> connections = new Array<>();
     private String texture;
     private LevelElement e;
     private int index;
@@ -81,6 +81,7 @@ public class Tile {
      * @param to Tile to connect with.
      */
     public void addConnection(Tile to) {
+        if (connections == null) connections = new Array<>();
         connections.add(new TileConnection(this, to));
     }
 

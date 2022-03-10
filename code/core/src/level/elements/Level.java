@@ -6,6 +6,11 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.utils.Array;
+import com.google.gson.Gson;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -377,5 +382,28 @@ public class Level implements IndexedGraph<Tile> {
     @Override
     public Array<Connection<Tile>> getConnections(Tile fromNode) {
         return fromNode.getConnections();
+    }
+
+    /**
+     * Converts Level in JSON.
+     *
+     * @return Level as JSON
+     */
+    public String toJSON() {
+        return new Gson().toJson(this);
+    }
+
+    /**
+     * Writes down this level in a json.
+     *
+     * @param path Where to save.
+     */
+    public void writeToJSON(String path) {
+        try (BufferedWriter writer =
+                new BufferedWriter(new FileWriter(path, StandardCharsets.UTF_8))) {
+            writer.write(toJSON());
+        } catch (IOException e) {
+            System.out.println("File" + path + " not found");
+        }
     }
 }

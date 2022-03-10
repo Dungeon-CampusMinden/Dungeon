@@ -25,12 +25,12 @@ public class LevelLoader implements IGenerator {
         return loadLevel(levelFile.getPath());
     }
 
-    private Level loadLevel(String path) {
+    public Level loadLevel(String path) {
         Type levelType = new TypeToken<Level>() {}.getType();
-        JsonReader reader = null;
-        try {
-            reader = new JsonReader(new FileReader(path, StandardCharsets.UTF_8));
-            return new Gson().fromJson(reader, levelType);
+        try (JsonReader reader = new JsonReader(new FileReader(path, StandardCharsets.UTF_8))) {
+            Level level = new Gson().fromJson(reader, levelType);
+            level.makeConnections();
+            return level;
         } catch (FileNotFoundException e) {
             System.out.println("File not found.");
             e.printStackTrace();
