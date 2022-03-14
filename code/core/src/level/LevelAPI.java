@@ -53,7 +53,7 @@ public class LevelAPI {
                     if (t.getLevelElement() != LevelElement.SKIP)
                         painter.draw(
                                 t.getTexture(),
-                                new Point(t.getGlobalPosition().x, t.getGlobalPosition().y),
+                                new Point(t.getCoordinate().x, t.getCoordinate().y),
                                 batch);
                 }
     }

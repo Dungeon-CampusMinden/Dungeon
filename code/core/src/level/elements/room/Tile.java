@@ -55,7 +55,7 @@ public class Tile {
         return texture;
     }
 
-    public Coordinate getGlobalPosition() {
+    public Coordinate getCoordinate() {
         return globalPosition;
     }
 
@@ -98,13 +98,13 @@ public class Tile {
      */
     public Direction[] directionTo(Tile goal) {
         List<Direction> directions = new ArrayList<>();
-        if (globalPosition.x < goal.getGlobalPosition().x) {
+        if (globalPosition.x < goal.getCoordinate().x) {
             directions.add(Direction.E);
-        } else if (globalPosition.x > goal.getGlobalPosition().x) {
+        } else if (globalPosition.x > goal.getCoordinate().x) {
             directions.add(Direction.W);
-        } else if (globalPosition.y < goal.globalPosition.y) {
+        } else if (globalPosition.y < goal.getCoordinate().y) {
             directions.add(Direction.N);
-        } else if (globalPosition.y > goal.globalPosition.y) {
+        } else if (globalPosition.y > goal.getCoordinate().y) {
             directions.add(Direction.S);
         }
         return directions.toArray(new Direction[0]);

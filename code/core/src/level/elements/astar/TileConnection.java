@@ -20,10 +20,10 @@ public class TileConnection implements Connection<Tile> {
         this.to = to;
         this.cost =
                 Vector2.dst(
-                        from.getGlobalPosition().x,
-                        from.getGlobalPosition().y,
-                        to.getGlobalPosition().x,
-                        to.getGlobalPosition().y);
+                        from.getCoordinate().x,
+                        from.getCoordinate().y,
+                        to.getCoordinate().x,
+                        to.getCoordinate().y);
     }
 
     @Override

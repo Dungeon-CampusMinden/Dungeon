@@ -17,9 +17,9 @@ public class TileHeuristic implements Heuristic<Tile> {
     @Override
     public float estimate(Tile start, Tile goal) {
         return Vector2.dst2(
-                start.getGlobalPosition().x,
-                start.getGlobalPosition().y,
-                goal.getGlobalPosition().x,
-                goal.getGlobalPosition().y);
+                start.getCoordinate().x,
+                start.getCoordinate().y,
+                goal.getCoordinate().x,
+                goal.getCoordinate().y);
     }
 }

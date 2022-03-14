@@ -7,6 +7,7 @@ import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.utils.Array;
 import com.google.gson.Gson;
+import interfaces.IEntity;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -249,7 +250,7 @@ public class Level implements IndexedGraph<Tile> {
         for (Room r : rooms) {
             for (int y = 0; y < r.getLayout().length; y++)
                 for (int x = 0; x < r.getLayout()[0].length; x++)
-                    if (r.getLayout()[y][x].getGlobalPosition().equals(globalPoint))
+                    if (r.getLayout()[y][x].getCoordinate().equals(globalPoint))
                         return r.getLayout()[y][x];
         }
         return null;
@@ -265,7 +266,7 @@ public class Level implements IndexedGraph<Tile> {
         for (Room r : rooms) {
             for (int y = 0; y < r.getLayout().length; y++)
                 for (int x = 0; x < r.getLayout()[0].length; x++)
-                    if (r.getLayout()[y][x].getGlobalPosition().equals(globalPoint)) return r;
+                    if (r.getLayout()[y][x].getCoordinate().equals(globalPoint)) return r;
         }
         return null;
     }
@@ -343,28 +344,24 @@ public class Level implements IndexedGraph<Tile> {
 
         // upperTile
         Coordinate upper =
-                new Coordinate(
-                        checkTile.getGlobalPosition().x, checkTile.getGlobalPosition().y + 1);
+                new Coordinate(checkTile.getCoordinate().x, checkTile.getCoordinate().y + 1);
         Tile upperTile = getTileAt(upper);
         if (upperTile != null && upperTile.isAccessible()) checkTile.addConnection(upperTile);
 
         // lowerTile
         Coordinate lower =
-                new Coordinate(
-                        checkTile.getGlobalPosition().x, checkTile.getGlobalPosition().y - 1);
+                new Coordinate(checkTile.getCoordinate().x, checkTile.getCoordinate().y - 1);
         Tile lowerTile = getTileAt(lower);
         if (lowerTile != null && lowerTile.isAccessible()) checkTile.addConnection(lowerTile);
 
         // leftTile
         Coordinate left =
-                new Coordinate(
-                        checkTile.getGlobalPosition().x - 1, checkTile.getGlobalPosition().y);
+                new Coordinate(checkTile.getCoordinate().x - 1, checkTile.getCoordinate().y);
         Tile leftTile = getTileAt(left);
         if (leftTile != null && leftTile.isAccessible()) checkTile.addConnection(leftTile);
         // rightTile
         Coordinate right =
-                new Coordinate(
-                        checkTile.getGlobalPosition().x + 1, checkTile.getGlobalPosition().y);
+                new Coordinate(checkTile.getCoordinate().x + 1, checkTile.getCoordinate().y);
         Tile rightTile = getTileAt(right);
         if (rightTile != null && rightTile.isAccessible()) checkTile.addConnection(rightTile);
     }
@@ -382,6 +379,16 @@ public class Level implements IndexedGraph<Tile> {
     @Override
     public Array<Connection<Tile>> getConnections(Tile fromNode) {
         return fromNode.getConnections();
+    }
+
+    /**
+     * Checks if the passed entity is on the tile to the next level.
+     *
+     * @param entity entity to check for.
+     * @return if the passed entity is on the tile to the next level
+     */
+    public boolean isOnEndTile(IEntity entity) {
+        return entity.getPosition().toCoordinate().equals(getEndTile().getCoordinate());
     }
 
     /**
