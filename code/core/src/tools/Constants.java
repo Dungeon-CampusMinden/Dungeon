@@ -18,7 +18,7 @@ public final class Constants {
 
     /** 200% zoom. */
     public static final float DEFAULT_ZOOM_FACTOR = 0.5f;
-
+    /** Disable Replacements in DungeonG. */
     public static final boolean DISABLE_REPLACEMENTS = true;
 
     /**

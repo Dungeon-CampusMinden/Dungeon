@@ -79,10 +79,11 @@ public class Level implements IndexedGraph<Tile> {
         return rooms.get(nodes.indexOf(node));
     }
 
+    /** @return A list with all rooms. */
     public List<Room> getRooms() {
         return rooms;
     }
-
+    /** @return A list with all nodes. */
     public List<Node> getNodes() {
         return nodes;
     }
@@ -156,6 +157,7 @@ public class Level implements IndexedGraph<Tile> {
         endTile = end;
     }
 
+    /** Mark a random tile as start */
     public void setRandomStart() {
         Node startN = getRandomNode();
         Tile startT = getRoomToNode(startN).getRandomFloorTile();
@@ -163,6 +165,7 @@ public class Level implements IndexedGraph<Tile> {
         setStartNode(startN);
     }
 
+    /** Mark a random tile as end */
     public void setRandomEnd() {
         Node endN = getRandomNode();
         Tile endT = getRoomToNode(endN).getRandomFloorTile();

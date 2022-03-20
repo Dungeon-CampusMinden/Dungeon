@@ -16,17 +16,25 @@ import tools.Constants;
 
 /** The heart of the framework. From here all strings are pulled. */
 public abstract class MainController extends ScreenAdapter implements IOnLevelLoader {
+    /**
+     * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
+     * batch.
+     */
     protected SpriteBatch batch;
+
     protected EntityController entityController;
     protected DungeonCamera camera;
+    /** Draws objects */
     protected Painter painter;
-
+    /** This batch is used to draw the HUD elements on it. */
     protected SpriteBatch hudBatch;
-    protected HUDController hudController;
 
+    protected HUDController hudController;
+    /** Draws hud */
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings protected HUDPainter hudPainter;
 
     protected LevelAPI levelAPI;
+    /** Generates the level */
     protected IGenerator generator;
 
     private boolean doFirstFrame = true;

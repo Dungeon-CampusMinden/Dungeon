@@ -27,6 +27,12 @@ public interface IHUDElement {
         getPainter().draw(getTexture(), getPosition(), getBatch());
     }
 
+    /**
+     * Draws this instance on the batch with a scaling.
+     *
+     * @param xScaling x-scale
+     * @param yScaling y-scale
+     */
     default void drawWithScaling(float xScaling, float yScaling) {
         getPainter().drawWithScaling(xScaling, yScaling, getTexture(), getPosition(), getBatch());
     }

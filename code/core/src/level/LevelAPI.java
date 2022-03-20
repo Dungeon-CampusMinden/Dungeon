@@ -11,6 +11,7 @@ import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import tools.Point;
 
+/** Manages the level. */
 public class LevelAPI {
     private final SpriteBatch batch;
     private final Painter painter;
@@ -18,25 +19,48 @@ public class LevelAPI {
     private IGenerator gen;
     private Level currentLevel;
 
+    /**
+     * @param batch Batch on which to draw.
+     * @param painter Who draws?
+     * @param generator Level generator
+     * @param onLevelLoader Object that implements the onLevelLoad method.
+     */
     public LevelAPI(
-            SpriteBatch batch, Painter painter, IGenerator gen, IOnLevelLoader onLevelLoader) {
-        this.gen = gen;
+            SpriteBatch batch,
+            Painter painter,
+            IGenerator generator,
+            IOnLevelLoader onLevelLoader) {
+        this.gen = generator;
         this.batch = batch;
         this.painter = painter;
         this.onLevelLoader = onLevelLoader;
     }
 
+    /**
+     * Load a new level.
+     *
+     * @throws NoSolutionException if no level can be loaded.
+     */
     public void loadLevel() throws NoSolutionException {
         currentLevel = gen.getLevel();
         onLevelLoader.onLevelLoad();
     }
 
+    /**
+     * Load a new level with the given configuration.
+     *
+     * @param nodes Number of rooms in the level
+     * @param edges Number of loops in the level
+     * @param designLabel design of the level
+     * @throws NoSolutionException if no level can be loaded.
+     */
     public void loadLevel(int nodes, int edges, DesignLabel designLabel)
             throws NoSolutionException {
         currentLevel = gen.getLevel(nodes, edges, designLabel);
         onLevelLoader.onLevelLoad();
     }
 
+    /** Draw level */
     public void update() {
         drawLevel();
     }
@@ -58,6 +82,11 @@ public class LevelAPI {
                 }
     }
 
+    /**
+     * Set the level generator
+     *
+     * @param generator new level generator
+     */
     public void setGenerator(IGenerator generator) {
         gen = generator;
     }

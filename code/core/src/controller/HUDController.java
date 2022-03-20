@@ -35,7 +35,7 @@ public class HUDController extends AbstractController<IHUDElement> {
      * Draws a given text on the screen.
      *
      * @param text text to draw
-     * @param fontPath font to use
+     * @param fontPath path to the font
      * @param color color to use
      * @param size font size to use
      * @param width width of the text box
@@ -76,7 +76,7 @@ public class HUDController extends AbstractController<IHUDElement> {
      * Draws a given text on the screen.
      *
      * @param text text to draw
-     * @param fontPath font to use
+     * @param fontPath path to the font
      * @param color color to use
      * @param size font size to use
      * @param width width of the text box

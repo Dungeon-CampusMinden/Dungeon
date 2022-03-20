@@ -2,6 +2,7 @@ package level.tools;
 
 import tools.Point;
 
+/** Coordinate in the dungeon, based on array index. */
 public class Coordinate {
 
     public int x;

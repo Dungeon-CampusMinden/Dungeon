@@ -16,6 +16,11 @@ import tools.Constants;
 
 public class LevelLoader implements IGenerator {
 
+    /**
+     * Load a level from a json
+     *
+     * @return loaded level
+     */
     @Override
     public Level getLevel() {
         File dir = new File(Constants.getPathToLevel());
@@ -25,6 +30,12 @@ public class LevelLoader implements IGenerator {
         return loadLevel(levelFile.getPath());
     }
 
+    /**
+     * Load a level from a json
+     *
+     * @param path Path to json
+     * @return loaded level
+     */
     public Level loadLevel(String path) {
         Type levelType = new TypeToken<Level>() {}.getType();
         try (JsonReader reader = new JsonReader(new FileReader(path, StandardCharsets.UTF_8))) {

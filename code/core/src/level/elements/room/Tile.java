@@ -55,6 +55,7 @@ public class Tile {
         return texture;
     }
 
+    /** @return The global coordinate of the tile. */
     public Coordinate getCoordinate() {
         return globalPosition;
     }

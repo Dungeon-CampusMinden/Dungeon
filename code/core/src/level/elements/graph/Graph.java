@@ -3,11 +3,16 @@ package level.elements.graph;
 import java.util.ArrayList;
 import java.util.List;
 
-/** @author Andre Matutat */
+/**
+ * A graph indicating the structure of the level
+ *
+ * @author Andre Matutat
+ */
 public class Graph {
-
+    // Prevents the generation of non-planar graphs.
     private static final int MAX_NODES = 4;
     private static final int MAX_NEIGHBOURS = 2;
+
     private final List<Node> nodes = new ArrayList<>();
     private final List<BFEdge> bfEdges = new ArrayList<>();
 

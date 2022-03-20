@@ -1,25 +1,36 @@
 package level.tools;
 
 public class TileTextureFactory {
-
+    /**
+     * Checks which texture must be used for the passed field based on the surrounding fields.
+     *
+     * @param element Element to check for
+     * @param design Design of the element
+     * @param layout The level
+     * @param position Position of the element.
+     * @return Path to texture
+     */
     public static String findTexture(
-            LevelElement e, DesignLabel l, LevelElement[][] layout, Coordinate p) {
-        String path = l.name().toLowerCase() + "/";
-        if (e == LevelElement.SKIP) path += "floor/empty";
-        else if (e == LevelElement.FLOOR) path += "floor/floor_1";
-        else if (e == LevelElement.EXIT) path += "floor/floor_ladder";
-        else if (e == LevelElement.DOOR) path += "floor/floor_1";
+            LevelElement element,
+            DesignLabel design,
+            LevelElement[][] layout,
+            Coordinate position) {
+        String path = design.name().toLowerCase() + "/";
+        if (element == LevelElement.SKIP) path += "floor/empty";
+        else if (element == LevelElement.FLOOR) path += "floor/floor_1";
+        else if (element == LevelElement.EXIT) path += "floor/floor_ladder";
+        else if (element == LevelElement.DOOR) path += "floor/floor_1";
 
         // is field in a non-playable area?
-        else if (isInSpace(p, layout)) path += "floor/empty";
+        else if (isInSpace(position, layout)) path += "floor/empty";
 
         // walls
-        else if (isRightWall(p, layout)) path += "wall/right";
-        else if (isLeftWall(p, layout)) path += "wall/left";
-        else if (isSideWall(p, layout)) path += "wall/side";
-        else if (isTopWall(p, layout)) path += "wall/top";
-        else if (isBottomWall(p, layout)) path += "wall/bottom";
-        else if (isBottomAndTopWall(p, layout)) path += "wall/top_bottom";
+        else if (isRightWall(position, layout)) path += "wall/right";
+        else if (isLeftWall(position, layout)) path += "wall/left";
+        else if (isSideWall(position, layout)) path += "wall/side";
+        else if (isTopWall(position, layout)) path += "wall/top";
+        else if (isBottomWall(position, layout)) path += "wall/bottom";
+        else if (isBottomAndTopWall(position, layout)) path += "wall/top_bottom";
 
         /*     //crossroads
                 else if (isFourWayCross(p, layout))
@@ -34,10 +45,10 @@ public class TileTextureFactory {
                     path += "wall/threeway_cross_right";
         */
         // corners
-        else if (isBottomLeftCorner(p, layout)) path += "wall/corner_bottom_left";
-        else if (isBottomRightCorner(p, layout)) path += "wall/corner_bottom_right";
-        else if (isUpperRightCorner(p, layout)) path += "wall/corner_upper_right";
-        else if (isUpperLeftCorner(p, layout)) path += "wall/corner_upper_left";
+        else if (isBottomLeftCorner(position, layout)) path += "wall/corner_bottom_left";
+        else if (isBottomRightCorner(position, layout)) path += "wall/corner_bottom_right";
+        else if (isUpperRightCorner(position, layout)) path += "wall/corner_upper_right";
+        else if (isUpperLeftCorner(position, layout)) path += "wall/corner_upper_left";
 
         // fehler zustand
         else path += "floor/empty";

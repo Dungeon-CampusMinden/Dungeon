@@ -2,8 +2,13 @@ package controller;
 
 import java.util.LinkedHashSet;
 
+/**
+ * A controller is a LinkedHashSet and manages elements of a specific type.
+ *
+ * @param <T> Type of elements to manage.
+ */
 public abstract class AbstractController<T> extends LinkedHashSet<T> {
-    /** Updates all Elements that are registered at this controller */
+    /** Updates all elements that are registered at this controller */
     public abstract void update();
 
     @Override

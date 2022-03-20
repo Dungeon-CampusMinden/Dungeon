@@ -15,6 +15,7 @@ public enum LevelElement {
     WALL(1),
     /** This field is the exit-field to the next level */
     EXIT(3),
+    /** This field is a door-field */
     DOOR(4);
 
     private int value;

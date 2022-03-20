@@ -13,7 +13,7 @@ public class LibgdxSetup extends Game {
      * batch.
      */
     private SpriteBatch batch;
-
+    /** This batch is used to draw the HUD elements on it. */
     private SpriteBatch hudBatch;
 
     /**
