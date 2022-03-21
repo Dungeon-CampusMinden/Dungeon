@@ -21,6 +21,12 @@ public final class Constants {
     /** Disable Replacements in DungeonG. */
     public static final boolean DISABLE_REPLACEMENTS = true;
 
+    /** Sets the window title for the LibGDX window. */
+    public static final String WINDOW_TITLE = "PM-Dungeon";
+
+    /** Sets the LibGDX-window logo path. */
+    public static final String LOGO_PATH = "logo/logo32x32.png";
+
     /**
      * @param path the relative path to the resource
      * @return the absolute path of the internal resource
