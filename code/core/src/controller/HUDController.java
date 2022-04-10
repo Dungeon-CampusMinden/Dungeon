@@ -1,5 +1,6 @@
 package controller;
 
+import basiselements.HUDElement;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -7,9 +8,8 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import interfaces.IHUDElement;
 
-public class HUDController extends AbstractController<IHUDElement> {
+public class HUDController extends AbstractController<HUDElement> {
     private final Stage textStage;
 
     /**
@@ -24,9 +24,9 @@ public class HUDController extends AbstractController<IHUDElement> {
     /** Redraws the HUD and all HUD elements. */
     @Override
     public void update() {
-        removeIf(IHUDElement::removable);
-        forEach(IHUDElement::update);
-
+        removeIf(HUDElement::removable);
+        forEach(HUDElement::update);
+        forEach(HUDElement::draw);
         textStage.act();
         textStage.draw();
     }

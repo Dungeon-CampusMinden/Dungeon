@@ -6,7 +6,7 @@ import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import interfaces.IEntity;
+import basiselements.Entity;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,13 +19,13 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({EntityController.class})
 public class EntityControllerTest {
-    private IEntity entity1, entity2;
+    private Entity entity1, entity2;
     private EntityController controller;
 
     @Before
     public void setUp() {
-        entity1 = Mockito.mock(IEntity.class);
-        entity2 = Mockito.mock(IEntity.class);
+        entity1 = Mockito.mock(Entity.class);
+        entity2 = Mockito.mock(Entity.class);
         controller = new EntityController();
     }
 

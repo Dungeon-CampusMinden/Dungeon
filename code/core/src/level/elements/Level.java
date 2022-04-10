@@ -1,5 +1,6 @@
 package level.elements;
 
+import basiselements.Entity;
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
 import com.badlogic.gdx.ai.pfa.GraphPath;
@@ -7,7 +8,6 @@ import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.utils.Array;
 import com.google.gson.Gson;
-import interfaces.IEntity;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -390,7 +390,7 @@ public class Level implements IndexedGraph<Tile> {
      * @param entity entity to check for.
      * @return if the passed entity is on the tile to the next level
      */
-    public boolean isOnEndTile(IEntity entity) {
+    public boolean isOnEndTile(Entity entity) {
         return entity.getPosition().toCoordinate().equals(getEndTile().getCoordinate());
     }
 

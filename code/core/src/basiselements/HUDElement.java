@@ -1,29 +1,46 @@
-package interfaces;
+package basiselements;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import graphic.HUDPainter;
 import tools.Point;
 
-public interface IHUDElement {
+public abstract class HUDElement {
+    private SpriteBatch batch;
+    private HUDPainter painter;
+    /**
+     * A object that can be controlled by the <code>HUDController
+     * </code>.
+     */
+    public HUDElement(HUDPainter painter, SpriteBatch batch) {
+        this.batch = batch;
+        this.painter = painter;
+    }
+
     /** Will be executed every frame. */
-    void update();
+    public void update() {}
 
     /** @return <code>true</code>, if this instance can be deleted; <code>false</code> otherwise */
-    boolean removable();
+    public boolean removable() {
+        return false;
+    }
 
-    SpriteBatch getBatch();
+    public SpriteBatch getBatch() {
+        return batch;
+    }
 
     /** @return the exact position in the dungeon of this instance */
-    Point getPosition();
+    public abstract Point getPosition();
 
     /** @return the (current) Texture-Path of the object */
-    String getTexture();
+    public abstract String getTexture();
 
     /** Each drawable should use this <code>Painter</code> to draw itself. */
-    HUDPainter getPainter();
+    public HUDPainter getPainter() {
+        return painter;
+    }
 
     /** Draws this instance on the batch. */
-    default void draw() {
+    public void draw() {
         getPainter().draw(getTexture(), getPosition(), getBatch());
     }
 
@@ -33,7 +50,7 @@ public interface IHUDElement {
      * @param xScaling x-scale
      * @param yScaling y-scale
      */
-    default void drawWithScaling(float xScaling, float yScaling) {
+    public void drawWithScaling(float xScaling, float yScaling) {
         getPainter().drawWithScaling(xScaling, yScaling, getTexture(), getPosition(), getBatch());
     }
 }
