@@ -41,7 +41,7 @@ public class Animation {
      *
      * @return The texture of the next animation step (draw this).
      */
-    public String getNextAnimationTexture() {
+    public String getNextAnimationTexturePath() {
         String stringToReturn = animationFrames.get(currentFrameIndex);
         frameTimeCounter = (frameTimeCounter + 1) % frameTime;
         if (frameTimeCounter == 0) {

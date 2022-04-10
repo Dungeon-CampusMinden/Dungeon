@@ -12,21 +12,21 @@ public class HUDPainter {
     private final TextureMap textureMap = new TextureMap();
 
     /** Draws the instance based on its position. */
-    public void draw(String texture, Point position, SpriteBatch batch) {
-        Texture texture1 = textureMap.getTexture(texture);
-        Sprite sprite = new Sprite(texture1);
+    public void draw(String texturePath, Point position, SpriteBatch batch) {
+        Texture texture = textureMap.getTexture(texturePath);
+        Sprite sprite = new Sprite(texture);
 
         // set up scaling of textures
         sprite.setSize(
-                texture1.getWidth() / Constants.DEFAULT_ZOOM_FACTOR,
-                texture1.getHeight() / Constants.DEFAULT_ZOOM_FACTOR);
+                texture.getWidth() / Constants.DEFAULT_ZOOM_FACTOR,
+                texture.getHeight() / Constants.DEFAULT_ZOOM_FACTOR);
 
         // where to draw the sprite
         sprite.setPosition(
                 position.x,
                 Constants.WINDOW_HEIGHT
                         - position.y
-                        - texture1.getHeight() / Constants.DEFAULT_ZOOM_FACTOR);
+                        - texture.getHeight() / Constants.DEFAULT_ZOOM_FACTOR);
 
         // need to be called before drawing
         batch.begin();
@@ -38,16 +38,16 @@ public class HUDPainter {
 
     /** Draws the instance based on its position with default offset and specific scaling. */
     public void drawWithScaling(
-            float xScaling, float yScaling, String texture, Point position, SpriteBatch batch) {
-        Texture texture1 = textureMap.getTexture(texture);
-        Sprite sprite = new Sprite(texture1);
+            float xScaling, float yScaling, String texturePath, Point position, SpriteBatch batch) {
+        Texture texture = textureMap.getTexture(texturePath);
+        Sprite sprite = new Sprite(texture);
 
         // set up scaling of textures
-        sprite.setSize(texture1.getWidth() * xScaling, texture1.getHeight() * yScaling);
+        sprite.setSize(texture.getWidth() * xScaling, texture.getHeight() * yScaling);
 
         // where to draw the sprite
         sprite.setPosition(
-                position.x, Constants.WINDOW_HEIGHT - position.y - texture1.getHeight() * yScaling);
+                position.x, Constants.WINDOW_HEIGHT - position.y - texture.getHeight() * yScaling);
 
         // need to be called before drawing
         batch.begin();

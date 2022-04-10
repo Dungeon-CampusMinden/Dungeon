@@ -32,7 +32,7 @@ public abstract class HUDElement {
     public abstract Point getPosition();
 
     /** @return the (current) Texture-Path of the object */
-    public abstract String getTexture();
+    public abstract String getTexturePath();
 
     /** Each drawable should use this <code>Painter</code> to draw itself. */
     public HUDPainter getPainter() {
@@ -41,7 +41,7 @@ public abstract class HUDElement {
 
     /** Draws this instance on the batch. */
     public void draw() {
-        getPainter().draw(getTexture(), getPosition(), getBatch());
+        getPainter().draw(getTexturePath(), getPosition(), getBatch());
     }
 
     /**
@@ -51,6 +51,7 @@ public abstract class HUDElement {
      * @param yScaling y-scale
      */
     public void drawWithScaling(float xScaling, float yScaling) {
-        getPainter().drawWithScaling(xScaling, yScaling, getTexture(), getPosition(), getBatch());
+        getPainter()
+                .drawWithScaling(xScaling, yScaling, getTexturePath(), getPosition(), getBatch());
     }
 }

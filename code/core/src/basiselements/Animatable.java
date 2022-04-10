@@ -22,7 +22,7 @@ public abstract class Animatable extends Entity {
     public abstract Animation getActiveAnimation();
 
     @Override
-    public String getTexture() {
-        return getActiveAnimation().getNextAnimationTexture();
+    public String getTexturePath() {
+        return getActiveAnimation().getNextAnimationTexturePath();
     }
 }

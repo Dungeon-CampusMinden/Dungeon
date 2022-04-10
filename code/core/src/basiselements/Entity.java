@@ -33,7 +33,7 @@ public abstract class Entity {
     public abstract Point getPosition();
 
     /** @return the (current) Texture-Path of the object */
-    public abstract String getTexture();
+    public abstract String getTexturePath();
 
     /** Each drawable should use this <code>Painter</code> to draw itself. */
     public Painter getPainter() {
@@ -42,6 +42,6 @@ public abstract class Entity {
 
     /** Draws this instance on the batch. */
     public void draw() {
-        getPainter().draw(getTexture(), getPosition(), getBatch());
+        getPainter().draw(getTexturePath(), getPosition(), getBatch());
     }
 }
