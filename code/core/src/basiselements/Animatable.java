@@ -11,8 +11,8 @@ public abstract class Animatable extends Entity {
      * Must be implemented for all objects that should be controlled by the <code>EntityController
      * </code>.
      *
-     * @param painter
-     * @param batch
+     * @param painter Painter that draws this object
+     * @param batch Batch to draw on
      */
     public Animatable(Painter painter, SpriteBatch batch) {
         super(painter, batch);
