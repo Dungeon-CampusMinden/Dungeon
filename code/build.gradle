@@ -11,9 +11,8 @@ plugins {
 }
 
 group = "io.github.pm-dungeon"
-version = "4.0.0"
+version = "4.0.1"
 ext {
-    appName = "pmdungeon"
     gdxVersion = "1.10.0"
     aiVersion = "1.8.2"
     gsonVersion = "2.7"
@@ -23,7 +22,6 @@ sourceCompatibility = 17
 [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
 sourceSets.main.java.srcDirs = ["core/src/"]
 sourceSets.test.java.srcDirs = ["core/test/"]
-eclipse.project.name = appName + "-core"
 
 repositories {
     mavenLocal()
