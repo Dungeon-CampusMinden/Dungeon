@@ -11,9 +11,9 @@ plugins {
 }
 
 group = "io.github.pm-dungeon"
-version = "4.0.1"
+version = "4.0.2"
 ext {
-    gdxVersion = "1.10.0"
+    gdxVersion = "1.10.1-SNAPSHOT"
     aiVersion = "1.8.2"
     gsonVersion = "2.7"
 }
@@ -38,7 +38,7 @@ dependencies {
     // LibGDX
     implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
     implementation "com.badlogicgames.gdx:gdx-ai:$aiVersion"
