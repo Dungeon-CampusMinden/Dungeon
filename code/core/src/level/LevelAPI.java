@@ -90,4 +90,14 @@ public class LevelAPI {
     public void setGenerator(IGenerator generator) {
         gen = generator;
     }
+
+    /**
+     * Sets the current level to the given level and calls onLevelLoad().
+     *
+     * @param level The level to be set.
+     */
+    public void setLevel(Level level) {
+        currentLevel = level;
+        onLevelLoader.onLevelLoad();
+    }
 }

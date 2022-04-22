@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "io.github.pm-dungeon"
-version = "4.0.2"
+version = "4.0.3"
 ext {
     gdxVersion = "1.10.1-SNAPSHOT"
     aiVersion = "1.8.2"
