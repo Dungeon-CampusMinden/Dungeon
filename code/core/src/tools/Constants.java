@@ -1,5 +1,6 @@
 package tools;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 
 public final class Constants {
@@ -34,7 +35,14 @@ public final class Constants {
     private static String getResourceString(String path) {
         URL url = ClassLoader.getSystemClassLoader().getResource(path);
         assert (url != null);
-        return url.getPath();
+        String modifiedPath = null;
+        try {
+            modifiedPath = url.toURI().getPath();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        assert (modifiedPath != null);
+        return modifiedPath;
     }
 
     /**
