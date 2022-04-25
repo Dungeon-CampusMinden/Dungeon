@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "io.github.pm-dungeon"
-version = "4.0.4"
+version = "4.0.5"
 ext {
     gdxVersion = "1.10.1-SNAPSHOT"
     aiVersion = "1.8.2"
@@ -156,17 +156,17 @@ signing {
     sign publishing.publications
 }
 
-tasks.withType(Javadoc) {
+javadoc {
     // failOnError false
     options.addStringOption("Xdoclint:none", "-quiet")
     options.addStringOption("encoding", "UTF-8")
     options.addStringOption("charSet", "UTF-8")
 }
 
-javadoc {
-    if (JavaVersion.current().isJava9Compatible()) {
-        options.addBooleanOption("html5", true)
-    }
+task buildJavadocZip(type: Zip, dependsOn: javadoc) {
+    from "$buildDir/docs/"
+    archiveFileName = "${project.name}-${project.version}-javadoc.zip"
+    destinationDirectory = file("$buildDir/libs/")
 }
 
 nexusPublishing {
