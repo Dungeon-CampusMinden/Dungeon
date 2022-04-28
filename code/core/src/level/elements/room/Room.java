@@ -88,6 +88,13 @@ public class Room {
         return copy;
     }
 
+    /** @return Random Tile in the room. */
+    public Tile getRandomTile() {
+        Random r = new Random();
+        Tile[][] layout = getLayout();
+        return layout[r.nextInt(layout.length)][r.nextInt(layout[0].length)];
+    }
+
     /** @return Random floor-tile in the room. */
     public Tile getRandomFloorTile() {
         Random r = new Random();

@@ -22,6 +22,7 @@ import level.elements.room.Tile;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
+import tools.Point;
 
 /**
  * A level is a set of connect rooms to play in.
@@ -377,6 +378,36 @@ public class Level implements IndexedGraph<Tile> {
     @Override
     public int getNodeCount() {
         return nodeCount;
+    }
+
+    /** @return a random Tile in the Level */
+    public Tile getRandomTile() {
+        return getRandomRoom().getRandomTile();
+    }
+
+    /** @return The position of a random Tile in the Level as Point */
+    public Point getRandomTilePoint() {
+        return getRandomTile().getCoordinate().toPoint();
+    }
+
+    /** @return a random Floor-Tile in the Level */
+    public Tile getRandomFloorTile() {
+        return getRandomRoom().getRandomFloorTile();
+    }
+
+    /** @return The position of a random Floor-Tile in the Level as Point */
+    public Point getRandomFloorTilePoint() {
+        return getRandomFloorTile().getCoordinate().toPoint();
+    }
+
+    /** @return a random Wall-Tile in the Level */
+    public Tile getRandomWallTile() {
+        return getRandomRoom().getRandomWallTile();
+    }
+
+    /** @return The position of a random Wall-Tile in the Level as Point */
+    public Point getRandomWallTilePoint() {
+        return getRandomWallTile().getCoordinate().toPoint();
     }
 
     @Override
