@@ -15,8 +15,10 @@ public enum LevelElement {
     WALL(1),
     /** This field is the exit-field to the next level */
     EXIT(3),
+    /** This field can be a door-field (only for use in the generator) */
+    DOOR(4),
     /** This field is a door-field */
-    DOOR(4);
+    PLACED_DOOR(5);
 
     private int value;
 
