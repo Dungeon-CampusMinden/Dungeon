@@ -161,7 +161,11 @@ public class Level implements IndexedGraph<Tile> {
     /** Mark a random tile as start */
     public void setRandomStart() {
         Node startN = getRandomNode();
-        Tile startT = getRoomToNode(startN).getRandomFloorTile();
+        Tile startT;
+        do {
+            startT = getRoomToNode(startN).getRandomFloorTile();
+        } while (isDoor(startT) || neighbourTileIsDoor(startT));
+
         setStartTile(startT);
         setStartNode(startN);
     }
@@ -169,13 +173,46 @@ public class Level implements IndexedGraph<Tile> {
     /** Mark a random tile as end */
     public void setRandomEnd() {
         Node endN = getRandomNode();
-        Tile endT = getRoomToNode(endN).getRandomFloorTile();
+        Tile endT;
+        do {
+            endT = getRoomToNode(endN).getRandomFloorTile();
+        } while (isDoor(endT) || neighbourTileIsDoor(endT));
         DesignLabel l = getRoomToNode(endN).getDesign();
         endT.setLevelElement(
                 LevelElement.EXIT,
                 "textures/dungeon/" + l.name().toLowerCase() + "/floor/floor_ladder.png");
         setEndTile(endT);
         setEndNode(endN);
+    }
+
+    private boolean neighbourTileIsDoor(Tile tile) {
+        Coordinate tc = tile.getCoordinate();
+
+        Tile neighbour = getTileAt(new Coordinate(tc.x - 1, tc.y));
+        if (isDoor(neighbour)) {
+            return true;
+        }
+
+        neighbour = getTileAt(new Coordinate(tc.x + 1, tc.y));
+        if (isDoor(neighbour)) {
+            return true;
+        }
+
+        neighbour = getTileAt(new Coordinate(tc.x, tc.y - 1));
+        if (isDoor(neighbour)) {
+            return true;
+        }
+
+        neighbour = getTileAt(new Coordinate(tc.x, tc.y + 1));
+        if (isDoor(neighbour)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isDoor(Tile t) {
+        return t.getLevelElement() == LevelElement.PLACED_DOOR;
     }
 
     /**

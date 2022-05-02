@@ -224,6 +224,6 @@ public class RoomTemplate {
     }
 
     public void useDoor(Coordinate c) {
-        layout[c.y][c.x] = LevelElement.FLOOR;
+        layout[c.y][c.x] = LevelElement.PLACED_DOOR;
     }
 }

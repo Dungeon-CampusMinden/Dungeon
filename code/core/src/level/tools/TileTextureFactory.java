@@ -17,7 +17,8 @@ public class TileTextureFactory {
             Coordinate position) {
         String path = design.name().toLowerCase() + "/";
         if (element == LevelElement.SKIP) path += "floor/empty";
-        else if (element == LevelElement.FLOOR) path += "floor/floor_1";
+        else if (element == LevelElement.FLOOR || element == LevelElement.PLACED_DOOR)
+            path += "floor/floor_1";
         else if (element == LevelElement.EXIT) path += "floor/floor_ladder";
         else if (element == LevelElement.DOOR) path += "floor/floor_1";
 
