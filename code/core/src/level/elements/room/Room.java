@@ -63,7 +63,7 @@ public class Room {
 
     /** @return A copy of the layout. */
     public Tile[][] getLayout() {
-        return copyLayout(layout);
+        return layout;
     }
 
     /**
