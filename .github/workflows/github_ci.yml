@@ -1,6 +1,6 @@
 name: Java CI
 
-on: [ pull_request ]
+on: [ pull_request, workflow_dispatch ]
 
 jobs:
 
@@ -42,11 +42,6 @@ jobs:
             -   name: JUnit
                 run: ./gradlew test
                 working-directory: code
-            -   name: JUnit Report
-                uses: mikepenz/action-junit-report@v2
-                if: always() # always run even if the previous step fails
-                with:
-                    report_paths: '**/build/test-results/test/TEST-*.xml'
 
     spotbugs:
         needs: build
@@ -65,11 +60,6 @@ jobs:
                     ./gradlew spotbugsMain
                     ./gradlew spotbugsTest
                 working-directory: code
-            -   name: SpotBugs Report
-                uses: jwgmeligmeyling/spotbugs-github-action@master
-                with:
-                    path: '**/spotbugsXml.xml'
-                    name: 'SpotBugs Report'
 
     checkstyle:
         needs: build
@@ -86,10 +76,6 @@ jobs:
             -   name: Checkstyle
                 run: ./gradlew check
                 working-directory: code
-            -   name: Checkstyle Report
-                uses: jwgmeligmeyling/checkstyle-github-action@master
-                with:
-                    path: '**/checkstyle/*.xml'
 
     spotless-java-format:
         needs: build
