@@ -1,3 +1,5 @@
+[![Java CI](https://github.com/PM-Dungeon/core/actions/workflows/github_ci.yml/badge.svg)](https://github.com/PM-Dungeon/core/actions/workflows/github_ci.yml)
+
 # PM-Dungeon-Framework
 
 ## About

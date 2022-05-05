@@ -38,11 +38,14 @@ public class Level implements IndexedGraph<Tile> {
     private Tile startTile;
     private Tile endTile;
     private int nodeCount = 0;
+    private int levelXOffset;
+    private int levelYOffset;
+    private Tile[][] tilesCache;
 
     /**
      * Create a new level
      *
-     * @param nodes A list of nodes that represent the structure of the level. Each noe is
+     * @param nodes A list of nodes that represent the structure of the level. Each node is
      *     represented by a room.
      * @param rooms A list of rooms that are in this level. Each represents a node.
      */
@@ -53,6 +56,50 @@ public class Level implements IndexedGraph<Tile> {
 
         setRandomEnd();
         setRandomStart();
+
+        // Generate tile lookup array while initializing
+        generateTilesCache();
+    }
+
+    /*
+     * Calculates the global positions of all tiles and safes them in a two-dimensional array for fast access.
+     */
+    private void generateTilesCache() {
+        initializeTilesCache();
+        // insert tiles into tilesCache array
+        for (Room r : getRooms()) {
+            for (Tile[] ta : r.getLayout()) {
+                for (Tile t : ta) {
+                    int x = t.getCoordinate().x - levelXOffset;
+                    int y = t.getCoordinate().y - levelYOffset;
+                    tilesCache[x][y] = t;
+                }
+            }
+        }
+    }
+
+    /*
+     * Initializes <code>levelXOffset</code>, <code>levelYOffset</code> and <code>tilesCache</code>
+     */
+    private void initializeTilesCache() {
+        int minX = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int maxY = Integer.MIN_VALUE;
+        for (Room r : getRooms()) {
+            for (Tile[] ta : r.getLayout()) {
+                for (Tile t : ta) {
+                    minX = Math.min(minX, t.getCoordinate().x);
+                    maxX = Math.max(maxX, t.getCoordinate().x);
+                    minY = Math.min(minY, t.getCoordinate().y);
+                    maxY = Math.max(maxY, t.getCoordinate().y);
+                }
+            }
+        }
+        // offset for coordinates not starting with 0
+        levelXOffset = minX;
+        levelYOffset = minY;
+        tilesCache = new Tile[maxX - minX + 1][maxY - minY + 1];
     }
 
     /** @return A random room in the level. */
@@ -288,13 +335,11 @@ public class Level implements IndexedGraph<Tile> {
      * @return The tile on that point.
      */
     public Tile getTileAt(Coordinate globalPoint) {
-        for (Room r : rooms) {
-            for (int y = 0; y < r.getLayout().length; y++)
-                for (int x = 0; x < r.getLayout()[0].length; x++)
-                    if (r.getLayout()[y][x].getCoordinate().equals(globalPoint))
-                        return r.getLayout()[y][x];
+        // Workaround to initialize the tile array for save files without it
+        if (tilesCache == null) {
+            generateTilesCache();
         }
-        return null;
+        return tilesCache[globalPoint.x - levelXOffset][globalPoint.y - levelYOffset];
     }
 
     /**
