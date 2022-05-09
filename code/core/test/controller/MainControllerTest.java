@@ -1,5 +1,8 @@
 package controller;
 
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.when;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -68,7 +71,26 @@ class MainControllerTest {
         controller.render(someArbitraryValueGreater0forDelta);
         Mockito.verify(controller).render(someArbitraryValueGreater0forDelta);
         Mockito.verify(controller).setup();
-        Mockito.verify(controller, Mockito.times(2)).endFrame();
+        Mockito.verify(controller).beginFrame();
+        Mockito.verify(controller).endFrame();
+        Mockito.verify(controller, Mockito.times(6)).runLoop();
+        Mockito.verifyNoMoreInteractions(controller);
+    }
+
+    @Test
+    public void test_render_paused() {
+        controller.setSpriteBatch(batch);
+        when(controller.runLoop()).thenReturn(false);
+        Mockito.verify(controller).setSpriteBatch(batch);
+        Mockito.verifyNoMoreInteractions(controller, batch);
+
+        controller.render(someArbitraryValueGreater0forDelta);
+        Mockito.verify(controller).render(someArbitraryValueGreater0forDelta);
+        Mockito.verify(controller).setup();
+        Mockito.verify(controller, never()).beginFrame();
+        when(controller.runLoop()).thenReturn(true);
+        Mockito.verify(controller, never()).endFrame();
+        Mockito.verify(controller, Mockito.times(1)).runLoop();
         Mockito.verifyNoMoreInteractions(controller);
     }
 }

@@ -55,22 +55,35 @@ public abstract class MainController extends ScreenAdapter implements IOnLevelLo
      * @param delta Time since last loop.
      */
     @Override
-    public final void render(float delta) {
+    public void render(float delta) {
         if (doFirstFrame) {
             firstFrame();
         }
+        batch.setProjectionMatrix(camera.combined);
+        if (runLoop()) {
+            beginFrame();
+            if (runLoop()) {
+                clearScreen();
+                levelAPI.update();
+                if (runLoop()) {
+                    entityController.update();
+                    if (runLoop()) {
+                        camera.update();
+                        if (runLoop()) {
+                            hudController.update();
+                            if (runLoop()) {
+                                endFrame();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-        // clears the screen
+    private void clearScreen() {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
-        batch.setProjectionMatrix(camera.combined);
-
-        beginFrame();
-        levelAPI.update();
-        entityController.update();
-        camera.update();
-        hudController.update();
-        endFrame();
     }
 
     private void firstFrame() {
@@ -95,6 +108,10 @@ public abstract class MainController extends ScreenAdapter implements IOnLevelLo
 
     public void setHudBatch(SpriteBatch batch) {
         this.hudBatch = batch;
+    }
+
+    protected boolean runLoop() {
+        return true;
     }
 
     private void setupCameras() {
