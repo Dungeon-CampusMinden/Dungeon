@@ -74,7 +74,7 @@ jobs:
                     java-version: '17'
                     distribution: 'temurin'
             -   name: Checkstyle
-                run: ./gradlew check
+                run: ./gradlew checkstyleMain
                 working-directory: code
 
     spotless-java-format:
