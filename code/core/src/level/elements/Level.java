@@ -30,6 +30,7 @@ import tools.Point;
  * @author Andre Matutat
  */
 public class Level implements IndexedGraph<Tile> {
+    private static final Random RANDOM = new Random();
     private final TileHeuristic tileHeuristic = new TileHeuristic();
     private final List<Room> rooms;
     private final List<Node> nodes;
@@ -56,7 +57,6 @@ public class Level implements IndexedGraph<Tile> {
 
         setRandomEnd();
         setRandomStart();
-
         // Generate tile lookup array while initializing
         generateTilesCache();
     }
@@ -104,7 +104,7 @@ public class Level implements IndexedGraph<Tile> {
 
     /** @return A random room in the level. */
     public Room getRandomRoom() {
-        return getRooms().get(new Random().nextInt(getRooms().size()));
+        return getRooms().get(RANDOM.nextInt(getRooms().size()));
     }
 
     /**
@@ -138,7 +138,7 @@ public class Level implements IndexedGraph<Tile> {
 
     /** @return A random node in level. */
     public Node getRandomNode() {
-        return getNodes().get(new Random().nextInt(getNodes().size()));
+        return getNodes().get(RANDOM.nextInt(getNodes().size()));
     }
 
     /** @return Node where the transposition is located in. */
