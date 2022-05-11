@@ -56,9 +56,7 @@ jobs:
                     java-version: '17'
                     distribution: 'temurin'
             -   name: SpotBugs
-                run: |
-                    ./gradlew spotbugsMain
-                    ./gradlew spotbugsTest
+                run: ./gradlew spotbugsMain spotbugsTest
                 working-directory: code
 
     checkstyle:
