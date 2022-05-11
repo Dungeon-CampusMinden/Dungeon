@@ -4,7 +4,9 @@ import com.badlogic.gdx.ai.pfa.Heuristic;
 import com.badlogic.gdx.math.Vector2;
 import level.elements.room.Tile;
 
-/** @author Marti Stuwe */
+/**
+ * @author Marti Stuwe
+ */
 public class TileHeuristic implements Heuristic<Tile> {
 
     /**

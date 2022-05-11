@@ -1,9 +1,9 @@
 plugins {
+    // we can not use ext variables here
     id "java"
-    id "eclipse"
     id "checkstyle"
-    id "com.github.spotbugs" version "4.7.9"
-    id "com.diffplug.spotless" version "6.2.0"
+    id "com.github.spotbugs" version "5.+"
+    id "com.diffplug.spotless" version "6.+"
     id "java-library"
     id "maven-publish"
     id "signing"
@@ -13,6 +13,7 @@ plugins {
 group = "io.github.pm-dungeon"
 version = "4.0.7"
 ext {
+    // we can not use the + operator here
     gdxVersion = "1.10.1-SNAPSHOT"
     aiVersion = "1.8.2"
     gsonVersion = "2.7"
@@ -32,9 +33,6 @@ repositories {
 }
 
 dependencies {
-    // https://mvnrepository.com/artifact/com.github.spotbugs/spotbugs-annotations
-    implementation "com.github.spotbugs:spotbugs-annotations:4.5.3"
-
     // LibGDX
     implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
@@ -45,12 +43,12 @@ dependencies {
 
     // JUnit 4, Mockito and Powermock for testing:
     // https://mvnrepository.com/artifact/junit/junit
-    testImplementation "junit:junit:4.13.2"
+    testImplementation "junit:junit:4.+"
 
     // https://mvnrepository.com/artifact/org.powermock/powermock-module-junit4
-    testImplementation "org.powermock:powermock-module-junit4:2.0.9"
+    testImplementation "org.powermock:powermock-module-junit4:2.+"
     // https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito2
-    testImplementation "org.powermock:powermock-api-mockito2:2.0.9"
+    testImplementation "org.powermock:powermock-api-mockito2:2.+"
 
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
     implementation group: "com.google.code.gson", name: "gson", version: gsonVersion

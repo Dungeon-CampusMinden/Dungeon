@@ -102,7 +102,9 @@ public class Graph {
         return nodes;
     }
 
-    /** @return The graph in dot-notation. */
+    /**
+     * @return The graph in dot-notation.
+     */
     public String toDot() {
         String dot = "digraph G {\nedge [dir=none]\n";
         for (Node n : nodes) dot += n.toDot();
