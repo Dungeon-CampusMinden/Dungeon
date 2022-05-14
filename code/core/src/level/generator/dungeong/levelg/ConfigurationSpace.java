@@ -7,7 +7,9 @@ import level.generator.dungeong.roomg.RoomTemplate;
 import level.tools.Coordinate;
 import level.tools.LevelElement;
 
-/** @author Andre Matutat */
+/**
+ * @author Andre Matutat
+ */
 public class ConfigurationSpace {
     private final RoomTemplate template;
     private final Node node;

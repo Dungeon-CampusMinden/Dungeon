@@ -53,7 +53,9 @@ public class RoomTemplate {
         }
     }
 
-    /** @return A new template with a 90degree rotated layout. */
+    /**
+     * @return A new template with a 90degree rotated layout.
+     */
     public RoomTemplate rotateTemplate() {
         LevelElement[][] originalLayout = getLayout();
         int mSize = originalLayout.length;
@@ -66,7 +68,9 @@ public class RoomTemplate {
         return new RoomTemplate(rotatedLayout, getDesign(), getLocalRef());
     }
 
-    /** @return All rotated templates (0,90,180,270): */
+    /**
+     * @return All rotated templates (0,90,180,270):
+     */
     public List<RoomTemplate> getAllRotations() {
         List<RoomTemplate> allRotations = new ArrayList<>();
         allRotations.add(this);

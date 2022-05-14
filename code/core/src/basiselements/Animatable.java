@@ -18,7 +18,9 @@ public abstract class Animatable extends Entity {
         super(painter, batch);
     }
 
-    /** @return the current active <code>Animation</code> (example: idle or run) */
+    /**
+     * @return the current active <code>Animation</code> (example: idle or run)
+     */
     public abstract Animation getActiveAnimation();
 
     @Override

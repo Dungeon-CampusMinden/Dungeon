@@ -12,9 +12,9 @@ jobs:
         runs-on: ${{ matrix.os }}
         steps:
             -   name: Checkout
-                uses: actions/checkout@v2
+                uses: actions/checkout@v3
             -   name: Set up JDK 17
-                uses: actions/setup-java@v2
+                uses: actions/setup-java@v3
                 with:
                     java-version: '17'
                     distribution: 'temurin'
@@ -33,9 +33,9 @@ jobs:
         runs-on: ${{ matrix.os }}
         steps:
             -   name: Checkout
-                uses: actions/checkout@v2
+                uses: actions/checkout@v3
             -   name: Set up JDK 17
-                uses: actions/setup-java@v2
+                uses: actions/setup-java@v3
                 with:
                     java-version: '17'
                     distribution: 'temurin'
@@ -49,16 +49,14 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout
-                uses: actions/checkout@v2
+                uses: actions/checkout@v3
             -   name: Set up JDK 17
-                uses: actions/setup-java@v2
+                uses: actions/setup-java@v3
                 with:
                     java-version: '17'
                     distribution: 'temurin'
             -   name: SpotBugs
-                run: |
-                    ./gradlew spotbugsMain
-                    ./gradlew spotbugsTest
+                run: ./gradlew spotbugsMain spotbugsTest
                 working-directory: code
 
     checkstyle:
@@ -67,14 +65,14 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout
-                uses: actions/checkout@v2
+                uses: actions/checkout@v3
             -   name: Set up JDK 17
-                uses: actions/setup-java@v2
+                uses: actions/setup-java@v3
                 with:
                     java-version: '17'
                     distribution: 'temurin'
             -   name: Checkstyle
-                run: ./gradlew check
+                run: ./gradlew checkstyleMain
                 working-directory: code
 
     spotless-java-format:
@@ -83,9 +81,9 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout
-                uses: actions/checkout@v2
+                uses: actions/checkout@v3
             -   name: Set up JDK 17
-                uses: actions/setup-java@v2
+                uses: actions/setup-java@v3
                 with:
                     java-version: '17'
                     distribution: 'temurin'

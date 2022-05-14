@@ -55,7 +55,9 @@ public class Tile {
         return texture;
     }
 
-    /** @return The global coordinate of the tile. */
+    /**
+     * @return The global coordinate of the tile.
+     */
     public Coordinate getCoordinate() {
         return globalPosition;
     }
@@ -119,7 +121,9 @@ public class Tile {
         this.index = index;
     }
 
-    /** @author Marti Stuwe */
+    /**
+     * @author Marti Stuwe
+     */
     public enum Direction {
         N,
         E,

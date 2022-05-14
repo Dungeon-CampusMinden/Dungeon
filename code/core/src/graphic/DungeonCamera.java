@@ -48,7 +48,9 @@ public class DungeonCamera extends OrthographicCamera {
         this.follows = follows;
     }
 
-    /** @return the entity the camera currently follows */
+    /**
+     * @return the entity the camera currently follows
+     */
     public Entity getFollowedObject() {
         return follows;
     }

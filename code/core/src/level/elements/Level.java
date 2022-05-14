@@ -102,7 +102,9 @@ public class Level implements IndexedGraph<Tile> {
         tilesCache = new Tile[maxX - minX + 1][maxY - minY + 1];
     }
 
-    /** @return A random room in the level. */
+    /**
+     * @return A random room in the level.
+     */
     public Room getRandomRoom() {
         return getRooms().get(new Random().nextInt(getRooms().size()));
     }
@@ -127,21 +129,29 @@ public class Level implements IndexedGraph<Tile> {
         return rooms.get(nodes.indexOf(node));
     }
 
-    /** @return A list with all rooms. */
+    /**
+     * @return A list with all rooms.
+     */
     public List<Room> getRooms() {
         return rooms;
     }
-    /** @return A list with all nodes. */
+    /**
+     * @return A list with all nodes.
+     */
     public List<Node> getNodes() {
         return nodes;
     }
 
-    /** @return A random node in level. */
+    /**
+     * @return A random node in level.
+     */
     public Node getRandomNode() {
         return getNodes().get(new Random().nextInt(getNodes().size()));
     }
 
-    /** @return Node where the transposition is located in. */
+    /**
+     * @return Node where the transposition is located in.
+     */
     public Node getStartNode() {
         return startNode;
     }
@@ -155,7 +165,9 @@ public class Level implements IndexedGraph<Tile> {
         this.startNode = startNode;
     }
 
-    /** @return Node where the exposition is located in. */
+    /**
+     * @return Node where the exposition is located in.
+     */
     public Node getEndNode() {
         return endNode;
     }
@@ -462,32 +474,44 @@ public class Level implements IndexedGraph<Tile> {
         return nodeCount;
     }
 
-    /** @return a random Tile in the Level */
+    /**
+     * @return a random Tile in the Level
+     */
     public Tile getRandomTile() {
         return getRandomRoom().getRandomTile();
     }
 
-    /** @return The position of a random Tile in the Level as Point */
+    /**
+     * @return The position of a random Tile in the Level as Point
+     */
     public Point getRandomTilePoint() {
         return getRandomTile().getCoordinate().toPoint();
     }
 
-    /** @return a random Floor-Tile in the Level */
+    /**
+     * @return a random Floor-Tile in the Level
+     */
     public Tile getRandomFloorTile() {
         return getRandomRoom().getRandomFloorTile();
     }
 
-    /** @return The position of a random Floor-Tile in the Level as Point */
+    /**
+     * @return The position of a random Floor-Tile in the Level as Point
+     */
     public Point getRandomFloorTilePoint() {
         return getRandomFloorTile().getCoordinate().toPoint();
     }
 
-    /** @return a random Wall-Tile in the Level */
+    /**
+     * @return a random Wall-Tile in the Level
+     */
     public Tile getRandomWallTile() {
         return getRandomRoom().getRandomWallTile();
     }
 
-    /** @return The position of a random Wall-Tile in the Level as Point */
+    /**
+     * @return The position of a random Wall-Tile in the Level as Point
+     */
     public Point getRandomWallTilePoint() {
         return getRandomWallTile().getCoordinate().toPoint();
     }

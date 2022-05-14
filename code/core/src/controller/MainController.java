@@ -31,7 +31,7 @@ public abstract class MainController extends ScreenAdapter implements IOnLevelLo
 
     protected HUDController hudController;
     /** Draws hud */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings protected HUDPainter hudPainter;
+    protected HUDPainter hudPainter;
 
     protected LevelAPI levelAPI;
     /** Generates the level */

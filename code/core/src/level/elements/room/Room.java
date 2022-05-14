@@ -61,7 +61,9 @@ public class Room {
             }
     }
 
-    /** @return A copy of the layout. */
+    /**
+     * @return A copy of the layout.
+     */
     public Tile[][] getLayout() {
         return layout;
     }
@@ -79,14 +81,18 @@ public class Room {
         return copy;
     }
 
-    /** @return Random Tile in the room. */
+    /**
+     * @return Random Tile in the room.
+     */
     public Tile getRandomTile() {
         Random r = new Random();
         Tile[][] layout = getLayout();
         return layout[r.nextInt(layout.length)][r.nextInt(layout[0].length)];
     }
 
-    /** @return Random floor-tile in the room. */
+    /**
+     * @return Random floor-tile in the room.
+     */
     public Tile getRandomFloorTile() {
         Random r = new Random();
         Tile[][] layout = getLayout();
@@ -98,7 +104,9 @@ public class Room {
         return layout[y][x];
     }
 
-    /** @return Random wall-tile in the room. */
+    /**
+     * @return Random wall-tile in the room.
+     */
     public Tile getRandomWallTile() {
         Random r = new Random();
         Tile[][] layout = getLayout();
