@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "io.github.pm-dungeon"
-version = "4.0.7"
+version = "4.0.8"
 ext {
     // we can not use the + operator here
     gdxVersion = "1.10.1-SNAPSHOT"
@@ -60,22 +60,41 @@ test {
 }
 
 checkstyle {
-    configFile file("checkstyle-config/checks.xml")
-    toolVersion "9.2.1"
+    toolVersion = "10.2"
+    configFile = file("checkstyle-config/checks.xml")
     showViolations = true
 }
 
 spotbugs {
-    toolVersion = "4.2.2"
     ignoreFailures = true
     showStackTraces = false
+    reportLevel = "low"
 }
 
 spotbugsMain {
     reports {
         xml {
-            enabled = true
-            destination = file("$buildDir/reports/spotbugsXml.xml")
+            required = true
+            outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.xml")
+        }
+        html {
+            required = true
+            outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.html")
+            stylesheet = "fancy-hist.xsl"
+        }
+    }
+}
+
+spotbugsTest {
+    reports {
+        xml {
+            required = true
+            outputLocation = file("$buildDir/reports/spotbugs/test/spotbugs.xml")
+        }
+        html {
+            required = true
+            outputLocation = file("$buildDir/reports/spotbugs/test/spotbugs.html")
+            stylesheet = "fancy-hist.xsl"
         }
     }
 }
@@ -122,7 +141,7 @@ publishing {
                         email = "pm-dungeon@fh-bielefeld.de"
                     }
                     developer {
-                        id = "Tobias321"
+                        id = "TGrothe"
                         name = "Tobias Grothe"
                         email = "pm-dungeon@fh-bielefeld.de"
                     }
