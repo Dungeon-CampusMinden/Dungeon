@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "io.github.pm-dungeon"
-version = "4.0.8"
+
 ext {
     // we can not use the + operator here
     gdxVersion = "1.10.1-SNAPSHOT"
