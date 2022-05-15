@@ -84,7 +84,7 @@ public class DummyGenerator implements IGenerator {
         graph.add(room2Node);
         graph.add(room3Node);
 
-        Level level = new Level(graph, roomlist);
+        Level level = Level.getLevel(graph, roomlist);
         level.setStartNode(room3Node);
         level.setStartTile(level.getRoomToNode(room3Node).getRandomFloorTile());
         level.setEndNode(room1Node);

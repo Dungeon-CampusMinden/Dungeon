@@ -123,7 +123,7 @@ public class LevelG implements IGenerator {
             RoomTemplate template = cs.getTemplate();
             rooms.add(template.replace(replacements, cs.getGlobalPosition(), design));
         }
-        Level level = new Level(graph.getNodes(), rooms);
+        Level level = Level.getLevel(graph.getNodes(), rooms);
         if (checkIfCompletable(level)) return level;
         // in rare cases, the path to the target may be blocked.
         else return getLevel(solveSeq, graph, design);

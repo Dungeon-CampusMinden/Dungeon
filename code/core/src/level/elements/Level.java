@@ -8,9 +8,10 @@ import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.utils.Array;
 import com.google.gson.Gson;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import java.io.*;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,18 +47,43 @@ public class Level implements IndexedGraph<Tile> {
     /**
      * Create a new level
      *
-     * @param nodes A list of nodes that represent the structure of the level. Each node is
+     * @param nodes A list of nodes that represent the structure of the level. Each noe is
      *     represented by a room.
      * @param rooms A list of rooms that are in this level. Each represents a node.
+     * @return The created level
      */
-    public Level(List<Node> nodes, List<Room> rooms) {
+    public static Level getLevel(List<Node> nodes, List<Room> rooms) {
+        return new Level(nodes, rooms);
+    }
+
+    /**
+     * Load a level from a json
+     *
+     * @param levelFile Json-File
+     * @return The loaded level
+     */
+    public static Level getLevel(File levelFile) {
+        return new Level(loadLevel(levelFile));
+    }
+
+    private Level(List<Node> nodes, List<Room> rooms) {
         this.nodes = nodes;
         this.rooms = rooms;
         makeConnections();
-
         setRandomEnd();
         setRandomStart();
         // Generate tile lookup array while initializing
+        generateTilesCache();
+    }
+
+    private Level(Level l) {
+        this.nodes = l.getNodes();
+        this.rooms = l.getRooms();
+        this.setStartNode(l.getStartNode());
+        this.setStartTile(l.getStartTile());
+        this.setEndNode(l.getEndNode());
+        this.setEndTile(l.getEndTile());
+        makeConnections();
         generateTilesCache();
     }
 
@@ -529,6 +555,21 @@ public class Level implements IndexedGraph<Tile> {
      */
     public boolean isOnEndTile(Entity entity) {
         return entity.getPosition().toCoordinate().equals(getEndTile().getCoordinate());
+    }
+
+    private static Level loadLevel(File levelFile) {
+        Type levelType = new TypeToken<Level>() {}.getType();
+        try (JsonReader reader =
+                new JsonReader(new FileReader(levelFile, StandardCharsets.UTF_8))) {
+            return new Gson().fromJson(reader, levelType);
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found.");
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("File may be corrupted ");
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
