@@ -95,9 +95,7 @@ public abstract class MainController extends ScreenAdapter implements IOnLevelLo
         hudController = new HUDController(hudBatch);
         generator =
                 new LevelG(
-                        Constants.getPathToRoomTemplates(),
-                        Constants.getPathToReplacements(),
-                        Constants.getPathToGraph()); // DungeonG
+                        Constants.getPathToRoomTemplates(), Constants.getPathToGraph()); // DungeonG
         levelAPI = new LevelAPI(batch, painter, generator, this);
         setup();
     }

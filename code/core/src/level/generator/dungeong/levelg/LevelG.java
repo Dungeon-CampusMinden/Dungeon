@@ -13,8 +13,6 @@ import level.elements.room.Room;
 import level.generator.IGenerator;
 import level.generator.dungeong.graphg.GraphG;
 import level.generator.dungeong.graphg.NoSolutionException;
-import level.generator.dungeong.roomg.Replacement;
-import level.generator.dungeong.roomg.ReplacementLoader;
 import level.generator.dungeong.roomg.RoomTemplate;
 import level.generator.dungeong.roomg.RoomTemplateLoader;
 import level.tools.Coordinate;
@@ -29,19 +27,16 @@ import tools.Constants;
 public class LevelG implements IGenerator {
     private final GraphG graphg = new GraphG();
     private final RoomTemplateLoader roomLoader;
-    private final ReplacementLoader replacementLoader;
     private final String pathToGraph;
 
     /**
      * Uses RoomG and GraphG to generate level.
      *
      * @param pathToRoomTemplates Path to roomTemplates.json
-     * @param pathToReplacements Path to replacements.json
      * @param pathToGraph path to graphs/
      */
-    public LevelG(String pathToRoomTemplates, String pathToReplacements, String pathToGraph) {
+    public LevelG(String pathToRoomTemplates, String pathToGraph) {
         roomLoader = new RoomTemplateLoader(pathToRoomTemplates);
-        replacementLoader = new ReplacementLoader(pathToReplacements);
         this.pathToGraph = pathToGraph;
     }
 
@@ -114,14 +109,11 @@ public class LevelG implements IGenerator {
             throws NoSolutionException {
         List<ConfigurationSpace> configurationSpaces = makeLevel(graph, solveSeq, design);
         List<Room> rooms = new ArrayList<>();
-        List<Replacement> replacements;
-        if (Constants.DISABLE_REPLACEMENTS) replacements = new ArrayList<>();
-        else replacements = replacementLoader.getReplacements(design);
         placeDoors(configurationSpaces);
         // replace templates
         for (ConfigurationSpace cs : configurationSpaces) {
             RoomTemplate template = cs.getTemplate();
-            rooms.add(template.replace(replacements, cs.getGlobalPosition(), design));
+            rooms.add(template.convertToRoom(cs.getGlobalPosition(), design));
         }
         Level level = new Level(graph.getNodes(), rooms);
         if (checkIfCompletable(level)) return level;

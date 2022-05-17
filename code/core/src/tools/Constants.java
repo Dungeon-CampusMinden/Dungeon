@@ -19,8 +19,6 @@ public final class Constants {
 
     /** 200% zoom. */
     public static final float DEFAULT_ZOOM_FACTOR = 0.5f;
-    /** Disable Replacements in DungeonG. */
-    public static final boolean DISABLE_REPLACEMENTS = true;
 
     /** Sets the window title for the LibGDX window. */
     public static final String WINDOW_TITLE = "PM-Dungeon";
@@ -73,15 +71,5 @@ public final class Constants {
      */
     public static String getPathToRoomTemplates() {
         return getResourceString("level/roomTemplates.json");
-    }
-
-    /**
-     * Returns the absolute path to the resource inside the "assets" folder. The location of the
-     * "assets" folder is determined dynamically.
-     *
-     * @return the absolute path to the resource inside the "assets" folder.
-     */
-    public static String getPathToReplacements() {
-        return getResourceString("level/replacements.json");
     }
 }
