@@ -10,7 +10,7 @@ public class TileTextureFactory {
      * @param position Position of the element.
      * @return Path to texture
      */
-    public static String findTexture(
+    public static String findTexturePath(
             LevelElement element,
             DesignLabel design,
             LevelElement[][] layout,

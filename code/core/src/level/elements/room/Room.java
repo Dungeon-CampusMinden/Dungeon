@@ -55,7 +55,7 @@ public class Room {
             for (int x = 0; x < toConvert[0].length; x++) {
                 Coordinate p = new Coordinate(x, y);
                 String texture =
-                        TileTextureFactory.findTexture(toConvert[y][x], design, toConvert, p);
+                        TileTextureFactory.findTexturePath(toConvert[y][x], design, toConvert, p);
                 layout[y][x] =
                         new Tile(texture, new Coordinate(x + difx, y + dify), toConvert[y][x]);
             }

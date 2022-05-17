@@ -17,19 +17,19 @@ public class Tile {
 
     private final Coordinate globalPosition;
     private transient Array<Connection<Tile>> connections = new Array<>();
-    private String texture;
+    private String texturePath;
     private LevelElement e;
     private int index;
 
     /**
      * Creates a new Tile.
      *
-     * @param texture Path to the texture of the tile.
+     * @param texturePath Path to the texture of the tile.
      * @param globalPosition Position of the tile in the global system.
      * @param elementType The type of the tile.
      */
-    public Tile(String texture, Coordinate globalPosition, LevelElement elementType) {
-        this.texture = texture;
+    public Tile(String texturePath, Coordinate globalPosition, LevelElement elementType) {
+        this.texturePath = texturePath;
         this.e = elementType;
         this.globalPosition = globalPosition;
     }
@@ -51,8 +51,8 @@ public class Tile {
         }
     }
 
-    public String getTexture() {
-        return texture;
+    public String getTexturePath() {
+        return texturePath;
     }
 
     /**
@@ -74,7 +74,7 @@ public class Tile {
      */
     public void setLevelElement(LevelElement elementType, String texture) {
         this.e = elementType;
-        this.texture = texture;
+        this.texturePath = texture;
     }
 
     /**

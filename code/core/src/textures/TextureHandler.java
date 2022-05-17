@@ -50,7 +50,7 @@ public class TextureHandler {
      * @param regex the regular expression
      * @return a String List with all texture paths, that have matched
      */
-    public List<String> getTextures(String regex) {
+    public List<String> getTexturePaths(String regex) {
         Pattern pattern = Pattern.compile(regex);
         return getAvailablePaths().stream()
                 .filter(pattern.asPredicate())
