@@ -24,6 +24,7 @@ public abstract class HUDElement extends DungeonElement {
     }
 
     /** Draws this instance on the batch. */
+    @Override
     public void draw() {
         getPainter().draw(getTexturePath(), getPosition(), getBatch());
     }

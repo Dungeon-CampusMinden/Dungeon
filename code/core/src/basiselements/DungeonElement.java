@@ -18,6 +18,9 @@ public abstract class DungeonElement {
     /** Will be executed every frame. */
     public void update() {}
 
+    /** Draws this instance on the batch. */
+    public void draw() {}
+
     /**
      * @return <code>true</code>, if this instance can be deleted; <code>false</code> otherwise
      */
