@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import graphic.DungeonCamera;
 import graphic.HUDPainter;
 import graphic.Painter;
+import java.util.ArrayList;
+import java.util.List;
 import level.IOnLevelLoader;
 import level.LevelAPI;
 import level.generator.IGenerator;
@@ -21,6 +23,9 @@ public abstract class MainController extends ScreenAdapter implements IOnLevelLo
      * batch.
      */
     protected SpriteBatch batch;
+
+    /** Contais all Controller of the Dungeon */
+    protected List<AbstractController> controller;
 
     protected EntityController entityController;
     protected DungeonCamera camera;
@@ -69,14 +74,11 @@ public abstract class MainController extends ScreenAdapter implements IOnLevelLo
                 clearScreen();
                 levelAPI.update();
                 if (runLoop()) {
-                    entityController.update();
+                    controller.forEach(c -> c.update());
                     if (runLoop()) {
                         camera.update();
                         if (runLoop()) {
-                            hudController.update();
-                            if (runLoop()) {
-                                endFrame();
-                            }
+                            endFrame();
                         }
                     }
                 }
@@ -91,11 +93,14 @@ public abstract class MainController extends ScreenAdapter implements IOnLevelLo
 
     private void firstFrame() {
         doFirstFrame = false;
+        controller = new ArrayList<>();
         entityController = new EntityController();
         setupCameras();
         painter = new Painter(camera);
         hudPainter = new HUDPainter();
         hudController = new HUDController(hudBatch);
+        controller.add(entityController);
+        controller.add(hudController);
         generator =
                 new LevelG(
                         Constants.getPathToRoomTemplates(), Constants.getPathToGraph()); // DungeonG

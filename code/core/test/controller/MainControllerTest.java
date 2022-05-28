@@ -73,7 +73,7 @@ class MainControllerTest {
         Mockito.verify(controller).setup();
         Mockito.verify(controller).beginFrame();
         Mockito.verify(controller).endFrame();
-        Mockito.verify(controller, Mockito.times(6)).runLoop();
+        Mockito.verify(controller, Mockito.times(5)).runLoop();
         Mockito.verifyNoMoreInteractions(controller);
     }
 
