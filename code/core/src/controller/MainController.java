@@ -40,10 +40,13 @@ public abstract class MainController extends ScreenAdapter implements IOnLevelLo
     private boolean doFirstFrame = true;
 
     // --------------------------- OWN IMPLEMENTATION ---------------------------
+
+    /** Called once at the beginning of the game. */
     protected abstract void setup();
 
+    /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
     protected abstract void beginFrame();
-
+    /** Called at the end of each frame. After the controllers call <code>update</code>. */
     protected abstract void endFrame();
 
     // --------------------------- END OWN IMPLEMENTATION ------------------------
