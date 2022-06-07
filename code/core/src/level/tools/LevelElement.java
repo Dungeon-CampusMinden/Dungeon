@@ -1,30 +1,32 @@
 package level.tools;
 
+import tools.Constants;
+
 /**
  * Each type of field in a level can be represented by an integer value.
  *
  * @author Andre Matutat
  */
 public enum LevelElement {
-    SKIP(-2),
+    /** This field is a blank */
+    SKIP(Constants.LEVELELEMENT_IS_NOT_ACCESSIBLE),
     /** This field is a floor-field */
-    FLOOR(0),
+    FLOOR(Constants.LEVELELEMENT_IS_ACCESSIBLE),
     /** This field is a wall-field */
-    WALL(1),
+    WALL(Constants.LEVELELEMENT_IS_NOT_ACCESSIBLE),
     /** This field is the exit-field to the next level */
-    EXIT(3),
-    /** This field can be a door-field (only for use in the generator) */
-    DOOR(4),
-    /** This field is a door-field */
-    PLACED_DOOR(5);
+    EXIT(Constants.LEVELELEMENT_IS_ACCESSIBLE);
 
-    private int value;
+    private final boolean value;
 
-    LevelElement(int value) {
+    LevelElement(boolean value) {
         this.value = value;
     }
 
-    public int getValue() {
+    /**
+     * @return A random enum-value
+     */
+    public boolean getValue() {
         return value;
     }
 }

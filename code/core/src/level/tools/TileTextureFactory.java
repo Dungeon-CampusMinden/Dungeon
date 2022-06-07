@@ -1,5 +1,7 @@
 package level.tools;
 
+import level.elements.Tile;
+
 public class TileTextureFactory {
     /**
      * Checks which texture must be used for the passed field based on the surrounding fields.
@@ -16,45 +18,82 @@ public class TileTextureFactory {
             LevelElement[][] layout,
             Coordinate position) {
         String path = design.name().toLowerCase() + "/";
-        if (element == LevelElement.SKIP) path += "floor/empty";
-        else if (element == LevelElement.FLOOR || element == LevelElement.PLACED_DOOR)
+        if (element == LevelElement.SKIP) {
+            path += "floor/empty";
+        } else if (element == LevelElement.FLOOR) {
             path += "floor/floor_1";
-        else if (element == LevelElement.EXIT) path += "floor/floor_ladder";
-        else if (element == LevelElement.DOOR) path += "floor/floor_1";
+        } else if (element == LevelElement.EXIT) {
+            path += "floor/floor_ladder";
+        }
 
         // is field in a non-playable area?
-        else if (isInSpace(position, layout)) path += "floor/empty";
+        else if (isInSpace(position, layout)) {
+            path += "floor/empty";
+        }
 
         // walls
-        else if (isRightWall(position, layout)) path += "wall/right";
-        else if (isLeftWall(position, layout)) path += "wall/left";
-        else if (isSideWall(position, layout)) path += "wall/side";
-        else if (isTopWall(position, layout)) path += "wall/top";
-        else if (isBottomWall(position, layout)) path += "wall/bottom";
-        else if (isBottomAndTopWall(position, layout)) path += "wall/top_bottom";
+        else if (isRightWall(position, layout)) {
+            path += "wall/right";
+        } else if (isLeftWall(position, layout)) {
+            path += "wall/left";
+        } else if (isSideWall(position, layout)) {
+            path += "wall/side";
+        } else if (isTopWall(position, layout)) {
+            path += "wall/top";
+        } else if (isBottomWall(position, layout)) {
+            path += "wall/bottom";
+        } else if (isBottomAndTopWall(position, layout)) {
+            path += "wall/top_bottom";
+        }
 
-        /*     //crossroads
-                else if (isFourWayCross(p, layout))
-                    path += "wall/fourway_cross";
-                else if (isThreeWayCrossDown(p, layout))
-                    path += "wall/top";
-                else if (isThreeWayCrossUp(p, layout))
-                    path += "wall/bottom";
-                else if (isThreeWayCrossLeft(p, layout))
-                    path += "wall/threeway_cross_left";
-                else if (isThreeWayCrossRight(p, layout))
-                    path += "wall/threeway_cross_right";
-        */
         // corners
-        else if (isBottomLeftCorner(position, layout)) path += "wall/corner_bottom_left";
-        else if (isBottomRightCorner(position, layout)) path += "wall/corner_bottom_right";
-        else if (isUpperRightCorner(position, layout)) path += "wall/corner_upper_right";
-        else if (isUpperLeftCorner(position, layout)) path += "wall/corner_upper_left";
+        else if (isBottomLeftCorner(position, layout)) {
+            path += "wall/corner_bottom_left";
+        } else if (isBottomRightCorner(position, layout)) {
+            path += "wall/corner_bottom_right";
+        } else if (isUpperRightCorner(position, layout)) {
+            path += "wall/corner_upper_right";
+        } else if (isUpperLeftCorner(position, layout)) {
+            path += "wall/corner_upper_left";
+        }
 
         // fehler zustand
-        else path += "floor/empty";
+        else {
+            path += "floor/empty";
+        }
 
         return "textures/dungeon/" + path + ".png";
+    }
+
+    /**
+     * Checks which texture must be used for the passed tile based on the surrounding tiles.
+     *
+     * @param element Tile to check for
+     * @param layout The level
+     * @return Path to texture
+     */
+    public static String findTexturePath(Tile element, Tile[][] layout) {
+        return findTexturePath(element, layout, element.getLevelElement());
+    }
+
+    /**
+     * Checks which texture must be used for the passed tile based on the surrounding tiles.
+     *
+     * @param element Tile to check for
+     * @param layout The level
+     * @param elementType The type ot the tile if different than the attribute
+     * @return Path to texture
+     */
+    public static String findTexturePath(Tile element, Tile[][] layout, LevelElement elementType) {
+        LevelElement[][] elementLayout = new LevelElement[layout.length][layout[0].length];
+        for (int x = 0; x < layout[0].length; x++) {
+            for (int y = 0; y < layout.length; y++) {
+                elementLayout[y][x] = layout[y][x].getLevelElement();
+            }
+        }
+        elementLayout[element.getCoordinate().y][element.getCoordinate().x] = elementType;
+        return findTexturePath(
+                elementType, element.getDesignLabel(), elementLayout, element.getCoordinate());
     }
 
     private static boolean isInSpace(Coordinate p, LevelElement[][] layout) {
@@ -68,6 +107,7 @@ public class TileTextureFactory {
                         && rightIsWall(p, layout);
     }
 
+    @SuppressWarnings("unused")
     private static boolean isFourWayCross(Coordinate p, LevelElement[][] layout) {
         return (aboveIsWall(p, layout)
                 && belowIsWall(p, layout)
@@ -75,6 +115,7 @@ public class TileTextureFactory {
                 && rightIsWall(p, layout));
     }
 
+    @SuppressWarnings("unused")
     private static boolean isThreeWayCrossUp(Coordinate p, LevelElement[][] layout) {
         return (!belowIsWall(p, layout)
                 && aboveIsWall(p, layout)
@@ -82,6 +123,7 @@ public class TileTextureFactory {
                 && rightIsWall(p, layout));
     }
 
+    @SuppressWarnings("unused")
     private static boolean isThreeWayCrossDown(Coordinate p, LevelElement[][] layout) {
         return (!aboveIsWall(p, layout)
                 && belowIsWall(p, layout)
@@ -89,6 +131,7 @@ public class TileTextureFactory {
                 && rightIsWall(p, layout));
     }
 
+    @SuppressWarnings("unused")
     private static boolean isThreeWayCrossLeft(Coordinate p, LevelElement[][] layout) {
         return (belowIsWall(p, layout)
                 && aboveIsWall(p, layout)
@@ -96,6 +139,7 @@ public class TileTextureFactory {
                 && !rightIsWall(p, layout));
     }
 
+    @SuppressWarnings("unused")
     private static boolean isThreeWayCrossRight(Coordinate p, LevelElement[][] layout) {
         return (belowIsWall(p, layout)
                 && aboveIsWall(p, layout)
@@ -157,7 +201,7 @@ public class TileTextureFactory {
 
     private static boolean aboveIsWall(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[(int) p.y + 1][(int) p.x] == LevelElement.WALL;
+            return layout[p.y + 1][p.x] == LevelElement.WALL;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -166,7 +210,7 @@ public class TileTextureFactory {
 
     private static boolean belowIsWall(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[(int) p.y - 1][(int) p.x] == LevelElement.WALL;
+            return layout[p.y - 1][p.x] == LevelElement.WALL;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -175,7 +219,7 @@ public class TileTextureFactory {
 
     private static boolean leftIsWall(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[(int) p.y][(int) p.x - 1] == LevelElement.WALL;
+            return layout[p.y][p.x - 1] == LevelElement.WALL;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -184,7 +228,7 @@ public class TileTextureFactory {
 
     private static boolean rightIsWall(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[(int) p.y][(int) p.x + 1] == LevelElement.WALL;
+            return layout[p.y][p.x + 1] == LevelElement.WALL;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -193,9 +237,8 @@ public class TileTextureFactory {
 
     private static boolean aboveIsFloor(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[(int) p.y + 1][(int) p.x] == LevelElement.FLOOR
-                    || layout[(int) p.y + 1][(int) p.x] == LevelElement.EXIT
-                    || layout[(int) p.y + 1][(int) p.x] == LevelElement.DOOR;
+            return layout[p.y + 1][p.x] == LevelElement.FLOOR
+                    || layout[p.y + 1][p.x] == LevelElement.EXIT;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -204,9 +247,8 @@ public class TileTextureFactory {
 
     private static boolean belowIsFloor(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[(int) p.y - 1][(int) p.x] == LevelElement.FLOOR
-                    || layout[(int) p.y + 1][(int) p.x] == LevelElement.EXIT
-                    || layout[(int) p.y + 1][(int) p.x] == LevelElement.DOOR;
+            return layout[p.y - 1][p.x] == LevelElement.FLOOR
+                    || layout[p.y + 1][p.x] == LevelElement.EXIT;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -215,9 +257,8 @@ public class TileTextureFactory {
 
     private static boolean leftIsFloor(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[(int) p.y][(int) p.x - 1] == LevelElement.FLOOR
-                    || layout[(int) p.y + 1][(int) p.x] == LevelElement.EXIT
-                    || layout[(int) p.y + 1][(int) p.x] == LevelElement.DOOR;
+            return layout[p.y][p.x - 1] == LevelElement.FLOOR
+                    || layout[p.y + 1][p.x] == LevelElement.EXIT;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -226,18 +267,18 @@ public class TileTextureFactory {
 
     private static boolean rightIsFloor(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[(int) p.y][(int) p.x + 1] == LevelElement.FLOOR
-                    || layout[(int) p.y + 1][(int) p.x] == LevelElement.EXIT
-                    || layout[(int) p.y + 1][(int) p.x] == LevelElement.DOOR;
+            return layout[p.y][p.x + 1] == LevelElement.FLOOR
+                    || layout[p.y + 1][p.x] == LevelElement.EXIT;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
         }
     }
 
+    @SuppressWarnings("unused")
     private static boolean rightIsSkip(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[(int) p.y][(int) p.x + 1] == LevelElement.SKIP;
+            return layout[p.y][p.x + 1] == LevelElement.SKIP;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -246,7 +287,7 @@ public class TileTextureFactory {
 
     private static boolean leftIsSkip(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[(int) p.y][(int) p.x - 1] == LevelElement.SKIP;
+            return layout[p.y][p.x - 1] == LevelElement.SKIP;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -255,7 +296,7 @@ public class TileTextureFactory {
 
     private static boolean aboveIsSkip(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[(int) p.y + 1][(int) p.x] == LevelElement.SKIP;
+            return layout[p.y + 1][p.x] == LevelElement.SKIP;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -264,7 +305,7 @@ public class TileTextureFactory {
 
     private static boolean belowIsSkip(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[(int) p.y - 1][(int) p.x] == LevelElement.SKIP;
+            return layout[p.y - 1][p.x] == LevelElement.SKIP;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;

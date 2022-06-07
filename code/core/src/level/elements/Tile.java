@@ -1,4 +1,4 @@
-package level.elements.room;
+package level.elements;
 
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.utils.Array;
@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import level.elements.astar.TileConnection;
 import level.tools.Coordinate;
+import level.tools.DesignLabel;
 import level.tools.LevelElement;
 
 /**
@@ -14,12 +15,12 @@ import level.tools.LevelElement;
  * @author Andre Matutat
  */
 public class Tile {
-
-    private final Coordinate globalPosition;
-    private transient Array<Connection<Tile>> connections = new Array<>();
-    private String texture;
-    private LevelElement e;
-    private int index;
+    protected final Coordinate globalPosition;
+    protected LevelElement elementType;
+    protected DesignLabel designLabel;
+    protected String texturePath;
+    protected transient Array<Connection<Tile>> connections = new Array<>();
+    protected int index;
 
     /**
      * Creates a new Tile.
@@ -28,10 +29,15 @@ public class Tile {
      * @param globalPosition Position of the tile in the global system.
      * @param elementType The type of the tile.
      */
-    public Tile(String texturePath, Coordinate globalPosition, LevelElement elementType) {
-        this.texture = texturePath;
-        this.e = elementType;
+    public Tile(
+            String texturePath,
+            Coordinate globalPosition,
+            LevelElement elementType,
+            DesignLabel designLabel) {
+        this.texturePath = texturePath;
+        this.elementType = elementType;
         this.globalPosition = globalPosition;
+        this.designLabel = designLabel;
     }
 
     /**
@@ -40,30 +46,7 @@ public class Tile {
      * @return true if the tile is floor or exit; false if it is a wall or empty.
      */
     public boolean isAccessible() {
-        switch (e) {
-            case FLOOR:
-            case EXIT:
-            case PLACED_DOOR:
-                return true;
-            case WALL:
-            default:
-                return false;
-        }
-    }
-
-    public String getTexturePath() {
-        return texture;
-    }
-
-    /**
-     * @return The global coordinate of the tile.
-     */
-    public Coordinate getCoordinate() {
-        return globalPosition;
-    }
-
-    public LevelElement getLevelElement() {
-        return e;
+        return elementType.getValue();
     }
 
     /**
@@ -73,8 +56,54 @@ public class Tile {
      * @param texture New texture of the tile.
      */
     public void setLevelElement(LevelElement elementType, String texture) {
-        this.e = elementType;
-        this.texture = texture;
+        this.elementType = elementType;
+        this.texturePath = texture;
+    }
+
+    /**
+     * @return path to the texture of this tile
+     */
+    public String getTexturePath() {
+        return texturePath;
+    }
+
+    /**
+     * @return The global coordinate of the tile.
+     */
+    public Coordinate getCoordinate() {
+        return globalPosition;
+    }
+
+    /**
+     * @return The LevelElement of this tile
+     */
+    public LevelElement getLevelElement() {
+        return elementType;
+    }
+
+    /**
+     * @return the DesignLabel of this tile
+     */
+    public DesignLabel getDesignLabel() {
+        return designLabel;
+    }
+
+    /**
+     * Used by libGDX pathfinding
+     *
+     * @return the index of this tile
+     */
+    public int getIndex() {
+        return index;
+    }
+
+    /**
+     * Used by libGDX pathfinding
+     *
+     * @param index value of the index
+     */
+    public void setIndex(int index) {
+        this.index = index;
     }
 
     /**
@@ -84,10 +113,17 @@ public class Tile {
      * @param to Tile to connect with.
      */
     public void addConnection(Tile to) {
-        if (connections == null) connections = new Array<>();
+        if (connections == null) {
+            connections = new Array<>();
+        }
         connections.add(new TileConnection(this, to));
     }
 
+    /**
+     * Used by libGDX pathfinding
+     *
+     * @return all connections to other tiles
+     */
     public Array<Connection<Tile>> getConnections() {
         return connections;
     }
@@ -97,7 +133,6 @@ public class Tile {
      *
      * @param goal To which tile is the direction.
      * @return Can either be north, east, south, west or a combination of two.
-     * @author Marti Stuwe
      */
     public Direction[] directionTo(Tile goal) {
         List<Direction> directions = new ArrayList<>();
@@ -105,7 +140,8 @@ public class Tile {
             directions.add(Direction.E);
         } else if (globalPosition.x > goal.getCoordinate().x) {
             directions.add(Direction.W);
-        } else if (globalPosition.y < goal.getCoordinate().y) {
+        }
+        if (globalPosition.y < goal.getCoordinate().y) {
             directions.add(Direction.N);
         } else if (globalPosition.y > goal.getCoordinate().y) {
             directions.add(Direction.S);
@@ -113,21 +149,14 @@ public class Tile {
         return directions.toArray(new Direction[0]);
     }
 
-    public int getIndex() {
-        return index;
-    }
-
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
-    /**
-     * @author Marti Stuwe
-     */
+    // --------------------------- For LibGDX Pathfinding ---------------------------
     public enum Direction {
         N,
         E,
         S,
         W,
     }
+
+    // --------------------------- End LibGDX Pathfinding ---------------------------
+
 }

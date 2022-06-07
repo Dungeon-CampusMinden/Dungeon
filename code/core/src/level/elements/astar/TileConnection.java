@@ -2,7 +2,7 @@ package level.elements.astar;
 
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.math.Vector2;
-import level.elements.room.Tile;
+import level.elements.Tile;
 
 /**
  * Represents a connection between two tile
@@ -15,6 +15,12 @@ public class TileConnection implements Connection<Tile> {
     private final Tile to;
     private final float cost;
 
+    /**
+     * Create a directed connection between two Tiles
+     *
+     * @param from Start-Tile
+     * @param to End-Tile
+     */
     public TileConnection(Tile from, Tile to) {
         this.from = from;
         this.to = to;

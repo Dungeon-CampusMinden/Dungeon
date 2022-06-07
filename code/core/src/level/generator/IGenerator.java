@@ -1,74 +1,45 @@
 package level.generator;
 
-import level.elements.Level;
-import level.elements.graph.Graph;
-import level.generator.dungeong.graphg.NoSolutionException;
+import level.elements.ILevel;
 import level.tools.DesignLabel;
+import level.tools.LevelSize;
 
 public interface IGenerator {
+    /**
+     * Get a level with the given configuration.
+     *
+     * @param designLabel Design of the level
+     * @param size Size of the level
+     * @return The level
+     */
+    ILevel getLevel(DesignLabel designLabel, LevelSize size);
+
     /**
      * Get a level with a random configuration.
      *
      * @return The level.
      */
-    Level getLevel() throws NoSolutionException;
-
-    /**
-     * Get a leve with the given configuration.
-     *
-     * @param designLabel The design of the level.
-     * @return The level.
-     */
-    default Level getLevel(DesignLabel designLabel) throws NoSolutionException {
-        return getLevel();
+    default ILevel getLevel() {
+        return getLevel(DesignLabel.randomDesign(), LevelSize.randomSize());
     }
 
     /**
-     * Get a leve with the given configuration.
+     * Get a level with the given configuration and a random size.
      *
-     * @param nodes Number of nodes in the level-graph.
-     * @param edges Number of (extra) edges in the level-graph.
-     * @return The level.
-     * @throws NoSolutionException If no solution can be found for the given configuration.
+     * @param designLabel Design of the level
+     * @return The level
      */
-    default Level getLevel(int nodes, int edges) throws NoSolutionException {
-        return getLevel();
+    default ILevel getLevel(DesignLabel designLabel) {
+        return getLevel(designLabel, LevelSize.randomSize());
     }
 
     /**
-     * Get a leve with the given configuration.
+     * Get a level with the given configuration and a random design.
      *
-     * @param nodes Number of nodes in the level-graph.
-     * @param edges Number of (extra) edges in the level-graph.
-     * @param designLabel The design of the level.
-     * @return The level.
-     * @throws NoSolutionException If no solution can be found for the given configuration.
+     * @param size Size of the level
+     * @return The level
      */
-    default Level getLevel(int nodes, int edges, DesignLabel designLabel)
-            throws NoSolutionException {
-        return getLevel();
-    }
-
-    /**
-     * Generate a Level from a given graph.
-     *
-     * @param graph The Level-Graph.
-     * @param designLabel The Design-Label the level should have.
-     * @return The level.
-     * @throws NoSolutionException If no solution can be found for the given configuration.
-     */
-    default Level getLevel(Graph graph, DesignLabel designLabel) throws NoSolutionException {
-        return getLevel();
-    }
-
-    /**
-     * Generate a Level from a given graph.
-     *
-     * @param graph The Level-Graph.
-     * @return The level.
-     * @throws NoSolutionException If no solution can be found for the given configuration.
-     */
-    default Level getLevel(Graph graph) throws NoSolutionException {
-        return getLevel();
+    default ILevel getLevel(LevelSize size) {
+        return getLevel(DesignLabel.randomDesign(), size);
     }
 }
