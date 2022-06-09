@@ -198,3 +198,38 @@ nexusPublishing {
         }
     }
 }
+
+// SECTION TO START THE DUNGEON GAME DIRECTLY
+
+sourceSets.main.resources.srcDirs = ["assets/"]
+project.ext.assetsDir = new File("assets")
+project.ext.mainClassName = "starter.DefaultMainController"
+
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
+task run(dependsOn: classes, type: JavaExec) {
+    mainClass = project.mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    ignoreExitValue = true
+    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        allJvmArgs += ["-XstartOnFirstThread"]
+    }
+    doFirst {
+        println(DefaultNativePlatform.currentOperatingSystem)
+    }
+}
+
+task debug(dependsOn: classes, type: JavaExec) {
+    mainClass = project.mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    ignoreExitValue = true
+    debug = true
+    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        allJvmArgs += ["-XstartOnFirstThread"]
+    }
+    doFirst {
+        println(DefaultNativePlatform.currentOperatingSystem)
+    }
+}
