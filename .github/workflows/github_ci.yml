@@ -18,6 +18,7 @@ jobs:
                 with:
                     java-version: '17'
                     distribution: 'temurin'
+                    cache: gradle
             -   name: Validate Gradle wrapper
                 uses: gradle/wrapper-validation-action@v1
             -   name: Build with Gradle
@@ -39,6 +40,7 @@ jobs:
                 with:
                     java-version: '17'
                     distribution: 'temurin'
+                    cache: gradle
             -   name: JUnit
                 run: ./gradlew test
                 working-directory: code
@@ -55,6 +57,7 @@ jobs:
                 with:
                     java-version: '17'
                     distribution: 'temurin'
+                    cache: gradle
             -   name: SpotBugs
                 run: ./gradlew spotbugsMain spotbugsTest
                 working-directory: code
@@ -71,6 +74,7 @@ jobs:
                 with:
                     java-version: '17'
                     distribution: 'temurin'
+                    cache: gradle
             -   name: Checkstyle
                 run: ./gradlew checkstyleMain
                 working-directory: code
@@ -87,6 +91,7 @@ jobs:
                 with:
                     java-version: '17'
                     distribution: 'temurin'
+                    cache: gradle
             -   name: Spotless
                 run: ./gradlew spotlessJavaCheck
                 working-directory: code
