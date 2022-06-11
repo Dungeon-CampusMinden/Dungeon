@@ -16,7 +16,7 @@ public class DefaultMainController extends MainController {
     }
 
     @Override
-    protected void beginFrame() {
+    protected void frame() {
         if (Gdx.input.isKeyPressed(Input.Keys.I)) {
             zoomLevel++;
             camera.zoom = 0.05f * zoomLevel;
@@ -29,9 +29,6 @@ public class DefaultMainController extends MainController {
             camera.zoom = 0.05f * zoomLevel;
         }
     }
-
-    @Override
-    protected void endFrame() {}
 
     @Override
     public void onLevelLoad() {}

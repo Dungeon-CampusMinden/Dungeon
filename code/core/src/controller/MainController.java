@@ -50,10 +50,7 @@ public abstract class MainController extends ScreenAdapter implements IOnLevelLo
     protected abstract void setup();
 
     /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
-    protected abstract void beginFrame();
-
-    /** Called at the end of each frame. After the controllers call <code>update</code>. */
-    protected abstract void endFrame();
+    protected abstract void frame();
 
     // --------------------------- END OWN IMPLEMENTATION ------------------------
 
@@ -70,7 +67,7 @@ public abstract class MainController extends ScreenAdapter implements IOnLevelLo
         }
         batch.setProjectionMatrix(camera.combined);
         if (runLoop()) {
-            beginFrame();
+            frame();
             if (runLoop()) {
                 clearScreen();
                 levelAPI.update();
@@ -78,9 +75,6 @@ public abstract class MainController extends ScreenAdapter implements IOnLevelLo
                     controller.forEach(AbstractController::update);
                     if (runLoop()) {
                         camera.update();
-                        if (runLoop()) {
-                            endFrame();
-                        }
                     }
                 }
             }
