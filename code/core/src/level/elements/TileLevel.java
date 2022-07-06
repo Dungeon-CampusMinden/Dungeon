@@ -1,7 +1,5 @@
 package level.elements;
 
-import java.util.ArrayList;
-import java.util.List;
 import level.elements.astar.TileHeuristic;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
@@ -20,6 +18,9 @@ public class TileLevel implements ILevel {
     protected int nodeCount = 0;
     protected Tile[][] layout;
 
+    private static final Coordinate CONNECTION_OFFSETS[] = {
+        new Coordinate(0, 1), new Coordinate(0, -1), new Coordinate(1, 0), new Coordinate(-1, 0),
+    };
     /**
      * Create a new level
      *
@@ -92,33 +93,13 @@ public class TileLevel implements ILevel {
      * @param checkTile Tile to check for.
      */
     protected void addConnectionsToNeighbours(Tile checkTile) {
-
-        // upperTile
-        Coordinate upper =
-                new Coordinate(checkTile.getCoordinate().x, checkTile.getCoordinate().y + 1);
-        Tile upperTile = getTileAt(upper);
-        // lowerTile
-        Coordinate lower =
-                new Coordinate(checkTile.getCoordinate().x, checkTile.getCoordinate().y - 1);
-        Tile lowerTile = getTileAt(lower);
-        // leftTile
-        Coordinate left =
-                new Coordinate(checkTile.getCoordinate().x - 1, checkTile.getCoordinate().y);
-        Tile leftTile = getTileAt(left);
-        // rightTile
-        Coordinate right =
-                new Coordinate(checkTile.getCoordinate().x + 1, checkTile.getCoordinate().y);
-        Tile rightTile = getTileAt(right);
-
-        List<Tile> neighbourTiles = new ArrayList<>();
-        neighbourTiles.add(upperTile);
-        neighbourTiles.add(lowerTile);
-        neighbourTiles.add(leftTile);
-        neighbourTiles.add(rightTile);
-
-        for (Tile n : neighbourTiles) {
-            if (n != null) {
-                checkTile.addConnection(n);
+        for (Coordinate v : CONNECTION_OFFSETS) {
+            Coordinate c =
+                    new Coordinate(
+                            checkTile.getCoordinate().x + v.x, checkTile.getCoordinate().y + v.y);
+            Tile t = getTileAt(c);
+            if (t != null && t.isAccessible()) {
+                checkTile.addConnection(t);
             }
         }
     }

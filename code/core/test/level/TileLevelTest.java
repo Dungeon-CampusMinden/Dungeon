@@ -120,6 +120,36 @@ public class TileLevelTest {
     }
 
     @Test
+    public void test_findPath_withSkips() {
+        var levelElement = new LevelElement[3][2];
+        for (int i = 0; i < 3; i++) {
+            levelElement[i][0] = LevelElement.SKIP;
+        }
+        for (int i = 0; i < 3; i++) {
+            levelElement[i][1] = LevelElement.FLOOR;
+        }
+        var level = new TileLevel(levelElement, DesignLabel.randomDesign());
+        var start = level.getTileAt(new Coordinate(1, 0));
+        var end = level.getTileAt(new Coordinate(1, 2));
+        var path = level.findPath(end, start);
+        assertEquals(3, path.getCount());
+    }
+
+    @Test
+    public void test_findPath_withoutSkips() {
+        var levelElement = new LevelElement[3][1];
+
+        for (int i = 0; i < 3; i++) {
+            levelElement[i][0] = LevelElement.FLOOR;
+        }
+        var level = new TileLevel(levelElement, DesignLabel.randomDesign());
+        var start = level.getTileAt(new Coordinate(0, 0));
+        var end = level.getTileAt(new Coordinate(0, 2));
+        var path = level.findPath(end, start);
+        assertEquals(3, path.getCount());
+    }
+
+    @Test
     public void test_isOnEndTile() {
         Entity entity = Mockito.mock(Entity.class);
         when(entity.getPosition()).thenReturn(endTile.getCoordinate().toPoint());
