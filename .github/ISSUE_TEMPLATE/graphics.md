@@ -1,7 +1,7 @@
 ---
 name: Graphics
 about: Concerns related to the Graphics
-title: "[GRAPHCIS] "
+title: "[GRAPHICS] "
 labels:
 assignees: ''
 
