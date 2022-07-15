@@ -12,8 +12,8 @@ plugins {
     id "org.owasp.dependencycheck" version "7.+"
 }
 
-group = "io.github.pm-dungeon"
-
+group = "io.github.programmiermethoden"
+version = System.getenv("BUILD_NUMBER") ?: "0"
 ext {
     // we can not use the + operator here
     gdxVersion = "1.10.1-SNAPSHOT"
@@ -115,20 +115,20 @@ java {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = "io.github.pm-dungeon"
-            artifactId = "core"
+            groupId = "io.github.programmiermethoden"
+            artifactId = "pm-dungeon"
             version = project.version
 
             from components.java
 
             pom {
-                name = "PM-Dungeon core"
-                description = "The pmdungeon is a lightweight, libgdx based, Java framework for the development of a 2D rogue like."
-                url = "https://github.com/PM-Dungeon/core"
+                name = "PM-Dungeon"
+                description = "The PM-Dungeon is a lightweight Java framework for the development of a 2D-Rouge-like game. It is designed for educational purposes and is especially aimed at inexperienced Java developers."
+                url = "https://github.com/Programmiermethoden/PM-Dungeon"
                 licenses {
                     license {
                         name = "MIT License"
-                        url = "https://github.com/PM-Dungeon/core/blob/master/LICENSE.md"
+                        url = "https://github.com/Programmiermethoden/PM-Dungeon/blob/master/LICENSE.md"
                     }
                 }
                 developers {
@@ -149,9 +149,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = "scm:git:https://github.com/PM-Dungeon/core.git"
+                    connection = "scm:git:https://github.com/Programmiermethoden/PM-Dungeon.git"
                     developerConnection = ""
-                    url = "https://github.com/PM-Dungeon/core"
+                    url = "https://github.com/Programmiermethoden/PM-Dungeon.git"
                 }
             }
         }

@@ -40,4 +40,4 @@ this repository (CC BY-SA 4.0).
 ## Building Stuff
 
 If you want to contribute code to the project, please follow our 
-[code conventions](https://github.com/PM-Dungeon/core/wiki/Code-conventions). 
+[code conventions](https://github.com/Programmiermethoden/PM-Dungeon/wiki/Code-conventions). 

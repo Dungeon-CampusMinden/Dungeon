@@ -1,12 +1,11 @@
-[![Java CI](https://github.com/PM-Dungeon/core/actions/workflows/github_ci.yml/badge.svg)](https://github.com/PM-Dungeon/core/actions/workflows/github_ci.yml)
+[![Java CI](https://github.com/Programmiermethoden/PM-Dungeon/actions/workflows/github_ci.yml/badge.svg)](https://github.com/Programmiermethoden/PM-Dungeon/actions/workflows/github_ci.yml)
 
 # PM-Dungeon-Framework
+
 
 ## About
 
 The **PM-Dungeon** is a lightweight Java framework for the development of a 2D-Rouge-like game. It is designed for educational purposes and is especially aimed at inexperienced Java developers. The project currently uses the [libGDX](https://libgdx.com/) as a backend.
-
-This is the `core` part of the project. It contains the actual framework without any launcher implementation. You can use it to develop your own game, but it is probably easier to use the [dungeon-starter](https://github.com/PM-Dungeon/dungeon-starter) project as a starting point for your own game.
 
 ## Requirements
 
@@ -16,9 +15,9 @@ This is the `core` part of the project. It contains the actual framework without
 
 To create your own game using the PM-Dungeon framework, check out the quick start guide:
 
-- [German](https://github.com/PM-Dungeon/dungeon-starter/blob/master/documentation/quickstart_de.md)
-- [English](https://github.com/PM-Dungeon/dungeon-starter/blob/master/documentation/quickstart_en.md)
-- [Javadoc](https://javadoc.io/doc/io.github.pm-dungeon/core/latest/index.html)
+- [German]tbd
+- [English]tbd
+- [Javadoc](https://javadoc.io/doc/io.github.programmiermethoden/pm-dungeon/latest/index.html)
 
 ## Contributing
 
