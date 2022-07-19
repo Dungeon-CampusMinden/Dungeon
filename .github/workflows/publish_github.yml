@@ -1,10 +1,12 @@
 name: Publish jar to GitHub
 on:
     release:
-        types: [ created ]
+        types: [ published ]
 jobs:
     publish-github:
         runs-on: ubuntu-latest
+        env:
+            BUILD_NUMBER: ${{ github.event.release.tag_name }}
         steps:
             -   name: Checkout action
                 uses: actions/checkout@v3

@@ -12,7 +12,7 @@ plugins {
     id "org.owasp.dependencycheck" version "7.+"
 }
 
-group = "io.github.programmiermethoden"
+group = "io.github.pm-dungeon"
 version = System.getenv("BUILD_NUMBER") ?: "0"
 ext {
     // we can not use the + operator here
@@ -115,7 +115,7 @@ java {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = "io.github.programmiermethoden"
+            groupId = "io.github.pm-dungeon"
             artifactId = "pm-dungeon"
             version = project.version
 

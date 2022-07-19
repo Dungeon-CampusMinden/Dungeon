@@ -15,9 +15,9 @@ The **PM-Dungeon** is a lightweight Java framework for the development of a 2D-R
 
 To create your own game using the PM-Dungeon framework, check out the quick start guide:
 
-- [German]tbd
-- [English]tbd
-- [Javadoc](https://javadoc.io/doc/io.github.programmiermethoden/pm-dungeon/latest/index.html)
+- [German] tbd
+- [English] tbd
+- [Javadoc](https://javadoc.io/doc/io.github.pm-dungeon/pm-dungeon/latest/index.html)
 
 ## Contributing
 
