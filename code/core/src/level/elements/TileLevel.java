@@ -58,7 +58,8 @@ public class TileLevel implements ILevel {
                 Coordinate coordinate = new Coordinate(x, y);
                 String texturePath =
                         TileTextureFactory.findTexturePath(
-                                layout[y][x], designLabel, layout, coordinate);
+                                new TileTextureFactory.LevelPart(
+                                        layout[y][x], designLabel, layout, coordinate));
                 tileLayout[y][x] = new Tile(texturePath, coordinate, layout[y][x], designLabel);
             }
         }

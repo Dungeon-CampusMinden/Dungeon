@@ -10,8 +10,9 @@ import level.tools.LevelElement;
 import level.tools.LevelSize;
 
 public class RandomWalkGenerator implements IGenerator {
+    private record MinMaxValue(int min, int max) {}
 
-    private static final Random random = new Random();
+    private static final Random RANDOM = new Random();
     private static final int SMALL_MIN_X_SIZE = 10;
     private static final int SMALL_MIN_Y_SIZE = 10;
     private static final int SMALL_MAX_X_SIZE = 30;
@@ -32,24 +33,25 @@ public class RandomWalkGenerator implements IGenerator {
         return switch (size) {
             case SMALL -> new TileLevel(
                     drunkWalk(
-                            SMALL_MIN_X_SIZE, SMALL_MAX_X_SIZE, SMALL_MIN_Y_SIZE, SMALL_MAX_Y_SIZE),
+                            new MinMaxValue(SMALL_MIN_X_SIZE, SMALL_MAX_X_SIZE),
+                            new MinMaxValue(SMALL_MIN_Y_SIZE, SMALL_MAX_Y_SIZE)),
                     designLabel);
             case LARGE -> new TileLevel(
-                    drunkWalk(BIG_MIN_X_SIZE, BIG_MAX_X_SIZE, BIG_MIN_Y_SIZE, BIG_MAX_Y_SIZE),
+                    drunkWalk(
+                            new MinMaxValue(BIG_MIN_X_SIZE, BIG_MAX_X_SIZE),
+                            new MinMaxValue(BIG_MIN_Y_SIZE, BIG_MAX_Y_SIZE)),
                     designLabel);
             default -> new TileLevel(
                     drunkWalk(
-                            MEDIUM_MIN_X_SIZE,
-                            MEDIUM_MAX_X_SIZE,
-                            MEDIUM_MIN_Y_SIZE,
-                            MEDIUM_MAX_Y_SIZE),
+                            new MinMaxValue(MEDIUM_MIN_X_SIZE, MEDIUM_MAX_X_SIZE),
+                            new MinMaxValue(MEDIUM_MIN_Y_SIZE, MEDIUM_MAX_Y_SIZE)),
                     designLabel);
         };
     }
 
-    private LevelElement[][] drunkWalk(int minX, int maxX, int minY, int maxY) {
-        int xSize = random.nextInt(minX, maxX);
-        int ySize = random.nextInt(minY, maxY);
+    private LevelElement[][] drunkWalk(MinMaxValue minMaxValueX, MinMaxValue minMaxValueY) {
+        int xSize = RANDOM.nextInt(minMaxValueX.min(), minMaxValueX.max());
+        int ySize = RANDOM.nextInt(minMaxValueY.min(), minMaxValueY.max());
         LevelElement[][] layout = new LevelElement[ySize][xSize];
         for (int y = 0; y < ySize; y++) {
             for (int x = 0; x < xSize; x++) {
@@ -57,21 +59,21 @@ public class RandomWalkGenerator implements IGenerator {
             }
         }
 
-        Coordinate position = new Coordinate(random.nextInt(0, xSize), random.nextInt(0, ySize));
+        Coordinate position = new Coordinate(RANDOM.nextInt(0, xSize), RANDOM.nextInt(0, ySize));
         int steps =
-                random.nextInt(
+                RANDOM.nextInt(
                         (xSize * ySize) / MIN_STEPS_FACTOR, (xSize * ySize) / MAX_STEPS_FACTOR);
         for (; steps > 0; steps--) {
             layout[position.y][position.x] = LevelElement.FLOOR;
 
-            if (random.nextBoolean()) {
-                if (random.nextBoolean()) {
+            if (RANDOM.nextBoolean()) {
+                if (RANDOM.nextBoolean()) {
                     position.x = Math.min(position.x + 1, xSize - 1);
                 } else {
                     position.x = Math.max(position.x - 1, 0);
                 }
             } else {
-                if (random.nextBoolean()) {
+                if (RANDOM.nextBoolean()) {
                     position.y = Math.min(position.y + 1, ySize - 1);
                 } else {
                     position.y = Math.max(position.y - 1, 0);

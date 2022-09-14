@@ -6,7 +6,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import graphic.DungeonCamera;
-import graphic.HUDPainter;
 import graphic.Painter;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,12 +30,6 @@ public abstract class MainController extends ScreenAdapter implements IOnLevelLo
     protected DungeonCamera camera;
     /** Draws objects */
     protected Painter painter;
-    /** This batch is used to draw the HUD elements on it. */
-    protected SpriteBatch hudBatch;
-
-    protected HUDController hudController;
-    /** Draws hud */
-    protected HUDPainter hudPainter;
 
     protected LevelAPI levelAPI;
     /** Generates the level */
@@ -89,13 +82,10 @@ public abstract class MainController extends ScreenAdapter implements IOnLevelLo
     private void firstFrame() {
         doFirstFrame = false;
         controller = new ArrayList<>();
-        entityController = new EntityController();
         setupCameras();
-        painter = new Painter(camera);
-        hudPainter = new HUDPainter();
-        hudController = new HUDController(hudBatch);
+        painter = new Painter(batch, camera);
+        entityController = new EntityController(painter);
         controller.add(entityController);
-        controller.add(hudController);
         generator = new RandomWalkGenerator();
         levelAPI = new LevelAPI(batch, painter, generator, this);
         setup();
@@ -103,10 +93,6 @@ public abstract class MainController extends ScreenAdapter implements IOnLevelLo
 
     public void setSpriteBatch(SpriteBatch batch) {
         this.batch = batch;
-    }
-
-    public void setHudBatch(SpriteBatch batch) {
-        this.hudBatch = batch;
     }
 
     protected boolean runLoop() {

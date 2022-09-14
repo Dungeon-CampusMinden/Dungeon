@@ -38,7 +38,7 @@ class MainControllerTest {
         Whitebox.setInternalState(Gdx.class, "gl", Mockito.mock(GL20.class));
 
         PowerMockito.whenNew(EntityController.class)
-                .withNoArguments()
+                .withAnyArguments()
                 .thenReturn(Mockito.mock(EntityController.class));
         PowerMockito.whenNew(Painter.class)
                 .withAnyArguments()
@@ -46,9 +46,6 @@ class MainControllerTest {
         PowerMockito.whenNew(SpriteBatch.class)
                 .withAnyArguments()
                 .thenReturn(Mockito.mock(SpriteBatch.class));
-        PowerMockito.whenNew(HUDController.class)
-                .withAnyArguments()
-                .thenReturn(Mockito.mock(HUDController.class));
         PowerMockito.whenNew(LevelAPI.class)
                 .withAnyArguments()
                 .thenReturn(Mockito.mock(LevelAPI.class));

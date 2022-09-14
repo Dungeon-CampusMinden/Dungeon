@@ -65,10 +65,11 @@ public class PerlinNoiseGenerator implements IGenerator {
         elements[end.getCoordinate().y][end.getCoordinate().x] = LevelElement.EXIT;
         String endTexturePath =
                 TileTextureFactory.findTexturePath(
-                        elements[end.getCoordinate().y][end.getCoordinate().x],
-                        designLabel,
-                        elements,
-                        end.getCoordinate());
+                        new TileTextureFactory.LevelPart(
+                                elements[end.getCoordinate().y][end.getCoordinate().x],
+                                designLabel,
+                                elements,
+                                end.getCoordinate()));
         end.setLevelElement(LevelElement.EXIT, endTexturePath);
         return generatedLevel;
     }
@@ -95,7 +96,7 @@ public class PerlinNoiseGenerator implements IGenerator {
                         randomGenerator);
         final double[][] noise = pNoise.noiseAll(1);
 
-        final NoiseArea[] areas = NoiseArea.getAreas(0.4, 0.6, noise, false);
+        final NoiseArea[] areas = NoiseArea.getAreas(new NoiseAreaValues(0.4, 0.6, noise, false));
         NoiseArea area = areas[0];
         for (final NoiseArea f : areas) {
             if (area.getSize() < f.getSize()) {
@@ -126,7 +127,11 @@ public class PerlinNoiseGenerator implements IGenerator {
             for (int x = 0; x < res[0].length; x++) {
                 String texturePath =
                         TileTextureFactory.findTexturePath(
-                                levelElements[y][x], design, levelElements, new Coordinate(x, y));
+                                new TileTextureFactory.LevelPart(
+                                        levelElements[y][x],
+                                        design,
+                                        levelElements,
+                                        new Coordinate(x, y)));
                 res[y][x] =
                         new Tile(texturePath, new Coordinate(x, y), levelElements[y][x], design);
             }

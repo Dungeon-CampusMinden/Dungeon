@@ -1,35 +1,30 @@
 package basiselements;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import graphic.Painter;
+import graphic.PainterConfig;
+import java.util.HashMap;
+import java.util.Map;
 import tools.Point;
 
-public abstract class DungeonElement {
-    private SpriteBatch batch;
-
-    /**
-     * An object in the dungeon that can be drawn
-     *
-     * @param batch SpriteBatch to draw on
-     */
-    public DungeonElement(SpriteBatch batch) {
-        this.batch = batch;
-    }
+/**
+ * An object that has a position and a texture path.
+ *
+ * <p>Must be implemented for all objects that should be controlled by the <code>EntityController
+ * </code>.
+ */
+public abstract class DungeonElement implements Removable {
+    protected Map<String, PainterConfig> configs = new HashMap<>();
 
     /** Will be executed every frame. */
-    public void update() {}
+    public abstract void update();
 
     /** Draws this instance on the batch. */
-    public void draw() {}
-
-    /**
-     * @return <code>true</code>, if this instance can be deleted; <code>false</code> otherwise
-     */
-    public boolean removable() {
-        return false;
-    }
-
-    public SpriteBatch getBatch() {
-        return batch;
+    public void draw(Painter painter) {
+        final String path = getTexturePath();
+        if (!configs.containsKey(path)) {
+            configs.put(path, new PainterConfig(path));
+        }
+        painter.draw(this, configs.get(path));
     }
 
     /**

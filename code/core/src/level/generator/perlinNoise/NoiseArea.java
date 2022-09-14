@@ -116,27 +116,26 @@ public class NoiseArea {
     /**
      * generates areas from perlin noise
      *
-     * @param min lowerBound
-     * @param max upperBound
-     * @param noiseValues noise
-     * @param outerBound flag -> determines if the areas will be inside or outside the bound
+     * @param values the NoiseAreaValues
      * @return all found areas
      */
-    public static NoiseArea[] getAreas(
-            final double min,
-            final double max,
-            final double[][] noiseValues,
-            final boolean outerBound) {
+    public static NoiseArea[] getAreas(final NoiseAreaValues values) {
         final ArrayList<NoiseArea> alRes = new ArrayList<>();
-        for (int x = 0; x < noiseValues.length; x++) {
+        for (int x = 0; x < values.noiseValues.length; x++) {
             allPixel:
-            for (int y = 0; y < noiseValues[x].length; y++) {
+            for (int y = 0; y < values.noiseValues[x].length; y++) {
                 for (final NoiseArea f : alRes) {
                     if (f.contains(x, y)) continue allPixel;
                 }
-                if (checkBound(noiseValues[x][y], min, max, outerBound)) {
+                if (checkBound(values.noiseValues[x][y], values)) {
                     final boolean[][] isContained =
-                            floodFill(min, max, noiseValues, new Coordinate(x, y), outerBound);
+                            floodFill(
+                                    new NoiseAreaValues(
+                                            values.min,
+                                            values.max,
+                                            values.noiseValues,
+                                            new Coordinate(x, y),
+                                            values.outerBound));
                     alRes.add(new NoiseArea(isContained));
                 }
             }
@@ -144,38 +143,34 @@ public class NoiseArea {
         return alRes.toArray(new NoiseArea[0]);
     }
 
-    private static boolean[][] floodFill(
-            final double min,
-            final double max,
-            final double[][] input,
-            final Coordinate startfeld,
-            final boolean outerBound) {
-        final boolean[][] res = new boolean[input.length][input[0].length];
+    @SuppressWarnings("checkstyle:cyclomaticcomplexity")
+    private static boolean[][] floodFill(final NoiseAreaValues values) {
+        final boolean[][] res =
+                new boolean[values.noiseValues.length][values.noiseValues[0].length];
         final ArrayList<Coordinate> queue = new ArrayList<>();
-        queue.add(startfeld);
+        queue.add(values.startField);
 
         while (!queue.isEmpty()) {
             final Coordinate aktFeld = queue.remove(0);
             final int x = aktFeld.x;
             final int y = aktFeld.y;
 
-            if (checkBound(input[x][y], min, max, outerBound) && !res[x][y]) {
+            if (checkBound(values.noiseValues[x][y], values) && !res[x][y]) {
                 res[x][y] = true;
 
                 if (x > 0) queue.add(new Coordinate(x - 1, y));
-                if (x < input.length - 1) queue.add(new Coordinate(x + 1, y));
+                if (x < values.noiseValues.length - 1) queue.add(new Coordinate(x + 1, y));
                 if (y > 0) queue.add(new Coordinate(x, y - 1));
-                if (y < input[x].length - 1) queue.add(new Coordinate(x, y + 1));
+                if (y < values.noiseValues[x].length - 1) queue.add(new Coordinate(x, y + 1));
             }
         }
         return res;
     }
 
-    private static boolean checkBound(
-            final double value, final double min, final double max, final boolean outerBound) {
-        if (outerBound) {
-            return (value <= min || value >= max);
+    private static boolean checkBound(final double value, final NoiseAreaValues values) {
+        if (values.outerBound) {
+            return (value <= values.min || value >= values.max);
         }
-        return (value >= min && value <= max);
+        return (value >= values.min && value <= values.max);
     }
 }

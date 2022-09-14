@@ -4,8 +4,11 @@
 
 <module name="Checker">
     <property name="severity" value="warning"/>
+    <module name="SuppressWarningsFilter"/>
 
     <module name="TreeWalker">
+        <module name="SuppressWarningsHolder"/>
+
         <module name="JavaNCSS">
             <property name="methodMaximum" value="40"/>
             <property name="classMaximum" value="250"/>
@@ -27,6 +30,7 @@
         </module>
         <module name="ParameterNumber">
             <property name="max" value="3"/>
+            <property name="tokens" value="METHOD_DEF, CTOR_DEF"/>
         </module>
         <module name="MethodLength">
             <property name="max" value="40"/>

@@ -2,7 +2,12 @@ package textures;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -13,7 +18,7 @@ import java.util.stream.Stream;
  * <p>Singleton (possibly thread-safe).
  */
 public class TextureHandler {
-    private static final TextureHandler HANDLER = new TextureHandler();
+    private static final TextureHandler INSTANCE = new TextureHandler();
 
     private final Map<String, Set<FileHandle>> pathMap = new LinkedHashMap<>();
 
@@ -22,7 +27,7 @@ public class TextureHandler {
     }
 
     public static TextureHandler getInstance() {
-        return HANDLER;
+        return INSTANCE;
     }
 
     private void addAllAssets(FileHandle fh) {

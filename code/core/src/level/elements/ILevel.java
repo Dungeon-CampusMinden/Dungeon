@@ -1,6 +1,6 @@
 package level.elements;
 
-import basiselements.Entity;
+import basiselements.DungeonElement;
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
 import com.badlogic.gdx.ai.pfa.GraphPath;
@@ -36,7 +36,7 @@ public interface ILevel extends IndexedGraph<Tile> {
      * @param entity entity to check for.
      * @return if the passed entity is on the tile to the next level
      */
-    default boolean isOnEndTile(Entity entity) {
+    default boolean isOnEndTile(DungeonElement entity) {
         return entity.getPosition().toCoordinate().equals(getEndTile().getCoordinate());
     }
 

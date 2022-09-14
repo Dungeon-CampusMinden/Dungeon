@@ -2,8 +2,15 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.math.Vector3;
 import controller.MainController;
+import tools.Point;
 
+/**
+ * The entry class to create your own implementation.
+ *
+ * <p>This class acts as the <code>MainController</code>.
+ */
 public class DefaultMainController extends MainController {
     private int zoomLevel = 10;
 
@@ -17,6 +24,15 @@ public class DefaultMainController extends MainController {
 
     @Override
     protected void frame() {
+        processPressedKeys();
+    }
+
+    private void processPressedKeys() {
+        checkZoomingKeys();
+        checkMovingKeys();
+    }
+
+    private void checkZoomingKeys() {
         if (Gdx.input.isKeyPressed(Input.Keys.I)) {
             zoomLevel++;
             camera.zoom = 0.05f * zoomLevel;
@@ -30,8 +46,29 @@ public class DefaultMainController extends MainController {
         }
     }
 
+    private void checkMovingKeys() {
+        if (Gdx.input.isKeyPressed(Input.Keys.U)) {
+            Vector3 position = camera.position;
+            camera.setFocusPoint(new Point(position.x, position.y + 1));
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.J)) {
+            Vector3 position = camera.position;
+            camera.setFocusPoint(new Point(position.x, position.y - 1));
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.H)) {
+            Vector3 position = camera.position;
+            camera.setFocusPoint(new Point(position.x - 1, position.y));
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.K)) {
+            Vector3 position = camera.position;
+            camera.setFocusPoint(new Point(position.x + 1, position.y));
+        }
+    }
+
     @Override
-    public void onLevelLoad() {}
+    public void onLevelLoad() {
+        camera.setFocusPoint(levelAPI.getCurrentLevel().getStartTile().getCoordinate().toPoint());
+    }
 
     /**
      * The program entry point to start the dungeon.

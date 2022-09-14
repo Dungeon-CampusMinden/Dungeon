@@ -1,10 +1,17 @@
 package level;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import graphic.Painter;
+import graphic.PainterConfig;
 import level.elements.ILevel;
 import level.elements.Tile;
 import level.elements.TileLevel;
@@ -14,12 +21,22 @@ import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import textures.TextureMap;
+import tools.Point;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({TextureMap.class})
 public class TileLevelAPITest {
 
     private LevelAPI api;
     private IGenerator generator;
+    private Texture texture;
+    private TextureMap textureMap;
     private Painter painter;
     private SpriteBatch batch;
     private IOnLevelLoader onLevelLoader;
@@ -28,6 +45,13 @@ public class TileLevelAPITest {
     @Before
     public void setup() {
         batch = Mockito.mock(SpriteBatch.class);
+
+        texture = Mockito.mock(Texture.class);
+        textureMap = Mockito.mock(TextureMap.class);
+        PowerMockito.mockStatic(TextureMap.class);
+        when(TextureMap.getInstance()).thenReturn(textureMap);
+        when(textureMap.getTexture(anyString())).thenReturn(texture);
+
         painter = Mockito.mock(Painter.class);
         generator = Mockito.mock(IGenerator.class);
         onLevelLoader = Mockito.mock(IOnLevelLoader.class);
@@ -90,6 +114,7 @@ public class TileLevelAPITest {
         when(layout[1][1].getCoordinate()).thenReturn(coordinateT4);
 
         when(level.getLayout()).thenReturn(layout);
+
         api.setLevel(level);
         api.update();
 
@@ -98,22 +123,25 @@ public class TileLevelAPITest {
 
         verify(layout[0][0]).getLevelElement();
         verify(layout[0][0]).getTexturePath();
-        verify(layout[0][0], times(2)).getCoordinate();
+        verify(layout[0][0]).getCoordinate();
         // for some reason mocktio.verify can't compare the points of the tile correctly
-        verify(painter).draw(eq(textureT1), any(), eq(batch));
+        verify(painter, times(3))
+                .draw(any(Point.class), any(String.class), any(PainterConfig.class));
         verifyNoMoreInteractions(layout[0][0]);
 
         verify(layout[0][1]).getLevelElement();
         verify(layout[0][1]).getTexturePath();
-        verify(layout[0][1], times(2)).getCoordinate();
+        verify(layout[0][1]).getCoordinate();
         // for some reason mocktio.verify can't compare the points of the tile correctly
-        verify(painter).draw(eq(textureT2), any(), eq(batch));
+        verify(painter, times(3))
+                .draw(any(Point.class), any(String.class), any(PainterConfig.class));
         verifyNoMoreInteractions(layout[0][1]);
         verify(layout[1][0]).getLevelElement();
         verify(layout[1][0]).getTexturePath();
-        verify(layout[1][0], times(2)).getCoordinate();
+        verify(layout[1][0]).getCoordinate();
         // for some reason mocktio.verify can't compare the points of the tile correctly
-        verify(painter).draw(eq(textureT3), any(), eq(batch));
+        verify(painter, times(3))
+                .draw(any(Point.class), any(String.class), any(PainterConfig.class));
         verifyNoMoreInteractions(layout[1][0]);
 
         // do not draw skip tiles

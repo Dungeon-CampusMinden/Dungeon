@@ -42,7 +42,6 @@ class LibgdxSetupTest {
     public void test_create() {
         Mockito.verify(setup).create();
         Mockito.verify(controller).setSpriteBatch(batch);
-        Mockito.verify(controller).setHudBatch(batch);
         Mockito.verify(setup).setScreen(controller);
         Mockito.verifyNoMoreInteractions(setup, batch, controller);
     }
@@ -51,7 +50,6 @@ class LibgdxSetupTest {
     public void test_dispose() {
         Mockito.verify(setup).create();
         Mockito.verify(controller).setSpriteBatch(batch);
-        Mockito.verify(controller).setHudBatch(batch);
         Mockito.verify(setup).setScreen(controller);
         Mockito.verifyNoMoreInteractions(setup, batch, controller);
 

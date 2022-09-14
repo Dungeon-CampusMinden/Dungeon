@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
 
-import basiselements.Entity;
+import basiselements.DungeonElement;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Frustum;
 import com.badlogic.gdx.math.Vector3;
@@ -24,7 +24,7 @@ import tools.Point;
 @PrepareForTest({DungeonCamera.class, OrthographicCamera.class})
 public class DungeonCameraTest {
     DungeonCamera cam;
-    Entity entity;
+    DungeonElement entity;
     Vector3 pos;
     Frustum frustum;
 
@@ -34,7 +34,7 @@ public class DungeonCameraTest {
 
     @Before
     public void setUp() {
-        entity = Mockito.mock(Entity.class);
+        entity = Mockito.mock(DungeonElement.class);
         pos = Mockito.mock(Vector3.class);
         frustum = Mockito.mock(Frustum.class);
         Mockito.when(entity.getPosition()).thenReturn(new Point(1, 1));
@@ -72,7 +72,7 @@ public class DungeonCameraTest {
 
     @Test
     public void test_follow() {
-        Entity e2 = Mockito.mock(Entity.class);
+        DungeonElement e2 = Mockito.mock(DungeonElement.class);
 
         cam.follow(e2);
         assertEquals(e2, cam.getFollowedObject());

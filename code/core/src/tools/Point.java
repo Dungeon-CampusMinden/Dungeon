@@ -10,8 +10,15 @@ import level.tools.Coordinate;
  */
 public class Point {
 
-    public float x, y;
+    public float x;
+    public float y;
 
+    /**
+     * A simple {@code float} point class.
+     *
+     * @param x the x value
+     * @param y the y value
+     */
     public Point(float x, float y) {
         this.x = x;
         this.y = y;
@@ -26,7 +33,7 @@ public class Point {
     /**
      * Convert Point to Coordinate by parsing float to int
      *
-     * @return
+     * @return the converted point
      */
     public Coordinate toCoordinate() {
         return new Coordinate((int) x, (int) y);

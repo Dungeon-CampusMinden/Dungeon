@@ -3,7 +3,7 @@ plugins {
     id "java"
     id "checkstyle"
     id "com.github.spotbugs" version "5.+"
-    id "com.diffplug.spotless" version "6.5.+"
+    id "com.diffplug.spotless" version "6.10.+"
     id "java-library"
     id "maven-publish"
     id "signing"
@@ -59,29 +59,31 @@ test {
     testLogging {
         events "passed", "skipped", "failed"
     }
+    reports.html.outputLocation = file("reports/junit/html/")
+    reports.junitXml.outputLocation = file("reports/junit/xml/")
 }
 
 checkstyle {
     toolVersion = "10.2"
     configFile = file("checkstyle-config/checks.xml")
     showViolations = true
+    reportsDir = file("reports/checkstyle/")
 }
 
 spotbugs {
     ignoreFailures = true
     showStackTraces = false
     reportLevel = "low"
+    reportsDir = file("reports/spotbugs/")
 }
 
 spotbugsMain {
     reports {
         xml {
             required = true
-            outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.xml")
         }
         html {
             required = true
-            outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.html")
             stylesheet = "fancy-hist.xsl"
         }
     }
@@ -91,11 +93,9 @@ spotbugsTest {
     reports {
         xml {
             required = true
-            outputLocation = file("$buildDir/reports/spotbugs/test/spotbugs.xml")
         }
         html {
             required = true
-            outputLocation = file("$buildDir/reports/spotbugs/test/spotbugs.html")
             stylesheet = "fancy-hist.xsl"
         }
     }
@@ -202,7 +202,6 @@ nexusPublishing {
 // SECTION TO START THE DUNGEON GAME DIRECTLY
 
 sourceSets.main.resources.srcDirs = ["assets/"]
-project.ext.assetsDir = new File("assets")
 project.ext.mainClassName = "starter.DefaultMainController"
 
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform

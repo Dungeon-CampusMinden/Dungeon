@@ -6,6 +6,7 @@ import controller.LibgdxSetup;
 import controller.MainController;
 import tools.Constants;
 
+/** A class to wrap the passed MainController and start the dungeon. */
 public final class DesktopLauncher {
     /**
      * Starts the dungeon and needs a <code>MainController</code>.

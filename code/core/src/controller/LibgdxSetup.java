@@ -28,7 +28,6 @@ public class LibgdxSetup extends Game {
         batch = new SpriteBatch();
         hudBatch = new SpriteBatch();
         mc.setSpriteBatch(batch);
-        mc.setHudBatch(hudBatch);
         setScreen(mc);
     }
 

@@ -1,6 +1,6 @@
 package graphic;
 
-import basiselements.Entity;
+import basiselements.DungeonElement;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
@@ -8,7 +8,7 @@ import tools.Point;
 
 /** Sauron's eye. */
 public class DungeonCamera extends OrthographicCamera {
-    private Entity follows;
+    private DungeonElement follows;
     private Point focusPoint;
 
     /**
@@ -18,7 +18,7 @@ public class DungeonCamera extends OrthographicCamera {
      * @param vw virtual width
      * @param vh virtual height
      */
-    public DungeonCamera(Entity follows, float vw, float vh) {
+    public DungeonCamera(DungeonElement follows, float vw, float vh) {
         super(vw, vh);
         if (follows != null) {
             this.follows = follows;
@@ -44,14 +44,14 @@ public class DungeonCamera extends OrthographicCamera {
      *
      * @param follows entity to follow
      */
-    public void follow(Entity follows) {
+    public void follow(DungeonElement follows) {
         this.follows = follows;
     }
 
     /**
      * @return the entity the camera currently follows
      */
-    public Entity getFollowedObject() {
+    public DungeonElement getFollowedObject() {
         return follows;
     }
 

@@ -1,7 +1,13 @@
 package controller;
 
-import basiselements.DungeonElement;
-import java.util.*;
+import basiselements.Removable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 
 /**
@@ -10,24 +16,20 @@ import java.util.function.Consumer;
  * <p>Layer system means: All elements are listed in ascending order according to the layers in this
  * controller and in the order they are arranged in the layer.
  *
- * @param <T> Type of elements to manage.
+ * @param <T> generic type of elements to manage.
  */
-public abstract class AbstractController<T extends DungeonElement> implements Iterable<T> {
-
+public abstract class AbstractController<T extends Removable> implements Iterable<T> {
     private final Map<ControllerLayer, List<T>> layerTreeMap = new TreeMap<>();
     private final Map<T, List<T>> elementHashMap = new HashMap<>();
 
-    /**
-     * Updates all elements that are registered at this controller, removes deletable elements and
-     * calls the update and draw method for every registered element.
-     */
+    public abstract void process(T e);
+
     public void update() {
         for (T e : this) {
             if (e.removable()) {
                 remove(e);
             } else {
-                e.update();
-                e.draw();
+                process(e);
             }
         }
     }
@@ -108,7 +110,7 @@ public abstract class AbstractController<T extends DungeonElement> implements It
      * @param t Element to remove.
      * @return true, if this was successful.
      */
-    public boolean remove(Object t) {
+    public boolean remove(T t) {
         assert (t != null);
         if (!contains(t)) {
             return false;

@@ -2,12 +2,14 @@ package level;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import graphic.Painter;
+import graphic.PainterConfig;
+import java.util.HashMap;
+import java.util.Map;
 import level.elements.ILevel;
 import level.elements.Tile;
 import level.generator.IGenerator;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
-import tools.Point;
 
 /** Manages the level. */
 public class LevelAPI {
@@ -63,15 +65,19 @@ public class LevelAPI {
     }
 
     protected void drawLevel() {
+        Map<String, PainterConfig> mapping = new HashMap<>();
+
         Tile[][] layout = currentLevel.getLayout();
         for (int y = 0; y < layout.length; y++) {
             for (int x = 0; x < layout[0].length; x++) {
                 Tile t = layout[y][x];
                 if (t.getLevelElement() != LevelElement.SKIP) {
+                    String texturePath = t.getTexturePath();
+                    if (!mapping.containsKey(texturePath)) {
+                        mapping.put(texturePath, new PainterConfig(texturePath));
+                    }
                     painter.draw(
-                            t.getTexturePath(),
-                            new Point(t.getCoordinate().x, t.getCoordinate().y),
-                            batch);
+                            t.getCoordinate().toPoint(), texturePath, mapping.get(texturePath));
                 }
             }
         }
