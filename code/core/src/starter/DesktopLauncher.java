@@ -2,18 +2,17 @@ package starter;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import controller.LibgdxSetup;
-import controller.MainController;
+import controller.Game;
 import tools.Constants;
 
-/** A class to wrap the passed MainController and start the dungeon. */
+/** A class to wrap the passed {@link Game} and start the dungeon. */
 public final class DesktopLauncher {
     /**
-     * Starts the dungeon and needs a <code>MainController</code>.
+     * Starts the dungeon and needs a {@link Game}.
      *
-     * @param mc the <code>MainController</code> used to start the dungeon.
+     * @param game the {@link Game} used to start the dungeon.
      */
-    public static void run(MainController mc) {
+    public static void run(Game game) {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setWindowSizeLimits(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT, 9999, 9999);
         // The third and fourth parameters ("maxWidth" and "maxHeight") affect the resizing behavior
@@ -25,6 +24,6 @@ public final class DesktopLauncher {
         config.setWindowIcon(Constants.LOGO_PATH);
         // config.disableAudio(true);
         // uncomment this if you wish no audio
-        new Lwjgl3Application(new LibgdxSetup(mc), config);
+        new Lwjgl3Application(new LibgdxSetup(game), config);
     }
 }

@@ -21,18 +21,18 @@ import org.powermock.reflect.Whitebox;
 import tools.Constants;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({MainController.class, Gdx.class, Constants.class})
-class MainControllerTest {
-    MainController controller;
+@PrepareForTest({Game.class, Gdx.class, Constants.class})
+class GameTest {
+    Game game;
     SpriteBatch batch;
     int someArbitraryValueGreater0forDelta = 7;
 
     // Because of use of PowerMockRunner we need an empty constructor here
-    public MainControllerTest() {}
+    public GameTest() {}
 
     @Before
     public void setUp() throws Exception {
-        controller = Mockito.spy(MainController.class);
+        game = Mockito.spy(Game.class);
         batch = Mockito.mock(SpriteBatch.class);
 
         Whitebox.setInternalState(Gdx.class, "gl", Mockito.mock(GL20.class));
@@ -61,32 +61,32 @@ class MainControllerTest {
 
     @Test
     public void test_render() {
-        controller.setSpriteBatch(batch);
+        game.setSpriteBatch(batch);
 
-        Mockito.verify(controller).setSpriteBatch(batch);
-        Mockito.verifyNoMoreInteractions(controller, batch);
+        Mockito.verify(game).setSpriteBatch(batch);
+        Mockito.verifyNoMoreInteractions(game, batch);
 
-        controller.render(someArbitraryValueGreater0forDelta);
-        Mockito.verify(controller).render(someArbitraryValueGreater0forDelta);
-        Mockito.verify(controller).setup();
-        Mockito.verify(controller).frame();
-        Mockito.verify(controller, Mockito.times(4)).runLoop();
-        Mockito.verifyNoMoreInteractions(controller);
+        game.render(someArbitraryValueGreater0forDelta);
+        Mockito.verify(game).render(someArbitraryValueGreater0forDelta);
+        Mockito.verify(game).setup();
+        Mockito.verify(game).frame();
+        Mockito.verify(game, Mockito.times(4)).runLoop();
+        Mockito.verifyNoMoreInteractions(game);
     }
 
     @Test
     public void test_render_paused() {
-        controller.setSpriteBatch(batch);
-        when(controller.runLoop()).thenReturn(false);
-        Mockito.verify(controller).setSpriteBatch(batch);
-        Mockito.verifyNoMoreInteractions(controller, batch);
+        game.setSpriteBatch(batch);
+        when(game.runLoop()).thenReturn(false);
+        Mockito.verify(game).setSpriteBatch(batch);
+        Mockito.verifyNoMoreInteractions(game, batch);
 
-        controller.render(someArbitraryValueGreater0forDelta);
-        Mockito.verify(controller).render(someArbitraryValueGreater0forDelta);
-        Mockito.verify(controller).setup();
-        Mockito.verify(controller, never()).frame();
-        when(controller.runLoop()).thenReturn(true);
-        Mockito.verify(controller, Mockito.times(1)).runLoop();
-        Mockito.verifyNoMoreInteractions(controller);
+        game.render(someArbitraryValueGreater0forDelta);
+        Mockito.verify(game).render(someArbitraryValueGreater0forDelta);
+        Mockito.verify(game).setup();
+        Mockito.verify(game, never()).frame();
+        when(game.runLoop()).thenReturn(true);
+        Mockito.verify(game, Mockito.times(1)).runLoop();
+        Mockito.verifyNoMoreInteractions(game);
     }
 }

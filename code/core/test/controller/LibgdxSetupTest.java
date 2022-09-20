@@ -8,11 +8,12 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import starter.LibgdxSetup;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({LibgdxSetup.class})
 class LibgdxSetupTest {
-    MainController controller;
+    Game game;
     SpriteBatch batch;
     LibgdxSetup setup;
 
@@ -21,12 +22,12 @@ class LibgdxSetupTest {
 
     @Before
     public void setUp() throws Exception {
-        controller = Mockito.mock(MainController.class);
+        game = Mockito.mock(Game.class);
         batch = Mockito.mock(SpriteBatch.class);
         PowerMockito.whenNew(SpriteBatch.class).withNoArguments().thenReturn(batch);
 
-        setup = Mockito.spy(new LibgdxSetup(controller));
-        PowerMockito.doNothing().when(setup, "setScreen", controller);
+        setup = Mockito.spy(new LibgdxSetup(game));
+        PowerMockito.doNothing().when(setup, "setScreen", game);
         PowerMockito.doNothing().when(batch).dispose();
 
         setup.create();
@@ -41,21 +42,21 @@ class LibgdxSetupTest {
     @Test
     public void test_create() {
         Mockito.verify(setup).create();
-        Mockito.verify(controller).setSpriteBatch(batch);
-        Mockito.verify(setup).setScreen(controller);
-        Mockito.verifyNoMoreInteractions(setup, batch, controller);
+        Mockito.verify(game).setSpriteBatch(batch);
+        Mockito.verify(setup).setScreen(game);
+        Mockito.verifyNoMoreInteractions(setup, batch, game);
     }
 
     @Test
     public void test_dispose() {
         Mockito.verify(setup).create();
-        Mockito.verify(controller).setSpriteBatch(batch);
-        Mockito.verify(setup).setScreen(controller);
-        Mockito.verifyNoMoreInteractions(setup, batch, controller);
+        Mockito.verify(game).setSpriteBatch(batch);
+        Mockito.verify(setup).setScreen(game);
+        Mockito.verifyNoMoreInteractions(setup, batch, game);
 
         setup.dispose();
         Mockito.verify(setup).dispose();
         Mockito.verify(batch, Mockito.times(2)).dispose();
-        Mockito.verifyNoMoreInteractions(setup, batch, controller);
+        Mockito.verifyNoMoreInteractions(setup, batch, game);
     }
 }

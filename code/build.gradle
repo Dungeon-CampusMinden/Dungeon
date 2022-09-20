@@ -202,7 +202,7 @@ nexusPublishing {
 // SECTION TO START THE DUNGEON GAME DIRECTLY
 
 sourceSets.main.resources.srcDirs = ["assets/"]
-project.ext.mainClassName = "starter.DefaultMainController"
+project.ext.mainClassName = "starter.MyGame"
 
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 

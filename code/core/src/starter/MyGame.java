@@ -3,15 +3,16 @@ package starter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
-import controller.MainController;
+import controller.Game;
 import tools.Point;
 
 /**
  * The entry class to create your own implementation.
  *
- * <p>This class acts as the <code>MainController</code>.
+ * <p>This class is directly derived form {@link Game} and acts as the {@link
+ * com.badlogic.gdx.Game}.
  */
-public class DefaultMainController extends MainController {
+public class MyGame extends Game {
     private int zoomLevel = 10;
 
     @Override
@@ -77,6 +78,6 @@ public class DefaultMainController extends MainController {
      */
     public static void main(String[] args) {
         // start the game
-        DesktopLauncher.run(new DefaultMainController());
+        DesktopLauncher.run(new MyGame());
     }
 }

@@ -74,7 +74,7 @@ public abstract class AbstractController<T extends Removable> implements Iterabl
     }
 
     /**
-     * Adds all elements to the default controller, if they are not already added.
+     * Adds all elements to the controller, if they are not already added.
      *
      * @param c Collection to add.
      * @return true, if this was modified.
