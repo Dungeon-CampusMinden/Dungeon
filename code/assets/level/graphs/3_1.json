@@ -1,0 +1,126 @@
+[
+    {
+        "nodes": [
+            {
+                "neighbours": [
+                    1,
+                    2
+                ],
+                "index": 0
+            },
+            {
+                "neighbours": [
+                    0,
+                    2
+                ],
+                "index": 1
+            },
+            {
+                "neighbours": [
+                    0,
+                    1
+                ],
+                "index": 2
+            }
+        ],
+        "bfedges": [
+            {
+                "node1": 1,
+                "node2": 2
+            }
+        ]
+    },
+    {
+        "nodes": [
+            {
+                "neighbours": [
+                    1,
+                    2
+                ],
+                "index": 0
+            },
+            {
+                "neighbours": [
+                    0,
+                    2
+                ],
+                "index": 1
+            },
+            {
+                "neighbours": [
+                    0,
+                    1
+                ],
+                "index": 2
+            }
+        ],
+        "bfedges": [
+            {
+                "node1": 2,
+                "node2": 1
+            }
+        ]
+    },
+    {
+        "nodes": [
+            {
+                "neighbours": [
+                    1,
+                    2
+                ],
+                "index": 0
+            },
+            {
+                "neighbours": [
+                    0,
+                    2
+                ],
+                "index": 1
+            },
+            {
+                "neighbours": [
+                    1,
+                    0
+                ],
+                "index": 2
+            }
+        ],
+        "bfedges": [
+            {
+                "node1": 0,
+                "node2": 2
+            }
+        ]
+    },
+    {
+        "nodes": [
+            {
+                "neighbours": [
+                    1,
+                    2
+                ],
+                "index": 0
+            },
+            {
+                "neighbours": [
+                    0,
+                    2
+                ],
+                "index": 1
+            },
+            {
+                "neighbours": [
+                    1,
+                    0
+                ],
+                "index": 2
+            }
+        ],
+        "bfedges": [
+            {
+                "node1": 2,
+                "node2": 0
+            }
+        ]
+    }
+]
