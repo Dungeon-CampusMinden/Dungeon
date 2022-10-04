@@ -55,10 +55,10 @@ public abstract class DungeonCharacter extends AnimatableElement implements Coli
                 tmp = movedown();
                 break;
             case LEFT:
-                tmp = moveright();
+                tmp = moveleft();
                 break;
             case RIGHT:
-                tmp = moveleft();
+                tmp = moveright();
                 break;
             default:
                 tmp = currentPosition;

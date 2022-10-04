@@ -27,12 +27,12 @@ public class Hero extends DungeonCharacter {
         Animation animation = new Animation(texturePaths, frameTime * 2);
         IDLE_ANIMATION = animation;
 
-        texturePaths =
-                TextureHandler.getInstance().getTexturePaths("knight_m_run_anim_mirrored_f\\d+");
+        texturePaths = TextureHandler.getInstance().getTexturePaths("knight_m_run_anim_f\\d+");
         animation = new Animation(texturePaths, frameTime);
         RUN_RIGHT_ANIMATION = animation;
 
-        texturePaths = TextureHandler.getInstance().getTexturePaths("knight_m_run_anim_f\\d+");
+        texturePaths =
+                TextureHandler.getInstance().getTexturePaths("knight_m_run_anim_mirrored_f\\d+");
         animation = new Animation(texturePaths, frameTime);
         RUN_LEFT_ANIMATION = animation;
 
@@ -44,8 +44,8 @@ public class Hero extends DungeonCharacter {
     protected CharacterDirection getDirection() {
         if (Gdx.input.isKeyPressed(Input.Keys.W)) return CharacterDirection.UP;
         else if (Gdx.input.isKeyPressed(Input.Keys.S)) return CharacterDirection.DOWN;
-        else if (Gdx.input.isKeyPressed(Input.Keys.A)) return CharacterDirection.RIGHT;
-        else if (Gdx.input.isKeyPressed(Input.Keys.D)) return CharacterDirection.LEFT;
+        else if (Gdx.input.isKeyPressed(Input.Keys.D)) return CharacterDirection.RIGHT;
+        else if (Gdx.input.isKeyPressed(Input.Keys.A)) return CharacterDirection.LEFT;
         else return CharacterDirection.NONE;
     }
 
