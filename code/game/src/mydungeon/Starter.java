@@ -1,9 +1,14 @@
 package mydungeon;
 
-
-
+import character.monster.Imp;
+import character.monster.Monster;
+import character.player.Hero;
+import collision.CharacterDirection;
+import controller.Game;
+import controller.ScreenController;
 import java.util.ArrayList;
-
+import java.util.List;
+import starter.DesktopLauncher;
 
 /**
  * The entry class to create your own implementation.
@@ -15,16 +20,16 @@ public class Starter extends Game {
     private Hero hero;
     private List<Monster> monster;
     ScreenController sc;
+
     @Override
     protected void setup() {
         monster = new ArrayList<>();
         hero = new Hero();
-        sc=new ScreenController(batch);
+        sc = new ScreenController(batch);
         controller.add(sc);
         levelAPI.loadLevel();
         camera.follow(hero);
         entityController.add(hero);
-
     }
 
     @Override
@@ -35,8 +40,8 @@ public class Starter extends Game {
 
     private void checkForCollision() {
         for (Monster m : monster) {
-            Colideable.Direction direction = hero.getHitbox().colide(m.getHitbox());
-            if (direction != Colideable.Direction.NONE) {
+            CharacterDirection direction = hero.getHitbox().colide(m.getHitbox());
+            if (direction != CharacterDirection.NONE) {
                 hero.colide(m, direction);
                 m.colide(hero, direction);
             }

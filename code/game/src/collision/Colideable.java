@@ -7,13 +7,5 @@ public interface Colideable {
 
     Point getPosition();
 
-    void colide(Colideable other, Direction from);
-
-    enum Direction {
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT,
-        NONE
-    }
+    void colide(Colideable other, CharacterDirection from);
 }

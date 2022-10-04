@@ -1,17 +1,17 @@
 package character.player;
 
+import character.DungeonCharacter;
+import collision.CharacterDirection;
+import collision.Colideable;
+import collision.Hitbox;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import graphic.Animation;
 import java.util.List;
 import level.elements.ILevel;
-import myDungeon.character.Character;
-import myDungeon.character.monster.Monster;
-import myDungeon.collision.Colideable;
-import myDungeon.collision.Hitbox;
 import textures.TextureHandler;
 
-public class Hero extends Character {
+public class Hero extends DungeonCharacter {
 
     private final Animation IDLE_ANIMATION;
     private final Animation RUN_LEFT_ANIMATION;
@@ -19,15 +19,15 @@ public class Hero extends Character {
 
     public Hero() {
         // 16x28
-        super(0.3f, new Hitbox(6, 6,null));
+        super(0.3f, new Hitbox(6, 6, null));
         int frameTime = 5;
         List<String> texturePaths =
-            TextureHandler.getInstance().getTexturePaths("knight_m_idle_anim_f");
+                TextureHandler.getInstance().getTexturePaths("knight_m_idle_anim_f");
         Animation animation = new Animation(texturePaths, frameTime * 2);
         IDLE_ANIMATION = animation;
 
         texturePaths =
-            TextureHandler.getInstance().getTexturePaths("knight_m_run_anim_mirrored_f\\d+");
+                TextureHandler.getInstance().getTexturePaths("knight_m_run_anim_mirrored_f\\d+");
         animation = new Animation(texturePaths, frameTime);
         RUN_RIGHT_ANIMATION = animation;
 
@@ -39,18 +39,18 @@ public class Hero extends Character {
     }
 
     @Override
-    protected Direction getDirection() {
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) return Direction.UP;
-        else if (Gdx.input.isKeyPressed(Input.Keys.S)) return Direction.DOWN;
-        else if (Gdx.input.isKeyPressed(Input.Keys.A)) return Direction.RIGHT;
-        else if (Gdx.input.isKeyPressed(Input.Keys.D)) return Direction.LEFT;
-        else return Direction.NONE;
+    protected CharacterDirection getDirection() {
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) return CharacterDirection.UP;
+        else if (Gdx.input.isKeyPressed(Input.Keys.S)) return CharacterDirection.DOWN;
+        else if (Gdx.input.isKeyPressed(Input.Keys.A)) return CharacterDirection.RIGHT;
+        else if (Gdx.input.isKeyPressed(Input.Keys.D)) return CharacterDirection.LEFT;
+        else return CharacterDirection.NONE;
     }
 
     @Override
-    protected void setAnimation(Direction direction) {
-        if (direction == Direction.LEFT) currentAnimation = RUN_LEFT_ANIMATION;
-        else if (direction == Direction.RIGHT) currentAnimation = RUN_RIGHT_ANIMATION;
+    protected void setAnimation(CharacterDirection direction) {
+        if (direction == CharacterDirection.LEFT) currentAnimation = RUN_LEFT_ANIMATION;
+        else if (direction == CharacterDirection.RIGHT) currentAnimation = RUN_RIGHT_ANIMATION;
         else currentAnimation = IDLE_ANIMATION;
     }
 
@@ -61,8 +61,5 @@ public class Hero extends Character {
     }
 
     @Override
-    public void colide(Colideable other, Direction from) {
-        if (other instanceof Monster) System.out.println("Colide with monster from " + from.name());
-        else System.out.println("Colide with other from " + from.name());
-    }
+    public void colide(Colideable other, CharacterDirection from) {}
 }

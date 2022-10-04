@@ -1,22 +1,23 @@
 package character;
 
 import basiselements.AnimatableElement;
+import collision.CharacterDirection;
+import collision.Colideable;
+import collision.Hitbox;
 import graphic.Animation;
 import level.elements.ILevel;
-import myDungeon.collision.Colideable;
-import myDungeon.collision.Hitbox;
 import tools.Point;
 
-public abstract class Character extends AnimatableElement implements Colideable {
+public abstract class DungeonCharacter extends AnimatableElement implements Colideable {
 
     protected Point currentPosition;
     protected Animation currentAnimation;
     protected ILevel currentLevel;
     protected float movementSpeed;
     protected Hitbox hitbox;
-    protected boolean alive=true;
+    protected boolean alive = true;
 
-    public Character(float movementSpeed, Hitbox hitbox) {
+    public DungeonCharacter(float movementSpeed, Hitbox hitbox) {
         this.movementSpeed = movementSpeed;
         this.hitbox = hitbox;
     }
@@ -24,13 +25,13 @@ public abstract class Character extends AnimatableElement implements Colideable 
     /**
      * @return the direction this character wants to move
      */
-    protected abstract Direction getDirection();
+    protected abstract CharacterDirection getDirection();
 
-    protected abstract void setAnimation(Direction direction);
+    protected abstract void setAnimation(CharacterDirection direction);
 
     protected boolean move() {
         Point tmp;
-        Direction direction = getDirection();
+        CharacterDirection direction = getDirection();
         switch (direction) {
             case UP:
                 tmp = moveup();
@@ -53,7 +54,7 @@ public abstract class Character extends AnimatableElement implements Colideable 
             setAnimation(direction);
             return true;
         }
-        setAnimation(Direction.NONE);
+        setAnimation(CharacterDirection.NONE);
         return false;
     }
 
@@ -62,7 +63,7 @@ public abstract class Character extends AnimatableElement implements Colideable 
         for (int i = 0; i < 4; i++) {
             Point corner = new Point(newPosition.x + corners[i].x, newPosition.y + corners[i].y);
             if (currentLevel.getTileAt(corner.toCoordinate()) == null
-                || !currentLevel.getTileAt(corner.toCoordinate()).isAccessible()) return false;
+                    || !currentLevel.getTileAt(corner.toCoordinate()).isAccessible()) return false;
         }
         return true;
     }
@@ -109,11 +110,11 @@ public abstract class Character extends AnimatableElement implements Colideable 
     }
 
     @Override
-    public boolean removable(){
+    public boolean removable() {
         return !alive;
     }
 
-    protected void die(){
-        alive=false;
+    protected void die() {
+        alive = false;
     }
 }

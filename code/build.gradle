@@ -21,7 +21,7 @@ ext {
 }
 
 dependencies {
-    implementation "io.github.pm-dungeon:pm-dungeon:5.0.2"
+    implementation "io.github.pm-dungeon:pm-dungeon:5.0.+"
 
     // LibGDX
     implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
@@ -50,7 +50,7 @@ sourceSets.main.java.srcDirs = ["game/src/"]
 sourceSets.main.resources.srcDirs = ["assets/"]
 sourceSets.test.java.srcDirs = ["game/test/"]
 
-project.ext.mainClassName = "desktop.MyGame"
+project.ext.mainClassName = "mydungeon.Starter"
 project.ext.assetsDir = new File("assets")
 
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform

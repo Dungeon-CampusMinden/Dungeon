@@ -2,13 +2,12 @@ package collision;
 
 import tools.Point;
 
-
 public class Hitbox {
     private Point[] corners;
     private Point position;
 
     public Hitbox(int widthPX, int heightPX, Point position) {
-        this.position=position;
+        this.position = position;
         // from pixel to point 16px x 16px =1x1
         float width = widthPX / 16f;
         float height = heightPX / 16f;
@@ -23,18 +22,16 @@ public class Hitbox {
         return corners;
     }
 
-    //TODO
-    public Colideable.Direction colide(Hitbox other) {
-       return Colideable.Direction.NONE;
-
+    // TODO
+    public CharacterDirection colide(Hitbox other) {
+        return CharacterDirection.NONE;
     }
 
-    public void setPosition(Point position){
-        this.position=position;
+    public void setPosition(Point position) {
+        this.position = position;
     }
 
     public Point getPosition() {
         return position;
     }
-
 }

@@ -1,10 +1,11 @@
 package character.monster;
 
+import collision.CharacterDirection;
+import collision.Colideable;
+import collision.Hitbox;
 import graphic.Animation;
 import java.util.List;
 import level.elements.ILevel;
-import myDungeon.collision.Colideable;
-import myDungeon.collision.Hitbox;
 import textures.TextureHandler;
 
 public class Imp extends Monster {
@@ -14,7 +15,7 @@ public class Imp extends Monster {
 
     public Imp() {
         // 16x16
-        super(0.03f, new Hitbox(5, 5,null));
+        super(0.03f, new Hitbox(5, 5, null));
         int frameTime = 5;
         List<String> texturePaths = TextureHandler.getInstance().getTexturePaths("imp_idle_anim_f");
         Animation animation = new Animation(texturePaths, frameTime * 2);
@@ -32,9 +33,9 @@ public class Imp extends Monster {
     }
 
     @Override
-    protected void setAnimation(Colideable.Direction direction) {
-        if (direction == Colideable.Direction.LEFT) currentAnimation = RUN_LEFT_ANIMATION;
-        else if (direction == Colideable.Direction.RIGHT) currentAnimation = RUN_RIGHT_ANIMATION;
+    protected void setAnimation(CharacterDirection direction) {
+        if (direction == CharacterDirection.LEFT) currentAnimation = RUN_LEFT_ANIMATION;
+        else if (direction == CharacterDirection.RIGHT) currentAnimation = RUN_RIGHT_ANIMATION;
         else currentAnimation = IDLE_ANIMATION;
     }
 
@@ -45,7 +46,5 @@ public class Imp extends Monster {
     }
 
     @Override
-    public void colide(Colideable other, Colideable.Direction from) {
-
-    }
+    public void colide(Colideable other, CharacterDirection from) {}
 }
