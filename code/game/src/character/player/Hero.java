@@ -11,6 +11,7 @@ import java.util.List;
 import level.elements.ILevel;
 import textures.TextureHandler;
 
+/** Player-Character. */
 public class Hero extends DungeonCharacter {
 
     private final Animation IDLE_ANIMATION;
@@ -39,6 +40,7 @@ public class Hero extends DungeonCharacter {
     }
 
     @Override
+    /** Movement based on Key-Inputs */
     protected CharacterDirection getDirection() {
         if (Gdx.input.isKeyPressed(Input.Keys.W)) return CharacterDirection.UP;
         else if (Gdx.input.isKeyPressed(Input.Keys.S)) return CharacterDirection.DOWN;
@@ -61,5 +63,7 @@ public class Hero extends DungeonCharacter {
     }
 
     @Override
-    public void colide(Colideable other, CharacterDirection from) {}
+    public void colide(Colideable other, CharacterDirection from) {
+        // todo
+    }
 }

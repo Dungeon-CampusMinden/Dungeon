@@ -1,7 +1,6 @@
 package character.monster;
 
 import collision.CharacterDirection;
-import collision.Colideable;
 import collision.Hitbox;
 import graphic.Animation;
 import java.util.List;
@@ -44,7 +43,4 @@ public class Imp extends Monster {
         currentLevel = level;
         currentPosition = level.getStartTile().getCoordinate().toPoint();
     }
-
-    @Override
-    public void colide(Colideable other, CharacterDirection from) {}
 }

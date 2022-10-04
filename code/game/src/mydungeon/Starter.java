@@ -19,7 +19,7 @@ import starter.DesktopLauncher;
 public class Starter extends Game {
     private Hero hero;
     private List<Monster> monster;
-    ScreenController sc;
+    private ScreenController sc;
 
     @Override
     protected void setup() {
