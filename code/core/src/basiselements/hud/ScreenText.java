@@ -23,7 +23,7 @@ public class ScreenText extends Label implements Removable {
      * @param scaleXY the scale for the ScreenText
      * @param style the style
      */
-    private ScreenText(String text, Point position, float scaleXY, LabelStyle style) {
+    public ScreenText(String text, Point position, float scaleXY, LabelStyle style) {
         super(text, style);
         this.setPosition(position.x, position.y);
         this.setScale(scaleXY);
