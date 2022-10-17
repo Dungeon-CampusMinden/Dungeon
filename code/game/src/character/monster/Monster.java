@@ -6,6 +6,7 @@ import collision.Collidable;
 import collision.Hitbox;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import level.elements.Tile;
+import level.tools.Coordinate;
 import level.tools.LevelElement;
 import tools.Point;
 
@@ -35,13 +36,17 @@ public abstract class Monster extends DungeonCharacter {
             Tile.Direction d = currentTile.directionTo(nextTile)[0];
             switch (d) {
                 case N:
-                    return CharacterDirection.UP;
+                    d = checkUP(d);
+                    return convertTileDirectionToCharacterDirection(d);
                 case S:
-                    return CharacterDirection.DOWN;
+                    d = checkDown(d);
+                    return convertTileDirectionToCharacterDirection(d);
                 case E:
-                    return CharacterDirection.RIGHT;
+                    d = checkRight(d);
+                    return convertTileDirectionToCharacterDirection(d);
                 case W:
-                    return CharacterDirection.LEFT;
+                    d = checkLeft(d);
+                    return convertTileDirectionToCharacterDirection(d);
                 default:
                     System.out.println("??");
             }
@@ -50,6 +55,141 @@ public abstract class Monster extends DungeonCharacter {
             calculateGoal(true);
         }
         return CharacterDirection.NONE;
+    }
+
+    private CharacterDirection convertTileDirectionToCharacterDirection(Tile.Direction d) {
+        switch (d) {
+            case N:
+                return CharacterDirection.UP;
+            case E:
+                return CharacterDirection.RIGHT;
+            case S:
+                return CharacterDirection.DOWN;
+            case W:
+                return CharacterDirection.LEFT;
+            default:
+                return CharacterDirection.NONE;
+        }
+    }
+
+    private Tile.Direction checkLeft(Tile.Direction d) {
+        var tmp = moveleft();
+        if (!isHitboxOnFloor(tmp)) {
+            // check top left and bottom left for collision !
+            var corners = hitbox.getCorners();
+            if (!currentLevel
+                    .getTileAt(
+                            new Coordinate(
+                                    (int) (corners[Hitbox.CORNER_BOTTOM_LEFT].x + tmp.x),
+                                    (int) (corners[Hitbox.CORNER_BOTTOM_LEFT].y + tmp.y)))
+                    .isAccessible()) {
+                // bottom left collision move to the TOP
+                d = Tile.Direction.N;
+            }
+            if (!currentLevel
+                    .getTileAt(
+                            new Coordinate(
+                                    (int) (corners[Hitbox.CORNER_TOP_LEFT].x + tmp.x),
+                                    (int) (corners[Hitbox.CORNER_TOP_LEFT].y + tmp.y)))
+                    .isAccessible()) {
+                // top left collision move to the bottom
+                d = Tile.Direction.S;
+            }
+        }
+        return d;
+    }
+
+    private Tile.Direction checkRight(Tile.Direction d) {
+        var tmp = moveright();
+        if (!isHitboxOnFloor(tmp)) {
+            // check top right and bottom right for collision !
+            var corners = hitbox.getCorners();
+            if (!currentLevel
+                    .getTileAt(
+                            new Coordinate(
+                                    (int) (corners[Hitbox.CORNER_BOTTOM_RIGHT].x + tmp.x),
+                                    (int) (corners[Hitbox.CORNER_BOTTOM_RIGHT].y + tmp.y)))
+                    .isAccessible()) {
+                // bottom right collision move to the TOP
+                d = Tile.Direction.N;
+            }
+            if (!currentLevel
+                    .getTileAt(
+                            new Coordinate(
+                                    (int) (corners[Hitbox.CORNER_TOP_RIGHT].x + tmp.x),
+                                    (int) (corners[Hitbox.CORNER_TOP_RIGHT].y + tmp.y)))
+                    .isAccessible()) {
+                // top right collision move to the bottom
+                d = Tile.Direction.S;
+            }
+        }
+        return d;
+    }
+
+    /**
+     * simple check for moving down
+     *
+     * @param d the planned direction
+     * @return the recommended direction
+     */
+    private Tile.Direction checkDown(Tile.Direction d) {
+        var tmp = movedown();
+        if (!isHitboxOnFloor(tmp)) {
+            // check bottom left and bottom right for collision ! first to collide and also
+            var corners = hitbox.getCorners();
+            if (!currentLevel
+                    .getTileAt(
+                            new Coordinate(
+                                    (int) (corners[Hitbox.CORNER_BOTTOM_LEFT].x + tmp.x),
+                                    (int) (corners[Hitbox.CORNER_BOTTOM_LEFT].y + tmp.y)))
+                    .isAccessible()) {
+                // bottom left collision move to the right
+                d = Tile.Direction.E;
+            }
+            if (!currentLevel
+                    .getTileAt(
+                            new Coordinate(
+                                    (int) (corners[Hitbox.CORNER_BOTTOM_RIGHT].x + tmp.x),
+                                    (int) (corners[Hitbox.CORNER_BOTTOM_RIGHT].y + tmp.y)))
+                    .isAccessible()) {
+                // bottom right collision move to the left
+                d = Tile.Direction.W;
+            }
+        }
+        return d;
+    }
+
+    /**
+     * simple check for moving up
+     *
+     * @param d the planned direction
+     * @return the recommended direction
+     */
+    private Tile.Direction checkUP(Tile.Direction d) {
+        var tmp = moveup();
+        if (!isHitboxOnFloor(tmp)) {
+            // check top left and top right for collision ! first to collide and also
+            var corners = hitbox.getCorners();
+            if (!currentLevel
+                    .getTileAt(
+                            new Coordinate(
+                                    (int) (corners[Hitbox.CORNER_TOP_LEFT].x + tmp.x),
+                                    (int) (corners[Hitbox.CORNER_TOP_LEFT].y + tmp.y)))
+                    .isAccessible()) {
+                // top left collision move to the right
+                d = Tile.Direction.E;
+            }
+            if (!currentLevel
+                    .getTileAt(
+                            new Coordinate(
+                                    (int) (corners[Hitbox.CORNER_TOP_RIGHT].x + tmp.x),
+                                    (int) (corners[Hitbox.CORNER_TOP_RIGHT].y + tmp.y)))
+                    .isAccessible()) {
+                // top right collision move to the left
+                d = Tile.Direction.W;
+            }
+        }
+        return d;
     }
 
     /**
