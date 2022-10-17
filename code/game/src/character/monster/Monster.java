@@ -3,8 +3,10 @@ package character.monster;
 import character.DungeonCharacter;
 import collision.CharacterDirection;
 import collision.Collidable;
+import collision.CollidableLevel;
 import collision.Hitbox;
 import com.badlogic.gdx.ai.pfa.GraphPath;
+import level.elements.ILevel;
 import level.elements.Tile;
 import level.tools.Coordinate;
 import level.tools.LevelElement;
@@ -34,27 +36,60 @@ public abstract class Monster extends DungeonCharacter {
             // todo warum ist index 0 leer?
             Tile nextTile = path.get(1);
             Tile.Direction d = currentTile.directionTo(nextTile)[0];
-            switch (d) {
-                case N:
-                    d = checkUP(d);
-                    return convertTileDirectionToCharacterDirection(d);
-                case S:
-                    d = checkDown(d);
-                    return convertTileDirectionToCharacterDirection(d);
-                case E:
-                    d = checkRight(d);
-                    return convertTileDirectionToCharacterDirection(d);
-                case W:
-                    d = checkLeft(d);
-                    return convertTileDirectionToCharacterDirection(d);
-                default:
-                    System.out.println("??");
+            CharacterDirection direction = convertTileDirectionToCharacterDirection(d);
+            ILevel level = currentLevel;
+            if (level.getClass() == CollidableLevel.class) {
+                var collidable = ((CollidableLevel) level).getCollidables();
+                // TODO: create a better fix for hitbox
+                var temp = currentPosition;
+                switch (direction) {
+                    case UP:
+                        currentPosition = moveup();
+                        break;
+                    case DOWN:
+                        currentPosition = movedown();
+                        break;
+                    case RIGHT:
+                        currentPosition = moveright();
+                        break;
+                    case LEFT:
+                        currentPosition = moveleft();
+                        break;
+                }
+
+                for (Collidable collideable : collidable) {
+                    // hitbox has to be moved to new position
+                    var col = hitbox.collide(collideable.getHitbox());
+                    if (col != CharacterDirection.NONE) {
+                        // collision
+
+                        currentPosition = temp;
+                        return handlePathCollision(direction);
+                    }
+                }
+                currentPosition = temp;
+                return convertTileDirectionToCharacterDirection(d);
             }
         } catch (Exception e) {
             e.printStackTrace();
             calculateGoal(true);
         }
         return CharacterDirection.NONE;
+    }
+
+    private CharacterDirection handlePathCollision(CharacterDirection direction) {
+        switch (direction) {
+            case UP:
+                return checkUP(direction);
+            case DOWN:
+                return checkDown(direction);
+            case RIGHT:
+                return checkRight(direction);
+            case LEFT:
+                return checkLeft(direction);
+            default:
+                return direction;
+        }
     }
 
     private CharacterDirection convertTileDirectionToCharacterDirection(Tile.Direction d) {
@@ -72,7 +107,7 @@ public abstract class Monster extends DungeonCharacter {
         }
     }
 
-    private Tile.Direction checkLeft(Tile.Direction d) {
+    private CharacterDirection checkLeft(CharacterDirection d) {
         var tmp = moveleft();
         if (!isHitboxOnFloor(tmp)) {
             // check top left and bottom left for collision !
@@ -84,7 +119,7 @@ public abstract class Monster extends DungeonCharacter {
                                     (int) (corners[Hitbox.CORNER_BOTTOM_LEFT].y + tmp.y)))
                     .isAccessible()) {
                 // bottom left collision move to the TOP
-                d = Tile.Direction.N;
+                d = CharacterDirection.DOWN;
             }
             if (!currentLevel
                     .getTileAt(
@@ -93,13 +128,13 @@ public abstract class Monster extends DungeonCharacter {
                                     (int) (corners[Hitbox.CORNER_TOP_LEFT].y + tmp.y)))
                     .isAccessible()) {
                 // top left collision move to the bottom
-                d = Tile.Direction.S;
+                d = CharacterDirection.DOWN;
             }
         }
         return d;
     }
 
-    private Tile.Direction checkRight(Tile.Direction d) {
+    private CharacterDirection checkRight(CharacterDirection d) {
         var tmp = moveright();
         if (!isHitboxOnFloor(tmp)) {
             // check top right and bottom right for collision !
@@ -111,7 +146,7 @@ public abstract class Monster extends DungeonCharacter {
                                     (int) (corners[Hitbox.CORNER_BOTTOM_RIGHT].y + tmp.y)))
                     .isAccessible()) {
                 // bottom right collision move to the TOP
-                d = Tile.Direction.N;
+                d = CharacterDirection.DOWN;
             }
             if (!currentLevel
                     .getTileAt(
@@ -120,7 +155,7 @@ public abstract class Monster extends DungeonCharacter {
                                     (int) (corners[Hitbox.CORNER_TOP_RIGHT].y + tmp.y)))
                     .isAccessible()) {
                 // top right collision move to the bottom
-                d = Tile.Direction.S;
+                d = CharacterDirection.DOWN;
             }
         }
         return d;
@@ -132,7 +167,7 @@ public abstract class Monster extends DungeonCharacter {
      * @param d the planned direction
      * @return the recommended direction
      */
-    private Tile.Direction checkDown(Tile.Direction d) {
+    private CharacterDirection checkDown(CharacterDirection d) {
         var tmp = movedown();
         if (!isHitboxOnFloor(tmp)) {
             // check bottom left and bottom right for collision ! first to collide and also
@@ -144,7 +179,7 @@ public abstract class Monster extends DungeonCharacter {
                                     (int) (corners[Hitbox.CORNER_BOTTOM_LEFT].y + tmp.y)))
                     .isAccessible()) {
                 // bottom left collision move to the right
-                d = Tile.Direction.E;
+                d = CharacterDirection.LEFT;
             }
             if (!currentLevel
                     .getTileAt(
@@ -153,7 +188,7 @@ public abstract class Monster extends DungeonCharacter {
                                     (int) (corners[Hitbox.CORNER_BOTTOM_RIGHT].y + tmp.y)))
                     .isAccessible()) {
                 // bottom right collision move to the left
-                d = Tile.Direction.W;
+                d = CharacterDirection.LEFT;
             }
         }
         return d;
@@ -165,7 +200,7 @@ public abstract class Monster extends DungeonCharacter {
      * @param d the planned direction
      * @return the recommended direction
      */
-    private Tile.Direction checkUP(Tile.Direction d) {
+    private CharacterDirection checkUP(CharacterDirection d) {
         var tmp = moveup();
         if (!isHitboxOnFloor(tmp)) {
             // check top left and top right for collision ! first to collide and also
@@ -177,7 +212,7 @@ public abstract class Monster extends DungeonCharacter {
                                     (int) (corners[Hitbox.CORNER_TOP_LEFT].y + tmp.y)))
                     .isAccessible()) {
                 // top left collision move to the right
-                d = Tile.Direction.E;
+                d = CharacterDirection.LEFT;
             }
             if (!currentLevel
                     .getTileAt(
@@ -186,7 +221,7 @@ public abstract class Monster extends DungeonCharacter {
                                     (int) (corners[Hitbox.CORNER_TOP_RIGHT].y + tmp.y)))
                     .isAccessible()) {
                 // top right collision move to the left
-                d = Tile.Direction.W;
+                d = CharacterDirection.LEFT;
             }
         }
         return d;
