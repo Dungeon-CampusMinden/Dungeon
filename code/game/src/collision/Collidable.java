@@ -3,7 +3,7 @@ package collision;
 import tools.Point;
 
 /** Implemented by Objects that can colide with each other */
-public interface Colideable {
+public interface Collidable {
     /**
      * @return The Hitbox of the Object
      */
@@ -20,5 +20,5 @@ public interface Colideable {
      * @param other Object you colide with
      * @param from Direction from where you colide
      */
-    void colide(Colideable other, CharacterDirection from);
+    void colide(Collidable other, CharacterDirection from);
 }

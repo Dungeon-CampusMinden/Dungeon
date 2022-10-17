@@ -2,7 +2,7 @@ package character.player;
 
 import character.DungeonCharacter;
 import collision.CharacterDirection;
-import collision.Colideable;
+import collision.Collidable;
 import collision.Hitbox;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -20,7 +20,7 @@ public class Hero extends DungeonCharacter {
 
     public Hero() {
         // 16x28
-        super(0.3f, new Hitbox(6, 6, null));
+        super(0.3f, new Hitbox(6, 6));
         int frameTime = 5;
         List<String> texturePaths =
                 TextureHandler.getInstance().getTexturePaths("knight_m_idle_anim_f");
@@ -63,7 +63,7 @@ public class Hero extends DungeonCharacter {
     }
 
     @Override
-    public void colide(Colideable other, CharacterDirection from) {
+    public void colide(Collidable other, CharacterDirection from) {
         // todo
     }
 }

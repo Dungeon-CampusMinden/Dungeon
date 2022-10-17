@@ -2,7 +2,7 @@ package character.monster;
 
 import character.DungeonCharacter;
 import collision.CharacterDirection;
-import collision.Colideable;
+import collision.Collidable;
 import collision.Hitbox;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import level.elements.Tile;
@@ -63,7 +63,7 @@ public abstract class Monster extends DungeonCharacter {
     }
 
     @Override
-    public void colide(Colideable other, CharacterDirection from) {
+    public void colide(Collidable other, CharacterDirection from) {
         // todo
     }
 }

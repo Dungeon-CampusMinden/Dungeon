@@ -23,11 +23,13 @@ public class Starter extends Game {
 
     @Override
     protected void setup() {
+
         monster = new ArrayList<>();
         hero = new Hero();
         sc = new ScreenController(batch);
         controller.add(sc);
         levelAPI.loadLevel();
+        hero.getHitbox().setCollidable(hero);
         camera.follow(hero);
         entityController.add(hero);
     }
@@ -40,7 +42,7 @@ public class Starter extends Game {
 
     private void checkForCollision() {
         for (Monster m : monster) {
-            CharacterDirection direction = hero.getHitbox().colide(m.getHitbox());
+            CharacterDirection direction = hero.getHitbox().collide(m.getHitbox());
             if (direction != CharacterDirection.NONE) {
                 hero.colide(m, direction);
                 m.colide(hero, direction);
@@ -60,6 +62,7 @@ public class Starter extends Game {
         for (int i = 0; i < 10; i++) {
             Monster m = new Imp();
             m.setLevel(levelAPI.getCurrentLevel());
+            m.getHitbox().setCollidable(m);
             monster.add(m);
             entityController.add(m);
         }
