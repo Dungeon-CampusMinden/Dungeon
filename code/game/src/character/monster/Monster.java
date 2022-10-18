@@ -17,6 +17,7 @@ public abstract class Monster extends DungeonCharacter {
 
     // curent Point this Monster wants to move to
     private Point currentGoal;
+    private CollidableLevel clevel;
 
     public Monster(float movementSpeed, Hitbox hitbox) {
         super(movementSpeed, hitbox);
@@ -38,38 +39,37 @@ public abstract class Monster extends DungeonCharacter {
             Tile.Direction d = currentTile.directionTo(nextTile)[0];
             CharacterDirection direction = convertTileDirectionToCharacterDirection(d);
             ILevel level = currentLevel;
-            if (level.getClass() == CollidableLevel.class) {
-                var collidable = ((CollidableLevel) level).getCollidables();
-                // TODO: create a better fix for hitbox
-                var temp = currentPosition;
-                switch (direction) {
-                    case UP:
-                        currentPosition = moveup();
-                        break;
-                    case DOWN:
-                        currentPosition = movedown();
-                        break;
-                    case RIGHT:
-                        currentPosition = moveright();
-                        break;
-                    case LEFT:
-                        currentPosition = moveleft();
-                        break;
-                }
-
-                for (Collidable collideable : collidable) {
-                    // hitbox has to be moved to new position
-                    var col = hitbox.collide(collideable.getHitbox());
-                    if (col != CharacterDirection.NONE) {
-                        // collision
-
-                        currentPosition = temp;
-                        return handlePathCollision(direction);
-                    }
-                }
-                currentPosition = temp;
-                return convertTileDirectionToCharacterDirection(d);
+            var collidable = clevel.getCollidables();
+            // TODO: create a better fix for hitbox
+            var temp = currentPosition;
+            switch (direction) {
+                case UP:
+                    currentPosition = moveup();
+                    break;
+                case DOWN:
+                    currentPosition = movedown();
+                    break;
+                case RIGHT:
+                    currentPosition = moveright();
+                    break;
+                case LEFT:
+                    currentPosition = moveleft();
+                    break;
             }
+
+            for (Collidable collideable : collidable) {
+                // hitbox has to be moved to new position
+                var col = hitbox.collide(collideable.getHitbox());
+                if (col != CharacterDirection.NONE) {
+                    // collision
+
+                    currentPosition = temp;
+                    return handlePathCollision(direction);
+                }
+            }
+            currentPosition = temp;
+            return convertTileDirectionToCharacterDirection(d);
+
         } catch (Exception e) {
             e.printStackTrace();
             calculateGoal(true);
@@ -240,5 +240,9 @@ public abstract class Monster extends DungeonCharacter {
     @Override
     public void colide(Collidable other, CharacterDirection from) {
         // todo
+    }
+
+    public void setCLevel(CollidableLevel clevel) {
+        this.clevel = clevel;
     }
 }

@@ -1,26 +1,16 @@
 package collision;
 
 import java.util.ArrayList;
+import level.elements.ILevel;
 import level.elements.Tile;
-import level.elements.TileLevel;
-import level.tools.DesignLabel;
-import level.tools.LevelElement;
 import tools.Point;
 
-public class CollidableLevel extends TileLevel {
+public class CollidableLevel {
     private Collidable[] collidables;
 
-    public CollidableLevel(Tile[][] layout) {
-        super(layout);
-    }
-
-    public CollidableLevel(LevelElement[][] layout, DesignLabel designLabel) {
-        super(layout, designLabel);
-    }
-
-    public void regenHitboxen() {
+    public void regenHitboxen(ILevel level) {
         ArrayList<Collidable> tiles = new ArrayList<>();
-        Tile[][] layout = this.getLayout();
+        Tile[][] layout = level.getLayout();
         for (var tilerow : layout) {
             for (var tile : tilerow) {
                 if (!tile.isAccessible()) {

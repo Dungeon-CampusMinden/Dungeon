@@ -20,6 +20,7 @@ public class Starter extends Game {
     private Hero hero;
     private List<Monster> monster;
     private ScreenController sc;
+    private CollidableLevel clevel;
 
     @Override
     protected void setup() {
@@ -52,8 +53,10 @@ public class Starter extends Game {
 
     @Override
     public void onLevelLoad() {
-        hero.setLevel(levelAPI.getCurrentLevel());
+        ILevel level = levelAPI.getCurrentLevel();
+        hero.setLevel(level);
         spawnMonster();
+        clevel.regenHitboxen(level);
     }
 
     void spawnMonster() {
@@ -62,6 +65,7 @@ public class Starter extends Game {
         for (int i = 0; i < 10; i++) {
             Monster m = new Imp();
             m.setLevel(levelAPI.getCurrentLevel());
+            m.setCLevel(clevel);
             m.getHitbox().setCollidable(m);
             monster.add(m);
             entityController.add(m);
