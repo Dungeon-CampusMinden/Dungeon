@@ -83,11 +83,12 @@ public class Hitbox {
                 && topRight.y > otherBottomLeft.y) {
             // any collision solve the Direction
 
-            Vector centerthis = getCenter(bottomLeft, topRight);
-            Vector centerOther = getCenter(otherBottomLeft, otherTopRight);
+            Point centerthis = getCenter(bottomLeft, topRight);
+            Point centerOther = getCenter(otherBottomLeft, otherTopRight);
 
-            Vector v = centerOther.sub(centerthis);
-            float rads = v.radians();
+            float y = centerOther.y - centerthis.y;
+            float x = centerOther.x - centerthis.x;
+            float rads = (float) Math.atan2(y, x);
             double piQuarter = Math.PI / 4;
             // Direction based on the radians
             if (rads < 3 * -piQuarter) {
@@ -124,39 +125,11 @@ public class Hitbox {
         return collidable;
     }
 
-    private Vector getCenter(Point p1, Point p2) {
-        var v1 = new Vector(p1);
-        var v2 = new Vector(p2);
-        return v2.sub(v1).div(2).add(v1);
-    }
-
-    private class Vector {
-        float x;
-        float y;
-
-        public Vector(Point point) {
-            this(point.x, point.y);
-        }
-
-        public Vector(float x, float y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        Vector add(Vector v) {
-            return new Vector(this.x + v.x, this.y + v.y);
-        }
-
-        Vector sub(Vector v) {
-            return new Vector(this.x - v.x, this.y - v.y);
-        }
-
-        Vector div(float div) {
-            return new Vector(this.x / div, this.y / div);
-        }
-
-        float radians() {
-            return (float) Math.atan2(y, x);
-        }
+    private Point getCenter(Point p1, Point p2) {
+        // (p2 - p1) / 2 + p1
+        // move p2 to the center with the help of p1 then half the vector and then move back with p1
+        float cx = (p2.x - p1.x) / 2f + p1.x;
+        float cy = (p2.y - p1.y) / 2f + p2.x;
+        return new Point(cx, cy);
     }
 }
