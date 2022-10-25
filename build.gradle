@@ -45,7 +45,7 @@ dependencies {
     implementation group: "com.google.code.gson", name: "gson", version: gsonVersion
 
     // ANTLR version 4 for DSL Grammar
-    antlr "org.antlr:antlr4:4.10.1"
+    antlr "org.antlr:antlr4:4.11.1"
 }
 
 sourceCompatibility = 17
