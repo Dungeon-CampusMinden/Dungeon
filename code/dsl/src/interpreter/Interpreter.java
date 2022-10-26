@@ -1,9 +1,9 @@
-package main;
+package interpreter;
 
 import antlr.main.*;
 import org.antlr.v4.runtime.*;
 
-public class Main {
+public class Interpreter {
 
     /**
      * minimal ANTLR setup to parse a progam
