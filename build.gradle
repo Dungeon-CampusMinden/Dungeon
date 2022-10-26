@@ -53,6 +53,7 @@ sourceCompatibility = 17
 sourceSets.main.java.srcDirs = ["game/src/", "dsl/src/", "$projectDir/build/generated-src/"]
 sourceSets.main.resources.srcDirs = ["game/assets/"]
 sourceSets.test.java.srcDirs = ["game/test/"]
+sourceSets.main.antlr.srcDirs = ["dsl/src/antlr"]
 
 project.ext.mainClassName = "mydungeon.Starter"
 project.ext.assetsDir = new File("game/assets")
