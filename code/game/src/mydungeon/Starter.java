@@ -6,6 +6,7 @@ import character.player.Hero;
 import collision.CharacterDirection;
 import controller.Game;
 import controller.ScreenController;
+import generator.room.RoomGenerator;
 import java.util.ArrayList;
 import java.util.List;
 import starter.DesktopLauncher;
@@ -27,6 +28,7 @@ public class Starter extends Game {
         hero = new Hero();
         sc = new ScreenController(batch);
         controller.add(sc);
+        levelAPI.setGenerator(new RoomGenerator());
         levelAPI.loadLevel();
         camera.follow(hero);
         entityController.add(hero);
@@ -51,7 +53,7 @@ public class Starter extends Game {
     @Override
     public void onLevelLoad() {
         hero.setLevel(levelAPI.getCurrentLevel());
-        spawnMonster();
+        // spawnMonster();
     }
 
     void spawnMonster() {
