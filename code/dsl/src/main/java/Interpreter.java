@@ -1,5 +1,3 @@
-package interpreter;
-
 import antlr.main.*;
 import org.antlr.v4.runtime.*;
 
