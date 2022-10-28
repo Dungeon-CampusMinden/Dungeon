@@ -4,7 +4,7 @@ import character.monster.Imp;
 import character.monster.Monster;
 import character.player.Hero;
 import collision.CharacterDirection;
-import collision.CollidableLevel;
+import collision.CollisionMap;
 import controller.Game;
 import controller.ScreenController;
 import java.util.ArrayList;
@@ -22,11 +22,11 @@ public class Starter extends Game {
     private Hero hero;
     private List<Monster> monster;
     private ScreenController sc;
-    private CollidableLevel clevel;
+    private CollisionMap clevel;
 
     @Override
     protected void setup() {
-        clevel = new CollidableLevel();
+        clevel = new CollisionMap();
         monster = new ArrayList<>();
         hero = new Hero();
         sc = new ScreenController(batch);

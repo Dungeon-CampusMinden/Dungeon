@@ -3,7 +3,7 @@ package character.monster;
 import character.DungeonCharacter;
 import collision.CharacterDirection;
 import collision.Collidable;
-import collision.CollidableLevel;
+import collision.CollisionMap;
 import collision.Hitbox;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import level.elements.ILevel;
@@ -17,7 +17,7 @@ public abstract class Monster extends DungeonCharacter {
 
     // curent Point this Monster wants to move to
     private Point currentGoal;
-    private CollidableLevel clevel;
+    private CollisionMap clevel;
 
     public Monster(float movementSpeed, Hitbox hitbox) {
         super(movementSpeed, hitbox);
@@ -242,7 +242,7 @@ public abstract class Monster extends DungeonCharacter {
         // todo
     }
 
-    public void setCLevel(CollidableLevel clevel) {
+    public void setCLevel(CollisionMap clevel) {
         this.clevel = clevel;
     }
 }
