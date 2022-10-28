@@ -93,8 +93,7 @@ public class RoomGenerator implements IGenerator {
                 new MinMaxValue(
                         (ySize - BASE_FLOOR_Y_SIZE.max + 1) / 2,
                         (ySize - BASE_FLOOR_Y_SIZE.min) / 2);
-        // System.out.println(BASE_FLOOR_PADDING_X.min + " " + BASE_FLOOR_PADDING_X.max);
-        // System.out.println(BASE_FLOOR_PADDING_Y.min + " " + BASE_FLOOR_PADDING_Y.max);
+
         int baseFloorPaddingX =
                 BASE_FLOOR_PADDING_X.min == BASE_FLOOR_PADDING_X.max
                         ? BASE_FLOOR_PADDING_X.min
@@ -247,8 +246,55 @@ public class RoomGenerator implements IGenerator {
             }
         }
 
+        // place Walls and Holes
+        for (int y = 1; y < layout.length - 1; y++) {
+            for (int x = 1; x < layout[0].length - 1; x++) {
+                if (layout[y][x] == LevelElement.SKIP && neighborsFloor(layout, y, x))
+                    layout[y][x] = LevelElement.WALL;
+            }
+        }
+
+        // add random Holes
+        final float PROBABILITY_FOR_HOLE = 0.05f;
+        for (int y = wallBuffer; y < layout.length - wallBuffer; y++) {
+            for (int x = wallBuffer; x < layout[0].length - wallBuffer; x++) {
+                if (layout[y][x] == LevelElement.FLOOR && RANDOM.nextFloat() < PROBABILITY_FOR_HOLE)
+                    // TODO change to HOLE
+                    layout[y][x] = LevelElement.SKIP;
+            }
+        }
+
         printLayout(layout, size);
         return layout;
+    }
+
+    private boolean neighborsFloor(LevelElement[][] layout, int y, int x) {
+        int floorNeighbors = 0;
+        if (layout[y + 1][x - 1] == LevelElement.FLOOR) {
+            floorNeighbors++;
+        }
+        if (layout[y + 1][x] == LevelElement.FLOOR) {
+            floorNeighbors++;
+        }
+        if (layout[y + 1][x + 1] == LevelElement.FLOOR) {
+            floorNeighbors++;
+        }
+        if (layout[y][x - 1] == LevelElement.FLOOR) {
+            floorNeighbors++;
+        }
+        if (layout[y][x + 1] == LevelElement.FLOOR) {
+            floorNeighbors++;
+        }
+        if (layout[y - 1][x - 1] == LevelElement.FLOOR) {
+            floorNeighbors++;
+        }
+        if (layout[y - 1][x] == LevelElement.FLOOR) {
+            floorNeighbors++;
+        }
+        if (layout[y - 1][x + 1] == LevelElement.FLOOR) {
+            floorNeighbors++;
+        }
+        return floorNeighbors > 0;
     }
 
     private void printLayout(LevelElement[][] layout, LevelSize size) {
