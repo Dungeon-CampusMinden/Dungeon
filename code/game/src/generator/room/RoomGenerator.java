@@ -255,12 +255,90 @@ public class RoomGenerator implements IGenerator {
         }
 
         // add random Holes
-        final float PROBABILITY_FOR_HOLE = 0.05f;
+        final float PROBABILITY_FOR_HOLE = 0.02f;
         for (int y = wallBuffer; y < layout.length - wallBuffer; y++) {
             for (int x = wallBuffer; x < layout[0].length - wallBuffer; x++) {
                 if (layout[y][x] == LevelElement.FLOOR && RANDOM.nextFloat() < PROBABILITY_FOR_HOLE)
                     // TODO change to HOLE
                     layout[y][x] = LevelElement.SKIP;
+            }
+        }
+
+        // add supports for large rooms
+        if (baseFloorX >= 15 && baseFloorY >= 15) {
+            System.out.println("baseFloor: x=" + baseFloorX + ", y=" + baseFloorY);
+            // lower left support
+            for (int y = wallBuffer + baseFloorPaddingY + baseFloorY / 5;
+                    y < wallBuffer + baseFloorPaddingY + baseFloorY / 5 + 3;
+                    y++) {
+                for (int x = wallBuffer + baseFloorPaddingX + baseFloorX / 5;
+                        x < wallBuffer + baseFloorPaddingX + baseFloorX / 5 + 3;
+                        x++) {
+                    if (y == wallBuffer + baseFloorPaddingY + baseFloorY / 5 + 1
+                            && x == wallBuffer + baseFloorPaddingX + baseFloorX / 5 + 1) {
+                        layout[y][x] = LevelElement.SKIP;
+                    } else {
+                        layout[y][x] = LevelElement.WALL;
+                    }
+                }
+            }
+
+            // lower right support
+            for (int y = wallBuffer + baseFloorPaddingY + baseFloorY / 5;
+                    y < wallBuffer + baseFloorPaddingY + baseFloorY / 5 + 3;
+                    y++) {
+                for (int x = wallBuffer + baseFloorPaddingX + baseFloorX - baseFloorX / 5 - 3;
+                        x < wallBuffer + baseFloorPaddingX + baseFloorX - baseFloorX / 5;
+                        x++) {
+                    if (y == wallBuffer + baseFloorPaddingY + baseFloorY / 5 + 1
+                            && x
+                                    == wallBuffer
+                                            + baseFloorPaddingX
+                                            + baseFloorX
+                                            - baseFloorX / 5
+                                            - 2) {
+                        layout[y][x] = LevelElement.SKIP;
+                    } else {
+                        layout[y][x] = LevelElement.WALL;
+                    }
+                }
+            }
+
+            // upper left support
+            for (int y = wallBuffer + baseFloorPaddingY + baseFloorY - baseFloorY / 5 - 3;
+                    y < wallBuffer + baseFloorPaddingY + baseFloorY - baseFloorY / 5;
+                    y++) {
+                for (int x = wallBuffer + baseFloorPaddingX + baseFloorX / 5;
+                        x < wallBuffer + baseFloorPaddingX + baseFloorX / 5 + 3;
+                        x++) {
+                    if (y == wallBuffer + baseFloorPaddingY + baseFloorY - baseFloorY / 5 - 2
+                            && x == wallBuffer + baseFloorPaddingX + baseFloorX / 5 + 1) {
+                        layout[y][x] = LevelElement.SKIP;
+                    } else {
+                        layout[y][x] = LevelElement.WALL;
+                    }
+                }
+            }
+
+            // upper right support
+            for (int y = wallBuffer + baseFloorPaddingY + baseFloorY - baseFloorY / 5 - 3;
+                    y < wallBuffer + baseFloorPaddingY + baseFloorY - baseFloorY / 5;
+                    y++) {
+                for (int x = wallBuffer + baseFloorPaddingX + baseFloorX - baseFloorX / 5 - 3;
+                        x < wallBuffer + baseFloorPaddingX + baseFloorX - baseFloorX / 5;
+                        x++) {
+                    if (y == wallBuffer + baseFloorPaddingY + baseFloorY - baseFloorY / 5 - 2
+                            && x
+                                    == wallBuffer
+                                            + baseFloorPaddingX
+                                            + baseFloorX
+                                            - baseFloorX / 5
+                                            - 2) {
+                        layout[y][x] = LevelElement.SKIP;
+                    } else {
+                        layout[y][x] = LevelElement.WALL;
+                    }
+                }
             }
         }
 
