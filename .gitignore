@@ -52,3 +52,6 @@ replay_pid*
 *.zip
 *.tgz
 *.tar.gz
+
+# MacOS #
+.DS_Store

@@ -47,11 +47,11 @@ dependencies {
 sourceCompatibility = 17
 [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
 sourceSets.main.java.srcDirs = ["game/src/"]
-sourceSets.main.resources.srcDirs = ["assets/"]
+sourceSets.main.resources.srcDirs = ["game/assets/"]
 sourceSets.test.java.srcDirs = ["game/test/"]
 
 project.ext.mainClassName = "mydungeon.Starter"
-project.ext.assetsDir = new File("assets")
+project.ext.assetsDir = new File("game/assets")
 
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
