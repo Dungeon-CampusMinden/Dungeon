@@ -14,7 +14,7 @@ public class Imp extends Monster {
 
     public Imp() {
         // 16x16
-        super(0.03f, new Hitbox(5, 5, null));
+        super(0.03f, new Hitbox(5, 5));
         int frameTime = 5;
         List<String> texturePaths = TextureHandler.getInstance().getTexturePaths("imp_idle_anim_f");
         Animation animation = new Animation(texturePaths, frameTime * 2);

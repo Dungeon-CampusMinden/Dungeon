@@ -2,14 +2,14 @@ package character;
 
 import basiselements.AnimatableElement;
 import collision.CharacterDirection;
-import collision.Colideable;
+import collision.Collidable;
 import collision.Hitbox;
 import graphic.Animation;
 import level.elements.ILevel;
 import tools.Point;
 
 /** Characters in the Dugenon. Characters can move, have animations and collision. */
-public abstract class DungeonCharacter extends AnimatableElement implements Colideable {
+public abstract class DungeonCharacter extends AnimatableElement implements Collidable {
 
     protected Point currentPosition;
     protected Animation currentAnimation;
@@ -25,6 +25,7 @@ public abstract class DungeonCharacter extends AnimatableElement implements Coli
     public DungeonCharacter(float movementSpeed, Hitbox hitbox) {
         this.movementSpeed = movementSpeed;
         this.hitbox = hitbox;
+        hitbox.setCollidable(this);
     }
 
     /**
@@ -130,7 +131,6 @@ public abstract class DungeonCharacter extends AnimatableElement implements Coli
     @Override
     public void update() {
         move();
-        hitbox.setPosition(currentPosition);
     }
 
     @Override
