@@ -90,7 +90,7 @@ test {
 
 checkstyle {
     toolVersion = "10.2"
-    configFile = file("checkstyle-config/checks.xml")
+    configFile = file("checks.xml")
     showViolations = true
 }
 
