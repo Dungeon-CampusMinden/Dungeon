@@ -93,7 +93,6 @@ public class Node {
         parent = NONE;
     }
 
-    // TODO: catch index out of bounds
     /**
      * Get specific child of the node by index
      *
@@ -101,7 +100,9 @@ public class Node {
      * @return The child with index
      */
     public Node getChild(int idx) {
-        assert idx < children.size();
+        if (idx >= children.size()) {
+            return Node.NONE;
+        }
 
         return children.get(idx);
     }
