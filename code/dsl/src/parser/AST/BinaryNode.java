@@ -6,11 +6,17 @@ public abstract class BinaryNode extends Node {
     public final int lhsIdx = 0;
     public final int rhsIdx = 1;
 
-    public Node GetRhs() {
+    /**
+     * @return the right-hand-side of the binary node
+     */
+    public Node getRhs() {
         return children.get(rhsIdx);
     }
 
-    public Node GetLhs() {
+    /**
+     * @return the left-hand-side of the binary node
+     */
+    public Node getLhs() {
         return children.get(lhsIdx);
     }
 

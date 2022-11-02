@@ -14,10 +14,17 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     Stack<parser.AST.Node> astStack;
 
+    /** Constructor */
     public DungeonASTConverter() {
         astStack = new Stack<>();
     }
 
+    /**
+     * Walk the passed parseTree and create an AST from it
+     *
+     * @param parseTree The ParseTree to walk
+     * @return Root Node of the AST.
+     */
     public parser.AST.Node walk(ParseTree parseTree) {
         astStack = new Stack<>();
         ParseTreeWalker.DEFAULT.walk(this, parseTree);

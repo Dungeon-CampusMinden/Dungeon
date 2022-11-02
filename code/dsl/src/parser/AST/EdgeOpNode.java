@@ -3,6 +3,10 @@ package parser.AST;
 import java.util.ArrayList;
 
 public class EdgeOpNode extends Node {
+
+    /**
+     * @return The {@link Type} of this EdgeOperator
+     */
     public Type getEdgeOpType() {
         return edgeOpType;
     }
@@ -15,6 +19,14 @@ public class EdgeOpNode extends Node {
 
     private final Type edgeOpType;
 
+    // TODO: is the Node really needed? This is used because of easier SourceReferencing,
+    // but this could be passed manually; the Node itself is not needed -> do in Cleanup
+    /**
+     * Constructor
+     *
+     * @param childNode The node corresponding the EdgeOperator
+     * @param edgeOpType The {@link Type} of the new EdgeOperator
+     */
     public EdgeOpNode(Node childNode, Type edgeOpType) {
         super(Node.Type.DotEdgeOp, new ArrayList<>());
         assert (childNode.type == Node.Type.Arrow || childNode.type == Node.Type.DoubleLine);

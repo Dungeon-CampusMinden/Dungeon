@@ -3,10 +3,14 @@ package parser.AST;
 import java.util.ArrayList;
 
 public class Node {
+    // used for running index to give every Node a unique identifier
     private static int _idx;
 
+    /**
+     * @return The unique index of this node
+     */
     public int getIdx() {
-        return Idx;
+        return idx;
     }
 
     public enum Type {
@@ -38,11 +42,17 @@ public class Node {
     public final Type type;
     private Node parent;
     private SourceFileReference sourceFileReference = SourceFileReference.NULL;
-    private final int Idx;
+    private final int idx;
 
+    /**
+     * Constructor for AST-Node with children
+     *
+     * @param nodeType The {@link Type} of the new node
+     * @param nodeChildren List of children of the node
+     */
     public Node(Type nodeType, ArrayList<Node> nodeChildren) {
         _idx++;
-        Idx = _idx;
+        idx = _idx;
 
         type = nodeType;
         children = nodeChildren;
@@ -53,18 +63,29 @@ public class Node {
         }
     }
 
+    /**
+     * Constructor for AST-Node without children
+     *
+     * @param nodeType The {@link Type} of the node
+     */
     public Node(Type nodeType) {
         _idx++;
-        Idx = _idx;
+        idx = _idx;
 
         type = nodeType;
         children = new ArrayList<>();
         parent = NONE;
     }
 
+    /**
+     * Constructor for AST-Node with SourceFileReference (e.g. for terminal symbols)
+     *
+     * @param nodeType The {@link Type} of the new node
+     * @param sourceReference The {@link SourceFileReference} for the new node
+     */
     public Node(Type nodeType, SourceFileReference sourceReference) {
         _idx++;
-        Idx = _idx;
+        idx = _idx;
 
         type = nodeType;
         children = new ArrayList<>();
@@ -72,16 +93,36 @@ public class Node {
         parent = NONE;
     }
 
+    // TODO: catch index out of bounds
+    /**
+     * Get specific child of the node by index
+     *
+     * @param idx The index of the child
+     * @return The child with index
+     */
     public Node getChild(int idx) {
         assert idx < children.size();
 
         return children.get(idx);
     }
 
+    /**
+     * Get all children of this node.
+     *
+     * @return List of all children of the node.
+     */
     public ArrayList<Node> getChildren() {
         return children;
     }
 
+    /**
+     * Get the {@link SourceFileReference} of this node. If this node is not a terminal or was not
+     * given a specific {@link SourceFileReference} on construction, a pre-order depth-first search
+     * for a {@link SourceFileReference} is performed on the node's children.
+     *
+     * @return The {@link SourceFileReference} for this node (or the first one found in pre-order
+     *     dps in children).
+     */
     public SourceFileReference getSourceFileReference() {
         if (sourceFileReference != SourceFileReference.NULL) {
             return sourceFileReference;
@@ -98,6 +139,13 @@ public class Node {
         return SourceFileReference.NULL;
     }
 
+    /**
+     * Implementation of visitor pattern with {@link AstVisitor}.
+     *
+     * @param visitor Specific implementation of {@link AstVisitor} to use with this node.
+     * @return T
+     * @param <T> The return value of the visit
+     */
     public <T> T accept(AstVisitor<T> visitor) {
         return visitor.visit(this);
     }
