@@ -221,7 +221,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         } else {
             edgeOpNodeType = EdgeOpNode.Type.doubleLine;
         }
-        var node = new EdgeOpNode(inner, edgeOpNodeType);
+        var node = new EdgeOpNode(inner.getSourceFileReference(), edgeOpNodeType);
         astStack.push(node);
     }
 
