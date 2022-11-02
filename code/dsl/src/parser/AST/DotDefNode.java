@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DotDefNode extends Node {
-    // TODO: getter for specific stmt-Node
     private final int idNodeIdx = 0;
     private final int dotStmtStartIdx = 1;
 
