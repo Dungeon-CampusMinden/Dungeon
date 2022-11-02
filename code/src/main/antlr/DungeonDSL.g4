@@ -81,7 +81,6 @@ dot_edge_stmt
         ;
 
 dot_edge_RHS
-        //: dot_edge_op ID rhs=dot_edge_RHS?
         : dot_edge_op ID
         ;
 
