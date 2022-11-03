@@ -9,6 +9,8 @@ import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import level.tools.LevelSize;
 
+import java.util.Random;
+
 public class RoomGenerator implements IGenerator {
 
     private record MinMaxValue(int min, int max) {}
@@ -32,10 +34,11 @@ public class RoomGenerator implements IGenerator {
     }
 
     public LevelElement[][] getLayout(LevelSize size) {
-        return generateRoom(size);
+        return generateRoom(size, RANDOM.nextLong());
     }
 
-    private LevelElement[][] generateRoom(LevelSize size) {
+    private LevelElement[][] generateRoom(LevelSize size, long seed) {
+        Random random = new Random(seed);
         MinMaxValue outerRoomBoundsX;
         MinMaxValue outerRoomBoundsY;
 
@@ -54,8 +57,8 @@ public class RoomGenerator implements IGenerator {
             }
         }
 
-        int xSize = RANDOM.nextInt(outerRoomBoundsX.min(), outerRoomBoundsX.max() + 1);
-        int ySize = RANDOM.nextInt(outerRoomBoundsY.min(), outerRoomBoundsY.max() + 1);
+        int xSize = random.nextInt(outerRoomBoundsX.min(), outerRoomBoundsX.max() + 1);
+        int ySize = random.nextInt(outerRoomBoundsY.min(), outerRoomBoundsY.max() + 1);
 
         // Initialize layout with additional buffer for wall and skip layer
         final int wallBuffer = 2;
@@ -97,11 +100,11 @@ public class RoomGenerator implements IGenerator {
         int baseFloorPaddingX =
                 BASE_FLOOR_PADDING_X.min == BASE_FLOOR_PADDING_X.max
                         ? BASE_FLOOR_PADDING_X.min
-                        : RANDOM.nextInt(BASE_FLOOR_PADDING_X.min, BASE_FLOOR_PADDING_X.max + 1);
+                        : random.nextInt(BASE_FLOOR_PADDING_X.min, BASE_FLOOR_PADDING_X.max + 1);
         int baseFloorPaddingY =
                 BASE_FLOOR_PADDING_Y.min == BASE_FLOOR_PADDING_Y.max
                         ? BASE_FLOOR_PADDING_Y.min
-                        : RANDOM.nextInt(BASE_FLOOR_PADDING_Y.min, BASE_FLOOR_PADDING_Y.max + 1);
+                        : random.nextInt(BASE_FLOOR_PADDING_Y.min, BASE_FLOOR_PADDING_Y.max + 1);
         int baseFloorY = ySize - 2 * baseFloorPaddingY;
         int baseFloorX = xSize - 2 * baseFloorPaddingX;
 
@@ -125,37 +128,37 @@ public class RoomGenerator implements IGenerator {
         boolean upperRight = false;
         boolean lowerLeft = false;
         boolean lowerRight = false;
-        if (RANDOM.nextFloat() > 0.5) {
+        if (random.nextFloat() > 0.5) {
             symmetrical = true;
         }
         // Small rooms cannot extend to the corners
         // Medium and Big Rooms can extend to corner or sides
-        if (size == LevelSize.SMALL || RANDOM.nextFloat() > 0.5) {
+        if (size == LevelSize.SMALL || random.nextFloat() > 0.5) {
             // extend to sides
-            if (RANDOM.nextFloat() < 0.75) {
+            if (random.nextFloat() < 0.75) {
                 up = true;
             }
-            if (RANDOM.nextFloat() < 0.75) {
+            if (random.nextFloat() < 0.75) {
                 down = true;
             }
-            if (RANDOM.nextFloat() < 0.75) {
+            if (random.nextFloat() < 0.75) {
                 left = true;
             }
-            if (RANDOM.nextFloat() < 0.75) {
+            if (random.nextFloat() < 0.75) {
                 right = true;
             }
         } else {
             // extend to corners
-            if (RANDOM.nextFloat() < 0.75) {
+            if (random.nextFloat() < 0.75) {
                 upperLeft = true;
             }
-            if (RANDOM.nextFloat() < 0.75) {
+            if (random.nextFloat() < 0.75) {
                 upperRight = true;
             }
-            if (RANDOM.nextFloat() < 0.75) {
+            if (random.nextFloat() < 0.75) {
                 lowerLeft = true;
             }
-            if (RANDOM.nextFloat() < 0.75) {
+            if (random.nextFloat() < 0.75) {
                 lowerRight = true;
             }
         }
@@ -258,7 +261,7 @@ public class RoomGenerator implements IGenerator {
         final float PROBABILITY_FOR_HOLE = 0.02f;
         for (int y = wallBuffer; y < layout.length - wallBuffer; y++) {
             for (int x = wallBuffer; x < layout[0].length - wallBuffer; x++) {
-                if (layout[y][x] == LevelElement.FLOOR && RANDOM.nextFloat() < PROBABILITY_FOR_HOLE)
+                if (layout[y][x] == LevelElement.FLOOR && random.nextFloat() < PROBABILITY_FOR_HOLE)
                     // TODO change to HOLE
                     layout[y][x] = LevelElement.SKIP;
             }
