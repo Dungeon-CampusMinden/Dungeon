@@ -19,9 +19,8 @@ jobs:
                 uses: gradle/wrapper-validation-action@v1
             -   name: Build the jar file
                 run: ./gradlew jar buildJavadocZip
-                working-directory: code
             -   name: Publish jar to GitHub
                 uses: AButler/upload-release-assets@v2.0
                 with:
-                    files: 'code/build/libs/*'
+                    files: 'build/libs/*'
                     repo-token: ${{ secrets.GITHUB_TOKEN }}

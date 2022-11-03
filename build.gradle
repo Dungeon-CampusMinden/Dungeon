@@ -63,7 +63,7 @@ test {
 
 checkstyle {
     toolVersion = "10.2"
-    configFile = file("checkstyle-config/checks.xml")
+    configFile = file("checks.xml")
     showViolations = true
     reportsDir = file("reports/checkstyle/")
 }
@@ -199,7 +199,7 @@ nexusPublishing {
 
 // SECTION TO START THE DUNGEON GAME DIRECTLY
 
-sourceSets.main.resources.srcDirs = ["assets/"]
+sourceSets.main.resources.srcDirs = ["core/assets/"]
 project.ext.mainClassName = "starter.MyGame"
 
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform

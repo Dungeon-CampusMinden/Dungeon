@@ -23,7 +23,6 @@ jobs:
                 uses: gradle/wrapper-validation-action@v1
             -   name: Build with Gradle
                 run: ./gradlew assemble
-                working-directory: code
 
     junit:
         needs: build
@@ -43,7 +42,6 @@ jobs:
                     cache: gradle
             -   name: JUnit
                 run: ./gradlew test
-                working-directory: code
 
     spotbugs:
         needs: build
@@ -60,7 +58,6 @@ jobs:
                     cache: gradle
             -   name: SpotBugs
                 run: ./gradlew spotbugsMain spotbugsTest
-                working-directory: code
 
     checkstyle:
         needs: build
@@ -77,7 +74,6 @@ jobs:
                     cache: gradle
             -   name: Checkstyle
                 run: ./gradlew checkstyleMain
-                working-directory: code
 
     spotless-java-format:
         needs: build
@@ -94,4 +90,3 @@ jobs:
                     cache: gradle
             -   name: Spotless
                 run: ./gradlew spotlessJavaCheck
-                working-directory: code
