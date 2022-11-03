@@ -11,12 +11,12 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import parser.AST.*;
 
 /**
- * This class converts the {@link ParseTree} created by the antlr parser into an AST.
- * While walking the parse tree, the astStack is used to combine multiple Nodes into more complex
- * ones. This works in a bottom-up fashion: in a specific exit-method (of the DungeonDSLListener interface)
- * we use the invariant, that we combined all child-nodes of the specific rule. Therefore, they are in reverse
- * order on the astStack and can be added as children to a {@link Node} (or a specialization), representing
- * the currently exited rule.
+ * This class converts the {@link ParseTree} created by the antlr parser into an AST. While walking
+ * the parse tree, the astStack is used to combine multiple Nodes into more complex ones. This works
+ * in a bottom-up fashion: in a specific exit-method (of the DungeonDSLListener interface) we use
+ * the invariant, that we combined all child-nodes of the specific rule. Therefore, they are in
+ * reverse order on the astStack and can be added as children to a {@link Node} (or a
+ * specialization), representing the currently exited rule.
  */
 public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
@@ -43,8 +43,8 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     public void enterProgram(DungeonDSLParser.ProgramContext ctx) {}
 
     /**
-     * Pops all remaining AST-Nodes from the stack (they will be in reverse order) and
-     * adds all as children to the root node of the program
+     * Pops all remaining AST-Nodes from the stack (they will be in reverse order) and adds all as
+     * children to the root node of the program
      *
      * @param ctx the parse tree
      */
@@ -83,9 +83,9 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     public void enterDot_def(DungeonDSLParser.Dot_defContext ctx) {}
 
     /**
-     * Adds the Node, representing the dot_stmt_list of the dot definition, as
-     * child to a {@link DotDefNode}. Validates consistency of all edge operators
-     * with the type of the defined graph ('graph' or 'digraph').
+     * Adds the Node, representing the dot_stmt_list of the dot definition, as child to a {@link
+     * DotDefNode}. Validates consistency of all edge operators with the type of the defined graph
+     * ('graph' or 'digraph').
      *
      * @param ctx the parse tree
      */
@@ -262,8 +262,8 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     /**
-     * Convert the relevant antlr terminal nodes into {@link Node} objects
-     * for further usage by this converter.
+     * Convert the relevant antlr terminal nodes into {@link Node} objects for further usage by this
+     * converter.
      *
      * @param node the terminal node
      */

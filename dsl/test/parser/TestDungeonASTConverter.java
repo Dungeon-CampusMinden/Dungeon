@@ -1,6 +1,7 @@
 package parser;
 
-import antlr.main.DungeonDSLParser;
+import static org.junit.Assert.assertEquals;
+
 import helpers.Helpers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,9 +10,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import parser.AST.IdNode;
 import parser.AST.Node;
 import starter.DesktopLauncher;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({DesktopLauncher.class})
@@ -30,7 +28,7 @@ public class TestDungeonASTConverter {
 
         var id = dot_def.getChild(0);
         assertEquals(id.type, Node.Type.Identifier);
-        var idNode = (IdNode)id;
+        var idNode = (IdNode) id;
         assertEquals("g", idNode.getName());
     }
 }

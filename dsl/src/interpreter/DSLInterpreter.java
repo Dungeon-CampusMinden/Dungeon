@@ -1,11 +1,10 @@
 package interpreter;
 
 import antlr.main.*;
-import interpreter.dot.Interpreter;
 import org.antlr.v4.runtime.*;
 import parser.DungeonASTConverter;
 
-public class Interpreter {
+public class DSLInterpreter {
 
     /**
      * minimal ANTLR setup to parse a progam
@@ -25,7 +24,7 @@ public class Interpreter {
         DungeonASTConverter astConverter = new DungeonASTConverter();
         var programAST = astConverter.walk(programParseTree);
 
-        Interpreter dotInterpreter = new Interpreter();
+        var dotInterpreter = new interpreter.dot.Interpreter();
         programAST.accept(dotInterpreter);
     }
 }
