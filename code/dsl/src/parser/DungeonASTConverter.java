@@ -42,6 +42,12 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     @Override
     public void enterProgram(DungeonDSLParser.ProgramContext ctx) {}
 
+    /**
+     * Pops all remaining AST-Nodes from the stack (they will be in reverse order) and
+     * adds all as children to the root node of the program
+     *
+     * @param ctx the parse tree
+     */
     @Override
     public void exitProgram(DungeonDSLParser.ProgramContext ctx) {
         int symbolCount = astStack.size();
@@ -76,6 +82,13 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     @Override
     public void enterDot_def(DungeonDSLParser.Dot_defContext ctx) {}
 
+    /**
+     * Adds the Node, representing the dot_stmt_list of the dot definition, as
+     * child to a {@link DotDefNode}. Validates consistency of all edge operators
+     * with the type of the defined graph ('graph' or 'digraph').
+     *
+     * @param ctx the parse tree
+     */
     @Override
     public void exitDot_def(DungeonDSLParser.Dot_defContext ctx) {
         // check, whether all edge_ops are correct for graph type
@@ -157,12 +170,15 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitDot_edge_stmt(DungeonDSLParser.Dot_edge_stmtContext ctx) {
+        // if the ctx contains a dot_attr_list, the corresponding Node will
+        // be on the astStack
         var attr_list = Node.NONE;
         if (ctx.dot_attr_list() != null) {
             attr_list = astStack.pop();
             assert (attr_list.type == Node.Type.DotAttrList);
         }
 
+        // pop all DotEdgeRHS Nodes from the stack and add them to one list
         LinkedList<Node> rhsEdges = new LinkedList<>();
         for (int i = 0; i < ctx.dot_edge_RHS().size(); i++) {
             var rhs = astStack.pop();
@@ -170,6 +186,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             rhsEdges.addFirst(rhs);
         }
 
+        // get the first identifier of the statement (left-hand-side)
         var lhsId = astStack.pop();
         assert (lhsId.type == Node.Type.Identifier);
 
@@ -189,7 +206,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         var edgeOp = astStack.pop();
 
         var edgeRhs = new EdgeRhsNode(edgeOp, idNode);
-
         astStack.push(edgeRhs);
     }
 
@@ -222,14 +238,18 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitDot_edge_op(DungeonDSLParser.Dot_edge_opContext ctx) {
+        // get the Node corresponding to the literal operator (arrow or double line)
         var inner = astStack.pop();
         assert (inner.type == Node.Type.Arrow || inner.type == Node.Type.DoubleLine);
-        EdgeOpNode.Type edgeOpNodeType = EdgeOpNode.Type.NONE;
+
+        // determine EdgeOpType based on literal operator
+        EdgeOpNode.Type edgeOpNodeType;
         if (inner.type == Node.Type.Arrow) {
             edgeOpNodeType = EdgeOpNode.Type.arrow;
         } else {
             edgeOpNodeType = EdgeOpNode.Type.doubleLine;
         }
+
         var node = new EdgeOpNode(inner.getSourceFileReference(), edgeOpNodeType);
         astStack.push(node);
     }
@@ -241,6 +261,12 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         return new SourceFileReference(line, column);
     }
 
+    /**
+     * Convert the relevant antlr terminal nodes into {@link Node} objects
+     * for further usage by this converter.
+     *
+     * @param node the terminal node
+     */
     @Override
     public void visitTerminal(TerminalNode node) {
         var nodeType = node.getSymbol().getType();
