@@ -59,4 +59,45 @@ public class TestDungeonASTConverter {
         assertEquals("b", rhsIdNode.getName());
     }
 
+    @Test
+    public void testChainedEdgeStmt() {
+        String program = "graph g { a -- b -- c }";
+
+        var ast = Helpers.getASTFromString(program);
+
+        var dot_def = ast.getChild(0);
+        assertEquals(Node.Type.DotDefinition, dot_def.type);
+
+        var edgeStmt = dot_def.getChild(1);
+        assertEquals(Node.Type.DotEdgeStmt, edgeStmt.type);
+        var edgeStmtNode = (EdgeStmtNode) edgeStmt;
+
+        var lhsId = edgeStmtNode.getLhsId();
+        assertEquals(Node.Type.Identifier, lhsId.type);
+        var lhsIdNode = (IdNode) lhsId;
+        assertEquals("a", lhsIdNode.getName());
+
+        var rhsStmts = edgeStmtNode.getRhsStmts();
+        assertEquals(2, rhsStmts.size());
+
+        var rhsEdge = rhsStmts.get(0);
+        assertEquals(Node.Type.DotEdgeRHS, rhsEdge.type);
+
+        var rhsEdgeNode = (EdgeRhsNode) rhsEdge;
+        var rhsId = rhsEdgeNode.getIdNode();
+        assertEquals(Node.Type.Identifier, rhsId.type);
+
+        var rhsIdNode = (IdNode)rhsId;
+        assertEquals("b", rhsIdNode.getName());
+
+        rhsEdge = rhsStmts.get(1);
+        assertEquals(Node.Type.DotEdgeRHS, rhsEdge.type);
+
+        rhsEdgeNode = (EdgeRhsNode) rhsEdge;
+        rhsId = rhsEdgeNode.getIdNode();
+        assertEquals(Node.Type.Identifier, rhsId.type);
+
+        rhsIdNode = (IdNode)rhsId;
+        assertEquals("c", rhsIdNode.getName());
+    }
 }
