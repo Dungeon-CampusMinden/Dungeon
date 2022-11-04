@@ -31,31 +31,32 @@ public class TestDungeonASTConverter {
         assertEquals("g", idNode.getName());
 
         var edgeStmt = dot_def.getChild(1);
-        assertEquals(edgeStmt.type, Node.Type.DotEdgeStmt);
+        assertEquals(Node.Type.DotEdgeStmt, edgeStmt.type);
         var edgeStmtNode = (EdgeStmtNode) edgeStmt;
 
         var lhsId = edgeStmtNode.getLhsId();
-        assertEquals(lhsId.type, Node.Type.Identifier);
+        assertEquals(Node.Type.Identifier, lhsId.type);
         var lhsIdNode = (IdNode) lhsId;
-        assertEquals(lhsIdNode.getName(), "a");
+        assertEquals("a", lhsIdNode.getName());
 
         var rhsStmts = edgeStmtNode.getRhsStmts();
-        assertEquals(rhsStmts.size(), 1);
+        assertEquals(1, rhsStmts.size());
 
         var rhsEdge = rhsStmts.get(0);
-        assertEquals(rhsEdge.type, Node.Type.DotEdgeRHS);
+        assertEquals(Node.Type.DotEdgeRHS, rhsEdge.type);
 
         var rhsEdgeNode = (EdgeRhsNode) rhsEdge;
         var edgeOp = rhsEdgeNode.getEdgeOpNode();
-        assertEquals(edgeOp.type, Node.Type.DotEdgeOp);
+        assertEquals(Node.Type.DotEdgeOp, edgeOp.type);
 
         var edgeOpNode = (EdgeOpNode)edgeOp;
-        assertEquals(edgeOpNode.getEdgeOpType(), EdgeOpNode.Type.doubleLine);
+        assertEquals(EdgeOpNode.Type.doubleLine, edgeOpNode.getEdgeOpType());
 
         var rhsId = rhsEdgeNode.getIdNode();
-        assertEquals(rhsId.type, Node.Type.Identifier);
+        assertEquals(Node.Type.Identifier, rhsId.type);
 
         var rhsIdNode = (IdNode)rhsId;
-        assertEquals(rhsIdNode.getName(), "b");
+        assertEquals("b", rhsIdNode.getName());
     }
+
 }
