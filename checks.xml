@@ -57,4 +57,9 @@
         <property name="eachLine" value="true"/>
     </module>
     <module name="NewlineAtEndOfFile"/>
+
+    <module name="SuppressionFilter">
+        <property name="file" value="${config_loc}/suppressions.xml"/>
+    </module>
 </module>
+

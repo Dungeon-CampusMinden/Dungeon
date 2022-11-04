@@ -5,14 +5,13 @@ import level.elements.ILevel;
 import level.elements.Tile;
 import tools.Point;
 
-/**
- * A Collection of all collidables of a level.
- */
+/** A Collection of all collidables of a level. */
 public class CollisionMap {
     private Collidable[] collidables;
 
     /**
      * Creates all collidables of the given level.
+     *
      * @param level
      */
     public void regenHitboxen(ILevel level) {
