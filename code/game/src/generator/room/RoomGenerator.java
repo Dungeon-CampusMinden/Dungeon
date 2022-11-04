@@ -2,14 +2,15 @@ package generator.room;
 
 import static level.elements.ILevel.RANDOM;
 
+import java.util.ArrayList;
+import java.util.Random;
 import level.elements.ILevel;
 import level.elements.TileLevel;
 import level.generator.IGenerator;
+import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import level.tools.LevelSize;
-
-import java.util.Random;
 
 public class RoomGenerator implements IGenerator {
 
@@ -68,7 +69,8 @@ public class RoomGenerator implements IGenerator {
 
         // Initialize layout with additional buffer for wall and skip layer
         final int WALL_BUFFER = 2;
-        LevelElement[][] layout = new LevelElement[ySize + WALL_BUFFER * 2][xSize + WALL_BUFFER * 2];
+        LevelElement[][] layout =
+                new LevelElement[ySize + WALL_BUFFER * 2][xSize + WALL_BUFFER * 2];
 
         // Fill with skip
         for (int y = 0; y < layout.length; y++) {
@@ -170,7 +172,9 @@ public class RoomGenerator implements IGenerator {
         }
         if (up) {
             System.out.println("UP");
-            for (int y = WALL_BUFFER + baseFloorPaddingY + baseFloorY; y < WALL_BUFFER + ySize; y++) {
+            for (int y = WALL_BUFFER + baseFloorPaddingY + baseFloorY;
+                    y < WALL_BUFFER + ySize;
+                    y++) {
                 for (int x = WALL_BUFFER + baseFloorPaddingX;
                         x < WALL_BUFFER + baseFloorPaddingX + baseFloorX;
                         x++) {
@@ -236,7 +240,9 @@ public class RoomGenerator implements IGenerator {
         }
         if (lowerLeft) {
             System.out.println("LOWER LEFT");
-            for (int y = WALL_BUFFER; y < WALL_BUFFER + baseFloorPaddingY + baseFloorY / 2 - 1; y++) {
+            for (int y = WALL_BUFFER;
+                    y < WALL_BUFFER + baseFloorPaddingY + baseFloorY / 2 - 1;
+                    y++) {
                 for (int x = WALL_BUFFER;
                         x < WALL_BUFFER + baseFloorPaddingX + baseFloorX / 2 - 1;
                         x++) {
@@ -246,7 +252,9 @@ public class RoomGenerator implements IGenerator {
         }
         if (lowerRight) {
             System.out.println("LOWER RIGHT");
-            for (int y = WALL_BUFFER; y < WALL_BUFFER + baseFloorPaddingY + baseFloorY / 2 - 1; y++) {
+            for (int y = WALL_BUFFER;
+                    y < WALL_BUFFER + baseFloorPaddingY + baseFloorY / 2 - 1;
+                    y++) {
                 for (int x = WALL_BUFFER + baseFloorPaddingX + baseFloorX - baseFloorX / 2 + 1;
                         x < WALL_BUFFER + xSize;
                         x++) {
@@ -279,10 +287,14 @@ public class RoomGenerator implements IGenerator {
             int leftSupportRightSide = WALL_BUFFER + baseFloorPaddingX + baseFloorX / 5 + 2;
             int bottomSupportBottomSide = WALL_BUFFER + baseFloorPaddingY + baseFloorY / 5;
             int bottomSupportUpperSide = WALL_BUFFER + baseFloorPaddingY + baseFloorY / 5 + 2;
-            int rightSupportLeftSide = WALL_BUFFER + baseFloorPaddingX + baseFloorX - baseFloorX / 5 - 3;
-            int rightSupportRightSide = WALL_BUFFER + baseFloorPaddingX + baseFloorX - baseFloorX / 5 - 1;
-            int upperSupportBottomSide = WALL_BUFFER + baseFloorPaddingY + baseFloorY - baseFloorY / 5 - 3;
-            int upperSupportUpperSide = WALL_BUFFER + baseFloorPaddingY + baseFloorY - baseFloorY / 5 - 1;
+            int rightSupportLeftSide =
+                    WALL_BUFFER + baseFloorPaddingX + baseFloorX - baseFloorX / 5 - 3;
+            int rightSupportRightSide =
+                    WALL_BUFFER + baseFloorPaddingX + baseFloorX - baseFloorX / 5 - 1;
+            int upperSupportBottomSide =
+                    WALL_BUFFER + baseFloorPaddingY + baseFloorY - baseFloorY / 5 - 3;
+            int upperSupportUpperSide =
+                    WALL_BUFFER + baseFloorPaddingY + baseFloorY - baseFloorY / 5 - 1;
             // lower left support
             for (int y = bottomSupportBottomSide; y <= bottomSupportUpperSide; y++) {
                 for (int x = leftSupportLeftSide; x <= leftSupportRightSide; x++) {
@@ -328,6 +340,110 @@ public class RoomGenerator implements IGenerator {
             }
         }
 
+        // Add doors
+        // TODO take information from doors parameter
+        boolean upperDoor = random.nextBoolean();
+        boolean bottomDoor = random.nextBoolean();
+        boolean leftDoor = random.nextBoolean();
+        boolean rightDoor = random.nextBoolean();
+
+        if (upperDoor) {
+            ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
+            for (int y = WALL_BUFFER + ySize; y > WALL_BUFFER; y--) {
+                for (int x = WALL_BUFFER; x < WALL_BUFFER + xSize; x++) {
+                    // only mark walls that are not next to a corner
+                    if (layout[y][x] == LevelElement.WALL
+                            && layout[y - 1][x - 1] != LevelElement.WALL
+                            && layout[y - 1][x + 1] != LevelElement.WALL
+                            && layout[y][x - 1] == LevelElement.WALL
+                            && layout[y][x + 1] == LevelElement.WALL) {
+                        possibleDoorCoordinates.add(new Coordinate(x, y));
+                    }
+                }
+                if (!possibleDoorCoordinates.isEmpty()) {
+                    break;
+                }
+            }
+            // TODO throw exception if possibleDoorCoordinates.size() == 0
+            int doorIndex = random.nextInt(possibleDoorCoordinates.size());
+            Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
+            // TODO change to DOOR
+            // layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
+            layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.EXIT;
+        }
+        if (bottomDoor) {
+            ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
+            for (int y = WALL_BUFFER - 1; y < WALL_BUFFER + ySize; y++) {
+                for (int x = WALL_BUFFER; x < WALL_BUFFER + xSize; x++) {
+                    // only mark walls that are not next to a corner
+                    if (layout[y][x] == LevelElement.WALL
+                            && layout[y + 1][x - 1] != LevelElement.WALL
+                            && layout[y + 1][x + 1] != LevelElement.WALL
+                            && layout[y][x - 1] == LevelElement.WALL
+                            && layout[y][x + 1] == LevelElement.WALL) {
+                        possibleDoorCoordinates.add(new Coordinate(x, y));
+                    }
+                }
+                if (!possibleDoorCoordinates.isEmpty()) {
+                    break;
+                }
+            }
+            // TODO throw exception if possibleDoorCoordinates.size() == 0
+            int doorIndex = random.nextInt(possibleDoorCoordinates.size());
+            Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
+            // TODO change to DOOR
+            // layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
+            layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.EXIT;
+        }
+        if (leftDoor) {
+            ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
+            for (int x = WALL_BUFFER - 1; x < WALL_BUFFER + xSize; x++) {
+                for (int y = WALL_BUFFER; y < WALL_BUFFER + ySize; y++) {
+                    // only mark walls that are not next to a corner
+                    if (layout[y][x] == LevelElement.WALL
+                            && layout[y - 1][x + 1] != LevelElement.WALL
+                            && layout[y + 1][x + 1] != LevelElement.WALL
+                            && layout[y - 1][x] == LevelElement.WALL
+                            && layout[y + 1][x] == LevelElement.WALL) {
+                        possibleDoorCoordinates.add(new Coordinate(x, y));
+                    }
+                }
+                if (!possibleDoorCoordinates.isEmpty()) {
+                    break;
+                }
+            }
+            // TODO throw exception if possibleDoorCoordinates.size() == 0
+            int doorIndex = random.nextInt(possibleDoorCoordinates.size());
+            Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
+            // TODO change to DOOR
+            // layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
+            layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.EXIT;
+        }
+        if (rightDoor) {
+            ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
+            for (int x = WALL_BUFFER + xSize; x > WALL_BUFFER; x--) {
+                for (int y = WALL_BUFFER; y < WALL_BUFFER + ySize; y++) {
+                    // only mark walls that are not next to a corner
+                    if (layout[y][x] == LevelElement.WALL
+                            && layout[y - 1][x - 1] != LevelElement.WALL
+                            && layout[y + 1][x - 1] != LevelElement.WALL
+                            && layout[y - 1][x] == LevelElement.WALL
+                            && layout[y + 1][x] == LevelElement.WALL) {
+                        possibleDoorCoordinates.add(new Coordinate(x, y));
+                    }
+                }
+                if (!possibleDoorCoordinates.isEmpty()) {
+                    break;
+                }
+            }
+            // TODO throw exception if possibleDoorCoordinates.size() == 0
+            int doorIndex = random.nextInt(possibleDoorCoordinates.size());
+            Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
+            // TODO change to DOOR
+            // layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
+            layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.EXIT;
+        }
+
         printLayout(layout, size);
         return layout;
     }
@@ -368,8 +484,8 @@ public class RoomGenerator implements IGenerator {
         for (int y = layout.length - 1; y >= 0; y--) {
             for (int x = 0; x < layout[0].length; x++) {
                 switch (layout[y][x]) {
-                    case SKIP -> System.out.print(". ");
-                    case FLOOR -> System.out.print("# ");
+                    case SKIP -> System.out.print("  ");
+                    case FLOOR -> System.out.print(". ");
                     case WALL -> System.out.print("W ");
                     case EXIT -> System.out.print("E ");
                 }
