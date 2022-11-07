@@ -1,11 +1,14 @@
 package graph;
 
-import java.util.HashMap;
-
 public class GraphEdge {
     private final Type edgeType;
 
-    public HashMap<String, Object> attributes = new HashMap<>();
+    private final PropertyBag attributes = new PropertyBag();
+
+    public PropertyBag getAttributes() {
+        return attributes;
+    }
+
     public Type getEdgeType() {
         return edgeType;
     }
@@ -37,9 +40,24 @@ public class GraphEdge {
     private final GraphNode startNode;
     private final GraphNode endNode;
 
+
     public GraphEdge(Type edgeType, GraphNode startNode, GraphNode endNode) {
         this.edgeType = edgeType;
+
         this.startNode = startNode;
+        this.startNode.addEdge(this);
+
         this.endNode = endNode;
+        this.endNode.addEdge(this);
+    }
+
+    public GraphEdge(GraphNode startNode, GraphNode endNode) {
+        this.edgeType = Type.undirected;
+
+        this.startNode = startNode;
+        this.startNode.addEdge(this);
+
+        this.endNode = endNode;
+        this.endNode.addEdge(this);
     }
 }
