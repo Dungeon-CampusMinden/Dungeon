@@ -7,8 +7,8 @@ public class GraphNode<T> {
     private final T value;
 
     public static GraphNode<Void> NONE = new GraphNode<>(null);
-    private PropertyBag attributes = new PropertyBag();
-    private ArrayList<GraphEdge> edges = new ArrayList<>();
+    private final PropertyBag attributes = new PropertyBag();
+    private final ArrayList<GraphEdge> edges = new ArrayList<>();
 
     public PropertyBag getAttributes() {
         return attributes;
