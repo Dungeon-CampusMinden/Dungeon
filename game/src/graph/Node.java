@@ -3,16 +3,16 @@ package graph;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class GraphNode<T> {
+public class Node<T> {
     private final T value;
 
-    public static GraphNode<Void> NONE = new GraphNode<>(null);
+    public static Node<Void> NONE = new Node<>(null);
 
     // dot allows for the definition of attributes for each node, these will be stored in this
     // PropertyBag
     private final PropertyBag attributes = new PropertyBag();
 
-    private final ArrayList<GraphEdge> edges = new ArrayList<>();
+    private final ArrayList<Edge> edges = new ArrayList<>();
 
     /**
      * @return the attributes associated with this node
@@ -24,7 +24,7 @@ public class GraphNode<T> {
     /**
      * @return an iterator for the edges in which this node is used
      */
-    public Iterator<GraphEdge> edgeIterator() {
+    public Iterator<Edge> edgeIterator() {
         return edges.iterator();
     }
 
@@ -32,7 +32,7 @@ public class GraphNode<T> {
      * @param edge the edge in which this node is use d
      * @return true, if adding succeeded, false otherwise
      */
-    public boolean addEdge(GraphEdge edge) {
+    public boolean addEdge(Edge edge) {
         return this.edges.add(edge);
     }
 
@@ -41,7 +41,7 @@ public class GraphNode<T> {
      *
      * @param value the value to store in the node
      */
-    public GraphNode(T value) {
+    public Node(T value) {
         this.value = value;
     }
 

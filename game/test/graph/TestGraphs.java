@@ -10,13 +10,13 @@ public class TestGraphs {
     public void testProperties() {
         Property<Integer> prop = new Property<>(42);
 
-        GraphNode<String> nodeA = new GraphNode<>("A");
+        Node<String> nodeA = new Node<>("A");
         nodeA.getAttributes().addProperty("testProperty", prop);
 
-        GraphNode<String> nodeB = new GraphNode<>("B");
+        Node<String> nodeB = new Node<>("B");
         nodeB.getAttributes().addProperty("otherProperty", prop);
 
-        GraphEdge edge = new GraphEdge(GraphEdge.Type.undirected, nodeA, nodeB);
+        Edge edge = new Edge(Edge.Type.undirected, nodeA, nodeB);
         Property<String> nameProperty = new Property<>("Kuckuck");
         edge.getAttributes().addProperty("name", nameProperty);
 
@@ -31,13 +31,13 @@ public class TestGraphs {
 
     @Test
     public void testEdgeIterator() {
-        GraphNode<String> stringNode = new GraphNode<>("Hello");
-        GraphNode<Integer> intNode = new GraphNode<>(42);
-        GraphNode<Float> floatNode = new GraphNode<>(3.14f);
+        Node<String> stringNode = new Node<>("Hello");
+        Node<Integer> intNode = new Node<>(42);
+        Node<Float> floatNode = new Node<>(3.14f);
 
-        GraphEdge edge1 = new GraphEdge(stringNode, intNode);
-        GraphEdge edge2 = new GraphEdge(intNode, floatNode);
-        GraphEdge edge3 = new GraphEdge(floatNode, stringNode);
+        Edge edge1 = new Edge(stringNode, intNode);
+        Edge edge2 = new Edge(intNode, floatNode);
+        Edge edge3 = new Edge(floatNode, stringNode);
 
         var edgeIter = stringNode.edgeIterator();
         AtomicInteger edgeCount = new AtomicInteger(0);

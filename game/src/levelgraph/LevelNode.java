@@ -1,17 +1,17 @@
 package levelgraph;
 
-public class Node<T extends Object> {
+public class LevelNode<T extends Object> {
     private T value;
-    private Node[] neighbours;
+    private LevelNode[] neighbours;
 
-    public Node(T value) {
+    public LevelNode(T value) {
         this.value = value;
-        neighbours = new Node[4];
+        neighbours = new LevelNode[4];
     }
 
-    public boolean connect(Node other, EdgeDirection direction, boolean skipLoop) {
+    public boolean connect(LevelNode other, DoorDirection direction, boolean skipLoop) {
         if (neighbours[direction.value] == null) {
-            if (skipLoop || other.connect(this, EdgeDirection.getOppsit(direction), true)) {
+            if (skipLoop || other.connect(this, DoorDirection.getOppsit(direction), true)) {
                 neighbours[direction.value] = other;
                 return true;
             }
@@ -19,7 +19,7 @@ public class Node<T extends Object> {
         return false;
     }
 
-    public boolean connect(Node other, EdgeDirection direction) {
+    public boolean connect(LevelNode other, DoorDirection direction) {
         return connect(other, direction, false);
     }
 
@@ -27,11 +27,11 @@ public class Node<T extends Object> {
         this.value = value;
     }
 
-    public Node getNeighbour(EdgeDirection direction) {
+    public LevelNode getNeighbour(DoorDirection direction) {
         return neighbours[direction.value];
     }
 
-    public Node[] getNeighbours() {
+    public LevelNode[] getNeighbours() {
         return neighbours;
     }
 

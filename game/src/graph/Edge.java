@@ -1,6 +1,6 @@
 package graph;
 
-public class GraphEdge {
+public class Edge {
     private final Type edgeType;
 
     // dot allows for the definition of attributes for each edge, these will be stored in this
@@ -24,14 +24,14 @@ public class GraphEdge {
     /**
      * @return the start node of this edge (on it's beginning)
      */
-    public GraphNode getStartNode() {
+    public Node getStartNode() {
         return startNode;
     }
 
     /**
      * @return the end node of this edge
      */
-    public GraphNode getEndNode() {
+    public Node getEndNode() {
         return endNode;
     }
 
@@ -55,8 +55,8 @@ public class GraphEdge {
         undirected
     }
 
-    private final GraphNode startNode;
-    private final GraphNode endNode;
+    private final Node startNode;
+    private final Node endNode;
 
     /**
      * Constructor
@@ -65,7 +65,7 @@ public class GraphEdge {
      * @param startNode the node at the beginning of the edge
      * @param endNode the node at the end of the edge
      */
-    public GraphEdge(Type edgeType, GraphNode startNode, GraphNode endNode) {
+    public Edge(Type edgeType, Node startNode, Node endNode) {
         this.edgeType = edgeType;
 
         this.startNode = startNode;
@@ -81,7 +81,7 @@ public class GraphEdge {
      * @param startNode the node at the beginning of the edge
      * @param endNode the node at the end of the edge
      */
-    public GraphEdge(GraphNode startNode, GraphNode endNode) {
+    public Edge(Node startNode, Node endNode) {
         this.edgeType = Type.undirected;
 
         this.startNode = startNode;

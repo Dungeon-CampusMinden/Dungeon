@@ -1,6 +1,6 @@
 package levelgraph;
 
-public enum EdgeDirection {
+public enum DoorDirection {
     UP(0),
     RIGHT(1),
     LEFT(2),
@@ -8,11 +8,11 @@ public enum EdgeDirection {
 
     public int value;
 
-    EdgeDirection(int value) {
+    DoorDirection(int value) {
         this.value = value;
     }
 
-    public static EdgeDirection getOppsit(EdgeDirection direction) {
+    public static DoorDirection getOppsit(DoorDirection direction) {
         return switch (direction) {
             case UP -> DOWN;
             case DOWN -> UP;
