@@ -2,9 +2,8 @@ package graph;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
-
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.Test;
 
 public class TestGraphs {
     @Test
@@ -12,14 +11,14 @@ public class TestGraphs {
         Property<Integer> prop = new Property<>(42);
 
         GraphNode<String> nodeA = new GraphNode<>("A");
-        nodeA.getAttributes().addAttribute("testProperty", prop);
+        nodeA.getAttributes().addProperty("testProperty", prop);
 
         GraphNode<String> nodeB = new GraphNode<>("B");
-        nodeB.getAttributes().addAttribute("otherProperty", prop);
+        nodeB.getAttributes().addProperty("otherProperty", prop);
 
         GraphEdge edge = new GraphEdge(GraphEdge.Type.undirected, nodeA, nodeB);
         Property<String> nameProperty = new Property<>("Kuckuck");
-        edge.getAttributes().addAttribute("name", nameProperty);
+        edge.getAttributes().addProperty("name", nameProperty);
 
         var gotAttribute = nodeA.getAttributes().getAttribute("testProperty");
         assertEquals(prop, gotAttribute);
@@ -42,7 +41,7 @@ public class TestGraphs {
 
         var edgeIter = stringNode.edgeIterator();
         AtomicInteger edgeCount = new AtomicInteger(0);
-        edgeIter.forEachRemaining( elem -> edgeCount.addAndGet(1));
+        edgeIter.forEachRemaining(elem -> edgeCount.addAndGet(1));
         assertEquals(2, edgeCount.get());
 
         edgeIter = stringNode.edgeIterator();
