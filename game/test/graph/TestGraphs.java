@@ -29,4 +29,26 @@ public class TestGraphs {
 
         assertEquals(gotAttribute.value(), "Kuckuck");
     }
+
+    @Test
+    public void testEdgeIterator() {
+        GraphNode<String> stringNode = new GraphNode<>("Hello");
+        GraphNode<Integer> intNode = new GraphNode<>(42);
+        GraphNode<Float> floatNode = new GraphNode<>(3.14f);
+
+        GraphEdge edge1 = new GraphEdge(stringNode, intNode);
+        GraphEdge edge2 = new GraphEdge(intNode, floatNode);
+        GraphEdge edge3 = new GraphEdge(floatNode, stringNode);
+
+        var edgeIter = stringNode.edgeIterator();
+        AtomicInteger edgeCount = new AtomicInteger(0);
+        edgeIter.forEachRemaining( elem -> edgeCount.addAndGet(1));
+        assertEquals(2, edgeCount.get());
+
+        edgeIter = stringNode.edgeIterator();
+        var returnedEdge1 = edgeIter.next();
+        assertEquals(returnedEdge1, edge1);
+        var returnedEdge2 = edgeIter.next();
+        assertEquals(returnedEdge2, edge3);
+    }
 }
