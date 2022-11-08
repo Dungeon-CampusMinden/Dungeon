@@ -3,6 +3,8 @@ package graph;
 public class GraphEdge {
     private final Type edgeType;
 
+    // dot allows for the definition of attributes for each edge, these will be stored in this
+    // PropertyBag
     private final PropertyBag attributes = new PropertyBag();
 
     /**

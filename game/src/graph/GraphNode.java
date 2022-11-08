@@ -7,7 +7,11 @@ public class GraphNode<T> {
     private final T value;
 
     public static GraphNode<Void> NONE = new GraphNode<>(null);
+
+    // dot allows for the definition of attributes for each node, these will be stored in this
+    // PropertyBag
     private final PropertyBag attributes = new PropertyBag();
+
     private final ArrayList<GraphEdge> edges = new ArrayList<>();
 
     /**
