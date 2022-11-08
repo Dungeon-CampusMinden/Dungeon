@@ -1,4 +1,4 @@
-package graph;
+package levelgraph;
 
 public class Node<T extends Object> {
     private T value;

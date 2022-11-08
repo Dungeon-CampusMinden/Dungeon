@@ -1,4 +1,4 @@
-package graph;
+package levelgraph;
 
 public enum EdgeDirection {
     UP(0),
