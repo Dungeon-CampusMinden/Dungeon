@@ -4,17 +4,17 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import parser.AST.*;
 
-public class Interpreter implements AstVisitor<Object> {
+public class Interpreter implements AstVisitor<graph.Node<String>> {
     // how to build graph?
     // - need nodes -> hashset, quasi symboltable
-    Dictionary<String, GraphNode> graphNodes = new Hashtable<>();
+    Dictionary<String, graph.Node<String>> graphNodes = new Hashtable<>();
 
     // - need edges (between two nodes)
     //      -> hashset with string-concat of Names with edge_op as key
-    Dictionary<String, GraphEdge> graphEdges = new Hashtable<>();
+    Dictionary<String, graph.Edge> graphEdges = new Hashtable<>();
 
     @Override
-    public Object visit(Node node) {
+    public graph.Node<String> visit(Node node) {
         // traverse down..
         for (Node child : node.getChildren()) {
             child.accept(this);
@@ -23,11 +23,11 @@ public class Interpreter implements AstVisitor<Object> {
     }
 
     @Override
-    public Object visit(IdNode node) {
+    public graph.Node<String> visit(IdNode node) {
         String name = node.getName();
         // lookup and create, if not present previously
         if (graphNodes.get(name) == null) {
-            graphNodes.put(name, new GraphNode(name));
+            graphNodes.put(name, new graph.Node<>(name));
         }
 
         // return Dot-Node
@@ -35,12 +35,12 @@ public class Interpreter implements AstVisitor<Object> {
     }
 
     @Override
-    public Object visit(BinaryNode node) {
+    public graph.Node<String> visit(BinaryNode node) {
         return null;
     }
 
     @Override
-    public Object visit(DotDefNode node) {
+    public graph.Node<String> visit(DotDefNode node) {
         this.graphEdges = new Hashtable<>();
         this.graphNodes = new Hashtable<>();
 
@@ -63,30 +63,30 @@ public class Interpreter implements AstVisitor<Object> {
     }
 
     @Override
-    public Object visit(EdgeRhsNode node) {
+    public graph.Node<String> visit(EdgeRhsNode node) {
         return null;
     }
 
     @Override
-    public Object visit(EdgeStmtNode node) {
+    public graph.Node<String> visit(EdgeStmtNode node) {
         // TODO: add handling of edge-attributes
 
         // node will contain all edge definitions
-        GraphNode lhsDotNode = (GraphNode) node.getLhsId().accept(this);
-        GraphNode rhsDotNode = null;
+        var lhsDotNode = node.getLhsId().accept(this);
+        graph.Node<String> rhsDotNode = null;
 
         for (Node edge : node.getRhsStmts()) {
             assert (edge.type.equals(Node.Type.DotEdgeRHS));
 
             EdgeRhsNode edgeRhs = (EdgeRhsNode) edge;
-            rhsDotNode = (GraphNode) edgeRhs.getIdNode().accept(this);
+            rhsDotNode = (graph.Node<String>) edgeRhs.getIdNode().accept(this);
 
-            GraphEdge.Type edgeType =
+            graph.Edge.Type edgeType =
                     edgeRhs.getEdgeOpType().equals(EdgeOpNode.Type.arrow)
-                            ? GraphEdge.Type.directed
-                            : GraphEdge.Type.undirected;
+                            ? graph.Edge.Type.directed
+                            : graph.Edge.Type.undirected;
 
-            GraphEdge graphEdge = new GraphEdge(edgeType, lhsDotNode, rhsDotNode);
+            var graphEdge = new graph.Edge(edgeType, lhsDotNode, rhsDotNode);
             graphEdges.put(graphEdge.getName(), graphEdge);
 
             lhsDotNode = rhsDotNode;
@@ -96,7 +96,7 @@ public class Interpreter implements AstVisitor<Object> {
     }
 
     @Override
-    public Object visit(EdgeOpNode node) {
+    public graph.Node<String> visit(EdgeOpNode node) {
         return null;
     }
 }

@@ -49,13 +49,13 @@ public class TestDungeonASTConverter {
         var edgeOp = rhsEdgeNode.getEdgeOpNode();
         assertEquals(Node.Type.DotEdgeOp, edgeOp.type);
 
-        var edgeOpNode = (EdgeOpNode)edgeOp;
+        var edgeOpNode = (EdgeOpNode) edgeOp;
         assertEquals(EdgeOpNode.Type.doubleLine, edgeOpNode.getEdgeOpType());
 
         var rhsId = rhsEdgeNode.getIdNode();
         assertEquals(Node.Type.Identifier, rhsId.type);
 
-        var rhsIdNode = (IdNode)rhsId;
+        var rhsIdNode = (IdNode) rhsId;
         assertEquals("b", rhsIdNode.getName());
     }
 
@@ -87,7 +87,7 @@ public class TestDungeonASTConverter {
         var rhsId = rhsEdgeNode.getIdNode();
         assertEquals(Node.Type.Identifier, rhsId.type);
 
-        var rhsIdNode = (IdNode)rhsId;
+        var rhsIdNode = (IdNode) rhsId;
         assertEquals("b", rhsIdNode.getName());
 
         rhsEdge = rhsStmts.get(1);
@@ -97,7 +97,7 @@ public class TestDungeonASTConverter {
         rhsId = rhsEdgeNode.getIdNode();
         assertEquals(Node.Type.Identifier, rhsId.type);
 
-        rhsIdNode = (IdNode)rhsId;
+        rhsIdNode = (IdNode) rhsId;
         assertEquals("c", rhsIdNode.getName());
     }
 }
