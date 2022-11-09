@@ -1,6 +1,8 @@
 package starter;
 
 import controller.Game;
+import level.generator.postGeneration.WallGenerator;
+import level.generator.randomwalk.RandomWalkGenerator;
 
 /**
  * The entry class to create your own implementation.
@@ -13,7 +15,7 @@ public class MyGame extends Game {
     @Override
     protected void setup() {
         // set the default generator
-        // levelAPI.setGenerator(new RandomWalkGenerator());
+        levelAPI.setGenerator(new WallGenerator(new RandomWalkGenerator()));
         // load the first level
         levelAPI.loadLevel();
     }

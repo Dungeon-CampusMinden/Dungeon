@@ -30,22 +30,26 @@ public class RandomWalkGenerator implements IGenerator {
 
     @Override
     public ILevel getLevel(DesignLabel designLabel, LevelSize size) {
+        return new TileLevel(getLayout(size), designLabel);
+    }
+
+    /**
+     * Generates the floor layout to a specified level size
+     *
+     * @param size size of the level to be generated
+     * @return layout of the level
+     */
+    public LevelElement[][] getLayout(LevelSize size) {
         return switch (size) {
-            case SMALL -> new TileLevel(
-                    drunkWalk(
-                            new MinMaxValue(SMALL_MIN_X_SIZE, SMALL_MAX_X_SIZE),
-                            new MinMaxValue(SMALL_MIN_Y_SIZE, SMALL_MAX_Y_SIZE)),
-                    designLabel);
-            case LARGE -> new TileLevel(
-                    drunkWalk(
-                            new MinMaxValue(BIG_MIN_X_SIZE, BIG_MAX_X_SIZE),
-                            new MinMaxValue(BIG_MIN_Y_SIZE, BIG_MAX_Y_SIZE)),
-                    designLabel);
-            default -> new TileLevel(
-                    drunkWalk(
-                            new MinMaxValue(MEDIUM_MIN_X_SIZE, MEDIUM_MAX_X_SIZE),
-                            new MinMaxValue(MEDIUM_MIN_Y_SIZE, MEDIUM_MAX_Y_SIZE)),
-                    designLabel);
+            case SMALL -> drunkWalk(
+                    new MinMaxValue(SMALL_MIN_X_SIZE, SMALL_MAX_X_SIZE),
+                    new MinMaxValue(SMALL_MIN_Y_SIZE, SMALL_MAX_Y_SIZE));
+            case LARGE -> drunkWalk(
+                    new MinMaxValue(BIG_MIN_X_SIZE, BIG_MAX_X_SIZE),
+                    new MinMaxValue(BIG_MIN_Y_SIZE, BIG_MAX_Y_SIZE));
+            default -> drunkWalk(
+                    new MinMaxValue(MEDIUM_MIN_X_SIZE, MEDIUM_MAX_X_SIZE),
+                    new MinMaxValue(MEDIUM_MIN_Y_SIZE, MEDIUM_MAX_Y_SIZE));
         };
     }
 

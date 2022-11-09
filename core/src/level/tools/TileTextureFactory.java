@@ -31,17 +31,22 @@ public class TileTextureFactory {
             return prefixPath + path + ".png";
         }
 
+        path = findTexturePathInnerCorner(levelPart);
+        if (path != null) {
+            return prefixPath + path + ".png";
+        }
+
+        path = findTexturePathOuterCorner(levelPart);
+        if (path != null) {
+            return prefixPath + path + ".png";
+        }
+
         path = findTexturePathWall(levelPart);
         if (path != null) {
             return prefixPath + path + ".png";
         }
 
-        path = findTexturePathCorner(levelPart);
-        if (path != null) {
-            return prefixPath + path + ".png";
-        }
-
-        // fehler zustand
+        // Error state
         return prefixPath + "floor/empty.png";
     }
 
@@ -87,55 +92,66 @@ public class TileTextureFactory {
             return "floor/floor_1";
         } else if (levelPart.element() == LevelElement.EXIT) {
             return "floor/floor_ladder";
-        }
-        // is field in a non-playable area?
-        else if (isInSpace(levelPart.position(), levelPart.layout())) {
-            return "floor/empty";
+        } else if (levelPart.element() == LevelElement.HOLE) {
+            if (aboveIsHole(levelPart.position, levelPart.layout)) {
+                return "floor/floor_hole1";
+            } else {
+                return "floor/floor_hole";
+            }
         }
         return null;
     }
 
     private static String findTexturePathWall(LevelPart levelPart) {
         if (isRightWall(levelPart.position(), levelPart.layout())) {
-            return "wall/right";
+            return "wall/wall_right";
         } else if (isLeftWall(levelPart.position(), levelPart.layout())) {
-            return "wall/left";
-        } else if (isSideWall(levelPart.position(), levelPart.layout())) {
-            return "wall/side";
+            return "wall/wall_left";
         } else if (isTopWall(levelPart.position(), levelPart.layout())) {
-            return "wall/top";
+            return "wall/wall_top";
         } else if (isBottomWall(levelPart.position(), levelPart.layout())) {
-            return "wall/bottom";
-        } else if (isBottomAndTopWall(levelPart.position(), levelPart.layout())) {
-            return "wall/top_bottom";
+            return "wall/wall_bottom";
         }
         return null;
     }
 
-    private static String findTexturePathCorner(LevelPart levelPart) {
-        if (isBottomLeftCorner(levelPart.position(), levelPart.layout())) {
-            return "wall/corner_bottom_left";
-        } else if (isBottomRightCorner(levelPart.position(), levelPart.layout())) {
-            return "wall/corner_bottom_right";
-        } else if (isUpperRightCorner(levelPart.position(), levelPart.layout())) {
-            return "wall/corner_upper_right";
-        } else if (isUpperLeftCorner(levelPart.position(), levelPart.layout())) {
-            return "wall/corner_upper_left";
+    private static String findTexturePathInnerCorner(LevelPart levelPart) {
+        if (isCrossUpperLeftBottomRight(levelPart.position(), levelPart.layout())) {
+            return "wall/wall_cross_upper_left_bottom_right";
+        } else if (isCrossUpperRightBottomLeft(levelPart.position(), levelPart.layout())) {
+            return "wall/wall_cross_upper_right_bottom_left";
+        } else if (isBottomLeftInnerCorner(levelPart.position(), levelPart.layout())) {
+            return "wall/wall_inner_corner_bottom_left";
+        } else if (isBottomRightInnerCorner(levelPart.position(), levelPart.layout())) {
+            return "wall/wall_inner_corner_bottom_right";
+        } else if (isUpperRightInnerCorner(levelPart.position(), levelPart.layout())) {
+            return "wall/wall_inner_corner_upper_right";
+        } else if (isUpperLeftInnerCorner(levelPart.position(), levelPart.layout())) {
+            return "wall/wall_inner_corner_upper_left";
         }
         return null;
     }
 
-    private static boolean isInSpace(Coordinate p, LevelElement[][] layout) {
-        return isInSpaceSkip(p, layout) || isInSpaceWall(p, layout);
+    private static String findTexturePathOuterCorner(LevelPart levelPart) {
+        if (isBottomLeftOuterCorner(levelPart.position(), levelPart.layout())) {
+            return "wall/wall_outer_corner_bottom_left";
+        } else if (isBottomRightOuterCorner(levelPart.position(), levelPart.layout())) {
+            return "wall/wall_outer_corner_bottom_right";
+        } else if (isUpperRightOuterCorner(levelPart.position(), levelPart.layout())) {
+            return "wall/wall_outer_corner_upper_right";
+        } else if (isUpperLeftOuterCorner(levelPart.position(), levelPart.layout())) {
+            return "wall/wall_outer_corner_upper_left";
+        }
+        return null;
     }
 
-    private static boolean isInSpaceSkip(Coordinate p, LevelElement[][] layout) {
-        return belowIsSkip(p, layout)
-                && aboveIsSkip(p, layout)
-                && leftIsSkip(p, layout)
-                && rightIsFloor(p, layout);
-    }
-
+    /**
+     * Checks if tile with coordinate p is surrounded by walls.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if surrounded by walls
+     */
     private static boolean isInSpaceWall(Coordinate p, LevelElement[][] layout) {
         return belowIsWall(p, layout)
                 && aboveIsWall(p, layout)
@@ -143,58 +159,213 @@ public class TileTextureFactory {
                 && rightIsWall(p, layout);
     }
 
-    private static boolean isBottomLeftCorner(Coordinate p, LevelElement[][] layout) {
-        return (aboveIsWall(p, layout) && rightIsWall(p, layout));
+    /**
+     * Checks if tile with coordinate p should be a crossUpperLeftBottomRight wall. Tile has to be
+     * surrounded by walls and have accessible tiles in the upper left and bottom right.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if all conditions are met
+     */
+    private static boolean isCrossUpperLeftBottomRight(Coordinate p, LevelElement[][] layout) {
+        return (isInSpaceWall(p, layout)
+                && upperLeftIsAccessible(p, layout)
+                && bottomRightIsAccessible(p, layout));
     }
 
-    private static boolean isBottomRightCorner(Coordinate p, LevelElement[][] layout) {
-        return (aboveIsWall(p, layout) && leftIsWall(p, layout));
+    /**
+     * Checks if tile with coordinate p should be a crossUpperRightBottomLeft wall. Tile has to be
+     * surrounded by walls and have accessible tiles in the upper right and bottom left.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if all conditions are met
+     */
+    private static boolean isCrossUpperRightBottomLeft(Coordinate p, LevelElement[][] layout) {
+        return (isInSpaceWall(p, layout)
+                && upperRightIsAccessible(p, layout)
+                && bottomLeftIsAccessible(p, layout));
     }
 
-    private static boolean isUpperRightCorner(Coordinate p, LevelElement[][] layout) {
-        return (belowIsWall(p, layout) && leftIsWall(p, layout));
+    /**
+     * Checks if tile with coordinate p should be a bottomLeftOuterCorner wall. Tile has to have
+     * walls above and to the right and an accessible tile to the upper right.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if all conditions are met
+     */
+    private static boolean isBottomLeftOuterCorner(Coordinate p, LevelElement[][] layout) {
+        return (aboveIsWall(p, layout)
+                && rightIsWall(p, layout)
+                && upperRightIsAccessible(p, layout));
     }
 
-    private static boolean isUpperLeftCorner(Coordinate p, LevelElement[][] layout) {
-        return (belowIsWall(p, layout) && rightIsWall(p, layout));
+    /**
+     * Checks if tile with coordinate p should be a bottomRightOuterCorner wall. Tile has to have
+     * walls above and to the left and an accessible tile to the upper left.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if all conditions are met
+     */
+    private static boolean isBottomRightOuterCorner(Coordinate p, LevelElement[][] layout) {
+        return (aboveIsWall(p, layout)
+                && leftIsWall(p, layout)
+                && upperLeftIsAccessible(p, layout));
     }
 
+    /**
+     * Checks if tile with coordinate p should be a upperRightOuterCorner wall. Tile has to have
+     * walls below and to the left and an accessible tile to the bottom left.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if all conditions are met
+     */
+    private static boolean isUpperRightOuterCorner(Coordinate p, LevelElement[][] layout) {
+        return (belowIsWall(p, layout)
+                && leftIsWall(p, layout)
+                && bottomLeftIsAccessible(p, layout));
+    }
+
+    /**
+     * Checks if tile with coordinate p should be a upperLeftOuterCorner wall. Tile has to have
+     * walls below and to the right and an accessible tile to the bottom right.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if all conditions are met
+     */
+    private static boolean isUpperLeftOuterCorner(Coordinate p, LevelElement[][] layout) {
+        return (belowIsWall(p, layout)
+                && rightIsWall(p, layout)
+                && bottomRightIsAccessible(p, layout));
+    }
+
+    /**
+     * Checks if tile with coordinate p should be a bottomLeftInnerCorner wall. Tile has to have
+     * walls above and to the right and inside tiles (accessible or hole) either to the left and
+     * bottom right, below and to the upper left or below and to the left.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if all conditions are met
+     */
+    private static boolean isBottomLeftInnerCorner(Coordinate p, LevelElement[][] layout) {
+        return (aboveIsWall(p, layout)
+                && rightIsWall(p, layout)
+                && (leftIsInside(p, layout) && bottomRightIsInside(p, layout)
+                        || belowIsInside(p, layout) && upperLeftIsInside(p, layout)
+                        || belowIsInside(p, layout) && leftIsInside(p, layout)));
+    }
+
+    /**
+     * Checks if tile with coordinate p should be a bottomRightInnerCorner wall. Tile has to have
+     * walls above and to the left and inside tiles (accessible or hole) either to the right and
+     * bottom left, below and to the upper right or below and to the right.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if all conditions are met
+     */
+    private static boolean isBottomRightInnerCorner(Coordinate p, LevelElement[][] layout) {
+        return (aboveIsWall(p, layout)
+                && leftIsWall(p, layout)
+                && (rightIsInside(p, layout) && bottomLeftIsInside(p, layout)
+                        || belowIsInside(p, layout) && upperRightIsInside(p, layout)
+                        || belowIsInside(p, layout) && rightIsInside(p, layout)));
+    }
+
+    /**
+     * Checks if tile with coordinate p should be a upperRightInnerCorner wall. Tile has to have
+     * walls below and to the left and inside tiles (accessible or hole) either to the right and
+     * upper left, above and to the bottom right or above and to the right.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if all conditions are met
+     */
+    private static boolean isUpperRightInnerCorner(Coordinate p, LevelElement[][] layout) {
+        return (belowIsWall(p, layout)
+                && leftIsWall(p, layout)
+                && (rightIsInside(p, layout) && upperLeftIsInside(p, layout)
+                        || aboveIsInside(p, layout) && bottomRightIsInside(p, layout)
+                        || aboveIsInside(p, layout) && rightIsInside(p, layout)));
+    }
+
+    /**
+     * Checks if tile with coordinate p should be a upperLeftInnerCorner wall. Tile has to have
+     * walls below and to the right and inside tiles (accessible or hole) either to the left and
+     * upper right, above and to the bottom left or above and to the left.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if all conditions are met
+     */
+    private static boolean isUpperLeftInnerCorner(Coordinate p, LevelElement[][] layout) {
+        return (belowIsWall(p, layout)
+                && rightIsWall(p, layout)
+                && (leftIsInside(p, layout) && upperRightIsInside(p, layout)
+                        || aboveIsInside(p, layout) && bottomLeftIsInside(p, layout)
+                        || aboveIsInside(p, layout) && leftIsInside(p, layout)));
+    }
+
+    /**
+     * Checks if tile with coordinate p should be a right wall. Tile has to have walls above and
+     * below and an inside tile (accessible or hole) to the left.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if all conditions are met
+     */
     private static boolean isRightWall(Coordinate p, LevelElement[][] layout) {
-        return (aboveIsWall(p, layout) || belowIsWall(p, layout))
-                && leftIsFloor(p, layout)
-                && !rightIsFloor(p, layout);
+        return aboveIsWall(p, layout) && belowIsWall(p, layout) && leftIsInside(p, layout);
     }
 
+    /**
+     * Checks if tile with coordinate p should be a left wall. Tile has to have walls above and
+     * below and an inside tile (accessible or hole) to the right.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if all conditions are met
+     */
     private static boolean isLeftWall(Coordinate p, LevelElement[][] layout) {
-        return (aboveIsWall(p, layout) || belowIsWall(p, layout))
-                && !leftIsFloor(p, layout)
-                && rightIsFloor(p, layout);
+        return aboveIsWall(p, layout) && belowIsWall(p, layout) && rightIsInside(p, layout);
     }
 
-    private static boolean isSideWall(Coordinate p, LevelElement[][] layout) {
-        return (aboveIsWall(p, layout) || belowIsWall(p, layout))
-                && leftIsFloor(p, layout)
-                && rightIsFloor(p, layout);
-    }
-
+    /**
+     * Checks if tile with coordinate p should be a top wall. Tile has to have walls to the left and
+     * right and an inside tile (accessible or hole) below.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if all conditions are met
+     */
     private static boolean isTopWall(Coordinate p, LevelElement[][] layout) {
-        return belowIsFloor(p, layout)
-                && !aboveIsFloor(p, layout)
-                && (leftIsWall(p, layout) || rightIsWall(p, layout));
+        return leftIsWall(p, layout) && rightIsWall(p, layout) && belowIsInside(p, layout);
     }
 
+    /**
+     * Checks if tile with coordinate p should be a bottom wall. Tile has to have walls to the left
+     * and right and an inside tile (accessible or hole) above.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if all conditions are met
+     */
     private static boolean isBottomWall(Coordinate p, LevelElement[][] layout) {
-        return !belowIsFloor(p, layout)
-                && aboveIsFloor(p, layout)
-                && (leftIsWall(p, layout) || rightIsWall(p, layout));
+        return leftIsWall(p, layout) && rightIsWall(p, layout) && aboveIsInside(p, layout);
     }
 
-    private static boolean isBottomAndTopWall(Coordinate p, LevelElement[][] layout) {
-        return belowIsFloor(p, layout)
-                && aboveIsFloor(p, layout)
-                && (leftIsWall(p, layout) || rightIsWall(p, layout));
-    }
-
+    /**
+     * Checks if tile above the coordinate p is a wall.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if above is a wall
+     */
     private static boolean aboveIsWall(Coordinate p, LevelElement[][] layout) {
         try {
             return layout[p.y + 1][p.x] == LevelElement.WALL;
@@ -204,6 +375,13 @@ public class TileTextureFactory {
         }
     }
 
+    /**
+     * Checks if tile below the coordinate p is a wall.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if below is a wall
+     */
     private static boolean belowIsWall(Coordinate p, LevelElement[][] layout) {
         try {
             return layout[p.y - 1][p.x] == LevelElement.WALL;
@@ -213,6 +391,13 @@ public class TileTextureFactory {
         }
     }
 
+    /**
+     * Checks if tile to the left of the coordinate p is a wall.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if left is a wall
+     */
     private static boolean leftIsWall(Coordinate p, LevelElement[][] layout) {
         try {
             return layout[p.y][p.x - 1] == LevelElement.WALL;
@@ -222,6 +407,13 @@ public class TileTextureFactory {
         }
     }
 
+    /**
+     * Checks if tile to the right of the coordinate p is a wall.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if right is a wall
+     */
     private static boolean rightIsWall(Coordinate p, LevelElement[][] layout) {
         try {
             return layout[p.y][p.x + 1] == LevelElement.WALL;
@@ -231,67 +423,384 @@ public class TileTextureFactory {
         }
     }
 
-    private static boolean aboveIsFloor(Coordinate p, LevelElement[][] layout) {
+    /**
+     * Checks if tile above the coordinate p is accessible.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if above is accessible
+     */
+    private static boolean aboveIsAccessible(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[p.y + 1][p.x] == LevelElement.FLOOR
-                    || layout[p.y + 1][p.x] == LevelElement.EXIT;
+            return layout[p.y + 1][p.x].getValue();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
         }
     }
 
-    private static boolean belowIsFloor(Coordinate p, LevelElement[][] layout) {
+    /**
+     * Checks if tile to the left of the coordinate p is accessible.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if left is accessible
+     */
+    private static boolean leftIsAccessible(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[p.y - 1][p.x] == LevelElement.FLOOR
-                    || layout[p.y + 1][p.x] == LevelElement.EXIT;
+            return layout[p.y][p.x - 1].getValue();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
         }
     }
 
-    private static boolean leftIsFloor(Coordinate p, LevelElement[][] layout) {
+    /**
+     * Checks if tile to the right of the coordinate p is accessible.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if right is accessible
+     */
+    private static boolean rightIsAccessible(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[p.y][p.x - 1] == LevelElement.FLOOR
-                    || layout[p.y + 1][p.x] == LevelElement.EXIT;
+            return layout[p.y][p.x + 1].getValue();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
         }
     }
 
-    private static boolean rightIsFloor(Coordinate p, LevelElement[][] layout) {
+    /**
+     * Checks if tile below the coordinate p is accessible.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if below is accessible
+     */
+    private static boolean belowIsAccessible(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[p.y][p.x + 1] == LevelElement.FLOOR
-                    || layout[p.y + 1][p.x] == LevelElement.EXIT;
+            return layout[p.y - 1][p.x].getValue();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
         }
     }
 
-    private static boolean leftIsSkip(Coordinate p, LevelElement[][] layout) {
+    /**
+     * Checks if tile to the upper right of the coordinate p is accessible.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if upper right is accessible
+     */
+    private static boolean upperRightIsAccessible(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[p.y][p.x - 1] == LevelElement.SKIP;
+            return layout[p.y + 1][p.x + 1].getValue();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
         }
     }
 
-    private static boolean aboveIsSkip(Coordinate p, LevelElement[][] layout) {
+    /**
+     * Checks if tile to the bottom right of the coordinate p is accessible.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if bottom right is accessible
+     */
+    private static boolean bottomRightIsAccessible(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[p.y + 1][p.x] == LevelElement.SKIP;
+            return layout[p.y - 1][p.x + 1].getValue();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
         }
     }
 
-    private static boolean belowIsSkip(Coordinate p, LevelElement[][] layout) {
+    /**
+     * Checks if tile to the bottom left of the coordinate p is accessible.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if bottom left is accessible
+     */
+    private static boolean bottomLeftIsAccessible(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[p.y - 1][p.x] == LevelElement.SKIP;
+            return layout[p.y - 1][p.x - 1].getValue();
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile to the upper left of the coordinate p is accessible.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if upper left is accessible
+     */
+    private static boolean upperLeftIsAccessible(Coordinate p, LevelElement[][] layout) {
+        try {
+            return layout[p.y + 1][p.x - 1].getValue();
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile above the coordinate p is a hole.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if above is a hole
+     */
+    private static boolean aboveIsHole(Coordinate p, LevelElement[][] layout) {
+        try {
+            return layout[p.y + 1][p.x] == LevelElement.HOLE;
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile to the left of the coordinate p is a hole.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if left is a hole
+     */
+    private static boolean leftIsHole(Coordinate p, LevelElement[][] layout) {
+        try {
+            return layout[p.y][p.x - 1] == LevelElement.HOLE;
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile to the right of the coordinate p is a hole.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if right is a hole
+     */
+    private static boolean rightIsHole(Coordinate p, LevelElement[][] layout) {
+        try {
+            return layout[p.y][p.x + 1] == LevelElement.HOLE;
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile below the coordinate p is a hole.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if below is a hole
+     */
+    private static boolean belowIsHole(Coordinate p, LevelElement[][] layout) {
+        try {
+            return layout[p.y - 1][p.x] == LevelElement.HOLE;
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile to the upper right of the coordinate p is a hole.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if upper right is a hole
+     */
+    private static boolean upperRightIsHole(Coordinate p, LevelElement[][] layout) {
+        try {
+            return layout[p.y + 1][p.x + 1] == LevelElement.HOLE;
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile to the bottom right of the coordinate p is a hole.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if bottom right is a hole
+     */
+    private static boolean bottomRightIsHole(Coordinate p, LevelElement[][] layout) {
+        try {
+            return layout[p.y - 1][p.x + 1] == LevelElement.HOLE;
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile to the bottom left of the coordinate p is a hole.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if bottom left is a hole
+     */
+    private static boolean bottomLeftIsHole(Coordinate p, LevelElement[][] layout) {
+        try {
+            return layout[p.y - 1][p.x - 1] == LevelElement.HOLE;
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile to the upper left of the coordinate p is a hole.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if upper left is a hole
+     */
+    private static boolean upperLeftIsHole(Coordinate p, LevelElement[][] layout) {
+        try {
+            return layout[p.y + 1][p.x - 1] == LevelElement.HOLE;
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile above the coordinate p is either accessible or a hole.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if conditions are met
+     */
+    private static boolean aboveIsInside(Coordinate p, LevelElement[][] layout) {
+        try {
+            return (aboveIsAccessible(p, layout) || aboveIsHole(p, layout));
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile to the left of the coordinate p is either accessible or a hole.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if conditions are met
+     */
+    private static boolean leftIsInside(Coordinate p, LevelElement[][] layout) {
+        try {
+            return (leftIsAccessible(p, layout) || leftIsHole(p, layout));
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile to the right of the coordinate p is either accessible or a hole.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if conditions are met
+     */
+    private static boolean rightIsInside(Coordinate p, LevelElement[][] layout) {
+        try {
+            return (rightIsAccessible(p, layout) || rightIsHole(p, layout));
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile below the coordinate p is either accessible or a hole.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if conditions are met
+     */
+    private static boolean belowIsInside(Coordinate p, LevelElement[][] layout) {
+        try {
+            return (belowIsAccessible(p, layout) || belowIsHole(p, layout));
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile to the upper right of the coordinate p is either accessible or a hole.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if conditions are met
+     */
+    private static boolean upperRightIsInside(Coordinate p, LevelElement[][] layout) {
+        try {
+            return (upperRightIsAccessible(p, layout) || upperRightIsHole(p, layout));
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile to the bottom right of the coordinate p is either accessible or a hole.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if conditions are met
+     */
+    private static boolean bottomRightIsInside(Coordinate p, LevelElement[][] layout) {
+        try {
+            return (bottomRightIsAccessible(p, layout) || bottomRightIsHole(p, layout));
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile to the bottom left of the coordinate p is either accessible or a hole.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if conditions are met
+     */
+    private static boolean bottomLeftIsInside(Coordinate p, LevelElement[][] layout) {
+        try {
+            return (bottomLeftIsAccessible(p, layout) || bottomLeftIsHole(p, layout));
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile to the upper left of the coordinate p is either accessible or a hole.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if conditions are met
+     */
+    private static boolean upperLeftIsInside(Coordinate p, LevelElement[][] layout) {
+        try {
+            return (upperLeftIsAccessible(p, layout) || upperLeftIsHole(p, layout));
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;

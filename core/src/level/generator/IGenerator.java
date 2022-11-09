@@ -2,6 +2,7 @@ package level.generator;
 
 import level.elements.ILevel;
 import level.tools.DesignLabel;
+import level.tools.LevelElement;
 import level.tools.LevelSize;
 
 public interface IGenerator {
@@ -42,4 +43,12 @@ public interface IGenerator {
     default ILevel getLevel(LevelSize size) {
         return getLevel(DesignLabel.randomDesign(), size);
     }
+
+    /**
+     * Get a level layout with the given configuration.
+     *
+     * @param size Size of the level
+     * @return The layout
+     */
+    LevelElement[][] getLayout(LevelSize size);
 }

@@ -31,6 +31,11 @@ public class PerlinNoiseGenerator implements IGenerator {
         return getLevel(designLabel, size, GLOBAL_RANDOM);
     }
 
+    @Override
+    public LevelElement[][] getLayout(LevelSize size) {
+        return getLayout(size, new Random());
+    }
+
     /**
      * generates a new level based on the seed
      *
@@ -56,8 +61,7 @@ public class PerlinNoiseGenerator implements IGenerator {
      */
     public ILevel getLevel(DesignLabel designLabel, LevelSize size, final Random random) {
         // playing field
-        final NoiseArea playingArea = generateNoiseArea(size, random);
-        LevelElement[][] elements = toLevelElementArray(playingArea);
+        LevelElement[][] elements = getLayout(size, random);
         TileLevel generatedLevel = new TileLevel(toTilesArray(elements, designLabel));
 
         // end tile
@@ -72,6 +76,12 @@ public class PerlinNoiseGenerator implements IGenerator {
                                 end.getCoordinate()));
         end.setLevelElement(LevelElement.EXIT, endTexturePath);
         return generatedLevel;
+    }
+
+    private static LevelElement[][] getLayout(LevelSize size, Random random) {
+        final NoiseArea playingArea = generateNoiseArea(size, random);
+        LevelElement[][] elements = toLevelElementArray(playingArea);
+        return elements;
     }
 
     private static NoiseArea generateNoiseArea(final LevelSize size, final Random randomGenerator) {
