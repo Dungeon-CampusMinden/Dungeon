@@ -4,14 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import helpers.Helpers;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import parser.AST.*;
-import starter.DesktopLauncher;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({DesktopLauncher.class})
 public class TestDungeonASTConverter {
 
     // TODO: checking the structure in this way is very verbose and
