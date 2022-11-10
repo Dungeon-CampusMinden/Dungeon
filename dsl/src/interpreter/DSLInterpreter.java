@@ -6,15 +6,8 @@ import parser.DungeonASTConverter;
 
 public class DSLInterpreter {
 
-    /**
-     * minimal ANTLR setup to parse a progam
-     *
-     * @param args
-     * @throws Exception
-     */
-    public static void main(String[] args) throws Exception {
-        String program = "graph g {\n" + "A -- B \n" + "B -- C -- D -> E \n" + "}";
-        var stream = CharStreams.fromString(program);
+    public dslToGame.QuestConfig getQuestConfig(String configSkript) {
+        var stream = CharStreams.fromString(configSkript);
         var lexer = new DungeonDSLLexer(stream);
 
         var tokenStream = new CommonTokenStream(lexer);
@@ -25,6 +18,8 @@ public class DSLInterpreter {
         var programAST = astConverter.walk(programParseTree);
 
         var dotInterpreter = new interpreter.dot.Interpreter();
-        programAST.accept(dotInterpreter);
+        var graphs = dotInterpreter.getGraphs(programAST);
+
+        return new dslToGame.QuestConfig(graphs.get(0), null, 0);
     }
 }
