@@ -1,5 +1,8 @@
 package interpreter.dot;
 
+import graph.Graph;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import parser.AST.*;
@@ -13,11 +16,41 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
     //      -> hashset with string-concat of Names with edge_op as key
     Dictionary<String, graph.Edge> graphEdges = new Hashtable<>();
 
+    public graph.Graph<String> getGraph(DotDefNode dotDefinition) {
+        dotDefinition.accept(this);
+
+        // sort edges
+        var edgeIter = graphEdges.elements().asIterator();
+        ArrayList<graph.Edge> edgeList = new ArrayList<>(graphEdges.size());
+
+        while (edgeIter.hasNext()) {
+            edgeList.add(edgeIter.next());
+        }
+
+        Collections.sort(edgeList);
+
+        // sort nodes
+        var nodeIter = graphNodes.elements().asIterator();
+        ArrayList<graph.Node<String>> nodeList = new ArrayList<>(graphNodes.size());
+
+        while (nodeIter.hasNext()) {
+            nodeList.add(nodeIter.next());
+        }
+
+        Collections.sort(nodeList);
+
+        return new Graph<>(edgeList, nodeList);
+    }
+
     @Override
     public graph.Node<String> visit(Node node) {
         // traverse down..
         for (Node child : node.getChildren()) {
-            child.accept(this);
+            if (child.type == Node.Type.DotDefinition) {
+                getGraph((DotDefNode) child);
+            } else {
+                child.accept(this);
+            }
         }
         return null;
     }

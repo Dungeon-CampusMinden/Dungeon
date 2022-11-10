@@ -1,6 +1,17 @@
 package graph;
 
-public class Edge {
+public class Edge implements Comparable<Edge> {
+    private static int _idx;
+
+    private final int idx;
+
+    /**
+     * @return The unique index of this node
+     */
+    public int getIdx() {
+        return idx;
+    }
+
     private final Type edgeType;
 
     // dot allows for the definition of attributes for each edge, these will be stored in this
@@ -50,6 +61,11 @@ public class Edge {
                 endNode.hashCode());
     }
 
+    @Override
+    public int compareTo(Edge o) {
+        return this.idx - o.idx;
+    }
+
     public enum Type {
         directed,
         undirected
@@ -66,6 +82,8 @@ public class Edge {
      * @param endNode the node at the end of the edge
      */
     public Edge(Type edgeType, Node startNode, Node endNode) {
+        this.idx = _idx++;
+
         this.edgeType = edgeType;
 
         this.startNode = startNode;
@@ -82,6 +100,8 @@ public class Edge {
      * @param endNode the node at the end of the edge
      */
     public Edge(Node startNode, Node endNode) {
+        this.idx = _idx++;
+
         this.edgeType = Type.undirected;
 
         this.startNode = startNode;

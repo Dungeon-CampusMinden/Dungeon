@@ -3,7 +3,18 @@ package graph;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Node<T> {
+public class Node<T> implements Comparable<Node<T>> {
+    private static int _idx;
+
+    private final int idx;
+
+    /**
+     * @return The unique index of this node
+     */
+    public int getIdx() {
+        return idx;
+    }
+
     private final T value;
 
     public static Node<Void> NONE = new Node<>(null);
@@ -42,6 +53,7 @@ public class Node<T> {
      * @param value the value to store in the node
      */
     public Node(T value) {
+        this.idx = _idx++;
         this.value = value;
     }
 
@@ -50,5 +62,10 @@ public class Node<T> {
      */
     public T getValue() {
         return this.value;
+    }
+
+    @Override
+    public int compareTo(Node<T> o) {
+        return this.idx - o.idx;
     }
 }
