@@ -23,13 +23,13 @@ public class TestDotInterpreter {
         while (nodeIter.hasNext()) {
             var node = nodeIter.next();
             assertTrue(
-                "Assertion not met, index "
-                    + node.getIdx()
-                    + " is smaller than last index "
-                    + lastNodeIdx
-                    + " iteration: "
-                    + iteration,
-                node.getIdx() > lastNodeIdx);
+                    "Assertion not met, index "
+                            + node.getIdx()
+                            + " is smaller than last index "
+                            + lastNodeIdx
+                            + " iteration: "
+                            + iteration,
+                    node.getIdx() > lastNodeIdx);
             lastNodeIdx = node.getIdx();
             iteration++;
         }

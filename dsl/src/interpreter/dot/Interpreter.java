@@ -77,19 +77,8 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
         this.graphEdges = new Hashtable<>();
         this.graphNodes = new Hashtable<>();
 
-        String name = node.getGraphId();
-
         for (Node edgeStmt : node.getStmtNodes()) {
             edgeStmt.accept(this);
-        }
-
-        // TODO: cleanup and package in graph class
-        // for testing
-        System.out.println("parsed graph [" + name + "]");
-        var edgeIter = graphEdges.elements().asIterator();
-        while (edgeIter.hasNext()) {
-            var edge = edgeIter.next();
-            System.out.println("Edge: [" + edge.getName() + "]");
         }
 
         return null;
