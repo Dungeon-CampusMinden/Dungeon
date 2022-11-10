@@ -5,12 +5,20 @@ import level.tools.DesignLabel;
 import level.tools.LevelSize;
 import roomlevel.IRoom;
 
+/**
+ * @author Andre Matutat
+ */
 public class GraphLevel {
     private LevelNode root;
     private LevelSize size;
     private DesignLabel designLabel;
     private RoomGenerator generator;
 
+    /**
+     * @param root Root-Node of the graph
+     * @param size The level size
+     * @param designLabel The design of the rooms
+     */
     public GraphLevel(LevelNode root, LevelSize size, DesignLabel designLabel) {
         this.root = root;
         this.designLabel = designLabel;
@@ -21,6 +29,7 @@ public class GraphLevel {
         connectDoors();
     }
 
+    // Visit all Nodes and create a room for each of them
     private void createRooms(LevelNode node, LinkedHashSet<LevelNode> visited) {
         if (visited.contains(node)) return;
         node.setRoom(generator.generateRoom(size, designLabel));
@@ -28,10 +37,14 @@ public class GraphLevel {
         for (LevelNode neighbour : node.getNeighbours()) createRooms(neighbour, visited);
     }
 
+    // Add the connection between the doors
     private void connectDoors() {
         // todo
     }
 
+    /**
+     * @return The Room that is saved in the root-Node
+     */
     public IRoom getRootRoom() {
         return root.getRoom();
     }
