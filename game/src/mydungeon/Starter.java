@@ -2,6 +2,7 @@ package mydungeon;
 
 import character.monster.Imp;
 import character.monster.Monster;
+import character.objects.Letter;
 import character.objects.TreasureChest;
 import character.player.Hero;
 import collision.CharacterDirection;
@@ -11,6 +12,7 @@ import controller.ScreenController;
 import java.util.ArrayList;
 import java.util.List;
 import level.elements.ILevel;
+import minimap.IMinimap;
 import starter.DesktopLauncher;
 
 /**
@@ -25,12 +27,22 @@ public class Starter extends Game {
     private ScreenController sc;
     private CollisionMap clevel;
     private List<TreasureChest> chest;
+    private Letter letter;
 
     @Override
     protected void setup() {
         clevel = new CollisionMap();
         monster = new ArrayList<>();
         chest = new ArrayList<>();
+        letter =
+                new Letter(
+                        'A',
+                        new IMinimap() {
+                            @Override
+                            public void drawOnMap(char c) {
+                                System.out.println("Draw map " + c);
+                            }
+                        });
         hero = new Hero();
         sc = new ScreenController(batch);
         controller.add(sc);
@@ -90,6 +102,7 @@ public class Starter extends Game {
         chest.clear();
         TreasureChest t = new TreasureChest();
         t.setLevel(levelAPI.getCurrentLevel());
+        t.addItem(letter);
         chest.add(t);
         entityController.add(t);
     }
