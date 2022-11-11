@@ -2,6 +2,7 @@ package mydungeon;
 
 import character.monster.Imp;
 import character.monster.Monster;
+import character.objects.TreasureChest;
 import character.player.Hero;
 import collision.CharacterDirection;
 import collision.CollisionMap;
@@ -23,11 +24,13 @@ public class Starter extends Game {
     private List<Monster> monster;
     private ScreenController sc;
     private CollisionMap clevel;
+    private List<TreasureChest> chest;
 
     @Override
     protected void setup() {
         clevel = new CollisionMap();
         monster = new ArrayList<>();
+        chest = new ArrayList<>();
         hero = new Hero();
         sc = new ScreenController(batch);
         controller.add(sc);
@@ -51,6 +54,13 @@ public class Starter extends Game {
                 m.colide(hero, direction);
             }
         }
+        for (TreasureChest t : chest) {
+            CharacterDirection direction = hero.getHitbox().collide(t.getHitbox());
+            if (direction != CharacterDirection.NONE) {
+                hero.colide(t, direction);
+                t.colide(hero, direction);
+            }
+        }
     }
 
     @Override
@@ -58,6 +68,7 @@ public class Starter extends Game {
         ILevel level = levelAPI.getCurrentLevel();
         hero.setLevel(level);
         spawnMonster();
+        spawnTreasureChest();
         clevel.regenHitboxen(level);
     }
 
@@ -72,6 +83,14 @@ public class Starter extends Game {
             monster.add(m);
             entityController.add(m);
         }
+    }
+
+    void spawnTreasureChest() {
+        chest.forEach(t -> entityController.remove(t));
+        chest.clear();
+        TreasureChest t = new TreasureChest(levelAPI.getCurrentLevel().getStartTile().getCoordinate().toPoint());
+        chest.add(t);
+        entityController.add(t);
     }
 
     /**
