@@ -28,7 +28,7 @@ public class Hero extends DungeonCharacter {
 
     public Hero() {
         // 16x28
-        super(0.3f, new Hitbox(6, 6));
+        super(5,0.3f, new Hitbox(6, 6));
         int frameTime = 5;
         List<String> texturePaths =
                 TextureHandler.getInstance().getTexturePaths("knight_m_idle_anim_f");

@@ -19,8 +19,8 @@ public abstract class Monster extends DungeonCharacter {
     private Point currentGoal;
     private CollisionMap clevel;
 
-    public Monster(float movementSpeed, Hitbox hitbox) {
-        super(movementSpeed, hitbox);
+    public Monster(int hitpoints, float movementSpeed, Hitbox hitbox) {
+        super(hitpoints, movementSpeed, hitbox);
     }
 
     @Override
