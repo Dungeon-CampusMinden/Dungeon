@@ -1,15 +1,21 @@
 package character.player;
 
 import character.DungeonCharacter;
+import character.skills.BaseMeleeSkill;
+import character.skills.BaseSkill;
 import collision.CharacterDirection;
 import collision.Collidable;
 import collision.Hitbox;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import graphic.Animation;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import level.elements.ILevel;
+import mydungeon.Starter;
 import textures.TextureHandler;
+import tools.Point;
 
 /** Player-Character. */
 public class Hero extends DungeonCharacter {
@@ -17,6 +23,8 @@ public class Hero extends DungeonCharacter {
     private final Animation IDLE_ANIMATION;
     private final Animation RUN_LEFT_ANIMATION;
     private final Animation RUN_RIGHT_ANIMATION;
+    private CharacterDirection lastDirection;
+    private BaseSkill attackSkill;
 
     public Hero() {
         // 16x28
@@ -37,6 +45,18 @@ public class Hero extends DungeonCharacter {
         RUN_LEFT_ANIMATION = animation;
 
         currentAnimation = IDLE_ANIMATION;
+
+        Map<CharacterDirection, List<String>> textures = new HashMap<>();
+        textures.put(
+                CharacterDirection.LEFT,
+                TextureHandler.getInstance().getTexturePaths("attack_left_"));
+        Map<CharacterDirection, Point> offsets = new HashMap<>();
+        offsets.put(CharacterDirection.LEFT, new Point(0, 0));
+        Map<CharacterDirection, Hitbox[]> hitboxes = new HashMap<>();
+        hitboxes.put(
+                CharacterDirection.LEFT,
+                new Hitbox[] {new Hitbox(5, 5), new Hitbox(11, 5), new Hitbox(15, 5)});
+        attackSkill = new BaseMeleeSkill(this, offsets, textures, hitboxes);
     }
 
     @Override
@@ -51,6 +71,7 @@ public class Hero extends DungeonCharacter {
 
     @Override
     protected void setAnimation(CharacterDirection direction) {
+        if (direction != CharacterDirection.NONE) lastDirection = direction;
         if (direction == CharacterDirection.LEFT) currentAnimation = RUN_LEFT_ANIMATION;
         else if (direction == CharacterDirection.RIGHT) currentAnimation = RUN_RIGHT_ANIMATION;
         else currentAnimation = IDLE_ANIMATION;
@@ -65,5 +86,16 @@ public class Hero extends DungeonCharacter {
     @Override
     public void colide(Collidable other, CharacterDirection from) {
         // todo
+    }
+
+    @Override
+    public void update() {
+        super.update();
+        skills();
+    }
+
+    public void skills() {
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE))
+            Starter.Game.spawnEffect(attackSkill.cast(CharacterDirection.LEFT));
     }
 }

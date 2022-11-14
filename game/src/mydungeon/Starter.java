@@ -6,6 +6,7 @@ import character.monster.Imp;
 import character.monster.Monster;
 import character.objects.*;
 import character.player.Hero;
+import character.skills.BaseSkillEffect;
 import collision.CharacterDirection;
 import collision.CollisionMap;
 import controller.Game;
@@ -34,10 +35,13 @@ import starter.DesktopLauncher;
 public class Starter extends Game {
     private Hero hero;
     private List<Monster> monster;
+    private List<BaseSkillEffect> skillEffects;
     private List<TreasureChest> chests;
     private ScreenController sc;
     private CollisionMap clevel;
     private List<PasswordChest> pwChest;
+
+    public static Starter Game;
 
     private Letter letter;
     private DSLInterpreter dslInterpreter;
@@ -51,6 +55,8 @@ public class Starter extends Game {
 
         clevel = new CollisionMap();
         monster = new ArrayList<>();
+        chest = new ArrayList<>();
+        skillEffects = new ArrayList<>();
         pwChest = new ArrayList<>();
         chests = new ArrayList<>();
         hero = new Hero();
@@ -71,6 +77,7 @@ public class Starter extends Game {
         camera.follow(hero);
         entityController.add(hero);
         quest.addQuestUIElements();
+        Game = this;
     }
 
     @Override
@@ -90,6 +97,17 @@ public class Starter extends Game {
             if (direction != CharacterDirection.NONE) {
                 hero.colide(m, direction);
                 m.colide(hero, direction);
+            }
+        }
+        for (BaseSkillEffect skillEffect : skillEffects) {
+            if (!skillEffect.removable()) {
+                for (Monster m : monster) {
+                    CharacterDirection direction = hero.getHitbox().collide(m.getHitbox());
+                    if (direction != CharacterDirection.NONE) {
+                        skillEffect.colide(m, direction);
+                        m.colide(hero, direction);
+                    }
+                }
             }
         }
         CharacterDirection direction;
@@ -152,6 +170,12 @@ public class Starter extends Game {
         }
         return ret;
     }
+
+    public void spawnEffect(BaseSkillEffect effect) {
+        skillEffects.add(effect);
+        entityController.add(effect);
+    }
+
     /**
      * The program entry point to start the dungeon.
      *
