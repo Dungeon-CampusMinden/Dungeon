@@ -2,6 +2,7 @@ package level.elements;
 
 import basiselements.DungeonElement;
 import java.util.Random;
+import level.elements.tile.Tile;
 import level.tools.Coordinate;
 import level.tools.LevelElement;
 import tools.Point;
@@ -55,7 +56,21 @@ public interface ITileable extends IPathable {
      * @return if the passed entity is on the tile to the next level
      */
     default boolean isOnEndTile(DungeonElement entity) {
+        if (getEndTile() == null) {
+            return false;
+        }
         return entity.getPosition().toCoordinate().equals(getEndTile().getCoordinate());
+    }
+
+    /**
+     * Returns the tile the given entity is standing on.
+     *
+     * @param entity entity to check for.
+     * @return tile at the coordinate of the entity
+     */
+    default Tile getTileAtEntity(DungeonElement entity) {
+
+        return getTileAt(entity.getPosition().toCoordinate());
     }
 
     /**

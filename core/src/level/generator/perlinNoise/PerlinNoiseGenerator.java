@@ -2,14 +2,12 @@ package level.generator.perlinNoise;
 
 import java.util.Random;
 import level.elements.ILevel;
-import level.elements.Tile;
 import level.elements.TileLevel;
 import level.generator.IGenerator;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import level.tools.LevelSize;
-import level.tools.TileTextureFactory;
 
 public class PerlinNoiseGenerator implements IGenerator {
     private static final Random GLOBAL_RANDOM = new Random();
@@ -62,25 +60,13 @@ public class PerlinNoiseGenerator implements IGenerator {
     public ILevel getLevel(DesignLabel designLabel, LevelSize size, final Random random) {
         // playing field
         LevelElement[][] elements = getLayout(size, random);
-        TileLevel generatedLevel = new TileLevel(toTilesArray(elements, designLabel));
-
-        // end tile
-        final Tile end = generatedLevel.getEndTile();
-        elements[end.getCoordinate().y][end.getCoordinate().x] = LevelElement.EXIT;
-        String endTexturePath =
-                TileTextureFactory.findTexturePath(
-                        new TileTextureFactory.LevelPart(
-                                elements[end.getCoordinate().y][end.getCoordinate().x],
-                                designLabel,
-                                elements,
-                                end.getCoordinate()));
-        end.setLevelElement(LevelElement.EXIT, endTexturePath);
+        TileLevel generatedLevel = new TileLevel(elements, designLabel);
         return generatedLevel;
     }
 
     private static LevelElement[][] getLayout(LevelSize size, Random random) {
         final NoiseArea playingArea = generateNoiseArea(size, random);
-        LevelElement[][] elements = toLevelElementArray(playingArea);
+        LevelElement[][] elements = toLevelElementArray(playingArea, random);
         return elements;
     }
 
@@ -116,7 +102,7 @@ public class PerlinNoiseGenerator implements IGenerator {
         return area;
     }
 
-    private static LevelElement[][] toLevelElementArray(NoiseArea playingArea) {
+    private static LevelElement[][] toLevelElementArray(NoiseArea playingArea, Random random) {
         LevelElement[][] res = new LevelElement[playingArea.getWidth()][playingArea.getHeight()];
         for (int i = 0; i < playingArea.getWidth(); i++) {
             for (int j = 0; j < playingArea.getHeight(); j++) {
@@ -127,25 +113,9 @@ public class PerlinNoiseGenerator implements IGenerator {
                 }
             }
         }
-        return res;
-    }
-
-    private static Tile[][] toTilesArray(
-            final LevelElement[][] levelElements, final DesignLabel design) {
-        final Tile[][] res = new Tile[levelElements.length][levelElements[0].length];
-        for (int y = 0; y < res.length; y++) {
-            for (int x = 0; x < res[0].length; x++) {
-                String texturePath =
-                        TileTextureFactory.findTexturePath(
-                                new TileTextureFactory.LevelPart(
-                                        levelElements[y][x],
-                                        design,
-                                        levelElements,
-                                        new Coordinate(x, y)));
-                res[y][x] =
-                        new Tile(texturePath, new Coordinate(x, y), levelElements[y][x], design);
-            }
-        }
+        // pick random floor tile as exit
+        Coordinate c = getRandomFloor(res, random);
+        res[c.y][c.x] = LevelElement.EXIT;
         return res;
     }
 
@@ -165,5 +135,16 @@ public class PerlinNoiseGenerator implements IGenerator {
                     + MEDIUM_MIN_Y_SIZE;
             default -> random.nextInt(SMALL_MAX_Y_SIZE - SMALL_MIN_Y_SIZE) + SMALL_MIN_Y_SIZE;
         };
+    }
+
+    private static Coordinate getRandomFloor(LevelElement[][] layout, Random random) {
+        Coordinate coordinate =
+                new Coordinate(random.nextInt(layout[0].length), random.nextInt(layout.length));
+        LevelElement randomTile = layout[coordinate.y][coordinate.x];
+        if (randomTile == LevelElement.FLOOR) {
+            return coordinate;
+        } else {
+            return getRandomFloor(layout, random);
+        }
     }
 }

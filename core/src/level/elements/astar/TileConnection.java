@@ -2,7 +2,7 @@ package level.elements.astar;
 
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.math.Vector2;
-import level.elements.Tile;
+import level.elements.tile.Tile;
 
 /**
  * Represents a connection between two tile

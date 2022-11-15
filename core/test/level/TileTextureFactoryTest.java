@@ -92,6 +92,12 @@ public class TileTextureFactoryTest {
         layout[6][7] = LevelElement.HOLE;
         layout[7][6] = LevelElement.HOLE;
         layout[7][7] = LevelElement.HOLE;
+
+        // doors
+        layout[1][5] = LevelElement.DOOR;
+        layout[6][1] = LevelElement.DOOR;
+        layout[5][9] = LevelElement.DOOR;
+        layout[8][4] = LevelElement.DOOR;
     }
 
     /** Level Element SKIP should get "empty" texture. */
@@ -237,6 +243,54 @@ public class TileTextureFactoryTest {
                         new TileTextureFactory.LevelPart(
                                 layout[coordinate.y][coordinate.x], design, layout, coordinate)));
         coordinate = new Coordinate(7, 8);
+        assertEquals(
+                targetTexture,
+                TileTextureFactory.findTexturePath(
+                        new TileTextureFactory.LevelPart(
+                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+    }
+
+    /** Level Element DOOR should get "right" texture if left is accessible. */
+    @Test
+    public void test_findTexturePath_rightDoor() {
+        targetTexture += "door/right.png";
+        Coordinate coordinate = new Coordinate(9, 5);
+        assertEquals(
+                targetTexture,
+                TileTextureFactory.findTexturePath(
+                        new TileTextureFactory.LevelPart(
+                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+    }
+
+    /** Level Element DOOR should get "left" texture if right is accessible. */
+    @Test
+    public void test_findTexturePath_leftDoor() {
+        targetTexture += "door/left.png";
+        Coordinate coordinate = new Coordinate(1, 6);
+        assertEquals(
+                targetTexture,
+                TileTextureFactory.findTexturePath(
+                        new TileTextureFactory.LevelPart(
+                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+    }
+
+    /** Level Element DOOR should get "bottom" texture if above is accessible. */
+    @Test
+    public void test_findTexturePath_bottomDoor() {
+        targetTexture += "door/bottom.png";
+        Coordinate coordinate = new Coordinate(5, 1);
+        assertEquals(
+                targetTexture,
+                TileTextureFactory.findTexturePath(
+                        new TileTextureFactory.LevelPart(
+                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+    }
+
+    /** Level Element DOOR should get "top" texture if below is accessible. */
+    @Test
+    public void test_findTexturePath_topDoor() {
+        targetTexture += "door/top.png";
+        Coordinate coordinate = new Coordinate(4, 8);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(

@@ -1,9 +1,12 @@
-package level.elements;
+package level.elements.tile;
 
+import basiselements.DungeonElement;
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.utils.Array;
 import java.util.ArrayList;
 import java.util.List;
+import level.elements.ILevel;
+import level.elements.TileLevel;
 import level.elements.astar.TileConnection;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
@@ -14,11 +17,13 @@ import level.tools.LevelElement;
  *
  * @author Andre Matutat
  */
-public class Tile {
+public abstract class Tile {
     protected final Coordinate globalPosition;
-    protected LevelElement elementType;
     protected DesignLabel designLabel;
     protected String texturePath;
+
+    protected ILevel level;
+    protected LevelElement levelElement;
     protected transient Array<Connection<Tile>> connections = new Array<>();
     protected int index;
 
@@ -27,37 +32,40 @@ public class Tile {
      *
      * @param texturePath Path to the texture of the tile.
      * @param globalPosition Position of the tile in the global system.
-     * @param elementType The type of the tile.
+     * @param designLabel Design of the Tile
+     * @param level The level this Tile belongs to
      */
     public Tile(
-            String texturePath,
-            Coordinate globalPosition,
-            LevelElement elementType,
-            DesignLabel designLabel) {
+            String texturePath, Coordinate globalPosition, DesignLabel designLabel, ILevel level) {
         this.texturePath = texturePath;
-        this.elementType = elementType;
         this.globalPosition = globalPosition;
         this.designLabel = designLabel;
+        this.level = level;
     }
 
     /**
-     * Returns if the tile is accessible by a character.
+     * What happens, if someone moves on this Tile?
      *
-     * @return true if the tile is floor or exit; false if it is a wall or empty.
+     * @param element Who entered this Tile?
      */
-    public boolean isAccessible() {
-        return elementType.getValue();
-    }
+    public abstract void onEntering(DungeonElement element);
 
     /**
-     * Change the type and texture of the tile.
+     * Change texture of the tile.
      *
-     * @param elementType New type of the tile.
      * @param texture New texture of the tile.
      */
-    public void setLevelElement(LevelElement elementType, String texture) {
-        this.elementType = elementType;
+    public void setTexturePath(String texture) {
         this.texturePath = texture;
+    }
+
+    /**
+     * Change the type of the tile.
+     *
+     * @param newLevelElement New type of the tile.
+     */
+    public void setLevelElement(LevelElement newLevelElement) {
+        this.levelElement = newLevelElement;
     }
 
     /**
@@ -75,17 +83,33 @@ public class Tile {
     }
 
     /**
-     * @return The LevelElement of this tile
-     */
-    public LevelElement getLevelElement() {
-        return elementType;
-    }
-
-    /**
      * @return the DesignLabel of this tile
      */
     public DesignLabel getDesignLabel() {
         return designLabel;
+    }
+
+    /**
+     * @return the LevelElement of this tile
+     */
+    public LevelElement getLevelElement() {
+        return levelElement;
+    }
+
+    /**
+     * @return the Level this tile is in
+     */
+    public ILevel getLevel() {
+        return level;
+    }
+
+    /**
+     * Sets the corresponding level for this tile.
+     *
+     * @param tileLevel The level this tile is in
+     */
+    public void setLevel(TileLevel tileLevel) {
+        level = tileLevel;
     }
 
     /**
@@ -148,6 +172,8 @@ public class Tile {
         }
         return directions.toArray(new Direction[0]);
     }
+
+    public abstract boolean isAccessible();
 
     // --------------------------- For LibGDX Pathfinding ---------------------------
     public enum Direction {

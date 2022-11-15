@@ -6,7 +6,7 @@ import graphic.PainterConfig;
 import java.util.HashMap;
 import java.util.Map;
 import level.elements.ILevel;
-import level.elements.Tile;
+import level.elements.tile.Tile;
 import level.generator.IGenerator;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;

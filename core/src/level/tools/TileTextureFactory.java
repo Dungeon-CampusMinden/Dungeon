@@ -1,6 +1,6 @@
 package level.tools;
 
-import level.elements.Tile;
+import level.elements.tile.Tile;
 
 public class TileTextureFactory {
     /**
@@ -27,6 +27,11 @@ public class TileTextureFactory {
         String prefixPath = "textures/dungeon/" + levelPart.design().name().toLowerCase() + "/";
 
         String path = findTexturePathFloor(levelPart);
+        if (path != null) {
+            return prefixPath + path + ".png";
+        }
+
+        path = findTexturePathDoor(levelPart);
         if (path != null) {
             return prefixPath + path + ".png";
         }
@@ -97,6 +102,21 @@ public class TileTextureFactory {
                 return "floor/floor_hole1";
             } else {
                 return "floor/floor_hole";
+            }
+        }
+        return null;
+    }
+
+    private static String findTexturePathDoor(LevelPart levelPart) {
+        if (levelPart.element() == LevelElement.DOOR) {
+            if (belowIsAccessible(levelPart.position, levelPart.layout)) {
+                return "door/top";
+            } else if (leftIsAccessible(levelPart.position, levelPart.layout)) {
+                return "door/right";
+            } else if (rightIsAccessible(levelPart.position, levelPart.layout)) {
+                return "door/left";
+            } else if (aboveIsAccessible(levelPart.position, levelPart.layout)) {
+                return "door/bottom";
             }
         }
         return null;
@@ -320,7 +340,9 @@ public class TileTextureFactory {
      * @return true if all conditions are met
      */
     private static boolean isRightWall(Coordinate p, LevelElement[][] layout) {
-        return aboveIsWall(p, layout) && belowIsWall(p, layout) && leftIsInside(p, layout);
+        return (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+                && (belowIsWall(p, layout) || belowIsDoor(p, layout))
+                && leftIsInside(p, layout);
     }
 
     /**
@@ -332,7 +354,9 @@ public class TileTextureFactory {
      * @return true if all conditions are met
      */
     private static boolean isLeftWall(Coordinate p, LevelElement[][] layout) {
-        return aboveIsWall(p, layout) && belowIsWall(p, layout) && rightIsInside(p, layout);
+        return (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+                && (belowIsWall(p, layout) || belowIsDoor(p, layout))
+                && rightIsInside(p, layout);
     }
 
     /**
@@ -344,7 +368,9 @@ public class TileTextureFactory {
      * @return true if all conditions are met
      */
     private static boolean isTopWall(Coordinate p, LevelElement[][] layout) {
-        return leftIsWall(p, layout) && rightIsWall(p, layout) && belowIsInside(p, layout);
+        return (leftIsWall(p, layout) || leftIsDoor(p, layout))
+                && (rightIsWall(p, layout) || rightIsDoor(p, layout))
+                && belowIsInside(p, layout);
     }
 
     /**
@@ -356,7 +382,9 @@ public class TileTextureFactory {
      * @return true if all conditions are met
      */
     private static boolean isBottomWall(Coordinate p, LevelElement[][] layout) {
-        return leftIsWall(p, layout) && rightIsWall(p, layout) && aboveIsInside(p, layout);
+        return (leftIsWall(p, layout) || leftIsDoor(p, layout))
+                && (rightIsWall(p, layout) || rightIsDoor(p, layout))
+                && aboveIsInside(p, layout);
     }
 
     /**
@@ -417,6 +445,70 @@ public class TileTextureFactory {
     private static boolean rightIsWall(Coordinate p, LevelElement[][] layout) {
         try {
             return layout[p.y][p.x + 1] == LevelElement.WALL;
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile above the coordinate p is a door.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if above is a door
+     */
+    private static boolean aboveIsDoor(Coordinate p, LevelElement[][] layout) {
+        try {
+            return layout[p.y + 1][p.x] == LevelElement.DOOR;
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile below the coordinate p is a door.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if below is a door
+     */
+    private static boolean belowIsDoor(Coordinate p, LevelElement[][] layout) {
+        try {
+            return layout[p.y - 1][p.x] == LevelElement.DOOR;
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile to the left of the coordinate p is a door.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if left is a door
+     */
+    private static boolean leftIsDoor(Coordinate p, LevelElement[][] layout) {
+        try {
+            return layout[p.y][p.x - 1] == LevelElement.DOOR;
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if tile to the right of the coordinate p is a door.
+     *
+     * @param p coordinate to check
+     * @param layout The level
+     * @return true if right is a door
+     */
+    private static boolean rightIsDoor(Coordinate p, LevelElement[][] layout) {
+        try {
+            return layout[p.y][p.x + 1] == LevelElement.DOOR;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;

@@ -85,6 +85,21 @@ public class RandomWalkGenerator implements IGenerator {
             }
         }
 
+        // pick random floor tile as exit
+        Coordinate c = getRandomFloor(layout);
+        layout[c.y][c.x] = LevelElement.EXIT;
+
         return layout;
+    }
+
+    private Coordinate getRandomFloor(LevelElement[][] layout) {
+        Coordinate coordinate =
+                new Coordinate(RANDOM.nextInt(layout[0].length), RANDOM.nextInt(layout.length));
+        LevelElement randomTile = layout[coordinate.y][coordinate.x];
+        if (randomTile == LevelElement.FLOOR) {
+            return coordinate;
+        } else {
+            return getRandomFloor(layout);
+        }
     }
 }

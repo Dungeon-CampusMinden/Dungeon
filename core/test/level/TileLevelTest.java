@@ -5,8 +5,11 @@ import static org.mockito.Mockito.when;
 
 import basiselements.DungeonElement;
 import com.badlogic.gdx.ai.pfa.GraphPath;
-import level.elements.Tile;
 import level.elements.TileLevel;
+import level.elements.tile.ExitTile;
+import level.elements.tile.FloorTile;
+import level.elements.tile.Tile;
+import level.elements.tile.WallTile;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
@@ -28,21 +31,14 @@ public class TileLevelTest {
             for (int y = 0; y < 3; y++) {
                 if (x < 2) {
                     layout[y][x] =
-                            new Tile(
-                                    "",
-                                    new Coordinate(x, y),
-                                    LevelElement.FLOOR,
-                                    DesignLabel.DEFAULT);
+                            new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT, null);
                 } else {
                     layout[y][x] =
-                            new Tile(
-                                    "",
-                                    new Coordinate(x, y),
-                                    LevelElement.WALL,
-                                    DesignLabel.DEFAULT);
+                            new WallTile("", new Coordinate(x, y), DesignLabel.DEFAULT, null);
                 }
             }
         }
+        layout[2][1] = new ExitTile("", new Coordinate(1, 2), DesignLabel.DEFAULT, null);
 
         tileLevel = new TileLevel(layout);
         endTile = tileLevel.getEndTile();
@@ -73,15 +69,15 @@ public class TileLevelTest {
         layout = new Tile[3][3];
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                layout[y][x] =
-                        new Tile("", new Coordinate(x, y), LevelElement.FLOOR, DesignLabel.DEFAULT);
+                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT, null);
             }
         }
-        layout[1][1] = new Tile("", new Coordinate(1, 1), LevelElement.WALL, DesignLabel.DEFAULT);
-        layout[0][1] = new Tile("", new Coordinate(0, 1), LevelElement.WALL, DesignLabel.DEFAULT);
+        layout[1][1] = new WallTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null);
+        layout[0][1] = new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null);
+        layout[0][2] = new ExitTile("", new Coordinate(0, 2), DesignLabel.DEFAULT, null);
         tileLevel = new TileLevel(layout);
         tileLevel.setStartTile(layout[0][0]);
-        tileLevel.setEndTile(layout[0][2]);
+
         /* How the level layout looks: (S=start, W=Wall,F=Floor,E=exit) SWE FWF FFF */
         GraphPath<Tile> path = tileLevel.findPath(tileLevel.getStartTile(), tileLevel.getEndTile());
         assertEquals(7, path.getCount());
@@ -99,11 +95,10 @@ public class TileLevelTest {
         layout = new Tile[3][3];
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                layout[y][x] =
-                        new Tile("", new Coordinate(x, y), LevelElement.FLOOR, DesignLabel.DEFAULT);
+                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT, null);
             }
         }
-        layout[0][1] = new Tile("", new Coordinate(0, 1), LevelElement.WALL, DesignLabel.DEFAULT);
+        layout[0][1] = new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null);
         tileLevel = new TileLevel(layout);
         tileLevel.setStartTile(layout[0][0]);
         tileLevel.setEndTile(layout[0][2]);
@@ -196,23 +191,6 @@ public class TileLevelTest {
     @Test
     public void test_getLayout() {
         assertArrayEquals(layout, tileLevel.getLayout());
-    }
-
-    @Test
-    public void test_setStartTile() {
-        Tile newStart = layout[2][2];
-        tileLevel.setStartTile(newStart);
-        assertEquals(LevelElement.FLOOR, newStart.getLevelElement());
-        assertEquals(newStart, tileLevel.getStartTile());
-    }
-
-    @Test
-    public void test_setEndTile() {
-        Tile newEnd = layout[2][2];
-        tileLevel.setEndTile(newEnd);
-        assertEquals(LevelElement.FLOOR, endTile.getLevelElement());
-        assertEquals(LevelElement.EXIT, newEnd.getLevelElement());
-        assertEquals(newEnd, tileLevel.getEndTile());
     }
 
     @Test
