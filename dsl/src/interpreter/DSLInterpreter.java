@@ -22,9 +22,11 @@ public class DSLInterpreter {
 
         // using the first graph for level generation is only a temporary solution
         // other problems:
-        // - no consistent execution model for interpreter -> graph is somehow generated ahead of time, currently not
+        // - no consistent execution model for interpreter -> graph is somehow generated ahead of
+        // time, currently not
         //   accessible as an object in the dsl...
-        // - interaction between interpreter and game during runtime is not specified (e.g. how should object-scripting
+        // - interaction between interpreter and game during runtime is not specified (e.g. how
+        // should object-scripting
         //   be implemented?)
         return new dslToGame.QuestConfig(graphs.get(0), null, 0);
     }
