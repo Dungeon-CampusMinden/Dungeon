@@ -47,14 +47,17 @@ fragment STRING_ESCAPE_SEQ
 // - expression grammar
 // - proper stmt definition
 
-program : obj_def* EOF
+program : definition* EOF
         //| fn_def
         //| stmt
         ;
 
-obj_def : TYPE_SPECIFIER ID '{' property_def_list? '}'
+definition
+        : object_def
         | dot_def
         ;
+
+object_def : TYPE_SPECIFIER ID '{' property_def_list? '}';
 
 property_def_list
         : (property_def ',')+ property_def;
