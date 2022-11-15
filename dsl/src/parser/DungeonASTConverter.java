@@ -297,6 +297,23 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         } else if (nodeType == DungeonDSLLexer.DOUBLE_LINE) {
             var doubleLineNode = new Node(Node.Type.DoubleLine, getSourceFileReference(node));
             astStack.push(doubleLineNode);
+        } else if (nodeType == DungeonDSLLexer.STRING_LITERAL) {
+            // TODO: add test for this
+            String value = node.getText();
+
+            // trim leading and trailing quotes
+            String trimmedValue = value.subSequence(1,value.length()-1).toString();
+
+            // escape sequences
+            String escapedValue = trimmedValue.translateEscapes();
+
+            var stringNode = new StringNode(escapedValue, getSourceFileReference(node));
+            astStack.push(stringNode);
+        } else if (nodeType == DungeonDSLLexer.NUM) {
+            // TODO: add test for this
+            int value = Integer.parseInt(node.getText());
+            var numNode = new NumNode(value, getSourceFileReference(node));
+            astStack.push(numNode);
         }
     }
 
