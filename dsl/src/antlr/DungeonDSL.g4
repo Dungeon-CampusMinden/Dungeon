@@ -57,7 +57,7 @@ definition
         | dot_def
         ;
 
-object_def  : TYPE_SPECIFIER ID '{' property_def_list? '}' #grammar_type_obj_def
+object_def  : type_id=TYPE_SPECIFIER object_id=ID '{' property_def_list? '}' #grammar_type_obj_def
             | type_id=ID object_id=ID '{' property_def_list? '}' #other_type_obj_def
             ;
 

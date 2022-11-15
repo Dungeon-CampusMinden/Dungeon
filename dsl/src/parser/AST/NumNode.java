@@ -6,7 +6,7 @@ public class NumNode extends Node {
     /**
      * Constructor
      *
-     * @param value               The integer value of the number
+     * @param value The integer value of the number
      * @param sourceFileReference Reference to the location of the identifier in the source file
      */
     public NumNode(int value, SourceFileReference sourceFileReference) {

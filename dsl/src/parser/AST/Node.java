@@ -18,6 +18,7 @@ public class Node {
         Program,
         Stmt,
         ObjectDefinition,
+        PropertyDefinitionList,
         PropertyDefinition,
         DotDefinition,
         DotStmtList,

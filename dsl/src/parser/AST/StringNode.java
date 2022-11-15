@@ -6,7 +6,7 @@ public class StringNode extends Node {
     /**
      * Constructor
      *
-     * @param value               The literal value of the string
+     * @param value The literal value of the string
      * @param sourceFileReference Reference to the location of the identifier in the source file
      */
     public StringNode(String value, SourceFileReference sourceFileReference) {

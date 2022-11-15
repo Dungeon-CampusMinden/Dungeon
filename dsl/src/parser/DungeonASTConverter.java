@@ -302,7 +302,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             String value = node.getText();
 
             // trim leading and trailing quotes
-            String trimmedValue = value.subSequence(1,value.length()-1).toString();
+            String trimmedValue = value.subSequence(1, value.length() - 1).toString();
 
             // escape sequences
             String escapedValue = trimmedValue.translateEscapes();
