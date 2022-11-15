@@ -20,16 +20,20 @@ public class TreasureChest extends AnimatableElement implements Collidable {
     private Point currentPosition;
     private ILevel currentLevel;
     private boolean isOpen = false;
-    private int counter = 15;
+    private final int openingFrames = 3;
+    private final int openingFrameTime = 30;
+    private int openingAnimationTime = (int) ((openingFrameTime * openingFrames) / 2);
     protected Hitbox hitbox;
     private List<Item> inventory;
 
-    public TreasureChest() {
-        List<String> texturePaths = TextureHandler.getInstance().getTexturePaths("ui_heart_full");
+    public TreasureChest(Point position) {
+        List<String> texturePaths =
+                TextureHandler.getInstance().getTexturePaths("chest_full_open_anim_f0");
         closed = new Animation(texturePaths, 1);
-        texturePaths = TextureHandler.getInstance().getTexturePaths("ui_heart");
-        opening = new Animation(texturePaths, 5);
-        texturePaths = TextureHandler.getInstance().getTexturePaths("ui_heart_empty");
+        texturePaths = TextureHandler.getInstance().getTexturePaths("chest_full_open_anim_");
+        opening = new Animation(texturePaths, openingFrameTime);
+        texturePaths = TextureHandler.getInstance().getTexturePaths("chest_empty_open_anim_f2.png");
+
         opened = new Animation(texturePaths, 1);
 
         currentAnimation = closed;
@@ -37,18 +41,15 @@ public class TreasureChest extends AnimatableElement implements Collidable {
         hitbox = new Hitbox(6, 6);
         hitbox.setCollidable(this);
         inventory = new ArrayList<>();
-    }
 
-    public void setLevel(ILevel level) {
-        currentLevel = level;
-        currentPosition = level.getStartTile().getCoordinate().toPoint();
+        this.currentPosition = position;
     }
 
     @Override
     public void update() {
         if (isOpen) {
-            counter--;
-            if (counter <= 0) {
+            openingAnimationTime--;
+            if (openingAnimationTime <= 0) {
                 currentAnimation = opened;
             }
         }
@@ -64,6 +65,12 @@ public class TreasureChest extends AnimatableElement implements Collidable {
         return currentPosition;
     }
 
+    /**
+     * Action to do a collision
+     *
+     * @param other Object you colide with
+     * @param from Direction from where you colide
+     */
     @Override
     public void colide(Collidable other, CharacterDirection from) {
         if (other instanceof Hero && !isOpen) {
@@ -79,6 +86,11 @@ public class TreasureChest extends AnimatableElement implements Collidable {
         return currentAnimation;
     }
 
+    /**
+     * Adds items into the treasure chest
+     *
+     * @param item Item to add into the treasure chest
+     */
     public void addItem(Item item) {
         inventory.add(item);
     }
