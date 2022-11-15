@@ -20,16 +20,19 @@ public class TreasureChest extends AnimatableElement implements Collidable {
     private Point currentPosition;
     private ILevel currentLevel;
     private boolean isOpen = false;
-    private int openingAnimationTime = 15;
+    private final int openingFrames = 3;
+    private final int openingFrameTime = 30;
+    private int openingAnimationTime = (int) ((openingFrameTime * openingFrames) / 2);
     protected Hitbox hitbox;
     private List<Item> inventory;
 
     public TreasureChest(Point position) {
-        List<String> texturePaths = TextureHandler.getInstance().getTexturePaths("ui_heart_full");
+        List<String> texturePaths =
+                TextureHandler.getInstance().getTexturePaths("chest_full_open_anim_f0");
         closed = new Animation(texturePaths, 1);
-        texturePaths = TextureHandler.getInstance().getTexturePaths("ui_heart");
-        opening = new Animation(texturePaths, 5);
-        texturePaths = TextureHandler.getInstance().getTexturePaths("ui_heart_empty");
+        texturePaths = TextureHandler.getInstance().getTexturePaths("chest_full_open_anim_");
+        opening = new Animation(texturePaths, openingFrameTime);
+        texturePaths = TextureHandler.getInstance().getTexturePaths("chest_empty_open_anim_f2.png");
         opened = new Animation(texturePaths, 1);
 
         currentAnimation = closed;
@@ -45,6 +48,7 @@ public class TreasureChest extends AnimatableElement implements Collidable {
     public void update() {
         if (isOpen) {
             openingAnimationTime--;
+            System.out.println(openingAnimationTime);
             if (openingAnimationTime <= 0) {
                 currentAnimation = opened;
             }

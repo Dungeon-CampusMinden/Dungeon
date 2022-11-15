@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import level.elements.ILevel;
 import starter.DesktopLauncher;
+import tools.Point;
 
 /**
  * The entry class to create your own implementation.
@@ -88,9 +89,9 @@ public class Starter extends Game {
     void spawnTreasureChest() {
         chest.forEach(t -> entityController.remove(t));
         chest.clear();
-        TreasureChest t =
-                new TreasureChest(
-                        levelAPI.getCurrentLevel().getStartTile().getCoordinate().toPoint());
+        Point p = levelAPI.getCurrentLevel().getStartTile().getCoordinate().toPoint();
+        p.x += 1;
+        TreasureChest t = new TreasureChest(p);
         chest.add(t);
         entityController.add(t);
     }
