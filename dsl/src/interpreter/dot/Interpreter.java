@@ -16,7 +16,18 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
     //      -> hashset with string-concat of Names with edge_op as key
     Dictionary<String, graph.Edge> graphEdges = new Hashtable<>();
 
+    ArrayList<graph.Graph<String>> graphs = new ArrayList<>();
+
+    public ArrayList<graph.Graph<String>> getGraphs(Node program) {
+        graphs = new ArrayList<>();
+        program.accept(this);
+        return new ArrayList<>(graphs);
+    }
+
     public graph.Graph<String> getGraph(DotDefNode dotDefinition) {
+        graphNodes = new Hashtable<>();
+        graphEdges = new Hashtable<>();
+
         dotDefinition.accept(this);
 
         // sort edges
@@ -47,7 +58,8 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
         // traverse down..
         for (Node child : node.getChildren()) {
             if (child.type == Node.Type.DotDefinition) {
-                getGraph((DotDefNode) child);
+                var graph = getGraph((DotDefNode) child);
+                graphs.add(graph);
             } else {
                 child.accept(this);
             }
