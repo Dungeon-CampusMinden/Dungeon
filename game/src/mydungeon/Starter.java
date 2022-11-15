@@ -88,7 +88,9 @@ public class Starter extends Game {
     void spawnTreasureChest() {
         chest.forEach(t -> entityController.remove(t));
         chest.clear();
-        TreasureChest t = new TreasureChest(levelAPI.getCurrentLevel().getStartTile().getCoordinate().toPoint());
+        TreasureChest t =
+                new TreasureChest(
+                        levelAPI.getCurrentLevel().getStartTile().getCoordinate().toPoint());
         chest.add(t);
         entityController.add(t);
     }

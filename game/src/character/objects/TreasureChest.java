@@ -61,7 +61,8 @@ public class TreasureChest extends AnimatableElement implements Collidable {
         return currentPosition;
     }
 
-    /** Action to do a collision
+    /**
+     * Action to do a collision
      *
      * @param other Object you colide with
      * @param from Direction from where you colide
@@ -81,7 +82,8 @@ public class TreasureChest extends AnimatableElement implements Collidable {
         return currentAnimation;
     }
 
-    /** Adds items into the treasure chest
+    /**
+     * Adds items into the treasure chest
      *
      * @param item Item to add into the treasure chest
      */
