@@ -62,10 +62,28 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterObj_def(DungeonDSLParser.Obj_defContext ctx) {}
+    public void enterDefinition(DungeonDSLParser.DefinitionContext ctx) {}
 
     @Override
-    public void exitObj_def(DungeonDSLParser.Obj_defContext ctx) {}
+    public void exitDefinition(DungeonDSLParser.DefinitionContext ctx) {}
+
+    @Override
+    public void enterGrammar_type_obj_def(DungeonDSLParser.Grammar_type_obj_defContext ctx) {}
+
+    @Override
+    public void exitGrammar_type_obj_def(DungeonDSLParser.Grammar_type_obj_defContext ctx) {}
+
+    @Override
+    public void enterOther_type_obj_def(DungeonDSLParser.Other_type_obj_defContext ctx) {}
+
+    @Override
+    public void exitOther_type_obj_def(DungeonDSLParser.Other_type_obj_defContext ctx) {}
+
+    @Override
+    public void enterProperty_def_list(DungeonDSLParser.Property_def_listContext ctx) {}
+
+    @Override
+    public void exitProperty_def_list(DungeonDSLParser.Property_def_listContext ctx) {}
 
     @Override
     public void enterProperty_def(DungeonDSLParser.Property_defContext ctx) {}
