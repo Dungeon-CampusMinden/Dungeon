@@ -48,7 +48,6 @@ public class TreasureChest extends AnimatableElement implements Collidable {
     public void update() {
         if (isOpen) {
             openingAnimationTime--;
-            System.out.println(openingAnimationTime);
             if (openingAnimationTime <= 0) {
                 currentAnimation = opened;
             }
