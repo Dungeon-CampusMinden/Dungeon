@@ -33,12 +33,13 @@ public class ObjectDefNode extends Node {
     }
 
     public ObjectDefNode(Node typeSpecifier, Node id, Node propertyDefList, Type type) {
-        super(Node.Type.ObjectDefinition, new ArrayList<>(propertyDefList.getChildren().size() + 2));
+        super(
+                Node.Type.ObjectDefinition,
+                new ArrayList<>(propertyDefList.getChildren().size() + 2));
         this.type = type;
 
         this.children.add(typeSpecifier);
         this.children.add(id);
         this.children.add(propertyDefList);
     }
-
 }

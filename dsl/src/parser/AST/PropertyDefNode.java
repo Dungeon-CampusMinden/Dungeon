@@ -15,7 +15,7 @@ public class PropertyDefNode extends Node {
     }
 
     public String getIdName() {
-        return ((IdNode)this.getIdNode()).getName();
+        return ((IdNode) this.getIdNode()).getName();
     }
 
     public PropertyDefNode(Node id, Node stmt) {
@@ -23,5 +23,4 @@ public class PropertyDefNode extends Node {
         this.children.add(id);
         this.children.add(stmt);
     }
-
 }

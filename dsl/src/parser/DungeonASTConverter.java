@@ -71,25 +71,102 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     public void enterGrammar_type_obj_def(DungeonDSLParser.Grammar_type_obj_defContext ctx) {}
 
     @Override
-    public void exitGrammar_type_obj_def(DungeonDSLParser.Grammar_type_obj_defContext ctx) {}
+    public void exitGrammar_type_obj_def(DungeonDSLParser.Grammar_type_obj_defContext ctx) {
+        var propertyDefList = Node.NONE;
+        if (ctx.property_def_list() != null) {
+            propertyDefList = astStack.pop();
+            assert (propertyDefList.type == Node.Type.PropertyDefinitionList);
+        }
+
+        // id on stack
+        var id = astStack.pop();
+        assert (id.type == Node.Type.Identifier);
+
+        // type specifier on stack
+        var typeSpecifier = astStack.pop();
+        assert (typeSpecifier.type == Node.Type.TypeSpecifier);
+
+        var objectDef =
+                new ObjectDefNode(
+                        typeSpecifier, id, typeSpecifier, ObjectDefNode.Type.GrammarBuiltInType);
+        astStack.push(objectDef);
+    }
 
     @Override
     public void enterOther_type_obj_def(DungeonDSLParser.Other_type_obj_defContext ctx) {}
 
     @Override
-    public void exitOther_type_obj_def(DungeonDSLParser.Other_type_obj_defContext ctx) {}
+    public void exitOther_type_obj_def(DungeonDSLParser.Other_type_obj_defContext ctx) {
+        var propertyDefList = Node.NONE;
+        if (ctx.property_def_list() != null) {
+            propertyDefList = astStack.pop();
+            assert (propertyDefList.type == Node.Type.PropertyDefinitionList);
+        }
+
+        // id on stack
+        var id = astStack.pop();
+        assert (id.type == Node.Type.Identifier);
+
+        // type specifier (ID) on stack
+        var typeSpecifier = astStack.pop();
+        assert (typeSpecifier.type == Node.Type.Identifier);
+
+        typeSpecifier = new TypeSpecifierNode(typeSpecifier);
+
+        var objectDef =
+                new ObjectDefNode(
+                        typeSpecifier, id, typeSpecifier, ObjectDefNode.Type.GrammarBuiltInType);
+        astStack.push(objectDef);
+    }
 
     @Override
     public void enterProperty_def_list(DungeonDSLParser.Property_def_listContext ctx) {}
 
     @Override
-    public void exitProperty_def_list(DungeonDSLParser.Property_def_listContext ctx) {}
+    public void exitProperty_def_list(DungeonDSLParser.Property_def_listContext ctx) {
+        // TODO: add tests for this
+        if (ctx.property_def_list() == null) {
+            // trivial property definition
+            var innerPropertyDef = astStack.pop();
+            assert (innerPropertyDef.type == Node.Type.PropertyDefinition);
+
+            var list = new ArrayList<Node>(1);
+            list.add(innerPropertyDef);
+
+            var propertyDefList = new Node(Node.Type.PropertyDefinitionList, list);
+            astStack.push(propertyDefList);
+        } else {
+            // rhs propertyDefList is on stack
+            var rhsList = astStack.pop();
+            assert (rhsList.type == Node.Type.PropertyDefinitionList);
+
+            var leftPropertyDef = astStack.pop();
+            assert (leftPropertyDef.type == Node.Type.PropertyDefinition);
+
+            var childList = new ArrayList<Node>(rhsList.getChildren().size() + 1);
+            childList.add(leftPropertyDef);
+            childList.addAll(rhsList.getChildren());
+
+            var propertyDefList = new Node(Node.Type.PropertyDefinitionList, childList);
+            astStack.push(propertyDefList);
+        }
+    }
 
     @Override
     public void enterProperty_def(DungeonDSLParser.Property_defContext ctx) {}
 
     @Override
-    public void exitProperty_def(DungeonDSLParser.Property_defContext ctx) {}
+    public void exitProperty_def(DungeonDSLParser.Property_defContext ctx) {
+        // stmt on stack
+        var stmtNode = astStack.pop();
+
+        // ID (lhs) is on stack
+        var id = astStack.pop();
+        assert (id.type == Node.Type.Identifier);
+
+        var propertyDefNode = new PropertyDefNode(id, stmtNode);
+        astStack.push(propertyDefNode);
+    }
 
     @Override
     public void enterStmt(DungeonDSLParser.StmtContext ctx) {}
