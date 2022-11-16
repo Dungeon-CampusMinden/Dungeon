@@ -38,6 +38,12 @@ public abstract class Monster extends DungeonCharacter {
                             currentTile, currentLevel.getTileAt(currentGoal.toCoordinate()));
 
             // todo warum ist index 0 leer?
+            if (path.getCount() <= 1) {
+                // ziel erreicht
+
+                calculateGoal(true);
+                return CharacterDirection.NONE;
+            }
             Tile nextTile = path.get(1);
             Tile.Direction d = currentTile.directionTo(nextTile)[0];
             CharacterDirection direction = convertTileDirectionToCharacterDirection(d);
