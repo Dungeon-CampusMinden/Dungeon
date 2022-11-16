@@ -105,8 +105,8 @@ public class Hero extends DungeonCharacter {
 
     public void skills() {
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            var effekt = attackSkill.cast(CharacterDirection.LEFT);
-            if (effekt != null) Starter.Game.spawnEffect(effekt);
+            var effect = attackSkill.cast(CharacterDirection.LEFT);
+            if (effect != null) Starter.Game.spawnEffect(effect);
         }
     }
 }

@@ -68,6 +68,6 @@ public class BaseMeleeEffect extends BaseSkillEffect {
 
     @Override
     public Point getPosition() {
-        return new Point(caster.getPosition().x + offset.x, caster.getPosition().y + offset.y);
+        return new Point(caster.getPosition().x, caster.getPosition().y);
     }
 }
