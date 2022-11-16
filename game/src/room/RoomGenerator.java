@@ -1,4 +1,4 @@
-package generator.room;
+package room;
 
 import static level.elements.ILevel.RANDOM;
 
@@ -12,7 +12,7 @@ import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import level.tools.LevelSize;
 
-public class RoomGenerator implements IGenerator {
+public class RoomGenerator   {
 
     public static final float SYMMETRICAL = 0.5f;
     public static final float EXTEND_TO_SIDES = 0.5f;
@@ -35,9 +35,9 @@ public class RoomGenerator implements IGenerator {
     private static final int BIG_MAX_X_SIZE = 24;
     private static final int BIG_MAX_Y_SIZE = 24;
 
-    @Override
-    public ILevel getLevel(DesignLabel designLabel, LevelSize size) {
-        return new TileLevel(getLayout(size), designLabel);
+
+    public IRoom getLevel(DesignLabel designLabel, LevelSize size) {
+        return new Room(getLayout(size), designLabel);
     }
 
     public LevelElement[][] getLayout(LevelSize size) {

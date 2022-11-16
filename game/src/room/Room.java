@@ -1,7 +1,7 @@
-package roomlevel;
+package room;
 
 import java.util.LinkedHashSet;
-import level.elements.Tile;
+import level.elements.tile.Tile;
 import level.elements.TileLevel;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
@@ -37,10 +37,6 @@ public class Room extends TileLevel implements IRoom {
 
     @Override
     public void removeExit() {
-        getEndTile()
-                .setLevelElement(
-                        LevelElement.FLOOR,
-                        TileTextureFactory.findTexturePath(
-                                getEndTile(), getLayout(), LevelElement.FLOOR));
+        getEndTile().setLevelElement(LevelElement.FLOOR);
     }
 }

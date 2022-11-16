@@ -1,6 +1,6 @@
 package levelgraph;
 
-import roomlevel.IRoom;
+import room.IRoom;
 
 /**
  * A Node in the Graph for a Level. A LeveNode can have a maximum of four edges

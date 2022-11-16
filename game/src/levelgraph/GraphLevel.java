@@ -3,7 +3,8 @@ package levelgraph;
 import java.util.LinkedHashSet;
 import level.tools.DesignLabel;
 import level.tools.LevelSize;
-import roomlevel.IRoom;
+import room.IRoom;
+import room.RoomGenerator;
 
 /**
  * @author Andre Matutat
@@ -23,7 +24,7 @@ public class GraphLevel {
         this.root = root;
         this.designLabel = designLabel;
         this.size = size;
-        generator = new RoomGenerator(); // todo replace
+        generator = new RoomGenerator();
         LinkedHashSet<LevelNode> visited = new LinkedHashSet<>();
         createRooms(root, visited);
         connectDoors();
@@ -32,7 +33,7 @@ public class GraphLevel {
     // Visit all Nodes and create a room for each of them
     private void createRooms(LevelNode node, LinkedHashSet<LevelNode> visited) {
         if (visited.contains(node)) return;
-        node.setRoom(generator.generateRoom(size, designLabel));
+        node.setRoom((IRoom) generator.getLevel(designLabel,size));
         visited.add(node);
         for (LevelNode neighbour : node.getNeighbours()) createRooms(neighbour, visited);
     }
