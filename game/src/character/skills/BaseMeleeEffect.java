@@ -57,7 +57,7 @@ public class BaseMeleeEffect extends BaseSkillEffect {
     }
 
     @Override
-    public void colide(Collidable other, CharacterDirection from) {}
+    public void colide(Collidable other, CharacterDirection from) { alive= 0;}
 
     @Override
     public Animation getActiveAnimation() {
