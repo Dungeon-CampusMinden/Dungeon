@@ -8,6 +8,7 @@ import collision.CharacterDirection;
 import collision.CollisionMap;
 import controller.Game;
 import controller.ScreenController;
+import dslToGame.QuestConfig;
 import java.util.ArrayList;
 import java.util.List;
 import level.elements.ILevel;
@@ -36,7 +37,8 @@ public class Starter extends Game {
 
     @Override
     protected void setup() {
-        generator = new GraphLevelGenerator();
+        QuestConfig config = loadConfig();
+        generator = new GraphLevelGenerator(config.levelGenGraph());
         levelAPI.setGenerator(generator);
         clevel = new CollisionMap();
         monster = new ArrayList<>();
@@ -48,8 +50,11 @@ public class Starter extends Game {
                         new IMinimap() {
                             @Override
                             public void drawOnMap(char c) {
-                                System.out.println("Draw map " + c);
+                                System.out.println("Draw on map " + c);
                             }
+
+                            @Override
+                            public void drawMap() {}
                         });
         hero = new Hero();
         sc = new ScreenController(batch);
@@ -129,6 +134,12 @@ public class Starter extends Game {
         PasswordChest pWChest = new PasswordChest(p, "Test", sc);
         pwChest.add(pWChest);
         entityController.add(pWChest);
+    }
+
+    private QuestConfig loadConfig() {
+        // todo
+        // return new QuestConfig();
+        return null;
     }
 
     /**

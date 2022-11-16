@@ -1,5 +1,6 @@
 package levelgraph;
 
+import graph.Graph;
 import level.elements.ILevel;
 import level.generator.IGenerator;
 import level.tools.DesignLabel;
@@ -13,23 +14,19 @@ import level.tools.LevelSize;
  */
 public class GraphLevelGenerator implements IGenerator {
 
-    private LevelNode root; // todo convert from dotGraph
+    private LevelNode root;
 
-    // dummy
-    public GraphLevelGenerator() {
-        LevelNode r = new LevelNode();
-        r.connect(new LevelNode(), DoorDirection.LEFT);
-        r.connect(new LevelNode(), DoorDirection.RIGHT);
-        this.setRoot(r);
+    public GraphLevelGenerator(Graph<String> graph) {
+        setGraph(graph);
     }
 
     /**
      * The Root-Node defines the graph
      *
-     * @param graphRoot
+     * @param graph
      */
-    public void setRoot(LevelNode graphRoot) {
-        root = graphRoot;
+    public void setGraph(Graph<String> graph) {
+        root = DotToLevelGraph.convert(graph);
     }
 
     @Override
