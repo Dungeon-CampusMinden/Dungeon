@@ -109,10 +109,10 @@ public class Starter extends Game {
         for (BaseSkillEffect skillEffect : skillEffects) {
             if (!skillEffect.removable()) {
                 for (Monster m : monster) {
-                    CharacterDirection direction = hero.getHitbox().collide(m.getHitbox());
+                    CharacterDirection direction = skillEffect.getHitbox().collide(m.getHitbox());
                     if (direction != CharacterDirection.NONE) {
                         skillEffect.colide(m, direction);
-                        m.colide(hero, direction);
+                        m.colide(skillEffect, direction);
                     }
                 }
             }
