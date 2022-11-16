@@ -1,11 +1,11 @@
 package room;
 
 import java.util.LinkedHashSet;
-import level.elements.tile.Tile;
 import level.elements.TileLevel;
+import level.elements.tile.DoorTile;
+import level.elements.tile.Tile;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
-import level.tools.TileTextureFactory;
 
 /** A Level that can be used as a Room in a GraphLevel */
 public class Room extends TileLevel implements IRoom {

@@ -1,6 +1,7 @@
 package room;
 
 import java.util.LinkedHashSet;
+import level.elements.tile.DoorTile;
 
 public interface IRoom {
     /**

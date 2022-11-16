@@ -4,15 +4,12 @@ import static level.elements.ILevel.RANDOM;
 
 import java.util.ArrayList;
 import java.util.Random;
-import level.elements.ILevel;
-import level.elements.TileLevel;
-import level.generator.IGenerator;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import level.tools.LevelSize;
 
-public class RoomGenerator   {
+public class RoomGenerator {
 
     public static final float SYMMETRICAL = 0.5f;
     public static final float EXTEND_TO_SIDES = 0.5f;
@@ -34,7 +31,6 @@ public class RoomGenerator   {
     private static final int BIG_MIN_Y_SIZE = 20;
     private static final int BIG_MAX_X_SIZE = 24;
     private static final int BIG_MAX_Y_SIZE = 24;
-
 
     public IRoom getLevel(DesignLabel designLabel, LevelSize size) {
         return new Room(getLayout(size), designLabel);
