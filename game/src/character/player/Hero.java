@@ -49,7 +49,10 @@ public class Hero extends DungeonCharacter {
         Map<CharacterDirection, List<String>> textures = new HashMap<>();
         textures.put(
                 CharacterDirection.LEFT,
-                TextureHandler.getInstance().getTexturePaths("attack_left_"));
+                TextureHandler.getInstance().getTexturePaths("attack_left_f").stream()
+                        .limit(3)
+                        .toList());
+
         Map<CharacterDirection, Point> offsets = new HashMap<>();
         offsets.put(CharacterDirection.LEFT, new Point(0, 0));
         Map<CharacterDirection, Hitbox[]> hitboxes = new HashMap<>();
@@ -95,7 +98,9 @@ public class Hero extends DungeonCharacter {
     }
 
     public void skills() {
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE))
-            Starter.Game.spawnEffect(attackSkill.cast(CharacterDirection.LEFT));
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            var effekt = attackSkill.cast(CharacterDirection.LEFT);
+            if (effekt != null) Starter.Game.spawnEffect(effekt);
+        }
     }
 }
