@@ -1,8 +1,6 @@
 package character.monster;
 
 import character.DungeonCharacter;
-import character.player.Hero;
-import character.skills.BaseSkill;
 import character.skills.BaseSkillEffect;
 import collision.CharacterDirection;
 import collision.Collidable;
@@ -248,9 +246,8 @@ public abstract class Monster extends DungeonCharacter {
 
     @Override
     public void colide(Collidable other, CharacterDirection from) {
-        if(other instanceof BaseSkillEffect){
+        if (other instanceof BaseSkillEffect) {
             BaseSkillEffect effect = (BaseSkillEffect) other;
-
         }
     }
 

@@ -8,7 +8,11 @@ import character.objects.*;
 import character.player.Hero;
 import character.skills.BaseSkillEffect;
 import collision.CharacterDirection;
+import collision.Collidable;
 import collision.CollisionMap;
+import collision.Hitbox;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import controller.Game;
 import controller.ScreenController;
 import dslToGame.QuestConfig;
@@ -25,6 +29,7 @@ import quest.Quest;
 import quest.QuestFactory;
 import room.Room;
 import starter.DesktopLauncher;
+import tools.Point;
 
 /**
  * The entry class to create your own implementation.
@@ -40,7 +45,8 @@ public class Starter extends Game {
     private ScreenController sc;
     private CollisionMap clevel;
     private List<PasswordChest> pwChest;
-
+    private ShapeRenderer shape;
+    public static boolean renderHitboxen = true;
     public static Starter Game;
 
     private Letter letter;
@@ -77,6 +83,7 @@ public class Starter extends Game {
         camera.follow(hero);
         entityController.add(hero);
         quest.addQuestUIElements();
+        shape = new ShapeRenderer();
         Game = this;
     }
 
@@ -174,6 +181,58 @@ public class Starter extends Game {
     public void spawnEffect(BaseSkillEffect effect) {
         skillEffects.add(effect);
         entityController.add(effect);
+    }
+
+    @Override
+    public void render(float delta) {
+        super.render(delta);
+        if (renderHitboxen) {
+            ILevel level = levelAPI.getCurrentLevel();
+            shape.begin(ShapeRenderer.ShapeType.Line);
+            shape.setProjectionMatrix(camera.combined);
+            shape.setColor(Color.RED);
+            for (Collidable box : clevel.getCollidables()) {
+                Point bottomLeft = box.getHitbox().getCorners()[Hitbox.CORNER_BOTTOM_LEFT];
+                Point topRight = box.getHitbox().getCorners()[Hitbox.CORNER_TOP_RIGHT];
+
+                shape.rect(
+                        -0.85f + box.getPosition().x + bottomLeft.x,
+                        -0.5f + box.getPosition().y + bottomLeft.y,
+                        topRight.x - bottomLeft.x,
+                        topRight.y - bottomLeft.y);
+            }
+            for (Collidable box : monster) {
+                Point bottomLeft = box.getHitbox().getCorners()[Hitbox.CORNER_BOTTOM_LEFT];
+                Point topRight = box.getHitbox().getCorners()[Hitbox.CORNER_TOP_RIGHT];
+
+                shape.rect(
+                        -0.85f + box.getPosition().x + bottomLeft.x,
+                        -0.5f + box.getPosition().y + bottomLeft.y,
+                        topRight.x - bottomLeft.x,
+                        topRight.y - bottomLeft.y);
+            }
+            for (Collidable box : skillEffects) {
+                Point bottomLeft = box.getHitbox().getCorners()[Hitbox.CORNER_BOTTOM_LEFT];
+                Point topRight = box.getHitbox().getCorners()[Hitbox.CORNER_TOP_RIGHT];
+
+                shape.rect(
+                        -0.85f + box.getPosition().x + bottomLeft.x,
+                        -0.5f + box.getPosition().y + bottomLeft.y,
+                        topRight.x - bottomLeft.x,
+                        topRight.y - bottomLeft.y);
+            }
+            skillEffects.removeIf((BaseSkillEffect x) -> x.removable());
+            Hitbox box = hero.getHitbox();
+            Point bottomLeft = box.getCorners()[Hitbox.CORNER_BOTTOM_LEFT];
+            Point topRight = box.getCorners()[Hitbox.CORNER_TOP_RIGHT];
+
+            shape.rect(
+                    -0.85f + hero.getPosition().x + bottomLeft.x,
+                    -0.5f + hero.getPosition().y + bottomLeft.y,
+                    topRight.x - bottomLeft.x,
+                    topRight.y - bottomLeft.y);
+            shape.end();
+        }
     }
 
     /**
