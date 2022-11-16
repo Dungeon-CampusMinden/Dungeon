@@ -33,6 +33,7 @@ public class TreasureChest extends AnimatableElement implements Collidable {
         texturePaths = TextureHandler.getInstance().getTexturePaths("chest_full_open_anim_");
         opening = new Animation(texturePaths, openingFrameTime);
         texturePaths = TextureHandler.getInstance().getTexturePaths("chest_empty_open_anim_f2.png");
+
         opened = new Animation(texturePaths, 1);
 
         currentAnimation = closed;
