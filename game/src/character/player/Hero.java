@@ -60,9 +60,11 @@ public class Hero extends DungeonCharacter {
         hitboxes.put(
                 CharacterDirection.LEFT,
                 // offset texturesize - hitboxsize / 2 sword is in the middle
-                new Hitbox[] {new Hitbox(5, 5, new Point(11, 5.5f))
-                    , new Hitbox(11, 5,new Point(5,5.5f) )
-                    , new Hitbox(15, 5, new Point(1,5.5f))});
+                new Hitbox[] {
+                    new Hitbox(5, 5, new Point(11, 5.5f)),
+                    new Hitbox(11, 5, new Point(5, 5.5f)),
+                    new Hitbox(15, 5, new Point(1, 5.5f))
+                });
         attackSkill = new BaseMeleeSkill(this, offsets, textures, hitboxes);
     }
 
