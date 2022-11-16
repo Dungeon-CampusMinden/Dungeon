@@ -5,6 +5,7 @@ import collision.Hitbox;
 import graphic.Animation;
 import java.util.List;
 import level.elements.ILevel;
+import level.tools.LevelElement;
 import textures.TextureHandler;
 
 public class Imp extends Monster {
@@ -41,6 +42,6 @@ public class Imp extends Monster {
     @Override
     public void setLevel(ILevel level) {
         currentLevel = level;
-        currentPosition = level.getStartTile().getCoordinate().toPoint();
+        currentPosition = level.getRandomTilePoint(LevelElement.FLOOR);
     }
 }
