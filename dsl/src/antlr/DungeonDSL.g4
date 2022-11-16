@@ -53,8 +53,8 @@ program : definition* EOF
         ;
 
 definition
-        : object_def
-        | dot_def
+        : dot_def
+        | object_def
         ;
 
 object_def  : type_id=TYPE_SPECIFIER object_id=ID '{' property_def_list? '}' #grammar_type_obj_def
@@ -63,7 +63,9 @@ object_def  : type_id=TYPE_SPECIFIER object_id=ID '{' property_def_list? '}' #gr
 
 
 property_def_list
-        : property_def ',' property_def_list | property_def;
+        : property_def ',' property_def_list
+        | property_def
+        ;
 
 property_def
         : ID ':' stmt;
