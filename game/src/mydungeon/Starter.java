@@ -211,6 +211,7 @@ public class Starter extends Game {
                         topRight.x - bottomLeft.x,
                         topRight.y - bottomLeft.y);
             }
+            skillEffects.removeIf(BaseSkillEffect::removable);
             for (Collidable box : skillEffects) {
                 Point bottomLeft = box.getHitbox().getCorners()[Hitbox.CORNER_BOTTOM_LEFT];
                 Point topRight = box.getHitbox().getCorners()[Hitbox.CORNER_TOP_RIGHT];
@@ -221,7 +222,6 @@ public class Starter extends Game {
                         topRight.x - bottomLeft.x,
                         topRight.y - bottomLeft.y);
             }
-            skillEffects.removeIf((BaseSkillEffect x) -> x.removable());
             Hitbox box = hero.getHitbox();
             Point bottomLeft = box.getCorners()[Hitbox.CORNER_BOTTOM_LEFT];
             Point topRight = box.getCorners()[Hitbox.CORNER_TOP_RIGHT];
