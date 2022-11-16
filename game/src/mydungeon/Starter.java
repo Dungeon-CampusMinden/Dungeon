@@ -9,7 +9,6 @@ import collision.CharacterDirection;
 import collision.CollisionMap;
 import controller.Game;
 import controller.ScreenController;
-import generator.room.RoomGenerator;
 import java.util.ArrayList;
 import java.util.List;
 import level.elements.ILevel;
@@ -50,7 +49,6 @@ public class Starter extends Game {
         hero = new Hero();
         sc = new ScreenController(batch);
         controller.add(sc);
-        levelAPI.setGenerator(new RoomGenerator());
         levelAPI.loadLevel();
         hero.getHitbox().setCollidable(hero);
         camera.follow(hero);

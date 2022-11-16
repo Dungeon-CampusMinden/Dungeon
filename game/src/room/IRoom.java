@@ -1,4 +1,4 @@
-package roomlevel;
+package room;
 
 import java.util.LinkedHashSet;
 
