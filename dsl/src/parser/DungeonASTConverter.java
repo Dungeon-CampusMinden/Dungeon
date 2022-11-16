@@ -314,6 +314,16 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             int value = Integer.parseInt(node.getText());
             var numNode = new NumNode(value, getSourceFileReference(node));
             astStack.push(numNode);
+        } else if (nodeType == DungeonDSLLexer.TYPE_SPECIFIER) {
+            String value = node.getText();
+            var type =
+                    switch (value) {
+                        case "quest_config" -> TypeSpecifierNode.BuiltInType.QuestConfig;
+                            // TODO: generate error message
+                        default -> TypeSpecifierNode.BuiltInType.NONE;
+                    };
+            var typeSpecifierNode = new TypeSpecifierNode(type, getSourceFileReference(node));
+            astStack.push(typeSpecifierNode);
         }
     }
 

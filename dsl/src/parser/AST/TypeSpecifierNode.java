@@ -2,7 +2,7 @@ package parser.AST;
 
 import java.util.ArrayList;
 
-public class TypeSpecifierNode extends Node  {
+public class TypeSpecifierNode extends Node {
     public enum BuiltInType {
         NONE,
         QuestConfig
