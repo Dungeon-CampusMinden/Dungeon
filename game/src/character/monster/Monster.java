@@ -248,6 +248,19 @@ public abstract class Monster extends DungeonCharacter {
     public void colide(Collidable other, CharacterDirection from) {
         if (other instanceof BaseSkillEffect) {
             BaseSkillEffect effect = (BaseSkillEffect) other;
+            hitpoints -= effect.damage;
+            if (hitpoints <= 0) alive = false;
+            float movementSpeed = this.movementSpeed;
+            this.movementSpeed *= 15; // knockback
+            currentPosition =
+                    switch (from) {
+                        case UP -> moveup();
+                        case DOWN -> movedown();
+                        case LEFT -> moveleft();
+                        case RIGHT -> moveright();
+                        case NONE -> currentPosition;
+                    };
+            this.movementSpeed = movementSpeed;
         }
     }
 
