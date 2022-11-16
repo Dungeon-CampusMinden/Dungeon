@@ -75,4 +75,13 @@ public class LevelNode<T extends IRoom> {
     public T getRoom() {
         return room;
     }
+
+    public DoorDirection[] getNeighboursAsDirection() {
+        DoorDirection[] directions = new DoorDirection[4];
+        if (neighbours[0] != null) directions[0] = DoorDirection.UP;
+        if (neighbours[1] != null) directions[1] = DoorDirection.RIGHT;
+        if (neighbours[2] != null) directions[2] = DoorDirection.LEFT;
+        if (neighbours[3] != null) directions[3] = DoorDirection.DOWN;
+        return directions;
+    }
 }

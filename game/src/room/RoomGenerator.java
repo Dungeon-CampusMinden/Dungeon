@@ -8,6 +8,7 @@ import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import level.tools.LevelSize;
+import levelgraph.DoorDirection;
 
 public class RoomGenerator {
 
@@ -32,15 +33,15 @@ public class RoomGenerator {
     private static final int BIG_MAX_X_SIZE = 24;
     private static final int BIG_MAX_Y_SIZE = 24;
 
-    public IRoom getLevel(DesignLabel designLabel, LevelSize size) {
-        return new Room(getLayout(size), designLabel);
+    public IRoom getLevel(DesignLabel designLabel, LevelSize size, DoorDirection[] doors) {
+        return new Room(getLayout(size, doors), designLabel);
     }
 
-    public LevelElement[][] getLayout(LevelSize size) {
-        return generateRoom(size, RANDOM.nextLong());
+    public LevelElement[][] getLayout(LevelSize size, DoorDirection[] doors) {
+        return generateRoom(size, RANDOM.nextLong(), doors);
     }
 
-    private LevelElement[][] generateRoom(LevelSize size, long seed) {
+    private LevelElement[][] generateRoom(LevelSize size, long seed, DoorDirection[] doors) {
         // Initialize random number generator with seed
         Random random = new Random(seed);
 
@@ -336,11 +337,10 @@ public class RoomGenerator {
         }
 
         // Add doors
-        // TODO take information from doors parameter
-        boolean upperDoor = random.nextBoolean();
-        boolean bottomDoor = random.nextBoolean();
-        boolean leftDoor = random.nextBoolean();
-        boolean rightDoor = random.nextBoolean();
+        boolean upperDoor = doors[DoorDirection.UP.getValue()] != null;
+        boolean bottomDoor = doors[DoorDirection.DOWN.getValue()] != null;
+        boolean leftDoor = doors[DoorDirection.LEFT.getValue()] != null;
+        boolean rightDoor = doors[DoorDirection.RIGHT.getValue()] != null;
 
         if (upperDoor) {
             ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
