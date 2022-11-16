@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import level.elements.ILevel;
 import minimap.IMinimap;
+import levelgraph.GraphLevelGenerator;
 import starter.DesktopLauncher;
 import tools.Point;
 
@@ -32,6 +33,7 @@ public class Starter extends Game {
 
     @Override
     protected void setup() {
+        generator = new GraphLevelGenerator();
         clevel = new CollisionMap();
         monster = new ArrayList<>();
         // chest = new ArrayList<>();

@@ -1,11 +1,12 @@
 package levelgraph;
 
-public class LevelNode<T extends Object> {
-    private T value;
+import roomlevel.IRoom;
+
+public class LevelNode<T extends IRoom> {
+    private T room;
     private LevelNode[] neighbours;
 
-    public LevelNode(T value) {
-        this.value = value;
+    public LevelNode() {
         neighbours = new LevelNode[4];
     }
 
@@ -23,8 +24,8 @@ public class LevelNode<T extends Object> {
         return connect(other, direction, false);
     }
 
-    public void setValue(T value) {
-        this.value = value;
+    public void setRoom(T room) {
+        this.room = room;
     }
 
     public LevelNode getNeighbour(DoorDirection direction) {
@@ -35,7 +36,7 @@ public class LevelNode<T extends Object> {
         return neighbours;
     }
 
-    public T getValue() {
-        return value;
+    public T getRoom() {
+        return room;
     }
 }
