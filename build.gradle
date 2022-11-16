@@ -22,7 +22,7 @@ ext {
 }
 
 dependencies {
-    implementation "io.github.pm-dungeon:pm-dungeon:5.0.2"
+    implementation "io.github.pm-dungeon:pm-dungeon:5.1.0"
 
     // LibGDX
     implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
