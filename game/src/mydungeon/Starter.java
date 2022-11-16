@@ -11,6 +11,9 @@ import controller.ScreenController;
 import java.util.ArrayList;
 import java.util.List;
 import level.elements.ILevel;
+import level.elements.tile.DoorTile;
+import level.elements.tile.Tile;
+import level.tools.LevelElement;
 import levelgraph.GraphLevelGenerator;
 import minimap.IMinimap;
 import starter.DesktopLauncher;
@@ -59,8 +62,13 @@ public class Starter extends Game {
 
     @Override
     protected void frame() {
-        if (levelAPI.getCurrentLevel().isOnEndTile(hero)) levelAPI.loadLevel();
-        checkForCollision();
+        Tile currentTile = levelAPI.getCurrentLevel().getTileAtEntity(hero);
+        if (currentTile.getLevelElement() == LevelElement.EXIT) levelAPI.loadLevel();
+        else if (currentTile.getLevelElement() == LevelElement.DOOR) {
+            DoorTile otherDoor = ((DoorTile) currentTile).getOtherDoor();
+            currentTile.onEntering(hero);
+            levelAPI.setLevel(otherDoor.getLevel());
+        } else checkForCollision();
     }
 
     private void checkForCollision() {
