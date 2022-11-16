@@ -34,6 +34,7 @@ public class Starter extends Game {
     @Override
     protected void setup() {
         generator = new GraphLevelGenerator();
+        levelAPI.setGenerator(generator);
         clevel = new CollisionMap();
         monster = new ArrayList<>();
         chest = new ArrayList<>();
