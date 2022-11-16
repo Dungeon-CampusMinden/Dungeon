@@ -11,8 +11,8 @@ import controller.ScreenController;
 import java.util.ArrayList;
 import java.util.List;
 import level.elements.ILevel;
-import minimap.IMinimap;
 import levelgraph.GraphLevelGenerator;
+import minimap.IMinimap;
 import starter.DesktopLauncher;
 import tools.Point;
 
@@ -92,7 +92,6 @@ public class Starter extends Game {
         // spawnTreasureChest();
         spawnPasswordChest();
         clevel.regenHitboxen(level);
-
     }
 
     void spawnMonster() {

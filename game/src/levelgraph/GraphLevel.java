@@ -33,7 +33,7 @@ public class GraphLevel {
     // Visit all Nodes and create a room for each of them
     private void createRooms(LevelNode node, LinkedHashSet<LevelNode> visited) {
         if (visited.contains(node)) return;
-        node.setRoom((IRoom) generator.getLevel(designLabel,size));
+        node.setRoom((IRoom) generator.getLevel(designLabel, size));
         visited.add(node);
         for (LevelNode neighbour : node.getNeighbours()) createRooms(neighbour, visited);
     }
