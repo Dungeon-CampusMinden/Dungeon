@@ -54,11 +54,15 @@ public class Hero extends DungeonCharacter {
                         .toList());
 
         Map<CharacterDirection, Point> offsets = new HashMap<>();
-        offsets.put(CharacterDirection.LEFT, new Point(0, 0));
+        offsets.put(CharacterDirection.LEFT, new Point(-1, 0));
         Map<CharacterDirection, Hitbox[]> hitboxes = new HashMap<>();
+        // TODO: get access to textures
         hitboxes.put(
                 CharacterDirection.LEFT,
-                new Hitbox[] {new Hitbox(5, 5), new Hitbox(11, 5), new Hitbox(15, 5)});
+                // offset texturesize - hitboxsize / 2 sword is in the middle
+                new Hitbox[] {new Hitbox(5, 5, new Point(11, 5.5f))
+                    , new Hitbox(11, 5,new Point(5,5.5f) )
+                    , new Hitbox(15, 5, new Point(1,5.5f))});
         attackSkill = new BaseMeleeSkill(this, offsets, textures, hitboxes);
     }
 
