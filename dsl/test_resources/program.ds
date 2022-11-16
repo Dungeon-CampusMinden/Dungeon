@@ -2,6 +2,6 @@ graph g {
     A -- B
 }
 
-quest_config {
+quest_config c {
     levelgraph: g
 }
