@@ -2,7 +2,7 @@ package collision;
 
 import java.util.ArrayList;
 import level.elements.ILevel;
-import level.elements.Tile;
+import level.elements.tile.Tile;
 import tools.Point;
 
 /** A Collection of all collidables of a level. */

@@ -1,6 +1,6 @@
 package collision;
 
-import level.elements.Tile;
+import level.elements.tile.Tile;
 import tools.Point;
 
 public class TileCollidable implements Collidable {

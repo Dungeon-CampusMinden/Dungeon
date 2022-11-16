@@ -7,7 +7,7 @@ import collision.CollisionMap;
 import collision.Hitbox;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import level.elements.ILevel;
-import level.elements.Tile;
+import level.elements.tile.Tile;
 import level.tools.Coordinate;
 import level.tools.LevelElement;
 import tools.Point;
