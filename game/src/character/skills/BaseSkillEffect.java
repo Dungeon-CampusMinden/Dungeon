@@ -6,6 +6,7 @@ import collision.Collidable;
 public abstract class BaseSkillEffect extends AnimatableElement implements Collidable {
     protected int alive;
     protected Collidable caster;
+    public int damage = 2;
 
     public BaseSkillEffect(int alive, Collidable caster) {
         this.alive = alive;
