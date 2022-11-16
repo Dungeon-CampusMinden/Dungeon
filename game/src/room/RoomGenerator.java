@@ -362,9 +362,7 @@ public class RoomGenerator {
             // TODO throw exception if possibleDoorCoordinates.size() == 0
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
-            // TODO change to DOOR
-            // layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
-            layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.EXIT;
+            layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
         }
         if (bottomDoor) {
             ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
@@ -386,9 +384,7 @@ public class RoomGenerator {
             // TODO throw exception if possibleDoorCoordinates.size() == 0
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
-            // TODO change to DOOR
-            // layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
-            layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.EXIT;
+            layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
         }
         if (leftDoor) {
             ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
@@ -410,9 +406,7 @@ public class RoomGenerator {
             // TODO throw exception if possibleDoorCoordinates.size() == 0
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
-            // TODO change to DOOR
-            // layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
-            layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.EXIT;
+            layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
         }
         if (rightDoor) {
             ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
@@ -434,9 +428,7 @@ public class RoomGenerator {
             // TODO throw exception if possibleDoorCoordinates.size() == 0
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
-            // TODO change to DOOR
-            // layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
-            layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.EXIT;
+            layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
         }
 
         printLayout(layout, size);

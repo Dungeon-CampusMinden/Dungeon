@@ -15,12 +15,11 @@ public class GraphLevelGenerator implements IGenerator {
 
     private LevelNode root; // todo convert from dotGraph
 
-
-    //dummy
-    public GraphLevelGenerator(){
-        LevelNode r  = new LevelNode();
-        r.connect(new LevelNode(),DoorDirection.LEFT);
-        r.connect(new LevelNode(),DoorDirection.RIGHT);
+    // dummy
+    public GraphLevelGenerator() {
+        LevelNode r = new LevelNode();
+        r.connect(new LevelNode(), DoorDirection.LEFT);
+        r.connect(new LevelNode(), DoorDirection.RIGHT);
         this.setRoot(r);
     }
 
