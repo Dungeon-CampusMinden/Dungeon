@@ -19,6 +19,7 @@ public class BaseMeleeSkill extends BaseSkill {
             Map<CharacterDirection, Point> offsets,
             Map<CharacterDirection, List<String>> textures,
             Map<CharacterDirection, Hitbox[]> hitboxes) {
+        super(100);
         this.caster = caster;
         this.offsets = offsets;
         this.textures = textures;

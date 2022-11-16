@@ -10,12 +10,18 @@ public abstract class BaseSkill {
         environment
     }
 
+    public BaseSkill(int cooldown) {
+        this.cooldown = cooldown;
+    }
+
     public Target[] targets;
     public int cooldown;
     public Instant lastCast = Instant.MIN;
 
     public BaseSkillEffect cast(CharacterDirection direction) {
-        if (Instant.now().isAfter(lastCast.plusMillis(cooldown))) {
+        Instant a = Instant.now();
+        if (a.isAfter(lastCast.plusMillis(cooldown))) {
+            lastCast = a.plusMillis(cooldown);
             return spawn(direction);
         }
         return null;
