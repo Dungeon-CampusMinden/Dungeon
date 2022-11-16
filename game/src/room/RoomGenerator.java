@@ -271,8 +271,7 @@ public class RoomGenerator {
         for (int y = WALL_BUFFER; y < layout.length - WALL_BUFFER; y++) {
             for (int x = WALL_BUFFER; x < layout[0].length - WALL_BUFFER; x++) {
                 if (layout[y][x] == LevelElement.FLOOR && random.nextFloat() < PROBABILITY_HOLE)
-                    // TODO change to HOLE
-                    layout[y][x] = LevelElement.SKIP;
+                    layout[y][x] = LevelElement.HOLE;
             }
         }
 
