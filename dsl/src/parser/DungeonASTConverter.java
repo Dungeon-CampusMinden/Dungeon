@@ -88,7 +88,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
         var objectDef =
                 new ObjectDefNode(
-                        typeSpecifier, id, typeSpecifier, ObjectDefNode.Type.GrammarBuiltInType);
+                        typeSpecifier, id, propertyDefList, ObjectDefNode.Type.GrammarBuiltInType);
         astStack.push(objectDef);
     }
 
@@ -115,7 +115,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
         var objectDef =
                 new ObjectDefNode(
-                        typeSpecifier, id, typeSpecifier, ObjectDefNode.Type.GrammarBuiltInType);
+                        typeSpecifier, id, propertyDefList, ObjectDefNode.Type.GrammarBuiltInType);
         astStack.push(objectDef);
     }
 
