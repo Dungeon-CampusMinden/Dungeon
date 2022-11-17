@@ -29,7 +29,7 @@ public class GraphLevel {
         generator = new RoomGenerator();
         LinkedHashSet<LevelNode> visited = new LinkedHashSet<>();
         createRooms(root, visited);
-        findDoors();
+        // findDoors();
     }
 
     // Visit all Nodes and create a room for each of them
