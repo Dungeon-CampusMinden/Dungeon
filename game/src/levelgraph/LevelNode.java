@@ -12,7 +12,7 @@ public class LevelNode<T extends IRoom> {
     private T room;
     private LevelNode[] neighbours;
 
-    private DoorTile.DoorColor [] colors;
+    private DoorTile.DoorColor[] colors;
 
     public LevelNode() {
         neighbours = new LevelNode[4];
@@ -27,9 +27,14 @@ public class LevelNode<T extends IRoom> {
      * @param onedirectedEdge if true, the connection is one directed
      * @return if connection was successful
      */
-    public boolean connect(LevelNode other, DoorDirection direction, boolean onedirectedEdge, DoorTile.DoorColor color) {
+    public boolean connect(
+            LevelNode other,
+            DoorDirection direction,
+            boolean onedirectedEdge,
+            DoorTile.DoorColor color) {
         if (neighbours[direction.getValue()] == null) {
-            if (onedirectedEdge || other.connect(this, DoorDirection.getOppsit(direction), true,color)) {
+            if (onedirectedEdge
+                    || other.connect(this, DoorDirection.getOpposite(direction), true, color)) {
                 neighbours[direction.getValue()] = other;
                 colors[direction.getValue()] = color;
                 return true;
@@ -44,8 +49,8 @@ public class LevelNode<T extends IRoom> {
      * @param direction Direction to connect the nodes
      * @return if connection was successful
      */
-    public boolean connect(LevelNode other, DoorDirection direction,DoorTile.DoorColor color) {
-        return connect(other, direction, false,color);
+    public boolean connect(LevelNode other, DoorDirection direction, DoorTile.DoorColor color) {
+        return connect(other, direction, false, color);
     }
 
     /**
