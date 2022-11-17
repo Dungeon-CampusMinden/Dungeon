@@ -56,19 +56,19 @@ public class GraphLevel {
                     doors[DoorDirection.RIGHT.getValue()],
                     findDoors(rightNeighbour.getRoom())[DoorDirection.LEFT.getValue()],
                     DoorDirection.RIGHT,
-                node);
+                    node);
         if (leftNeighbour != null)
             doorPairFound(
                     doors[DoorDirection.LEFT.getValue()],
                     findDoors(leftNeighbour.getRoom())[DoorDirection.RIGHT.getValue()],
                     DoorDirection.LEFT,
-                node);
+                    node);
         if (lowerNeighbour != null)
             doorPairFound(
                     doors[DoorDirection.DOWN.getValue()],
                     findDoors(lowerNeighbour.getRoom())[DoorDirection.UP.getValue()],
                     DoorDirection.DOWN,
-                node);
+                    node);
         if (upperNeighbour != null)
             doorPairFound(
                     doors[DoorDirection.UP.getValue()],
@@ -89,56 +89,38 @@ public class GraphLevel {
     private DoorTile[] findDoors(IRoom room) {
         DoorTile[] doorsInOrder = new DoorTile[4];
         for (DoorTile door : room.getDoors()) {
-            if (belowIsAccessible(door.getCoordinate(), room.getLayout())) {
+            if (isAccessible(door.getCoordinate(), room.getLayout(), DoorDirection.DOWN)) {
                 doorsInOrder[DoorDirection.UP.getValue()] = door;
-            } else if (leftIsAccessible(door.getCoordinate(), room.getLayout())) {
+            } else if (isAccessible(door.getCoordinate(), room.getLayout(), DoorDirection.LEFT)) {
                 doorsInOrder[DoorDirection.RIGHT.getValue()] = door;
-            } else if (rightIsAccessible(door.getCoordinate(), room.getLayout())) {
+            } else if (isAccessible(door.getCoordinate(), room.getLayout(), DoorDirection.RIGHT)) {
                 doorsInOrder[DoorDirection.LEFT.getValue()] = door;
-            } else if (aboveIsAccessible(door.getCoordinate(), room.getLayout())) {
+            } else if (isAccessible(door.getCoordinate(), room.getLayout(), DoorDirection.UP)) {
                 doorsInOrder[DoorDirection.DOWN.getValue()] = door;
             }
         }
         return doorsInOrder;
     }
 
-    private boolean belowIsAccessible(Coordinate c, Tile[][] layout) {
+    private boolean isAccessible(Coordinate c, Tile[][] layout, DoorDirection direction) {
         try {
-            return layout[c.y - 1][c.x].isAccessible();
 
+            switch (direction) {
+                case UP:
+                    return layout[c.y + 1][c.x].isAccessible();
+                case DOWN:
+                    return layout[c.y - 1][c.x].isAccessible();
+                case LEFT:
+                    return layout[c.y][c.x - 1].isAccessible();
+                case RIGHT:
+                    return layout[c.y][c.x + 1].isAccessible();
+                default:
+                    return false;
+            }
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
         }
     }
-
-    private boolean leftIsAccessible(Coordinate c, Tile[][] layout) {
-        try {
-            return layout[c.y][c.x - 1].isAccessible();
-
-        } catch (ArrayIndexOutOfBoundsException e) {
-            return false;
-        }
-    }
-
-    private boolean rightIsAccessible(Coordinate c, Tile[][] layout) {
-        try {
-            return layout[c.y][c.x + 1].isAccessible();
-
-        } catch (ArrayIndexOutOfBoundsException e) {
-            return false;
-        }
-    }
-
-    private boolean aboveIsAccessible(Coordinate c, Tile[][] layout) {
-        try {
-            return layout[c.y + 1][c.x].isAccessible();
-
-        } catch (ArrayIndexOutOfBoundsException e) {
-            return false;
-        }
-    }
-
-
 
     private void findDoorstep(DoorTile door, DoorDirection direction, IRoom room) {
         Tile doorstep = null;
