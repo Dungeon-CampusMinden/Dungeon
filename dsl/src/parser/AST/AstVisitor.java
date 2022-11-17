@@ -1,16 +1,15 @@
 package parser.AST;
 
 public interface AstVisitor<T> {
-    // TODO: add default implementations for all methods, as most visitors only need to override
-    //  a partial set of all methods
-
     /**
      * Basic fallback method for all Node types
      *
      * @param node Node to visit
      * @return T
      */
-    T visit(Node node);
+    default T visit(Node node) {
+        return null;
+    }
 
     /**
      * Visitor method for IdNodes
@@ -18,7 +17,9 @@ public interface AstVisitor<T> {
      * @param node Node to visit
      * @return T
      */
-    T visit(IdNode node);
+    default T visit(IdNode node) {
+        return null;
+    }
 
     /**
      * Visitor method for NumNodes
@@ -26,7 +27,9 @@ public interface AstVisitor<T> {
      * @param node Node to visit
      * @return T
      */
-    T visit(NumNode node);
+    default T visit(NumNode node) {
+        return null;
+    }
 
     /**
      * Visitor method for StringNodes
@@ -34,7 +37,9 @@ public interface AstVisitor<T> {
      * @param node Node to visit
      * @return T
      */
-    T visit(StringNode node);
+    default T visit(StringNode node) {
+        return null;
+    }
 
     /**
      * Visitor method for BinaryNodes
@@ -42,7 +47,9 @@ public interface AstVisitor<T> {
      * @param node Node to visit
      * @return T
      */
-    T visit(BinaryNode node);
+    default T visit(BinaryNode node) {
+        return null;
+    }
 
     /**
      * Visitor method for DotDefNodes
@@ -50,7 +57,9 @@ public interface AstVisitor<T> {
      * @param node Node to visit
      * @return T
      */
-    T visit(DotDefNode node);
+    default T visit(DotDefNode node) {
+        return null;
+    }
 
     /**
      * Visitor method for EdgeRhsNodes
@@ -58,7 +67,9 @@ public interface AstVisitor<T> {
      * @param node Node to visit
      * @return T
      */
-    T visit(EdgeRhsNode node);
+    default T visit(EdgeRhsNode node) {
+        return null;
+    }
 
     /**
      * Visitor method for EdgeStmtNodes
@@ -66,7 +77,9 @@ public interface AstVisitor<T> {
      * @param node Node to visit
      * @return T
      */
-    T visit(EdgeStmtNode node);
+    default T visit(EdgeStmtNode node) {
+        return null;
+    }
 
     /**
      * Visitor method for EdgeOpNodes
@@ -74,7 +87,9 @@ public interface AstVisitor<T> {
      * @param node Node to visit
      * @return T
      */
-    T visit(EdgeOpNode node);
+    default T visit(EdgeOpNode node) {
+        return null;
+    }
 
     /**
      * Visitor method for PropertyDefNodes
@@ -82,7 +97,9 @@ public interface AstVisitor<T> {
      * @param node Node to visit
      * @return T
      */
-    T visit(PropertyDefNode node);
+    default T visit(PropertyDefNode node) {
+        return null;
+    }
 
     /**
      * Visitor method for ObjectDefNodes
@@ -90,7 +107,9 @@ public interface AstVisitor<T> {
      * @param node Node to visit
      * @return T
      */
-    T visit(ObjectDefNode node);
+    default T visit(ObjectDefNode node) {
+        return null;
+    }
 
     default void visitChildren(Node node) {
         for (Node child : node.getChildren()) {
