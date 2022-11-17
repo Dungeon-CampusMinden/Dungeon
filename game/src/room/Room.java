@@ -34,9 +34,4 @@ public class Room extends TileLevel implements IRoom {
     public LinkedHashSet<DoorTile> getDoors() {
         return doors;
     }
-
-    @Override
-    public void removeExit() {
-        getEndTile().setLevelElement(LevelElement.FLOOR);
-    }
 }
