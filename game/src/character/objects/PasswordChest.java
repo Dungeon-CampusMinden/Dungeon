@@ -1,10 +1,9 @@
 package character.objects;
 
-import collision.Collidable;
 import controller.ScreenController;
 import tools.Point;
 
-public class PasswordChest extends TreasureChest implements Collidable {
+public class PasswordChest extends TreasureChest {
 
     private String password;
     private boolean correctPassword = false;
@@ -18,8 +17,10 @@ public class PasswordChest extends TreasureChest implements Collidable {
 
     public void onCollision(ScreenController sc) {
         if (!correctPassword) {
+            sc.add(ui.passwordInput);
             sc.add(ui.ok);
             sc.add(ui.exit);
+            correctPassword = true;
         }
     }
 }
