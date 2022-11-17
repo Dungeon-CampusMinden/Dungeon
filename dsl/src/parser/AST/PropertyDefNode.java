@@ -23,4 +23,9 @@ public class PropertyDefNode extends Node {
         this.children.add(id);
         this.children.add(stmt);
     }
+
+    @Override
+    public <T> T accept(AstVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

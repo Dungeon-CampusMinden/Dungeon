@@ -42,4 +42,9 @@ public class ObjectDefNode extends Node {
         this.children.add(id);
         this.children.add(propertyDefList);
     }
+
+    @Override
+    public <T> T accept(AstVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

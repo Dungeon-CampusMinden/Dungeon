@@ -29,4 +29,9 @@ public class TypeSpecifierNode extends Node {
         this.builtInType = BuiltInType.NONE;
         this.specifierType = SpecifierType.IdForType;
     }
+
+    @Override
+    public <T> T accept(AstVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }
