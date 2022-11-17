@@ -9,6 +9,7 @@ public class DotToLevelGraph {
         LevelNode root = new LevelNode();
         root.connect(new LevelNode(), DoorDirection.LEFT);
         root.connect(new LevelNode(), DoorDirection.RIGHT);
+        root.connect(new LevelNode(), DoorDirection.DOWN);
         return root;
     }
 }
