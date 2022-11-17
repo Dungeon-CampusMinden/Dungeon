@@ -1,5 +1,7 @@
 package room;
 
+import basiselements.DungeonElement;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import level.elements.TileLevel;
 import level.elements.tile.DoorTile;
@@ -11,6 +13,8 @@ import level.tools.LevelElement;
 public class Room extends TileLevel implements IRoom {
 
     private LinkedHashSet<DoorTile> doors = new LinkedHashSet<>();
+
+    private ArrayList<DungeonElement> elements = new ArrayList<>();
 
     public Room(Tile[][] layout) {
         super(layout);
@@ -28,6 +32,18 @@ public class Room extends TileLevel implements IRoom {
     public void addDoor(DoorTile door) {
         // oder: hier DoorTile erzeugen?
         doors.add(door);
+    }
+
+    public void addElement(DungeonElement dungeonElement) {
+        elements.add(dungeonElement);
+    }
+
+    public void removeElement(DungeonElement dungeonElement) {
+        elements.remove(dungeonElement);
+    }
+
+    public ArrayList<DungeonElement> getElements() {
+        return elements;
     }
 
     @Override
