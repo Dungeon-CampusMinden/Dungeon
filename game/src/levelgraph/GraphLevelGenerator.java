@@ -38,6 +38,6 @@ public class GraphLevelGenerator implements IGenerator {
 
     @Override
     public LevelElement[][] getLayout(LevelSize size) {
-        return new LevelElement[0][];
+        throw new UnsupportedOperationException("This Method is not supported for GraphLevel");
     }
 }
