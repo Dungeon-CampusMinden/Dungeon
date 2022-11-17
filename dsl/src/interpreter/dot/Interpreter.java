@@ -80,6 +80,16 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
     }
 
     @Override
+    public graph.Node<String> visit(NumNode node) {
+        return null;
+    }
+
+    @Override
+    public graph.Node<String> visit(StringNode node) {
+        return null;
+    }
+
+    @Override
     public graph.Node<String> visit(BinaryNode node) {
         return null;
     }
@@ -131,6 +141,16 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
 
     @Override
     public graph.Node<String> visit(EdgeOpNode node) {
+        return null;
+    }
+
+    @Override
+    public graph.Node<String> visit(PropertyDefNode node) {
+        return null;
+    }
+
+    @Override
+    public graph.Node<String> visit(ObjectDefNode node) {
         return null;
     }
 }
