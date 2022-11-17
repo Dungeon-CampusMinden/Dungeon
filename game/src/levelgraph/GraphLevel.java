@@ -56,34 +56,34 @@ public class GraphLevel {
                     doors[DoorDirection.RIGHT.getValue()],
                     findDoors(rightNeighbour.getRoom())[DoorDirection.LEFT.getValue()],
                     DoorDirection.RIGHT,
-                    node.getRoom());
+                node);
         if (leftNeighbour != null)
             doorPairFound(
                     doors[DoorDirection.LEFT.getValue()],
                     findDoors(leftNeighbour.getRoom())[DoorDirection.RIGHT.getValue()],
                     DoorDirection.LEFT,
-                    node.getRoom());
+                node);
         if (lowerNeighbour != null)
             doorPairFound(
                     doors[DoorDirection.DOWN.getValue()],
                     findDoors(lowerNeighbour.getRoom())[DoorDirection.UP.getValue()],
                     DoorDirection.DOWN,
-                    node.getRoom());
+                node);
         if (upperNeighbour != null)
             doorPairFound(
                     doors[DoorDirection.UP.getValue()],
                     findDoors(upperNeighbour.getRoom())[DoorDirection.DOWN.getValue()],
                     DoorDirection.UP,
-                    node.getRoom());
+                    node);
 
         for (LevelNode child : node.getNeighbours()) findDoors(child, visited);
     }
 
     private void doorPairFound(
-            DoorTile door, DoorTile otherDoor, DoorDirection direction, IRoom room) {
+            DoorTile door, DoorTile otherDoor, DoorDirection direction, LevelNode node) {
         door.setOtherDoor(otherDoor);
-        door.setColor(getColor());
-        findDoorstep(door, direction, room);
+        door.setColor(node.getColors()[direction.getValue()]);
+        findDoorstep(door, direction, node.getRoom());
     }
 
     private DoorTile[] findDoors(IRoom room) {
@@ -138,13 +138,7 @@ public class GraphLevel {
         }
     }
 
-    private DoorTile.DoorColor getColor() {
-        // todo get color from graph
-        //     private static String findTexturePathDoor(LevelPart levelPart) <- TileTextureFactory
-        // idee LevelNode EdgeColor[] analog zur neighbour list und beim connecten die farbe
-        // setzten, colorProblem
-        return DoorTile.DoorColor.NONE;
-    }
+
 
     private void findDoorstep(DoorTile door, DoorDirection direction, IRoom room) {
         Tile doorstep = null;
