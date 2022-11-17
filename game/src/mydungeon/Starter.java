@@ -1,5 +1,6 @@
 package mydungeon;
 
+import basiselements.DungeonElement;
 import character.monster.Imp;
 import character.monster.Monster;
 import character.objects.Letter;
@@ -20,8 +21,8 @@ import level.tools.LevelElement;
 import minimap.IMinimap;
 import quest.Quest;
 import quest.QuestFactory;
+import room.Room;
 import starter.DesktopLauncher;
-import tools.Point;
 
 /**
  * The entry class to create your own implementation.
@@ -32,9 +33,9 @@ import tools.Point;
 public class Starter extends Game {
     private Hero hero;
     private List<Monster> monster;
+    private List<TreasureChest> chests;
     private ScreenController sc;
     private CollisionMap clevel;
-    private List<TreasureChest> chest;
     private Letter letter;
     private DSLInterpreter dslInterpreter;
     private Quest quest;
@@ -48,7 +49,7 @@ public class Starter extends Game {
         levelAPI.setGenerator(generator);
         clevel = new CollisionMap();
         monster = new ArrayList<>();
-        chest = new ArrayList<>();
+        chests = new ArrayList<>();
         letter =
                 new Letter(
                         'A',
@@ -65,6 +66,8 @@ public class Starter extends Game {
         sc = new ScreenController(batch);
         controller.add(sc);
         levelAPI.loadLevel();
+        quest.setRootLevel(levelAPI.getCurrentLevel());
+        quest.addQuestObjectsToLevels();
         hero.getHitbox().setCollidable(hero);
         camera.follow(hero);
         entityController.add(hero);
@@ -89,7 +92,7 @@ public class Starter extends Game {
                 m.colide(hero, direction);
             }
         }
-        for (TreasureChest t : chest) {
+        for (TreasureChest t : chests) {
             CharacterDirection direction = hero.getHitbox().collide(t.getHitbox());
             if (direction != CharacterDirection.NONE) {
                 hero.colide(t, direction);
@@ -103,7 +106,15 @@ public class Starter extends Game {
         ILevel level = levelAPI.getCurrentLevel();
         hero.setLevel(level);
         spawnMonster();
-        spawnTreasureChest();
+        quest.onLevelLoad(level, entityController);
+        chests.forEach(t -> entityController.remove(t));
+        chests.clear();
+        for (DungeonElement element : ((Room) level).getElements()) {
+            if (element instanceof TreasureChest) {
+                chests.add((TreasureChest) element);
+            }
+            entityController.add(element);
+        }
         clevel.regenHitboxen(level);
     }
 
@@ -118,16 +129,6 @@ public class Starter extends Game {
             monster.add(m);
             entityController.add(m);
         }
-    }
-
-    void spawnTreasureChest() {
-        chest.forEach(t -> entityController.remove(t));
-        chest.clear();
-        Point p = levelAPI.getCurrentLevel().getStartTile().getCoordinate().toPoint();
-        p.x += 1;
-        TreasureChest t = new TreasureChest(p);
-        chest.add(t);
-        entityController.add(t);
     }
 
     private QuestConfig loadConfig() {
