@@ -10,6 +10,7 @@ import collision.CollisionMap;
 import controller.Game;
 import controller.ScreenController;
 import dslToGame.QuestConfig;
+import graph.Graph;
 import java.util.ArrayList;
 import java.util.List;
 import level.elements.ILevel;
@@ -125,9 +126,11 @@ public class Starter extends Game {
     }
 
     private QuestConfig loadConfig() {
-        // todo
-        // return new QuestConfig();
-        return null;
+        // todo read from file
+        Graph<String> levelGenGraph = null;
+        String taskDescription = "Task123Dummy123";
+        int points = 10;
+        return new QuestConfig(levelGenGraph, taskDescription, points);
     }
 
     /**
