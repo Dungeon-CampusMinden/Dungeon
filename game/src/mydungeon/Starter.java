@@ -10,14 +10,16 @@ import collision.CollisionMap;
 import controller.Game;
 import controller.ScreenController;
 import dslToGame.QuestConfig;
+import interpreter.DSLInterpreter;
 import java.util.ArrayList;
 import java.util.List;
 import level.elements.ILevel;
 import level.elements.tile.DoorTile;
 import level.elements.tile.Tile;
 import level.tools.LevelElement;
-import levelgraph.GraphLevelGenerator;
 import minimap.IMinimap;
+import quest.Quest;
+import quest.QuestFactory;
 import starter.DesktopLauncher;
 import tools.Point;
 
@@ -34,11 +36,15 @@ public class Starter extends Game {
     private CollisionMap clevel;
     private List<TreasureChest> chest;
     private Letter letter;
+    private DSLInterpreter dslInterpreter;
+    private Quest quest;
 
     @Override
     protected void setup() {
+        dslInterpreter = new DSLInterpreter();
         QuestConfig config = loadConfig();
-        generator = new GraphLevelGenerator(config.levelGenGraph());
+        quest = QuestFactory.generateQuestFromConfig(config);
+        generator = quest.getGenerator();
         levelAPI.setGenerator(generator);
         clevel = new CollisionMap();
         monster = new ArrayList<>();
@@ -125,9 +131,9 @@ public class Starter extends Game {
     }
 
     private QuestConfig loadConfig() {
-        // todo
-        // return new QuestConfig();
-        return null;
+        // TODO correct Config Loading (load String from File?)
+        String testString = "graph g {\n" + "A -- B \n" + "B -- C -- D -> E \n" + "}";
+        return dslInterpreter.getQuestConfig(testString);
     }
 
     /**
