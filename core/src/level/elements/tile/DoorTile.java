@@ -88,13 +88,14 @@ public class DoorTile extends Tile {
             // TODO if (indexOfDot == -1) { error }
             if (indexOfUnderscore == -1) {
                 if (color != DoorColor.NONE) {
-                    textureBuilder.insert(indexOfDot, "_" + color.name());
+                    textureBuilder.insert(indexOfDot, "_" + color.name().toLowerCase());
                 }
             } else {
                 if (color == DoorColor.NONE) {
                     textureBuilder.replace(indexOfUnderscore, indexOfDot, "");
                 } else {
-                    textureBuilder.replace(indexOfUnderscore + 1, indexOfDot, color.name());
+                    textureBuilder.replace(
+                            indexOfUnderscore + 1, indexOfDot, color.name().toLowerCase());
                 }
             }
             texturePath = textureBuilder.toString();
