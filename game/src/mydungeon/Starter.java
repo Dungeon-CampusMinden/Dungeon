@@ -2,8 +2,7 @@ package mydungeon;
 
 import character.monster.Imp;
 import character.monster.Monster;
-import character.objects.Letter;
-import character.objects.TreasureChest;
+import character.objects.*;
 import character.player.Hero;
 import collision.CharacterDirection;
 import collision.CollisionMap;
@@ -27,14 +26,16 @@ public class Starter extends Game {
     private List<Monster> monster;
     private ScreenController sc;
     private CollisionMap clevel;
-    private List<TreasureChest> chest;
+    // private List<TreasureChest> chest;
+    private List<PasswordChest> pwChest;
     private Letter letter;
 
     @Override
     protected void setup() {
         clevel = new CollisionMap();
         monster = new ArrayList<>();
-        chest = new ArrayList<>();
+        // chest = new ArrayList<>();
+        pwChest = new ArrayList<>();
         letter =
                 new Letter(
                         'A',
@@ -67,11 +68,17 @@ public class Starter extends Game {
                 m.colide(hero, direction);
             }
         }
-        for (TreasureChest t : chest) {
-            CharacterDirection direction = hero.getHitbox().collide(t.getHitbox());
+        /**
+         * for (TreasureChest t : chest) { CharacterDirection direction =
+         * hero.getHitbox().collide(t.getHitbox()); if (direction != CharacterDirection.NONE) {
+         * hero.colide(t, direction); t.colide(hero, direction); } }
+         */
+        for (PasswordChest p : pwChest) {
+            CharacterDirection direction = hero.getHitbox().collide(p.getHitbox());
             if (direction != CharacterDirection.NONE) {
-                hero.colide(t, direction);
-                t.colide(hero, direction);
+                hero.colide(p, direction);
+                p.colide(hero, direction);
+                p.onCollision(sc);
             }
         }
     }
@@ -81,7 +88,8 @@ public class Starter extends Game {
         ILevel level = levelAPI.getCurrentLevel();
         hero.setLevel(level);
         spawnMonster();
-        spawnTreasureChest();
+        // spawnTreasureChest();
+        spawnPasswordChest();
         clevel.regenHitboxen(level);
     }
 
@@ -98,14 +106,19 @@ public class Starter extends Game {
         }
     }
 
-    void spawnTreasureChest() {
-        chest.forEach(t -> entityController.remove(t));
-        chest.clear();
+    /**
+     * void spawnTreasureChest() { chest.forEach(t -> entityController.remove(t)); chest.clear();
+     * Point p = levelAPI.getCurrentLevel().getStartTile().getCoordinate().toPoint(); p.x += 1;
+     * TreasureChest t = new TreasureChest(p); chest.add(t); entityController.add(t); }
+     */
+    void spawnPasswordChest() {
+        pwChest.forEach(pC -> entityController.remove(pC));
+        pwChest.clear();
         Point p = levelAPI.getCurrentLevel().getStartTile().getCoordinate().toPoint();
         p.x += 1;
-        TreasureChest t = new TreasureChest(p);
-        chest.add(t);
-        entityController.add(t);
+        PasswordChest pWChest = new PasswordChest(p, "Test");
+        pwChest.add(pWChest);
+        entityController.add(pWChest);
     }
 
     /**
