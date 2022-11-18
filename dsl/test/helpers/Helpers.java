@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import parser.DungeonASTConverter;
+import symboltable.SymbolTableParser;
 
 public class Helpers {
 
@@ -44,5 +45,10 @@ public class Helpers {
 
         var parseTree = getParseTreeFromCharStream(stream);
         return convertToAST(parseTree);
+    }
+
+    public static SymbolTableParser.Result getSymtableForAST(parser.AST.Node ast) {
+        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        return symbolTableParser.walk(ast);
     }
 }
