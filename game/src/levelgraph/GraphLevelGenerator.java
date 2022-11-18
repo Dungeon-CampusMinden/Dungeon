@@ -1,6 +1,10 @@
 package levelgraph;
 
+import dslToGame.ConvertedGraph;
+import dslToGame.DotToLevelGraph;
 import graph.Graph;
+import graph.Node;
+import java.util.HashMap;
 import level.elements.ILevel;
 import level.generator.IGenerator;
 import level.tools.DesignLabel;
@@ -15,6 +19,9 @@ import level.tools.LevelSize;
 public class GraphLevelGenerator implements IGenerator {
 
     private LevelNode root;
+    private Graph<String> graph;
+    private HashMap<Node<String>, LevelNode> nodeToLevelNode;
+    private HashMap<LevelNode, Node<String>> levelNodeToNode;
 
     public GraphLevelGenerator(Graph<String> graph) {
         setGraph(graph);
@@ -26,7 +33,11 @@ public class GraphLevelGenerator implements IGenerator {
      * @param graph
      */
     public void setGraph(Graph<String> graph) {
-        root = DotToLevelGraph.convert(graph);
+        ConvertedGraph cg = DotToLevelGraph.convert(graph);
+        root = cg.root();
+        this.graph = cg.graph();
+        nodeToLevelNode = cg.nodeToLevelNode();
+        levelNodeToNode = cg.levelNodeToNode();
     }
 
     @Override
@@ -39,5 +50,17 @@ public class GraphLevelGenerator implements IGenerator {
     @Override
     public LevelElement[][] getLayout(LevelSize size) {
         throw new UnsupportedOperationException("This Method is not supported for GraphLevel");
+    }
+
+    public Graph<String> getGraph() {
+        return graph;
+    }
+
+    public HashMap<Node<String>, LevelNode> getNodeToLevelNode() {
+        return nodeToLevelNode;
+    }
+
+    public HashMap<LevelNode, Node<String>> getLevelNodeToNode() {
+        return levelNodeToNode;
     }
 }
