@@ -68,7 +68,7 @@ public class Starter extends Game {
                 m.colide(hero, direction);
             }
         }
-        /**
+        /*
          * for (TreasureChest t : chest) { CharacterDirection direction =
          * hero.getHitbox().collide(t.getHitbox()); if (direction != CharacterDirection.NONE) {
          * hero.colide(t, direction); t.colide(hero, direction); } }
@@ -77,8 +77,7 @@ public class Starter extends Game {
             CharacterDirection direction = hero.getHitbox().collide(p.getHitbox());
             if (direction != CharacterDirection.NONE) {
                 hero.colide(p, direction);
-                p.colide(hero, direction);
-                p.onCollision(sc);
+                p.colide(hero, direction, sc);
             }
         }
     }
@@ -106,7 +105,7 @@ public class Starter extends Game {
         }
     }
 
-    /**
+    /*
      * void spawnTreasureChest() { chest.forEach(t -> entityController.remove(t)); chest.clear();
      * Point p = levelAPI.getCurrentLevel().getStartTile().getCoordinate().toPoint(); p.x += 1;
      * TreasureChest t = new TreasureChest(p); chest.add(t); entityController.add(t); }

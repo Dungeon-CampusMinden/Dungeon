@@ -14,17 +14,17 @@ import tools.Point;
 
 public class TreasureChest extends AnimatableElement implements Collidable {
     private Animation closed;
-    private Animation opening;
+    protected Animation opening;
     private Animation opened;
-    private Animation currentAnimation;
+    protected Animation currentAnimation;
     private Point currentPosition;
     private ILevel currentLevel;
-    private boolean isOpen = false;
+    protected boolean isOpen = false;
     private final int openingFrames = 3;
     private final int openingFrameTime = 30;
     private int openingAnimationTime = (int) ((openingFrameTime * openingFrames) / 2);
     protected Hitbox hitbox;
-    private List<Item> inventory;
+    protected List<Item> inventory;
 
     public TreasureChest(Point position) {
         List<String> texturePaths =
