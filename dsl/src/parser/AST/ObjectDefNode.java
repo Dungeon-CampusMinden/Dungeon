@@ -38,7 +38,7 @@ public class ObjectDefNode extends Node {
     }
 
     public List<Node> getPropertyDefinitions() {
-        return this.children.subList(propertyDefListIdx, this.children.size());
+        return this.children.get(propertyDefListIdx).getChildren();
     }
 
     public ObjectDefNode(Node typeSpecifier, Node id, Node propertyDefList, Type type) {
