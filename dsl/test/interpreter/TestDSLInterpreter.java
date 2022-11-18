@@ -33,13 +33,15 @@ public class TestDSLInterpreter {
             quest_config c {
                 level_graph: g,
                 quest_points: 42,
-                quest_desc: "Hello"
+                quest_desc: "Hello",
+                password: "TESTPW"
             }
             """;
         DSLInterpreter interpreter = new DSLInterpreter();
         var questConfig = interpreter.getQuestConfig(program);
         assertEquals(42, questConfig.points());
         assertEquals("Hello", questConfig.taskDescription());
+        assertEquals("TESTPW", questConfig.password());
         var graph = questConfig.levelGenGraph();
 
         var edgeIter = graph.getEdgeIterator();

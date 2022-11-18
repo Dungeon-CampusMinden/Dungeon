@@ -72,6 +72,14 @@ public class DSLInterpreter implements AstVisitor<Object> {
                     // oh well
                 }
                 break;
+            case "password":
+                try {
+                    String strValue = (String) value;
+                    this.questConfigBuilder.setPassword(strValue);
+                } catch (ClassCastException ex) {
+                    // oh well
+                }
+                break;
             case "quest_desc":
                 try {
                     String strValue = (String) value;

@@ -79,6 +79,8 @@ public class SymbolTableParser implements AstVisitor<Void> {
         questConfigType.Bind(levelGraphProperty);
         var description = new Symbol("quest_desc", questConfigType, BuiltInType.stringType);
         questConfigType.Bind(description);
+        var password = new Symbol("password", questConfigType, BuiltInType.stringType);
+        questConfigType.Bind(description);
         var questPoints = new Symbol("quest_points", questConfigType, BuiltInType.intType);
         questConfigType.Bind(questPoints);
 
