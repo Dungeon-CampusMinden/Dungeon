@@ -10,8 +10,9 @@ import tools.Point;
 public class PasswordChest extends TreasureChest {
 
     private String password;
-    private boolean correctPassword = false;
     private PasswordInputUI ui;
+    private int attemptCounter = 0;
+    private boolean correctPassword = false;
     private boolean interacting = false;
     private TextButtonListener okListener =
             new TextButtonListener() {
@@ -44,6 +45,9 @@ public class PasswordChest extends TreasureChest {
                 isOpen = true;
             }
             onExit();
+        } else {
+            attemptCounter++;
+            System.out.println(attemptCounter);
         }
     }
 
@@ -75,5 +79,9 @@ public class PasswordChest extends TreasureChest {
      */
     public void colide(Collidable other, CharacterDirection from, ScreenController sc) {
         onCollision(sc);
+    }
+
+    public int getAttemptCounter(){
+        return attemptCounter;
     }
 }
