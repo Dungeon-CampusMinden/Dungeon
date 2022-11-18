@@ -11,6 +11,7 @@ import controller.Game;
 import controller.ScreenController;
 import dslToGame.QuestConfig;
 import graph.Graph;
+import interpreter.DSLInterpreter;
 import java.util.ArrayList;
 import java.util.List;
 import level.elements.ILevel;
@@ -126,8 +127,8 @@ public class Starter extends Game {
     }
 
     private QuestConfig loadConfig() {
-        // todo read from file
-        Graph<String> levelGenGraph = null;
+        String program = "graph g {\n" + "A -- B \n" + "B -- C -- A \n" + "}";
+        Graph<String> levelGenGraph = new DSLInterpreter().getQuestConfig(program).levelGenGraph();
         String taskDescription = "Task123Dummy123";
         int points = 10;
         return new QuestConfig(levelGenGraph, taskDescription, points);
