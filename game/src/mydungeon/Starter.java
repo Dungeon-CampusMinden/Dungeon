@@ -77,7 +77,7 @@ public class Starter extends Game {
             CharacterDirection direction = hero.getHitbox().collide(p.getHitbox());
             if (direction != CharacterDirection.NONE) {
                 hero.colide(p, direction);
-                p.colide(hero, direction, sc);
+                p.colide(hero, direction);
             }
         }
     }
@@ -115,7 +115,7 @@ public class Starter extends Game {
         pwChest.clear();
         Point p = levelAPI.getCurrentLevel().getStartTile().getCoordinate().toPoint();
         p.x += 1;
-        PasswordChest pWChest = new PasswordChest(p, "Test");
+        PasswordChest pWChest = new PasswordChest(p, "Test", sc);
         pwChest.add(pWChest);
         entityController.add(pWChest);
     }

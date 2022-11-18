@@ -11,6 +11,7 @@ public class PasswordChest extends TreasureChest {
 
     private String password;
     private PasswordInputUI ui;
+    private ScreenController screenController;
     private int attemptCounter = 0;
     private boolean correctPassword = false;
     private boolean interacting = false;
@@ -30,19 +31,17 @@ public class PasswordChest extends TreasureChest {
                 }
             };
 
-    public PasswordChest(Point position, String password) {
+    public PasswordChest(Point position, String password, ScreenController sc) {
         super(position);
         this.password = password;
+        screenController = sc;
     }
 
     private void onOK() {
-        if (password.equals(ui.passwordInput.getText())) {
+        if (password.equals(ui.getPasswordInput().getText())) {
             correctPassword = true;
             if (!isOpen) {
-                currentAnimation = opening;
-                inventory.forEach(i -> i.collect());
-                inventory.clear();
-                isOpen = true;
+                open();
             }
             onExit();
         } else {
@@ -52,22 +51,11 @@ public class PasswordChest extends TreasureChest {
     }
 
     private void onExit() {
-        ui.background.remove();
-        ui.passwordInput.remove();
-        ui.ok.remove();
-        ui.exit.remove();
+        ui.getBackground().remove();
+        ui.getPasswordInput().remove();
+        ui.getOk().remove();
+        ui.getExit().remove();
         interacting = false;
-    }
-
-    private void onCollision(ScreenController sc) {
-        if (!interacting && !correctPassword) {
-            interacting = true;
-            ui = new PasswordInputUI(okListener, exitListener);
-            sc.add(ui.background);
-            sc.add(ui.passwordInput);
-            sc.add(ui.ok);
-            sc.add(ui.exit);
-        }
     }
 
     /**
@@ -75,10 +63,16 @@ public class PasswordChest extends TreasureChest {
      *
      * @param other Object you colide with
      * @param from Direction from where you colide
-     * @param sc ScreenController to use
      */
-    public void colide(Collidable other, CharacterDirection from, ScreenController sc) {
-        onCollision(sc);
+    public void colide(Collidable other, CharacterDirection from) {
+        if (!interacting && !correctPassword) {
+            interacting = true;
+            ui = new PasswordInputUI(okListener, exitListener);
+            screenController.add(ui.getBackground());
+            screenController.add(ui.getPasswordInput());
+            screenController.add(ui.getOk());
+            screenController.add(ui.getExit());
+        }
     }
 
     public int getAttemptCounter() {

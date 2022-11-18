@@ -74,10 +74,7 @@ public class TreasureChest extends AnimatableElement implements Collidable {
     @Override
     public void colide(Collidable other, CharacterDirection from) {
         if (other instanceof Hero && !isOpen) {
-            currentAnimation = opening;
-            inventory.forEach(i -> i.collect());
-            inventory.clear();
-            isOpen = true;
+            open();
         }
     }
 
@@ -93,5 +90,12 @@ public class TreasureChest extends AnimatableElement implements Collidable {
      */
     public void addItem(Item item) {
         inventory.add(item);
+    }
+
+    protected void open() {
+        currentAnimation = opening;
+        inventory.forEach(i -> i.collect());
+        inventory.clear();
+        isOpen = true;
     }
 }

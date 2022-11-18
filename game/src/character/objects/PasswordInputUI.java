@@ -8,15 +8,31 @@ import tools.Point;
 
 public class PasswordInputUI {
 
-    ScreenImage background;
-    ScreenInput passwordInput;
-    ScreenButton ok;
-    ScreenButton exit;
+    private ScreenImage background;
+    private ScreenInput passwordInput;
+    private ScreenButton ok;
+    private ScreenButton exit;
 
     public PasswordInputUI(TextButtonListener okListener, TextButtonListener exitListener) {
         background = new ScreenImage("hud/white.png", new Point(250, 170));
         passwordInput = new ScreenInput("Passwort?", new Point(300, 250));
         ok = new ScreenButton("OK", new Point(300, 180), okListener);
         exit = new ScreenButton("Abbrechen", new Point(350, 180), exitListener);
+    }
+
+    public ScreenImage getBackground() {
+        return background;
+    }
+
+    public ScreenInput getPasswordInput() {
+        return passwordInput;
+    }
+
+    public ScreenButton getOk() {
+        return ok;
+    }
+
+    public ScreenButton getExit() {
+        return exit;
     }
 }
