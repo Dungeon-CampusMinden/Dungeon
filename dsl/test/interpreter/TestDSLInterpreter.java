@@ -6,25 +6,10 @@ import helpers.Helpers;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import parser.AST.Node;
 
 public class TestDSLInterpreter {
-    @Test
-    public void testGetQuestConfigSimpleGraph() {
-        String program = "graph g {\n" + "A -- B \n" + "B -- C -- D -> E \n" + "}";
-        DSLInterpreter interpreter = new DSLInterpreter();
-        var questConfig = interpreter.getQuestConfig(program);
-        assertNotNull(questConfig);
-        assertNotNull(questConfig.levelGenGraph());
-
-        var edgeIter = questConfig.levelGenGraph().getEdgeIterator();
-        AtomicInteger edgeCount = new AtomicInteger(0);
-        edgeIter.forEachRemaining(elem -> edgeCount.addAndGet(1));
-        assertEquals(4, edgeCount.get());
-    }
-
     @Test
     public void questConfigHighLevel() throws URISyntaxException, IOException {
         URL resource = getClass().getClassLoader().getResource("program.ds");
@@ -36,5 +21,41 @@ public class TestDSLInterpreter {
 
         var secondChild = ast.getChild(1);
         assertEquals(Node.Type.ObjectDefinition, secondChild.type);
+    }
+
+    @Test
+    public void questConfigFull() {
+        String program =
+                """
+            graph g {
+                A -- B
+            }
+            quest_config c {
+                level_graph: g,
+                quest_points: 42,
+                quest_desc: "Hello"
+            }
+            """;
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var questConfig = interpreter.getQuestConfig(program);
+        assertEquals(42, questConfig.points());
+        assertEquals("Hello", questConfig.taskDescription());
+        var graph = questConfig.levelGenGraph();
+
+        var edgeIter = graph.getEdgeIterator();
+        int edgeCount = 0;
+        while (edgeIter.hasNext()) {
+            edgeIter.next();
+            edgeCount++;
+        }
+        assertEquals(1, edgeCount);
+
+        var nodeIter = graph.getNodeIterator();
+        int nodeCount = 0;
+        while (nodeIter.hasNext()) {
+            nodeIter.next();
+            nodeCount++;
+        }
+        assertEquals(2, nodeCount);
     }
 }
