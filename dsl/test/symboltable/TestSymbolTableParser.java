@@ -72,7 +72,7 @@ public class TestSymbolTableParser {
     @Test
     public void testPropertyReference() {
         String program =
-            """
+                """
             graph g {
                 A -- B
             }
@@ -92,11 +92,11 @@ public class TestSymbolTableParser {
         assert (firstPropertyIdNode.type == Node.Type.Identifier);
 
         var questConfigType = symtableResult.symbolTable.globalScope.Resolve("quest_config");
-        var levelGraphPropertySymbol = ((AggregateType)questConfigType).Resolve("level_graph");
+        var levelGraphPropertySymbol = ((AggregateType) questConfigType).Resolve("level_graph");
         Assert.assertNotEquals(Symbol.NULL, levelGraphPropertySymbol);
 
         var symbolForPropertyIdNode =
-            symtableResult.symbolTable.getSymbolsForAstNode(firstPropertyIdNode).get(0);
+                symtableResult.symbolTable.getSymbolsForAstNode(firstPropertyIdNode).get(0);
 
         Assert.assertEquals(levelGraphPropertySymbol, symbolForPropertyIdNode);
     }
