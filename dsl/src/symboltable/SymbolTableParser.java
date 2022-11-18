@@ -66,6 +66,21 @@ public class SymbolTableParser implements AstVisitor<Void> {
         }
     }
 
+    private void setupBuiltinTypes() {
+        // setup builtin simple types
+        GlobalScope().Bind(BuiltInType.intType);
+
+        GlobalScope().Bind(BuiltInType.stringType);
+        GlobalScope().Bind(BuiltInType.graphType);
+
+        // setup builtin aggregate types
+        var questConfigType = new AggregateType("quest_config", GlobalScope());
+        var levelGraphProperty = new Symbol("level_graph", questConfigType, BuiltInType.graphType);
+        questConfigType.Bind(levelGraphProperty);
+
+        GlobalScope().Bind(questConfigType);
+    }
+
     /**
      * Visit children node in node, create symbol table and resolve function calls
      *
@@ -79,6 +94,8 @@ public class SymbolTableParser implements AstVisitor<Void> {
         // push global scope
         scopeStack.push(new Scope());
         symbolTable = new SymbolTable(CurrentScope());
+
+        setupBuiltinTypes();
 
         node.accept(this);
 
@@ -125,6 +142,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
             var symDefLineNumber = astNodeForSymbol.getSourceFileReference().getLine();
 
             if (symDefLineNumber > node.getSourceFileReference().getLine()) {
+                // TODO: is this needed?
                 errorStringBuilder.append(
                         "Reference to variable '"
                                 + idName
@@ -150,18 +168,43 @@ public class SymbolTableParser implements AstVisitor<Void> {
 
     @Override
     public Void visit(PropertyDefNode node) {
-        // TODO: check, if the property is accessible in the object -> datatype
+        var propertyIdName = node.getIdName();
+
+        // TODO: ensure, that no other scopes than the scopes of the type are checked
+        var propertySymbol = CurrentScope().Resolve(propertyIdName);
+        if (propertySymbol == Symbol.NULL) {
+            errorStringBuilder.append("no property with name " + propertyIdName + " could be found");
+        } else {
+            // link the propertySymbol in the dataType to the astNode of this concrete property definition
+            this.symbolTable.addSymbolNodeRelation(propertySymbol, node.getIdNode());
+        }
 
         var stmtNode = node.getStmtNode();
         stmtNode.accept(this);
+
+        // TODO: check, if the types of the property and the stmt are compatible
 
         return null;
     }
 
     @Override
     public Void visit(ObjectDefNode node) {
-        for (var propertyDef : node.getPropertyDefinitions()) {
-            propertyDef.accept(this);
+        // resolve the type of the object definition and push it on the stack
+        var typeName = node.getTypeSpecifierName();
+        var typeSymbol = GlobalScope().Resolve(typeName);
+
+        // TODO: errorhandling
+        if (typeSymbol == Symbol.NULL) {
+            errorStringBuilder.append("Could not resolve type " + typeName);
+        } else if (typeSymbol.getSymbolType() != Symbol.Type.Scoped) {
+            errorStringBuilder.append("Type " + typeName + " is not scoped!");
+        } else {
+            scopeStack.push((AggregateType)typeSymbol);
+
+            for (var propertyDef : node.getPropertyDefinitions()) {
+                propertyDef.accept(this);
+            }
+            scopeStack.pop();
         }
         return null;
     }
