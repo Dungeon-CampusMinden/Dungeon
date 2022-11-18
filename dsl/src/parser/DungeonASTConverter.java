@@ -84,7 +84,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
         // type specifier on stack
         var typeSpecifier = astStack.pop();
-        assert (typeSpecifier.type == Node.Type.TypeSpecifier);
+        assert (typeSpecifier.type == Node.Type.Identifier);
 
         var objectDef =
                 new ObjectDefNode(
@@ -110,8 +110,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         // type specifier (ID) on stack
         var typeSpecifier = astStack.pop();
         assert (typeSpecifier.type == Node.Type.Identifier);
-
-        typeSpecifier = new TypeSpecifierNode(typeSpecifier);
 
         var objectDef =
                 new ObjectDefNode(
@@ -393,13 +391,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             astStack.push(numNode);
         } else if (nodeType == DungeonDSLLexer.TYPE_SPECIFIER) {
             String value = node.getText();
-            var type =
-                    switch (value) {
-                        case "quest_config" -> TypeSpecifierNode.BuiltInType.QuestConfig;
-                            // TODO: generate error message
-                        default -> TypeSpecifierNode.BuiltInType.NONE;
-                    };
-            var typeSpecifierNode = new TypeSpecifierNode(type, getSourceFileReference(node));
+            var typeSpecifierNode = new IdNode(value, getSourceFileReference(node));
             astStack.push(typeSpecifierNode);
         }
     }
