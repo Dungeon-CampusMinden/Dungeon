@@ -14,9 +14,12 @@ public class LevelNode<T extends IRoom> {
 
     private DoorTile.DoorColor[] colors;
 
-    public LevelNode() {
+    private int idx;
+
+    public LevelNode(int idx) {
         neighbours = new LevelNode[4];
         colors = new DoorTile.DoorColor[4];
+        this.idx = idx;
     }
 
     /**

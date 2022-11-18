@@ -7,9 +7,10 @@ package levelgraph;
  */
 public enum DoorDirection {
     UP(0),
-    RIGHT(1),
-    LEFT(2),
-    DOWN(3);
+
+    LEFT(1),
+    DOWN(2),
+    RIGHT(3);
 
     private int value;
 
