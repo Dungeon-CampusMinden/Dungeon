@@ -1,0 +1,14 @@
+graph g {
+                        G -- T -- Q -- D
+                        Q -- F
+                        T -- X -- S
+                        G -- W -- E
+                        W -- C -- U
+                        C -- N
+                  }
+            quest_config c {
+                level_graph: g,
+                quest_points: 10,
+                quest_desc: "Das Passwort findest du in der Breitensuche",
+                password: "GTWQXECDFSUN"
+            }

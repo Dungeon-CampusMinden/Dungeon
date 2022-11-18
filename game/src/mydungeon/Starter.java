@@ -143,7 +143,7 @@ public class Starter extends Game {
     private String readInFile() {
         String ret = "";
         try {
-            BufferedReader br = new BufferedReader(new FileReader("assets/scripts/input1.ds"));
+            BufferedReader br = new BufferedReader(new FileReader("game/assets/scripts/input1.ds"));
 
             String sCurrentLine;
             while ((sCurrentLine = br.readLine()) != null) ret += sCurrentLine + "\n";

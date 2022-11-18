@@ -40,8 +40,8 @@ public class GraphSearchQuest extends Quest implements Evaluateable {
         while (letterChestCoordinate == null || letterChestCoordinate == passwordChestCoordinate) {
             letterChestCoordinate = getRandomCoordinate(rootRoom);
         }
-        // TODO PASSWORT
-        passwordChest = new PasswordChest(passwordChestCoordinate.toPoint(), "TEST", sc, this);
+
+        passwordChest = new PasswordChest(passwordChestCoordinate.toPoint(), questConfig.password(), sc, this);
         rootRoom.addElement(passwordChest);
 
         TreasureChest letterChest = new TreasureChest(letterChestCoordinate.toPoint());
