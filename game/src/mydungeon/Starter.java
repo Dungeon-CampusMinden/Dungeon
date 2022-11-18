@@ -101,10 +101,6 @@ public class Starter extends Game {
     public void onLevelLoad() {
         ILevel level = levelAPI.getCurrentLevel();
         hero.setLevel(level);
-<<<<<<< HEAD
-=======
-        // spawnMonster();
->>>>>>> 76a25da (add TextMap structure)
         quest.onLevelLoad(level, entityController);
         chests.forEach(t -> entityController.remove(t));
         chests.clear();
