@@ -12,6 +12,8 @@ import controller.Game;
 import controller.ScreenController;
 import dslToGame.QuestConfig;
 import interpreter.DSLInterpreter;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import level.elements.ILevel;
@@ -135,19 +137,21 @@ public class Starter extends Game {
     }
 
     private QuestConfig loadConfig() {
-        // TODO correct Config Loading (load String from File?)
-        String testString =
-                "graph g {\n"
-                        + "G -- T -- Q -- D \n"
-                        /* + "Q -- F \n"
-                        + "T -- X -- S \n"
-                        + "G -- W -- E \n"
-                        + "W -- C -- U \n"
-                        + "C -- N  \n"*/
-                        + "}";
-        return dslInterpreter.getQuestConfig(testString);
+        return dslInterpreter.getQuestConfig(readInFile());
     }
 
+    private String readInFile() {
+        String ret = "";
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("assets/scripts/input1.ds"));
+
+            String sCurrentLine;
+            while ((sCurrentLine = br.readLine()) != null) ret += sCurrentLine + "\n";
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ret;
+    }
     /**
      * The program entry point to start the dungeon.
      *
