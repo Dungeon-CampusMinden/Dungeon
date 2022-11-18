@@ -15,7 +15,7 @@ public class TestSymbolTableParser {
                     A -- B
                 }
                 quest_config c {
-                    levelgraph: g
+                    level_graph: g
                 }
                 """;
 
@@ -43,8 +43,7 @@ public class TestSymbolTableParser {
                     A -- B
                 }
                 quest_config c {
-                    levelgraph: g,
-                    levelgraph2: g
+                    level_graph: g
                 }
                 """;
 
@@ -68,13 +67,37 @@ public class TestSymbolTableParser {
                 symtableResult.symbolTable.getSymbolsForAstNode(firstPropertyStmtNode).get(0);
         Assert.assertEquals("g", symbolForStmtNode.name);
         Assert.assertEquals(symbolForDotDefNode, symbolForStmtNode);
+    }
 
-        var secondPropertyDef = propertyDefList.getChild(1);
-        var secondPropertyStmtNode = secondPropertyDef.getChild(1);
-        assert (secondPropertyStmtNode.type == Node.Type.Identifier);
-        var symbolForSecondStmtNode =
-                symtableResult.symbolTable.getSymbolsForAstNode(firstPropertyStmtNode).get(0);
-        Assert.assertEquals("g", symbolForSecondStmtNode.name);
-        Assert.assertEquals(symbolForDotDefNode, symbolForSecondStmtNode);
+    @Test
+    public void testPropertyReference() {
+        String program =
+            """
+            graph g {
+                A -- B
+            }
+            quest_config c {
+                level_graph: g
+            }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var symtableResult = Helpers.getSymtableForAST(ast);
+
+        var objDefNode = ast.getChild(1);
+        var propertyDefList = objDefNode.getChild(2);
+
+        var firstPropertyDef = propertyDefList.getChild(0);
+        var firstPropertyIdNode = firstPropertyDef.getChild(0);
+        assert (firstPropertyIdNode.type == Node.Type.Identifier);
+
+        var questConfigType = symtableResult.symbolTable.globalScope.Resolve("quest_config");
+        var levelGraphPropertySymbol = ((AggregateType)questConfigType).Resolve("level_graph");
+        Assert.assertNotEquals(Symbol.NULL, levelGraphPropertySymbol);
+
+        var symbolForPropertyIdNode =
+            symtableResult.symbolTable.getSymbolsForAstNode(firstPropertyIdNode).get(0);
+
+        Assert.assertEquals(levelGraphPropertySymbol, symbolForPropertyIdNode);
     }
 }
