@@ -13,15 +13,21 @@ import level.tools.Coordinate;
 import level.tools.LevelElement;
 import levelgraph.GraphLevelGenerator;
 import minimap.TextMap;
+import room.IRoom;
 import room.Room;
 import tools.Point;
 
 public class GraphSearchQuest extends Quest {
+
+    TreasureChest passwordChest;
     ScreenText questInfo;
+
+    TextMap textMap;
 
     public GraphSearchQuest(QuestConfig questConfig) {
         super(questConfig);
         generator = new GraphLevelGenerator(questConfig.levelGenGraph());
+        textMap= new TextMap(questConfig.levelGenGraph());
     }
 
     @Override
@@ -33,43 +39,36 @@ public class GraphSearchQuest extends Quest {
         while (letterChestCoordinate == null || letterChestCoordinate == passwordChestCoordinate) {
             letterChestCoordinate = getRandomCoordinate(rootRoom);
         }
-        TreasureChest passwordChest = new TreasureChest(passwordChestCoordinate.toPoint());
+        passwordChest = new TreasureChest(passwordChestCoordinate.toPoint());
         // TODO Lock chest with password
         rootRoom.addElement(passwordChest);
 
         TreasureChest letterChest = new TreasureChest(letterChestCoordinate.toPoint());
-        letterChest.addItem(new Letter('c', new TextMap(questConfig.levelGenGraph()), rootRoom));
-        // Todo add letter
+
+        char c = getNodeToRoom(rootRoom).getValue().toCharArray()[0];
+        letterChest.addItem(new Letter(c, textMap, rootRoom));
         rootRoom.addElement(letterChest);
 
         Iterator<Node<String>> graphIterator = questConfig.levelGenGraph().getNodeIterator();
-        // TODO insert iterator
-        // Iterator<LevelNode> levelIterator = generator.getNodes().iterator();
-
+        graphIterator.next();
         while (graphIterator.hasNext()) {
-            //    if(!levelIterator.hasNext())  throw Exception
             Node<String> graphNode = graphIterator.next();
-            // LevelNode levelNode = levelIterator.next();
-            // Room r = levelNode.getRoom();
-            // spawnTreasureChestWithLetter(r, graphNode.getValue().toCharArray()[0]);
+            IRoom room = getRoomToNode(graphNode);
+            spawnTreasureChestWithLetter((ILevel) room, graphNode.getValue().toCharArray()[0]);
         }
     }
 
     @Override
     public void addQuestUIElements(ScreenController sc) {
-        // UI
-        // TODO Auslesen aus der Config
-        questInfo =
-                new ScreenText(
-                        "\\u2610 Öffne die Schatztruhe\nCode: Pre-Order", new Point(450, 420), 1f);
+        questInfo = new ScreenText(questText, new Point(450, 420), 1f);
         sc.add(questInfo);
     }
 
     @Override
-    public void evaluateUserPerformance() {
-        // Bewertung durchführen
-        // int score = 10;
-        // score -= treasureChest.tries;
+    public int evaluateUserPerformance() {
+        // todo
+        return 0;
+        // return maxscore- passwordChest.getCount();
     }
 
     private Coordinate getRandomCoordinate(ILevel level) {
@@ -82,12 +81,21 @@ public class GraphSearchQuest extends Quest {
 
     private void spawnTreasureChestWithLetter(ILevel level, Character codeFragment) {
         TreasureChest t = new TreasureChest(getRandomCoordinate(level).toPoint());
-        // TODO add Letter
-        ((Room) level).getElements().add(t);
+        char c = getNodeToRoom((Room) level).getValue().toCharArray()[0];
+        t.addItem(new Letter(c, textMap, (Room) level));
+        ((Room)level).addElement(t);
     }
 
     @Override
     public void onLevelLoad(ILevel currentLevel, EntityController entityController) {
-        // TODO print new map with players position?
+        textMap.drawMap();
+    }
+
+    private Node<String> getNodeToRoom(Room r) {
+        return GraphLevelGenerator.levelNodeToNode.get(r.getLevelNode());
+    }
+
+    private IRoom getRoomToNode(Node<String> n) {
+        return GraphLevelGenerator.nodeToLevelNode.get(n).getRoom();
     }
 }

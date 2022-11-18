@@ -20,6 +20,8 @@ public class TextMap implements IMinimap {
     @Override
     public void drawOnMap(char c, Room r) {
         found.put(GraphLevelGenerator.levelNodeToNode.get(r.getLevelNode()), true);
+        drawMap();
+        System.out.println(c);
     }
 
     @Override

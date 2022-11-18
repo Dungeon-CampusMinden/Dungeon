@@ -13,8 +13,14 @@ public abstract class Quest {
     protected ILevel root;
     protected IMinimap minimap;
 
+    protected String questText;
+
+    protected int maxscore;
+
     public Quest(QuestConfig questConfig) {
         this.questConfig = questConfig;
+        this.maxscore = questConfig.points();
+        this.questText = questConfig.taskDescription();
     }
 
     public IGenerator getGenerator() {
@@ -33,7 +39,7 @@ public abstract class Quest {
 
     public abstract void addQuestUIElements(ScreenController sc);
 
-    public abstract void evaluateUserPerformance();
+    public abstract int evaluateUserPerformance();
 
     public abstract void onLevelLoad(ILevel currentLevel, EntityController entityController);
 }
