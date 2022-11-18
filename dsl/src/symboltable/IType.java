@@ -1,2 +1,5 @@
-package symboltable;public interface IType {
+package symboltable;
+
+public interface IType {
+    String getName();
 }

@@ -30,16 +30,23 @@ public class Symbol {
     protected static int s_idx;
 
     protected String name;
+
+    protected IType dataType;
+
     // the parent scope of the symbol
     protected IScope scope;
     protected Type symbolType;
 
     private int idx;
 
-    public static Symbol NULL = new Symbol("NULL SYMBOL", null);
+    public static Symbol NULL = new Symbol("NULL SYMBOL", null, null);
 
     public String getName() {
         return name;
+    }
+
+    public IType getDataType() {
+        return dataType;
     }
 
     public IScope getScope() {
@@ -54,16 +61,18 @@ public class Symbol {
         return symbolType;
     }
 
-    public Symbol(String symbolName, IScope parentScope) {
-        idx = s_idx++;
-        scope = parentScope;
-        name = symbolName;
-        symbolType = Type.Base;
+    public Symbol(String symbolName, IScope parentScope, IType dataType) {
+        this.idx = s_idx++;
+        this.scope = parentScope;
+        this.name = symbolName;
+        this.dataType = dataType;
+        this.symbolType = Type.Base;
     }
 
     public Symbol() {
-        scope = null;
-        name = "no name";
-        symbolType = Type.Base;
+        this.scope = null;
+        this.name = "no name";
+        this.dataType = null;
+        this.symbolType = Type.Base;
     }
 }

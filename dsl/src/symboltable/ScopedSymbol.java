@@ -29,8 +29,8 @@ public class ScopedSymbol extends Symbol implements IScope {
 
     protected HashMap<String, Symbol> symbols;
 
-    public ScopedSymbol(String name, IScope parentScope) {
-        super(name, parentScope);
+    public ScopedSymbol(String name, IScope parentScope, IType type) {
+        super(name, parentScope, type);
         symbolType = Type.Scoped;
         symbols = new HashMap<>();
     }
