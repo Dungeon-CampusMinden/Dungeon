@@ -1,10 +1,11 @@
 package quest;
 
+import controller.ScreenController;
 import dslToGame.QuestConfig;
 
 public class QuestFactory {
 
-    public static Quest generateQuestFromConfig(QuestConfig questConfig) {
+    public static Quest generateQuestFromConfig(QuestConfig questConfig, ScreenController sc) {
         // TODO replace dummy QuestType with Type in config
         // QuestType questType = questConfig.questType;
         enum QuestType {
@@ -16,7 +17,7 @@ public class QuestFactory {
         QuestType questType = QuestType.GRAPH_SEARCH_QUEST;
         switch (questType) {
             case GRAPH_SEARCH_QUEST -> {
-                return new GraphSearchQuest(questConfig);
+                return new GraphSearchQuest(questConfig, sc);
             }
             case STATE_MACHINE_BOSS_QUEST -> {
                 // todo later

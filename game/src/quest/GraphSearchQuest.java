@@ -2,6 +2,7 @@ package quest;
 
 import basiselements.hud.ScreenText;
 import character.objects.Letter;
+import character.objects.PasswordChest;
 import character.objects.TreasureChest;
 import controller.EntityController;
 import controller.ScreenController;
@@ -17,17 +18,17 @@ import room.IRoom;
 import room.Room;
 import tools.Point;
 
-public class GraphSearchQuest extends Quest {
+public class GraphSearchQuest extends Quest implements Evaluateable {
 
-    TreasureChest passwordChest;
+    PasswordChest passwordChest;
     ScreenText questInfo;
 
     TextMap textMap;
 
-    public GraphSearchQuest(QuestConfig questConfig) {
-        super(questConfig);
+    public GraphSearchQuest(QuestConfig questConfig, ScreenController sc) {
+        super(questConfig, sc);
         generator = new GraphLevelGenerator(questConfig.levelGenGraph());
-        textMap= new TextMap(questConfig.levelGenGraph());
+        textMap = new TextMap(questConfig.levelGenGraph());
     }
 
     @Override
@@ -39,8 +40,8 @@ public class GraphSearchQuest extends Quest {
         while (letterChestCoordinate == null || letterChestCoordinate == passwordChestCoordinate) {
             letterChestCoordinate = getRandomCoordinate(rootRoom);
         }
-        passwordChest = new TreasureChest(passwordChestCoordinate.toPoint());
-        // TODO Lock chest with password
+        // TODO PASSWORT
+        passwordChest = new PasswordChest(passwordChestCoordinate.toPoint(), "TEST", sc, this);
         rootRoom.addElement(passwordChest);
 
         TreasureChest letterChest = new TreasureChest(letterChestCoordinate.toPoint());
@@ -59,16 +60,16 @@ public class GraphSearchQuest extends Quest {
     }
 
     @Override
-    public void addQuestUIElements(ScreenController sc) {
+    public void addQuestUIElements() {
         questInfo = new ScreenText(questText, new Point(450, 420), 1f);
         sc.add(questInfo);
     }
 
     @Override
     public int evaluateUserPerformance() {
-        // todo
-        return 0;
-        // return maxscore- passwordChest.getCount();
+        int score = maxscore - passwordChest.getFalseAttempts();
+        System.out.println("YOUR SCORE IS: " + score);
+        return score;
     }
 
     private Coordinate getRandomCoordinate(ILevel level) {
@@ -83,7 +84,7 @@ public class GraphSearchQuest extends Quest {
         TreasureChest t = new TreasureChest(getRandomCoordinate(level).toPoint());
         char c = getNodeToRoom((Room) level).getValue().toCharArray()[0];
         t.addItem(new Letter(c, textMap, (Room) level));
-        ((Room)level).addElement(t);
+        ((Room) level).addElement(t);
     }
 
     @Override
@@ -97,5 +98,10 @@ public class GraphSearchQuest extends Quest {
 
     private IRoom getRoomToNode(Node<String> n) {
         return GraphLevelGenerator.nodeToLevelNode.get(n).getRoom();
+    }
+
+    @Override
+    public void evaluate() {
+        evaluateUserPerformance();
     }
 }

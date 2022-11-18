@@ -15,12 +15,15 @@ public abstract class Quest {
 
     protected String questText;
 
+    protected ScreenController sc;
+
     protected int maxscore;
 
-    public Quest(QuestConfig questConfig) {
+    public Quest(QuestConfig questConfig, ScreenController sc) {
         this.questConfig = questConfig;
         this.maxscore = questConfig.points();
         this.questText = questConfig.taskDescription();
+        this.sc = sc;
     }
 
     public IGenerator getGenerator() {
@@ -37,7 +40,7 @@ public abstract class Quest {
 
     public abstract void addQuestObjectsToLevels();
 
-    public abstract void addQuestUIElements(ScreenController sc);
+    public abstract void addQuestUIElements();
 
     public abstract int evaluateUserPerformance();
 

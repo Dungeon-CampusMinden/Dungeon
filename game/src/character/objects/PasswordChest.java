@@ -5,6 +5,7 @@ import collision.CharacterDirection;
 import collision.Collidable;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import controller.ScreenController;
+import quest.Evaluateable;
 import tools.Point;
 
 public class PasswordChest extends TreasureChest {
@@ -12,9 +13,11 @@ public class PasswordChest extends TreasureChest {
     private String password;
     private PasswordInputUI ui;
     private ScreenController screenController;
-    private int attemptCounter = 0;
+    private int falseAttempts = 0;
     private boolean correctPassword = false;
     private boolean interacting = false;
+
+    private Evaluateable evaluateable;
     private TextButtonListener okListener =
             new TextButtonListener() {
                 @Override
@@ -31,10 +34,12 @@ public class PasswordChest extends TreasureChest {
                 }
             };
 
-    public PasswordChest(Point position, String password, ScreenController sc) {
+    public PasswordChest(
+            Point position, String password, ScreenController sc, Evaluateable evaluateable) {
         super(position);
         this.password = password;
         screenController = sc;
+        this.evaluateable = evaluateable;
     }
 
     private void onOK() {
@@ -42,11 +47,12 @@ public class PasswordChest extends TreasureChest {
             correctPassword = true;
             if (!isOpen) {
                 open();
+                evaluateable.evaluate();
             }
             onExit();
         } else {
-            attemptCounter++;
-            System.out.println(attemptCounter);
+            falseAttempts++;
+            System.out.println(falseAttempts);
         }
     }
 
@@ -75,7 +81,7 @@ public class PasswordChest extends TreasureChest {
         }
     }
 
-    public int getAttemptCounter() {
-        return attemptCounter;
+    public int getFalseAttempts() {
+        return falseAttempts;
     }
 }

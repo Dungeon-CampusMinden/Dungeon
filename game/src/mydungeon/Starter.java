@@ -46,9 +46,7 @@ public class Starter extends Game {
     protected void setup() {
         dslInterpreter = new DSLInterpreter();
         QuestConfig config = loadConfig();
-        quest = QuestFactory.generateQuestFromConfig(config);
-        generator = quest.getGenerator();
-        levelAPI.setGenerator(generator);
+
         clevel = new CollisionMap();
         monster = new ArrayList<>();
         pwChest = new ArrayList<>();
@@ -56,14 +54,21 @@ public class Starter extends Game {
         hero = new Hero();
         sc = new ScreenController(batch);
         controller.add(sc);
+
+        quest = QuestFactory.generateQuestFromConfig(config, sc);
+        generator = quest.getGenerator();
+
+        levelAPI.setGenerator(generator);
         levelAPI.loadLevel();
+
         quest.setRootLevel(levelAPI.getCurrentLevel());
         quest.addQuestObjectsToLevels();
         onLevelLoad();
+
         hero.getHitbox().setCollidable(hero);
         camera.follow(hero);
         entityController.add(hero);
-        quest.addQuestUIElements(sc);
+        quest.addQuestUIElements();
     }
 
     @Override
@@ -87,15 +92,18 @@ public class Starter extends Game {
         }
         CharacterDirection direction;
         for (PasswordChest p : pwChest) {
-             direction = hero.getHitbox().collide(p.getHitbox());
+            direction = hero.getHitbox().collide(p.getHitbox());
+            hero.colide(p, direction);
+            p.colide(hero, direction);
+        }
         for (TreasureChest t : chests) {
             direction = hero.getHitbox().collide(t.getHitbox());
             if (direction != CharacterDirection.NONE) {
-                hero.colide(p, direction);
-                p.colide(hero, direction);
+                hero.colide(t, direction);
+                t.colide(hero, direction);
             }
         }
-        }    }
+    }
 
     @Override
     public void onLevelLoad() {
@@ -125,7 +133,6 @@ public class Starter extends Game {
             entityController.add(m);
         }
     }
-
 
     private QuestConfig loadConfig() {
         // TODO correct Config Loading (load String from File?)
