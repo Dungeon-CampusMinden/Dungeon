@@ -1,7 +1,6 @@
 package character.objects;
 
 import basiselements.hud.TextButtonListener;
-import character.player.Hero;
 import collision.CharacterDirection;
 import collision.Collidable;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -38,7 +37,7 @@ public class PasswordChest extends TreasureChest {
     private void onOK() {
         if (password.equals(ui.passwordInput.getText())) {
             correctPassword = true;
-            if(!isOpen){
+            if (!isOpen) {
                 currentAnimation = opening;
                 inventory.forEach(i -> i.collect());
                 inventory.clear();
@@ -49,22 +48,31 @@ public class PasswordChest extends TreasureChest {
     }
 
     private void onExit() {
+        ui.background.remove();
         ui.passwordInput.remove();
         ui.ok.remove();
         ui.exit.remove();
         interacting = false;
     }
 
-    private void onCollision(ScreenController sc){
-        if (!interacting && !correctPassword){
+    private void onCollision(ScreenController sc) {
+        if (!interacting && !correctPassword) {
             interacting = true;
-            ui= new PasswordInputUI(okListener, exitListener);
+            ui = new PasswordInputUI(okListener, exitListener);
+            sc.add(ui.background);
             sc.add(ui.passwordInput);
             sc.add(ui.ok);
             sc.add(ui.exit);
         }
     }
 
+    /**
+     * Action to do a collision
+     *
+     * @param other Object you colide with
+     * @param from Direction from where you colide
+     * @param sc ScreenController to use
+     */
     public void colide(Collidable other, CharacterDirection from, ScreenController sc) {
         onCollision(sc);
     }

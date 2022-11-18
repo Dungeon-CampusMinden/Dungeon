@@ -14,6 +14,7 @@ public class PasswordInputUI {
     ScreenButton exit;
 
     public PasswordInputUI(TextButtonListener okListener, TextButtonListener exitListener) {
+        background = new ScreenImage("hud/white.png", new Point(0, 70));
         passwordInput = new ScreenInput("Passwort?", new Point(50, 150));
         ok = new ScreenButton("OK", new Point(0, 80), okListener);
         exit = new ScreenButton("Abbrechen", new Point(50, 80), exitListener);
