@@ -1,5 +1,7 @@
 package mydungeon;
 
+import basiselements.DungeonElement;
+import basiselements.hud.ScreenText;
 import character.monster.Imp;
 import character.monster.Monster;
 import character.objects.*;
@@ -9,18 +11,19 @@ import collision.CollisionMap;
 import controller.Game;
 import controller.ScreenController;
 import dslToGame.QuestConfig;
-import graph.Graph;
 import interpreter.DSLInterpreter;
+import graph.Graph;
 import java.util.ArrayList;
 import java.util.List;
 import level.elements.ILevel;
 import level.elements.tile.DoorTile;
 import level.elements.tile.Tile;
 import level.tools.LevelElement;
-import levelgraph.GraphLevelGenerator;
 import minimap.IMinimap;
+import quest.Quest;
+import quest.QuestFactory;
+import room.Room;
 import starter.DesktopLauncher;
-import tools.Point;
 
 /**
  * The entry class to create your own implementation.
@@ -31,21 +34,27 @@ import tools.Point;
 public class Starter extends Game {
     private Hero hero;
     private List<Monster> monster;
+    private List<TreasureChest> chests;
     private ScreenController sc;
     private CollisionMap clevel;
-    // private List<TreasureChest> chest;
     private List<PasswordChest> pwChest;
+
     private Letter letter;
+    private DSLInterpreter dslInterpreter;
+    private Quest quest;
+    private ScreenText questInfo;
 
     @Override
     protected void setup() {
+        dslInterpreter = new DSLInterpreter();
         QuestConfig config = loadConfig();
-        generator = new GraphLevelGenerator(config.levelGenGraph());
+        quest = QuestFactory.generateQuestFromConfig(config);
+        generator = quest.getGenerator();
         levelAPI.setGenerator(generator);
         clevel = new CollisionMap();
         monster = new ArrayList<>();
-        // chest = new ArrayList<>();
         pwChest = new ArrayList<>();
+        chests = new ArrayList<>();
         letter =
                 new Letter(
                         'A',
@@ -62,9 +71,12 @@ public class Starter extends Game {
         sc = new ScreenController(batch);
         controller.add(sc);
         levelAPI.loadLevel();
+        quest.setRootLevel(levelAPI.getCurrentLevel());
+        quest.addQuestObjectsToLevels();
         hero.getHitbox().setCollidable(hero);
         camera.follow(hero);
         entityController.add(hero);
+        quest.addQuestUIElements(sc);
     }
 
     @Override
@@ -86,27 +98,31 @@ public class Starter extends Game {
                 m.colide(hero, direction);
             }
         }
-        /*
-         * for (TreasureChest t : chest) { CharacterDirection direction =
-         * hero.getHitbox().collide(t.getHitbox()); if (direction != CharacterDirection.NONE) {
-         * hero.colide(t, direction); t.colide(hero, direction); } }
-         */
+        CharacterDirection direction;
         for (PasswordChest p : pwChest) {
-            CharacterDirection direction = hero.getHitbox().collide(p.getHitbox());
+             direction = hero.getHitbox().collide(p.getHitbox());
+        for (TreasureChest t : chests) {
+            direction = hero.getHitbox().collide(t.getHitbox());
             if (direction != CharacterDirection.NONE) {
                 hero.colide(p, direction);
                 p.colide(hero, direction);
             }
         }
-    }
+        }    }
 
     @Override
     public void onLevelLoad() {
         ILevel level = levelAPI.getCurrentLevel();
         hero.setLevel(level);
-        spawnMonster();
-        // spawnTreasureChest();
-        spawnPasswordChest();
+        quest.onLevelLoad(level, entityController);
+        chests.forEach(t -> entityController.remove(t));
+        chests.clear();
+        for (DungeonElement element : ((Room) level).getElements()) {
+            if (element instanceof TreasureChest) {
+                chests.add((TreasureChest) element);
+            }
+            entityController.add(element);
+        }
         clevel.regenHitboxen(level);
     }
 
@@ -123,27 +139,19 @@ public class Starter extends Game {
         }
     }
 
-    /*
-     * void spawnTreasureChest() { chest.forEach(t -> entityController.remove(t)); chest.clear();
-     * Point p = levelAPI.getCurrentLevel().getStartTile().getCoordinate().toPoint(); p.x += 1;
-     * TreasureChest t = new TreasureChest(p); chest.add(t); entityController.add(t); }
-     */
-    void spawnPasswordChest() {
-        pwChest.forEach(pC -> entityController.remove(pC));
-        pwChest.clear();
-        Point p = levelAPI.getCurrentLevel().getStartTile().getCoordinate().toPoint();
-        p.x += 1;
-        PasswordChest pWChest = new PasswordChest(p, "Test", sc);
-        pwChest.add(pWChest);
-        entityController.add(pWChest);
-    }
 
     private QuestConfig loadConfig() {
-        String program = "graph g {\n" + "A -- B \n" + "B -- C -- A \n" + "}";
-        Graph<String> levelGenGraph = new DSLInterpreter().getQuestConfig(program).levelGenGraph();
-        String taskDescription = "Task123Dummy123";
-        int points = 10;
-        return new QuestConfig(levelGenGraph, taskDescription, points);
+        // TODO correct Config Loading (load String from File?)
+        String testString =
+                "graph g {\n"
+                        + "G -- T -- Q -- D \n"
+                        + "Q -- F \n"
+                        + "T -- X -- S \n"
+                        + "G -- W -- E \n"
+                        + "W -- C -- U \n"
+                        + "C -- N \n"
+                        + "}";
+        return dslInterpreter.getQuestConfig(testString);
     }
 
     /**
