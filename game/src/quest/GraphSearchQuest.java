@@ -1,7 +1,9 @@
 package quest;
 
+import basiselements.hud.ScreenText;
 import character.objects.TreasureChest;
 import controller.EntityController;
+import controller.ScreenController;
 import dslToGame.QuestConfig;
 import graph.Node;
 import java.util.Iterator;
@@ -10,8 +12,11 @@ import level.tools.Coordinate;
 import level.tools.LevelElement;
 import levelgraph.GraphLevelGenerator;
 import room.Room;
+import tools.Point;
 
 public class GraphSearchQuest extends Quest {
+    ScreenText questInfo;
+
     public GraphSearchQuest(QuestConfig questConfig) {
         super(questConfig);
         generator = new GraphLevelGenerator(questConfig.levelGenGraph());
@@ -48,13 +53,20 @@ public class GraphSearchQuest extends Quest {
     }
 
     @Override
-    public void addQuestUIElements() {
+    public void addQuestUIElements(ScreenController sc) {
         // UI
+        // TODO Auslesen aus der Config
+        questInfo =
+                new ScreenText(
+                        "\\u2610 Öffne die Schatztruhe\nCode: Pre-Order", new Point(450, 420), 1f);
+        sc.add(questInfo);
     }
 
     @Override
     public void evaluateUserPerformance() {
         // Bewertung durchführen
+        // int score = 10;
+        // score -= treasureChest.tries;
     }
 
     private Coordinate getRandomCoordinate(ILevel level) {

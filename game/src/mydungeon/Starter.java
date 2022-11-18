@@ -1,6 +1,7 @@
 package mydungeon;
 
 import basiselements.DungeonElement;
+import basiselements.hud.ScreenText;
 import character.monster.Imp;
 import character.monster.Monster;
 import character.objects.Letter;
@@ -12,6 +13,7 @@ import controller.Game;
 import controller.ScreenController;
 import dslToGame.QuestConfig;
 import interpreter.DSLInterpreter;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import level.elements.ILevel;
@@ -39,6 +41,7 @@ public class Starter extends Game {
     private Letter letter;
     private DSLInterpreter dslInterpreter;
     private Quest quest;
+    private ScreenText questInfo;
 
     @Override
     protected void setup() {
@@ -71,6 +74,7 @@ public class Starter extends Game {
         hero.getHitbox().setCollidable(hero);
         camera.follow(hero);
         entityController.add(hero);
+        quest.addQuestUIElements(sc);
     }
 
     @Override
@@ -133,7 +137,15 @@ public class Starter extends Game {
 
     private QuestConfig loadConfig() {
         // TODO correct Config Loading (load String from File?)
-        String testString = "graph g {\n" + "A -- B \n" + "B -- C -- D -> E \n" + "}";
+        String testString =
+                "graph g {\n"
+                        + "G -- T -- Q -- D \n"
+                        + "Q -- F \n"
+                        + "T -- X -- S \n"
+                        + "G -- W -- E \n"
+                        + "W -- C -- U \n"
+                        + "C -- N \n"
+                        + "}";
         return dslInterpreter.getQuestConfig(testString);
     }
 

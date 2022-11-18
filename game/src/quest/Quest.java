@@ -1,6 +1,7 @@
 package quest;
 
 import controller.EntityController;
+import controller.ScreenController;
 import dslToGame.QuestConfig;
 import level.elements.ILevel;
 import level.generator.IGenerator;
@@ -30,7 +31,7 @@ public abstract class Quest {
 
     public abstract void addQuestObjectsToLevels();
 
-    public abstract void addQuestUIElements();
+    public abstract void addQuestUIElements(ScreenController sc);
 
     public abstract void evaluateUserPerformance();
 
