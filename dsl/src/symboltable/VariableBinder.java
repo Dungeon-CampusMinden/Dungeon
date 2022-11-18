@@ -100,8 +100,7 @@ public class VariableBinder implements AstVisitor<Void> {
         var objectSymbol = parentScope.Resolve(idName);
 
         if (Symbol.NULL == objectSymbol) {
-            // TODO: add datatype!!
-            objectSymbol = new Symbol(idName, parentScope);
+            objectSymbol = new Symbol(idName, parentScope, BuiltInType.graphType);
             if (parentScope.Bind(objectSymbol)) {
                 symbolTable.addSymbolNodeRelation(objectSymbol, node);
             }
@@ -125,8 +124,13 @@ public class VariableBinder implements AstVisitor<Void> {
         var objectSymbol = parentScope.Resolve(idName);
 
         if (Symbol.NULL == objectSymbol) {
-            // TODO: add datatype!!
-            objectSymbol = new Symbol(idName, parentScope);
+            // resolve type name
+            var typeName = node.getTypeSpecifierName();
+            var type = this.parentScope.Resolve(typeName);
+            assert type != null;
+            assert type instanceof IType;
+
+            objectSymbol = new Symbol(idName, parentScope, (IType) type);
             if (parentScope.Bind(objectSymbol)) {
                 symbolTable.addSymbolNodeRelation(objectSymbol, node);
             }
