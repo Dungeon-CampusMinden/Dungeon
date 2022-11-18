@@ -35,6 +35,7 @@ public class QuestConfigBuilder {
     }
 
     public QuestConfig build() {
-        return new QuestConfig(this.levelGenGraph, this.questDescription, this.points, this.password);
+        return new QuestConfig(
+                this.levelGenGraph, this.questDescription, this.points, this.password);
     }
 }
