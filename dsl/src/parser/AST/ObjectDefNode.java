@@ -24,8 +24,17 @@ public class ObjectDefNode extends Node {
         return this.getChild(typeSpecifierIdx);
     }
 
+    public String getTypeSpecifierName() {
+        var typeSpecifier = this.getChild(typeSpecifierIdx);
+        return ((IdNode) typeSpecifier).getName();
+    }
+
     public Node getId() {
         return this.getChild(idIdx);
+    }
+
+    public String getIdName() {
+        return ((IdNode) this.getChild(idIdx)).getName();
     }
 
     public List<Node> getPropertyDefinitions() {
