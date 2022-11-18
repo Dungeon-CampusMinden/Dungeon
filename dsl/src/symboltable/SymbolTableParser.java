@@ -77,6 +77,10 @@ public class SymbolTableParser implements AstVisitor<Void> {
         var questConfigType = new AggregateType("quest_config", GlobalScope());
         var levelGraphProperty = new Symbol("level_graph", questConfigType, BuiltInType.graphType);
         questConfigType.Bind(levelGraphProperty);
+        var description = new Symbol("quest_desc", questConfigType, BuiltInType.stringType);
+        questConfigType.Bind(description);
+        var questPoints = new Symbol("quest_points", questConfigType, BuiltInType.intType);
+        questConfigType.Bind(questPoints);
 
         GlobalScope().Bind(questConfigType);
     }
@@ -173,9 +177,11 @@ public class SymbolTableParser implements AstVisitor<Void> {
         // TODO: ensure, that no other scopes than the scopes of the type are checked
         var propertySymbol = CurrentScope().Resolve(propertyIdName);
         if (propertySymbol == Symbol.NULL) {
-            errorStringBuilder.append("no property with name " + propertyIdName + " could be found");
+            errorStringBuilder.append(
+                    "no property with name " + propertyIdName + " could be found");
         } else {
-            // link the propertySymbol in the dataType to the astNode of this concrete property definition
+            // link the propertySymbol in the dataType to the astNode of this concrete property
+            // definition
             this.symbolTable.addSymbolNodeRelation(propertySymbol, node.getIdNode());
         }
 
@@ -199,7 +205,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
         } else if (typeSymbol.getSymbolType() != Symbol.Type.Scoped) {
             errorStringBuilder.append("Type " + typeName + " is not scoped!");
         } else {
-            scopeStack.push((AggregateType)typeSymbol);
+            scopeStack.push((AggregateType) typeSymbol);
 
             for (var propertyDef : node.getPropertyDefinitions()) {
                 propertyDef.accept(this);
