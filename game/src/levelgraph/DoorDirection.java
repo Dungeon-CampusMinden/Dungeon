@@ -7,9 +7,10 @@ package levelgraph;
  */
 public enum DoorDirection {
     UP(0),
-    RIGHT(1),
-    LEFT(2),
-    DOWN(3);
+
+    LEFT(1),
+    DOWN(2),
+    RIGHT(3);
 
     private int value;
 
@@ -27,7 +28,7 @@ public enum DoorDirection {
      * @param direction
      * @return opposite side of the room
      */
-    public static DoorDirection getOppsit(DoorDirection direction) {
+    public static DoorDirection getOpposite(DoorDirection direction) {
         return switch (direction) {
             case UP -> DOWN;
             case DOWN -> UP;

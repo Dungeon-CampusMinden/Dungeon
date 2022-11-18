@@ -13,7 +13,7 @@ import controller.Game;
 import controller.ScreenController;
 import dslToGame.QuestConfig;
 import interpreter.DSLInterpreter;
-import java.awt.*;
+import graph.Graph;
 import java.util.ArrayList;
 import java.util.List;
 import level.elements.ILevel;

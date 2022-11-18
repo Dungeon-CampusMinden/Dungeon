@@ -4,6 +4,8 @@ import static level.elements.ILevel.RANDOM;
 
 import java.util.ArrayList;
 import java.util.Random;
+import level.elements.tile.DoorTile;
+import level.elements.tile.Tile;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
@@ -34,7 +36,9 @@ public class RoomGenerator {
     private static final int BIG_MAX_Y_SIZE = 24;
 
     public IRoom getLevel(DesignLabel designLabel, LevelSize size, DoorDirection[] doors) {
-        return new Room(getLayout(size, doors), designLabel);
+        Room room = new Room(getLayout(size, doors), designLabel);
+        addDoorTilesToRoom(room);
+        return room;
     }
 
     public LevelElement[][] getLayout(LevelSize size, DoorDirection[] doors) {
@@ -462,6 +466,11 @@ public class RoomGenerator {
             floorNeighbors++;
         }
         return floorNeighbors > 0;
+    }
+
+    private void addDoorTilesToRoom(Room room) {
+        for (Tile[] row : room.getLayout())
+            for (Tile tile : row) if (tile instanceof DoorTile) room.addDoor((DoorTile) tile);
     }
 
     private void printLayout(LevelElement[][] layout, LevelSize size) {

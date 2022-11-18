@@ -1,5 +1,8 @@
 package levelgraph;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import level.elements.tile.DoorTile;
 import room.IRoom;
 
 /**
@@ -11,8 +14,17 @@ public class LevelNode<T extends IRoom> {
     private T room;
     private LevelNode[] neighbours;
 
+    private DoorTile.DoorColor[] colors;
+
+    private ArrayList<DoorDirection> toTry = new ArrayList<>();
+
     public LevelNode() {
         neighbours = new LevelNode[4];
+        colors = new DoorTile.DoorColor[4];
+        toTry.add(DoorDirection.UP);
+        toTry.add(DoorDirection.LEFT);
+        toTry.add(DoorDirection.RIGHT);
+        toTry.add(DoorDirection.DOWN);
     }
 
     /**
@@ -23,10 +35,16 @@ public class LevelNode<T extends IRoom> {
      * @param onedirectedEdge if true, the connection is one directed
      * @return if connection was successful
      */
-    public boolean connect(LevelNode other, DoorDirection direction, boolean onedirectedEdge) {
+    public boolean connect(
+            LevelNode other,
+            DoorDirection direction,
+            boolean onedirectedEdge,
+            DoorTile.DoorColor color) {
         if (neighbours[direction.getValue()] == null) {
-            if (onedirectedEdge || other.connect(this, DoorDirection.getOppsit(direction), true)) {
+            if (onedirectedEdge
+                    || other.connect(this, DoorDirection.getOpposite(direction), true, color)) {
                 neighbours[direction.getValue()] = other;
+                colors[direction.getValue()] = color;
                 return true;
             }
         }
@@ -39,8 +57,20 @@ public class LevelNode<T extends IRoom> {
      * @param direction Direction to connect the nodes
      * @return if connection was successful
      */
-    public boolean connect(LevelNode other, DoorDirection direction) {
-        return connect(other, direction, false);
+    public boolean connect(LevelNode other, DoorDirection direction, DoorTile.DoorColor color) {
+        return connect(other, direction, false, color);
+    }
+
+    public boolean connect(LevelNode other) {
+        Collections.shuffle(toTry);
+        for (DoorDirection direction : toTry) {
+            if (tryConnect(other, direction)) return true;
+        }
+        return false;
+    }
+
+    private boolean tryConnect(LevelNode other, DoorDirection direction) {
+        return connect(other, direction, DoorTile.DoorColor.NONE);
     }
 
     /**
@@ -83,5 +113,9 @@ public class LevelNode<T extends IRoom> {
         if (neighbours[2] != null) directions[2] = DoorDirection.LEFT;
         if (neighbours[3] != null) directions[3] = DoorDirection.DOWN;
         return directions;
+    }
+
+    public DoorTile.DoorColor[] getColors() {
+        return colors;
     }
 }

@@ -2,6 +2,7 @@ package room;
 
 import java.util.LinkedHashSet;
 import level.elements.tile.DoorTile;
+import level.elements.tile.Tile;
 
 public interface IRoom {
     /**
@@ -9,6 +10,5 @@ public interface IRoom {
      */
     LinkedHashSet<DoorTile> getDoors();
 
-    /** remove the ExitTile in this room if exist */
-    void removeExit();
+    Tile[][] getLayout();
 }

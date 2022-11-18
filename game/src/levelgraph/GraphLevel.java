@@ -3,6 +3,7 @@ package levelgraph;
 import java.util.LinkedHashSet;
 import level.elements.tile.DoorTile;
 import level.elements.tile.Tile;
+import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelSize;
 import room.IRoom;
@@ -27,9 +28,8 @@ public class GraphLevel {
         this.designLabel = designLabel;
         this.size = size;
         generator = new RoomGenerator();
-        LinkedHashSet<LevelNode> visited = new LinkedHashSet<>();
-        createRooms(root, visited);
-        findDoors();
+        createRooms(root, new LinkedHashSet());
+        findDoors(root, new LinkedHashSet());
     }
 
     // Visit all Nodes and create a room for each of them
@@ -41,34 +41,106 @@ public class GraphLevel {
     }
 
     // Add the connection between the doors
-    private void findDoors() {
-        // todo loop over all doors, dont look up
-        //     private static String findTexturePathDoor(LevelPart levelPart) <- TileTextureFactory
-        // doorstep setzen hier?!
-        // refactor seperate method
-        DoorTile door = null;
-        DoorTile otherDoor = null;
+    private void findDoors(LevelNode node, LinkedHashSet<LevelNode> visited) {
+        if (node == null || visited.contains(node)) return;
+        visited.add(node);
 
-        connectDoors(door, otherDoor);
-        findDoorstep(door);
-        findDoorstep(otherDoor);
+        LevelNode rightNeighbour = node.getNeighbour(DoorDirection.RIGHT);
+        LevelNode leftNeighbour = node.getNeighbour(DoorDirection.LEFT);
+        LevelNode lowerNeighbour = node.getNeighbour(DoorDirection.DOWN);
+        LevelNode upperNeighbour = node.getNeighbour(DoorDirection.UP);
+        DoorTile[] doors = findDoors(node.getRoom());
+
+        if (rightNeighbour != null)
+            doorPairFound(
+                    doors[DoorDirection.RIGHT.getValue()],
+                    findDoors(rightNeighbour.getRoom())[DoorDirection.LEFT.getValue()],
+                    DoorDirection.RIGHT,
+                    node);
+        if (leftNeighbour != null)
+            doorPairFound(
+                    doors[DoorDirection.LEFT.getValue()],
+                    findDoors(leftNeighbour.getRoom())[DoorDirection.RIGHT.getValue()],
+                    DoorDirection.LEFT,
+                    node);
+        if (lowerNeighbour != null)
+            doorPairFound(
+                    doors[DoorDirection.DOWN.getValue()],
+                    findDoors(lowerNeighbour.getRoom())[DoorDirection.UP.getValue()],
+                    DoorDirection.DOWN,
+                    node);
+        if (upperNeighbour != null)
+            doorPairFound(
+                    doors[DoorDirection.UP.getValue()],
+                    findDoors(upperNeighbour.getRoom())[DoorDirection.DOWN.getValue()],
+                    DoorDirection.UP,
+                    node);
+
+        for (LevelNode child : node.getNeighbours()) findDoors(child, visited);
     }
 
-    private void connectDoors(DoorTile a, DoorTile b) {
-        a.setOtherDoor(b);
-        a.setColor(getColor());
-        b.setOtherDoor(a);
-        b.setColor(getColor());
+    private void doorPairFound(
+            DoorTile door, DoorTile otherDoor, DoorDirection direction, LevelNode node) {
+        door.setOtherDoor(otherDoor);
+        door.setColor(node.getColors()[direction.getValue()]);
+        findDoorstep(door, direction, node.getRoom());
     }
 
-    private DoorTile.DoorColor getColor() {
-        // todo get color from graph
-        //     private static String findTexturePathDoor(LevelPart levelPart) <- TileTextureFactory
-        return DoorTile.DoorColor.BLUE;
+    private DoorTile[] findDoors(IRoom room) {
+        DoorTile[] doorsInOrder = new DoorTile[4];
+        for (DoorTile door : room.getDoors()) {
+            if (isAccessible(door.getCoordinate(), room.getLayout(), DoorDirection.DOWN)) {
+                doorsInOrder[DoorDirection.UP.getValue()] = door;
+            } else if (isAccessible(door.getCoordinate(), room.getLayout(), DoorDirection.LEFT)) {
+                doorsInOrder[DoorDirection.RIGHT.getValue()] = door;
+            } else if (isAccessible(door.getCoordinate(), room.getLayout(), DoorDirection.RIGHT)) {
+                doorsInOrder[DoorDirection.LEFT.getValue()] = door;
+            } else if (isAccessible(door.getCoordinate(), room.getLayout(), DoorDirection.UP)) {
+                doorsInOrder[DoorDirection.DOWN.getValue()] = door;
+            }
+        }
+        return doorsInOrder;
     }
 
-    private void findDoorstep(DoorTile door) {
-        Tile doorstep = null; // todo
+    private boolean isAccessible(Coordinate c, Tile[][] layout, DoorDirection direction) {
+        try {
+
+            switch (direction) {
+                case UP:
+                    return layout[c.y + 1][c.x].isAccessible();
+                case DOWN:
+                    return layout[c.y - 1][c.x].isAccessible();
+                case LEFT:
+                    return layout[c.y][c.x - 1].isAccessible();
+                case RIGHT:
+                    return layout[c.y][c.x + 1].isAccessible();
+                default:
+                    return false;
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    private void findDoorstep(DoorTile door, DoorDirection direction, IRoom room) {
+        Tile doorstep = null;
+        Coordinate doorCoordinate = door.getCoordinate();
+        Tile[][] layout = room.getLayout();
+        switch (direction) {
+            case UP:
+                doorstep = layout[doorCoordinate.y - 1][doorCoordinate.x];
+                break;
+            case RIGHT:
+                doorstep = layout[doorCoordinate.y][doorCoordinate.x - 1];
+                break;
+            case LEFT:
+                doorstep = layout[doorCoordinate.y][doorCoordinate.x + 1];
+                break;
+            case DOWN:
+                doorstep = layout[doorCoordinate.y + 1][doorCoordinate.x];
+                break;
+        }
+        if (doorstep == null) throw new NullPointerException("DoorStep not found");
         door.setDoorstep(doorstep);
     }
 
