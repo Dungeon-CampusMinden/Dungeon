@@ -80,11 +80,6 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
     }
 
     @Override
-    public graph.Node<String> visit(BinaryNode node) {
-        return null;
-    }
-
-    @Override
     public graph.Node<String> visit(DotDefNode node) {
         this.graphEdges = new Hashtable<>();
         this.graphNodes = new Hashtable<>();
@@ -93,11 +88,6 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
             edgeStmt.accept(this);
         }
 
-        return null;
-    }
-
-    @Override
-    public graph.Node<String> visit(EdgeRhsNode node) {
         return null;
     }
 
@@ -126,11 +116,6 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
             lhsDotNode = rhsDotNode;
         }
 
-        return null;
-    }
-
-    @Override
-    public graph.Node<String> visit(EdgeOpNode node) {
         return null;
     }
 }

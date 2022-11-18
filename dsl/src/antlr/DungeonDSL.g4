@@ -16,6 +16,7 @@ DOUBLE_LINE : '--';
 ARROW       : '->';
 
 ID  : [_a-zA-Z][a-zA-Z0-9_]*;
+NUM : [1-9][0-9]*;
 WS  : [ \t\r\n]+ -> skip;
 
 LINE_COMMENT
@@ -26,6 +27,18 @@ BLOCK_COMMENT
         : '/*' .*? '*/' -> channel(HIDDEN)
         ;
 
+
+STRING_LITERAL  : '\'' ( STRING_ESCAPE_SEQ | ~[\\\r\n\f'] )* '\''
+                | '"' ( STRING_ESCAPE_SEQ | ~[\\\r\n\f"] )* '"'
+                ;
+
+/*
+ * fragments
+ */
+fragment STRING_ESCAPE_SEQ
+    : '\\' .
+    ;
+
 /*
  * Parser rules
  */
@@ -34,21 +47,34 @@ BLOCK_COMMENT
 // - expression grammar
 // - proper stmt definition
 
-program : obj_def* EOF
+program : definition* EOF
         //| fn_def
         //| stmt
         ;
 
-// TODO: allow for multiple property definitions
-obj_def : TYPE_SPECIFIER ID '{' property_def '}'
-        | dot_def
+definition
+        : dot_def
+        | object_def
+        ;
+
+object_def  : type_id=TYPE_SPECIFIER object_id=ID '{' property_def_list? '}' #grammar_type_obj_def
+            | type_id=ID object_id=ID '{' property_def_list? '}' #other_type_obj_def
+            ;
+
+
+property_def_list
+        : property_def ',' property_def_list
+        | property_def
         ;
 
 property_def
         : ID ':' stmt;
 
 // temporary, for testing
-stmt    : ID;
+stmt    : ID
+        | STRING_LITERAL
+        | NUM
+        ;
 
 /*
  * -------------------- dot related definitions --------------------

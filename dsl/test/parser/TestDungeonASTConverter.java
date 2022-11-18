@@ -94,4 +94,11 @@ public class TestDungeonASTConverter {
         rhsIdNode = (IdNode) rhsId;
         assertEquals("c", rhsIdNode.getName());
     }
+
+    @Test
+    public void testStringLiteral() {
+        String program = "t g { x : \"He\\tllo\\n\"}";
+
+        var ast = Helpers.getASTFromString(program);
+    }
 }

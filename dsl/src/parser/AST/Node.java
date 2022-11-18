@@ -18,6 +18,7 @@ public class Node {
         Program,
         Stmt,
         ObjectDefinition,
+        PropertyDefinitionList,
         PropertyDefinition,
         DotDefinition,
         DotStmtList,
@@ -33,7 +34,8 @@ public class Node {
         Arrow,
         Number,
         StringLiteral,
-        Identifier
+        Identifier,
+        TypeSpecifier
     }
 
     public static Node NONE = new Node(Type.NONE, new ArrayList<>());
