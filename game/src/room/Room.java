@@ -8,6 +8,7 @@ import level.elements.tile.DoorTile;
 import level.elements.tile.Tile;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
+import levelgraph.LevelNode;
 
 /** A Level that can be used as a Room in a GraphLevel */
 public class Room extends TileLevel implements IRoom {
@@ -16,12 +17,15 @@ public class Room extends TileLevel implements IRoom {
 
     private ArrayList<DungeonElement> elements = new ArrayList<>();
 
+    private LevelNode levelNode;
+
     public Room(Tile[][] layout) {
         super(layout);
     }
 
-    public Room(LevelElement[][] layout, DesignLabel designLabel) {
+    public Room(LevelElement[][] layout, DesignLabel designLabel, LevelNode node) {
         super(layout, designLabel);
+        levelNode = node;
     }
 
     /**
@@ -49,5 +53,10 @@ public class Room extends TileLevel implements IRoom {
     @Override
     public LinkedHashSet<DoorTile> getDoors() {
         return doors;
+    }
+
+    @Override
+    public LevelNode getLevelNode() {
+        return levelNode;
     }
 }

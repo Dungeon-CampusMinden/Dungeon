@@ -12,14 +12,12 @@ import controller.Game;
 import controller.ScreenController;
 import dslToGame.QuestConfig;
 import interpreter.DSLInterpreter;
-import graph.Graph;
 import java.util.ArrayList;
 import java.util.List;
 import level.elements.ILevel;
 import level.elements.tile.DoorTile;
 import level.elements.tile.Tile;
 import level.tools.LevelElement;
-import minimap.IMinimap;
 import quest.Quest;
 import quest.QuestFactory;
 import room.Room;
@@ -55,24 +53,13 @@ public class Starter extends Game {
         monster = new ArrayList<>();
         pwChest = new ArrayList<>();
         chests = new ArrayList<>();
-        letter =
-                new Letter(
-                        'A',
-                        new IMinimap() {
-                            @Override
-                            public void drawOnMap(char c) {
-                                System.out.println("Draw on map " + c);
-                            }
-
-                            @Override
-                            public void drawMap() {}
-                        });
         hero = new Hero();
         sc = new ScreenController(batch);
         controller.add(sc);
         levelAPI.loadLevel();
         quest.setRootLevel(levelAPI.getCurrentLevel());
         quest.addQuestObjectsToLevels();
+        onLevelLoad();
         hero.getHitbox().setCollidable(hero);
         camera.follow(hero);
         entityController.add(hero);
@@ -114,6 +101,10 @@ public class Starter extends Game {
     public void onLevelLoad() {
         ILevel level = levelAPI.getCurrentLevel();
         hero.setLevel(level);
+<<<<<<< HEAD
+=======
+        // spawnMonster();
+>>>>>>> 76a25da (add TextMap structure)
         quest.onLevelLoad(level, entityController);
         chests.forEach(t -> entityController.remove(t));
         chests.clear();
@@ -145,11 +136,11 @@ public class Starter extends Game {
         String testString =
                 "graph g {\n"
                         + "G -- T -- Q -- D \n"
-                        + "Q -- F \n"
+                        /* + "Q -- F \n"
                         + "T -- X -- S \n"
                         + "G -- W -- E \n"
                         + "W -- C -- U \n"
-                        + "C -- N \n"
+                        + "C -- N  \n"*/
                         + "}";
         return dslInterpreter.getQuestConfig(testString);
     }

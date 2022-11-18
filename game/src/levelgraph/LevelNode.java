@@ -108,10 +108,14 @@ public class LevelNode<T extends IRoom> {
 
     public DoorDirection[] getNeighboursAsDirection() {
         DoorDirection[] directions = new DoorDirection[4];
-        if (neighbours[0] != null) directions[0] = DoorDirection.UP;
-        if (neighbours[1] != null) directions[1] = DoorDirection.RIGHT;
-        if (neighbours[2] != null) directions[2] = DoorDirection.LEFT;
-        if (neighbours[3] != null) directions[3] = DoorDirection.DOWN;
+        if (neighbours[DoorDirection.UP.getValue()] != null)
+            directions[DoorDirection.UP.getValue()] = DoorDirection.UP;
+        if (neighbours[DoorDirection.RIGHT.getValue()] != null)
+            directions[DoorDirection.RIGHT.getValue()] = DoorDirection.RIGHT;
+        if (neighbours[DoorDirection.LEFT.getValue()] != null)
+            directions[DoorDirection.LEFT.getValue()] = DoorDirection.LEFT;
+        if (neighbours[DoorDirection.DOWN.getValue()] != null)
+            directions[DoorDirection.DOWN.getValue()] = DoorDirection.DOWN;
         return directions;
     }
 

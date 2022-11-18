@@ -1,6 +1,7 @@
 package quest;
 
 import basiselements.hud.ScreenText;
+import character.objects.Letter;
 import character.objects.TreasureChest;
 import controller.EntityController;
 import controller.ScreenController;
@@ -11,6 +12,7 @@ import level.elements.ILevel;
 import level.tools.Coordinate;
 import level.tools.LevelElement;
 import levelgraph.GraphLevelGenerator;
+import minimap.TextMap;
 import room.Room;
 import tools.Point;
 
@@ -36,6 +38,7 @@ public class GraphSearchQuest extends Quest {
         rootRoom.addElement(passwordChest);
 
         TreasureChest letterChest = new TreasureChest(letterChestCoordinate.toPoint());
+        letterChest.addItem(new Letter('c', new TextMap(questConfig.levelGenGraph()), rootRoom));
         // Todo add letter
         rootRoom.addElement(letterChest);
 

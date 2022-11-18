@@ -35,7 +35,7 @@ public class GraphLevel {
     // Visit all Nodes and create a room for each of them
     private void createRooms(LevelNode node, LinkedHashSet<LevelNode> visited) {
         if (node == null || visited.contains(node)) return;
-        node.setRoom(generator.getLevel(designLabel, size, node.getNeighboursAsDirection()));
+        node.setRoom(generator.getLevel(designLabel, size, node.getNeighboursAsDirection(), node));
         visited.add(node);
         for (LevelNode neighbour : node.getNeighbours()) createRooms(neighbour, visited);
     }
@@ -49,30 +49,30 @@ public class GraphLevel {
         LevelNode leftNeighbour = node.getNeighbour(DoorDirection.LEFT);
         LevelNode lowerNeighbour = node.getNeighbour(DoorDirection.DOWN);
         LevelNode upperNeighbour = node.getNeighbour(DoorDirection.UP);
-        DoorTile[] doors = findDoors(node.getRoom());
+        DoorTile[] doors = findDoorsInRoom(node.getRoom());
 
         if (rightNeighbour != null)
             doorPairFound(
                     doors[DoorDirection.RIGHT.getValue()],
-                    findDoors(rightNeighbour.getRoom())[DoorDirection.LEFT.getValue()],
+                    findDoorsInRoom(rightNeighbour.getRoom())[DoorDirection.LEFT.getValue()],
                     DoorDirection.RIGHT,
                     node);
         if (leftNeighbour != null)
             doorPairFound(
                     doors[DoorDirection.LEFT.getValue()],
-                    findDoors(leftNeighbour.getRoom())[DoorDirection.RIGHT.getValue()],
+                    findDoorsInRoom(leftNeighbour.getRoom())[DoorDirection.RIGHT.getValue()],
                     DoorDirection.LEFT,
                     node);
         if (lowerNeighbour != null)
             doorPairFound(
                     doors[DoorDirection.DOWN.getValue()],
-                    findDoors(lowerNeighbour.getRoom())[DoorDirection.UP.getValue()],
+                    findDoorsInRoom(lowerNeighbour.getRoom())[DoorDirection.UP.getValue()],
                     DoorDirection.DOWN,
                     node);
         if (upperNeighbour != null)
             doorPairFound(
                     doors[DoorDirection.UP.getValue()],
-                    findDoors(upperNeighbour.getRoom())[DoorDirection.DOWN.getValue()],
+                    findDoorsInRoom(upperNeighbour.getRoom())[DoorDirection.DOWN.getValue()],
                     DoorDirection.UP,
                     node);
 
@@ -86,7 +86,7 @@ public class GraphLevel {
         findDoorstep(door, direction, node.getRoom());
     }
 
-    private DoorTile[] findDoors(IRoom room) {
+    private DoorTile[] findDoorsInRoom(IRoom room) {
         DoorTile[] doorsInOrder = new DoorTile[4];
         for (DoorTile door : room.getDoors()) {
             if (isAccessible(door.getCoordinate(), room.getLayout(), DoorDirection.DOWN)) {

@@ -11,6 +11,7 @@ import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import level.tools.LevelSize;
 import levelgraph.DoorDirection;
+import levelgraph.LevelNode;
 
 public class RoomGenerator {
 
@@ -35,8 +36,9 @@ public class RoomGenerator {
     private static final int BIG_MAX_X_SIZE = 24;
     private static final int BIG_MAX_Y_SIZE = 24;
 
-    public IRoom getLevel(DesignLabel designLabel, LevelSize size, DoorDirection[] doors) {
-        Room room = new Room(getLayout(size, doors), designLabel);
+    public IRoom getLevel(
+            DesignLabel designLabel, LevelSize size, DoorDirection[] doors, LevelNode node) {
+        Room room = new Room(getLayout(size, doors), designLabel, node);
         addDoorTilesToRoom(room);
         return room;
     }
@@ -172,7 +174,7 @@ public class RoomGenerator {
             }
         }
         if (up) {
-            System.out.println("UP");
+            // System.out.println("UP");
             for (int y = WALL_BUFFER + baseFloorPaddingY + baseFloorY;
                     y < WALL_BUFFER + ySize;
                     y++) {
@@ -184,7 +186,7 @@ public class RoomGenerator {
             }
         }
         if (down) {
-            System.out.println("DOWN");
+            // System.out.println("DOWN");
             for (int y = WALL_BUFFER; y < WALL_BUFFER + baseFloorPaddingY; y++) {
                 for (int x = WALL_BUFFER + baseFloorPaddingX;
                         x < WALL_BUFFER + baseFloorPaddingX + baseFloorX;
@@ -194,7 +196,7 @@ public class RoomGenerator {
             }
         }
         if (left) {
-            System.out.println("LEFT");
+            // System.out.println("LEFT");
             for (int y = WALL_BUFFER + baseFloorPaddingY;
                     y < WALL_BUFFER + baseFloorPaddingY + baseFloorY;
                     y++) {
@@ -204,7 +206,7 @@ public class RoomGenerator {
             }
         }
         if (right) {
-            System.out.println("RIGHT");
+            // System.out.println("RIGHT");
             for (int y = WALL_BUFFER + baseFloorPaddingY;
                     y < WALL_BUFFER + baseFloorPaddingY + baseFloorY;
                     y++) {
@@ -216,7 +218,7 @@ public class RoomGenerator {
             }
         }
         if (upperLeft) {
-            System.out.println("UPPER LEFT");
+            // System.out.println("UPPER LEFT");
             for (int y = WALL_BUFFER + baseFloorPaddingY + baseFloorY - baseFloorY / 2 + 1;
                     y < WALL_BUFFER + ySize;
                     y++) {
@@ -228,7 +230,7 @@ public class RoomGenerator {
             }
         }
         if (upperRight) {
-            System.out.println("UPPER RIGHT");
+            // System.out.println("UPPER RIGHT");
             for (int y = WALL_BUFFER + baseFloorPaddingY + baseFloorY - baseFloorY / 2 + 1;
                     y < WALL_BUFFER + ySize;
                     y++) {
@@ -240,7 +242,7 @@ public class RoomGenerator {
             }
         }
         if (lowerLeft) {
-            System.out.println("LOWER LEFT");
+            // System.out.println("LOWER LEFT");
             for (int y = WALL_BUFFER;
                     y < WALL_BUFFER + baseFloorPaddingY + baseFloorY / 2 - 1;
                     y++) {
@@ -252,7 +254,7 @@ public class RoomGenerator {
             }
         }
         if (lowerRight) {
-            System.out.println("LOWER RIGHT");
+            // System.out.println("LOWER RIGHT");
             for (int y = WALL_BUFFER;
                     y < WALL_BUFFER + baseFloorPaddingY + baseFloorY / 2 - 1;
                     y++) {
@@ -364,6 +366,7 @@ public class RoomGenerator {
                 }
             }
             // TODO throw exception if possibleDoorCoordinates.size() == 0
+            if (possibleDoorCoordinates.size() == 0) System.out.println("Cant place door");
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
             layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
@@ -386,6 +389,7 @@ public class RoomGenerator {
                 }
             }
             // TODO throw exception if possibleDoorCoordinates.size() == 0
+            if (possibleDoorCoordinates.size() == 0) System.out.println("Cant place door");
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
             layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
@@ -408,6 +412,7 @@ public class RoomGenerator {
                 }
             }
             // TODO throw exception if possibleDoorCoordinates.size() == 0
+            if (possibleDoorCoordinates.size() == 0) System.out.println("Cant place door");
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
             layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
@@ -430,12 +435,13 @@ public class RoomGenerator {
                 }
             }
             // TODO throw exception if possibleDoorCoordinates.size() == 0
+            if (possibleDoorCoordinates.size() == 0) System.out.println("Cant place door");
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
             layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
         }
 
-        printLayout(layout, size);
+        // printLayout(layout, size);
         return layout;
     }
 

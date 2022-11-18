@@ -20,8 +20,8 @@ public class GraphLevelGenerator implements IGenerator {
 
     private LevelNode root;
     private Graph<String> graph;
-    private HashMap<Node<String>, LevelNode> nodeToLevelNode;
-    private HashMap<LevelNode, Node<String>> levelNodeToNode;
+    public static HashMap<Node<String>, LevelNode> nodeToLevelNode;
+    public static HashMap<LevelNode, Node<String>> levelNodeToNode;
 
     public GraphLevelGenerator(Graph<String> graph) {
         setGraph(graph);
