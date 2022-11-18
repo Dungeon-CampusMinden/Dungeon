@@ -81,7 +81,7 @@ public class PasswordChest extends TreasureChest {
         onCollision(sc);
     }
 
-    public int getAttemptCounter(){
+    public int getAttemptCounter() {
         return attemptCounter;
     }
 }
