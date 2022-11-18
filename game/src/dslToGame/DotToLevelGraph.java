@@ -1,79 +1,42 @@
 package dslToGame;
 
+import graph.Edge;
 import graph.Graph;
 import graph.Node;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import levelgraph.LevelNode;
 
 public class DotToLevelGraph {
 
     public static ConvertedGraph convert(Graph<String> levelGenGraph) {
-
-        /*
-           - 1. Über alle Nodes iterieren und diese in HashMap abspeichern
-           - 2. Über alle Edeges iterieren und zu jedem Node die Anzahl der Verbindungen in der Map speichern
-                   - wenn ein Node mehr als 4 Verbindungen hat => GraphNotSupported
-           - 3. HashMap mit Nodes (key) LevelNodes (value) anlegen
-           - 4. Über Node/Edges-HashMap iterieren und Edges einzeichnen  an der ersten passenden Stelle (?)
-
-
-           A -> B
-           A -> C
-           A -> D
-           B -> E
-           B -> F
-           B -> G
-
-           A->D
-           D->G
-           G->A
-
-               A
-           B   C   D
-          E F G
-
-                 D
-            E    G
-        F   B    A   C
-                 D
-                 G
-
-
-
-
-        */
-
-        // maph: GraphNode -> LevelNode, second map LeveNode -> GraphNode
-
-        HashMap<Node<String>, LevelNode> nodeToLevelNode = null;
-        HashMap<LevelNode, Node<String>> levelNodeToNode = null;
-
-        List<LevelNode> levelNodes = new ArrayList<>();
+        HashMap<Node<String>, LevelNode> nodeToLevelNode = new LinkedHashMap<>();
+        HashMap<LevelNode, Node<String>> levelNodeToNode = new LinkedHashMap<>();
         Iterator<Node<String>> iterator = levelGenGraph.getNodeIterator();
-        // create nodes
-        while (levelGenGraph.getNodeIterator().hasNext()) {
-            Node n = iterator.next();
-            levelNodes.add(new LevelNode(n.getIdx()));
+
+        // create LevelNodes
+        Node node = iterator.next();
+        LevelNode root = new LevelNode();
+        nodeToLevelNode.put(node, root);
+        levelNodeToNode.put(root, node);
+
+        while (iterator.hasNext()) {
+            node = iterator.next();
+            LevelNode levelNode = new LevelNode();
+            nodeToLevelNode.put(node, levelNode);
+            levelNodeToNode.put(levelNode, node);
         }
 
-        // connect am ersten möglichen connect punkt
-        // linkrs, rechts, unten (oben nicht!)
+        // connect Edges
+        Iterator<Edge> edgeIterator = levelGenGraph.getEdgeIterator();
+        while (edgeIterator.hasNext()) {
+            Edge edge = edgeIterator.next();
+            Node n1 = edge.getStartNode();
+            Node n2 = edge.getEndNode();
+            LevelNode ln1 = nodeToLevelNode.get(n1);
+            LevelNode ln2 = nodeToLevelNode.get(n2);
+            if (!ln1.connect(ln2)) throw new IllegalArgumentException("Graph cant be converted");
+        }
 
-        // todo EDGES einzeichnen
-
-        return new ConvertedGraph(
-                levelGenGraph, levelNodes.get(0), nodeToLevelNode, levelNodeToNode);
-
-        /*
-         //DUMMY
-        LevelNode root = new LevelNode();
-        root.connect(new LevelNode(),DoorDirection.LEFT, DoorTile.DoorColor.GREEN);
-        root.connect(new LevelNode(), DoorDirection.RIGHT, DoorTile.DoorColor.BLUE);
-        return root;
-        */
-
+        return new ConvertedGraph(levelGenGraph, root, nodeToLevelNode, levelNodeToNode);
     }
 }

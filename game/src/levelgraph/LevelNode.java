@@ -1,5 +1,7 @@
 package levelgraph;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import level.elements.tile.DoorTile;
 import room.IRoom;
 
@@ -14,12 +16,15 @@ public class LevelNode<T extends IRoom> {
 
     private DoorTile.DoorColor[] colors;
 
-    private int idx;
+    private ArrayList<DoorDirection> toTry = new ArrayList<>();
 
-    public LevelNode(int idx) {
+    public LevelNode() {
         neighbours = new LevelNode[4];
         colors = new DoorTile.DoorColor[4];
-        this.idx = idx;
+        toTry.add(DoorDirection.UP);
+        toTry.add(DoorDirection.LEFT);
+        toTry.add(DoorDirection.RIGHT);
+        toTry.add(DoorDirection.DOWN);
     }
 
     /**
@@ -54,6 +59,18 @@ public class LevelNode<T extends IRoom> {
      */
     public boolean connect(LevelNode other, DoorDirection direction, DoorTile.DoorColor color) {
         return connect(other, direction, false, color);
+    }
+
+    public boolean connect(LevelNode other) {
+        Collections.shuffle(toTry);
+        for (DoorDirection direction : toTry) {
+            if (tryConnect(other, direction)) return true;
+        }
+        return false;
+    }
+
+    private boolean tryConnect(LevelNode other, DoorDirection direction) {
+        return connect(other, direction, DoorTile.DoorColor.NONE);
     }
 
     /**
