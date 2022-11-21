@@ -95,8 +95,10 @@ public class Hero extends DungeonCharacter {
 
     @Override
     public void colide(Collidable other, CharacterDirection from) {
-        if(other instanceof Imp){
-            knockback(from);
+        if (other instanceof Imp) {
+            hitpoints -= 2;
+            if (hitpoints <= 0) die();
+            knockback(from, 2f);
         }
     }
 

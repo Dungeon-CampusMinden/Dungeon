@@ -130,17 +130,17 @@ public abstract class DungeonCharacter extends AnimatableElement implements Coll
         this.currentLevel = level;
     }
 
-    protected void knockback(CharacterDirection from) {
+    protected void knockback(CharacterDirection from, float v) {
         float movementSpeed = this.movementSpeed;
-        this.movementSpeed *= 15; // knockback
+        this.movementSpeed *= v; // knockback
         currentPosition =
-            switch (from) {
-                case UP -> moveup();
-                case DOWN -> movedown();
-                case LEFT -> moveleft();
-                case RIGHT -> moveright();
-                case NONE -> currentPosition;
-            };
+                switch (from) {
+                    case UP -> moveup();
+                    case DOWN -> movedown();
+                    case LEFT -> moveleft();
+                    case RIGHT -> moveright();
+                    case NONE -> currentPosition;
+                };
         this.movementSpeed = movementSpeed;
     }
 

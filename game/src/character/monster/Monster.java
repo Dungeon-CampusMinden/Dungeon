@@ -250,7 +250,7 @@ public abstract class Monster extends DungeonCharacter {
             BaseSkillEffect effect = (BaseSkillEffect) other;
             hitpoints -= effect.damage;
             if (hitpoints <= 0) die();
-            knockback(from);
+            knockback(from, 15f);
         }
     }
 
