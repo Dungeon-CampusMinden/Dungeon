@@ -29,7 +29,7 @@ public class BaseMeleeEffect extends BaseSkillEffect {
         this.hitboxes = hitboxes;
         this.frames = frames;
         for (Hitbox hitbox : hitboxes) {
-            hitbox.setCollidable(caster);
+            hitbox.setCollidable(this);
         }
     }
 
@@ -68,6 +68,6 @@ public class BaseMeleeEffect extends BaseSkillEffect {
 
     @Override
     public Point getPosition() {
-        return new Point(caster.getPosition().x, caster.getPosition().y);
+        return new Point(caster.getPosition().x + offset.x, caster.getPosition().y + offset.y);
     }
 }
