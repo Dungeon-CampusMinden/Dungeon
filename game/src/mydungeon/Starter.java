@@ -102,7 +102,7 @@ public class Starter extends Game {
         for (Monster m : monster) {
             CharacterDirection direction = hero.getHitbox().collide(m.getHitbox());
             if (direction != CharacterDirection.NONE) {
-                hero.colide(m, direction);
+                hero.colide(m, direction.inverse());
                 m.colide(hero, direction);
             }
         }
