@@ -1,6 +1,7 @@
 package character.player;
 
 import character.DungeonCharacter;
+import character.monster.Imp;
 import character.skills.BaseMeleeSkill;
 import character.skills.BaseSkill;
 import collision.CharacterDirection;
@@ -94,7 +95,9 @@ public class Hero extends DungeonCharacter {
 
     @Override
     public void colide(Collidable other, CharacterDirection from) {
-        // todo
+        if(other instanceof Imp){
+            knockback(from);
+        }
     }
 
     @Override

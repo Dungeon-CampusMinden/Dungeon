@@ -250,17 +250,7 @@ public abstract class Monster extends DungeonCharacter {
             BaseSkillEffect effect = (BaseSkillEffect) other;
             hitpoints -= effect.damage;
             if (hitpoints <= 0) die();
-            float movementSpeed = this.movementSpeed;
-            this.movementSpeed *= 15; // knockback
-            currentPosition =
-                    switch (from) {
-                        case UP -> moveup();
-                        case DOWN -> movedown();
-                        case LEFT -> moveleft();
-                        case RIGHT -> moveright();
-                        case NONE -> currentPosition;
-                    };
-            this.movementSpeed = movementSpeed;
+            knockback(from);
         }
     }
 
