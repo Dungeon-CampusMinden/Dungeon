@@ -61,7 +61,6 @@ public class Starter extends Game {
 
         clevel = new CollisionMap();
         monster = new ArrayList<>();
-        chest = new ArrayList<>();
         skillEffects = new ArrayList<>();
         pwChest = new ArrayList<>();
         chests = new ArrayList<>();
