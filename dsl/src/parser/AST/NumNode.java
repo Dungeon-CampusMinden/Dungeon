@@ -10,7 +10,7 @@ public class NumNode extends Node {
      * @param sourceFileReference Reference to the location of the identifier in the source file
      */
     public NumNode(int value, SourceFileReference sourceFileReference) {
-        super(Type.Identifier, sourceFileReference);
+        super(Type.Number, sourceFileReference);
         this.value = value;
     }
 
