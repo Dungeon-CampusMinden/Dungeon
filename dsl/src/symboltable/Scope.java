@@ -50,14 +50,18 @@ public class Scope implements IScope {
         }
     }
 
-    public Symbol Resolve(String name) {
+    public Symbol Resolve(String name, boolean resolveInParent) {
         if (symbols.containsKey(name)) {
             return symbols.get(name);
-        } else if (parent != null) {
+        } else if (parent != null && resolveInParent) {
             return parent.Resolve(name);
         } else {
             return Symbol.NULL;
         }
+    }
+
+    public Symbol Resolve(String name) {
+        return Resolve(name, true);
     }
 
     @Override
