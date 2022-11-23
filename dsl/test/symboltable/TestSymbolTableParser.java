@@ -4,6 +4,7 @@ import helpers.Helpers;
 import org.junit.Assert;
 import org.junit.Test;
 import parser.AST.Node;
+import runtime.nativeFunctions.NativePrint;
 
 public class TestSymbolTableParser {
 
@@ -67,6 +68,51 @@ public class TestSymbolTableParser {
                 symtableResult.symbolTable.getSymbolsForAstNode(firstPropertyStmtNode).get(0);
         Assert.assertEquals("g", symbolForStmtNode.name);
         Assert.assertEquals(symbolForDotDefNode, symbolForStmtNode);
+    }
+
+    @Test
+    public void testSetupNativeFunctions() {
+        String program =
+            """
+        quest_config c {
+            points: print("Hello")
+        }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var symtableResult = Helpers.getSymtableForAST(ast);
+
+        var printFuncDefSymbol =
+            symtableResult.symbolTable.globalScope.Resolve("print");
+        Assert.assertNotNull(printFuncDefSymbol);
+        Assert.assertEquals(Symbol.Type.Scoped, printFuncDefSymbol.getSymbolType());
+        Assert.assertTrue(printFuncDefSymbol instanceof NativePrint);
+    }
+
+    @Test
+    public void testResolveNativeFunction() {
+        String program =
+            """
+        quest_config c {
+            points: print("Hello")
+        }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var symtableResult = Helpers.getSymtableForAST(ast);
+
+        var printFuncDefSymbol =
+            symtableResult.symbolTable.globalScope.Resolve("print");
+
+        var questConfig = ast.getChild(0);
+        var propDefList = questConfig.getChild(2);
+        var propDef = propDefList.getChild(0);
+        var funcCallNode = propDef.getChild(1);
+
+        Assert.assertEquals(Node.Type.FuncCall, funcCallNode.type);
+
+        var symbolForFuncCallNode = symtableResult.symbolTable.getSymbolsForAstNode(funcCallNode).get(0);
+        Assert.assertEquals(symbolForFuncCallNode, printFuncDefSymbol);
     }
 
     @Test
