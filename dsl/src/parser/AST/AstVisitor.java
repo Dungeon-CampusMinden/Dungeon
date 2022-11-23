@@ -111,6 +111,16 @@ public interface AstVisitor<T> {
         return null;
     }
 
+    /**
+     * Visitor method for FuncCallNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(FuncCallNode node) {
+        return null;
+    }
+
     default void visitChildren(Node node) {
         for (Node child : node.getChildren()) {
             child.accept(this);
