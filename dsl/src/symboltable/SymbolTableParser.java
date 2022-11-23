@@ -19,8 +19,10 @@
 
 package symboltable;
 
+import java.lang.annotation.Native;
 import java.util.Stack;
 import parser.AST.*;
+import runtime.nativeFunctions.NativePrint;
 
 /** Creates a symbol table for an AST node for a DSL program */
 public class SymbolTableParser implements AstVisitor<Void> {
@@ -66,10 +68,14 @@ public class SymbolTableParser implements AstVisitor<Void> {
         }
     }
 
+    private void setupNativeFunctions() {
+        var nativePrint = new NativePrint(GlobalScope());
+        GlobalScope().Bind(nativePrint);
+    }
+
     private void setupBuiltinTypes() {
         // setup builtin simple types
         GlobalScope().Bind(BuiltInType.intType);
-
         GlobalScope().Bind(BuiltInType.stringType);
         GlobalScope().Bind(BuiltInType.graphType);
 
@@ -80,7 +86,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
         var description = new Symbol("quest_desc", questConfigType, BuiltInType.stringType);
         questConfigType.Bind(description);
         var password = new Symbol("password", questConfigType, BuiltInType.stringType);
-        questConfigType.Bind(description);
+        questConfigType.Bind(password);
         var questPoints = new Symbol("quest_points", questConfigType, BuiltInType.intType);
         questConfigType.Bind(questPoints);
 
@@ -102,6 +108,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
         symbolTable = new SymbolTable(CurrentScope());
 
         setupBuiltinTypes();
+        setupNativeFunctions();
 
         node.accept(this);
 
@@ -119,6 +126,9 @@ public class SymbolTableParser implements AstVisitor<Void> {
                 vb.BindVariables(symbolTable, CurrentScope(), node, errorStringBuilder);
 
                 visitChildren(node);
+
+                FunctionCallResolver fcr = new FunctionCallResolver();
+                fcr.resolveFunctionCalls(symbolTable, node, errorStringBuilder);
                 break;
             case PropertyDefinitionList:
                 visitChildren(node);
