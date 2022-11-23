@@ -1,6 +1,7 @@
 package parser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import helpers.Helpers;
 import org.junit.Test;
@@ -100,5 +101,45 @@ public class TestDungeonASTConverter {
         String program = "t g { x : \"He\\tllo\\n\"}";
 
         var ast = Helpers.getASTFromString(program);
+    }
+
+    @Test
+    public void testFuncCall() {
+        String program = "quest_config q { \n test: hello_world(x, \"wuppi\" ,42)\n }";
+        var ast = Helpers.getASTFromString(program);
+
+        var questDef = ast.getChild(0);
+        var propertyDefList = questDef.getChild(2);
+        var firstPropDef = propertyDefList.getChild(0);
+
+        var funcCall = firstPropDef.getChild(1);
+        assertEquals(Node.Type.FuncCall, funcCall.type);
+
+        var funcCallNode = (FuncCallNode) funcCall;
+        assertEquals("hello_world", funcCallNode.getIdName());
+
+        var paramList = funcCallNode.getParameters();
+        assertEquals(Node.Type.Identifier, paramList.get(0).type);
+        assertEquals(Node.Type.StringLiteral, paramList.get(1).type);
+        assertEquals(Node.Type.Number, paramList.get(2).type);
+    }
+
+    @Test
+    public void testFuncCallAsParam() {
+        String program = "quest_config q { \n test: hello_world(other_func())\n }";
+        var ast = Helpers.getASTFromString(program);
+
+        var questDef = ast.getChild(0);
+        var propertyDefList = questDef.getChild(2);
+        var firstPropDef = propertyDefList.getChild(0);
+
+        var funcCall = firstPropDef.getChild(1);
+        assertEquals(Node.Type.FuncCall, funcCall.type);
+
+        var funcCallNode = (FuncCallNode) funcCall;
+        assertEquals("hello_world", funcCallNode.getIdName());
+
+        var paramList = funcCallNode.getParameters();
+        assertEquals(Node.Type.FuncCall, paramList.get(0).type);
     }
 }
