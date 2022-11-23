@@ -68,12 +68,22 @@ property_def_list
         ;
 
 property_def
-        : ID ':' stmt;
+        : ID ':' primary;
+
+func_call
+        : ID '(' param_list? ')'
+        ;
+
+param_list
+        : primary ',' param_list
+        | primary
+        ;
 
 // temporary, for testing
-stmt    : ID
+primary : ID
         | STRING_LITERAL
         | NUM
+        | func_call
         ;
 
 /*

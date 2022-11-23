@@ -167,10 +167,69 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterStmt(DungeonDSLParser.StmtContext ctx) {}
+    public void enterFunc_call(DungeonDSLParser.Func_callContext ctx) {
+
+    }
 
     @Override
-    public void exitStmt(DungeonDSLParser.StmtContext ctx) {}
+    public void exitFunc_call(DungeonDSLParser.Func_callContext ctx) {
+        // TODO: test this
+        // if there are parameters, a paramList will be on stack
+        var paramList = Node.NONE;
+        if (ctx.param_list() != null) {
+            paramList = astStack.pop();
+            assert paramList.type == Node.Type.ParamList;
+        }
+
+        // function id will be on stack
+        var funcId = astStack.pop();
+        assert funcId.type == Node.Type.Identifier;
+
+        var funcCallNode = new FuncCallNode(funcId, paramList);
+        astStack.push(funcCallNode);
+    }
+
+    @Override
+    public void enterParam_list(DungeonDSLParser.Param_listContext ctx) {
+
+    }
+
+    @Override
+    public void exitParam_list(DungeonDSLParser.Param_listContext ctx) {
+        if (ctx.param_list() == null) {
+            // trivial param
+            var innerParam = astStack.pop();
+
+            // TODO: add AST Node Type for parameter?? Or just use whatever is in there?
+            //assert (innerParam.type == Node.Type.PropertyDefinition);
+
+            var list = new ArrayList<Node>(1);
+            list.add(innerParam);
+
+            var paramList = new Node(Node.Type.ParamList, list);
+            astStack.push(paramList);
+        } else {
+            // rhs paramlist is on stack
+            var rhsList = astStack.pop();
+            assert (rhsList.type == Node.Type.ParamList);
+
+            var leftParam = astStack.pop();
+            //assert (leftParam.type == Node.Type.PropertyDefinition);
+
+            var childList = new ArrayList<Node>(rhsList.getChildren().size() + 1);
+            childList.add(leftParam);
+            childList.addAll(rhsList.getChildren());
+
+            var paramList = new Node(Node.Type.ParamList, childList);
+            astStack.push(paramList);
+        }
+    }
+
+    @Override
+    public void enterPrimary(DungeonDSLParser.PrimaryContext ctx) {}
+
+    @Override
+    public void exitPrimary(DungeonDSLParser.PrimaryContext ctx) {}
 
     @Override
     public void enterDot_def(DungeonDSLParser.Dot_defContext ctx) {}

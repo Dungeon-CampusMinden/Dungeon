@@ -35,7 +35,9 @@ public class Node {
         Number,
         StringLiteral,
         Identifier,
-        TypeSpecifier
+        TypeSpecifier,
+        FuncCall,
+        ParamList
     }
 
     public static Node NONE = new Node(Type.NONE, new ArrayList<>());

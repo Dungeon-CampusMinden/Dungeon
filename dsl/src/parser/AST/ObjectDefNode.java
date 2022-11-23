@@ -57,3 +57,4 @@ public class ObjectDefNode extends Node {
         return visitor.visit(this);
     }
 }
+
