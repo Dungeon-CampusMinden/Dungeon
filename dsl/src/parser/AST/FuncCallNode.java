@@ -20,9 +20,7 @@ public class FuncCallNode extends Node {
     }
 
     public FuncCallNode(Node id, Node paramList) {
-        super(
-            Type.ObjectDefinition,
-            new ArrayList<>(paramList.getChildren().size() + 1));
+        super(Type.FuncCall, new ArrayList<>(paramList.getChildren().size() + 1));
 
         this.children.add(id);
         this.children.add(paramList);
