@@ -37,4 +37,9 @@ public class FunctionSymbol extends ScopedSymbol implements ICallable {
         // TODO: handle return value
         return null;
     }
+
+    @Override
+    public ICallable.Type getCallableType() {
+        return ICallable.Type.UserDefined;
+    }
 }

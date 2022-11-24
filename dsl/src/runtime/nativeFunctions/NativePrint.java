@@ -26,4 +26,9 @@ public class NativePrint extends ScopedSymbol implements ICallable {
         }
         return null;
     }
+
+    @Override
+    public ICallable.Type getCallableType() {
+        return ICallable.Type.Native;
+    }
 }
