@@ -19,7 +19,6 @@
 
 package symboltable;
 
-import java.lang.annotation.Native;
 import java.util.Stack;
 import parser.AST.*;
 import runtime.nativeFunctions.NativePrint;
@@ -78,6 +77,11 @@ public class SymbolTableParser implements AstVisitor<Void> {
         GlobalScope().Bind(BuiltInType.intType);
         GlobalScope().Bind(BuiltInType.stringType);
         GlobalScope().Bind(BuiltInType.graphType);
+        GlobalScope().Bind(BuiltInType.funcType);
+
+        // TODO: could this be done by defining the datatype as normal
+        //  java class and using a custom attribute to do the following
+        //  steps automatically?
 
         // setup builtin aggregate types
         var questConfigType = new AggregateType("quest_config", GlobalScope());

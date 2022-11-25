@@ -3,16 +3,57 @@ package interpreter;
 import antlr.main.*;
 import dslToGame.QuestConfigBuilder;
 import interpreter.dot.Interpreter;
+import java.util.Stack;
 import org.antlr.v4.runtime.*;
 import parser.AST.*;
 import parser.DungeonASTConverter;
+import runtime.MemorySpace;
+import symboltable.ICallable;
 import symboltable.SymbolTable;
 import symboltable.SymbolTableParser;
 
 public class DSLInterpreter implements AstVisitor<Object> {
 
-    QuestConfigBuilder questConfigBuilder;
-    SymbolTable symbolTable;
+    private QuestConfigBuilder questConfigBuilder;
+    private SymbolTable symbolTable;
+    private final Stack<MemorySpace> memoryStack;
+    private MemorySpace globalSpace;
+
+    // TODO: add entry-point for game-object traversal
+    public DSLInterpreter() {
+        memoryStack = new Stack<>();
+        globalSpace = new MemorySpace();
+        memoryStack.push(globalSpace);
+    }
+
+    // TODO: how to handle globally defined objects?
+    //  statisch alles auswerten, was geht? und dann erst auswerten, wenn abgefragt (lazyeval?)
+    //  wie wird order of operation vorgegeben? einfach von oben nach unten? oder nach referenz von
+    //  objekt?
+    // TODO: associate object in memorySpace with symbol(by symbol idx?)!!
+    //  We could assume, that
+    //  the memory space just mirrors the structure of the symbol table, but it's
+    //  better to be specific and somehow self-contained in this context
+    public void initializeRuntime(SymbolTable symbolTable) {
+        // bind all function definition and object definition symbols to objects
+        // in global memorySpace
+        for (var symbol : symbolTable.GetGlobalScope().GetSymbols()) {
+            if (symbol instanceof ICallable) {
+                var callableType = ((ICallable) symbol).getCallableType();
+                if (callableType == ICallable.Type.Native) {
+                    this.globalSpace.bindFromSymbol(symbol);
+                } else if (callableType == ICallable.Type.UserDefined) {
+                    // TODO: if userDefined -> reference AST -> how to?
+                    //  subclass of value? -> do it by symbol-reference
+                }
+            }
+            // bind all global definitions
+            else {
+                this.globalSpace.bindFromSymbol(symbol);
+            }
+        }
+        System.out.println("Test");
+    }
 
     public dslToGame.QuestConfig getQuestConfig(String configScript) {
         var stream = CharStreams.fromString(configScript);
@@ -28,7 +69,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
         SymbolTableParser symTableParser = new SymbolTableParser();
         var result = symTableParser.walk(programAST);
 
-        return generateQuestConfig(programAST, result.symbolTable);
+        var questConfig = generateQuestConfig(programAST, result.symbolTable);
+        initializeRuntime(symbolTable);
+        return questConfig;
     }
 
     private dslToGame.QuestConfig generateQuestConfig(Node programAST, SymbolTable symbolTable) {
@@ -55,6 +98,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(PropertyDefNode node) {
         var value = node.getStmtNode().accept(this);
 
+        // TODO: this should not be done here; handle property-definitions like
+        //  MemorySpace; create class, which handles building the "end-user"-class
+        //  (the conrete QuestConfig-object) from the propertyDefinitions
         switch (node.getIdName()) {
             case "level_graph":
                 try {

@@ -5,7 +5,7 @@ public class BuiltInType extends Symbol implements IType {
     public static BuiltInType stringType = new BuiltInType("string", Scope.NULL);
     public static BuiltInType graphType = new BuiltInType("graph", Scope.NULL);
     // TODO: is this a good idea?
-    public static BuiltInType funcType = new BuiltInType("function", Scope.NULL);
+    public static BuiltInType funcType = new BuiltInType("func", Scope.NULL);
 
     public BuiltInType(String name, IScope parentScope) {
         super(name, parentScope, null);

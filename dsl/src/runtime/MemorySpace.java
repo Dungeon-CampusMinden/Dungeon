@@ -1,10 +1,9 @@
 package runtime;
 
+import java.util.HashMap;
 import symboltable.BuiltInType;
 import symboltable.IType;
 import symboltable.Symbol;
-
-import java.util.HashMap;
 
 // TODO: also use this for object-instantiation?
 // TODO: does this need to be specialized for function memory space -> just try it
@@ -25,12 +24,13 @@ public class MemorySpace {
         var symbolName = symbol.getName();
         if (values.containsKey(symbolName)) {
             return false;
-        } else {
+        } else if (!(symbol instanceof IType)) {
             var defaultValue = getDefaultValue(symbol.getDataType());
-            var val = new Value(symbol.getDataType(), defaultValue);
+            var val = new Value(symbol.getDataType(), defaultValue, symbol.getIdx());
             values.put(symbolName, val);
             return true;
         }
+        return false;
     }
 
     public Value resolve(String name) {
@@ -48,6 +48,9 @@ public class MemorySpace {
     }
 
     private Object getDefaultValue(IType type) {
+        if (type == null) {
+            return null;
+        }
         var typeName = type.getName();
         if (typeName.equals(BuiltInType.intType.getName())) {
             return 0;

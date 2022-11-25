@@ -73,7 +73,7 @@ public class TestSymbolTableParser {
     @Test
     public void testSetupNativeFunctions() {
         String program =
-            """
+                """
         quest_config c {
             points: print("Hello")
         }
@@ -82,8 +82,7 @@ public class TestSymbolTableParser {
         var ast = Helpers.getASTFromString(program);
         var symtableResult = Helpers.getSymtableForAST(ast);
 
-        var printFuncDefSymbol =
-            symtableResult.symbolTable.globalScope.Resolve("print");
+        var printFuncDefSymbol = symtableResult.symbolTable.globalScope.Resolve("print");
         Assert.assertNotNull(printFuncDefSymbol);
         Assert.assertEquals(Symbol.Type.Scoped, printFuncDefSymbol.getSymbolType());
         Assert.assertTrue(printFuncDefSymbol instanceof NativePrint);
@@ -92,7 +91,7 @@ public class TestSymbolTableParser {
     @Test
     public void testResolveNativeFunction() {
         String program =
-            """
+                """
         quest_config c {
             points: print("Hello")
         }
@@ -101,8 +100,7 @@ public class TestSymbolTableParser {
         var ast = Helpers.getASTFromString(program);
         var symtableResult = Helpers.getSymtableForAST(ast);
 
-        var printFuncDefSymbol =
-            symtableResult.symbolTable.globalScope.Resolve("print");
+        var printFuncDefSymbol = symtableResult.symbolTable.globalScope.Resolve("print");
 
         var questConfig = ast.getChild(0);
         var propDefList = questConfig.getChild(2);
@@ -111,7 +109,8 @@ public class TestSymbolTableParser {
 
         Assert.assertEquals(Node.Type.FuncCall, funcCallNode.type);
 
-        var symbolForFuncCallNode = symtableResult.symbolTable.getSymbolsForAstNode(funcCallNode).get(0);
+        var symbolForFuncCallNode =
+                symtableResult.symbolTable.getSymbolsForAstNode(funcCallNode).get(0);
         Assert.assertEquals(symbolForFuncCallNode, printFuncDefSymbol);
     }
 

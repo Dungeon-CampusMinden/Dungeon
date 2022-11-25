@@ -1,10 +1,10 @@
 package runtime;
 
+import java.util.Stack;
 import symboltable.ICallable;
 import symboltable.SymbolTable;
 
-import java.util.Stack;
-
+// TODO: is this really needed? could this just be some fields in the DSLINterpreter?
 public class DSLRuntime {
     private final Stack<MemorySpace> memoryStack;
     private MemorySpace globalSpace;
@@ -21,9 +21,9 @@ public class DSLRuntime {
     //  wie wird order of operation vorgegeben? einfach von oben nach unten? oder nach referenz von
     //  objekt?
     public void initialize(SymbolTable symbolTable) {
-        for (var symbol: symbolTable.GetGlobalScope().GetSymbols()) {
+        for (var symbol : symbolTable.GetGlobalScope().GetSymbols()) {
             if (symbol instanceof ICallable) {
-                var callableType = ((ICallable)symbol).getCallableType();
+                var callableType = ((ICallable) symbol).getCallableType();
                 if (callableType == ICallable.Type.Native) {
                     this.globalSpace.bindFromSymbol(symbol);
                 } else if (callableType == ICallable.Type.UserDefined) {

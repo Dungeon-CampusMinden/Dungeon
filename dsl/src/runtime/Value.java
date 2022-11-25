@@ -4,10 +4,11 @@ import symboltable.IType;
 
 // TODO: should this be able to be undefined?
 public class Value {
-    public static Value NONE = new Value(null, null);
+    public static Value NONE = new Value(null, null, -1);
 
-    private IType dataType;
-    private Object value;
+    private final IType dataType;
+    private final Object value;
+    private final int symbolIdx;
 
     public Object getValue() {
         return value;
@@ -16,9 +17,13 @@ public class Value {
     public IType getDataType() {
         return dataType;
     }
+    public int getSymbolIdx() {
+        return symbolIdx;
+    }
 
-    public Value(IType dataType, Object value) {
+    public Value(IType dataType, Object value, int symbolIdx) {
         this.value = value;
         this.dataType = dataType;
+        this.symbolIdx = symbolIdx;
     }
 }

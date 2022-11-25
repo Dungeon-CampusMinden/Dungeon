@@ -1,9 +1,8 @@
 package symboltable;
 
 import interpreter.DSLInterpreter;
-import parser.AST.Node;
-
 import java.util.List;
+import parser.AST.Node;
 
 // TODO:
 //  how to hook in implementation? -> siehe ASTdriven vorlesung
@@ -12,7 +11,6 @@ public class FunctionSymbol extends ScopedSymbol implements ICallable {
     private final Node astRootNode;
 
     /**
-     *
      * @param astRootNode
      */
     public FunctionSymbol(String name, IScope parentScope, Node astRootNode, IType retType) {
@@ -23,7 +21,8 @@ public class FunctionSymbol extends ScopedSymbol implements ICallable {
 
     // TODO: pass AstVisitor or Interpreter?
     //  Wie mit Argumenten umgehen? kann ja nicht einfach an visit-methode übergeben werden..
-    //  vielleicht von außen auf Parameter-Stack von Interpreter draufschieben bzw. auf Parameter-Stack
+    //  vielleicht von außen auf Parameter-Stack von Interpreter draufschieben bzw. auf
+    // Parameter-Stack
     //  von "Runtime"->Zustand da drin speichern
     // TODO: wo sollen die nativen Funktionen leben? Am sinnvollsten wäre das, wenn das in Runtime
     //  implementiert wäre

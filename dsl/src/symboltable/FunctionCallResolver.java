@@ -7,9 +7,7 @@ public class FunctionCallResolver implements AstVisitor<Void> {
     StringBuilder errorStringBuilder;
 
     public void resolveFunctionCalls(
-        SymbolTable symbolTable,
-        Node rootNode,
-        StringBuilder errorStringBuilder) {
+            SymbolTable symbolTable, Node rootNode, StringBuilder errorStringBuilder) {
 
         this.symbolTable = symbolTable;
         this.errorStringBuilder = errorStringBuilder;

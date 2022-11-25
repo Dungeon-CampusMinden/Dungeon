@@ -129,6 +129,10 @@ public class SymbolTable {
         return astNodeIdxToAstNode.get(astNodeIdx);
     }
 
+    public Symbol getSymbolByIdx(int idx) {
+        return symbolIdxToSymbol.getOrDefault(idx, Symbol.NULL);
+    }
+
     public SymbolTable(IScope globalScope) {
         this.globalScope = globalScope;
         astNodeSymbolRelation = new HashMap<>();
