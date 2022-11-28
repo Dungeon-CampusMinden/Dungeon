@@ -1,6 +1,8 @@
 package runtime;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import symboltable.BuiltInType;
 import symboltable.IType;
 import symboltable.Symbol;
@@ -31,6 +33,20 @@ public class MemorySpace {
             return true;
         }
         return false;
+    }
+
+    public boolean bindWithObject(String name, Object value, IType datatype) {
+        if (values.containsKey(name)) {
+            return false;
+        } else {
+            var val = new Value(datatype, value, -1);
+            values.put(name, val);
+            return true;
+        }
+    }
+
+    public Set<Map.Entry<String, Value>> getAllValues() {
+        return values.entrySet();
     }
 
     public Value resolve(String name) {

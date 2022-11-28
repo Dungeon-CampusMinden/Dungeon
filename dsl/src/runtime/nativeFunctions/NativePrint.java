@@ -2,6 +2,7 @@ package runtime.nativeFunctions;
 
 import interpreter.DSLInterpreter;
 import java.util.List;
+import parser.AST.Node;
 import symboltable.*;
 
 // TODO: how to enable semantic analysis for this? e.g. parameter-count, etc.
@@ -15,10 +16,10 @@ public class NativePrint extends ScopedSymbol implements ICallable {
     }
 
     @Override
-    public Object call(DSLInterpreter interperter, List<Object> parameters) {
+    public Object call(DSLInterpreter interperter, List<Node> parameters) {
         assert parameters != null && parameters.size() > 0;
         try {
-            String paramAsString = (String) parameters.get(0);
+            String paramAsString = (String) parameters.get(0).accept(interperter);
             System.out.println(paramAsString);
         } catch (ClassCastException ex) {
             // TODO: handle

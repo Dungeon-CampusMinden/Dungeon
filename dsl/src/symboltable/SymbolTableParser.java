@@ -93,6 +93,8 @@ public class SymbolTableParser implements AstVisitor<Void> {
         questConfigType.Bind(password);
         var questPoints = new Symbol("quest_points", questConfigType, BuiltInType.intType);
         questConfigType.Bind(questPoints);
+        var test = new Symbol("test", questConfigType, BuiltInType.intType);
+        questConfigType.Bind(test);
 
         GlobalScope().Bind(questConfigType);
     }

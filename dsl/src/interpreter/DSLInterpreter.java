@@ -1,16 +1,16 @@
 package interpreter;
 
 import antlr.main.*;
+import dslToGame.QuestConfig;
 import dslToGame.QuestConfigBuilder;
 import interpreter.dot.Interpreter;
+import java.util.List;
 import java.util.Stack;
 import org.antlr.v4.runtime.*;
 import parser.AST.*;
 import parser.DungeonASTConverter;
 import runtime.MemorySpace;
-import symboltable.ICallable;
-import symboltable.SymbolTable;
-import symboltable.SymbolTableParser;
+import symboltable.*;
 
 public class DSLInterpreter implements AstVisitor<Object> {
 
@@ -52,7 +52,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 this.globalSpace.bindFromSymbol(symbol);
             }
         }
-        System.out.println("Test");
     }
 
     public dslToGame.QuestConfig getQuestConfig(String configScript) {
@@ -68,9 +67,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         SymbolTableParser symTableParser = new SymbolTableParser();
         var result = symTableParser.walk(programAST);
+        symbolTable = result.symbolTable;
 
-        var questConfig = generateQuestConfig(programAST, result.symbolTable);
         initializeRuntime(symbolTable);
+        var questConfig = generateQuestConfig(programAST, result.symbolTable);
         return questConfig;
     }
 
@@ -83,61 +83,93 @@ public class DSLInterpreter implements AstVisitor<Object> {
             if (node.type == Node.Type.ObjectDefinition) {
                 var objDefNode = (ObjectDefNode) node;
                 if (objDefNode.getTypeSpecifierName().equals("quest_config")) {
-                    // interpret everything -> set fields in questConfig object
-                    for (var propertyDef : objDefNode.getPropertyDefinitions()) {
-                        propertyDef.accept(this);
-                    }
+                    return (QuestConfig) objDefNode.accept(this);
                 }
                 break;
             }
         }
-        return this.questConfigBuilder.build();
+        return null;
+        // return this.questConfigBuilder.build();
+    }
+
+    @Override
+    public Object visit(ObjectDefNode node) {
+        // push new memory space
+        var objectDefSpace = new MemorySpace(this.memoryStack.peek());
+        memoryStack.push(objectDefSpace);
+
+        // bind new value for every property
+        for (var propDefNode : node.getPropertyDefinitions()) {
+            var propertyId = ((PropertyDefNode) propDefNode).getIdNode();
+            var propDefSymbol = this.symbolTable.getSymbolsForAstNode(propertyId).get(0);
+            assert propDefSymbol != null;
+            objectDefSpace.bindFromSymbol(propDefSymbol);
+        }
+
+        // accept every propertyDefinition
+        for (var propDefNode : node.getPropertyDefinitions()) {
+            propDefNode.accept(this);
+        }
+
+        // convert from memorySpace to concrete object
+        objectDefSpace = memoryStack.pop();
+        var objectSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
+        return createObjectFromMemorySpace(objectDefSpace, objectSymbol.getDataType());
+    }
+
+    // TODO: refactor
+    private Object createObjectFromMemorySpace(MemorySpace ms, IType type) {
+        if (type.getName().equals("quest_config")) {
+            QuestConfigBuilder builder = new QuestConfigBuilder();
+            for (var keyValue : ms.getAllValues()) {
+                var value = keyValue.getValue();
+                switch (keyValue.getKey()) {
+                    case "level_graph":
+                        try {
+                            graph.Graph<String> graphValue = (graph.Graph<String>) value.getValue();
+                            builder.setGraph(graphValue);
+                        } catch (ClassCastException ex) {
+                            // oh well
+                        }
+                        break;
+                    case "quest_points":
+                        try {
+                            int intValue = (int) value.getValue();
+                            builder.setPoints(intValue);
+                        } catch (ClassCastException ex) {
+                            // oh well
+                        }
+                        break;
+                    case "password":
+                        try {
+                            String strValue = (String) value.getValue();
+                            builder.setPassword(strValue);
+                        } catch (ClassCastException ex) {
+                            // oh well
+                        }
+                        break;
+                    case "quest_desc":
+                        try {
+                            String strValue = (String) value.getValue();
+                            builder.setDescription(strValue);
+                        } catch (ClassCastException ex) {
+                            // oh well
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return builder.build();
+        }
+        return null;
     }
 
     @Override
     public Object visit(PropertyDefNode node) {
         var value = node.getStmtNode().accept(this);
-
-        // TODO: this should not be done here; handle property-definitions like
-        //  MemorySpace; create class, which handles building the "end-user"-class
-        //  (the conrete QuestConfig-object) from the propertyDefinitions
-        switch (node.getIdName()) {
-            case "level_graph":
-                try {
-                    graph.Graph<String> graphValue = (graph.Graph<String>) value;
-                    this.questConfigBuilder.setGraph(graphValue);
-                } catch (ClassCastException ex) {
-                    // oh well
-                }
-                break;
-            case "quest_points":
-                try {
-                    int intValue = (int) value;
-                    this.questConfigBuilder.setPoints(intValue);
-                } catch (ClassCastException ex) {
-                    // oh well
-                }
-                break;
-            case "password":
-                try {
-                    String strValue = (String) value;
-                    this.questConfigBuilder.setPassword(strValue);
-                } catch (ClassCastException ex) {
-                    // oh well
-                }
-                break;
-            case "quest_desc":
-                try {
-                    String strValue = (String) value;
-                    this.questConfigBuilder.setDescription(strValue);
-                } catch (ClassCastException ex) {
-                    // oh well
-                }
-                break;
-            default:
-                break;
-        }
-
+        var propertyName = node.getIdName();
+        setValue(propertyName, value);
         return null;
     }
 
@@ -167,5 +199,59 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(DotDefNode node) {
         Interpreter dotInterpreter = new Interpreter();
         return dotInterpreter.getGraph(node);
+    }
+
+    // TODO: this should probably check for type compatibility
+    // TODO: should this create a new value, if one with the same name does not exist? nah..
+    private boolean setValue(String name, Object value) {
+        var ms = memoryStack.peek();
+        var valueInMemorySpace = ms.resolve(name);
+        if (valueInMemorySpace == null) {
+            return false;
+        }
+        valueInMemorySpace.setValue(value);
+        return true;
+    }
+
+    public Object executeUserDefinedFunction(FunctionSymbol symbol, List<Node> parameterNodes) {
+        // push new memorySpace and parameters on spaceStack
+        var functionMemSpace = new MemorySpace(memoryStack.peek());
+        var funcAsScope = (ScopedSymbol) symbol;
+
+        // TODO: push parameter for return value
+        var parameterSymbols = funcAsScope.GetSymbols();
+        for (int i = 0; i < parameterNodes.size(); i++) {
+            var parameterSymbol = parameterSymbols.get(i);
+            functionMemSpace.bindFromSymbol(parameterSymbol);
+
+            var paramValueNode = parameterNodes.get(i);
+            var paramValue = paramValueNode.accept(this);
+
+            setValue(parameterSymbol.getName(), paramValue);
+        }
+
+        memoryStack.push(functionMemSpace);
+
+        // visit function AST
+        var funcAstNode = this.symbolTable.getCreationAstNode(symbol);
+        funcAstNode.accept(this);
+
+        memoryStack.pop();
+        // TODO: handle return value
+        return null;
+    }
+
+    @Override
+    public Object visit(FuncCallNode node) {
+        // resolve function name in global memory-space
+        var funcName = node.getIdName();
+        var funcValue = this.globalSpace.resolve(funcName);
+
+        // get the function symbol by symbolIdx from funcValue
+        var funcSymbol = this.symbolTable.getSymbolByIdx(funcValue.getSymbolIdx());
+        assert funcSymbol instanceof ICallable;
+        var funcCallable = (ICallable) funcSymbol;
+
+        return funcCallable.call(this, node.getParameters());
     }
 }

@@ -7,7 +7,7 @@ public class Value {
     public static Value NONE = new Value(null, null, -1);
 
     private final IType dataType;
-    private final Object value;
+    private Object value;
     private final int symbolIdx;
 
     public Object getValue() {
@@ -17,8 +17,14 @@ public class Value {
     public IType getDataType() {
         return dataType;
     }
+
     public int getSymbolIdx() {
         return symbolIdx;
+    }
+
+    // TODO: should this check for datatype compatibility?
+    public void setValue(Object value) {
+        this.value = value;
     }
 
     public Value(IType dataType, Object value, int symbolIdx) {

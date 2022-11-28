@@ -2,6 +2,7 @@ package symboltable;
 
 import interpreter.DSLInterpreter;
 import java.util.List;
+import parser.AST.Node;
 
 public interface ICallable {
     // TODO: refine signature
@@ -11,7 +12,7 @@ public interface ICallable {
         UserDefined
     }
 
-    Object call(DSLInterpreter interperter, List<Object> parameters);
+    Object call(DSLInterpreter interperter, List<Node> parameters);
 
     Type getCallableType();
 }

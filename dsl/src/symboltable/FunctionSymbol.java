@@ -19,22 +19,11 @@ public class FunctionSymbol extends ScopedSymbol implements ICallable {
         this.astRootNode = astRootNode;
     }
 
-    // TODO: pass AstVisitor or Interpreter?
-    //  Wie mit Argumenten umgehen? kann ja nicht einfach an visit-methode übergeben werden..
-    //  vielleicht von außen auf Parameter-Stack von Interpreter draufschieben bzw. auf
-    // Parameter-Stack
-    //  von "Runtime"->Zustand da drin speichern
-    // TODO: wo sollen die nativen Funktionen leben? Am sinnvollsten wäre das, wenn das in Runtime
-    //  implementiert wäre
+    // TODO: this should just call interpreter-method, which does all the parameter pushing
+    //  for native functions,
     @Override
-    public Object call(DSLInterpreter interpreter, List<Object> parameters) {
-        // sketch:
-        // for (var param : parameters ) {
-        // interpreter.push_param(param);
-        // }
-        // this.astRootNode.accept(interpreter);
-        // TODO: handle return value
-        return null;
+    public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+        return interpreter.executeUserDefinedFunction(this, parameters);
     }
 
     @Override

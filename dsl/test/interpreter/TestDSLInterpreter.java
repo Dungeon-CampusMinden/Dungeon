@@ -34,7 +34,8 @@ public class TestDSLInterpreter {
                 level_graph: g,
                 quest_points: 42,
                 quest_desc: "Hello",
-                password: "TESTPW"
+                password: "TESTPW",
+                test: print("Hello, World!")
             }
             """;
         DSLInterpreter interpreter = new DSLInterpreter();
