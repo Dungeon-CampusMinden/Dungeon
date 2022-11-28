@@ -13,6 +13,15 @@ import level.tools.LevelSize;
 import levelgraph.DoorDirection;
 import levelgraph.LevelNode;
 
+/**
+ * Generator for a random room of a given size and adds doors at given directions.
+ *
+ * <p>The generation of the layout can be initialized with a seed to generate the same room again. A
+ * room consists of a baseFloor area and random extension areas to the corners or sides of the
+ * baseFloor. Walls surrounding the areas are generated. Holes are generated at random FloorTiles.
+ * Supports are generated in rooms with a big baseFloor. Finally, doors are generated at the
+ * outermost walls for every given door direction.
+ */
 public class RoomGenerator {
 
     public static final float SYMMETRICAL = 0.5f;
@@ -36,6 +45,15 @@ public class RoomGenerator {
     private static final int BIG_MAX_X_SIZE = 24;
     private static final int BIG_MAX_Y_SIZE = 24;
 
+    /**
+     * Generates a random room with given parameters.
+     *
+     * @param designLabel Design of the room tiles
+     * @param size Size of the room
+     * @param doors Directions of doors to be generated
+     * @param node LevelNode the room should be attached to
+     * @return The generated room
+     */
     public IRoom getLevel(
             DesignLabel designLabel, LevelSize size, DoorDirection[] doors, LevelNode node) {
         Room room = new Room(getLayout(size, doors), designLabel, node);
@@ -43,10 +61,25 @@ public class RoomGenerator {
         return room;
     }
 
+    /**
+     * Generates a random room layout with the given parameters.
+     *
+     * @param size Size of the room
+     * @param doors Array of DoorDirections to specify where doors should be generated
+     * @return The generated room layout
+     */
     public LevelElement[][] getLayout(LevelSize size, DoorDirection[] doors) {
         return generateRoom(size, RANDOM.nextLong(), doors);
     }
 
+    /**
+     * Generates a room layout with the given parameters.
+     *
+     * @param size Size of the room
+     * @param seed Seed to initialize the random number generator
+     * @param doors Array of DoorDirections to specify where doors should be generated
+     * @return The generated room layout
+     */
     private LevelElement[][] generateRoom(LevelSize size, long seed, DoorDirection[] doors) {
         // Initialize random number generator with seed
         Random random = new Random(seed);
@@ -266,7 +299,7 @@ public class RoomGenerator {
             }
         }
 
-        // place Walls and Holes
+        // place Walls
         for (int y = 1; y < layout.length - 1; y++) {
             for (int x = 1; x < layout[0].length - 1; x++) {
                 if (layout[y][x] == LevelElement.SKIP && neighborsFloor(layout, y, x))
@@ -445,6 +478,14 @@ public class RoomGenerator {
         return layout;
     }
 
+    /**
+     * Checks if a Tile at given coordinate in the layout neighbors a FloorTile.
+     *
+     * @param layout The layout of the room
+     * @param y Y-coordinate of Tile to check
+     * @param x X-coordinate of Tile to check
+     * @return true if at least one FloorTile is neighboring the Tile
+     */
     private boolean neighborsFloor(LevelElement[][] layout, int y, int x) {
         int floorNeighbors = 0;
         if (layout[y + 1][x - 1] == LevelElement.FLOOR) {
@@ -474,11 +515,22 @@ public class RoomGenerator {
         return floorNeighbors > 0;
     }
 
+    /**
+     * Links the generated Doortiles to the Room for easy access.
+     *
+     * @param room The generated room
+     */
     private void addDoorTilesToRoom(Room room) {
         for (Tile[] row : room.getLayout())
             for (Tile tile : row) if (tile instanceof DoorTile) room.addDoor((DoorTile) tile);
     }
 
+    /**
+     * Prints the layout of the room for debugging.
+     *
+     * @param layout The layout of the room
+     * @param size The size of the room
+     */
     private void printLayout(LevelElement[][] layout, LevelSize size) {
         System.out.println("LevelSize: " + size.name());
         System.out.println("xSize: " + layout[0].length);
@@ -490,6 +542,8 @@ public class RoomGenerator {
                     case FLOOR -> System.out.print(". ");
                     case WALL -> System.out.print("W ");
                     case EXIT -> System.out.print("E ");
+                    case HOLE -> System.out.println("H ");
+                    case DOOR -> System.out.println("D ");
                 }
             }
             System.out.println();
