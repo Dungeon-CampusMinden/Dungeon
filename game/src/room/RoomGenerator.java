@@ -24,14 +24,16 @@ import levelgraph.LevelNode;
  */
 public class RoomGenerator {
 
-    public static final float SYMMETRICAL = 0.5f;
-    public static final float EXTEND_TO_SIDES = 0.5f;
-    public static final float PROBABILITY_SIDE = 0.75f;
-    public static final float PROBABILITY_CORNER = 0.75f;
-    private static final float PROBABILITY_HOLE = 0.02f;
-
     private record MinMaxValue(int min, int max) {}
 
+    private record Area(int x, int y) {}
+
+    private static final int WALL_BUFFER = 2;
+    private static final float SYMMETRICAL = 0.5f;
+    private static final float EXTEND_TO_SIDES = 0.5f;
+    private static final float PROBABILITY_SIDE = 0.75f;
+    private static final float PROBABILITY_CORNER = 0.75f;
+    private static final float PROBABILITY_HOLE = 0.02f;
     private static final int SMALL_MIN_X_SIZE = 5;
     private static final int SMALL_MIN_Y_SIZE = 5;
     private static final int SMALL_MAX_X_SIZE = 8;
@@ -44,6 +46,8 @@ public class RoomGenerator {
     private static final int BIG_MIN_Y_SIZE = 20;
     private static final int BIG_MAX_X_SIZE = 24;
     private static final int BIG_MAX_Y_SIZE = 24;
+
+    private Random random;
 
     /**
      * Generates a random room with given parameters.
@@ -82,31 +86,28 @@ public class RoomGenerator {
      */
     private LevelElement[][] generateRoom(LevelSize size, long seed, DoorDirection[] doors) {
         // Initialize random number generator with seed
-        Random random = new Random(seed);
+        random = new Random(seed);
 
         // Define max room size
-        int xSize;
-        int ySize;
-
+        Area maxArea;
         switch (size) {
-            case SMALL -> {
-                xSize = random.nextInt(SMALL_MIN_X_SIZE, SMALL_MAX_X_SIZE + 1);
-                ySize = random.nextInt(SMALL_MIN_Y_SIZE, SMALL_MAX_Y_SIZE + 1);
-            }
-            case LARGE -> {
-                xSize = random.nextInt(BIG_MIN_X_SIZE, BIG_MAX_X_SIZE + 1);
-                ySize = random.nextInt(BIG_MIN_Y_SIZE, BIG_MAX_Y_SIZE + 1);
-            }
-            default -> {
-                xSize = random.nextInt(MEDIUM_MIN_X_SIZE, MEDIUM_MAX_X_SIZE + 1);
-                ySize = random.nextInt(MEDIUM_MIN_Y_SIZE, MEDIUM_MAX_Y_SIZE + 1);
-            }
+            case SMALL -> maxArea =
+                    new Area(
+                            random.nextInt(SMALL_MIN_X_SIZE, SMALL_MAX_X_SIZE + 1),
+                            random.nextInt(SMALL_MIN_Y_SIZE, SMALL_MAX_Y_SIZE + 1));
+            case LARGE -> maxArea =
+                    new Area(
+                            random.nextInt(BIG_MIN_X_SIZE, BIG_MAX_X_SIZE + 1),
+                            random.nextInt(BIG_MIN_Y_SIZE, BIG_MAX_Y_SIZE + 1));
+            default -> maxArea =
+                    new Area(
+                            random.nextInt(MEDIUM_MIN_X_SIZE, MEDIUM_MAX_X_SIZE + 1),
+                            random.nextInt(MEDIUM_MIN_Y_SIZE, MEDIUM_MAX_Y_SIZE + 1));
         }
 
         // Initialize layout with additional buffer for wall and skip layer
-        final int WALL_BUFFER = 2;
         LevelElement[][] layout =
-                new LevelElement[ySize + WALL_BUFFER * 2][xSize + WALL_BUFFER * 2];
+                new LevelElement[maxArea.y + WALL_BUFFER * 2][maxArea.x + WALL_BUFFER * 2];
 
         // Fill with skip
         for (int y = 0; y < layout.length; y++) {
@@ -120,183 +121,59 @@ public class RoomGenerator {
         final MinMaxValue BASE_FLOOR_Y_SIZE;
         switch (size) {
             case SMALL -> {
-                BASE_FLOOR_X_SIZE = new MinMaxValue(SMALL_MIN_X_SIZE, xSize);
-                BASE_FLOOR_Y_SIZE = new MinMaxValue(SMALL_MIN_Y_SIZE, ySize);
+                BASE_FLOOR_X_SIZE = new MinMaxValue(SMALL_MIN_X_SIZE, maxArea.x);
+                BASE_FLOOR_Y_SIZE = new MinMaxValue(SMALL_MIN_Y_SIZE, maxArea.y);
             }
             case LARGE -> {
-                BASE_FLOOR_X_SIZE = new MinMaxValue(BIG_MIN_X_SIZE - 10, xSize - 4);
-                BASE_FLOOR_Y_SIZE = new MinMaxValue(BIG_MIN_Y_SIZE - 10, ySize - 4);
+                BASE_FLOOR_X_SIZE = new MinMaxValue(BIG_MIN_X_SIZE - 10, maxArea.x - 4);
+                BASE_FLOOR_Y_SIZE = new MinMaxValue(BIG_MIN_Y_SIZE - 10, maxArea.y - 4);
             }
             default -> {
-                BASE_FLOOR_X_SIZE = new MinMaxValue(MEDIUM_MIN_X_SIZE - 8, xSize - 3);
-                BASE_FLOOR_Y_SIZE = new MinMaxValue(MEDIUM_MIN_Y_SIZE - 8, ySize - 3);
+                BASE_FLOOR_X_SIZE = new MinMaxValue(MEDIUM_MIN_X_SIZE - 8, maxArea.x - 3);
+                BASE_FLOOR_Y_SIZE = new MinMaxValue(MEDIUM_MIN_Y_SIZE - 8, maxArea.y - 3);
             }
         }
         final MinMaxValue BASE_FLOOR_PADDING_X =
                 new MinMaxValue(
-                        (xSize - BASE_FLOOR_X_SIZE.max + 1) / 2,
-                        (xSize - BASE_FLOOR_X_SIZE.min) / 2);
+                        (maxArea.x - BASE_FLOOR_X_SIZE.max + 1) / 2,
+                        (maxArea.x - BASE_FLOOR_X_SIZE.min) / 2);
         final MinMaxValue BASE_FLOOR_PADDING_Y =
                 new MinMaxValue(
-                        (ySize - BASE_FLOOR_Y_SIZE.max + 1) / 2,
-                        (ySize - BASE_FLOOR_Y_SIZE.min) / 2);
+                        (maxArea.y - BASE_FLOOR_Y_SIZE.max + 1) / 2,
+                        (maxArea.y - BASE_FLOOR_Y_SIZE.min) / 2);
 
-        int baseFloorPaddingX =
-                BASE_FLOOR_PADDING_X.min == BASE_FLOOR_PADDING_X.max
-                        ? BASE_FLOOR_PADDING_X.min
-                        : random.nextInt(BASE_FLOOR_PADDING_X.min, BASE_FLOOR_PADDING_X.max + 1);
-        int baseFloorPaddingY =
-                BASE_FLOOR_PADDING_Y.min == BASE_FLOOR_PADDING_Y.max
-                        ? BASE_FLOOR_PADDING_Y.min
-                        : random.nextInt(BASE_FLOOR_PADDING_Y.min, BASE_FLOOR_PADDING_Y.max + 1);
-        int baseFloorY = ySize - 2 * baseFloorPaddingY;
-        int baseFloorX = xSize - 2 * baseFloorPaddingX;
+        Area baseFloorPadding =
+                new Area(
+                        BASE_FLOOR_PADDING_X.min == BASE_FLOOR_PADDING_X.max
+                                ? BASE_FLOOR_PADDING_X.min
+                                : random.nextInt(
+                                        BASE_FLOOR_PADDING_X.min, BASE_FLOOR_PADDING_X.max + 1),
+                        BASE_FLOOR_PADDING_Y.min == BASE_FLOOR_PADDING_Y.max
+                                ? BASE_FLOOR_PADDING_Y.min
+                                : random.nextInt(
+                                        BASE_FLOOR_PADDING_Y.min, BASE_FLOOR_PADDING_Y.max + 1));
+        Area baseFloor =
+                new Area(maxArea.x - 2 * baseFloorPadding.x, maxArea.y - 2 * baseFloorPadding.y);
 
-        for (int y = WALL_BUFFER + baseFloorPaddingY;
-                y < layout.length - WALL_BUFFER - baseFloorPaddingY;
+        for (int y = WALL_BUFFER + baseFloorPadding.y;
+                y < layout.length - WALL_BUFFER - baseFloorPadding.y;
                 y++) {
-            for (int x = WALL_BUFFER + baseFloorPaddingX;
-                    x < layout[0].length - WALL_BUFFER - baseFloorPaddingX;
+            for (int x = WALL_BUFFER + baseFloorPadding.x;
+                    x < layout[0].length - WALL_BUFFER - baseFloorPadding.x;
                     x++) {
                 layout[y][x] = LevelElement.FLOOR;
             }
         }
 
-        // extend base floor
-        boolean symmetrical = false;
-        boolean up = false;
-        boolean down = false;
-        boolean left = false;
-        boolean right = false;
-        boolean upperLeft = false;
-        boolean upperRight = false;
-        boolean lowerLeft = false;
-        boolean lowerRight = false;
-        if (random.nextFloat() < SYMMETRICAL) {
-            symmetrical = true;
-        }
+        // Extend base floor
+        boolean symmetrical = random.nextFloat() < SYMMETRICAL;
+        // TODO use symmetrical boolean to generate symmetrical or asymmetrical rooms
         // Small rooms cannot extend to the corners
         // Medium and Big Rooms can extend to corner or sides
         if (size == LevelSize.SMALL || random.nextFloat() < EXTEND_TO_SIDES) {
-            // extend to sides
-            if (random.nextFloat() < PROBABILITY_SIDE) {
-                up = true;
-            }
-            if (random.nextFloat() < PROBABILITY_SIDE) {
-                down = true;
-            }
-            if (random.nextFloat() < PROBABILITY_SIDE) {
-                left = true;
-            }
-            if (random.nextFloat() < PROBABILITY_SIDE) {
-                right = true;
-            }
+            extendToSides(layout, maxArea, baseFloorPadding, baseFloor);
         } else {
-            // extend to corners
-            if (random.nextFloat() < PROBABILITY_CORNER) {
-                upperLeft = true;
-            }
-            if (random.nextFloat() < PROBABILITY_CORNER) {
-                upperRight = true;
-            }
-            if (random.nextFloat() < PROBABILITY_CORNER) {
-                lowerLeft = true;
-            }
-            if (random.nextFloat() < PROBABILITY_CORNER) {
-                lowerRight = true;
-            }
-        }
-        if (up) {
-            // System.out.println("UP");
-            for (int y = WALL_BUFFER + baseFloorPaddingY + baseFloorY;
-                    y < WALL_BUFFER + ySize;
-                    y++) {
-                for (int x = WALL_BUFFER + baseFloorPaddingX;
-                        x < WALL_BUFFER + baseFloorPaddingX + baseFloorX;
-                        x++) {
-                    layout[y][x] = LevelElement.FLOOR;
-                }
-            }
-        }
-        if (down) {
-            // System.out.println("DOWN");
-            for (int y = WALL_BUFFER; y < WALL_BUFFER + baseFloorPaddingY; y++) {
-                for (int x = WALL_BUFFER + baseFloorPaddingX;
-                        x < WALL_BUFFER + baseFloorPaddingX + baseFloorX;
-                        x++) {
-                    layout[y][x] = LevelElement.FLOOR;
-                }
-            }
-        }
-        if (left) {
-            // System.out.println("LEFT");
-            for (int y = WALL_BUFFER + baseFloorPaddingY;
-                    y < WALL_BUFFER + baseFloorPaddingY + baseFloorY;
-                    y++) {
-                for (int x = WALL_BUFFER; x < WALL_BUFFER + baseFloorPaddingX; x++) {
-                    layout[y][x] = LevelElement.FLOOR;
-                }
-            }
-        }
-        if (right) {
-            // System.out.println("RIGHT");
-            for (int y = WALL_BUFFER + baseFloorPaddingY;
-                    y < WALL_BUFFER + baseFloorPaddingY + baseFloorY;
-                    y++) {
-                for (int x = WALL_BUFFER + baseFloorPaddingX + baseFloorX;
-                        x < WALL_BUFFER + xSize;
-                        x++) {
-                    layout[y][x] = LevelElement.FLOOR;
-                }
-            }
-        }
-        if (upperLeft) {
-            // System.out.println("UPPER LEFT");
-            for (int y = WALL_BUFFER + baseFloorPaddingY + baseFloorY - baseFloorY / 2 + 1;
-                    y < WALL_BUFFER + ySize;
-                    y++) {
-                for (int x = WALL_BUFFER;
-                        x < WALL_BUFFER + baseFloorPaddingX + baseFloorX / 2 - 1;
-                        x++) {
-                    layout[y][x] = LevelElement.FLOOR;
-                }
-            }
-        }
-        if (upperRight) {
-            // System.out.println("UPPER RIGHT");
-            for (int y = WALL_BUFFER + baseFloorPaddingY + baseFloorY - baseFloorY / 2 + 1;
-                    y < WALL_BUFFER + ySize;
-                    y++) {
-                for (int x = WALL_BUFFER + baseFloorPaddingX + baseFloorX - baseFloorX / 2 + 1;
-                        x < WALL_BUFFER + xSize;
-                        x++) {
-                    layout[y][x] = LevelElement.FLOOR;
-                }
-            }
-        }
-        if (lowerLeft) {
-            // System.out.println("LOWER LEFT");
-            for (int y = WALL_BUFFER;
-                    y < WALL_BUFFER + baseFloorPaddingY + baseFloorY / 2 - 1;
-                    y++) {
-                for (int x = WALL_BUFFER;
-                        x < WALL_BUFFER + baseFloorPaddingX + baseFloorX / 2 - 1;
-                        x++) {
-                    layout[y][x] = LevelElement.FLOOR;
-                }
-            }
-        }
-        if (lowerRight) {
-            // System.out.println("LOWER RIGHT");
-            for (int y = WALL_BUFFER;
-                    y < WALL_BUFFER + baseFloorPaddingY + baseFloorY / 2 - 1;
-                    y++) {
-                for (int x = WALL_BUFFER + baseFloorPaddingX + baseFloorX - baseFloorX / 2 + 1;
-                        x < WALL_BUFFER + xSize;
-                        x++) {
-                    layout[y][x] = LevelElement.FLOOR;
-                }
-            }
+            extendToCorners(layout, maxArea, baseFloorPadding, baseFloor);
         }
 
         // place Walls
@@ -316,66 +193,239 @@ public class RoomGenerator {
         }
 
         // add supports for large rooms
-        if (baseFloorX >= 15 && baseFloorY >= 15) {
+        if (baseFloor.x >= 15 && baseFloor.y >= 15) {
+            addSupports(layout, baseFloorPadding, baseFloor);
+        }
 
-            int leftSupportLeftSide = WALL_BUFFER + baseFloorPaddingX + baseFloorX / 5;
-            int leftSupportRightSide = WALL_BUFFER + baseFloorPaddingX + baseFloorX / 5 + 2;
-            int bottomSupportBottomSide = WALL_BUFFER + baseFloorPaddingY + baseFloorY / 5;
-            int bottomSupportUpperSide = WALL_BUFFER + baseFloorPaddingY + baseFloorY / 5 + 2;
-            int rightSupportLeftSide =
-                    WALL_BUFFER + baseFloorPaddingX + baseFloorX - baseFloorX / 5 - 3;
-            int rightSupportRightSide =
-                    WALL_BUFFER + baseFloorPaddingX + baseFloorX - baseFloorX / 5 - 1;
-            int upperSupportBottomSide =
-                    WALL_BUFFER + baseFloorPaddingY + baseFloorY - baseFloorY / 5 - 3;
-            int upperSupportUpperSide =
-                    WALL_BUFFER + baseFloorPaddingY + baseFloorY - baseFloorY / 5 - 1;
-            // lower left support
-            for (int y = bottomSupportBottomSide; y <= bottomSupportUpperSide; y++) {
-                for (int x = leftSupportLeftSide; x <= leftSupportRightSide; x++) {
-                    if (y == bottomSupportBottomSide + 1 && x == leftSupportLeftSide + 1) {
-                        layout[y][x] = LevelElement.SKIP;
-                    } else {
-                        layout[y][x] = LevelElement.WALL;
-                    }
+        addDoors(doors, maxArea, layout);
+        // TODO Check if holes block access to doors
+
+        // printLayout(layout, size);
+        return layout;
+    }
+
+    /**
+     * Extends the baseFloor to the maxArea on random sides.
+     *
+     * @param layout The layout of the level
+     * @param maxArea Maximum area of the room on which FloorTiles can be placed
+     * @param baseFloorPadding Padding of the baseFloor
+     * @param baseFloor Area of the baseFloor
+     */
+    private void extendToSides(
+            LevelElement[][] layout, Area maxArea, Area baseFloorPadding, Area baseFloor) {
+        boolean up = false;
+        boolean down = false;
+        boolean left = false;
+        boolean right = false;
+        if (random.nextFloat() < PROBABILITY_SIDE) {
+            up = true;
+        }
+        if (random.nextFloat() < PROBABILITY_SIDE) {
+            down = true;
+        }
+        if (random.nextFloat() < PROBABILITY_SIDE) {
+            left = true;
+        }
+        if (random.nextFloat() < PROBABILITY_SIDE) {
+            right = true;
+        }
+        if (up) {
+            // System.out.println("UP");
+            for (int y = WALL_BUFFER + baseFloorPadding.y + baseFloor.y;
+                    y < WALL_BUFFER + maxArea.y;
+                    y++) {
+                for (int x = WALL_BUFFER + baseFloorPadding.x;
+                        x < WALL_BUFFER + baseFloorPadding.x + baseFloor.x;
+                        x++) {
+                    layout[y][x] = LevelElement.FLOOR;
                 }
             }
-
-            // lower right support
-            for (int y = bottomSupportBottomSide; y <= bottomSupportUpperSide; y++) {
-                for (int x = rightSupportLeftSide; x <= rightSupportRightSide; x++) {
-                    if (y == bottomSupportBottomSide + 1 && x == rightSupportLeftSide + 1) {
-                        layout[y][x] = LevelElement.SKIP;
-                    } else {
-                        layout[y][x] = LevelElement.WALL;
-                    }
+        }
+        if (down) {
+            // System.out.println("DOWN");
+            for (int y = WALL_BUFFER; y < WALL_BUFFER + baseFloorPadding.y; y++) {
+                for (int x = WALL_BUFFER + baseFloorPadding.x;
+                        x < WALL_BUFFER + baseFloorPadding.x + baseFloor.x;
+                        x++) {
+                    layout[y][x] = LevelElement.FLOOR;
                 }
             }
-
-            // upper left support
-            for (int y = upperSupportBottomSide; y <= upperSupportUpperSide; y++) {
-                for (int x = leftSupportLeftSide; x <= leftSupportRightSide; x++) {
-                    if (y == upperSupportBottomSide + 1 && x == leftSupportLeftSide + 1) {
-                        layout[y][x] = LevelElement.SKIP;
-                    } else {
-                        layout[y][x] = LevelElement.WALL;
-                    }
+        }
+        if (left) {
+            // System.out.println("LEFT");
+            for (int y = WALL_BUFFER + baseFloorPadding.y;
+                    y < WALL_BUFFER + baseFloorPadding.y + baseFloor.y;
+                    y++) {
+                for (int x = WALL_BUFFER; x < WALL_BUFFER + baseFloorPadding.x; x++) {
+                    layout[y][x] = LevelElement.FLOOR;
                 }
             }
+        }
+        if (right) {
+            // System.out.println("RIGHT");
+            for (int y = WALL_BUFFER + baseFloorPadding.y;
+                    y < WALL_BUFFER + baseFloorPadding.y + baseFloor.y;
+                    y++) {
+                for (int x = WALL_BUFFER + baseFloorPadding.x + baseFloor.x;
+                        x < WALL_BUFFER + maxArea.x;
+                        x++) {
+                    layout[y][x] = LevelElement.FLOOR;
+                }
+            }
+        }
+    }
 
-            // upper right support
-            for (int y = upperSupportBottomSide; y <= upperSupportUpperSide; y++) {
-                for (int x = rightSupportLeftSide; x <= rightSupportRightSide; x++) {
-                    if (y == upperSupportBottomSide + 1 && x == rightSupportLeftSide + 1) {
-                        layout[y][x] = LevelElement.SKIP;
-                    } else {
-                        layout[y][x] = LevelElement.WALL;
-                    }
+    /**
+     * Extends the baseFloor to the maxArea in random corners.
+     *
+     * @param layout The layout of the level
+     * @param maxArea Maximum area of the room on which FloorTiles can be placed
+     * @param baseFloorPadding Padding of the baseFloor
+     * @param baseFloor Area of the baseFloor
+     */
+    private void extendToCorners(
+            LevelElement[][] layout, Area maxArea, Area baseFloorPadding, Area baseFloor) {
+        boolean upperLeft = false;
+        boolean upperRight = false;
+        boolean lowerLeft = false;
+        boolean lowerRight = false;
+        if (random.nextFloat() < PROBABILITY_CORNER) {
+            upperLeft = true;
+        }
+        if (random.nextFloat() < PROBABILITY_CORNER) {
+            upperRight = true;
+        }
+        if (random.nextFloat() < PROBABILITY_CORNER) {
+            lowerLeft = true;
+        }
+        if (random.nextFloat() < PROBABILITY_CORNER) {
+            lowerRight = true;
+        }
+        if (upperLeft) {
+            // System.out.println("UPPER LEFT");
+            for (int y = WALL_BUFFER + baseFloorPadding.y + baseFloor.y - baseFloor.y / 2 + 1;
+                    y < WALL_BUFFER + maxArea.y;
+                    y++) {
+                for (int x = WALL_BUFFER;
+                        x < WALL_BUFFER + baseFloorPadding.x + baseFloor.x / 2 - 1;
+                        x++) {
+                    layout[y][x] = LevelElement.FLOOR;
+                }
+            }
+        }
+        if (upperRight) {
+            // System.out.println("UPPER RIGHT");
+            for (int y = WALL_BUFFER + baseFloorPadding.y + baseFloor.y - baseFloor.y / 2 + 1;
+                    y < WALL_BUFFER + maxArea.y;
+                    y++) {
+                for (int x = WALL_BUFFER + baseFloorPadding.x + baseFloor.x - baseFloor.x / 2 + 1;
+                        x < WALL_BUFFER + maxArea.x;
+                        x++) {
+                    layout[y][x] = LevelElement.FLOOR;
+                }
+            }
+        }
+        if (lowerLeft) {
+            // System.out.println("LOWER LEFT");
+            for (int y = WALL_BUFFER;
+                    y < WALL_BUFFER + baseFloorPadding.y + baseFloor.y / 2 - 1;
+                    y++) {
+                for (int x = WALL_BUFFER;
+                        x < WALL_BUFFER + baseFloorPadding.x + baseFloor.x / 2 - 1;
+                        x++) {
+                    layout[y][x] = LevelElement.FLOOR;
+                }
+            }
+        }
+        if (lowerRight) {
+            // System.out.println("LOWER RIGHT");
+            for (int y = WALL_BUFFER;
+                    y < WALL_BUFFER + baseFloorPadding.y + baseFloor.y / 2 - 1;
+                    y++) {
+                for (int x = WALL_BUFFER + baseFloorPadding.x + baseFloor.x - baseFloor.x / 2 + 1;
+                        x < WALL_BUFFER + maxArea.x;
+                        x++) {
+                    layout[y][x] = LevelElement.FLOOR;
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds four 3x3 support columns to the room layout.
+     *
+     * @param layout The layout of the level
+     * @param baseFloorPadding Padding of the baseFloor
+     * @param baseFloor Area of the baseFloor
+     */
+    private void addSupports(LevelElement[][] layout, Area baseFloorPadding, Area baseFloor) {
+        int leftSupportLeftSide = WALL_BUFFER + baseFloorPadding.x + baseFloor.x / 5;
+        int leftSupportRightSide = WALL_BUFFER + baseFloorPadding.x + baseFloor.x / 5 + 2;
+        int bottomSupportBottomSide = WALL_BUFFER + baseFloorPadding.y + baseFloor.y / 5;
+        int bottomSupportUpperSide = WALL_BUFFER + baseFloorPadding.y + baseFloor.y / 5 + 2;
+        int rightSupportLeftSide =
+                WALL_BUFFER + baseFloorPadding.x + baseFloor.x - baseFloor.x / 5 - 3;
+        int rightSupportRightSide =
+                WALL_BUFFER + baseFloorPadding.x + baseFloor.x - baseFloor.x / 5 - 1;
+        int upperSupportBottomSide =
+                WALL_BUFFER + baseFloorPadding.y + baseFloor.y - baseFloor.y / 5 - 3;
+        int upperSupportUpperSide =
+                WALL_BUFFER + baseFloorPadding.y + baseFloor.y - baseFloor.y / 5 - 1;
+
+        // lower left support
+        for (int y = bottomSupportBottomSide; y <= bottomSupportUpperSide; y++) {
+            for (int x = leftSupportLeftSide; x <= leftSupportRightSide; x++) {
+                if (y == bottomSupportBottomSide + 1 && x == leftSupportLeftSide + 1) {
+                    layout[y][x] = LevelElement.SKIP;
+                } else {
+                    layout[y][x] = LevelElement.WALL;
                 }
             }
         }
 
-        // Add doors
+        // lower right support
+        for (int y = bottomSupportBottomSide; y <= bottomSupportUpperSide; y++) {
+            for (int x = rightSupportLeftSide; x <= rightSupportRightSide; x++) {
+                if (y == bottomSupportBottomSide + 1 && x == rightSupportLeftSide + 1) {
+                    layout[y][x] = LevelElement.SKIP;
+                } else {
+                    layout[y][x] = LevelElement.WALL;
+                }
+            }
+        }
+
+        // upper left support
+        for (int y = upperSupportBottomSide; y <= upperSupportUpperSide; y++) {
+            for (int x = leftSupportLeftSide; x <= leftSupportRightSide; x++) {
+                if (y == upperSupportBottomSide + 1 && x == leftSupportLeftSide + 1) {
+                    layout[y][x] = LevelElement.SKIP;
+                } else {
+                    layout[y][x] = LevelElement.WALL;
+                }
+            }
+        }
+
+        // upper right support
+        for (int y = upperSupportBottomSide; y <= upperSupportUpperSide; y++) {
+            for (int x = rightSupportLeftSide; x <= rightSupportRightSide; x++) {
+                if (y == upperSupportBottomSide + 1 && x == rightSupportLeftSide + 1) {
+                    layout[y][x] = LevelElement.SKIP;
+                } else {
+                    layout[y][x] = LevelElement.WALL;
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds doors to the room layout.
+     *
+     * @param doors Array of DoorDirections to specify where doors should be generated
+     * @param maxArea Maximum area of the room on which FloorTiles can be placed
+     * @param layout The layout of the level
+     */
+    private void addDoors(DoorDirection[] doors, Area maxArea, LevelElement[][] layout) {
         boolean upperDoor = doors[DoorDirection.UP.getValue()] != null;
         boolean bottomDoor = doors[DoorDirection.DOWN.getValue()] != null;
         boolean leftDoor = doors[DoorDirection.LEFT.getValue()] != null;
@@ -383,8 +433,8 @@ public class RoomGenerator {
 
         if (upperDoor) {
             ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
-            for (int y = WALL_BUFFER + ySize; y > WALL_BUFFER; y--) {
-                for (int x = WALL_BUFFER; x < WALL_BUFFER + xSize; x++) {
+            for (int y = WALL_BUFFER + maxArea.y; y > WALL_BUFFER; y--) {
+                for (int x = WALL_BUFFER; x < WALL_BUFFER + maxArea.x; x++) {
                     // only mark walls that are not next to a corner
                     if (layout[y][x] == LevelElement.WALL
                             && layout[y - 1][x - 1] != LevelElement.WALL
@@ -406,8 +456,8 @@ public class RoomGenerator {
         }
         if (bottomDoor) {
             ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
-            for (int y = WALL_BUFFER - 1; y < WALL_BUFFER + ySize; y++) {
-                for (int x = WALL_BUFFER; x < WALL_BUFFER + xSize; x++) {
+            for (int y = WALL_BUFFER - 1; y < WALL_BUFFER + maxArea.y; y++) {
+                for (int x = WALL_BUFFER; x < WALL_BUFFER + maxArea.x; x++) {
                     // only mark walls that are not next to a corner
                     if (layout[y][x] == LevelElement.WALL
                             && layout[y + 1][x - 1] != LevelElement.WALL
@@ -429,8 +479,8 @@ public class RoomGenerator {
         }
         if (leftDoor) {
             ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
-            for (int x = WALL_BUFFER - 1; x < WALL_BUFFER + xSize; x++) {
-                for (int y = WALL_BUFFER; y < WALL_BUFFER + ySize; y++) {
+            for (int x = WALL_BUFFER - 1; x < WALL_BUFFER + maxArea.x; x++) {
+                for (int y = WALL_BUFFER; y < WALL_BUFFER + maxArea.y; y++) {
                     // only mark walls that are not next to a corner
                     if (layout[y][x] == LevelElement.WALL
                             && layout[y - 1][x + 1] != LevelElement.WALL
@@ -452,8 +502,8 @@ public class RoomGenerator {
         }
         if (rightDoor) {
             ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
-            for (int x = WALL_BUFFER + xSize; x > WALL_BUFFER; x--) {
-                for (int y = WALL_BUFFER; y < WALL_BUFFER + ySize; y++) {
+            for (int x = WALL_BUFFER + maxArea.x; x > WALL_BUFFER; x--) {
+                for (int y = WALL_BUFFER; y < WALL_BUFFER + maxArea.y; y++) {
                     // only mark walls that are not next to a corner
                     if (layout[y][x] == LevelElement.WALL
                             && layout[y - 1][x - 1] != LevelElement.WALL
@@ -473,9 +523,6 @@ public class RoomGenerator {
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
             layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
         }
-
-        // printLayout(layout, size);
-        return layout;
     }
 
     /**
@@ -516,7 +563,7 @@ public class RoomGenerator {
     }
 
     /**
-     * Links the generated Doortiles to the Room for easy access.
+     * Links the generated DoorTiles to the Room for easy access.
      *
      * @param room The generated room
      */
