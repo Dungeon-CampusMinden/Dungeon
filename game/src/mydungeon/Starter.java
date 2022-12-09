@@ -6,8 +6,13 @@ import character.monster.Imp;
 import character.monster.Monster;
 import character.objects.*;
 import character.player.Hero;
+import character.skills.BaseSkillEffect;
 import collision.CharacterDirection;
+import collision.Collidable;
 import collision.CollisionMap;
+import collision.Hitbox;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import controller.Game;
 import controller.ScreenController;
 import dslToGame.QuestConfig;
@@ -24,6 +29,7 @@ import quest.Quest;
 import quest.QuestFactory;
 import room.Room;
 import starter.DesktopLauncher;
+import tools.Point;
 
 /**
  * The entry class to create your own implementation.
@@ -34,10 +40,14 @@ import starter.DesktopLauncher;
 public class Starter extends Game {
     private Hero hero;
     private List<Monster> monster;
+    private List<BaseSkillEffect> skillEffects;
     private List<TreasureChest> chests;
     private ScreenController sc;
     private CollisionMap clevel;
     private List<PasswordChest> pwChest;
+    private ShapeRenderer shape;
+    public static boolean renderHitboxen = true;
+    public static Starter Game;
 
     private Letter letter;
     private DSLInterpreter dslInterpreter;
@@ -51,6 +61,7 @@ public class Starter extends Game {
 
         clevel = new CollisionMap();
         monster = new ArrayList<>();
+        skillEffects = new ArrayList<>();
         pwChest = new ArrayList<>();
         chests = new ArrayList<>();
         hero = new Hero();
@@ -71,6 +82,8 @@ public class Starter extends Game {
         camera.follow(hero);
         entityController.add(hero);
         quest.addQuestUIElements();
+        shape = new ShapeRenderer();
+        Game = this;
     }
 
     @Override
@@ -88,8 +101,19 @@ public class Starter extends Game {
         for (Monster m : monster) {
             CharacterDirection direction = hero.getHitbox().collide(m.getHitbox());
             if (direction != CharacterDirection.NONE) {
-                hero.colide(m, direction);
+                hero.colide(m, direction.inverse());
                 m.colide(hero, direction);
+            }
+        }
+        for (BaseSkillEffect skillEffect : skillEffects) {
+            if (!skillEffect.removable()) {
+                for (Monster m : monster) {
+                    CharacterDirection direction = skillEffect.getHitbox().collide(m.getHitbox());
+                    if (direction != CharacterDirection.NONE) {
+                        skillEffect.colide(m, direction);
+                        m.colide(skillEffect, direction);
+                    }
+                }
             }
         }
         CharacterDirection direction;
@@ -152,6 +176,69 @@ public class Starter extends Game {
         }
         return ret;
     }
+
+    public void spawnEffect(BaseSkillEffect effect) {
+        skillEffects.add(effect);
+        entityController.add(effect);
+    }
+
+    @Override
+    public void render(float delta) {
+        super.render(delta);
+        if (renderHitboxen) {
+            renderHitboxes();
+        }
+    }
+
+    /** renders all hitboxes to see where which hitbox is placed while playing */
+    private void renderHitboxes() {
+        ILevel level = levelAPI.getCurrentLevel();
+        shape.begin(ShapeRenderer.ShapeType.Line);
+        shape.setProjectionMatrix(camera.combined);
+        shape.setColor(Color.RED);
+        for (Collidable box : clevel.getCollidables()) {
+            Point bottomLeft = box.getHitbox().getCorners()[Hitbox.CORNER_BOTTOM_LEFT];
+            Point topRight = box.getHitbox().getCorners()[Hitbox.CORNER_TOP_RIGHT];
+
+            shape.rect(
+                    -0.85f + box.getPosition().x + bottomLeft.x,
+                    -0.5f + box.getPosition().y + bottomLeft.y,
+                    topRight.x - bottomLeft.x,
+                    topRight.y - bottomLeft.y);
+        }
+        for (Collidable box : monster) {
+            Point bottomLeft = box.getHitbox().getCorners()[Hitbox.CORNER_BOTTOM_LEFT];
+            Point topRight = box.getHitbox().getCorners()[Hitbox.CORNER_TOP_RIGHT];
+
+            shape.rect(
+                    -0.85f + box.getPosition().x + bottomLeft.x,
+                    -0.5f + box.getPosition().y + bottomLeft.y,
+                    topRight.x - bottomLeft.x,
+                    topRight.y - bottomLeft.y);
+        }
+        skillEffects.removeIf(BaseSkillEffect::removable);
+        for (Collidable box : skillEffects) {
+            Point bottomLeft = box.getHitbox().getCorners()[Hitbox.CORNER_BOTTOM_LEFT];
+            Point topRight = box.getHitbox().getCorners()[Hitbox.CORNER_TOP_RIGHT];
+
+            shape.rect(
+                    -0.85f + box.getPosition().x + bottomLeft.x,
+                    -0.5f + box.getPosition().y + bottomLeft.y,
+                    topRight.x - bottomLeft.x,
+                    topRight.y - bottomLeft.y);
+        }
+        Hitbox box = hero.getHitbox();
+        Point bottomLeft = box.getCorners()[Hitbox.CORNER_BOTTOM_LEFT];
+        Point topRight = box.getCorners()[Hitbox.CORNER_TOP_RIGHT];
+
+        shape.rect(
+                -0.85f + hero.getPosition().x + bottomLeft.x,
+                -0.5f + hero.getPosition().y + bottomLeft.y,
+                topRight.x - bottomLeft.x,
+                topRight.y - bottomLeft.y);
+        shape.end();
+    }
+
     /**
      * The program entry point to start the dungeon.
      *

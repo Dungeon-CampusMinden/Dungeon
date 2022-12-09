@@ -10,6 +10,7 @@ import tools.Point;
 
 /** Characters in the Dugenon. Characters can move, have animations and collision. */
 public abstract class DungeonCharacter extends AnimatableElement implements Collidable {
+    protected int hitpoints;
 
     protected Point currentPosition;
     protected Animation currentAnimation;
@@ -22,7 +23,8 @@ public abstract class DungeonCharacter extends AnimatableElement implements Coll
      * @param movementSpeed Speed per Frame
      * @param hitbox Hitbox
      */
-    public DungeonCharacter(float movementSpeed, Hitbox hitbox) {
+    public DungeonCharacter(int hitpoints, float movementSpeed, Hitbox hitbox) {
+        this.hitpoints = hitpoints;
         this.movementSpeed = movementSpeed;
         this.hitbox = hitbox;
         hitbox.setCollidable(this);
@@ -126,6 +128,20 @@ public abstract class DungeonCharacter extends AnimatableElement implements Coll
      */
     public void setLevel(ILevel level) {
         this.currentLevel = level;
+    }
+
+    protected void knockback(CharacterDirection from, float v) {
+        float movementSpeed = this.movementSpeed;
+        this.movementSpeed *= v; // knockback
+        currentPosition =
+                switch (from) {
+                    case UP -> moveup();
+                    case DOWN -> movedown();
+                    case LEFT -> moveleft();
+                    case RIGHT -> moveright();
+                    case NONE -> currentPosition;
+                };
+        this.movementSpeed = movementSpeed;
     }
 
     @Override

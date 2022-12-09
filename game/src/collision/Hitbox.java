@@ -2,6 +2,7 @@ package collision;
 
 import tools.Point;
 
+/** A simple hitbox which follows a collideable */
 public class Hitbox {
     public static final int CORNER_BOTTOM_LEFT = 0,
             CORNER_TOP_LEFT = 1,
@@ -53,7 +54,7 @@ public class Hitbox {
     }
 
     /**
-     * Check if two hitboxes collided with each other. TODO
+     * Check if two hitboxes collided with each other. TODO: improve
      *
      * @param other Hitbox to check for collision with
      * @return The direction from which this Hitbox consolidates with the other. NONE if there is no

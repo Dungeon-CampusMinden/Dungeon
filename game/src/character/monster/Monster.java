@@ -1,6 +1,7 @@
 package character.monster;
 
 import character.DungeonCharacter;
+import character.skills.BaseSkillEffect;
 import collision.CharacterDirection;
 import collision.Collidable;
 import collision.CollisionMap;
@@ -19,8 +20,8 @@ public abstract class Monster extends DungeonCharacter {
     private Point currentGoal;
     private CollisionMap clevel;
 
-    public Monster(float movementSpeed, Hitbox hitbox) {
-        super(movementSpeed, hitbox);
+    public Monster(int hitpoints, float movementSpeed, Hitbox hitbox) {
+        super(hitpoints, movementSpeed, hitbox);
     }
 
     @Override
@@ -35,6 +36,12 @@ public abstract class Monster extends DungeonCharacter {
                             currentTile, currentLevel.getTileAt(currentGoal.toCoordinate()));
 
             // todo warum ist index 0 leer?
+            if (path.getCount() <= 1) {
+                // ziel erreicht
+
+                calculateGoal(true);
+                return CharacterDirection.NONE;
+            }
             Tile nextTile = path.get(1);
             Tile.Direction d = currentTile.directionTo(nextTile)[0];
             CharacterDirection direction = convertTileDirectionToCharacterDirection(d);
@@ -239,7 +246,12 @@ public abstract class Monster extends DungeonCharacter {
 
     @Override
     public void colide(Collidable other, CharacterDirection from) {
-        // todo
+        if (other instanceof BaseSkillEffect) {
+            BaseSkillEffect effect = (BaseSkillEffect) other;
+            hitpoints -= effect.damage;
+            if (hitpoints <= 0) die();
+            knockback(from, 15f);
+        }
     }
 
     public void setCLevel(CollisionMap clevel) {
