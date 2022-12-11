@@ -1,6 +1,7 @@
 package mydungeon;
 
 import controller.Game;
+import ecs.components.AnimationComponent;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.entitys.Entity;
@@ -19,6 +20,8 @@ public class ECS extends Game {
     /** Map with all VelocityComponent in the ECS. TODO: HOW TO DELETE? */
     public static Map<Entity, VelocityComponent> velocityComponentMap;
 
+    public static Map<Entity, AnimationComponent> animationComponentMap;
+
     /** List of all Systems in the ECS */
     public static List<ECS_System> systems;
 
@@ -32,6 +35,7 @@ public class ECS extends Game {
         systems = new ArrayList<>();
         positionComponentMap = new HashMap<>();
         velocityComponentMap = new HashMap<>();
+        animationComponentMap = new HashMap<>();
         new MovementSystem();
     }
 
