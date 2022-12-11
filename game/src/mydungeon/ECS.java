@@ -2,11 +2,13 @@ package mydungeon;
 
 import controller.Game;
 import ecs.components.AnimationComponent;
+import ecs.components.PlayableComponent;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.entitys.Entity;
 import ecs.entitys.Hero;
 import ecs.systems.DrawSystem;
+import ecs.systems.KeyboardSystem;
 import ecs.systems.MovementSystem;
 import ecs.systems.SystemController;
 import java.util.*;
@@ -20,11 +22,14 @@ import tools.Point;
 public class ECS extends Game {
     /** Map with all PositionComponents in the ECS. TODO: HOW TO DELETE? */
     public static Map<Entity, PositionComponent> positionComponentMap;
-    /** Map with all VelocityComponent in the ECS. TODO: HOW TO DELETE? */
+    /** Map with all VelocityComponents in the ECS. TODO: HOW TO DELETE? */
     public static Map<Entity, VelocityComponent> velocityComponentMap;
 
-    /** Map with all AnimationComponent in the ECS. TODO: HOW TO DELETE? */
+    /** Map with all AnimationComponents in the ECS. TODO: HOW TO DELETE? */
     public static Map<Entity, AnimationComponent> animationComponentMap;
+
+    /** Map with all PlayableComponent in the ECS. TODO: HOW TO DELETE? */
+    public static Map<Entity, PlayableComponent> playableComponentMap;
 
     /** List of all Systems in the ECS */
     public static SystemController systems;
@@ -45,12 +50,14 @@ public class ECS extends Game {
 
         new MovementSystem();
         new DrawSystem(painter);
+        new KeyboardSystem();
     }
 
     private void setupComponentMaps() {
         positionComponentMap = new HashMap<>();
         velocityComponentMap = new HashMap<>();
         animationComponentMap = new HashMap<>();
+        playableComponentMap = new HashMap<>();
     }
 
     @Override

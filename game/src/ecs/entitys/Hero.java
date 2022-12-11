@@ -20,7 +20,7 @@ public class Hero extends Entity {
     public Hero(Point startPosition) {
         super();
         positionComponent = new PositionComponent(this, startPosition);
-        new VelocityComponent(this, 0, 0);
+        new VelocityComponent(this, 0, 0, 0.3f, 0.3f);
         setupAnimationComponent();
     }
 
