@@ -4,7 +4,7 @@ import controller.Game;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.entitys.Entity;
-import ecs.systems.ISystem;
+import ecs.systems.ECS_System;
 import ecs.systems.MovementSystem;
 import java.util.*;
 import level.LevelAPI;
@@ -20,7 +20,7 @@ public class ECS extends Game {
     public static Map<Entity, VelocityComponent> velocityComponentMap;
 
     /** List of all Systems in the ECS */
-    private List<ISystem> systems;
+    public static List<ECS_System> systems;
 
     public static ILevel currentLevel;
 
@@ -32,7 +32,7 @@ public class ECS extends Game {
         systems = new ArrayList<>();
         positionComponentMap = new HashMap<>();
         velocityComponentMap = new HashMap<>();
-        systems.add(new MovementSystem());
+        new MovementSystem();
     }
 
     @Override
