@@ -1,26 +1,37 @@
 package mydungeon;
 
 import controller.Game;
-import ecs.components.ComponentStore;
+import ecs.components.PositionComponent;
+import ecs.components.VelocityComponent;
+import ecs.entitys.Entity;
 import ecs.systems.ISystem;
 import ecs.systems.MovementSystem;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import level.LevelAPI;
+import level.elements.ILevel;
+import level.generator.postGeneration.WallGenerator;
+import level.generator.randomwalk.RandomWalkGenerator;
 import starter.DesktopLauncher;
 
 public class ECS extends Game {
+    /** Map with all PositionComponents in the ECS. TODO: HOW TO DELETE? */
+    public static Map<Entity, PositionComponent> positionComponentMap;
+    /** Map with all VelocityComponent in the ECS. TODO: HOW TO DELETE? */
+    public static Map<Entity, VelocityComponent> velocityComponentMap;
 
-    public static ComponentStore positionStore;
-    public static ComponentStore velocityStore;
-
+    /** List of all Systems in the ECS */
     private List<ISystem> systems;
+
+    public static ILevel currentLevel;
 
     @Override
     protected void setup() {
-        controller.clear();
+        // controller.clear();
+        levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
+        levelAPI.loadLevel();
         systems = new ArrayList<>();
-        positionStore = new ComponentStore();
-        velocityStore = new ComponentStore();
+        positionComponentMap = new HashMap<>();
+        velocityComponentMap = new HashMap<>();
         systems.add(new MovementSystem());
     }
 
@@ -30,10 +41,14 @@ public class ECS extends Game {
     }
 
     @Override
-    public void onLevelLoad() {}
+    public void onLevelLoad() {
+        currentLevel = levelAPI.getCurrentLevel();
+        camera.setFocusPoint(levelAPI.getCurrentLevel().getStartTile().getCoordinate().toPoint());
+    }
 
     public static void main(String[] args) {
         // start the game
+        System.out.println("START");
         DesktopLauncher.run(new ECS());
     }
 }
