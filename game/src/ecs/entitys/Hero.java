@@ -10,15 +10,21 @@ import textures.TextureHandler;
 import tools.Point;
 
 public class Hero extends Entity {
+
+    private PositionComponent positionComponent;
     /**
      * Entity with Components
      *
-     * @param startPosition
+     * @param startPosition position at start
      */
     public Hero(Point startPosition) {
         super();
-        new PositionComponent(this, startPosition);
+        positionComponent = new PositionComponent(this, startPosition);
         new VelocityComponent(this, 0, 0);
+        setupAnimationComponent();
+    }
+
+    private void setupAnimationComponent() {
         List<Animation> animationList = new ArrayList<>();
         int frameTime = 5;
         List<String> texturePaths =
@@ -33,5 +39,12 @@ public class Hero extends Entity {
         animationList.add(new Animation(texturePaths, frameTime));
 
         new AnimationComponent(this, animationList, animationList.get(0));
+    }
+
+    /**
+     * @return position of hero
+     */
+    public PositionComponent getPositionComponent() {
+        return positionComponent;
     }
 }
