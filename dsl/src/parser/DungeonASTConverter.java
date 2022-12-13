@@ -18,6 +18,10 @@ import parser.AST.*;
  * reverse order on the astStack and can be added as children to a {@link Node} (or a
  * specialization), representing the currently exited rule.
  */
+// we need to provide visitor methods for many node classes, so the method count and the class data
+// abstraction coupling
+// will be high naturally
+@SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
 public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     Stack<parser.AST.Node> astStack;
@@ -237,6 +241,11 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
      *
      * @param ctx the parse tree
      */
+    // we need to provide visitor methods for many node classes, so the method count and the class
+    // data
+    // abstraction coupling
+    // will be high naturally
+    @SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
     @Override
     public void exitDot_def(DungeonDSLParser.Dot_defContext ctx) {
         // check, whether all edge_ops are correct for graph type

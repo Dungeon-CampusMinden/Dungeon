@@ -1,5 +1,9 @@
 package parser.AST;
 
+// we need to provide visitor methods for many node classes, so the method count and the class data
+// abstraction coupling
+// will be high naturally
+@SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
 public interface AstVisitor<T> {
     /**
      * Basic fallback method for all Node types

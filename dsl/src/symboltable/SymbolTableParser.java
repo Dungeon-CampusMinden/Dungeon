@@ -26,6 +26,10 @@ import parser.AST.*;
 import runtime.nativeFunctions.NativePrint;
 
 /** Creates a symbol table for an AST node for a DSL program */
+// we need to provide visitor methods for many node classes, so the method count and the class data
+// abstraction coupling
+// will be high naturally
+@SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
 public class SymbolTableParser implements AstVisitor<Void> {
     Stack<IScope> scopeStack = new Stack<>();
     StringBuilder errorStringBuilder;

@@ -12,6 +12,10 @@ import parser.DungeonASTConverter;
 import runtime.MemorySpace;
 import symboltable.*;
 
+// we need to provide visitor methods for many node classes, so the method count and the class data
+// abstraction coupling
+// will be high naturally
+@SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
 public class DSLInterpreter implements AstVisitor<Object> {
 
     private QuestConfigBuilder questConfigBuilder;
