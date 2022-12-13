@@ -7,7 +7,7 @@ public class PlayableComponent implements Component {
 
     private boolean playable;
 
-    private PlayableComponent(Entity entity) {
+    public PlayableComponent(Entity entity) {
         ECS.playableComponentMap.put(entity, this);
         playable = true;
     }
