@@ -8,6 +8,13 @@
     <module name="SuppressWarningsFilter" />
     <module name="TreeWalker">
         <module name="SuppressWarningsHolder" />
+        <module name="SuppressWithNearbyCommentFilter"/>
+        <module name="SuppressionCommentFilter">
+            <metadata name="net.sf.eclipsecs.core.comment" value="Single warning"/>
+            <property name="offCommentFormat" value="CHECKSTYLE\:OFF\: ([\w\|]+)"/>
+            <property name="onCommentFormat" value="CHECKSTYLE\:ON\: ([\w\|]+)"/>
+            <property name="checkFormat" value="$1"/>
+        </module>
         <module name="JavaNCSS">
             <property name="methodMaximum" value="40"/>
             <property name="classMaximum" value="250"/>

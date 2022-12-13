@@ -22,7 +22,10 @@
 package symboltable;
 
 import java.util.List;
+// importing all required classes from symbolTable will be to verbose
+// CHECKSTYLE:OFF: AvoidStarImport
 import parser.AST.*;
+// CHECKSTYLE:ON: AvoidStarImport
 
 /** Creates symbols for definition nodes (graph, object) and binds these nodes to those symbols */
 public class VariableBinder implements AstVisitor<Void> {

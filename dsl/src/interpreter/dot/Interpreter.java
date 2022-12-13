@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
+// CHECKSTYLE:OFF: AvoidStarImport
 import parser.AST.*;
+// CHECKSTYLE:ON: AvoidStarImport
 
 public class Interpreter implements AstVisitor<graph.Node<String>> {
     // how to build graph?

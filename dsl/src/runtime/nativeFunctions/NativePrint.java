@@ -3,7 +3,11 @@ package runtime.nativeFunctions;
 import interpreter.DSLInterpreter;
 import java.util.List;
 import parser.AST.Node;
-import symboltable.*;
+import symboltable.BuiltInType;
+import symboltable.ICallable;
+import symboltable.IScope;
+import symboltable.ScopedSymbol;
+import symboltable.Symbol;
 
 // TODO: how to enable semantic analysis for this? e.g. parameter-count, etc.
 public class NativePrint extends ScopedSymbol implements ICallable {

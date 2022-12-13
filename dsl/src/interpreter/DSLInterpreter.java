@@ -1,16 +1,24 @@
 package interpreter;
 
-import antlr.main.*;
+import antlr.main.DungeonDSLLexer;
+import antlr.main.DungeonDSLParser;
 import dslToGame.QuestConfig;
 import dslToGame.QuestConfigBuilder;
 import interpreter.dot.Interpreter;
 import java.util.List;
 import java.util.Stack;
-import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+// importing all required classes from parser.AST will be to verbose
+// CHECKSTYLE:OFF: AvoidStarImport
 import parser.AST.*;
+// CHECKSTYLE:ON: AvoidStarImport
 import parser.DungeonASTConverter;
 import runtime.MemorySpace;
+// importing all required classes from symbolTable will be to verbose
+// CHECKSTYLE:OFF: AvoidStarImport
 import symboltable.*;
+// CHECKSTYLE:ON: AvoidStarImport
 
 // we need to provide visitor methods for many node classes, so the method count and the class data
 // abstraction coupling

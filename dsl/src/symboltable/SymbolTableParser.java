@@ -22,7 +22,10 @@
 package symboltable;
 
 import java.util.Stack;
+// importing all required classes from symbolTable will be to verbose
+// CHECKSTYLE:OFF: AvoidStarImport
 import parser.AST.*;
+// CHECKSTYLE:ON: AvoidStarImport
 import runtime.nativeFunctions.NativePrint;
 
 /** Creates a symbol table for an AST node for a DSL program */
