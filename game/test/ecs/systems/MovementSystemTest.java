@@ -68,4 +68,14 @@ public class MovementSystemTest {
         assertEquals(1, position.x, 0.001);
         assertEquals(2, position.y, 0.001);
     }
+
+    @Test
+    public void testUpdateWithoutVelocityComponent() {
+        ECS.velocityComponentMap = new HashMap<>();
+        Mockito.when(tile.isAccessible()).thenReturn(false);
+        system.update();
+        Point position = ECS.positionComponentMap.get(entity).getPosition();
+        assertEquals(1, position.x, 0.001);
+        assertEquals(2, position.y, 0.001);
+    }
 }
