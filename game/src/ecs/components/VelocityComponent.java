@@ -24,8 +24,6 @@ public class VelocityComponent implements Component {
         this.ySpeed = ySpeed;
     }
 
-
-
     /**
      * @return x movement
      */
@@ -34,7 +32,6 @@ public class VelocityComponent implements Component {
     }
 
     /**
-     *
      * @param x set x coordinate
      */
     public void setX(float x) {
@@ -49,7 +46,6 @@ public class VelocityComponent implements Component {
     }
 
     /**
-     *
      * @param y set y coordinate
      */
     public void setY(float y) {
@@ -72,4 +68,3 @@ public class VelocityComponent implements Component {
         this.ySpeed = ySpeed;
     }
 }
-

@@ -3,11 +3,11 @@ package ecs.components;
 import ecs.entitys.Entity;
 import mydungeon.ECS;
 
-public class PlayableComponent implements Component{
+public class PlayableComponent implements Component {
 
     private boolean playable;
 
-    private PlayableComponent(Entity entity){
+    private PlayableComponent(Entity entity) {
         ECS.playableComponentMap.put(entity, this);
         playable = true;
     }
