@@ -42,6 +42,12 @@ public class SymbolTableParser implements AstVisitor<Void> {
         public final boolean gotError;
         public final String errorString;
 
+        /**
+         * Constructor. If the errorString is empty, gotError will be set to false
+         *
+         * @param symbolTable the symbol table
+         * @param errorString the errorString which was generated during semantic analysis
+         */
         public Result(SymbolTable symbolTable, String errorString) {
             this.symbolTable = symbolTable;
             this.errorString = errorString;
@@ -49,11 +55,21 @@ public class SymbolTableParser implements AstVisitor<Void> {
         }
     }
 
-    private IScope CurrentScope() {
+    /**
+     * Helper method for getting the current scope (the top of the scopeStack)
+     *
+     * @return the top of the scopeStack
+     */
+    private IScope currentScope() {
         return scopeStack.peek();
     }
 
-    private IScope GlobalScope() {
+    /**
+     * Helper method for getting the global scope (the bottom of the scopeStack)
+     *
+     * @return the bottom of the scopeStack
+     */
+    private IScope globalScope() {
         return scopeStack.get(0);
     }
 
@@ -66,9 +82,9 @@ public class SymbolTableParser implements AstVisitor<Void> {
      * @param nodeOfSymbol The corresponding AST node
      * @return True, if the symbol was not bound in current scope, or false otherwise
      */
-    private boolean Bind(Symbol symbol, Node nodeOfSymbol) {
-        var currentScope = CurrentScope();
-        if (!currentScope.Bind(symbol)) {
+    private boolean bind(Symbol symbol, Node nodeOfSymbol) {
+        var currentScope = currentScope();
+        if (!currentScope.bind(symbol)) {
             return false;
         } else {
             symbolTable.addSymbolNodeRelation(symbol, nodeOfSymbol);
@@ -77,35 +93,35 @@ public class SymbolTableParser implements AstVisitor<Void> {
     }
 
     private void setupNativeFunctions() {
-        var nativePrint = new NativePrint(GlobalScope());
-        GlobalScope().Bind(nativePrint);
+        var nativePrint = new NativePrint(globalScope());
+        globalScope().bind(nativePrint);
     }
 
     private void setupBuiltinTypes() {
         // setup builtin simple types
-        GlobalScope().Bind(BuiltInType.intType);
-        GlobalScope().Bind(BuiltInType.stringType);
-        GlobalScope().Bind(BuiltInType.graphType);
-        GlobalScope().Bind(BuiltInType.funcType);
+        globalScope().bind(BuiltInType.intType);
+        globalScope().bind(BuiltInType.stringType);
+        globalScope().bind(BuiltInType.graphType);
+        globalScope().bind(BuiltInType.funcType);
 
         // TODO: could this be done by defining the datatype as normal
         //  java class and using a custom attribute to do the following
         //  steps automatically?
 
         // setup builtin aggregate types
-        var questConfigType = new AggregateType("quest_config", GlobalScope());
+        var questConfigType = new AggregateType("quest_config", globalScope());
         var levelGraphProperty = new Symbol("level_graph", questConfigType, BuiltInType.graphType);
-        questConfigType.Bind(levelGraphProperty);
+        questConfigType.bind(levelGraphProperty);
         var description = new Symbol("quest_desc", questConfigType, BuiltInType.stringType);
-        questConfigType.Bind(description);
+        questConfigType.bind(description);
         var password = new Symbol("password", questConfigType, BuiltInType.stringType);
-        questConfigType.Bind(password);
+        questConfigType.bind(password);
         var questPoints = new Symbol("quest_points", questConfigType, BuiltInType.intType);
-        questConfigType.Bind(questPoints);
+        questConfigType.bind(questPoints);
         var test = new Symbol("test", questConfigType, BuiltInType.intType);
-        questConfigType.Bind(test);
+        questConfigType.bind(test);
 
-        GlobalScope().Bind(questConfigType);
+        globalScope().bind(questConfigType);
     }
 
     /**
@@ -120,7 +136,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
 
         // push global scope
         scopeStack.push(new Scope());
-        symbolTable = new SymbolTable(CurrentScope());
+        symbolTable = new SymbolTable(currentScope());
 
         setupBuiltinTypes();
         setupNativeFunctions();
@@ -138,7 +154,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
                 // references before
                 // definition
                 VariableBinder vb = new VariableBinder();
-                vb.BindVariables(symbolTable, CurrentScope(), node, errorStringBuilder);
+                vb.bindVariables(symbolTable, currentScope(), node, errorStringBuilder);
 
                 visitChildren(node);
 
@@ -160,7 +176,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
     @Override
     public Void visit(IdNode node) {
         var idName = node.getName();
-        var symbol = CurrentScope().Resolve(idName);
+        var symbol = currentScope().resolve(idName);
         if (null == symbol) {
             errorStringBuilder.append(
                     "Reference of undefined identifier: "
@@ -202,7 +218,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
         var propertyIdName = node.getIdName();
 
         // TODO: ensure, that no other scopes than the scopes of the type are checked
-        var propertySymbol = CurrentScope().Resolve(propertyIdName);
+        var propertySymbol = currentScope().resolve(propertyIdName);
         if (propertySymbol == Symbol.NULL) {
             errorStringBuilder.append(
                     "no property with name " + propertyIdName + " could be found");
@@ -224,7 +240,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
     public Void visit(ObjectDefNode node) {
         // resolve the type of the object definition and push it on the stack
         var typeName = node.getTypeSpecifierName();
-        var typeSymbol = GlobalScope().Resolve(typeName);
+        var typeSymbol = globalScope().resolve(typeName);
 
         // TODO: errorhandling
         if (typeSymbol == Symbol.NULL) {

@@ -43,26 +43,58 @@ public class Symbol {
 
     public static Symbol NULL = new Symbol("NULL SYMBOL", null, null);
 
+    /**
+     * Getter for the name of the symbol
+     *
+     * @return the name of the symbol
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Getter for the datatype of the symbol
+     *
+     * @return the datatype of the symbol (as IType)
+     */
     public IType getDataType() {
         return dataType;
     }
 
+    /**
+     * Getter for the scope in which this symbol was created
+     *
+     * @return the scope in which this symbol was created
+     */
     public IScope getScope() {
         return scope;
     }
 
+    /**
+     * Getter for the index of the symbol (the index is a unique identifier of the symbol)
+     *
+     * @return the index of the symbol
+     */
     public int getIdx() {
         return idx;
     }
 
+    /**
+     * Getter for the {@link Type} of the symbol
+     *
+     * @return the {@link Type} of the symbol
+     */
     public Type getSymbolType() {
         return symbolType;
     }
 
+    /**
+     * Constructor
+     *
+     * @param symbolName the name of the new symbol
+     * @param parentScope the parent scope of the new symbol (in which it was created)
+     * @param dataType the datatype of the symbol
+     */
     public Symbol(String symbolName, IScope parentScope, IType dataType) {
         this.idx = s_idx++;
         this.scope = parentScope;
@@ -71,6 +103,7 @@ public class Symbol {
         this.symbolType = Type.Base;
     }
 
+    /** Constructor */
     public Symbol() {
         this.scope = null;
         this.name = "no name";

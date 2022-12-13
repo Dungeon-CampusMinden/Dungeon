@@ -32,6 +32,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     private MemorySpace globalSpace;
 
     // TODO: add entry-point for game-object traversal
+
+    /** Constructor. */
     public DSLInterpreter() {
         memoryStack = new Stack<>();
         globalSpace = new MemorySpace();
@@ -46,10 +48,16 @@ public class DSLInterpreter implements AstVisitor<Object> {
     //  We could assume, that
     //  the memory space just mirrors the structure of the symbol table, but it's
     //  better to be specific and somehow self-contained in this context
+
+    /**
+     * Binds all function definitions and object definitions in a global memory space.
+     *
+     * @param symbolTable The symbol table to bind the functions and objects from.
+     */
     public void initializeRuntime(SymbolTable symbolTable) {
         // bind all function definition and object definition symbols to objects
         // in global memorySpace
-        for (var symbol : symbolTable.GetGlobalScope().GetSymbols()) {
+        for (var symbol : symbolTable.getGlobalScope().getSymbols()) {
             if (symbol instanceof ICallable) {
                 var callableType = ((ICallable) symbol).getCallableType();
                 if (callableType == ICallable.Type.Native) {
@@ -66,6 +74,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
     }
 
+    /**
+     * Parse the config script and return the questConfig object, which serves as an entry point for
+     * further evaluation and interpretation.
+     *
+     * @param configScript The script (in the DungeonDSL) to parse
+     * @return The first questConfig object found in the configScript
+     */
     public dslToGame.QuestConfig getQuestConfig(String configScript) {
         var stream = CharStreams.fromString(configScript);
         var lexer = new DungeonDSLLexer(stream);
@@ -129,7 +144,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return createObjectFromMemorySpace(objectDefSpace, objectSymbol.getDataType());
     }
 
-    // TODO: refactor
+    // TODO: refactor - likely to be refactored, when component based architecture will
+    //  be implemented
     private Object createObjectFromMemorySpace(MemorySpace ms, IType type) {
         if (type.getName().equals("quest_config")) {
             QuestConfigBuilder builder = new QuestConfigBuilder();
@@ -221,17 +237,24 @@ public class DSLInterpreter implements AstVisitor<Object> {
         if (valueInMemorySpace == null) {
             return false;
         }
-        valueInMemorySpace.setValue(value);
+        valueInMemorySpace.setInternalValue(value);
         return true;
     }
 
+    /**
+     * This handles parameter evaluation an binding and walking the AST of the function symbol
+     *
+     * @param symbol The symbol corresponding to the function to call
+     * @param parameterNodes The ASTNodes of the parameters of the function call
+     * @return The return value of the function call
+     */
     public Object executeUserDefinedFunction(FunctionSymbol symbol, List<Node> parameterNodes) {
         // push new memorySpace and parameters on spaceStack
         var functionMemSpace = new MemorySpace(memoryStack.peek());
         var funcAsScope = (ScopedSymbol) symbol;
 
         // TODO: push parameter for return value
-        var parameterSymbols = funcAsScope.GetSymbols();
+        var parameterSymbols = funcAsScope.getSymbols();
         for (int i = 0; i < parameterNodes.size(); i++) {
             var parameterSymbol = parameterSymbols.get(i);
             functionMemSpace.bindFromSymbol(parameterSymbol);

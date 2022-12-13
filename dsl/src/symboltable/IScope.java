@@ -32,7 +32,7 @@ public interface IScope {
      * @return True on success (the symbols was not previously bound to this scope) and false
      *     otherwise
      */
-    boolean Bind(Symbol symbol);
+    boolean bind(Symbol symbol);
 
     /**
      * Try to resolve a name in this scope or the parent scopes.
@@ -40,19 +40,19 @@ public interface IScope {
      * @param name The name to resolve
      * @return The symbol with the name or Symbol.NULL, if the symbol could not be resolved
      */
-    Symbol Resolve(String name);
+    Symbol resolve(String name);
 
     /**
      * Get all symbols of this scope in a List
      *
      * @return List containing all symbols in this scope.
      */
-    List<Symbol> GetSymbols();
+    List<Symbol> getSymbols();
 
     /**
      * Get the parent scope of this scope.
      *
      * @return The parent scope.
      */
-    IScope GetParent();
+    IScope getParent();
 }

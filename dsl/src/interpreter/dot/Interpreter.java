@@ -20,12 +20,12 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
 
     ArrayList<graph.Graph<String>> graphs = new ArrayList<>();
 
-    public ArrayList<graph.Graph<String>> getGraphs(Node program) {
-        graphs = new ArrayList<>();
-        program.accept(this);
-        return new ArrayList<>(graphs);
-    }
-
+    /**
+     * Parses a dot definition and creates a {@link graph.Graph} from it
+     *
+     * @param dotDefinition The DotDefNode to parse as a graph
+     * @return The {@link graph.Graph} object created from the dotDefinition
+     */
     public graph.Graph<String> getGraph(DotDefNode dotDefinition) {
         graphNodes = new Hashtable<>();
         graphEdges = new Hashtable<>();

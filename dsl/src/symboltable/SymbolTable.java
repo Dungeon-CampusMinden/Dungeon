@@ -47,12 +47,13 @@ public class SymbolTable {
      */
     private final HashMap<Integer, Integer> symbolToAstNodeRelation;
 
-    public IScope GetGlobalScope() {
+    /**
+     * Getter for the global {@link IScope}, which is the topmost scope in the scope stack
+     *
+     * @return the global {@link IScope}
+     */
+    public IScope getGlobalScope() {
         return globalScope;
-    }
-
-    public HashMap<Integer, ArrayList<Integer>> getAstNodeSymbolRelation() {
-        return astNodeSymbolRelation;
     }
 
     /**
@@ -131,10 +132,22 @@ public class SymbolTable {
         return astNodeIdxToAstNode.get(astNodeIdx);
     }
 
+    /**
+     * Get the {@link Symbol} with passed index
+     *
+     * @param idx the index of the {@link Symbol} to get
+     * @return the {@link Symbol} with passed index or Symbol.NULL, if no symbol with given index
+     *     exists
+     */
     public Symbol getSymbolByIdx(int idx) {
         return symbolIdxToSymbol.getOrDefault(idx, Symbol.NULL);
     }
 
+    /**
+     * Constructor
+     *
+     * @param globalScope the global scope to use for this symbol Table
+     */
     public SymbolTable(IScope globalScope) {
         this.globalScope = globalScope;
         astNodeSymbolRelation = new HashMap<>();

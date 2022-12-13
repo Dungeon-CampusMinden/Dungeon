@@ -32,17 +32,29 @@ public class Scope implements IScope {
     protected IScope parent;
     protected HashMap<String, Symbol> symbols;
 
+    /**
+     * Constructor
+     *
+     * @param parentScope the parent scope of the new scope
+     */
     public Scope(IScope parentScope) {
         parent = parentScope;
         symbols = new HashMap<>();
     }
 
+    /** Constructor */
     public Scope() {
         parent = NULL;
         symbols = new HashMap<>();
     }
 
-    public boolean Bind(Symbol symbol) {
+    /**
+     * Bind a new symbol in this scope
+     *
+     * @param symbol The symbol to bind
+     * @return True, if no symbol with the same name exists in this scope, false otherwise
+     */
+    public boolean bind(Symbol symbol) {
         var name = symbol.getName();
         if (symbols.containsKey(name)) {
             return false;
@@ -52,27 +64,51 @@ public class Scope implements IScope {
         }
     }
 
-    public Symbol Resolve(String name, boolean resolveInParent) {
+    /**
+     * Try to resolve the passed name in this scope (or the parent scope).
+     *
+     * @param name the name of the symbol to resolvle
+     * @param resolveInParent if set to true, and the name could not be resolved in this scope,
+     *     resolve it in the parent scope
+     * @return the resolved symbol or Symbol.NULL, if the name could not be resolved
+     */
+    public Symbol resolve(String name, boolean resolveInParent) {
         if (symbols.containsKey(name)) {
             return symbols.get(name);
         } else if (parent != null && resolveInParent) {
-            return parent.Resolve(name);
+            return parent.resolve(name);
         } else {
             return Symbol.NULL;
         }
     }
 
-    public Symbol Resolve(String name) {
-        return Resolve(name, true);
+    /**
+     * Try to resolve the passed name in this scope (or the parent scope).
+     *
+     * @param name the name of the symbol to resolvle
+     * @return the resolved symbol or Symbol.NULL, if the name could not be resolved
+     */
+    public Symbol resolve(String name) {
+        return resolve(name, true);
     }
 
+    /**
+     * Getter for a List of all bound symbols
+     *
+     * @return a List of all bound symbols
+     */
     @Override
-    public List<Symbol> GetSymbols() {
+    public List<Symbol> getSymbols() {
         return new ArrayList<>(symbols.values());
     }
 
+    /**
+     * Getter for the parent scope of this scope
+     *
+     * @return the parent of this scope
+     */
     @Override
-    public IScope GetParent() {
+    public IScope getParent() {
         return parent;
     }
 }

@@ -82,7 +82,7 @@ public class TestSymbolTableParser {
         var ast = Helpers.getASTFromString(program);
         var symtableResult = Helpers.getSymtableForAST(ast);
 
-        var printFuncDefSymbol = symtableResult.symbolTable.globalScope.Resolve("print");
+        var printFuncDefSymbol = symtableResult.symbolTable.globalScope.resolve("print");
         Assert.assertNotNull(printFuncDefSymbol);
         Assert.assertEquals(Symbol.Type.Scoped, printFuncDefSymbol.getSymbolType());
         Assert.assertTrue(printFuncDefSymbol instanceof NativePrint);
@@ -100,7 +100,7 @@ public class TestSymbolTableParser {
         var ast = Helpers.getASTFromString(program);
         var symtableResult = Helpers.getSymtableForAST(ast);
 
-        var printFuncDefSymbol = symtableResult.symbolTable.globalScope.Resolve("print");
+        var printFuncDefSymbol = symtableResult.symbolTable.globalScope.resolve("print");
 
         var questConfig = ast.getChild(0);
         var propDefList = questConfig.getChild(2);
@@ -136,8 +136,8 @@ public class TestSymbolTableParser {
         var firstPropertyIdNode = firstPropertyDef.getChild(0);
         assert (firstPropertyIdNode.type == Node.Type.Identifier);
 
-        var questConfigType = symtableResult.symbolTable.globalScope.Resolve("quest_config");
-        var levelGraphPropertySymbol = ((AggregateType) questConfigType).Resolve("level_graph");
+        var questConfigType = symtableResult.symbolTable.globalScope.resolve("quest_config");
+        var levelGraphPropertySymbol = ((AggregateType) questConfigType).resolve("level_graph");
         Assert.assertNotEquals(Symbol.NULL, levelGraphPropertySymbol);
 
         var symbolForPropertyIdNode =

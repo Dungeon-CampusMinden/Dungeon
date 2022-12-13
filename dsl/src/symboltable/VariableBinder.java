@@ -21,7 +21,6 @@
 
 package symboltable;
 
-import java.util.List;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 import parser.AST.*;
@@ -42,7 +41,7 @@ public class VariableBinder implements AstVisitor<Void> {
      * @param rootNode The node to visit the children of
      * @param errorStringBuilder A string builder to append error messages to
      */
-    public void BindVariables(
+    public void bindVariables(
             SymbolTable symbolTable,
             IScope parentScope,
             Node rootNode,
@@ -51,20 +50,6 @@ public class VariableBinder implements AstVisitor<Void> {
         this.parentScope = parentScope;
         this.errorStringBuilder = errorStringBuilder;
         visitChildren(rootNode);
-    }
-
-    public void BindVariables(
-            SymbolTable symbolTable,
-            IScope parentScope,
-            List<Node> nodes,
-            StringBuilder errorStringBuilder) {
-        this.symbolTable = symbolTable;
-        this.parentScope = parentScope;
-        this.errorStringBuilder = errorStringBuilder;
-
-        for (var node : nodes) {
-            node.accept(this);
-        }
     }
 
     @Override
@@ -102,11 +87,11 @@ public class VariableBinder implements AstVisitor<Void> {
 
         // check, if assignee is already bound in current scope
         // if not, create it and bind it
-        var objectSymbol = parentScope.Resolve(idName);
+        var objectSymbol = parentScope.resolve(idName);
 
         if (Symbol.NULL == objectSymbol) {
             objectSymbol = new Symbol(idName, parentScope, BuiltInType.graphType);
-            if (parentScope.Bind(objectSymbol)) {
+            if (parentScope.bind(objectSymbol)) {
                 symbolTable.addSymbolNodeRelation(objectSymbol, node);
             }
         } else {
@@ -126,17 +111,17 @@ public class VariableBinder implements AstVisitor<Void> {
 
         // check, if assignee is already bound in current scope
         // if not, create it and bind it
-        var objectSymbol = parentScope.Resolve(idName);
+        var objectSymbol = parentScope.resolve(idName);
 
         if (Symbol.NULL == objectSymbol) {
             // resolve type name
             var typeName = node.getTypeSpecifierName();
-            var type = this.parentScope.Resolve(typeName);
+            var type = this.parentScope.resolve(typeName);
             assert type != null;
             assert type instanceof IType;
 
             objectSymbol = new Symbol(idName, parentScope, (IType) type);
-            if (parentScope.Bind(objectSymbol)) {
+            if (parentScope.bind(objectSymbol)) {
                 symbolTable.addSymbolNodeRelation(objectSymbol, node);
             }
         } else {

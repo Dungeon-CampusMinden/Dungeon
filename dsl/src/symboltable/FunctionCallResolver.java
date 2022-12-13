@@ -31,6 +31,14 @@ public class FunctionCallResolver implements AstVisitor<Void> {
     SymbolTable symbolTable;
     StringBuilder errorStringBuilder;
 
+    /**
+     * Visit all relevant children of the rootNode and try to resolve function calls, which will add
+     * a relation between the function call ASTNode and the function symbol (the definition)
+     *
+     * @param symbolTable the symbol table to use for resolving function names
+     * @param rootNode the root node of the program in which to resolve function calls
+     * @param errorStringBuilder string builder to append error strings to
+     */
     public void resolveFunctionCalls(
             SymbolTable symbolTable, Node rootNode, StringBuilder errorStringBuilder) {
 
@@ -63,7 +71,7 @@ public class FunctionCallResolver implements AstVisitor<Void> {
     public Void visit(FuncCallNode funcCall) {
         // resolve function definition in global scope
         String funcName = funcCall.getIdName();
-        var funcSymbol = this.symbolTable.globalScope.Resolve(funcName);
+        var funcSymbol = this.symbolTable.globalScope.resolve(funcName);
         // TODO: handle null symbol
 
         assert funcSymbol.getSymbolType() == Symbol.Type.Scoped;

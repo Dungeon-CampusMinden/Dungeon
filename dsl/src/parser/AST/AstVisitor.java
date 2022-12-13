@@ -125,6 +125,11 @@ public interface AstVisitor<T> {
         return null;
     }
 
+    /**
+     * Visit all children of the passed node
+     *
+     * @param node The node to visit all children of
+     */
     default void visitChildren(Node node) {
         for (Node child : node.getChildren()) {
             child.accept(this);

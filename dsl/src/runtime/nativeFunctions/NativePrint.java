@@ -11,12 +11,17 @@ import symboltable.Symbol;
 
 // TODO: how to enable semantic analysis for this? e.g. parameter-count, etc.
 public class NativePrint extends ScopedSymbol implements ICallable {
+    /**
+     * Constructor
+     *
+     * @param parentScope parent scope of this function
+     */
     public NativePrint(IScope parentScope) {
         super("print", parentScope, BuiltInType.intType);
 
         // bind parameters
         Symbol param = new Symbol("param", this, BuiltInType.stringType);
-        this.Bind(param);
+        this.bind(param);
     }
 
     @Override

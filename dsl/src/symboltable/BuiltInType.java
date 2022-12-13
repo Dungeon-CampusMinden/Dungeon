@@ -7,6 +7,12 @@ public class BuiltInType extends Symbol implements IType {
     // TODO: is this a good idea?
     public static BuiltInType funcType = new BuiltInType("func", Scope.NULL);
 
+    /**
+     * Constructor
+     *
+     * @param name name of this type
+     * @param parentScope parent scope of the type
+     */
     public BuiltInType(String name, IScope parentScope) {
         super(name, parentScope, null);
     }
