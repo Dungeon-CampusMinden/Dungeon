@@ -3,13 +3,34 @@ package interpreter;
 import static org.junit.Assert.*;
 
 import helpers.Helpers;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import org.junit.Test;
 import parser.AST.Node;
 
 public class TestDSLInterpreter {
+    @Test
+    public void funcCall() {
+        String program =
+                """
+        quest_config c {
+            test: print("Hello, World!")
+        }
+        """;
+        DSLInterpreter interpreter = new DSLInterpreter();
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        interpreter.getQuestConfig(program);
+
+        assertTrue(outputStream.toString().contains("Hello, World!"));
+    }
+
     @Test
     public void questConfigHighLevel() throws URISyntaxException, IOException {
         URL resource = getClass().getClassLoader().getResource("program.ds");
@@ -34,11 +55,11 @@ public class TestDSLInterpreter {
                 level_graph: g,
                 quest_points: 42,
                 quest_desc: "Hello",
-                password: "TESTPW",
-                test: print("Hello, World!")
+                password: "TESTPW"
             }
             """;
         DSLInterpreter interpreter = new DSLInterpreter();
+
         var questConfig = interpreter.getQuestConfig(program);
         assertEquals(42, questConfig.points());
         assertEquals("Hello", questConfig.taskDescription());
