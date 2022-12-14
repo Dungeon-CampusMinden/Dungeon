@@ -23,21 +23,47 @@ public class Helpers {
         return parser.program();
     }
 
+    /**
+     * Uses ANTLR-classes to create a parse tree from passed program string
+     *
+     * @param program the program to parse
+     * @return the {@link DungeonDSLParser.ProgramContext} for the parsed program
+     */
     public static DungeonDSLParser.ProgramContext getParseTree(String program) {
         var stream = CharStreams.fromString(program);
         return getParseTreeFromCharStream(stream);
     }
 
+    /**
+     * Converts a {@link DungeonDSLParser.ProgramContext} to a {@link parser.AST.Node}
+     *
+     * @param parseTree the parser tree to convert
+     * @return the AST for the parse tree
+     */
     public static parser.AST.Node convertToAST(DungeonDSLParser.ProgramContext parseTree) {
         DungeonASTConverter converter = new DungeonASTConverter();
         return converter.walk(parseTree);
     }
 
+    /**
+     * Generates the AST for a passed program string
+     *
+     * @param program the program to generate an AST for
+     * @return the AST
+     */
     public static parser.AST.Node getASTFromString(String program) {
         var parseTree = getParseTree(program);
         return convertToAST(parseTree);
     }
 
+    /**
+     * Load a resource file and generate an AST for it's contents
+     *
+     * @param fileResourceURL the URL of the resourceFile
+     * @return the AST for the contents of the file
+     * @throws URISyntaxException on invalid URI syntax
+     * @throws IOException if the file does not exist
+     */
     public static parser.AST.Node getASTFromResourceFile(URL fileResourceURL)
             throws URISyntaxException, IOException {
         var file = new File(fileResourceURL.toURI());
@@ -47,6 +73,13 @@ public class Helpers {
         return convertToAST(parseTree);
     }
 
+    /**
+     * Performs semantic analysis for given AST and returns the {@link
+     * symboltable.SymbolTableParser.Result} output from the SymbolTableParser
+     *
+     * @param ast the AST to create the symbol table for
+     * @return the {@link symboltable.SymbolTableParser.Result} of the semantic analysis
+     */
     public static SymbolTableParser.Result getSymtableForAST(parser.AST.Node ast) {
         SymbolTableParser symbolTableParser = new SymbolTableParser();
         return symbolTableParser.walk(ast);

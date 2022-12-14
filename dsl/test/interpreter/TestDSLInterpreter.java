@@ -1,6 +1,7 @@
 package interpreter;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import helpers.Helpers;
 import java.io.ByteArrayOutputStream;
@@ -12,14 +13,15 @@ import org.junit.Test;
 import parser.AST.Node;
 
 public class TestDSLInterpreter {
+    /** Tests, if a native function call is evaluated by the DSLInterpreter */
     @Test
     public void funcCall() {
         String program =
                 """
-        quest_config c {
-            test: print("Hello, World!")
-        }
-        """;
+            quest_config c {
+                test: print("Hello, World!")
+            }
+                """;
         DSLInterpreter interpreter = new DSLInterpreter();
 
         // print currently just prints to system.out, so we need to
@@ -31,6 +33,12 @@ public class TestDSLInterpreter {
         assertTrue(outputStream.toString().contains("Hello, World!"));
     }
 
+    /**
+     * Test, if a dot definition and object definition is correctly created
+     *
+     * @throws URISyntaxException if the resource URL is not valid
+     * @throws IOException if the resource file does not exist
+     */
     @Test
     public void questConfigHighLevel() throws URISyntaxException, IOException {
         URL resource = getClass().getClassLoader().getResource("program.ds");
@@ -44,6 +52,7 @@ public class TestDSLInterpreter {
         assertEquals(Node.Type.ObjectDefinition, secondChild.type);
     }
 
+    /** Test, if the properties of the quest_config definition are correctly parsed */
     @Test
     public void questConfigFull() {
         String program =
@@ -57,7 +66,7 @@ public class TestDSLInterpreter {
                 quest_desc: "Hello",
                 password: "TESTPW"
             }
-            """;
+                """;
         DSLInterpreter interpreter = new DSLInterpreter();
 
         var questConfig = interpreter.getQuestConfig(program);

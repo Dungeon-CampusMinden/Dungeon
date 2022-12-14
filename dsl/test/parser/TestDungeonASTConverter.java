@@ -4,12 +4,16 @@ import static org.junit.Assert.assertEquals;
 
 import helpers.Helpers;
 import org.junit.Test;
+// CHECKSTYLE:OFF: AvoidStarImport
 import parser.AST.*;
+// CHECKSTYLE:ON: AvoidStarImport
 
 public class TestDungeonASTConverter {
 
     // TODO: checking the structure in this way is very verbose and
     // gets old quickly, should create more comfortable way of testing AST-Structure..
+
+    /** Test AST structure of a simple dot definition */
     @Test
     public void testSimpleDotDef() {
         String program = "graph g { a -- b }";
@@ -53,6 +57,9 @@ public class TestDungeonASTConverter {
         assertEquals("b", rhsIdNode.getName());
     }
 
+    /**
+     * Test AST structure of a chained edge statement, that is multiple edge definitions in one line
+     */
     @Test
     public void testChainedEdgeStmt() {
         String program = "graph g { a -- b -- c }";
@@ -95,13 +102,7 @@ public class TestDungeonASTConverter {
         assertEquals("c", rhsIdNode.getName());
     }
 
-    @Test
-    public void testStringLiteral() {
-        String program = "t g { x : \"He\\tllo\\n\"}";
-
-        var ast = Helpers.getASTFromString(program);
-    }
-
+    /** Test AST of a function call inside a property definition */
     @Test
     public void testFuncCall() {
         String program = "quest_config q { \n test: hello_world(x, \"wuppi\" ,42)\n }";
@@ -123,6 +124,7 @@ public class TestDungeonASTConverter {
         assertEquals(Node.Type.Number, paramList.get(2).type);
     }
 
+    /** Test AST of function call as parameter ot another function call */
     @Test
     public void testFuncCallAsParam() {
         String program = "quest_config q { \n test: hello_world(other_func())\n }";
