@@ -55,7 +55,22 @@ program : definition* EOF
 definition
         : dot_def
         | object_def
+        | game_obj_def
         ;
+
+game_obj_def
+        : 'game_object' ID '{' component_def_list? '}' ;
+
+// used to specify, which components should be used in a game object
+component_def_list
+        : component_def ',' component_def_list
+        | component_def
+        ;
+
+// used to configure a used component
+component_def
+        : ID
+        | ID '{' property_def_list '}' ;
 
 object_def  : type_id=TYPE_SPECIFIER object_id=ID '{' property_def_list? '}' #grammar_type_obj_def
             | type_id=ID object_id=ID '{' property_def_list? '}' #other_type_obj_def
