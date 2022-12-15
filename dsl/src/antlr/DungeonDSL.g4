@@ -67,6 +67,8 @@ component_def_list
         | component_def
         ;
 
+// TODO: could component_def and object_def be united (component_def
+//  would be 'anonymous object', which is defined in place)?
 // used to configure a used component
 component_def
         : ID
