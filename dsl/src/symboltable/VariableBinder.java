@@ -3,24 +3,28 @@
  *
  * Copyright (c) 2022 Malte Reinsch, Florian Warzecha, Sebastian Steinmeyer, BC George, Carsten Gips
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
- * documentation files (the "Software"), to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
- * to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of
- * the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
- * THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+ * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package symboltable;
 
-import java.util.List;
+// importing all required classes from symbolTable will be to verbose
+// CHECKSTYLE:OFF: AvoidStarImport
 import parser.AST.*;
+// CHECKSTYLE:ON: AvoidStarImport
 
 /** Creates symbols for definition nodes (graph, object) and binds these nodes to those symbols */
 public class VariableBinder implements AstVisitor<Void> {
@@ -37,7 +41,7 @@ public class VariableBinder implements AstVisitor<Void> {
      * @param rootNode The node to visit the children of
      * @param errorStringBuilder A string builder to append error messages to
      */
-    public void BindVariables(
+    public void bindVariables(
             SymbolTable symbolTable,
             IScope parentScope,
             Node rootNode,
@@ -46,20 +50,6 @@ public class VariableBinder implements AstVisitor<Void> {
         this.parentScope = parentScope;
         this.errorStringBuilder = errorStringBuilder;
         visitChildren(rootNode);
-    }
-
-    public void BindVariables(
-            SymbolTable symbolTable,
-            IScope parentScope,
-            List<Node> nodes,
-            StringBuilder errorStringBuilder) {
-        this.symbolTable = symbolTable;
-        this.parentScope = parentScope;
-        this.errorStringBuilder = errorStringBuilder;
-
-        for (var node : nodes) {
-            node.accept(this);
-        }
     }
 
     @Override
@@ -97,11 +87,11 @@ public class VariableBinder implements AstVisitor<Void> {
 
         // check, if assignee is already bound in current scope
         // if not, create it and bind it
-        var objectSymbol = parentScope.Resolve(idName);
+        var objectSymbol = parentScope.resolve(idName);
 
         if (Symbol.NULL == objectSymbol) {
             objectSymbol = new Symbol(idName, parentScope, BuiltInType.graphType);
-            if (parentScope.Bind(objectSymbol)) {
+            if (parentScope.bind(objectSymbol)) {
                 symbolTable.addSymbolNodeRelation(objectSymbol, node);
             }
         } else {
@@ -121,17 +111,17 @@ public class VariableBinder implements AstVisitor<Void> {
 
         // check, if assignee is already bound in current scope
         // if not, create it and bind it
-        var objectSymbol = parentScope.Resolve(idName);
+        var objectSymbol = parentScope.resolve(idName);
 
         if (Symbol.NULL == objectSymbol) {
             // resolve type name
             var typeName = node.getTypeSpecifierName();
-            var type = this.parentScope.Resolve(typeName);
+            var type = this.parentScope.resolve(typeName);
             assert type != null;
             assert type instanceof IType;
 
             objectSymbol = new Symbol(idName, parentScope, (IType) type);
-            if (parentScope.Bind(objectSymbol)) {
+            if (parentScope.bind(objectSymbol)) {
                 symbolTable.addSymbolNodeRelation(objectSymbol, node);
             }
         } else {

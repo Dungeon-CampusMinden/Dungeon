@@ -2,13 +2,18 @@ package parser;
 
 import antlr.main.DungeonDSLLexer;
 import antlr.main.DungeonDSLParser;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Stack;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.TerminalNode;
+// importing all required classes from symbolTable will be to verbose
+// CHECKSTYLE:OFF: AvoidStarImport
 import parser.AST.*;
+// CHECKSTYLE:ON: AvoidStarImport
 
 /**
  * This class converts the {@link ParseTree} created by the antlr parser into an AST. While walking
@@ -18,6 +23,10 @@ import parser.AST.*;
  * reverse order on the astStack and can be added as children to a {@link Node} (or a
  * specialization), representing the currently exited rule.
  */
+// we need to provide visitor methods for many node classes, so the method count and the class data
+// abstraction coupling
+// will be high naturally
+@SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
 public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     Stack<parser.AST.Node> astStack;
@@ -167,10 +176,59 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterStmt(DungeonDSLParser.StmtContext ctx) {}
+    public void enterFunc_call(DungeonDSLParser.Func_callContext ctx) {}
 
     @Override
-    public void exitStmt(DungeonDSLParser.StmtContext ctx) {}
+    public void exitFunc_call(DungeonDSLParser.Func_callContext ctx) {
+        // TODO: test this
+        // if there are parameters, a paramList will be on stack
+        var paramList = Node.NONE;
+        if (ctx.param_list() != null) {
+            paramList = astStack.pop();
+            assert paramList.type == Node.Type.ParamList;
+        }
+
+        // function id will be on stack
+        var funcId = astStack.pop();
+        assert funcId.type == Node.Type.Identifier;
+
+        var funcCallNode = new FuncCallNode(funcId, paramList);
+        astStack.push(funcCallNode);
+    }
+
+    @Override
+    public void enterParam_list(DungeonDSLParser.Param_listContext ctx) {}
+
+    @Override
+    public void exitParam_list(DungeonDSLParser.Param_listContext ctx) {
+        if (ctx.param_list() == null) {
+            // trivial param
+            var innerParam = astStack.pop();
+            var list = new ArrayList<Node>(1);
+            list.add(innerParam);
+
+            var paramList = new Node(Node.Type.ParamList, list);
+            astStack.push(paramList);
+        } else {
+            // rhs paramlist is on stack
+            var rhsList = astStack.pop();
+            assert (rhsList.type == Node.Type.ParamList);
+
+            var leftParam = astStack.pop();
+            var childList = new ArrayList<Node>(rhsList.getChildren().size() + 1);
+            childList.add(leftParam);
+            childList.addAll(rhsList.getChildren());
+
+            var paramList = new Node(Node.Type.ParamList, childList);
+            astStack.push(paramList);
+        }
+    }
+
+    @Override
+    public void enterPrimary(DungeonDSLParser.PrimaryContext ctx) {}
+
+    @Override
+    public void exitPrimary(DungeonDSLParser.PrimaryContext ctx) {}
 
     @Override
     public void enterDot_def(DungeonDSLParser.Dot_defContext ctx) {}

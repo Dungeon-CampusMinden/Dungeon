@@ -6,6 +6,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 
 public class TestGraphs {
+
+    /**
+     * Tests the property bag of graph nodes and checks, whether the stored values and returned
+     * values are equal
+     */
     @Test
     public void testProperties() {
         Property<Integer> prop = new Property<>(42);
@@ -29,6 +34,7 @@ public class TestGraphs {
         assertEquals(gotAttribute.value(), "Kuckuck");
     }
 
+    /** Tests, if the edge iterator iterates in the correct order */
     @Test
     public void testEdgeIterator() {
         Node<String> stringNode = new Node<>("Hello");

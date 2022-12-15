@@ -1,6 +1,6 @@
 package interpreter.dot;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import helpers.Helpers;
 import org.junit.Test;
@@ -8,6 +8,7 @@ import parser.AST.DotDefNode;
 
 public class TestDotInterpreter {
 
+    /** Test, if the order of nodes returned by the node iterator is correct */
     @Test
     public void testNodeOrder() {
         String program = "graph g {\n" + "A -- B \n" + "B -- E -- D -- C \n" + "}";
@@ -35,6 +36,7 @@ public class TestDotInterpreter {
         }
     }
 
+    /** Test, if the order of edges returned by the edge iterator is correct */
     @Test
     public void testEdgeOrder() {
         String program = "graph g {\n" + "A -- B \n" + "B -- E -- D -- C \n" + "}";

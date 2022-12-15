@@ -10,7 +10,7 @@ public class StringNode extends Node {
      * @param sourceFileReference Reference to the location of the identifier in the source file
      */
     public StringNode(String value, SourceFileReference sourceFileReference) {
-        super(Type.Identifier, sourceFileReference);
+        super(Type.StringLiteral, sourceFileReference);
         this.value = value;
     }
 

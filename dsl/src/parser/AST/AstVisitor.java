@@ -1,5 +1,9 @@
 package parser.AST;
 
+// we need to provide visitor methods for many node classes, so the method count and the class data
+// abstraction coupling
+// will be high naturally
+@SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
 public interface AstVisitor<T> {
     /**
      * Basic fallback method for all Node types
@@ -111,6 +115,21 @@ public interface AstVisitor<T> {
         return null;
     }
 
+    /**
+     * Visitor method for FuncCallNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(FuncCallNode node) {
+        return null;
+    }
+
+    /**
+     * Visit all children of the passed node
+     *
+     * @param node The node to visit all children of
+     */
     default void visitChildren(Node node) {
         for (Node child : node.getChildren()) {
             child.accept(this);
