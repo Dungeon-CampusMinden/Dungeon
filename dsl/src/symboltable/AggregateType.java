@@ -1,6 +1,5 @@
 package symboltable;
 
-// TODO: this will need members...
 public class AggregateType extends ScopedSymbol implements IType {
     /**
      * Constructor

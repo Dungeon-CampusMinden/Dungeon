@@ -44,10 +44,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
     //  statisch alles auswerten, was geht? und dann erst auswerten, wenn abgefragt (lazyeval?)
     //  wie wird order of operation vorgegeben? einfach von oben nach unten? oder nach referenz von
     //  objekt?
-    // TODO: associate object in memorySpace with symbol(by symbol idx?)!!
-    //  We could assume, that
-    //  the memory space just mirrors the structure of the symbol table, but it's
-    //  better to be specific and somehow self-contained in this context
 
     /**
      * Binds all function definitions and object definitions in a global memory space.

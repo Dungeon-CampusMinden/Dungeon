@@ -204,10 +204,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         if (ctx.param_list() == null) {
             // trivial param
             var innerParam = astStack.pop();
-
-            // TODO: add AST Node Type for parameter?? Or just use whatever is in there?
-            // assert (innerParam.type == Node.Type.PropertyDefinition);
-
             var list = new ArrayList<Node>(1);
             list.add(innerParam);
 
@@ -219,8 +215,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             assert (rhsList.type == Node.Type.ParamList);
 
             var leftParam = astStack.pop();
-            // assert (leftParam.type == Node.Type.PropertyDefinition);
-
             var childList = new ArrayList<Node>(rhsList.getChildren().size() + 1);
             childList.add(leftParam);
             childList.addAll(rhsList.getChildren());
