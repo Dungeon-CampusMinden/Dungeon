@@ -22,7 +22,7 @@ public class Value {
      *
      * @return internal, underlying value
      */
-    public Object getValue() {
+    public Object getInternalValue() {
         return value;
     }
 

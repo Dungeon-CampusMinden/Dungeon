@@ -150,7 +150,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 switch (keyValue.getKey()) {
                     case "level_graph":
                         try {
-                            graph.Graph<String> graphValue = (graph.Graph<String>) value.getValue();
+                            graph.Graph<String> graphValue =
+                                    (graph.Graph<String>) value.getInternalValue();
                             builder.setGraph(graphValue);
                         } catch (ClassCastException ex) {
                             // oh well
@@ -158,7 +159,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         break;
                     case "quest_points":
                         try {
-                            int intValue = (int) value.getValue();
+                            int intValue = (int) value.getInternalValue();
                             builder.setPoints(intValue);
                         } catch (ClassCastException ex) {
                             // oh well
@@ -166,7 +167,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         break;
                     case "password":
                         try {
-                            String strValue = (String) value.getValue();
+                            String strValue = (String) value.getInternalValue();
                             builder.setPassword(strValue);
                         } catch (ClassCastException ex) {
                             // oh well
@@ -174,7 +175,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         break;
                     case "quest_desc":
                         try {
-                            String strValue = (String) value.getValue();
+                            String strValue = (String) value.getInternalValue();
                             builder.setDescription(strValue);
                         } catch (ClassCastException ex) {
                             // oh well
@@ -193,7 +194,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(PropertyDefNode node) {
         var value = node.getStmtNode().accept(this);
         var propertyName = node.getIdName();
-        setValue(propertyName, value);
+        setInternalValue(propertyName, value);
         return null;
     }
 
@@ -227,7 +228,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     // TODO: this should probably check for type compatibility
     // TODO: should this create a new value, if one with the same name does not exist? nah..
-    private boolean setValue(String name, Object value) {
+    private boolean setInternalValue(String name, Object value) {
         var ms = memoryStack.peek();
         var valueInMemorySpace = ms.resolve(name);
         if (valueInMemorySpace == null) {
@@ -258,7 +259,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             var paramValueNode = parameterNodes.get(i);
             var paramValue = paramValueNode.accept(this);
 
-            setValue(parameterSymbol.getName(), paramValue);
+            setInternalValue(parameterSymbol.getName(), paramValue);
         }
 
         memoryStack.push(functionMemSpace);
