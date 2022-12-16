@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package symboltable;
+package semanticAnalysis;
 
 import java.util.Stack;
 // importing all required classes from symbolTable will be to verbose
@@ -107,6 +107,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
         // TODO: could this be done by defining the datatype as normal
         //  java class and using a custom attribute to do the following
         //  steps automatically?
+        //  this seems especially important for defining components
 
         // setup builtin aggregate types
         var questConfigType = new AggregateType("quest_config", globalScope());

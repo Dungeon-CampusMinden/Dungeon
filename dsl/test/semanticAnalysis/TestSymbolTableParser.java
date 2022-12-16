@@ -1,4 +1,4 @@
-package symboltable;
+package semanticAnalysis;
 
 import helpers.Helpers;
 import org.junit.Assert;

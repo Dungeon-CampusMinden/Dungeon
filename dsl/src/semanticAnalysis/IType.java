@@ -1,4 +1,4 @@
-package symboltable;
+package semanticAnalysis;
 
 public interface IType {
     /**

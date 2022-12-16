@@ -1,4 +1,4 @@
-package symboltable;
+package semanticAnalysis;
 
 import interpreter.DSLInterpreter;
 import java.util.List;

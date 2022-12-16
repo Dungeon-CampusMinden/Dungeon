@@ -1,4 +1,4 @@
-package symboltable;
+package semanticAnalysis;
 
 public class AggregateType extends ScopedSymbol implements IType {
     /**
