@@ -5,13 +5,13 @@ import static org.junit.Assert.assertNotSame;
 
 import graph.Graph;
 import org.junit.Test;
-import semanticAnalysis.AggregateType;
-import semanticAnalysis.BuiltInType;
 import semanticAnalysis.Scope;
 import semanticAnalysis.Symbol;
-import semanticAnalysis.typebulder.DSLType;
-import semanticAnalysis.typebulder.DSLTypeMember;
-import semanticAnalysis.typebulder.TypeBuilder;
+import semanticAnalysis.types.AggregateType;
+import semanticAnalysis.types.BuiltInType;
+import semanticAnalysis.types.DSLType;
+import semanticAnalysis.types.DSLTypeMember;
+import semanticAnalysis.types.TypeBuilder;
 
 public class TestTypeBuilder {
     @Test
@@ -21,9 +21,7 @@ public class TestTypeBuilder {
         assertEquals("hello_world_w", convertedName);
     }
 
-    /**
-     * Test class for testing conversion into DSL datatype
-     */
+    /** Test class for testing conversion into DSL datatype */
     @DSLType
     private class TestComponent {
         @DSLTypeMember public int intMember;
@@ -33,15 +31,16 @@ public class TestTypeBuilder {
         @DSLTypeMember public Graph<String> graphMember;
     }
 
-    /**
-     * Test class for testing conversion into DSL datatype
-     */
+    /** Test class for testing conversion into DSL datatype */
     @DSLType
     private class ChainClass {
         @DSLTypeMember public TestComponent testComponentMember;
 
         @DSLTypeMember public String stringMember;
     }
+
+    @DSLType
+    private record TestRecord(@DSLTypeMember int comp1, @DSLTypeMember String comp2) {}
 
     @Test
     public void testSimpleClass() {
@@ -74,7 +73,23 @@ public class TestTypeBuilder {
         var testComponentMemberType = testComponentMember.getDataType();
         assertEquals("test_component", testComponentMemberType.getName());
 
-        var intMemberInTestComponent = ((AggregateType)testComponentMemberType).resolve("int_member");
+        var intMemberInTestComponent =
+                ((AggregateType) testComponentMemberType).resolve("int_member");
         assertNotSame(intMemberInTestComponent, Symbol.NULL);
+    }
+
+    @Test
+    public void testRecord() {
+        TypeBuilder typeBuilder = new TypeBuilder();
+        Scope scope = new Scope();
+        var dslType = typeBuilder.createTypeFromClass(scope, TestRecord.class);
+
+        var comp1 = dslType.resolve("comp1");
+        assertNotSame(comp1, Symbol.NULL);
+        assertEquals(BuiltInType.intType, comp1.getDataType());
+
+        var comp2 = dslType.resolve("comp2");
+        assertNotSame(comp2, Symbol.NULL);
+        assertEquals(BuiltInType.stringType, comp2.getDataType());
     }
 }
