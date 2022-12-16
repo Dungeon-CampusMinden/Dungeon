@@ -84,10 +84,10 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
 
         var questConfig = interpreter.getQuestConfig(program);
-        assertEquals(42, questConfig.points());
-        assertEquals("Hello", questConfig.taskDescription());
+        assertEquals(42, questConfig.questPoints());
+        assertEquals("Hello", questConfig.questDesc());
         assertEquals("TESTPW", questConfig.password());
-        var graph = questConfig.levelGenGraph();
+        var graph = questConfig.levelGraph();
 
         var edgeIter = graph.getEdgeIterator();
         int edgeCount = 0;

@@ -21,12 +21,14 @@
 
 package semanticAnalysis;
 
+import dslToGame.QuestConfig;
 import java.util.Stack;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 import parser.AST.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import runtime.nativeFunctions.NativePrint;
+import semanticAnalysis.typebulder.TypeBuilder;
 import semanticAnalysis.types.AggregateType;
 import semanticAnalysis.types.BuiltInType;
 
@@ -39,6 +41,7 @@ import semanticAnalysis.types.BuiltInType;
 public class SymbolTableParser implements AstVisitor<Void> {
     Stack<IScope> scopeStack = new Stack<>();
     StringBuilder errorStringBuilder;
+    TypeBuilder typeBuilder = new TypeBuilder();
 
     public class Result {
         public final SymbolTable symbolTable;
@@ -107,23 +110,8 @@ public class SymbolTableParser implements AstVisitor<Void> {
         globalScope().bind(BuiltInType.graphType);
         globalScope().bind(BuiltInType.funcType);
 
-        // TODO: could this be done by defining the datatype as normal
-        //  java class and using a custom attribute to do the following
-        //  steps automatically?
-        //  this seems especially important for defining components
-
         // setup builtin aggregate types
-        var questConfigType = new AggregateType("quest_config", globalScope());
-        var levelGraphProperty = new Symbol("level_graph", questConfigType, BuiltInType.graphType);
-        questConfigType.bind(levelGraphProperty);
-        var description = new Symbol("quest_desc", questConfigType, BuiltInType.stringType);
-        questConfigType.bind(description);
-        var password = new Symbol("password", questConfigType, BuiltInType.stringType);
-        questConfigType.bind(password);
-        var questPoints = new Symbol("quest_points", questConfigType, BuiltInType.intType);
-        questConfigType.bind(questPoints);
-        var test = new Symbol("test", questConfigType, BuiltInType.intType);
-        questConfigType.bind(test);
+        var questConfigType = typeBuilder.createTypeFromClass(globalScope(), QuestConfig.class);
 
         globalScope().bind(questConfigType);
     }

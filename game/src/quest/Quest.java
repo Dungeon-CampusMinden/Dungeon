@@ -21,8 +21,8 @@ public abstract class Quest {
 
     public Quest(QuestConfig questConfig, ScreenController sc) {
         this.questConfig = questConfig;
-        this.maxscore = questConfig.points();
-        this.questText = questConfig.taskDescription();
+        this.maxscore = questConfig.questPoints();
+        this.questText = questConfig.questDesc();
         this.sc = sc;
     }
 
