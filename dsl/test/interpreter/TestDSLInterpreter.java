@@ -1,7 +1,6 @@
 package interpreter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import helpers.Helpers;
 import java.io.ByteArrayOutputStream;
@@ -11,6 +10,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import org.junit.Test;
 import parser.AST.Node;
+import runtime.Value;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
@@ -31,6 +31,20 @@ public class TestDSLInterpreter {
         interpreter.getQuestConfig(program);
 
         assertTrue(outputStream.toString().contains("Hello, World!"));
+    }
+
+    /** Test, if Value.NULL does not get set, if non-existing property of datatype is assigned */
+    @Test
+    public void testDontSetNullValue() {
+        String program =
+                """
+        quest_config c {
+            this_value_does_not_exist_in_type: 42
+        }
+            """;
+        DSLInterpreter interpreter = new DSLInterpreter();
+        interpreter.getQuestConfig(program);
+        assertNotSame(42, Value.NONE.getInternalValue());
     }
 
     /**

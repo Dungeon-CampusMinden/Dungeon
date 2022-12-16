@@ -11,11 +11,12 @@ import symboltable.IType;
  * {@link symboltable.Symbol}
  */
 public class Value {
-    public static Value NONE = new Value(null, null, -1);
+    public static Value NONE = new Value(null, null, -1, false);
 
     private final IType dataType;
     private Object value;
     private final int symbolIdx;
+    private final boolean isMutable;
 
     /**
      * Getter for the internal, underlying value
@@ -44,15 +45,18 @@ public class Value {
         return symbolIdx;
     }
 
-    // TODO: should this check for datatype compatibility?
-
     /**
      * Setter for the internal, underlying value
      *
      * @param internalValue The value to set this {@link Value} to.
      */
-    public void setInternalValue(Object internalValue) {
-        this.value = internalValue;
+    public boolean setInternalValue(Object internalValue) {
+        // TODO: should this check for datatype compatibility?
+        if (isMutable) {
+            this.value = internalValue;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -66,5 +70,20 @@ public class Value {
         this.value = internalValue;
         this.dataType = dataType;
         this.symbolIdx = symbolIdx;
+        this.isMutable = true;
+    }
+
+    /**
+     * Constructor
+     *
+     * @param dataType The datatype of this value
+     * @param internalValue The actual value stored in this value
+     * @param symbolIdx The index of the {@link semanticAnalysis.Symbol} this Value corresponds to
+     */
+    public Value(IType dataType, Object internalValue, int symbolIdx, boolean isMutable) {
+        this.value = internalValue;
+        this.dataType = dataType;
+        this.symbolIdx = symbolIdx;
+        this.isMutable = isMutable;
     }
 }

@@ -17,8 +17,9 @@ import parser.DungeonASTConverter;
 import runtime.MemorySpace;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
-import symboltable.*;
+import runtime.Value;
 // CHECKSTYLE:ON: AvoidStarImport
+import symboltable.*;
 
 // we need to provide visitor methods for many node classes, so the method count and the class data
 // abstraction coupling
@@ -125,8 +126,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
         for (var propDefNode : node.getPropertyDefinitions()) {
             var propertyId = ((PropertyDefNode) propDefNode).getIdNode();
             var propDefSymbol = this.symbolTable.getSymbolsForAstNode(propertyId).get(0);
-            assert propDefSymbol != null;
-            objectDefSpace.bindFromSymbol(propDefSymbol);
+            if (propDefSymbol == Symbol.NULL) {
+                // TODO: handle
+            } else {
+                objectDefSpace.bindFromSymbol(propDefSymbol);
+            }
         }
 
         // accept every propertyDefinition
@@ -194,7 +198,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(PropertyDefNode node) {
         var value = node.getStmtNode().accept(this);
         var propertyName = node.getIdName();
-        setInternalValue(propertyName, value);
+        boolean setValue = setInternalValue(propertyName, value);
+        if (!setValue) {
+            // TODO: handle, errormsg
+        }
         return null;
     }
 
@@ -231,7 +238,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     private boolean setInternalValue(String name, Object value) {
         var ms = memoryStack.peek();
         var valueInMemorySpace = ms.resolve(name);
-        if (valueInMemorySpace == null) {
+        if (valueInMemorySpace == Value.NONE) {
             return false;
         }
         valueInMemorySpace.setInternalValue(value);
