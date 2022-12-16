@@ -131,6 +131,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void enterComponent_def(DungeonDSLParser.Component_defContext ctx) {
+    }
+
+    @Override
+    public void exitComponent_def(DungeonDSLParser.Component_defContext ctx) {
         // if we have a propertyDefList, it will be on the stack
         var propertyDefListNode = Node.NONE;
         if (ctx.property_def_list() != null) {
@@ -145,9 +149,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         var componentDefinitionNode = new ComponentDefinitionNode(idNode, propertyDefListNode);
         astStack.push(componentDefinitionNode);
     }
-
-    @Override
-    public void exitComponent_def(DungeonDSLParser.Component_defContext ctx) {}
 
     @Override
     public void enterGrammar_type_obj_def(DungeonDSLParser.Grammar_type_obj_defContext ctx) {}
