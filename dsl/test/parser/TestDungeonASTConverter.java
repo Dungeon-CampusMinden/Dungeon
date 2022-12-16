@@ -143,4 +143,33 @@ public class TestDungeonASTConverter {
         var paramList = funcCallNode.getParameters();
         assertEquals(Node.Type.FuncCall, paramList.get(0).type);
     }
+
+    @Test
+    public void testGameObjectDefinitionSimpleComponent() {
+        String program =
+            """
+                game_object test_object {
+                    this_is_a_component
+                    }
+                """;
+        var ast = Helpers.getASTFromString(program);
+
+        var objDef = ast.getChild(0);
+        assertEquals(Node.Type.GameObjectDefinition, objDef.type);
+
+        var componentDefListNode = ((GameObjectDefinitionNode)objDef).getComponentDefinitionListNode();
+        assertEquals(Node.Type.ComponentDefinitionList, componentDefListNode.type);
+
+        var componentDefinitions = componentDefListNode.getChildren();
+        assertEquals(1, componentDefinitions.size());
+
+        var component = componentDefinitions.get(0);
+        assertEquals(Node.Type.ComponentDefinition, component.type);
+
+        String componentName = ((ComponentDefinitionNode)component).getIdName();
+        assertEquals("this_is_a_component", componentName);
+
+        var propertyDefinitionListNode = ((ComponentDefinitionNode)component).getPropertyDefinitionListNode();
+        assertEquals(Node.NONE, propertyDefinitionListNode);
+    }
 }
