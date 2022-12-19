@@ -39,6 +39,9 @@ public class MemorySpace {
      */
     public boolean bindFromSymbol(Symbol symbol) {
         var symbolName = symbol.getName();
+        if (symbol.equals(Symbol.NULL)) {
+            return false;
+        }
         if (values.containsKey(symbolName)) {
             return false;
         } else if (!(symbol instanceof IType)) {
