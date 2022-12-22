@@ -44,14 +44,14 @@ public class TestTypeBinder {
         Assert.assertNotSame(Symbol.NULL, gameObjectDefinition);
         Assert.assertTrue(gameObjectDefinition instanceof AggregateType);
 
-        var testComponent = ((AggregateType)gameObjectDefinition).resolve("test_component");
+        var testComponent = ((AggregateType) gameObjectDefinition).resolve("test_component");
         Assert.assertNotSame(Symbol.NULL, testComponent);
         var testComponentDataType = symbolTable.globalScope.resolve("test_component");
         Assert.assertEquals(testComponentDataType, testComponent.getDataType());
 
-        var member1 = ((AggregateType)testComponentDataType).resolve("member1");
+        var member1 = ((AggregateType) testComponentDataType).resolve("member1");
         Assert.assertNotSame(Symbol.NULL, member1);
-        var member2 = ((AggregateType)testComponentDataType).resolve("member2");
+        var member2 = ((AggregateType) testComponentDataType).resolve("member2");
         Assert.assertNotSame(Symbol.NULL, member2);
     }
 
@@ -61,7 +61,7 @@ public class TestTypeBinder {
         var testCompType = tb.createTypeFromClass(new Scope(), TestComponent.class);
 
         String program =
-            """
+                """
         game_object o {
             test_component{
                 member1: 42,
@@ -87,9 +87,12 @@ public class TestTypeBinder {
         Assert.assertEquals(gameObjectDefNodeFromAST, gameObjectDefNode);
 
         // check, that the creation node of the datatype-member matches the AST node
-        var testComponent = ((AggregateType)gameObjectDefinition).resolve("test_component");
+        var testComponent = ((AggregateType) gameObjectDefinition).resolve("test_component");
         var testComponentDefNode = symbolTable.getCreationAstNode(testComponent);
-        var testComponentDefNodeFromAST = ((GameObjectDefinitionNode)gameObjectDefNodeFromAST).getComponentDefinitionNodes().get(0);
+        var testComponentDefNodeFromAST =
+                ((GameObjectDefinitionNode) gameObjectDefNodeFromAST)
+                        .getComponentDefinitionNodes()
+                        .get(0);
         Assert.assertEquals(testComponentDefNodeFromAST, testComponentDefNode);
     }
 }

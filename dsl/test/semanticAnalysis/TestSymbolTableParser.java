@@ -54,7 +54,7 @@ public class TestSymbolTableParser {
     @Test
     public void testSymbolReferenceComponent() {
         String program =
-            """
+                """
             graph g {
                 A -- B
             }
@@ -74,7 +74,7 @@ public class TestSymbolTableParser {
         var testComponentType = tb.createTypeFromClass(Scope.NULL, TestComponent.class);
 
         var env = new GameEnvironment();
-        env.loadTypes(new Symbol[]{testComponentType});
+        env.loadTypes(new Symbol[] {testComponentType});
         symbolTableParser.setup(env);
         var symbolTable = symbolTableParser.walk(ast).symbolTable;
 
@@ -85,14 +85,14 @@ public class TestSymbolTableParser {
         // check, if the stmt of the propertyDefinition references the symbol of the graph
         // definition
         var gameObjDefNode = ast.getChild(1);
-        var componentDefNode = ((GameObjectDefinitionNode)gameObjDefNode).getComponentDefinitionNodes().get(0);
+        var componentDefNode =
+                ((GameObjectDefinitionNode) gameObjDefNode).getComponentDefinitionNodes().get(0);
         var propertyDefList = componentDefNode.getChild(1);
 
         var firstPropertyDef = propertyDefList.getChild(0);
         var firstPropertyStmtNode = firstPropertyDef.getChild(1);
         assert (firstPropertyStmtNode.type == Node.Type.Identifier);
-        var symbolForStmtNode =
-            symbolTable.getSymbolsForAstNode(firstPropertyStmtNode).get(0);
+        var symbolForStmtNode = symbolTable.getSymbolsForAstNode(firstPropertyStmtNode).get(0);
         Assert.assertEquals("g", symbolForStmtNode.name);
         Assert.assertEquals(symbolForDotDefNode, symbolForStmtNode);
     }

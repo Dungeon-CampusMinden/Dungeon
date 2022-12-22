@@ -47,7 +47,7 @@ public class TypeBinder implements AstVisitor<Object> {
         // visit all component definitions and get type and create new symbol in gameObject type
         for (var componentDef : node.getComponentDefinitionNodes()) {
             assert componentDef.type == Node.Type.ComponentDefinition;
-            var compDefNode = (ComponentDefinitionNode)componentDef;
+            var compDefNode = (ComponentDefinitionNode) componentDef;
 
             var componentType = componentDef.accept(this);
             if (componentType != null) {
