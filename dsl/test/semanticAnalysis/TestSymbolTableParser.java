@@ -1,11 +1,17 @@
 package semanticAnalysis;
 
+import graph.Graph;
 import helpers.Helpers;
 import org.junit.Assert;
 import org.junit.Test;
+import parser.AST.GameObjectDefinitionNode;
 import parser.AST.Node;
+import runtime.GameEnvironment;
 import runtime.nativeFunctions.NativePrint;
 import semanticAnalysis.types.AggregateType;
+import semanticAnalysis.types.DSLType;
+import semanticAnalysis.types.DSLTypeMember;
+import semanticAnalysis.types.TypeBuilder;
 
 public class TestSymbolTableParser {
 
@@ -36,6 +42,59 @@ public class TestSymbolTableParser {
         var symbolForObjDefNode =
                 symtableResult.symbolTable.getSymbolsForAstNode(objDefNode).get(0);
         Assert.assertEquals("c", symbolForObjDefNode.name);
+    }
+
+    @DSLType
+    private record TestComponent(@DSLTypeMember Graph<String> levelGraph) {}
+
+    /**
+     * Test, if the reference to a symbol is correctly resolved and that the symbol is linked to the
+     * identifier
+     */
+    @Test
+    public void testSymbolReferenceComponent() {
+        String program =
+            """
+            graph g {
+                A -- B
+            }
+
+            game_object c {
+                test_component{
+                    level_graph: g
+                }
+            }
+            """;
+
+        // setup
+        var ast = Helpers.getASTFromString(program);
+        SymbolTableParser symbolTableParser = new SymbolTableParser();
+
+        TypeBuilder tb = new TypeBuilder();
+        var testComponentType = tb.createTypeFromClass(Scope.NULL, TestComponent.class);
+
+        var env = new GameEnvironment();
+        env.loadTypes(new Symbol[]{testComponentType});
+        symbolTableParser.setup(env);
+        var symbolTable = symbolTableParser.walk(ast).symbolTable;
+
+        // check the name of the symbol corresponding to the graph definition
+        var graphDefAstNode = ast.getChild(0);
+        var symbolForDotDefNode = symbolTable.getSymbolsForAstNode(graphDefAstNode).get(0);
+
+        // check, if the stmt of the propertyDefinition references the symbol of the graph
+        // definition
+        var gameObjDefNode = ast.getChild(1);
+        var componentDefNode = ((GameObjectDefinitionNode)gameObjDefNode).getComponentDefinitionNodes().get(0);
+        var propertyDefList = componentDefNode.getChild(1);
+
+        var firstPropertyDef = propertyDefList.getChild(0);
+        var firstPropertyStmtNode = firstPropertyDef.getChild(1);
+        assert (firstPropertyStmtNode.type == Node.Type.Identifier);
+        var symbolForStmtNode =
+            symbolTable.getSymbolsForAstNode(firstPropertyStmtNode).get(0);
+        Assert.assertEquals("g", symbolForStmtNode.name);
+        Assert.assertEquals(symbolForDotDefNode, symbolForStmtNode);
     }
 
     /**

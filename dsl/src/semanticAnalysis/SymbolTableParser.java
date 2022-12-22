@@ -234,6 +234,44 @@ public class SymbolTableParser implements AstVisitor<Void> {
     }
 
     @Override
+    public Void visit(GameObjectDefinitionNode node) {
+        // resolve datatype of definition
+        var typeName = node.getIdName();
+        var typeSymbol = this.globalScope().resolve(typeName);
+        if (typeSymbol.equals(Symbol.NULL)) {
+            errorStringBuilder.append("Could not resolve type " + typeName);
+        } else {
+            scopeStack.push((AggregateType) typeSymbol);
+            for (var componentDef : node.getComponentDefinitionNodes()) {
+                componentDef.accept(this);
+            }
+            scopeStack.pop();
+        }
+        return null;
+    }
+
+    @Override
+    public Void visit(ComponentDefinitionNode node) {
+        // push datatype of component
+        // resolve in current scope, which will be datatype of game object definition
+        var memberSymbol = currentScope().resolve(node.getIdName());
+
+        var typeSymbol = memberSymbol.getDataType();
+        // TODO: errorhandling
+        if (typeSymbol == Symbol.NULL) {
+            errorStringBuilder.append("Could not resolve type " + "TODO");
+        } else {
+            scopeStack.push((AggregateType) typeSymbol);
+
+            for (var propertyDef : node.getPropertyDefinitionNodes()) {
+                propertyDef.accept(this);
+            }
+            scopeStack.pop();
+        }
+        return null;
+    }
+
+    @Override
     public Void visit(PropertyDefNode node) {
         var propertyIdName = node.getIdName();
 
