@@ -116,6 +116,36 @@ public class SymbolTableParser implements AstVisitor<Void> {
     }
 
     /**
+     * Built in types (such as all BuiltIns and built in AggregateTypes such as quest_config) have
+     * no parent Scope. This leads to situations, in which the topmost scope is such an aggregate
+     * type. Resolving a reference to a global variable does not work in this context, so this
+     * method implements a manual stack walk of the scope stack to deal with this case.
+     *
+     * @param name the name of the symbol to resolve
+     * @return the resolved symbol or Symbol.NULL, if the name could not be resolved
+     */
+    private Symbol resolve(String name) {
+        // if the type of the current scope is an AggregateType, first resolve in this type
+        // and then resolve in the enclosing scope
+        var symbol = Symbol.NULL;
+        var stackIterator = this.scopeStack.listIterator(scopeStack.size());
+        IScope scope;
+
+        while (symbol.equals(Symbol.NULL) && stackIterator.hasPrevious()) {
+            scope = stackIterator.previous();
+            if (scope instanceof AggregateType) {
+                // for testing
+                symbol = scope.resolve(name);
+            }
+            if (symbol.equals(Symbol.NULL)) {
+                scope = stackIterator.previous();
+                symbol = scope.resolve(name);
+            }
+        }
+        return symbol;
+    }
+
+    /**
      * Visit children node in node, create symbol table and resolve function calls
      *
      * @param node The node to walk
@@ -161,8 +191,8 @@ public class SymbolTableParser implements AstVisitor<Void> {
     @Override
     public Void visit(IdNode node) {
         var idName = node.getName();
-        var symbol = currentScope().resolve(idName);
-        if (null == symbol) {
+        var symbol = resolve(idName);
+        if (symbol.equals(Symbol.NULL)) {
             errorStringBuilder.append(
                     "Reference of undefined identifier: "
                             + node.getName()
@@ -202,7 +232,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
     public Void visit(PropertyDefNode node) {
         var propertyIdName = node.getIdName();
 
-        // TODO: ensure, that no other scopes than the scopes of the type are checked
+        // the current scope will be the type of the object definition
         var propertySymbol = currentScope().resolve(propertyIdName);
         if (propertySymbol == Symbol.NULL) {
             errorStringBuilder.append(
