@@ -99,8 +99,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
     }
 
     private void setupNativeFunctions() {
-        var nativePrint = new NativePrint(globalScope());
-        globalScope().bind(nativePrint);
+        globalScope().bind(NativePrint.func);
     }
 
     private void setupBuiltinTypes() {
