@@ -14,6 +14,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import parser.AST.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import parser.DungeonASTConverter;
+import runtime.GameEnvironment;
 import runtime.MemorySpace;
 import runtime.Value;
 // importing all required classes from symbolTable will be to verbose
@@ -91,6 +92,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         var programAST = astConverter.walk(programParseTree);
 
         SymbolTableParser symTableParser = new SymbolTableParser();
+        symTableParser.setup(new GameEnvironment());
         var result = symTableParser.walk(programAST);
         symbolTable = result.symbolTable;
 
