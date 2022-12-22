@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import parser.DungeonASTConverter;
+import runtime.GameEnvironment;
 import semanticAnalysis.SymbolTableParser;
 
 public class Helpers {
@@ -82,6 +83,7 @@ public class Helpers {
      */
     public static SymbolTableParser.Result getSymtableForAST(parser.AST.Node ast) {
         SymbolTableParser symbolTableParser = new SymbolTableParser();
+        symbolTableParser.setup(new GameEnvironment());
         return symbolTableParser.walk(ast);
     }
 }
