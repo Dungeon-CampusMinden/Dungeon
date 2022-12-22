@@ -43,6 +43,14 @@ public interface IScope {
     Symbol resolve(String name);
 
     /**
+     * Try to resolve a name in this scope or the parent scopes.
+     *
+     * @param name The name to resolve
+     * @return The symbol with the name or Symbol.NULL, if the symbol could not be resolved
+     */
+    Symbol resolve(String name, boolean resolveInParent);
+
+    /**
      * Get all symbols of this scope in a List
      *
      * @return List containing all symbols in this scope.
