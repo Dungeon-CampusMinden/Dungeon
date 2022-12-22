@@ -28,6 +28,7 @@ import parser.AST.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import runtime.IEvironment;
 import semanticAnalysis.types.AggregateType;
+import semanticAnalysis.types.TypeBinder;
 
 // TODO: enable dynamic loading of data types (for better testability)
 /** Creates a symbol table for an AST node for a DSL program */
@@ -165,11 +166,15 @@ public class SymbolTableParser implements AstVisitor<Void> {
     public Void visit(Node node) {
         switch (node.type) {
             case Program:
-                // First, bind all object definitions / variable assignments to enable object
+                // bind all type definitions
+                TypeBinder tb = new TypeBinder();
+                tb.bindTypes(symbolTable, node, errorStringBuilder);
+
+                // bind all object definitions / variable assignments to enable object
                 // references before
                 // definition
                 VariableBinder vb = new VariableBinder();
-                vb.bindVariables(symbolTable, currentScope(), node, errorStringBuilder);
+                vb.bindVariables(symbolTable, globalScope(), node, errorStringBuilder);
 
                 visitChildren(node);
 
