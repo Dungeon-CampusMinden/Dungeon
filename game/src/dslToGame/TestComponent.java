@@ -1,2 +1,3 @@
-package dslToGame;public class TestComponent {
-}
+package dslToGame;
+
+public class TestComponent {}

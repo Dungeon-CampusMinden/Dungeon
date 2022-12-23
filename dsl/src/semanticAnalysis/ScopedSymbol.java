@@ -24,6 +24,7 @@ package semanticAnalysis;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import semanticAnalysis.types.IType;
 
 public class ScopedSymbol extends Symbol implements IScope {
 

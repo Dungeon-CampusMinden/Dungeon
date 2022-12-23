@@ -1,6 +1,6 @@
 package runtime;
 
-import semanticAnalysis.IType;
+import semanticAnalysis.types.IType;
 
 // TODO: should this be able to be undefined?
 

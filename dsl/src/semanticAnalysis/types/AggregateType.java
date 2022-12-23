@@ -1,4 +1,7 @@
-package semanticAnalysis;
+package semanticAnalysis.types;
+
+import semanticAnalysis.IScope;
+import semanticAnalysis.ScopedSymbol;
 
 public class AggregateType extends ScopedSymbol implements IType {
     /**

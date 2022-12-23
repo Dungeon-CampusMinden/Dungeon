@@ -21,6 +21,8 @@
 
 package semanticAnalysis;
 
+import semanticAnalysis.types.IType;
+
 /** Represents a symbol in a program */
 public class Symbol {
     public enum Type {

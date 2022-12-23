@@ -3,9 +3,9 @@ package runtime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import semanticAnalysis.BuiltInType;
-import semanticAnalysis.IType;
 import semanticAnalysis.Symbol;
+import semanticAnalysis.types.BuiltInType;
+import semanticAnalysis.types.IType;
 
 // TODO: also use this for object-instantiation?
 // TODO: does this need to be specialized for function memory space -> just try it

@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import parser.AST.Node;
 import runtime.nativeFunctions.NativePrint;
+import semanticAnalysis.types.AggregateType;
 
 public class TestSymbolTableParser {
 

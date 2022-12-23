@@ -1,4 +1,4 @@
-package semanticAnalysis;
+package semanticAnalysis.types;
 
 public interface IType {
     /**
