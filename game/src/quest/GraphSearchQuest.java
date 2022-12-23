@@ -27,8 +27,8 @@ public class GraphSearchQuest extends Quest implements Evaluateable {
 
     public GraphSearchQuest(QuestConfig questConfig, ScreenController sc) {
         super(questConfig, sc);
-        generator = new GraphLevelGenerator(questConfig.levelGenGraph());
-        textMap = new TextMap(questConfig.levelGenGraph());
+        generator = new GraphLevelGenerator(questConfig.levelGraph());
+        textMap = new TextMap(questConfig.levelGraph());
     }
 
     @Override
@@ -52,7 +52,7 @@ public class GraphSearchQuest extends Quest implements Evaluateable {
         letterChest.addItem(new Letter(c, textMap, rootRoom));
         rootRoom.addElement(letterChest);
 
-        Iterator<Node<String>> graphIterator = questConfig.levelGenGraph().getNodeIterator();
+        Iterator<Node<String>> graphIterator = questConfig.levelGraph().getNodeIterator();
         graphIterator.next();
         while (graphIterator.hasNext()) {
             Node<String> graphNode = graphIterator.next();
