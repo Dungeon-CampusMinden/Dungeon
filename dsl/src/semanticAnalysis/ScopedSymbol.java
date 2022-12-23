@@ -19,11 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package symboltable;
+package semanticAnalysis;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import semanticAnalysis.types.IType;
 
 public class ScopedSymbol extends Symbol implements IScope {
 

@@ -1,4 +1,8 @@
-package symboltable;
+package semanticAnalysis.types;
+
+import semanticAnalysis.IScope;
+import semanticAnalysis.Scope;
+import semanticAnalysis.Symbol;
 
 public class BuiltInType extends Symbol implements IType {
     public static BuiltInType intType = new BuiltInType("int", Scope.NULL);

@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package symboltable;
+package semanticAnalysis;
 
 import java.util.Stack;
 // importing all required classes from symbolTable will be to verbose
@@ -27,7 +27,10 @@ import java.util.Stack;
 import parser.AST.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import runtime.nativeFunctions.NativePrint;
+import semanticAnalysis.types.AggregateType;
+import semanticAnalysis.types.BuiltInType;
 
+// TODO: enable dynamic loading of data types (for better testability)
 /** Creates a symbol table for an AST node for a DSL program */
 // we need to provide visitor methods for many node classes, so the method count and the class data
 // abstraction coupling
@@ -107,6 +110,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
         // TODO: could this be done by defining the datatype as normal
         //  java class and using a custom attribute to do the following
         //  steps automatically?
+        //  this seems especially important for defining components
 
         // setup builtin aggregate types
         var questConfigType = new AggregateType("quest_config", globalScope());

@@ -10,7 +10,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import parser.DungeonASTConverter;
-import symboltable.SymbolTableParser;
+import semanticAnalysis.SymbolTableParser;
 
 public class Helpers {
 
@@ -75,10 +75,10 @@ public class Helpers {
 
     /**
      * Performs semantic analysis for given AST and returns the {@link
-     * symboltable.SymbolTableParser.Result} output from the SymbolTableParser
+     * semanticAnalysis.SymbolTableParser.Result} output from the SymbolTableParser
      *
      * @param ast the AST to create the symbol table for
-     * @return the {@link symboltable.SymbolTableParser.Result} of the semantic analysis
+     * @return the {@link semanticAnalysis.SymbolTableParser.Result} of the semantic analysis
      */
     public static SymbolTableParser.Result getSymtableForAST(parser.AST.Node ast) {
         SymbolTableParser symbolTableParser = new SymbolTableParser();

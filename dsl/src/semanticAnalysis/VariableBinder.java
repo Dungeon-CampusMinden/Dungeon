@@ -19,11 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package symboltable;
+package semanticAnalysis;
 
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 import parser.AST.*;
+import semanticAnalysis.types.BuiltInType;
+import semanticAnalysis.types.IType;
 // CHECKSTYLE:ON: AvoidStarImport
 
 /** Creates symbols for definition nodes (graph, object) and binds these nodes to those symbols */

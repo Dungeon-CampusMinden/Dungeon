@@ -15,11 +15,12 @@ import parser.AST.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import parser.DungeonASTConverter;
 import runtime.MemorySpace;
+import runtime.Value;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
-import runtime.Value;
+import semanticAnalysis.*;
+import semanticAnalysis.types.*;
 // CHECKSTYLE:ON: AvoidStarImport
-import symboltable.*;
 
 // we need to provide visitor methods for many node classes, so the method count and the class data
 // abstraction coupling

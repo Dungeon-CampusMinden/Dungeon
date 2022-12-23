@@ -19,7 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package symboltable;
+package semanticAnalysis;
+
+import semanticAnalysis.types.IType;
 
 /** Represents a symbol in a program */
 public class Symbol {
