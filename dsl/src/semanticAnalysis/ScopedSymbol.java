@@ -67,14 +67,24 @@ public class ScopedSymbol extends Symbol implements IScope {
      * @param name the name of the symbol to resolvle
      * @return the resolved symbol or Symbol.NULL, if the name could not be resolved
      */
-    public Symbol resolve(String name) {
+    public Symbol resolve(String name, boolean resolveInParent) {
         if (symbols.containsKey(name)) {
             return symbols.get(name);
-        } else if (scope != null) {
+        } else if (!scope.equals(Scope.NULL) && resolveInParent) {
             return scope.resolve(name);
         } else {
             return Symbol.NULL;
         }
+    }
+
+    /**
+     * Try to resolve the passed name in this scope (or the parent scope).
+     *
+     * @param name the name of the symbol to resolvle
+     * @return the resolved symbol or Symbol.NULL, if the name could not be resolved
+     */
+    public Symbol resolve(String name) {
+        return this.resolve(name, true);
     }
 
     /**

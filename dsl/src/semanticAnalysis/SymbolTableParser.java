@@ -21,16 +21,13 @@
 
 package semanticAnalysis;
 
-import dslToGame.QuestConfig;
 import java.util.Stack;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 import parser.AST.*;
 // CHECKSTYLE:ON: AvoidStarImport
-import runtime.nativeFunctions.NativePrint;
-import semanticAnalysis.typebulder.TypeBuilder;
+import runtime.IEvironment;
 import semanticAnalysis.types.AggregateType;
-import semanticAnalysis.types.BuiltInType;
 
 // TODO: enable dynamic loading of data types (for better testability)
 /** Creates a symbol table for an AST node for a DSL program */
@@ -40,8 +37,8 @@ import semanticAnalysis.types.BuiltInType;
 @SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
 public class SymbolTableParser implements AstVisitor<Void> {
     Stack<IScope> scopeStack = new Stack<>();
-    StringBuilder errorStringBuilder;
-    TypeBuilder typeBuilder = new TypeBuilder();
+    StringBuilder errorStringBuilder = new StringBuilder();
+    private boolean setup = false;
 
     public class Result {
         public final SymbolTable symbolTable;
@@ -98,22 +95,54 @@ public class SymbolTableParser implements AstVisitor<Void> {
         }
     }
 
-    private void setupNativeFunctions() {
-        var nativePrint = new NativePrint(globalScope());
-        globalScope().bind(nativePrint);
+    /**
+     * Setup environment for semantic analysis (setup builtin types and native functions); use an
+     * externally provided symbol table, which will be used and extended during semantic analysis
+     *
+     * @param environment environment to use for setup of built in types and native functions
+     */
+    public void setup(IEvironment environment) {
+        if (setup) {
+            return;
+        }
+
+        errorStringBuilder = new StringBuilder();
+        scopeStack = new Stack<>();
+
+        scopeStack.push(environment.getGlobalScope());
+        symbolTable = environment.getSymbolTable();
+
+        this.setup = true;
     }
 
-    private void setupBuiltinTypes() {
-        // setup builtin simple types
-        globalScope().bind(BuiltInType.intType);
-        globalScope().bind(BuiltInType.stringType);
-        globalScope().bind(BuiltInType.graphType);
-        globalScope().bind(BuiltInType.funcType);
+    /**
+     * Built in types (such as all BuiltIns and built in AggregateTypes such as quest_config) have
+     * no parent Scope. This leads to situations, in which the topmost scope is such an aggregate
+     * type. Resolving a reference to a global variable does not work in this context, so this
+     * method implements a manual stack walk of the scope stack to deal with this case.
+     *
+     * @param name the name of the symbol to resolve
+     * @return the resolved symbol or Symbol.NULL, if the name could not be resolved
+     */
+    private Symbol resolve(String name) {
+        // if the type of the current scope is an AggregateType, first resolve in this type
+        // and then resolve in the enclosing scope
+        var symbol = Symbol.NULL;
+        var stackIterator = this.scopeStack.listIterator(scopeStack.size());
+        IScope scope;
 
-        // setup builtin aggregate types
-        var questConfigType = typeBuilder.createTypeFromClass(globalScope(), QuestConfig.class);
-
-        globalScope().bind(questConfigType);
+        while (symbol.equals(Symbol.NULL) && stackIterator.hasPrevious()) {
+            scope = stackIterator.previous();
+            if (scope instanceof AggregateType) {
+                // for testing
+                symbol = scope.resolve(name);
+            }
+            if (symbol.equals(Symbol.NULL)) {
+                scope = stackIterator.previous();
+                symbol = scope.resolve(name);
+            }
+        }
+        return symbol;
     }
 
     /**
@@ -123,16 +152,10 @@ public class SymbolTableParser implements AstVisitor<Void> {
      * @return The symbol table for given node
      */
     public Result walk(Node node) {
-        errorStringBuilder = new StringBuilder();
-        scopeStack = new Stack<>();
-
-        // push global scope
-        scopeStack.push(new Scope());
-        symbolTable = new SymbolTable(currentScope());
-
-        setupBuiltinTypes();
-        setupNativeFunctions();
-
+        if (!setup) {
+            errorStringBuilder.append("Symbol table parser was not setup with an environment");
+            return new Result(symbolTable, errorStringBuilder.toString());
+        }
         node.accept(this);
 
         return new Result(symbolTable, errorStringBuilder.toString());
@@ -168,8 +191,8 @@ public class SymbolTableParser implements AstVisitor<Void> {
     @Override
     public Void visit(IdNode node) {
         var idName = node.getName();
-        var symbol = currentScope().resolve(idName);
-        if (null == symbol) {
+        var symbol = resolve(idName);
+        if (symbol.equals(Symbol.NULL)) {
             errorStringBuilder.append(
                     "Reference of undefined identifier: "
                             + node.getName()
@@ -209,7 +232,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
     public Void visit(PropertyDefNode node) {
         var propertyIdName = node.getIdName();
 
-        // TODO: ensure, that no other scopes than the scopes of the type are checked
+        // the current scope will be the type of the object definition
         var propertySymbol = currentScope().resolve(propertyIdName);
         if (propertySymbol == Symbol.NULL) {
             errorStringBuilder.append(
