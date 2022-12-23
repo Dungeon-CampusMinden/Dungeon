@@ -11,7 +11,6 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import parser.DungeonASTConverter;
 import runtime.GameEnvironment;
-import semanticAnalysis.SymbolTable;
 import semanticAnalysis.SymbolTableParser;
 import semanticAnalysis.types.AggregateType;
 
@@ -90,7 +89,6 @@ public class Helpers {
     }
 
     /**
-     *
      * Performs semantic analysis for given AST with loaded types and returns the {@link
      * semanticAnalysis.SymbolTableParser.Result} output from the SymbolTableParser
      *
@@ -98,7 +96,8 @@ public class Helpers {
      * @param types the types to load into the environment before doing semantic analysis
      * @return the {@link semanticAnalysis.SymbolTableParser.Result} of the semantic analysis
      */
-    public static SymbolTableParser.Result getSymtableForASTWithLoadedTypes(parser.AST.Node ast, AggregateType[] types) {
+    public static SymbolTableParser.Result getSymtableForASTWithLoadedTypes(
+            parser.AST.Node ast, AggregateType[] types) {
         var symTableParser = new SymbolTableParser();
         var env = new GameEnvironment();
         env.loadTypes(types);
