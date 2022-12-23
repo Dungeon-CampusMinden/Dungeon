@@ -42,9 +42,11 @@ public class AnimationComponent implements Component {
 
     /**
      * @param animationList list of animations that are to be used
+     * @param currentAnimation set the current animation
      */
-    public void setAnimationList(List<Animation> animationList) {
+    public void setAnimationList(List<Animation> animationList, Animation currentAnimation) {
         this.animationList = animationList;
+        setCurrentAnimation(currentAnimation);
     }
 
     /**
