@@ -11,7 +11,7 @@ public class PositionComponent implements Component {
 
     /**
      * @param entity associated entity
-     * @param point position if the entity
+     * @param point position of the entity
      */
     public PositionComponent(Entity entity, Point point) {
         ECS.positionComponentMap.put(entity, this);
@@ -26,7 +26,7 @@ public class PositionComponent implements Component {
     }
 
     /**
-     * @param position new Position of the accociated entity
+     * @param position new Position of the associated entity
      */
     public void setPosition(Point position) {
         this.position = position;
