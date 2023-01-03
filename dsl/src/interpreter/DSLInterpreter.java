@@ -21,6 +21,7 @@ import semanticAnalysis.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import semanticAnalysis.types.AggregateType;
 import semanticAnalysis.types.IType;
+import semanticAnalysis.types.TypeInstantiator;
 
 // we need to provide visitor methods for many node classes, so the method count and the class data
 // abstraction coupling
@@ -159,6 +160,22 @@ public class DSLInterpreter implements AstVisitor<Object> {
     //  be implemented
     private Object createObjectFromMemorySpace(MemorySpace ms, IType type) {
         if (type.getName().equals("quest_config")) {
+            TypeInstantiator ti = new TypeInstantiator();
+            Object instance;
+            try {
+                instance = ti.instantiateFromMemorySpace((AggregateType) type, ms);
+                // TODO: handle more gracefully
+            } catch (NoSuchFieldException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+            return instance;
+
             QuestConfigBuilder builder = new QuestConfigBuilder();
             for (var keyValue : ms.getAllValues()) {
                 var value = keyValue.getValue();

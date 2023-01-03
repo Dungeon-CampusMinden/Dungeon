@@ -43,6 +43,23 @@ public class TypeBuilder {
         return null;
     }
 
+    public HashMap<String, String> typeMemberNameToJavaFieldMap(Class<?> clazz) {
+        HashMap<String, String> map = new HashMap<>();
+        for (Field field : clazz.getDeclaredFields()) {
+            // bind new Symbol
+            if (field.isAnnotationPresent(DSLTypeMember.class)) {
+                var fieldAnnotation = field.getAnnotation(DSLTypeMember.class);
+                String fieldName =
+                        fieldAnnotation.name().equals("")
+                                ? convertToDSLName(field.getName())
+                                : fieldAnnotation.name();
+
+                map.put(fieldName, field.getName());
+            }
+        }
+        return map;
+    }
+
     public AggregateType createTypeFromClass(IScope parentScope, Class<?> clazz) {
         if (!clazz.isAnnotationPresent(DSLType.class)) {
             return null;
@@ -65,13 +82,13 @@ public class TypeBuilder {
                         : annotation.name();
 
         // TODO: refactor
-        var type = new AggregateType(typeName, parentScope);
+        var type = new AggregateType(typeName, parentScope, clazz);
         for (Field field : clazz.getDeclaredFields()) {
             // bind new Symbol
             if (field.isAnnotationPresent(DSLTypeMember.class)) {
                 var fieldAnnotation = field.getAnnotation(DSLTypeMember.class);
                 String fieldName =
-                        annotation.name().equals("")
+                        fieldAnnotation.name().equals("")
                                 ? convertToDSLName(field.getName())
                                 : fieldAnnotation.name();
 
