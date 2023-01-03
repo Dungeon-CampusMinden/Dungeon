@@ -14,14 +14,13 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import parser.AST.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import parser.DungeonASTConverter;
-import runtime.GameEnvironment;
-import runtime.MemorySpace;
-import runtime.Value;
+import runtime.*;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 import semanticAnalysis.*;
-import semanticAnalysis.types.*;
 // CHECKSTYLE:ON: AvoidStarImport
+import semanticAnalysis.types.AggregateType;
+import semanticAnalysis.types.IType;
 
 // we need to provide visitor methods for many node classes, so the method count and the class data
 // abstraction coupling
@@ -127,8 +126,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         // bind new value for every property
         for (var propDefNode : node.getPropertyDefinitions()) {
-            var propertyId = ((PropertyDefNode) propDefNode).getIdNode();
-            var propDefSymbol = this.symbolTable.getSymbolsForAstNode(propertyId).get(0);
+            var propDefSymbol = this.symbolTable().getSymbolsForAstNode(propDefNode).get(0);
             if (propDefSymbol == Symbol.NULL) {
                 // TODO: handle
             } else {

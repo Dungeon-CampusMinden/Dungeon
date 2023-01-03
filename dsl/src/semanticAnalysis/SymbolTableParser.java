@@ -238,7 +238,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
         // resolve datatype of definition
         var typeName = node.getIdName();
         var typeSymbol = this.globalScope().resolve(typeName);
-        if (typeSymbol.equals(Symbol.NULL)) {
+        if (typeSymbol.equals(Symbol.NULL) || typeSymbol == null) {
             errorStringBuilder.append("Could not resolve type " + typeName);
         } else {
             scopeStack.push((AggregateType) typeSymbol);
@@ -250,24 +250,29 @@ public class SymbolTableParser implements AstVisitor<Void> {
         return null;
     }
 
+    // TODO: Symbols for members?
     @Override
     public Void visit(ComponentDefinitionNode node) {
         // push datatype of component
         // resolve in current scope, which will be datatype of game object definition
         var memberSymbol = currentScope().resolve(node.getIdName());
-
-        var typeSymbol = memberSymbol.getDataType();
-        // TODO: errorhandling
-        if (typeSymbol == Symbol.NULL) {
-            errorStringBuilder.append("Could not resolve type " + "TODO");
+        if (memberSymbol == Symbol.NULL) {
+            errorStringBuilder.append("Could not resolve Component with name " + node.getIdName());
         } else {
-            scopeStack.push((AggregateType) typeSymbol);
+            var typeSymbol = memberSymbol.getDataType();
+            // TODO: errorhandling
+            if (typeSymbol == Symbol.NULL || typeSymbol == null) {
+                errorStringBuilder.append("Could not resolve type " + "TODO");
+            } else {
+                scopeStack.push((AggregateType) typeSymbol);
 
-            for (var propertyDef : node.getPropertyDefinitionNodes()) {
-                propertyDef.accept(this);
+                for (var propertyDef : node.getPropertyDefinitionNodes()) {
+                    propertyDef.accept(this);
+                }
+                scopeStack.pop();
             }
-            scopeStack.pop();
         }
+
         return null;
     }
 
@@ -283,7 +288,8 @@ public class SymbolTableParser implements AstVisitor<Void> {
         } else {
             // link the propertySymbol in the dataType to the astNode of this concrete property
             // definition
-            this.symbolTable.addSymbolNodeRelation(propertySymbol, node.getIdNode());
+            // this.symbolTable.addSymbolNodeRelation(propertySymbol, node.getIdNode());
+            this.symbolTable.addSymbolNodeRelation(propertySymbol, node);
         }
 
         var stmtNode = node.getStmtNode();
