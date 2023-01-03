@@ -29,9 +29,13 @@ import semanticAnalysis.types.IType;
 public class DSLInterpreter implements AstVisitor<Object> {
 
     private QuestConfigBuilder questConfigBuilder;
-    private SymbolTable symbolTable;
+    private RuntimeEnvironment environment;
     private final Stack<MemorySpace> memoryStack;
     private MemorySpace globalSpace;
+
+    private SymbolTable symbolTable() {
+        return environment.getSymbolTable();
+    }
 
     // TODO: add entry-point for game-object traversal
 
@@ -42,6 +46,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
         memoryStack.push(globalSpace);
     }
 
+    public RuntimeEnvironment getRuntimeEnvironment() {
+        return this.environment;
+    }
+
     // TODO: how to handle globally defined objects?
     //  statisch alles auswerten, was geht? und dann erst auswerten, wenn abgefragt (lazyeval?)
     //  wie wird order of operation vorgegeben? einfach von oben nach unten? oder nach referenz von
@@ -50,12 +58,15 @@ public class DSLInterpreter implements AstVisitor<Object> {
     /**
      * Binds all function definitions and object definitions in a global memory space.
      *
-     * @param symbolTable The symbol table to bind the functions and objects from.
+     * @param environment The environment to bind the functions and objects from.
      */
-    public void initializeRuntime(SymbolTable symbolTable) {
+    public void initializeRuntime(IEvironment environment) {
+
+        this.environment = new RuntimeEnvironment(environment);
+
         // bind all function definition and object definition symbols to objects
         // in global memorySpace
-        for (var symbol : symbolTable.getGlobalScope().getSymbols()) {
+        for (var symbol : symbolTable().getGlobalScope().getSymbols()) {
             if (symbol instanceof ICallable) {
                 var callableType = ((ICallable) symbol).getCallableType();
                 if (callableType == ICallable.Type.Native) {
@@ -91,18 +102,18 @@ public class DSLInterpreter implements AstVisitor<Object> {
         var programAST = astConverter.walk(programParseTree);
 
         SymbolTableParser symTableParser = new SymbolTableParser();
-        symTableParser.setup(new GameEnvironment());
+        var environment = new GameEnvironment();
+        symTableParser.setup(environment);
         var result = symTableParser.walk(programAST);
-        symbolTable = result.symbolTable;
 
-        initializeRuntime(symbolTable);
-        var questConfig = generateQuestConfig(programAST, result.symbolTable);
+        initializeRuntime(environment);
+
+        var questConfig = generateQuestConfig(programAST);
         return questConfig;
     }
 
-    private dslToGame.QuestConfig generateQuestConfig(Node programAST, SymbolTable symbolTable) {
+    public dslToGame.QuestConfig generateQuestConfig(Node programAST) {
         this.questConfigBuilder = new QuestConfigBuilder();
-        this.symbolTable = symbolTable;
 
         // find quest_config definition
         for (var node : programAST.getChildren()) {
@@ -114,8 +125,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 break;
             }
         }
-        return null;
-        // return this.questConfigBuilder.build();
+        return this.questConfigBuilder.build();
     }
 
     @Override
@@ -141,7 +151,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         // convert from memorySpace to concrete object
         objectDefSpace = memoryStack.pop();
-        var objectSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
+        var objectSymbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
         return createObjectFromMemorySpace(objectDefSpace, objectSymbol.getDataType());
     }
 
@@ -221,8 +231,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(IdNode node) {
         // how to get from id to the symbol?
 
-        var symbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
-        var creationASTNode = this.symbolTable.getCreationAstNode(symbol);
+        var symbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
+        var creationASTNode = this.symbolTable().getCreationAstNode(symbol);
 
         assert creationASTNode.type == Node.Type.DotDefinition;
         return creationASTNode.accept(this);
@@ -273,7 +283,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         memoryStack.push(functionMemSpace);
 
         // visit function AST
-        var funcAstNode = this.symbolTable.getCreationAstNode(symbol);
+        var funcAstNode = this.symbolTable().getCreationAstNode(symbol);
         funcAstNode.accept(this);
 
         memoryStack.pop();
@@ -288,7 +298,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         var funcValue = this.globalSpace.resolve(funcName);
 
         // get the function symbol by symbolIdx from funcValue
-        var funcSymbol = this.symbolTable.getSymbolByIdx(funcValue.getSymbolIdx());
+        var funcSymbol = this.symbolTable().getSymbolByIdx(funcValue.getSymbolIdx());
         assert funcSymbol instanceof ICallable;
         var funcCallable = (ICallable) funcSymbol;
 

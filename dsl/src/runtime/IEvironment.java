@@ -5,6 +5,7 @@ import semanticAnalysis.IScope;
 import semanticAnalysis.Symbol;
 import semanticAnalysis.SymbolTable;
 
+// TODO: this is more of a semantic analysis kind of concept -> put it there
 public interface IEvironment {
 
     /**
@@ -14,12 +15,16 @@ public interface IEvironment {
         return new Symbol[0];
     }
 
+    // default Symbol lookupType(String name) { return Symbol.NULL; }
+
     /**
      * @return all available function definitions
      */
     default Symbol[] getFunctions() {
         return new Symbol[0];
     }
+
+    // default Symbol lookupFunction(String name) { return Symbol.NULL; }
 
     /**
      * @param types AggregateTypes to load into the environment
