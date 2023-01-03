@@ -7,10 +7,7 @@ import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.entitys.Entity;
 import ecs.entitys.Hero;
-import ecs.systems.DrawSystem;
-import ecs.systems.KeyboardSystem;
-import ecs.systems.MovementSystem;
-import ecs.systems.SystemController;
+import ecs.systems.*;
 import java.util.*;
 import level.LevelAPI;
 import level.elements.ILevel;
@@ -51,6 +48,7 @@ public class ECS extends Game {
         new MovementSystem();
         new DrawSystem(painter);
         new KeyboardSystem();
+        new AnimationSystem();
     }
 
     private void setupComponentMaps() {

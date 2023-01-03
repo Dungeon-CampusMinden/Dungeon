@@ -2,7 +2,6 @@ package ecs.components;
 
 import ecs.entitys.Entity;
 import graphic.Animation;
-import java.util.List;
 import mydungeon.ECS;
 
 /**
@@ -11,16 +10,15 @@ import mydungeon.ECS;
  */
 public class AnimationComponent implements Component {
 
-    private List<Animation> animationList;
+    private AnimationList animationList;
     private Animation currentAnimation;
 
     /**
      * @param entity associated entity
-     * @param animations list of all possible animations of the entity
+     * @param animations all Animations of this Entity
      * @param currentAnimation current animation of the entity
      */
-    public AnimationComponent(
-            Entity entity, List<Animation> animations, Animation currentAnimation) {
+    public AnimationComponent(Entity entity, AnimationList animations, Animation currentAnimation) {
         ECS.animationComponentMap.put(entity, this);
         this.animationList = animations;
         this.currentAnimation = currentAnimation;
@@ -41,10 +39,10 @@ public class AnimationComponent implements Component {
     }
 
     /**
-     * @param animationList list of animations that are to be used
+     * @param animationList list of animations
      * @param currentAnimation set the current animation
      */
-    public void setAnimationList(List<Animation> animationList, Animation currentAnimation) {
+    public void setAnimationList(AnimationList animationList, Animation currentAnimation) {
         this.animationList = animationList;
         setCurrentAnimation(currentAnimation);
     }
@@ -52,7 +50,7 @@ public class AnimationComponent implements Component {
     /**
      * @return the animation List of the entity
      */
-    public List<Animation> getAnimationList() {
+    public AnimationList getAnimationList() {
         return animationList;
     }
 }

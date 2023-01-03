@@ -4,11 +4,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import ecs.components.AnimationComponent;
+import ecs.components.AnimationList;
 import ecs.components.PositionComponent;
 import ecs.entitys.Entity;
 import graphic.Animation;
 import graphic.Painter;
-import java.util.Arrays;
 import java.util.HashMap;
 import mydungeon.ECS;
 import org.junit.Before;
@@ -31,7 +31,9 @@ public class DrawSystemTest {
         ECS.animationComponentMap = new HashMap<>();
         entity = new Entity();
         positionComponent = new PositionComponent(entity, new Point(3, 3));
-        new AnimationComponent(entity, Arrays.asList(animation), animation);
+        AnimationList list = new AnimationList();
+        list.setIdleLeft(animation);
+        new AnimationComponent(entity, list, animation);
     }
 
     @Test
