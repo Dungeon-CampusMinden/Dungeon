@@ -20,4 +20,9 @@ public class BuiltInType extends Symbol implements IType {
     public BuiltInType(String name, IScope parentScope) {
         super(name, parentScope, null);
     }
+
+    @Override
+    public Kind getTypeKind() {
+        return Kind.Basic;
+    }
 }
