@@ -2,6 +2,7 @@ package ecs.components;
 
 import graphic.Animation;
 
+/** List of all possible animations for a entity */
 public class AnimationList {
 
     private Animation idleRight;

@@ -31,6 +31,9 @@ public class Hero extends Entity {
                 TextureHandler.getInstance().getTexturePaths("knight_m_idle_anim_f");
 
         animations.setIdleRight(new Animation(texturePaths, frameTime * 2));
+
+        texturePaths =
+                TextureHandler.getInstance().getTexturePaths("knight_m_idle_anim_mirrored_f");
         animations.setIdleLeft(new Animation(texturePaths, frameTime * 2));
 
         texturePaths = TextureHandler.getInstance().getTexturePaths("knight_m_run_anim_f\\d+");
