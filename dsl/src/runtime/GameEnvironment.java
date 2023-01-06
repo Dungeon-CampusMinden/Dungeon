@@ -14,13 +14,13 @@ import semanticAnalysis.types.TypeBuilder;
 
 public class GameEnvironment implements IEvironment {
     // TODO: also make HashMaps
-    private static final ArrayList<Symbol> builtInTypes = buildBuiltInTypes();
-    private static final ArrayList<Symbol> nativeFunctions = buildNativeFunctions();
+    protected static final ArrayList<Symbol> builtInTypes = buildBuiltInTypes();
+    protected static final ArrayList<Symbol> nativeFunctions = buildNativeFunctions();
 
-    private final HashMap<String, Symbol> loadedTypes = new HashMap<>();
-    private final HashMap<String, Symbol> loadedFunctions = new HashMap<>();
-    private final SymbolTable symbolTable;
-    private final Scope globalScope;
+    protected final HashMap<String, Symbol> loadedTypes = new HashMap<>();
+    protected final HashMap<String, Symbol> loadedFunctions = new HashMap<>();
+    protected final SymbolTable symbolTable;
+    protected final Scope globalScope;
 
     /**
      * Constructor. Creates fresh global scope and symbol table and binds built in types and native
@@ -30,6 +30,10 @@ public class GameEnvironment implements IEvironment {
         this.globalScope = new Scope();
         this.symbolTable = new SymbolTable(this.globalScope);
 
+        bindBuiltIns();
+    }
+
+    protected void bindBuiltIns() {
         for (Symbol type : builtInTypes) {
             globalScope.bind(type);
         }
