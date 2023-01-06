@@ -5,6 +5,7 @@ import antlr.main.DungeonDSLParser;
 import dslToGame.QuestConfig;
 import dslToGame.QuestConfigBuilder;
 import interpreter.dot.Interpreter;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Stack;
 import org.antlr.v4.runtime.CharStreams;
