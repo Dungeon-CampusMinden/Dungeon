@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import semanticAnalysis.Symbol;
-import semanticAnalysis.types.BuiltInType;
+import semanticAnalysis.types.AggregateType;
 import semanticAnalysis.types.IType;
 
 // TODO: also use this for object-instantiation?
@@ -45,12 +45,41 @@ public class MemorySpace {
         if (values.containsKey(symbolName)) {
             return false;
         } else if (!(symbol instanceof IType)) {
-            var defaultValue = getDefaultValue(symbol.getDataType());
-            var val = new Value(symbol.getDataType(), defaultValue, symbol.getIdx());
-            values.put(symbolName, val);
+            var value = createDefaultValue(symbol.getDataType(), symbol.getIdx());
+            values.put(symbolName, value);
             return true;
         }
         return false;
+    }
+
+    private Value createDefaultValue(IType type, int symbolIdx) {
+        if (type == null) {
+            boolean b = true;
+        }
+        if (type.getTypeKind().equals(IType.Kind.Basic)) {
+            Object internalValue = Value.getDefaultValue(type);
+            return new Value(type, internalValue, symbolIdx);
+        } else {
+            AggregateValue value = new AggregateValue((AggregateType) type, symbolIdx, this);
+            for (var member : ((AggregateType) type).getSymbols()) {
+                // var defaultValue = createDefaultValue(member.getDataType(), member.getIdx());
+                value.getMemorySpace().bindFromSymbol(member);
+            }
+            return value;
+        }
+    }
+
+    public boolean bind(String name, IType dataType, int symbolIdx) {
+        if (values.containsKey(name)) {
+            return false;
+        } else {
+            // TODO: needs to be able to create default values for aggregateTypes -> needs reference
+            // to environment
+            var defaultValue = createDefaultValue(dataType, symbolIdx);
+            var val = new Value(dataType, defaultValue, symbolIdx);
+            values.put(name, val);
+            return true;
+        }
     }
 
     /**
@@ -107,29 +136,6 @@ public class MemorySpace {
             return this.parent.resolve(name, true);
         } else {
             return Value.NONE;
-        }
-    }
-
-    /**
-     * Get default value for different builtin data types
-     *
-     * @param type The datatype
-     * @return Object set to the default value for passed datatype, or null, if datatype is no
-     *     builtin type
-     */
-    private Object getDefaultValue(IType type) {
-        if (type == null) {
-            return null;
-        }
-        var typeName = type.getName();
-        if (typeName.equals(BuiltInType.intType.getName())) {
-            return 0;
-        } else if (typeName.equals(BuiltInType.stringType.getName())) {
-            return "";
-        } else if (typeName.equals(BuiltInType.graphType.getName())) {
-            return new graph.Graph<String>(null, null);
-        } else {
-            return null;
         }
     }
 }

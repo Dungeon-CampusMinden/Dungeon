@@ -116,6 +116,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public dslToGame.QuestConfig generateQuestConfig(Node programAST) {
         this.questConfigBuilder = new QuestConfigBuilder();
 
+
         // find quest_config definition
         for (var node : programAST.getChildren()) {
             if (node.type == Node.Type.ObjectDefinition) {
@@ -131,9 +132,16 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(ObjectDefNode node) {
-        // push new memory space
-        var objectDefSpace = new MemorySpace(this.memoryStack.peek());
-        memoryStack.push(objectDefSpace);
+        // resolve name of object in memory space
+        MemorySpace ms;
+        var objectsValue = this.memoryStack.peek().resolve(node.getIdName());
+        if (objectsValue instanceof AggregateValue) {
+            ms = ((AggregateValue) objectsValue).getMemorySpace();
+        } else {
+            throw new RuntimeException("Defined object is not an aggregate Value");
+        }
+
+        memoryStack.push(ms);
 
         // bind new value for every property
         for (var propDefNode : node.getPropertyDefinitions()) {
@@ -141,7 +149,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             if (propDefSymbol == Symbol.NULL) {
                 // TODO: handle
             } else {
-                objectDefSpace.bindFromSymbol(propDefSymbol);
+                ms.bindFromSymbol(propDefSymbol);
             }
         }
 
@@ -151,13 +159,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
 
         // convert from memorySpace to concrete object
-        objectDefSpace = memoryStack.pop();
+        ms = memoryStack.pop();
         var objectSymbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
-        return createObjectFromMemorySpace(objectDefSpace, objectSymbol.getDataType());
+        return createObjectFromMemorySpace(ms, objectSymbol.getDataType());
     }
 
-    // TODO: refactor - likely to be refactored, when component based architecture will
-    //  be implemented
     private Object createObjectFromMemorySpace(MemorySpace ms, IType type) {
         if (type.getName().equals("quest_config")) {
             TypeInstantiator ti = new TypeInstantiator();
@@ -175,49 +181,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 throw new RuntimeException(e);
             }
             return instance;
-
-            QuestConfigBuilder builder = new QuestConfigBuilder();
-            for (var keyValue : ms.getAllValues()) {
-                var value = keyValue.getValue();
-                switch (keyValue.getKey()) {
-                    case "level_graph":
-                        try {
-                            graph.Graph<String> graphValue =
-                                    (graph.Graph<String>) value.getInternalValue();
-                            builder.setGraph(graphValue);
-                        } catch (ClassCastException ex) {
-                            // oh well
-                        }
-                        break;
-                    case "quest_points":
-                        try {
-                            int intValue = (int) value.getInternalValue();
-                            builder.setPoints(intValue);
-                        } catch (ClassCastException ex) {
-                            // oh well
-                        }
-                        break;
-                    case "password":
-                        try {
-                            String strValue = (String) value.getInternalValue();
-                            builder.setPassword(strValue);
-                        } catch (ClassCastException ex) {
-                            // oh well
-                        }
-                        break;
-                    case "quest_desc":
-                        try {
-                            String strValue = (String) value.getInternalValue();
-                            builder.setDescription(strValue);
-                        } catch (ClassCastException ex) {
-                            // oh well
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-            return builder.build();
         }
         return null;
     }

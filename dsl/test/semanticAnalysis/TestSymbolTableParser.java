@@ -221,7 +221,7 @@ public class TestSymbolTableParser {
         Assert.assertNotEquals(Symbol.NULL, levelGraphPropertySymbol);
 
         var symbolForPropertyIdNode =
-                symtableResult.symbolTable.getSymbolsForAstNode(firstPropertyIdNode).get(0);
+                symtableResult.symbolTable.getSymbolsForAstNode(firstPropertyDef).get(0);
 
         Assert.assertEquals(levelGraphPropertySymbol, symbolForPropertyIdNode);
     }

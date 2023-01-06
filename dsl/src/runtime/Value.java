@@ -1,5 +1,6 @@
 package runtime;
 
+import semanticAnalysis.types.BuiltInType;
 import semanticAnalysis.types.IType;
 
 // TODO: should this be able to be undefined?
@@ -13,10 +14,10 @@ import semanticAnalysis.types.IType;
 public class Value {
     public static Value NONE = new Value(null, null, -1, false);
 
-    private final IType dataType;
-    private Object value;
-    private final int symbolIdx;
-    private final boolean isMutable;
+    protected final IType dataType;
+    protected Object value;
+    protected final int symbolIdx;
+    protected final boolean isMutable;
 
     /**
      * Getter for the internal, underlying value
@@ -85,5 +86,28 @@ public class Value {
         this.dataType = dataType;
         this.symbolIdx = symbolIdx;
         this.isMutable = isMutable;
+    }
+
+    /**
+     * Get default value for different builtin data types
+     *
+     * @param type The datatype
+     * @return Object set to the default value for passed datatype, or null, if datatype is no
+     *     builtin type
+     */
+    public static Object getDefaultValue(IType type) {
+        if (type == null) {
+            return null;
+        }
+        var typeName = type.getName();
+        if (typeName.equals(BuiltInType.intType.getName())) {
+            return 0;
+        } else if (typeName.equals(BuiltInType.stringType.getName())) {
+            return "";
+        } else if (typeName.equals(BuiltInType.graphType.getName())) {
+            return new graph.Graph<String>(null, null);
+        } else {
+            return null;
+        }
     }
 }

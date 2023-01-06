@@ -2,6 +2,7 @@ package interpreter;
 
 import static org.junit.Assert.*;
 
+import graph.Graph;
 import helpers.Helpers;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,7 +11,16 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import org.junit.Test;
 import parser.AST.Node;
+import runtime.AggregateTypeWithDefaults;
+import runtime.GameEnvironment;
 import runtime.Value;
+import semanticAnalysis.Scope;
+import semanticAnalysis.Symbol;
+import semanticAnalysis.SymbolTableParser;
+import semanticAnalysis.types.BuiltInType;
+import semanticAnalysis.types.DSLType;
+import semanticAnalysis.types.DSLTypeMember;
+import semanticAnalysis.types.TypeBuilder;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
@@ -18,10 +28,10 @@ public class TestDSLInterpreter {
     public void funcCall() {
         String program =
                 """
-            quest_config c {
-                test: print("Hello, World!")
-            }
-                """;
+                quest_config c {
+                    test: print("Hello, World!")
+                }
+                    """;
         DSLInterpreter interpreter = new DSLInterpreter();
 
         // print currently just prints to system.out, so we need to
@@ -38,10 +48,10 @@ public class TestDSLInterpreter {
     public void testDontSetNullValue() {
         String program =
                 """
-        quest_config c {
-            this_value_does_not_exist_in_type: 42
-        }
-            """;
+                quest_config c {
+                    this_value_does_not_exist_in_type: 42
+                }
+                    """;
         DSLInterpreter interpreter = new DSLInterpreter();
         interpreter.getQuestConfig(program);
         assertNotSame(42, Value.NONE.getInternalValue());
@@ -66,21 +76,39 @@ public class TestDSLInterpreter {
         assertEquals(Node.Type.ObjectDefinition, secondChild.type);
     }
 
+    @Test
+    public void questConfigPartial() {
+        // the quest_config type has also a quest_points and a password
+        // parameter, these should be set to default values
+        String program =
+                """
+            quest_config c {
+                quest_desc: "Hello"
+            }
+                """;
+        DSLInterpreter interpreter = new DSLInterpreter();
+
+        var questConfig = interpreter.getQuestConfig(program);
+        assertEquals(0, questConfig.questPoints());
+        assertEquals("Hello", questConfig.questDesc());
+        assertEquals("", questConfig.password());
+    }
+
     /** Test, if the properties of the quest_config definition are correctly parsed */
     @Test
     public void questConfigFull() {
         String program =
                 """
-            graph g {
-                A -- B
-            }
-            quest_config c {
-                level_graph: g,
-                quest_points: 42,
-                quest_desc: "Hello",
-                password: "TESTPW"
-            }
-                """;
+                graph g {
+                    A -- B
+                }
+                quest_config c {
+                    level_graph: g,
+                    quest_points: 42,
+                    quest_desc: "Hello",
+                    password: "TESTPW"
+                }
+                    """;
         DSLInterpreter interpreter = new DSLInterpreter();
 
         var questConfig = interpreter.getQuestConfig(program);
@@ -105,4 +133,5 @@ public class TestDSLInterpreter {
         }
         assertEquals(2, nodeCount);
     }
+
 }
