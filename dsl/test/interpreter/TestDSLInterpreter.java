@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import org.junit.Ignore;
 import org.junit.Test;
 import parser.AST.Node;
 import runtime.AggregateTypeWithDefaults;
@@ -134,4 +135,169 @@ public class TestDSLInterpreter {
         assertEquals(2, nodeCount);
     }
 
+    @DSLType
+    private record TestComponent(@DSLTypeMember int member1, @DSLTypeMember String member2) {}
+
+    @DSLType
+    private record OtherComponent(
+            @DSLTypeMember int member3, @DSLTypeMember Graph<String> member4) {}
+
+    @Test
+    public void aggregateTypeWithDefaults() {
+        String program =
+                """
+                graph g {
+                    A -- B
+                }
+
+                game_object c {
+                    test_component{
+                        member1: 42,
+                        member2: "Hello, World!"
+                    },
+                    other_component{
+                        member3: 314,
+                        member4: g
+                    }
+                }
+                """;
+
+        TypeBuilder tb = new TypeBuilder();
+        var testCompType = tb.createTypeFromClass(new Scope(), TestComponent.class);
+        var otherCompType = tb.createTypeFromClass(new Scope(), OtherComponent.class);
+
+        var env = new GameEnvironment();
+        env.loadTypes(new Symbol[] {testCompType, otherCompType});
+
+        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        symbolTableParser.setup(env);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        interpreter.initializeRuntime(env);
+
+        var questConfig = interpreter.generateQuestConfig(ast);
+        var rtEnv = interpreter.getRuntimeEnvironment();
+
+        var typeWithDefaults = rtEnv.lookupTypeWithDefaults("c");
+        assertNotEquals(AggregateTypeWithDefaults.NONE, typeWithDefaults);
+
+        var firstCompWithDefaults = typeWithDefaults.getDefaultValue("test_component");
+        assertNotEquals(Value.NONE, firstCompWithDefaults);
+        assertTrue(firstCompWithDefaults instanceof AggregateTypeWithDefaults);
+
+        var secondCompWithDefaults = typeWithDefaults.getDefaultValue("other_component");
+        assertNotEquals(Value.NONE, secondCompWithDefaults);
+        assertTrue(secondCompWithDefaults instanceof AggregateTypeWithDefaults);
+
+        // check members of components
+        var member1Value =
+                ((AggregateTypeWithDefaults) firstCompWithDefaults).getDefaultValue("member1");
+        assertNotEquals(Value.NONE, member1Value);
+        assertEquals(BuiltInType.intType, member1Value.getDataType());
+        assertEquals(42, member1Value.getInternalValue());
+
+        var member2Value =
+                ((AggregateTypeWithDefaults) firstCompWithDefaults).getDefaultValue("member2");
+        assertNotEquals(Value.NONE, member2Value);
+        assertEquals(BuiltInType.stringType, member2Value.getDataType());
+        assertEquals("Hello, World!", member2Value.getInternalValue());
+    }
+
+    @DSLType(name = "quest_config")
+    public record CustomQuestConfig(@DSLTypeMember Object gameObject) {}
+
+    class TestEnvironment extends GameEnvironment {
+        public TestEnvironment() {
+            super();
+        }
+
+        @Override
+        protected void bindBuiltIns() {
+            for (Symbol type : builtInTypes) {
+                // load custom QuestConfig
+                if (!type.getName().equals("quest_config")) {
+                    globalScope.bind(type);
+                }
+            }
+
+            TypeBuilder tp = new TypeBuilder();
+            var questConfigType = tp.createTypeFromClass(Scope.NULL, CustomQuestConfig.class);
+            loadTypes(new semanticAnalysis.types.AggregateType[] {questConfigType});
+
+            for (Symbol func : nativeFunctions) {
+                globalScope.bind(func);
+            }
+        }
+    }
+
+    @Test
+    @Ignore
+    public void aggregateTypeInstancing() {
+        String program =
+                """
+                graph g {
+                    A -- B
+                }
+
+                quest_config config {
+                    game_object: c
+                }
+                """;
+
+        TypeBuilder tb = new TypeBuilder();
+        var testCompType = tb.createTypeFromClass(new Scope(), TestComponent.class);
+        var otherCompType = tb.createTypeFromClass(new Scope(), OtherComponent.class);
+
+        var env = new TestEnvironment();
+        env.loadTypes(new Symbol[] {testCompType, otherCompType});
+
+        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        symbolTableParser.setup(env);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        interpreter.initializeRuntime(env);
+
+        // var questConfig = interpreter.generateQuestConfig(ast);
+        // var rtEnv = interpreter.getRuntimeEnvironment();
+    }
+
+    @Test
+    public void testDontOverwriteCtorDefaults() {
+        String program =
+            """
+                game_object my_obj {
+                    component_with_default_ctor {
+                        member1:  "Hello, World!",
+                        member2: 42
+                    }
+                }
+            """;
+
+        TypeBuilder tb = new TypeBuilder();
+        var compWithDefaultsType = tb.createTypeFromClass(new Scope(), ComponentWithDefaultCtor.class);
+
+        var env = new GameEnvironment();
+        env.loadTypes(new Symbol[] {compWithDefaultsType});
+
+        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        symbolTableParser.setup(env);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        interpreter.initializeRuntime(env);
+
+        interpreter.generateQuestConfig(ast);
+        // extract memory space corresponding to the game object
+        var memSpace = interpreter.getGlobalMemorySpace();
+
+        // TODO: this does not work, because the gmae object definition
+        //  is currently not instantiated
+        var obj = memSpace.resolve("my_obj");
+        assertNotEquals(Value.NONE, obj);
+    }
 }

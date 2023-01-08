@@ -88,7 +88,9 @@ public class TypeInstantiator {
                                     : fieldAnnotation.name();
 
                     var fieldValue = ms.resolve(fieldName);
-                    if (fieldValue != null) {
+                    // we only should set the field value explicitly,
+                    // if it was set in the program
+                    if (fieldValue != null && fieldValue.wasSetAfterCtor()) {
                         var internalValue = fieldValue.getInternalValue();
 
                         field.setAccessible(true);

@@ -52,10 +52,114 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return this.environment;
     }
 
+    public MemorySpace getGlobalMemorySpace() {
+        return this.globalSpace;
+    }
+
     // TODO: how to handle globally defined objects?
     //  statisch alles auswerten, was geht? und dann erst auswerten, wenn abgefragt (lazyeval?)
     //  wie wird order of operation vorgegeben? einfach von oben nach unten? oder nach referenz von
     //  objekt?
+
+    // TODO: visit all datatype-definitions and evaluate for default-values
+    //  this requires some kind of specialization of datatype-class
+    //  -> lazyeval
+    //  -> detect recursive definitions
+    //  ..
+    //  Anderer Ansatz: Erst, wenn ein Objekt instanziiert wird (also bspw. auf der rhs einer
+    // Property-Zuweisung steht)
+    //  die konkrete Instanz erstellen und dafür über den AST der Definition iterieren
+    //  ..
+    //  Bauchgefühl: Es wäre sauberer, da einen Zwischenschritt einzubauen und den "Datentypen"
+    // einmal zu erstellen und
+    //  anschließend nur noch zu instanziieren
+    //  Problem: auch die Werte der Komponenten-Member müssen gespeichert werden.. das würde dann
+    // bedeuten, dass für
+    //  jede Typdefinition auch eine Instanz der Komponente konfiguriert werden muss.. was ja aber
+    // sowieso passieren muss
+    public void evaluateTypeDefinitions(IEvironment environment) {
+
+        // TODO: could we just iterate over the types?
+        var globalScope = environment.getGlobalScope();
+        for (var symbol : globalScope.getSymbols()) {
+            if (symbol instanceof AggregateType) {
+                var creationAstNode = symbolTable().getCreationAstNode(symbol);
+                if (creationAstNode.type.equals(Node.Type.GameObjectDefinition)) {
+                    var gameObjDefNode = (GameObjectDefinitionNode) creationAstNode;
+
+                    var gameObjTypeWithDefaults =
+                            new AggregateTypeWithDefaults((AggregateType) symbol, symbol.getIdx());
+                    // TODO: extend annotations to include the default value for each member and
+                    // store a reference of
+                    //  java class in the data type of generated component datatype
+
+                    // TODO: create new AggregateTypeWithDefaults for each component
+                    //  we actually need to iterate over the ast-node, not just over the symbols
+                    for (var node : gameObjDefNode.getComponentDefinitionNodes()) {
+                        var componentNode = (ComponentDefinitionNode) node;
+                        var componentSymbol =
+                                this.symbolTable().getSymbolsForAstNode(componentNode).get(0);
+
+                        assert componentSymbol.getDataType() instanceof AggregateType;
+
+                        // TODO: what to do, if the field is another aggregate datatype? how to get
+                        //  a default-value for
+                        //  that? -> requires storage of all typeDefinitions (with default values)
+                        //  either in an
+                        //  environment or the memorySpace.. but memorySpace is not really suited
+                        //  for that, because
+                        //  it holds values.. so the environment it is
+                        //  the AggregateTypeWithDefaults for a component does only live inside the
+                        //  datatype
+                        //  definition, because it is part of the definition
+
+                        // evaluate rhs and store the value in the member of aggrWithDefaulst
+                        // TODO: how to get the rhs expression?
+                        AggregateTypeWithDefaults componentTypeWithDefaults =
+                                new AggregateTypeWithDefaults(
+                                        (AggregateType) componentSymbol.getDataType(),
+                                        componentSymbol.getIdx());
+                        for (var propDef : componentNode.getPropertyDefinitionNodes()) {
+                            var propertyDefNode = (PropertyDefNode) propDef;
+
+                            // TODO: this should return a `Value`...
+                            //  just calling accept(this) will likely end up very confusing..
+                            //  should define specific expression evaluator for cases, in which the
+                            //  value of an expression
+                            //  should be calculated.. or the template argument of THE
+                            //  DSLInterpreter is set to Value?
+                            //  This would entail, that all is just a value.. even the returned
+                            //  quest_config
+                            //  but is this a good move? currently the `Value` class is the
+                            //  runtime equivalent of a symbol in semantic analysis. If all
+                            //  returns a value, this analogy is broken.. but is this a problem?
+                            var rhsValue = propertyDefNode.getStmtNode().accept(this);
+                            System.out.println(rhsValue);
+
+                            // TODO: this is currently null
+                            var propertySymbol = symbolTable().getSymbolsForAstNode(propDef).get(0);
+                            // typechecking is happened at this point
+                            var propertyType = propertySymbol.getDataType();
+                            Value value =
+                                    new Value(
+                                            propertySymbol.getDataType(),
+                                            rhsValue,
+                                            propertySymbol.getIdx());
+
+                            var valueName = propertyDefNode.getIdName();
+                            componentTypeWithDefaults.addDefaultValue(valueName, value);
+                        }
+
+                        // add new component type with defaults to the enclosing game object type
+                        // with defaults
+                        gameObjTypeWithDefaults.addDefaultValue(
+                                componentNode.getIdName(), componentTypeWithDefaults);
+                    }
+                    this.environment.addTypeWithDefaults(gameObjTypeWithDefaults);
+                }
+            }
+        }
+    }
 
     /**
      * Binds all function definitions and object definitions in a global memory space.
@@ -117,6 +221,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public dslToGame.QuestConfig generateQuestConfig(Node programAST) {
         this.questConfigBuilder = new QuestConfigBuilder();
 
+        evaluateTypeDefinitions(this.environment);
 
         // find quest_config definition
         for (var node : programAST.getChildren()) {

@@ -18,6 +18,11 @@ public class Value {
     protected Object value;
     protected final int symbolIdx;
     protected final boolean isMutable;
+    protected boolean wasSetAfterCtor;
+
+    public boolean wasSetAfterCtor() {
+        return this.wasSetAfterCtor;
+    }
 
     /**
      * Getter for the internal, underlying value
@@ -55,6 +60,8 @@ public class Value {
         // TODO: should this check for datatype compatibility?
         if (isMutable) {
             this.value = internalValue;
+
+            this.wasSetAfterCtor= true;
             return true;
         }
         return false;
@@ -72,6 +79,8 @@ public class Value {
         this.dataType = dataType;
         this.symbolIdx = symbolIdx;
         this.isMutable = true;
+
+        this.wasSetAfterCtor = false;
     }
 
     /**
@@ -86,6 +95,8 @@ public class Value {
         this.dataType = dataType;
         this.symbolIdx = symbolIdx;
         this.isMutable = isMutable;
+
+        this.wasSetAfterCtor = true;
     }
 
     /**

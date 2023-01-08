@@ -53,16 +53,12 @@ public class MemorySpace {
     }
 
     private Value createDefaultValue(IType type, int symbolIdx) {
-        if (type == null) {
-            boolean b = true;
-        }
         if (type.getTypeKind().equals(IType.Kind.Basic)) {
             Object internalValue = Value.getDefaultValue(type);
             return new Value(type, internalValue, symbolIdx);
         } else {
             AggregateValue value = new AggregateValue((AggregateType) type, symbolIdx, this);
             for (var member : ((AggregateType) type).getSymbols()) {
-                // var defaultValue = createDefaultValue(member.getDataType(), member.getIdx());
                 value.getMemorySpace().bindFromSymbol(member);
             }
             return value;

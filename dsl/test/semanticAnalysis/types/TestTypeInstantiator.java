@@ -10,6 +10,8 @@ import org.junit.Test;
 import runtime.MemorySpace;
 import semanticAnalysis.Scope;
 
+// TODO: handle context for construction of components and passing
+//  entity as parameter
 public class TestTypeInstantiator {
     @Test
     public void testInstantiatorRecord()
