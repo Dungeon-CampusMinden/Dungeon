@@ -131,6 +131,8 @@ public class TileTextureFactory {
             return "wall/wall_top";
         } else if (isBottomWall(levelPart.position(), levelPart.layout())) {
             return "wall/wall_bottom";
+        } else if (levelPart.element == LevelElement.WALL) {
+            return "wall/wall_top";
         }
         return null;
     }

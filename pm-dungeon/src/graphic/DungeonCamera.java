@@ -66,6 +66,19 @@ public class DungeonCamera extends OrthographicCamera {
     }
 
     /**
+     * Gets the point on which the camera is currently focused.
+     *
+     * @return <code>Point</code> to which the camera is focused.
+     */
+    public Point getFocusPoint() {
+        if (follows != null) {
+            return follows.getPosition();
+        } else {
+            return focusPoint;
+        }
+    }
+
+    /**
      * Checks if the point (x,y) is probably been seen on the screen. Otherwise, don't redender this
      * point.
      */

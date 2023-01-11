@@ -2,17 +2,23 @@ package controller;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
+import basiselements.DungeonElement;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import graphic.DungeonCamera;
 import graphic.Painter;
+import hud.LevelEditorGui;
 import java.util.ArrayList;
 import java.util.List;
 import level.IOnLevelLoader;
 import level.LevelAPI;
+import level.LevelEditor;
 import level.generator.IGenerator;
 import level.generator.randomwalk.RandomWalkGenerator;
+import level.tools.LevelElement;
 import tools.Constants;
 
 /** The heart of the framework. From here all strings are pulled. */
@@ -22,6 +28,11 @@ public abstract class Game extends ScreenAdapter implements IOnLevelLoader {
      * batch.
      */
     protected SpriteBatch batch;
+
+    /** The stage is used to draw elements on the UI */
+    protected Stage stage;
+
+    protected InputMultiplexer inputMultiplexer;
 
     /** Contais all Controller of the Dungeon */
     protected List<AbstractController<?>> controller;
@@ -34,6 +45,10 @@ public abstract class Game extends ScreenAdapter implements IOnLevelLoader {
     protected LevelAPI levelAPI;
     /** Generates the level */
     protected IGenerator generator;
+    /** Editor used to modify the level during runtime */
+    protected LevelEditor levelEditor;
+    /** Gui used to display the tools of the level editor */
+    protected LevelEditorGui levelEditorGui;
 
     private boolean doFirstFrame = true;
 
@@ -46,6 +61,11 @@ public abstract class Game extends ScreenAdapter implements IOnLevelLoader {
     protected abstract void frame();
 
     // --------------------------- END OWN IMPLEMENTATION ------------------------
+
+    /** Create a new game instance */
+    public Game() {
+        inputMultiplexer = new InputMultiplexer();
+    }
 
     /**
      * Main game loop. Redraws the dungeon and calls the own implementation (beginFrame, endFrame
@@ -70,6 +90,9 @@ public abstract class Game extends ScreenAdapter implements IOnLevelLoader {
                         camera.update();
                     }
                 }
+                stage.draw();
+                stage.act(delta);
+                stage.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             }
         }
     }
@@ -89,10 +112,30 @@ public abstract class Game extends ScreenAdapter implements IOnLevelLoader {
         generator = new RandomWalkGenerator();
         levelAPI = new LevelAPI(batch, painter, generator, this);
         setup();
+        if (Constants.ENABLE_LEVEL_EDITOR) {
+            LevelEditor.addSpawnableLevelElement(LevelElement.WALL, "Wall");
+            LevelEditor.addSpawnableLevelElement(LevelElement.FLOOR, "Floor");
+            LevelEditor.addSpawnableLevelElement(LevelElement.HOLE, "Hole");
+            LevelEditor.addSpawnableLevelElement(LevelElement.SKIP, "Skip");
+            LevelEditor.addSpawnableLevelElement(LevelElement.DOOR, "Door");
+            levelEditor = new LevelEditor(levelAPI, this, camera, this::addDungeonElement);
+            inputMultiplexer.addProcessor(levelEditor);
+            levelEditorGui = new LevelEditorGui(levelEditor, stage);
+        }
+        Gdx.input.setInputProcessor(inputMultiplexer);
+    }
+
+    protected boolean addDungeonElement(DungeonElement object) {
+        return entityController.add(object);
     }
 
     public void setSpriteBatch(SpriteBatch batch) {
         this.batch = batch;
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+        inputMultiplexer.addProcessor(stage);
     }
 
     protected boolean runLoop() {

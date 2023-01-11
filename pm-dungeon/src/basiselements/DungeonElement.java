@@ -12,7 +12,7 @@ import tools.Point;
  * <p>Must be implemented for all objects that should be controlled by the <code>EntityController
  * </code>.
  */
-public abstract class DungeonElement implements Removable {
+public abstract class DungeonElement implements Removable, ISpawnable {
     protected Map<String, PainterConfig> configs = new HashMap<>();
 
     /** Will be executed every frame. */

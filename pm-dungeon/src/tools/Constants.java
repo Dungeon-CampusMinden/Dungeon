@@ -20,6 +20,19 @@ public final class Constants {
     /** 200% zoom. */
     public static final float DEFAULT_ZOOM_FACTOR = 0.5f;
 
+    /** Flag if the level editor should be enabled */
+    public static final boolean ENABLE_LEVEL_EDITOR = true;
+    /** Key which moves the free cam of the level editor forwards */
+    public static final char LEVEL_EDITOR_FREE_CAM_FORWARDS = 'w';
+    /** Key which moves the free cam of the level editor backward */
+    public static final char LEVEL_EDITOR_FREE_CAM_BACKWARDS = 's';
+    /** Key which moves the free cam of the level editor left */
+    public static final char LEVEL_EDITOR_FREE_CAM_LEFT = 'a';
+    /** Key which moves the free cam of the level editor right */
+    public static final char LEVEL_EDITOR_FREE_CAM_RIGHT = 'd';
+    /** Speed of the free cam of the level editor */
+    public static final float LEVEL_EDITOR_FREE_CAM_SPEED = 0.4f;
+
     /** Value for LevelElements that are accessible */
     public static final boolean LEVELELEMENT_IS_ACCESSIBLE = true;
     /** Value for LevelElements that are not accessible */
