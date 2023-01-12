@@ -13,9 +13,10 @@ public class AnimationSystem extends ECS_System {
         for (Map.Entry<Entity, AnimationComponent> entry : ECS.animationComponentMap.entrySet()) {
             Entity entity = entry.getKey();
             AnimationComponent ac = ECS.animationComponentMap.get(entity);
-
+            Animation backup = ac.getCurrentAnimation();
             if (!dieState(entity, ac))
                 if (!hitState(entity, ac)) if (!skillState(entity, ac)) movementState(entity, ac);
+            if (ac.getCurrentAnimation() == null) ac.setCurrentAnimation(backup);
         }
     }
 
