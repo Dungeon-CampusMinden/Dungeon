@@ -11,6 +11,6 @@ public class SystemController extends AbstractController<ECS_System> {
 
     @Override
     public void process(ECS_System e) {
-        e.update();
+        if (e.isRunning()) e.update();
     }
 }

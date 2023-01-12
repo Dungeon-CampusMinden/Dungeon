@@ -45,4 +45,10 @@ public class DrawSystem extends ECS_System {
             }
         }
     }
+
+    @Override
+    public void toggleRun() {
+        // DrawSystem cant pause
+        run = true;
+    }
 }

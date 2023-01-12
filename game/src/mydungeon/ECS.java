@@ -1,5 +1,7 @@
 package mydungeon;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import controller.Game;
 import ecs.components.AnimationComponent;
 import ecs.components.PlayableComponent;
@@ -63,6 +65,9 @@ public class ECS extends Game {
     @Override
     protected void frame() {
         camera.setFocusPoint(hero.getPositionComponent().getPosition());
+
+        // debug pause
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
     }
 
     @Override
@@ -70,6 +75,13 @@ public class ECS extends Game {
         currentLevel = levelAPI.getCurrentLevel();
         hero.getPositionComponent()
                 .setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
+    }
+
+    /** Toggle between pause and run */
+    public static void togglePause() {
+        if (systems != null) {
+            systems.forEach(s -> s.toggleRun());
+        }
     }
 
     public static void main(String[] args) {
