@@ -2,7 +2,7 @@ package ecs.systems;
 
 import ecs.components.AnimationComponent;
 import ecs.components.PositionComponent;
-import ecs.entitys.Entity;
+import ecs.entities.Entity;
 import graphic.Animation;
 import graphic.Painter;
 import graphic.PainterConfig;

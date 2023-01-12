@@ -3,7 +3,7 @@ package ecs.components;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import ecs.entitys.Entity;
+import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.Arrays;
 import java.util.HashMap;

@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import ecs.components.AnimationComponent;
 import ecs.components.PositionComponent;
-import ecs.entitys.Entity;
+import ecs.entities.Entity;
 import graphic.Animation;
 import graphic.Painter;
 import java.util.Arrays;

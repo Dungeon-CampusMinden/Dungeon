@@ -1,4 +1,4 @@
-package ecs.entitys;
+package ecs.entities;
 
 /** Entity is a unique identifier for an object in the game world */
 public class Entity {

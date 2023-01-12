@@ -1,6 +1,6 @@
 package ecs.components;
 
-import ecs.entitys.Entity;
+import ecs.entities.Entity;
 import mydungeon.ECS;
 
 public class PlayableComponent implements Component {

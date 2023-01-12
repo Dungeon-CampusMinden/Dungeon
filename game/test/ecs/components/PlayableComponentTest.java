@@ -2,7 +2,7 @@ package ecs.components;
 
 import static org.junit.Assert.*;
 
-import ecs.entitys.Entity;
+import ecs.entities.Entity;
 import java.util.HashMap;
 import mydungeon.ECS;
 import org.junit.Before;

@@ -1,6 +1,6 @@
 package ecs.components;
 
-import ecs.entitys.Entity;
+import ecs.entities.Entity;
 import mydungeon.ECS;
 
 /** VelocityComponent is a component that stores the x, y movement direction */

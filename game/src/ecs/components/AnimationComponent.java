@@ -1,6 +1,6 @@
 package ecs.components;
 
-import ecs.entitys.Entity;
+import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.List;
 import mydungeon.ECS;

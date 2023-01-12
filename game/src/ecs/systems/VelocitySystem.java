@@ -2,7 +2,7 @@ package ecs.systems;
 
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
-import ecs.entitys.Entity;
+import ecs.entities.Entity;
 import java.util.Map;
 import mydungeon.ECS;
 import tools.Point;

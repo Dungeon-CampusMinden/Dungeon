@@ -3,7 +3,7 @@ package ecs.systems;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import ecs.components.VelocityComponent;
-import ecs.entitys.Entity;
+import ecs.entities.Entity;
 import java.util.Map;
 import mydungeon.ECS;
 

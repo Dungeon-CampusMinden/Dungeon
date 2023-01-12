@@ -1,4 +1,4 @@
-package ecs.entitys;
+package ecs.entities;
 
 import ecs.components.AnimationComponent;
 import ecs.components.PositionComponent;

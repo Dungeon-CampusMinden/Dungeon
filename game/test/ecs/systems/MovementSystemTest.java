@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
-import ecs.entitys.Entity;
+import ecs.entities.Entity;
 import java.util.HashMap;
 import level.elements.ILevel;
 import level.elements.tile.Tile;
