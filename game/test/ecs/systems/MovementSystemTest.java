@@ -17,7 +17,7 @@ import tools.Point;
 
 public class MovementSystemTest {
 
-    private MovementSystem system;
+    private VelocitySystem system;
     private ILevel level;
     private Tile tile;
     private Entity entity;
@@ -29,7 +29,7 @@ public class MovementSystemTest {
         ECS.velocityComponentMap = new HashMap<>();
         ECS.positionComponentMap = new HashMap<>();
         ECS.systems = new SystemController();
-        system = new MovementSystem();
+        system = new VelocitySystem();
         entity = new Entity();
         positionComponent = new PositionComponent(entity, new Point(1, 2));
         velocityComponent = new VelocityComponent(entity, 1, 2, 1, 2);

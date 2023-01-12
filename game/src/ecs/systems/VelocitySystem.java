@@ -8,7 +8,7 @@ import mydungeon.ECS;
 import tools.Point;
 
 /** MovementSystem is a system that updates the position of entities */
-public class MovementSystem extends ECS_System {
+public class VelocitySystem extends ECS_System {
 
     /** Updates the position of all entities based on their velocity */
     public void update() {

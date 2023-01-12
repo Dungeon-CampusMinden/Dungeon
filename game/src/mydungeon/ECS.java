@@ -11,7 +11,7 @@ import ecs.entitys.Entity;
 import ecs.entitys.Hero;
 import ecs.systems.DrawSystem;
 import ecs.systems.KeyboardSystem;
-import ecs.systems.MovementSystem;
+import ecs.systems.VelocitySystem;
 import ecs.systems.SystemController;
 import java.util.*;
 import level.LevelAPI;
@@ -50,7 +50,7 @@ public class ECS extends Game {
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel();
 
-        new MovementSystem();
+        new VelocitySystem();
         new DrawSystem(painter);
         new KeyboardSystem();
     }
