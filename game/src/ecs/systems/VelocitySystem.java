@@ -12,11 +12,11 @@ public class VelocitySystem extends ECS_System {
 
     /** Updates the position of all entities based on their velocity */
     public void update() {
-        for (Map.Entry<Entity, PositionComponent> entry : ECS.positionComponentMap.entrySet()) {
+        for (Map.Entry<Entity, VelocityComponent> entry : ECS.velocityComponentMap.entrySet()) {
             Entity entity = entry.getKey();
-            PositionComponent position = entry.getValue();
-            VelocityComponent velocity = ECS.velocityComponentMap.get(entity);
-            if (velocity != null) {
+            VelocityComponent velocity = entry.getValue();
+            PositionComponent position = ECS.positionComponentMap.get(entity);
+            if (position != null) {
 
                 // Update the position based on the velocity
                 float newX = position.getPosition().x + velocity.getX();
