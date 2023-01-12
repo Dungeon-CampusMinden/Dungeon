@@ -2,6 +2,7 @@ package ecs.components;
 
 import ecs.entities.Entity;
 import graphic.Animation;
+import mydungeon.ECS;
 
 /**
  * AnimationComponent is a component that stores the possible animations and the current animation

@@ -1,6 +1,10 @@
 package ecs.entities;
 
 import ecs.components.*;
+import ecs.components.AnimationComponent;
+import ecs.components.AnimationList;
+import ecs.components.PositionComponent;
+import ecs.components.VelocityComponent;
 import graphic.Animation;
 import java.util.List;
 import textures.TextureHandler;

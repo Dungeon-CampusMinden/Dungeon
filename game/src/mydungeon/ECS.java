@@ -38,6 +38,7 @@ public class ECS extends Game {
         new VelocitySystem();
         new DrawSystem(painter);
         new KeyboardSystem();
+        new AnimationSystem();
     }
 
     @Override
