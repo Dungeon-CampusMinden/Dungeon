@@ -1,12 +1,11 @@
 package ecs.components;
 
 import ecs.entities.Entity;
-import mydungeon.ECS;
 import tools.Point;
 
 /** PositionComponent is a component that stores the x, y (as Point) position of an entity */
-public class PositionComponent implements Component {
-
+public class PositionComponent extends Component {
+    public static String name = "PositionComponent";
     private Point position;
 
     /**
@@ -14,7 +13,7 @@ public class PositionComponent implements Component {
      * @param point position of the entity
      */
     public PositionComponent(Entity entity, Point point) {
-        ECS.positionComponentMap.put(entity, this);
+        super(entity);
         this.position = point;
     }
 

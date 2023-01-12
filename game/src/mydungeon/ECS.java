@@ -3,16 +3,9 @@ package mydungeon;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import controller.Game;
-import ecs.components.AnimationComponent;
-import ecs.components.PlayableComponent;
-import ecs.components.PositionComponent;
-import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
-import ecs.systems.DrawSystem;
-import ecs.systems.KeyboardSystem;
-import ecs.systems.VelocitySystem;
-import ecs.systems.SystemController;
+import ecs.systems.*;
 import java.util.*;
 import level.LevelAPI;
 import level.elements.ILevel;
@@ -22,16 +15,8 @@ import starter.DesktopLauncher;
 import tools.Point;
 
 public class ECS extends Game {
-    /** Map with all PositionComponents in the ECS. TODO: HOW TO DELETE? */
-    public static Map<Entity, PositionComponent> positionComponentMap;
-    /** Map with all VelocityComponents in the ECS. TODO: HOW TO DELETE? */
-    public static Map<Entity, VelocityComponent> velocityComponentMap;
 
-    /** Map with all AnimationComponents in the ECS. TODO: HOW TO DELETE? */
-    public static Map<Entity, AnimationComponent> animationComponentMap;
-
-    /** Map with all PlayableComponent in the ECS. TODO: HOW TO DELETE? */
-    public static Map<Entity, PlayableComponent> playableComponentMap;
+    public static Set<Entity> entities;
 
     /** List of all Systems in the ECS */
     public static SystemController systems;
@@ -45,7 +30,7 @@ public class ECS extends Game {
         controller.clear();
         systems = new SystemController();
         controller.add(systems);
-        setupComponentMaps();
+        entities = new HashSet<>();
         hero = new Hero(new Point(0, 0));
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel();
@@ -53,13 +38,6 @@ public class ECS extends Game {
         new VelocitySystem();
         new DrawSystem(painter);
         new KeyboardSystem();
-    }
-
-    private void setupComponentMaps() {
-        positionComponentMap = new HashMap<>();
-        velocityComponentMap = new HashMap<>();
-        animationComponentMap = new HashMap<>();
-        playableComponentMap = new HashMap<>();
     }
 
     @Override

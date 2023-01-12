@@ -1,14 +1,14 @@
 package ecs.components;
 
 import ecs.entities.Entity;
-import mydungeon.ECS;
 
-public class PlayableComponent implements Component {
+public class PlayableComponent extends Component {
 
+    public static String name = "PlayableComponent";
     private boolean playable;
 
     public PlayableComponent(Entity entity) {
-        ECS.playableComponentMap.put(entity, this);
+        super(entity);
         playable = true;
     }
 

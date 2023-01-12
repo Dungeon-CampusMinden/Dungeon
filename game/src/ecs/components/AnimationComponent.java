@@ -2,14 +2,14 @@ package ecs.components;
 
 import ecs.entities.Entity;
 import graphic.Animation;
-import mydungeon.ECS;
 
 /**
  * AnimationComponent is a component that stores the possible animations and the current animation
  * of an entity
  */
-public class AnimationComponent implements Component {
+public class AnimationComponent extends Component {
 
+    public static String name = "AnimationComponent";
     private AnimationList animationList;
     private Animation currentAnimation;
 
@@ -19,7 +19,7 @@ public class AnimationComponent implements Component {
      * @param currentAnimation current animation of the entity
      */
     public AnimationComponent(Entity entity, AnimationList animations, Animation currentAnimation) {
-        ECS.animationComponentMap.put(entity, this);
+        super(entity);
         this.animationList = animations;
         this.currentAnimation = currentAnimation;
     }

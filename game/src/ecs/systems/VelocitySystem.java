@@ -3,7 +3,6 @@ package ecs.systems;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
-import java.util.Map;
 import mydungeon.ECS;
 import tools.Point;
 
@@ -12,19 +11,23 @@ public class VelocitySystem extends ECS_System {
 
     /** Updates the position of all entities based on their velocity */
     public void update() {
-        for (Map.Entry<Entity, VelocityComponent> entry : ECS.velocityComponentMap.entrySet()) {
-            Entity entity = entry.getKey();
-            VelocityComponent velocity = entry.getValue();
-            PositionComponent position = ECS.positionComponentMap.get(entity);
-            if (position != null) {
+        for (Entity entity : ECS.entities) {
 
-                // Update the position based on the velocity
-                float newX = position.getPosition().x + velocity.getX();
-                float newY = position.getPosition().y + velocity.getY();
+            VelocityComponent velocity =
+                    (VelocityComponent) entity.getComponent(VelocityComponent.name);
+            if (velocity != null) {
+                PositionComponent position =
+                        (PositionComponent) entity.getComponent(PositionComponent.name);
+                if (position != null) {
 
-                Point newPosition = new Point(newX, newY);
-                if (ECS.currentLevel.getTileAt(newPosition.toCoordinate()).isAccessible()) {
-                    position.setPosition(newPosition);
+                    // Update the position based on the velocity
+                    float newX = position.getPosition().x + velocity.getX();
+                    float newY = position.getPosition().y + velocity.getY();
+
+                    Point newPosition = new Point(newX, newY);
+                    if (ECS.currentLevel.getTileAt(newPosition.toCoordinate()).isAccessible()) {
+                        position.setPosition(newPosition);
+                    }
                 }
             }
         }

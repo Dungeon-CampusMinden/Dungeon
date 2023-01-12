@@ -1,9 +1,6 @@
 package ecs.entities;
 
-import ecs.components.AnimationComponent;
-import ecs.components.AnimationList;
-import ecs.components.PositionComponent;
-import ecs.components.VelocityComponent;
+import ecs.components.*;
 import graphic.Animation;
 import java.util.List;
 import textures.TextureHandler;
@@ -20,7 +17,9 @@ public class Hero extends Entity {
     public Hero(Point startPosition) {
         super();
         positionComponent = new PositionComponent(this, startPosition);
-        new VelocityComponent(this, 0, 0, 0.3f, 0.3f);
+        this.addComponent(PositionComponent.name, positionComponent);
+        this.addComponent(VelocityComponent.name, new VelocityComponent(this, 0, 0, 0.3f, 0.3f));
+        this.addComponent(PlayableComponent.name, new PlayableComponent(this));
         setupAnimationComponent();
     }
 
@@ -43,7 +42,9 @@ public class Hero extends Entity {
                 TextureHandler.getInstance().getTexturePaths("knight_m_run_anim_mirrored_f\\d+");
         animations.setMoveLeft(new Animation(texturePaths, frameTime));
 
-        new AnimationComponent(this, animations, animations.getIdleLeft());
+        this.addComponent(
+                AnimationComponent.name,
+                new AnimationComponent(this, animations, animations.getIdleLeft()));
     }
 
     /**

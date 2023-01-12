@@ -27,21 +27,26 @@ public class DrawSystem extends ECS_System {
 
     /** draw entities at their position */
     public void update() {
-        for (Map.Entry<Entity, AnimationComponent> entry : ECS.animationComponentMap.entrySet()) {
-            Entity entity = entry.getKey();
-            Animation animation = entry.getValue().getCurrentAnimation();
-            PositionComponent positionComponent = ECS.positionComponentMap.get(entity);
+        for (Entity entity : ECS.entities) {
+            AnimationComponent ac =
+                    (AnimationComponent) entity.getComponent(AnimationComponent.name);
+            if (ac != null) {
+                Animation animation = ac.getCurrentAnimation();
+                PositionComponent positionComponent =
+                        (PositionComponent) entity.getComponent(PositionComponent.name);
 
-            if (positionComponent != null) {
-                String currentAnimationTexture = animation.getNextAnimationTexturePath();
-                if (!configs.containsKey(currentAnimationTexture)) {
-                    configs.put(
-                            currentAnimationTexture, new PainterConfig(currentAnimationTexture));
+                if (positionComponent != null) {
+                    String currentAnimationTexture = animation.getNextAnimationTexturePath();
+                    if (!configs.containsKey(currentAnimationTexture)) {
+                        configs.put(
+                                currentAnimationTexture,
+                                new PainterConfig(currentAnimationTexture));
+                    }
+                    painter.draw(
+                            positionComponent.getPosition(),
+                            currentAnimationTexture,
+                            configs.get(currentAnimationTexture));
                 }
-                painter.draw(
-                        positionComponent.getPosition(),
-                        currentAnimationTexture,
-                        configs.get(currentAnimationTexture));
             }
         }
     }
