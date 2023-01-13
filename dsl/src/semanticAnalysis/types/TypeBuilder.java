@@ -8,8 +8,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import semanticAnalysis.*;
 
-// TODO: should include a way to create a class instance from
-//  property-values (by reflection) -> need to store original names
 public class TypeBuilder {
     private final HashMap<Class<?>, AggregateType> javaTypeToAggregateType;
     private final HashSet<Class<?>> currentLookedUpClasses;
@@ -26,7 +24,7 @@ public class TypeBuilder {
         return underscored.toLowerCase();
     }
 
-    private IType getDSLTypeForMember(Class<?> type) {
+    public static IType getDSLTypeForMember(Class<?> type) {
         if (int.class.equals(type)
                 || short.class.equals(type)
                 || long.class.equals(type)
@@ -43,7 +41,7 @@ public class TypeBuilder {
         return null;
     }
 
-    public HashMap<String, String> typeMemberNameToJavaFieldMap(Class<?> clazz) {
+    public static HashMap<String, String> typeMemberNameToJavaFieldMap(Class<?> clazz) {
         HashMap<String, String> map = new HashMap<>();
         for (Field field : clazz.getDeclaredFields()) {
             // bind new Symbol
@@ -60,6 +58,20 @@ public class TypeBuilder {
         return map;
     }
 
+    public static String getDSLName(Class<?> clazz) {
+        var classAnnotation = clazz.getAnnotation(DSLType.class);
+        return classAnnotation.name().equals("")
+                ? convertToDSLName(clazz.getName())
+                : classAnnotation.name();
+    }
+
+    public static String getDSLName(Field field) {
+        var fieldAnnotation = field.getAnnotation(DSLTypeMember.class);
+        return fieldAnnotation.name().equals("")
+                ? convertToDSLName(field.getName())
+                : fieldAnnotation.name();
+    }
+
     public AggregateType createTypeFromClass(IScope parentScope, Class<?> clazz) {
         if (!clazz.isAnnotationPresent(DSLType.class)) {
             return null;
@@ -67,8 +79,7 @@ public class TypeBuilder {
 
         // catch recursion
         if (this.currentLookedUpClasses.contains(clazz)) {
-            System.out.println("RECURSIVE TYPE DEF");
-            return null;
+            throw new RuntimeException("RECURSIVE TYPE DEF");
         }
 
         if (this.javaTypeToAggregateType.containsKey(clazz)) {
@@ -86,11 +97,7 @@ public class TypeBuilder {
         for (Field field : clazz.getDeclaredFields()) {
             // bind new Symbol
             if (field.isAnnotationPresent(DSLTypeMember.class)) {
-                var fieldAnnotation = field.getAnnotation(DSLTypeMember.class);
-                String fieldName =
-                        fieldAnnotation.name().equals("")
-                                ? convertToDSLName(field.getName())
-                                : fieldAnnotation.name();
+                String fieldName = getDSLName(field);
 
                 // get datatype
                 var memberDSLType = getDSLTypeForMember(field.getType());
