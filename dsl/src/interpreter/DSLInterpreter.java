@@ -320,6 +320,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 AggregateValue aggregateMemberValue =
                         new AggregateValue(
                                 memberValue.getDataType(), this.memoryStack.peek(), memberObject);
+                // TODO: this is a temporary fix; an AggregateValue with an encapsulated object as a
+                //  memory space should be a separate class
                 aggregateMemberValue.setMemorySpace(encapsulatedObject);
 
                 entityValue.getMemorySpace().bindValue(memberName, aggregateMemberValue);
