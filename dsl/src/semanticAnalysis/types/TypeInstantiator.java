@@ -6,13 +6,22 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import runtime.MemorySpace;
+import java.util.HashMap;
+import runtime.IMemorySpace;
 import runtime.Value;
 
 public class TypeInstantiator {
-    private Object instantiateRecord(Class<?> originalJavaClass, MemorySpace ms)
-            throws InvocationTargetException, InstantiationException, IllegalAccessException,
-                    NoSuchFieldException {
+    private HashMap<String, Object> context = new HashMap<>();
+
+    public void pushContextMember(String name, Object contextMember) {
+        context.put(name, contextMember);
+    }
+
+    public void removeContextMember(String name) {
+        context.remove(name);
+    }
+
+    private Object instantiateRecord(Class<?> originalJavaClass, IMemorySpace ms) {
 
         Constructor<?> ctor = GetConstructor(originalJavaClass);
         if (null == ctor) {
@@ -21,42 +30,49 @@ public class TypeInstantiator {
                             + originalJavaClass.getName());
         }
 
-        // find the corresponding record-field to the constructor-parameter, get the according
-        // value from the memory space and pass it as a parameter to the constructor
-        ArrayList<Object> parameters = new ArrayList<>(ctor.getParameters().length);
-        for (var param : ctor.getParameters()) {
-            var field = originalJavaClass.getDeclaredField(param.getName());
-            if (!field.isAnnotationPresent(DSLTypeMember.class)) {
-                throw new RuntimeException(
-                        "Instantiating a record using the TypeInstantiator requires that all "
-                                + "record members must be marked with @DSLTypeMember. Otherwise, no constructor invocation is possible");
-            } else {
-                var fieldAnnotation = field.getAnnotation(DSLTypeMember.class);
-                String fieldName =
-                        fieldAnnotation.name().equals("")
-                                ? convertToDSLName(field.getName())
-                                : fieldAnnotation.name();
-
-                var fieldValue = ms.resolve(fieldName);
-
-                // if a certain value is not found in the memory space,
-                // the record cannot be instantiated -> early return
-                if (fieldValue == null || fieldValue == Value.NONE) {
+        try {
+            // find the corresponding record-field to the constructor-parameter, get the according
+            // value from the memory space and pass it as a parameter to the constructor
+            ArrayList<Object> parameters = new ArrayList<>(ctor.getParameters().length);
+            for (var param : ctor.getParameters()) {
+                var field = originalJavaClass.getDeclaredField(param.getName());
+                if (!field.isAnnotationPresent(DSLTypeMember.class)) {
                     throw new RuntimeException(
-                            "The name of field "
-                                    + field.getName()
-                                    + " cannot be resolved in the supplied memory space");
+                            "Instantiating a record using the TypeInstantiator requires that all "
+                                    + "record members must be marked with @DSLTypeMember. Otherwise, no constructor invocation is possible");
                 } else {
-                    var internalValue = fieldValue.getInternalValue();
-                    parameters.add(internalValue);
+                    var fieldAnnotation = field.getAnnotation(DSLTypeMember.class);
+                    String fieldName =
+                            fieldAnnotation.name().equals("")
+                                    ? convertToDSLName(field.getName())
+                                    : fieldAnnotation.name();
+
+                    var fieldValue = ms.resolve(fieldName);
+
+                    // if a certain value is not found in the memory space,
+                    // the record cannot be instantiated -> early return
+                    if (fieldValue == null || fieldValue == Value.NONE) {
+                        throw new RuntimeException(
+                                "The name of field "
+                                        + field.getName()
+                                        + " cannot be resolved in the supplied memory space");
+                    } else {
+                        var internalValue = fieldValue.getInternalObject();
+                        parameters.add(internalValue);
+                    }
                 }
             }
+            ctor.setAccessible(true);
+            return ctor.newInstance(parameters.toArray());
+        } catch (NoSuchFieldException
+                | InvocationTargetException
+                | InstantiationException
+                | IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
-        ctor.setAccessible(true);
-        return ctor.newInstance(parameters.toArray());
     }
 
-    private Object instantiateClass(Class<?> originalJavaClass, MemorySpace ms) {
+    private Object instantiateClass(Class<?> originalJavaClass, IMemorySpace ms) {
         if (originalJavaClass.isMemberClass()) {
             throw new RuntimeException("Cannot instantiate an inner class");
         }
@@ -71,11 +87,24 @@ public class TypeInstantiator {
         Object instance;
         try {
             ctor.setAccessible(true);
-            instance = ctor.newInstance();
 
-            // TODO: check, if the field was set in the DSL program.. if it was not set, it should
-            //  be left at the default defined by the java default ctor (and not the default-Value
-            //  created by the DSL)
+            ArrayList<Object> parameterValues = new ArrayList<>(ctor.getParameterCount());
+            for (var param : ctor.getParameters()) {
+                if (param.isAnnotationPresent(DSLContextMember.class)) {
+                    String contextMemberName = param.getAnnotation(DSLContextMember.class).name();
+                    Object contextMember = context.get(contextMemberName);
+                    parameterValues.add(contextMember);
+                } else {
+                    throw new RuntimeException(
+                            "Constructor parameter with name "
+                                    + param.getName()
+                                    + " is not marked as context parameter, cannot "
+                                    + "instantiate class "
+                                    + originalJavaClass.getName());
+                }
+            }
+
+            instance = ctor.newInstance(parameterValues.toArray());
 
             // set values of the fields marked as DSLTypeMembers to corresponding values from
             // the memory space
@@ -90,19 +119,15 @@ public class TypeInstantiator {
                     var fieldValue = ms.resolve(fieldName);
                     // we only should set the field value explicitly,
                     // if it was set in the program
-                    if (fieldValue != null && fieldValue.wasSetAfterCtor()) {
-                        var internalValue = fieldValue.getInternalValue();
+                    if (fieldValue != null && fieldValue.isDirty()) {
+                        var internalValue = fieldValue.getInternalObject();
 
                         field.setAccessible(true);
                         field.set(instance, internalValue);
                     }
                 }
             }
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
         return instance;
@@ -118,9 +143,7 @@ public class TypeInstantiator {
         return ctor;
     }
 
-    public Object instantiateFromMemorySpace(AggregateType type, MemorySpace ms)
-            throws NoSuchFieldException, InvocationTargetException, InstantiationException,
-                    IllegalAccessException {
+    public Object instantiateFromMemorySpace(AggregateType type, IMemorySpace ms) {
         var originalJavaClass = type.getOriginalJavaClass();
         if (null == originalJavaClass) {
             return null;

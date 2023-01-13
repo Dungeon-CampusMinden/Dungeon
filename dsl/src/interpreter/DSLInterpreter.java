@@ -5,7 +5,6 @@ import antlr.main.DungeonDSLParser;
 import dslToGame.QuestConfig;
 import dslToGame.QuestConfigBuilder;
 import interpreter.dot.Interpreter;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Stack;
 import org.antlr.v4.runtime.CharStreams;
@@ -20,9 +19,7 @@ import runtime.*;
 // CHECKSTYLE:OFF: AvoidStarImport
 import semanticAnalysis.*;
 // CHECKSTYLE:ON: AvoidStarImport
-import semanticAnalysis.types.AggregateType;
-import semanticAnalysis.types.IType;
-import semanticAnalysis.types.TypeInstantiator;
+import semanticAnalysis.types.*;
 
 // we need to provide visitor methods for many node classes, so the method count and the class data
 // abstraction coupling
@@ -32,8 +29,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     private QuestConfigBuilder questConfigBuilder;
     private RuntimeEnvironment environment;
-    private final Stack<MemorySpace> memoryStack;
-    private MemorySpace globalSpace;
+    private final Stack<IMemorySpace> memoryStack;
+    private IMemorySpace globalSpace;
 
     private SymbolTable symbolTable() {
         return environment.getSymbolTable();
@@ -52,7 +49,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return this.environment;
     }
 
-    public MemorySpace getGlobalMemorySpace() {
+    public IMemorySpace getGlobalMemorySpace() {
         return this.globalSpace;
     }
 
@@ -88,10 +85,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                     var gameObjDefNode = (GameObjectDefinitionNode) creationAstNode;
 
                     var gameObjTypeWithDefaults =
-                            new AggregateTypeWithDefaults((AggregateType) symbol, symbol.getIdx());
-                    // TODO: extend annotations to include the default value for each member and
-                    // store a reference of
-                    //  java class in the data type of generated component datatype
+                            new Prototype((AggregateType) symbol, symbol.getIdx());
 
                     // TODO: create new AggregateTypeWithDefaults for each component
                     //  we actually need to iterate over the ast-node, not just over the symbols
@@ -117,6 +111,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         // TODO: how to get the rhs expression?
                         AggregateTypeWithDefaults componentTypeWithDefaults =
                                 new AggregateTypeWithDefaults(
+                        // evaluate rhs and store the value in the member of
+                        // aggregateTypeWithDefaults
+                        Prototype componentTypeWithDefaults =
+                                new Prototype(
                                         (AggregateType) componentSymbol.getDataType(),
                                         componentSymbol.getIdx());
                         for (var propDef : componentNode.getPropertyDefinitionNodes()) {
@@ -134,6 +132,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                             //  runtime equivalent of a symbol in semantic analysis. If all
                             //  returns a value, this analogy is broken.. but is this a problem?
                             var rhsValue = propertyDefNode.getStmtNode().accept(this);
+                            var rhsValue = (Value) propertyDefNode.getStmtNode().accept(this);
                             System.out.println(rhsValue);
 
                             // TODO: this is currently null
@@ -196,7 +195,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param configScript The script (in the DungeonDSL) to parse
      * @return The first questConfig object found in the configScript
      */
-    public dslToGame.QuestConfig getQuestConfig(String configScript) {
         var stream = CharStreams.fromString(configScript);
         var lexer = new DungeonDSLLexer(stream);
 
@@ -239,7 +237,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     @Override
     public Object visit(ObjectDefNode node) {
         // resolve name of object in memory space
-        MemorySpace ms;
+        IMemorySpace ms;
         var objectsValue = this.memoryStack.peek().resolve(node.getIdName());
         if (objectsValue instanceof AggregateValue) {
             ms = ((AggregateValue) objectsValue).getMemorySpace();
@@ -270,23 +268,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return createObjectFromMemorySpace(ms, objectSymbol.getDataType());
     }
 
-    private Object createObjectFromMemorySpace(MemorySpace ms, IType type) {
+    private Object createObjectFromMemorySpace(IMemorySpace ms, IType type) {
         if (type.getName().equals("quest_config")) {
             TypeInstantiator ti = new TypeInstantiator();
-            Object instance;
-            try {
-                instance = ti.instantiateFromMemorySpace((AggregateType) type, ms);
-                // TODO: handle more gracefully
-            } catch (NoSuchFieldException e) {
-                throw new RuntimeException(e);
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException(e);
-            } catch (InstantiationException e) {
-                throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-            return instance;
+            return ti.instantiateFromMemorySpace((AggregateType) type, ms);
         }
         return null;
     }
