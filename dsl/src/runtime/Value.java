@@ -11,17 +11,21 @@ import semanticAnalysis.types.IType;
  * semanticAnalysis.Symbol} from a {@link semanticAnalysis.SymbolTable}, as this class is basically
  * the runtime equivalent of a {@link semanticAnalysis.Symbol}
  */
-public class Value {
+public class Value implements IClonable {
     public static Value NONE = new Value(null, null, -1, false);
 
     protected final IType dataType;
     protected Object value;
     protected final int symbolIdx;
     protected final boolean isMutable;
-    protected boolean wasSetAfterCtor;
+    protected boolean dirty;
 
-    public boolean wasSetAfterCtor() {
-        return this.wasSetAfterCtor;
+    public boolean isDirty() {
+        return this.dirty;
+    }
+
+    public void setDirty() {
+        this.dirty = true;
     }
 
     /**
@@ -29,7 +33,7 @@ public class Value {
      *
      * @return internal, underlying value
      */
-    public Object getInternalValue() {
+    public Object getInternalObject() {
         return value;
     }
 
@@ -47,6 +51,10 @@ public class Value {
      *
      * @return index of the linked Symbol
      */
+    // TODO: this is only used for recovery of the AST corresponding to a function definition,
+    // otherwise
+    //  this is not used.. should find a better solution for the function part and simplify all
+    // other cases
     public int getSymbolIdx() {
         return symbolIdx;
     }
@@ -61,7 +69,7 @@ public class Value {
         if (isMutable) {
             this.value = internalValue;
 
-            this.wasSetAfterCtor= true;
+            this.dirty = true;
             return true;
         }
         return false;
@@ -80,7 +88,7 @@ public class Value {
         this.symbolIdx = symbolIdx;
         this.isMutable = true;
 
-        this.wasSetAfterCtor = false;
+        this.dirty = false;
     }
 
     /**
@@ -96,7 +104,7 @@ public class Value {
         this.symbolIdx = symbolIdx;
         this.isMutable = isMutable;
 
-        this.wasSetAfterCtor = true;
+        this.dirty = true;
     }
 
     /**
@@ -120,5 +128,12 @@ public class Value {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public Object clone() {
+        var cloned = new Value(this.dataType, this.value, this.symbolIdx, this.isMutable);
+        cloned.dirty = this.dirty;
+        return cloned;
     }
 }
