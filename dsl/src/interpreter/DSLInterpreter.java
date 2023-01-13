@@ -20,6 +20,8 @@ import semanticAnalysis.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import semanticAnalysis.types.*;
 
+// TODO: specify EXACT semantics of value copying and setting
+
 // we need to provide visitor methods for many node classes, so the method count and the class data
 // abstraction coupling
 // will be high naturally
@@ -52,29 +54,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return this.globalSpace;
     }
 
-    // TODO: how to handle globally defined objects?
-    //  statisch alles auswerten, was geht? und dann erst auswerten, wenn abgefragt (lazyeval?)
-    //  wie wird order of operation vorgegeben? einfach von oben nach unten? oder nach referenz von
-    //  objekt?
-
-    // TODO: visit all datatype-definitions and evaluate for default-values
-    //  this requires some kind of specialization of datatype-class
-    //  -> lazyeval
-    //  -> detect recursive definitions
-    //  ..
-    //  Anderer Ansatz: Erst, wenn ein Objekt instanziiert wird (also bspw. auf der rhs einer
-    // Property-Zuweisung steht)
-    //  die konkrete Instanz erstellen und dafür über den AST der Definition iterieren
-    //  ..
-    //  Bauchgefühl: Es wäre sauberer, da einen Zwischenschritt einzubauen und den "Datentypen"
-    // einmal zu erstellen und
-    //  anschließend nur noch zu instanziieren
-    //  Problem: auch die Werte der Komponenten-Member müssen gespeichert werden.. das würde dann
-    // bedeuten, dass für
-    //  jede Typdefinition auch eine Instanz der Komponente konfiguriert werden muss.. was ja aber
-    // sowieso passieren muss
+    // TODO: refactor
     public void evaluateTypeDefinitions(IEvironment environment) {
-
         // TODO: could we just iterate over the types?
         var globalScope = environment.getGlobalScope();
         for (var symbol : globalScope.getSymbols()) {
@@ -86,8 +67,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
                     var gameObjTypeWithDefaults =
                             new Prototype((AggregateType) symbol, symbol.getIdx());
 
-                    // TODO: create new AggregateTypeWithDefaults for each component
-                    //  we actually need to iterate over the ast-node, not just over the symbols
                     for (var node : gameObjDefNode.getComponentDefinitionNodes()) {
                         var componentNode = (ComponentDefinitionNode) node;
                         var componentSymbol =
@@ -95,21 +74,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
                         assert componentSymbol.getDataType() instanceof AggregateType;
 
-                        // TODO: what to do, if the field is another aggregate datatype? how to get
-                        //  a default-value for
-                        //  that? -> requires storage of all typeDefinitions (with default values)
-                        //  either in an
-                        //  environment or the memorySpace.. but memorySpace is not really suited
-                        //  for that, because
-                        //  it holds values.. so the environment it is
                         //  the AggregateTypeWithDefaults for a component does only live inside the
                         //  datatype
                         //  definition, because it is part of the definition
 
-                        // evaluate rhs and store the value in the member of aggrWithDefaulst
-                        // TODO: how to get the rhs expression?
-                        AggregateTypeWithDefaults componentTypeWithDefaults =
-                                new AggregateTypeWithDefaults(
                         // evaluate rhs and store the value in the member of
                         // aggregateTypeWithDefaults
                         Prototype componentTypeWithDefaults =
@@ -119,22 +87,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         for (var propDef : componentNode.getPropertyDefinitionNodes()) {
                             var propertyDefNode = (PropertyDefNode) propDef;
 
-                            // TODO: this should return a `Value`...
-                            //  just calling accept(this) will likely end up very confusing..
-                            //  should define specific expression evaluator for cases, in which the
-                            //  value of an expression
-                            //  should be calculated.. or the template argument of THE
-                            //  DSLInterpreter is set to Value?
-                            //  This would entail, that all is just a value.. even the returned
-                            //  quest_config
-                            //  but is this a good move? currently the `Value` class is the
-                            //  runtime equivalent of a symbol in semantic analysis. If all
-                            //  returns a value, this analogy is broken.. but is this a problem?
-                            var rhsValue = propertyDefNode.getStmtNode().accept(this);
                             var rhsValue = (Value) propertyDefNode.getStmtNode().accept(this);
                             System.out.println(rhsValue);
 
-                            // TODO: this is currently null
                             var propertySymbol = symbolTable().getSymbolsForAstNode(propDef).get(0);
                             // typechecking is happened at this point
                             var propertyType = propertySymbol.getDataType();
@@ -166,7 +121,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param environment The environment to bind the functions and objects from.
      */
     public void initializeRuntime(IEvironment environment) {
-
         this.environment = new RuntimeEnvironment(environment);
 
         // bind all function definition and object definition symbols to objects
@@ -477,7 +431,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         var funcAsScope = (ScopedSymbol) symbol;
 
-        // TODO: push parameter for return value
+        // TODO: push parameter for return value and actually return it
         var parameterSymbols = funcAsScope.getSymbols();
         for (int i = 0; i < parameterNodes.size(); i++) {
             var parameterSymbol = parameterSymbols.get(i);
@@ -489,13 +443,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
             setValue(parameterSymbol.getName(), paramValue);
         }
 
-
         // visit function AST
         var funcAstNode = this.symbolTable().getCreationAstNode(symbol);
         funcAstNode.accept(this);
 
         memoryStack.pop();
-        // TODO: handle return value
         return null;
     }
 

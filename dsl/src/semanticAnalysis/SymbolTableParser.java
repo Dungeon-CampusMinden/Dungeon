@@ -30,7 +30,6 @@ import runtime.IEvironment;
 import semanticAnalysis.types.AggregateType;
 import semanticAnalysis.types.TypeBinder;
 
-// TODO: enable dynamic loading of data types (for better testability)
 /** Creates a symbol table for an AST node for a DSL program */
 // we need to provide visitor methods for many node classes, so the method count and the class data
 // abstraction coupling
