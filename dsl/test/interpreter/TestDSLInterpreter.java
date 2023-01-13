@@ -179,7 +179,7 @@ public class TestDSLInterpreter {
         var questConfig = interpreter.generateQuestConfig(ast);
         var rtEnv = interpreter.getRuntimeEnvironment();
 
-        var typeWithDefaults = rtEnv.lookupTypeWithDefaults("c");
+        var typeWithDefaults = rtEnv.lookupPrototype("c");
         assertNotEquals(Prototype.NONE, typeWithDefaults);
 
         var firstCompWithDefaults = typeWithDefaults.getDefaultValue("test_component");

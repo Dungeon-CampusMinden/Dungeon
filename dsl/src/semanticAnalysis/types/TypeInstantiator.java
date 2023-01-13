@@ -143,8 +143,8 @@ public class TypeInstantiator {
         return ctor;
     }
 
-    public Object instantiateFromMemorySpace(AggregateType type, IMemorySpace ms) {
-        var originalJavaClass = type.getOriginalJavaClass();
+    public Object instantiate(AggregateType type, IMemorySpace ms) {
+        var originalJavaClass = type.getOriginType();
         if (null == originalJavaClass) {
             return null;
         }

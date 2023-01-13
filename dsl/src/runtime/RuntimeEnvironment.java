@@ -40,7 +40,7 @@ public class RuntimeEnvironment implements IEvironment {
         this.typesWithDefaults = new HashMap<>();
     }
 
-    public Prototype lookupTypeWithDefaults(String name) {
+    public Prototype lookupPrototype(String name) {
         return this.typesWithDefaults.getOrDefault(name, Prototype.NONE);
     }
 

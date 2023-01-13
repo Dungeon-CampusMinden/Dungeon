@@ -48,7 +48,7 @@ public class TestTypeInstantiator {
         }
 
         TypeInstantiator ti = new TypeInstantiator();
-        var instance = ti.instantiateFromMemorySpace(type, ms);
+        var instance = ti.instantiate(type, ms);
 
         // check, that all values originally only set in the memory space match the
         // set values in the java class instance
@@ -103,7 +103,7 @@ public class TestTypeInstantiator {
         }
 
         TypeInstantiator ti = new TypeInstantiator();
-        var instance = ti.instantiateFromMemorySpace(type, ms);
+        var instance = ti.instantiate(type, ms);
 
         // check, that all values originally only set in the memory space match the
         // set values in the java class instance

@@ -5,7 +5,7 @@ import semanticAnalysis.ScopedSymbol;
 
 public class AggregateType extends ScopedSymbol implements IType {
 
-    protected Class<?> originalJavaClass;
+    protected Class<?> originType;
 
     /**
      * Constructor
@@ -15,12 +15,12 @@ public class AggregateType extends ScopedSymbol implements IType {
      */
     public AggregateType(String name, IScope parentScope) {
         super(name, parentScope, null);
-        originalJavaClass = null;
+        originType = null;
     }
 
-    public AggregateType(String name, IScope parentScope, Class<?> originalJavaClass) {
+    public AggregateType(String name, IScope parentScope, Class<?> originType) {
         super(name, parentScope, null);
-        this.originalJavaClass = originalJavaClass;
+        this.originType = originType;
     }
 
     @Override
@@ -28,7 +28,7 @@ public class AggregateType extends ScopedSymbol implements IType {
         return Kind.Aggregate;
     }
 
-    public Class<?> getOriginalJavaClass() {
-        return this.originalJavaClass;
+    public Class<?> getOriginType() {
+        return this.originType;
     }
 }

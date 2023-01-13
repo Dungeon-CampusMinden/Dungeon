@@ -21,7 +21,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
     public EncapsulatedObject(
             Object innerObject, AggregateType type, IMemorySpace parent, IEvironment environment) {
         super(type, innerObject);
-        assert innerObject.getClass().equals(type.getOriginalJavaClass());
+        assert innerObject.getClass().equals(type.getOriginType());
 
         this.parent = parent;
         this.type = type;

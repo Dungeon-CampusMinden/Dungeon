@@ -1,5 +1,7 @@
 package runtime;
 
+import java.util.Map;
+import java.util.Set;
 import semanticAnalysis.types.IType;
 
 public class AggregateValue extends Value {
@@ -21,5 +23,9 @@ public class AggregateValue extends Value {
 
     public void setMemorySpace(IMemorySpace ms) {
         this.ms = ms;
+    }
+
+    public Set<Map.Entry<String, Value>> getValueSet() {
+        return this.getMemorySpace().getValueSet();
     }
 }
