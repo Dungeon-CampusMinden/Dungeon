@@ -20,7 +20,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
 
     public EncapsulatedObject(
             Object innerObject, AggregateType type, IMemorySpace parent, IEvironment environment) {
-        super(type, innerObject/*, -1*/);
+        super(type, innerObject /*, -1*/);
         assert innerObject.getClass().equals(type.getOriginalJavaClass());
 
         this.parent = parent;

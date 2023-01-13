@@ -110,7 +110,7 @@ public class Helpers {
 
     public static void bindDefaultValueInMemorySpace(Symbol symbol, MemorySpace ms) {
         var defaultValue = Value.getDefaultValue(symbol.getDataType());
-        var value = new Value(symbol.getDataType(), defaultValue/*, -1*/);
+        var value = new Value(symbol.getDataType(), defaultValue /*, -1*/);
         ms.bindValue(symbol.getName(), value);
     }
 }

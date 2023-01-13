@@ -12,11 +12,11 @@ import semanticAnalysis.types.IType;
  * the runtime equivalent of a {@link semanticAnalysis.Symbol}
  */
 public class Value implements IClonable {
-    public static Value NONE = new Value(null, null/*, -1*/, false);
+    public static Value NONE = new Value(null, null /*, -1*/, false);
 
     protected final IType dataType;
     protected Object value;
-    //protected final int symbolIdx;
+    // protected final int symbolIdx;
     protected final boolean isMutable;
     protected boolean dirty;
 
@@ -79,13 +79,13 @@ public class Value implements IClonable {
      * Constructor
      *
      * @param dataType The datatype of this value
-     * @param internalValue The actual value stored in this value
-     //* @param symbolIdx The index of the {@link semanticAnalysis.Symbol} this Value corresponds to
+     * @param internalValue The actual value stored in this value //* @param symbolIdx The index of
+     *     the {@link semanticAnalysis.Symbol} this Value corresponds to
      */
-    public Value(IType dataType, Object internalValue/*, int symbolIdx*/) {
+    public Value(IType dataType, Object internalValue /*, int symbolIdx*/) {
         this.value = internalValue;
         this.dataType = dataType;
-        //this.symbolIdx = symbolIdx;
+        // this.symbolIdx = symbolIdx;
         this.isMutable = true;
 
         this.dirty = false;
@@ -95,13 +95,13 @@ public class Value implements IClonable {
      * Constructor
      *
      * @param dataType The datatype of this value
-     * @param internalValue The actual value stored in this value
-     //* @param symbolIdx The index of the {@link semanticAnalysis.Symbol} this Value corresponds to
+     * @param internalValue The actual value stored in this value //* @param symbolIdx The index of
+     *     the {@link semanticAnalysis.Symbol} this Value corresponds to
      */
-    public Value(IType dataType, Object internalValue/*, int symbolIdx*/, boolean isMutable) {
+    public Value(IType dataType, Object internalValue /*, int symbolIdx*/, boolean isMutable) {
         this.value = internalValue;
         this.dataType = dataType;
-        //this.symbolIdx = symbolIdx;
+        // this.symbolIdx = symbolIdx;
         this.isMutable = isMutable;
 
         this.dirty = true;
@@ -132,7 +132,7 @@ public class Value implements IClonable {
 
     @Override
     public Object clone() {
-        var cloned = new Value(this.dataType, this.value/*, this.symbolIdx*/, this.isMutable);
+        var cloned = new Value(this.dataType, this.value /*, this.symbolIdx*/, this.isMutable);
         cloned.dirty = this.dirty;
         return cloned;
     }

@@ -65,7 +65,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                     var gameObjDefNode = (GameObjectDefinitionNode) creationAstNode;
 
                     var gameObjTypeWithDefaults =
-                            new Prototype((AggregateType) symbol/*, symbol.getIdx()*/);
+                            new Prototype((AggregateType) symbol /*, symbol.getIdx()*/);
 
                     for (var node : gameObjDefNode.getComponentDefinitionNodes()) {
                         var componentNode = (ComponentDefinitionNode) node;
@@ -81,8 +81,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         // evaluate rhs and store the value in the member of
                         // aggregateTypeWithDefaults
                         Prototype componentTypeWithDefaults =
-                                new Prototype(
-                                        (AggregateType) componentSymbol.getDataType()/*,
+                                new Prototype((AggregateType) componentSymbol.getDataType() /*,
                                         componentSymbol.getIdx()*/);
                         for (var propDef : componentNode.getPropertyDefinitionNodes()) {
                             var propertyDefNode = (PropertyDefNode) propDef;
@@ -97,7 +96,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                                     new Value(
                                             propertySymbol.getDataType(),
                                             rhsValue.getInternalObject()
-                                            /*propertySymbol.getIdx()*/);
+                                            /*propertySymbol.getIdx()*/ );
                             value.setDirty();
 
                             var valueName = propertyDefNode.getIdName();
@@ -167,10 +166,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
     private Value createDefaultValue(IType type, int symbolIdx) {
         if (type.getTypeKind().equals(IType.Kind.Basic)) {
             Object internalValue = Value.getDefaultValue(type);
-            return new Value(type, internalValue/*, symbolIdx*/);
+            return new Value(type, internalValue /*, symbolIdx*/);
         } else {
             var topMostMs = this.memoryStack.peek();
-            AggregateValue value = new AggregateValue((AggregateType) type, symbolIdx, topMostMs);
+            AggregateValue value =
+                    new AggregateValue((AggregateType) type, /*, symbolIdx,*/ topMostMs);
             this.memoryStack.push(value.getMemorySpace());
             for (var member : ((AggregateType) type).getSymbols()) {
                 bindFromSymbol(member, memoryStack.peek());
@@ -236,7 +236,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
      */
     protected Value instantiatePrototype(Prototype type, int symbolIdx) {
         // create memory space to store the values in
-        AggregateValue instance = new AggregateValue(type, symbolIdx, this.memoryStack.peek());
+        AggregateValue instance =
+                new AggregateValue(type /*, symbolIdx,*/, this.memoryStack.peek());
 
         // TODO: how to handle function calls here?
         //  we should evaluate functions as soon as possible, and only allow
@@ -297,7 +298,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
 
         AggregateValue entityValue =
-                new AggregateValue(type/*, symbol.getIdx()*/, this.memoryStack.peek(), entityObject);
+                new AggregateValue(
+                        type /*, symbol.getIdx()*/, this.memoryStack.peek(), entityObject);
 
         // an entity-object itself has no members, so add the components as "artificial members"
         // to the aggregate dsl value of the entity
@@ -325,7 +327,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 // add the memory space to an aggregateValue
                 AggregateValue aggregateMemberValue =
                         new AggregateValue(
-                                memberValue.getDataType()/*, -1*/, memberObject, encapsulatedObject);
+                                memberValue.getDataType() /*, -1*/,
+                                this.memoryStack.peek(),
+                                memberObject /*, encapsulatedObject*/);
+                aggregateMemberValue.setMemorySpace(encapsulatedObject);
 
                 entityValue.getMemorySpace().bindValue(memberName, aggregateMemberValue);
             }
@@ -377,12 +382,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(NumNode node) {
-        return new Value(BuiltInType.intType, node.getValue()/*, -1*/);
+        return new Value(BuiltInType.intType, node.getValue() /*, -1*/);
     }
 
     @Override
     public Object visit(StringNode node) {
-        return new Value(BuiltInType.stringType, node.getValue()/*, -1*/);
+        return new Value(BuiltInType.stringType, node.getValue() /*, -1*/);
     }
 
     // this is used for resolving object references
@@ -400,7 +405,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(DotDefNode node) {
         Interpreter dotInterpreter = new Interpreter();
         var graph = dotInterpreter.getGraph(node);
-        return new Value(BuiltInType.graphType, graph/*, -1*/);
+        return new Value(BuiltInType.graphType, graph /*, -1*/);
     }
 
     // TODO: this should probably check for type compatibility
@@ -463,9 +468,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
         var funcValue = this.globalSpace.resolve(funcName);
         assert funcValue instanceof FuncCallValue;
 
-
         // get the function symbol by symbolIdx from funcValue
-        var funcSymbol = this.symbolTable().getSymbolByIdx(((FuncCallValue)funcValue).getFunctionSymbolIdx());
+        var funcSymbol =
+                this.symbolTable()
+                        .getSymbolByIdx(((FuncCallValue) funcValue).getFunctionSymbolIdx());
         assert funcSymbol instanceof ICallable;
         var funcCallable = (ICallable) funcSymbol;
 

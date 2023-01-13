@@ -10,15 +10,16 @@ import semanticAnalysis.types.IType;
 
 // TODO: make this a subclass of AggregateType
 public class Prototype extends Value implements IType {
-    public static Prototype NONE = new Prototype(new AggregateType("NO_TYPE_NAME", Scope.NULL)/*, -1*/);
+    public static Prototype NONE =
+            new Prototype(new AggregateType("NO_TYPE_NAME", Scope.NULL) /*, -1*/);
     private final HashMap<String, Value> defaultValues;
 
     private AggregateType internalType() {
         return (AggregateType) this.dataType;
     }
 
-    public Prototype(AggregateType internalType/*, int symbolIdx*/) {
-        super(internalType, Value.NONE/*, symbolIdx*/);
+    public Prototype(AggregateType internalType /*, int symbolIdx*/) {
+        super(internalType, Value.NONE /*, symbolIdx*/);
         defaultValues = new HashMap<>();
     }
 
