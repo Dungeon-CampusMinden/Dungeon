@@ -11,6 +11,9 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import parser.DungeonASTConverter;
 import runtime.GameEnvironment;
+import runtime.MemorySpace;
+import runtime.Value;
+import semanticAnalysis.Symbol;
 import semanticAnalysis.SymbolTableParser;
 import semanticAnalysis.types.AggregateType;
 
@@ -103,5 +106,11 @@ public class Helpers {
         env.loadTypes(types);
         symTableParser.setup(env);
         return symTableParser.walk(ast);
+    }
+
+    public static void bindDefaultValueInMemorySpace(Symbol symbol, MemorySpace ms) {
+        var defaultValue = Value.getDefaultValue(symbol.getDataType());
+        var value = new Value(symbol.getDataType(), defaultValue, -1);
+        ms.bindValue(symbol.getName(), value);
     }
 }
