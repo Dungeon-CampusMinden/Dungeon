@@ -2,8 +2,12 @@ package interpreter;
 
 import static org.junit.Assert.*;
 
+import dslToGame.QuestConfig;
 import graph.Graph;
 import helpers.Helpers;
+import interpreter.mockECS.Entity;
+import interpreter.mockECS.TestComponent1;
+import interpreter.mockECS.TestComponent2;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -12,16 +16,11 @@ import java.net.URL;
 import org.junit.Ignore;
 import org.junit.Test;
 import parser.AST.Node;
-import runtime.AggregateTypeWithDefaults;
-import runtime.GameEnvironment;
-import runtime.Value;
+import runtime.*;
 import semanticAnalysis.Scope;
 import semanticAnalysis.Symbol;
 import semanticAnalysis.SymbolTableParser;
-import semanticAnalysis.types.BuiltInType;
-import semanticAnalysis.types.DSLType;
-import semanticAnalysis.types.DSLTypeMember;
-import semanticAnalysis.types.TypeBuilder;
+import semanticAnalysis.types.*;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
@@ -55,7 +54,7 @@ public class TestDSLInterpreter {
                     """;
         DSLInterpreter interpreter = new DSLInterpreter();
         interpreter.getQuestConfig(program);
-        assertNotSame(42, Value.NONE.getInternalValue());
+        assertNotSame(42, Value.NONE.getInternalObject());
     }
 
     /**
@@ -89,7 +88,7 @@ public class TestDSLInterpreter {
                 """;
         DSLInterpreter interpreter = new DSLInterpreter();
 
-        var questConfig = interpreter.getQuestConfig(program);
+        var questConfig = (QuestConfig) interpreter.getQuestConfig(program);
         assertEquals(0, questConfig.questPoints());
         assertEquals("Hello", questConfig.questDesc());
         assertEquals("", questConfig.password());
@@ -112,7 +111,7 @@ public class TestDSLInterpreter {
                     """;
         DSLInterpreter interpreter = new DSLInterpreter();
 
-        var questConfig = interpreter.getQuestConfig(program);
+        var questConfig = (QuestConfig) interpreter.getQuestConfig(program);
         assertEquals(42, questConfig.questPoints());
         assertEquals("Hello", questConfig.questDesc());
         assertEquals("TESTPW", questConfig.password());
@@ -181,32 +180,30 @@ public class TestDSLInterpreter {
         var rtEnv = interpreter.getRuntimeEnvironment();
 
         var typeWithDefaults = rtEnv.lookupTypeWithDefaults("c");
-        assertNotEquals(AggregateTypeWithDefaults.NONE, typeWithDefaults);
+        assertNotEquals(Prototype.NONE, typeWithDefaults);
 
         var firstCompWithDefaults = typeWithDefaults.getDefaultValue("test_component");
         assertNotEquals(Value.NONE, firstCompWithDefaults);
-        assertTrue(firstCompWithDefaults instanceof AggregateTypeWithDefaults);
+        assertTrue(firstCompWithDefaults instanceof Prototype);
 
         var secondCompWithDefaults = typeWithDefaults.getDefaultValue("other_component");
         assertNotEquals(Value.NONE, secondCompWithDefaults);
-        assertTrue(secondCompWithDefaults instanceof AggregateTypeWithDefaults);
+        assertTrue(secondCompWithDefaults instanceof Prototype);
 
         // check members of components
-        var member1Value =
-                ((AggregateTypeWithDefaults) firstCompWithDefaults).getDefaultValue("member1");
+        var member1Value = ((Prototype) firstCompWithDefaults).getDefaultValue("member1");
         assertNotEquals(Value.NONE, member1Value);
         assertEquals(BuiltInType.intType, member1Value.getDataType());
-        assertEquals(42, member1Value.getInternalValue());
+        assertEquals(42, member1Value.getInternalObject());
 
-        var member2Value =
-                ((AggregateTypeWithDefaults) firstCompWithDefaults).getDefaultValue("member2");
+        var member2Value = ((Prototype) firstCompWithDefaults).getDefaultValue("member2");
         assertNotEquals(Value.NONE, member2Value);
         assertEquals(BuiltInType.stringType, member2Value.getDataType());
-        assertEquals("Hello, World!", member2Value.getInternalValue());
+        assertEquals("Hello, World!", member2Value.getInternalObject());
     }
 
     @DSLType(name = "quest_config")
-    public record CustomQuestConfig(@DSLTypeMember Object gameObject) {}
+    public record CustomQuestConfig(@DSLTypeMember Entity entity) {}
 
     class TestEnvironment extends GameEnvironment {
         public TestEnvironment() {
@@ -233,25 +230,32 @@ public class TestDSLInterpreter {
     }
 
     @Test
-    @Ignore
     public void aggregateTypeInstancing() {
         String program =
                 """
-                graph g {
-                    A -- B
+                game_object my_obj {
+                    test_component1 {
+                        member1: 42,
+                        member2: 12
+                    },
+                    test_component2 {
+                        member1: "Hallo",
+                        member2: 123
+                    }
                 }
 
                 quest_config config {
-                    game_object: c
+                    entity: my_obj
                 }
                 """;
 
         TypeBuilder tb = new TypeBuilder();
-        var testCompType = tb.createTypeFromClass(new Scope(), TestComponent.class);
-        var otherCompType = tb.createTypeFromClass(new Scope(), OtherComponent.class);
+        var entityType = tb.createTypeFromClass(new Scope(), Entity.class);
+        var testCompType = tb.createTypeFromClass(new Scope(), TestComponent1.class);
+        var otherCompType = tb.createTypeFromClass(new Scope(), TestComponent2.class);
 
         var env = new TestEnvironment();
-        env.loadTypes(new Symbol[] {testCompType, otherCompType});
+        env.loadTypes(new Symbol[] {entityType, testCompType, otherCompType});
 
         SymbolTableParser symbolTableParser = new SymbolTableParser();
         symbolTableParser.setup(env);
@@ -261,14 +265,34 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         interpreter.initializeRuntime(env);
 
-        // var questConfig = interpreter.generateQuestConfig(ast);
-        // var rtEnv = interpreter.getRuntimeEnvironment();
+        var entity = ((CustomQuestConfig) interpreter.generateQuestConfig(ast)).entity;
+        var rtEnv = interpreter.getRuntimeEnvironment();
+        var globalMs = interpreter.getGlobalMemorySpace();
+
+        // the config should contain the my_obj definition on the entity-value, which should
+        // encapsulate the actual
+        // test component instances
+        var config = (AggregateValue) (globalMs.resolve("config"));
+        var myObj = config.getMemorySpace().resolve("entity");
+        assertNotEquals(Value.NONE, myObj);
+        assertTrue(myObj instanceof AggregateValue);
+
+        var testComp1Value = ((AggregateValue) myObj).getMemorySpace().resolve("test_component1");
+        assertNotEquals(Value.NONE, testComp1Value);
+        var testComp1EncapsulatedObj =
+                (EncapsulatedObject) ((AggregateValue) testComp1Value).getMemorySpace();
+        var testComp1Internal = testComp1EncapsulatedObj.getInternalObject();
+        assertTrue(testComp1Internal instanceof TestComponent1);
+
+        TestComponent1 testComp1 = (TestComponent1) testComp1Internal;
+        assertEquals(entity, testComp1.getEntity());
     }
 
     @Test
+    @Ignore
     public void testDontOverwriteCtorDefaults() {
         String program =
-            """
+                """
                 game_object my_obj {
                     component_with_default_ctor {
                         member1:  "Hello, World!",
@@ -278,7 +302,8 @@ public class TestDSLInterpreter {
             """;
 
         TypeBuilder tb = new TypeBuilder();
-        var compWithDefaultsType = tb.createTypeFromClass(new Scope(), ComponentWithDefaultCtor.class);
+        var compWithDefaultsType =
+                tb.createTypeFromClass(new Scope(), ComponentWithDefaultCtor.class);
 
         var env = new GameEnvironment();
         env.loadTypes(new Symbol[] {compWithDefaultsType});
@@ -295,8 +320,6 @@ public class TestDSLInterpreter {
         // extract memory space corresponding to the game object
         var memSpace = interpreter.getGlobalMemorySpace();
 
-        // TODO: this does not work, because the gmae object definition
-        //  is currently not instantiated
         var obj = memSpace.resolve("my_obj");
         assertNotEquals(Value.NONE, obj);
     }

@@ -2,6 +2,7 @@ package semanticAnalysis.types;
 
 import dslToGame.QuestConfig;
 import graph.Graph;
+import helpers.Helpers;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,8 +11,6 @@ import org.junit.Test;
 import runtime.MemorySpace;
 import semanticAnalysis.Scope;
 
-// TODO: handle context for construction of components and passing
-//  entity as parameter
 public class TestTypeInstantiator {
     @Test
     public void testInstantiatorRecord()
@@ -31,7 +30,8 @@ public class TestTypeInstantiator {
 
         int memberCounter = 0;
         for (var member : type.getSymbols()) {
-            ms.bindFromSymbol(member);
+            Helpers.bindDefaultValueInMemorySpace(member, ms);
+
             if (member.getDataType().equals(BuiltInType.intType)) {
                 setValues.put(member.getName(), memberCounter);
                 ms.resolve(member.getName()).setInternalValue(memberCounter);
@@ -86,7 +86,7 @@ public class TestTypeInstantiator {
 
         int memberCounter = 0;
         for (var member : type.getSymbols()) {
-            ms.bindFromSymbol(member);
+            Helpers.bindDefaultValueInMemorySpace(member, ms);
             if (member.getDataType().equals(BuiltInType.intType)) {
                 setValues.put(member.getName(), memberCounter);
                 ms.resolve(member.getName()).setInternalValue(memberCounter);
