@@ -11,7 +11,7 @@ public class RuntimeEnvironment implements IEvironment {
     private final SymbolTable symbolTable;
     private final HashMap<String, Symbol> functions;
     private final HashMap<String, Symbol> types;
-    private final HashMap<String, AggregateTypeWithDefaults> typesWithDefaults;
+    private final HashMap<String, Prototype> typesWithDefaults;
 
     public RuntimeEnvironment(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
@@ -40,11 +40,11 @@ public class RuntimeEnvironment implements IEvironment {
         this.typesWithDefaults = new HashMap<>();
     }
 
-    public AggregateTypeWithDefaults lookupTypeWithDefaults(String name) {
-        return this.typesWithDefaults.getOrDefault(name, AggregateTypeWithDefaults.NONE);
+    public Prototype lookupTypeWithDefaults(String name) {
+        return this.typesWithDefaults.getOrDefault(name, Prototype.NONE);
     }
 
-    public boolean addTypeWithDefaults(AggregateTypeWithDefaults type) {
+    public boolean addTypeWithDefaults(Prototype type) {
         if (this.typesWithDefaults.containsKey(type.getName())) {
             return false;
         } else {
