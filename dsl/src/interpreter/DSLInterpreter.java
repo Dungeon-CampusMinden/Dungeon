@@ -64,8 +64,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 if (creationAstNode.type.equals(Node.Type.GameObjectDefinition)) {
                     var gameObjDefNode = (GameObjectDefinitionNode) creationAstNode;
 
-                    var gameObjTypeWithDefaults =
-                            new Prototype((AggregateType) symbol /*, symbol.getIdx()*/);
+                    var gameObjTypeWithDefaults = new Prototype((AggregateType) symbol);
 
                     for (var node : gameObjDefNode.getComponentDefinitionNodes()) {
                         var componentNode = (ComponentDefinitionNode) node;
@@ -81,8 +80,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         // evaluate rhs and store the value in the member of
                         // aggregateTypeWithDefaults
                         Prototype componentTypeWithDefaults =
-                                new Prototype((AggregateType) componentSymbol.getDataType() /*,
-                                        componentSymbol.getIdx()*/);
+                                new Prototype((AggregateType) componentSymbol.getDataType());
                         for (var propDef : componentNode.getPropertyDefinitionNodes()) {
                             var propertyDefNode = (PropertyDefNode) propDef;
 
@@ -90,13 +88,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
                             System.out.println(rhsValue);
 
                             var propertySymbol = symbolTable().getSymbolsForAstNode(propDef).get(0);
-                            // typechecking is happened at this point
-                            var propertyType = propertySymbol.getDataType();
+                            // typechecking has happened at this point
                             Value value =
                                     new Value(
                                             propertySymbol.getDataType(),
-                                            rhsValue.getInternalObject()
-                                            /*propertySymbol.getIdx()*/ );
+                                            rhsValue.getInternalObject());
                             value.setDirty();
 
                             var valueName = propertyDefNode.getIdName();
@@ -148,7 +144,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             return true;
         }
         if (!(symbol instanceof IType)) {
-            var value = createDefaultValue(symbol.getDataType(), symbol.getIdx());
+            var value = createDefaultValue(symbol.getDataType());
             ms.bindValue(symbol.getName(), value);
             return true;
         }
@@ -160,17 +156,15 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * type are set to their default value.
      *
      * @param type
-     * @param symbolIdx
      * @return
      */
-    private Value createDefaultValue(IType type, int symbolIdx) {
+    private Value createDefaultValue(IType type) {
         if (type.getTypeKind().equals(IType.Kind.Basic)) {
             Object internalValue = Value.getDefaultValue(type);
-            return new Value(type, internalValue /*, symbolIdx*/);
+            return new Value(type, internalValue);
         } else {
             var topMostMs = this.memoryStack.peek();
-            AggregateValue value =
-                    new AggregateValue((AggregateType) type, /*, symbolIdx,*/ topMostMs);
+            AggregateValue value = new AggregateValue(type, topMostMs);
             this.memoryStack.push(value.getMemorySpace());
             for (var member : ((AggregateType) type).getSymbols()) {
                 bindFromSymbol(member, memoryStack.peek());
@@ -231,10 +225,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * Instantiate a dsl prototype (which is an aggregate type with defaults) as a new Value
      *
      * @param type
-     * @param symbolIdx
      * @return
      */
-    protected Value instantiatePrototype(Prototype type, int symbolIdx) {
+    protected Value instantiatePrototype(Prototype type) {
         // create memory space to store the values in
         AggregateValue instance =
                 new AggregateValue(type /*, symbolIdx,*/, this.memoryStack.peek());
@@ -250,14 +243,14 @@ public class DSLInterpreter implements AstVisitor<Object> {
             // check, if type defines default for member
             var defaultValue = type.getDefaultValue(member.getName());
             if (defaultValue instanceof Prototype) {
-                defaultValue = instantiatePrototype((Prototype) defaultValue, symbolIdx);
+                defaultValue = instantiatePrototype((Prototype) defaultValue);
             } else if (!defaultValue.equals(Value.NONE)) {
                 // copy value (this is a copy of the DSL-Value, not the internal Object of the
                 // value)
                 defaultValue = (Value) defaultValue.clone();
             } else {
                 // no default value, generate default ourselves
-                defaultValue = createDefaultValue(member.getDataType(), member.getIdx());
+                defaultValue = createDefaultValue(member.getDataType());
             }
 
             ms.bindValue(member.getName(), defaultValue);
@@ -280,7 +273,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(GameObjectDefinitionNode node) {
         var typeWithDefaults = this.environment.lookupTypeWithDefaults(node.getIdName());
         var symbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
-        var instance = (AggregateValue) instantiatePrototype(typeWithDefaults, symbol.getIdx());
+        var instance = (AggregateValue) instantiatePrototype(typeWithDefaults);
 
         // instantiate entity
         TypeInstantiator ti = new TypeInstantiator();
@@ -298,8 +291,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
 
         AggregateValue entityValue =
-                new AggregateValue(
-                        type /*, symbol.getIdx()*/, this.memoryStack.peek(), entityObject);
+                new AggregateValue(type, this.memoryStack.peek(), entityObject);
 
         // an entity-object itself has no members, so add the components as "artificial members"
         // to the aggregate dsl value of the entity
@@ -327,9 +319,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 // add the memory space to an aggregateValue
                 AggregateValue aggregateMemberValue =
                         new AggregateValue(
-                                memberValue.getDataType() /*, -1*/,
-                                this.memoryStack.peek(),
-                                memberObject /*, encapsulatedObject*/);
+                                memberValue.getDataType(), this.memoryStack.peek(), memberObject);
                 aggregateMemberValue.setMemorySpace(encapsulatedObject);
 
                 entityValue.getMemorySpace().bindValue(memberName, aggregateMemberValue);

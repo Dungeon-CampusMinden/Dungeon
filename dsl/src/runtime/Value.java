@@ -7,16 +7,13 @@ import semanticAnalysis.types.IType;
 
 /**
  * This class is used to represent a value in a {@link MemorySpace}, that is a combination of actual
- * value, dataType (defined by {@link IType} and optional reference to a {@link
- * semanticAnalysis.Symbol} from a {@link semanticAnalysis.SymbolTable}, as this class is basically
- * the runtime equivalent of a {@link semanticAnalysis.Symbol}
+ * value and a dataType (defined by {@link IType}
  */
 public class Value implements IClonable {
-    public static Value NONE = new Value(null, null /*, -1*/, false);
+    public static Value NONE = new Value(null, null, false);
 
     protected final IType dataType;
     protected Object value;
-    // protected final int symbolIdx;
     protected final boolean isMutable;
     protected boolean dirty;
 
@@ -47,19 +44,6 @@ public class Value implements IClonable {
     }
 
     /**
-     * Getter for index of the {@link semanticAnalysis.Symbol} linked to this Value
-     *
-     * @return index of the linked Symbol
-     */
-    // TODO: this is only used for recovery of the AST corresponding to a function definition,
-    // otherwise
-    //  this is not used.. should find a better solution for the function part and simplify all
-    // other cases
-    /*public int getSymbolIdx() {
-        return symbolIdx;
-    }*/
-
-    /**
      * Setter for the internal, underlying value
      *
      * @param internalValue The value to set this {@link Value} to.
@@ -82,10 +66,9 @@ public class Value implements IClonable {
      * @param internalValue The actual value stored in this value //* @param symbolIdx The index of
      *     the {@link semanticAnalysis.Symbol} this Value corresponds to
      */
-    public Value(IType dataType, Object internalValue /*, int symbolIdx*/) {
+    public Value(IType dataType, Object internalValue) {
         this.value = internalValue;
         this.dataType = dataType;
-        // this.symbolIdx = symbolIdx;
         this.isMutable = true;
 
         this.dirty = false;
@@ -98,10 +81,9 @@ public class Value implements IClonable {
      * @param internalValue The actual value stored in this value //* @param symbolIdx The index of
      *     the {@link semanticAnalysis.Symbol} this Value corresponds to
      */
-    public Value(IType dataType, Object internalValue /*, int symbolIdx*/, boolean isMutable) {
+    public Value(IType dataType, Object internalValue, boolean isMutable) {
         this.value = internalValue;
         this.dataType = dataType;
-        // this.symbolIdx = symbolIdx;
         this.isMutable = isMutable;
 
         this.dirty = true;
@@ -132,7 +114,7 @@ public class Value implements IClonable {
 
     @Override
     public Object clone() {
-        var cloned = new Value(this.dataType, this.value /*, this.symbolIdx*/, this.isMutable);
+        var cloned = new Value(this.dataType, this.value, this.isMutable);
         cloned.dirty = this.dirty;
         return cloned;
     }

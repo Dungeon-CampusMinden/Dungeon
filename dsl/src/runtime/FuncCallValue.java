@@ -13,4 +13,9 @@ public class FuncCallValue extends Value {
         super(functionReturnValue, null);
         this.functionSymbolIdx = functionSymbolIdx;
     }
+
+    @Override
+    public Object clone() {
+        return new FuncCallValue(this.dataType, this.functionSymbolIdx);
+    }
 }

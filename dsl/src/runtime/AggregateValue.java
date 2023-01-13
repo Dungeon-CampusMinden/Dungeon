@@ -9,26 +9,15 @@ public class AggregateValue extends Value {
         return ms;
     }
 
-    public AggregateValue(IType datatype /*, int symbolIdx*/, IMemorySpace parentSpace) {
-        super(datatype, null /*, symbolIdx*/);
+    public AggregateValue(IType datatype, IMemorySpace parentSpace) {
+        super(datatype, null);
         this.ms = new MemorySpace(parentSpace);
     }
 
-    public AggregateValue(
-            IType datatype /*, int symbolIdx*/ /*,*/,
-            IMemorySpace parentSpace,
-            Object internalValue) {
-        super(datatype, internalValue /*, symbolIdx*/);
+    public AggregateValue(IType datatype, IMemorySpace parentSpace, Object internalValue) {
+        super(datatype, internalValue);
         this.ms = new MemorySpace(parentSpace);
     }
-
-    // TODO: this should probably be another class alltogether
-    // public AggregateValue(
-    //        IType datatype/*, int symbolIdx*/, Object internalValue/*, IMemorySpace
-    // ownMemorySpace*/) {
-    //    super(datatype, internalValue/*, symbolIdx*/);
-    //    this.ms = ownMemorySpace;
-    // }
 
     public void setMemorySpace(IMemorySpace ms) {
         this.ms = ms;
