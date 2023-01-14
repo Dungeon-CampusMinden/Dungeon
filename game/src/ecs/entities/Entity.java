@@ -25,6 +25,10 @@ public class Entity {
         components.put(name, component);
     }
 
+    public void removeComponent(String name) {
+        components.remove(name);
+    }
+
     /**
      * Get the component
      *

@@ -1,15 +1,10 @@
 package ecs.systems;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import ecs.components.AnimationComponent;
-import ecs.components.AnimationList;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
 import graphic.Painter;
-import java.util.HashMap;
 import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,33 +14,22 @@ import tools.Point;
 public class DrawSystemTest {
 
     private final Animation animation = Mockito.mock(Animation.class);
+    private final Painter painter = Mockito.mock(Painter.class);
+    private DrawSystem system;
     private Entity entity;
-    private Painter painter = Mockito.mock(Painter.class);
-    private PositionComponent positionComponent;
-    private AnimationComponent animationComponent;
 
     @Before
     public void setup() {
         ECS.systems = new SystemController();
-        ECS.positionComponentMap = new HashMap<>();
-        ECS.animationComponentMap = new HashMap<>();
+        system = new DrawSystem(painter);
         entity = new Entity();
-        positionComponent = new PositionComponent(entity, new Point(3, 3));
-        AnimationList list = new AnimationList();
-        list.setIdleLeft(animation);
-        new AnimationComponent(entity, list, animation);
-    }
-
-    @Test
-    public void constructorTest() {
-        DrawSystem system = new DrawSystem(painter);
-        assertNotNull(system);
-        assertTrue(ECS.systems.contains(system));
+        entity.addComponent(PositionComponent.name, new PositionComponent(entity, new Point(3, 3)));
+        entity.addComponent(AnimationComponent.name, new AnimationComponent(entity, animation));
     }
 
     @Test
     public void testUpdate() {
-        /**
+        /*
          * This method can not be tested because we can not mock the internal PainterConfig Object
          * in the DrawSystem. The PainterConfig needs libGDX setup
          */
@@ -53,8 +37,14 @@ public class DrawSystemTest {
 
     @Test
     public void testUpdateWithoutPoisitionComponent() {
-        ECS.positionComponentMap = new HashMap<>();
-        DrawSystem system = new DrawSystem(painter);
+        entity.removeComponent(PositionComponent.name);
+        Mockito.verifyNoMoreInteractions(painter);
+        system.update();
+    }
+
+    @Test
+    public void testUpdateWithoutAnimationComponent() {
+        entity.removeComponent(AnimationComponent.name);
         Mockito.verifyNoMoreInteractions(painter);
         system.update();
     }

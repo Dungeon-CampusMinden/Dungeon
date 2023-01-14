@@ -1,7 +1,6 @@
 package ecs.components;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import ecs.entities.Entity;
 import graphic.Animation;
@@ -11,52 +10,31 @@ import org.mockito.Mockito;
 
 public class AnimationComponentTest {
 
-    private final Animation animation1 = Mockito.mock(Animation.class);
-    private final Animation animation2 = Mockito.mock(Animation.class);
+    private final Animation idleLeft = Mockito.mock(Animation.class);
+    private final Animation idleRight = Mockito.mock(Animation.class);
     private Entity entity;
-    AnimationList animations;
+    private AnimationComponent component;
 
     @Before
     public void setup() {
         entity = new Entity();
-        animations = new AnimationList();
-        animations.setIdleRight(animation1);
-        animations.setIdleLeft(animation2);
-    }
-
-    @Test
-    public void testConstructor() {
-        AnimationComponent component =
-                new AnimationComponent(entity, animations, animations.getIdleRight());
-        assertNotNull(component);
+        component = new AnimationComponent(entity, idleLeft, idleRight);
     }
 
     @Test
     public void testSetCurrentAnimation() {
-        Animation currentAnimation = animations.getIdleRight();
-        AnimationComponent component = new AnimationComponent(entity, animations, currentAnimation);
+        Animation currentAnimation = component.getCurrentAnimation();
         // Ensure that the current animation is initially set to the expected value
         assertEquals(currentAnimation, component.getCurrentAnimation());
 
         // Set a new animation and ensure that it is correctly set
-        Animation newAnimation = animations.getIdleLeft();
-        component.setCurrentAnimation(newAnimation);
-        assertEquals(newAnimation, component.getCurrentAnimation());
+        component.setCurrentAnimation(idleLeft);
+        assertEquals(idleLeft, component.getCurrentAnimation());
     }
 
     @Test
-    public void testSetCurrentAnimationList() {
-        AnimationComponent component =
-                new AnimationComponent(entity, animations, animations.getIdleRight());
-        // Ensure that the current animationList is initially set to the expected value
-        assertEquals(animations, component.getAnimationList());
-
-        // Set a new animationList and ensure that it is correctly set
-        AnimationList newList = new AnimationList();
-        newList.setIdleLeft(animation1);
-        newList.setIdleRight(animation2);
-        component.setAnimationList(newList, newList.getIdleLeft());
-        assertEquals(newList, component.getAnimationList());
-        assertEquals(newList.getIdleLeft(), component.getCurrentAnimation());
+    public void testGetAnimations() {
+        assertEquals(idleLeft, component.getIdleLeft());
+        assertEquals(idleRight, component.getIdleRight());
     }
 }
