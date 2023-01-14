@@ -20,7 +20,7 @@ public class DrawSystemTest {
 
     @Before
     public void setup() {
-        ECS.systems = new SystemController();
+        ECS.systems = Mockito.mock(SystemController.class);
         system = new DrawSystem(painter);
         entity = new Entity();
         entity.addComponent(PositionComponent.name, new PositionComponent(entity, new Point(3, 3)));
