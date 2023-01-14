@@ -7,6 +7,7 @@ import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
 import mydungeon.ECS;
 
+/** Used to controll the player */
 public class KeyboardSystem extends ECS_System {
 
     @Override

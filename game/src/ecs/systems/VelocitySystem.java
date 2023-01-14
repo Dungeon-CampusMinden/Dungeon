@@ -1,8 +1,10 @@
 package ecs.systems;
 
+import ecs.components.AnimationComponent;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
+import graphic.Animation;
 import mydungeon.ECS;
 import tools.Point;
 
@@ -27,9 +29,30 @@ public class VelocitySystem extends ECS_System {
                     Point newPosition = new Point(newX, newY);
                     if (ECS.currentLevel.getTileAt(newPosition.toCoordinate()).isAccessible()) {
                         position.setPosition(newPosition);
+                        movementAnimation(entity);
                     }
                 }
             }
+        }
+    }
+
+    private void movementAnimation(Entity entity) {
+        AnimationComponent ac = (AnimationComponent) entity.getComponent(AnimationComponent.name);
+        if (ac != null) {
+            boolean backup = true;
+            Animation newCurrentAnimation;
+            VelocityComponent vc = (VelocityComponent) entity.getComponent(VelocityComponent.name);
+            float x = vc.getX();
+            if (x > 0) newCurrentAnimation = vc.getMoveRightAnimation();
+            else if (x < 0) newCurrentAnimation = vc.getMoveLeftAnimation();
+            // idle
+            else {
+                if (ac.getCurrentAnimation() == ac.getIdleLeft()
+                        || ac.getCurrentAnimation() == vc.getMoveLeftAnimation())
+                    newCurrentAnimation = ac.getIdleLeft();
+                else newCurrentAnimation = ac.getIdleRight();
+            }
+            ac.setCurrentAnimation(newCurrentAnimation);
         }
     }
 }

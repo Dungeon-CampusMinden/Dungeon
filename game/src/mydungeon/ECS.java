@@ -38,14 +38,12 @@ public class ECS extends Game {
         new VelocitySystem();
         new DrawSystem(painter);
         new KeyboardSystem();
-        new AnimationSystem();
     }
 
     @Override
     protected void frame() {
         camera.setFocusPoint(hero.getPositionComponent().getPosition());
 
-        // debug pause
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
     }
 

@@ -12,14 +12,16 @@ public abstract class Component {
      * @param entity associated with this component
      */
 
+    /**
+     * @param entity associated entity
+     */
     public Component(Entity entity) {
         this.entity = entity;
     }
 
     /**
-     * @return the entity that this component is attached to
+     * @return the associated entity
      */
-
     public Entity getEntity() {
         return entity;
     }

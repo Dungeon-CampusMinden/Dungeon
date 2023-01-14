@@ -10,22 +10,32 @@ import graphic.Animation;
 public class AnimationComponent extends Component {
 
     public static String name = "AnimationComponent";
-    private AnimationList animationList;
+    private Animation idleLeft;
+    private Animation idleRight;
     private Animation currentAnimation;
 
     /**
      * @param entity associated entity
-     * @param animations all Animations of this Entity
-     * @param currentAnimation current animation of the entity
+     * @param idleLeft Idleanimation faced left
+     * @param idleRight Idleanimation faced right
      */
-    public AnimationComponent(Entity entity, AnimationList animations, Animation currentAnimation) {
+    public AnimationComponent(Entity entity, Animation idleLeft, Animation idleRight) {
         super(entity);
-        this.animationList = animations;
-        this.currentAnimation = currentAnimation;
+        this.idleRight = idleRight;
+        this.idleLeft = idleLeft;
+        this.currentAnimation = idleLeft;
     }
 
     /**
-     * @param animation new animation of the entity
+     * @param entity associated entity
+     * @param idle Idleanimation
+     */
+    public AnimationComponent(Entity entity, Animation idle) {
+        this(entity, idle, idle);
+    }
+
+    /**
+     * @param animation new current animation of the entity
      */
     public void setCurrentAnimation(Animation animation) {
         this.currentAnimation = animation;
@@ -39,18 +49,16 @@ public class AnimationComponent extends Component {
     }
 
     /**
-     * @param animationList list of animations
-     * @param currentAnimation set the current animation
+     * @return Idleanimation faced left
      */
-    public void setAnimationList(AnimationList animationList, Animation currentAnimation) {
-        this.animationList = animationList;
-        setCurrentAnimation(currentAnimation);
+    public Animation getIdleLeft() {
+        return idleLeft;
     }
 
     /**
-     * @return the animation List of the entity
+     * @return Idleanimation faced right
      */
-    public AnimationList getAnimationList() {
-        return animationList;
+    public Animation getIdleRight() {
+        return idleRight;
     }
 }
