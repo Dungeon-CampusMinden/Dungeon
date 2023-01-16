@@ -212,7 +212,7 @@ public class TestDSLInterpreter {
 
         @Override
         protected void bindBuiltIns() {
-            for (IType type : builtInTypes) {
+            for (IType type : BUILT_IN_TYPES) {
                 // load custom QuestConfig
                 if (!type.getName().equals("quest_config")) {
                     globalScope.bind((Symbol) type);
@@ -223,7 +223,7 @@ public class TestDSLInterpreter {
             var questConfigType = tp.createTypeFromClass(Scope.NULL, CustomQuestConfig.class);
             loadTypes(new semanticAnalysis.types.IType[] {questConfigType});
 
-            for (Symbol func : nativeFunctions) {
+            for (Symbol func : NATIVE_FUNCTIONS) {
                 globalScope.bind(func);
             }
         }

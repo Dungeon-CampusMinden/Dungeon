@@ -13,17 +13,29 @@ import runtime.Value;
 public class TypeInstantiator {
     private HashMap<String, Object> context = new HashMap<>();
 
+    /**
+     * Push an object as part of the context (so it can be looked up, if it is referenced by {@link
+     * DSLContextMember} by a constructor parameter)
+     *
+     * @param name the name to use for the contextMember
+     * @param contextMember the Object to push
+     */
     public void pushContextMember(String name, Object contextMember) {
         context.put(name, contextMember);
     }
 
+    /**
+     * Remove a context member with name
+     *
+     * @param name the name of the context member to remove
+     */
     public void removeContextMember(String name) {
         context.remove(name);
     }
 
     private Object instantiateRecord(Class<?> originalJavaClass, IMemorySpace ms) {
 
-        Constructor<?> ctor = GetConstructor(originalJavaClass);
+        Constructor<?> ctor = getConstructor(originalJavaClass);
         if (null == ctor) {
             throw new RuntimeException(
                     "Could not find a suitable constructor to instantiate record "
@@ -77,7 +89,7 @@ public class TypeInstantiator {
             throw new RuntimeException("Cannot instantiate an inner class");
         }
 
-        Constructor<?> ctor = GetConstructor(originalJavaClass);
+        Constructor<?> ctor = getConstructor(originalJavaClass);
         if (null == ctor) {
             throw new RuntimeException(
                     "Could not find a suitable constructor to instantiate class "
@@ -118,7 +130,7 @@ public class TypeInstantiator {
 
                     var fieldValue = ms.resolve(fieldName);
                     // we only should set the field value explicitly,
-                    // if it was set in the program
+                    // if it was set in the program (indicated by the dirty-flag)
                     if (fieldValue != null && fieldValue.isDirty()) {
                         var internalValue = fieldValue.getInternalObject();
 
@@ -133,7 +145,7 @@ public class TypeInstantiator {
         return instance;
     }
 
-    private Constructor<?> GetConstructor(Class<?> originalJavaClass) {
+    private Constructor<?> getConstructor(Class<?> originalJavaClass) {
         Constructor<?> ctor = null;
         for (Constructor<?> constructor : originalJavaClass.getDeclaredConstructors()) {
             ctor = constructor;
@@ -143,6 +155,15 @@ public class TypeInstantiator {
         return ctor;
     }
 
+    /**
+     * Instantiate a new Object corresponding to an {@link AggregateType} with an {@link
+     * IMemorySpace} containing all needed values. This requires the passed {@link AggregateType} to
+     * have an origin java class
+     *
+     * @param type the type to instantiate
+     * @param ms the memory space containing the values
+     * @return the instantiated object
+     */
     public Object instantiate(AggregateType type, IMemorySpace ms) {
         var originalJavaClass = type.getOriginType();
         if (null == originalJavaClass) {

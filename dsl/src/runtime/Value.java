@@ -17,10 +17,17 @@ public class Value implements IClonable {
     protected final boolean isMutable;
     protected boolean dirty;
 
+    /**
+     * Indicates, if the internal value of this {@link Value} was set explicitly (e.g. in a
+     * game_object definition).
+     *
+     * @return true, if the internal value was set explicitly, false otherwise
+     */
     public boolean isDirty() {
         return this.dirty;
     }
 
+    /** Set the dirty flag to true */
     public void setDirty() {
         this.dirty = true;
     }

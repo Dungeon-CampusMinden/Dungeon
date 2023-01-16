@@ -14,15 +14,12 @@ public class RuntimeEnvironment implements IEvironment {
     private final HashMap<String, IType> types;
     private final HashMap<String, Prototype> prototypes;
 
-    public RuntimeEnvironment(SymbolTable symbolTable) {
-        this.symbolTable = symbolTable;
-        this.functions = new HashMap<>();
-        this.types = new HashMap<>();
-        this.prototypes = new HashMap<>();
-    }
-
-    // construct a new runtime environment from an existing environment and
-    // add all type definitions to stored types
+    /**
+     * Constructor. Create new runtime environment from an existing environment and add all type
+     * definitions to the stored types.
+     *
+     * @param other the other environment to create a new RuntimeEnvironment from
+     */
     public RuntimeEnvironment(IEvironment other) {
         this.symbolTable = other.getSymbolTable();
 
@@ -41,15 +38,27 @@ public class RuntimeEnvironment implements IEvironment {
         this.prototypes = new HashMap<>();
     }
 
+    /**
+     * Lookup a {@link Prototype} with name
+     *
+     * @param name the name of the Prototype to lookup
+     * @return the Prototype with the passed name or Prototype.NONE
+     */
     public Prototype lookupPrototype(String name) {
         return this.prototypes.getOrDefault(name, Prototype.NONE);
     }
 
-    public boolean addPrototype(Prototype type) {
-        if (this.prototypes.containsKey(type.getName())) {
+    /**
+     * Add new {@link Prototype}
+     *
+     * @param prototype the new Prototype
+     * @return true on success, false otherwise
+     */
+    public boolean addPrototype(Prototype prototype) {
+        if (this.prototypes.containsKey(prototype.getName())) {
             return false;
         } else {
-            this.prototypes.put(type.getName(), type);
+            this.prototypes.put(prototype.getName(), prototype);
             return true;
         }
     }

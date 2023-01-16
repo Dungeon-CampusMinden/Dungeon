@@ -18,6 +18,15 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
     private IEvironment environment;
     private HashMap<String, EncapsulatedObject> objectCache;
 
+    /**
+     * Constructor
+     *
+     * @param innerObject the object to encapsulate
+     * @param type {@link AggregateType} of the Value represented by the new EncapsulatedObject
+     *     (used for resolving member access)
+     * @param parent the parent {@link IMemorySpace}
+     * @param environment the environment, which is used to resolve type names
+     */
     public EncapsulatedObject(
             Object innerObject, AggregateType type, IMemorySpace parent, IEvironment environment) {
         super(type, innerObject);
@@ -68,7 +77,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                 // convert the read field value to a DSL 'Value'
                 // this may require recursive creation of encapsulated objects,
                 // if the field is a component for example
-                var type = TypeBuilder.getDSLTypeForMember(value.getClass());
+                var type = TypeBuilder.getDSLTypeForClass(value.getClass());
                 if (type != null) {
                     // TODO: create encapsulated value (because the field is a POD-field, or "basic
                     // type")
@@ -78,6 +87,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                     var typeFromGlobalScope =
                             this.environment.getGlobalScope().resolve(dslTypeName);
                     if (typeFromGlobalScope instanceof IType) {
+                        // TODO: test thins
                         type = (IType) typeFromGlobalScope;
                         assert type instanceof AggregateType;
                         // if we reach this point, then the field in the actual java class

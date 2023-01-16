@@ -14,8 +14,8 @@ import semanticAnalysis.types.TypeBuilder;
 
 public class GameEnvironment implements IEvironment {
     // TODO: also make HashMaps
-    protected static final ArrayList<IType> builtInTypes = buildBuiltInTypes();
-    protected static final ArrayList<Symbol> nativeFunctions = buildNativeFunctions();
+    protected static final ArrayList<IType> BUILT_IN_TYPES = buildBuiltInTypes();
+    protected static final ArrayList<Symbol> NATIVE_FUNCTIONS = buildNativeFunctions();
 
     protected final HashMap<String, IType> loadedTypes = new HashMap<>();
     protected final HashMap<String, Symbol> loadedFunctions = new HashMap<>();
@@ -34,29 +34,29 @@ public class GameEnvironment implements IEvironment {
     }
 
     protected void bindBuiltIns() {
-        for (IType type : builtInTypes) {
+        for (IType type : BUILT_IN_TYPES) {
             globalScope.bind((Symbol) type);
         }
 
-        for (Symbol func : nativeFunctions) {
+        for (Symbol func : NATIVE_FUNCTIONS) {
             globalScope.bind(func);
         }
     }
 
     @Override
     public IType[] getTypes() {
-        var typesArray = new IType[builtInTypes.size() + loadedTypes.size()];
+        var typesArray = new IType[BUILT_IN_TYPES.size() + loadedTypes.size()];
         var combinedList = new ArrayList<IType>();
-        combinedList.addAll(builtInTypes);
+        combinedList.addAll(BUILT_IN_TYPES);
         combinedList.addAll(loadedTypes.values());
         return combinedList.toArray(typesArray);
     }
 
     @Override
     public Symbol[] getFunctions() {
-        var funcArray = new Symbol[nativeFunctions.size() + loadedFunctions.size()];
+        var funcArray = new Symbol[NATIVE_FUNCTIONS.size() + loadedFunctions.size()];
         var combinedList = new ArrayList<Symbol>();
-        combinedList.addAll(nativeFunctions);
+        combinedList.addAll(NATIVE_FUNCTIONS);
         combinedList.addAll(loadedFunctions.values());
         return combinedList.toArray(funcArray);
     }
