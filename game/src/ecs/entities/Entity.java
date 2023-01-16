@@ -15,10 +15,26 @@ public class Entity {
         ECS.entities.add(this);
     }
 
-    public void addComponent(String name, Component c) {
-        components.put(name, c);
+    /**
+     * Add a new component to this entity
+     *
+     * @param name Name of the component
+     * @param component The component
+     */
+    public void addComponent(String name, Component component) {
+        components.put(name, component);
     }
 
+    public void removeComponent(String name) {
+        components.remove(name);
+    }
+
+    /**
+     * Get the component
+     *
+     * @param name Name of the component
+     * @return The component with the given name associated with this entity, can be null
+     */
     public Component getComponent(String name) {
         return components.get(name);
     }

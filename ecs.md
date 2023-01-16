@@ -19,14 +19,13 @@ Entitäten leiten von der Klasse `Entity` ab.
 Entitäten werden im Package `ecs.entities` abgelegt.
 Auf eine tiefgehende Vererbungshierarchie sollte verzichtet werden.
 Die meisten Entitäten werden über die DSL definiert, nur in ausnahmefällen sollten eigenen Entitäten angelegt werden.
-Entitäten tuen eigentlich nichts anderes, als im Konstruktor Components für sich zu erstellen.
+Einer Entität kann mit der Methoden `addComponent` ein Component hinzugefügt werden.
 Nur in ausnahmefällen sollte Entitäten eigenen (non-hilfs) Funktionen und Attribute haben.
 
 ## Components erstellen
 Um eigene Components zu implementieren muss die eigenen Klasse das Interface `Component`implementieren.
 Components werden im package `ecs.components` abgelegt und sollen den Namenshema `$WHAT_IS_THIS_COMPONENT$Component`folgen.
-Jedes Component muss im Konstruktor die zugehörige `Entity` übergeben bekommen und in einer entsprechenden Component-Map in der Klasse `ECS` abgelegt werden.
-Aktuell muss diese Map noch selbst implementiert werden. Maps sind `public static`, der Key ist die Entität, das Value die Component-Instanz. Die Maps werden in `ECS#setupComponentMaps` initialisiert.
+Jedes Component braucht eine statische Variable `String name`, um den Component-Typen zu identifzieren.
 Jede Component-Instanz gehört zu genau einer Entitäs-Instanz. Eine Entitäts-Instanz kann einen Component-Typen nur einmal speichern.
 
 

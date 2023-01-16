@@ -1,11 +1,8 @@
 package ecs.components;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import ecs.entities.Entity;
-import java.util.HashMap;
-import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import tools.Point;
@@ -17,16 +14,8 @@ public class PositionComponentTest {
 
     @Before
     public void setup() {
-        ECS.positionComponentMap = new HashMap<>();
         entity = new Entity();
         position = new Point(3, 3);
-    }
-
-    @Test
-    public void testConstructor() {
-        PositionComponent component = new PositionComponent(entity, position);
-        assertNotNull(component);
-        assertNotNull(ECS.positionComponentMap.get(entity));
     }
 
     @Test

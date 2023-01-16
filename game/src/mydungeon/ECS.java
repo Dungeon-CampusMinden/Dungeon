@@ -16,7 +16,7 @@ import tools.Point;
 
 public class ECS extends Game {
 
-    public static Set<Entity> entities;
+    public static Set<Entity> entities = new HashSet<>();
 
     /** List of all Systems in the ECS */
     public static SystemController systems;
@@ -30,7 +30,6 @@ public class ECS extends Game {
         controller.clear();
         systems = new SystemController();
         controller.add(systems);
-        entities = new HashSet<>();
         hero = new Hero(new Point(0, 0));
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel();
@@ -44,7 +43,6 @@ public class ECS extends Game {
     protected void frame() {
         camera.setFocusPoint(hero.getPositionComponent().getPosition());
 
-        // debug pause
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
     }
 
