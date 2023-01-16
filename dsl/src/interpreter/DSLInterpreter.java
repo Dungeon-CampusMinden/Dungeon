@@ -64,11 +64,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     // This does not really evaluate the type definitions, but creates prototypes from
     // a type definition
-    // TODO: refactor
     public void evaluateTypeDefinitions(IEvironment environment) {
-        for (var symbol : environment.getTypes()) {
-            if (symbol instanceof AggregateType) {
-                var creationAstNode = symbolTable().getCreationAstNode(symbol);
         // iterate over all types
         for (var type : environment.getTypes()) {
             if (type.getTypeKind().equals(IType.Kind.Aggregate)) {
@@ -76,52 +72,46 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 // create a prototype for it
                 var creationAstNode = symbolTable().getCreationAstNode((Symbol) type);
                 if (creationAstNode.type.equals(Node.Type.GameObjectDefinition)) {
+                    var prototype = new Prototype((AggregateType) type);
+
                     var gameObjDefNode = (GameObjectDefinitionNode) creationAstNode;
-
-                    var gameObjTypeWithDefaults = new Prototype((AggregateType) symbol);
-
                     for (var node : gameObjDefNode.getComponentDefinitionNodes()) {
-                        var componentNode = (ComponentDefinitionNode) node;
-                        var componentSymbol =
-                                this.symbolTable().getSymbolsForAstNode(componentNode).get(0);
-
-                        assert componentSymbol.getDataType() instanceof AggregateType;
-
-                        //  the AggregateTypeWithDefaults for a component does only live inside the
-                        //  datatype
-                        //  definition, because it is part of the definition
-
-                        // evaluate rhs and store the value in the member of
-                        // aggregateTypeWithDefaults
-                        Prototype componentTypeWithDefaults =
-                                new Prototype((AggregateType) componentSymbol.getDataType());
-                        for (var propDef : componentNode.getPropertyDefinitionNodes()) {
-                            var propertyDefNode = (PropertyDefNode) propDef;
-
-                            var rhsValue = (Value) propertyDefNode.getStmtNode().accept(this);
-                            System.out.println(rhsValue);
-
-                            var propertySymbol = symbolTable().getSymbolsForAstNode(propDef).get(0);
-                            // typechecking has happened at this point
-                            Value value =
-                                    new Value(
-                                            propertySymbol.getDataType(),
-                                            rhsValue.getInternalObject());
-                            value.setDirty();
-
-                            var valueName = propertyDefNode.getIdName();
-                            componentTypeWithDefaults.addDefaultValue(valueName, value);
-                        }
-
-                        // add new component type with defaults to the enclosing game object type
-                        // with defaults
-                        gameObjTypeWithDefaults.addDefaultValue(
-                                componentNode.getIdName(), componentTypeWithDefaults);
+                        // add new component prototype to the enclosing game object prototype
+                        ComponentDefinitionNode compDefNode = (ComponentDefinitionNode) node;
+                        var componentPrototype = createComponentPrototype(compDefNode);
+                        prototype.addDefaultValue(compDefNode.getIdName(), componentPrototype);
                     }
-                    this.environment.addTypeWithDefaults(gameObjTypeWithDefaults);
+                    this.environment.addPrototype(prototype);
                 }
             }
         }
+    }
+
+    private Prototype createComponentPrototype(ComponentDefinitionNode node) {
+        var componentSymbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
+        assert componentSymbol.getDataType() instanceof AggregateType;
+
+        // the Prototype for a component does only live inside the
+        // datatype definition, because it is part of the definition
+        // evaluate rhs and store the value in the member of
+        // the prototype
+        Prototype componentPrototype = new Prototype((AggregateType) componentSymbol.getDataType());
+        for (var propDef : node.getPropertyDefinitionNodes()) {
+            var propertyDefNode = (PropertyDefNode) propDef;
+            var rhsValue = (Value) propertyDefNode.getStmtNode().accept(this);
+
+            var propertySymbol = symbolTable().getSymbolsForAstNode(propDef).get(0);
+            Value value = new Value(propertySymbol.getDataType(), rhsValue.getInternalObject());
+
+            // indicate, that the value is "dirty", which means it was set
+            // explicitly and needs to be set in the java object corresponding
+            // to the component
+            value.setDirty();
+
+            var valueName = propertyDefNode.getIdName();
+            componentPrototype.addDefaultValue(valueName, value);
+        }
+        return componentPrototype;
     }
 
     /**
