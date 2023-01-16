@@ -1,6 +1,5 @@
 package ecs.components;
 
-
 import ecs.entities.Entity;
 import tools.Point;
 
