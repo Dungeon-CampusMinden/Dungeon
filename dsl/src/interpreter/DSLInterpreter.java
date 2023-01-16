@@ -62,9 +62,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return this.globalSpace;
     }
 
-    // This does not really evaluate the type definitions, but creates prototypes from
-    // a type definition
-    public void evaluateTypeDefinitions(IEvironment environment) {
+    public void createGameObjectPrototypes(IEvironment environment) {
         // iterate over all types
         for (var type : environment.getTypes()) {
             if (type.getTypeKind().equals(IType.Kind.Aggregate)) {
@@ -209,7 +207,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     public Object generateQuestConfig(Node programAST) {
-        evaluateTypeDefinitions(this.environment);
+        createGameObjectPrototypes(this.environment);
 
         // find quest_config definition
         for (var node : programAST.getChildren()) {
