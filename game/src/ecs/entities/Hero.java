@@ -1,10 +1,10 @@
 package ecs.entities;
 
 import ecs.components.AnimationComponent;
+import ecs.components.AnimationList;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import graphic.Animation;
-import java.util.ArrayList;
 import java.util.List;
 import textures.TextureHandler;
 import tools.Point;
@@ -25,20 +25,25 @@ public class Hero extends Entity {
     }
 
     private void setupAnimationComponent() {
-        List<Animation> animationList = new ArrayList<>();
         int frameTime = 5;
+        AnimationList animations = new AnimationList();
         List<String> texturePaths =
                 TextureHandler.getInstance().getTexturePaths("knight_m_idle_anim_f");
-        animationList.add(new Animation(texturePaths, frameTime * 2));
+
+        animations.setIdleRight(new Animation(texturePaths, frameTime * 2));
+
+        texturePaths =
+                TextureHandler.getInstance().getTexturePaths("knight_m_idle_anim_mirrored_f");
+        animations.setIdleLeft(new Animation(texturePaths, frameTime * 2));
 
         texturePaths = TextureHandler.getInstance().getTexturePaths("knight_m_run_anim_f\\d+");
-        animationList.add(new Animation(texturePaths, frameTime));
+        animations.setMoveRight(new Animation(texturePaths, frameTime));
 
         texturePaths =
                 TextureHandler.getInstance().getTexturePaths("knight_m_run_anim_mirrored_f\\d+");
-        animationList.add(new Animation(texturePaths, frameTime));
+        animations.setMoveLeft(new Animation(texturePaths, frameTime));
 
-        new AnimationComponent(this, animationList, animationList.get(0));
+        new AnimationComponent(this, animations, animations.getIdleLeft());
     }
 
     /**
