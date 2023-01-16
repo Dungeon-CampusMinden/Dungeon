@@ -166,7 +166,7 @@ public class TestDSLInterpreter {
         var otherCompType = tb.createTypeFromClass(new Scope(), OtherComponent.class);
 
         var env = new GameEnvironment();
-        env.loadTypes(new Symbol[] {testCompType, otherCompType});
+        env.loadTypes(new IType[] {testCompType, otherCompType});
 
         SymbolTableParser symbolTableParser = new SymbolTableParser();
         symbolTableParser.setup(env);
@@ -212,16 +212,16 @@ public class TestDSLInterpreter {
 
         @Override
         protected void bindBuiltIns() {
-            for (Symbol type : builtInTypes) {
+            for (IType type : builtInTypes) {
                 // load custom QuestConfig
                 if (!type.getName().equals("quest_config")) {
-                    globalScope.bind(type);
+                    globalScope.bind((Symbol) type);
                 }
             }
 
             TypeBuilder tp = new TypeBuilder();
             var questConfigType = tp.createTypeFromClass(Scope.NULL, CustomQuestConfig.class);
-            loadTypes(new semanticAnalysis.types.AggregateType[] {questConfigType});
+            loadTypes(new semanticAnalysis.types.IType[] {questConfigType});
 
             for (Symbol func : nativeFunctions) {
                 globalScope.bind(func);
@@ -255,7 +255,7 @@ public class TestDSLInterpreter {
         var otherCompType = tb.createTypeFromClass(new Scope(), TestComponent2.class);
 
         var env = new TestEnvironment();
-        env.loadTypes(new Symbol[] {entityType, testCompType, otherCompType});
+        env.loadTypes(new IType[] {entityType, testCompType, otherCompType});
 
         SymbolTableParser symbolTableParser = new SymbolTableParser();
         symbolTableParser.setup(env);
@@ -306,7 +306,7 @@ public class TestDSLInterpreter {
                 tb.createTypeFromClass(new Scope(), ComponentWithDefaultCtor.class);
 
         var env = new GameEnvironment();
-        env.loadTypes(new Symbol[] {compWithDefaultsType});
+        env.loadTypes(new IType[] {compWithDefaultsType});
 
         SymbolTableParser symbolTableParser = new SymbolTableParser();
         symbolTableParser.setup(env);

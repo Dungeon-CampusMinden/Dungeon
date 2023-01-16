@@ -5,10 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import parser.AST.GameObjectDefinitionNode;
 import runtime.GameEnvironment;
-import semanticAnalysis.types.AggregateType;
-import semanticAnalysis.types.DSLType;
-import semanticAnalysis.types.DSLTypeMember;
-import semanticAnalysis.types.TypeBuilder;
+import semanticAnalysis.types.*;
 
 public class TestTypeBinder {
     @DSLType
@@ -33,7 +30,7 @@ public class TestTypeBinder {
         var symTableParser = new SymbolTableParser();
 
         var env = new GameEnvironment();
-        var types = new AggregateType[] {testCompType};
+        var types = new IType[] {testCompType};
         env.loadTypes(types);
         symTableParser.setup(env);
 
@@ -74,7 +71,7 @@ public class TestTypeBinder {
         var symTableParser = new SymbolTableParser();
 
         var env = new GameEnvironment();
-        var types = new AggregateType[] {testCompType};
+        var types = new IType[] {testCompType};
         env.loadTypes(types);
         symTableParser.setup(env);
 

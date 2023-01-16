@@ -69,6 +69,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
         for (var symbol : environment.getTypes()) {
             if (symbol instanceof AggregateType) {
                 var creationAstNode = symbolTable().getCreationAstNode(symbol);
+        // iterate over all types
+        for (var type : environment.getTypes()) {
+            if (type.getTypeKind().equals(IType.Kind.Aggregate)) {
+                // if the type has a creation node, it is user defined, and we need to
+                // create a prototype for it
+                var creationAstNode = symbolTable().getCreationAstNode((Symbol) type);
                 if (creationAstNode.type.equals(Node.Type.GameObjectDefinition)) {
                     var gameObjDefNode = (GameObjectDefinitionNode) creationAstNode;
 

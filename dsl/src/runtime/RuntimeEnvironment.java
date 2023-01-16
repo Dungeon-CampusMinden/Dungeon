@@ -4,20 +4,21 @@ import java.util.HashMap;
 import semanticAnalysis.IScope;
 import semanticAnalysis.Symbol;
 import semanticAnalysis.SymbolTable;
+import semanticAnalysis.types.IType;
 
-// this extends the normal IEnvironment definition by storing AggregateTypeWithDefault-types
+// this extends the normal IEnvironment definition by storing prototypes
 // which are basically evaluated type definitions (of game objects)
 public class RuntimeEnvironment implements IEvironment {
     private final SymbolTable symbolTable;
     private final HashMap<String, Symbol> functions;
-    private final HashMap<String, Symbol> types;
-    private final HashMap<String, Prototype> typesWithDefaults;
+    private final HashMap<String, IType> types;
+    private final HashMap<String, Prototype> prototypes;
 
     public RuntimeEnvironment(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
         this.functions = new HashMap<>();
         this.types = new HashMap<>();
-        this.typesWithDefaults = new HashMap<>();
+        this.prototypes = new HashMap<>();
     }
 
     // construct a new runtime environment from an existing environment and
@@ -37,25 +38,25 @@ public class RuntimeEnvironment implements IEvironment {
             this.types.put(type.getName(), type);
         }
 
-        this.typesWithDefaults = new HashMap<>();
+        this.prototypes = new HashMap<>();
     }
 
     public Prototype lookupPrototype(String name) {
-        return this.typesWithDefaults.getOrDefault(name, Prototype.NONE);
+        return this.prototypes.getOrDefault(name, Prototype.NONE);
     }
 
-    public boolean addTypeWithDefaults(Prototype type) {
-        if (this.typesWithDefaults.containsKey(type.getName())) {
+    public boolean addPrototype(Prototype type) {
+        if (this.prototypes.containsKey(type.getName())) {
             return false;
         } else {
-            this.typesWithDefaults.put(type.getName(), type);
+            this.prototypes.put(type.getName(), type);
             return true;
         }
     }
 
     @Override
-    public Symbol[] getTypes() {
-        return this.types.values().toArray(new Symbol[0]);
+    public IType[] getTypes() {
+        return this.types.values().toArray(new IType[0]);
     }
 
     @Override

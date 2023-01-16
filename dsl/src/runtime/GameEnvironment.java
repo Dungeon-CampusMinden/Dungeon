@@ -14,10 +14,10 @@ import semanticAnalysis.types.TypeBuilder;
 
 public class GameEnvironment implements IEvironment {
     // TODO: also make HashMaps
-    protected static final ArrayList<Symbol> builtInTypes = buildBuiltInTypes();
+    protected static final ArrayList<IType> builtInTypes = buildBuiltInTypes();
     protected static final ArrayList<Symbol> nativeFunctions = buildNativeFunctions();
 
-    protected final HashMap<String, Symbol> loadedTypes = new HashMap<>();
+    protected final HashMap<String, IType> loadedTypes = new HashMap<>();
     protected final HashMap<String, Symbol> loadedFunctions = new HashMap<>();
     protected final SymbolTable symbolTable;
     protected final Scope globalScope;
@@ -34,8 +34,8 @@ public class GameEnvironment implements IEvironment {
     }
 
     protected void bindBuiltIns() {
-        for (Symbol type : builtInTypes) {
-            globalScope.bind(type);
+        for (IType type : builtInTypes) {
+            globalScope.bind((Symbol) type);
         }
 
         for (Symbol func : nativeFunctions) {
@@ -44,9 +44,9 @@ public class GameEnvironment implements IEvironment {
     }
 
     @Override
-    public Symbol[] getTypes() {
-        var typesArray = new Symbol[builtInTypes.size() + loadedTypes.size()];
-        var combinedList = new ArrayList<Symbol>();
+    public IType[] getTypes() {
+        var typesArray = new IType[builtInTypes.size() + loadedTypes.size()];
+        var combinedList = new ArrayList<IType>();
         combinedList.addAll(builtInTypes);
         combinedList.addAll(loadedTypes.values());
         return combinedList.toArray(typesArray);
@@ -62,8 +62,8 @@ public class GameEnvironment implements IEvironment {
     }
 
     @Override
-    public void loadTypes(Symbol[] types) {
-        for (Symbol type : types) {
+    public void loadTypes(IType[] types) {
+        for (IType type : types) {
             if (!(type instanceof IType)) {
                 continue;
             }
@@ -71,7 +71,7 @@ public class GameEnvironment implements IEvironment {
                 continue;
             }
             loadedTypes.put(type.getName(), type);
-            this.globalScope.bind(type);
+            this.globalScope.bind((Symbol) type);
         }
     }
 
@@ -85,8 +85,8 @@ public class GameEnvironment implements IEvironment {
         return this.globalScope;
     }
 
-    private static ArrayList<Symbol> buildBuiltInTypes() {
-        ArrayList<Symbol> types = new ArrayList<>();
+    private static ArrayList<IType> buildBuiltInTypes() {
+        ArrayList<IType> types = new ArrayList<>();
 
         types.add(BuiltInType.intType);
         types.add(BuiltInType.stringType);

@@ -8,8 +8,6 @@ import runtime.IEvironment;
 import semanticAnalysis.Symbol;
 import semanticAnalysis.SymbolTable;
 
-import java.util.AbstractMap;
-
 public class TypeBinder implements AstVisitor<Object> {
 
     private StringBuilder errorStringBuilder;
@@ -22,7 +20,8 @@ public class TypeBinder implements AstVisitor<Object> {
     /**
      * Create new types for all game object definitions
      *
-     //* @param symbolTable the symbol table in which to store the types
+     * <p>//* @param symbolTable the symbol table in which to store the types
+     *
      * @param rootNode the root node of the program to scan for types
      * @param errorStringBuilder a string builder to which errors will be appended
      */
@@ -65,7 +64,7 @@ public class TypeBinder implements AstVisitor<Object> {
             }
         }
 
-        this.environment.loadTypes(new AggregateType[]{newType});
+        this.environment.loadTypes(new AggregateType[] {newType});
         return newType;
     }
 

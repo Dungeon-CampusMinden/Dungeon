@@ -8,10 +8,7 @@ import parser.AST.GameObjectDefinitionNode;
 import parser.AST.Node;
 import runtime.GameEnvironment;
 import runtime.nativeFunctions.NativePrint;
-import semanticAnalysis.types.AggregateType;
-import semanticAnalysis.types.DSLType;
-import semanticAnalysis.types.DSLTypeMember;
-import semanticAnalysis.types.TypeBuilder;
+import semanticAnalysis.types.*;
 
 public class TestSymbolTableParser {
 
@@ -74,7 +71,7 @@ public class TestSymbolTableParser {
         var testComponentType = tb.createTypeFromClass(Scope.NULL, TestComponent.class);
 
         var env = new GameEnvironment();
-        env.loadTypes(new Symbol[] {testComponentType});
+        env.loadTypes(new IType[] {testComponentType});
         symbolTableParser.setup(env);
         var symbolTable = symbolTableParser.walk(ast).symbolTable;
 

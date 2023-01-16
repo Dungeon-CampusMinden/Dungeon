@@ -15,7 +15,7 @@ import runtime.MemorySpace;
 import runtime.Value;
 import semanticAnalysis.Symbol;
 import semanticAnalysis.SymbolTableParser;
-import semanticAnalysis.types.AggregateType;
+import semanticAnalysis.types.IType;
 
 public class Helpers {
 
@@ -100,7 +100,7 @@ public class Helpers {
      * @return the {@link semanticAnalysis.SymbolTableParser.Result} of the semantic analysis
      */
     public static SymbolTableParser.Result getSymtableForASTWithLoadedTypes(
-            parser.AST.Node ast, AggregateType[] types) {
+            parser.AST.Node ast, IType[] types) {
         var symTableParser = new SymbolTableParser();
         var env = new GameEnvironment();
         env.loadTypes(types);
