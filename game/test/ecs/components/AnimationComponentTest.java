@@ -5,8 +5,6 @@ import static org.junit.Assert.assertNotNull;
 
 import ecs.entities.Entity;
 import graphic.Animation;
-import java.util.HashMap;
-import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -20,7 +18,6 @@ public class AnimationComponentTest {
 
     @Before
     public void setup() {
-        ECS.animationComponentMap = new HashMap<>();
         entity = new Entity();
         animations = new AnimationList();
         animations.setIdleRight(animation1);
@@ -32,7 +29,6 @@ public class AnimationComponentTest {
         AnimationComponent component =
                 new AnimationComponent(entity, animations, animations.getIdleRight());
         assertNotNull(component);
-        assertNotNull(ECS.animationComponentMap.get(entity));
     }
 
     @Test
