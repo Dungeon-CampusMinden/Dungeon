@@ -62,6 +62,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return this.globalSpace;
     }
 
+    /**
+     * Iterates over all types in the passed IEnvironment and creates a {@link Prototype} for any
+     * game object definition, which was defined by the user
+     *
+     * @param environment the environment to check for game object definitions
+     */
     public void createGameObjectPrototypes(IEvironment environment) {
         // iterate over all types
         for (var type : environment.getTypes()) {
@@ -113,9 +119,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     /**
-     * Binds all function definitions and object definitions in a global memory space.
+     * Binds all function definitions, object definitions and data types in a global memory space.
      *
-     * @param environment The environment to bind the functions and objects from.
+     * @param environment The environment to bind the functions, objects and data types from.
      */
     public void initializeRuntime(IEvironment environment) {
         this.environment = new RuntimeEnvironment(environment);
@@ -206,6 +212,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return questConfig;
     }
 
+    /**
+     * @param programAST The AST of the DSL program to generate a quest config object from
+     * @return the object, which represents the quest config of the passed DSL program. The type of
+     *     this object depends on the Class, which is set up as the 'quest_config' type in the
+     *     {@link IEvironment} used by the DSLInterpreter (set by {@link
+     *     #initializeRuntime(IEvironment)})
+     */
     public Object generateQuestConfig(Node programAST) {
         createGameObjectPrototypes(this.environment);
 
@@ -225,8 +238,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     /**
      * Instantiate a dsl prototype (which is an aggregate type with defaults) as a new Value
      *
-     * @param prototype
-     * @return
+     * @param prototype the {@link Prototype} to instantiate
+     * @return A new {@link Value} created from the {@link Prototype}
      */
     protected Value instantiate(Prototype prototype) {
         // create memory space to store the values in
@@ -301,7 +314,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 AggregateType membersOriginalType =
                         getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
 
-                // instantiate object
+                // instantiate object as a new java Object
                 Object memberObject =
                         typeInstantiator.instantiate(
                                 membersOriginalType,
