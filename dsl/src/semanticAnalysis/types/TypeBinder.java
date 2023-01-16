@@ -4,30 +4,37 @@ import parser.AST.AstVisitor;
 import parser.AST.ComponentDefinitionNode;
 import parser.AST.GameObjectDefinitionNode;
 import parser.AST.Node;
+import runtime.IEvironment;
 import semanticAnalysis.Symbol;
 import semanticAnalysis.SymbolTable;
 
+import java.util.AbstractMap;
+
 public class TypeBinder implements AstVisitor<Object> {
 
-    private SymbolTable symbolTable;
     private StringBuilder errorStringBuilder;
+    private IEvironment environment;
+
+    private SymbolTable symbolTable() {
+        return this.environment.getSymbolTable();
+    }
 
     /**
      * Create new types for all game object definitions
      *
-     * @param symbolTable the symbol table in which to store the types
+     //* @param symbolTable the symbol table in which to store the types
      * @param rootNode the root node of the program to scan for types
      * @param errorStringBuilder a string builder to which errors will be appended
      */
     public void bindTypes(
-            SymbolTable symbolTable, Node rootNode, StringBuilder errorStringBuilder) {
-        this.symbolTable = symbolTable;
+            IEvironment environment, Node rootNode, StringBuilder errorStringBuilder) {
+        this.environment = environment;
         this.errorStringBuilder = errorStringBuilder;
         visitChildren(rootNode);
     }
 
     private Symbol resolveGlobal(String name) {
-        return this.symbolTable.getGlobalScope().resolve(name);
+        return this.symbolTable().getGlobalScope().resolve(name);
     }
 
     @Override
@@ -41,8 +48,8 @@ public class TypeBinder implements AstVisitor<Object> {
             // TODO: return explicit null-Type?
             return null;
         }
-        var newType = new AggregateType(newTypeName, this.symbolTable.getGlobalScope());
-        symbolTable.addSymbolNodeRelation(newType, node);
+        var newType = new AggregateType(newTypeName, this.symbolTable().getGlobalScope());
+        symbolTable().addSymbolNodeRelation(newType, node);
 
         // visit all component definitions and get type and create new symbol in gameObject type
         for (var componentDef : node.getComponentDefinitionNodes()) {
@@ -54,11 +61,11 @@ public class TypeBinder implements AstVisitor<Object> {
                 String componentName = compDefNode.getIdName();
                 var memberSymbol = new Symbol(componentName, newType, (IType) componentType);
                 newType.bind(memberSymbol);
-                symbolTable.addSymbolNodeRelation(memberSymbol, compDefNode);
+                symbolTable().addSymbolNodeRelation(memberSymbol, compDefNode);
             }
         }
 
-        this.symbolTable.getGlobalScope().bind(newType);
+        this.environment.loadTypes(new AggregateType[]{newType});
         return newType;
     }
 

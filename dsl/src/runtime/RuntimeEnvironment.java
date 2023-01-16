@@ -54,6 +54,11 @@ public class RuntimeEnvironment implements IEvironment {
     }
 
     @Override
+    public Symbol[] getTypes() {
+        return this.types.values().toArray(new Symbol[0]);
+    }
+
+    @Override
     public SymbolTable getSymbolTable() {
         return this.symbolTable;
     }

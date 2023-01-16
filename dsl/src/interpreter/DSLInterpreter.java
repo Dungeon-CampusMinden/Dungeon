@@ -48,19 +48,25 @@ public class DSLInterpreter implements AstVisitor<Object> {
         memoryStack.push(globalSpace);
     }
 
+    /**
+     * @return the runtime environment of the DSLInterpreter
+     */
     public RuntimeEnvironment getRuntimeEnvironment() {
         return this.environment;
     }
 
+    /**
+     * @return the global memory space of the DSLInterpreter
+     */
     public IMemorySpace getGlobalMemorySpace() {
         return this.globalSpace;
     }
 
+    // This does not really evaluate the type definitions, but creates prototypes from
+    // a type definition
     // TODO: refactor
     public void evaluateTypeDefinitions(IEvironment environment) {
-        // TODO: could we just iterate over the types?
-        var globalScope = environment.getGlobalScope();
-        for (var symbol : globalScope.getSymbols()) {
+        for (var symbol : environment.getTypes()) {
             if (symbol instanceof AggregateType) {
                 var creationAstNode = symbolTable().getCreationAstNode(symbol);
                 if (creationAstNode.type.equals(Node.Type.GameObjectDefinition)) {

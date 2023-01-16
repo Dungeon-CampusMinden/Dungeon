@@ -36,6 +36,8 @@ import semanticAnalysis.types.TypeBinder;
 // will be high naturally
 @SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
 public class SymbolTableParser implements AstVisitor<Void> {
+    private SymbolTable symbolTable;
+    private IEvironment environment;
     Stack<IScope> scopeStack = new Stack<>();
     StringBuilder errorStringBuilder = new StringBuilder();
     private boolean setup = false;
@@ -76,8 +78,6 @@ public class SymbolTableParser implements AstVisitor<Void> {
         return scopeStack.get(0);
     }
 
-    private SymbolTable symbolTable;
-
     /**
      * Bind a symbol in the current scope and create an association between symbol and AST node
      *
@@ -106,11 +106,12 @@ public class SymbolTableParser implements AstVisitor<Void> {
             return;
         }
 
-        errorStringBuilder = new StringBuilder();
-        scopeStack = new Stack<>();
+        this.errorStringBuilder = new StringBuilder();
+        this.scopeStack = new Stack<>();
 
-        scopeStack.push(environment.getGlobalScope());
-        symbolTable = environment.getSymbolTable();
+        this.scopeStack.push(environment.getGlobalScope());
+        this.symbolTable = environment.getSymbolTable();
+        this.environment = environment;
 
         this.setup = true;
     }
@@ -167,7 +168,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
             case Program:
                 // bind all type definitions
                 TypeBinder tb = new TypeBinder();
-                tb.bindTypes(symbolTable, node, errorStringBuilder);
+                tb.bindTypes(environment, node, errorStringBuilder);
 
                 // bind all object definitions / variable assignments to enable object
                 // references before
