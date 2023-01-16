@@ -30,7 +30,7 @@ feel free to contact us in English or German.
 
 ## License
 
-This [work](https://github.com/Programmiermethoden/PM-Dungeon) by
+This [work](https://github.com/Programmiermethoden/Dungeon) by
 [André Matutat](https://github.com/AMatutat),
 [Malte Reinsch](https://github.com/malt-r),
 [Carsten Gips](https://github.com/cagix), and
