@@ -1,55 +1,45 @@
 package ecs.components;
 
 import ecs.entities.Entity;
-import graphic.Animation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SkillComponent extends Component {
 
     public static String name = "SkillComponent";
 
-    private Method method;
-    private boolean active;
-    private Animation animation;
+    private Set<Skill> skillSet;
 
     /**
      * @param entity associated entity
-     * @param method Method with the logic of this skill
-     * @param animation Animation of this skill
      */
-    public SkillComponent(Entity entity, Method method, Animation animation) {
+    public SkillComponent(Entity entity) {
         super(entity);
-        this.method = method;
-        this.animation = animation;
-        active = false;
+        skillSet = new HashSet<>();
     }
 
     /**
-     * Execute the method of this skill
+     * Add a skill to this component
      *
-     * @param args List with arguments
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException
+     * @param skill to add
      */
-    public void execute(Object... args) throws InvocationTargetException, IllegalAccessException {
-        method.invoke(getEntity(), args);
-        active = true;
-    }
-
-    /** Set the active state of this skill to false */
-    public void deActivate() {
-        active = false;
+    public void addSkill(Skill skill) {
+        skillSet.add(skill);
     }
 
     /**
-     * @return if this skill is currently activ or not
+     * remove a skill from this component
+     *
+     * @param skill to remove
      */
-    public boolean getActive() {
-        return active;
+    public void removeSkill(Skill skill) {
+        skillSet.remove(skill);
     }
 
-    public Animation getAnimation() {
-        return animation;
+    /**
+     * @return Set with all skills of this component
+     */
+    public Set<Skill> getSkillSet() {
+        return skillSet;
     }
 }
