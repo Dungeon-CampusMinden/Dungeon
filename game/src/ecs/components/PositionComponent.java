@@ -1,6 +1,8 @@
 package ecs.components;
 
 import ecs.entities.Entity;
+import level.tools.LevelElement;
+import mydungeon.ECS;
 import tools.Point;
 
 /** PositionComponent is a component that stores the x, y (as Point) position of an entity */
@@ -17,6 +19,15 @@ public class PositionComponent extends Component {
     public PositionComponent(Entity entity, Point point) {
         super(entity);
         this.position = point;
+    }
+
+    /**
+     * @param entity associated entity
+     */
+    public PositionComponent(Entity entity) {
+        super(entity);
+        this.position =
+                ECS.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint();
     }
 
     /**

@@ -52,6 +52,20 @@ public class VelocityComponent extends Component {
             Entity entity, float x, float y, float xSpeed, float ySpeed, Animation moveAnimation) {
         this(entity, x, y, xSpeed, ySpeed, moveAnimation, moveAnimation);
     }
+
+    /**
+     * @param entity associated entity
+     */
+    public VelocityComponent(Entity entity) {
+        super(entity);
+        this.x = 0;
+        this.y = 0;
+        this.xSpeed = 0;
+        this.ySpeed = 0;
+        this.moveLeftAnimation = null;
+        this.moveRightAnimation = null;
+    }
+
     /**
      * @return x movement
      */

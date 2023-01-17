@@ -36,16 +36,18 @@ public class DrawSystem extends ECS_System {
                         (PositionComponent) entity.getComponent(PositionComponent.name);
 
                 if (positionComponent != null) {
-                    String currentAnimationTexture = animation.getNextAnimationTexturePath();
-                    if (!configs.containsKey(currentAnimationTexture)) {
-                        configs.put(
+                    if (animation != null) {
+                        String currentAnimationTexture = animation.getNextAnimationTexturePath();
+                        if (!configs.containsKey(currentAnimationTexture)) {
+                            configs.put(
+                                    currentAnimationTexture,
+                                    new PainterConfig(currentAnimationTexture));
+                        }
+                        painter.draw(
+                                positionComponent.getPosition(),
                                 currentAnimationTexture,
-                                new PainterConfig(currentAnimationTexture));
+                                configs.get(currentAnimationTexture));
                     }
-                    painter.draw(
-                            positionComponent.getPosition(),
-                            currentAnimationTexture,
-                            configs.get(currentAnimationTexture));
                 }
             }
         }
