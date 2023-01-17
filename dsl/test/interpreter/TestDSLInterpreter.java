@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import org.junit.Ignore;
 import org.junit.Test;
 import parser.AST.Node;
 import runtime.*;
@@ -297,7 +296,7 @@ public class TestDSLInterpreter {
         var testComp2Value = ((AggregateValue) myObj).getMemorySpace().resolve("test_component2");
         assertNotEquals(Value.NONE, testComp2Value);
         var testComp2EncapsulatedObj =
-            (EncapsulatedObject) ((AggregateValue) testComp2Value).getMemorySpace();
+                (EncapsulatedObject) ((AggregateValue) testComp2Value).getMemorySpace();
         var testComp2Internal = testComp2EncapsulatedObj.getInternalObject();
         assertTrue(testComp2Internal instanceof TestComponent2);
 
