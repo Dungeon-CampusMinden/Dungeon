@@ -293,6 +293,7 @@ public class TestDSLInterpreter {
         assertEquals(12, testComp1.getMember2());
         assertEquals("DEFAULT VALUE", testComp1.getMember3());
 
+        // test, that the referenced entities are correct
         var testComp2Value = ((AggregateValue) myObj).getMemorySpace().resolve("test_component2");
         assertNotEquals(Value.NONE, testComp2Value);
         var testComp2EncapsulatedObj =
@@ -307,41 +308,5 @@ public class TestDSLInterpreter {
         assertEquals("Hallo", testComp2.getMember1());
         assertEquals(123, testComp2.getMember2());
         assertEquals("DEFAULT VALUE", testComp2.getMember3());
-    }
-
-    @Test
-    @Ignore
-    public void testDontOverwriteCtorDefaults() {
-        String program =
-                """
-                game_object my_obj {
-                    component_with_default_ctor {
-                        member1:  "Hello, World!",
-                        member2: 42
-                    }
-                }
-            """;
-
-        TypeBuilder tb = new TypeBuilder();
-        var compWithDefaultsType =
-                tb.createTypeFromClass(new Scope(), ComponentWithDefaultCtor.class);
-
-        var env = new GameEnvironment();
-        env.loadTypes(new IType[] {compWithDefaultsType});
-
-        SymbolTableParser symbolTableParser = new SymbolTableParser();
-        symbolTableParser.setup(env);
-        var ast = Helpers.getASTFromString(program);
-        symbolTableParser.walk(ast);
-
-        DSLInterpreter interpreter = new DSLInterpreter();
-        interpreter.initializeRuntime(env);
-
-        interpreter.generateQuestConfig(ast);
-        // extract memory space corresponding to the game object
-        var memSpace = interpreter.getGlobalMemorySpace();
-
-        var obj = memSpace.resolve("my_obj");
-        assertNotEquals(Value.NONE, obj);
     }
 }
