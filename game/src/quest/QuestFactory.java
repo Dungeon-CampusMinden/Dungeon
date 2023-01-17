@@ -17,7 +17,7 @@ public class QuestFactory {
         QuestType questType = QuestType.GRAPH_SEARCH_QUEST;
         switch (questType) {
             case GRAPH_SEARCH_QUEST -> {
-                return new GraphSearchQuest(questConfig, sc);
+                // todo later
             }
             case STATE_MACHINE_BOSS_QUEST -> {
                 // todo later

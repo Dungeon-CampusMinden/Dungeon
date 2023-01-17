@@ -1,0 +1,64 @@
+package ecs.components;
+
+import ecs.entities.Entity;
+import graphic.Animation;
+
+/**
+ * AnimationComponent is a component that stores the possible animations and the current animation
+ * of an entity
+ */
+public class AnimationComponent extends Component {
+
+    public static String name = "AnimationComponent";
+    private Animation idleLeft;
+    private Animation idleRight;
+    private Animation currentAnimation;
+
+    /**
+     * @param entity associated entity
+     * @param idleLeft Idleanimation faced left
+     * @param idleRight Idleanimation faced right
+     */
+    public AnimationComponent(Entity entity, Animation idleLeft, Animation idleRight) {
+        super(entity);
+        this.idleRight = idleRight;
+        this.idleLeft = idleLeft;
+        this.currentAnimation = idleLeft;
+    }
+
+    /**
+     * @param entity associated entity
+     * @param idle Idleanimation
+     */
+    public AnimationComponent(Entity entity, Animation idle) {
+        this(entity, idle, idle);
+    }
+
+    /**
+     * @param animation new current animation of the entity
+     */
+    public void setCurrentAnimation(Animation animation) {
+        this.currentAnimation = animation;
+    }
+
+    /**
+     * @return current animation of the entity
+     */
+    public Animation getCurrentAnimation() {
+        return currentAnimation;
+    }
+
+    /**
+     * @return Idleanimation faced left
+     */
+    public Animation getIdleLeft() {
+        return idleLeft;
+    }
+
+    /**
+     * @return Idleanimation faced right
+     */
+    public Animation getIdleRight() {
+        return idleRight;
+    }
+}

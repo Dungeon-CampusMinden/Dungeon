@@ -56,7 +56,7 @@ sourceSets.test.resources.srcDirs = ["dsl/test_resources"]
 sourceSets.test.java.srcDirs = ["game/test/", "dsl/test/"]
 sourceSets.main.antlr.srcDirs = ["dsl/src/antlr"]
 
-project.ext.mainClassName = "mydungeon.Starter"
+project.ext.mainClassName = "mydungeon.ECS"
 project.ext.assetsDir = new File("game/assets")
 
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform

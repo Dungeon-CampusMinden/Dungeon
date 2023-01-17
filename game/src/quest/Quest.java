@@ -5,14 +5,11 @@ import controller.ScreenController;
 import dslToGame.QuestConfig;
 import level.elements.ILevel;
 import level.generator.IGenerator;
-import minimap.IMinimap;
 
 public abstract class Quest {
     protected QuestConfig questConfig;
     protected IGenerator generator;
     protected ILevel root;
-    protected IMinimap minimap;
-
     protected String questText;
 
     protected ScreenController sc;
@@ -32,10 +29,6 @@ public abstract class Quest {
 
     public void setRootLevel(ILevel root) {
         this.root = root;
-    }
-
-    public void setMinimap(IMinimap minimap) {
-        this.minimap = minimap;
     }
 
     public abstract void addQuestObjectsToLevels();
