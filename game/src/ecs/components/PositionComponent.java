@@ -20,10 +20,9 @@ public class PositionComponent extends Component {
     }
 
     /**
-     *
      * @param entity associated entity
      */
-    public PositionComponent(Entity entity){
+    public PositionComponent(Entity entity) {
         super(entity);
         this.position = null;
     }

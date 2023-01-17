@@ -54,10 +54,9 @@ public class VelocityComponent extends Component {
     }
 
     /**
-     *
      * @param entity associated entity
      */
-    public VelocityComponent(Entity entity){
+    public VelocityComponent(Entity entity) {
         super(entity);
         this.x = 0;
         this.y = 0;
