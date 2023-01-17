@@ -35,6 +35,17 @@ public class AnimationComponent extends Component {
     }
 
     /**
+     *
+     * @param entity associated entity
+     */
+    public AnimationComponent(Entity entity){
+        super(entity);
+        this.idleLeft= null;
+        this.idleRight= null;
+        this.currentAnimation= null;
+    }
+
+    /**
      * @param animation new current animation of the entity
      */
     public void setCurrentAnimation(Animation animation) {

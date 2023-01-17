@@ -20,6 +20,15 @@ public class PositionComponent extends Component {
     }
 
     /**
+     *
+     * @param entity associated entity
+     */
+    public PositionComponent(Entity entity){
+        super(entity);
+        this.position = null;
+    }
+
+    /**
      * @return the position of the associated entity
      */
     public Point getPosition() {
