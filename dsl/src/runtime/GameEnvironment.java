@@ -14,13 +14,13 @@ import semanticAnalysis.types.TypeBuilder;
 
 public class GameEnvironment implements IEvironment {
     // TODO: also make HashMaps
-    private static final ArrayList<Symbol> builtInTypes = buildBuiltInTypes();
-    private static final ArrayList<Symbol> nativeFunctions = buildNativeFunctions();
+    protected static final ArrayList<IType> BUILT_IN_TYPES = buildBuiltInTypes();
+    protected static final ArrayList<Symbol> NATIVE_FUNCTIONS = buildNativeFunctions();
 
-    private final HashMap<String, Symbol> loadedTypes = new HashMap<>();
-    private final HashMap<String, Symbol> loadedFunctions = new HashMap<>();
-    private final SymbolTable symbolTable;
-    private final Scope globalScope;
+    protected final HashMap<String, IType> loadedTypes = new HashMap<>();
+    protected final HashMap<String, Symbol> loadedFunctions = new HashMap<>();
+    protected final SymbolTable symbolTable;
+    protected final Scope globalScope;
 
     /**
      * Constructor. Creates fresh global scope and symbol table and binds built in types and native
@@ -30,36 +30,40 @@ public class GameEnvironment implements IEvironment {
         this.globalScope = new Scope();
         this.symbolTable = new SymbolTable(this.globalScope);
 
-        for (Symbol type : builtInTypes) {
-            globalScope.bind(type);
+        bindBuiltIns();
+    }
+
+    protected void bindBuiltIns() {
+        for (IType type : BUILT_IN_TYPES) {
+            globalScope.bind((Symbol) type);
         }
 
-        for (Symbol func : nativeFunctions) {
+        for (Symbol func : NATIVE_FUNCTIONS) {
             globalScope.bind(func);
         }
     }
 
     @Override
-    public Symbol[] getTypes() {
-        var typesArray = new Symbol[builtInTypes.size() + loadedTypes.size()];
-        var combinedList = new ArrayList<Symbol>();
-        combinedList.addAll(builtInTypes);
+    public IType[] getTypes() {
+        var typesArray = new IType[BUILT_IN_TYPES.size() + loadedTypes.size()];
+        var combinedList = new ArrayList<IType>();
+        combinedList.addAll(BUILT_IN_TYPES);
         combinedList.addAll(loadedTypes.values());
         return combinedList.toArray(typesArray);
     }
 
     @Override
     public Symbol[] getFunctions() {
-        var funcArray = new Symbol[nativeFunctions.size() + loadedFunctions.size()];
+        var funcArray = new Symbol[NATIVE_FUNCTIONS.size() + loadedFunctions.size()];
         var combinedList = new ArrayList<Symbol>();
-        combinedList.addAll(nativeFunctions);
+        combinedList.addAll(NATIVE_FUNCTIONS);
         combinedList.addAll(loadedFunctions.values());
         return combinedList.toArray(funcArray);
     }
 
     @Override
-    public void loadTypes(Symbol[] types) {
-        for (Symbol type : types) {
+    public void loadTypes(IType[] types) {
+        for (IType type : types) {
             if (!(type instanceof IType)) {
                 continue;
             }
@@ -67,7 +71,7 @@ public class GameEnvironment implements IEvironment {
                 continue;
             }
             loadedTypes.put(type.getName(), type);
-            this.globalScope.bind(type);
+            this.globalScope.bind((Symbol) type);
         }
     }
 
@@ -81,8 +85,8 @@ public class GameEnvironment implements IEvironment {
         return this.globalScope;
     }
 
-    private static ArrayList<Symbol> buildBuiltInTypes() {
-        ArrayList<Symbol> types = new ArrayList<>();
+    private static ArrayList<IType> buildBuiltInTypes() {
+        ArrayList<IType> types = new ArrayList<>();
 
         types.add(BuiltInType.intType);
         types.add(BuiltInType.stringType);

@@ -3,6 +3,7 @@ package runtime.nativeFunctions;
 import interpreter.DSLInterpreter;
 import java.util.List;
 import parser.AST.Node;
+import runtime.Value;
 import semanticAnalysis.ICallable;
 import semanticAnalysis.IScope;
 import semanticAnalysis.Scope;
@@ -10,7 +11,6 @@ import semanticAnalysis.ScopedSymbol;
 import semanticAnalysis.Symbol;
 import semanticAnalysis.types.BuiltInType;
 
-// TODO: how to enable semantic analysis for this? e.g. parameter-count, etc.
 public class NativePrint extends ScopedSymbol implements ICallable {
     public static NativePrint func = new NativePrint(Scope.NULL);
 
@@ -31,10 +31,12 @@ public class NativePrint extends ScopedSymbol implements ICallable {
     public Object call(DSLInterpreter interperter, List<Node> parameters) {
         assert parameters != null && parameters.size() > 0;
         try {
-            String paramAsString = (String) parameters.get(0).accept(interperter);
+            Value param = (Value) parameters.get(0).accept(interperter);
+            String paramAsString = (String) param.getInternalObject();
             System.out.println(paramAsString);
         } catch (ClassCastException ex) {
-            // TODO: handle
+            // TODO: handle.. although this should not be a problem because
+            //  of typechecking, once it is impelemented
         }
         return null;
     }

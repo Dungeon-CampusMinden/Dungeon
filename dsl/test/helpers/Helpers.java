@@ -11,8 +11,11 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import parser.DungeonASTConverter;
 import runtime.GameEnvironment;
+import runtime.MemorySpace;
+import runtime.Value;
+import semanticAnalysis.Symbol;
 import semanticAnalysis.SymbolTableParser;
-import semanticAnalysis.types.AggregateType;
+import semanticAnalysis.types.IType;
 
 public class Helpers {
 
@@ -97,11 +100,17 @@ public class Helpers {
      * @return the {@link semanticAnalysis.SymbolTableParser.Result} of the semantic analysis
      */
     public static SymbolTableParser.Result getSymtableForASTWithLoadedTypes(
-            parser.AST.Node ast, AggregateType[] types) {
+            parser.AST.Node ast, IType[] types) {
         var symTableParser = new SymbolTableParser();
         var env = new GameEnvironment();
         env.loadTypes(types);
         symTableParser.setup(env);
         return symTableParser.walk(ast);
+    }
+
+    public static void bindDefaultValueInMemorySpace(Symbol symbol, MemorySpace ms) {
+        var defaultValue = Value.getDefaultValue(symbol.getDataType());
+        var value = new Value(symbol.getDataType(), defaultValue);
+        ms.bindValue(symbol.getName(), value);
     }
 }

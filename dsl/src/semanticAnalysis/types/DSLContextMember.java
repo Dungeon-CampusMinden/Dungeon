@@ -6,13 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface DSLType {
+@Target({ElementType.PARAMETER})
+public @interface DSLContextMember {
     /**
-     * The name to use for the corresponding DSL data type. If it is not set, the original class
-     * name will be converted by {@link TypeBuilder}
+     * The name to use for the lookup in the context for this member
      *
      * @return
      */
-    public String name() default "";
+    public String name();
 }

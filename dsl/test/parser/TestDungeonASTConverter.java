@@ -143,4 +143,133 @@ public class TestDungeonASTConverter {
         var paramList = funcCallNode.getParameters();
         assertEquals(Node.Type.FuncCall, paramList.get(0).type);
     }
+
+    /** Test the definition of a game object with one trivial component definition */
+    @Test
+    public void testGameObjectDefinitionSimpleComponent() {
+        String program =
+                """
+                game_object test_object {
+                    this_is_a_component
+                    }
+                """;
+        var ast = Helpers.getASTFromString(program);
+
+        var objDef = ast.getChild(0);
+        assertEquals(Node.Type.GameObjectDefinition, objDef.type);
+
+        var componentDefListNode =
+                ((GameObjectDefinitionNode) objDef).getComponentDefinitionListNode();
+        assertEquals(Node.Type.ComponentDefinitionList, componentDefListNode.type);
+
+        var componentDefinitions = componentDefListNode.getChildren();
+        assertEquals(1, componentDefinitions.size());
+
+        var component = componentDefinitions.get(0);
+        assertEquals(Node.Type.ComponentDefinition, component.type);
+
+        String componentName = ((ComponentDefinitionNode) component).getIdName();
+        assertEquals("this_is_a_component", componentName);
+
+        var propertyDefinitionListNode =
+                ((ComponentDefinitionNode) component).getPropertyDefinitionListNode();
+        assertEquals(Node.NONE, propertyDefinitionListNode);
+    }
+
+    /**
+     * Test the definition of a game object with one component definition with property definitions
+     */
+    @Test
+    public void testGameObjectDefinition() {
+        String program =
+                """
+                game_object test_object {
+                    complex_component {
+                        prop1: 123,
+                        prop2: "Hello, World!"
+                    }
+                }
+                """;
+        var ast = Helpers.getASTFromString(program);
+
+        var objDef = ast.getChild(0);
+        assertEquals(Node.Type.GameObjectDefinition, objDef.type);
+
+        var componentDefListNode =
+                ((GameObjectDefinitionNode) objDef).getComponentDefinitionListNode();
+        assertEquals(Node.Type.ComponentDefinitionList, componentDefListNode.type);
+
+        var componentDefinitions = componentDefListNode.getChildren();
+        assertEquals(1, componentDefinitions.size());
+
+        var component = componentDefinitions.get(0);
+        assertEquals(Node.Type.ComponentDefinition, component.type);
+
+        String componentName = ((ComponentDefinitionNode) component).getIdName();
+        assertEquals("complex_component", componentName);
+
+        var propertyDefinitions =
+                ((ComponentDefinitionNode) component).getPropertyDefinitionNodes();
+        assertEquals(2, propertyDefinitions.size());
+
+        var firstPropertyDefNode = (PropertyDefNode) propertyDefinitions.get(0);
+        assertEquals("prop1", firstPropertyDefNode.getIdName());
+
+        var secondPropertyDefNode = (PropertyDefNode) propertyDefinitions.get(1);
+        assertEquals("prop2", secondPropertyDefNode.getIdName());
+    }
+
+    /** Test the definition of a game object with multiple component definitions */
+    @Test
+    public void testGameObjectDefinitionMultiComponent() {
+        String program =
+                """
+            game_object test_object {
+                complex_component1 {
+                    prop1: 123,
+                    prop2: "Hello, World!"
+                },
+                complex_component2 {
+                    prop3: fn(test),
+                    prop4: "42"
+                }
+            }
+                """;
+        var ast = Helpers.getASTFromString(program);
+
+        var objDef = ast.getChild(0);
+        var componentDefListNode =
+                ((GameObjectDefinitionNode) objDef).getComponentDefinitionListNode();
+        var componentDefinitions = componentDefListNode.getChildren();
+        assertEquals(2, componentDefinitions.size());
+
+        // test first component
+        var component = componentDefinitions.get(0);
+        String componentName = ((ComponentDefinitionNode) component).getIdName();
+        assertEquals("complex_component1", componentName);
+
+        var propertyDefinitions =
+                ((ComponentDefinitionNode) component).getPropertyDefinitionNodes();
+        assertEquals(2, propertyDefinitions.size());
+
+        var firstPropertyDefNode = (PropertyDefNode) propertyDefinitions.get(0);
+        assertEquals("prop1", firstPropertyDefNode.getIdName());
+
+        var secondPropertyDefNode = (PropertyDefNode) propertyDefinitions.get(1);
+        assertEquals("prop2", secondPropertyDefNode.getIdName());
+
+        // test second component
+        component = componentDefinitions.get(1);
+        componentName = ((ComponentDefinitionNode) component).getIdName();
+        assertEquals("complex_component2", componentName);
+
+        propertyDefinitions = ((ComponentDefinitionNode) component).getPropertyDefinitionNodes();
+        assertEquals(2, propertyDefinitions.size());
+
+        firstPropertyDefNode = (PropertyDefNode) propertyDefinitions.get(0);
+        assertEquals("prop3", firstPropertyDefNode.getIdName());
+
+        secondPropertyDefNode = (PropertyDefNode) propertyDefinitions.get(1);
+        assertEquals("prop4", secondPropertyDefNode.getIdName());
+    }
 }

@@ -7,12 +7,11 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface DSLType {
+public @interface DSLContextPush {
     /**
-     * The name to use for the corresponding DSL data type. If it is not set, the original class
-     * name will be converted by {@link TypeBuilder}
+     * The name to use to push this object on the context
      *
      * @return
      */
-    public String name() default "";
+    public String name();
 }

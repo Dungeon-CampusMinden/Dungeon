@@ -126,6 +126,26 @@ public interface AstVisitor<T> {
     }
 
     /**
+     * Visitor method for ComponentDefinitionNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(ComponentDefinitionNode node) {
+        return null;
+    }
+
+    /**
+     * Visitor method for GameObjectDefinitionNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(GameObjectDefinitionNode node) {
+        return null;
+    }
+
+    /**
      * Visit all children of the passed node
      *
      * @param node The node to visit all children of

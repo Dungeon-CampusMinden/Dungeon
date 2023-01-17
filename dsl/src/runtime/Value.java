@@ -1,29 +1,43 @@
 package runtime;
 
+import semanticAnalysis.types.BuiltInType;
 import semanticAnalysis.types.IType;
 
 // TODO: should this be able to be undefined?
 
 /**
  * This class is used to represent a value in a {@link MemorySpace}, that is a combination of actual
- * value, dataType (defined by {@link IType} and optional reference to a {@link
- * semanticAnalysis.Symbol} from a {@link semanticAnalysis.SymbolTable}, as this class is basically
- * the runtime equivalent of a {@link semanticAnalysis.Symbol}
+ * value and a dataType (defined by {@link IType}
  */
-public class Value {
-    public static Value NONE = new Value(null, null, -1, false);
+public class Value implements IClonable {
+    public static Value NONE = new Value(null, null, false);
 
-    private final IType dataType;
-    private Object value;
-    private final int symbolIdx;
-    private final boolean isMutable;
+    protected final IType dataType;
+    protected Object value;
+    protected final boolean isMutable;
+    protected boolean dirty;
+
+    /**
+     * Indicates, if the internal value of this {@link Value} was set explicitly (e.g. in a
+     * game_object definition).
+     *
+     * @return true, if the internal value was set explicitly, false otherwise
+     */
+    public boolean isDirty() {
+        return this.dirty;
+    }
+
+    /** Set the dirty flag to true */
+    public void setDirty() {
+        this.dirty = true;
+    }
 
     /**
      * Getter for the internal, underlying value
      *
      * @return internal, underlying value
      */
-    public Object getInternalValue() {
+    public Object getInternalObject() {
         return value;
     }
 
@@ -37,15 +51,6 @@ public class Value {
     }
 
     /**
-     * Getter for index of the {@link semanticAnalysis.Symbol} linked to this Value
-     *
-     * @return index of the linked Symbol
-     */
-    public int getSymbolIdx() {
-        return symbolIdx;
-    }
-
-    /**
      * Setter for the internal, underlying value
      *
      * @param internalValue The value to set this {@link Value} to.
@@ -54,6 +59,8 @@ public class Value {
         // TODO: should this check for datatype compatibility?
         if (isMutable) {
             this.value = internalValue;
+
+            this.dirty = true;
             return true;
         }
         return false;
@@ -63,27 +70,59 @@ public class Value {
      * Constructor
      *
      * @param dataType The datatype of this value
-     * @param internalValue The actual value stored in this value
-     * @param symbolIdx The index of the {@link semanticAnalysis.Symbol} this Value corresponds to
+     * @param internalValue The actual value stored in this value //* @param symbolIdx The index of
+     *     the {@link semanticAnalysis.Symbol} this Value corresponds to
      */
-    public Value(IType dataType, Object internalValue, int symbolIdx) {
+    public Value(IType dataType, Object internalValue) {
         this.value = internalValue;
         this.dataType = dataType;
-        this.symbolIdx = symbolIdx;
         this.isMutable = true;
+
+        this.dirty = false;
     }
 
     /**
      * Constructor
      *
      * @param dataType The datatype of this value
-     * @param internalValue The actual value stored in this value
-     * @param symbolIdx The index of the {@link semanticAnalysis.Symbol} this Value corresponds to
+     * @param internalValue The actual value stored in this value //* @param symbolIdx The index of
+     *     the {@link semanticAnalysis.Symbol} this Value corresponds to
      */
-    public Value(IType dataType, Object internalValue, int symbolIdx, boolean isMutable) {
+    public Value(IType dataType, Object internalValue, boolean isMutable) {
         this.value = internalValue;
         this.dataType = dataType;
-        this.symbolIdx = symbolIdx;
         this.isMutable = isMutable;
+
+        this.dirty = true;
+    }
+
+    /**
+     * Get default value for different builtin data types
+     *
+     * @param type The datatype
+     * @return Object set to the default value for passed datatype, or null, if datatype is no
+     *     builtin type
+     */
+    public static Object getDefaultValue(IType type) {
+        if (type == null) {
+            return null;
+        }
+        var typeName = type.getName();
+        if (typeName.equals(BuiltInType.intType.getName())) {
+            return 0;
+        } else if (typeName.equals(BuiltInType.stringType.getName())) {
+            return "";
+        } else if (typeName.equals(BuiltInType.graphType.getName())) {
+            return new graph.Graph<String>(null, null);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Object clone() {
+        var cloned = new Value(this.dataType, this.value, this.isMutable);
+        cloned.dirty = this.dirty;
+        return cloned;
     }
 }

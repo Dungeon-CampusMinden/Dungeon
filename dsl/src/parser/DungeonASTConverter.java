@@ -77,6 +77,79 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     public void exitDefinition(DungeonDSLParser.DefinitionContext ctx) {}
 
     @Override
+    public void enterGame_obj_def(DungeonDSLParser.Game_obj_defContext ctx) {}
+
+    @Override
+    public void exitGame_obj_def(DungeonDSLParser.Game_obj_defContext ctx) {
+        // if we have a component definition list, it will be on the stack
+        var componentDefList = Node.NONE;
+        if (ctx.component_def_list() != null) {
+            componentDefList = astStack.pop();
+            assert componentDefList.type == Node.Type.ComponentDefinitionList;
+        }
+
+        // id will be on the stack
+        var idNode = astStack.pop();
+        assert idNode.type == Node.Type.Identifier;
+
+        var gameObjectDefinition = new GameObjectDefinitionNode(idNode, componentDefList);
+        astStack.push(gameObjectDefinition);
+    }
+
+    @Override
+    public void enterComponent_def_list(DungeonDSLParser.Component_def_listContext ctx) {}
+
+    @Override
+    public void exitComponent_def_list(DungeonDSLParser.Component_def_listContext ctx) {
+        // TODO: add tests for this
+        if (ctx.component_def_list() == null) {
+            // trivial component definition list
+            var innerComponentList = astStack.pop();
+            assert (innerComponentList.type == Node.Type.ComponentDefinition);
+
+            var list = new ArrayList<Node>(1);
+            list.add(innerComponentList);
+
+            var componentDefList = new Node(Node.Type.ComponentDefinitionList, list);
+            astStack.push(componentDefList);
+        } else {
+            // rhs componentDefList is on stack
+            var rhsList = astStack.pop();
+            assert (rhsList.type == Node.Type.ComponentDefinitionList);
+
+            var leftComponentDef = astStack.pop();
+            assert (leftComponentDef.type == Node.Type.ComponentDefinition);
+
+            var childList = new ArrayList<Node>(rhsList.getChildren().size() + 1);
+            childList.add(leftComponentDef);
+            childList.addAll(rhsList.getChildren());
+
+            var componentDefList = new Node(Node.Type.ComponentDefinitionList, childList);
+            astStack.push(componentDefList);
+        }
+    }
+
+    @Override
+    public void enterComponent_def(DungeonDSLParser.Component_defContext ctx) {}
+
+    @Override
+    public void exitComponent_def(DungeonDSLParser.Component_defContext ctx) {
+        // if we have a propertyDefList, it will be on the stack
+        var propertyDefListNode = Node.NONE;
+        if (ctx.property_def_list() != null) {
+            propertyDefListNode = astStack.pop();
+            assert propertyDefListNode.type == Node.Type.PropertyDefinitionList;
+        }
+
+        // id of the component will be on the stack
+        var idNode = astStack.pop();
+        assert idNode.type == Node.Type.Identifier;
+
+        var componentDefinitionNode = new ComponentDefinitionNode(idNode, propertyDefListNode);
+        astStack.push(componentDefinitionNode);
+    }
+
+    @Override
     public void enterGrammar_type_obj_def(DungeonDSLParser.Grammar_type_obj_defContext ctx) {}
 
     @Override
