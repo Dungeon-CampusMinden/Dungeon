@@ -3,10 +3,12 @@ package mydungeon;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import controller.Game;
+import dslToGame.QuestConfig;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
 import ecs.systems.*;
+import interpreter.DSLInterpreter;
 import java.util.*;
 import level.LevelAPI;
 import level.elements.ILevel;
@@ -72,6 +74,28 @@ public class ECS extends Game {
             if (currentTile.equals(currentLevel.getEndTile())) return true;
         }
         return false;
+    }
+
+    private void setupDSLInput() {
+        String program =
+                """
+            game_object monster {
+                position_component {
+                },
+                animation_component{
+                    idleLeft: "PATH TO ANIMATIONFILES",
+                    idleRight: "PATH TO ANIMATIONFILES",
+                    currentAnimation: idleLeft
+                }
+            }
+
+            quest_config config {
+                entity: monster
+            }
+            """;
+        DSLInterpreter interpreter = new DSLInterpreter();
+        QuestConfig config = (QuestConfig) interpreter.getQuestConfig(program);
+        entities.add(config.entity());
     }
 
     public static void main(String[] args) {

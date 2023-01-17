@@ -7,7 +7,7 @@ import semanticAnalysis.types.DSLContextPush;
 import semanticAnalysis.types.DSLType;
 
 /** Entity is a unique identifier for an object in the game world */
-@DSLType
+@DSLType(name = "game_object")
 @DSLContextPush(name = "entity")
 public class Entity {
     private static int nextId = 0;
