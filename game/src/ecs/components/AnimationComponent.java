@@ -2,17 +2,20 @@ package ecs.components;
 
 import ecs.entities.Entity;
 import graphic.Animation;
+import semanticAnalysis.types.DSLType;
+import semanticAnalysis.types.DSLTypeMember;
 
 /**
  * AnimationComponent is a component that stores the possible animations and the current animation
  * of an entity
  */
+@DSLType
 public class AnimationComponent extends Component {
 
     public static String name = "AnimationComponent";
-    private Animation idleLeft;
-    private Animation idleRight;
-    private Animation currentAnimation;
+    private @DSLTypeMember Animation idleLeft;
+    private @DSLTypeMember Animation idleRight;
+    private @DSLTypeMember Animation currentAnimation;
 
     /**
      * @param entity associated entity
