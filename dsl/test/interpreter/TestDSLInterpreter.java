@@ -277,6 +277,7 @@ public class TestDSLInterpreter {
         assertNotEquals(Value.NONE, myObj);
         assertTrue(myObj instanceof AggregateValue);
 
+        // test, that the referenced entities are correct
         var testComp1Value = ((AggregateValue) myObj).getMemorySpace().resolve("test_component1");
         assertNotEquals(Value.NONE, testComp1Value);
         var testComp1EncapsulatedObj =
@@ -286,6 +287,26 @@ public class TestDSLInterpreter {
 
         TestComponent1 testComp1 = (TestComponent1) testComp1Internal;
         assertEquals(entity, testComp1.getEntity());
+
+        // check member-values
+        assertEquals(42, testComp1.getMember1());
+        assertEquals(12, testComp1.getMember2());
+        assertEquals("DEFAULT VALUE", testComp1.getMember3());
+
+        var testComp2Value = ((AggregateValue) myObj).getMemorySpace().resolve("test_component2");
+        assertNotEquals(Value.NONE, testComp2Value);
+        var testComp2EncapsulatedObj =
+            (EncapsulatedObject) ((AggregateValue) testComp2Value).getMemorySpace();
+        var testComp2Internal = testComp2EncapsulatedObj.getInternalObject();
+        assertTrue(testComp2Internal instanceof TestComponent2);
+
+        TestComponent2 testComp2 = (TestComponent2) testComp2Internal;
+        assertEquals(entity, testComp2.getEntity());
+
+        // check member-values
+        assertEquals("Hallo", testComp2.getMember1());
+        assertEquals(123, testComp2.getMember2());
+        assertEquals("DEFAULT VALUE", testComp2.getMember3());
     }
 
     @Test

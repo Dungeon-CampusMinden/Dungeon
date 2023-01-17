@@ -20,8 +20,16 @@ public class TestComponent1 {
         this.entity = entity;
         member3 = "DEFAULT VALUE";
     }
-    /*public TestComponent1() {
-        // this.entity = entity;
-        member3 = "DEFAULT VALUE";
-    }*/
+
+    public int getMember1() {
+        return member1;
+    }
+
+    public int getMember2() {
+        return member2;
+    }
+
+    public String getMember3() {
+        return member3;
+    }
 }
