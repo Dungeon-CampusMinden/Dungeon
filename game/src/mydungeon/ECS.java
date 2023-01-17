@@ -73,7 +73,7 @@ public class ECS extends Game {
         }
         return false;
     }
-   
+
     public static void main(String[] args) {
         // start the game
         DesktopLauncher.run(new ECS());
