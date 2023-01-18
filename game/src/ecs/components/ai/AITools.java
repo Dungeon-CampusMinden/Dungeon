@@ -105,7 +105,8 @@ public class AITools {
         PositionComponent myPositionComponent =
                 (PositionComponent) entity.getComponent(PositionComponent.name);
         if (ECS.hero != null) {
-            PositionComponent heroPositionComponent = ECS.hero.getPositionComponent();
+            PositionComponent heroPositionComponent =
+                    (PositionComponent) ECS.hero.getComponent(PositionComponent.name);
             if (heroPositionComponent != null) {
                 Point myPosition = myPositionComponent.getPosition();
                 Point heroPosition = heroPositionComponent.getPosition();

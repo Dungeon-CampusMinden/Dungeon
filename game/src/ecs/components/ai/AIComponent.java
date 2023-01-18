@@ -4,8 +4,8 @@ import ecs.components.Component;
 import ecs.components.ai.fight.IFightAI;
 import ecs.components.ai.idle.IIdleAI;
 import ecs.components.ai.idle.RadiusWalk;
-import ecs.components.ai.transition.RangeTransition;
 import ecs.components.ai.transition.ITransition;
+import ecs.components.ai.transition.RangeTransition;
 import ecs.entities.Entity;
 
 public class AIComponent extends Component {
