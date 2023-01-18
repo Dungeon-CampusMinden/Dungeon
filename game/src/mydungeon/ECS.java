@@ -26,6 +26,7 @@ public class ECS extends Game {
     public static ILevel currentLevel;
 
     private Hero hero;
+    private PositionComponent heroPositionComponent;
 
     @Override
     protected void setup() {
@@ -33,6 +34,7 @@ public class ECS extends Game {
         systems = new SystemController();
         controller.add(systems);
         hero = new Hero(new Point(0, 0));
+        heroPositionComponent = (PositionComponent) hero.getComponent(PositionComponent.name);
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel();
 
@@ -43,9 +45,9 @@ public class ECS extends Game {
 
     @Override
     protected void frame() {
-        camera.setFocusPoint(hero.getPositionComponent().getPosition());
+        camera.setFocusPoint(heroPositionComponent.getPosition());
 
-        if (isOnEndTile(hero)) levelAPI.loadLevel();
+        if (isOnEndTile()) levelAPI.loadLevel();
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
     }
 
@@ -54,8 +56,7 @@ public class ECS extends Game {
         currentLevel = levelAPI.getCurrentLevel();
         entities.clear();
         entities.add(hero);
-        hero.getPositionComponent()
-                .setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
+        heroPositionComponent.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
     }
 
     /** Toggle between pause and run */
@@ -65,12 +66,11 @@ public class ECS extends Game {
         }
     }
 
-    private boolean isOnEndTile(Entity entity) {
-        PositionComponent pc = (PositionComponent) entity.getComponent(PositionComponent.name);
-        if (pc != null) {
-            Tile currentTile = currentLevel.getTileAt(pc.getPosition().toCoordinate());
-            if (currentTile.equals(currentLevel.getEndTile())) return true;
-        }
+    private boolean isOnEndTile() {
+        Tile currentTile =
+                currentLevel.getTileAt(heroPositionComponent.getPosition().toCoordinate());
+        if (currentTile.equals(currentLevel.getEndTile())) return true;
+
         return false;
     }
 

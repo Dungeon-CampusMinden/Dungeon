@@ -11,7 +11,6 @@ import tools.Point;
 
 public class Hero extends Entity {
 
-    private PositionComponent positionComponent;
     /**
      * Entity with Components
      *
@@ -19,8 +18,7 @@ public class Hero extends Entity {
      */
     public Hero(Point startPosition) {
         super();
-        positionComponent = new PositionComponent(this, startPosition);
-        this.addComponent(PositionComponent.name, positionComponent);
+        this.addComponent(PositionComponent.name, new PositionComponent(this, startPosition));
         this.addComponent(PlayableComponent.name, new PlayableComponent(this));
         setupAnimationComponent();
     }
@@ -50,12 +48,5 @@ public class Hero extends Entity {
         this.addComponent(
                 VelocityComponent.name,
                 new VelocityComponent(this, 0, 0, 0.3f, 0.3f, moveLeft, moveRight));
-    }
-
-    /**
-     * @return position of hero
-     */
-    public PositionComponent getPositionComponent() {
-        return positionComponent;
     }
 }
