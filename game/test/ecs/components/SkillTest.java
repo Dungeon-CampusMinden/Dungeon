@@ -2,6 +2,7 @@ package ecs.components;
 
 import static org.junit.Assert.*;
 
+import ecs.components.skill.Skill;
 import graphic.Animation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

@@ -2,6 +2,8 @@ package ecs.components;
 
 import static org.junit.Assert.*;
 
+import ecs.components.skill.Skill;
+import ecs.components.skill.SkillComponent;
 import ecs.entities.Entity;
 import org.junit.Before;
 import org.junit.Test;
