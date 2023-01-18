@@ -2,18 +2,26 @@ package semanticAnalysis.types;
 
 import graph.Graph;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import semanticAnalysis.*;
 
 public class TypeBuilder {
+    //private final HashMap<Class<?>, IDSLTypeAdapter> typeAdapters;
+    private final HashMap<Class<?>, Method> typeAdapters;
     private final HashMap<Class<?>, AggregateType> javaTypeToAggregateType;
     private final HashSet<Class<?>> currentLookedUpClasses;
 
     /** Constructor */
     public TypeBuilder() {
+        this.typeAdapters = new HashMap<>();
         this.javaTypeToAggregateType = new HashMap<>();
         this.currentLookedUpClasses = new HashSet<>();
     }
@@ -101,6 +109,36 @@ public class TypeBuilder {
     }
 
     /**
+     * Register a new type adapter (which will be used to instantiate a class, which is not
+     * converted to a DSLType)
+     *
+     * @param adapterClass the adapter to register
+     */
+    public void registerTypeAdapter(Class<?> adapterClass) {
+        // TODO: create an AggregateType (or a DSLType in general) for the adapter
+        for (var method : adapterClass.getDeclaredMethods()) {
+            if (method.isAnnotationPresent(DSLTypeAdapter.class) && Modifier.isStatic(method.getModifiers())) {
+                var annotation = method.getAnnotation(DSLTypeAdapter.class);
+                var forType = annotation.t();
+                if (this.typeAdapters.containsKey(forType)) {
+                    // only one type adapter per type allowed
+                    throw new RuntimeException("There is already a registered type adapter for type " + forType);
+                }
+                this.typeAdapters.put(forType, method);
+                return;
+            }
+        }
+    }
+
+    public Set<Map.Entry<Class<?>, Method>> getRegisteredTypeAdapters() {
+        return this.typeAdapters.entrySet();
+    }
+
+    public Method getRegisteredTypeAdapter(Class<?> clazz) {
+        return this.typeAdapters.getOrDefault(clazz, null);
+    }
+
+    /**
      * Creates a DSL {@link AggregateType} from a java class. This requires the class to be marked
      * with the {@link DSLType} annotation. Each field marked with the {@link DSLTypeMember}
      * annotation will be converted to a member of the created {@link AggregateType}, if the field's
@@ -142,6 +180,8 @@ public class TypeBuilder {
                 // get datatype
                 var memberDSLType = getDSLTypeForClass(field.getType());
                 if (memberDSLType == null) {
+                    // TODO: handle type adapters
+
                     // lookup the type in already converted types
                     // if it is not already in the converted types, try to convert it -> check for
                     // DSLType

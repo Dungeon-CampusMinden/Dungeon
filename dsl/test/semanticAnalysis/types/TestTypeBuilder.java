@@ -1,12 +1,15 @@
 package semanticAnalysis.types;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-
 import graph.Graph;
 import org.junit.Test;
 import semanticAnalysis.Scope;
 import semanticAnalysis.Symbol;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.function.Function;
+
+import static org.junit.Assert.*;
 
 public class TestTypeBuilder {
     @Test
@@ -86,5 +89,24 @@ public class TestTypeBuilder {
         var comp2 = dslType.resolve("comp2");
         assertNotSame(comp2, Symbol.NULL);
         assertEquals(BuiltInType.stringType, comp2.getDataType());
+    }
+
+
+    @Test
+    public void testTypeAdapterRegister() {
+        TypeBuilder tb = new TypeBuilder();
+        tb.registerTypeAdapter(RecordBuilder.class);
+
+        var adapter = tb.getRegisteredTypeAdapter(TestRecordComponent.class);
+        assertNotNull(adapter);
+
+        try {
+            var object = adapter.invoke(null, "Hello");
+            assertNotNull(object);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
