@@ -1,21 +1,21 @@
 package ecs.components.ai;
 
 import ecs.components.Component;
-import ecs.components.ai.fight.FightAI;
-import ecs.components.ai.idle.IdleAI;
+import ecs.components.ai.fight.IFightAI;
+import ecs.components.ai.idle.IIdleAI;
 import ecs.components.ai.idle.RadiusWalk;
 import ecs.components.ai.transition.RangeTransition;
-import ecs.components.ai.transition.Transition;
+import ecs.components.ai.transition.ITransition;
 import ecs.entities.Entity;
 
 public class AIComponent extends Component {
 
     public static String name = "AIComponent";
-    private FightAI fightAI;
-    private IdleAI idleAI;
-    private Transition transition;
+    private IFightAI fightAI;
+    private IIdleAI idleAI;
+    private ITransition transition;
 
-    public AIComponent(Entity entity, FightAI fightAI, IdleAI idleAI, Transition transition) {
+    public AIComponent(Entity entity, IFightAI fightAI, IIdleAI idleAI, ITransition transition) {
         super(entity);
         this.fightAI = fightAI;
         this.idleAI = idleAI;
@@ -30,7 +30,7 @@ public class AIComponent extends Component {
         idleAI = new RadiusWalk(5);
         transition = new RangeTransition(1.5f);
         fightAI =
-                new FightAI() {
+                new IFightAI() {
                     @Override
                     public void fight(Entity entity) {
                         System.out.println("TIME TO FIGHT!");

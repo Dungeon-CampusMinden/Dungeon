@@ -9,7 +9,7 @@ import level.elements.tile.Tile;
 import mydungeon.ECS;
 import tools.Constants;
 
-public class MeleeAI implements FightAI {
+public class MeleeAI implements IFightAI {
     private float attackRange;
     private final int delay = Constants.FRAME_RATE;
     private int timeSinceLastUpdate = 0;

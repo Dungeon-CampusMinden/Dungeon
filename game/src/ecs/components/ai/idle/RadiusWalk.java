@@ -10,7 +10,7 @@ import level.elements.tile.Tile;
 import mydungeon.ECS;
 import tools.Constants;
 
-public class RadiusWalk implements IdleAI {
+public class RadiusWalk implements IIdleAI {
 
     private static Random random = new Random();
     private float radius;

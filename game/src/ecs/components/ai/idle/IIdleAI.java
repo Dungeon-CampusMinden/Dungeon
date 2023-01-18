@@ -2,7 +2,7 @@ package ecs.components.ai.idle;
 
 import ecs.entities.Entity;
 
-public interface IdleAI {
+public interface IIdleAI {
 
     public void idle(Entity entity);
 }

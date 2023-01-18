@@ -2,7 +2,7 @@ package ecs.components.ai.fight;
 
 import ecs.entities.Entity;
 
-public interface FightAI {
+public interface IFightAI {
 
     public void fight(Entity entity);
 }
