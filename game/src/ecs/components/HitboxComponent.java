@@ -11,6 +11,18 @@ public class HitboxComponent extends Component {
     private Point size;
     private Method method;
 
+    /**
+     * Creates A Hitbox with a default offset of 0.25f x 0.25f and a default size of 0.5f x 0.5f
+     * @param entity
+     * @param method
+     */
+    public HitboxComponent(Entity entity, Method method) {
+        super(entity);
+        this.offset = new Point(0.25f,0.25f);
+        this.size = new Point(0.5f,0.5f);
+        this.method = method;
+    }
+
     public HitboxComponent(Entity entity, Point offset, Point size, Method method) {
         super(entity);
         this.offset = offset;
