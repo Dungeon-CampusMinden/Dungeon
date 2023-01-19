@@ -8,21 +8,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import semanticAnalysis.*;
 
 public class TypeBuilder {
-    //private final HashMap<Class<?>, IDSLTypeAdapter> typeAdapters;
     private final HashMap<Class<?>, Method> typeAdapters;
-    private final HashMap<Class<?>, AggregateType> javaTypeToAggregateType;
+    private final HashMap<Class<?>, IType> javaTypeToDSLType;
     private final HashSet<Class<?>> currentLookedUpClasses;
 
     /** Constructor */
     public TypeBuilder() {
         this.typeAdapters = new HashMap<>();
-        this.javaTypeToAggregateType = new HashMap<>();
+        this.javaTypeToDSLType = new HashMap<>();
         this.currentLookedUpClasses = new HashSet<>();
     }
 
@@ -114,19 +112,39 @@ public class TypeBuilder {
      *
      * @param adapterClass the adapter to register
      */
-    public void registerTypeAdapter(Class<?> adapterClass) {
+    public void registerTypeAdapter(Class<?> adapterClass, IScope parentScope) {
         // TODO: create an AggregateType (or a DSLType in general) for the adapter
         for (var method : adapterClass.getDeclaredMethods()) {
-            if (method.isAnnotationPresent(DSLTypeAdapter.class) && Modifier.isStatic(method.getModifiers())) {
+            if (method.isAnnotationPresent(DSLTypeAdapter.class)
+                    && Modifier.isStatic(method.getModifiers())) {
                 var annotation = method.getAnnotation(DSLTypeAdapter.class);
                 var forType = annotation.t();
                 if (this.typeAdapters.containsKey(forType)) {
                     // only one type adapter per type allowed
-                    throw new RuntimeException("There is already a registered type adapter for type " + forType);
+                    throw new RuntimeException(
+                            "There is already a registered type adapter for type " + forType);
                 }
                 this.typeAdapters.put(forType, method);
+
+                // create adapterType
+                var adapterType = createAdapterType(forType, method, parentScope);
+                this.javaTypeToDSLType.put(forType, adapterType);
+
                 return;
             }
+        }
+    }
+
+    public IType createAdapterType(Class<?> forType, Method adapterMethod, IScope parentScope) {
+        String dslTypeName = convertToDSLName(forType.getSimpleName());
+        // get parameters, if only one: PODType, otherwise: AggregateType
+        if (adapterMethod.getParameterCount() == 1) {
+            var paramType = adapterMethod.getParameterTypes()[0];
+            var paramDSLType = getDSLTypeForClass(paramType);
+            return new AdaptedType(dslTypeName, parentScope, forType, (BuiltInType) paramDSLType);
+        } else {
+            // TODO
+            return null;
         }
     }
 
@@ -150,7 +168,12 @@ public class TypeBuilder {
      * @return a new {@link AggregateType}, if the passed Class could be converted to a DSL type;
      *     null otherwise
      */
-    public AggregateType createTypeFromClass(IScope parentScope, Class<?> clazz) {
+    // public AggregateType createTypeFromClass(IScope parentScope, Class<?> clazz) {
+    public IType createTypeFromClass(IScope parentScope, Class<?> clazz) {
+        if (this.javaTypeToDSLType.containsKey(clazz)) {
+            return this.javaTypeToDSLType.get(clazz);
+        }
+
         if (!clazz.isAnnotationPresent(DSLType.class)) {
             return null;
         }
@@ -158,10 +181,6 @@ public class TypeBuilder {
         // catch recursion
         if (this.currentLookedUpClasses.contains(clazz)) {
             throw new RuntimeException("RECURSIVE TYPE DEF");
-        }
-
-        if (this.javaTypeToAggregateType.containsKey(clazz)) {
-            return this.javaTypeToAggregateType.get(clazz);
         }
 
         var annotation = clazz.getAnnotation(DSLType.class);
@@ -180,8 +199,6 @@ public class TypeBuilder {
                 // get datatype
                 var memberDSLType = getDSLTypeForClass(field.getType());
                 if (memberDSLType == null) {
-                    // TODO: handle type adapters
-
                     // lookup the type in already converted types
                     // if it is not already in the converted types, try to convert it -> check for
                     // DSLType
@@ -195,7 +212,7 @@ public class TypeBuilder {
                 type.bind(fieldSymbol);
             }
         }
-        this.javaTypeToAggregateType.put(clazz, type);
+        this.javaTypeToDSLType.put(clazz, type);
         return type;
     }
 }
