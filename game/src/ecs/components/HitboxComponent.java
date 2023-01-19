@@ -35,14 +35,17 @@ public class HitboxComponent extends Component {
     }
 
     public Point getBottomLeft() {
-        return new Point(offset.x, offset.y);
+        PositionComponent pc = (PositionComponent) getEntity().getComponent("PositionComponent");
+        return new Point(pc.getPosition().x + offset.x,pc.getPosition().y + offset.y);
     }
 
     public Point getTopRight() {
-        return new Point(offset.x + size.x, offset.y + size.y);
+        PositionComponent pc = (PositionComponent) getEntity().getComponent("PositionComponent");
+        return new Point(pc.getPosition().x +offset.x + size.x, pc.getPosition().y +offset.y + size.y);
     }
 
     public Point getCenter() {
-        return new Point(offset.x + size.x / 2, offset.y + size.y / 2);
+        PositionComponent pc = (PositionComponent) getEntity().getComponent("PositionComponent");
+        return new Point(pc.getPosition().x +offset.x + size.x / 2, pc.getPosition().y +offset.y + size.y / 2);
     }
 }
