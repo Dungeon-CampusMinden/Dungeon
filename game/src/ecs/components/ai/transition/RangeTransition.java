@@ -13,6 +13,6 @@ public class RangeTransition implements ITransition {
 
     @Override
     public boolean goFightMode(Entity entity) {
-        return AITools.inRange(entity, range);
+        return AITools.playerInRange(entity, range);
     }
 }

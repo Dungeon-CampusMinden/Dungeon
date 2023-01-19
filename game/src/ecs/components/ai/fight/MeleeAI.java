@@ -23,7 +23,7 @@ public class MeleeAI implements IFightAI {
 
     @Override
     public void fight(Entity entity) {
-        if (AITools.inRange(entity, attackRange)) {
+        if (AITools.playerInRange(entity, attackRange)) {
             try {
                 fightSkill.execute(entity);
             } catch (InvocationTargetException e) {

@@ -16,6 +16,12 @@ import tools.Point;
 public class AITools {
     private static Random random = new Random();
 
+    /**
+     * Finds the path to a random (accessible) tile in the given radius, starting from the position of the given entity.
+     * @param entity Entity whose position is the center point
+     * @param radius Search radius
+     * @return Path from the position of the entity to the randomly selected tile
+     */
     public static GraphPath<Tile> calculateNewPath(Entity entity, float radius) {
         PositionComponent pc = (PositionComponent) entity.getComponent(PositionComponent.name);
         VelocityComponent vc = (VelocityComponent) entity.getComponent(VelocityComponent.name);
@@ -35,18 +41,22 @@ public class AITools {
             GraphPath path =
                     level.findPath(
                             level.getTileAt(position.toCoordinate()), level.getTileAt(newPosition));
-
-            System.out.println("PATH " + path.getCount());
             return path;
         }
         return null;
     }
 
-    public static GraphPath<Tile> calculateNewPath(Entity entity, Entity entity2) {
+/**
+ * Finds the path from the position of one entity to the position of another entity.
+ * @param from Entity whose position is the start point
+ * @param to Entity whose position is the goal point
+ * @return Path
+ */
+    public static GraphPath<Tile> calculateNewPath(Entity from, Entity to) {
         PositionComponent myPositionComponent =
-                (PositionComponent) entity.getComponent(PositionComponent.name);
+                (PositionComponent) from.getComponent(PositionComponent.name);
         PositionComponent heroPositionComponent =
-                (PositionComponent) entity2.getComponent(PositionComponent.name);
+                (PositionComponent) to.getComponent(PositionComponent.name);
         if (myPositionComponent != null && heroPositionComponent != null) {
             ILevel level = ECS.currentLevel;
             Coordinate myPosition = myPositionComponent.getPosition().toCoordinate();
@@ -56,6 +66,11 @@ public class AITools {
         return null;
     }
 
+    /**
+     * Sets the velocity of the passed entity so that it takes the next necessary step to get to the end of the path.
+     * @param entity Entity moving on the path
+     * @param path Path on which the entity moves
+     */
     public static void move(Entity entity, GraphPath<Tile> path) {
         PositionComponent pc = (PositionComponent) entity.getComponent(PositionComponent.name);
         VelocityComponent vc = (VelocityComponent) entity.getComponent(VelocityComponent.name);
@@ -102,7 +117,13 @@ public class AITools {
             }
     }
 
-    public static boolean inRange(Entity entity, float range) {
+    /**
+     * Checks if the position of the player is within the given radius of the position of the given entity.
+     * @param entity Entity whose position specifies the center point
+     * @param range Reichweite die betrachtet werden soll
+     * @return Ob sich der Spieler in Reichweite befindet
+     */
+    public static boolean playerInRange(Entity entity, float range) {
         PositionComponent myPositionComponent =
                 (PositionComponent) entity.getComponent(PositionComponent.name);
         if (ECS.hero != null) {
