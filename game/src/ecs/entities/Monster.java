@@ -42,6 +42,6 @@ public class Monster extends Entity {
 
         this.addComponent(
                 VelocityComponent.name,
-                new VelocityComponent(this, 0, 0, 0.01f, 0.01f, moveLeft, moveRight));
+                new VelocityComponent(this, 0, 0, 0.1f, 0.1f, moveLeft, moveRight));
     }
 }

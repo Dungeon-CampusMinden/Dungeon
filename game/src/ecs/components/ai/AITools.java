@@ -70,6 +70,7 @@ public class AITools {
             }
             i++;
         } while (nextTile == null);
+
         switch (currentTile.directionTo(nextTile)[0]) {
             case N:
                 vc.setY(vc.getySpeed());
