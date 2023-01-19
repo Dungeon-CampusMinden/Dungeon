@@ -56,9 +56,14 @@ public class ECS extends Game {
     @Override
     public void onLevelLoad() {
         currentLevel = levelAPI.getCurrentLevel();
+
         entities.clear();
         entities.add(hero);
         heroPositionComponent.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
+
+        // TODO: when calling this before currentLevel is set, the default ctor of PositionComponent
+        // triggers NullPointerException
+        setupDSLInput();
     }
 
     /** Toggle between pause and run */
@@ -83,9 +88,9 @@ public class ECS extends Game {
                 position_component {
                 },
                 animation_component{
-                    idleLeft: "PATH TO ANIMATIONFILES",
-                    idleRight: "PATH TO ANIMATIONFILES",
-                    currentAnimation: idleLeft
+                    idle_left: "monster/imp/idleLeft",
+                    idle_right: "monster/imp/idleRight",
+                    current_animation: "monster/imp/idleLeft"
                 }
             }
 

@@ -111,7 +111,7 @@ public class TestTypeBuilder {
         TypeBuilder tb = new TypeBuilder();
         tb.registerTypeAdapter(RecordBuilder.class, Scope.NULL);
         var type = tb.createTypeFromClass(Scope.NULL, TestRecordUser.class);
-        var memberSymbol = ((AggregateType)type).resolve("component_member");
+        var memberSymbol = ((AggregateType) type).resolve("component_member");
         assertNotEquals(Symbol.NULL, memberSymbol);
         var membersDatatype = memberSymbol.getDataType();
         assertEquals(IType.Kind.PODAdapted, membersDatatype.getTypeKind());

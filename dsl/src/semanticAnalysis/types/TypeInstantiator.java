@@ -10,6 +10,8 @@ import java.util.HashMap;
 import runtime.IMemorySpace;
 import runtime.Value;
 
+// TODO: handle complex adapted types
+
 public class TypeInstantiator {
     private HashMap<String, Object> context = new HashMap<>();
 
@@ -70,6 +72,16 @@ public class TypeInstantiator {
                                         + " cannot be resolved in the supplied memory space");
                     } else {
                         var internalValue = fieldValue.getInternalObject();
+
+                        if (fieldValue.getDataType().getTypeKind().equals(IType.Kind.PODAdapted)) {
+                            // call builder -> the type instantiator needs a reference to the
+                            // builder or to the
+                            // builder methods
+                            var adaptedType = (AdaptedType) fieldValue.getDataType();
+                            var method = adaptedType.getBuilderMethod();
+
+                            internalValue = method.invoke(null, internalValue);
+                        }
                         parameters.add(internalValue);
                     }
                 }
@@ -98,8 +110,8 @@ public class TypeInstantiator {
 
         Object instance;
         try {
+            // get constructor
             ctor.setAccessible(true);
-
             ArrayList<Object> parameterValues = new ArrayList<>(ctor.getParameterCount());
             for (var param : ctor.getParameters()) {
                 if (param.isAnnotationPresent(DSLContextMember.class)) {
@@ -134,6 +146,16 @@ public class TypeInstantiator {
                     if (fieldValue != null && fieldValue.isDirty()) {
                         var internalValue = fieldValue.getInternalObject();
 
+                        if (fieldValue.getDataType().getTypeKind().equals(IType.Kind.PODAdapted)) {
+                            // call builder -> the type instantiator needs a reference to the
+                            // builder or to the
+                            // builder methods
+                            var adaptedType = (AdaptedType) fieldValue.getDataType();
+                            var method = adaptedType.getBuilderMethod();
+
+                            internalValue = method.invoke(null, internalValue);
+                        }
+
                         field.setAccessible(true);
                         field.set(instance, internalValue);
                     }
@@ -149,7 +171,17 @@ public class TypeInstantiator {
         Constructor<?> ctor = null;
         for (Constructor<?> constructor : originalJavaClass.getDeclaredConstructors()) {
             ctor = constructor;
-            if (ctor.getGenericParameterTypes().length == 0) break;
+            boolean unmarkedCtorParameter = false;
+            for (var parameter : ctor.getParameters()) {
+                if (!parameter.isAnnotationPresent(DSLContextMember.class)) {
+                    unmarkedCtorParameter = true;
+                    break;
+                }
+            }
+
+            if (!unmarkedCtorParameter) {
+                break;
+            }
         }
 
         return ctor;

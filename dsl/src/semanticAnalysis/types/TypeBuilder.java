@@ -112,7 +112,7 @@ public class TypeBuilder {
      *
      * @param adapterClass the adapter to register
      */
-    public void registerTypeAdapter(Class<?> adapterClass, IScope parentScope) {
+    public boolean registerTypeAdapter(Class<?> adapterClass, IScope parentScope) {
         // TODO: create an AggregateType (or a DSLType in general) for the adapter
         for (var method : adapterClass.getDeclaredMethods()) {
             if (method.isAnnotationPresent(DSLTypeAdapter.class)
@@ -121,8 +121,9 @@ public class TypeBuilder {
                 var forType = annotation.t();
                 if (this.typeAdapters.containsKey(forType)) {
                     // only one type adapter per type allowed
-                    throw new RuntimeException(
-                            "There is already a registered type adapter for type " + forType);
+                    /*throw new RuntimeException(
+                    "There is already a registered type adapter for type " + forType);*/
+                    return false;
                 }
                 this.typeAdapters.put(forType, method);
 
@@ -130,9 +131,10 @@ public class TypeBuilder {
                 var adapterType = createAdapterType(forType, method, parentScope);
                 this.javaTypeToDSLType.put(forType, adapterType);
 
-                return;
+                return true;
             }
         }
+        return true;
     }
 
     public IType createAdapterType(Class<?> forType, Method adapterMethod, IScope parentScope) {
@@ -141,7 +143,8 @@ public class TypeBuilder {
         if (adapterMethod.getParameterCount() == 1) {
             var paramType = adapterMethod.getParameterTypes()[0];
             var paramDSLType = getDSLTypeForClass(paramType);
-            return new AdaptedType(dslTypeName, parentScope, forType, (BuiltInType) paramDSLType);
+            return new AdaptedType(
+                    dslTypeName, parentScope, forType, (BuiltInType) paramDSLType, adapterMethod);
         } else {
             // TODO
             return null;
@@ -168,7 +171,6 @@ public class TypeBuilder {
      * @return a new {@link AggregateType}, if the passed Class could be converted to a DSL type;
      *     null otherwise
      */
-    // public AggregateType createTypeFromClass(IScope parentScope, Class<?> clazz) {
     public IType createTypeFromClass(IScope parentScope, Class<?> clazz) {
         if (this.javaTypeToDSLType.containsKey(clazz)) {
             return this.javaTypeToDSLType.get(clazz);

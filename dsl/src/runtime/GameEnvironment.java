@@ -1,5 +1,6 @@
 package runtime;
 
+import dslToGame.AnimationBuilder;
 import dslToGame.QuestConfig;
 import ecs.components.AnimationComponent;
 import ecs.components.PositionComponent;
@@ -16,6 +17,10 @@ import semanticAnalysis.types.IType;
 import semanticAnalysis.types.TypeBuilder;
 
 public class GameEnvironment implements IEvironment {
+    // TODO: the type builder should also be part of some 'type factory' to
+    //  avoid having only one builder for game Environments
+    protected static final TypeBuilder typeBuilder = new TypeBuilder();
+
     // TODO: also make HashMaps
     protected static final ArrayList<IType> BUILT_IN_TYPES = buildBuiltInTypes();
     protected static final ArrayList<Symbol> NATIVE_FUNCTIONS = buildNativeFunctions();
@@ -24,6 +29,10 @@ public class GameEnvironment implements IEvironment {
     protected final HashMap<String, Symbol> loadedFunctions = new HashMap<>();
     protected final SymbolTable symbolTable;
     protected final Scope globalScope;
+
+    public TypeBuilder getTypeBuilder() {
+        return typeBuilder;
+    }
 
     /**
      * Constructor. Creates fresh global scope and symbol table and binds built in types and native
@@ -34,6 +43,11 @@ public class GameEnvironment implements IEvironment {
         this.symbolTable = new SymbolTable(this.globalScope);
 
         bindBuiltIns();
+        registerDefaultTypeAdapters();
+    }
+
+    protected static void registerDefaultTypeAdapters() {
+        typeBuilder.registerTypeAdapter(AnimationBuilder.class, Scope.NULL);
     }
 
     protected void bindBuiltIns() {
@@ -96,11 +110,14 @@ public class GameEnvironment implements IEvironment {
         types.add(BuiltInType.graphType);
         types.add(BuiltInType.funcType);
 
-        TypeBuilder tb = new TypeBuilder();
-        var questConfigType = tb.createTypeFromClass(Scope.NULL, QuestConfig.class);
-        var entityComponentType = tb.createTypeFromClass(Scope.NULL, Entity.class);
-        var positionComponentType = tb.createTypeFromClass(Scope.NULL, PositionComponent.class);
-        var animationComponentType = tb.createTypeFromClass(Scope.NULL, AnimationComponent.class);
+        registerDefaultTypeAdapters();
+
+        var questConfigType = typeBuilder.createTypeFromClass(Scope.NULL, QuestConfig.class);
+        var entityComponentType = typeBuilder.createTypeFromClass(Scope.NULL, Entity.class);
+        var positionComponentType =
+                typeBuilder.createTypeFromClass(Scope.NULL, PositionComponent.class);
+        var animationComponentType =
+                typeBuilder.createTypeFromClass(Scope.NULL, AnimationComponent.class);
 
         types.add(questConfigType);
         types.add(entityComponentType);

@@ -2,6 +2,7 @@ package ecs.components;
 
 import ecs.entities.Entity;
 import graphic.Animation;
+import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
 
@@ -40,7 +41,7 @@ public class AnimationComponent extends Component {
     /**
      * @param entity associated entity
      */
-    public AnimationComponent(Entity entity) {
+    public AnimationComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity, name);
         this.idleLeft = null;
         this.idleRight = null;
