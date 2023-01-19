@@ -4,5 +4,10 @@ import ecs.entities.Entity;
 
 public interface IFightAI {
 
-    public void fight(Entity entity);
+    /**
+     * Implements the combat behavior of an AI controlled entity
+     *
+     * @param entity associated entity
+     */
+    void fight(Entity entity);
 }

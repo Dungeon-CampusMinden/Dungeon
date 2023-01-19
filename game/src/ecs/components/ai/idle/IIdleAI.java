@@ -4,5 +4,10 @@ import ecs.entities.Entity;
 
 public interface IIdleAI {
 
-    public void idle(Entity entity);
+    /**
+     * Implements the idle behavior of an AI controlled entity
+     *
+     * @param entity associated entity
+     */
+    void idle(Entity entity);
 }

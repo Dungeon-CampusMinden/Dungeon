@@ -10,12 +10,19 @@ import mydungeon.ECS;
 import tools.Constants;
 
 public class MeleeAI implements IFightAI {
-    private float attackRange;
+    private final float attackRange;
     private final int delay = Constants.FRAME_RATE;
     private int timeSinceLastUpdate = 0;
-    private Skill fightSkill;
+    private final Skill fightSkill;
     private GraphPath<Tile> path;
 
+    /**
+     * Attacks the player if he is within the given range. Otherwise, it will move towards the
+     * player.
+     *
+     * @param attackRange Range in which the attack skill should be executed
+     * @param fightSkill Skill to be used when an attack is performed
+     */
     public MeleeAI(float attackRange, Skill fightSkill) {
         this.attackRange = attackRange;
         this.fightSkill = fightSkill;
@@ -26,9 +33,7 @@ public class MeleeAI implements IFightAI {
         if (AITools.playerInRange(entity, attackRange)) {
             try {
                 fightSkill.execute(entity);
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
+            } catch (InvocationTargetException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         } else {
