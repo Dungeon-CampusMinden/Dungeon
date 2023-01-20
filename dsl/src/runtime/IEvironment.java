@@ -7,6 +7,7 @@ import semanticAnalysis.SymbolTable;
 import semanticAnalysis.types.IType;
 
 // TODO: this is more of a semantic analysis kind of concept -> put it there
+// TODO: add getTypeBuilder
 public interface IEvironment {
 
     /**

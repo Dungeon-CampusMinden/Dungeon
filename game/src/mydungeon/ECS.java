@@ -3,10 +3,12 @@ package mydungeon;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import controller.Game;
+import dslToGame.QuestConfig;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
 import ecs.systems.*;
+import interpreter.DSLInterpreter;
 import java.util.*;
 import level.LevelAPI;
 import level.elements.ILevel;
@@ -26,6 +28,7 @@ public class ECS extends Game {
     public static ILevel currentLevel;
 
     private Hero hero;
+    private PositionComponent heroPositionComponent;
 
     @Override
     protected void setup() {
@@ -33,6 +36,7 @@ public class ECS extends Game {
         systems = new SystemController();
         controller.add(systems);
         hero = new Hero(new Point(0, 0));
+        heroPositionComponent = (PositionComponent) hero.getComponent(PositionComponent.name);
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel();
 
@@ -43,19 +47,23 @@ public class ECS extends Game {
 
     @Override
     protected void frame() {
-        camera.setFocusPoint(hero.getPositionComponent().getPosition());
+        camera.setFocusPoint(heroPositionComponent.getPosition());
 
-        if (isOnEndTile(hero)) levelAPI.loadLevel();
+        if (isOnEndTile()) levelAPI.loadLevel();
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
     }
 
     @Override
     public void onLevelLoad() {
         currentLevel = levelAPI.getCurrentLevel();
+
         entities.clear();
         entities.add(hero);
-        hero.getPositionComponent()
-                .setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
+        heroPositionComponent.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
+
+        // TODO: when calling this before currentLevel is set, the default ctor of PositionComponent
+        // triggers NullPointerException
+        setupDSLInput();
     }
 
     /** Toggle between pause and run */
@@ -65,13 +73,34 @@ public class ECS extends Game {
         }
     }
 
-    private boolean isOnEndTile(Entity entity) {
-        PositionComponent pc = (PositionComponent) entity.getComponent(PositionComponent.name);
-        if (pc != null) {
-            Tile currentTile = currentLevel.getTileAt(pc.getPosition().toCoordinate());
-            if (currentTile.equals(currentLevel.getEndTile())) return true;
-        }
+    private boolean isOnEndTile() {
+        Tile currentTile =
+                currentLevel.getTileAt(heroPositionComponent.getPosition().toCoordinate());
+        if (currentTile.equals(currentLevel.getEndTile())) return true;
+
         return false;
+    }
+
+    private void setupDSLInput() {
+        String program =
+                """
+            game_object monster {
+                position_component {
+                },
+                animation_component{
+                    idle_left: "monster/imp/idleLeft",
+                    idle_right: "monster/imp/idleRight",
+                    current_animation: "monster/imp/idleLeft"
+                }
+            }
+
+            quest_config config {
+                entity: monster
+            }
+            """;
+        DSLInterpreter interpreter = new DSLInterpreter();
+        QuestConfig config = (QuestConfig) interpreter.getQuestConfig(program);
+        entities.add(config.entity());
     }
 
     public static void main(String[] args) {

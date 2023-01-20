@@ -14,7 +14,7 @@ public class SkillComponent extends Component {
      * @param entity associated entity
      */
     public SkillComponent(Entity entity) {
-        super(entity);
+        super(entity, name);
         skillSet = new HashSet<>();
     }
 
