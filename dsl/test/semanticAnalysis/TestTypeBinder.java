@@ -92,4 +92,42 @@ public class TestTypeBinder {
                         .get(0);
         Assert.assertEquals(testComponentDefNodeFromAST, testComponentDefNode);
     }
+
+    @Test
+    public void testAdapterBinding() {
+
+        String program =
+                """
+            game_object o {
+                test_record_user {
+                    component_member: "Hello"
+                }
+            }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var symTableParser = new SymbolTableParser();
+
+        var env = new GameEnvironment();
+
+        env.getTypeBuilder().registerTypeAdapter(RecordBuilder.class, Scope.NULL);
+        var type = env.getTypeBuilder().createTypeFromClass(new Scope(), TestRecordUser.class);
+
+        var types = new IType[] {type};
+        env.loadTypes(types);
+        symTableParser.setup(env);
+
+        SymbolTable symbolTable = symTableParser.walk(ast).symbolTable;
+
+        var gameObjectDefinition = symbolTable.globalScope.resolve("o");
+        var testRecordUser = ((AggregateType) gameObjectDefinition).resolve("test_record_user");
+        var testRecordUserType = (AggregateType) testRecordUser.getDataType();
+        var member = testRecordUserType.resolve("component_member");
+        var memberType = member.getDataType();
+        Assert.assertTrue(memberType instanceof AdaptedType);
+
+        var adaptedType = (AdaptedType) memberType;
+        Assert.assertEquals(TestRecordComponent.class, adaptedType.getOriginType());
+        Assert.assertEquals(BuiltInType.stringType, adaptedType.getBuildParameterType());
+    }
 }

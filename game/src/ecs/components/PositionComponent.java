@@ -5,7 +5,6 @@ import level.tools.LevelElement;
 import mydungeon.ECS;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
-import semanticAnalysis.types.DSLTypeMember;
 import tools.Point;
 
 /** PositionComponent is a component that stores the x, y (as Point) position of an entity */
@@ -14,7 +13,8 @@ public class PositionComponent extends Component {
 
     public static String name = "PositionComponent";
 
-    private @DSLTypeMember Point position;
+    // private @DSLTypeMember Point position;
+    private Point position;
 
     /**
      * @param entity associated entity

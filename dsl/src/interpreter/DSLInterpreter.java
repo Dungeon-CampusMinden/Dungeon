@@ -104,6 +104,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             var propertyDefNode = (PropertyDefNode) propDef;
             var rhsValue = (Value) propertyDefNode.getStmtNode().accept(this);
 
+            // TODO: this fails for adapted types
             var propertySymbol = symbolTable().getSymbolsForAstNode(propDef).get(0);
             Value value = new Value(propertySymbol.getDataType(), rhsValue.getInternalObject());
 
@@ -125,6 +126,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
      */
     public void initializeRuntime(IEvironment environment) {
         this.environment = new RuntimeEnvironment(environment);
+
+        TypeInstantiator typeInstantiator = new TypeInstantiator();
 
         // bind all function definition and object definition symbols to objects
         // in global memorySpace
@@ -167,6 +170,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @return
      */
     private Value createDefaultValue(IType type) {
+        if (type == null) {
+            throw new RuntimeException("Tried to create default value for null type");
+        }
         if (type.getTypeKind().equals(IType.Kind.Basic)) {
             Object internalValue = Value.getDefaultValue(type);
             return new Value(type, internalValue);

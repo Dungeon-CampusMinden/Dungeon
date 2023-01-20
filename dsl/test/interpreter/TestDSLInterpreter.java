@@ -5,14 +5,13 @@ import static org.junit.Assert.*;
 import dslToGame.QuestConfig;
 import graph.Graph;
 import helpers.Helpers;
-import interpreter.mockECS.Entity;
-import interpreter.mockECS.TestComponent1;
-import interpreter.mockECS.TestComponent2;
+import interpreter.mockECS.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import org.junit.Assert;
 import org.junit.Test;
 import parser.AST.Node;
 import runtime.*;
@@ -213,13 +212,14 @@ public class TestDSLInterpreter {
         protected void bindBuiltIns() {
             for (IType type : BUILT_IN_TYPES) {
                 // load custom QuestConfig
-                if (!type.getName().equals("quest_config")) {
+                if (!type.getName().equals("quest_config")
+                        && !type.getName().equals("game_object")) {
                     globalScope.bind((Symbol) type);
                 }
             }
 
-            TypeBuilder tp = new TypeBuilder();
-            var questConfigType = tp.createTypeFromClass(Scope.NULL, CustomQuestConfig.class);
+            var questConfigType =
+                    this.getTypeBuilder().createTypeFromClass(Scope.NULL, CustomQuestConfig.class);
             loadTypes(new semanticAnalysis.types.IType[] {questConfigType});
 
             for (Symbol func : NATIVE_FUNCTIONS) {
@@ -307,5 +307,61 @@ public class TestDSLInterpreter {
         assertEquals("Hallo", testComp2.getMember1());
         assertEquals(123, testComp2.getMember2());
         assertEquals("DEFAULT VALUE", testComp2.getMember3());
+    }
+
+    // TODO: should test resolving of member_external_type in the instantiated object
+    @Test
+    public void adaptedInstancing() {
+        String program =
+                """
+            game_object my_obj {
+                test_component1 {
+                    member1: 42,
+                    member2: 12
+                },
+                test_component_with_external_type {
+                    member_external_type: "Hello, World!"
+                }
+            }
+
+            quest_config config {
+                entity: my_obj
+            }
+            """;
+
+        // setup test type system
+        var env = new TestEnvironment();
+        var entityType = env.getTypeBuilder().createTypeFromClass(new Scope(), Entity.class);
+        var testCompType =
+                env.getTypeBuilder().createTypeFromClass(new Scope(), TestComponent1.class);
+
+        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, Scope.NULL);
+        var externalComponentType =
+                env.getTypeBuilder()
+                        .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
+        env.loadTypes(
+                new semanticAnalysis.types.IType[] {
+                    entityType, testCompType, externalComponentType
+                });
+
+        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        symbolTableParser.setup(env);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        interpreter.initializeRuntime(env);
+
+        interpreter.generateQuestConfig(ast);
+
+        var globalMs = interpreter.getGlobalMemorySpace();
+        AggregateValue config = (AggregateValue) (globalMs.resolve("config"));
+        AggregateValue myObj = (AggregateValue) config.getMemorySpace().resolve("entity");
+        AggregateValue component =
+                (AggregateValue)
+                        myObj.getMemorySpace().resolve("test_component_with_external_type");
+        var internalObject = (TestComponentWithExternalType) component.getInternalObject();
+        ExternalType externalTypeMember = internalObject.getMemberExternalType();
+        Assert.assertEquals("Hello, World!", externalTypeMember.member3);
     }
 }

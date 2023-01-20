@@ -1,9 +1,9 @@
 package semanticAnalysis.types;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.*;
 
 import graph.Graph;
+import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
 import semanticAnalysis.Scope;
 import semanticAnalysis.Symbol;
@@ -41,7 +41,7 @@ public class TestTypeBuilder {
     public void testSimpleClass() {
         TypeBuilder typeBuilder = new TypeBuilder();
         Scope scope = new Scope();
-        var dslType = typeBuilder.createTypeFromClass(scope, TestComponent.class);
+        var dslType = (AggregateType) typeBuilder.createTypeFromClass(scope, TestComponent.class);
 
         var stringMember = dslType.resolve("string_member");
         assertNotSame(stringMember, Symbol.NULL);
@@ -60,7 +60,7 @@ public class TestTypeBuilder {
     public void testChainedClass() {
         TypeBuilder typeBuilder = new TypeBuilder();
         Scope scope = new Scope();
-        var dslType = typeBuilder.createTypeFromClass(scope, ChainClass.class);
+        var dslType = (AggregateType) typeBuilder.createTypeFromClass(scope, ChainClass.class);
 
         var testComponentMember = dslType.resolve("test_component_member");
         assertNotSame(testComponentMember, Symbol.NULL);
@@ -77,7 +77,7 @@ public class TestTypeBuilder {
     public void testRecord() {
         TypeBuilder typeBuilder = new TypeBuilder();
         Scope scope = new Scope();
-        var dslType = typeBuilder.createTypeFromClass(scope, TestRecord.class);
+        var dslType = (AggregateType) typeBuilder.createTypeFromClass(scope, TestRecord.class);
 
         var comp1 = dslType.resolve("comp1");
         assertNotSame(comp1, Symbol.NULL);
@@ -86,5 +86,34 @@ public class TestTypeBuilder {
         var comp2 = dslType.resolve("comp2");
         assertNotSame(comp2, Symbol.NULL);
         assertEquals(BuiltInType.stringType, comp2.getDataType());
+    }
+
+    @Test
+    public void testTypeAdapterRegister() {
+        TypeBuilder tb = new TypeBuilder();
+        tb.registerTypeAdapter(RecordBuilder.class, Scope.NULL);
+
+        var adapter = tb.getRegisteredTypeAdapter(TestRecordComponent.class);
+        assertNotNull(adapter);
+
+        try {
+            var object = adapter.invoke(null, "Hello");
+            assertNotNull(object);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void testAdapterUsage() {
+        TypeBuilder tb = new TypeBuilder();
+        tb.registerTypeAdapter(RecordBuilder.class, Scope.NULL);
+        var type = tb.createTypeFromClass(Scope.NULL, TestRecordUser.class);
+        var memberSymbol = ((AggregateType) type).resolve("component_member");
+        assertNotEquals(Symbol.NULL, memberSymbol);
+        var membersDatatype = memberSymbol.getDataType();
+        assertEquals(IType.Kind.PODAdapted, membersDatatype.getTypeKind());
     }
 }

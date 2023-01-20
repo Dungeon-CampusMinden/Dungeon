@@ -3,7 +3,9 @@ package semanticAnalysis.types;
 public interface IType {
     enum Kind {
         Basic,
-        Aggregate
+        Aggregate,
+        PODAdapted,
+        AggregateAdapted,
     }
 
     /**
