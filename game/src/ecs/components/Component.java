@@ -13,10 +13,14 @@ public abstract class Component {
      */
 
     /**
+     * Create a new component and add it to the associated entity
+     *
      * @param entity associated entity
+     * @param name Name of the Component
      */
-    public Component(Entity entity) {
+    public Component(Entity entity, String name) {
         this.entity = entity;
+        entity.addComponent(name, this);
     }
 
     /**

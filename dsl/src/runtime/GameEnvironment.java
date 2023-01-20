@@ -1,6 +1,9 @@
 package runtime;
 
 import dslToGame.QuestConfig;
+import ecs.components.AnimationComponent;
+import ecs.components.PositionComponent;
+import ecs.entities.Entity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import runtime.nativeFunctions.NativePrint;
@@ -95,7 +98,14 @@ public class GameEnvironment implements IEvironment {
 
         TypeBuilder tb = new TypeBuilder();
         var questConfigType = tb.createTypeFromClass(Scope.NULL, QuestConfig.class);
+        var entityComponentType = tb.createTypeFromClass(Scope.NULL, Entity.class);
+        var positionComponentType = tb.createTypeFromClass(Scope.NULL, PositionComponent.class);
+        var animationComponentType = tb.createTypeFromClass(Scope.NULL, AnimationComponent.class);
+
         types.add(questConfigType);
+        types.add(entityComponentType);
+        types.add(positionComponentType);
+        types.add(animationComponentType);
 
         return types;
     }

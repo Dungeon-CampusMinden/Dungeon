@@ -10,7 +10,7 @@ public class PlayableComponent extends Component {
 
     /** {@inheritDoc} */
     public PlayableComponent(Entity entity) {
-        super(entity);
+        super(entity, name);
         playable = true;
     }
 

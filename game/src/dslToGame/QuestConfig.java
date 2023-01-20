@@ -1,5 +1,6 @@
 package dslToGame;
 
+import ecs.entities.Entity;
 import graph.Graph;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
@@ -10,4 +11,5 @@ public record QuestConfig(
         @DSLTypeMember Graph<String> levelGraph,
         @DSLTypeMember String questDesc,
         @DSLTypeMember int questPoints,
-        @DSLTypeMember String password) {}
+        @DSLTypeMember String password,
+        @DSLTypeMember Entity entity) {}

@@ -27,14 +27,12 @@ public class EntityTest {
     @Test
     public void addComponent() {
         Component c = new TestComponent(entity);
-        entity.addComponent(TestComponent.name, c);
         assertEquals(c, entity.getComponent(TestComponent.name));
     }
 
     @Test
     public void removeComponent() {
         Component c = new TestComponent(entity);
-        entity.addComponent(TestComponent.name, c);
         assertEquals(c, entity.getComponent(TestComponent.name));
         entity.removeComponent(TestComponent.name);
         assertNull(entity.getComponent(TestComponent.name));
@@ -47,7 +45,7 @@ public class EntityTest {
          * @param entity associated entity
          */
         public TestComponent(Entity entity) {
-            super(entity);
+            super(entity, name);
         }
     }
 }

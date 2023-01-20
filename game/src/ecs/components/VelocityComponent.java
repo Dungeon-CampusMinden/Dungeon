@@ -31,7 +31,7 @@ public class VelocityComponent extends Component {
             float ySpeed,
             Animation moveLeftAnimation,
             Animation moveRightAnimation) {
-        super(entity);
+        super(entity, name);
         this.x = x;
         this.y = y;
         this.xSpeed = xSpeed;
@@ -57,7 +57,7 @@ public class VelocityComponent extends Component {
      * @param entity associated entity
      */
     public VelocityComponent(Entity entity) {
-        super(entity);
+        super(entity, name);
         this.x = 0;
         this.y = 0;
         this.xSpeed = 0;
