@@ -515,6 +515,11 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
             var stringNode = new StringNode(escapedValue, getSourceFileReference(node));
             astStack.push(stringNode);
+        } else if (nodeType == DungeonDSLLexer.NUM_DEC) {
+            // TODO: add test for this
+            float value = Float.parseFloat(node.getText());
+            var numNode = new DecNumNode(value, getSourceFileReference(node));
+            astStack.push(numNode);
         } else if (nodeType == DungeonDSLLexer.NUM) {
             // TODO: add test for this
             int value = Integer.parseInt(node.getText());

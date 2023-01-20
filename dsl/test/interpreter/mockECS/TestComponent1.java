@@ -13,7 +13,7 @@ public class TestComponent1 {
     }
 
     @DSLTypeMember private int member1;
-    @DSLTypeMember private int member2;
+    @DSLTypeMember private float member2;
     @DSLTypeMember private String member3;
 
     public TestComponent1(@DSLContextMember(name = "entity") Entity entity) {
@@ -25,7 +25,7 @@ public class TestComponent1 {
         return member1;
     }
 
-    public int getMember2() {
+    public float getMember2() {
         return member2;
     }
 

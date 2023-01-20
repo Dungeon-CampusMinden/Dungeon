@@ -110,6 +110,8 @@ public class Value implements IClonable {
         var typeName = type.getName();
         if (typeName.equals(BuiltInType.intType.getName())) {
             return 0;
+        } else if (typeName.equals(BuiltInType.floatType.getName())) {
+            return 0.0f;
         } else if (typeName.equals(BuiltInType.stringType.getName())) {
             return "";
         } else if (typeName.equals(BuiltInType.graphType.getName())) {
