@@ -98,6 +98,8 @@ public class ECS extends Game {
                     idle_left: "monster/imp/idleLeft",
                     idle_right: "monster/imp/idleRight",
                     current_animation: "monster/imp/idleLeft"
+                },
+                ai_component {
                 }
             }
 

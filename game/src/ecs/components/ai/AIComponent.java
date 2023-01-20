@@ -38,6 +38,7 @@ public class AIComponent extends Component {
      */
     public AIComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity, name);
+        System.out.println("DEBUG AI");
         idleAI = new RadiusWalk(5);
         transition = new RangeTransition(1.5f);
         fightAI =
