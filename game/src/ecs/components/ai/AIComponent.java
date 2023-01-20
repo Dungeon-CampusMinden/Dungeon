@@ -12,13 +12,13 @@ import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
 
 /** AIComponent is a component that stores the idle and combat behavior of AI controlled entities */
-@DSLType
+@DSLType(name="ai_component")
 public class AIComponent extends Component {
 
     public static String name = "AIComponent";
-    private @DSLTypeMember IFightAI fightAI;
-    private @DSLTypeMember IIdleAI idleAI;
-    private @DSLTypeMember ITransition transition;
+    private /*@DSLTypeMember*/ IFightAI fightAI;
+    private /*@DSLTypeMember*/ IIdleAI idleAI;
+    private /*@DSLTypeMember*/ ITransition transition;
 
     /**
      * @param entity associated entity
