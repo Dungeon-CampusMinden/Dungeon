@@ -9,10 +9,9 @@ import ecs.components.ai.transition.RangeTransition;
 import ecs.entities.Entity;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
-import semanticAnalysis.types.DSLTypeMember;
 
 /** AIComponent is a component that stores the idle and combat behavior of AI controlled entities */
-@DSLType(name="ai_component")
+@DSLType(name = "ai_component")
 public class AIComponent extends Component {
 
     public static String name = "AIComponent";
