@@ -5,6 +5,7 @@ import dslToGame.QuestConfig;
 import ecs.components.AnimationComponent;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
+import ecs.components.ai.AIComponent;
 import ecs.entities.Entity;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -122,11 +123,14 @@ public class GameEnvironment implements IEvironment {
                 typeBuilder.createTypeFromClass(Scope.NULL, AnimationComponent.class);
         var velocityComponentType =
                 typeBuilder.createTypeFromClass(Scope.NULL, VelocityComponent.class);
+        var aiComponentType = typeBuilder.createTypeFromClass(Scope.NULL, AIComponent.class);
         types.add(questConfigType);
         types.add(entityComponentType);
         types.add(positionComponentType);
         types.add(animationComponentType);
         types.add(velocityComponentType);
+        types.add(aiComponentType);
+
         return types;
     }
 

@@ -7,14 +7,18 @@ import ecs.components.ai.idle.RadiusWalk;
 import ecs.components.ai.transition.ITransition;
 import ecs.components.ai.transition.RangeTransition;
 import ecs.entities.Entity;
+import semanticAnalysis.types.DSLContextMember;
+import semanticAnalysis.types.DSLType;
+import semanticAnalysis.types.DSLTypeMember;
 
 /** AIComponent is a component that stores the idle and combat behavior of AI controlled entities */
+@DSLType
 public class AIComponent extends Component {
 
     public static String name = "AIComponent";
-    private final IFightAI fightAI;
-    private final IIdleAI idleAI;
-    private final ITransition transition;
+    private @DSLTypeMember IFightAI fightAI;
+    private @DSLTypeMember IIdleAI idleAI;
+    private @DSLTypeMember ITransition transition;
 
     /**
      * @param entity associated entity
@@ -32,7 +36,7 @@ public class AIComponent extends Component {
     /**
      * @param entity associated entity
      */
-    public AIComponent(Entity entity) {
+    public AIComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity, name);
         idleAI = new RadiusWalk(5);
         transition = new RangeTransition(1.5f);
