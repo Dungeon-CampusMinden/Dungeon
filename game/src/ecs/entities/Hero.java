@@ -10,7 +10,6 @@ import tools.Point;
 
 public class Hero extends Entity {
 
-    private PositionComponent positionComponent;
     /**
      * Entity with Components
      *
@@ -33,12 +32,5 @@ public class Hero extends Entity {
         new AnimationComponent(this, idleLeft, idleRight);
 
         new VelocityComponent(this, 0, 0, 0.3f, 0.3f, moveLeft, moveRight);
-    }
-
-    /**
-     * @return position of hero
-     */
-    public PositionComponent getPositionComponent() {
-        return positionComponent;
     }
 }
