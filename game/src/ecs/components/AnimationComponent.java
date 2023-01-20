@@ -23,7 +23,7 @@ public class AnimationComponent extends Component {
      * @param idleRight Idleanimation faced right
      */
     public AnimationComponent(Entity entity, Animation idleLeft, Animation idleRight) {
-        super(entity);
+        super(entity, name);
         this.idleRight = idleRight;
         this.idleLeft = idleLeft;
         this.currentAnimation = idleLeft;
@@ -41,7 +41,7 @@ public class AnimationComponent extends Component {
      * @param entity associated entity
      */
     public AnimationComponent(Entity entity) {
-        super(entity);
+        super(entity, name);
         this.idleLeft = null;
         this.idleRight = null;
         this.currentAnimation = null;

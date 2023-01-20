@@ -18,9 +18,8 @@ public class Hero extends Entity {
      */
     public Hero(Point startPosition) {
         super();
-        positionComponent = new PositionComponent(this, startPosition);
-        this.addComponent(PositionComponent.name, positionComponent);
-        this.addComponent(PlayableComponent.name, new PlayableComponent(this));
+        new PositionComponent(this, startPosition);
+        new PlayableComponent(this);
         setupAnimationComponent();
     }
 
@@ -31,12 +30,9 @@ public class Hero extends Entity {
         Animation moveLeft = AnimationBuilder.buildAnimation("knight/runLeft");
         ;
 
-        this.addComponent(
-                AnimationComponent.name, new AnimationComponent(this, idleLeft, idleRight));
+        new AnimationComponent(this, idleLeft, idleRight);
 
-        this.addComponent(
-                VelocityComponent.name,
-                new VelocityComponent(this, 0, 0, 0.3f, 0.3f, moveLeft, moveRight));
+        new VelocityComponent(this, 0, 0, 0.3f, 0.3f, moveLeft, moveRight);
     }
 
     /**

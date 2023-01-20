@@ -21,7 +21,7 @@ public class PositionComponent extends Component {
      * @param point position of the entity
      */
     public PositionComponent(@DSLContextMember(name = "entity") Entity entity, Point point) {
-        super(entity);
+        super(entity, name);
         this.position = point;
     }
 
@@ -29,7 +29,7 @@ public class PositionComponent extends Component {
      * @param entity associated entity
      */
     public PositionComponent(@DSLContextMember(name = "entity") Entity entity) {
-        super(entity);
+        super(entity, name);
         this.position =
                 ECS.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint();
     }
