@@ -2,17 +2,21 @@ package ecs.components;
 
 import ecs.entities.Entity;
 import graphic.Animation;
+import semanticAnalysis.types.DSLContextMember;
+import semanticAnalysis.types.DSLType;
+import semanticAnalysis.types.DSLTypeMember;
 
 /** VelocityComponent is a component that stores the x, y movement direction */
+@DSLType
 public class VelocityComponent extends Component {
     public static String name = "VelocityComponent";
     private float x;
     private float y;
-    private float xSpeed;
-    private float ySpeed;
+    private @DSLTypeMember float xSpeed;
+    private @DSLTypeMember float ySpeed;
 
-    private Animation moveRightAnimation;
-    private Animation moveLeftAnimation;
+    private @DSLTypeMember Animation moveRightAnimation;
+    private @DSLTypeMember Animation moveLeftAnimation;
 
     /**
      * @param entity associated entity
@@ -56,7 +60,7 @@ public class VelocityComponent extends Component {
     /**
      * @param entity associated entity
      */
-    public VelocityComponent(Entity entity) {
+    public VelocityComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity, name);
         this.x = 0;
         this.y = 0;
