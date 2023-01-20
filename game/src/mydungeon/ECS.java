@@ -7,7 +7,6 @@ import dslToGame.QuestConfig;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
-import ecs.entities.Monster;
 import ecs.systems.*;
 import interpreter.DSLInterpreter;
 import java.util.*;
@@ -16,7 +15,6 @@ import level.elements.ILevel;
 import level.elements.tile.Tile;
 import level.generator.postGeneration.WallGenerator;
 import level.generator.randomwalk.RandomWalkGenerator;
-import level.tools.LevelElement;
 import starter.DesktopLauncher;
 import tools.Point;
 
@@ -67,10 +65,6 @@ public class ECS extends Game {
         // TODO: when calling this before currentLevel is set, the default ctor of PositionComponent
         // triggers NullPointerException
         setupDSLInput();
-        entities.add(new Monster(currentLevel.getRandomTilePoint(LevelElement.FLOOR)));
-        entities.add(new Monster(currentLevel.getRandomTilePoint(LevelElement.FLOOR)));
-        entities.add(new Monster(currentLevel.getRandomTilePoint(LevelElement.FLOOR)));
-        entities.add(new Monster(currentLevel.getRandomTilePoint(LevelElement.FLOOR)));
     }
 
     /** Toggle between pause and run */
