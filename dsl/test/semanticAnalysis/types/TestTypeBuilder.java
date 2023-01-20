@@ -35,7 +35,8 @@ public class TestTypeBuilder {
     }
 
     @DSLType
-    private record TestRecord(@DSLTypeMember int comp1, @DSLTypeMember String comp2) {}
+    private record TestRecord(
+            @DSLTypeMember int comp1, @DSLTypeMember String comp2, @DSLTypeMember float comp3) {}
 
     @Test
     public void testSimpleClass() {
@@ -86,6 +87,10 @@ public class TestTypeBuilder {
         var comp2 = dslType.resolve("comp2");
         assertNotSame(comp2, Symbol.NULL);
         assertEquals(BuiltInType.stringType, comp2.getDataType());
+
+        var comp3 = dslType.resolve("comp3");
+        assertNotSame(comp3, Symbol.NULL);
+        assertEquals(BuiltInType.floatType, comp3.getDataType());
     }
 
     @Test

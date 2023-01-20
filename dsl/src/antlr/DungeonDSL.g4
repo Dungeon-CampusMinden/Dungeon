@@ -17,6 +17,7 @@ ARROW       : '->';
 
 ID  : [_a-zA-Z][a-zA-Z0-9_]*;
 NUM : [1-9][0-9]*;
+NUM_DEC: [0-9]+'.'[0-9]+;
 WS  : [ \t\r\n]+ -> skip;
 
 LINE_COMMENT
@@ -100,6 +101,7 @@ param_list
 primary : ID
         | STRING_LITERAL
         | NUM
+        | NUM_DEC
         | func_call
         ;
 

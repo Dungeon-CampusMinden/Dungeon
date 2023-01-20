@@ -9,7 +9,10 @@ import semanticAnalysis.types.*;
 
 public class TestTypeBinder {
     @DSLType
-    private record TestComponent(@DSLTypeMember int member1, @DSLTypeMember String member2) {}
+    private record TestComponent(
+            @DSLTypeMember int member1,
+            @DSLTypeMember String member2,
+            @DSLTypeMember float member3) {}
 
     @Test
     public void testAggregateTypeBinding() {
@@ -21,7 +24,8 @@ public class TestTypeBinder {
             game_object o {
                 test_component{
                     member1: 42,
-                    member2: "Hello"
+                    member2: "Hello",
+                    member3: 3.14
                 }
             }
             """;
@@ -50,6 +54,8 @@ public class TestTypeBinder {
         Assert.assertNotSame(Symbol.NULL, member1);
         var member2 = ((AggregateType) testComponentDataType).resolve("member2");
         Assert.assertNotSame(Symbol.NULL, member2);
+        var member3 = ((AggregateType) testComponentDataType).resolve("member3");
+        Assert.assertNotSame(Symbol.NULL, member3);
     }
 
     @Test

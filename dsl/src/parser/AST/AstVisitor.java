@@ -26,6 +26,16 @@ public interface AstVisitor<T> {
     }
 
     /**
+     * Visitor method for DecNumNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(DecNumNode node) {
+        return null;
+    }
+
+    /**
      * Visitor method for NumNodes
      *
      * @param node Node to visit

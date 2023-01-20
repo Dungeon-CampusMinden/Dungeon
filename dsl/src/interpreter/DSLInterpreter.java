@@ -397,6 +397,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     @Override
+    public Object visit(DecNumNode node) {
+        return new Value(BuiltInType.floatType, node.getValue());
+    }
+
+    @Override
     public Object visit(StringNode node) {
         return new Value(BuiltInType.stringType, node.getValue());
     }

@@ -36,6 +36,7 @@ public class Node {
         DoubleLine,
         Arrow,
         Number,
+        DecimalNumber,
         StringLiteral,
         Identifier,
         TypeSpecifier,

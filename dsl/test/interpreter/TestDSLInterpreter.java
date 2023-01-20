@@ -235,7 +235,7 @@ public class TestDSLInterpreter {
                 game_object my_obj {
                     test_component1 {
                         member1: 42,
-                        member2: 12
+                        member2: 12.34
                     },
                     test_component2 {
                         member1: "Hallo",
@@ -289,7 +289,7 @@ public class TestDSLInterpreter {
 
         // check member-values
         assertEquals(42, testComp1.getMember1());
-        assertEquals(12, testComp1.getMember2());
+        assertEquals(12.34, testComp1.getMember2(), 0.001f);
         assertEquals("DEFAULT VALUE", testComp1.getMember3());
 
         // test, that the referenced entities are correct

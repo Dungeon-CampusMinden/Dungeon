@@ -47,6 +47,10 @@ public class TypeBuilder {
                 || long.class.equals(type)
                 || Integer.class.isAssignableFrom(type)) {
             return BuiltInType.intType;
+        } else if (float.class.equals(type)
+                || double.class.equals(type)
+                || Float.class.isAssignableFrom(type)) {
+            return BuiltInType.floatType;
         } else if (String.class.equals(type) || String.class.isAssignableFrom(type)) {
             return BuiltInType.stringType;
         } else if (Graph.class.equals(type) || Graph.class.isAssignableFrom(type)) {
