@@ -88,10 +88,10 @@ public class ECS extends Game {
                 position_component {
                 },
                 velocity_component {
-                x_speed: 0.5f,
-                y_speed: 0.5f,
+                x_speed: 0.5,
+                y_speed: 0.5,
                 move_right_animation:"monster/imp/runRight",
-                move_left_animation: "monster/imp/runLeft",
+                move_left_animation: "monster/imp/runLeft"
                 },
                 animation_component{
                     idle_left: "monster/imp/idleLeft",
