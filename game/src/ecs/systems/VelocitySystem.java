@@ -25,11 +25,12 @@ public class VelocitySystem extends ECS_System {
                     // Update the position based on the velocity
                     float newX = position.getPosition().x + velocity.getX();
                     float newY = position.getPosition().y + velocity.getY();
-
                     Point newPosition = new Point(newX, newY);
                     if (ECS.currentLevel.getTileAt(newPosition.toCoordinate()).isAccessible()) {
                         position.setPosition(newPosition);
                         movementAnimation(entity);
+                        velocity.setY(0);
+                        velocity.setX(0);
                     }
                 }
             }

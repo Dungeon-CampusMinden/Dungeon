@@ -1,4 +1,4 @@
-package ecs.components;
+package ecs.components.skill;
 
 import graphic.Animation;
 import java.lang.reflect.InvocationTargetException;

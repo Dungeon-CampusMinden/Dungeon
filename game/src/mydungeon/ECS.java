@@ -27,8 +27,8 @@ public class ECS extends Game {
 
     public static ILevel currentLevel;
 
-    private Hero hero;
     private PositionComponent heroPositionComponent;
+    public static Hero hero;
 
     @Override
     protected void setup() {
@@ -43,6 +43,7 @@ public class ECS extends Game {
         new VelocitySystem();
         new DrawSystem(painter);
         new KeyboardSystem();
+        new AISystem();
     }
 
     @Override
@@ -88,8 +89,8 @@ public class ECS extends Game {
                 position_component {
                 },
                 velocity_component {
-                x_speed: 0.5,
-                y_speed: 0.5,
+                x_speed: 0.1,
+                y_speed: 0.1,
                 move_right_animation:"monster/imp/runRight",
                 move_left_animation: "monster/imp/runLeft"
                 },
@@ -97,6 +98,8 @@ public class ECS extends Game {
                     idle_left: "monster/imp/idleLeft",
                     idle_right: "monster/imp/idleRight",
                     current_animation: "monster/imp/idleLeft"
+                },
+                ai_component {
                 }
             }
 
