@@ -11,14 +11,14 @@ public class CollisionSystem extends ECS_System {
     @Override
     public void update() {
         for (Entity entity : ECS.entities) {
-            if (entity.getComponent(HitboxComponent.NAME) != null) {
+            if (entity.getComponent(HitboxComponent.name) != null) {
                 HitboxComponent hitbox1 =
-                        (HitboxComponent) entity.getComponent(HitboxComponent.NAME);
+                        (HitboxComponent) entity.getComponent(HitboxComponent.name);
 
                 for (Entity entity2 : ECS.entities) {
-                    if (entity != entity2 && entity2.getComponent(HitboxComponent.NAME) != null) {
+                    if (entity != entity2 && entity2.getComponent(HitboxComponent.name) != null) {
                         HitboxComponent hitbox2 =
-                                (HitboxComponent) entity2.getComponent(HitboxComponent.NAME);
+                                (HitboxComponent) entity2.getComponent(HitboxComponent.name);
 
                         if (checkForCollision(hitbox1, hitbox2)) {
                             Tile.Direction d = checkDirectionOfCollision(hitbox1, hitbox2);
