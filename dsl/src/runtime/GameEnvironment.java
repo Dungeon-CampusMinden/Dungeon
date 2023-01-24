@@ -3,6 +3,7 @@ package runtime;
 import dslToGame.AnimationBuilder;
 import dslToGame.QuestConfig;
 import ecs.components.AnimationComponent;
+import ecs.components.HitboxComponent;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.components.ai.AIComponent;
@@ -124,12 +125,15 @@ public class GameEnvironment implements IEvironment {
         var velocityComponentType =
                 typeBuilder.createTypeFromClass(Scope.NULL, VelocityComponent.class);
         var aiComponentType = typeBuilder.createTypeFromClass(Scope.NULL, AIComponent.class);
+        var hitboxComponentType =
+                typeBuilder.createTypeFromClass(Scope.NULL, HitboxComponent.class);
         types.add(questConfigType);
         types.add(entityComponentType);
         types.add(positionComponentType);
         types.add(animationComponentType);
         types.add(velocityComponentType);
         types.add(aiComponentType);
+        types.add(hitboxComponentType);
 
         return types;
     }
