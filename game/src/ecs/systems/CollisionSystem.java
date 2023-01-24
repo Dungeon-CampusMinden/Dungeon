@@ -91,10 +91,8 @@ public class CollisionSystem extends ECS_System {
             return Tile.Direction.N;
         } else if (rads < piQuarter) {
             return Tile.Direction.E;
-        } else if (rads < 3 * piQuarter) {
-            return Tile.Direction.S;
         } else {
-            return null;
+            return Tile.Direction.S;
         }
     }
 }
