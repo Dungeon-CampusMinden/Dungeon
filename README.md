@@ -26,6 +26,12 @@ slightly out of date. If you have any questions, problems or suggestions, please
 feel free to contact us in English or German.
 
 
+## Credits
+
+This project is funded by [Stiftung für Innovation in der Hochschullehre](https://stiftung-hochschullehre.de)
+(["Freiraum 2022"](https://stiftung-hochschullehre.de/foerderung/freiraum2022/)).
+
+
 ---
 
 ## License
