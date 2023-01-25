@@ -37,6 +37,13 @@ slightly out of date. If you have any questions, problems or suggestions, please
 feel free to contact us in English or German.
 
 
+## Credits
+
+This project was funded by the Ministry of Culture and Science (MKW) in North 
+Rhine-Westphalia in agreement with the Digitale Hochschule NRW (DH.NRW)
+(["Fellowships für Innovationen in der digitalen Hochschulbildung (Digi Fellowships)"](https://www.dh.nrw/kooperationen/Digi-Fellows-2)).
+
+
 ---
 
 ## License
