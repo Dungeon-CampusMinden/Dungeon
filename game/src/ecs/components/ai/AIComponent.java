@@ -17,7 +17,7 @@ public class AIComponent extends Component {
     public static String name = "AIComponent";
     private /*@DSLTypeMember*/ IFightAI fightAI;
     private /*@DSLTypeMember*/ IIdleAI idleAI;
-    private /*@DSLTypeMember*/ ITransition transition;
+    private /*@DSLTypeMember*/ ITransition transitionAI;
 
     /**
      * @param entity associated entity
@@ -29,7 +29,7 @@ public class AIComponent extends Component {
         super(entity, name);
         this.fightAI = fightAI;
         this.idleAI = idleAI;
-        this.transition = transition;
+        this.transitionAI = transition;
     }
 
     /**
@@ -38,8 +38,8 @@ public class AIComponent extends Component {
     public AIComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity, name);
         System.out.println("DEBUG AI");
-        idleAI = new RadiusWalk(5);
-        transition = new RangeTransition(1.5f);
+        idleAI = new RadiusWalk(5, 2);
+        transitionAI = new RangeTransition(1.5f);
         fightAI =
                 entity1 -> {
                     System.out.println("TIME TO FIGHT!");
@@ -49,7 +49,61 @@ public class AIComponent extends Component {
 
     /** Excecute the ai behavior */
     public void execute() {
-        if (transition.isInFightMode(entity)) fightAI.fight(entity);
+        if (transitionAI.isInFightMode(entity)) fightAI.fight(entity);
         else idleAI.idle(entity);
+    }
+
+    /**
+     * Set a new fight ai
+     *
+     * @param ai new fight ai
+     */
+    public void setFightAI(IFightAI ai) {
+        this.fightAI = ai;
+    }
+
+    /**
+     * Set a new idle ai
+     *
+     * @param ai new idle ai
+     */
+    public void setIdleAI(IIdleAI ai) {
+        this.idleAI = ai;
+    }
+
+    /**
+     * Set a new transition ai
+     *
+     * @param ai new transition ai
+     */
+    public void setTransitionAI(ITransition ai) {
+        this.transitionAI = ai;
+    }
+
+    /**
+     * Returns the idle AI of the AIComponent
+     *
+     * @return IIdleAI object representing the idle AI
+     */
+    public IIdleAI getIdleAI() {
+        return idleAI;
+    }
+
+    /**
+     * Returns the transition AI of the AIComponent
+     *
+     * @return ITransition object representing the transition AI
+     */
+    public ITransition getTransitionAI() {
+        return transitionAI;
+    }
+
+    /**
+     * Returns the fight AI of the AIComponent
+     *
+     * @return IFigthAI object representing the fight AI
+     */
+    public IFightAI getFightAI() {
+        return fightAI;
     }
 }
