@@ -1,18 +1,15 @@
 package ecs.components.ai.idle;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
-import ecs.components.PositionComponent;
 import ecs.components.ai.AITools;
 import ecs.entities.Entity;
-import level.elements.ILevel;
 import level.elements.tile.Tile;
-import mydungeon.ECS;
 import tools.Constants;
 
 public class RadiusWalk implements IIdleAI {
     private final float radius;
     private GraphPath<Tile> path;
-    private final int breakTime = Constants.FRAME_RATE * 5;
+    private final int breakTime;
     private int currentBreak = 0;
 
     /**
@@ -20,14 +17,16 @@ public class RadiusWalk implements IIdleAI {
      * point in the radius is searched for from there.
      *
      * @param radius Radius in which a target point is to be searched for
+     * @param breakTimeInSeconds how long to wait (in seconds) before searching a new goal
      */
-    public RadiusWalk(float radius) {
+    public RadiusWalk(float radius, int breakTimeInSeconds) {
         this.radius = radius;
+        this.breakTime = breakTimeInSeconds * Constants.FRAME_RATE;
     }
 
     @Override
     public void idle(Entity entity) {
-        if (path == null || pathFinished(entity)) {
+        if (path == null || AITools.pathFinished(entity, path)) {
             if (currentBreak >= breakTime) {
                 currentBreak = 0;
                 path = AITools.calculatePathToRandomTileInRange(entity, radius);
@@ -37,12 +36,5 @@ public class RadiusWalk implements IIdleAI {
             currentBreak++;
 
         } else AITools.move(entity, path);
-    }
-
-    private boolean pathFinished(Entity entity) {
-        PositionComponent pc = (PositionComponent) entity.getComponent(PositionComponent.name);
-        ILevel level = ECS.currentLevel;
-        return path.get(path.getCount() - 1)
-                .equals(level.getTileAt(pc.getPosition().toCoordinate()));
     }
 }

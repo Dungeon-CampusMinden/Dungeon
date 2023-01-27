@@ -1,3 +1,3 @@
-package ecs.ai;
+package ecs;
 
 public class AIToolsTest {}
