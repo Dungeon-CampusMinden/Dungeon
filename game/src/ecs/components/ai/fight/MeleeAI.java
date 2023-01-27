@@ -38,7 +38,7 @@ public class MeleeAI implements IFightAI {
             }
         } else {
             if (timeSinceLastUpdate >= delay) {
-                path = AITools.calculateNewPath(entity, ECS.hero);
+                path = AITools.calculatePath(entity, ECS.hero);
                 timeSinceLastUpdate = -1;
             }
             timeSinceLastUpdate++;

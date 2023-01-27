@@ -30,7 +30,7 @@ public class RadiusWalk implements IIdleAI {
         if (path == null || pathFinished(entity)) {
             if (currentBreak >= breakTime) {
                 currentBreak = 0;
-                path = AITools.calculateNewPath(entity, radius);
+                path = AITools.calculatePathToRandomTileInRange(entity, radius);
                 idle(entity);
             }
 

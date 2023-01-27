@@ -18,6 +18,20 @@ public class AITools {
     private static final Random random = new Random();
 
     /**
+     * Finds the path to a random (accessible) tile in the given radius, starting from the given
+     * center point
+     *
+     * @param point Center point
+     * @param radius Search radius
+     * @return Path from the center point to the randomly selected tile
+     */
+    public static GraphPath<Tile> calculatePathToRandomTileInRange(Point point, float radius) {
+        List<Tile> tiles = getAccessibleTilesInRange(point, radius);
+        Coordinate newPosition = tiles.get(random.nextInt(tiles.size())).getCoordinate();
+        return calculatePath(point.toCoordinate(), newPosition);
+    }
+
+    /**
      * Finds the path to a random (accessible) tile in the given radius, starting from the position
      * of the given entity.
      *
@@ -25,25 +39,41 @@ public class AITools {
      * @param radius Search radius
      * @return Path from the position of the entity to the randomly selected tile
      */
-    public static GraphPath<Tile> calculateNewPath(Entity entity, float radius) {
-        PositionComponent pc = (PositionComponent) entity.getComponent(PositionComponent.name);
-        VelocityComponent vc = (VelocityComponent) entity.getComponent(VelocityComponent.name);
-        if (pc != null && vc != null) {
-            ILevel level = ECS.currentLevel;
-            Point position = pc.getPosition();
-            List<Tile> tiles = new ArrayList<>();
-            for (float x = position.x - radius; x <= position.x + radius; x++) {
-                for (float y = position.y - radius; y <= position.y + radius; y++) {
-                    tiles.add(level.getTileAt(new Point(x, y).toCoordinate()));
-                }
-            }
-            tiles.removeIf(Objects::isNull);
-            tiles.removeIf(tile -> !tile.isAccessible());
-            Coordinate newPosition = tiles.get(random.nextInt(tiles.size())).getCoordinate();
-            return level.findPath(
-                    level.getTileAt(position.toCoordinate()), level.getTileAt(newPosition));
+    public static GraphPath<Tile> calculatePathToRandomTileInRange(Entity entity, float radius) {
+        if (entity.getComponent(PositionComponent.name) != null) {
+            Point point =
+                    ((PositionComponent) entity.getComponent(PositionComponent.name)).getPosition();
+            return calculatePathToRandomTileInRange(point, radius);
         }
         return null;
+    }
+
+    /**
+     * @param center center point
+     * @param radius Search radius
+     * @return List of tiles in the given radius arround the center point
+     */
+    public static List<Tile> getTilesInRange(Point center, float radius) {
+        List<Tile> tiles = new ArrayList<>();
+        ILevel level = ECS.currentLevel;
+        for (float x = center.x - radius; x <= center.x + radius; x++) {
+            for (float y = center.y - radius; y <= center.y + radius; y++) {
+                tiles.add(level.getTileAt(new Point(x, y).toCoordinate()));
+            }
+        }
+        tiles.removeIf(Objects::isNull);
+        return tiles;
+    }
+
+    /**
+     * @param center center point
+     * @param radius Search radius
+     * @return List of accessible tiles in the given radius arround the center point
+     */
+    public static List<Tile> getAccessibleTilesInRange(Point center, float radius) {
+        List<Tile> tiles = getTilesInRange(center, radius);
+        tiles.removeIf(tile -> !tile.isAccessible());
+        return tiles;
     }
 
     /**
@@ -53,18 +83,43 @@ public class AITools {
      * @param to Entity whose position is the goal point
      * @return Path
      */
-    public static GraphPath<Tile> calculateNewPath(Entity from, Entity to) {
-        PositionComponent myPositionComponent =
+    public static GraphPath<Tile> calculatePath(Entity from, Entity to) {
+        PositionComponent fromPositionComponent =
                 (PositionComponent) from.getComponent(PositionComponent.name);
-        PositionComponent heroPositionComponent =
+        PositionComponent toPositionomponent =
                 (PositionComponent) to.getComponent(PositionComponent.name);
-        if (myPositionComponent != null && heroPositionComponent != null) {
-            ILevel level = ECS.currentLevel;
-            Coordinate myPosition = myPositionComponent.getPosition().toCoordinate();
-            Coordinate heroposition = heroPositionComponent.getPosition().toCoordinate();
-            return level.findPath(level.getTileAt(myPosition), level.getTileAt(heroposition));
+        if (fromPositionComponent != null && toPositionomponent != null) {
+            return calculatePath(
+                    fromPositionComponent.getPosition(), toPositionomponent.getPosition());
         }
         return null;
+    }
+
+    /**
+     * @param entity
+     * @return Path from the entity to the hero
+     */
+    public static GraphPath<Tile> calculatePathToHero(Entity entity) {
+        return calculatePath(entity, ECS.hero);
+    }
+
+    /**
+     * @param from start point
+     * @param to end point
+     * @return Path from the start point to the end point
+     */
+    public static GraphPath<Tile> calculatePath(Point from, Point to) {
+        return calculatePath(from.toCoordinate(), to.toCoordinate());
+    }
+
+    /**
+     * @param from start coordinate
+     * @param to end coordinate
+     * @return Path from the start coordinate to the end coordinate
+     */
+    public static GraphPath<Tile> calculatePath(Coordinate from, Coordinate to) {
+        ILevel level = ECS.currentLevel;
+        return level.findPath(level.getTileAt(from), level.getTileAt(to));
     }
 
     /**
@@ -105,29 +160,45 @@ public class AITools {
     }
 
     /**
-     * Checks if the position of the player is within the given radius of the position of the given
-     * entity.
-     *
      * @param entity Entity whose position specifies the center point
-     * @param range Reichweite die betrachtet werden soll
-     * @return Ob sich der Spieler in Reichweite befindet
+     * @param range search radius
+     * @return if the position of the player is within the given radius of the position of the given
+     *     entity.
      */
     public static boolean playerInRange(Entity entity, float range) {
-        PositionComponent myPositionComponent =
-                (PositionComponent) entity.getComponent(PositionComponent.name);
-        if (ECS.hero != null) {
-            PositionComponent heroPositionComponent =
-                    (PositionComponent) ECS.hero.getComponent(PositionComponent.name);
-            if (heroPositionComponent != null) {
-                Point myPosition = myPositionComponent.getPosition();
-                Point heroPosition = heroPositionComponent.getPosition();
+        return entityInRange(entity, ECS.hero, range);
+    }
 
-                float xDiff = myPosition.x - heroPosition.x;
-                float yDiff = myPosition.y - heroPosition.y;
-                float distance = (float) Math.sqrt(xDiff * xDiff + yDiff * yDiff);
-                return distance <= range;
-            }
+    /**
+     * @param entity1
+     * @param entity2
+     * @param range search radius
+     * @return if the position of the two entities is within the given radius
+     */
+    public static boolean entityInRange(Entity entity1, Entity entity2, float range) {
+        if (entity1.getComponent(PositionComponent.name) != null
+                && entity2.getComponent(PositionComponent.name) != null) {
+            Point entity1Positon =
+                    ((PositionComponent) entity1.getComponent(PositionComponent.name))
+                            .getPosition();
+            Point entity2Positon =
+                    ((PositionComponent) entity2.getComponent(PositionComponent.name))
+                            .getPosition();
+            return inRange(entity1Positon, entity2Positon, range);
         }
         return false;
+    }
+
+    /**
+     * @param p1 Point A
+     * @param p2 Point B
+     * @param range Radius
+     * @return if the distance between the two points is within the radius
+     */
+    public static boolean inRange(Point p1, Point p2, float range) {
+        float xDiff = p1.x - p2.x;
+        float yDiff = p1.y - p2.y;
+        float distance = (float) Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+        return distance <= range;
     }
 }
