@@ -44,6 +44,7 @@ public class ECS extends Game {
         new DrawSystem(painter);
         new KeyboardSystem();
         new AISystem();
+        new CollisionSystem();
     }
 
     @Override
@@ -100,6 +101,8 @@ public class ECS extends Game {
                     current_animation: "monster/imp/idleLeft"
                 },
                 ai_component {
+                },
+                hitbox_component {
                 }
             }
 
