@@ -27,21 +27,18 @@ public class VelocitySystem extends ECS_System {
                                                                         new MissingComponentException(
                                                                                 "PositionComponent"));
 
-                                // Update the position based on the velocity
-                                float newX =
-                                        position.getPosition().x + ((VelocityComponent) vc).getX();
-                                float newY =
-                                        position.getPosition().y + ((VelocityComponent) vc).getY();
-                                Point newPosition = new Point(newX, newY);
-                                if (ECS.currentLevel
-                                        .getTileAt(newPosition.toCoordinate())
-                                        .isAccessible()) {
-                                    position.setPosition(newPosition);
-                                    movementAnimation(entity);
-                                    ((VelocityComponent) vc).setY(0);
-                                    ((VelocityComponent) vc).setX(0);
-                                }
-                            });
+                    // Update the position based on the velocity
+                    float newX = position.getPosition().x + velocity.getCurrentXVelocity();
+                    float newY = position.getPosition().y + velocity.getCurrentYVelocity();
+                    Point newPosition = new Point(newX, newY);
+                    if (ECS.currentLevel.getTileAt(newPosition.toCoordinate()).isAccessible()) {
+                        position.setPosition(newPosition);
+                        movementAnimation(entity);
+                        velocity.setCurrentYVelocity(0);
+                        velocity.setCurrentXVelocity(0);
+                    }
+                }
+            }
         }
     }
 
