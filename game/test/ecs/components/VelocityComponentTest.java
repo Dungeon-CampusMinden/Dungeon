@@ -16,8 +16,7 @@ public class VelocityComponentTest {
 
     @Before
     public void setup() {
-        component =
-                new VelocityComponent(new Entity(),3.0f, 4.0f, moveLeft, moveRight);
+        component = new VelocityComponent(new Entity(), 3.0f, 4.0f, moveLeft, moveRight);
     }
 
     @Test

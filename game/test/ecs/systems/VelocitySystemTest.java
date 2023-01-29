@@ -34,8 +34,7 @@ public class VelocitySystemTest {
         entity = new Entity();
         entity.addComponent(PositionComponent.name, new PositionComponent(entity, new Point(1, 2)));
         entity.addComponent(
-                VelocityComponent.name,
-                new VelocityComponent(entity, 1, 2, moveLeft, moveRight));
+                VelocityComponent.name, new VelocityComponent(entity, 1, 2, moveLeft, moveRight));
         entity.addComponent(
                 AnimationComponent.name, new AnimationComponent(entity, idleLeft, idleRight));
         ECS.currentLevel = level;

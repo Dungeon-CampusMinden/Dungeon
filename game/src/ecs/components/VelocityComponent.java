@@ -49,7 +49,12 @@ public class VelocityComponent extends Component {
      * @param moveAnimation Animation that plays when the entity moves
      */
     public VelocityComponent(
-        Entity entity, float currentXVelocity, float currentYVelocity, float XVelocity, float YVelocity, Animation moveAnimation) {
+            Entity entity,
+            float currentXVelocity,
+            float currentYVelocity,
+            float XVelocity,
+            float YVelocity,
+            Animation moveAnimation) {
         this(entity, XVelocity, YVelocity, moveAnimation, moveAnimation);
     }
 
