@@ -1,6 +1,7 @@
 package ecs.systems;
 
 import ecs.components.AnimationComponent;
+import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
@@ -29,11 +30,22 @@ public class DrawSystem extends ECS_System {
     public void update() {
         for (Entity entity : ECS.entities) {
             AnimationComponent ac =
-                    (AnimationComponent) entity.getComponent(AnimationComponent.name);
+                    (AnimationComponent)
+                            entity.getComponent(AnimationComponent.name)
+                                    .orElseThrow(
+                                            () ->
+                                                    new MissingComponentException(
+                                                            "AnimationComponent"));
             if (ac != null) {
                 Animation animation = ac.getCurrentAnimation();
                 PositionComponent positionComponent =
-                        (PositionComponent) entity.getComponent(PositionComponent.name);
+                        (PositionComponent)
+                                entity.getComponent(PositionComponent.name)
+                                        .orElseThrow(
+                                                () ->
+                                                        new MissingComponentException(
+                                                                "PositionComponent"));
+                ;
 
                 if (positionComponent != null) {
                     if (animation != null) {

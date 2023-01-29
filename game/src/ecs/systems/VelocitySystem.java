@@ -1,6 +1,7 @@
 package ecs.systems;
 
 import ecs.components.AnimationComponent;
+import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
@@ -16,10 +17,20 @@ public class VelocitySystem extends ECS_System {
         for (Entity entity : ECS.entities) {
 
             VelocityComponent velocity =
-                    (VelocityComponent) entity.getComponent(VelocityComponent.name);
+                    (VelocityComponent)
+                            entity.getComponent(VelocityComponent.name)
+                                    .orElseThrow(
+                                            () ->
+                                                    new MissingComponentException(
+                                                            "VelocityComponent"));
             if (velocity != null) {
                 PositionComponent position =
-                        (PositionComponent) entity.getComponent(PositionComponent.name);
+                        (PositionComponent)
+                                entity.getComponent(PositionComponent.name)
+                                        .orElseThrow(
+                                                () ->
+                                                        new MissingComponentException(
+                                                                "HitboxComponent"));
                 if (position != null) {
 
                     // Update the position based on the velocity
@@ -38,11 +49,21 @@ public class VelocitySystem extends ECS_System {
     }
 
     private void movementAnimation(Entity entity) {
-        AnimationComponent ac = (AnimationComponent) entity.getComponent(AnimationComponent.name);
+        AnimationComponent ac =
+                (AnimationComponent)
+                        entity.getComponent(AnimationComponent.name)
+                                .orElseThrow(
+                                        () -> new MissingComponentException("AnimationComponent"));
         if (ac != null) {
             boolean backup = true;
             Animation newCurrentAnimation;
-            VelocityComponent vc = (VelocityComponent) entity.getComponent(VelocityComponent.name);
+            VelocityComponent vc =
+                    (VelocityComponent)
+                            entity.getComponent(VelocityComponent.name)
+                                    .orElseThrow(
+                                            () ->
+                                                    new MissingComponentException(
+                                                            "VelocityComponent"));
             float x = vc.getX();
             if (x > 0) newCurrentAnimation = vc.getMoveRightAnimation();
             else if (x < 0) newCurrentAnimation = vc.getMoveLeftAnimation();

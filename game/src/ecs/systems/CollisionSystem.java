@@ -1,6 +1,7 @@
 package ecs.systems;
 
 import ecs.components.HitboxComponent;
+import ecs.components.MissingComponentException;
 import ecs.entities.Entity;
 import java.lang.reflect.InvocationTargetException;
 import level.elements.tile.Tile;
@@ -13,12 +14,22 @@ public class CollisionSystem extends ECS_System {
         for (Entity entity : ECS.entities) {
             if (entity.getComponent(HitboxComponent.name) != null) {
                 HitboxComponent hitbox1 =
-                        (HitboxComponent) entity.getComponent(HitboxComponent.name);
+                        (HitboxComponent)
+                                entity.getComponent(HitboxComponent.name)
+                                        .orElseThrow(
+                                                () ->
+                                                        new MissingComponentException(
+                                                                "HitboxComponent"));
 
                 for (Entity entity2 : ECS.entities) {
                     if (entity != entity2 && entity2.getComponent(HitboxComponent.name) != null) {
                         HitboxComponent hitbox2 =
-                                (HitboxComponent) entity2.getComponent(HitboxComponent.name);
+                                (HitboxComponent)
+                                        entity2.getComponent(HitboxComponent.name)
+                                                .orElseThrow(
+                                                        () ->
+                                                                new MissingComponentException(
+                                                                        "HitboxComponent"));
 
                         if (checkForCollision(hitbox1, hitbox2)) {
                             Tile.Direction d = checkDirectionOfCollision(hitbox1, hitbox2);

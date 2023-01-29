@@ -1,6 +1,7 @@
 package ecs.components.ai;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
+import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
@@ -25,8 +26,16 @@ public class AITools {
      * @param path Path on which the entity moves
      */
     public static void move(Entity entity, GraphPath<Tile> path) {
-        PositionComponent pc = (PositionComponent) entity.getComponent(PositionComponent.name);
-        VelocityComponent vc = (VelocityComponent) entity.getComponent(VelocityComponent.name);
+        PositionComponent pc =
+                (PositionComponent)
+                        entity.getComponent(PositionComponent.name)
+                                .orElseThrow(
+                                        () -> new MissingComponentException("PositionComponent"));
+        VelocityComponent vc =
+                (VelocityComponent)
+                        entity.getComponent(VelocityComponent.name)
+                                .orElseThrow(
+                                        () -> new MissingComponentException("VelocityComponent"));
         ILevel level = ECS.currentLevel;
         Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
         int i = 0;
@@ -124,12 +133,15 @@ public class AITools {
      * @return Path from the position of the entity to the randomly selected tile
      */
     public static GraphPath<Tile> calculatePathToRandomTileInRange(Entity entity, float radius) {
-        if (entity.getComponent(PositionComponent.name) != null) {
-            Point point =
-                    ((PositionComponent) entity.getComponent(PositionComponent.name)).getPosition();
-            return calculatePathToRandomTileInRange(point, radius);
-        }
-        return null;
+        Point point =
+                ((PositionComponent)
+                                entity.getComponent(PositionComponent.name)
+                                        .orElseThrow(
+                                                () ->
+                                                        new MissingComponentException(
+                                                                "PositionComponent")))
+                        .getPosition();
+        return calculatePathToRandomTileInRange(point, radius);
     }
 
     /**
@@ -141,14 +153,16 @@ public class AITools {
      */
     public static GraphPath<Tile> calculatePath(Entity from, Entity to) {
         PositionComponent fromPositionComponent =
-                (PositionComponent) from.getComponent(PositionComponent.name);
-        PositionComponent toPositionomponent =
-                (PositionComponent) to.getComponent(PositionComponent.name);
-        if (fromPositionComponent != null && toPositionomponent != null) {
-            return calculatePath(
-                    fromPositionComponent.getPosition(), toPositionomponent.getPosition());
-        }
-        return null;
+                (PositionComponent)
+                        from.getComponent(PositionComponent.name)
+                                .orElseThrow(
+                                        () -> new MissingComponentException("PositionComponent"));
+        PositionComponent positionComponent =
+                (PositionComponent)
+                        to.getComponent(PositionComponent.name)
+                                .orElseThrow(
+                                        () -> new MissingComponentException("PositionComponent"));
+        return calculatePath(fromPositionComponent.getPosition(), positionComponent.getPosition());
     }
 
     /**
@@ -181,13 +195,23 @@ public class AITools {
     public static boolean entityInRange(Entity entity1, Entity entity2, float range) {
         if (entity1.getComponent(PositionComponent.name) != null
                 && entity2.getComponent(PositionComponent.name) != null) {
-            Point entity1Positon =
-                    ((PositionComponent) entity1.getComponent(PositionComponent.name))
+            Point entity1Position =
+                    ((PositionComponent)
+                                    entity1.getComponent(PositionComponent.name)
+                                            .orElseThrow(
+                                                    () ->
+                                                            new MissingComponentException(
+                                                                    "PositionComponent")))
                             .getPosition();
-            Point entity2Positon =
-                    ((PositionComponent) entity2.getComponent(PositionComponent.name))
+            Point entity2Position =
+                    ((PositionComponent)
+                                    entity2.getComponent(PositionComponent.name)
+                                            .orElseThrow(
+                                                    () ->
+                                                            new MissingComponentException(
+                                                                    "PositionComponent")))
                             .getPosition();
-            return inRange(entity1Positon, entity2Positon, range);
+            return inRange(entity1Position, entity2Position, range);
         }
         return false;
     }
@@ -210,7 +234,12 @@ public class AITools {
      * @return if the entity is on the end of the path
      */
     public static boolean pathFinished(Entity entity, GraphPath<Tile> path) {
-        PositionComponent pc = (PositionComponent) entity.getComponent(PositionComponent.name);
+        PositionComponent pc =
+                (PositionComponent)
+                        entity.getComponent(PositionComponent.name)
+                                .orElseThrow(
+                                        () -> new MissingComponentException("PositionComponent"));
+        ;
         ILevel level = ECS.currentLevel;
         return path.get(path.getCount() - 1)
                 .equals(level.getTileAt(pc.getPosition().toCoordinate()));

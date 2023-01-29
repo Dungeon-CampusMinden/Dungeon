@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import controller.Game;
 import dslToGame.QuestConfig;
+import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
@@ -36,7 +37,11 @@ public class ECS extends Game {
         systems = new SystemController();
         controller.add(systems);
         hero = new Hero(new Point(0, 0));
-        heroPositionComponent = (PositionComponent) hero.getComponent(PositionComponent.name);
+        heroPositionComponent =
+                (PositionComponent)
+                        hero.getComponent(PositionComponent.name)
+                                .orElseThrow(
+                                        () -> new MissingComponentException("PositionComponent"));
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel();
 
