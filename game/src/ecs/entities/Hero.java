@@ -39,7 +39,7 @@ public class Hero extends Entity {
 
         new AnimationComponent(this, idleLeft, idleRight);
 
-        new VelocityComponent(this, 0, 0, 0.3f, 0.3f, moveLeft, moveRight);
+        new VelocityComponent(this, 0.3f, 0.3f, moveLeft, moveRight);
     }
 
     public static void heroCollision(HitboxComponent other, Tile.Direction from) {
