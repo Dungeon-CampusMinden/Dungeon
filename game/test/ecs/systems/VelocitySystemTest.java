@@ -45,7 +45,7 @@ public class VelocitySystemTest {
     @Test
     public void updateValidMove() {
         Mockito.when(tile.isAccessible()).thenReturn(true);
-            velocitySystem.update();
+        velocitySystem.update();
         PositionComponent positionComponent =
                 (PositionComponent) entity.getComponent(PositionComponent.name).orElseThrow();
         VelocityComponent velocityComponent =

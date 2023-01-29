@@ -193,27 +193,24 @@ public class AITools {
      * @return if the position of the two entities is within the given radius
      */
     public static boolean entityInRange(Entity entity1, Entity entity2, float range) {
-        if (entity1.getComponent(PositionComponent.name) != null
-                && entity2.getComponent(PositionComponent.name) != null) {
-            Point entity1Position =
-                    ((PositionComponent)
-                                    entity1.getComponent(PositionComponent.name)
-                                            .orElseThrow(
-                                                    () ->
-                                                            new MissingComponentException(
-                                                                    "PositionComponent")))
-                            .getPosition();
-            Point entity2Position =
-                    ((PositionComponent)
-                                    entity2.getComponent(PositionComponent.name)
-                                            .orElseThrow(
-                                                    () ->
-                                                            new MissingComponentException(
-                                                                    "PositionComponent")))
-                            .getPosition();
-            return inRange(entity1Position, entity2Position, range);
-        }
-        return false;
+
+        Point entity1Position =
+                ((PositionComponent)
+                                entity1.getComponent(PositionComponent.name)
+                                        .orElseThrow(
+                                                () ->
+                                                        new MissingComponentException(
+                                                                "PositionComponent")))
+                        .getPosition();
+        Point entity2Position =
+                ((PositionComponent)
+                                entity2.getComponent(PositionComponent.name)
+                                        .orElseThrow(
+                                                () ->
+                                                        new MissingComponentException(
+                                                                "PositionComponent")))
+                        .getPosition();
+        return inRange(entity1Position, entity2Position, range);
     }
 
     /**

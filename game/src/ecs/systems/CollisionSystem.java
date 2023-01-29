@@ -1,7 +1,6 @@
 package ecs.systems;
 
 import ecs.components.HitboxComponent;
-import ecs.components.MissingComponentException;
 import ecs.entities.Entity;
 import java.lang.reflect.InvocationTargetException;
 import level.elements.tile.Tile;
@@ -12,45 +11,56 @@ public class CollisionSystem extends ECS_System {
     @Override
     public void update() {
         for (Entity entity : ECS.entities) {
-            if (entity.getComponent(HitboxComponent.name) != null) {
-                HitboxComponent hitbox1 =
-                        (HitboxComponent)
-                                entity.getComponent(HitboxComponent.name)
-                                        .orElseThrow(
-                                                () ->
-                                                        new MissingComponentException(
-                                                                "HitboxComponent"));
 
-                for (Entity entity2 : ECS.entities) {
-                    if (entity != entity2 && entity2.getComponent(HitboxComponent.name) != null) {
-                        HitboxComponent hitbox2 =
-                                (HitboxComponent)
+            entity.getComponent(HitboxComponent.name)
+                    .ifPresent(
+                            hitbox1 -> {
+                                for (Entity entity2 : ECS.entities) {
+                                    if (entity != entity2) {
+
                                         entity2.getComponent(HitboxComponent.name)
-                                                .orElseThrow(
-                                                        () ->
-                                                                new MissingComponentException(
-                                                                        "HitboxComponent"));
-
-                        if (checkForCollision(hitbox1, hitbox2)) {
-                            Tile.Direction d = checkDirectionOfCollision(hitbox1, hitbox2);
-                            try {
-                                hitbox1.collide(hitbox2, d);
-                            } catch (InvocationTargetException e) {
-                                throw new RuntimeException(e);
-                            } catch (IllegalAccessException e) {
-                                throw new RuntimeException(e);
-                            }
-                            try {
-                                hitbox2.collide(hitbox1, inverse(d));
-                            } catch (InvocationTargetException e) {
-                                throw new RuntimeException(e);
-                            } catch (IllegalAccessException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    }
-                }
-            }
+                                                .ifPresent(
+                                                        hitbox2 -> {
+                                                            if (checkForCollision(
+                                                                    (HitboxComponent) hitbox1,
+                                                                    (HitboxComponent) hitbox2)) {
+                                                                Tile.Direction d =
+                                                                        checkDirectionOfCollision(
+                                                                                (HitboxComponent)
+                                                                                        hitbox1,
+                                                                                (HitboxComponent)
+                                                                                        hitbox2);
+                                                                try {
+                                                                    ((HitboxComponent) hitbox1)
+                                                                            .collide(
+                                                                                    (HitboxComponent)
+                                                                                            hitbox2,
+                                                                                    d);
+                                                                } catch (
+                                                                        InvocationTargetException
+                                                                                e) {
+                                                                    throw new RuntimeException(e);
+                                                                } catch (IllegalAccessException e) {
+                                                                    throw new RuntimeException(e);
+                                                                }
+                                                                try {
+                                                                    ((HitboxComponent) hitbox2)
+                                                                            .collide(
+                                                                                    (HitboxComponent)
+                                                                                            hitbox1,
+                                                                                    inverse(d));
+                                                                } catch (
+                                                                        InvocationTargetException
+                                                                                e) {
+                                                                    throw new RuntimeException(e);
+                                                                } catch (IllegalAccessException e) {
+                                                                    throw new RuntimeException(e);
+                                                                }
+                                                            }
+                                                        });
+                                    }
+                                }
+                            });
         }
     }
 

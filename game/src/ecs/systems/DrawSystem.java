@@ -29,39 +29,32 @@ public class DrawSystem extends ECS_System {
     /** draw entities at their position */
     public void update() {
         for (Entity entity : ECS.entities) {
-            AnimationComponent ac =
-                    (AnimationComponent)
-                            entity.getComponent(AnimationComponent.name)
-                                    .orElseThrow(
-                                            () ->
-                                                    new MissingComponentException(
-                                                            "AnimationComponent"));
-            if (ac != null) {
-                Animation animation = ac.getCurrentAnimation();
-                PositionComponent positionComponent =
-                        (PositionComponent)
-                                entity.getComponent(PositionComponent.name)
-                                        .orElseThrow(
-                                                () ->
-                                                        new MissingComponentException(
-                                                                "PositionComponent"));
-                ;
+            entity.getComponent(AnimationComponent.name)
+                    .ifPresent(
+                            ac -> {
+                                final Animation animation =
+                                        ((AnimationComponent) ac).getCurrentAnimation();
+                                PositionComponent positionComponent =
+                                        (PositionComponent)
+                                                entity.getComponent(PositionComponent.name)
+                                                        .orElseThrow(
+                                                                () ->
+                                                                        new MissingComponentException(
+                                                                                "PositionComponent"));
+                                ;
 
-                if (positionComponent != null) {
-                    if (animation != null) {
-                        String currentAnimationTexture = animation.getNextAnimationTexturePath();
-                        if (!configs.containsKey(currentAnimationTexture)) {
-                            configs.put(
-                                    currentAnimationTexture,
-                                    new PainterConfig(currentAnimationTexture));
-                        }
-                        painter.draw(
-                                positionComponent.getPosition(),
-                                currentAnimationTexture,
-                                configs.get(currentAnimationTexture));
-                    }
-                }
-            }
+                                String currentAnimationTexture =
+                                        animation.getNextAnimationTexturePath();
+                                if (!configs.containsKey(currentAnimationTexture)) {
+                                    configs.put(
+                                            currentAnimationTexture,
+                                            new PainterConfig(currentAnimationTexture));
+                                }
+                                painter.draw(
+                                        positionComponent.getPosition(),
+                                        currentAnimationTexture,
+                                        configs.get(currentAnimationTexture));
+                            });
         }
     }
 

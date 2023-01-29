@@ -1,6 +1,5 @@
 package ecs.systems;
 
-import ecs.components.MissingComponentException;
 import ecs.components.ai.AIComponent;
 import ecs.entities.Entity;
 import mydungeon.ECS;
@@ -10,9 +9,8 @@ public class AISystem extends ECS_System {
     @Override
     public void update() {
         for (Entity entity : ECS.entities) {
-                            entity.getComponent(AIComponent.name).ifPresent(aiComponent ->
-                                ((AIComponent)aiComponent).execute());
-
+            entity.getComponent(AIComponent.name)
+                    .ifPresent(aiComponent -> ((AIComponent) aiComponent).execute());
         }
     }
 }
