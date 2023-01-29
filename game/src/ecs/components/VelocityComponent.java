@@ -12,30 +12,30 @@ public class VelocityComponent extends Component {
     public static String name = "VelocityComponent";
     private float currentXVelocity;
     private float currentYVelocity;
-    private @DSLTypeMember float XVelocity;
-    private @DSLTypeMember float YVelocity;
+    private @DSLTypeMember float xVelocity;
+    private @DSLTypeMember float yVelocity;
 
     private @DSLTypeMember Animation moveRightAnimation;
     private @DSLTypeMember Animation moveLeftAnimation;
 
     /**
      * @param entity associated entity
-     * @param XVelocity Speed with which the entity moves on the x-axis
-     * @param YVelocity Speed with which the entity moves on the y-axis
+     * @param xVelocity Speed with which the entity moves on the x-axis
+     * @param yVelocity Speed with which the entity moves on the y-axis
      * @param moveLeftAnimation Animation that plays when the entity moves to the left
      * @param moveRightAnimation Animation that plays when the entity moves to the right
      */
     public VelocityComponent(
             Entity entity,
-            float XVelocity,
-            float YVelocity,
+            float xVelocity,
+            float yVelocity,
             Animation moveLeftAnimation,
             Animation moveRightAnimation) {
         super(entity, name);
         this.currentXVelocity = 0;
         this.currentYVelocity = 0;
-        this.XVelocity = XVelocity;
-        this.YVelocity = YVelocity;
+        this.xVelocity = xVelocity;
+        this.yVelocity = yVelocity;
         this.moveLeftAnimation = moveLeftAnimation;
         this.moveRightAnimation = moveRightAnimation;
     }
@@ -44,18 +44,18 @@ public class VelocityComponent extends Component {
      * @param entity associated entity
      * @param currentXVelocity current x velocity
      * @param currentYVelocity current y velocity
-     * @param XVelocity Speed with which the entity moves on the x-axis
-     * @param YVelocity Speed with which the entity moves on the y-axis
+     * @param xVelocity Speed with which the entity moves on the x-axis
+     * @param yVelocity Speed with which the entity moves on the y-axis
      * @param moveAnimation Animation that plays when the entity moves
      */
     public VelocityComponent(
             Entity entity,
             float currentXVelocity,
             float currentYVelocity,
-            float XVelocity,
-            float YVelocity,
+            float xVelocity,
+            float yVelocity,
             Animation moveAnimation) {
-        this(entity, XVelocity, YVelocity, moveAnimation, moveAnimation);
+        this(entity, xVelocity, yVelocity, moveAnimation, moveAnimation);
     }
 
     /**
@@ -65,8 +65,8 @@ public class VelocityComponent extends Component {
         super(entity, name);
         this.currentXVelocity = 0;
         this.currentYVelocity = 0;
-        this.XVelocity = 0;
-        this.YVelocity = 0;
+        this.xVelocity = 0;
+        this.yVelocity = 0;
         this.moveLeftAnimation = null;
         this.moveRightAnimation = null;
     }
@@ -103,31 +103,31 @@ public class VelocityComponent extends Component {
      * @return speed with which the entity moves on the x-axis
      */
     public float getXVelocity() {
-        return XVelocity;
+        return xVelocity;
     }
 
     /**
      * Set speed with which the entity moves on the x-axis
      *
-     * @param XVelocity
+     * @param xVelocity
      */
-    public void setXVelocity(float XVelocity) {
-        this.XVelocity = XVelocity;
+    public void setXVelocity(float xVelocity) {
+        this.xVelocity = xVelocity;
     }
 
     /**
      * @return Speed with which the entity moves on the y-axis
      */
     public float getYVelocity() {
-        return YVelocity;
+        return yVelocity;
     }
     /**
      * Set speed with which the entity moves on the y-axis
      *
-     * @param YVelocity
+     * @param yVelocity
      */
-    public void setYVelocity(float YVelocity) {
-        this.YVelocity = YVelocity;
+    public void setYVelocity(float yVelocity) {
+        this.yVelocity = yVelocity;
     }
 
     /**
