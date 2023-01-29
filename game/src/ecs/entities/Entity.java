@@ -38,7 +38,7 @@ public class Entity {
      * Get the component
      *
      * @param name Name of the component
-     * @return The component with the given name associated with this entity, can be null
+     * @return Optional that can contain the requested component
      */
     public Optional<Component> getComponent(String name) {
         return Optional.ofNullable(components.get(name));
