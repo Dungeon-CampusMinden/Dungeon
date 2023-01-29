@@ -35,7 +35,7 @@ public class VelocitySystemTest {
         entity.addComponent(PositionComponent.name, new PositionComponent(entity, new Point(1, 2)));
         entity.addComponent(
                 VelocityComponent.name,
-                new VelocityComponent(entity, 1, 2, 1, 2, moveLeft, moveRight));
+                new VelocityComponent(entity, 1, 2, moveLeft, moveRight));
         entity.addComponent(
                 AnimationComponent.name, new AnimationComponent(entity, idleLeft, idleRight));
         ECS.currentLevel = level;
@@ -54,8 +54,8 @@ public class VelocitySystemTest {
         assertEquals(2, position.x, 0.001);
         assertEquals(4, position.y, 0.001);
 
-        velocityComponent.setX(-4);
-        velocityComponent.setY(-8);
+        velocityComponent.setCurrentXVelocity(-4);
+        velocityComponent.setCurrentYVelocity(-8);
         system.update();
         position = positionComponent.getPosition();
         assertEquals(-2, position.x, 0.001);
@@ -81,27 +81,27 @@ public class VelocitySystemTest {
         AnimationComponent animationComponent =
                 (AnimationComponent) entity.getComponent(AnimationComponent.name);
         // right
-        velocityComponent.setX(1);
-        velocityComponent.setY(0);
+        velocityComponent.setCurrentXVelocity(1);
+        velocityComponent.setCurrentYVelocity(0);
         system.update();
         assertEquals(moveRight, animationComponent.getCurrentAnimation());
 
         // idleRight
-        velocityComponent.setX(0);
-        velocityComponent.setY(0);
+        velocityComponent.setCurrentXVelocity(0);
+        velocityComponent.setCurrentYVelocity(0);
 
         system.update();
         assertEquals(idleRight, animationComponent.getCurrentAnimation());
 
         // left
-        velocityComponent.setX(-1);
-        velocityComponent.setY(0);
+        velocityComponent.setCurrentXVelocity(-1);
+        velocityComponent.setCurrentYVelocity(0);
         system.update();
         assertEquals(moveLeft, animationComponent.getCurrentAnimation());
 
         // idleLeft
-        velocityComponent.setX(0);
-        velocityComponent.setY(0);
+        velocityComponent.setCurrentXVelocity(0);
+        velocityComponent.setCurrentYVelocity(0);
 
         system.update();
         assertEquals(idleLeft, animationComponent.getCurrentAnimation());

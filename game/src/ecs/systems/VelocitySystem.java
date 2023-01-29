@@ -23,14 +23,14 @@ public class VelocitySystem extends ECS_System {
                 if (position != null) {
 
                     // Update the position based on the velocity
-                    float newX = position.getPosition().x + velocity.getX();
-                    float newY = position.getPosition().y + velocity.getY();
+                    float newX = position.getPosition().x + velocity.getCurrentXVelocity();
+                    float newY = position.getPosition().y + velocity.getCurrentYVelocity();
                     Point newPosition = new Point(newX, newY);
                     if (ECS.currentLevel.getTileAt(newPosition.toCoordinate()).isAccessible()) {
                         position.setPosition(newPosition);
                         movementAnimation(entity);
-                        velocity.setY(0);
-                        velocity.setX(0);
+                        velocity.setCurrentYVelocity(0);
+                        velocity.setCurrentXVelocity(0);
                     }
                 }
             }
@@ -43,7 +43,7 @@ public class VelocitySystem extends ECS_System {
             boolean backup = true;
             Animation newCurrentAnimation;
             VelocityComponent vc = (VelocityComponent) entity.getComponent(VelocityComponent.name);
-            float x = vc.getX();
+            float x = vc.getCurrentXVelocity();
             if (x > 0) newCurrentAnimation = vc.getMoveRightAnimation();
             else if (x < 0) newCurrentAnimation = vc.getMoveLeftAnimation();
             // idle

@@ -17,17 +17,17 @@ public class KeyboardSystem extends ECS_System {
                 VelocityComponent velocity =
                         (VelocityComponent) entity.getComponent(VelocityComponent.name);
                 if (velocity != null) {
-                    velocity.setX(0);
-                    velocity.setY(0);
+                    velocity.setCurrentXVelocity(0);
+                    velocity.setCurrentYVelocity(0);
 
                     if (Gdx.input.isKeyPressed(Input.Keys.W))
-                        velocity.setY(1 * velocity.getySpeed());
+                        velocity.setCurrentYVelocity(1 * velocity.getYVelocity());
                     else if (Gdx.input.isKeyPressed(Input.Keys.S))
-                        velocity.setY(-1 * velocity.getySpeed());
+                        velocity.setCurrentYVelocity(-1 * velocity.getYVelocity());
                     else if (Gdx.input.isKeyPressed(Input.Keys.D))
-                        velocity.setX(1 * velocity.getxSpeed());
+                        velocity.setCurrentXVelocity(1 * velocity.getXVelocity());
                     else if (Gdx.input.isKeyPressed(Input.Keys.A))
-                        velocity.setX(-1 * velocity.getxSpeed());
+                        velocity.setCurrentXVelocity(-1 * velocity.getXVelocity());
                 }
             }
         }

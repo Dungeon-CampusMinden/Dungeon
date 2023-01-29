@@ -10,51 +10,47 @@ import semanticAnalysis.types.DSLTypeMember;
 @DSLType
 public class VelocityComponent extends Component {
     public static String name = "VelocityComponent";
-    private float x;
-    private float y;
-    private @DSLTypeMember float xSpeed;
-    private @DSLTypeMember float ySpeed;
+    private float currentXVelocity;
+    private float currentYVelocity;
+    private @DSLTypeMember float XVelocity;
+    private @DSLTypeMember float YVelocity;
 
     private @DSLTypeMember Animation moveRightAnimation;
     private @DSLTypeMember Animation moveLeftAnimation;
 
     /**
      * @param entity associated entity
-     * @param x x coordinate
-     * @param y y coordinate
-     * @param xSpeed Speed with which the entity moves on the x-axis
-     * @param ySpeed Speed with which the entity moves on the y-axis
+     * @param XVelocity Speed with which the entity moves on the x-axis
+     * @param YVelocity Speed with which the entity moves on the y-axis
      * @param moveLeftAnimation Animation that plays when the entity moves to the left
      * @param moveRightAnimation Animation that plays when the entity moves to the right
      */
     public VelocityComponent(
             Entity entity,
-            float x,
-            float y,
-            float xSpeed,
-            float ySpeed,
+            float XVelocity,
+            float YVelocity,
             Animation moveLeftAnimation,
             Animation moveRightAnimation) {
         super(entity, name);
-        this.x = x;
-        this.y = y;
-        this.xSpeed = xSpeed;
-        this.ySpeed = ySpeed;
+        this.currentXVelocity = 0;
+        this.currentYVelocity = 0;
+        this.XVelocity = XVelocity;
+        this.YVelocity = YVelocity;
         this.moveLeftAnimation = moveLeftAnimation;
         this.moveRightAnimation = moveRightAnimation;
     }
 
     /**
      * @param entity associated entity
-     * @param x x coordinate
-     * @param y y coordinate
-     * @param xSpeed Speed with which the entity moves on the x-axis
-     * @param ySpeed Speed with which the entity moves on the y-axis
+     * @param currentXVelocity current x velocity
+     * @param currentYVelocity current y velocity
+     * @param XVelocity Speed with which the entity moves on the x-axis
+     * @param YVelocity Speed with which the entity moves on the y-axis
      * @param moveAnimation Animation that plays when the entity moves
      */
     public VelocityComponent(
-            Entity entity, float x, float y, float xSpeed, float ySpeed, Animation moveAnimation) {
-        this(entity, x, y, xSpeed, ySpeed, moveAnimation, moveAnimation);
+        Entity entity, float currentXVelocity, float currentYVelocity, float XVelocity, float YVelocity, Animation moveAnimation) {
+        this(entity, XVelocity, YVelocity, moveAnimation, moveAnimation);
     }
 
     /**
@@ -62,10 +58,10 @@ public class VelocityComponent extends Component {
      */
     public VelocityComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity, name);
-        this.x = 0;
-        this.y = 0;
-        this.xSpeed = 0;
-        this.ySpeed = 0;
+        this.currentXVelocity = 0;
+        this.currentYVelocity = 0;
+        this.XVelocity = 0;
+        this.YVelocity = 0;
         this.moveLeftAnimation = null;
         this.moveRightAnimation = null;
     }
@@ -73,60 +69,60 @@ public class VelocityComponent extends Component {
     /**
      * @return x movement
      */
-    public float getX() {
-        return x;
+    public float getCurrentXVelocity() {
+        return currentXVelocity;
     }
 
     /**
-     * @param x set x coordinate
+     * @param currentXVelocity set x velocity
      */
-    public void setX(float x) {
-        this.x = x;
+    public void setCurrentXVelocity(float currentXVelocity) {
+        this.currentXVelocity = currentXVelocity;
     }
 
     /**
-     * @return y movement
+     * @return y velocity
      */
-    public float getY() {
-        return y;
+    public float getCurrentYVelocity() {
+        return currentYVelocity;
     }
 
     /**
-     * @param y set y coordinate
+     * @param currentYVelocity set y velocity
      */
-    public void setY(float y) {
-        this.y = y;
+    public void setCurrentYVelocity(float currentYVelocity) {
+        this.currentYVelocity = currentYVelocity;
     }
 
     /**
      * @return speed with which the entity moves on the x-axis
      */
-    public float getxSpeed() {
-        return xSpeed;
+    public float getXVelocity() {
+        return XVelocity;
     }
 
     /**
      * Set speed with which the entity moves on the x-axis
      *
-     * @param xSpeed
+     * @param XVelocity
      */
-    public void setxSpeed(float xSpeed) {
-        this.xSpeed = xSpeed;
+    public void setXVelocity(float XVelocity) {
+        this.XVelocity = XVelocity;
     }
 
     /**
      * @return Speed with which the entity moves on the y-axis
      */
-    public float getySpeed() {
-        return ySpeed;
+    public float getYVelocity() {
+        return YVelocity;
     }
     /**
      * Set speed with which the entity moves on the y-axis
      *
-     * @param ySpeed
+     * @param YVelocity
      */
-    public void setySpeed(float ySpeed) {
-        this.ySpeed = ySpeed;
+    public void setYVelocity(float YVelocity) {
+        this.YVelocity = YVelocity;
     }
 
     /**
