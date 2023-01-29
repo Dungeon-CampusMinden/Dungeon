@@ -32,7 +32,7 @@ public class VelocitySystemTest {
         ECS.systems = Mockito.mock(SystemController.class);
         velocitySystem = new VelocitySystem();
         entity = new Entity();
-        entity.addComponent(PositionComponent.name, new PositionComponent(entity, new Point(1, 2)));
+        entity.addComponent(PositionComponent.name, new PositionComponent(entity, new Point(2, 4)));
         entity.addComponent(
                 VelocityComponent.name, new VelocityComponent(entity, 1, 2, moveLeft, moveRight));
         entity.addComponent(
@@ -43,19 +43,21 @@ public class VelocitySystemTest {
 
     @Test
     public void updateValidMove() {
+
         Mockito.when(tile.isAccessible()).thenReturn(true);
-        velocitySystem.update();
+
         PositionComponent positionComponent =
                 (PositionComponent) entity.getComponent(PositionComponent.name).orElseThrow();
         VelocityComponent velocityComponent =
                 (VelocityComponent) entity.getComponent(VelocityComponent.name).orElseThrow();
+        velocitySystem.update();
         Point position = positionComponent.getPosition();
         assertEquals(2, position.x, 0.001);
         assertEquals(4, position.y, 0.001);
 
         velocityComponent.setCurrentXVelocity(-4);
         velocityComponent.setCurrentYVelocity(-8);
-        system.update();
+        velocitySystem.update();
         position = positionComponent.getPosition();
         assertEquals(-2, position.x, 0.001);
         assertEquals(-4, position.y, 0.001);
@@ -68,8 +70,8 @@ public class VelocitySystemTest {
         PositionComponent positionComponent =
                 (PositionComponent) entity.getComponent(PositionComponent.name).orElseThrow();
         Point position = positionComponent.getPosition();
-        assertEquals(1, position.x, 0.001);
-        assertEquals(2, position.y, 0.001);
+        assertEquals(2, position.x, 0.001);
+        assertEquals(4, position.y, 0.001);
     }
 
     @Test
@@ -82,7 +84,7 @@ public class VelocitySystemTest {
         // right
         velocityComponent.setCurrentXVelocity(1);
         velocityComponent.setCurrentYVelocity(0);
-        system.update();
+        velocitySystem.update();
         assertEquals(moveRight, animationComponent.getCurrentAnimation());
 
         // idleRight
@@ -95,7 +97,7 @@ public class VelocitySystemTest {
         // left
         velocityComponent.setCurrentXVelocity(-1);
         velocityComponent.setCurrentYVelocity(0);
-        system.update();
+        velocitySystem.update();
         assertEquals(moveLeft, animationComponent.getCurrentAnimation());
 
         // idleLeft
