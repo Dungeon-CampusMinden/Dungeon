@@ -17,7 +17,7 @@ import tools.Point;
 
 public class VelocitySystemTest {
 
-    private VelocitySystem system;
+    private VelocitySystem velocitySystem;
     private final ILevel level = Mockito.mock(ILevel.class);
     private final Animation moveRight = Mockito.mock(Animation.class);
     private final Animation moveLeft = Mockito.mock(Animation.class);
@@ -30,7 +30,7 @@ public class VelocitySystemTest {
     @Before
     public void setup() {
         ECS.systems = Mockito.mock(SystemController.class);
-        system = new VelocitySystem();
+        velocitySystem = new VelocitySystem();
         entity = new Entity();
         entity.addComponent(PositionComponent.name, new PositionComponent(entity, new Point(1, 2)));
         entity.addComponent(
@@ -45,18 +45,18 @@ public class VelocitySystemTest {
     @Test
     public void updateValidMove() {
         Mockito.when(tile.isAccessible()).thenReturn(true);
-        system.update();
+            velocitySystem.update();
         PositionComponent positionComponent =
-                (PositionComponent) entity.getComponent(PositionComponent.name);
+                (PositionComponent) entity.getComponent(PositionComponent.name).orElseThrow();
         VelocityComponent velocityComponent =
-                (VelocityComponent) entity.getComponent(VelocityComponent.name);
+                (VelocityComponent) entity.getComponent(VelocityComponent.name).orElseThrow();
         Point position = positionComponent.getPosition();
         assertEquals(2, position.x, 0.001);
         assertEquals(4, position.y, 0.001);
 
         velocityComponent.setX(-4);
         velocityComponent.setY(-8);
-        system.update();
+        velocitySystem.update();
         position = positionComponent.getPosition();
         assertEquals(-2, position.x, 0.001);
         assertEquals(-4, position.y, 0.001);
@@ -65,9 +65,9 @@ public class VelocitySystemTest {
     @Test
     public void updateUnValidMove() {
         Mockito.when(tile.isAccessible()).thenReturn(false);
-        system.update();
+        velocitySystem.update();
         PositionComponent positionComponent =
-                (PositionComponent) entity.getComponent(PositionComponent.name);
+                (PositionComponent) entity.getComponent(PositionComponent.name).orElseThrow();
         Point position = positionComponent.getPosition();
         assertEquals(1, position.x, 0.001);
         assertEquals(2, position.y, 0.001);
@@ -77,33 +77,33 @@ public class VelocitySystemTest {
     public void changeAnimation() {
         Mockito.when(tile.isAccessible()).thenReturn(true);
         VelocityComponent velocityComponent =
-                (VelocityComponent) entity.getComponent(VelocityComponent.name);
+                (VelocityComponent) entity.getComponent(VelocityComponent.name).orElseThrow();
         AnimationComponent animationComponent =
-                (AnimationComponent) entity.getComponent(AnimationComponent.name);
+                (AnimationComponent) entity.getComponent(AnimationComponent.name).orElseThrow();
         // right
         velocityComponent.setX(1);
         velocityComponent.setY(0);
-        system.update();
+        velocitySystem.update();
         assertEquals(moveRight, animationComponent.getCurrentAnimation());
 
         // idleRight
         velocityComponent.setX(0);
         velocityComponent.setY(0);
 
-        system.update();
+        velocitySystem.update();
         assertEquals(idleRight, animationComponent.getCurrentAnimation());
 
         // left
         velocityComponent.setX(-1);
         velocityComponent.setY(0);
-        system.update();
+        velocitySystem.update();
         assertEquals(moveLeft, animationComponent.getCurrentAnimation());
 
         // idleLeft
         velocityComponent.setX(0);
         velocityComponent.setY(0);
 
-        system.update();
+        velocitySystem.update();
         assertEquals(idleLeft, animationComponent.getCurrentAnimation());
         ;
     }

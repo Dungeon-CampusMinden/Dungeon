@@ -27,15 +27,15 @@ public class EntityTest {
     @Test
     public void addComponent() {
         Component c = new TestComponent(entity);
-        assertEquals(c, entity.getComponent(TestComponent.name));
+        assertEquals(c, entity.getComponent(TestComponent.name).get());
     }
 
     @Test
     public void removeComponent() {
         Component c = new TestComponent(entity);
-        assertEquals(c, entity.getComponent(TestComponent.name));
+        assertEquals(c, entity.getComponent(TestComponent.name).get());
         entity.removeComponent(TestComponent.name);
-        assertNull(entity.getComponent(TestComponent.name));
+        assertTrue(entity.getComponent(TestComponent.name).isEmpty());
     }
 
     private class TestComponent extends Component {
