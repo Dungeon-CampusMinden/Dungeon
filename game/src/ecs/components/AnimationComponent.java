@@ -2,11 +2,10 @@ package ecs.components;
 
 import ecs.entities.Entity;
 import graphic.Animation;
+import java.util.List;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
-
-import java.util.List;
 
 /**
  * AnimationComponent is a component that stores the possible animations and the current animation
