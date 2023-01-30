@@ -1,5 +1,7 @@
 package ecs.components.ai.idle;
 
+import static ecs.components.ai.AITools.getRandomAccessibleTileInRange;
+
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import ecs.components.PositionComponent;
 import ecs.components.ai.AITools;
@@ -13,7 +15,9 @@ public class StaticRadiusWalk implements IIdleAI {
     private GraphPath<Tile> path;
     private final int breakTime;
     private int currentBreak = 0;
-    private Point center = null;
+    private Point center;
+    private Point currentPosition;
+    private Point newEndTile;
 
     /**
      * Finds a point in the radius and then moves there. When the point has been reached, a new
@@ -30,14 +34,21 @@ public class StaticRadiusWalk implements IIdleAI {
     @Override
     public void idle(Entity entity) {
         if (path == null || AITools.pathFinished(entity, path)) {
-            if(center==null){
-                PositionComponent pc = (PositionComponent) entity.getComponent(PositionComponent.name).orElseThrow();
-                center=pc.getPosition();
+            if (center == null) {
+                PositionComponent pc =
+                        (PositionComponent)
+                                entity.getComponent(PositionComponent.name).orElseThrow();
+                center = pc.getPosition();
             }
 
             if (currentBreak >= breakTime) {
                 currentBreak = 0;
-                path = AITools.calculatePathToRandomTileInRange(center, radius);
+                PositionComponent pc2 =
+                        (PositionComponent)
+                                entity.getComponent(PositionComponent.name).orElseThrow();
+                currentPosition = pc2.getPosition();
+                newEndTile = getRandomAccessibleTileInRange(center, radius).toPoint();
+                path = AITools.calculatePath(currentPosition, newEndTile);
                 idle(entity);
             }
             currentBreak++;

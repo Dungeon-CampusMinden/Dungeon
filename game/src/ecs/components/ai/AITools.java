@@ -98,6 +98,12 @@ public class AITools {
         return tiles;
     }
 
+    public static Coordinate getRandomAccessibleTileInRange(Point center, float radius) {
+        List<Tile> tiles = getAccessibleTilesInRange(center, radius);
+        Coordinate newPosition = tiles.get(random.nextInt(tiles.size())).getCoordinate();
+        return newPosition;
+    }
+
     /**
      * @param from start point
      * @param to end point
