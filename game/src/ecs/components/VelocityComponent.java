@@ -2,6 +2,7 @@ package ecs.components;
 
 import ecs.entities.Entity;
 import graphic.Animation;
+import java.util.List;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
@@ -9,6 +10,7 @@ import semanticAnalysis.types.DSLTypeMember;
 /** VelocityComponent is a component that stores the x, y movement direction */
 @DSLType
 public class VelocityComponent extends Component {
+    private static List<String> missingTexture = List.of("animation/missingTexture.png");
     public static String name = "VelocityComponent";
     private float currentXVelocity;
     private float currentYVelocity;
@@ -49,8 +51,8 @@ public class VelocityComponent extends Component {
         this.currentYVelocity = 0;
         this.xVelocity = 0;
         this.yVelocity = 0;
-        this.moveLeftAnimation = null;
-        this.moveRightAnimation = null;
+        this.moveLeftAnimation = new Animation(missingTexture, 100);
+        this.moveRightAnimation = new Animation(missingTexture, 100);
     }
 
     /**

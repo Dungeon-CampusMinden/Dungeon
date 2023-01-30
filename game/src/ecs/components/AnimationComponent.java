@@ -2,6 +2,7 @@ package ecs.components;
 
 import ecs.entities.Entity;
 import graphic.Animation;
+import java.util.List;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
@@ -12,7 +13,7 @@ import semanticAnalysis.types.DSLTypeMember;
  */
 @DSLType
 public class AnimationComponent extends Component {
-
+    private static List<String> missingTexture = List.of("animation/missingTexture.png");
     public static String name = "AnimationComponent";
     private @DSLTypeMember Animation idleLeft;
     private @DSLTypeMember Animation idleRight;
@@ -43,9 +44,9 @@ public class AnimationComponent extends Component {
      */
     public AnimationComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity, name);
-        this.idleLeft = null;
-        this.idleRight = null;
-        this.currentAnimation = null;
+        this.idleLeft = new Animation(missingTexture, 100);
+        this.idleRight = new Animation(missingTexture, 100);
+        this.currentAnimation = new Animation(missingTexture, 100);
     }
 
     /**
