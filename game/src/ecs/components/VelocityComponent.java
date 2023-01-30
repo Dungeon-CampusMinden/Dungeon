@@ -42,24 +42,6 @@ public class VelocityComponent extends Component {
 
     /**
      * @param entity associated entity
-     * @param currentXVelocity current x velocity
-     * @param currentYVelocity current y velocity
-     * @param xVelocity Speed with which the entity moves on the x-axis
-     * @param yVelocity Speed with which the entity moves on the y-axis
-     * @param moveAnimation Animation that plays when the entity moves
-     */
-    public VelocityComponent(
-            Entity entity,
-            float currentXVelocity,
-            float currentYVelocity,
-            float xVelocity,
-            float yVelocity,
-            Animation moveAnimation) {
-        this(entity, xVelocity, yVelocity, moveAnimation, moveAnimation);
-    }
-
-    /**
-     * @param entity associated entity
      */
     public VelocityComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity, name);

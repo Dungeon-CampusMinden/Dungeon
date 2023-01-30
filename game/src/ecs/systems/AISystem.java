@@ -9,10 +9,8 @@ public class AISystem extends ECS_System {
     @Override
     public void update() {
         for (Entity entity : ECS.entities) {
-            AIComponent aiComponent = (AIComponent) entity.getComponent(AIComponent.name);
-            if (aiComponent != null) {
-                aiComponent.execute();
-            }
+            entity.getComponent(AIComponent.name)
+                    .ifPresent(aiComponent -> ((AIComponent) aiComponent).execute());
         }
     }
 }

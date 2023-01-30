@@ -1,6 +1,9 @@
 package ecs.systems;
 
+import static org.junit.Assert.assertThrows;
+
 import ecs.components.AnimationComponent;
+import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
@@ -36,10 +39,14 @@ public class DrawSystemTest {
     }
 
     @Test
-    public void testUpdateWithoutPoisitionComponent() {
+    public void testUpdateWithoutPositionComponent() {
         entity.removeComponent(PositionComponent.name);
         Mockito.verifyNoMoreInteractions(painter);
-        system.update();
+        assertThrows(
+                MissingComponentException.class,
+                () -> {
+                    system.update();
+                });
     }
 
     @Test

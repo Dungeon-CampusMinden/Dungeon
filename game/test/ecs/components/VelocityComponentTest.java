@@ -21,14 +21,12 @@ public class VelocityComponentTest {
 
     @Test
     public void testSetX() {
-        assertEquals(1.0f, component.getCurrentXVelocity(), 0.001);
         component.setCurrentXVelocity(5.0f);
         assertEquals(5.0f, component.getCurrentXVelocity(), 0.001);
     }
 
     @Test
     public void testSetY() {
-        assertEquals(2.0f, component.getCurrentYVelocity(), 0.001);
         component.setCurrentYVelocity(6.0f);
         assertEquals(6.0f, component.getCurrentYVelocity(), 0.001);
     }

@@ -2,6 +2,7 @@ package ecs.entities;
 
 import ecs.components.Component;
 import java.util.HashMap;
+import java.util.Optional;
 import mydungeon.ECS;
 import semanticAnalysis.types.DSLContextPush;
 import semanticAnalysis.types.DSLType;
@@ -37,9 +38,9 @@ public class Entity {
      * Get the component
      *
      * @param name Name of the component
-     * @return The component with the given name associated with this entity, can be null
+     * @return Optional that can contain the requested component
      */
-    public Component getComponent(String name) {
-        return components.get(name);
+    public Optional<Component> getComponent(String name) {
+        return Optional.ofNullable(components.get(name));
     }
 }
