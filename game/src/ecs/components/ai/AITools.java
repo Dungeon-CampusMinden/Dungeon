@@ -26,6 +26,10 @@ public class AITools {
      * @param path Path on which the entity moves
      */
     public static void move(Entity entity, GraphPath<Tile> path) {
+        // entity is already at the end
+        if (pathFinished(entity, path)) {
+            return;
+        }
         PositionComponent pc =
                 (PositionComponent)
                         entity.getComponent(PositionComponent.name)
@@ -40,13 +44,16 @@ public class AITools {
         Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
         int i = 0;
         Tile nextTile = null;
-        do {
-            if (i >= path.getCount()) return;
+        while (nextTile == null && i < path.getCount()) {
             if (path.get(i).equals(currentTile)) {
                 nextTile = path.get(i + 1);
             }
             i++;
-        } while (nextTile == null);
+        }
+        // currentTile not in path
+        if (nextTile == null) {
+            return;
+        }
 
         switch (currentTile.directionTo(nextTile)[0]) {
             case N -> vc.setCurrentYVelocity(vc.getYVelocity());
