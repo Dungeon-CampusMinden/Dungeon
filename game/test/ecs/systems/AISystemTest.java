@@ -14,21 +14,20 @@ import org.mockito.Mockito;
 public class AISystemTest {
 
     private AISystem system;
-    private AIComponent component = Mockito.mock(AIComponent.class);
-    Entity entity;
+    private AIComponent aiComponent = Mockito.mock(AIComponent.class);
 
     @Before
     public void setup() {
         ECS.systems = Mockito.mock(SystemController.class);
         ECS.entities.clear();
         system = new AISystem();
-        entity = new Entity();
-        entity.addComponent(AIComponent.name, component);
+        Entity entity = new Entity();
+        entity.addComponent(AIComponent.name, aiComponent);
     }
 
     @Test
     public void update() {
         system.update();
-        Mockito.verify(component, times(1)).execute();
+        Mockito.verify(aiComponent, times(1)).execute();
     }
 }

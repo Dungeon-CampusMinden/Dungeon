@@ -3,26 +3,23 @@ package ecs.components;
 import static org.junit.Assert.*;
 
 import ecs.entities.Entity;
-import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class PlayableComponentTest {
 
-    private Entity entity;
+    private PlayableComponent playableComponent;
 
     @Before
     public void setup() {
-        ECS.entities.clear();
-        entity = new Entity();
+        playableComponent = new PlayableComponent(Mockito.mock(Entity.class));
     }
 
     @Test
     public void testIsPlayable() {
-        PlayableComponent component = new PlayableComponent(entity);
-        assertTrue(component.isPlayable());
-
-        component.setPlayable(false);
-        assertFalse(component.isPlayable());
+        assertTrue(playableComponent.isPlayable());
+        playableComponent.setPlayable(false);
+        assertFalse(playableComponent.isPlayable());
     }
 }

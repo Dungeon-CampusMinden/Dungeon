@@ -5,37 +5,31 @@ import static org.junit.Assert.*;
 import ecs.components.skill.Skill;
 import ecs.components.skill.SkillComponent;
 import ecs.entities.Entity;
-import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 public class SkillComponentTest {
 
-    private Entity entity;
-    private SkillComponent component;
-
-    private Skill testSkill = Mockito.mock(Skill.class);
+    private final Skill testSkill = Mockito.mock(Skill.class);
+    private SkillComponent skillComponent;
 
     @Before
     public void setup() {
-        ECS.entities.clear();
-        entity = new Entity();
-        component = new SkillComponent(entity);
-        entity.addComponent(SkillComponent.name, component);
+        skillComponent = new SkillComponent(Mockito.mock(Entity.class));
     }
 
     @Test
     public void addSkill() {
-        component.addSkill(testSkill);
-        assertTrue(component.getSkillSet().contains(testSkill));
+        skillComponent.addSkill(testSkill);
+        assertTrue(skillComponent.getSkillSet().contains(testSkill));
     }
 
     @Test
     public void removeSkill() {
-        component.addSkill(testSkill);
-        assertTrue(component.getSkillSet().contains(testSkill));
-        component.removeSkill(testSkill);
-        assertFalse(component.getSkillSet().contains(testSkill));
+        skillComponent.addSkill(testSkill);
+        assertTrue(skillComponent.getSkillSet().contains(testSkill));
+        skillComponent.removeSkill(testSkill);
+        assertFalse(skillComponent.getSkillSet().contains(testSkill));
     }
 }

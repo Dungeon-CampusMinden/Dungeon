@@ -3,29 +3,26 @@ package ecs.components;
 import static org.junit.Assert.assertEquals;
 
 import ecs.entities.Entity;
-import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import tools.Point;
 
 public class PositionComponentTest {
 
-    private Point position;
-    private Entity entity;
+    private final Point position = new Point(3, 3);
+    private PositionComponent positionComponent;
 
     @Before
     public void setup() {
-        ECS.entities.clear();
-        entity = new Entity();
-        position = new Point(3, 3);
+        positionComponent = new PositionComponent(Mockito.mock(Entity.class), position);
     }
 
     @Test
     public void testSetPosition() {
-        PositionComponent component = new PositionComponent(entity, position);
-        assertEquals(position, component.getPosition());
+        assertEquals(position, positionComponent.getPosition());
         Point newPoint = new Point(3, 4);
-        component.setPosition(newPoint);
-        assertEquals(newPoint, component.getPosition());
+        positionComponent.setPosition(newPoint);
+        assertEquals(newPoint, positionComponent.getPosition());
     }
 }

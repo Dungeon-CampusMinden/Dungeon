@@ -7,15 +7,19 @@ import ecs.entities.Entity;
 import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class EntityTest {
 
     private Entity entity;
+    private final Component testComponent = Mockito.mock(Component.class);
+    private final String componentName = "TestComponent";
 
     @Before
     public void setup() {
         ECS.entities.clear();
         entity = new Entity();
+        entity.addComponent(componentName, testComponent);
     }
 
     @Test
@@ -25,26 +29,19 @@ public class EntityTest {
 
     @Test
     public void addComponent() {
-        Component c = new TestComponent(entity);
-        assertEquals(c, entity.getComponent(TestComponent.name).get());
+        assertEquals(testComponent, entity.getComponent(componentName).get());
+    }
+
+    @Test
+    public void addAlreadyExistingComponent() {
+        Component newComponent = Mockito.mock(Component.class);
+        entity.addComponent(componentName, newComponent);
+        assertEquals(newComponent, entity.getComponent(componentName).get());
     }
 
     @Test
     public void removeComponent() {
-        Component c = new TestComponent(entity);
-        assertEquals(c, entity.getComponent(TestComponent.name).get());
-        entity.removeComponent(TestComponent.name);
-        assertTrue(entity.getComponent(TestComponent.name).isEmpty());
-    }
-
-    private class TestComponent extends Component {
-
-        public static String name = "TestComponent";
-        /**
-         * @param entity associated entity
-         */
-        public TestComponent(Entity entity) {
-            super(entity, name);
-        }
+        entity.removeComponent(componentName);
+        assertTrue(entity.getComponent(componentName).isEmpty());
     }
 }
