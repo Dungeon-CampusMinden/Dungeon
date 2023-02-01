@@ -11,13 +11,13 @@ import semanticAnalysis.types.DSLTypeMember;
  * AnimationComponent is a component that stores the possible animations and the current animation
  * of an entity
  */
-@DSLType
+@DSLType(name = "animation_component")
 public class AnimationComponent extends Component {
     private static List<String> missingTexture = List.of("animation/missingTexture.png");
     public static String name = "AnimationComponent";
-    private @DSLTypeMember Animation idleLeft;
-    private @DSLTypeMember Animation idleRight;
-    private @DSLTypeMember Animation currentAnimation;
+    private @DSLTypeMember(name = "idle_left") Animation idleLeft;
+    private @DSLTypeMember(name = "idle_right") Animation idleRight;
+    private @DSLTypeMember(name = "current_animation") Animation currentAnimation;
 
     /**
      * @param entity associated entity

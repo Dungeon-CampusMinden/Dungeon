@@ -16,9 +16,9 @@ import semanticAnalysis.types.DSLType;
 public class AIComponent extends Component {
 
     public static String name = "AIComponent";
-    private /*@DSLTypeMember*/ IFightAI fightAI;
-    private /*@DSLTypeMember*/ IIdleAI idleAI;
-    private /*@DSLTypeMember*/ ITransition transitionAI;
+    private /*@DSLTypeMember(name="fight_ai)*/ IFightAI fightAI;
+    private /*@DSLTypeMember(name="idle_ai)*/ IIdleAI idleAI;
+    private /*@DSLTypeMember(name="transition_ai)*/ ITransition transitionAI;
 
     /**
      * @param entity associated entity
