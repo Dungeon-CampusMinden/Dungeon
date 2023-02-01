@@ -23,7 +23,7 @@ public class EntityTest {
     }
 
     @Test
-    public void ctorTest() {
+    public void cTor() {
         assertTrue(ECS.entities.contains(entity));
     }
 

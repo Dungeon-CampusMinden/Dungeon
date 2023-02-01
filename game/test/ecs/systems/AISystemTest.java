@@ -1,11 +1,9 @@
-package ecs.components;
+package ecs.systems;
 
 import static org.mockito.Mockito.times;
 
 import ecs.components.ai.AIComponent;
 import ecs.entities.Entity;
-import ecs.systems.AISystem;
-import ecs.systems.SystemController;
 import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +13,7 @@ public class AISystemTest {
 
     private AISystem system;
     private Entity entity;
-    private AIComponent aiComponent = Mockito.mock(AIComponent.class);
+    private final AIComponent aiComponent = Mockito.mock(AIComponent.class);
 
     @Before
     public void setup() {

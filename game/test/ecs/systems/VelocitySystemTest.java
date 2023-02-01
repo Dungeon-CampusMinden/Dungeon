@@ -130,7 +130,6 @@ public class VelocitySystemTest {
 
         velocitySystem.update();
         assertEquals(idleLeft, animationComponent.getCurrentAnimation());
-        ;
     }
 
     @Test
@@ -144,21 +143,13 @@ public class VelocitySystemTest {
     @Test
     public void updateWithoutPositionComponent() {
         entity.removeComponent(PositionComponent.name);
-        assertThrows(
-                MissingComponentException.class,
-                () -> {
-                    velocitySystem.update();
-                });
+        assertThrows(MissingComponentException.class, () -> velocitySystem.update());
     }
 
     @Test
     public void updateWithoutAnimationComponent() {
         Mockito.when(tile.isAccessible()).thenReturn(true);
         entity.removeComponent(AnimationComponent.name);
-        assertThrows(
-                MissingComponentException.class,
-                () -> {
-                    velocitySystem.update();
-                });
+        assertThrows(MissingComponentException.class, () -> velocitySystem.update());
     }
 }

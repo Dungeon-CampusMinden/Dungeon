@@ -16,11 +16,11 @@ public class AIComponentTest {
 
     private AIComponent aiComponent;
     private final IFightAI mockFightAI = mock(IFightAI.class);
-    ;
+
     private final IIdleAI mockIdleAI = mock(IIdleAI.class);
-    ;
+
     private final ITransition mockTransition = mock(ITransition.class);
-    ;
+
     private final Entity entity = Mockito.mock(Entity.class);
 
     @Before
