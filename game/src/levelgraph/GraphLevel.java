@@ -13,10 +13,10 @@ import room.RoomGenerator;
  * @author Andre Matutat
  */
 public class GraphLevel {
-    private LevelNode root;
-    private LevelSize size;
-    private DesignLabel designLabel;
-    private RoomGenerator generator;
+    private final LevelNode root;
+    private final LevelSize size;
+    private final DesignLabel designLabel;
+    private final RoomGenerator generator;
 
     /**
      * @param root Root-Node of the graph
@@ -105,41 +105,27 @@ public class GraphLevel {
     private boolean isAccessible(Coordinate c, Tile[][] layout, DoorDirection direction) {
         try {
 
-            switch (direction) {
-                case UP:
-                    return layout[c.y + 1][c.x].isAccessible();
-                case DOWN:
-                    return layout[c.y - 1][c.x].isAccessible();
-                case LEFT:
-                    return layout[c.y][c.x - 1].isAccessible();
-                case RIGHT:
-                    return layout[c.y][c.x + 1].isAccessible();
-                default:
-                    return false;
-            }
+            return switch (direction) {
+                case UP -> layout[c.y + 1][c.x].isAccessible();
+                case DOWN -> layout[c.y - 1][c.x].isAccessible();
+                case LEFT -> layout[c.y][c.x - 1].isAccessible();
+                case RIGHT -> layout[c.y][c.x + 1].isAccessible();
+            };
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
         }
     }
 
     private void findDoorstep(DoorTile door, DoorDirection direction, IRoom room) {
-        Tile doorstep = null;
+        Tile doorstep;
         Coordinate doorCoordinate = door.getCoordinate();
         Tile[][] layout = room.getLayout();
-        switch (direction) {
-            case UP:
-                doorstep = layout[doorCoordinate.y - 1][doorCoordinate.x];
-                break;
-            case RIGHT:
-                doorstep = layout[doorCoordinate.y][doorCoordinate.x - 1];
-                break;
-            case LEFT:
-                doorstep = layout[doorCoordinate.y][doorCoordinate.x + 1];
-                break;
-            case DOWN:
-                doorstep = layout[doorCoordinate.y + 1][doorCoordinate.x];
-                break;
-        }
+        doorstep = switch (direction) {
+            case UP -> layout[doorCoordinate.y - 1][doorCoordinate.x];
+            case RIGHT -> layout[doorCoordinate.y][doorCoordinate.x - 1];
+            case LEFT -> layout[doorCoordinate.y][doorCoordinate.x + 1];
+            case DOWN -> layout[doorCoordinate.y + 1][doorCoordinate.x];
+        };
         if (doorstep == null) throw new NullPointerException("DoorStep not found");
         door.setDoorstep(doorstep);
     }

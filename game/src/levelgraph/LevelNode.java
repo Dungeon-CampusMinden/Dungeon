@@ -12,11 +12,11 @@ import room.IRoom;
  */
 public class LevelNode<T extends IRoom> {
     private T room;
-    private LevelNode[] neighbours;
+    private final LevelNode[] neighbours;
 
-    private DoorTile.DoorColor[] colors;
+    private final DoorTile.DoorColor[] colors;
 
-    private ArrayList<DoorDirection> toTry = new ArrayList<>();
+    private final ArrayList<DoorDirection> toTry = new ArrayList<>();
 
     public LevelNode() {
         neighbours = new LevelNode[4];
@@ -32,16 +32,16 @@ public class LevelNode<T extends IRoom> {
      *
      * @param other Other Node
      * @param direction Direction to connect the nodes
-     * @param onedirectedEdge if true, the connection is one directed
+     * @param oneDirectedEdge if true, the connection is one directed
      * @return if connection was successful
      */
     public boolean connect(
             LevelNode other,
             DoorDirection direction,
-            boolean onedirectedEdge,
+            boolean oneDirectedEdge,
             DoorTile.DoorColor color) {
         if (neighbours[direction.getValue()] == null) {
-            if (onedirectedEdge
+            if (oneDirectedEdge
                     || other.connect(this, DoorDirection.getOpposite(direction), true, color)) {
                 neighbours[direction.getValue()] = other;
                 colors[direction.getValue()] = color;
@@ -76,7 +76,7 @@ public class LevelNode<T extends IRoom> {
     /**
      * Set the room for this node
      *
-     * @param room
+     * @param room the room to the node
      */
     public void setRoom(T room) {
         this.room = room;
@@ -85,8 +85,8 @@ public class LevelNode<T extends IRoom> {
     /**
      * Get the neighbour node on a specific direction
      *
-     * @param direction
-     * @return
+     * @param direction direction of the wanted neighbour
+     * @return the neighbour node at the given direction
      */
     public LevelNode getNeighbour(DoorDirection direction) {
         return neighbours[direction.getValue()];

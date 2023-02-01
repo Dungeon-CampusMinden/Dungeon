@@ -14,7 +14,7 @@ import level.tools.LevelSize;
 /**
  * Generates a space-based level whose structure is defined by the given graph
  *
- * @quthor Andre Matutat
+ * @author Andre Matutat
  */
 public class GraphLevelGenerator implements IGenerator {
 
@@ -30,7 +30,7 @@ public class GraphLevelGenerator implements IGenerator {
     /**
      * The Root-Node defines the graph
      *
-     * @param graph
+     * @param graph The Graph
      */
     public void setGraph(Graph<String> graph) {
         ConvertedGraph cg = DotToLevelGraph.convert(graph);

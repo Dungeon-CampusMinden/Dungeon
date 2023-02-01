@@ -13,9 +13,9 @@ import levelgraph.LevelNode;
 /** A Level that can be used as a Room in a GraphLevel */
 public class Room extends TileLevel implements IRoom {
 
-    private LinkedHashSet<DoorTile> doors = new LinkedHashSet<>();
+    private final LinkedHashSet<DoorTile> doors = new LinkedHashSet<>();
 
-    private ArrayList<DungeonElement> elements = new ArrayList<>();
+    private final ArrayList<DungeonElement> elements = new ArrayList<>();
 
     private LevelNode levelNode;
 
@@ -31,10 +31,9 @@ public class Room extends TileLevel implements IRoom {
     /**
      * Add a door to the list
      *
-     * @param door
+     * @param door new door
      */
     public void addDoor(DoorTile door) {
-        // oder: hier DoorTile erzeugen?
         doors.add(door);
     }
 
