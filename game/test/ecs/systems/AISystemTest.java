@@ -20,6 +20,7 @@ public class AISystemTest {
     @Before
     public void setup() {
         ECS.systems = Mockito.mock(SystemController.class);
+        ECS.entities.clear();
         system = new AISystem();
         entity = new Entity();
         entity.addComponent(AIComponent.name, component);

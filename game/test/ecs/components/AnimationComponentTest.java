@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import ecs.entities.Entity;
 import graphic.Animation;
+import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -17,6 +18,7 @@ public class AnimationComponentTest {
 
     @Before
     public void setup() {
+        ECS.entities.clear();
         entity = new Entity();
         component = new AnimationComponent(entity, idleLeft, idleRight);
     }

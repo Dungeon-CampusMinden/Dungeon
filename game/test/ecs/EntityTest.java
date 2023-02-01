@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import ecs.components.Component;
 import ecs.entities.Entity;
-import java.util.HashSet;
 import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +14,7 @@ public class EntityTest {
 
     @Before
     public void setup() {
-        ECS.entities = new HashSet<>();
+        ECS.entities.clear();
         entity = new Entity();
     }
 

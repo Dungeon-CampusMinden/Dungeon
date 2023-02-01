@@ -8,6 +8,7 @@ import ecs.components.ai.fight.IFightAI;
 import ecs.components.ai.idle.IIdleAI;
 import ecs.components.ai.transition.ITransition;
 import ecs.entities.Entity;
+import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -22,6 +23,7 @@ public class AIComponentTest {
 
     @Before
     public void setUp() {
+        ECS.entities.clear();
         mockFightAI = mock(IFightAI.class);
         mockIdleAI = mock(IIdleAI.class);
         mockTransition = mock(ITransition.class);

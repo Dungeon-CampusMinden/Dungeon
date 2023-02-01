@@ -3,6 +3,7 @@ package ecs.components;
 import static org.junit.Assert.assertEquals;
 
 import ecs.entities.Entity;
+import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import tools.Point;
@@ -14,6 +15,7 @@ public class PositionComponentTest {
 
     @Before
     public void setup() {
+        ECS.entities.clear();
         entity = new Entity();
         position = new Point(3, 3);
     }

@@ -16,6 +16,7 @@ public class ECS_SystemTest {
     public void setup() {
         updates = 0;
         ECS.systems = new SystemController();
+        ECS.entities.clear();
         testSystem =
                 new ECS_System() {
                     @Override

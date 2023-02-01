@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import ecs.components.skill.Skill;
 import ecs.components.skill.SkillComponent;
 import ecs.entities.Entity;
+import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -18,6 +19,7 @@ public class SkillComponentTest {
 
     @Before
     public void setup() {
+        ECS.entities.clear();
         entity = new Entity();
         component = new SkillComponent(entity);
         entity.addComponent(SkillComponent.name, component);
