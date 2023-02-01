@@ -13,16 +13,17 @@ import semanticAnalysis.types.DSLTypeMember;
  */
 @DSLType(name = "animation_component")
 public class AnimationComponent extends Component {
-    private static List<String> missingTexture = List.of("animation/missingTexture.png");
+    private static final List<String> missingTexture = List.of("animation/missingTexture.png");
     public static String name = "AnimationComponent";
-    private @DSLTypeMember(name = "idle_left") Animation idleLeft;
-    private @DSLTypeMember(name = "idle_right") Animation idleRight;
+
+    private @DSLTypeMember(name = "idle_left") final Animation idleLeft;
+    private @DSLTypeMember(name = "idle_right") final Animation idleRight;
     private @DSLTypeMember(name = "current_animation") Animation currentAnimation;
 
     /**
      * @param entity associated entity
-     * @param idleLeft Idleanimation faced left
-     * @param idleRight Idleanimation faced right
+     * @param idleLeft Idle animation faced left
+     * @param idleRight Idle-animation faced right
      */
     public AnimationComponent(Entity entity, Animation idleLeft, Animation idleRight) {
         super(entity, name);
@@ -33,7 +34,7 @@ public class AnimationComponent extends Component {
 
     /**
      * @param entity associated entity
-     * @param idle Idleanimation
+     * @param idle Idle-animation
      */
     public AnimationComponent(Entity entity, Animation idle) {
         this(entity, idle, idle);
@@ -64,14 +65,14 @@ public class AnimationComponent extends Component {
     }
 
     /**
-     * @return Idleanimation faced left
+     * @return Idle-animation faced left
      */
     public Animation getIdleLeft() {
         return idleLeft;
     }
 
     /**
-     * @return Idleanimation faced right
+     * @return Idle-animation faced right
      */
     public Animation getIdleRight() {
         return idleRight;

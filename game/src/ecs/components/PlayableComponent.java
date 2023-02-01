@@ -22,7 +22,7 @@ public class PlayableComponent extends Component {
     }
 
     /**
-     * @param playable set the playabale state
+     * @param playable set the playable state
      */
     public void setPlayable(boolean playable) {
         this.playable = playable;

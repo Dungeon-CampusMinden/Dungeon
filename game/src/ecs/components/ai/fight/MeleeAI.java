@@ -11,7 +11,6 @@ import tools.Constants;
 
 public class MeleeAI implements IFightAI {
     private final float attackRange;
-    private final int delay = Constants.FRAME_RATE;
     private int timeSinceLastUpdate = 0;
     private final Skill fightSkill;
     private GraphPath<Tile> path;
@@ -37,6 +36,7 @@ public class MeleeAI implements IFightAI {
                 throw new RuntimeException(e);
             }
         } else {
+            int delay = Constants.FRAME_RATE;
             if (timeSinceLastUpdate >= delay) {
                 path = AITools.calculatePath(entity, ECS.hero);
                 timeSinceLastUpdate = -1;

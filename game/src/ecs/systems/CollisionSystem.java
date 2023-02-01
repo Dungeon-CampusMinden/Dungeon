@@ -36,11 +36,9 @@ public class CollisionSystem extends ECS_System {
                                                                                     (HitboxComponent)
                                                                                             hitbox2,
                                                                                     d);
-                                                                } catch (
-                                                                        InvocationTargetException
+                                                                } catch (InvocationTargetException
+                                                                        | IllegalAccessException
                                                                                 e) {
-                                                                    throw new RuntimeException(e);
-                                                                } catch (IllegalAccessException e) {
                                                                     throw new RuntimeException(e);
                                                                 }
                                                                 try {
@@ -49,11 +47,9 @@ public class CollisionSystem extends ECS_System {
                                                                                     (HitboxComponent)
                                                                                             hitbox1,
                                                                                     inverse(d));
-                                                                } catch (
-                                                                        InvocationTargetException
+                                                                } catch (InvocationTargetException
+                                                                        | IllegalAccessException
                                                                                 e) {
-                                                                    throw new RuntimeException(e);
-                                                                } catch (IllegalAccessException e) {
                                                                     throw new RuntimeException(e);
                                                                 }
                                                             }
@@ -68,7 +64,7 @@ public class CollisionSystem extends ECS_System {
      * Simple Direction inversion
      *
      * @param d to inverse
-     * @return the oposite direction
+     * @return the opposite direction
      */
     private Tile.Direction inverse(Tile.Direction d) {
         return switch (d) {
@@ -82,8 +78,8 @@ public class CollisionSystem extends ECS_System {
     /**
      * The Check if hitbox intersect
      *
-     * @param hitbox1
-     * @param hitbox2
+     * @param hitbox1 hitbox of the first entity
+     * @param hitbox2 hitbox of the second entity
      * @return true if intersection exists otherwise false
      */
     private boolean checkForCollision(HitboxComponent hitbox1, HitboxComponent hitbox2) {
@@ -96,8 +92,8 @@ public class CollisionSystem extends ECS_System {
     /**
      * Calculates the direction based on a square can be broken once the hitboxes are rectangular.
      *
-     * @param hitbox1
-     * @param hitbox2
+     * @param hitbox1 hitbox of the first entity
+     * @param hitbox2 hitbox of the second entity
      * @return Tile direction for where hitbox 2 is compared to hitbox 1
      */
     private Tile.Direction checkDirectionOfCollision(

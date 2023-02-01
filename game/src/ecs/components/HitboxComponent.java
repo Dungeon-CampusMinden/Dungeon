@@ -11,9 +11,9 @@ import tools.Point;
 @DSLType(name = "hitbox_component")
 public class HitboxComponent extends Component {
     public static final String name = "HitboxComponent";
-    private /*@DSLTypeMember(name="offset")*/ Point offset;
-    private /*@DSLTypeMember(name="size")*/ Point size;
-    private Method method;
+    private final /*@DSLTypeMember(name="offset")*/ Point offset;
+    private final /*@DSLTypeMember(name="size")*/ Point size;
+    private final Method method;
 
     public HitboxComponent(Entity entity, Point offset, Point size, Method method) {
         super(entity, name);
@@ -25,13 +25,18 @@ public class HitboxComponent extends Component {
     /**
      * Creates A Hitbox with a default offset of 0.25f x 0.25f and a default size of 0.5f x 0.5f
      *
-     * @param entity
-     * @param method
+     * @param entity associated entity
+     * @param method callback function in case of collision
      */
     public HitboxComponent(Entity entity, Method method) {
         this(entity, new Point(0.25f, 0.25f), new Point(0.5f, 0.5f), method);
     }
 
+    /**
+     * Creates A Hitbox with a default offset of 0.25f x 0.25f and a default size of 0.5f x 0.5f
+     *
+     * @param entity associated entity
+     */
     public HitboxComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity, name);
         offset = new Point(0.25f, 0.25f);
@@ -44,7 +49,6 @@ public class HitboxComponent extends Component {
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
-        ;
     }
 
     public void collide(HitboxComponent other, Tile.Direction direction)
@@ -86,6 +90,6 @@ public class HitboxComponent extends Component {
     }
 
     public static void dummyHitboxMethod(HitboxComponent other, Tile.Direction from) {
-        System.out.println("COLIDE");
+        System.out.println("COLLIDE");
     }
 }

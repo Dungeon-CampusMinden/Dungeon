@@ -76,16 +76,14 @@ public class ECS extends Game {
     /** Toggle between pause and run */
     public static void togglePause() {
         if (systems != null) {
-            systems.forEach(s -> s.toggleRun());
+            systems.forEach(ECS_System::toggleRun);
         }
     }
 
     private boolean isOnEndTile() {
         Tile currentTile =
                 currentLevel.getTileAt(heroPositionComponent.getPosition().toCoordinate());
-        if (currentTile.equals(currentLevel.getEndTile())) return true;
-
-        return false;
+        return currentTile.equals(currentLevel.getEndTile());
     }
 
     private void setupDSLInput() {

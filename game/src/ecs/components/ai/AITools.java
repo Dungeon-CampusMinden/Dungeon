@@ -73,7 +73,7 @@ public class AITools {
     /**
      * @param center center point
      * @param radius Search radius
-     * @return List of tiles in the given radius arround the center point
+     * @return List of tiles in the given radius around the center point
      */
     public static List<Tile> getTilesInRange(Point center, float radius) {
         List<Tile> tiles = new ArrayList<>();
@@ -90,7 +90,7 @@ public class AITools {
     /**
      * @param center center point
      * @param radius Search radius
-     * @return List of accessible tiles in the given radius arround the center point
+     * @return List of accessible tiles in the given radius around the center point
      */
     public static List<Tile> getAccessibleTilesInRange(Point center, float radius) {
         List<Tile> tiles = getTilesInRange(center, radius);
@@ -173,7 +173,7 @@ public class AITools {
     }
 
     /**
-     * @param entity
+     * @param entity Entity that wants to move to the hero
      * @return Path from the entity to the hero
      */
     public static GraphPath<Tile> calculatePathToHero(Entity entity) {
@@ -194,8 +194,8 @@ public class AITools {
     }
 
     /**
-     * @param entity1
-     * @param entity2
+     * @param entity1 Entity A
+     * @param entity2 Entity B
      * @param range search radius
      * @return if the position of the two entities is within the given radius
      */
@@ -243,7 +243,6 @@ public class AITools {
                         entity.getComponent(PositionComponent.name)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        ;
         ILevel level = ECS.currentLevel;
         return path.get(path.getCount() - 1)
                 .equals(level.getTileAt(pc.getPosition().toCoordinate()));

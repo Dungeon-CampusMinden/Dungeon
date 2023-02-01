@@ -43,23 +43,23 @@ public class AIComponent extends Component {
         fightAI = new CollideAI(2f);
     }
 
-    /** Excecute the ai behavior */
+    /** Execute the AI behavior */
     public void execute() {
         if (transitionAI.isInFightMode(entity)) fightAI.fight(entity);
         else idleAI.idle(entity);
     }
 
     /**
-     * Set a new fight ai
+     * Set a new fight AI
      *
-     * @param ai new fight ai
+     * @param ai new fight AI
      */
     public void setFightAI(IFightAI ai) {
         this.fightAI = ai;
     }
 
     /**
-     * Set a new idle ai
+     * Set a new idle AI
      *
      * @param ai new idle ai
      */
@@ -68,7 +68,7 @@ public class AIComponent extends Component {
     }
 
     /**
-     * Set a new transition ai
+     * Set a new transition AI
      *
      * @param ai new transition ai
      */
@@ -97,7 +97,7 @@ public class AIComponent extends Component {
     /**
      * Returns the fight AI of the AIComponent
      *
-     * @return IFigthAI object representing the fight AI
+     * @return IFightAI object representing the fight AI
      */
     public IFightAI getFightAI() {
         return fightAI;

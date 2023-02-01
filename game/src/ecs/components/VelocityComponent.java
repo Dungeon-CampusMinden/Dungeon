@@ -10,15 +10,15 @@ import semanticAnalysis.types.DSLTypeMember;
 /** VelocityComponent is a component that stores the x, y movement direction */
 @DSLType(name = "velocity_component")
 public class VelocityComponent extends Component {
-    private static List<String> missingTexture = List.of("animation/missingTexture.png");
+    private static final List<String> missingTexture = List.of("animation/missingTexture.png");
     public static String name = "VelocityComponent";
     private float currentXVelocity;
     private float currentYVelocity;
     private @DSLTypeMember(name = "x_velocity") float xVelocity;
     private @DSLTypeMember(name = "y_velocity") float yVelocity;
 
-    private @DSLTypeMember(name = "move_right_animation") Animation moveRightAnimation;
-    private @DSLTypeMember(name = "move_left_animation") Animation moveLeftAnimation;
+    private final @DSLTypeMember(name = "move_right_animation") Animation moveRightAnimation;
+    private final @DSLTypeMember(name = "move_left_animation") Animation moveLeftAnimation;
 
     /**
      * @param entity associated entity
@@ -93,7 +93,7 @@ public class VelocityComponent extends Component {
     /**
      * Set speed with which the entity moves on the x-axis
      *
-     * @param xVelocity
+     * @param xVelocity new xVelocity
      */
     public void setXVelocity(float xVelocity) {
         this.xVelocity = xVelocity;
@@ -108,7 +108,7 @@ public class VelocityComponent extends Component {
     /**
      * Set speed with which the entity moves on the y-axis
      *
-     * @param yVelocity
+     * @param yVelocity new yVelocity
      */
     public void setYVelocity(float yVelocity) {
         this.yVelocity = yVelocity;

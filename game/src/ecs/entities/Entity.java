@@ -13,7 +13,7 @@ import semanticAnalysis.types.DSLType;
 public class Entity {
     private static int nextId = 0;
     public final int id = nextId++;
-    private HashMap<String, Component> components;
+    private final HashMap<String, Component> components;
 
     public Entity() {
         components = new HashMap<>();
