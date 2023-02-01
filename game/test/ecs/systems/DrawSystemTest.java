@@ -18,20 +18,21 @@ public class DrawSystemTest {
 
     private final Animation animation = Mockito.mock(Animation.class);
     private final Painter painter = Mockito.mock(Painter.class);
-    private DrawSystem system;
+    private DrawSystem drawSystem;
     private Entity entity;
 
     @Before
     public void setup() {
         ECS.systems = Mockito.mock(SystemController.class);
         ECS.entities.clear();
-        system = new DrawSystem(painter);
+        drawSystem = new DrawSystem(painter);
         entity = new Entity();
-        ;
+        entity.addComponent(AnimationComponent.name, new AnimationComponent(entity, animation));
+        entity.addComponent(PositionComponent.name, new PositionComponent(entity, new Point(3, 3)));
     }
 
     @Test
-    public void testUpdate() {
+    public void update() {
         /*
          * This method can not be tested because we can not mock the internal PainterConfig Object
          * in the DrawSystem. The PainterConfig needs libGDX setup
@@ -39,20 +40,16 @@ public class DrawSystemTest {
     }
 
     @Test
-    public void testUpdateWithoutPositionComponent() {
-        entity.addComponent(AnimationComponent.name, new AnimationComponent(entity, animation));
+    public void updateWithoutPositionComponent() {
+        entity.removeComponent(PositionComponent.name);
         Mockito.verifyNoMoreInteractions(painter);
-        assertThrows(
-                MissingComponentException.class,
-                () -> {
-                    system.update();
-                });
+        assertThrows(MissingComponentException.class, () -> drawSystem.update());
     }
 
     @Test
-    public void testUpdateWithoutAnimationComponent() {
-        entity.addComponent(PositionComponent.name, new PositionComponent(entity, new Point(3, 3)));
+    public void updateWithoutAnimationComponent() {
+        entity.removeComponent(AnimationComponent.name);
         Mockito.verifyNoMoreInteractions(painter);
-        system.update();
+        drawSystem.update();
     }
 }

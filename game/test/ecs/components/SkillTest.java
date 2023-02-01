@@ -6,7 +6,6 @@ import ecs.components.skill.Skill;
 import graphic.Animation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -21,20 +20,19 @@ public class SkillTest {
 
     @Before
     public void setup() throws NoSuchMethodException {
-        ECS.entities.clear();
         method = SkillTest.class.getMethod("TestMethode");
         skill = new Skill(method, animation);
     }
 
     @Test
-    public void testExecute_active() throws InvocationTargetException, IllegalAccessException {
+    public void execute_active() throws InvocationTargetException, IllegalAccessException {
         value = 0;
         skill.execute();
         assertEquals(1, value);
     }
 
     @Test
-    public void testExecute_inactive() throws InvocationTargetException, IllegalAccessException {
+    public void execute_inactive() throws InvocationTargetException, IllegalAccessException {
         value = 0;
         skill.toggleActive();
         assertFalse(skill.getActive());
@@ -43,7 +41,7 @@ public class SkillTest {
     }
 
     @Test
-    public void testToogle() {
+    public void toogle() {
         assertTrue(skill.getActive());
         skill.toggleActive();
         ;
@@ -54,7 +52,7 @@ public class SkillTest {
     }
 
     @Test
-    public void testGetAnimation() {
+    public void getAnimation() {
         assertEquals(animation, skill.getAnimation());
     }
 

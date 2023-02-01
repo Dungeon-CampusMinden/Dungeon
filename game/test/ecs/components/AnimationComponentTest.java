@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import ecs.entities.Entity;
 import graphic.Animation;
-import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -13,30 +12,28 @@ public class AnimationComponentTest {
 
     private final Animation idleLeft = Mockito.mock(Animation.class);
     private final Animation idleRight = Mockito.mock(Animation.class);
-    private Entity entity;
-    private AnimationComponent component;
+    private AnimationComponent animationComponent;
 
     @Before
     public void setup() {
-        ECS.entities.clear();
-        entity = new Entity();
-        component = new AnimationComponent(entity, idleLeft, idleRight);
+        animationComponent =
+                new AnimationComponent(Mockito.mock(Entity.class), idleLeft, idleRight);
     }
 
     @Test
-    public void testSetCurrentAnimation() {
-        Animation currentAnimation = component.getCurrentAnimation();
+    public void setCurrentAnimation() {
+        Animation currentAnimation = animationComponent.getCurrentAnimation();
         // Ensure that the current animation is initially set to the expected value
-        assertEquals(currentAnimation, component.getCurrentAnimation());
+        assertEquals(currentAnimation, animationComponent.getCurrentAnimation());
 
         // Set a new animation and ensure that it is correctly set
-        component.setCurrentAnimation(idleLeft);
-        assertEquals(idleLeft, component.getCurrentAnimation());
+        animationComponent.setCurrentAnimation(idleLeft);
+        assertEquals(idleLeft, animationComponent.getCurrentAnimation());
     }
 
     @Test
-    public void testGetAnimations() {
-        assertEquals(idleLeft, component.getIdleLeft());
-        assertEquals(idleRight, component.getIdleRight());
+    public void getAnimations() {
+        assertEquals(idleLeft, animationComponent.getIdleLeft());
+        assertEquals(idleRight, animationComponent.getIdleRight());
     }
 }
