@@ -8,13 +8,12 @@ import semanticAnalysis.types.DSLType;
 import tools.Point;
 
 /** PositionComponent is a component that stores the x, y (as Point) position of an entity */
-@DSLType
+@DSLType(name = "position_component")
 public class PositionComponent extends Component {
 
     public static String name = "PositionComponent";
 
-    // private @DSLTypeMember Point position;
-    private Point position;
+    private /*@DSLTypeMember(name="position")*/ Point position;
 
     /**
      * @param entity associated entity

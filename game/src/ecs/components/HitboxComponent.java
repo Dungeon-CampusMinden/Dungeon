@@ -8,11 +8,11 @@ import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import tools.Point;
 
-@DSLType
+@DSLType(name = "hitbox_component")
 public class HitboxComponent extends Component {
     public static final String name = "HitboxComponent";
-    private Point offset;
-    private Point size;
+    private /*@DSLTypeMember(name="offset")*/ Point offset;
+    private /*@DSLTypeMember(name="size")*/ Point size;
     private Method method;
 
     public HitboxComponent(Entity entity, Point offset, Point size, Method method) {
