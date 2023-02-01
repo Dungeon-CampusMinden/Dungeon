@@ -1,6 +1,7 @@
 package ecs.components.ai;
 
 import ecs.components.Component;
+import ecs.components.ai.fight.CollideAI;
 import ecs.components.ai.fight.IFightAI;
 import ecs.components.ai.idle.IIdleAI;
 import ecs.components.ai.idle.RadiusWalk;
@@ -38,12 +39,8 @@ public class AIComponent extends Component {
     public AIComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity, name);
         idleAI = new RadiusWalk(5, 2);
-        transitionAI = new RangeTransition(1.5f);
-        fightAI =
-                entity1 -> {
-                    System.out.println("TIME TO FIGHT!");
-                    // todo replace with melee skill
-                };
+        transitionAI = new RangeTransition(5f);
+        fightAI = new CollideAI(2f);
     }
 
     /** Excecute the ai behavior */
