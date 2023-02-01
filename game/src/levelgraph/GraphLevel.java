@@ -120,12 +120,13 @@ public class GraphLevel {
         Tile doorstep;
         Coordinate doorCoordinate = door.getCoordinate();
         Tile[][] layout = room.getLayout();
-        doorstep = switch (direction) {
-            case UP -> layout[doorCoordinate.y - 1][doorCoordinate.x];
-            case RIGHT -> layout[doorCoordinate.y][doorCoordinate.x - 1];
-            case LEFT -> layout[doorCoordinate.y][doorCoordinate.x + 1];
-            case DOWN -> layout[doorCoordinate.y + 1][doorCoordinate.x];
-        };
+        doorstep =
+                switch (direction) {
+                    case UP -> layout[doorCoordinate.y - 1][doorCoordinate.x];
+                    case RIGHT -> layout[doorCoordinate.y][doorCoordinate.x - 1];
+                    case LEFT -> layout[doorCoordinate.y][doorCoordinate.x + 1];
+                    case DOWN -> layout[doorCoordinate.y + 1][doorCoordinate.x];
+                };
         if (doorstep == null) throw new NullPointerException("DoorStep not found");
         door.setDoorstep(doorstep);
     }
