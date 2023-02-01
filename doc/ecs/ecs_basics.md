@@ -17,10 +17,15 @@ In Systemen wird die eigentliche Logik implementiert.
 Eine Entität und dessen Verhalten wird also daher bestimmt, welche Components es hat und wie die Systeme mit dieser Component-Kombination arbeiten.
 
 ## Basisstruktur
-- todo add UML Diagramm 
 
+[ECS](./img/ecs.png)
 
+Neu erzeugte Entitäten speichern sich automatisch im HashSet `entities` der `ECS`-Klasse ab.
+`ECS_System`e speichern sich automatisch im `SystemController` `systems` der `ECS`-Klasse ab.
+Die `ECS_System`e iterieren über das `entities` Set und prüfen mit `Entite#getComponent`, ob die benötigten Componenten in der Entiät abgelegt sind. 
 
+*Anmerkung: In gelb hinterlegte Klassen stammen aus dem PM-Dungeon-Framework.* 
+*Anmerkung: UML auf die wesenntlichen Bestandteile gekürzt.
 
 ## Wie wurde das ECS in das Dungeon integriert
 

@@ -1,0 +1,34 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>240</x><y>350</y><w>150</w><h>90</h></coordinates><panel_attributes>/ECS_System/
+--
++ update(): void
++ toggleRun(): void
++ isRunning(): boolean
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>530</x><y>480</y><w>170</w><h>100</h></coordinates><panel_attributes>/Component/
+--
+_ +name: String_
+- entity: Entity
+--
++ ctor(entity: Entity)
++ getEntity(): Entity</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>470</x><y>280</y><w>340</w><h>100</h></coordinates><panel_attributes>Entity
+--
++ id: int
+--
++ addComponent(name: String, c: Component): void
++ removeComponent(name: String): void
++ getComponent(name: String): Optional&lt;Component&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>280</x><y>70</y><w>470</w><h>120</h></coordinates><panel_attributes>ECS
+--
+_+ entities: HashSet&lt;Entity&gt;_
+_+ systems: SystemController_
+_+ currentLevel: ILevel_
+_+ hero: Entite_
+--
+_+ togglePause(): void_</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>60</x><y>160</y><w>140</w><h>30</h></coordinates><panel_attributes>SystemController</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>60</x><y>70</y><w>140</w><h>40</h></coordinates><panel_attributes>/AbstractController/
+bg=yellow
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>490</x><y>0</y><w>100</w><h>30</h></coordinates><panel_attributes>Game
+bg=yellow</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>530</x><y>20</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>110</x><y>100</y><w>30</w><h>80</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>190</x><y>170</y><w>110</w><h>40</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=1</panel_attributes><additional_attributes>90;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>110</x><y>180</y><w>150</w><h>250</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=n</panel_attributes><additional_attributes>10;10;10;220;130;220</additional_attributes></element><element><id>Relation</id><coordinates><x>570</x><y>180</y><w>40</w><h>120</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=n</panel_attributes><additional_attributes>10;10;10;100</additional_attributes></element><element><id>Relation</id><coordinates><x>320</x><y>180</y><w>40</w><h>190</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=n</panel_attributes><additional_attributes>10;10;10;170</additional_attributes></element><element><id>Relation</id><coordinates><x>360</x><y>300</y><w>130</w><h>70</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>110;10;10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>360</x><y>430</y><w>190</w><h>90</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>170;70;10;70;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>570</x><y>370</y><w>40</w><h>130</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m2=1
+m1=n</panel_attributes><additional_attributes>10;110;10;10</additional_attributes></element></diagram>
