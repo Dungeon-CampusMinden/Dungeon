@@ -29,33 +29,33 @@ public class VelocityComponentTest {
     }
 
     @Test
-    public void testSetCurrentXVelocity() {
+    public void setCurrentXVelocity() {
         velocityComponent.setCurrentXVelocity(5.0f);
         assertEquals(5.0f, velocityComponent.getCurrentXVelocity(), 0.001);
     }
 
     @Test
-    public void testSetCurrentYVelocity() {
+    public void setCurrentYVelocity() {
         velocityComponent.setCurrentYVelocity(6.0f);
         assertEquals(6.0f, velocityComponent.getCurrentYVelocity(), 0.001);
     }
 
     @Test
-    public void testSetXVelocity() {
+    public void setXVelocity() {
         assertEquals(xVelocityAtStart, velocityComponent.getXVelocity(), 0.001);
         velocityComponent.setXVelocity(6.0f);
         assertEquals(6.0f, velocityComponent.getXVelocity(), 0.001);
     }
 
     @Test
-    public void testSetYVelocity() {
+    public void setYVelocity() {
         assertEquals(yVelocityAtStart, velocityComponent.getYVelocity(), 0.001);
         velocityComponent.setYVelocity(6.0f);
         assertEquals(6.0f, velocityComponent.getYVelocity(), 0.001);
     }
 
     @Test
-    public void testGetAnimation() {
+    public void getAnimation() {
         assertEquals(moveLeft, velocityComponent.getMoveLeftAnimation());
         assertEquals(moveRight, velocityComponent.getMoveRightAnimation());
     }

@@ -21,7 +21,7 @@ public class AnimationComponentTest {
     }
 
     @Test
-    public void testSetCurrentAnimation() {
+    public void setCurrentAnimation() {
         Animation currentAnimation = animationComponent.getCurrentAnimation();
         // Ensure that the current animation is initially set to the expected value
         assertEquals(currentAnimation, animationComponent.getCurrentAnimation());
@@ -32,7 +32,7 @@ public class AnimationComponentTest {
     }
 
     @Test
-    public void testGetAnimations() {
+    public void getAnimations() {
         assertEquals(idleLeft, animationComponent.getIdleLeft());
         assertEquals(idleRight, animationComponent.getIdleRight());
     }

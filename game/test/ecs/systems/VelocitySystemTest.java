@@ -1,8 +1,10 @@
 package ecs.systems;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 import ecs.components.AnimationComponent;
+import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
@@ -89,6 +91,7 @@ public class VelocitySystemTest {
         assertEquals(startYPosition, position.y, 0.001);
     }
 
+    @Test
     public void updateUnValidMoveWithNegativVelocity() {
         Mockito.when(tile.isAccessible()).thenReturn(false);
         velocityComponent.setCurrentXVelocity(-4);
@@ -128,5 +131,34 @@ public class VelocitySystemTest {
         velocitySystem.update();
         assertEquals(idleLeft, animationComponent.getCurrentAnimation());
         ;
+    }
+
+    @Test
+    public void updateWithoutVelocityComponent() {
+        entity.removeComponent(VelocityComponent.name);
+        velocitySystem.update();
+        assertEquals(startXPosition, positionComponent.getPosition().x, 0.001f);
+        assertEquals(startYPosition, positionComponent.getPosition().y, 0.001f);
+    }
+
+    @Test
+    public void updateWithoutPositionComponent() {
+        entity.removeComponent(PositionComponent.name);
+        assertThrows(
+                MissingComponentException.class,
+                () -> {
+                    velocitySystem.update();
+                });
+    }
+
+    @Test
+    public void updateWithoutAnimationComponent() {
+        Mockito.when(tile.isAccessible()).thenReturn(true);
+        entity.removeComponent(AnimationComponent.name);
+        assertThrows(
+                MissingComponentException.class,
+                () -> {
+                    velocitySystem.update();
+                });
     }
 }

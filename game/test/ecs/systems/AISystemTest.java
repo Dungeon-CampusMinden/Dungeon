@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 public class AISystemTest {
 
     private AISystem system;
+    private Entity entity;
     private AIComponent aiComponent = Mockito.mock(AIComponent.class);
 
     @Before
@@ -21,7 +22,7 @@ public class AISystemTest {
         ECS.systems = Mockito.mock(SystemController.class);
         ECS.entities.clear();
         system = new AISystem();
-        Entity entity = new Entity();
+        entity = new Entity();
         entity.addComponent(AIComponent.name, aiComponent);
     }
 
@@ -29,5 +30,12 @@ public class AISystemTest {
     public void update() {
         system.update();
         Mockito.verify(aiComponent, times(1)).execute();
+    }
+
+    @Test
+    public void updateWithoutAIComponent() {
+        entity.removeComponent(AIComponent.name);
+        system.update();
+        Mockito.verify(aiComponent, times(0)).execute();
     }
 }

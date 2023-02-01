@@ -26,12 +26,12 @@ public class ECS_SystemTest {
     }
 
     @Test
-    public void constructorTest() {
+    public void cTor() {
         assertTrue(ECS.systems.contains(testSystem));
     }
 
     @Test
-    public void pauseTest() {
+    public void pause() {
         assertEquals(0, updates);
         ECS.systems.update();
         assertEquals(1, updates);

@@ -32,7 +32,7 @@ public class DrawSystemTest {
     }
 
     @Test
-    public void testUpdate() {
+    public void update() {
         /*
          * This method can not be tested because we can not mock the internal PainterConfig Object
          * in the DrawSystem. The PainterConfig needs libGDX setup
@@ -40,7 +40,7 @@ public class DrawSystemTest {
     }
 
     @Test
-    public void testUpdateWithoutPositionComponent() {
+    public void updateWithoutPositionComponent() {
         entity.removeComponent(PositionComponent.name);
         Mockito.verifyNoMoreInteractions(painter);
         assertThrows(
@@ -51,7 +51,7 @@ public class DrawSystemTest {
     }
 
     @Test
-    public void testUpdateWithoutAnimationComponent() {
+    public void updateWithoutAnimationComponent() {
         entity.removeComponent(AnimationComponent.name);
         Mockito.verifyNoMoreInteractions(painter);
         drawSystem.update();

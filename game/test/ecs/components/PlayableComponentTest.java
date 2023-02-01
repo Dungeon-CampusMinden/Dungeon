@@ -17,7 +17,7 @@ public class PlayableComponentTest {
     }
 
     @Test
-    public void testIsPlayable() {
+    public void isPlayable() {
         assertTrue(playableComponent.isPlayable());
         playableComponent.setPlayable(false);
         assertFalse(playableComponent.isPlayable());

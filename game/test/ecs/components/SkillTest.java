@@ -25,14 +25,14 @@ public class SkillTest {
     }
 
     @Test
-    public void testExecute_active() throws InvocationTargetException, IllegalAccessException {
+    public void execute_active() throws InvocationTargetException, IllegalAccessException {
         value = 0;
         skill.execute();
         assertEquals(1, value);
     }
 
     @Test
-    public void testExecute_inactive() throws InvocationTargetException, IllegalAccessException {
+    public void execute_inactive() throws InvocationTargetException, IllegalAccessException {
         value = 0;
         skill.toggleActive();
         assertFalse(skill.getActive());
@@ -41,7 +41,7 @@ public class SkillTest {
     }
 
     @Test
-    public void testToogle() {
+    public void toogle() {
         assertTrue(skill.getActive());
         skill.toggleActive();
         ;
@@ -52,7 +52,7 @@ public class SkillTest {
     }
 
     @Test
-    public void testGetAnimation() {
+    public void getAnimation() {
         assertEquals(animation, skill.getAnimation());
     }
 

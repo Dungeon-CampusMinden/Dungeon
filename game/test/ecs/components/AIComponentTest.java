@@ -29,7 +29,7 @@ public class AIComponentTest {
     }
 
     @Test
-    public void testExecuteFight() {
+    public void executeFight() {
         when(mockTransition.isInFightMode(entity)).thenReturn(true);
         aiComponent.execute();
         verify(mockFightAI, times(1)).fight(entity);
@@ -37,7 +37,7 @@ public class AIComponentTest {
     }
 
     @Test
-    public void testExecuteIdle() {
+    public void executeIdle() {
         when(mockTransition.isInFightMode(entity)).thenReturn(false);
         aiComponent.execute();
         verify(mockFightAI, never()).fight(entity);
@@ -45,21 +45,21 @@ public class AIComponentTest {
     }
 
     @Test
-    public void testSetFightAI() {
+    public void setFightAI() {
         IFightAI newAI = Mockito.mock(IFightAI.class);
         aiComponent.setFightAI(newAI);
         assertEquals(newAI, aiComponent.getFightAI());
     }
 
     @Test
-    public void testSetIdleAI() {
+    public void setIdleAI() {
         IIdleAI newAI = Mockito.mock(IIdleAI.class);
         aiComponent.setIdleAI(newAI);
         assertEquals(newAI, aiComponent.getIdleAI());
     }
 
     @Test
-    public void testSetTransitionAI() {
+    public void setTransitionAI() {
         ITransition newAI = Mockito.mock(ITransition.class);
         aiComponent.setTransitionAI(newAI);
         assertEquals(newAI, aiComponent.getTransitionAI());
