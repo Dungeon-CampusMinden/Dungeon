@@ -30,6 +30,7 @@ public class VelocitySystemTest {
     @Before
     public void setup() {
         ECS.systems = Mockito.mock(SystemController.class);
+        ECS.entities.clear();
         velocitySystem = new VelocitySystem();
         entity = new Entity();
         entity.addComponent(PositionComponent.name, new PositionComponent(entity, new Point(2, 4)));

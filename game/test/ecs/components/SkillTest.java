@@ -6,6 +6,7 @@ import ecs.components.skill.Skill;
 import graphic.Animation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -20,6 +21,7 @@ public class SkillTest {
 
     @Before
     public void setup() throws NoSuchMethodException {
+        ECS.entities.clear();
         method = SkillTest.class.getMethod("TestMethode");
         skill = new Skill(method, animation);
     }
