@@ -143,7 +143,7 @@ public class TypeInstantiator {
                     var fieldValue = ms.resolve(fieldName);
                     // we only should set the field value explicitly,
                     // if it was set in the program (indicated by the dirty-flag)
-                    if (fieldValue != null && fieldValue.isDirty()) {
+                    if (fieldValue != Value.NONE && fieldValue.isDirty()) {
                         var internalValue = fieldValue.getInternalObject();
 
                         if (fieldValue.getDataType().getTypeKind().equals(IType.Kind.PODAdapted)) {

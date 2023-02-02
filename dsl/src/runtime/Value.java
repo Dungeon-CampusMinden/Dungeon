@@ -63,6 +63,7 @@ public class Value implements IClonable {
             this.dirty = true;
             return true;
         }
+        System.out.println("Tried to set internal value of immutable value");
         return false;
     }
 
