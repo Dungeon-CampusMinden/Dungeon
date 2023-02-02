@@ -309,6 +309,53 @@ public class TestDSLInterpreter {
         assertEquals("DEFAULT VALUE", testComp2.getMember3());
     }
 
+    @Test
+    public void aggregateTypeInstancingNonSupportedExternalType() {
+        String program =
+                """
+            game_object my_obj {
+                component_with_external_type_member { }
+            }
+
+            quest_config config {
+                entity: my_obj
+            }
+            """;
+
+        TypeBuilder tb = new TypeBuilder();
+        var entityType = tb.createTypeFromClass(new Scope(), Entity.class);
+        var compType = tb.createTypeFromClass(new Scope(), ComponentWithExternalTypeMember.class);
+
+        var env = new TestEnvironment();
+        env.loadTypes(new IType[] {entityType, compType});
+
+        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        symbolTableParser.setup(env);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        interpreter.initializeRuntime(env);
+
+        interpreter.generateQuestConfig(ast);
+        var globalMs = interpreter.getGlobalMemorySpace();
+
+        // check, if the component was instantiated and the
+        // Point member is set to null, because the Point type is not supported
+        // by the Typesystem
+        var config = (AggregateValue) (globalMs.resolve("config"));
+        var myObj = config.getMemorySpace().resolve("entity");
+        var component =
+                ((AggregateValue) myObj)
+                        .getMemorySpace()
+                        .resolve("component_with_external_type_member");
+        var encapsulatedObject = (EncapsulatedObject) ((AggregateValue) component).getMemorySpace();
+        var internalComponent = encapsulatedObject.getInternalObject();
+
+        assertTrue(internalComponent instanceof ComponentWithExternalTypeMember);
+        assertNull(((ComponentWithExternalTypeMember) internalComponent).point);
+    }
+
     // TODO: should test resolving of member_external_type in the instantiated object
     @Test
     public void adaptedInstancing() {

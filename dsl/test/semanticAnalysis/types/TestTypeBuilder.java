@@ -121,4 +121,28 @@ public class TestTypeBuilder {
         var membersDatatype = memberSymbol.getDataType();
         assertEquals(IType.Kind.PODAdapted, membersDatatype.getTypeKind());
     }
+
+    @Test
+    public void testExternalTypeMember() {
+        TypeBuilder typeBuilder = new TypeBuilder();
+        var dslType =
+                (AggregateType)
+                        typeBuilder.createTypeFromClass(
+                                Scope.NULL, ComponentWithExternalTypeMember.class);
+
+        assertNotSame(dslType, null);
+        assertNotSame(dslType, Symbol.NULL);
+    }
+
+    @Test
+    public void testInterfaceMember() {
+        TypeBuilder typeBuilder = new TypeBuilder();
+        var dslType =
+                (AggregateType)
+                        typeBuilder.createTypeFromClass(
+                                Scope.NULL, ComponentWithInterfaceMember.class);
+
+        assertNotSame(dslType, null);
+        assertNotSame(dslType, Symbol.NULL);
+    }
 }
