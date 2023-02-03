@@ -9,7 +9,7 @@ import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
 
-@DSLType(name = "healt_chomponent")
+@DSLType(name = "health_component")
 /** The HealthComponent makes an entity vulnerable and killable */
 public class HealthComponent extends Component {
     public static String name = "HealthComponent";
