@@ -130,10 +130,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterComponent_def(DungeonDSLParser.Component_defContext ctx) {}
+    public void enterAggregate_value_def(DungeonDSLParser.Aggregate_value_defContext ctx) {}
 
     @Override
-    public void exitComponent_def(DungeonDSLParser.Component_defContext ctx) {
+    public void exitAggregate_value_def(DungeonDSLParser.Aggregate_value_defContext ctx) {
         // if we have a propertyDefList, it will be on the stack
         var propertyDefListNode = Node.NONE;
         if (ctx.property_def_list() != null) {

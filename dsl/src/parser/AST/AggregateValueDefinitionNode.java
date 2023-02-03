@@ -45,7 +45,7 @@ public class ComponentDefinitionNode extends Node {
      *     definition
      */
     public ComponentDefinitionNode(Node idNode, Node propertyDefinitionList) {
-        super(Type.ComponentDefinition, new ArrayList<>(2));
+        super(Type.AggregateValueDefinition, new ArrayList<>(2));
         this.children.add(idNode);
         this.children.add(propertyDefinitionList);
     }
