@@ -1,6 +1,7 @@
 package parser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import helpers.Helpers;
 import org.junit.Test;
@@ -271,5 +272,28 @@ public class TestDungeonASTConverter {
 
         secondPropertyDefNode = (PropertyDefNode) propertyDefinitions.get(1);
         assertEquals("prop4", secondPropertyDefNode.getIdName());
+    }
+
+    @Test
+    public void adaptedAggregateType() {
+        String program =
+                """
+            game_object my_obj {
+                test_component_with_external_type {
+                    member_external_type: external_type { str: "Hello, World!", n: 42 }
+                }
+            }
+
+            quest_config config {
+                entity: my_obj
+            }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var gameObjectDef = (GameObjectDefinitionNode)ast.getChild(0);
+        var componentDef = (AggregateValueDefinitionNode)gameObjectDef.getComponentDefinitionNodes().get(0);
+        var propertyDef = (PropertyDefNode)componentDef.getPropertyDefinitionNodes().get(0);
+        var stmtNode = propertyDef.getStmtNode();
+        assertEquals(stmtNode.type, Node.Type.AggregateValueDefinition);
     }
 }
