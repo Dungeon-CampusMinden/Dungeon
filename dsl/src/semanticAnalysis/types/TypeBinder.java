@@ -1,7 +1,7 @@
 package semanticAnalysis.types;
 
-import parser.AST.AstVisitor;
 import parser.AST.AggregateValueDefinitionNode;
+import parser.AST.AstVisitor;
 import parser.AST.GameObjectDefinitionNode;
 import parser.AST.Node;
 import runtime.IEvironment;

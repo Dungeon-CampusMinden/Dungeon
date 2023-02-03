@@ -1,7 +1,6 @@
 package parser;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import helpers.Helpers;
 import org.junit.Test;
@@ -264,7 +263,8 @@ public class TestDungeonASTConverter {
         componentName = ((AggregateValueDefinitionNode) component).getIdName();
         assertEquals("complex_component2", componentName);
 
-        propertyDefinitions = ((AggregateValueDefinitionNode) component).getPropertyDefinitionNodes();
+        propertyDefinitions =
+                ((AggregateValueDefinitionNode) component).getPropertyDefinitionNodes();
         assertEquals(2, propertyDefinitions.size());
 
         firstPropertyDefNode = (PropertyDefNode) propertyDefinitions.get(0);
@@ -290,9 +290,10 @@ public class TestDungeonASTConverter {
             """;
 
         var ast = Helpers.getASTFromString(program);
-        var gameObjectDef = (GameObjectDefinitionNode)ast.getChild(0);
-        var componentDef = (AggregateValueDefinitionNode)gameObjectDef.getComponentDefinitionNodes().get(0);
-        var propertyDef = (PropertyDefNode)componentDef.getPropertyDefinitionNodes().get(0);
+        var gameObjectDef = (GameObjectDefinitionNode) ast.getChild(0);
+        var componentDef =
+                (AggregateValueDefinitionNode) gameObjectDef.getComponentDefinitionNodes().get(0);
+        var propertyDef = (PropertyDefNode) componentDef.getPropertyDefinitionNodes().get(0);
         var stmtNode = propertyDef.getStmtNode();
         assertEquals(stmtNode.type, Node.Type.AggregateValueDefinition);
     }

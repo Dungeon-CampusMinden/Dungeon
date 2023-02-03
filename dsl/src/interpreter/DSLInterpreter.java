@@ -81,7 +81,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
                     var gameObjDefNode = (GameObjectDefinitionNode) creationAstNode;
                     for (var node : gameObjDefNode.getComponentDefinitionNodes()) {
                         // add new component prototype to the enclosing game object prototype
-                        AggregateValueDefinitionNode compDefNode = (AggregateValueDefinitionNode) node;
+                        AggregateValueDefinitionNode compDefNode =
+                                (AggregateValueDefinitionNode) node;
                         var componentPrototype = createComponentPrototype(compDefNode);
                         prototype.addDefaultValue(compDefNode.getIdName(), componentPrototype);
                     }
