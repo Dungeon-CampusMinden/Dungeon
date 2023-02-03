@@ -171,7 +171,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
      */
     private Value createDefaultValue(IType type) {
         if (type == null) {
-            throw new RuntimeException("Tried to create default value for null type");
+            System.out.println("Tried to create default value for null type");
+            return Value.NONE;
         }
         if (type.getTypeKind().equals(IType.Kind.Basic)) {
             Object internalValue = Value.getDefaultValue(type);
