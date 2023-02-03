@@ -22,7 +22,7 @@ public class Node {
         PropertyDefinition,
         GameObjectDefinition,
         ComponentDefinitionList,
-        ComponentDefinition,
+        AggregateValueDefinition,
         DotDefinition,
         DotStmtList,
         DotStmt,

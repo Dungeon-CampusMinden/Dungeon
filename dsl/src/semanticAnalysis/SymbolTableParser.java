@@ -252,7 +252,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
 
     // TODO: Symbols for members?
     @Override
-    public Void visit(ComponentDefinitionNode node) {
+    public Void visit(AggregateValueDefinitionNode node) {
         // push datatype of component
         // resolve in current scope, which will be datatype of game object definition
         var memberSymbol = currentScope().resolve(node.getIdName());

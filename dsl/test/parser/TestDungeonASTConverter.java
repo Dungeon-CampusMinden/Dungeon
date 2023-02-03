@@ -166,13 +166,13 @@ public class TestDungeonASTConverter {
         assertEquals(1, componentDefinitions.size());
 
         var component = componentDefinitions.get(0);
-        assertEquals(Node.Type.ComponentDefinition, component.type);
+        assertEquals(Node.Type.AggregateValueDefinition, component.type);
 
-        String componentName = ((ComponentDefinitionNode) component).getIdName();
+        String componentName = ((AggregateValueDefinitionNode) component).getIdName();
         assertEquals("this_is_a_component", componentName);
 
         var propertyDefinitionListNode =
-                ((ComponentDefinitionNode) component).getPropertyDefinitionListNode();
+                ((AggregateValueDefinitionNode) component).getPropertyDefinitionListNode();
         assertEquals(Node.NONE, propertyDefinitionListNode);
     }
 
@@ -203,13 +203,13 @@ public class TestDungeonASTConverter {
         assertEquals(1, componentDefinitions.size());
 
         var component = componentDefinitions.get(0);
-        assertEquals(Node.Type.ComponentDefinition, component.type);
+        assertEquals(Node.Type.AggregateValueDefinition, component.type);
 
-        String componentName = ((ComponentDefinitionNode) component).getIdName();
+        String componentName = ((AggregateValueDefinitionNode) component).getIdName();
         assertEquals("complex_component", componentName);
 
         var propertyDefinitions =
-                ((ComponentDefinitionNode) component).getPropertyDefinitionNodes();
+                ((AggregateValueDefinitionNode) component).getPropertyDefinitionNodes();
         assertEquals(2, propertyDefinitions.size());
 
         var firstPropertyDefNode = (PropertyDefNode) propertyDefinitions.get(0);
@@ -245,11 +245,11 @@ public class TestDungeonASTConverter {
 
         // test first component
         var component = componentDefinitions.get(0);
-        String componentName = ((ComponentDefinitionNode) component).getIdName();
+        String componentName = ((AggregateValueDefinitionNode) component).getIdName();
         assertEquals("complex_component1", componentName);
 
         var propertyDefinitions =
-                ((ComponentDefinitionNode) component).getPropertyDefinitionNodes();
+                ((AggregateValueDefinitionNode) component).getPropertyDefinitionNodes();
         assertEquals(2, propertyDefinitions.size());
 
         var firstPropertyDefNode = (PropertyDefNode) propertyDefinitions.get(0);
@@ -260,10 +260,10 @@ public class TestDungeonASTConverter {
 
         // test second component
         component = componentDefinitions.get(1);
-        componentName = ((ComponentDefinitionNode) component).getIdName();
+        componentName = ((AggregateValueDefinitionNode) component).getIdName();
         assertEquals("complex_component2", componentName);
 
-        propertyDefinitions = ((ComponentDefinitionNode) component).getPropertyDefinitionNodes();
+        propertyDefinitions = ((AggregateValueDefinitionNode) component).getPropertyDefinitionNodes();
         assertEquals(2, propertyDefinitions.size());
 
         firstPropertyDefNode = (PropertyDefNode) propertyDefinitions.get(0);

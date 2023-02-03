@@ -1,7 +1,7 @@
 package semanticAnalysis.types;
 
 import parser.AST.AstVisitor;
-import parser.AST.ComponentDefinitionNode;
+import parser.AST.AggregateValueDefinitionNode;
 import parser.AST.GameObjectDefinitionNode;
 import parser.AST.Node;
 import runtime.IEvironment;
@@ -52,8 +52,8 @@ public class TypeBinder implements AstVisitor<Object> {
 
         // visit all component definitions and get type and create new symbol in gameObject type
         for (var componentDef : node.getComponentDefinitionNodes()) {
-            assert componentDef.type == Node.Type.ComponentDefinition;
-            var compDefNode = (ComponentDefinitionNode) componentDef;
+            assert componentDef.type == Node.Type.AggregateValueDefinition;
+            var compDefNode = (AggregateValueDefinitionNode) componentDef;
 
             var componentType = componentDef.accept(this);
             if (componentType != null) {
@@ -69,7 +69,7 @@ public class TypeBinder implements AstVisitor<Object> {
     }
 
     @Override
-    public Object visit(ComponentDefinitionNode node) {
+    public Object visit(AggregateValueDefinitionNode node) {
         // resolve components name in global scope
         var componentName = node.getIdName();
         var typeSymbol = resolveGlobal(componentName);
