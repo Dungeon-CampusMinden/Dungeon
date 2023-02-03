@@ -7,7 +7,7 @@ import tools.Point;
  *
  * @author Maxim Fruendt
  */
-public abstract class ThreadedDungeonElement implements Runnable {
+public abstract class ThreadedDungeonElement implements Runnable, ISpawnable {
 
     /** Current position in the level */
     protected Point position;
@@ -20,15 +20,6 @@ public abstract class ThreadedDungeonElement implements Runnable {
     private volatile boolean paused = false;
     /** Lock for pausing this thread */
     private final Object pauseLock = new Object();
-
-    /**
-     * Creates a new element of which the logic will be executed in a thread
-     *
-     * @param spawnPosition Position where this element will spawn
-     */
-    public ThreadedDungeonElement(Point spawnPosition) {
-        position = spawnPosition;
-    }
 
     /**
      * Set the fake element of this element, which must be placed in the main thread
@@ -65,6 +56,15 @@ public abstract class ThreadedDungeonElement implements Runnable {
      */
     public Point getPosition() {
         return position;
+    }
+
+    /**
+     * Set the position in the level
+     *
+     * @param position New position of this object
+     */
+    public void setPosition(Point position) {
+        this.position = position;
     }
 
     /** Pauses the execution of logic */

@@ -1,5 +1,6 @@
 package basiselements;
 
+import controller.Game;
 import tools.Point;
 
 /**
@@ -53,11 +54,20 @@ public class ThreadedFakeDungeonElement extends DungeonElement {
      *
      * @param position New position
      */
+    @Override
     public void setPosition(Point position) {
         synchronized (visualInformation) {
             visualInformation.position = position;
         }
     }
+
+    /**
+     * Set the game to which this fake element belongs
+     *
+     * @param game New game of this object
+     */
+    @Override
+    public void setGame(Game game) {}
 
     /**
      * Get the texture of this fake element

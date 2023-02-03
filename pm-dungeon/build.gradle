@@ -201,6 +201,7 @@ nexusPublishing {
 
 sourceSets.main.resources.srcDirs = ["core/assets/"]
 project.ext.mainClassName = "starter.MyGame"
+project.ext.hamsterMainClassName = "hamster.HamsterSimulator"
 
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
@@ -217,8 +218,35 @@ task run(dependsOn: classes, type: JavaExec) {
     }
 }
 
+task runHamster(dependsOn: classes, type: JavaExec) {
+    mainClass = project.hamsterMainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    ignoreExitValue = true
+    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        allJvmArgs += ["-XstartOnFirstThread"]
+    }
+    doFirst {
+        println(DefaultNativePlatform.currentOperatingSystem)
+    }
+}
+
 task debug(dependsOn: classes, type: JavaExec) {
     mainClass = project.mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    ignoreExitValue = true
+    debug = true
+    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        allJvmArgs += ["-XstartOnFirstThread"]
+    }
+    doFirst {
+        println(DefaultNativePlatform.currentOperatingSystem)
+    }
+}
+
+task debugHamster(dependsOn: classes, type: JavaExec) {
+    mainClass = project.hamsterMainClassName
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
     ignoreExitValue = true

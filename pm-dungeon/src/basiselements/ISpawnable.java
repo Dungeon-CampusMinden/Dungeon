@@ -1,5 +1,6 @@
 package basiselements;
 
+import controller.Game;
 import tools.Point;
 
 /**
@@ -14,4 +15,11 @@ public interface ISpawnable {
      * @param position New position of this object
      */
     void setPosition(Point position);
+
+    /**
+     * Set the game that this belongs in
+     *
+     * @param game New game of this object
+     */
+    void setGame(Game game);
 }

@@ -3,6 +3,8 @@ package controller;
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
 import basiselements.DungeonElement;
+import basiselements.ISpawnable;
+import basiselements.ThreadedDungeonElement;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
@@ -125,8 +127,13 @@ public abstract class Game extends ScreenAdapter implements IOnLevelLoader {
         Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
-    protected boolean addDungeonElement(DungeonElement object) {
-        return entityController.add(object);
+    protected boolean addDungeonElement(ISpawnable object) {
+        if (object instanceof DungeonElement) {
+            return entityController.add((DungeonElement) object);
+        } else if (object instanceof ThreadedDungeonElement) {
+            return entityController.add((ThreadedDungeonElement) object);
+        }
+        return false;
     }
 
     public void setSpriteBatch(SpriteBatch batch) {

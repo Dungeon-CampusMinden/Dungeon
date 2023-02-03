@@ -1,6 +1,6 @@
 package level;
 
-import basiselements.DungeonElement;
+import basiselements.ISpawnable;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector3;
 import controller.Game;
@@ -26,8 +26,7 @@ public class LevelEditor implements InputProcessor {
     /** List of the names of spawnable level elements */
     protected static final List<String> spawnableLevelElementNames = new ArrayList<>();
     /** List of objects that can be spawned in the editor menu */
-    protected static final List<Class<? extends DungeonElement>> spawnableObjects =
-            new ArrayList<>();
+    protected static final List<Class<? extends ISpawnable>> spawnableObjects = new ArrayList<>();
     /** List of the names of spawnable objects */
     protected static final List<String> spawnableObjectNames = new ArrayList<>();
 
@@ -54,7 +53,7 @@ public class LevelEditor implements InputProcessor {
     /** Current camera of the game, used to translate coordinates */
     protected DungeonCamera camera;
     /** Method that is used to add a new object to the dungeon */
-    Function<DungeonElement, Boolean> addObjectToDungeon;
+    Function<ISpawnable, Boolean> addObjectToDungeon;
 
     /**
      * Create a new level editor
@@ -68,7 +67,7 @@ public class LevelEditor implements InputProcessor {
             LevelAPI levelAPI,
             Game game,
             DungeonCamera camera,
-            Function<DungeonElement, Boolean> addObjectToDungeon) {
+            Function<ISpawnable, Boolean> addObjectToDungeon) {
         this.levelAPI = levelAPI;
         this.game = game;
         this.camera = camera;
@@ -149,12 +148,13 @@ public class LevelEditor implements InputProcessor {
         try {
             if (element == EditorElement.OBJECT) {
                 if (objectIndex >= 0 && objectIndex < spawnableObjects.size()) {
-                    DungeonElement object =
+                    ISpawnable object =
                             spawnableObjects
                                     .get(objectIndex)
                                     .getDeclaredConstructor()
                                     .newInstance();
                     object.setPosition(position);
+                    object.setGame(game);
                     addObjectToDungeon.apply(object);
                 }
             }
@@ -335,7 +335,7 @@ public class LevelEditor implements InputProcessor {
      * @param name Display name of the object
      * @param <T> Type of the object
      */
-    public static <T extends DungeonElement> void addSpawnableObject(Class<T> object, String name) {
+    public static <T extends ISpawnable> void addSpawnableObject(Class<T> object, String name) {
         if (!spawnableObjects.contains(object)) {
             spawnableObjects.add(object);
             spawnableObjectNames.add(name);

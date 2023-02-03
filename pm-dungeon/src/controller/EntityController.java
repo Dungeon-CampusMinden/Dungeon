@@ -4,7 +4,10 @@ import basiselements.DungeonElement;
 import basiselements.ThreadedDungeonElement;
 import basiselements.ThreadedFakeDungeonElement;
 import graphic.Painter;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -25,10 +28,15 @@ public class EntityController extends AbstractController<DungeonElement> {
     protected final long MS_PER_FRAME = (long) (1f / (float) Constants.FRAME_RATE * 1000f);
     /** Initial delay before a threaded character thread is started */
     protected final long THREAD_START_DELAY_MS = 0;
+    /** List of started dungeon element threads */
+    protected final List<Future<?>> threadedDungeonElementThreads;
+    /** Flag if this is currently paused */
+    protected boolean isPaused = false;
 
     public EntityController(Painter painter) {
         super();
         threadedDungeonElements = new HashSet<>();
+        threadedDungeonElementThreads = new ArrayList<>();
         scheduler = new ScheduledThreadPoolExecutor(Constants.CORE_POOL_SIZE);
         this.painter = painter;
     }
@@ -36,11 +44,19 @@ public class EntityController extends AbstractController<DungeonElement> {
     /** Pause the execution of threaded entity, which are registered in this controller. */
     public void pause() {
         threadedDungeonElements.forEach(ThreadedDungeonElement::pause);
+        threadedDungeonElementThreads.forEach((e) -> e.cancel(true));
+        isPaused = true;
     }
 
     /** Resume the execution of threaded entity, which are registered in this controller. */
     public void resume() {
-        threadedDungeonElements.forEach(ThreadedDungeonElement::resume);
+        for (ThreadedDungeonElement element : threadedDungeonElements) {
+            threadedDungeonElementThreads.add(
+                    scheduler.scheduleAtFixedRate(
+                            element, THREAD_START_DELAY_MS, MS_PER_FRAME, TimeUnit.MILLISECONDS));
+            element.resume();
+        }
+        isPaused = true;
     }
 
     /** Stop the execution of threaded entity, which are registered in this controller. */
@@ -66,8 +82,11 @@ public class EntityController extends AbstractController<DungeonElement> {
         if (!add(fakeElement)) {
             return false;
         }
-        scheduler.scheduleAtFixedRate(
-                e, THREAD_START_DELAY_MS, MS_PER_FRAME, TimeUnit.MILLISECONDS);
+        if (!isPaused) {
+            threadedDungeonElementThreads.add(
+                    scheduler.scheduleAtFixedRate(
+                            e, THREAD_START_DELAY_MS, MS_PER_FRAME, TimeUnit.MILLISECONDS));
+        }
         return true;
     }
 

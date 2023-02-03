@@ -29,8 +29,9 @@ public class ThreadedDungeonElementTest {
         threadedDungeonElement =
                 Mockito.mock(
                         ThreadedDungeonElement.class,
-                        withSettings().useConstructor(spawnPos).defaultAnswer(CALLS_REAL_METHODS));
+                        withSettings().useConstructor().defaultAnswer(CALLS_REAL_METHODS));
         when(threadedDungeonElement.getTexturePath()).thenReturn("texture");
+        threadedDungeonElement.setPosition(spawnPos);
     }
 
     @Test
