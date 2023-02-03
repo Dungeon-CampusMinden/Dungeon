@@ -52,10 +52,6 @@ public class VelocitySystemTest {
         positionComponent =
                 new PositionComponent(entity, new Point(startXPosition, startYPosition));
         animationComponent = new AnimationComponent(entity, idleLeft, idleRight);
-
-        entity.addComponent(PositionComponent.class, positionComponent);
-        entity.addComponent(VelocityComponent.class, velocityComponent);
-        entity.addComponent(AnimationComponent.class, animationComponent);
     }
 
     @Test

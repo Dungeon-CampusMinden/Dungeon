@@ -15,7 +15,7 @@ public class HitboxComponent extends Component {
     private Method method;
 
     public HitboxComponent(Entity entity, Point offset, Point size, Method method) {
-        super(entity, HitboxComponent.class);
+        super(entity);
         this.offset = offset;
         this.size = size;
         this.method = method;
@@ -32,7 +32,7 @@ public class HitboxComponent extends Component {
     }
 
     public HitboxComponent(@DSLContextMember(name = "entity") Entity entity) {
-        super(entity, HitboxComponent.class);
+        super(entity);
         offset = new Point(0.25f, 0.25f);
         size = new Point(0.5f, 0.5f);
         try {

@@ -24,7 +24,7 @@ public class AnimationComponent extends Component {
      * @param idleRight Idleanimation faced right
      */
     public AnimationComponent(Entity entity, Animation idleLeft, Animation idleRight) {
-        super(entity, AnimationComponent.class);
+        super(entity);
         this.idleRight = idleRight;
         this.idleLeft = idleLeft;
         this.currentAnimation = idleLeft;
@@ -42,7 +42,7 @@ public class AnimationComponent extends Component {
      * @param entity associated entity
      */
     public AnimationComponent(@DSLContextMember(name = "entity") Entity entity) {
-        super(entity, AnimationComponent.class);
+        super(entity);
         this.idleLeft = new Animation(missingTexture, 100);
         this.idleRight = new Animation(missingTexture, 100);
         this.currentAnimation = new Animation(missingTexture, 100);

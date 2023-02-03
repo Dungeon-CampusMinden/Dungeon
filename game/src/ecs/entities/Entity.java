@@ -23,11 +23,10 @@ public class Entity {
     /**
      * Add a new component to this entity
      *
-     * @param klass Class of the component
      * @param component The component
      */
-    public void addComponent(Class klass, Component component) {
-        components.put(klass, component);
+    public void addComponent(Component component) {
+        components.put(component.getClass(), component);
     }
 
     /**

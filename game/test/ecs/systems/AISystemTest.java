@@ -21,7 +21,7 @@ public class AISystemTest {
         ECS.entities.clear();
         system = new AISystem();
         entity = new Entity();
-        entity.addComponent(AIComponent.class, aiComponent);
+        entity.addComponent(aiComponent);
     }
 
     @Test

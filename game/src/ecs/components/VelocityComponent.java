@@ -32,7 +32,7 @@ public class VelocityComponent extends Component {
             float yVelocity,
             Animation moveLeftAnimation,
             Animation moveRightAnimation) {
-        super(entity, VelocityComponent.class);
+        super(entity);
         this.currentXVelocity = 0;
         this.currentYVelocity = 0;
         this.xVelocity = xVelocity;
@@ -45,7 +45,7 @@ public class VelocityComponent extends Component {
      * @param entity associated entity
      */
     public VelocityComponent(@DSLContextMember(name = "entity") Entity entity) {
-        super(entity, VelocityComponent.class);
+        super(entity);
         this.currentXVelocity = 0;
         this.currentYVelocity = 0;
         this.xVelocity = 0;

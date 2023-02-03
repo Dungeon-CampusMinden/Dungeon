@@ -18,7 +18,7 @@ public class EntityTest {
     public void setup() {
         ECS.entities.clear();
         entity = new Entity();
-        entity.addComponent(testComponent.getClass(), testComponent);
+        entity.addComponent(testComponent);
     }
 
     @Test
@@ -34,7 +34,7 @@ public class EntityTest {
     @Test
     public void addAlreadyExistingComponent() {
         Component newComponent = Mockito.mock(Component.class);
-        entity.addComponent(testComponent.getClass(), newComponent);
+        entity.addComponent(newComponent);
         assertEquals(newComponent, entity.getComponent(testComponent.getClass()).get());
     }
 

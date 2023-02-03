@@ -27,9 +27,8 @@ public class DrawSystemTest {
         ECS.entities.clear();
         drawSystem = new DrawSystem(painter);
         entity = new Entity();
-        entity.addComponent(AnimationComponent.class, new AnimationComponent(entity, animation));
-        entity.addComponent(
-                PositionComponent.class, new PositionComponent(entity, new Point(3, 3)));
+        new AnimationComponent(entity, animation);
+        new PositionComponent(entity, new Point(3, 3));
     }
 
     @Test
