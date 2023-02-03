@@ -29,14 +29,14 @@ public class DrawSystem extends ECS_System {
     /** draw entities at their position */
     public void update() {
         for (Entity entity : ECS.entities) {
-            entity.getComponent(AnimationComponent.name)
+            entity.getComponent(AnimationComponent.class)
                     .ifPresent(
                             ac -> {
                                 final Animation animation =
                                         ((AnimationComponent) ac).getCurrentAnimation();
                                 PositionComponent positionComponent =
                                         (PositionComponent)
-                                                entity.getComponent(PositionComponent.name)
+                                                entity.getComponent(PositionComponent.class)
                                                         .orElseThrow(
                                                                 () ->
                                                                         new MissingComponentException(

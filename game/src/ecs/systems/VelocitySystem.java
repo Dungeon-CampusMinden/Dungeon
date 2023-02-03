@@ -16,12 +16,12 @@ public class VelocitySystem extends ECS_System {
     public void update() {
         for (Entity entity : ECS.entities) {
 
-            entity.getComponent(VelocityComponent.name)
+            entity.getComponent(VelocityComponent.class)
                     .ifPresent(
                             vc -> {
                                 final PositionComponent position =
                                         (PositionComponent)
-                                                entity.getComponent(PositionComponent.name)
+                                                entity.getComponent(PositionComponent.class)
                                                         .orElseThrow(
                                                                 () ->
                                                                         new MissingComponentException(
@@ -50,13 +50,13 @@ public class VelocitySystem extends ECS_System {
     private void movementAnimation(Entity entity) {
         AnimationComponent ac =
                 (AnimationComponent)
-                        entity.getComponent(AnimationComponent.name)
+                        entity.getComponent(AnimationComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("AnimationComponent"));
         Animation newCurrentAnimation;
         VelocityComponent vc =
                 (VelocityComponent)
-                        entity.getComponent(VelocityComponent.name)
+                        entity.getComponent(VelocityComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("VelocityComponent"));
         float x = vc.getCurrentXVelocity();

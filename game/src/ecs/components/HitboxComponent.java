@@ -10,13 +10,12 @@ import tools.Point;
 
 @DSLType(name = "hitbox_component")
 public class HitboxComponent extends Component {
-    public static final String name = "HitboxComponent";
     private /*@DSLTypeMember(name="offset")*/ Point offset;
     private /*@DSLTypeMember(name="size")*/ Point size;
     private Method method;
 
     public HitboxComponent(Entity entity, Point offset, Point size, Method method) {
-        super(entity, name);
+        super(entity, HitboxComponent.class);
         this.offset = offset;
         this.size = size;
         this.method = method;
@@ -33,7 +32,7 @@ public class HitboxComponent extends Component {
     }
 
     public HitboxComponent(@DSLContextMember(name = "entity") Entity entity) {
-        super(entity, name);
+        super(entity, HitboxComponent.class);
         offset = new Point(0.25f, 0.25f);
         size = new Point(0.5f, 0.5f);
         try {
@@ -56,7 +55,7 @@ public class HitboxComponent extends Component {
         PositionComponent pc =
                 (PositionComponent)
                         getEntity()
-                                .getComponent(PositionComponent.name)
+                                .getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         return new Point(pc.getPosition().x + offset.x, pc.getPosition().y + offset.y);
@@ -66,7 +65,7 @@ public class HitboxComponent extends Component {
         PositionComponent pc =
                 (PositionComponent)
                         getEntity()
-                                .getComponent(PositionComponent.name)
+                                .getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         return new Point(
@@ -77,7 +76,7 @@ public class HitboxComponent extends Component {
         PositionComponent pc =
                 (PositionComponent)
                         getEntity()
-                                .getComponent(PositionComponent.name)
+                                .getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         return new Point(

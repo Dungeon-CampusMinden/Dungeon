@@ -39,7 +39,7 @@ public class ECS extends Game {
         hero = new Hero(new Point(0, 0));
         heroPositionComponent =
                 (PositionComponent)
-                        hero.getComponent(PositionComponent.name)
+                        hero.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);

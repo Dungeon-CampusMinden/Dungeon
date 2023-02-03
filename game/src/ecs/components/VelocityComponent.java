@@ -11,7 +11,6 @@ import semanticAnalysis.types.DSLTypeMember;
 @DSLType(name = "velocity_component")
 public class VelocityComponent extends Component {
     private static List<String> missingTexture = List.of("animation/missingTexture.png");
-    public static String name = "VelocityComponent";
     private float currentXVelocity;
     private float currentYVelocity;
     private @DSLTypeMember(name = "x_velocity") float xVelocity;
@@ -33,7 +32,7 @@ public class VelocityComponent extends Component {
             float yVelocity,
             Animation moveLeftAnimation,
             Animation moveRightAnimation) {
-        super(entity, name);
+        super(entity, VelocityComponent.class);
         this.currentXVelocity = 0;
         this.currentYVelocity = 0;
         this.xVelocity = xVelocity;
@@ -46,7 +45,7 @@ public class VelocityComponent extends Component {
      * @param entity associated entity
      */
     public VelocityComponent(@DSLContextMember(name = "entity") Entity entity) {
-        super(entity, name);
+        super(entity, VelocityComponent.class);
         this.currentXVelocity = 0;
         this.currentYVelocity = 0;
         this.xVelocity = 0;

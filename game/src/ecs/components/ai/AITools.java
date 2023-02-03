@@ -32,12 +32,12 @@ public class AITools {
         }
         PositionComponent pc =
                 (PositionComponent)
-                        entity.getComponent(PositionComponent.name)
+                        entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         VelocityComponent vc =
                 (VelocityComponent)
-                        entity.getComponent(VelocityComponent.name)
+                        entity.getComponent(VelocityComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("VelocityComponent"));
         ILevel level = ECS.currentLevel;
@@ -142,7 +142,7 @@ public class AITools {
     public static GraphPath<Tile> calculatePathToRandomTileInRange(Entity entity, float radius) {
         Point point =
                 ((PositionComponent)
-                                entity.getComponent(PositionComponent.name)
+                                entity.getComponent(PositionComponent.class)
                                         .orElseThrow(
                                                 () ->
                                                         new MissingComponentException(
@@ -161,12 +161,12 @@ public class AITools {
     public static GraphPath<Tile> calculatePath(Entity from, Entity to) {
         PositionComponent fromPositionComponent =
                 (PositionComponent)
-                        from.getComponent(PositionComponent.name)
+                        from.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         PositionComponent positionComponent =
                 (PositionComponent)
-                        to.getComponent(PositionComponent.name)
+                        to.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         return calculatePath(fromPositionComponent.getPosition(), positionComponent.getPosition());
@@ -203,7 +203,7 @@ public class AITools {
 
         Point entity1Position =
                 ((PositionComponent)
-                                entity1.getComponent(PositionComponent.name)
+                                entity1.getComponent(PositionComponent.class)
                                         .orElseThrow(
                                                 () ->
                                                         new MissingComponentException(
@@ -211,7 +211,7 @@ public class AITools {
                         .getPosition();
         Point entity2Position =
                 ((PositionComponent)
-                                entity2.getComponent(PositionComponent.name)
+                                entity2.getComponent(PositionComponent.class)
                                         .orElseThrow(
                                                 () ->
                                                         new MissingComponentException(
@@ -240,7 +240,7 @@ public class AITools {
     public static boolean pathFinished(Entity entity, GraphPath<Tile> path) {
         PositionComponent pc =
                 (PositionComponent)
-                        entity.getComponent(PositionComponent.name)
+                        entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         ;

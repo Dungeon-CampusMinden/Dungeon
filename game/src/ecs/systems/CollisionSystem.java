@@ -12,13 +12,13 @@ public class CollisionSystem extends ECS_System {
     public void update() {
         for (Entity entity : ECS.entities) {
 
-            entity.getComponent(HitboxComponent.name)
+            entity.getComponent(HitboxComponent.class)
                     .ifPresent(
                             hitbox1 -> {
                                 for (Entity entity2 : ECS.entities) {
                                     if (entity != entity2) {
 
-                                        entity2.getComponent(HitboxComponent.name)
+                                        entity2.getComponent(HitboxComponent.class)
                                                 .ifPresent(
                                                         hitbox2 -> {
                                                             if (checkForCollision(

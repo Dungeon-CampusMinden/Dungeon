@@ -27,8 +27,9 @@ public class DrawSystemTest {
         ECS.entities.clear();
         drawSystem = new DrawSystem(painter);
         entity = new Entity();
-        entity.addComponent(AnimationComponent.name, new AnimationComponent(entity, animation));
-        entity.addComponent(PositionComponent.name, new PositionComponent(entity, new Point(3, 3)));
+        entity.addComponent(AnimationComponent.class, new AnimationComponent(entity, animation));
+        entity.addComponent(
+                PositionComponent.class, new PositionComponent(entity, new Point(3, 3)));
     }
 
     @Test
@@ -41,14 +42,14 @@ public class DrawSystemTest {
 
     @Test
     public void updateWithoutPositionComponent() {
-        entity.removeComponent(PositionComponent.name);
+        entity.removeComponent(PositionComponent.class);
         Mockito.verifyNoMoreInteractions(painter);
         assertThrows(MissingComponentException.class, () -> drawSystem.update());
     }
 
     @Test
     public void updateWithoutAnimationComponent() {
-        entity.removeComponent(AnimationComponent.name);
+        entity.removeComponent(AnimationComponent.class);
         Mockito.verifyNoMoreInteractions(painter);
         drawSystem.update();
     }

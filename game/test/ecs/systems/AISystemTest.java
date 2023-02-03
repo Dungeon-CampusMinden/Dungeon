@@ -21,7 +21,7 @@ public class AISystemTest {
         ECS.entities.clear();
         system = new AISystem();
         entity = new Entity();
-        entity.addComponent(AIComponent.name, aiComponent);
+        entity.addComponent(AIComponent.class, aiComponent);
     }
 
     @Test
@@ -32,7 +32,7 @@ public class AISystemTest {
 
     @Test
     public void updateWithoutAIComponent() {
-        entity.removeComponent(AIComponent.name);
+        entity.removeComponent(AIComponent.class);
         system.update();
         Mockito.verify(aiComponent, times(0)).execute();
     }

@@ -27,7 +27,7 @@ public class AIComponent extends Component {
      * @param transition Determines when to fight
      */
     public AIComponent(Entity entity, IFightAI fightAI, IIdleAI idleAI, ITransition transition) {
-        super(entity, name);
+        super(entity, AIComponent.class);
         this.fightAI = fightAI;
         this.idleAI = idleAI;
         this.transitionAI = transition;
@@ -37,7 +37,7 @@ public class AIComponent extends Component {
      * @param entity associated entity
      */
     public AIComponent(@DSLContextMember(name = "entity") Entity entity) {
-        super(entity, name);
+        super(entity, AIComponent.class);
         idleAI = new RadiusWalk(5, 2);
         transitionAI = new RangeTransition(5f);
         fightAI = new CollideAI(2f);

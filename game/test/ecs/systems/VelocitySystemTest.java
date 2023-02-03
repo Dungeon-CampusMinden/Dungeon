@@ -53,9 +53,9 @@ public class VelocitySystemTest {
                 new PositionComponent(entity, new Point(startXPosition, startYPosition));
         animationComponent = new AnimationComponent(entity, idleLeft, idleRight);
 
-        entity.addComponent(PositionComponent.name, positionComponent);
-        entity.addComponent(VelocityComponent.name, velocityComponent);
-        entity.addComponent(AnimationComponent.name, animationComponent);
+        entity.addComponent(PositionComponent.class, positionComponent);
+        entity.addComponent(VelocityComponent.class, velocityComponent);
+        entity.addComponent(AnimationComponent.class, animationComponent);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class VelocitySystemTest {
 
     @Test
     public void updateWithoutVelocityComponent() {
-        entity.removeComponent(VelocityComponent.name);
+        entity.removeComponent(VelocityComponent.class);
         velocitySystem.update();
         assertEquals(startXPosition, positionComponent.getPosition().x, 0.001f);
         assertEquals(startYPosition, positionComponent.getPosition().y, 0.001f);
@@ -142,14 +142,14 @@ public class VelocitySystemTest {
 
     @Test
     public void updateWithoutPositionComponent() {
-        entity.removeComponent(PositionComponent.name);
+        entity.removeComponent(PositionComponent.class);
         assertThrows(MissingComponentException.class, () -> velocitySystem.update());
     }
 
     @Test
     public void updateWithoutAnimationComponent() {
         Mockito.when(tile.isAccessible()).thenReturn(true);
-        entity.removeComponent(AnimationComponent.name);
+        entity.removeComponent(AnimationComponent.class);
         assertThrows(MissingComponentException.class, () -> velocitySystem.update());
     }
 }

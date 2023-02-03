@@ -16,11 +16,11 @@ public abstract class Component {
      * Create a new component and add it to the associated entity
      *
      * @param entity associated entity
-     * @param name Name of the Component
+     * @param klaas Class of the Component
      */
-    public Component(Entity entity, String name) {
+    public Component(Entity entity, Class klaas) {
         this.entity = entity;
-        entity.addComponent(name, this);
+        entity.addComponent(klaas, this);
     }
 
     /**

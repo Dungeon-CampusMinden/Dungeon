@@ -13,7 +13,7 @@ import semanticAnalysis.types.DSLType;
 public class Entity {
     private static int nextId = 0;
     public final int id = nextId++;
-    private HashMap<String, Component> components;
+    private HashMap<Class, Component> components;
 
     public Entity() {
         components = new HashMap<>();
@@ -23,24 +23,29 @@ public class Entity {
     /**
      * Add a new component to this entity
      *
-     * @param name Name of the component
+     * @param klass Class of the component
      * @param component The component
      */
-    public void addComponent(String name, Component component) {
-        components.put(name, component);
+    public void addComponent(Class klass, Component component) {
+        components.put(klass, component);
     }
 
-    public void removeComponent(String name) {
-        components.remove(name);
+    /**
+     * Remove a component from this entity
+     *
+     * @param klass Class of the component
+     */
+    public void removeComponent(Class klass) {
+        components.remove(klass);
     }
 
     /**
      * Get the component
      *
-     * @param name Name of the component
+     * @param klass Class of the component
      * @return Optional that can contain the requested component
      */
-    public Optional<Component> getComponent(String name) {
-        return Optional.ofNullable(components.get(name));
+    public Optional<Component> getComponent(Class klass) {
+        return Optional.ofNullable(components.get(klass));
     }
 }
