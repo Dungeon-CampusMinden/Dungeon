@@ -130,16 +130,12 @@ public class TypeBuilder {
      * @param adapterClass the adapter to register
      */
     public boolean registerTypeAdapter(Class<?> adapterClass, IScope parentScope) {
-        // TODO: create an AggregateType (or a DSLType in general) for the adapter
         for (var method : adapterClass.getDeclaredMethods()) {
             if (method.isAnnotationPresent(DSLTypeAdapter.class)
                     && Modifier.isStatic(method.getModifiers())) {
                 var annotation = method.getAnnotation(DSLTypeAdapter.class);
                 var forType = annotation.t();
                 if (this.typeAdapters.containsKey(forType)) {
-                    // only one type adapter per type allowed
-                    /*throw new RuntimeException(
-                    "There is already a registered type adapter for type " + forType);*/
                     return false;
                 }
                 this.typeAdapters.put(forType, method);
@@ -157,14 +153,32 @@ public class TypeBuilder {
     public IType createAdapterType(Class<?> forType, Method adapterMethod, IScope parentScope) {
         String dslTypeName = convertToDSLName(forType.getSimpleName());
         // get parameters, if only one: PODType, otherwise: AggregateType
+        if (adapterMethod.getParameterCount() == 0) {
+            // TODO: handle
+            throw new RuntimeException("Builder methods with zero arguments are currently not supported");
+        }
+
         if (adapterMethod.getParameterCount() == 1) {
             var paramType = adapterMethod.getParameterTypes()[0];
+            // TODO: how to handle non-builtIn types here?
             var paramDSLType = getDSLTypeForClass(paramType);
             return new AdaptedType(
                     dslTypeName, parentScope, forType, (BuiltInType) paramDSLType, adapterMethod);
         } else {
-            // TODO
-            return null;
+            var typeAdapter = new AggregateTypeAdapter(dslTypeName,parentScope, forType, adapterMethod);
+            // bind symbol for each parameter in the adapterMethod
+            for (var parameter : adapterMethod.getParameters()) {
+                String parameterName = getDSLName(parameter);
+                IType paramDSLType = getDSLTypeForClass(parameter.getType());
+                if (null == paramDSLType) {
+                    currentLookedUpClasses.add(forType);
+                    paramDSLType = createTypeFromClass(parentScope, forType);
+                    currentLookedUpClasses.remove(forType);
+                }
+                Symbol parameterSymbol = new Symbol(parameterName, typeAdapter, paramDSLType);
+                typeAdapter.bind(parameterSymbol);
+            }
+            return typeAdapter;
         }
     }
 
