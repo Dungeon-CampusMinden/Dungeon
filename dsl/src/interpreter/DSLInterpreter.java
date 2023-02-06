@@ -260,7 +260,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
         this.memoryStack.pop();
 
         return instance;
-
     }
 
     /**
@@ -408,7 +407,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         var type = this.symbolTable().getGlobalScope().resolve(node.getIdName());
         assert type instanceof AggregateType;
 
-        var value = (AggregateValue)instantiate((AggregateType) type);
+        var value = (AggregateValue) instantiate((AggregateType) type);
 
         // interpret the property definitions
         this.memoryStack.push(value.getMemorySpace());
