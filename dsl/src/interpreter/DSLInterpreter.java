@@ -247,6 +247,22 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return null;
     }
 
+    protected Value instantiate(AggregateType type) {
+        AggregateValue instance = new AggregateValue(type, currentMemorySpace());
+
+        IMemorySpace memorySpace = instance.getMemorySpace();
+        this.memoryStack.push(memorySpace);
+        for (var member : type.getSymbols()) {
+            // check, if type defines default for member
+            var defaultValue = createDefaultValue(member.getDataType());
+            memorySpace.bindValue(member.getName(), defaultValue);
+        }
+        this.memoryStack.pop();
+
+        return instance;
+
+    }
+
     /**
      * Instantiate a dsl prototype (which is an aggregate type with defaults) as a new Value
      *
