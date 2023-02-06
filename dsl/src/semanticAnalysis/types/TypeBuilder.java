@@ -4,6 +4,7 @@ import graph.Graph;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -108,6 +109,18 @@ public class TypeBuilder {
         return fieldAnnotation.name().equals("")
                 ? convertToDSLName(field.getName())
                 : fieldAnnotation.name();
+    }
+
+    /**
+     * @param parameter the parameter to get the DSL name for
+     * @return converted name (conversion by {@link #convertToDSLName(String)}) or the 'name'
+     *     parameter of {@link DSLTypeMember}
+     */
+    public static String getDSLName(Parameter parameter) {
+        var parameterAnnotation = parameter.getAnnotation(DSLTypeMember.class);
+        return parameterAnnotation.name().equals("")
+            ? convertToDSLName(parameter.getName())
+            : parameterAnnotation.name();
     }
 
     /**
