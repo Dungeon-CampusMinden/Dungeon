@@ -398,4 +398,62 @@ public class TestDSLInterpreter {
         ExternalType externalTypeMember = internalObject.getMemberExternalType();
         Assert.assertEquals("Hello, World!", externalTypeMember.member3);
     }
+
+    @Test
+    public void adaptedInstancingMultiParam() {
+        String program =
+                """
+        game_object my_obj {
+            test_component1 {
+                member1: 42,
+                member2: 12
+            },
+            test_component_with_external_type {
+                member_external_type: external_type { string: "Hello, World!", number: 42 }
+            }
+        }
+
+        quest_config config {
+            entity: my_obj
+        }
+        """;
+
+        // setup test type system
+        var env = new TestEnvironment();
+        var entityType = env.getTypeBuilder().createTypeFromClass(new Scope(), Entity.class);
+        var testCompType =
+                env.getTypeBuilder().createTypeFromClass(new Scope(), TestComponent1.class);
+
+        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
+        var externalComponentType =
+                env.getTypeBuilder()
+                        .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
+        var adapterType = env.getTypeBuilder().createTypeFromClass(Scope.NULL, ExternalType.class);
+        env.loadTypes(
+                List.of(
+                        new IType[] {
+                            entityType, testCompType, externalComponentType, adapterType
+                        }));
+
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+        symbolTableParser.setup(env);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        interpreter.initializeRuntime(env);
+
+        interpreter.generateQuestConfig(ast);
+
+        var globalMs = interpreter.getGlobalMemorySpace();
+        AggregateValue config = (AggregateValue) (globalMs.resolve("config"));
+        AggregateValue myObj = (AggregateValue) config.getMemorySpace().resolve("entity");
+        AggregateValue component =
+                (AggregateValue)
+                        myObj.getMemorySpace().resolve("test_component_with_external_type");
+        var internalObject = (TestComponentWithExternalType) component.getInternalObject();
+        ExternalType externalTypeMember = internalObject.getMemberExternalType();
+        Assert.assertEquals("Hello, World!", externalTypeMember.member3);
+        Assert.assertEquals(42, externalTypeMember.member1);
+    }
 }
