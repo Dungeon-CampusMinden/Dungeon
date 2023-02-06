@@ -111,7 +111,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             var propertyDefNode = (PropertyDefNode) propDef;
             var rhsValue = (Value) propertyDefNode.getStmtNode().accept(this);
 
-            Value value = (Value)rhsValue.clone();
+            Value value = (Value) rhsValue.clone();
 
             // indicate, that the value is "dirty", which means it was set
             // explicitly and needs to be set in the java object corresponding
