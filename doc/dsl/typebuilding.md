@@ -155,7 +155,16 @@ Falls diese Kriterien nicht erfüllt sind, kann der `TypeInstantiator` keine Ins
 
 # Typadaptierung
 
-Einige Komponenten des ECS (bspw. `AnimationComponent`) verwenden Datentypen für mit `@DSLTypeMember` markierte Member, die nicht direkt mit `@DSLType` markiert werden können. Dies kann unterschiedliche Gründe haben (bspw., dass der betroffene Datentyp in einem externen Projekt definiert ist), die allerdings für diese Dokumentation keine weitere Relevanz haben.
+Einige Komponenten des ECS (bspw. `AnimationComponent`) verwenden für ihre Member Datentypen, die außerhalb
+des `Dungeon`-Projekts definiert sind (im Folgenden "externe Datentypen"). Ein Beispiel hierfür ist die
+im `PM Dungeon` definierte `Animation`-Klasse, die für Member des `AnimationComponent` verwendet werden.
+
+Da die Definition eines externen Datentyps außerhalb des `Dungeon`-Projekts liegt, kann die
+entsprechende Klasse nicht mit der `DSLType`-Annotation markiert werden. Das hat zur Folge, dass der bisher
+beschriebene Mechanismus des Typebuildings nicht für externe Datentypen genutzt werden kann. Dies verhindert
+die direkte Abbildung dieser externen Datentypen im DSL Typsystem. Daraus folgt, dass ein Member einer mit
+`@DSLType` markierten Klasse, nicht ohne Weiteres über die DSL konfigurierbar ist, wenn er einen externen
+Datentyp verwendet.
 
 Ein Beispiel ist im folgenden Snippet zu sehen. Hier verwendet `member2` einen Datentyp aus einer externen Bibliothek.
 ```java
@@ -168,7 +177,8 @@ public class Component {
 }
 ```
 
-Um diese Member trotzdem über die DSL konfigurierbar zu machen, kann ihr Datentyp 'adaptiert' werden.
+Um diese Member, die einen externen Datentyp verwenden, trotzdem über die DSL konfigurierbar zu machen, kann
+ihr Datentyp 'adaptiert' werden.
 Hierzu kann eine statische Methode mit `@DSLTypeAdapter` markiert werden. Dabei muss über den `t`-Parameter
 definiert werden, welcher Java-Datentyp über die Methode adaptiert werden soll.
 
