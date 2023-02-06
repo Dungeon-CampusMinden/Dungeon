@@ -1,8 +1,9 @@
 package ecs.systems;
 
-import static org.mockito.Mockito.times;
+import static org.junit.Assert.assertEquals;
 
 import ecs.components.ai.AIComponent;
+import ecs.components.ai.transition.ITransition;
 import ecs.entities.Entity;
 import mydungeon.ECS;
 import org.junit.Before;
@@ -11,9 +12,9 @@ import org.mockito.Mockito;
 
 public class AISystemTest {
 
+    private int updateCounter;
     private AISystem system;
     private Entity entity;
-    private final AIComponent aiComponent = Mockito.mock(AIComponent.class);
 
     @Before
     public void setup() {
@@ -21,19 +22,28 @@ public class AISystemTest {
         ECS.entities.clear();
         system = new AISystem();
         entity = new Entity();
-        entity.addComponent(aiComponent);
+        AIComponent component = new AIComponent(entity);
+        component.setTransitionAI(
+                new ITransition() {
+                    @Override
+                    public boolean isInFightMode(Entity entity) {
+                        updateCounter++;
+                        return false;
+                    }
+                });
+        updateCounter = 0;
     }
 
     @Test
     public void update() {
         system.update();
-        Mockito.verify(aiComponent, times(1)).execute();
+        assertEquals(1, updateCounter);
     }
 
     @Test
     public void updateWithoutAIComponent() {
         entity.removeComponent(AIComponent.class);
         system.update();
-        Mockito.verify(aiComponent, times(0)).execute();
+        assertEquals(0, updateCounter);
     }
 }
