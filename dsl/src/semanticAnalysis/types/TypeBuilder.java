@@ -119,8 +119,8 @@ public class TypeBuilder {
     public static String getDSLName(Parameter parameter) {
         var parameterAnnotation = parameter.getAnnotation(DSLTypeMember.class);
         return parameterAnnotation.name().equals("")
-            ? convertToDSLName(parameter.getName())
-            : parameterAnnotation.name();
+                ? convertToDSLName(parameter.getName())
+                : parameterAnnotation.name();
     }
 
     /**
@@ -155,7 +155,8 @@ public class TypeBuilder {
         // get parameters, if only one: PODType, otherwise: AggregateType
         if (adapterMethod.getParameterCount() == 0) {
             // TODO: handle
-            throw new RuntimeException("Builder methods with zero arguments are currently not supported");
+            throw new RuntimeException(
+                    "Builder methods with zero arguments are currently not supported");
         }
 
         if (adapterMethod.getParameterCount() == 1) {
@@ -165,7 +166,8 @@ public class TypeBuilder {
             return new AdaptedType(
                     dslTypeName, parentScope, forType, (BuiltInType) paramDSLType, adapterMethod);
         } else {
-            var typeAdapter = new AggregateTypeAdapter(dslTypeName,parentScope, forType, adapterMethod);
+            var typeAdapter =
+                    new AggregateTypeAdapter(dslTypeName, parentScope, forType, adapterMethod);
             // bind symbol for each parameter in the adapterMethod
             for (var parameter : adapterMethod.getParameters()) {
                 String parameterName = getDSLName(parameter);

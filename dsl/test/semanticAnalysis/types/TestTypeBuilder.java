@@ -3,10 +3,9 @@ package semanticAnalysis.types;
 import static org.junit.Assert.*;
 
 import graph.Graph;
-import java.lang.reflect.InvocationTargetException;
-
 import interpreter.mockECS.ExternalType;
 import interpreter.mockECS.ExternalTypeBuilderMultiParam;
+import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
 import semanticAnalysis.Scope;
 import semanticAnalysis.Symbol;
@@ -139,15 +138,17 @@ public class TestTypeBuilder {
         var adapterType = tb.createTypeFromClass(Scope.NULL, ExternalType.class);
 
         assertNotNull(adapterType);
-        var symbols = ((AggregateTypeAdapter)adapterType).getSymbols();
+        var symbols = ((AggregateTypeAdapter) adapterType).getSymbols();
         assertEquals("number", symbols.get(0).getName());
         assertEquals(BuiltInType.intType, symbols.get(0).getDataType());
         assertEquals("string", symbols.get(1).getName());
         assertEquals(BuiltInType.stringType, symbols.get(1).getDataType());
 
         try {
-            var builderMethod = ((AggregateTypeAdapter)adapterType).builderMethod;
-            var expected = ExternalTypeBuilderMultiParam.class.getDeclaredMethod("buildExternalType", int.class, String.class);
+            var builderMethod = ((AggregateTypeAdapter) adapterType).builderMethod;
+            var expected =
+                    ExternalTypeBuilderMultiParam.class.getDeclaredMethod(
+                            "buildExternalType", int.class, String.class);
             assertEquals(expected, builderMethod);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
