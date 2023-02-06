@@ -7,12 +7,12 @@ import dslToGame.graph.Graph;
 import interpreter.mockecs.ExternalType;
 import interpreter.mockecs.ExternalTypeBuilderMultiParam;
 
-import java.lang.reflect.InvocationTargetException;
-
 import org.junit.Test;
 
 import semanticanalysis.Scope;
 import semanticanalysis.Symbol;
+
+import java.lang.reflect.InvocationTargetException;
 
 public class TestTypeBuilder {
     @Test
