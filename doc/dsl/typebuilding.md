@@ -240,6 +240,7 @@ public class Component {
 
 Um diese Member, die einen externen Datentyp verwenden, trotzdem über die DSL konfigurierbar zu machen, kann
 ihr Datentyp 'adaptiert' werden.
+
 Hierzu kann eine statische Methode mit `@DSLTypeAdapter` markiert werden. Dabei muss über den `t`-Parameter
 definiert werden, welcher Java-Datentyp über die Methode adaptiert werden soll.
 
