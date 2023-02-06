@@ -3,7 +3,7 @@ package parser.AST;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ComponentDefinitionNode extends Node {
+public class AggregateValueDefinitionNode extends Node {
 
     public final int idIdx = 0;
     public final int propertyDefinitionListIdx = 1;
@@ -44,8 +44,8 @@ public class ComponentDefinitionNode extends Node {
      * @param propertyDefinitionList node representing the property definition list of the component
      *     definition
      */
-    public ComponentDefinitionNode(Node idNode, Node propertyDefinitionList) {
-        super(Type.ComponentDefinition, new ArrayList<>(2));
+    public AggregateValueDefinitionNode(Node idNode, Node propertyDefinitionList) {
+        super(Type.AggregateValueDefinition, new ArrayList<>(2));
         this.children.add(idNode);
         this.children.add(propertyDefinitionList);
     }

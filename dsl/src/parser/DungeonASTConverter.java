@@ -105,7 +105,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         if (ctx.component_def_list() == null) {
             // trivial component definition list
             var innerComponentList = astStack.pop();
-            assert (innerComponentList.type == Node.Type.ComponentDefinition);
+            assert (innerComponentList.type == Node.Type.AggregateValueDefinition);
 
             var list = new ArrayList<Node>(1);
             list.add(innerComponentList);
@@ -118,7 +118,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             assert (rhsList.type == Node.Type.ComponentDefinitionList);
 
             var leftComponentDef = astStack.pop();
-            assert (leftComponentDef.type == Node.Type.ComponentDefinition);
+            assert (leftComponentDef.type == Node.Type.AggregateValueDefinition);
 
             var childList = new ArrayList<Node>(rhsList.getChildren().size() + 1);
             childList.add(leftComponentDef);
@@ -130,10 +130,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterComponent_def(DungeonDSLParser.Component_defContext ctx) {}
+    public void enterAggregate_value_def(DungeonDSLParser.Aggregate_value_defContext ctx) {}
 
     @Override
-    public void exitComponent_def(DungeonDSLParser.Component_defContext ctx) {
+    public void exitAggregate_value_def(DungeonDSLParser.Aggregate_value_defContext ctx) {
         // if we have a propertyDefList, it will be on the stack
         var propertyDefListNode = Node.NONE;
         if (ctx.property_def_list() != null) {
@@ -145,7 +145,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         var idNode = astStack.pop();
         assert idNode.type == Node.Type.Identifier;
 
-        var componentDefinitionNode = new ComponentDefinitionNode(idNode, propertyDefListNode);
+        var componentDefinitionNode = new AggregateValueDefinitionNode(idNode, propertyDefListNode);
         astStack.push(componentDefinitionNode);
     }
 

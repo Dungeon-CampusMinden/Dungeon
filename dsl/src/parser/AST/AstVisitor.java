@@ -141,7 +141,7 @@ public interface AstVisitor<T> {
      * @param node Node to visit
      * @return T
      */
-    default T visit(ComponentDefinitionNode node) {
+    default T visit(AggregateValueDefinitionNode node) {
         return null;
     }
 
