@@ -18,6 +18,7 @@ import runtime.*;
 
 import semanticanalysis.Scope;
 import semanticanalysis.SemanticAnalyzer;
+import semanticanalysis.Symbol;
 import semanticanalysis.types.*;
 
 import java.io.ByteArrayOutputStream;
@@ -228,7 +229,7 @@ public class TestDSLInterpreter {
 
             var questConfigType =
                     this.getTypeBuilder().createTypeFromClass(Scope.NULL, CustomQuestConfig.class);
-            loadTypes(new semanticAnalysis.types.IType[] {questConfigType});
+            loadTypes(new semanticanalysis.types.IType[] {questConfigType});
 
             for (Symbol func : nativeFunctions) {
                 globalScope.bind(func);
@@ -396,6 +397,11 @@ public class TestDSLInterpreter {
         var externalComponentType =
                 env.getTypeBuilder()
                         .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
+        var externalType = env.getTypeBuilder().createTypeFromClass(Scope.NULL, ExternalType.class);
+        env.loadTypes(
+                new semanticanalysis.types.IType[] {
+                    entityType, testCompType, externalComponentType, externalType
+                });
 
         var typesToLoad =
                 new semanticanalysis.types.IType[] {

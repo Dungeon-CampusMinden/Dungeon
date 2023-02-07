@@ -2,6 +2,7 @@ package semanticanalysis.types;
 
 import static semanticanalysis.types.TypeBuilder.convertToDSLName;
 
+import runtime.AggregateValue;
 import runtime.IMemorySpace;
 import runtime.Value;
 
