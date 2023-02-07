@@ -121,7 +121,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
             // promote value to property's datatype
             // TODO: typechecking must be performed before this
-            value.setDataType((IType)propertiesType);
+            value.setDataType((IType) propertiesType);
 
             // indicate, that the value is "dirty", which means it was set
             // explicitly and needs to be set in the java object corresponding
