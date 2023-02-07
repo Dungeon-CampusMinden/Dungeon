@@ -20,14 +20,9 @@ public class Hero extends Entity {
         super();
         new PositionComponent(this, startPosition);
         new PlayableComponent(this);
-        try {
-            Class[] cArg = new Class[2];
-            cArg[0] = HitboxComponent.class;
-            cArg[1] = Tile.Direction.class;
-            new HitboxComponent(this, Hero.class.getMethod("heroCollision", cArg));
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
+
+        new HitboxComponent(this, (a, b, c) -> System.out.println("heroCollision"));
+
         setupAnimationComponent();
     }
 

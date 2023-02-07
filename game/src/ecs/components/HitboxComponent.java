@@ -1,8 +1,8 @@
 package ecs.components;
 
+import ecs.components.collision.ICollide;
 import ecs.entities.Entity;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import level.elements.tile.Tile;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
@@ -12,43 +12,40 @@ import tools.Point;
 public class HitboxComponent extends Component {
     private /*@DSLTypeMember(name="offset")*/ Point offset;
     private /*@DSLTypeMember(name="size")*/ Point size;
-    private Method method;
+    private ICollide collideMethod;
 
-    public HitboxComponent(Entity entity, Point offset, Point size, Method method) {
+    public HitboxComponent(Entity entity, Point offset, Point size, ICollide collideMethod) {
         super(entity);
         this.offset = offset;
         this.size = size;
-        this.method = method;
+        this.collideMethod = collideMethod;
     }
 
     /**
      * Creates A Hitbox with a default offset of 0.25f x 0.25f and a default size of 0.5f x 0.5f
      *
      * @param entity
-     * @param method
+     * @param collideMethod
      */
-    public HitboxComponent(Entity entity, Method method) {
-        this(entity, new Point(0.25f, 0.25f), new Point(0.5f, 0.5f), method);
+    public HitboxComponent(Entity entity, ICollide collideMethod) {
+        this(entity, new Point(0.25f, 0.25f), new Point(0.5f, 0.5f), collideMethod);
     }
 
     public HitboxComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);
         offset = new Point(0.25f, 0.25f);
         size = new Point(0.5f, 0.5f);
-        try {
-            Class[] cArg = new Class[2];
-            cArg[0] = HitboxComponent.class;
-            cArg[1] = Tile.Direction.class;
-            method = HitboxComponent.class.getMethod("dummyHitboxMethod", cArg);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
-        ;
+
+        collideMethod = HitboxComponent.dummyHitboxMethod();
+    }
+
+    private static ICollide dummyHitboxMethod() {
+        return (a, b, c) -> System.out.println("Collide");
     }
 
     public void collide(HitboxComponent other, Tile.Direction direction)
             throws InvocationTargetException, IllegalAccessException {
-        method.invoke(this, other, direction);
+        collideMethod.onCollision(this.entity, other.entity, direction);
     }
 
     public Point getBottomLeft() {
@@ -84,7 +81,17 @@ public class HitboxComponent extends Component {
                 pc.getPosition().y + offset.y + size.y / 2);
     }
 
-    public static void dummyHitboxMethod(HitboxComponent other, Tile.Direction from) {
-        System.out.println("COLIDE");
+    /**
+     * @return the collideMethod of the associated entity
+     */
+    public ICollide getCollideMethod() {
+        return collideMethod;
+    }
+
+    /**
+     * @param collideMethod new collideMethod of the associated entity
+     */
+    public void setCollideMethod(ICollide collideMethod) {
+        this.collideMethod = collideMethod;
     }
 }
