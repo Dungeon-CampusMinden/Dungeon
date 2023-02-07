@@ -106,12 +106,22 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // datatype definition, because it is part of the definition
         // evaluate rhs and store the value in the member of
         // the prototype
-        Prototype componentPrototype = new Prototype((AggregateType) componentSymbol.getDataType());
+        AggregateType prototypesType = (AggregateType) componentSymbol.getDataType();
+        Prototype componentPrototype = new Prototype(prototypesType);
         for (var propDef : node.getPropertyDefinitionNodes()) {
             var propertyDefNode = (PropertyDefNode) propDef;
             var rhsValue = (Value) propertyDefNode.getStmtNode().accept(this);
 
+            // get type of lhs (the assignee)
+            var propName = propertyDefNode.getIdName();
+            var propertiesType = prototypesType.resolve(propName).getDataType();
+
+            // clone value
             Value value = (Value) rhsValue.clone();
+
+            // promote value to property's datatype
+            // TODO: typechecking must be performed before this
+            value.setDataType((IType)propertiesType);
 
             // indicate, that the value is "dirty", which means it was set
             // explicitly and needs to be set in the java object corresponding
