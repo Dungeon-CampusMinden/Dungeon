@@ -16,9 +16,13 @@ game_object my_object {
 }
 ```
 
-Diese Form der Entitätsdefinition erfordert eine Repräsentation der Komponententypen (welche als Java-Klassen / Java-Records im ECS definiert sind) im DSL Typsystem und eine Verbindung des DSL Typen mit der Java-Klasse, dessen DSL-Equivalent er ist.
+Diese Form der Entitätsdefinition erfordert eine Repräsentation der Komponententypen (welche als
+Java-Klassen / Java-Records im ECS definiert sind) im DSL Typsystem und eine Verbindung des
+DSL Typen mit der Java-Klasse, dessen DSL-Equivalent er ist.
+Das folgende Diagramm stellt dar, wie eine Java-Klasse auf der DSL-Seite als `AggregateType`
+dargestellt wird.
 
-TODO: Diagram, das zeigt, wie Java-Klasse und DSL-Datentyp zusammenhängen
+![java_to_dsl_type](./img/java_to_dsl_type.jpg)
 
 Um die DSL Typen, die auf diese Weise benötigt werden, nicht manuell implementieren zu müssen, übernimmt der `TypeBuiler` diese Aufgabe automatisch.
 Hierzu wird ein Annotation-basierter Ansatz verfolgt.
