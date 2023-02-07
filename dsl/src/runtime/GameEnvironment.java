@@ -23,11 +23,11 @@ import java.util.List;
 public class GameEnvironment implements IEvironment {
     // TODO: the type builder should also be part of some 'type factory' to
     //  avoid having only one builder for game Environments
-    protected static final TypeBuilder typeBuilder = new TypeBuilder();
+    protected final TypeBuilder typeBuilder;
 
     // TODO: also make HashMaps
-    protected static final ArrayList<IType> BUILT_IN_TYPES = buildBuiltInTypes();
-    protected static final ArrayList<Symbol> NATIVE_FUNCTIONS = buildNativeFunctions();
+    protected final ArrayList<IType> builtInTypes;
+    protected final ArrayList<Symbol> nativeFunctions;
 
     protected final HashMap<String, IType> loadedTypes = new HashMap<>();
     protected final HashMap<String, Symbol> loadedFunctions = new HashMap<>();
@@ -43,43 +43,48 @@ public class GameEnvironment implements IEvironment {
      * functions
      */
     public GameEnvironment() {
+        this.typeBuilder = new TypeBuilder();
         this.globalScope = new Scope();
         this.symbolTable = new SymbolTable(this.globalScope);
+
+        // create built in types and native functions
+        this.builtInTypes = buildBuiltInTypes();
+        this.nativeFunctions = buildNativeFunctions();
 
         bindBuiltIns();
         registerDefaultTypeAdapters();
     }
 
-    protected static void registerDefaultTypeAdapters() {
+    protected void registerDefaultTypeAdapters() {
         /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
          * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
         // typeBuilder.registerTypeAdapter(AnimationBuilder.class, Scope.NULL);
     }
 
     protected void bindBuiltIns() {
-        for (IType type : BUILT_IN_TYPES) {
+        for (IType type : builtInTypes) {
             globalScope.bind((Symbol) type);
         }
 
-        for (Symbol func : NATIVE_FUNCTIONS) {
+        for (Symbol func : nativeFunctions) {
             globalScope.bind(func);
         }
     }
 
     @Override
     public IType[] getTypes() {
-        var typesArray = new IType[BUILT_IN_TYPES.size() + loadedTypes.size()];
+        var typesArray = new IType[builtInTypes.size() + loadedTypes.size()];
         var combinedList = new ArrayList<IType>();
-        combinedList.addAll(BUILT_IN_TYPES);
+        combinedList.addAll(builtInTypes);
         combinedList.addAll(loadedTypes.values());
         return combinedList.toArray(typesArray);
     }
 
     @Override
     public Symbol[] getFunctions() {
-        var funcArray = new Symbol[NATIVE_FUNCTIONS.size() + loadedFunctions.size()];
+        var funcArray = new Symbol[nativeFunctions.size() + loadedFunctions.size()];
         var combinedList = new ArrayList<Symbol>();
-        combinedList.addAll(NATIVE_FUNCTIONS);
+        combinedList.addAll(nativeFunctions);
         combinedList.addAll(loadedFunctions.values());
         return combinedList.toArray(funcArray);
     }
@@ -122,7 +127,7 @@ public class GameEnvironment implements IEvironment {
         return this.globalScope;
     }
 
-    private static ArrayList<IType> buildBuiltInTypes() {
+    private ArrayList<IType> buildBuiltInTypes() {
         ArrayList<IType> types = new ArrayList<>();
 
         types.add(BuiltInType.noType);
