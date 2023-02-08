@@ -260,11 +260,20 @@ game_object my_obj {
 
 # Implementierung
 
-Der grobe Ablauf des Typebuildings, welches vom GameEnvironment für alle standardmäßig verfügbaren Datentypen ausgeführt wird, ist im folgenden Sequenzdiagramm abgebildet.
+Der grobe Ablauf des Typebuildings, welches vom GameEnvironment für alle
+standardmäßig verfügbaren Datentypen ausgeführt wird, ist im folgenden
+Sequenzdiagramm abgebildet.
 
-![typebuilding](./img/typebuilding.png)
+![UML: Ablauf Typebuilding](./img/typebuilding.png)
 
+Der Ablauf der Typadaptierung unterscheidet sich abhängig von der Menge der benötigten Parameter
+(analog zu der Beschreibung in [Typadaptierung](#typadaptierung)).
+
+Der Ablauf für den Fall, dass nur ein Parameter zur Instanziierung nötig ist, kann dem folgenden
+Sequenzdiagramm entnommen werden
+
+![UML: Ablauf einfache Typadaptierung](./img/typeadapting.png)
 
 TODO:
-- Sequenzdiagramm für Typadaptierung
+- Sequenzdiagramm für Typadaptierung (mehr als ein Parameter)
 
