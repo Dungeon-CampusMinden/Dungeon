@@ -235,7 +235,7 @@ public class AITools {
      *
      * @param entity Entity
      * @param path Path
-     * @return if the entity is on the end of the path or has leaved the path
+     * @return true, if the entity is on the end of the path or has left the path
      */
     public static boolean pathFinishedOrLeaved(Entity entity, GraphPath<Tile> path) {
         PositionComponent pc =
