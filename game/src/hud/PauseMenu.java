@@ -1,9 +1,13 @@
 package hud;
 
 import basiselements.Removable;
+import basiselements.hud.FontBuilder;
+import basiselements.hud.LabelStyleBuilder;
 import basiselements.hud.ScreenText;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.utils.Align;
 import controller.ScreenController;
 import tools.Constants;
 import tools.Point;
@@ -18,12 +22,20 @@ public class PauseMenu<T extends Actor & Removable> extends ScreenController<T> 
     /** Creates a new PauseMenu with a given Spritebatch */
     public PauseMenu(SpriteBatch batch) {
         super(batch);
-        add(
-                (T)
-                        new ScreenText(
-                                "Paused",
-                                new Point(Constants.WINDOW_WIDTH / 2, Constants.WINDOW_HEIGHT / 2),
-                                1));
+        ScreenText screenText =
+                new ScreenText(
+                        "Paused",
+                        new Point(0, 0),
+                        3,
+                        new LabelStyleBuilder(FontBuilder.DEFAULT_FONT)
+                                .setFontcolor(Color.RED)
+                                .build());
+        screenText.setFontScale(3);
+        screenText.setPosition(
+                (Constants.WINDOW_WIDTH) / 2f - screenText.getWidth(),
+                (Constants.WINDOW_HEIGHT) / 1.5f + screenText.getHeight(),
+                Align.center | Align.bottom);
+        add((T) screenText);
         hideMenu();
     }
 
