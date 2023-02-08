@@ -61,7 +61,7 @@ fontsize=18</panel_attributes>
       <w>260</w>
       <h>50</h>
     </coordinates>
-    <panel_attributes>some_component: AggregateType
+    <panel_attributes>_some_component: AggregateType_
 --
 </panel_attributes>
     <additional_attributes/>
@@ -74,7 +74,7 @@ fontsize=18</panel_attributes>
       <w>150</w>
       <h>70</h>
     </coordinates>
-    <panel_attributes>member1: Symbol
+    <panel_attributes>_member1: Symbol_
 --
 dataType = 
 BuiltInType.int</panel_attributes>
@@ -88,7 +88,7 @@ BuiltInType.int</panel_attributes>
       <w>140</w>
       <h>70</h>
     </coordinates>
-    <panel_attributes>member2: Symbol
+    <panel_attributes>_member2: Symbol_
 --
 dataType = 
 BuiltInType.float</panel_attributes>
@@ -102,7 +102,7 @@ BuiltInType.float</panel_attributes>
       <w>140</w>
       <h>70</h>
     </coordinates>
-    <panel_attributes>member3: Symbol
+    <panel_attributes>_member3: Symbol_
 --
 dataType = 
 BuiltInType.string</panel_attributes>
