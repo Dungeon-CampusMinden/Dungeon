@@ -22,7 +22,7 @@ DSL Typen mit der Java-Klasse, dessen DSL-Equivalent er ist.
 Das folgende Diagramm stellt dar, wie eine Java-Klasse auf der DSL-Seite als `AggregateType`
 dargestellt wird.
 
-![java_to_dsl_type](./img/java_to_dsl_type.jpg)
+![UML: Java-Klasse und DSL-Datentyp](img/java_to_dsl_type.jpg)
 
 Um die DSL Typen, die auf diese Weise benötigt werden, nicht manuell implementieren zu müssen, übernimmt der `TypeBuiler` diese Aufgabe automatisch.
 Hierzu wird ein Annotation-basierter Ansatz verfolgt.
