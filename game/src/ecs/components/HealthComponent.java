@@ -1,6 +1,7 @@
 package ecs.components;
 
 import ecs.damage.Damage;
+import ecs.damage.DamageType;
 import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.ArrayList;
@@ -80,6 +81,19 @@ public class HealthComponent extends Component {
      */
     public List<Damage> getDamageList() {
         return damageToGet;
+    }
+
+    /**
+     * Calculate the amount of damage of a certain type
+     *
+     * @param dt Type of damage object that still need to be accounted for
+     * @return Sum of all damage objects of type dt (default: 0)
+     */
+    public int getDamage(DamageType dt) {
+        return damageToGet.stream()
+            .filter(d -> d.damageType() == dt)
+            .mapToInt(Damage::damageAmmount)
+            .sum();
     }
 
     /** Clear the damage list */
