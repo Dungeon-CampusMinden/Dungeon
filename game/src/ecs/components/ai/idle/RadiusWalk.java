@@ -26,7 +26,7 @@ public class RadiusWalk implements IIdleAI {
 
     @Override
     public void idle(Entity entity) {
-        if (path == null || AITools.pathFinishedOrLeaved(entity, path)) {
+        if (path == null || AITools.pathFinishedOrLeft(entity, path)) {
             if (currentBreak >= breakTime) {
                 currentBreak = 0;
                 path = AITools.calculatePathToRandomTileInRange(entity, radius);
