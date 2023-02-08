@@ -9,8 +9,8 @@ import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
 
-@DSLType(name = "health_component")
 /** The HealthComponent makes an entity vulnerable and killable */
+@DSLType(name = "health_component")
 public class HealthComponent extends Component {
     public static String name = "HealthComponent";
     private static List<String> missingTexture = List.of("animation/missingTexture.png");
@@ -56,11 +56,7 @@ public class HealthComponent extends Component {
         super(entity, name);
         this.maximalHitPoints = 1;
         this.currentHitPoints = 1;
-        this.onDeath =
-                new IOnDeathFunction() {
-                    @Override
-                    public void onDeath(Entity entity) {}
-                };
+        this.onDeath = entity2 -> {};
         this.getHitAnimation = new Animation(missingTexture, 100);
         this.dieAnimation = new Animation(missingTexture, 100);
         damageToGet = new ArrayList<>();
@@ -85,6 +81,11 @@ public class HealthComponent extends Component {
      */
     public List<Damage> getDamageList() {
         return damageToGet;
+    }
+
+    /** Clear the damage list */
+    public void clearDamageList() {
+        damageToGet.clear();
     }
 
     /**

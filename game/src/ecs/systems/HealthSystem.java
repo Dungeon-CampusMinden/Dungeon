@@ -33,27 +33,35 @@ public class HealthSystem extends ECS_System {
 
                                     // is the entity dead?
                                     if (hpComponent.getCurrentHitPoints() <= 0) {
+                                        // Entity appears to be dead, so let's clean up the mess
                                         hpComponent.triggerOnDeath();
                                         ac.setCurrentAnimation(hpComponent.getDieAnimation());
-                                        // todo: After animation is finished
+                                        /*
+                                        todo: Before removing the entity, check if the animation is finished
+                                        Issue #246
+                                        */
                                         ECS.entitiesToRemove.add(entity);
                                     } else {
-                                        // make damage
+                                        // Entity is (still) alive - apply damage
                                         List<Damage> damageToGet = hpComponent.getDamageList();
                                         int dmgAmmount = 0;
                                         for (Damage dmg : damageToGet) {
-                                            // place to increase or decrease dmg based on skills,
-                                            // items
-                                            dmgAmmount += dmg.damageAmmount();
+                                            // todo: after we implemented Items like Armor: reduce
+                                            // (or increase) the damage based on the stats and the
+                                            // damage type
+                                            switch (dmg.damageType()) {
+                                                case PHYSICAL -> dmgAmmount += dmg.damageAmmount();
+                                                case MAGIC -> dmgAmmount += dmg.damageAmmount();
+                                                case FIRE -> dmgAmmount += dmg.damageAmmount();
+                                            }
                                         }
                                         // if damage was caused, play getHitAnimation
                                         if (dmgAmmount > 0) {
                                             ac.setCurrentAnimation(
                                                     hpComponent.getGetHitAnimation());
                                         }
-                                        // clear list
-                                        damageToGet.clear();
-                                        // set hit points
+
+                                        hpComponent.clearDamageList();
                                         hpComponent.setCurrentHitPoints(
                                                 hpComponent.getCurrentHitPoints() - dmgAmmount);
                                     }
