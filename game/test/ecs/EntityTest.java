@@ -13,13 +13,12 @@ public class EntityTest {
 
     private Entity entity;
     private final Component testComponent = Mockito.mock(Component.class);
-    private final String componentName = "TestComponent";
 
     @Before
     public void setup() {
         ECS.entities.clear();
         entity = new Entity();
-        entity.addComponent(componentName, testComponent);
+        entity.addComponent(testComponent);
     }
 
     @Test
@@ -29,19 +28,19 @@ public class EntityTest {
 
     @Test
     public void addComponent() {
-        assertEquals(testComponent, entity.getComponent(componentName).get());
+        assertEquals(testComponent, entity.getComponent(testComponent.getClass()).get());
     }
 
     @Test
     public void addAlreadyExistingComponent() {
         Component newComponent = Mockito.mock(Component.class);
-        entity.addComponent(componentName, newComponent);
-        assertEquals(newComponent, entity.getComponent(componentName).get());
+        entity.addComponent(newComponent);
+        assertEquals(newComponent, entity.getComponent(testComponent.getClass()).get());
     }
 
     @Test
     public void removeComponent() {
-        entity.removeComponent(componentName);
-        assertTrue(entity.getComponent(componentName).isEmpty());
+        entity.removeComponent(testComponent.getClass());
+        assertTrue(entity.getComponent(testComponent.getClass()).isEmpty());
     }
 }

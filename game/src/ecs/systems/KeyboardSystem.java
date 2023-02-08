@@ -14,12 +14,12 @@ public class KeyboardSystem extends ECS_System {
     @Override
     public void update() {
         for (Entity entity : ECS.entities) {
-            entity.getComponent(PlayableComponent.name)
+            entity.getComponent(PlayableComponent.class)
                     .ifPresent(
                             pc -> {
                                 final VelocityComponent velocity =
                                         (VelocityComponent)
-                                                entity.getComponent(VelocityComponent.name)
+                                                entity.getComponent(VelocityComponent.class)
                                                         .orElseThrow(
                                                                 () ->
                                                                         new MissingComponentException(

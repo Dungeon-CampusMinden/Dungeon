@@ -14,7 +14,6 @@ import semanticAnalysis.types.DSLTypeMember;
 @DSLType(name = "animation_component")
 public class AnimationComponent extends Component {
     private static List<String> missingTexture = List.of("animation/missingTexture.png");
-    public static String name = "AnimationComponent";
     private @DSLTypeMember(name = "idle_left") Animation idleLeft;
     private @DSLTypeMember(name = "idle_right") Animation idleRight;
     private @DSLTypeMember(name = "current_animation") Animation currentAnimation;
@@ -25,7 +24,7 @@ public class AnimationComponent extends Component {
      * @param idleRight Idleanimation faced right
      */
     public AnimationComponent(Entity entity, Animation idleLeft, Animation idleRight) {
-        super(entity, name);
+        super(entity);
         this.idleRight = idleRight;
         this.idleLeft = idleLeft;
         this.currentAnimation = idleLeft;
@@ -43,7 +42,7 @@ public class AnimationComponent extends Component {
      * @param entity associated entity
      */
     public AnimationComponent(@DSLContextMember(name = "entity") Entity entity) {
-        super(entity, name);
+        super(entity);
         this.idleLeft = new Animation(missingTexture, 100);
         this.idleRight = new Animation(missingTexture, 100);
         this.currentAnimation = new Animation(missingTexture, 100);
