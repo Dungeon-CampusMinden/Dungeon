@@ -27,7 +27,7 @@ public class AITools {
      */
     public static void move(Entity entity, GraphPath<Tile> path) {
         // entity is already at the end
-        if (pathFinished(entity, path)) {
+        if (pathFinishedOrLeft(entity, path)) {
             return;
         }
         PositionComponent pc =
@@ -235,17 +235,25 @@ public class AITools {
      *
      * @param entity Entity
      * @param path Path
-     * @return if the entity is on the end of the path
+     * @return true, if the entity is on the end of the path or has left the path
      */
-    public static boolean pathFinished(Entity entity, GraphPath<Tile> path) {
+    public static boolean pathFinishedOrLeft(Entity entity, GraphPath<Tile> path) {
         PositionComponent pc =
                 (PositionComponent)
                         entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        ;
         ILevel level = ECS.currentLevel;
-        return path.get(path.getCount() - 1)
-                .equals(level.getTileAt(pc.getPosition().toCoordinate()));
+        boolean finished =
+                path.get(path.getCount() - 1)
+                        .equals(level.getTileAt(pc.getPosition().toCoordinate()));
+
+        boolean onPath = false;
+        Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
+        for (Tile tile : path) {
+            if (currentTile == tile) onPath = true;
+        }
+
+        return !onPath || finished;
     }
 }
