@@ -16,18 +16,17 @@ public class HealthSystem extends ECS_System {
     @Override
     public void update() {
         for (Entity entity : ECS.entities) {
-            entity.getComponent(HealthComponent.name)
+            entity.getComponent(HealthComponent.class)
                     .ifPresent(
                             healthComponent -> {
                                 {
                                     final AnimationComponent animationComponent =
                                             (AnimationComponent)
-                                                    entity.getComponent(AnimationComponent.name)
+                                                    entity.getComponent(AnimationComponent.class)
                                                             .orElseThrow(
                                                                     () ->
                                                                             new MissingComponentException(
-                                                                                    AnimationComponent
-                                                                                            .name));
+                                                                                    "AnimationComponent"));
 
                                     HealthComponent hpComponent = (HealthComponent) healthComponent;
 
