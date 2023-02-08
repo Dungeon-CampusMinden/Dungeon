@@ -18,9 +18,9 @@ public class HealthSystem extends ECS_System {
         for (Entity entity : ECS.entities) {
             entity.getComponent(HealthComponent.name)
                     .ifPresent(
-                            component -> {
+                            healthComponent -> {
                                 {
-                                    final AnimationComponent ac =
+                                    final AnimationComponent animationComponent =
                                             (AnimationComponent)
                                                     entity.getComponent(AnimationComponent.name)
                                                             .orElseThrow(
@@ -29,44 +29,49 @@ public class HealthSystem extends ECS_System {
                                                                                     AnimationComponent
                                                                                             .name));
 
-                                    HealthComponent hpComponent = (HealthComponent) component;
+                                    HealthComponent hpComponent = (HealthComponent) healthComponent;
 
                                     // is the entity dead?
-                                    if (hpComponent.getCurrentHitPoints() <= 0) {
-                                        // Entity appears to be dead, so let's clean up the mess
-                                        hpComponent.triggerOnDeath();
-                                        ac.setCurrentAnimation(hpComponent.getDieAnimation());
-                                        /*
-                                        todo: Before removing the entity, check if the animation is finished
-                                        Issue #246
-                                        */
-                                        ECS.entitiesToRemove.add(entity);
-                                    } else {
-                                        // Entity is (still) alive - apply damage
-                                        List<Damage> damageToGet = hpComponent.getDamageList();
-                                        int dmgAmmount = 0;
-                                        for (Damage dmg : damageToGet) {
-                                            // todo: after we implemented Items like Armor: reduce
-                                            // (or increase) the damage based on the stats and the
-                                            // damage type
-                                            switch (dmg.damageType()) {
-                                                case PHYSICAL -> dmgAmmount += dmg.damageAmmount();
-                                                case MAGIC -> dmgAmmount += dmg.damageAmmount();
-                                                case FIRE -> dmgAmmount += dmg.damageAmmount();
-                                            }
-                                        }
-                                        // if damage was caused, play getHitAnimation
-                                        if (dmgAmmount > 0) {
-                                            ac.setCurrentAnimation(
-                                                    hpComponent.getGetHitAnimation());
-                                        }
-
-                                        hpComponent.clearDamageList();
-                                        hpComponent.setCurrentHitPoints(
-                                                hpComponent.getCurrentHitPoints() - dmgAmmount);
-                                    }
+                                    if (hpComponent.getCurrentHitPoints() <= 0)
+                                        letEntityDie(animationComponent, hpComponent);
+                                    else hitEntity(animationComponent, hpComponent);
                                 }
                             });
         }
+    }
+
+    private void hitEntity(AnimationComponent animationComponent, HealthComponent healthComponent) {
+        // Entity is (still) alive - apply damage
+        List<Damage> damageToGet = healthComponent.getDamageList();
+        int dmgAmmount = 0;
+        for (Damage dmg : damageToGet) {
+            // todo: after we implemented Items like Armor: reduce
+            // (or increase) the damage based on the stats and the
+            // damage type
+            switch (dmg.damageType()) {
+                case PHYSICAL -> dmgAmmount += dmg.damageAmmount();
+                case MAGIC -> dmgAmmount += dmg.damageAmmount();
+                case FIRE -> dmgAmmount += dmg.damageAmmount();
+            }
+        }
+        // if damage was caused, play getHitAnimation
+        if (dmgAmmount > 0) {
+            animationComponent.setCurrentAnimation(healthComponent.getGetHitAnimation());
+        }
+
+        healthComponent.clearDamageList();
+        healthComponent.setCurrentHitPoints(healthComponent.getCurrentHitPoints() - dmgAmmount);
+    }
+
+    private void letEntityDie(
+            AnimationComponent animationComponent, HealthComponent healthComponent) {
+        // Entity appears to be dead, so let's clean up the mess
+        healthComponent.triggerOnDeath();
+        animationComponent.setCurrentAnimation(healthComponent.getDieAnimation());
+        /*
+        todo: Before removing the entity, check if the animation is finished
+        Issue #246
+        */
+        ECS.entitiesToRemove.add(healthComponent.getEntity());
     }
 }
