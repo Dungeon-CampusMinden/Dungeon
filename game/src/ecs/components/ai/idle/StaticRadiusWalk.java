@@ -21,7 +21,7 @@ public class StaticRadiusWalk implements IIdleAI {
 
     /**
      * Finds a point in the radius and then moves there. When the point has been reached, a new
-     * point in the radius is searched for from there.
+     * point in the radius is searched for from the center.
      *
      * @param radius Radius in which a target point is to be searched for
      * @param breakTimeInSeconds how long to wait (in seconds) before searching a new goal
