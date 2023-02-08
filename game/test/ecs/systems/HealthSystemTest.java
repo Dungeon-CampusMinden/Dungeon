@@ -17,7 +17,7 @@ import org.mockito.Mockito;
 public class HealthSystemTest {
 
     @Test
-    public void updateEntiteDies() {
+    public void updateEntityDies() {
         ECS.entities.clear();
         ECS.systems = new SystemController();
         Entity entity = new Entity();
@@ -33,7 +33,7 @@ public class HealthSystemTest {
     }
 
     @Test
-    public void updateEntiteGetDamage() {
+    public void updateEntityGetDamage() {
         ECS.entities.clear();
         ECS.systems = new SystemController();
         Entity entity = new Entity();
@@ -50,7 +50,7 @@ public class HealthSystemTest {
     }
 
     @Test
-    public void updateEntiteGetNegativeDamage() {
+    public void updateEntityGetNegativeDamage() {
         ECS.entities.clear();
         ECS.systems = new SystemController();
         Entity entity = new Entity();
@@ -67,7 +67,7 @@ public class HealthSystemTest {
     }
 
     @Test
-    public void updateEntiteGetZeroDamage() {
+    public void updateEntityGetZeroDamage() {
         ECS.entities.clear();
         ECS.systems = new SystemController();
         Entity entity = new Entity();

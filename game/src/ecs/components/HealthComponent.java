@@ -12,7 +12,6 @@ import semanticAnalysis.types.DSLTypeMember;
 /** The HealthComponent makes an entity vulnerable and killable */
 @DSLType(name = "health_component")
 public class HealthComponent extends Component {
-    public static String name = "HealthComponent";
     private static List<String> missingTexture = List.of("animation/missingTexture.png");
 
     private List<Damage> damageToGet;
@@ -38,7 +37,7 @@ public class HealthComponent extends Component {
             IOnDeathFunction onDeath,
             Animation getHitAnimation,
             Animation dieAnimation) {
-        super(entity, name);
+        super(entity);
         this.maximalHitPoints = maximalHitPoints;
         this.currentHitPoints = maximalHitPoints;
         this.onDeath = onDeath;
@@ -53,7 +52,7 @@ public class HealthComponent extends Component {
      * @param entity associated entity
      */
     public HealthComponent(@DSLContextMember(name = "entity") Entity entity) {
-        super(entity, name);
+        super(entity);
         this.maximalHitPoints = 1;
         this.currentHitPoints = 1;
         this.onDeath = entity2 -> {};
