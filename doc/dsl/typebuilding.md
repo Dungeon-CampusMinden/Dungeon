@@ -16,9 +16,13 @@ game_object my_object {
 }
 ```
 
-Diese Form der Entitätsdefinition erfordert eine Repräsentation der Komponententypen (welche als Java-Klassen / Java-Records im ECS definiert sind) im DSL Typsystem und eine Verbindung des DSL Typen mit der Java-Klasse, dessen DSL-Equivalent er ist.
+Diese Form der Entitätsdefinition erfordert eine Repräsentation der Komponententypen (welche als
+Java-Klassen im ECS definiert sind) im DSL Typsystem und eine Verbindung des
+DSL Typen mit der Java-Klasse, dessen DSL-Equivalent er ist.
+Das folgende Diagramm stellt dar, wie eine Java-Klasse auf der DSL-Seite als `AggregateType`
+dargestellt wird.
 
-TODO: Diagram, das zeigt, wie Java-Klasse und DSL-Datentyp zusammenhängen
+![UML: Java-Klasse und DSL-Datentyp](./img/java_to_dsl_type.png)
 
 Um die DSL Typen, die auf diese Weise benötigt werden, nicht manuell implementieren zu müssen, übernimmt der `TypeBuiler` diese Aufgabe automatisch.
 Hierzu wird ein Annotation-basierter Ansatz verfolgt.
@@ -26,8 +30,8 @@ Hierzu wird ein Annotation-basierter Ansatz verfolgt.
 # Beispiel(e) aus User-Sicht
 
 Die wesentlichen Annotationen sind:
-- `DSLType`: Markierung für die Java-Klasse / den Java-Record, für den ein DSL Typ erzeugt werden soll
-- `DSLTypeMember`: Markierung für die Member der Java-Klasse / des Java-Records, welche in dem DSL Typ enthalten sein sollen
+- `DSLType`: Markierung für die Java-Klasse, für die ein DSL Typ erzeugt werden soll
+- `DSLTypeMember`: Markierung für die Member der Java-Klasse, welche in dem DSL Typ enthalten sein sollen
 
 Eine Java-Klasse, für die ein DSL Typ generiert werden soll, könnte so aussehen:
 
@@ -134,7 +138,7 @@ Weitere Annotationen mit speziellerem Anwendungsfall:
 
 ## Einschränkungen
 
-Mit dem oben beschriebenen Mechanismus können DSL Datentypen aus Java-Klassen und Java-Records erstellt werden. Für beide Anwendungsfälle sind folgende Einschränkungen zu beachten:
+Mit dem oben beschriebenen Mechanismus können DSL Datentypen aus Java-Klassen erstellt werden. Für beide Anwendungsfälle sind folgende Einschränkungen zu beachten:
 
 ### Einschränkungen Java-Klasse
 
@@ -258,7 +262,7 @@ game_object my_obj {
 
 Der grobe Ablauf des Typebuildings, welches vom GameEnvironment für alle standardmäßig verfügbaren Datentypen ausgeführt wird, ist im folgenden Sequenzdiagramm abgebildet.
 
-![typebuilding](./img/typebuilding.jpg)
+![typebuilding](./img/typebuilding.png)
 
 
 TODO:
