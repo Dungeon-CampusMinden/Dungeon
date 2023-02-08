@@ -27,7 +27,7 @@ public class AITools {
      */
     public static void move(Entity entity, GraphPath<Tile> path) {
         // entity is already at the end
-        if (pathFinished(entity, path)) {
+        if (pathFinishedOrLeaved(entity, path)) {
             return;
         }
         PositionComponent pc =
@@ -237,7 +237,7 @@ public class AITools {
      * @param path Path
      * @return if the entity is on the end of the path or has leaved the path
      */
-    public static boolean pathFinished(Entity entity, GraphPath<Tile> path) {
+    public static boolean pathFinishedOrLeaved(Entity entity, GraphPath<Tile> path) {
         PositionComponent pc =
                 (PositionComponent)
                         entity.getComponent(PositionComponent.class)
