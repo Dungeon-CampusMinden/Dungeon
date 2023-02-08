@@ -40,9 +40,9 @@ public class VelocitySystem extends ECS_System {
                                         .isAccessible()) {
                                     position.setPosition(newPosition);
                                     movementAnimation(entity);
-                                    ((VelocityComponent) vc).setCurrentYVelocity(0);
-                                    ((VelocityComponent) vc).setCurrentXVelocity(0);
                                 }
+                                ((VelocityComponent) vc).setCurrentYVelocity(0);
+                                ((VelocityComponent) vc).setCurrentXVelocity(0);
                             });
         }
     }

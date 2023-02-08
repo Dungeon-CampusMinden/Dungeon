@@ -63,6 +63,8 @@ public class VelocitySystemTest {
         Point position = positionComponent.getPosition();
         assertEquals(startXPosition + xVelocity, position.x, 0.001);
         assertEquals(startYPosition + yVelocity, position.y, 0.001);
+        assertEquals(0, velocityComponent.getCurrentXVelocity(), 0.001);
+        assertEquals(0, velocityComponent.getCurrentYVelocity(), 0.001);
     }
 
     @Test
@@ -74,6 +76,8 @@ public class VelocitySystemTest {
         Point position = positionComponent.getPosition();
         assertEquals(startXPosition - 4, position.x, 0.001);
         assertEquals(startYPosition - 8, position.y, 0.001);
+        assertEquals(0, velocityComponent.getCurrentXVelocity(), 0.001);
+        assertEquals(0, velocityComponent.getCurrentYVelocity(), 0.001);
     }
 
     @Test
@@ -85,6 +89,8 @@ public class VelocitySystemTest {
         Point position = positionComponent.getPosition();
         assertEquals(startXPosition, position.x, 0.001);
         assertEquals(startYPosition, position.y, 0.001);
+        assertEquals(0, velocityComponent.getCurrentXVelocity(), 0.001);
+        assertEquals(0, velocityComponent.getCurrentYVelocity(), 0.001);
     }
 
     @Test
@@ -96,6 +102,8 @@ public class VelocitySystemTest {
         Point position = positionComponent.getPosition();
         assertEquals(startXPosition, position.x, 0.001);
         assertEquals(startYPosition, position.y, 0.001);
+        assertEquals(0, velocityComponent.getCurrentXVelocity(), 0.001);
+        assertEquals(0, velocityComponent.getCurrentYVelocity(), 0.001);
     }
 
     @Test
