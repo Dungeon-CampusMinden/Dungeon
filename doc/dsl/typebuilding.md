@@ -22,7 +22,7 @@ DSL Typen mit der Java-Klasse, dessen DSL-Equivalent er ist.
 Das folgende Diagramm stellt dar, wie eine Java-Klasse auf der DSL-Seite als `AggregateType`
 dargestellt wird.
 
-![UML: Java-Klasse und DSL-Datentyp](img/java_to_dsl_type.jpg)
+![UML: Java-Klasse und DSL-Datentyp](./img/java_to_dsl_type.png)
 
 Um die DSL Typen, die auf diese Weise benötigt werden, nicht manuell implementieren zu müssen, übernimmt der `TypeBuiler` diese Aufgabe automatisch.
 Hierzu wird ein Annotation-basierter Ansatz verfolgt.
@@ -262,7 +262,7 @@ game_object my_obj {
 
 Der grobe Ablauf des Typebuildings, welches vom GameEnvironment für alle standardmäßig verfügbaren Datentypen ausgeführt wird, ist im folgenden Sequenzdiagramm abgebildet.
 
-![typebuilding](./img/typebuilding.jpg)
+![typebuilding](./img/typebuilding.png)
 
 
 TODO:
