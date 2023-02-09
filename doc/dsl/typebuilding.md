@@ -275,7 +275,7 @@ Der Ablauf der Typadaptierung unterscheidet sich abhängig von der Menge der ben
 Der Ablauf für den Fall, dass nur ein Parameter zur Instanziierung nötig ist,
 kann dem folgenden Sequenzdiagramm entnommen werden:
 
-![UML: Ablauf einfache Typadaptierung](./img/typeadapting.png)
+![UML: Ablauf einfache Typadaptierung](img/typeadapting.png)
 
 Für den Fall, dass mehr als ein Parameter zur Instanziierung nötig ist, ähnelt
 die Erstellung des `AggregateTypeAdapters` dem normalen [Typebuilding](#typebuilding),
