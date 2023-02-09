@@ -258,6 +258,66 @@ game_object my_obj {
 }
 ```
 
+## Was, wenn der Default-Konstruktor unbedingt Parameter braucht?
+
+Falls es sich nicht vermeiden lässt, dass der
+Default-Konstruktor Parameter hat, kann der Kontext-Mechanismus des `TypeBuilder`s
+genutzt werden. Auf diesen kann über die Annotationen `DSLContextPush` und `DSLContextMember`
+zugegriffen werden. Dies ermöglicht, dass der `TypeBuilder` über alle nötigen Informationen
+verfügt, um auch einen Konstruktor mit Parametern aufzurufen (vgl.
+hierzu [Einschränkungen Java-Klasse](#einschränkungen-java-klasse)).
+
+Ein Beispiel hierfür sind die Konstruktoren von `Component`-Klassen, die eine Referenz auf
+die Entität benötigt, von der die Komponente ein Teil sein soll (siehe folgendes
+Beispiel aus dem `PositionComponent`):
+
+```java
+public PositionComponent(Entity entity) {
+    super(entity);
+    this.position =
+        ECS.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint();
+}
+```
+
+Eine mit `DSLType` markierte Klasse (z.B. `Entity`) kann mit `DSLContextPush` markiert werden.
+Hierdurch wird bei der Instanziierung einer `Entity`
+(vgl. [Typinstanziierung](interpretation-laufzeit.md#typinstanziierung)) die erstellte Instanz
+zum Kontext des `TypeBuilder`s hinzugefügt (als "Kontextmember").
+Der Name des hinzugefügten Kontextmembers muss über das `name`-Attribut der
+`DSLContextPush`-Annotation festgelegt werden. Über diesen Namen kann der `TypeBuilder` auf
+die erstellte Instanz zugreifen. Das folgende Beispiel zeigt diese Verwendung in der `Entity`-Klasse:
+
+```java
+@DSLType(name = "game_object")
+@DSLContextPush(name = "entity")
+public class Entity {
+    private static int nextId = 0;
+    public final int id = nextId++;
+    // ...
+```
+
+Mit der `DSLContextMember` Annotation kann ein Konstruktorparameter markiert werden, den der
+`TypeBuiler` aus dem Kontext lesen soll.
+Hierzu muss der `DSLContextMember` der Name des Kontextmembers an das `name`-Attribut übergeben
+werden.
+Dieser Wert muss dem Wert entsprechen, der auch der `DSLContextPush`-Annotation für
+die Erstellung des Kontextmembers übergeben wurde.
+
+```java
+public PositionComponent(@DSLContextMember(name = "entity") Entity entity) {
+    super(entity);
+    this.position =
+        ECS.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint();
+}
+```
+
+#### Anmerkung:
+
+Dieser Mechanismus wird bisher nur in einem Anwendungsfall verwendet, nämlich dem zuvor
+beschriebenen Konstruktor der `Component` Klassen.
+Das beschriebene Verhalten ist aktuell stark davon abhängig, dass die `Entity`-Klasse vor
+der `Component`-Klasse instanziiert wird.
+
 # Implementierung
 
 ### Typebuilding
