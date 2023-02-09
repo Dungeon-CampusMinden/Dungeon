@@ -282,4 +282,4 @@ Für den Fall, dass mehr als ein Parameter zur Instanziierung nötig ist, ähnel
 die Erstellung des `AggregateTypeAdapter` dem normalen [Typebuilding](#typebuilding),
 wie im folgenden Sequenzdiagramm zu erkennen:
 
-![UML: Ablauf komplexe Typadaptierung](./img/typeadapting_complex.png)
+![UML: Ablauf komplexe Typadaptierung](img/typeadapting_complex.png)
