@@ -130,12 +130,6 @@ interpreter.initializeRuntime(env);
 var questConfig = interpreter.generateQuestConfig(ast);
 ```
 
-## TODO:
-
-Weitere Annotationen mit speziellerem Anwendungsfall:
-- `DSLContextPush`
-- `DSLContextMember`
-
 ## Einschränkungen
 
 Mit dem oben beschriebenen Mechanismus können DSL Datentypen aus Java-Klassen erstellt werden. Für beide Anwendungsfälle sind folgende Einschränkungen zu beachten:
