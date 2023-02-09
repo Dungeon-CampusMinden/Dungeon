@@ -283,3 +283,8 @@ die Erstellung des `AggregateTypeAdapter` dem normalen [Typebuilding](#typebuild
 wie im folgenden Sequenzdiagramm zu erkennen:
 
 ![UML: Ablauf komplexe Typadaptierung](img/typeadapting_complex.png)
+
+Das folgende UML Diagramm zeigt, in welcher Beziehung die beiden Adapterklassen
+`AdaptedType` und `AggregateTypeAdapter` zum Rest des Typsystems stehen:
+
+![UML: Adapterklassen und Typsystem](img/adapter_typesystem.png)
