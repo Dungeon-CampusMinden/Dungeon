@@ -1,6 +1,6 @@
 
 
-# Was bedeutet Typebuilding im Kontext der DSL?
+## Was bedeutet Typebuilding im Kontext der DSL?
 
 Das Dungeon Framework verwendet einen komponentenbasierten Ansatz (vgl. [ECS](./../game/ecs.md)), um Entitäten im
 Level zu definieren. Die DSL ermöglicht das Definieren von Enitäten in textueller Form (vgl. hierfür [Entitätsdefinition](./sprachkonzepte.md#entitätsdefinition)), indem für einen Entitätstypen festgelegt wird, welche Komponenten in ihm enthalten sein sollen. Hierbei können die Member der Komponenten konfiguriert werden.
@@ -27,7 +27,7 @@ dargestellt wird.
 Um die DSL Typen, die auf diese Weise benötigt werden, nicht manuell implementieren zu müssen, übernimmt der `TypeBuiler` diese Aufgabe automatisch.
 Hierzu wird ein Annotation-basierter Ansatz verfolgt.
 
-# Beispiel(e) aus User-Sicht
+## Beispiel(e) aus User-Sicht
 
 Die wesentlichen Annotationen sind:
 - `DSLType`: Markierung für die Java-Klasse, für die ein DSL Typ erzeugt werden soll
@@ -66,7 +66,7 @@ game_ojbect my_obj {
 }
 ```
 
-## Typ- und Membernamen
+### Typ- und Membernamen
 
 Standardmäßig konvertiert der `TypeBuilder` die Namen der Java-Klassen in [snake case](https://en.wikipedia.org//wiki/Snake_case), um ein zu den restlichen DSL Keywords konsistentes Namensschema zu verfolgen. Alternativ akzeptieren `DSLType` und `DSLTypeMember` einen `name`-Parameter, der dieses Standardverhalten überschreibt. Für die oben bereits genutzte `ComponentClass` könnte dies entsprechend verwendet werden:
 
@@ -92,7 +92,7 @@ game_ojbect my_obj {
 }
 ```
 
-## Laden von Datentypen
+### Laden von Datentypen
 
 Der mit `TypeBuilder::createTypeFromClass` erzeugte Datentyp muss in die [DSL Pipeline](./ueberblick.md#dsl-pipeline) integriert werden.
 Hierzu muss der DSL Typ über ein `IEnvironment` Objekt geladen werden. Die Standard `IEnvironment`-Implementierung ist das `GameEnvironment` ([GameEnvironment.java](./../../dsl/src/runtime/GameEnvironment.java)), welches
@@ -130,11 +130,11 @@ interpreter.initializeRuntime(env);
 var questConfig = interpreter.generateQuestConfig(ast);
 ```
 
-## Einschränkungen
+### Einschränkungen
 
 Mit dem oben beschriebenen Mechanismus können DSL Datentypen aus Java-Klassen erstellt werden. Für beide Anwendungsfälle sind folgende Einschränkungen zu beachten:
 
-### Einschränkungen Java-Klasse
+**Einschränkungen Java-Klasse**
 
 Eine Java-Klasse, die mit `@DSLType` markiert wird, muss folgende Kriterien erfüllen:
 - sie muss über einen Default-Konstruktor ohne Parameter verfügen
@@ -143,7 +143,7 @@ Eine Java-Klasse, die mit `@DSLType` markiert wird, muss folgende Kriterien erf�
 
 Falls diese Kriterien nicht erfüllt sind, kann der `TypeInstantiator` keine Instanzen der Klasse anlegen. Für weitere Details siehe [Typinstanziierung](interpreation-laufzeit.md#typinstanziierung).
 
-### Einschränkungen Java-Record
+**Einschränkungen Java-Record**
 
 Ein Java-Record, der mit `DSLType` markiert ist, muss folgende Kriterien erfüllen:
 - alle Member des Records müssen mit `DSLTypeMember` markiert sein
@@ -156,7 +156,7 @@ Default-Konstruktor Parameter hat, kann der Kontext-Mechanismus des `TypeBuilder
 genutzt werden. Auf diesen kann über die Annotationen `DSLContextPush` und `DSLContextMember`
 zugegriffen werden. Dies ermöglicht, dass der `TypeBuilder` über alle nötigen Informationen
 verfügt, um auch einen Konstruktor mit Parametern aufzurufen (vgl.
-hierzu [Einschränkungen Java-Klasse](#einschränkungen-java-klasse)).
+hierzu [Einschränkungen Java-Klasse](#einschränkungen)).
 
 Ein Beispiel hierfür sind die Konstruktoren von `Component`-Klassen, die eine Referenz auf
 die Entität benötigt, von der die Komponente ein Teil sein soll (siehe folgendes
@@ -202,7 +202,7 @@ public PositionComponent(@DSLContextMember(name = "entity") Entity entity) {
 }
 ```
 
-#### Anmerkung:
+**Anmerkung:**
 
 Dieser Mechanismus wird bisher nur in einem Anwendungsfall verwendet, nämlich dem zuvor
 beschriebenen Konstruktor der `Component` Klassen.
@@ -210,7 +210,7 @@ Das beschriebene Verhalten ist aktuell stark davon abhängig, dass die `Entity`-
 der `Component`-Klasse instanziiert wird.
 Falls diese Kriterien nicht erfüllt sind, kann der `TypeInstantiator` keine Instanzen der des Records anlegen. Für weitere Details (siehe  [Typinstanziierung](interpretation-laufzeit.md#typinstanziierung)).
 
-# Typadaptierung
+## Typadaptierung
 
 Einige Komponenten des ECS (bspw. `AnimationComponent`) verwenden für ihre Member Datentypen, die außerhalb
 des `Dungeon`-Projekts definiert sind (im Folgenden "externe Datentypen"). Ein Beispiel hierfür ist die
@@ -243,7 +243,7 @@ Das weitere Vorgehen für die Typadaptierung unterscheidet zwischen zwei Fällen
 1. es ist nur ein Parameter nötig, um eine Instanz des zu adaptierenden Datentypen zu erzeugen
 2. es sind mehr als ein Parameter nötig, um eine Instanz des zu adaptierenden Datentypen zu erzeugen
 
-#### 1. Nur ein Parameter nötig
+### 1. Nur ein Parameter nötig
 
 Beispiel:
 
@@ -281,7 +281,7 @@ game_object my_obj {
 }
 ```
 
-#### 2. Mehr als ein Parameter nötig
+### 2. Mehr als ein Parameter nötig
 
 Die Builder-Methode für Datentypen zu deren Instanziierung mehr als ein Parameter nötig ist, wird ähnlich
 markiert, wie Builder-Methoden mit einem einzigen Parameter. Allerdings besteht die Möglichkeit, die Parameter
@@ -312,7 +312,7 @@ game_object my_obj {
 ```
 
 
-# Implementierung
+## Implementierung
 
 ### Typebuilding
 
