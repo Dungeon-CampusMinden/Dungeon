@@ -261,6 +261,7 @@ game_object my_obj {
 # Implementierung
 
 ### Typebuilding
+
 Der grobe Ablauf des Typebuildings, welches vom GameEnvironment für alle
 standardmäßig verfügbaren Datentypen ausgeführt wird, ist im folgenden
 Sequenzdiagramm abgebildet:
