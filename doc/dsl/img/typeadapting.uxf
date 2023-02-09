@@ -1,0 +1,21 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>13</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>624</x><y>351</y><w>221</w><h>39</h></coordinates><panel_attributes>GameEnvironment</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1235</x><y>559</y><w>156</w><h>39</h></coordinates><panel_attributes>AdaptedType</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>949</x><y>351</y><w>130</w><h>39</h></coordinates><panel_attributes>TypeBuilder</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1001</x><y>377</y><w>39</w><h>65</h></coordinates><panel_attributes>lt=.
+layer=-1</panel_attributes><additional_attributes>10;10;10;30</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>1001</x><y>416</y><w>26</w><h>299</h></coordinates><panel_attributes>fg=BLACK
+layer=0
+bg=WHITE</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1001</x><y>702</y><w>39</w><h>143</h></coordinates><panel_attributes>lt=.
+layer=-1</panel_attributes><additional_attributes>10;10;10;90</additional_attributes></element><element><id>Relation</id><coordinates><x>728</x><y>416</y><w>299</w><h>52</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+registerTypeAdapter</panel_attributes><additional_attributes>210;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>715</x><y>377</y><w>39</w><h>65</h></coordinates><panel_attributes>lt=.
+layer=-1</panel_attributes><additional_attributes>10;10;10;30</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>715</x><y>416</y><w>26</w><h>377</h></coordinates><panel_attributes>
+fg=BLACK
+layer=10
+bg=WHITE</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>715</x><y>780</y><w>39</w><h>65</h></coordinates><panel_attributes>lt=.
+layer=-1</panel_attributes><additional_attributes>10;10;10;30</additional_attributes></element><element><id>Relation</id><coordinates><x>1014</x><y>533</y><w>247</w><h>78</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+create with reference 
+to builder method and
+ parameters DSL type</panel_attributes><additional_attributes>170;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>728</x><y>676</y><w>299</w><h>52</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+return adapted type</panel_attributes><additional_attributes>10;20;210;20</additional_attributes></element><element><id>Relation</id><coordinates><x>1300</x><y>585</y><w>39</w><h>260</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>10;10;10;180</additional_attributes></element><element><id>Relation</id><coordinates><x>1014</x><y>442</y><w>221</w><h>78</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+lookup builder 
+parameters DSL type</panel_attributes><additional_attributes>10;40;30;40;30;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>728</x><y>715</y><w>195</w><h>78</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+bind adapted type 
+in global scope</panel_attributes><additional_attributes>10;40;30;40;30;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1014</x><y>624</y><w>208</w><h>78</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+store adapted type
+in key-value storage</panel_attributes><additional_attributes>10;40;30;40;30;10;10;10</additional_attributes></element></diagram>
