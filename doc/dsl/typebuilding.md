@@ -149,18 +149,13 @@ Ein Java-Record, der mit `DSLType` markiert ist, muss folgende Kriterien erfüll
 - alle Member des Records müssen mit `DSLTypeMember` markiert sein
 - die Datentypen aller Member müssen entweder Datentypen sein, die mit `@DSLType` markiert oder adaptiert sind, oder sich auf die `BuiltIn`-Datentypen zurückführen lassen (siehe [Typsystem](typsystem.md))
 
-### Was, wenn der Default-Konstruktor unbedingt Parameter braucht?
+### Was, wenn eine Klasse nicht ohne Parameter instanziiert werden kann?
 
-Falls es sich nicht vermeiden lässt, dass der
-Default-Konstruktor Parameter hat, kann der Kontext-Mechanismus des `TypeBuilder`s
-genutzt werden. Auf diesen kann über die Annotationen `DSLContextPush` und `DSLContextMember`
-zugegriffen werden. Dies ermöglicht, dass der `TypeBuilder` über alle nötigen Informationen
-verfügt, um auch einen Konstruktor mit Parametern aufzurufen (vgl.
-hierzu [Einschränkungen Java-Klasse](#einschränkungen)).
-
-Ein Beispiel hierfür sind die Konstruktoren von `Component`-Klassen, die eine Referenz auf
-die Entität benötigt, von der die Komponente ein Teil sein soll (siehe folgendes
-Beispiel aus dem `PositionComponent`):
+Falls es nicht möglich ist, eine Klasse sinnvoll ohne Parameter zu instanziieren,
+kann der Kontext-Mechanismus des `TypeBuilder`s genutzt werden. Dies ist beispielsweise für
+die `Component`-Klassen des ECS der Fall, da diese zwingend eine Referenz auf
+die Entität benötigen, von der die Komponente ein Teil sein soll. Siehe hierzu folgendes
+Beispiel aus dem `PositionComponent`:
 
 ```java
 public PositionComponent(Entity entity) {
@@ -169,6 +164,21 @@ public PositionComponent(Entity entity) {
         ECS.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint();
 }
 ```
+
+**Wichtige Anmerkung: Die Verwendung des `TypeBuilder`-Kontextes setzt (aktuell) zwingend voraus,
+dass die Instanziierung einem hierarchischen Muster folgt.**
+
+Ein Beispiel hierfür:
+für eine `game_object`-Definition per DSL wird zuerst die entsprechende `Entity`-Instanz erzeugt, bevor
+die konfigurierten `Component`-Klassen instanziiert werden. Hierarchisch ist die `Entity`-Instanziierung
+also der `Component`-Instanziierung übergeordnet. Nur in diesem Fall kann der im Folgenden beschriebene
+Mechanismus verwendet werden. **Das beschriebene Beispiel ist aktuell der einzige Anwendungsfall, in dem
+der `TypeBuilder`-Kontext verwendet wird.**
+
+Auf den Kontext des `TypeBuilder`s kann über die Annotationen `DSLContextPush` und `DSLContextMember`
+zugegriffen werden. Dies ermöglicht, dass der `TypeBuilder` über alle nötigen Informationen
+verfügt, um auch einen Konstruktor mit Parametern aufzurufen (vgl.
+hierzu [Einschränkungen Java-Klasse](#einschränkungen)).
 
 Eine mit `DSLType` markierte Klasse (z.B. `Entity`) kann mit `DSLContextPush` markiert werden.
 Hierdurch wird bei der Instanziierung einer `Entity`
@@ -201,14 +211,6 @@ public PositionComponent(@DSLContextMember(name = "entity") Entity entity) {
         ECS.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint();
 }
 ```
-
-**Anmerkung:**
-
-Dieser Mechanismus wird bisher nur in einem Anwendungsfall verwendet, nämlich dem zuvor
-beschriebenen Konstruktor der `Component` Klassen.
-Das beschriebene Verhalten ist aktuell stark davon abhängig, dass die `Entity`-Klasse vor
-der `Component`-Klasse instanziiert wird.
-Falls diese Kriterien nicht erfüllt sind, kann der `TypeInstantiator` keine Instanzen der des Records anlegen. Für weitere Details (siehe  [Typinstanziierung](interpretation-laufzeit.md#typinstanziierung)).
 
 ## Typadaptierung
 
