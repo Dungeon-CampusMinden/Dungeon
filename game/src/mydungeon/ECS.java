@@ -9,6 +9,7 @@ import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
 import ecs.systems.*;
+import hud.PauseMenu;
 import interpreter.DSLInterpreter;
 import java.util.*;
 import level.LevelAPI;
@@ -27,7 +28,7 @@ public class ECS extends Game {
     public static SystemController systems;
 
     public static ILevel currentLevel;
-
+    private static PauseMenu pauseMenu;
     private PositionComponent heroPositionComponent;
     public static Hero hero;
 
@@ -36,6 +37,8 @@ public class ECS extends Game {
         controller.clear();
         systems = new SystemController();
         controller.add(systems);
+        pauseMenu = new PauseMenu();
+        controller.add(pauseMenu);
         hero = new Hero(new Point(0, 0));
         heroPositionComponent =
                 (PositionComponent)
@@ -73,10 +76,16 @@ public class ECS extends Game {
         setupDSLInput();
     }
 
+    static boolean paused = false;
     /** Toggle between pause and run */
     public static void togglePause() {
+        paused = !paused;
         if (systems != null) {
-            systems.forEach(s -> s.toggleRun());
+            systems.forEach(ECS_System::toggleRun);
+        }
+        if (pauseMenu != null) {
+            if (paused) pauseMenu.showMenu();
+            else pauseMenu.hideMenu();
         }
     }
 
