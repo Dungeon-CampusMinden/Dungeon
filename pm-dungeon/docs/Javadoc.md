@@ -1,0 +1,6 @@
+- Die Javadoc soll den Studierenden helfen, das Framework besser verwenden zu können. 
+- Javadoc wird in Englisch geschrieben.
+- Jede non-`private` Methode muss dokumentiert werden.
+- Prinzipiell gilt: Lieber zu viel als zu wenig dokumentieren.
+- Auch non-`private` Variablen müssen dokumentiert werden.
+- Es sind ALLE Parameter sowie Rückgabewerte zu dokumentieren.
