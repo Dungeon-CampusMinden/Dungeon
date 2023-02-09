@@ -279,7 +279,7 @@ kann dem folgenden Sequenzdiagramm entnommen werden:
 ![UML: Ablauf einfache Typadaptierung](img/typeadapting.png)
 
 Für den Fall, dass mehr als ein Parameter zur Instanziierung nötig ist, ähnelt
-die Erstellung des `AggregateTypeAdapters` dem normalen [Typebuilding](#typebuilding),
+die Erstellung des `AggregateTypeAdapter` dem normalen [Typebuilding](#typebuilding),
 wie im folgenden Sequenzdiagramm zu erkennen:
 
 ![UML: Ablauf komplexe Typadaptierung](./img/typeadapting_complex.png)
