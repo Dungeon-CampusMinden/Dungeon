@@ -1,0 +1,26 @@
+name: Publish jar to GitHub
+on:
+    release:
+        types: [ published ]
+jobs:
+    publish-github:
+        runs-on: ubuntu-latest
+        env:
+            BUILD_NUMBER: ${{ github.event.release.tag_name }}
+        steps:
+            -   name: Checkout action
+                uses: actions/checkout@v3
+            -   name: Set up Java
+                uses: actions/setup-java@v3
+                with:
+                    java-version: '17'
+                    distribution: 'temurin'
+            -   name: Validate Gradle wrapper
+                uses: gradle/wrapper-validation-action@v1
+            -   name: Build the jar file
+                run: ./gradlew jar buildJavadocZip
+            -   name: Publish jar to GitHub
+                uses: AButler/upload-release-assets@v2.0
+                with:
+                    files: 'build/libs/*'
+                    repo-token: ${{ secrets.GITHUB_TOKEN }}
