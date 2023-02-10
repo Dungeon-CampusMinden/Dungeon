@@ -63,12 +63,10 @@ public class HealthSystem extends ECS_System {
     }
 
     private void removeDeadEntities(HSData hsd) {
-        if (hsd.hc().getCurrentHitPoints() <= 0) {
-            // Entity appears to be dead, so let's clean up the mess
-            hsd.hc().triggerOnDeath();
-            hsd.ac().setCurrentAnimation(hsd.hc().getDieAnimation());
-            // TODO: Before removing the entity, check if the animation is finished (Issue #246)
-            ECS.entitiesToRemove.add(hsd.hc().getEntity());
-        }
+        // Entity appears to be dead, so let's clean up the mess
+        hsd.hc().triggerOnDeath();
+        hsd.ac().setCurrentAnimation(hsd.hc().getDieAnimation());
+        // TODO: Before removing the entity, check if the animation is finished (Issue #246)
+        ECS.entitiesToRemove.add(hsd.hc().getEntity());
     }
 }
