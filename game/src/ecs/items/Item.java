@@ -2,6 +2,7 @@ package ecs.items;
 
 import ecs.components.AnimationComponent;
 import ecs.components.HitboxComponent;
+import ecs.components.InventoryComponent;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
@@ -56,7 +57,7 @@ public abstract class Item {
     }
 
     /**
-     * implements what should happen ones the Item is dropped.
+     * implements what should happen once the Item is dropped.
      *
      * @param position the location of the drop
      */
@@ -67,9 +68,14 @@ public abstract class Item {
         HitboxComponent component = new HitboxComponent(droppedItem);
         component.setCollideMethod(
                 (a, b, direction) -> {
-                    if (b.equals(Game.hero)) {
-                        System.out.println("add item to inventory");
-                        Game.entitiesToRemove.add(droppedItem);
+                    if (b.equals(ECS.hero)) {
+                        ECS.hero
+                                .getComponent(InventoryComponent.class)
+                                .ifPresent(
+                                        (x) -> {
+                                            ((InventoryComponent) x).addItem(this);
+                                            ECS.entitiesToRemove.add(droppedItem);
+                                        });
                     }
                 });
 
