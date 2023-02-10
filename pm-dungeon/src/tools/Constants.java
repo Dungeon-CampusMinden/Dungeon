@@ -25,6 +25,9 @@ public final class Constants {
     /** Value for LevelElements that are not accessible */
     public static final boolean LEVELELEMENT_IS_NOT_ACCESSIBLE = false;
 
+    /** Core pool size parsed to the scheduled thread pool executor */
+    public static final int CORE_POOL_SIZE = 2;
+
     /** Sets the window title for the LibGDX window. */
     public static final String WINDOW_TITLE = "PM-Dungeon";
 

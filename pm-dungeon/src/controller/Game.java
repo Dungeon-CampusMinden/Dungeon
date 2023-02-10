@@ -106,4 +106,31 @@ public abstract class Game extends ScreenAdapter implements IOnLevelLoader {
         // See also:
         // https://stackoverflow.com/questions/52011592/libgdx-set-ortho-camera
     }
+
+    /** Called when the game is closed */
+    @Override
+    public void dispose() {
+        super.dispose();
+        if (entityController != null) {
+            entityController.stop();
+        }
+    }
+
+    /** Called when the game is paused */
+    @Override
+    public void pause() {
+        super.pause();
+        if (entityController != null) {
+            entityController.pause();
+        }
+    }
+
+    /** Called when the paused game is resumed */
+    @Override
+    public void resume() {
+        super.resume();
+        if (entityController != null) {
+            entityController.resume();
+        }
+    }
 }
