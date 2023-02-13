@@ -42,21 +42,24 @@ game_object my_obj {
 
 Aus dieser Definition erstellt der `DSLInterpreter` einen Prototypen, in dem die Werte für die konfigurierten Member
 `x_velocity` und `y_velocity` gespeichert werden. Aus so einem Prototyp kann auch wie aus einem Datentyp eine Instanz
-erstellt werden.
+erstellt werden. In der Instanz eines Prototyps sind die konfigurierten Default-Werte gesetzt.
 
-Notes:
-  - Initialisierung der Laufzeit
-    - Laden von IEnvironment in RuntimeEnvironment (enthält zusätzlich
-      Prototypen)
-    - Funktionsdefinitionen in runtime environment binden
-      (als FuncCallValue, temporäres Design, da fehlen noch
-      Typinformationen zu den Funktionssignaturen)
-    - globale definitionen binden (als Value)
-  - generateQuestConfig
-    - Prototypen erzeugen -> AggregateValues mit Defaultwerten
-    - Evaluierung der `quest_config`-Definition -> nur das, was auch
-      referenziert wird, wird evaluiert
-    - Instanziierung des QuestConfig-Objekts
+Um Prototypen zu erzeugen, müssen die rechtsseitigen Ausdrücke einer Eigenschaftszuweisung (z.B.
+`x_velocity: 2.0`) evaluiert werden.
+Im obigen Beispiel handelt es sich bei diesen Ausdrücken um triviale Dezimalzahlen, es könnte sich allerdings bei
+rechtsseitigen Ausdrücken auch um Funktionsaufrufe, Verweise auf globale Objekte, etc. handeln (vgl. für
+gültige Ausdrücke hierzu [Ausdrücke](sprachkonzepte.md#ausdrücke)).
+
+**Anmerkung:**
+Die im Folgenden beschriebenen Aspekte bzgl. `quest_config` als zentralem Übergabepunkt von DSL -> Dungeon sind WIP
+und können sich daher noch grundlegend ändern (siehe hierzu [Issue #195](https://github.com/Programmiermethoden/Dungeon/issues/195)).
+
+Der zentrale Übergabepunkt zwischen dem DSL Programm und dem Dungeon-Framework wird durch die
+`quest_config`-Definition gebildet. Daher sucht der `DSLInterpreter` im nächsten Schritt die erste `quest_config`-Definition
+aus einem DSL Programm heraus und evaluiert alle Eigenschaftszuweisungen. Hierdurch werden nur Objekte und Definitionen
+evaluiert, die in Eigenschaftszuweisungen dieser `quest_config`-Definition referenziert werden.
+
+Abschließend erzeugt der `DSLInterpreter` eine `QuestConfig`-Instanz und gibt diese an das Dungeon-Framework zurück.
 
 # `MemorySpace`s und `Value`s
 
