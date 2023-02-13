@@ -50,6 +50,11 @@ Im obigen Beispiel handelt es sich bei diesen Ausdrücken um triviale Dezimalzah
 rechtsseitigen Ausdrücken auch um Funktionsaufrufe, Verweise auf globale Objekte, etc. handeln (vgl. für
 gültige Ausdrücke hierzu [Ausdrücke](sprachkonzepte.md#ausdrücke)).
 
+TODO: hier mehr zu Evaluierung & Interpretation schreiben
+    - Wie funktioniert die AST-Traversierung?
+    - Wie werden Ausdrücke evaluiert?
+    - Wie funktioniert die Prototypen-Erstellung genau? (Sequenzdiagramme)
+
 **Anmerkung:**
 Die im Folgenden beschriebenen Aspekte bzgl. `quest_config` als zentralem Übergabepunkt von DSL -> Dungeon sind WIP
 und können sich daher noch grundlegend ändern (siehe hierzu [Issue #195](https://github.com/Programmiermethoden/Dungeon/issues/195)).
@@ -63,8 +68,15 @@ Abschließend erzeugt der `DSLInterpreter` eine `QuestConfig`-Instanz und gibt d
 
 # `MemorySpace`s und `Value`s
 
+# Typinstanziierung
+
+TODO:
+- DSLInterpreter-Seite
+- TypeInstantiator-Seite
+- Was ist die Rolle von `EncapuslatedObject`
+
+
 # Funktionsaufrufe
 
 # Welche Klassen (neben `DSLInterpreter`) sind beteiligt?
 
-# Typinstanziierung
