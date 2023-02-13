@@ -7,7 +7,9 @@ speichern. Dies gilt bspw. auch für die Member einer `quest_config`-Definition.
 
 Zur Darstellung eines "Werts" nutzt der `DSLInterpreter` die `Value`-Klasse:
 
-![UML: Value Klasse](img/value_uml.png)
+<p align="center">
+<img src="img/value_uml.png" width=50%>
+</p>
 
 Im Wesentlichen stellt ein Value also eine Kombination aus einem "Wert", dem `value` Object und einem Datentyp,
 dem `type` dar.
@@ -18,7 +20,9 @@ DSL-Program gesetzt wurde.
 `Value`-Instanzen können nur einen einzelnen Wert speichern. Um auch aus mehreren benannten Werten zusammengesetzte
 Konstrukte, wie bspw. eine `quest_config`-Definition speichern zu können, wird das `IMemorySpace`-Interface verwendet.
 
-![UML: IMemorySpace](img/imemoryspace_uml.png)
+<p align="center">
+<img src="img/imemoryspace_uml.png" width=50%>
+</p>
 
 Ein `IMemorySpace` bietet die Möglichkeit, mittels `bindValue()` ein `Value`-Objekt mit einem Namen zu assoziieren.
 Die `resolve()`-Methode wird genutzt, um einen Namen in dem `IMemorySpace` aufzulösen.
