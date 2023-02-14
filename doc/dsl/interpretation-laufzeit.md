@@ -14,7 +14,7 @@ werden, sind im folgenden Diagram dargestellt:
 
 Die Interpretations-Pipeline ist in zwei Phasen aufgeteilt, die Laufzeitinitialisierung und die Interpretation.
 
-**Laufzeitinitialisierung**
+### Laufzeitinitialisierung
 
 Zuerst lädt der `DSLInterpreter` die Symbol- und Typinformationen aus der übergebenen `IEnvironment`-Instanz
 in ein `RuntimeEnvironment`.
@@ -25,10 +25,14 @@ während der Interpretation erzeugt und referenziert werden.
 Die Assoziation einer `Value`-Instanz in einem `MemorySpace` mit einem Namen wird als "Binden" (engl.: binding) bezeichnet.
 Die `Value`-Instanzen der Objekte haben zu diesem Zeitpunkt einen definierten default-Wert.
 
-**Interpretation**
+### Interpretation
 
 Der erste Schritt der Interpretation (nach der Initialisierung) ist das Erzeugen von Prototypen für
-`game_object`-Definitionen. Ein "Prototyp" ist dabei eine Kombination aus einem `AggregateType` und vom Nutzer
+`game_object`-Definitionen.
+
+**Erzeugung von Prototypen**
+
+Ein "Prototyp" ist eine Kombination aus einem `AggregateType` und vom Nutzer
 per DSL konfigurierten Defaultwerten. Ein Beispiel für eine `game_object`-Definition:
 
 ```
@@ -44,29 +48,40 @@ game_object my_obj {
 }
 ```
 
-Aus dieser Definition erstellt der `DSLInterpreter` einen Prototypen, in dem die Werte für die konfigurierten Member
-`x_velocity` und `y_velocity` gespeichert werden. Aus so einem Prototyp kann auch wie aus einem Datentyp eine Instanz
-erstellt werden. In der Instanz eines Prototyps sind die konfigurierten Default-Werte gesetzt. Dem folgenden
+Aus dieser Definition erstellt der `DSLInterpreter` einen Prototypen, in dem bspw. die Werte für die konfigurierten Member
+`x_velocity` und `y_velocity` gespeichert werden. Aus so einem Prototyp kann wie aus einem Datentyp eine Instanz
+erstellt werden. In der Instanz eines Prototyps sind die konfigurierten Defaultwerte gesetzt. Dem folgenden
 Objektdiagramm können die beteiligten Instanzen für das obere Beispiel entnommen werden:
 
 ![UML: Objektdiagram Prototype](img/prototype_objects.png)
 
 Wie zu erkennen ist, wird für jede Komponenten-Definition auch ein `Prototype` erzeugt,
-der jedoch nur im `Prototype` der `GameObjectDefinition` existiert. Der `Prototype` der
-Komponenten-Definition enthält die per DSL konfigurierten Default-Werte einer Komponente.
+der jedoch nur im `Prototype` der `GameObjectDefinition` existiert. Der `Prototype` einer
+Komponenten-Definition enthält die per DSL konfigurierten Defaultwerte der Komponente.
 
-TODO: UML-Diagramm für Prototype Klassenhierarchie
+Die Erzeugung der Prototypen ist im folgenden Sequenzdiagramm dargestellt:
+
+<p align="center">
+<img src="img/create_prototype.png" width=50%>
+</p>
+
+Die referenzierte Sequenz `createComponentPrototype` ist im Folgenden dargestellt:
+
+<p align="center">
+<img src="img/create_component_prototype.png" width=50%>
+</p>
+
+**Evaluierung von Ausdrücken**
+
+TODO: hier mehr zu Evaluierung & Interpretation schreiben
+- Wie funktioniert die AST-Traversierung?
+- Wie werden Ausdrücke evaluiert?
 
 Um Prototypen zu erzeugen, müssen die rechtsseitigen Ausdrücke einer Eigenschaftszuweisung (z.B.
 `x_velocity: 2.0`) evaluiert werden.
 Im obigen Beispiel handelt es sich bei diesen Ausdrücken um triviale Dezimalzahlen, es könnte sich allerdings bei
 rechtsseitigen Ausdrücken auch um Funktionsaufrufe, Verweise auf globale Objekte, etc. handeln (vgl. für
 gültige Ausdrücke hierzu [Ausdrücke](sprachkonzepte.md#ausdrücke)).
-
-TODO: hier mehr zu Evaluierung & Interpretation schreiben
-    - Wie funktioniert die AST-Traversierung?
-    - Wie werden Ausdrücke evaluiert?
-    - Wie funktioniert die Prototypen-Erstellung genau? (Sequenzdiagramme)
 
 **Anmerkung:**
 Die im Folgenden beschriebenen Aspekte bzgl. `quest_config` als zentralem Übergabepunkt von DSL -> Dungeon sind WIP
