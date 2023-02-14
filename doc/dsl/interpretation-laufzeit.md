@@ -76,17 +76,29 @@ Die referenzierte Sequenz `createComponentPrototype` ist im Folgenden dargestell
 
 **Evaluierung von Ausdrücken**
 
-TODO: hier mehr zu Evaluierung & Interpretation schreiben
-- Wie funktioniert die AST-Traversierung?
-- Wie werden Ausdrücke evaluiert?
-
 Um Prototypen zu erzeugen, müssen die rechtsseitigen Ausdrücke einer Eigenschaftszuweisung (z.B.
 `x_velocity: 2.0`) evaluiert werden.
 Im obigen Beispiel handelt es sich bei diesen Ausdrücken um triviale Dezimalzahlen, es könnte sich allerdings bei
 rechtsseitigen Ausdrücken auch um Funktionsaufrufe, Verweise auf globale Objekte, etc. handeln (vgl. für
 gültige Ausdrücke hierzu [Ausdrücke](sprachkonzepte.md#ausdrücke)).
 
+Der `DSLInterpreter` ist ein [Tree-Walk-Interpreter](https://craftinginterpreters.com/a-tree-walk-interpreter.html),
+läuft also über den AST und führt für jeden so besuchten Knoten Operationen aus. Für alle Knoten, die Teil eines
+Ausdrucks sein können, erzeugt der Interpreter eine `Value`-Instanz, die den Wert des besuchten Knotens enthält.
+
+Für `NumNode` wird bspw. einfach der Wert des AST-Knotens in ein `Value` verpackt:
+```java
+public Object visit(NumNode node) {
+    return new Value(BuiltInType.intType, node.getValue());
+}
+```
+
+Für einen `GameObjectDefinition`-Knoten, der Teil eines Ausdrucks ist, ist dieses Vorgehen deutlich komplexer und wird
+unter [Typinstanziierung](#typinstanziierung) genauer erläutert. Allerdings wird auch für diesen Fall ein `Value`-Objekt
+zurückgegeben.
+
 **Anmerkung:**
+
 Die im Folgenden beschriebenen Aspekte bzgl. `quest_config` als zentralem Übergabepunkt von DSL -> Dungeon sind WIP
 und können sich daher noch grundlegend ändern (siehe hierzu [Issue #195](https://github.com/Programmiermethoden/Dungeon/issues/195)).
 
