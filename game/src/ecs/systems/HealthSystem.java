@@ -29,7 +29,7 @@ public class HealthSystem extends ECS_System {
                 // Apply damage
                 .map(this::applyDamage)
                 // Filter all dead entities
-                .filter(hsd -> hsd.hc().getCurrentHitPoints() <= 0)
+                .filter(hsd -> hsd.hc.getCurrentHitPoints() <= 0)
                 // Remove all dead entities
                 .forEach(this::removeDeadEntities);
     }
@@ -39,34 +39,36 @@ public class HealthSystem extends ECS_System {
 
         AnimationComponent ac =
                 (AnimationComponent)
-                        e.getComponent(AnimationComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("AnimationComponent"));
+                        e.getComponent(AnimationComponent.class).orElseThrow(this::missingAC);
 
         return new HSData(e, hc, ac);
     }
 
     private HSData applyDamage(HSData hsd) {
         int dmgAmount =
-                hsd.hc().getDamage(PHYSICAL) + hsd.hc().getDamage(MAGIC) + hsd.hc().getDamage(FIRE);
+                hsd.hc.getDamage(PHYSICAL) + hsd.hc.getDamage(MAGIC) + hsd.hc.getDamage(FIRE);
 
         if (dmgAmount > 0) {
             // we have some damage - let's show a little dance
-            hsd.ac().setCurrentAnimation(hsd.hc().getGetHitAnimation());
+            hsd.ac.setCurrentAnimation(hsd.hc.getGetHitAnimation());
         }
 
         // reset all damage objects in health component and apply damage
-        hsd.hc().clearDamageList();
-        hsd.hc().setCurrentHitPoints(hsd.hc().getCurrentHitPoints() - dmgAmount);
+        hsd.hc.clearDamageList();
+        hsd.hc.setCurrentHitPoints(hsd.hc.getCurrentHitPoints() - dmgAmount);
 
         return hsd;
     }
 
     private void removeDeadEntities(HSData hsd) {
         // Entity appears to be dead, so let's clean up the mess
-        hsd.hc().triggerOnDeath();
-        hsd.ac().setCurrentAnimation(hsd.hc().getDieAnimation());
+        hsd.hc.triggerOnDeath();
+        hsd.ac.setCurrentAnimation(hsd.hc.getDieAnimation());
         // TODO: Before removing the entity, check if the animation is finished (Issue #246)
-        ECS.entitiesToRemove.add(hsd.hc().getEntity());
+        ECS.entitiesToRemove.add(hsd.hc.getEntity());
+    }
+
+    private MissingComponentException missingAC() {
+        return new MissingComponentException("AnimationComponent");
     }
 }
