@@ -108,6 +108,15 @@ aus einem DSL Programm heraus und evaluiert alle Eigenschaftszuweisungen. Hierdu
 evaluiert, die in Eigenschaftszuweisungen dieser `quest_config`-Definition referenziert werden.
 
 Abschließend erzeugt der `DSLInterpreter` eine `QuestConfig`-Instanz und gibt diese an das Dungeon-Framework zurück.
+Die `QuestConfig`-Instanz enthält alle Informationen für das Dungeon-Framework, um ein Dungeonlevel mit spezifizierten
+Entitäten (als `game_object`-Definition) zu erzeugen.
+
+Die Evaluierung der `quest_config`-Definition ist die **einzige** Art der Interpretation, die der `DSLInterperter`
+standardmäßig durchführt.
+Es ist aktuell kein **eigenständiger** DSL-Loop oder ähnliches vorgesehen, der parallel bzw. mit dem Gameloop des Dungeons
+mitläuft und kontinuierlich Teile des DSL-Programms ausführt.
+Die weitere Tätigkeit des `DSLInterpreter`s beschränkt sich auf die Interpretation der Event-Handler DSL-Funktionen, die
+mit Entitäten verknüpft wurden (siehe dazu [Funktionsaufrufe](#funktionsaufrufe)).
 
 # `MemorySpace`s und `Value`s
 
