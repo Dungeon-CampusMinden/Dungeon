@@ -36,13 +36,26 @@ game_object my_obj {
     velocity_component {
         x_velocity: 2.0,
         y_velocity: 3.0
+    },
+    animation_component {
+        idle_left: "path/to/frames",
+        idle_right: "path/to/frames"
     }
 }
 ```
 
 Aus dieser Definition erstellt der `DSLInterpreter` einen Prototypen, in dem die Werte für die konfigurierten Member
 `x_velocity` und `y_velocity` gespeichert werden. Aus so einem Prototyp kann auch wie aus einem Datentyp eine Instanz
-erstellt werden. In der Instanz eines Prototyps sind die konfigurierten Default-Werte gesetzt.
+erstellt werden. In der Instanz eines Prototyps sind die konfigurierten Default-Werte gesetzt. Dem folgenden
+Objektdiagramm können die beteiligten Instanzen für das obere Beispiel entnommen werden:
+
+![UML: Objektdiagram Prototype](img/prototype_objects.png)
+
+Wie zu erkennen ist, wird für jede Komponenten-Definition auch ein `Prototype` erzeugt,
+der jedoch nur im `Prototype` der `GameObjectDefinition` existiert. Der `Prototype` der
+Komponenten-Definition enthält die per DSL konfigurierten Default-Werte einer Komponente.
+
+TODO: UML-Diagramm für Prototype Klassenhierarchie
 
 Um Prototypen zu erzeugen, müssen die rechtsseitigen Ausdrücke einer Eigenschaftszuweisung (z.B.
 `x_velocity: 2.0`) evaluiert werden.
