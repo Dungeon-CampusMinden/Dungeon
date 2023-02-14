@@ -116,10 +116,16 @@ Abschließend erzeugt der `DSLInterpreter` eine `QuestConfig`-Instanz und gibt d
 TODO:
 - DSLInterpreter-Seite
 - TypeInstantiator-Seite
-- Was ist die Rolle von `EncapuslatedObject`
-
+- Was ist die Rolle von `EncapsulatedObject`
 
 # Funktionsaufrufe
+
+TODO:
+- wie funktionieren Funktionsaufrufe allgemein?
+- wie funktionieren native Funktionen?
+- wie werden user defined funktionen behandelt?
+- wie funktioniert die Funktionsschnittstelle für Event-Handler DSL-Funktionen, die der Dungeon aufrufen kann
+- Wie funktionieren die Builder-Funktionen, um Tasks zu definieren?
 
 # Welche Klassen (neben `DSLInterpreter`) sind beteiligt?
 
