@@ -123,8 +123,8 @@ mit Entitäten verknüpft wurden (siehe dazu [Funktionsaufrufe](#funktionsaufruf
 # Typinstanziierung
 
 TODO:
-- DSLInterpreter-Seite
-- TypeInstantiator-Seite
+- DSLInterpreter-Seite (Instanziierung von DSL-Typen als DSL-Value)
+- TypeInstantiator-Seite (Instanziierung von DSL-Typen als Java-Objekt (bspw. `Entity`, `Component`s))
 - Was ist die Rolle von `EncapsulatedObject`
 
 # Funktionsaufrufe
