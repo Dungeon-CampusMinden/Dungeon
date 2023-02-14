@@ -65,6 +65,9 @@ Die Erzeugung der Prototypen ist im folgenden Sequenzdiagramm dargestellt:
 <img src="img/create_prototype.png" width=50%>
 </p>
 
+In den Typdefinitionen, die vom `RuntimeEnvironment` für `getTypes` zurückgegeben werden, sind auch die
+`game_object`-Definition enthalten.
+
 Die referenzierte Sequenz `createComponentPrototype` ist im Folgenden dargestellt:
 
 <p align="center">
