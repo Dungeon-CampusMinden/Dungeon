@@ -1,76 +1,74 @@
 package ecs.systems;
 
+import static ecs.damage.DamageType.FIRE;
+import static ecs.damage.DamageType.MAGIC;
+import static ecs.damage.DamageType.PHYSICAL;
+
 import ecs.components.AnimationComponent;
 import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
-import ecs.damage.Damage;
 import ecs.entities.Entity;
-import java.util.List;
 import mydungeon.ECS;
 
 /**
  * The HealthSystem offsets the damage to be done to all entities with the HealthComponent. Triggers
- * the death of an entity when the hitpoints have fallen below 0.
+ * the death of an entity when the hit-points have fallen below 0.
  */
 public class HealthSystem extends ECS_System {
+
+    // private record to hold all data during streaming
+    private record HSData(Entity e, HealthComponent hc, AnimationComponent ac) {}
+
     @Override
     public void update() {
-        for (Entity entity : ECS.entities) {
-            entity.getComponent(HealthComponent.class)
-                    .ifPresent(
-                            healthComponent -> {
-                                {
-                                    final AnimationComponent animationComponent =
-                                            (AnimationComponent)
-                                                    entity.getComponent(AnimationComponent.class)
-                                                            .orElseThrow(
-                                                                    () ->
-                                                                            new MissingComponentException(
-                                                                                    "AnimationComponent"));
-
-                                    HealthComponent hpComponent = (HealthComponent) healthComponent;
-
-                                    // is the entity dead?
-                                    if (hpComponent.getCurrentHitPoints() <= 0)
-                                        letEntityDie(animationComponent, hpComponent);
-                                    else hitEntity(animationComponent, hpComponent);
-                                }
-                            });
-        }
+        ECS.entities.stream()
+                // Consider only entities that have a HealthComponent
+                .flatMap(e -> e.getComponent(HealthComponent.class).stream())
+                // Form triples (e, hc, ac)
+                .map(hc -> buildDataObject((HealthComponent) hc))
+                // Apply damage
+                .map(this::applyDamage)
+                // Filter all dead entities
+                .filter(hsd -> hsd.hc.getCurrentHitPoints() <= 0)
+                // Remove all dead entities
+                .forEach(this::removeDeadEntities);
     }
 
-    private void hitEntity(AnimationComponent animationComponent, HealthComponent healthComponent) {
-        // Entity is (still) alive - apply damage
-        List<Damage> damageToGet = healthComponent.getDamageList();
-        int dmgAmmount = 0;
-        for (Damage dmg : damageToGet) {
-            // todo: after we implemented Items like Armor: reduce
-            // (or increase) the damage based on the stats and the
-            // damage type
-            switch (dmg.damageType()) {
-                case PHYSICAL -> dmgAmmount += dmg.damageAmmount();
-                case MAGIC -> dmgAmmount += dmg.damageAmmount();
-                case FIRE -> dmgAmmount += dmg.damageAmmount();
-            }
-        }
-        // if damage was caused, play getHitAnimation
-        if (dmgAmmount > 0) {
-            animationComponent.setCurrentAnimation(healthComponent.getGetHitAnimation());
-        }
+    private HSData buildDataObject(HealthComponent hc) {
+        Entity e = hc.getEntity();
 
-        healthComponent.clearDamageList();
-        healthComponent.setCurrentHitPoints(healthComponent.getCurrentHitPoints() - dmgAmmount);
+        AnimationComponent ac =
+                (AnimationComponent)
+                        e.getComponent(AnimationComponent.class).orElseThrow(this::missingAC);
+
+        return new HSData(e, hc, ac);
     }
 
-    private void letEntityDie(
-            AnimationComponent animationComponent, HealthComponent healthComponent) {
+    private HSData applyDamage(HSData hsd) {
+        int dmgAmount =
+                hsd.hc.getDamage(PHYSICAL) + hsd.hc.getDamage(MAGIC) + hsd.hc.getDamage(FIRE);
+
+        if (dmgAmount > 0) {
+            // we have some damage - let's show a little dance
+            hsd.ac.setCurrentAnimation(hsd.hc.getGetHitAnimation());
+        }
+
+        // reset all damage objects in health component and apply damage
+        hsd.hc.clearDamageList();
+        hsd.hc.setCurrentHitPoints(hsd.hc.getCurrentHitPoints() - dmgAmount);
+
+        return hsd;
+    }
+
+    private void removeDeadEntities(HSData hsd) {
         // Entity appears to be dead, so let's clean up the mess
-        healthComponent.triggerOnDeath();
-        animationComponent.setCurrentAnimation(healthComponent.getDieAnimation());
-        /*
-        todo: Before removing the entity, check if the animation is finished
-        Issue #246
-        */
-        ECS.entitiesToRemove.add(healthComponent.getEntity());
+        hsd.hc.triggerOnDeath();
+        hsd.ac.setCurrentAnimation(hsd.hc.getDieAnimation());
+        // TODO: Before removing the entity, check if the animation is finished (Issue #246)
+        ECS.entitiesToRemove.add(hsd.hc.getEntity());
+    }
+
+    private MissingComponentException missingAC() {
+        return new MissingComponentException("AnimationComponent");
     }
 }

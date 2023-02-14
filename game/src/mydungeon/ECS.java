@@ -59,7 +59,7 @@ public class ECS extends Game {
     @Override
     protected void frame() {
         camera.setFocusPoint(heroPositionComponent.getPosition());
-        entities.remove(entitiesToRemove);
+        entities.removeAll(entitiesToRemove);
         entitiesToRemove.clear();
         if (isOnEndTile()) levelAPI.loadLevel();
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
