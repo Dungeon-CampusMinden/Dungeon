@@ -49,7 +49,6 @@ fragment STRING_ESCAPE_SEQ
 // - proper stmt definition
 
 program : definition* EOF
-        // | fn_def
         //| stmt
         ;
 
