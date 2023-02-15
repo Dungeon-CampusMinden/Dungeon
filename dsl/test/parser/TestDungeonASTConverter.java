@@ -230,7 +230,7 @@ public class TestDungeonASTConverter {
                     prop2: "Hello, World!"
                 },
                 complex_component2 {
-                    prop3: fn(test),
+                    prop3: func(test),
                     prop4: "42"
                 }
             }
