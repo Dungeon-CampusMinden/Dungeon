@@ -74,7 +74,7 @@ stmt_list
     ;
 
 ret_type_def
-    : '->' type_id=ID
+    : ARROW type_id=ID
     ;
 
 param_def
