@@ -70,6 +70,7 @@ stmt
 
 stmt_list
     : stmt stmt_list
+    | stmt
     ;
 
 ret_type_def
