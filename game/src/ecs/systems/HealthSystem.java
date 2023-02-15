@@ -12,7 +12,7 @@ import mydungeon.ECS;
 
 /**
  * The HealthSystem offsets the damage to be done to all entities with the HealthComponent. Triggers
- * the death of an entity when the hit-points have fallen below 0.
+ * the death of an entity when the health-points have fallen below 0.
  */
 public class HealthSystem extends ECS_System {
 
@@ -29,7 +29,7 @@ public class HealthSystem extends ECS_System {
                 // Apply damage
                 .map(this::applyDamage)
                 // Filter all dead entities
-                .filter(hsd -> hsd.hc.getCurrentHitPoints() <= 0)
+                .filter(hsd -> hsd.hc.getCurrentHealthpoints() <= 0)
                 // Remove all dead entities
                 .forEach(this::removeDeadEntities);
     }
@@ -55,7 +55,7 @@ public class HealthSystem extends ECS_System {
 
         // reset all damage objects in health component and apply damage
         hsd.hc.clearDamage();
-        hsd.hc.setCurrentHitPoints(hsd.hc.getCurrentHitPoints() - dmgAmount);
+        hsd.hc.setCurrentHealthpoints(hsd.hc.getCurrentHealthpoints() - dmgAmount);
 
         return hsd;
     }

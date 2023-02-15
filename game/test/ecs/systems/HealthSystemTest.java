@@ -26,7 +26,7 @@ public class HealthSystemTest {
         AnimationComponent ac = new AnimationComponent(entity);
         HealthComponent component = new HealthComponent(entity, 1, onDeath, null, dieAnimation);
         HealthSystem system = new HealthSystem();
-        component.setCurrentHitPoints(0);
+        component.setCurrentHealthpoints(0);
         system.update();
         assertEquals(dieAnimation, ac.getCurrentAnimation());
         assertTrue(ECS.entitiesToRemove.contains(entity));
@@ -45,7 +45,7 @@ public class HealthSystemTest {
         component.receiveHit(new Damage(2, DamageType.FIRE));
         HealthSystem system = new HealthSystem();
         system.update();
-        assertEquals(3, component.getCurrentHitPoints());
+        assertEquals(3, component.getCurrentHealthpoints());
         assertEquals(hitAnimation, ac.getCurrentAnimation());
     }
 
@@ -58,11 +58,11 @@ public class HealthSystemTest {
         Animation hitAnimation = Mockito.mock(Animation.class);
         AnimationComponent ac = new AnimationComponent(entity);
         HealthComponent component = new HealthComponent(entity, 10, onDeath, hitAnimation, null);
-        component.setCurrentHitPoints(3);
+        component.setCurrentHealthpoints(3);
         component.receiveHit(new Damage(-3, DamageType.FIRE));
         HealthSystem system = new HealthSystem();
         system.update();
-        assertEquals(6, component.getCurrentHitPoints());
+        assertEquals(6, component.getCurrentHealthpoints());
         assertNotEquals(hitAnimation, ac.getCurrentAnimation());
     }
 
@@ -78,7 +78,7 @@ public class HealthSystemTest {
         component.receiveHit(new Damage(0, DamageType.FIRE));
         HealthSystem system = new HealthSystem();
         system.update();
-        assertEquals(10, component.getCurrentHitPoints());
+        assertEquals(10, component.getCurrentHealthpoints());
         assertNotEquals(hitAnimation, ac.getCurrentAnimation());
     }
 

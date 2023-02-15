@@ -16,8 +16,8 @@ public class HealthComponent extends Component {
     private static final List<String> missingTexture = List.of("animation/missingTexture.png");
 
     private final List<Damage> damageToGet;
-    private @DSLTypeMember(name = "maximal_hit_points") int maximalHitPoints;
-    private int currentHitPoints;
+    private @DSLTypeMember(name = "maximal_health_points") int maximalHealthpoints;
+    private int currentHealthpoints;
     private @DSLTypeMember(name = "on_death_function") IOnDeathFunction onDeath;
     private @DSLTypeMember(name = "get_hit_animation") Animation getHitAnimation;
     private @DSLTypeMember(name = "die_animation") Animation dieAnimation;
@@ -39,8 +39,8 @@ public class HealthComponent extends Component {
             Animation getHitAnimation,
             Animation dieAnimation) {
         super(entity);
-        this.maximalHitPoints = maximalHitPoints;
-        this.currentHitPoints = maximalHitPoints;
+        this.maximalHealthpoints = maximalHitPoints;
+        this.currentHealthpoints = maximalHitPoints;
         this.onDeath = onDeath;
         this.getHitAnimation = getHitAnimation;
         this.dieAnimation = dieAnimation;
@@ -96,21 +96,21 @@ public class HealthComponent extends Component {
     /**
      * Sets the current life points, capped at the value of the maximum hit-points
      *
-     * @param amount new amount of current hit-points
+     * @param amount new amount of current health-points
      */
-    public void setCurrentHitPoints(int amount) {
-        this.currentHitPoints = Math.min(maximalHitPoints, amount);
+    public void setCurrentHealthpoints(int amount) {
+        this.currentHealthpoints = Math.min(maximalHealthpoints, amount);
     }
 
     /**
-     * Sets the value of the Maximum Hit-points. If the new maximum hit-points are less than the
-     * current hit-points, the current points are set to the new maximum hit-points.
+     * Sets the value of the Maximum health-points. If the new maximum health-points are less than
+     * the current health-points, the current points are set to the new maximum health-points.
      *
-     * @param amount new amount of maximal hit-points
+     * @param amount new amount of maximal health-points
      */
-    public void setMaximalHitPoints(int amount) {
-        this.maximalHitPoints = amount;
-        currentHitPoints = Math.min(currentHitPoints, maximalHitPoints);
+    public void setMaximalHealthpoints(int amount) {
+        this.maximalHealthpoints = amount;
+        currentHealthpoints = Math.min(currentHealthpoints, maximalHealthpoints);
     }
 
     /**
@@ -141,17 +141,17 @@ public class HealthComponent extends Component {
     }
 
     /**
-     * @return The current hit-points the entity has
+     * @return The current health-points the entity has
      */
-    public int getCurrentHitPoints() {
-        return currentHitPoints;
+    public int getCurrentHealthpoints() {
+        return currentHealthpoints;
     }
 
     /**
-     * @return The maximal hit-points the entity can have
+     * @return The maximal health-points the entity can have
      */
-    public int getMaximalHitPoints() {
-        return maximalHitPoints;
+    public int getMaximalHealthpoints() {
+        return maximalHealthpoints;
     }
 
     /**

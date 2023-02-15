@@ -32,45 +32,45 @@ public class HealthComponentTest {
     }
 
     @Test
-    public void setMaximalHitPointsLowerThanCurrent() {
+    public void setMaximalHealthPointsLowerThanCurrent() {
         ECS.entities.clear();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity, 10, null, null, null);
-        assertEquals(10, hc.getMaximalHitPoints());
-        assertEquals(10, hc.getCurrentHitPoints());
-        hc.setMaximalHitPoints(8);
-        assertEquals(8, hc.getMaximalHitPoints());
-        assertEquals(8, hc.getCurrentHitPoints());
+        assertEquals(10, hc.getMaximalHealthpoints());
+        assertEquals(10, hc.getCurrentHealthpoints());
+        hc.setMaximalHealthpoints(8);
+        assertEquals(8, hc.getMaximalHealthpoints());
+        assertEquals(8, hc.getCurrentHealthpoints());
     }
 
     @Test
-    public void setMaximalHitPointsHigherThanCurrent() {
+    public void setMaximalHealthPointsHigherThanCurrent() {
         ECS.entities.clear();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity, 10, null, null, null);
-        assertEquals(10, hc.getMaximalHitPoints());
-        assertEquals(10, hc.getCurrentHitPoints());
-        hc.setMaximalHitPoints(12);
-        assertEquals(12, hc.getMaximalHitPoints());
-        assertEquals(10, hc.getCurrentHitPoints());
+        assertEquals(10, hc.getMaximalHealthpoints());
+        assertEquals(10, hc.getCurrentHealthpoints());
+        hc.setMaximalHealthpoints(12);
+        assertEquals(12, hc.getMaximalHealthpoints());
+        assertEquals(10, hc.getCurrentHealthpoints());
     }
 
     @Test
-    public void setCurrentHitPointsHigherThanMaximum() {
+    public void setCurrentHealthPointsHigherThanMaximum() {
         ECS.entities.clear();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity, 10, null, null, null);
-        hc.setCurrentHitPoints(12);
-        assertEquals(10, hc.getCurrentHitPoints());
+        hc.setCurrentHealthpoints(12);
+        assertEquals(10, hc.getCurrentHealthpoints());
     }
 
     @Test
-    public void setCurrentHitPointsLowerThanMaximum() {
+    public void setCurrentHealthPointsLowerThanMaximum() {
         ECS.entities.clear();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity, 10, null, null, null);
-        hc.setCurrentHitPoints(8);
-        assertEquals(8, hc.getCurrentHitPoints());
+        hc.setCurrentHealthpoints(8);
+        assertEquals(8, hc.getCurrentHealthpoints());
     }
 
     @Test
