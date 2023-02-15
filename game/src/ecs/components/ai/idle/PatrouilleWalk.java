@@ -80,12 +80,18 @@ public class PatrouilleWalk implements IIdleAI {
             this.init(entity);
         }
 
-        if(currentPath != null && !AITools.pathFinishedOrLeft(entity, currentPath)) {
+        PositionComponent position = (PositionComponent) entity.getComponent(PositionComponent.class)
+            .orElseThrow(() -> new MissingComponentException("PositionComponent"));
+
+        if(currentPath != null && !AITools.pathFinished(entity, currentPath)) {
+            if(AITools.pathLeft(entity, currentPath)) {
+                currentPath = AITools.calculatePath(position.getPosition(), this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+            }
             AITools.move(entity, currentPath);
             return;
         }
 
-        if(currentPath != null && AITools.pathFinishedOrLeft(entity, currentPath)) {
+        if(currentPath != null && AITools.pathFinished(entity, currentPath)) {
             arrivalTime = System.currentTimeMillis();
             currentPath = null;
             return;
@@ -95,9 +101,7 @@ public class PatrouilleWalk implements IIdleAI {
             return;
         }
 
-        //HERE: Path to checkpoint finished + pause time over
-        PositionComponent position = (PositionComponent) entity.getComponent(PositionComponent.class)
-            .orElseThrow(() -> new MissingComponentException("PositionComponent"));
+        //HERE: (Path to checkpoint finished + pause time over) OR currentPath = null
         this.arrivalTime = 0;
 
         switch (mode) {
@@ -128,6 +132,5 @@ public class PatrouilleWalk implements IIdleAI {
         }
 
     }
-
 
 }
