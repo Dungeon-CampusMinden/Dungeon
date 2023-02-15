@@ -26,7 +26,7 @@ public class HealthComponent extends Component {
      * Creates a new HealthComponent
      *
      * @param entity associated entity
-     * @param maximalHitPoints maximum amount of hit-points, currentHitPoints cant be bigger than
+     * @param maximalHitPoints maximum amount of hit-points, currentHitPoints can't be bigger than
      *     that
      * @param onDeath Function that gets called, when this entity dies
      * @param getHitAnimation Animation to be played as the entity was hit
@@ -53,13 +53,12 @@ public class HealthComponent extends Component {
      * @param entity associated entity
      */
     public HealthComponent(@DSLContextMember(name = "entity") Entity entity) {
-        super(entity);
-        this.maximalHitPoints = 1;
-        this.currentHitPoints = 1;
-        this.onDeath = entity2 -> {};
-        this.getHitAnimation = new Animation(missingTexture, 100);
-        this.dieAnimation = new Animation(missingTexture, 100);
-        damageToGet = new ArrayList<>();
+        this(
+                entity,
+                1,
+                entity2 -> {},
+                new Animation(missingTexture, 100),
+                new Animation(missingTexture, 100));
     }
 
     /**
@@ -67,20 +66,13 @@ public class HealthComponent extends Component {
      *
      * @param damage Damage that should be inflicted
      */
-    public void getHit(Damage damage) {
+    public void receiveHit(Damage damage) {
         damageToGet.add(damage);
     }
 
     /** Triggers the onDeath Function */
     public void triggerOnDeath() {
         onDeath.onDeath(entity);
-    }
-
-    /**
-     * @return List with all damage objects that still need to be accounted for
-     */
-    public List<Damage> getDamageList() {
-        return damageToGet;
     }
 
     /**
@@ -97,7 +89,7 @@ public class HealthComponent extends Component {
     }
 
     /** Clear the damage list */
-    public void clearDamageList() {
+    public void clearDamage() {
         damageToGet.clear();
     }
 

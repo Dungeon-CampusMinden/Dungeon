@@ -54,7 +54,7 @@ public class HealthSystem extends ECS_System {
         }
 
         // reset all damage objects in health component and apply damage
-        hsd.hc.clearDamageList();
+        hsd.hc.clearDamage();
         hsd.hc.setCurrentHitPoints(hsd.hc.getCurrentHitPoints() - dmgAmount);
 
         return hsd;

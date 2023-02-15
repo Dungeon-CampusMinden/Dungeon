@@ -41,8 +41,8 @@ public class HealthSystemTest {
         Animation hitAnimation = Mockito.mock(Animation.class);
         AnimationComponent ac = new AnimationComponent(entity);
         HealthComponent component = new HealthComponent(entity, 10, onDeath, hitAnimation, null);
-        component.getHit(new Damage(5, DamageType.FIRE));
-        component.getHit(new Damage(2, DamageType.FIRE));
+        component.receiveHit(new Damage(5, DamageType.FIRE));
+        component.receiveHit(new Damage(2, DamageType.FIRE));
         HealthSystem system = new HealthSystem();
         system.update();
         assertEquals(3, component.getCurrentHitPoints());
@@ -59,7 +59,7 @@ public class HealthSystemTest {
         AnimationComponent ac = new AnimationComponent(entity);
         HealthComponent component = new HealthComponent(entity, 10, onDeath, hitAnimation, null);
         component.setCurrentHitPoints(3);
-        component.getHit(new Damage(-3, DamageType.FIRE));
+        component.receiveHit(new Damage(-3, DamageType.FIRE));
         HealthSystem system = new HealthSystem();
         system.update();
         assertEquals(6, component.getCurrentHitPoints());
@@ -75,7 +75,7 @@ public class HealthSystemTest {
         Animation hitAnimation = Mockito.mock(Animation.class);
         AnimationComponent ac = new AnimationComponent(entity);
         HealthComponent component = new HealthComponent(entity, 10, onDeath, hitAnimation, null);
-        component.getHit(new Damage(0, DamageType.FIRE));
+        component.receiveHit(new Damage(0, DamageType.FIRE));
         HealthSystem system = new HealthSystem();
         system.update();
         assertEquals(10, component.getCurrentHitPoints());

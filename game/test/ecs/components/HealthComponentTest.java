@@ -1,7 +1,6 @@
 package ecs.components;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 
 import ecs.damage.Damage;
@@ -15,13 +14,21 @@ import org.mockito.Mockito;
 public class HealthComponentTest {
 
     @Test
-    public void getHit() {
+    public void receiveHit() {
         ECS.entities.clear();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity);
-        Damage dmg = new Damage(3, DamageType.FIRE);
-        hc.getHit(dmg);
-        assertTrue(hc.getDamageList().contains(dmg));
+        Damage fdmg = new Damage(3, DamageType.FIRE);
+        Damage fdmg2 = new Damage(5, DamageType.FIRE);
+        Damage mdmg = new Damage(-1, DamageType.MAGIC);
+        Damage pdmg = new Damage(4, DamageType.PHYSICAL);
+        hc.receiveHit(fdmg);
+        hc.receiveHit(fdmg2);
+        hc.receiveHit(mdmg);
+        hc.receiveHit(pdmg);
+        assertEquals(fdmg.damageAmount() + fdmg2.damageAmount(), hc.getDamage(DamageType.FIRE));
+        assertEquals(mdmg.damageAmount(), hc.getDamage(DamageType.MAGIC));
+        assertEquals(pdmg.damageAmount(), hc.getDamage(DamageType.PHYSICAL));
     }
 
     @Test
@@ -49,7 +56,7 @@ public class HealthComponentTest {
     }
 
     @Test
-    public void setCurrentHitPointsHigherThanMaxmimum() {
+    public void setCurrentHitPointsHigherThanMaximum() {
         ECS.entities.clear();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity, 10, null, null, null);
@@ -58,7 +65,7 @@ public class HealthComponentTest {
     }
 
     @Test
-    public void setCurrentHitPointsLowerThanMaxmimum() {
+    public void setCurrentHitPointsLowerThanMaximum() {
         ECS.entities.clear();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity, 10, null, null, null);
