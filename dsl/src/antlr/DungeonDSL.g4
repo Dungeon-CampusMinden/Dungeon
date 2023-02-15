@@ -49,7 +49,7 @@ fragment STRING_ESCAPE_SEQ
 // - proper stmt definition
 
 program : definition* EOF
-        //| fn_def
+        // | fn_def
         //| stmt
         ;
 
@@ -57,6 +57,32 @@ definition
         : dot_def
         | object_def
         | game_obj_def
+        | fn_def
+        ;
+
+fn_def
+    : 'fn' ID '(' param_def_list? ')' ret_type_def? '{' stmt_list? '}'
+    ;
+
+stmt
+    : primary ';'
+    ;
+
+stmt_list
+    : stmt stmt_list
+    ;
+
+ret_type_def
+    : '->' type_id=ID
+    ;
+
+param_def
+    : typde_id=ID param_id=ID
+    ;
+
+param_def_list
+        : param_def ',' param_def_list
+        | param_def
         ;
 
 game_obj_def
