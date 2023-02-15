@@ -146,6 +146,16 @@ public interface AstVisitor<T> {
     }
 
     /**
+     * Visitor method for ParamDefNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(ParamDefNode node) {
+        return null;
+    }
+
+    /**
      * Visitor method for GameObjectDefinitionNodes
      *
      * @param node Node to visit
