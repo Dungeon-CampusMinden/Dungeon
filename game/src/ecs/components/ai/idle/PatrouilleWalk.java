@@ -32,13 +32,14 @@ public class PatrouilleWalk implements IIdleAI {
     private int currentCheckpoint = 0;
 
     /**
-     * Walks a random pattern in a radius around the entity.
-     * The checkpoints will be chosen randomly at first idle.
-     * After being initialized the checkpoints won't change anymore, only the order may be.
+     * Walks a random pattern in a radius around the entity. The checkpoints will be chosen randomly
+     * at first idle. After being initialized the checkpoints won't change anymore, only the order
+     * may be.
      *
-     * @param radius            Max distance from the entity to walk
+     * @param radius Max distance from the entity to walk
      * @param numberCheckpoints Number of checkpoints to walk to
-     * @param pauseTime         Max time in milliseconds to wait on a checkpoint. The actual time is a random number between 0 and this value
+     * @param pauseTime Max time in milliseconds to wait on a checkpoint. The actual time is a
+     *     random number between 0 and this value
      */
     public PatrouilleWalk(float radius, int numberCheckpoints, int pauseTime, MODE mode) {
         this.radius = radius;
@@ -49,8 +50,11 @@ public class PatrouilleWalk implements IIdleAI {
 
     private void init(Entity entity) {
         initialized = true;
-        PositionComponent position = (PositionComponent) entity.getComponent(PositionComponent.class)
-            .orElseThrow(() -> new MissingComponentException("PositionComponent"));
+        PositionComponent position =
+                (PositionComponent)
+                        entity.getComponent(PositionComponent.class)
+                                .orElseThrow(
+                                        () -> new MissingComponentException("PositionComponent"));
         Point center = position.getPosition();
         Tile tile = ECS.currentLevel.getTileAt(position.getPosition().toCoordinate());
 
@@ -67,7 +71,8 @@ public class PatrouilleWalk implements IIdleAI {
         Random rnd = new Random();
         int maxTries = 0;
         while (this.checkpoints.size() < numberCheckpoints
-            || accessibleTiles.size() == this.checkpoints.size() || maxTries >= 1000) {
+                || accessibleTiles.size() == this.checkpoints.size()
+                || maxTries >= 1000) {
             Tile t = accessibleTiles.get(rnd.nextInt(accessibleTiles.size()));
             if (!this.checkpoints.contains(t)) {
                 this.checkpoints.add(t);
@@ -78,17 +83,20 @@ public class PatrouilleWalk implements IIdleAI {
 
     @Override
     public void idle(Entity entity) {
-        if (!initialized) {
-            this.init(entity);
-        }
+        if (!initialized) this.init(entity);
 
-        PositionComponent position = (PositionComponent) entity.getComponent(PositionComponent.class)
-            .orElseThrow(() -> new MissingComponentException("PositionComponent"));
+        PositionComponent position =
+                (PositionComponent)
+                        entity.getComponent(PositionComponent.class)
+                                .orElseThrow(
+                                        () -> new MissingComponentException("PositionComponent"));
 
         if (currentPath != null && !AITools.pathFinished(entity, currentPath)) {
             if (AITools.pathLeft(entity, currentPath)) {
-                currentPath = AITools.calculatePath(position.getPosition(),
-                    this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                currentPath =
+                        AITools.calculatePath(
+                                position.getPosition(),
+                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
             }
             AITools.move(entity, currentPath);
             return;
@@ -104,20 +112,24 @@ public class PatrouilleWalk implements IIdleAI {
             return;
         }
 
-        //HERE: (Path to checkpoint finished + pause time over) OR currentPath = null
+        // HERE: (Path to checkpoint finished + pause time over) OR currentPath = null
         this.arrivalTime = 0;
 
         switch (mode) {
             case RANDOM -> {
                 Random rnd = new Random();
                 currentCheckpoint = rnd.nextInt(checkpoints.size());
-                currentPath = AITools.calculatePath(position.getPosition(),
-                    this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                currentPath =
+                        AITools.calculatePath(
+                                position.getPosition(),
+                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
             }
             case LOOP -> {
                 currentCheckpoint = (currentCheckpoint + 1) % checkpoints.size();
-                currentPath = AITools.calculatePath(position.getPosition(),
-                    this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                currentPath =
+                        AITools.calculatePath(
+                                position.getPosition(),
+                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
             }
             case BACK_AND_FORTH -> {
                 if (forward) {
@@ -131,13 +143,12 @@ public class PatrouilleWalk implements IIdleAI {
                         forward = true;
                     }
                 }
-                currentPath = AITools.calculatePath(position.getPosition(),
-                    this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                currentPath =
+                        AITools.calculatePath(
+                                position.getPosition(),
+                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
             }
-            default -> {
-            }
+            default -> {}
         }
-
     }
-
 }
