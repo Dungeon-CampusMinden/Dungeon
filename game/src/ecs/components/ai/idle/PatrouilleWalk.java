@@ -5,13 +5,12 @@ import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.components.ai.AITools;
 import ecs.entities.Entity;
-import level.elements.tile.Tile;
-import mydungeon.ECS;
-import tools.Point;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import level.elements.tile.Tile;
+import mydungeon.ECS;
+import tools.Point;
 
 public class PatrouilleWalk implements IIdleAI {
 
@@ -33,11 +32,13 @@ public class PatrouilleWalk implements IIdleAI {
     private int currentCheckpoint = 0;
 
     /**
-     * Walks a random pattern in a radius around the entity. The checkpoints will be chosen randomly at first idle.
+     * Walks a random pattern in a radius around the entity.
+     * The checkpoints will be chosen randomly at first idle.
      * After being initialized the checkpoints won't change anymore, only the order may be.
-     * @param radius Max distance from the entity to walk
+     *
+     * @param radius            Max distance from the entity to walk
      * @param numberCheckpoints Number of checkpoints to walk to
-     * @param pauseTime Max time in milliseconds to wait on a checkpoint. The actual time is a random number between 0 and this value
+     * @param pauseTime         Max time in milliseconds to wait on a checkpoint. The actual time is a random number between 0 and this value
      */
     public PatrouilleWalk(float radius, int numberCheckpoints, int pauseTime, MODE mode) {
         this.radius = radius;
@@ -53,51 +54,53 @@ public class PatrouilleWalk implements IIdleAI {
         Point center = position.getPosition();
         Tile tile = ECS.currentLevel.getTileAt(position.getPosition().toCoordinate());
 
-        if(tile == null) {
+        if (tile == null) {
             return;
         }
 
         List<Tile> accessibleTiles = AITools.getAccessibleTilesInRange(center, radius);
 
-        if(accessibleTiles.isEmpty()) {
+        if (accessibleTiles.isEmpty()) {
             return;
         }
 
         Random rnd = new Random();
         int maxTries = 0;
-        while(this.checkpoints.size() < numberCheckpoints || accessibleTiles.size() == this.checkpoints.size() || maxTries >= 1000) {
+        while (this.checkpoints.size() < numberCheckpoints
+            || accessibleTiles.size() == this.checkpoints.size() || maxTries >= 1000) {
             Tile t = accessibleTiles.get(rnd.nextInt(accessibleTiles.size()));
-            if(!this.checkpoints.contains(t)) {
+            if (!this.checkpoints.contains(t)) {
                 this.checkpoints.add(t);
             }
-            maxTries ++;
+            maxTries++;
         }
     }
 
     @Override
     public void idle(Entity entity) {
-        if(!initialized) {
+        if (!initialized) {
             this.init(entity);
         }
 
         PositionComponent position = (PositionComponent) entity.getComponent(PositionComponent.class)
             .orElseThrow(() -> new MissingComponentException("PositionComponent"));
 
-        if(currentPath != null && !AITools.pathFinished(entity, currentPath)) {
-            if(AITools.pathLeft(entity, currentPath)) {
-                currentPath = AITools.calculatePath(position.getPosition(), this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+        if (currentPath != null && !AITools.pathFinished(entity, currentPath)) {
+            if (AITools.pathLeft(entity, currentPath)) {
+                currentPath = AITools.calculatePath(position.getPosition(),
+                    this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
             }
             AITools.move(entity, currentPath);
             return;
         }
 
-        if(currentPath != null && AITools.pathFinished(entity, currentPath)) {
+        if (currentPath != null && AITools.pathFinished(entity, currentPath)) {
             arrivalTime = System.currentTimeMillis();
             currentPath = null;
             return;
         }
 
-        if(System.currentTimeMillis() - arrivalTime < pauseTime) {
+        if (System.currentTimeMillis() - arrivalTime < pauseTime) {
             return;
         }
 
@@ -108,11 +111,13 @@ public class PatrouilleWalk implements IIdleAI {
             case RANDOM -> {
                 Random rnd = new Random();
                 currentCheckpoint = rnd.nextInt(checkpoints.size());
-                currentPath = AITools.calculatePath(position.getPosition(), this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                currentPath = AITools.calculatePath(position.getPosition(),
+                    this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
             }
             case LOOP -> {
                 currentCheckpoint = (currentCheckpoint + 1) % checkpoints.size();
-                currentPath = AITools.calculatePath(position.getPosition(), this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                currentPath = AITools.calculatePath(position.getPosition(),
+                    this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
             }
             case BACK_AND_FORTH -> {
                 if (forward) {
@@ -126,9 +131,11 @@ public class PatrouilleWalk implements IIdleAI {
                         forward = true;
                     }
                 }
-                currentPath = AITools.calculatePath(position.getPosition(), this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                currentPath = AITools.calculatePath(position.getPosition(),
+                    this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
             }
-            default -> {}
+            default -> {
+            }
         }
 
     }

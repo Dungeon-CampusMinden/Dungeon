@@ -296,6 +296,4 @@ public class AITools {
         }
         return !onPath;
     }
-
-
 }
