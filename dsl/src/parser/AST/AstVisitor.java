@@ -146,6 +146,16 @@ public interface AstVisitor<T> {
     }
 
     /**
+     * Visitor method for FuncDefNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(FuncDefNode node) {
+        return null;
+    }
+
+    /**
      * Visitor method for ParamDefNodes
      *
      * @param node Node to visit
