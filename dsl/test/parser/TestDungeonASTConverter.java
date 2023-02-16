@@ -300,7 +300,27 @@ public class TestDungeonASTConverter {
     }
 
     @Test
-    public void funcDef() {
+    public void funcDefMinimal() {
+        String program = """
+        fn test_func() { }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+
+        assertEquals(Node.Type.FuncDef, funcDefNode.type);
+        assertEquals("test_func", funcDefNode.getIdName());
+        assertEquals(Node.NONE, funcDefNode.getRetTypeId());
+
+        var parameters = funcDefNode.getParameters();
+        assertEquals(0, parameters.size());
+
+        var stmts = funcDefNode.getStmts();
+        assertEquals(0, stmts.size());
+    }
+
+    @Test
+    public void funcDefFull() {
         String program =
                 """
         fn test_func(int param1, float param2, string param3) -> ret_type {
