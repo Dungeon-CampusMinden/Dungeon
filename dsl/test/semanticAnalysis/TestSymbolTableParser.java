@@ -57,16 +57,16 @@ public class TestSymbolTableParser {
     public void testSymbolReferenceComponent() {
         String program =
                 """
-            graph g {
-                A -- B
-            }
-
-            game_object c {
-                test_component{
-                    level_graph: g
+                graph g {
+                    A -- B
                 }
-            }
-            """;
+
+                game_object c {
+                    test_component{
+                        level_graph: g
+                    }
+                }
+                """;
 
         // setup
         var ast = Helpers.getASTFromString(program);
@@ -142,10 +142,10 @@ public class TestSymbolTableParser {
     public void testSetupNativeFunctions() {
         String program =
                 """
-        quest_config c {
-            points: print("Hello")
-        }
-                """;
+                quest_config c {
+                    points: print("Hello")
+                }
+                        """;
 
         var ast = Helpers.getASTFromString(program);
         var symtableResult = Helpers.getSymtableForAST(ast);
@@ -161,10 +161,10 @@ public class TestSymbolTableParser {
     public void testResolveNativeFunction() {
         String program =
                 """
-        quest_config c {
-            points: print("Hello")
-        }
-                """;
+                quest_config c {
+                    points: print("Hello")
+                }
+                        """;
 
         var ast = Helpers.getASTFromString(program);
         var symtableResult = Helpers.getSymtableForAST(ast);
@@ -185,6 +185,7 @@ public class TestSymbolTableParser {
 
     // TODO: is this even correct? should it be linked? this currently prevents
     //  multiple instances of the same datatype...
+
     /**
      * Test, if symbol of property of aggregate datatype is correctly linked to the symbol inside of
      * the datatype
@@ -193,16 +194,16 @@ public class TestSymbolTableParser {
     public void testPropertyReference() {
         String program =
                 """
-            graph g {
-                A -- B
-            }
-            quest_config c {
-                level_graph: g
-            }
-            quest_config d {
-                level_graph: g
-            }
-                """;
+                graph g {
+                    A -- B
+                }
+                quest_config c {
+                    level_graph: g
+                }
+                quest_config d {
+                    level_graph: g
+                }
+                    """;
 
         // generate symbol table
         var ast = Helpers.getASTFromString(program);
@@ -233,10 +234,10 @@ public class TestSymbolTableParser {
     public void funcDef() {
         String program =
                 """
-            fn test_func(int param1, float param2, string param3) -> int {
-                print(param1);
-            }
-            """;
+                fn test_func(int param1, float param2, string param3) -> int {
+                    print(param1);
+                }
+                """;
 
         var ast = Helpers.getASTFromString(program);
         var symtableResult = Helpers.getSymtableForAST(ast);
@@ -255,10 +256,10 @@ public class TestSymbolTableParser {
     public void resolveParameterInFunctionBody() {
         String program =
                 """
-            fn test_func(int param1, float param2, string param3) -> int {
-                print(param1);
-            }
-            """;
+                fn test_func(int param1, float param2, string param3) -> int {
+                    print(param1);
+                }
+                """;
 
         var ast = Helpers.getASTFromString(program);
         var symtableResult = Helpers.getSymtableForAST(ast);
@@ -278,7 +279,7 @@ public class TestSymbolTableParser {
     @Test
     public void funcDefFuncType() {
         String program =
-            """
+                """
                 fn test_func_1(int param1, float param2, string param3) -> int {
                     print(param1);
                 }
@@ -291,9 +292,9 @@ public class TestSymbolTableParser {
         var symtableResult = Helpers.getSymtableForAST(ast);
 
         var funcSymbol1 =
-            (FunctionSymbol) symtableResult.symbolTable.globalScope.resolve("test_func_1");
+                (FunctionSymbol) symtableResult.symbolTable.globalScope.resolve("test_func_1");
         var funcSymbol2 =
-            (FunctionSymbol) symtableResult.symbolTable.globalScope.resolve("test_func_2");
+                (FunctionSymbol) symtableResult.symbolTable.globalScope.resolve("test_func_2");
         Assert.assertEquals(funcSymbol1.getDataType(), funcSymbol2.getDataType());
     }
 }
