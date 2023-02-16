@@ -15,8 +15,13 @@ import tools.Point;
 public class PatrouilleWalk implements IIdleAI {
 
     public enum MODE {
+        /** Walks to a random checkpoint. */
         RANDOM,
+
+        /** Looping the same path over and over again. */
         LOOP,
+
+        /** Walks the path forward and then backward. */
         BACK_AND_FORTH
     }
 
