@@ -227,4 +227,51 @@ public class TestSymbolTableParser {
 
         Assert.assertEquals(levelGraphPropertySymbol, symbolForPropertyIdNode);
     }
+
+
+    /** Test, if a native function call is correctly resolved */
+    @Test
+    public void funcDef() {
+        String program =
+            """
+            fn test_func(int param1, float param2, string param3) -> int {
+                print(param1);
+            }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var symtableResult = Helpers.getSymtableForAST(ast);
+
+        var funcSymbol = (FunctionSymbol)symtableResult.symbolTable.globalScope.resolve("test_func");
+        Assert.assertEquals("test_func", funcSymbol.getName());
+        Assert.assertEquals(BuiltInType.intType, funcSymbol.getDataType());
+        Assert.assertEquals(ICallable.Type.UserDefined, funcSymbol.getCallableType());
+        Assert.assertNotEquals(Symbol.NULL, funcSymbol.resolve("param1"));
+        Assert.assertNotEquals(Symbol.NULL, funcSymbol.resolve("param2"));
+        Assert.assertNotEquals(Symbol.NULL, funcSymbol.resolve("param3"));
+    }
+
+    @Test
+    public void resolveParameterInFunctionBody() {
+        String program =
+            """
+            fn test_func(int param1, float param2, string param3) -> int {
+                print(param1);
+            }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var symtableResult = Helpers.getSymtableForAST(ast);
+
+        var funcDefNode = ast.getChild(0);
+        var stmtList = funcDefNode.getChild(3);
+        var funcCallStmt = stmtList.getChild(0);
+        var paramList = funcCallStmt.getChild(1);
+        var firstParam = paramList.getChild(0);
+
+        var symbolForParam1 = symtableResult.symbolTable.getSymbolsForAstNode(firstParam).get(0);
+        var funcDef = symtableResult.symbolTable.globalScope.resolve("test_func");
+        var parameterSymbolFromFunctionSymbol = ((FunctionSymbol)funcDef).resolve("param1");
+        Assert.assertEquals(parameterSymbolFromFunctionSymbol, symbolForParam1);
+    }
 }
