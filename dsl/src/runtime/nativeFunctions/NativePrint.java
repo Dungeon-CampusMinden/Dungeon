@@ -15,6 +15,7 @@ import semanticAnalysis.types.BuiltInType;
 
 import java.util.List;
 
+// TODO: set FunctionType as datatype for this
 public class NativePrint extends ScopedSymbol implements ICallable {
     public static NativePrint func = new NativePrint(Scope.NULL);
 
