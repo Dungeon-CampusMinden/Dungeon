@@ -41,7 +41,11 @@ public class Node {
         Identifier,
         TypeSpecifier,
         FuncCall,
-        ParamList
+        ParamList,
+        ParamDefList,
+        StmtList,
+        FuncDef,
+        ParamDef
     }
 
     public static Node NONE = new Node(Type.NONE, new ArrayList<>());

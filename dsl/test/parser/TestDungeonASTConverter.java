@@ -1,6 +1,7 @@
 package parser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import helpers.Helpers;
 import org.junit.Test;
@@ -296,5 +297,58 @@ public class TestDungeonASTConverter {
         var propertyDef = (PropertyDefNode) componentDef.getPropertyDefinitionNodes().get(0);
         var stmtNode = propertyDef.getStmtNode();
         assertEquals(stmtNode.type, Node.Type.AggregateValueDefinition);
+    }
+
+    @Test
+    public void funcDefMinimal() {
+        String program = """
+        fn test_func() { }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+
+        assertEquals(Node.Type.FuncDef, funcDefNode.type);
+        assertEquals("test_func", funcDefNode.getIdName());
+        assertEquals(Node.NONE, funcDefNode.getRetTypeId());
+
+        var parameters = funcDefNode.getParameters();
+        assertEquals(0, parameters.size());
+
+        var stmts = funcDefNode.getStmts();
+        assertEquals(0, stmts.size());
+    }
+
+    @Test
+    public void funcDefFull() {
+        String program =
+                """
+        fn test_func(int param1, float param2, string param3) -> ret_type {
+            print("hello");
+        }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+
+        assertEquals(Node.Type.FuncDef, funcDefNode.type);
+        assertEquals("test_func", funcDefNode.getIdName());
+        assertEquals("ret_type", funcDefNode.getRetTypeName());
+
+        var parameters = funcDefNode.getParameters();
+        for (var parameter : parameters) {
+            assertEquals(Node.Type.ParamDef, parameter.type);
+        }
+        assertEquals("param1", ((ParamDefNode) parameters.get(0)).getIdName());
+        assertEquals("param2", ((ParamDefNode) parameters.get(1)).getIdName());
+        assertEquals("param3", ((ParamDefNode) parameters.get(2)).getIdName());
+        assertEquals("int", ((ParamDefNode) parameters.get(0)).getTypeName());
+        assertEquals("float", ((ParamDefNode) parameters.get(1)).getTypeName());
+        assertEquals("string", ((ParamDefNode) parameters.get(2)).getTypeName());
+
+        var stmts = funcDefNode.getStmts();
+        assertEquals(Node.Type.FuncCall, stmts.get(0).type);
+
+        assertNotEquals(Node.NONE, funcDefNode);
     }
 }

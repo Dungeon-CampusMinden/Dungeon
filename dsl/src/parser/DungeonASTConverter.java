@@ -80,37 +80,130 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     public void enterFn_def(DungeonDSLParser.Fn_defContext ctx) {}
 
     @Override
-    public void exitFn_def(DungeonDSLParser.Fn_defContext ctx) {}
+    public void exitFn_def(DungeonDSLParser.Fn_defContext ctx) {
+        // pop everything (depending on ctx) and create fnDefNode
+        Node stmtList = Node.NONE;
+        if (ctx.stmt_list() != null) {
+            // no stmt list
+            stmtList = astStack.pop();
+        }
+
+        Node retType = Node.NONE;
+        if (ctx.ret_type_def() != null) {
+            retType = astStack.pop();
+        }
+
+        Node paramDefList = Node.NONE;
+        if (ctx.param_def_list() != null) {
+            paramDefList = astStack.pop();
+        }
+
+        Node functionName = astStack.pop();
+
+        var funcDefNode = new FuncDefNode(functionName, paramDefList, retType, stmtList);
+        astStack.push(funcDefNode);
+    }
 
     @Override
     public void enterStmt(DungeonDSLParser.StmtContext ctx) {}
 
     @Override
-    public void exitStmt(DungeonDSLParser.StmtContext ctx) {}
+    public void exitStmt(DungeonDSLParser.StmtContext ctx) {
+        // just let it bubble up, we don't need to store the information, that it is a stmt
+    }
 
     @Override
     public void enterStmt_list(DungeonDSLParser.Stmt_listContext ctx) {}
 
     @Override
-    public void exitStmt_list(DungeonDSLParser.Stmt_listContext ctx) {}
+    public void exitStmt_list(DungeonDSLParser.Stmt_listContext ctx) {
+        // condense to actual list of stmt's
+        if (ctx.stmt_list() == null) {
+            // trivial stmt definition list (one stmt)
+            var innerStmt = astStack.pop();
+
+            var list = new ArrayList<Node>(1);
+            list.add(innerStmt);
+
+            var stmtList = new Node(Node.Type.StmtList, list);
+            astStack.push(stmtList);
+        } else {
+            // rhs stmt list is on stack
+            var rhsList = astStack.pop();
+            assert (rhsList.type == Node.Type.StmtList);
+
+            var leftStmt = astStack.pop();
+
+            var childList = new ArrayList<Node>(rhsList.getChildren().size() + 1);
+            childList.add(leftStmt);
+            childList.addAll(rhsList.getChildren());
+
+            var stmtList = new Node(Node.Type.StmtList, childList);
+            astStack.push(stmtList);
+        }
+    }
 
     @Override
     public void enterRet_type_def(DungeonDSLParser.Ret_type_defContext ctx) {}
 
     @Override
-    public void exitRet_type_def(DungeonDSLParser.Ret_type_defContext ctx) {}
+    public void exitRet_type_def(DungeonDSLParser.Ret_type_defContext ctx) {
+        Node retTypeId = astStack.pop();
+
+        // remove the arrow
+        astStack.pop();
+        astStack.push(retTypeId);
+    }
 
     @Override
     public void enterParam_def(DungeonDSLParser.Param_defContext ctx) {}
 
     @Override
-    public void exitParam_def(DungeonDSLParser.Param_defContext ctx) {}
+    public void exitParam_def(DungeonDSLParser.Param_defContext ctx) {
+        // topmost id on stack: id of parameter
+        var id = astStack.pop();
+        assert id.type == Node.Type.Identifier;
+
+        // after that: type id
+        var typeId = astStack.pop();
+        assert typeId.type == Node.Type.Identifier;
+
+        var paramNode = new ParamDefNode(typeId, id);
+        astStack.push(paramNode);
+    }
 
     @Override
     public void enterParam_def_list(DungeonDSLParser.Param_def_listContext ctx) {}
 
     @Override
-    public void exitParam_def_list(DungeonDSLParser.Param_def_listContext ctx) {}
+    public void exitParam_def_list(DungeonDSLParser.Param_def_listContext ctx) {
+        // condense down to list of param def nodes
+        if (ctx.param_def_list() == null) {
+            // trivial parameter definition list
+            var innerParamDef = astStack.pop();
+            assert (innerParamDef.type == Node.Type.ParamDef);
+
+            var list = new ArrayList<Node>(1);
+            list.add(innerParamDef);
+
+            var paramDefList = new Node(Node.Type.ParamDefList, list);
+            astStack.push(paramDefList);
+        } else {
+            // rhs paramDefList is on stack
+            var rhsList = astStack.pop();
+            assert (rhsList.type == Node.Type.ParamDefList);
+
+            var leftParamDef = astStack.pop();
+            assert (leftParamDef.type == Node.Type.ParamDef);
+
+            var childList = new ArrayList<Node>(rhsList.getChildren().size() + 1);
+            childList.add(leftParamDef);
+            childList.addAll(rhsList.getChildren());
+
+            var paramDefList = new Node(Node.Type.ParamDefList, childList);
+            astStack.push(paramDefList);
+        }
+    }
 
     @Override
     public void enterGame_obj_def(DungeonDSLParser.Game_obj_defContext ctx) {}
