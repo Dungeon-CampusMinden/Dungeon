@@ -24,8 +24,8 @@ public class FuncDefNode extends Node {
      * @return Name of the defined function as String
      */
     public String getIdName() {
-                            return ((IdNode) this.getChild(idIdx)).getName();
-        }
+        return ((IdNode) this.getChild(idIdx)).getName();
+    }
 
     /**
      * Getter for the AstNode corresponding to the return type of the function definition
@@ -54,15 +54,14 @@ public class FuncDefNode extends Node {
         return this.children.get(stmtListIdx).getChildren();
     }
 
-
     /**
      * Getter for the AstNodes corresponding to the parameters of the function call
      *
      * @return List of the AstNodes corresponding to the parameters of the function call
      */
     public List<Node> getParameters() {
-                                    return this.children.get(paramListIdx).getChildren();
-                                                                                         }
+        return this.children.get(paramListIdx).getChildren();
+    }
 
     /**
      * Constructor
@@ -81,6 +80,6 @@ public class FuncDefNode extends Node {
 
     @Override
     public <T> T accept(AstVisitor<T> visitor) {
-                                             return visitor.visit(this);
-        }
+        return visitor.visit(this);
+    }
 }

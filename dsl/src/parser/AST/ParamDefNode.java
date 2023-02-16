@@ -6,7 +6,7 @@ public class ParamDefNode extends Node {
     public final int typeIdIdx = 0;
     public final int idIdx = 1;
 
-    public Node getTypeIdNode(){
+    public Node getTypeIdNode() {
         return getChild(typeIdIdx);
     }
 
@@ -18,7 +18,7 @@ public class ParamDefNode extends Node {
         return ((IdNode) getIdNode()).getName();
     }
 
-    public Node getIdNode(){
+    public Node getIdNode() {
         return getChild(idIdx);
     }
 

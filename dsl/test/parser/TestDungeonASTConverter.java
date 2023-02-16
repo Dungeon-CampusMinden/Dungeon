@@ -299,11 +299,10 @@ public class TestDungeonASTConverter {
         assertEquals(stmtNode.type, Node.Type.AggregateValueDefinition);
     }
 
-
     @Test
     public void funcDef() {
         String program =
-            """
+                """
         fn test_func(int param1, float param2, string param3) -> ret_type {
             print("hello");
         }
@@ -320,12 +319,12 @@ public class TestDungeonASTConverter {
         for (var parameter : parameters) {
             assertEquals(Node.Type.ParamDef, parameter.type);
         }
-        assertEquals("param1", ((ParamDefNode)parameters.get(0)).getIdName());
-        assertEquals("param2", ((ParamDefNode)parameters.get(1)).getIdName());
-        assertEquals("param3", ((ParamDefNode)parameters.get(2)).getIdName());
-        assertEquals("int", ((ParamDefNode)parameters.get(0)).getTypeName());
-        assertEquals("float", ((ParamDefNode)parameters.get(1)).getTypeName());
-        assertEquals("string", ((ParamDefNode)parameters.get(2)).getTypeName());
+        assertEquals("param1", ((ParamDefNode) parameters.get(0)).getIdName());
+        assertEquals("param2", ((ParamDefNode) parameters.get(1)).getIdName());
+        assertEquals("param3", ((ParamDefNode) parameters.get(2)).getIdName());
+        assertEquals("int", ((ParamDefNode) parameters.get(0)).getTypeName());
+        assertEquals("float", ((ParamDefNode) parameters.get(1)).getTypeName());
+        assertEquals("string", ((ParamDefNode) parameters.get(2)).getTypeName());
 
         var stmts = funcDefNode.getStmts();
         assertEquals(Node.Type.FuncCall, stmts.get(0).type);

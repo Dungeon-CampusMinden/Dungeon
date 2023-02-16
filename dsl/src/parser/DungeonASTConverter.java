@@ -135,7 +135,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             assert (rhsList.type == Node.Type.StmtList);
 
             var leftStmt = astStack.pop();
-            //assert (leftStmt.type == Node.Type.ParamDef);
+            // assert (leftStmt.type == Node.Type.ParamDef);
 
             var childList = new ArrayList<Node>(rhsList.getChildren().size() + 1);
             childList.add(leftStmt);
@@ -176,9 +176,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterParam_def_list(DungeonDSLParser.Param_def_listContext ctx) {
-
-    }
+    public void enterParam_def_list(DungeonDSLParser.Param_def_listContext ctx) {}
 
     @Override
     public void exitParam_def_list(DungeonDSLParser.Param_def_listContext ctx) {
