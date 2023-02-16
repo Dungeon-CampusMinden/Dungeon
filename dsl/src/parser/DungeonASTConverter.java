@@ -77,6 +77,42 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     public void exitDefinition(DungeonDSLParser.DefinitionContext ctx) {}
 
     @Override
+    public void enterFn_def(DungeonDSLParser.Fn_defContext ctx) {}
+
+    @Override
+    public void exitFn_def(DungeonDSLParser.Fn_defContext ctx) {}
+
+    @Override
+    public void enterStmt(DungeonDSLParser.StmtContext ctx) {}
+
+    @Override
+    public void exitStmt(DungeonDSLParser.StmtContext ctx) {}
+
+    @Override
+    public void enterStmt_list(DungeonDSLParser.Stmt_listContext ctx) {}
+
+    @Override
+    public void exitStmt_list(DungeonDSLParser.Stmt_listContext ctx) {}
+
+    @Override
+    public void enterRet_type_def(DungeonDSLParser.Ret_type_defContext ctx) {}
+
+    @Override
+    public void exitRet_type_def(DungeonDSLParser.Ret_type_defContext ctx) {}
+
+    @Override
+    public void enterParam_def(DungeonDSLParser.Param_defContext ctx) {}
+
+    @Override
+    public void exitParam_def(DungeonDSLParser.Param_defContext ctx) {}
+
+    @Override
+    public void enterParam_def_list(DungeonDSLParser.Param_def_listContext ctx) {}
+
+    @Override
+    public void exitParam_def_list(DungeonDSLParser.Param_def_listContext ctx) {}
+
+    @Override
     public void enterGame_obj_def(DungeonDSLParser.Game_obj_defContext ctx) {}
 
     @Override
