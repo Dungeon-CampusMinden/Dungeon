@@ -274,4 +274,26 @@ public class TestSymbolTableParser {
         var parameterSymbolFromFunctionSymbol = ((FunctionSymbol) funcDef).resolve("param1");
         Assert.assertEquals(parameterSymbolFromFunctionSymbol, symbolForParam1);
     }
+
+    @Test
+    public void funcDefFuncType() {
+        String program =
+            """
+                fn test_func_1(int param1, float param2, string param3) -> int {
+                    print(param1);
+                }
+                fn test_func_2(int param4, float param5, string param6) -> int {
+                    print(param4);
+                }
+                """;
+
+        var ast = Helpers.getASTFromString(program);
+        var symtableResult = Helpers.getSymtableForAST(ast);
+
+        var funcSymbol1 =
+            (FunctionSymbol) symtableResult.symbolTable.globalScope.resolve("test_func_1");
+        var funcSymbol2 =
+            (FunctionSymbol) symtableResult.symbolTable.globalScope.resolve("test_func_2");
+        Assert.assertEquals(funcSymbol1.getDataType(), funcSymbol2.getDataType());
+    }
 }
