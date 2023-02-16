@@ -325,7 +325,7 @@ public class SymbolTableParser implements AstVisitor<Void> {
         } else if (!(resolvedType instanceof IType)) {
             errorStringBuilder.append("Symbol of name '" + name + "' is no type");
         } else {
-            return (IType)resolvedType;
+            return (IType) resolvedType;
         }
         return null;
     }
@@ -335,7 +335,8 @@ public class SymbolTableParser implements AstVisitor<Void> {
         // current scope should be a function definition
         var resolvedParameter = currentScope().resolve(node.getIdName());
         if (resolvedParameter != Symbol.NULL) {
-            errorStringBuilder.append("Parameter with name " + node.getIdName() + " was already defined");
+            errorStringBuilder.append(
+                    "Parameter with name " + node.getIdName() + " was already defined");
         } else {
             // resolve parameters datatype
             IType parameterType = resolveType(node.getTypeName());
@@ -361,7 +362,8 @@ public class SymbolTableParser implements AstVisitor<Void> {
         var funcName = node.getIdName();
         var resolved = globalScope().resolve(funcName);
         if (resolved != Symbol.NULL) {
-            errorStringBuilder.append("Identifier with name " + funcName + " is already bound in global scope!");
+            errorStringBuilder.append(
+                    "Identifier with name " + funcName + " is already bound in global scope!");
         } else {
             // resolve return value (if one was defined)
             IType returnType = null;
