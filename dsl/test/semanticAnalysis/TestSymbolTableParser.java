@@ -245,7 +245,12 @@ public class TestSymbolTableParser {
         var funcSymbol =
                 (FunctionSymbol) symtableResult.symbolTable.globalScope.resolve("test_func");
         Assert.assertEquals("test_func", funcSymbol.getName());
-        Assert.assertEquals(BuiltInType.intType, funcSymbol.getDataType());
+
+        IType functionType =
+                (IType)
+                        symtableResult.symbolTable.globalScope.resolve(
+                                "$fn(int, float, string) -> int$");
+        Assert.assertEquals(functionType, funcSymbol.getDataType());
         Assert.assertEquals(ICallable.Type.UserDefined, funcSymbol.getCallableType());
         Assert.assertNotEquals(Symbol.NULL, funcSymbol.resolve("param1"));
         Assert.assertNotEquals(Symbol.NULL, funcSymbol.resolve("param2"));
