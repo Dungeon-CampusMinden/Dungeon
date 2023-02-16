@@ -6,6 +6,7 @@ public interface IType {
         Aggregate,
         PODAdapted,
         AggregateAdapted,
+        FunctionType
     }
 
     /**

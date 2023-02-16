@@ -113,6 +113,7 @@ public class GameEnvironment implements IEvironment {
     private static ArrayList<IType> buildBuiltInTypes() {
         ArrayList<IType> types = new ArrayList<>();
 
+        types.add(BuiltInType.noType);
         types.add(BuiltInType.intType);
         types.add(BuiltInType.floatType);
         types.add(BuiltInType.stringType);
