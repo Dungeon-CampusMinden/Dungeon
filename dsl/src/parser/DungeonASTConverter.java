@@ -118,8 +118,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     @Override
     public void exitStmt_list(DungeonDSLParser.Stmt_listContext ctx) {
         // condense to actual list of stmt's
-
-        // condense down to list of param def nodes
         if (ctx.stmt_list() == null) {
             // trivial stmt definition list (one stmt)
             var innerStmt = astStack.pop();
@@ -130,12 +128,11 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             var stmtList = new Node(Node.Type.StmtList, list);
             astStack.push(stmtList);
         } else {
-            // rhs componentDefList is on stack
+            // rhs stmt list is on stack
             var rhsList = astStack.pop();
             assert (rhsList.type == Node.Type.StmtList);
 
             var leftStmt = astStack.pop();
-            // assert (leftStmt.type == Node.Type.ParamDef);
 
             var childList = new ArrayList<Node>(rhsList.getChildren().size() + 1);
             childList.add(leftStmt);
@@ -192,7 +189,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             var paramDefList = new Node(Node.Type.ParamDefList, list);
             astStack.push(paramDefList);
         } else {
-            // rhs componentDefList is on stack
+            // rhs paramDefList is on stack
             var rhsList = astStack.pop();
             assert (rhsList.type == Node.Type.ParamDefList);
 
