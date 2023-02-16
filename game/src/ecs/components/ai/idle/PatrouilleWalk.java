@@ -133,14 +133,16 @@ public class PatrouilleWalk implements IIdleAI {
             }
             case BACK_AND_FORTH -> {
                 if (forward) {
-                    currentCheckpoint = (currentCheckpoint + 1) % checkpoints.size();
-                    if (currentCheckpoint == 0) {
+                    currentCheckpoint += 1;
+                    if (currentCheckpoint == checkpoints.size()) {
                         forward = false;
+                        currentCheckpoint = checkpoints.size() - 2;
                     }
                 } else {
-                    currentCheckpoint = (currentCheckpoint - 1) % checkpoints.size();
-                    if (currentCheckpoint == checkpoints.size() - 1) {
+                    currentCheckpoint -= 1;
+                    if (currentCheckpoint == -1) {
                         forward = true;
+                        currentCheckpoint = 1;
                     }
                 }
                 currentPath =
