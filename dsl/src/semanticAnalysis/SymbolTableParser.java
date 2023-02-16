@@ -323,4 +323,17 @@ public class SymbolTableParser implements AstVisitor<Void> {
         }
         return null;
     }
+
+    private IType resolveType(String name) {
+        var resolvedType = globalScope().resolve(name);
+        if (resolvedType == Symbol.NULL) {
+            errorStringBuilder.append("Type '" + name + "' could not be resolved");
+        } else if (!(resolvedType instanceof IType)) {
+            errorStringBuilder.append("Symbol of name '" + name + "' is no type");
+        } else {
+            return (IType)resolvedType;
+        }
+        return null;
+    }
+
 }
