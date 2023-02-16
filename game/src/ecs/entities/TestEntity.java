@@ -20,6 +20,7 @@ public class TestEntity extends Entity {
 
         setupAnimationComponent();
     }
+
     private void setupAnimationComponent() {
         Animation idleRight = AnimationBuilder.buildAnimation("monster/imp/idleRight");
         Animation idleLeft = AnimationBuilder.buildAnimation("monster/imp/idleLeft");
@@ -29,5 +30,4 @@ public class TestEntity extends Entity {
         new AnimationComponent(this, idleLeft, idleRight);
         new VelocityComponent(this, 0.2f, 0.2f, moveLeft, moveRight);
     }
-
 }
