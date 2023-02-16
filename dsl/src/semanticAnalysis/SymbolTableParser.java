@@ -27,6 +27,7 @@ import parser.AST.*;
 import runtime.IEvironment;
 
 import semanticAnalysis.types.AggregateType;
+import semanticAnalysis.types.IType;
 import semanticAnalysis.types.TypeBinder;
 
 import java.util.Stack;
@@ -336,4 +337,63 @@ public class SymbolTableParser implements AstVisitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(ParamDefNode node) {
+        // current scope should be a function definition
+        var resolvedParameter = currentScope().resolve(node.getIdName());
+        if (resolvedParameter != Symbol.NULL) {
+            errorStringBuilder.append("Parameter with name " + node.getIdName() + " was already defined");
+        } else {
+            // resolve parameters datatype
+            IType parameterType = resolveType(node.getTypeName());
+
+            Symbol parameterSymbol = new Symbol(node.getIdName(), currentScope(), parameterType);
+            currentScope().bind(parameterSymbol);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visit(FuncCallNode node) {
+        // we do not resolve the call itself here, only the parameters
+        for (var parameter : node.getParameters()) {
+            parameter.accept(this);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visit(FuncDefNode node) {
+        // check, if symbol with the name was already bound
+        var funcName = node.getIdName();
+        var resolved = globalScope().resolve(funcName);
+        if (resolved != Symbol.NULL) {
+            errorStringBuilder.append("Identifier with name " + funcName + " is already bound in global scope!");
+        } else {
+            // resolve return value (if one was defined)
+            IType returnType = null;
+            if (node.getRetTypeId() != Node.NONE) {
+                String returnTypeName = node.getRetTypeName();
+                returnType = resolveType(returnTypeName);
+            }
+
+            // create new function symbol
+            var funcSymbol = new FunctionSymbol(funcName, globalScope(), node, returnType);
+            globalScope().bind(funcSymbol);
+            scopeStack.push(funcSymbol);
+
+            // bind parameters
+            for (var paramDefNode : node.getParameters()) {
+                paramDefNode.accept(this);
+            }
+
+            // visit all stmts
+            for (var stmt : node.getStmts()) {
+                stmt.accept(this);
+            }
+
+            scopeStack.pop();
+        }
+        return null;
+    }
 }
