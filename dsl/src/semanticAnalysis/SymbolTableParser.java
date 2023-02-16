@@ -20,16 +20,16 @@
  */
 
 package semanticAnalysis;
+
+import java.util.ArrayList;
+import java.util.Stack;
+// importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 import parser.AST.*;
 // CHECKSTYLE:ON: AvoidStarImport
 
 import runtime.IEvironment;
-
-import semanticAnalysis.types.AggregateType;
-import semanticAnalysis.types.BuiltInType;
-import semanticAnalysis.types.IType;
-import semanticAnalysis.types.TypeBinder;
+import semanticAnalysis.types.*;
 
 import java.util.Stack;
 // importing all required classes from symbolTable will be to verbose
@@ -373,8 +373,28 @@ public class SymbolTableParser implements AstVisitor<Void> {
                 returnType = resolveType(returnTypeName);
             }
 
+            // get types of parameters
+            ArrayList<IType> parameterTypes = new ArrayList<>(node.getParameters().size());
+            for (var paramDefNode : node.getParameters()) {
+                var paramTypeName = ((ParamDefNode) paramDefNode).getTypeName();
+                IType paramType = resolveType(paramTypeName);
+                parameterTypes.add(paramType);
+            }
+
+            // create function signature type (as needed)
+            String functionTypeName = FunctionType.calculateTypeName(returnType, parameterTypes);
+            Symbol functionTypeSymbol = globalScope().resolve(functionTypeName);
+            FunctionType functionType;
+
+            if (functionTypeSymbol != Symbol.NULL) {
+                functionType = (FunctionType) functionTypeSymbol;
+            } else {
+                functionType = new FunctionType(returnType, parameterTypes);
+                globalScope().bind(functionType);
+            }
+
             // create new function symbol
-            var funcSymbol = new FunctionSymbol(funcName, globalScope(), node, returnType);
+            var funcSymbol = new FunctionSymbol(funcName, globalScope(), node, functionType);
             globalScope().bind(funcSymbol);
             scopeStack.push(funcSymbol);
 

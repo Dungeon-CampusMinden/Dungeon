@@ -1,11 +1,12 @@
 package semanticAnalysis.types;
 
 import java.util.ArrayList;
+import semanticAnalysis.Scope;
+import semanticAnalysis.Symbol;
 
-public class FunctionType implements IType {
+public class FunctionType extends Symbol implements IType {
     private final IType returnType;
     private final ArrayList<IType> parameterTypes;
-    private final String name;
 
     public IType getReturnType() {
         return returnType;
@@ -31,7 +32,7 @@ public class FunctionType implements IType {
     }
 
     public FunctionType(IType returnType, ArrayList<IType> parameterTypes) {
-        this.name = calculateTypeName(returnType, parameterTypes);
+        super(calculateTypeName(returnType, parameterTypes), Scope.NULL, null);
         this.returnType = returnType;
         this.parameterTypes = parameterTypes;
     }
@@ -54,7 +55,7 @@ public class FunctionType implements IType {
 
     @Override
     public String getName() {
-        return name;
+        return this.name;
     }
 
     @Override
