@@ -56,7 +56,7 @@ Objektdiagramm können die beteiligten Instanzen für das obere Beispiel entnomm
 ![UML: Objektdiagram Prototype](img/prototype_objects.png)
 
 Wie zu erkennen ist, wird für jede Komponenten-Definition auch ein `Prototype` erzeugt,
-der jedoch nur im `Prototype` der `GameObjectDefinition` existiert. Der `Prototype` einer
+der jedoch nur im `Prototype` der `game_object`-Definition existiert. Der `Prototype` einer
 Komponenten-Definition enthält die per DSL konfigurierten Defaultwerte der Komponente.
 
 Die Erzeugung der Prototypen ist im folgenden Sequenzdiagramm dargestellt:
@@ -110,6 +110,8 @@ evaluiert, die in Eigenschaftszuweisungen dieser `quest_config`-Definition refer
 Abschließend erzeugt der `DSLInterpreter` eine `QuestConfig`-Instanz und gibt diese an das Dungeon-Framework zurück.
 Die `QuestConfig`-Instanz enthält alle Informationen für das Dungeon-Framework, um ein Dungeonlevel mit spezifizierten
 Entitäten (als `game_object`-Definition) zu erzeugen.
+
+**Wann und wie interpretiert der Interpreter?**
 
 Die Evaluierung der `quest_config`-Definition ist die **einzige** Art der Interpretation, die der `DSLInterperter`
 standardmäßig durchführt.
