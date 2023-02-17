@@ -68,7 +68,7 @@ public class HealthSystem extends ECS_System {
         ECS.entitiesToRemove.add(hsd.hc.getEntity());
     }
 
-    private MissingComponentException missingAC() {
+    private static MissingComponentException missingAC() {
         return new MissingComponentException("AnimationComponent");
     }
 }
