@@ -22,7 +22,10 @@ import tools.Point;
 
 public class ECS extends Game {
 
+    /** All entities that are currently active in the dungeon */
     public static Set<Entity> entities = new HashSet<>();
+    /** All entities to be removed from the dungeon in the next frame */
+    public static Set<Entity> entitiesToRemove = new HashSet<>();
 
     /** List of all Systems in the ECS */
     public static SystemController systems;
@@ -53,12 +56,14 @@ public class ECS extends Game {
         new KeyboardSystem();
         new AISystem();
         new CollisionSystem();
+        new HealthSystem();
     }
 
     @Override
     protected void frame() {
         camera.setFocusPoint(heroPositionComponent.getPosition());
-
+        entities.removeAll(entitiesToRemove);
+        entitiesToRemove.clear();
         if (isOnEndTile()) levelAPI.loadLevel();
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
     }
