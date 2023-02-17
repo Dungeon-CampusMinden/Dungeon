@@ -5,18 +5,15 @@ import graphic.Animation;
 
 public class Skill {
 
-    private Entity entity;
     private boolean active;
     private Animation animation;
     private ISkillFunction skillFunction;
 
     /**
-     * @param entity associated entity
      * @param animation Animation of this skill
      * @param skillFunction Function of this skill
      */
-    public Skill(Entity entity, Animation animation, ISkillFunction skillFunction) {
-        this.entity = entity;
+    public Skill(Animation animation, ISkillFunction skillFunction) {
         this.animation = animation;
         this.skillFunction = skillFunction;
         active = true;

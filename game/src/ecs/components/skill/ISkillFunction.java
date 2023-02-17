@@ -5,9 +5,9 @@ import ecs.entities.Entity;
 public interface ISkillFunction {
 
     /**
-     * Implements one skill of an entity
+     * Implements the concrete skill of an entity
      *
-     * @param entity associated entity
+     * @param entity which uses the skill
      */
     void execute(Entity entity);
 }
