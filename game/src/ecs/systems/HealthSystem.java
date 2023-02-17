@@ -39,7 +39,7 @@ public class HealthSystem extends ECS_System {
 
         AnimationComponent ac =
                 (AnimationComponent)
-                        e.getComponent(AnimationComponent.class).orElseThrow(this::missingAC);
+                        e.getComponent(AnimationComponent.class).orElseThrow(HealthSystem::missingAC);
 
         return new HSData(e, hc, ac);
     }
