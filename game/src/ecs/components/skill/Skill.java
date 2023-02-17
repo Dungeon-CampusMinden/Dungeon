@@ -2,8 +2,6 @@ package ecs.components.skill;
 
 import ecs.entities.Entity;
 import graphic.Animation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class Skill {
 
@@ -18,7 +16,7 @@ public class Skill {
      * @param skillFunction Function of this skill
      */
     public Skill(Entity entity, Animation animation, ISkillFunction skillFunction) {
-        this.entity =entity;
+        this.entity = entity;
         this.animation = animation;
         this.skillFunction = skillFunction;
         active = true;
@@ -28,9 +26,8 @@ public class Skill {
      * Execute the method of this skill
      *
      * @param entity associated entity
-     *
      */
-    public void execute(Entity entity){
+    public void execute(Entity entity) {
         if (active) {
             skillFunction.execute(entity);
         }
