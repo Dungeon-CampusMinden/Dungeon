@@ -22,7 +22,7 @@ public class Skill {
     /**
      * Execute the method of this skill
      *
-     * @param entity associated entity
+     * @param entity entity which uses the skill
      */
     public void execute(Entity entity) {
         if (active) {

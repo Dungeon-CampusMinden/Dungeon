@@ -16,13 +16,7 @@ public class SkillTest {
 
     private Entity entity;
     private Skill skill;
-    private ISkillFunction skillFunction =
-            new ISkillFunction() {
-                @Override
-                public void execute(Entity entity) {
-                    TestMethode();
-                }
-            };
+    private ISkillFunction skillFunction = entity -> value++;
     private Animation animation = Mockito.mock(Animation.class);
 
     @Before
@@ -61,9 +55,5 @@ public class SkillTest {
     @Test
     public void getAnimation() {
         assertEquals(animation, skill.getAnimation());
-    }
-
-    public static void TestMethode() {
-        value++;
     }
 }
