@@ -1,35 +1,32 @@
 package ecs.components.skill;
 
+import ecs.entities.Entity;
 import graphic.Animation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class Skill {
 
-    private Method method;
     private boolean active;
     private Animation animation;
+    private ISkillFunction skillFunction;
 
     /**
-     * @param method Method with the logic of this skill
      * @param animation Animation of this skill
+     * @param skillFunction Function of this skill
      */
-    public Skill(Method method, Animation animation) {
-        this.method = method;
+    public Skill(Animation animation, ISkillFunction skillFunction) {
         this.animation = animation;
+        this.skillFunction = skillFunction;
         active = true;
     }
 
     /**
      * Execute the method of this skill
      *
-     * @param args List with arguments
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException
+     * @param entity entity which uses the skill
      */
-    public void execute(Object... args) throws InvocationTargetException, IllegalAccessException {
+    public void execute(Entity entity) {
         if (active) {
-            method.invoke(this, args);
+            skillFunction.execute(entity);
         }
     }
 

@@ -4,7 +4,6 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import ecs.components.ai.AITools;
 import ecs.components.skill.Skill;
 import ecs.entities.Entity;
-import java.lang.reflect.InvocationTargetException;
 import level.elements.tile.Tile;
 import mydungeon.ECS;
 import tools.Constants;
@@ -31,11 +30,7 @@ public class MeleeAI implements IFightAI {
     @Override
     public void fight(Entity entity) {
         if (AITools.playerInRange(entity, attackRange)) {
-            try {
-                fightSkill.execute(entity);
-            } catch (InvocationTargetException | IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
+            fightSkill.execute(entity);
         } else {
             if (timeSinceLastUpdate >= delay) {
                 path = AITools.calculatePath(entity, ECS.hero);

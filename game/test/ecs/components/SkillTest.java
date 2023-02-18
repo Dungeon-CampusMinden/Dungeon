@@ -2,10 +2,10 @@ package ecs.components;
 
 import static org.junit.Assert.*;
 
+import ecs.components.skill.ISkillFunction;
 import ecs.components.skill.Skill;
+import ecs.entities.Entity;
 import graphic.Animation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -14,29 +14,30 @@ public class SkillTest {
 
     private static int value = 0;
 
+    private Entity entity;
     private Skill skill;
-    private Method method;
+    private ISkillFunction skillFunction = entity -> value++;
     private Animation animation = Mockito.mock(Animation.class);
 
     @Before
-    public void setup() throws NoSuchMethodException {
-        method = SkillTest.class.getMethod("TestMethode");
-        skill = new Skill(method, animation);
+    public void setup() {
+        entity = new Entity();
+        skill = new Skill(animation, skillFunction);
     }
 
     @Test
-    public void execute_active() throws InvocationTargetException, IllegalAccessException {
+    public void execute_active() {
         value = 0;
-        skill.execute();
+        skill.execute(entity);
         assertEquals(1, value);
     }
 
     @Test
-    public void execute_inactive() throws InvocationTargetException, IllegalAccessException {
+    public void execute_inactive() {
         value = 0;
         skill.toggleActive();
         assertFalse(skill.getActive());
-        skill.execute();
+        skill.execute(entity);
         assertEquals(0, value);
     }
 
@@ -54,9 +55,5 @@ public class SkillTest {
     @Test
     public void getAnimation() {
         assertEquals(animation, skill.getAnimation());
-    }
-
-    public static void TestMethode() {
-        value++;
     }
 }
