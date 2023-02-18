@@ -24,8 +24,8 @@ public class HitboxComponent extends Component {
     /**
      * Creates A Hitbox with a default offset of 0.25f x 0.25f and a default size of 0.5f x 0.5f
      *
-     * @param entity
-     * @param collideMethod
+     * @param entity associated entity
+     * @param collideMethod behaviour if a collision happens
      */
     public HitboxComponent(Entity entity, ICollide collideMethod) {
         this(entity, new Point(0.25f, 0.25f), new Point(0.5f, 0.5f), collideMethod);
@@ -43,11 +43,20 @@ public class HitboxComponent extends Component {
         return (a, b, c) -> System.out.println("Collide");
     }
 
+    /**
+     * @param other hitbox of another entity
+     * @param direction direction in which the collision happens
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     */
     public void collide(HitboxComponent other, Tile.Direction direction)
             throws InvocationTargetException, IllegalAccessException {
         collideMethod.onCollision(this.entity, other.entity, direction);
     }
 
+    /**
+     * @return bottom left point of entity's hitbox
+     */
     public Point getBottomLeft() {
         PositionComponent pc =
                 (PositionComponent)
@@ -58,6 +67,9 @@ public class HitboxComponent extends Component {
         return new Point(pc.getPosition().x + offset.x, pc.getPosition().y + offset.y);
     }
 
+    /**
+     * @return top right point of entity's hitbox
+     */
     public Point getTopRight() {
         PositionComponent pc =
                 (PositionComponent)
@@ -69,6 +81,9 @@ public class HitboxComponent extends Component {
                 pc.getPosition().x + offset.x + size.x, pc.getPosition().y + offset.y + size.y);
     }
 
+    /**
+     * @return center point of entity's hitbox
+     */
     public Point getCenter() {
         PositionComponent pc =
                 (PositionComponent)
