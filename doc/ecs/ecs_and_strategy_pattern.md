@@ -1,28 +1,31 @@
 # Strategy Pattern im ECS
 
-Auch wenn es nicht streng im Sinne des ECS Paradigmas ist, hat sich die Verwendung des Strategy-Pattern als besonders hilfreich herausgestellt. 
+Auch wenn es nicht streng im Sinne des ECS-Paradigmas ist, hat sich die Verwendung des Strategy-Pattern als besonders hilfreich herausgestellt. 
 
 ## Wofür 
 
-Wir verwenden das Strategy-Pattern vor allem in Komponenten, welche kleine eigenen Logiken implementieren. Beispiel: AI-Verhalten. 
+Wir verwenden das Strategy-Pattern vor allem in Komponenten, welche ausnahmsweise kleine eigenen Logiken implementieren (müssen). Beispiel: AI-Verhalten. 
 
-In Zukunft sollen die, in der DSL geschriebenen Funktionen, als eine mögliche Strategie implementiert werden. 
+In Zukunft sollen die in der DSL geschriebenen Funktionen als mögliche Strategien repräsentiert werden. 
 
 ## Wie
 
-Die Strategy wird mithilfe eines Funktionalen-Interfaces umgesetzt. 
-Das `Component`, speichert dann eine konkrete Implementierung (entweder als Lambda-Ausdruck oder als Instanz einer implementierenden Klasse) als Referenz. 
-Über diese Referenz kann dann die konkrete Strategy ausgeführt werden.
+Eine Strategie wird über ein funktionales Interface umgesetzt. 
 
-Damit die Strategy von außen getriggert werden kann, bekommt das Component eine `void execute()`-Methode. Dies ruft dann über die Referenz die konkrete Strategy auf. 
+Eine `Component` speichert eine Referenz auf eine konkrete Implementierung (Lambda-Ausdruck, Methodenreferenz, Instanz einer implementierenden Klasse). 
+Über diese Referenz kann dann die konkrete Strategie ausgeführt werden.
+
+Mit der `void execute()`-Methode einer Komponente wird die Referenz die konkrete Strategie aufgerufen. 
 Die `#execute`-Methode kann dann vom zuständigen System aufgerufen werden. 
 
 ## Bereits implementierte Strategy-Pattern
 
-Hier ist eine Auflistung (mit UML) aller bereits implementierten Strategy-Pattern
+Bereits implementierte Strategien:
 
 ### AIComponent
-[AI-Component](./img/ai.png)
 
-*Anmerkung: UML auf die wesentlichen Bestandteile gekürzt.* 
-*Anmerkung: Die in rot dargestellten Klassen sind konkrete Implementierungen des Interfaces.* 
+![AI-Component](img/ai.png)
+
+*Anmerkung*: UML auf die wesentlichen Bestandteile gekürzt.
+
+*Anmerkung*: Die rot hinterlegten Klassen sind konkrete Implementierungen des Interfaces.

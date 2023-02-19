@@ -1,33 +1,36 @@
 ## Was ist ein ECS (Kurzform)
 
-**Entität:**
-Entitäten sind die Objekte im Spiel. Im Code sind sie nur leere Container, dessen Eigenschaften über die zugewiesenen Components bestimmt worden. Entitäten haben neben den Components keine eigenen Attribute oder Funktionen.
+**Entität**
+Entitäten sind die Objekte im Spiel. Im Code sind sie nur leere Container, dessen Eigenschaften über die zugewiesenen Components bestimmt werden. Entitäten haben neben den Components keine eigenen Attribute oder Funktionen.
 
 **Component**
-Components sind die Datensätze der Entitäten. Jede Component-Instanz gehört zu genau einer Entität.
-Components beschreiben die Eigenschaften von Entitäten.
-Components speichern hauptsächlich Daten/den Zustand einer Entität.
-Teilweise kann es nötig sein, Logik in Components zu implementieren, dies sollte aber nur in Ausnahmefällen passieren und die implementierte Logik sollte möglichst klein gehalten werden.
-Siehe auch [Strategy Pattern im ECS](./ecs_and_strategy_pattern.md)
+Components sind die Datensätze der Entitäten und beschreiben dadurch die Eigenschaften der Entitäten. Eine Component-Instanz gehört zu genau einer Entität.
+
+Components speichern im Regelfall nur die Daten/den Zustand einer Entität.
+In Ausnahmefällen kann es erforderlich sein, zusätzliche Logik in Components zu implementieren. Der Umfang sollte in diesen Fällen möglichst klein gehalten werden, da die Logik normalerweise in den Systemen realisiert wird.
+Siehe auch [Strategy Pattern im ECS](ecs_and_strategy_pattern.md)
 
 **System**
-Systeme agieren auf Components und ändern die Werte in diesen. Sie beschreiben also das Verhalten der Entitäten. Ein System kann auf ein oder mehrere Components agieren.
+Systeme agieren auf Components und ändern die Werte in diesen. Sie beschreiben also das Verhalten der Entitäten. Ein System kann auf ein oder mehreren Components agieren.
 In Systemen wird die eigentliche Logik implementiert.
 
-Eine Entität und dessen Verhalten wird also daher bestimmt, welche Components es hat und wie die Systeme mit dieser Component-Kombination arbeiten.
+Der Zustand einer Entität wird also über ihre Components bestimmt, und ihr Verhalten über die Systeme, die mit der jeweiligen Component-Kombination arbeiten. 
 
 ## Basisstruktur
 
-[ECS](./img/ecs.png)
+![Struktur ECS](img/ecs.png)
 
 Neu erzeugte Entitäten speichern sich automatisch im HashSet `entities` der `ECS`-Klasse ab.
 `ECS_System`e speichern sich automatisch im `SystemController` `systems` der `ECS`-Klasse ab.
-Die `ECS_System`e iterieren über das `entities` Set und prüfen mit `Entite#getComponent`, ob die benötigten Componenten in der Entität abgelegt sind. 
 
-*Anmerkung: In gelb hinterlegte Klassen stammen aus dem PM-Dungeon-Framework.* 
-*Anmerkung: UML auf die wesentlichen Bestandteile gekürzt.
+Die Systeme iterieren über die in `ECS` gespeicherten Entitäten und greifen über die Methode `Entite#getComponent` auf die für die jeweilige Funktionalität benötigten Components zu.
 
-## Wie wurde das ECS in das Dungeon integriert
+*Anmerkung*: Gelb hinterlegte Klassen stammen aus dem PM-Dungeon-Framework.
+
+*Anmerkung*: Das UML-Diagramm ist auf die wesentlichen Bestandteile gekürzt.
+
+## Integration des ECS in das PM-Dungeon-Framework
 
 Die Klasse `ECS` ist die Start-Klasse und erbt von `Game` des PM-Dungeon-Frameworks.
-Um die `ECS_System` in die GameLoop des Frameworks zu integrieren, wird der `SystemController` genutzt. Dieser funktioniert analog zu den bereits bekannten Controllern des Frameworks. Er speichert also ein Set mit den ganzen `ECS_System`en und ruft die `update`-Methode jedes Systems einmal pro Frame auf. Im Konstruktor der `ECS_System`-Klasse trägt sich das System in den Controller ein. Da alle Systeme von dieser Klasse abgeleitet sind, ist ein manueller Eintrag in den Controller nicht nötig.
+
+Um die Systeme in die GameLoop des Frameworks zu integrieren, wird ein Objekt vom Typ `SystemController` genutzt. Dieser Controller funktioniert analog zu den anderen Controllern des Frameworks: Er hält die Menge aller vorhandenen Systeme und ruft einmal pro Frame für jedes System die `update`-Methode. Die Registrierung der Systeme beim Controller wird über den Konstruktor der Klasse `ECS_System` erledigt - dadurch müssen abgeleitete Systeme dies nicht selbst machen.

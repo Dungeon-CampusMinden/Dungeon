@@ -1,49 +1,54 @@
+---
+title: "Eigene Inhalte erstellen"
+---
+
+
 ## Entitäten erstellen
 
-Anders als im klassischen OOP werden Entitäten nicht durch das Ableiten der `Entity` Klasse erzeugt und definiert, sondern durch das Hinzufügen von Komponente.
+Entitäten werden nicht durch das Ableiten der Klasse `Entity` definiert, sondern durch das Instanziieren von `Entity` und durch das Hinzufügen von Komponenten zum Objekt.
 
 Um eine eigene Entität zu erstellen, muss man:
 
 1. Eine neue Instanz vom Typ `Entity` anlegen
 2. Die gewünschten Komponenten erstellen
-3. Die Komponenten mit `Entity#addComponent` hinzufügen
+3. Die Komponenten dem Objekt mit `Entity#addComponent` hinzufügen
 
 Beispiel: 
 ```java
 Entity monster = new Entity();
-PositionComponent pc= new PositionComponent(monster);
+
+PositionComponent pc = new PositionComponent(monster);
 AIComponent ai = new AIComponent(monster);
 AnimationComponent ac = new AnimationComponent(monster);
 VelocityComponent vc = new AnimationComponent(monster);
 
-monster.addComponent(PositionComponent.name,pc);
-monster.addComponent(AIComponent.name,ai);
-monster.addComponent(AnimationComponent.name,ac);
-monster.addComponent(VelocityComponent.name,vc);
+monster.addComponent(PositionComponent.name, pc);
+monster.addComponent(AIComponent.name, ai);
+monster.addComponent(AnimationComponent.name, ac);
+monster.addComponent(VelocityComponent.name, vc);
 ```
 
-*Anmerkung: Die Komponenten wurden im Beispiel alle mit den jeweiligen Default-Werten initialisiert. Die Verwendung der anderen Konstruktoren, mit eigenen Werten, geht natürlich auch.* 
+*Anmerkung*: Die Komponenten wurden im Beispiel alle mit den jeweiligen Default-Werten initialisiert. Die Verwendung der anderen Konstruktoren (mit eigenen Werten) geht natürlich auch.
 
 ## Component erstellen
-Um eigene Components zu implementieren, muss die eigene Klasse von der abstrakten Klasse  `Component` abgeleitet werden.
+
+Um eigene Components zu implementieren, muss Spezialisierung der abstrakten Klasse  `Component` erstellt werden.
 
 Components werden im package `ecs.components` abgelegt und sollen den Namensschema `$WHAT_IS_THIS_COMPONENT$Component`folgen.
-Jedes Component braucht eine statische Variable `String name`, um den Component-Typen zu identifizieren. Dieser Name wird als Key-Value des HashSets für die, in den Entitäten gespeicherten, Components verwendet. 
+Jedes Component braucht ein statisches Attribut `String name`, um den Component-Typen zu identifizieren. Dieser Name wird als Key-Value des HashSets für die in den Entitäten gespeicherten Components verwendet. 
 
 Jede Component-Instanz gehört zu genau einer Entitäs-Instanz. Eine Entitäts-Instanz kann einen Component-Typen nur einmal speichern.
 
 Um Components für die DSL verfügbar zu machen, siehe TBD
 
 ## System erstellen
-Um eigenen Systeme zu implementieren, muss die eigene Klasse von `ECS_System` abgeleitet werden.
+
+Um eigene Systeme zu implementieren, muss eine Spezialisierung von `ECS_System` erstellt werden.
 
 Die Funktionalität des Systems wird in der `update`-Methode implementiert. Diese wird einmal pro Frame aufgerufen.
 
 In der `update`-Methode wird dann über das HashSet `ECS.entities`iteriert.
-Dabei sollte zuerst geprüft werden, ob die Entität das "Key"-Component enthält. 
-Das "Key"-Component ist das Component, welches dem System sagen soll, dass die Entität unter dem System fällt, die Logik des Systems also auf die Entität angewendet werden soll.
-Beispiel: Das `VelocitySystem` soll nur auf Entitäten mit dem `VelocityComponent` agieren.
-
+Dabei muss zunächst geprüft werden, ob die Entität die gewünschte Component(s) enthält. Dazu wird die `getComponent`-Methode mit dem Namens-Attribut der gesuchten Component aufgerufen. Wenn ein System mehrere Components bearbeiten soll, dann muss dieser Aufruf pro Entität für jede Component wiederholt werden.
 Beispiel aus dem `VelocitySystem`: 
 ```java
  for (Entity entity : ECS.entities) {
@@ -78,5 +83,5 @@ Beispiel aus dem `VelocitySystem`:
 ```
 
 
-Systeme werden im package `ecs.systems` abgelegt und sollen den Namensschema `$WHAT_IS_THIS_SYSTEM$System`folgen.
+Systeme werden im Package `ecs.systems` abgelegt und sollen den Namensschema `$WHAT_IS_THIS_SYSTEM$System`folgen.
 Jedes System muss im Konstruktor `super()` aufrufen, um die Registrierung des Systems im `SystemController` zu gewährleisten. 

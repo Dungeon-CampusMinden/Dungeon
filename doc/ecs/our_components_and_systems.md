@@ -1,6 +1,5 @@
-## Unsere Components
+## Vorhandene Components und deren Funktion im Dungeon
 
-Hier ist eine Liste aller aktuellen Components und deren Funktion im Dungeon. 
 
 |Name | Funktion | Anmerkung|
 |-------- | -------- | --------|
@@ -13,9 +12,8 @@ Hier ist eine Liste aller aktuellen Components und deren Funktion im Dungeon.
 |`SkillComponent`   | Speichert die Skills einer Entität   | Aktuell noch in Entwicklung|
 
 
-## Unsere Systeme
+## Vorhandene Systeme und deren Funktion im Dungeon
 
-Hier ist eine Liste aller aktuellen Systeme und deren Funktion im Dungeon. 
 Als Key-Component wird das Component bezeichnet, welches ein System als "ich agiere darauf"-Markierung benötigt.
 Benötigte Components sind dann weitere Abhängigkeiten, die bei nicht Anwesenheit ggf. zu einer `MissingComponentException` führen. 
 
