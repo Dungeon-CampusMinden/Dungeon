@@ -1,6 +1,8 @@
-# Strategy Pattern im ECS
+---
+title: Strategy Pattern im ECS
+ ---
 
-Das Strategy-Pattern hat sich als besonders hilfreich in Komponenten erwiesen, die eigene Logiken implementieren müssen, obwohl es nicht streng im Sinne des ECS-Paradigmas ist.
+Das [Strategie-Pattern](https://en.wikipedia.org/wiki/Strategy_pattern) hat sich als besonders hilfreich in Komponenten erwiesen, die eigene Logiken implementieren müssen, obwohl es nicht streng im Sinne des ECS-Paradigmas ist.
 
 Zukünftig sollen die in der DSL geschriebenen Funktionen als mögliche Strategien repräsentiert werden.
 

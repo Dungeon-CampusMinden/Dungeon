@@ -1,4 +1,6 @@
-# Keyboard System
+---
+title: Keyboard System
+ ---
 
 ## Funktion
 - Was macht das System

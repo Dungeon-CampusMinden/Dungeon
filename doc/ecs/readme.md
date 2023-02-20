@@ -1,3 +1,7 @@
+---
+title: ECS Basics
+ ---
+
 ## Was ist ein ECS (Kurzform)
 
 **Entität**

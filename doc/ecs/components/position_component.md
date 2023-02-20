@@ -1,4 +1,6 @@
-# Position Component
+---
+title: Position Component
+ ---
 
 ## Wofür
 - Wofür braucht es diese Comonent?

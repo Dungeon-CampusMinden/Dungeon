@@ -1,4 +1,6 @@
-# AI Component
+---
+title: AI Component
+ ---
 
 ## Wofür
 - Wofür braucht es diese Comonent?

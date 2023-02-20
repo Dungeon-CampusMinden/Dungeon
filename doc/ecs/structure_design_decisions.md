@@ -1,4 +1,6 @@
-# Design Entscheidung: Struktur
+---
+title: Strukturelle Designentscheidungen
+ ---
 
 Dieses Dokument erläutert verschiedene Design-Entscheidungen, die im Hinblick auf die Struktur des Codes getroffen wurden.
 

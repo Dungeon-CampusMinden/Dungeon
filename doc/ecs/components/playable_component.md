@@ -1,4 +1,6 @@
-# Playable Component
+---
+title: Playable Component
+ ---
 
 ## Wofür
 - Wofür braucht es diese Comonent?
