@@ -1,19 +1,11 @@
 # Strategy Pattern im ECS
 
-Auch wenn es nicht streng im Sinne des ECS-Paradigmas ist, hat sich die Verwendung des Strategy-Pattern als besonders hilfreich herausgestellt. 
+Das Strategy-Pattern hat sich als besonders hilfreich in Komponenten erwiesen, die eigene Logiken implementieren müssen, obwohl es nicht streng im Sinne des ECS-Paradigmas ist.
 
-## Wofür 
+Zukünftig sollen die in der DSL geschriebenen Funktionen als mögliche Strategien repräsentiert werden.
 
-Wir verwenden das Strategy-Pattern vor allem in Komponenten, welche ausnahmsweise kleine eigenen Logiken implementieren (müssen). Beispiel: AI-Verhalten. 
+## Umsetzung
 
-In Zukunft sollen die in der DSL geschriebenen Funktionen als mögliche Strategien repräsentiert werden. 
+Eine Strategie wird über ein funktionales Interface umgesetzt. Das `Component` speichert eine Referenz auf eine konkrete Implementierung in Form eines Lambda-Ausdrucks, einer Methodenreferenz oder einer Instanz einer implementierenden Klasse. Über diese Referenz kann die konkrete Strategie ausgeführt werden.
 
-## Wie
-
-Eine Strategie wird über ein funktionales Interface umgesetzt. 
-
-Eine `Component` speichert eine Referenz auf eine konkrete Implementierung (Lambda-Ausdruck, Methodenreferenz, Instanz einer implementierenden Klasse). 
-Über diese Referenz kann dann die konkrete Strategie ausgeführt werden.
-
-Mit der `void execute()`-Methode einer Komponente wird die Referenz die konkrete Strategie aufgerufen. 
-Die `#execute`-Methode kann dann vom zuständigen System aufgerufen werden. 
+Durch die `void execute()`-Methode einer Komponente wird die Referenz auf die konkrete Strategie aufgerufen. Die `#execute`-Methode kann dann vom zuständigen System aufgerufen werden.
