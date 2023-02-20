@@ -9,14 +9,10 @@ import ecs.items.Item;
 import org.junit.Test;
 
 public class InventoryComponentTest {
-    /**
-     * simple Item implementation since Item is abstract and can´t be used for testing otherwise
-     */
+    /** simple Item implementation since Item is abstract and can´t be used for testing otherwise */
     private static class ItemImpl extends Item {}
 
-    /**
-     * constructor should create the inventory with the given parameters.
-     */
+    /** constructor should create the inventory with the given parameters. */
     @Test
     public void validCreation() {
 
@@ -27,9 +23,7 @@ public class InventoryComponentTest {
         assertEquals(1, ic.getMaxSize());
     }
 
-    /**
-     * Adding one valid Item
-     */
+    /** Adding one valid Item */
     @Test
     public void addItemValid() {
         Entity e = new Entity();
@@ -56,9 +50,7 @@ public class InventoryComponentTest {
         assertEquals(3, ic.getMaxSize());
     }
 
-    /**
-     * Adding two Items to an Inventory with a size of 1 should only add the first
-     */
+    /** Adding two Items to an Inventory with a size of 1 should only add the first */
     @Test
     public void addItemOverSize() {
         Entity e = new Entity();
@@ -70,9 +62,7 @@ public class InventoryComponentTest {
         assertEquals(1, ic.getMaxSize());
     }
 
-    /**
-     * removing of an added Item
-     */
+    /** removing of an added Item */
     @Test
     public void removeItemExisting() {
         Entity e = new Entity();
@@ -86,9 +76,7 @@ public class InventoryComponentTest {
         assertEquals(1, ic.getMaxSize());
     }
 
-    /**
-     * removing an Item which was already removed before
-     */
+    /** removing an Item which was already removed before */
     @Test
     public void removeItemTwice() {
         Entity e = new Entity();
@@ -103,9 +91,7 @@ public class InventoryComponentTest {
         assertEquals(1, ic.getMaxSize());
     }
 
-    /**
-     * null should not remove any Item
-     */
+    /** null should not remove any Item */
     @Test
     public void removeItemNull() {
         Entity e = new Entity();
