@@ -12,9 +12,7 @@ welche den Übergabepunkt zur Interpretation des Programms markiert.
 Die Schritte, welche anschließend während der Interpretation vom `DSLInterpreter` ausgeführt
 werden, sind im folgenden Diagram dargestellt:
 
-<p align="center">
-<img src="img/interpretation_pipeline.png" width=50%>
-</p>
+[UML: Interpretatiospipeline](img/interpretation_pipeline.png){width="50%"}
 
 Die Interpretations-Pipeline ist in zwei Phasen aufgeteilt, die Laufzeitinitialisierung und die Interpretation.
 
@@ -65,18 +63,14 @@ Komponenten-Definition enthält die per DSL konfigurierten Defaultwerte der Komp
 
 Die Erzeugung der Prototypen ist im folgenden Sequenzdiagramm dargestellt:
 
-<p align="center">
-<img src="img/create_prototype.png" width=50%>
-</p>
+[UML: Erzeugung Prototyp](img/create_prototype.png){width="50%"}
 
 In den Typdefinitionen, die vom `RuntimeEnvironment` für `getTypes` zurückgegeben werden, sind auch die
 `game_object`-Definition enthalten.
 
 Die referenzierte Sequenz `createComponentPrototype` ist im Folgenden dargestellt:
 
-<p align="center">
-<img src="img/create_component_prototype.png" width=50%>
-</p>
+[UML: Erzeugung Komponentenprototyp](img/create_component_prototype.png){width="50%"}
 
 **Evaluierung von Ausdrücken**
 
