@@ -1,6 +1,6 @@
 ---
-title: Collision System
- ---
+title: "Collision System"
+---
 
 ## Funktion
 - Was macht das System
