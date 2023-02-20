@@ -1,6 +1,6 @@
 package ecs.components.ai.idle;
 
-import static ecs.components.ai.AITools.getRandomAccessibleTileInRange;
+import static ecs.components.ai.AITools.getRandomAccessibleTileCoordinateInRange;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import ecs.components.PositionComponent;
@@ -33,11 +33,11 @@ public class StaticRadiusWalk implements IIdleAI {
 
     @Override
     public void idle(Entity entity) {
-        if (path == null || AITools.pathFinished(entity, path)) {
+        if (path == null || AITools.pathFinishedOrLeft(entity, path)) {
             if (center == null) {
                 PositionComponent pc =
                         (PositionComponent)
-                                entity.getComponent(PositionComponent.name).orElseThrow();
+                                entity.getComponent(PositionComponent.class).orElseThrow();
                 center = pc.getPosition();
             }
 
@@ -45,9 +45,9 @@ public class StaticRadiusWalk implements IIdleAI {
                 currentBreak = 0;
                 PositionComponent pc2 =
                         (PositionComponent)
-                                entity.getComponent(PositionComponent.name).orElseThrow();
+                                entity.getComponent(PositionComponent.class).orElseThrow();
                 currentPosition = pc2.getPosition();
-                newEndTile = getRandomAccessibleTileInRange(center, radius).toPoint();
+                newEndTile = getRandomAccessibleTileCoordinateInRange(center, radius).toPoint();
                 path = AITools.calculatePath(currentPosition, newEndTile);
                 idle(entity);
             }
