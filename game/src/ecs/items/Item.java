@@ -73,8 +73,8 @@ public abstract class Item {
                                 .getComponent(InventoryComponent.class)
                                 .ifPresent(
                                         (x) -> {
-                                            ((InventoryComponent) x).addItem(this);
-                                            ECS.entitiesToRemove.add(droppedItem);
+                                            if (((InventoryComponent) x).addItem(this))
+                                                ECS.entitiesToRemove.add(droppedItem);
                                         });
                     }
                 });
