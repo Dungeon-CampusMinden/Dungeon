@@ -1,6 +1,7 @@
 ---
 title: ECS Basics
  ---
+Im Projekt wird das [ECS-Paradigmas](https://en.wikipedia.org/wiki/Entity_component_system) angewendet. 
 
 ## Was ist ein ECS (Kurzform)
 
