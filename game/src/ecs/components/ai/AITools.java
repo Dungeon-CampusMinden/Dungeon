@@ -99,6 +99,17 @@ public class AITools {
     }
 
     /**
+     * @param center center point
+     * @param radius search radius
+     * @return random tile in given range
+     */
+    public static Coordinate getRandomAccessibleTileCoordinateInRange(Point center, float radius) {
+        List<Tile> tiles = getAccessibleTilesInRange(center, radius);
+        Coordinate newPosition = tiles.get(random.nextInt(tiles.size())).getCoordinate();
+        return newPosition;
+    }
+
+    /**
      * @param from start point
      * @param to end point
      * @return Path from the start point to the end point
@@ -126,8 +137,7 @@ public class AITools {
      * @return Path from the center point to the randomly selected tile
      */
     public static GraphPath<Tile> calculatePathToRandomTileInRange(Point point, float radius) {
-        List<Tile> tiles = getAccessibleTilesInRange(point, radius);
-        Coordinate newPosition = tiles.get(random.nextInt(tiles.size())).getCoordinate();
+        Coordinate newPosition = getRandomAccessibleTileCoordinateInRange(point, radius);
         return calculatePath(point.toCoordinate(), newPosition);
     }
 
