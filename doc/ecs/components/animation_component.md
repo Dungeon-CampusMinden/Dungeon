@@ -1,6 +1,7 @@
 ---
 title: "Animation Component"
 ---
+
 ## Wofür
 - Wofür braucht es diese Comonent?
 - Was macht es? 
