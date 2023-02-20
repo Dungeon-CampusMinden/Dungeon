@@ -6,8 +6,10 @@ import java.lang.reflect.InvocationTargetException;
 import level.elements.tile.Tile;
 import mydungeon.ECS;
 
+/** System to check for collisions between two entities */
 public class CollisionSystem extends ECS_System {
 
+    /** checks if there is a collision between two entities based on their hitbox */
     @Override
     public void update() {
         for (Entity entity : ECS.entities) {
@@ -94,7 +96,7 @@ public class CollisionSystem extends ECS_System {
     }
 
     /**
-     * Calculates the direction based on a square can be broken once the hitboxes are rectangular.
+     * Calculates the direction based on a square, can be broken once the hitboxes are rectangular.
      *
      * @param hitbox1
      * @param hitbox2
