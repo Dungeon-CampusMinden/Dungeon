@@ -48,11 +48,11 @@ public abstract class Item {
 
     public Item() {
         this(
-            DEFAULT_ITEM_TYPE,
-            DEFAULT_INVENTORY_ANIMATION,
-            DEFAULT_WORLD_ANIMATION,
-            DEFAULT_NAME,
-            DEFAULT_DESCRIPTION);
+                DEFAULT_ITEM_TYPE,
+                DEFAULT_INVENTORY_ANIMATION,
+                DEFAULT_WORLD_ANIMATION,
+                DEFAULT_NAME,
+                DEFAULT_DESCRIPTION);
     }
 
     /**
