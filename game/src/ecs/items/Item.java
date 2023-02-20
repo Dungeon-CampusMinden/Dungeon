@@ -12,11 +12,11 @@ import tools.Point;
 public abstract class Item {
     public static final List<String> missingTexture = List.of("animation/missingTexture.png");
 
-    public static final String DefaultDescription = "Default Description.";
-    public static final ItemType DefaultItemType = ItemType.Basic;
-    public static final String DefaultName = "Default_name";
-    public static final Animation DefaultWorldTexture = new Animation(missingTexture, 1);
-    public static final Animation DefaultInventoryTexture = new Animation(missingTexture, 1);
+    public static final String DEFAULT_DESCRIPTION = "Default Description.";
+    public static final ItemType DEFAULT_ITEM_TYPE = ItemType.Basic;
+    public static final String DEFAULT_NAME = "Default_name";
+    public static final Animation DEFAULT_WORLD_ANIMATION = new Animation(missingTexture, 1);
+    public static final Animation DEFAULT_INVENTORY_ANIMATION = new Animation(missingTexture, 1);
 
     private ItemType itemType;
     private Animation inventoryTexture;
@@ -48,11 +48,11 @@ public abstract class Item {
 
     public Item() {
         this(
-                DefaultItemType,
-                DefaultInventoryTexture,
-                DefaultWorldTexture,
-                DefaultName,
-                DefaultDescription);
+            DEFAULT_ITEM_TYPE,
+            DEFAULT_INVENTORY_ANIMATION,
+            DEFAULT_WORLD_ANIMATION,
+            DEFAULT_NAME,
+            DEFAULT_DESCRIPTION);
     }
 
     /**

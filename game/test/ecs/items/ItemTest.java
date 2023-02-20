@@ -30,11 +30,11 @@ public class ItemTest {
     @Test
     public void testDefaultConstructor() {
         Item item = new ItemImpl();
-        assertEquals(Item.DefaultName, item.getItemName());
-        assertEquals(Item.DefaultDescription, item.getDescription());
-        assertEquals(Item.DefaultItemType, item.getItemType());
-        assertEquals(Item.DefaultWorldTexture, item.getWorldTexture());
-        assertEquals(Item.DefaultInventoryTexture, item.getInventoryTexture());
+        assertEquals(Item.DEFAULT_NAME, item.getItemName());
+        assertEquals(Item.DEFAULT_DESCRIPTION, item.getDescription());
+        assertEquals(Item.DEFAULT_ITEM_TYPE, item.getItemType());
+        assertEquals(Item.DEFAULT_WORLD_ANIMATION, item.getWorldTexture());
+        assertEquals(Item.DEFAULT_INVENTORY_ANIMATION, item.getInventoryTexture());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class ItemTest {
         assertEquals(point.y, pc.getPosition().y, 0.001);
         AnimationComponent ac =
                 (AnimationComponent) e.getComponent(AnimationComponent.class).orElseThrow();
-        assertEquals(Item.DefaultWorldTexture, ac.getCurrentAnimation());
+        assertEquals(Item.DEFAULT_WORLD_ANIMATION, ac.getCurrentAnimation());
 
         HitboxComponent hc = (HitboxComponent) e.getComponent(HitboxComponent.class).orElseThrow();
     }
