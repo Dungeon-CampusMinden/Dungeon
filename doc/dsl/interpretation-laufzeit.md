@@ -1,3 +1,7 @@
+---
+title: "Interpretation & Laufzeit"
+---
+
 ## Überblick: Wie funktioniert die Interpretation allgemein
 
 Der Interpretation sind die Schritte Lexing, Parsing, AST-Konvertierung und
