@@ -16,7 +16,8 @@ public class SelfDefendTransition implements ITransition {
                                                         "Missing "
                                                                 + HealthComponent.class.getName()
                                                                 + " which is required for the "
-                                                                + SelfDefendTransition.class.getName()));
+                                                                + SelfDefendTransition.class
+                                                                        .getName()));
         return component.getCurrentHealthpoints() < component.getMaximalHealthpoints();
     }
 }
