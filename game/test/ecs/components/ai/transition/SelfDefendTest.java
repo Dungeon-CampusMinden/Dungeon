@@ -23,7 +23,6 @@ public class SelfDefendTest {
         HealthComponent hc = new HealthComponent(entity);
         hc.setMaximalHealthpoints(10);
         hc.setCurrentHealthpoints(10);
-        entity.addComponent(hc);
         ITransition defend = new SelfDefend();
 
         assertFalse(defend.isInFightMode(entity));
@@ -38,7 +37,6 @@ public class SelfDefendTest {
         HealthComponent hc = new HealthComponent(entity);
         hc.setMaximalHealthpoints(10);
         hc.setCurrentHealthpoints(10);
-        entity.addComponent(hc);
         ITransition defend = new SelfDefend();
         assertFalse(defend.isInFightMode(entity));
         hc.setCurrentHealthpoints(9);
