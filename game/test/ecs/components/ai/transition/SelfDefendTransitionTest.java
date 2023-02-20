@@ -9,10 +9,6 @@ import org.junit.Test;
 
 public class SelfDefendTransitionTest {
 
-    /** makes sure an instance of SelfDefendTransition can be created without crashing */
-    public void canBeCreated() {
-        ITransition defend = new SelfDefendTransition();
-    }
     /**
      * tests if the isInFight method returns false when the current HealthPoints of an entity are
      * equal to its max HealthPoints
