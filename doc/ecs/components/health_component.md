@@ -1,6 +1,6 @@
 ---
-title: Health Component
- ---
+title: "Health Component"
+---
 
 ## Wofür
 - Wofür braucht es diese Comonent?

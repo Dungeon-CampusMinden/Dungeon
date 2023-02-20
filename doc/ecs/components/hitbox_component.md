@@ -1,6 +1,6 @@
 ---
-title: Hitbox Component
- ---
+title: "Hitbox Component"
+---
 
 ## Wofür
 - Wofür braucht es diese Comonent?
