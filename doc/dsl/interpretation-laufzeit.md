@@ -124,16 +124,16 @@ mitläuft und kontinuierlich Teile des DSL-Programms ausführt.
 Die weitere Tätigkeit des `DSLInterpreter`s beschränkt sich auf die Interpretation der Event-Handler DSL-Funktionen, die
 mit Entitäten verknüpft wurden (siehe dazu [Funktionsaufrufe](#funktionsaufrufe)).
 
-# `MemorySpace`s und `Value`s
+## `MemorySpace`s und `Value`s
 
-# Typinstanziierung
+## Typinstanziierung
 
 TODO:
 - DSLInterpreter-Seite (Instanziierung von DSL-Typen als DSL-Value)
 - TypeInstantiator-Seite (Instanziierung von DSL-Typen als Java-Objekt (bspw. `Entity`, `Component`s))
 - Was ist die Rolle von `EncapsulatedObject`
 
-# Funktionsaufrufe
+## Funktionsaufrufe
 
 TODO:
 - wie funktionieren Funktionsaufrufe allgemein?
@@ -142,5 +142,5 @@ TODO:
 - wie funktioniert die Funktionsschnittstelle für Event-Handler DSL-Funktionen, die der Dungeon aufrufen kann
 - Wie funktionieren die Builder-Funktionen, um Tasks zu definieren?
 
-# Welche Klassen (neben `DSLInterpreter`) sind beteiligt?
+## Welche Klassen (neben `DSLInterpreter`) sind beteiligt?
 
