@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Random;
 import level.elements.tile.Tile;
 import mydungeon.ECS;
+import tools.Constants;
 import tools.Point;
 
 public class PatrouilleWalk implements IIdleAI {
@@ -29,13 +30,13 @@ public class PatrouilleWalk implements IIdleAI {
 
     private final List<Tile> checkpoints = new ArrayList<>();
     private final int numberCheckpoints;
-    private final int pauseTime;
+    private final int pauseFrames;
     private final float radius;
     private final MODE mode;
     private GraphPath<Tile> currentPath;
     private boolean initialized = false;
     private boolean forward = true;
-    private long arrivalTime = 0;
+    private int frameCounter = -1;
     private int currentCheckpoint = 0;
 
     /**
@@ -51,7 +52,7 @@ public class PatrouilleWalk implements IIdleAI {
     public PatrouilleWalk(float radius, int numberCheckpoints, int pauseTime, MODE mode) {
         this.radius = radius;
         this.numberCheckpoints = numberCheckpoints;
-        this.pauseTime = pauseTime;
+        this.pauseFrames = pauseTime / (1000 / Constants.FRAME_RATE);
         this.mode = mode;
     }
 
@@ -109,17 +110,17 @@ public class PatrouilleWalk implements IIdleAI {
         }
 
         if (currentPath != null && AITools.pathFinished(entity, currentPath)) {
-            arrivalTime = System.currentTimeMillis();
+            frameCounter = 0;
             currentPath = null;
             return;
         }
 
-        if (System.currentTimeMillis() - arrivalTime < pauseTime) {
+        if (frameCounter++ < pauseFrames && frameCounter != -1) {
             return;
         }
 
         // HERE: (Path to checkpoint finished + pause time over) OR currentPath = null
-        this.arrivalTime = 0;
+        this.frameCounter = -1;
 
         switch (mode) {
             case RANDOM -> {
