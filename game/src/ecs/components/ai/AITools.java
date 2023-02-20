@@ -197,10 +197,22 @@ public class AITools {
      * @return if the distance between the two points is within the radius
      */
     public static boolean inRange(Point p1, Point p2, float range) {
+        float distance = calculateDistance(p1, p2);
+        return distance <= range;
+    }
+
+    /**
+     * calculates the distance between two points
+     *
+     * @param p1 Point A
+     * @param p2 Point B
+     * @return the Distance between the two points
+     */
+    public static float calculateDistance(Point p1, Point p2) {
         float xDiff = p1.x - p2.x;
         float yDiff = p1.y - p2.y;
         float distance = (float) Math.sqrt(xDiff * xDiff + yDiff * yDiff);
-        return distance <= range;
+        return distance;
     }
 
     /**
