@@ -1,6 +1,6 @@
 ---
 title: "Velocity Component"
- ---
+---
 
 ## Wofür
 

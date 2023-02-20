@@ -1,6 +1,6 @@
 ---
-title: Eigene Inhalte erstellen
- ---
+title: "Eigene Inhalte erstellen"
+---
 
 ## Entitäten erstellen
 
