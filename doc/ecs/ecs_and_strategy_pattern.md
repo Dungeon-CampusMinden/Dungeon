@@ -17,15 +17,3 @@ Eine `Component` speichert eine Referenz auf eine konkrete Implementierung (Lamb
 
 Mit der `void execute()`-Methode einer Komponente wird die Referenz die konkrete Strategie aufgerufen. 
 Die `#execute`-Methode kann dann vom zuständigen System aufgerufen werden. 
-
-## Bereits implementierte Strategy-Pattern
-
-Bereits implementierte Strategien:
-
-### AIComponent
-
-![AI-Component](img/ai.png)
-
-*Anmerkung*: UML auf die wesentlichen Bestandteile gekürzt.
-
-*Anmerkung*: Die rot hinterlegten Klassen sind konkrete Implementierungen des Interfaces.
