@@ -14,6 +14,8 @@ import tools.Point;
 
 public class PatrouilleWalk implements IIdleAI {
 
+    private static final Random random = new Random();
+
     public enum MODE {
         /** Walks to a random checkpoint. */
         RANDOM,
@@ -73,12 +75,11 @@ public class PatrouilleWalk implements IIdleAI {
             return;
         }
 
-        Random rnd = new Random();
         int maxTries = 0;
         while (this.checkpoints.size() < numberCheckpoints
                 || accessibleTiles.size() == this.checkpoints.size()
                 || maxTries >= 1000) {
-            Tile t = accessibleTiles.get(rnd.nextInt(accessibleTiles.size()));
+            Tile t = accessibleTiles.get(random.nextInt(accessibleTiles.size()));
             if (!this.checkpoints.contains(t)) {
                 this.checkpoints.add(t);
             }
