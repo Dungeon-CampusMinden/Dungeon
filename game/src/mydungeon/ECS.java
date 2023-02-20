@@ -37,6 +37,7 @@ public class ECS extends Game {
         systems = new SystemController();
         controller.add(systems);
         hero = new Hero(new Point(0, 0));
+        heroPositionComponent.c
         heroPositionComponent =
                 (PositionComponent)
                         hero.getComponent(PositionComponent.name)
