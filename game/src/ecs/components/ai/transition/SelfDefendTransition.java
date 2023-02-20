@@ -4,7 +4,7 @@ import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
 import ecs.entities.Entity;
 
-public class SelfDefend implements ITransition {
+public class SelfDefendTransition implements ITransition {
     @Override
     public boolean isInFightMode(Entity entity) {
         HealthComponent component =
@@ -16,7 +16,7 @@ public class SelfDefend implements ITransition {
                                                         "Missing "
                                                                 + HealthComponent.class.getName()
                                                                 + " which is required for the "
-                                                                + SelfDefend.class.getName()));
+                                                                + SelfDefendTransition.class.getName()));
         return component.getCurrentHealthpoints() < component.getMaximalHealthpoints();
     }
 }

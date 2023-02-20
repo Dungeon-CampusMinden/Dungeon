@@ -7,11 +7,11 @@ import ecs.components.MissingComponentException;
 import ecs.entities.Entity;
 import org.junit.Test;
 
-public class SelfDefendTest {
+public class SelfDefendTransitionTest {
 
-    /** makes sure an instance of SelfDefend can be created without crashing */
+    /** makes sure an instance of SelfDefendTransition can be created without crashing */
     public void canBeCreated() {
-        ITransition defend = new SelfDefend();
+        ITransition defend = new SelfDefendTransition();
     }
     /**
      * tests if the isInFight method returns false when the current HealthPoints of an entity are
@@ -23,7 +23,7 @@ public class SelfDefendTest {
         HealthComponent hc = new HealthComponent(entity);
         hc.setMaximalHealthpoints(10);
         hc.setCurrentHealthpoints(10);
-        ITransition defend = new SelfDefend();
+        ITransition defend = new SelfDefendTransition();
 
         assertFalse(defend.isInFightMode(entity));
     }
@@ -37,7 +37,7 @@ public class SelfDefendTest {
         HealthComponent hc = new HealthComponent(entity);
         hc.setMaximalHealthpoints(10);
         hc.setCurrentHealthpoints(10);
-        ITransition defend = new SelfDefend();
+        ITransition defend = new SelfDefendTransition();
         assertFalse(defend.isInFightMode(entity));
         hc.setCurrentHealthpoints(9);
         assertTrue(defend.isInFightMode(entity));
@@ -50,10 +50,10 @@ public class SelfDefendTest {
     @Test
     public void isInFightModeHealthComponentMissing() {
         Entity entity = new Entity();
-        ITransition defend = new SelfDefend();
+        ITransition defend = new SelfDefendTransition();
         MissingComponentException exception =
                 assertThrows(MissingComponentException.class, () -> defend.isInFightMode(entity));
         assertTrue(exception.getMessage().contains(HealthComponent.class.getName()));
-        assertTrue(exception.getMessage().contains(SelfDefend.class.getName()));
+        assertTrue(exception.getMessage().contains(SelfDefendTransition.class.getName()));
     }
 }
