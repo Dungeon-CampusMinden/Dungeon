@@ -4,6 +4,7 @@ title: "Keyboard System"
 
 ## Funktion
 - Was macht das System
-- Welche Key-Components
-- Welche benötigten Components
-- Welche Optionalen Components
+
+## Welche Key-Components
+## Welche benötigten Components
+## Welche Optionalen Components
