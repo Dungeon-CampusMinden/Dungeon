@@ -1,5 +1,5 @@
 ---
-title: AI Component
+title: "AI Component"
  ---
 
 ## Wofür
