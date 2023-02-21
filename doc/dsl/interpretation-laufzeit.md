@@ -20,30 +20,7 @@ Zuerst lädt der `DSLInterpreter` die Symbol- und Typinformationen aus der über
 in ein `RuntimeEnvironment`.
 Anschließend wird ein globaler `MemorySpace` erzeugt, welcher das Laufzeit-Äquivalent zu einem `Scope` darstellt.
 In diesem globalen `MemorySpace` werden globale Definitonen von Funktionen und Objekten (bspw. von `quest_config`)
-als `Value` gebunden. Die `Value`-Klasse wird verwendet um alle Werte und Objekte zu verwalten, die vom `DSLInterpreter`
-während der Interpretation erzeugt und referenziert werden.
-
-Die Assoziation einer `Value`-Instanz in einem `MemorySpace` mit einem Namen wird als "Binden" (engl.: binding) bezeichnet.
-Die `Value`-Instanzen der Objekte haben zu diesem Zeitpunkt einen definierten default-Wert.
-
-![UML: Value Klasse](img/value_uml.png)
-
-Im Wesentlichen stellt ein Value also eine Kombination aus einem "Wert", dem `value` Object und einem Datentyp,
-dem `type` dar.
-`isMutable` dient dazu, das Setzen des internen Werts zu blockieren, was Beispielsweise für ein statisches `Value.NULL`
-Objekt genutzt wird. `isDirty` zeigt an, ob der Wert des `Value`s per `setInternalValue()` explizit durch das
-DSL-Program gesetzt wurde.
-
-`Value`-Instanzen können nur einen einzelnen Wert speichern. Um auch aus mehreren benannten Werten zusammengesetzte
-Konstrukte, wie bspw. eine `quest_config`-Definition speichern zu können, wird das `IMemorySpace`-Interface verwendet.
-
-![UML: IMemorySpace](img/imemoryspace_uml.png)
-
-Ein `IMemorySpace` bietet die Möglichkeit, mittels `bindValue()` ein `Value`-Objekt mit einem Namen zu assoziieren.
-Die `resolve()`-Methode wird genutzt, um einen Namen in dem `IMemorySpace` aufzulösen.
-`IMemorySpace`s können hierarchisch aufgebaut sein, sodass die Auflösung eines Namens auch im Eltern-`IMemorySpace`
-erfolgen kann.
-
+als `Value` gebunden (für weiter Informationen siehe [Value und MemorySpace](#value-und-imemoryspace--)).
 
 ### Interpretation
 
@@ -135,6 +112,34 @@ Es ist aktuell kein **eigenständiger** DSL-Loop oder ähnliches vorgesehen, der
 mitläuft und kontinuierlich Teile des DSL-Programms ausführt.
 Die weitere Tätigkeit des `DSLInterpreter`s beschränkt sich auf die Interpretation der Event-Handler DSL-Funktionen, die
 mit Entitäten verknüpft wurden (siehe dazu [Funktionsaufrufe](#funktionsaufrufe)).
+
+## `Value` und `IMemorySpace`
+
+Die `Value`-Klasse wird verwendet um alle Werte und Objekte zu verwalten, die vom `DSLInterpreter`
+während der Interpretation erzeugt und referenziert werden. Im Folgenden Diagram sind die wichtigsten
+Methoden und Eigenschaften der `Value`-Klasse dargestellt.
+
+![UML: Value Klasse](img/value_uml.png){width="50%"}
+
+Im Wesentlichen stellt ein Value eine Kombination aus einem "Wert", dem `value` Object, und einem Datentyp, dem `type` dar.
+`isMutable` dient dazu, das Setzen des internen Werts zu blockieren, was Beispielsweise für ein statisches `Value.NULL`
+Objekt genutzt wird. Das `isDirty`-Flag zeigt an, ob der Wert des `Value`s per `setInternalValue()` explizit durch das
+DSL-Program gesetzt wurde. Dieses Flag wird in der [Typeinstanziierung](#typinstanziierung) verwendet.
+
+`Value`-Instanzen können nur einen einzelnen Wert speichern. Um auch aus mehreren benannten Werten zusammengesetzte
+Konstrukte, wie bspw. eine `quest_config`-Definition speichern zu können, wird das `IMemorySpace`-Interface verwendet.
+Die Assoziation einer `Value`-Instanz in einem `IMemorySpace` mit einem Namen wird als "Binden" (engl.: binding) bezeichnet.
+Im Folgenden sind die wichtigsten Methoden des `IMemorySpace`-Interface abgebildet:
+
+![UML: IMemorySpace](img/imemoryspace_uml.png){width="50%"}
+
+Ein `IMemorySpace` bietet die Möglichkeit, mittels `bindValue()` ein `Value`-Objekt mit einem Namen zu assoziieren.
+Die `resolve()`-Methode wird genutzt, um einen Namen in dem `IMemorySpace` aufzulösen.
+`IMemorySpace`s können hierarchisch aufgebaut sein, sodass die Auflösung eines Namens auch im Eltern-`IMemorySpace`
+erfolgen kann.
+
+TODO:
+- AggregateValue
 
 ## Typinstanziierung
 
