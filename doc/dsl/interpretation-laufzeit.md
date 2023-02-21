@@ -4,15 +4,13 @@ title: "Interpretation & Laufzeit"
 
 ## Überblick: Wie funktioniert die Interpretation allgemein
 
-Der Interpretation sind die Schritte Lexing, Parsing, AST-Konvertierung und
-die semantische Analyse vorgelagert.
-Die semantische Analyse speichert alle Symbol- und Typinformationen in einer `IEnvironment`-Instanz,
-welche den Übergabepunkt zur Interpretation des Programms markiert.
+Der `DSLInterpreter` muss zur Interpretation eines DSL Programms Ausdrücke evaluieren und die evaluierten Werte
+speichern. Dies gilt bspw. auch für die Member einer `quest_config`-Definition.
 
 Die Schritte, welche anschließend während der Interpretation vom `DSLInterpreter` ausgeführt
 werden, sind im folgenden Diagram dargestellt:
 
-[UML: Interpretatiospipeline](img/interpretation_pipeline.png){width="50%"}
+![UML: Interpretatiospipeline](img/interpretation_pipeline.png){width="50%"}
 
 Die Interpretations-Pipeline ist in zwei Phasen aufgeteilt, die Laufzeitinitialisierung und die Interpretation.
 
@@ -24,8 +22,28 @@ Anschließend wird ein globaler `MemorySpace` erzeugt, welcher das Laufzeit-Äqu
 In diesem globalen `MemorySpace` werden globale Definitonen von Funktionen und Objekten (bspw. von `quest_config`)
 als `Value` gebunden. Die `Value`-Klasse wird verwendet um alle Werte und Objekte zu verwalten, die vom `DSLInterpreter`
 während der Interpretation erzeugt und referenziert werden.
+
 Die Assoziation einer `Value`-Instanz in einem `MemorySpace` mit einem Namen wird als "Binden" (engl.: binding) bezeichnet.
 Die `Value`-Instanzen der Objekte haben zu diesem Zeitpunkt einen definierten default-Wert.
+
+![UML: Value Klasse](img/value_uml.png)
+
+Im Wesentlichen stellt ein Value also eine Kombination aus einem "Wert", dem `value` Object und einem Datentyp,
+dem `type` dar.
+`isMutable` dient dazu, das Setzen des internen Werts zu blockieren, was Beispielsweise für ein statisches `Value.NULL`
+Objekt genutzt wird. `isDirty` zeigt an, ob der Wert des `Value`s per `setInternalValue()` explizit durch das
+DSL-Program gesetzt wurde.
+
+`Value`-Instanzen können nur einen einzelnen Wert speichern. Um auch aus mehreren benannten Werten zusammengesetzte
+Konstrukte, wie bspw. eine `quest_config`-Definition speichern zu können, wird das `IMemorySpace`-Interface verwendet.
+
+![UML: IMemorySpace](img/imemoryspace_uml.png)
+
+Ein `IMemorySpace` bietet die Möglichkeit, mittels `bindValue()` ein `Value`-Objekt mit einem Namen zu assoziieren.
+Die `resolve()`-Methode wird genutzt, um einen Namen in dem `IMemorySpace` aufzulösen.
+`IMemorySpace`s können hierarchisch aufgebaut sein, sodass die Auflösung eines Namens auch im Eltern-`IMemorySpace`
+erfolgen kann.
+
 
 ### Interpretation
 
@@ -63,14 +81,14 @@ Komponenten-Definition enthält die per DSL konfigurierten Defaultwerte der Komp
 
 Die Erzeugung der Prototypen ist im folgenden Sequenzdiagramm dargestellt:
 
-[UML: Erzeugung Prototyp](img/create_prototype.png){width="50%"}
+![UML: Erzeugung Prototyp](img/create_prototype.png){width="50%"}
 
 In den Typdefinitionen, die vom `RuntimeEnvironment` für `getTypes` zurückgegeben werden, sind auch die
 `game_object`-Definition enthalten.
 
 Die referenzierte Sequenz `createComponentPrototype` ist im Folgenden dargestellt:
 
-[UML: Erzeugung Komponentenprototyp](img/create_component_prototype.png){width="50%"}
+![UML: Erzeugung Komponentenprototyp](img/create_component_prototype.png){width="50%"}
 
 **Evaluierung von Ausdrücken**
 
@@ -117,8 +135,6 @@ Es ist aktuell kein **eigenständiger** DSL-Loop oder ähnliches vorgesehen, der
 mitläuft und kontinuierlich Teile des DSL-Programms ausführt.
 Die weitere Tätigkeit des `DSLInterpreter`s beschränkt sich auf die Interpretation der Event-Handler DSL-Funktionen, die
 mit Entitäten verknüpft wurden (siehe dazu [Funktionsaufrufe](#funktionsaufrufe)).
-
-## `MemorySpace`s und `Value`s
 
 ## Typinstanziierung
 
