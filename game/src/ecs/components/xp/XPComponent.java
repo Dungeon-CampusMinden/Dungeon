@@ -51,6 +51,15 @@ public class XPComponent extends Component {
     }
 
     /**
+     * Add xp to the entity
+     *
+     * @param xp xp to add
+     */
+    public void addXP(long xp) {
+        this.currentXP += xp;
+    }
+
+    /**
      * Get the current xp of the entity
      *
      * @return current xp
