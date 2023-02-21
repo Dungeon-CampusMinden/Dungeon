@@ -12,9 +12,11 @@ public class XPSystem extends ECS_System {
                 .forEach(
                         component -> {
                             XPComponent comp = (XPComponent) component;
-                            if (comp.getXPToNextLevel() <= 0) {
+                            long xpLeft;
+                            if ((xpLeft = comp.getXPToNextLevel()) <= 0) {
                                 comp.setCurrentLevel(comp.getCurrentLevel() + 1);
                                 comp.levelUp(comp.getCurrentLevel());
+                                comp.setCurrentXP(xpLeft * -1);
                             }
                         });
     }
