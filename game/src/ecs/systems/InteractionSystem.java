@@ -6,6 +6,7 @@ import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.components.ai.AITools;
 import ecs.entities.Entity;
+import ecs.entities.Hero;
 import java.util.Optional;
 import mydungeon.ECS;
 
@@ -18,8 +19,16 @@ public class InteractionSystem {
                         ECS.hero
                                 .getComponent(PositionComponent.class)
                                 .orElseThrow(
-                                        () -> new MissingComponentException("Missing component"));
-
+                                        () ->
+                                                new MissingComponentException(
+                                                        "Missing "
+                                                                + PositionComponent.class.getName()
+                                                                + " from "
+                                                                + Hero.class.getName()
+                                                                + " in "
+                                                                + InteractionSystem.class
+                                                                        .getName()));
+        System.out.println(heroPosition);
         for (Entity entity : ECS.entities) {
             Optional<Component> optionalComponent = entity.getComponent(InteractionComponent.class);
             if (optionalComponent.isPresent()) {
@@ -32,14 +41,21 @@ public class InteractionSystem {
                                                         .orElseThrow(
                                                                 () ->
                                                                         new MissingComponentException(
-                                                                                "Missing component")))
+                                                                                "Missing "
+                                                                                        + PositionComponent
+                                                                                                .class
+                                                                                                .getName()
+                                                                                        + " from "
+                                                                                        + entity.getClass()
+                                                                                                .getName()
+                                                                                        + " in "
+                                                                                        + InteractionSystem
+                                                                                                .class
+                                                                                                .getName())))
                                         .getPosition());
-
-                if (dist < ic.getRadius()) {
-                    if (dist < smallestDist) {
-                        closest = ic;
-                        smallestDist = dist;
-                    }
+                if (dist < ic.getRadius() && dist < smallestDist) {
+                    closest = ic;
+                    smallestDist = dist;
                 }
             }
         }

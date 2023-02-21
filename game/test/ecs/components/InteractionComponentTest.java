@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 
 public class InteractionComponentTest {
 
+    /** Tests if the simple ctor sets the attributes to the default values */
     @Test
     public void createSimpleConstructor() {
         Entity e = new Entity();
@@ -17,6 +18,7 @@ public class InteractionComponentTest {
         assertEquals(InteractionComponent.DEFAULT_REPEATABLE, component.isRepeatable());
     }
 
+    /** Tests if the complex Constructor sets the attributes to the parameter */
     @Test
     public void createComplexConstructor() {
         Entity e = new Entity();
@@ -30,6 +32,7 @@ public class InteractionComponentTest {
         assertEquals(repeat, component.isRepeatable());
     }
 
+    /** Checks if the iInteraction is called on triggerInteraction */
     @Test
     public void triggerInteractionOnLinkedEntity() {
         IInteraction iInteraction = Mockito.mock(IInteraction.class);
@@ -37,18 +40,21 @@ public class InteractionComponentTest {
         InteractionComponent component = new InteractionComponent(e, 1, true, iInteraction);
         component.triggerInteraction();
         verify(iInteraction).onInteraction(e);
+        assertTrue(e.getComponent(InteractionComponent.class).isPresent());
     }
 
+    /** Checks if after the interaction the component gets removed */
     @Test
     public void triggerInteractionOnLinkedEntityRemovesComponent() {
         IInteraction iInteraction = Mockito.mock(IInteraction.class);
         Entity e = new Entity();
-        InteractionComponent component = new InteractionComponent(e, 1, true, iInteraction);
+        InteractionComponent component = new InteractionComponent(e, 1, false, iInteraction);
         component.triggerInteraction();
         verify(iInteraction).onInteraction(e);
         assertFalse(e.getComponent(InteractionComponent.class).isPresent());
     }
 
+    /** Checks that the interaction only gets triggered for the linked iInteraction */
     @Test
     public void triggerInteractionNonLinkedEntity() {
         IInteraction iInteraction = Mockito.mock(IInteraction.class);
@@ -56,11 +62,12 @@ public class InteractionComponentTest {
         Entity e = new Entity();
         Entity e2 = new Entity();
         InteractionComponent component = new InteractionComponent(e, 1, true, iInteraction);
-        InteractionComponent component2 = new InteractionComponent(e, 1, true, iInteraction2);
+        InteractionComponent component2 = new InteractionComponent(e2, 1, true, iInteraction2);
         component.triggerInteraction();
         verify(iInteraction2, never()).onInteraction(e);
     }
 
+    /** Checks that the Component does not ge removed when the interaction was not triggered */
     @Test
     public void triggerInteractionNonLinkedEntityComponentNotRemoved() {
         IInteraction iInteraction = Mockito.mock(IInteraction.class);
@@ -68,7 +75,7 @@ public class InteractionComponentTest {
         Entity e = new Entity();
         Entity e2 = new Entity();
         InteractionComponent component = new InteractionComponent(e, 1, false, iInteraction);
-        InteractionComponent component2 = new InteractionComponent(e, 1, false, iInteraction2);
+        InteractionComponent component2 = new InteractionComponent(e2, 1, false, iInteraction2);
         component.triggerInteraction();
         assertTrue(e2.getComponent(InteractionComponent.class).isPresent());
     }

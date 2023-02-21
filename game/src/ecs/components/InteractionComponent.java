@@ -9,6 +9,14 @@ public class InteractionComponent extends Component {
     private boolean repeatable;
     private IInteraction onInteraction;
 
+    /**
+     * complex ctor which allows the attribuhtes to be configured
+     *
+     * @param entity the entity to link to
+     * @param radius the radius in which an interaction can happen
+     * @param repeatable true if the interaction is repeatable, otherwise false
+     * @param onInteraction the strategy which should happen on an interaction
+     */
     public InteractionComponent(
             Entity entity, float radius, boolean repeatable, IInteraction onInteraction) {
         super(entity);
@@ -17,6 +25,11 @@ public class InteractionComponent extends Component {
         this.onInteraction = onInteraction;
     }
 
+    /**
+     * simple ctor which sets all attributes to the default values
+     *
+     * @param entity the entity to link to
+     */
     public InteractionComponent(Entity entity) {
         this(entity, DEFAULT_RADIUS, DEFAULT_REPEATABLE, InteractionComponent::DefaultInteraction);
     }
@@ -36,10 +49,16 @@ public class InteractionComponent extends Component {
         System.out.println(e.id + " did use the DefaultInteraction");
     }
 
+    /**
+     * @return the radius in which an interaction can happen
+     */
     public float getRadius() {
         return radius;
     }
 
+    /**
+     * @return true if multiple interactions can happen, otherwise false
+     */
     public boolean isRepeatable() {
         return repeatable;
     }
