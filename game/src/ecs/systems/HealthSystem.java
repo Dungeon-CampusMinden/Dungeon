@@ -7,6 +7,7 @@ import static ecs.damage.DamageType.PHYSICAL;
 import ecs.components.AnimationComponent;
 import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
+import ecs.components.xp.XPComponent;
 import ecs.entities.Entity;
 import starter.Game;
 
@@ -67,6 +68,19 @@ public class HealthSystem extends ECS_System {
         hsd.ac.setCurrentAnimation(hsd.hc.getDieAnimation());
         // TODO: Before removing the entity, check if the animation is finished (Issue #246)
         Game.entitiesToRemove.add(hsd.hc.getEntity());
+
+        //Add XP
+        hsd.e.getComponent(XPComponent.class).ifPresent(component -> {
+            XPComponent deadXPComponent = (XPComponent) component;
+            if(hsd.hc.getLastDamageCause() == null) {
+                return;
+            }
+            hsd.hc.getLastDamageCause().getComponent(XPComponent.class).ifPresent(c -> {
+                XPComponent killerXPComponent = (XPComponent) c;
+                killerXPComponent.addXP(deadXPComponent.getLootXP());
+            });
+        });
+
     }
 
     private static MissingComponentException missingAC() {
