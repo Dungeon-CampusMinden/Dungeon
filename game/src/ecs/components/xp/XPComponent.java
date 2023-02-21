@@ -9,7 +9,7 @@ public class XPComponent extends Component {
     private static final long FORMULA_B = 10;
     private long currentLevel;
     private long currentXP;
-    private long lootXP;
+    private long lootXP = -1;
     private ILevelUp callbackLevelUp;
 
     /**
@@ -87,12 +87,13 @@ public class XPComponent extends Component {
     }
 
     /**
-     * Get the amount of xp that will be dropped when the entity dies
+     * Get the amount of xp that will be dropped when the entity dies. If no value is set, the xp
+     * will be set to half of the current xp
      *
      * @return xp that will be dropped
      */
     public long getLootXP() {
-        return lootXP;
+        return lootXP == -1 ? currentXP / 2 : lootXP;
     }
 
     /**
