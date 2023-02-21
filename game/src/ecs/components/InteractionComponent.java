@@ -3,6 +3,8 @@ package ecs.components;
 import ecs.entities.Entity;
 
 public class InteractionComponent extends Component {
+    public static final int DEFAULT_RADIUS = 5;
+    public static final boolean DEFAULT_REPEATABLE = true;
     private float radius;
     private boolean repeatable;
     private IInteraction onInteraction;
@@ -16,7 +18,7 @@ public class InteractionComponent extends Component {
     }
 
     public InteractionComponent(Entity entity) {
-        this(entity, 5, true, InteractionComponent::DefaultInteraction);
+        this(entity, DEFAULT_RADIUS, DEFAULT_REPEATABLE, InteractionComponent::DefaultInteraction);
     }
 
     /** triggers the interaction between hero and the Entity of the component */
@@ -36,5 +38,9 @@ public class InteractionComponent extends Component {
 
     public float getRadius() {
         return radius;
+    }
+
+    public boolean isRepeatable() {
+        return repeatable;
     }
 }
