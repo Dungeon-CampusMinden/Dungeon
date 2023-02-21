@@ -138,8 +138,15 @@ Die `resolve()`-Methode wird genutzt, um einen Namen in dem `IMemorySpace` aufzu
 `IMemorySpace`s können hierarchisch aufgebaut sein, sodass die Auflösung eines Namens auch im Eltern-`IMemorySpace`
 erfolgen kann.
 
-TODO:
-- AggregateValue
+Ein `AggregateValue` hat einen `MemorySpace`, indem seine Member gespeichert werden. Wird beispielsweise der
+Komponentenprototyp von `velocity_component` aus obigem [Beispiel](#interpretation) instanziiert, sieht der
+erzeugte `AggregateValue` wie folgt aus:
+
+![UML: Objektdiagramm Velocity Component AggregateValue](img/aggregate_value_objects.png){width="50%"}
+
+In der `AggregateValue`-Instanz sind neben den konfigurierten Defaultwerten aus dem `Prototype` auch `Value`-Instanzen
+für alle anderen Member des `AggregateType` enthalten, der dem `AggregateValue` zugrunde liegt.
+Wie die Typinstanziierung genau abläuft, wird im folgenden Kapitel erläutert.
 
 ## Typinstanziierung
 
