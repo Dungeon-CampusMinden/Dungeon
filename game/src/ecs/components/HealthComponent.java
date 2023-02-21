@@ -1,5 +1,6 @@
 package ecs.components;
 
+import com.badlogic.gdx.utils.Null;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.entities.Entity;
@@ -18,6 +19,7 @@ public class HealthComponent extends Component {
     private final List<Damage> damageToGet;
     private @DSLTypeMember(name = "maximal_health_points") int maximalHealthpoints;
     private int currentHealthpoints;
+    private @Null Entity lastCause = null;
     private @DSLTypeMember(name = "on_death_function") IOnDeathFunction onDeath;
     private @DSLTypeMember(name = "get_hit_animation") Animation getHitAnimation;
     private @DSLTypeMember(name = "die_animation") Animation dieAnimation;
@@ -68,6 +70,7 @@ public class HealthComponent extends Component {
      */
     public void receiveHit(Damage damage) {
         damageToGet.add(damage);
+        this.lastCause = damage.cause() != null ? damage.cause() : this.lastCause;
     }
 
     /** Triggers the onDeath Function */
@@ -166,5 +169,12 @@ public class HealthComponent extends Component {
      */
     public Animation getDieAnimation() {
         return dieAnimation;
+    }
+
+    /**
+     * @return The last entity that caused damage to this entity.
+     */
+    public Entity getLastDamageCause() {
+        return lastCause;
     }
 }

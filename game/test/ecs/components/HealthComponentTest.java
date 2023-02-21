@@ -18,10 +18,10 @@ public class HealthComponentTest {
         Game.entities.clear();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity);
-        Damage fdmg = new Damage(3, DamageType.FIRE);
-        Damage fdmg2 = new Damage(5, DamageType.FIRE);
-        Damage mdmg = new Damage(-1, DamageType.MAGIC);
-        Damage pdmg = new Damage(4, DamageType.PHYSICAL);
+        Damage fdmg = new Damage(3, DamageType.FIRE, null);
+        Damage fdmg2 = new Damage(5, DamageType.FIRE, null);
+        Damage mdmg = new Damage(-1, DamageType.MAGIC, null);
+        Damage pdmg = new Damage(4, DamageType.PHYSICAL, null);
         hc.receiveHit(fdmg);
         hc.receiveHit(fdmg2);
         hc.receiveHit(mdmg);
