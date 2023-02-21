@@ -30,7 +30,7 @@ public class XPSystemTest {
     @Test
     public void noLevelUp() {
         assertEquals(0, this.xpComponent.getCurrentLevel());
-        this.xpComponent.addXP(99); //First level is reached with 100 XP
+        this.xpComponent.addXP(99); // First level is reached with 100 XP
         this.xpSystem.update();
         assertEquals(0, this.xpComponent.getCurrentLevel());
     }
@@ -38,7 +38,7 @@ public class XPSystemTest {
     @Test
     public void levelUpExact() {
         assertEquals(0, this.xpComponent.getCurrentLevel());
-        this.xpComponent.addXP(100); //First level is reached with 100 XP
+        this.xpComponent.addXP(100); // First level is reached with 100 XP
         this.xpSystem.update();
         assertEquals(1, this.xpComponent.getCurrentLevel());
     }
@@ -46,7 +46,7 @@ public class XPSystemTest {
     @Test
     public void levelUpOverflow() {
         assertEquals(0, this.xpComponent.getCurrentLevel());
-        this.xpComponent.addXP(120); //First level is reached with 100 XP
+        this.xpComponent.addXP(120); // First level is reached with 100 XP
         this.xpSystem.update();
         assertEquals(1, this.xpComponent.getCurrentLevel());
         assertEquals(20, this.xpComponent.getCurrentXP());
@@ -55,7 +55,8 @@ public class XPSystemTest {
     @Test
     public void levelUpMultipleExact() {
         assertEquals(0, this.xpComponent.getCurrentLevel());
-        this.xpComponent.addXP(241); //First level is reached with 100 XP second level is reached with 141 XP (100 + 141 = 241)
+        // First Level is reached with 100 XP, second level is reached with 141 XP (100 + 141 = 241)
+        this.xpComponent.addXP(241);
         this.xpSystem.update();
         assertEquals(2, this.xpComponent.getCurrentLevel());
     }
@@ -63,11 +64,10 @@ public class XPSystemTest {
     @Test
     public void levelUpMultipleOverflow() {
         assertEquals(0, this.xpComponent.getCurrentLevel());
-        this.xpComponent.addXP(261); //First level is reached with 100 XP second level is reached with 141 XP (100 + 141 = 241)
+        // First Level is reached with 100 XP, second level is reached with 141 XP (100 + 141 = 241)
+        this.xpComponent.addXP(261);
         this.xpSystem.update();
         assertEquals(2, this.xpComponent.getCurrentLevel());
         assertEquals(20, this.xpComponent.getCurrentXP());
     }
-
-
 }

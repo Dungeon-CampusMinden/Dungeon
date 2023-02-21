@@ -1,13 +1,13 @@
 package ecs.components;
 
+import static org.junit.Assert.*;
+
 import ecs.components.xp.XPComponent;
 import ecs.entities.Entity;
 import ecs.systems.SystemController;
 import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class XPComponentTest {
 
@@ -40,6 +40,4 @@ public class XPComponentTest {
         xpComponent.addXP(10);
         assertEquals(20, xpComponent.getCurrentXP());
     }
-
-
 }
