@@ -38,9 +38,10 @@ public class InventoryComponent extends Component {
      * removes the given Item from the inventory
      *
      * @param item the item which should be removed
+     * @return true if the element was removed, otherwise false
      */
-    public void removeItem(Item item) {
-        inventory.remove(item);
+    public boolean removeItem(Item item) {
+        return inventory.remove(item);
     }
 
     /**

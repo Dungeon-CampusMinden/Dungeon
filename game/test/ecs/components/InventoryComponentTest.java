@@ -69,7 +69,7 @@ public class InventoryComponentTest {
         InventoryComponent ic = new InventoryComponent(e, 1);
         Item item = new ItemImpl();
         ic.addItem(item);
-        ic.removeItem(item);
+        assertTrue(ic.removeItem(item));
 
         assertEquals(0, ic.filledSlots());
         assertEquals(1, ic.emptySlots());
@@ -84,7 +84,7 @@ public class InventoryComponentTest {
         Item item = new ItemImpl();
         ic.addItem(item);
         ic.removeItem(item);
-        ic.removeItem(item);
+        assertFalse(ic.removeItem(item));
 
         assertEquals(0, ic.filledSlots());
         assertEquals(1, ic.emptySlots());
@@ -98,7 +98,7 @@ public class InventoryComponentTest {
         InventoryComponent ic = new InventoryComponent(e, 1);
         Item item = new ItemImpl();
         ic.addItem(item);
-        ic.removeItem(null);
+        assertFalse(ic.removeItem(null));
 
         assertEquals(1, ic.filledSlots());
         assertEquals(0, ic.emptySlots());
