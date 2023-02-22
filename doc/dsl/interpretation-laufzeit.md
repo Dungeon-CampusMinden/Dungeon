@@ -193,15 +193,16 @@ game_object my_obj {
 ```
 resultiert somit folgende Konstellation:
 
-TODO: Objektdiagram
+![UML: Objektdiagram für instanziierten Prototype](img/instance_prototype_objects.png)
 
 ### Instanziierung von Java-Klassen per `TypeInstantiator`
-
 
 TODO:
 - DSLInterpreter-Seite (Instanziierung von DSL-Typen als DSL-Value)
 - TypeInstantiator-Seite (Instanziierung von DSL-Typen als Java-Objekt (bspw. `Entity`, `Component`s))
 - Was ist die Rolle von `EncapsulatedObject`
+
+### Instanziierung von adaptierten Datentypen
 
 ## Funktionsaufrufe
 
