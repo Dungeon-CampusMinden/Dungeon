@@ -198,8 +198,8 @@ resultiert somit folgende Konstellation:
 In den `AggregateValue`-Instanzen sind die per DSL konfigurierten Defaultwerte (`x_velocity`
 und `y_velocity` für `velocity_component`; `idle_left` und `idle_right` für `animation_component`)
 enthalten. Darüber hinaus sind auch die vom `DSLInterpreter` erzeugten Defaultwerte für die übrigen
-Member der Komponenten (`move_left_animation` und `move_right_animation` für `velocity_component`;
-`current_animation` für `animation_component`) enthalten.
+Member der Komponenten (`move_left_animation` und `move_right_animation` für [velocity_component](../ecs/components/velocity_component.md)
+`current_animation` für [animation_component](../ecs/components/animation_component.md)) enthalten.
 
 ### Instanziierung von Java-Klassen per `TypeInstantiator`
 
