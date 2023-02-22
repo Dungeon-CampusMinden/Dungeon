@@ -160,12 +160,6 @@ Der Begriff "Typinstanziierung" beschreibt zwei Prozesse:
 
 ### Instanziierung von `Prototype`/`AggregateType` als `AggregateValue`
 
-TODO:
-- Erstellen von AggregateValue
-- Binden von Values in MemorySpace von AggregateValue
-  - Dabei auf Default-Werte eingehen
-  - das ist rekursiv
-
 Im Folgenden Sequenzdiagramm ist der Ablauf zur Instanziierung eines `Prototype` als `AggregateValue`
 dargestellt.
 
@@ -204,7 +198,6 @@ Member der Komponenten (`move_left_animation` und `move_right_animation` für [v
 ### Instanziierung von Java-Klassen per `TypeInstantiator`
 
 TODO:
-- DSLInterpreter-Seite (Instanziierung von DSL-Typen als DSL-Value)
 - TypeInstantiator-Seite (Instanziierung von DSL-Typen als Java-Objekt (bspw. `Entity`, `Component`s))
 - Was ist die Rolle von `EncapsulatedObject`
 
