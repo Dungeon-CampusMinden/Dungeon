@@ -201,6 +201,21 @@ TODO:
 - TypeInstantiator-Seite (Instanziierung von DSL-Typen als Java-Objekt (bspw. `Entity`, `Component`s))
 - Was ist die Rolle von `EncapsulatedObject`
 
+- Ablauf (Klasse):
+  - Konstruktor suchen
+  - Parameterliste für Konstruktor zusammenbauen (mit Kontext-Membern)
+  - Konstruktor aufrufen
+  - Fields mit DSLTypeMember-Annotation:
+    - Remapping auf DSL-Member namen
+    - Namen in memoryspace auflösen
+    - Nur falls `isDirty`-Flag gesetzt: Wert per Reflection setzen
+      - dafür internalValue von `Value`-Instanz auslesen und setzen
+      - Falls datentyp adaptiert ist -> Builder-Methode mit parametern aufrufen
+        - AggregateAdapted kommt in dem entsprechenden PR dazu, hier nur PODAdapted
+          (könnte man nochmal umbenennen)
+
+
+
 ### Instanziierung von adaptierten Datentypen
 
 ## Funktionsaufrufe
