@@ -214,6 +214,25 @@ TODO:
         - AggregateAdapted kommt in dem entsprechenden PR dazu, hier nur PODAdapted
           (könnte man nochmal umbenennen)
 
+- `EncapsulatedObject`:
+  - Problem: bei Instanziierung von `game_object` als Entity, stecken die eigentlichen
+    Werte im Java-Objekt und nicht mehr nur in einem MemorySpace im `DSLInterpreter`
+  - Lösung: Abstraktionsschicht um das Java-Objekt als `IMemorySpace`-> resolving
+    über Reflection-Zugriffe lösen; setzt Map von DSL-Type membernamen zu originalen
+    Membernamen in der Java-Klasse voraus
+  - Das ist insbesondere mit Hinblick auf die Schnittstelle zwischen Dungeon und DSL
+    entstanden, da wir irgendwann mal vor der Herausforderung stehen, Event-Handler
+    Methoden, die in der DSL definiert sind, vom Dungeon aufzurufen
+    - Die Idee für diesen Fall ist, dass (bevor die eigentliche Interpretation
+      der Funktion beginnt) das "nackte" Java-Objekt, das vom Dungeon übergeben wird,
+      in eine `EncapsulatedObject` verpackt wird, was sich nach außen wie ein
+      `IMemorySpace` verhält
+    - Dabei wird der DSL-Datentyp, der die nackte Java-Klasse repräsentiert mit dem
+      `EncapsulatedObject`  zusammen als AggregateValue gespeichert
+    - Damit muss der `DSLInterpreter` gar nicht wissen, was da eigentlich für ein
+      Objekt hintersteht -> über den DSL-Typ, den es für das "nackte" Java-Objekt gibt,
+      ist bekannt, auf welche Member eines `Encapsulated`-Objekts zugegriffen werden
+      kann
 
 
 ### Instanziierung von adaptierten Datentypen
