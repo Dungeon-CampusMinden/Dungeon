@@ -150,6 +150,54 @@ Wie die Typinstanziierung genau abläuft, wird im folgenden Kapitel erläutert.
 
 ## Typinstanziierung
 
+Der Begriff "Typinstanziierung" beschreibt zwei Prozesse:
+1. Die Erstellung einer neuen `AggregateValue`-Instanz für einen DSL-Datentyp. In diesem Fall "lebt" die Instanz allein im
+   DSL-Kontext, in der Regel in einem `IMemorySpace`. Dieser Fall wird vom `DSLInterpreter` realisiert.
+2. Die Erstellung einer neuen Instanz einer Java-Klasse, aus der per `DSLType`-Annotation ein DSL-Datentyp erstellt wurde
+   (siehe [Typebuilding](typebuilding.md).
+   So erstellte Instanzen existieren nicht nur im DSL-Kontext, sondern werden auch im Dungeon-Framework weiter verwendet.
+   Dieser Fall wird vom `TypeInstantiator` realisiert.
+
+### Instanziierung von `Prototype`/`AggregateType` als `AggregateValue`
+
+TODO:
+- Erstellen von AggregateValue
+- Binden von Values in MemorySpace von AggregateValue
+  - Dabei auf Default-Werte eingehen
+  - das ist rekursiv
+
+Im Folgenden Sequenzdiagramm ist der Ablauf zur Instanziierung eines `Prototype` als `AggregateValue`
+dargestellt.
+
+![UML: Instanziierung Prototype](img/instantiate_prototype.png)
+
+Wie zu erkennen ist, werden die im `Prototype` per DSL definierten Defaultwerte in die neue `AggregateValue`-Instanz
+übernommen. Für alle Member des `Prototype`, für die kein expliziter Defaultwert per DSL definiert ist,
+erzeugt der DSL eine `Value`-Instanz, die den Defaultwert für den Datentyp des Members.
+Die Instanziierung von `Prototype`s ist rekursiv, falls der Wert eines Members eine
+`Prototype`-Definition ist, wird auf für diesen `Prototype` ein Instanz erstellt und dem Member
+zugewiesen.
+
+Für das bereits oben angeführte Beispiel
+```
+game_object my_obj {
+    velocity_component {
+        x_velocity: 2.0,
+        y_velocity: 3.0
+    },
+    animation_component {
+        idle_left: "path/to/frames",
+        idle_right: "path/to/frames"
+    }
+}
+```
+resultiert somit folgende Konstellation:
+
+TODO: Objektdiagram
+
+### Instanziierung von Java-Klassen per `TypeInstantiator`
+
+
 TODO:
 - DSLInterpreter-Seite (Instanziierung von DSL-Typen als DSL-Value)
 - TypeInstantiator-Seite (Instanziierung von DSL-Typen als Java-Objekt (bspw. `Entity`, `Component`s))
