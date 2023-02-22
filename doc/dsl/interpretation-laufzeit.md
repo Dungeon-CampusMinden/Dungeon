@@ -195,6 +195,12 @@ resultiert somit folgende Konstellation:
 
 ![UML: Objektdiagram für instanziierten Prototype](img/instance_prototype_objects.png)
 
+In den `AggregateValue`-Instanzen sind die per DSL konfigurierten Defaultwerte (`x_velocity`
+und `y_velocity` für `velocity_component`; `idle_left` und `idle_right` für `animation_component`)
+enthalten. Darüber hinaus sind auch die vom `DSLInterpreter` erzeugten Defaultwerte für die übrigen
+Member der Komponenten (`move_left_animation` und `move_right_animation` für `velocity_component`;
+`current_animation` für `animation_component`) enthalten.
+
 ### Instanziierung von Java-Klassen per `TypeInstantiator`
 
 TODO:
