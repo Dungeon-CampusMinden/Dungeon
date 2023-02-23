@@ -10,9 +10,7 @@ import org.junit.Test;
 
 public class XPComponentTest {
 
-    /**
-     * Test if the xp component ist initialized with zero xp and level zero.
-     */
+    /** Test if the xp component ist initialized with zero xp and level zero. */
     @Test
     public void testStartXP() {
         /* Prepare */
@@ -26,9 +24,7 @@ public class XPComponentTest {
         assertEquals(0, xpComponent.getCurrentLevel());
     }
 
-    /**
-     * Test if xp is added correctly.
-     */
+    /** Test if xp is added correctly. */
     @Test
     public void testAddXP2() {
         /* Prepare */
@@ -43,9 +39,7 @@ public class XPComponentTest {
         assertEquals(10, xpComponent.getCurrentXP());
     }
 
-    /**
-     * Test if xp is added correctly.
-     */
+    /** Test if xp is added correctly. */
     @Test
     public void testAddXP3() {
         /* Prepare */

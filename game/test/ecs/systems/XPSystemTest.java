@@ -11,9 +11,7 @@ import org.mockito.Mockito;
 
 public class XPSystemTest {
 
-    /**
-     * Test if the xp component ist initialized with zero xp and level zero.
-     */
+    /** Test if the xp component ist initialized with zero xp and level zero. */
     @Test
     public void testStartingWithZero() {
         /* Prepare */
@@ -31,9 +29,7 @@ public class XPSystemTest {
         assertEquals(0, xpComponent.getCurrentLevel());
     }
 
-    /**
-     * Test if level up is not triggered if the xp is not enough.
-     */
+    /** Test if level up is not triggered if the xp is not enough. */
     @Test
     public void testNoLevelUp() {
         /* Prepare */
@@ -50,9 +46,7 @@ public class XPSystemTest {
         assertEquals(0, xpComponent.getCurrentLevel());
     }
 
-    /**
-     * Test if level up is triggered if the xp is exact the needed amount.
-     */
+    /** Test if level up is triggered if the xp is exact the needed amount. */
     @Test
     public void testLevelUpExact() {
         /* Prepare */
@@ -70,9 +64,7 @@ public class XPSystemTest {
         assertEquals(0, xpComponent.getCurrentXP());
     }
 
-    /**
-     * Test if level up is triggered if the xp is more than the needed amount.
-     */
+    /** Test if level up is triggered if the xp is more than the needed amount. */
     @Test
     public void testLevelUpOverflow() {
         /* Prepare */
@@ -133,9 +125,7 @@ public class XPSystemTest {
         assertEquals(20, xpComponent.getCurrentXP());
     }
 
-    /**
-     * Test if negative xp is not allowed.
-     */
+    /** Test if negative xp is not allowed. */
     @Test
     public void testNegativeXP() {
         /* Prepare */
@@ -151,5 +141,4 @@ public class XPSystemTest {
         xpSystem.update();
         assertEquals(0, xpComponent.getCurrentXP());
     }
-
 }
