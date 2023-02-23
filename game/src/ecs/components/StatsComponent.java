@@ -1,14 +1,11 @@
 package ecs.components;
 
-import ecs.damage.DamageType;
 import ecs.entities.Entity;
-
-import java.util.HashMap;
-import java.util.Map;
+import ecs.stats.Stats;
 
 public class StatsComponent extends Component{
 
-    private final Map<DamageType, Float> multipliers = new HashMap<>();
+    private Stats stats = new Stats();
 
     /**
      * Create a new component and add it to the associated entity
@@ -20,22 +17,19 @@ public class StatsComponent extends Component{
     }
 
     /**
-     * Get the multiplier for a given damage type
-     * @param type damage type
-     * @return multiplier (1 is default, values greater than 1 increase damage, values less than 1 decrease damage)
+     * Get the stats object of the entity
+     * @return stats object
      */
-    public float getMultiplier(DamageType type) {
-        return this.multipliers.getOrDefault(type, 1f);
+    public Stats getStats() {
+        return this.stats;
     }
 
     /**
-     * Set the multiplier for a given damage type
-     * @param type damage type
-     * @param multiplier multiplier (1 is default, values greater than 1 increase damage, values less than 1 decrease damage)
+     * Overwrite the stats object of the entity
+     * @param stats new stats object
      */
-    public void setMultiplier(DamageType type, float multiplier) {
-        this.multipliers.put(type, multiplier);
+    public void setStats(Stats stats) {
+        this.stats = stats;
     }
-
 
 }
