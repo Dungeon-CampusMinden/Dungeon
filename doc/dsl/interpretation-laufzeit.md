@@ -222,9 +222,15 @@ Anschließend wird der `Value` aus dem übergebenen `IMemorySpace` ausgelesen un
 
 **Instanziierung von adaptierten Datentypen**
 
-- Falls datentyp adaptiert ist -> Builder-Methode mit parametern aufrufen
-  - AggregateAdapted kommt in dem entsprechenden PR dazu, hier nur PODAdapted
-  (könnte man nochmal umbenennen)
+Falls der Datentyp eines Klassen-Members [adaptiert](typebuilding.md#typadaptierung) ist, wird nicht direkt
+der interne Wert der `Value`-Instanz in die Klasseninstanz übertragen. Als Zwischenschritt wird die
+[Builder-Methode](typebuilding.md#1-nur-ein-parameter-nötig) für den Typadapter aufgerufen. Das so
+erstellte Objekt wird in die Klasseninstanz übertragen.
+
+NOTE: Hier scheint in `TypeBuilder:150` noch was konzeptionell nicht ganz zu stimmen.
+
+TODO:
+- Instanziierung von AggregateTypeAdapter (kommt mit [PR #272](https://github.com/Programmiermethoden/Dungeon/pull/272))
 
 **`EncapsulatedObject`**
 
