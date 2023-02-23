@@ -197,7 +197,28 @@ Member der Komponenten (`move_left_animation` und `move_right_animation` für [v
 
 ### Instanziierung von Java-Klassen per `TypeInstantiator`
 
+Die Instanziierung von Java-Klassen, welche mit `@DSLType` (siehe [TypeBuilding](typebuilding.md)) markiert sind,
+wird durch den `TypeInstantiator` durchgeführt. Als Beispiel wird wieder die oben angeführte `game_object`-Definition
+herangezogen.
+
+Der `IMemorySpace` eines `AggregateValue` wird dem `TypeInstantiator` übergeben. Dieser erstellt eine Instanz der
+Java-Klasse, die dem Datentyp des `AggregateValue` zugrunde liegt. Im Fall der `velocity_component` `Value`-Instanz ist
+dies die Java-Klasse `VelocityComponent`. Das Sequenzdiagramm hierfür:
+
 ![UML: Instanziierung von Java-Klasse](img/instantiate_java_class.png)
+
+Um die Java-Klasse zu instanziieren ruft der `TypeBuilder` den Konstruktor der Klasse per Reflection auf.
+Die Parameter für diesen Konstruktor-Aufruf liest der `TypeBuilder` aus dem Kontext auf (vgl. hierfür
+[TypeBuilder-Kontext](typebuilding.md#was-wenn-eine-klasse-nicht-ohne-parameter-instanziiert-werden-kann)).
+Dies ist in der ersten Schleife zu erkennen.
+
+Die zweite Schleife zeigt das tatsächliche Setzen der Werte, welche aus dem `IMemorySpace` des zu instanziierenden
+`AggregateValue` in die Java-Klassen Instanz überführt werden sollen. Hierbei muss beachtet werden,
+dass der Name eines Java-Klassen-Members nicht mit dem Namen seiner Repräsentation im DSL-Datentyp entsprechen
+muss. Das Remapping wird durch den `TypeBuilder` durchgeführt.
+
+Anschließend wird der `Value` aus dem übergebenen `IMemorySpace` ausgelesen und nur dann in die Klassen-Instanz
+übertragen, falls der Wert explizit per DSL gesetzt wurde (durch das `Value::isDirty()`-Flag abgebildet).
 
 **Instanziierung von adaptierten Datentypen**
 
