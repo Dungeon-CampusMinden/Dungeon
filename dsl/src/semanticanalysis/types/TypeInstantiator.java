@@ -147,7 +147,8 @@ public class TypeInstantiator {
                     if (fieldValue != Value.NONE && fieldValue.isDirty()) {
                         var internalValue = fieldValue.getInternalObject();
 
-                        // TODO: should this not be done at the toplevel of instantiation? not only one level down?
+                        // TODO: should this not be done at the toplevel of instantiation? not only
+                        // one level down?
                         if (fieldValue.getDataType().getTypeKind().equals(IType.Kind.PODAdapted)) {
                             // call builder -> the type instantiator needs a reference to the
                             // builder or to the
