@@ -210,11 +210,15 @@ TODO:
     - Namen in memoryspace auflösen
     - Nur falls `isDirty`-Flag gesetzt: Wert per Reflection setzen
       - dafür internalValue von `Value`-Instanz auslesen und setzen
-      - Falls datentyp adaptiert ist -> Builder-Methode mit parametern aufrufen
-        - AggregateAdapted kommt in dem entsprechenden PR dazu, hier nur PODAdapted
-          (könnte man nochmal umbenennen)
 
-- `EncapsulatedObject`:
+**Instanziierung von adaptierten Datentypen**
+
+- Falls datentyp adaptiert ist -> Builder-Methode mit parametern aufrufen
+  - AggregateAdapted kommt in dem entsprechenden PR dazu, hier nur PODAdapted
+  (könnte man nochmal umbenennen)
+
+**`EncapsulatedObject`**
+
   - Problem: bei Instanziierung von `game_object` als Entity, stecken die eigentlichen
     Werte im Java-Objekt und nicht mehr nur in einem MemorySpace im `DSLInterpreter`
   - Lösung: Abstraktionsschicht um das Java-Objekt als `IMemorySpace`-> resolving
@@ -234,17 +238,65 @@ TODO:
       ist bekannt, auf welche Member eines `Encapsulated`-Objekts zugegriffen werden
       kann
 
-
-### Instanziierung von adaptierten Datentypen
-
 ## Funktionsaufrufe
 
-TODO:
-- wie funktionieren Funktionsaufrufe allgemein?
-- wie funktionieren native Funktionen?
-- wie werden user defined funktionen behandelt?
+TODO (sobald Implementierung dafür auch steht):
 - wie funktioniert die Funktionsschnittstelle für Event-Handler DSL-Funktionen, die der Dungeon aufrufen kann
 - Wie funktionieren die Builder-Funktionen, um Tasks zu definieren?
+
+Funktionen sind `ICallable`-Instanzen, wodurch sie eine `call()`-Methode
+implementieren. Diese Methode erwartet als Parameter den
+`DSLInterpreter`, welcher den Funktionsaufruf interpretieren soll,
+und eine `List`, welche die AST-Knoten für die Parameter des
+Funktionsaufrufs enthalten. Diese Informationen sucht der `DSLInterpreter` in
+der `visit`-Methode für `FuncCallNode`-AST Knoten zusammen.
+
+### Native Funktionen
+
+Native Funktionen (also alle Funktionen, die nicht per DSL definiert werden,
+sondern standardmäßig verfügbar sind) müssen die Funktionslogik in der `call()`-Methode
+implementieren. Im folgenden Snippet ist als Beispiel die Implementierung einer
+nativen `print()`-Funktion dargestellt, welche einen Parameter über die
+Standardausgabe ausgibt:
+
+```java
+@Override
+public Object call(DSLInterpreter interperter, List<Node> parameters) {
+    assert parameters != null && parameters.size() > 0;
+
+    Value param = (Value) parameters.get(0).accept(interperter);
+    String paramAsString = (String) param.getInternalObject();
+    System.out.println(paramAsString);
+
+    return null;
+}
+```
+
+### Per DSL definierte Funktionen
+
+Note: Die Doku hierzu wird in [Issue #345](https://github.com/Programmiermethoden/Dungeon/issues/345)
+ausgebaut und aktualisiert.
+
+Per DSL definierte Funktionen ('user-defined functions') werden als `FunctionSymbol`
+repräsentiert. Die semantische Analyse speichert den AST-Wurzelknoten der
+Funktionsdefinition in `FunctionSymbol`-Instanzen.
+
+Die `call()`-Implementierung in `FunctionSymbol` sieht so aus:
+```java
+@Override
+public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+    return interpreter.executeUserDefinedFunction(this, parameters);
+}
+```
+
+Das Sequenzdiagramm der Methode `executeUserDefinedFunction` ist unten dargestellt:
+
+TODO; Ablauf:
+- Auslesen von Root-AST-Knoten der Funktionsdefinition
+- Erstellen von neuem Funktions-MemorySpace
+- Pushen von Parametern in MemorySpace
+- Pushen von Return-`Value` in MemorySpace (TODO)
+- Traversierung über Statement AST-Knoten
 
 ## Welche Klassen (neben `DSLInterpreter`) sind beteiligt?
 
