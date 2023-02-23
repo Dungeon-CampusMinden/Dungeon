@@ -234,14 +234,23 @@ TODO:
 
 **EncapsulatedObject**
 
-  - Problem: bei Instanziierung von `game_object` als Entity, stecken die eigentlichen
-    Werte im Java-Objekt und nicht mehr nur in einem MemorySpace im `DSLInterpreter`
-  - Lösung: Abstraktionsschicht um das Java-Objekt als `IMemorySpace`-> resolving
-    über Reflection-Zugriffe lösen; setzt Map von DSL-Type membernamen zu originalen
-    Membernamen in der Java-Klasse voraus
-  - Das ist insbesondere mit Hinblick auf die Schnittstelle zwischen Dungeon und DSL
-    entstanden, da wir irgendwann mal vor der Herausforderung stehen, Event-Handler
-    Methoden, die in der DSL definiert sind, vom Dungeon aufzurufen
+Ab der Instanziierung von `game_object`-Definitionen als `Entity`, sind die eigentlichen
+Werte in der Instanz der Java-Klasse und nicht mehr nur in einem MemorySpace im `DSLInterpreter`
+enthalten. Um die redundante Datenhaltung zu vermeiden, wird mit `EncapsulatedObject` eine
+Abstraktionsschicht um das Java-Objekt gelegt, welche `IMemorySpace` implementiert. Das Auflösen von
+Membern wird über Reflection-Zugriffe implementiert. Hierfür muss ein Remapping von den Membernamen
+des DSL-Typen auf die originalen Namen der Java-Klassen Member durchgeführt werden.
+Ein `EncapsulatedObject` kann wie ein `IMemorySpace` in einem `AggregateValue` als Speicher für
+dessen `Value`-Objekte genutzt werden.
+
+TODO:
+- Sequenzdiagram für die Erstellung von `EncapuslatedObject`s
+- Dokumentation, welche Relevanz das in der
+    [Funktionsschnittstelle - Issue #97](https://github.com/Programmiermethoden/Dungeon/issues/97) hat
+    und wie das umgesetzt wird
+    - Notizen dazu: Das ist insbesondere mit Hinblick auf die Schnittstelle zwischen Dungeon und DSL
+      entstanden, da wir irgendwann mal vor der Herausforderung stehen, Event-Handler
+      Methoden, die in der DSL definiert sind, vom Dungeon aufzurufen
     - Die Idee für diesen Fall ist, dass (bevor die eigentliche Interpretation
       der Funktion beginnt) das "nackte" Java-Objekt, das vom Dungeon übergeben wird,
       in eine `EncapsulatedObject` verpackt wird, was sich nach außen wie ein

@@ -12,6 +12,8 @@ import java.util.Set;
 public class EncapsulatedObject extends Value implements IMemorySpace {
     private IMemorySpace parent;
     private AggregateType type;
+
+    // TODO: this should be static for one aggregateType and not instanced for each new instance of the same type
     private HashMap<String, Field> typeMemberToField;
 
     // TODO: should probably abstract all that away in a TypeFactory, which
