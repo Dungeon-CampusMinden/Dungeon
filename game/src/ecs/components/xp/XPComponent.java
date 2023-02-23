@@ -57,6 +57,7 @@ public class XPComponent extends Component {
      */
     public void addXP(long xp) {
         this.currentXP += xp;
+        if(this.currentXP < 0) this.currentXP = 0;
     }
 
     /**
