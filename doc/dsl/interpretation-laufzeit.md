@@ -312,6 +312,3 @@ TODO; Ablauf:
 - Pushen von Parametern in MemorySpace
 - Pushen von Return-`Value` in MemorySpace (TODO)
 - Traversierung über Statement AST-Knoten
-
-## Welche Klassen (neben `DSLInterpreter`) sind beteiligt?
-
