@@ -197,19 +197,7 @@ Member der Komponenten (`move_left_animation` und `move_right_animation` für [v
 
 ### Instanziierung von Java-Klassen per `TypeInstantiator`
 
-TODO:
-- TypeInstantiator-Seite (Instanziierung von DSL-Typen als Java-Objekt (bspw. `Entity`, `Component`s))
-- Was ist die Rolle von `EncapsulatedObject`
-
-- Ablauf (Klasse):
-  - Konstruktor suchen
-  - Parameterliste für Konstruktor zusammenbauen (mit Kontext-Membern)
-  - Konstruktor aufrufen
-  - Fields mit DSLTypeMember-Annotation:
-    - Remapping auf DSL-Member namen
-    - Namen in memoryspace auflösen
-    - Nur falls `isDirty`-Flag gesetzt: Wert per Reflection setzen
-      - dafür internalValue von `Value`-Instanz auslesen und setzen
+![UML: Instanziierung von Java-Klasse](img/instantiate_java_class.png)
 
 **Instanziierung von adaptierten Datentypen**
 
