@@ -232,7 +232,7 @@ NOTE: Hier scheint in `TypeBuilder:150` noch was konzeptionell nicht ganz zu sti
 TODO:
 - Instanziierung von AggregateTypeAdapter (kommt mit [PR #272](https://github.com/Programmiermethoden/Dungeon/pull/272))
 
-**`EncapsulatedObject`**
+**EncapsulatedObject**
 
   - Problem: bei Instanziierung von `game_object` als Entity, stecken die eigentlichen
     Werte im Java-Objekt und nicht mehr nur in einem MemorySpace im `DSLInterpreter`
