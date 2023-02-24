@@ -11,7 +11,7 @@ import starter.Game;
 
 /** Used to control the player */
 public class PlayerSystem extends ECS_System {
-    
+
     private record KSData(Entity e, PlayableComponent pc, VelocityComponent vc) {}
 
     @Override
