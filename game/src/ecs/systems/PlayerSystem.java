@@ -10,7 +10,7 @@ import ecs.tools.interaction.InteractionTool;
 import starter.Game;
 
 /** Used to control the player */
-public class KeyboardSystem extends ECS_System {
+public class PlayerSystem extends ECS_System {
 
     private record KSData(Entity e, PlayableComponent pc, VelocityComponent vc) {}
 
@@ -42,7 +42,7 @@ public class KeyboardSystem extends ECS_System {
         VelocityComponent vc =
                 (VelocityComponent)
                         e.getComponent(VelocityComponent.class)
-                                .orElseThrow(KeyboardSystem::missingVC);
+                                .orElseThrow(PlayerSystem::missingVC);
 
         return new KSData(e, pc, vc);
     }
