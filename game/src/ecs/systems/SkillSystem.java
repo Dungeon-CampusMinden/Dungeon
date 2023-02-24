@@ -1,6 +1,6 @@
-package ecs.components.skill;
+package ecs.systems;
 
-import ecs.systems.ECS_System;
+import ecs.components.skill.SkillComponent;
 import mydungeon.ECS;
 
 public class SkillSystem extends ECS_System {
