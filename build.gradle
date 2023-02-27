@@ -22,7 +22,7 @@ ext {
 }
 
 dependencies {
-    implementation "io.github.pm-dungeon:pm-dungeon:5.1.1"
+    // implementation "io.github.pm-dungeon:pm-dungeon:5.1.1"
 
     // LibGDX
     implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
@@ -50,10 +50,10 @@ dependencies {
 
 sourceCompatibility = 17
 [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
-sourceSets.main.java.srcDirs = ["game/src/", "dsl/src/", "$projectDir/build/generated-src/"]
-sourceSets.main.resources.srcDirs = ["game/assets/"]
+sourceSets.main.java.srcDirs = ["game/src/", "pm-dungeon/src/", "dsl/src/", "$projectDir/build/generated-src/"]
+sourceSets.main.resources.srcDirs = ["game/assets/","pm-dungeon/assets/"]
 sourceSets.test.resources.srcDirs = ["dsl/test_resources"]
-sourceSets.test.java.srcDirs = ["game/test/", "dsl/test/"]
+sourceSets.test.java.srcDirs = ["game/test/", "pm-dungeon/test/", "dsl/test/"]
 sourceSets.main.antlr.srcDirs = ["dsl/src/antlr"]
 
 project.ext.mainClassName = "mydungeon.ECS"
