@@ -11,28 +11,40 @@ import mydungeon.ECS;
 /** Used to control the player */
 public class KeyboardSystem extends ECS_System {
 
+    private record KSData(Entity e, PlayableComponent pc, VelocityComponent vc) {}
+
     @Override
     public void update() {
-        for (Entity entity : ECS.entities) {
-            entity.getComponent(PlayableComponent.class)
-                    .ifPresent(
-                            pc -> {
-                                final VelocityComponent velocity =
-                                        (VelocityComponent)
-                                                entity.getComponent(VelocityComponent.class)
-                                                        .orElseThrow(
-                                                                () ->
-                                                                        new MissingComponentException(
-                                                                                "VelocityComponent"));
-                                if (Gdx.input.isKeyPressed(Input.Keys.W))
-                                    velocity.setCurrentYVelocity(1 * velocity.getYVelocity());
-                                else if (Gdx.input.isKeyPressed(Input.Keys.S))
-                                    velocity.setCurrentYVelocity(-1 * velocity.getYVelocity());
-                                else if (Gdx.input.isKeyPressed(Input.Keys.D))
-                                    velocity.setCurrentXVelocity(1 * velocity.getXVelocity());
-                                else if (Gdx.input.isKeyPressed(Input.Keys.A))
-                                    velocity.setCurrentXVelocity(-1 * velocity.getXVelocity());
-                            });
-        }
+
+        ECS.entities.stream()
+                .flatMap(e -> e.getComponent(PlayableComponent.class).stream())
+                .map(pc -> buildDataObject((PlayableComponent) pc))
+                .forEach(this::checkKeystroke);
+    }
+
+    private void checkKeystroke(KSData ksd) {
+        if (Gdx.input.isKeyPressed(Input.Keys.W))
+            ksd.vc.setCurrentYVelocity(1 * ksd.vc.getYVelocity());
+        else if (Gdx.input.isKeyPressed(Input.Keys.S))
+            ksd.vc.setCurrentYVelocity(-1 * ksd.vc.getYVelocity());
+        else if (Gdx.input.isKeyPressed(Input.Keys.D))
+            ksd.vc.setCurrentXVelocity(1 * ksd.vc.getXVelocity());
+        else if (Gdx.input.isKeyPressed(Input.Keys.A))
+            ksd.vc.setCurrentXVelocity(-1 * ksd.vc.getXVelocity());
+    }
+
+    private KSData buildDataObject(PlayableComponent pc) {
+        Entity e = pc.getEntity();
+
+        VelocityComponent vc =
+                (VelocityComponent)
+                        e.getComponent(VelocityComponent.class)
+                                .orElseThrow(KeyboardSystem::missingVC);
+
+        return new KSData(e, pc, vc);
+    }
+
+    private static MissingComponentException missingVC() {
+        return new MissingComponentException("VelocityComponent");
     }
 }
