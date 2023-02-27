@@ -1,9 +1,6 @@
 package ecs.systems;
 
-import ecs.components.AnimationComponent;
-import ecs.components.MissingComponentException;
-import ecs.components.PositionComponent;
-import ecs.components.VelocityComponent;
+import ecs.components.*;
 import ecs.entities.Entity;
 import graphic.Animation;
 import mydungeon.ECS;
@@ -12,39 +9,40 @@ import tools.Point;
 /** MovementSystem is a system that updates the position of entities */
 public class VelocitySystem extends ECS_System {
 
+    private record VSData(Entity e, VelocityComponent vc, PositionComponent pc) {}
+
     /** Updates the position of all entities based on their velocity */
     public void update() {
-        for (Entity entity : ECS.entities) {
 
-            entity.getComponent(VelocityComponent.class)
-                    .ifPresent(
-                            vc -> {
-                                final PositionComponent position =
-                                        (PositionComponent)
-                                                entity.getComponent(PositionComponent.class)
-                                                        .orElseThrow(
-                                                                () ->
-                                                                        new MissingComponentException(
-                                                                                "PositionComponent"));
+        ECS.entities.stream()
+                .flatMap(e -> e.getComponent(VelocityComponent.class).stream())
+                .map(vc -> buildDataObject((VelocityComponent) vc))
+                .forEach(this::updatePosition);
+    }
 
-                                // Update the position based on the velocity
-                                float newX =
-                                        position.getPosition().x
-                                                + ((VelocityComponent) vc).getCurrentXVelocity();
-                                float newY =
-                                        position.getPosition().y
-                                                + ((VelocityComponent) vc).getCurrentYVelocity();
-                                Point newPosition = new Point(newX, newY);
-                                if (ECS.currentLevel
-                                        .getTileAt(newPosition.toCoordinate())
-                                        .isAccessible()) {
-                                    position.setPosition(newPosition);
-                                    movementAnimation(entity);
-                                }
-                                ((VelocityComponent) vc).setCurrentYVelocity(0);
-                                ((VelocityComponent) vc).setCurrentXVelocity(0);
-                            });
+    private VSData updatePosition(VSData vsd) {
+        float newX = vsd.pc.getPosition().x + vsd.vc.getCurrentXVelocity();
+        float newY = vsd.pc.getPosition().y + vsd.vc.getCurrentYVelocity();
+        Point newPosition = new Point(newX, newY);
+        if (ECS.currentLevel.getTileAt(newPosition.toCoordinate()).isAccessible()) {
+            vsd.pc.setPosition(newPosition);
+            movementAnimation(vsd.e);
         }
+        vsd.vc.setCurrentYVelocity(0);
+        vsd.vc.setCurrentXVelocity(0);
+
+        return vsd;
+    }
+
+    private VSData buildDataObject(VelocityComponent vc) {
+        Entity e = vc.getEntity();
+
+        PositionComponent pc =
+                (PositionComponent)
+                        e.getComponent(PositionComponent.class)
+                                .orElseThrow(VelocitySystem::missingPC);
+
+        return new VSData(e, vc, pc);
     }
 
     private void movementAnimation(Entity entity) {
@@ -70,5 +68,9 @@ public class VelocitySystem extends ECS_System {
             else newCurrentAnimation = ac.getIdleRight();
         }
         ac.setCurrentAnimation(newCurrentAnimation);
+    }
+
+    private static MissingComponentException missingPC() {
+        return new MissingComponentException("PositionComponent");
     }
 }
