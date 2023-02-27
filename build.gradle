@@ -22,8 +22,6 @@ ext {
 }
 
 dependencies {
-    // implementation "io.github.pm-dungeon:pm-dungeon:5.1.1"
-
     // LibGDX
     implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
