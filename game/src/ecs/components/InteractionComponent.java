@@ -55,11 +55,4 @@ public class InteractionComponent extends Component {
     public float getRadius() {
         return radius;
     }
-
-    /**
-     * @return true if multiple interactions can happen, otherwise false
-     */
-    public boolean isRepeatable() {
-        return repeatable;
-    }
 }

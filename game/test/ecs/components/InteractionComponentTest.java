@@ -15,7 +15,6 @@ public class InteractionComponentTest {
         Entity e = new Entity();
         InteractionComponent component = new InteractionComponent(e);
         assertEquals(InteractionComponent.DEFAULT_RADIUS, component.getRadius(), 0.0001);
-        assertEquals(InteractionComponent.DEFAULT_REPEATABLE, component.isRepeatable());
     }
 
     /** Tests if the complex Constructor sets the attributes to the parameter */
@@ -29,7 +28,6 @@ public class InteractionComponentTest {
         InteractionComponent component = new InteractionComponent(e, radius, repeat, iInteraction);
 
         assertEquals(radius, component.getRadius(), 0.0001);
-        assertEquals(repeat, component.isRepeatable());
     }
 
     /** Checks if the iInteraction is called on triggerInteraction */
