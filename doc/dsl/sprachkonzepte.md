@@ -96,17 +96,139 @@ Konzepte gesammelt:
   - Enum-Variant Binding
   - Member-Zugriff über `.`-Operator
 
-## Graphendefinition
+### Kommentare
 
-## Propertydefinition
+Kommentare können an jeder Stelle in einer Dungeon DSL Datei eingefügt werden,
+um das DSL Programm mit erklärenden Informationen zu versehen, die vom `DSLInterpreter`
+ignoriert werden.
 
-## Ausdrücke
+Kommentare können auf zwei unterschiedliche Weisen ausgeführt werden.
 
-## Entitätsdefinition
+Einzeilig:
+```
+// einzeiliger Kommentar
+```
 
-## Level-Config
+Und mehrzeilig:
+```
+/*
+mehrzeiliger
+Kommentar
+*/
+```
 
-## Taskdefinition
+### Objektdefinition
 
-## Funktionsdefinition
+Geht aktuell nur für `quest_config`.
 
+Allgemein: Datentyp-Identifikator gefolgt vom Name des Objekts und Definition von Objekt-Eigenschaften
+in geschweiften Klammern (`{` und `}`).
+
+```
+type id {}
+```
+
+Innerhalb der geschweiften Klammern können Eigenschaften des Objekts definiert werden. Welche Eigenschaften
+ein Objekt hat, ist abhängig vom verwendeten Datentyp.
+
+Eigenschaften, welche nicht explizit per DSL definiert werden, werden auf den Defaultwert ihres Datentyps
+gesetzt (siehe dazu [Defaultwerte](typsystem.md#defaultwerte)).
+
+Mehrere Eigenschaftsdefinitionen müssen mit einem `,` getrennt werden.
+
+```
+type id {
+    property1: value,
+    property2: other_value
+}
+```
+
+#### Eigenschaftsdefinition (Propertydefinition)
+
+Eine Eigenschaftsdefinition besteht aus dem Namen der Eigenschaft, welche zugewiesen werden soll auf der
+linken Seite (im Folgenden `property_name`) und dem Wert, der der Eigenschaft zugewiesen werden soll auf
+der rechten Seite. Die linke und rechte Seite werden durch `:` getrennt.
+
+```
+// in Objekt-definition:
+...
+    property_name: zuzuweisender_ausdruck
+```
+
+Auf der rechten Seite muss ein Ausdruck stehen, welcher vom `DSLInterpreter` zu einem Wert evaluiert
+werden kann (gültige Ausdrücke sind im Kapitel [Ausdrücke](#ausdrücke) dargestellt.)
+
+### Ausdrücke
+
+```
+// ganzzahliger Wert
+property_name: 42
+
+// Dezimalwert
+property_name: 3.14
+
+// String (Zeichenkette)
+property_name: "Hello, World!"
+
+// Funktionsaufruf
+property_name: function(param1, param2)
+
+// Identifier
+property_name: id
+
+// Funktion als Wert
+property_name: function
+```
+
+### Quest-Config
+
+Die `quest_config`-Definition ist die zentrale Objektdefinition für ein DungeonDSL-Program. über die
+Eigenschaften des `quest_config`-Objekts werden dem Dungeon-Framework alle nötigen Informationen übergeben,
+die benötigt werden, um ein Level im Dungeon zu erstellen.
+
+### Entitätsdefinition
+
+Über eine Objektdefinition mit dem Datentypname `game_object` können [Entitäten](../ecs/create_own_content.md)
+definiert werden.
+
+```
+game_object object_name {
+    component1: {
+        component1_property1: value,
+        component1_property2: other_value,
+    },
+    component2: {
+        component2_property1: yet_another_value,
+        component2_property2: completely_different_value,
+    }
+}
+```
+
+Eine Entitätsdefinition verhält sich anders als eine Objektdefinition. Aus ihr wird nicht direkt ein Objekt
+erzeugt (wie bei Objektdefinitionen). Eine Entitätsdefinition stellt zunächst nur eine "Blaupause" für ein
+Objekt dar, welche explizit instanziiert werden muss. "Instanziierung" beschreibt das Erstellen eines konkreten
+Objekts aus so einer Blaupause.
+
+### Graphendefinition
+
+Warum?
+- Die Graphen-Datenstruktur bietet sich an, um bspw. die Raumaufteilung des Dungeons teilweise zu definieren
+
+Wie sieht das aus?
+- DOT syntax in einer `graph`-Umgebung
+
+```
+graph g {
+    A -- B
+    B -- C
+    A -- D
+}
+```
+
+
+### Taskdefinition
+
+### Funktionsdefinition
+
+Funktionen bieten die Möglichkeit, Anweisungen zu kapseln und in Abhängigkeit von Parametern
+bestimmtes Verhalten zu implementieren.
