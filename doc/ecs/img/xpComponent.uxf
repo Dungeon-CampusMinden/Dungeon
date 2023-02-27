@@ -1,0 +1,33 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>360</x><y>210</y><w>100</w><h>30</h></coordinates><panel_attributes>ECS_System</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>580</x><y>210</y><w>100</w><h>30</h></coordinates><panel_attributes>/Component/
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>360</x><y>290</y><w>100</w><h>30</h></coordinates><panel_attributes>XPSystem</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>520</x><y>290</y><w>220</w><h>290</h></coordinates><panel_attributes>XPComponent
+--
+_- FORMULA_A: long_
+_- FORMULA_B: long_
+- currentLevel: long
+- currentXP: long
+- lootXP: long
+- callbackLevelUp: ILevelUp
+--
++ XPComponent():
++ XPComponent(Entity, ILevelUp)
++ levelUp(long): void
++ addXP(long): void
++ getCurrentXP(): long
++ setCurrentXP(long): void
++ getCurrentLevel(): long
++ setCurrentLevel(long): void
++ getLootXP(): long
++ setLootXP(long): void
++ getXPToNextLevel(): long</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>620</x><y>230</y><w>30</w><h>80</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>400</x><y>230</y><w>30</w><h>80</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>450</x><y>290</y><w>90</w><h>30</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>70;10;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>520</x><y>610</y><w>220</w><h>80</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+ILevelUp
+--
+onLevelUp(nextLevel: long): void
+group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>620</x><y>570</y><w>30</w><h>60</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>310</x><y>610</y><w>160</w><h>30</h></coordinates><panel_attributes>bg=red
+LevelUpStrategy A
+
+group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>310</x><y>660</y><w>160</w><h>30</h></coordinates><panel_attributes>bg=red
+LevelUpStrategy B
+
+group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>460</x><y>670</y><w>80</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;.
+group=group-0</panel_attributes><additional_attributes>60;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>460</x><y>620</y><w>80</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;.
+group=group-0</panel_attributes><additional_attributes>60;10;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>360</x><y>340</y><w>100</w><h>30</h></coordinates><panel_attributes>HealthSystem</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>450</x><y>350</y><w>90</w><h>30</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>70;10;10;10</additional_attributes></element></diagram>
