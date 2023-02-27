@@ -91,5 +91,4 @@ public class XPComponentTest {
         xpComponent.addXP(120);
         assertEquals(-20, xpComponent.getXPToNextLevel());
     }
-
 }
