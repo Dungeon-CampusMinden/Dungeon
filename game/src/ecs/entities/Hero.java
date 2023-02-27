@@ -5,9 +5,7 @@ import ecs.components.*;
 import ecs.components.AnimationComponent;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
-import ecs.components.skill.ISkillFunction;
-import ecs.components.skill.Skill;
-import ecs.components.skill.SkillComponent;
+import ecs.components.skill.*;
 import graphic.Animation;
 import level.elements.tile.Tile;
 import tools.Point;
@@ -16,6 +14,7 @@ public class Hero extends Entity {
 
     private Skill firstSkill;
     private Skill secondSkill;
+
     /**
      * Entity with Components
      *
@@ -29,7 +28,16 @@ public class Hero extends Entity {
         new HitboxComponent(this, (a, b, c) -> System.out.println("heroCollision"));
 
         ISkillFunction function = (e -> System.out.println("HERO SKILL"));
-        firstSkill = new Skill(function, 3);
+        firstSkill =
+                new Skill(
+                        new FireballSkill(
+                                new ITargetSelection() {
+                                    @Override
+                                    public Point selectTargetPoint() {
+                                        return SkillTools.getCursorPositionAsPoint();
+                                    }
+                                }),
+                        3);
         secondSkill = new Skill(function, 3);
         sc.addSkill(firstSkill);
         sc.addSkill(secondSkill);
