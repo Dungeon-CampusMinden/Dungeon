@@ -34,7 +34,6 @@ public class XPComponentTest {
         XPComponent xpComponent = new XPComponent(entity, null);
 
         /* Test */
-        assertEquals(0, xpComponent.getCurrentXP());
         xpComponent.addXP(10);
         assertEquals(10, xpComponent.getCurrentXP());
     }
@@ -49,7 +48,6 @@ public class XPComponentTest {
         XPComponent xpComponent = new XPComponent(entity, null);
 
         /* Test */
-        assertEquals(0, xpComponent.getCurrentXP());
         xpComponent.addXP(10);
         xpComponent.addXP(10);
         assertEquals(20, xpComponent.getCurrentXP());

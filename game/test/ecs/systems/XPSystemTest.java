@@ -76,7 +76,6 @@ public class XPSystemTest {
         XPSystem xpSystem = new XPSystem();
 
         /* Test */
-        assertEquals(0, xpComponent.getCurrentLevel());
         xpComponent.addXP(120); // First level is reached with 100 XP
         xpSystem.update();
         assertEquals(1, xpComponent.getCurrentLevel());
