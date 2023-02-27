@@ -117,19 +117,26 @@ Kommentar
 */
 ```
 
+### Allgemein: Datentypen
+
+TODO: wo unterbringen?
+
 ### Objektdefinition
 
-Geht aktuell nur für `quest_config`.
+Note: Geht aktuell nur für `quest_config`.
 
-Allgemein: Datentyp-Identifikator gefolgt vom Name des Objekts und Definition von Objekt-Eigenschaften
-in geschweiften Klammern (`{` und `}`).
+Die Dungeon DSL erlaubt die Definition von Objekten. Dazu muss zuerst der Name des Objektdatentyps, anschließend
+der Name des erstellten Objekts und abschließend eine Liste von Eigenschaftsdefinitionen angegeben werden.
+Die Liste der Eigenschaftsdefinitionen muss von zwei geschweiften Klammern (`{` und `}`) umgeben sein und kann
+leer sein.
 
+Beispiel:
 ```
-type id {}
+type_id object_id {}
 ```
 
-Innerhalb der geschweiften Klammern können Eigenschaften des Objekts definiert werden. Welche Eigenschaften
-ein Objekt hat, ist abhängig vom verwendeten Datentyp.
+Welche Eigenschaften ein Objekt hat und dementsprechend zwischen den geschweiften Klammern
+definiert werden können, ist abhängig vom verwendeten Objektdatentyp.
 
 Eigenschaften, welche nicht explizit per DSL definiert werden, werden auf den Defaultwert ihres Datentyps
 gesetzt (siehe dazu [Defaultwerte](typsystem.md#defaultwerte)).
@@ -195,11 +202,11 @@ definiert werden.
 game_object object_name {
     component1: {
         component1_property1: value,
-        component1_property2: other_value,
+        component1_property2: other_value
     },
     component2: {
         component2_property1: yet_another_value,
-        component2_property2: completely_different_value,
+        component2_property2: completely_different_value
     }
 }
 ```
