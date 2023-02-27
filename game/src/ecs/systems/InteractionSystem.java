@@ -8,60 +8,51 @@ import ecs.components.ai.AITools;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
 import java.util.Optional;
+
 import mydungeon.ECS;
 
 public class InteractionSystem {
+    private record ISData(Entity e, PositionComponent pc, InteractionComponent ic, float dist){}
+
     public static void interactWithClosestInteractable() {
-        InteractionComponent closest = null;
-        float smallestDist = Float.MAX_VALUE;
         PositionComponent heroPosition =
                 (PositionComponent)
                         ECS.hero
                                 .getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () ->
-                                                new MissingComponentException(
-                                                        "Missing "
-                                                                + PositionComponent.class.getName()
-                                                                + " from "
-                                                                + Hero.class.getName()
-                                                                + " in "
-                                                                + InteractionSystem.class
-                                                                        .getName()));
-        System.out.println(heroPosition);
-        for (Entity entity : ECS.entities) {
-            Optional<Component> optionalComponent = entity.getComponent(InteractionComponent.class);
-            if (optionalComponent.isPresent()) {
-                InteractionComponent ic = (InteractionComponent) optionalComponent.get();
-                float dist =
-                        AITools.calculateDistance(
-                                heroPosition.getPosition(),
-                                ((PositionComponent)
-                                                entity.getComponent(PositionComponent.class)
-                                                        .orElseThrow(
-                                                                () ->
-                                                                        new MissingComponentException(
-                                                                                "Missing "
-                                                                                        + PositionComponent
-                                                                                                .class
-                                                                                                .getName()
-                                                                                        + " from "
-                                                                                        + entity.getClass()
-                                                                                                .getName()
-                                                                                        + " in "
-                                                                                        + InteractionSystem
-                                                                                                .class
-                                                                                                .getName())))
-                                        .getPosition());
-                if (dist < ic.getRadius() && dist < smallestDist) {
-                    closest = ic;
-                    smallestDist = dist;
-                }
-            }
-        }
+                                            MissingPCFromEntity(Hero.class.getName()));
+        Optional<ISData> data = ECS.entities.stream()
+            .flatMap(x->x.getComponent(InteractionComponent.class).map(InteractionComponent.class::cast).stream())
+            .map(ic1 -> convertToData(ic1, heroPosition)).filter(x->x.ic.getRadius()-x.dist > 0)
+            .min((x,y)->Float.compare(x.ic.getRadius() - x.dist, y.ic.getRadius() - y.dist ));
+        data.ifPresent(x->x.ic.triggerInteraction());
+    }
 
-        if (closest != null) {
-            closest.triggerInteraction();
-        }
+    private static InteractionSystem.ISData convertToData(InteractionComponent ic, PositionComponent heroPosition) {
+        Entity entity = ic.getEntity();
+
+        PositionComponent pc = ((PositionComponent)
+            entity.getComponent(PositionComponent.class)
+                .orElseThrow(
+                    () ->
+                        MissingPCFromEntity(entity.getClass()
+                            .getName())));
+        return new ISData(entity, pc, ic,AITools.calculateDistance(heroPosition.getPosition(),pc.getPosition()) );
+
+    }
+
+    private static MissingComponentException MissingPCFromEntity(String entity) {
+        return new MissingComponentException(
+            "Missing "
+                + PositionComponent
+                .class
+                .getName()
+                + " from "
+                + entity
+                + " in "
+                + InteractionSystem
+                .class
+                .getName());
     }
 }
