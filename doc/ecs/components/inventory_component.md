@@ -4,9 +4,7 @@ title: "Inventory Component"
 
 ## Wofür
 
-
 Diese Komponente implementiert ein Inventar und ermöglicht es Entitäten verschiedene Items aufzusammeln,
-
 
 Es besitzt eine Liste welche mit `Item`s gefüllt werden kann. Außerdem besitzt es eine Kapazität(`maxSize`) (maximale Anzahl an Items) für das
 Inventar.
@@ -17,7 +15,6 @@ Inventar.
 - Aufbau Erklären
 
 ## Wie nutzt man es
-
 
 Der Konstruktor nutzt zwei Parameter, der erste ist wie bei jeder Komponente die Entität, an dem die Komponente
 angehangen werden soll. Der zweite Parameter ist die Größe des Inventars, hier wird eine positive Ganzzahl erwartet,
@@ -35,17 +32,7 @@ zurückgegeben.
 Die 3 Methoden `filledSlots`, `emptySlots` und `getMaxSize` existieren, um den aktuellen Status des Inventars zu
 kontrollieren.
 
-## Implementierungen der Strategien
-
-- FÜr jede Implementierung einen eigenen Header mit: Wofür, Aufbau, Nutzen
-
-Hier wurden keine Strategien benötigt da es hier stand commit x keine Komplexität gibt.
-
 ## Testabdeckung
 
+Es kann und wird alles getestet. Es gibt hier nur einfach zu testene Elemente.
 
-- Stand commit x 100% abdeckung
-
-
-In dieser Komponente gibt es stand commit x keine Funktionalität welche nicht getestet werden kann. Hier sind keine
-Visuellen Komponente welche schwerer zu testen sind.
