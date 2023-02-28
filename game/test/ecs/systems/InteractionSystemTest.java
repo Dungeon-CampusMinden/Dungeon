@@ -10,14 +10,22 @@ import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import mydungeon.ECS;
 import org.junit.Test;
-import org.mockito.Mockito;
 import tools.Point;
 
 public class InteractionSystemTest {
+    private static final class SimpleCounter {
+        private int count = 0;
+
+        public void inc() {
+            count++;
+        }
+
+        public int getCount() {
+            return count;
+        }
+    }
 
     private static Hero fullMockedHero(boolean havingpc) {
         Hero mock = mock(Hero.class);
@@ -79,17 +87,15 @@ public class InteractionSystemTest {
         ECS.hero = fullMockedHero(true);
         ECS.entities.add(ECS.hero);
 
-        AtomicInteger eInteractions = new AtomicInteger();
-
         Entity e = new Entity();
         new PositionComponent(e, new Point(10, 10));
-        new InteractionComponent(e, 5f, false, (x)-> eInteractions.getAndIncrement());
 
+        SimpleCounter sc_e = new SimpleCounter();
+        new InteractionComponent(e, 5f, false, (x) -> sc_e.inc());
 
         InteractionSystem.interactWithClosestInteractable();
-        verify(interactionComponent, never()).triggerInteraction();
+        assertEquals("No interaction should happen", 0, sc_e.getCount());
 
-        ECS.entities.clear();
         cleanup();
     }
 
@@ -100,26 +106,17 @@ public class InteractionSystemTest {
     @Test
     public void interactWithClosestInteractableOneInteractableInRange() {
         ECS.hero = fullMockedHero(true);
-        Optional<Component> opt = Optional.of(new PositionComponent(ECS.hero, new Point(0, 0)));
-        Mockito.when(ECS.hero.getComponent(PositionComponent.class)).thenReturn(opt);
         ECS.entities.add(ECS.hero);
 
-        Entity e = Mockito.mock(Entity.class);
+        Entity e = new Entity();
+        new PositionComponent(e, new Point(3, 0));
 
-        PositionComponent pc = new PositionComponent(e, new Point(2, 0));
-        when(e.getComponent(PositionComponent.class)).thenReturn(Optional.of(pc));
-
-        InteractionComponent interactionComponent = Mockito.mock(InteractionComponent.class);
-        when(interactionComponent.getRadius()).thenReturn(5f);
-        when(e.getComponent(InteractionComponent.class))
-                .thenReturn(Optional.of(interactionComponent));
-
-        ECS.entities.add(e);
+        SimpleCounter sc_e = new SimpleCounter();
+        new InteractionComponent(e, 5f, false, (x) -> sc_e.inc());
 
         InteractionSystem.interactWithClosestInteractable();
-        verify(interactionComponent).triggerInteraction();
+        assertEquals("One interaction should happen", 1, sc_e.getCount());
 
-        ECS.entities.clear();
         cleanup();
     }
 
@@ -127,20 +124,13 @@ public class InteractionSystemTest {
     @Test
     public void interactWithClosestInteractableOneInteractableInRangeMissingPosition() {
         ECS.hero = fullMockedHero(true);
-        Optional<Component> opt = Optional.of(new PositionComponent(ECS.hero, new Point(0, 0)));
-        Mockito.when(ECS.hero.getComponent(PositionComponent.class)).thenReturn(opt);
+
         ECS.entities.add(ECS.hero);
 
-        Entity e = Mockito.mock(Entity.class);
+        Entity e = new Entity();
 
-        when(e.getComponent(PositionComponent.class)).thenReturn(Optional.empty());
-
-        InteractionComponent interactionComponent = Mockito.mock(InteractionComponent.class);
-        when(interactionComponent.getRadius()).thenReturn(5f);
-        when(e.getComponent(InteractionComponent.class))
-                .thenReturn(Optional.of(interactionComponent));
-
-        ECS.entities.add(e);
+        SimpleCounter sc_e = new SimpleCounter();
+        new InteractionComponent(e, 5f, false, (x) -> sc_e.inc());
 
         MissingComponentException exception =
                 assertThrows(
@@ -149,9 +139,8 @@ public class InteractionSystemTest {
         assertTrue(exception.getMessage().contains(InteractionSystem.class.getName()));
         assertTrue(exception.getMessage().contains(e.getClass().getName()));
         assertTrue(exception.getMessage().contains(PositionComponent.class.getName()));
-        verify(interactionComponent, never()).triggerInteraction();
+        assertEquals("No interaction should happen", 0, sc_e.getCount());
 
-        ECS.entities.clear();
         cleanup();
     }
 
@@ -162,36 +151,25 @@ public class InteractionSystemTest {
     @Test
     public void interactWithClosestInteractableClosestEntityFirst() {
         ECS.hero = fullMockedHero(true);
-        Optional<Component> opt = Optional.of(new PositionComponent(ECS.hero, new Point(0, 0)));
-        Mockito.when(ECS.hero.getComponent(PositionComponent.class)).thenReturn(opt);
 
         // distance 2
-        Entity eClose = Mockito.mock(Entity.class);
-        PositionComponent pc = new PositionComponent(eClose, new Point(2, 0));
-        when(eClose.getComponent(PositionComponent.class)).thenReturn(Optional.of(pc));
+        Entity eClose = new Entity();
+        new PositionComponent(eClose, new Point(2, 0));
 
-        InteractionComponent ic1 = Mockito.mock(InteractionComponent.class);
-        when(ic1.getRadius()).thenReturn(5f);
-        when(eClose.getComponent(InteractionComponent.class)).thenReturn(Optional.of(ic1));
-
-        ECS.entities.add(eClose);
+        SimpleCounter sc_eClose = new SimpleCounter();
+        new InteractionComponent(eClose, 5f, false, (x) -> sc_eClose.inc());
 
         // distance 3
-        Entity eFar = Mockito.mock(Entity.class);
-        PositionComponent pc2 = new PositionComponent(eFar, new Point(3, 0));
-        when(eFar.getComponent(PositionComponent.class)).thenReturn(Optional.of(pc2));
+        Entity eFar = new Entity();
+        new PositionComponent(eFar, new Point(3, 0));
 
-        InteractionComponent ic2 = Mockito.mock(InteractionComponent.class);
-        when(ic2.getRadius()).thenReturn(5f);
-        when(eFar.getComponent(InteractionComponent.class)).thenReturn(Optional.of(ic2));
-
-        ECS.entities.add(eFar);
+        SimpleCounter sc_eFar = new SimpleCounter();
+        new InteractionComponent(eFar, 5f, false, (x) -> sc_eFar.inc());
 
         InteractionSystem.interactWithClosestInteractable();
-        verify(ic1).triggerInteraction();
-        verify(ic2, never()).triggerInteraction();
+        assertEquals("One interaction should happen", 1, sc_eClose.getCount());
+        assertEquals("No interaction should happen", 0, sc_eFar.getCount());
 
-        ECS.entities.clear();
         cleanup();
     }
 
@@ -202,36 +180,25 @@ public class InteractionSystemTest {
     public void interactWithClosestInteractableClosestEntityLast() {
 
         ECS.hero = fullMockedHero(true);
-        Optional<Component> opt = Optional.of(new PositionComponent(ECS.hero, new Point(0, 0)));
-        Mockito.when(ECS.hero.getComponent(PositionComponent.class)).thenReturn(opt);
 
         // distance 3
-        Entity eFar = Mockito.mock(Entity.class);
+        Entity eFar = new Entity();
         PositionComponent pc2 = new PositionComponent(eFar, new Point(3, 0));
-        when(eFar.getComponent(PositionComponent.class)).thenReturn(Optional.of(pc2));
 
-        InteractionComponent ic2 = Mockito.mock(InteractionComponent.class);
-        when(ic2.getRadius()).thenReturn(5f);
-        when(eFar.getComponent(InteractionComponent.class)).thenReturn(Optional.of(ic2));
-
-        ECS.entities.add(eFar);
+        SimpleCounter sc_eFar = new SimpleCounter();
+        new InteractionComponent(eFar, 5f, false, (x) -> sc_eFar.inc());
 
         // distance 2
-        Entity eClose = Mockito.mock(Entity.class);
+        Entity eClose = new Entity();
         PositionComponent pc = new PositionComponent(eClose, new Point(2, 0));
-        when(eClose.getComponent(PositionComponent.class)).thenReturn(Optional.of(pc));
 
-        InteractionComponent ic1 = Mockito.mock(InteractionComponent.class);
-        when(ic1.getRadius()).thenReturn(5f);
-        when(eClose.getComponent(InteractionComponent.class)).thenReturn(Optional.of(ic1));
-
-        ECS.entities.add(eClose);
+        SimpleCounter sc_eClose = new SimpleCounter();
+        new InteractionComponent(eClose, 5f, false, (x) -> sc_eClose.inc());
 
         InteractionSystem.interactWithClosestInteractable();
-        verify(ic1).triggerInteraction();
-        verify(ic2, never()).triggerInteraction();
+        assertEquals("One interaction should happen", 1, sc_eClose.getCount());
+        assertEquals("No interaction should happen", 0, sc_eFar.getCount());
 
-        ECS.entities.clear();
         cleanup();
     }
 }
