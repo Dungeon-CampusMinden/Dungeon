@@ -1,4 +1,4 @@
-package basiselements.hud;
+package hud;
 
 import static java.util.Objects.requireNonNull;
 

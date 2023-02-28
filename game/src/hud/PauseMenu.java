@@ -1,9 +1,5 @@
 package hud;
 
-import basiselements.Removable;
-import basiselements.hud.FontBuilder;
-import basiselements.hud.LabelStyleBuilder;
-import basiselements.hud.ScreenText;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -12,7 +8,7 @@ import controller.ScreenController;
 import tools.Constants;
 import tools.Point;
 
-public class PauseMenu<T extends Actor & Removable> extends ScreenController<T> {
+public class PauseMenu<T extends Actor> extends ScreenController<T> {
 
     /** Creates a new PauseMenu with a new Spritebatch */
     public PauseMenu() {

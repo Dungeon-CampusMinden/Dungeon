@@ -1,8 +1,8 @@
 package level.elements.tile;
 
-import basiselements.DungeonElement;
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.utils.Array;
+import ecs.entities.Entity;
 import java.util.ArrayList;
 import java.util.List;
 import level.elements.ILevel;
@@ -48,7 +48,7 @@ public abstract class Tile {
      *
      * @param element Who entered this Tile?
      */
-    public abstract void onEntering(DungeonElement element);
+    public abstract void onEntering(Entity element);
 
     /**
      * Change texture of the tile.

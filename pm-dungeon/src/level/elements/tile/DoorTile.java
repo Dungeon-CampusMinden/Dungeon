@@ -1,6 +1,6 @@
 package level.elements.tile;
 
-import basiselements.DungeonElement;
+import ecs.entities.Entity;
 import level.elements.ILevel;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
@@ -34,7 +34,7 @@ public class DoorTile extends Tile {
     }
 
     @Override
-    public void onEntering(DungeonElement element) {
+    public void onEntering(Entity element) {
         otherDoor.level.setStartTile(otherDoor.doorstep);
     }
 

@@ -1,12 +1,11 @@
-package basiselements.hud;
+package hud;
 
-import basiselements.Removable;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import tools.Point;
 
 /** This class is intended for the configuration of the text to be displayed. */
-public class ScreenText extends Label implements Removable {
+public class ScreenText extends Label {
     /** Allows the dynamic configuration of the default style for the generated ScreenTexts */
     public static final LabelStyle DEFAULT_LABEL_STYLE;
 

@@ -26,7 +26,6 @@ public abstract class Game extends ScreenAdapter implements IOnLevelLoader {
     /** Contais all Controller of the Dungeon */
     protected List<AbstractController<?>> controller;
 
-    protected EntityController entityController;
     protected DungeonCamera camera;
     /** Draws objects */
     protected Painter painter;
@@ -84,8 +83,6 @@ public abstract class Game extends ScreenAdapter implements IOnLevelLoader {
         controller = new ArrayList<>();
         setupCameras();
         painter = new Painter(batch, camera);
-        entityController = new EntityController(painter);
-        controller.add(entityController);
         generator = new RandomWalkGenerator();
         levelAPI = new LevelAPI(batch, painter, generator, this);
         setup();

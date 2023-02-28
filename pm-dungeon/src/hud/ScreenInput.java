@@ -1,12 +1,11 @@
-package basiselements.hud;
+package hud;
 
-import basiselements.Removable;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import tools.Point;
 
 /** Simple one line Text input field. */
-public class ScreenInput extends TextField implements Removable {
+public class ScreenInput extends TextField {
     private static final TextFieldStyle DEFAULT_TEXT_FIELD_STYLE;
 
     static {

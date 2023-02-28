@@ -5,10 +5,11 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
 
-import basiselements.DungeonElement;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Frustum;
 import com.badlogic.gdx.math.Vector3;
+import ecs.components.PositionComponent;
+import ecs.entities.Entity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +25,9 @@ import tools.Point;
 @PrepareForTest({DungeonCamera.class, OrthographicCamera.class})
 public class DungeonCameraTest {
     DungeonCamera cam;
-    DungeonElement entity;
+    Entity entity;
+
+    PositionComponent pc;
     Vector3 pos;
     Frustum frustum;
 
@@ -34,14 +37,15 @@ public class DungeonCameraTest {
 
     @Before
     public void setUp() {
-        entity = Mockito.mock(DungeonElement.class);
+        entity = new Entity();
+        pc = Mockito.mock(PositionComponent.class);
         pos = Mockito.mock(Vector3.class);
         frustum = Mockito.mock(Frustum.class);
-        Mockito.when(entity.getPosition()).thenReturn(new Point(1, 1));
+        Mockito.when(pc.getPosition()).thenReturn(new Point(1, 1));
         PowerMockito.suppress(
                 MemberMatcher.constructor(OrthographicCamera.class, float.class, float.class));
         PowerMockito.suppress(MemberMatcher.method(OrthographicCamera.class, "update"));
-        cam = PowerMockito.spy(new DungeonCamera(entity, 10, 10));
+        cam = PowerMockito.spy(new DungeonCamera(pc, 10, 10));
         Whitebox.setInternalState(cam, "position", pos);
         Whitebox.setInternalState(cam, "frustum", frustum);
 
@@ -57,7 +61,7 @@ public class DungeonCameraTest {
         cam.update();
         Mockito.verify(cam).update();
         Mockito.verify(cam).getFollowedObject();
-        Mockito.verify(entity).getPosition();
+        Mockito.verify(pc).getPosition();
         Mockito.verify(cam.position).set(anyFloat(), anyFloat(), anyFloat());
         Mockito.verifyNoMoreInteractions(cam, pos, frustum, entity);
     }
@@ -72,7 +76,7 @@ public class DungeonCameraTest {
 
     @Test
     public void test_follow() {
-        DungeonElement e2 = Mockito.mock(DungeonElement.class);
+        PositionComponent e2 = Mockito.mock(PositionComponent.class);
 
         cam.follow(e2);
         assertEquals(e2, cam.getFollowedObject());

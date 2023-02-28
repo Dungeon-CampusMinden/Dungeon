@@ -1,6 +1,5 @@
 package graphic;
 
-import basiselements.DungeonElement;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import textures.TextureMap;
@@ -36,9 +35,5 @@ public class Painter {
             // need to be called after drawing
             batch.end();
         }
-    }
-
-    public void draw(DungeonElement element, PainterConfig config) {
-        draw(element.getPosition(), element.getTexturePath(), config);
     }
 }

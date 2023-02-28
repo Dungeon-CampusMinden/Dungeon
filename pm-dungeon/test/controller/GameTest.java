@@ -36,10 +36,6 @@ class GameTest {
         batch = Mockito.mock(SpriteBatch.class);
 
         Whitebox.setInternalState(Gdx.class, "gl", Mockito.mock(GL20.class));
-
-        PowerMockito.whenNew(EntityController.class)
-                .withAnyArguments()
-                .thenReturn(Mockito.mock(EntityController.class));
         PowerMockito.whenNew(Painter.class)
                 .withAnyArguments()
                 .thenReturn(Mockito.mock(Painter.class));

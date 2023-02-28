@@ -1,13 +1,12 @@
-package basiselements.hud;
+package hud;
 
-import basiselements.Removable;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import tools.Constants;
 import tools.Point;
 
 /** This class is intended for the configuration of the image to be displayed. */
-public class ScreenImage extends Image implements Removable {
+public class ScreenImage extends Image {
 
     /**
      * Creates an Image for the UI

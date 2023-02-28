@@ -1,4 +1,4 @@
-package basiselements.hud;
+package hud;
 
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;

@@ -1,6 +1,5 @@
 package quest;
 
-import controller.EntityController;
 import controller.ScreenController;
 import dslToGame.QuestConfig;
 import level.elements.ILevel;
@@ -37,5 +36,5 @@ public abstract class Quest {
 
     public abstract int evaluateUserPerformance();
 
-    public abstract void onLevelLoad(ILevel currentLevel, EntityController entityController);
+    public abstract void onLevelLoad(ILevel currentLevel);
 }

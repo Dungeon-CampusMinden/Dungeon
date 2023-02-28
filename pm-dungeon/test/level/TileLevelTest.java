@@ -1,10 +1,10 @@
 package level;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
 
-import basiselements.DungeonElement;
 import com.badlogic.gdx.ai.pfa.GraphPath;
+import ecs.components.PositionComponent;
+import ecs.entities.Entity;
 import level.elements.TileLevel;
 import level.elements.tile.ExitTile;
 import level.elements.tile.FloorTile;
@@ -15,7 +15,6 @@ import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import tools.Point;
 
 public class TileLevelTest {
@@ -145,10 +144,11 @@ public class TileLevelTest {
 
     @Test
     public void test_isOnEndTile() {
-        DungeonElement entity = Mockito.mock(DungeonElement.class);
-        when(entity.getPosition()).thenReturn(endTile.getCoordinate().toPoint());
+        Entity entity = new Entity();
+        PositionComponent pc = new PositionComponent(entity, endTile.getCoordinate().toPoint());
+        entity.addComponent(pc);
         assertTrue(tileLevel.isOnEndTile(entity));
-        when(entity.getPosition()).thenReturn(startTile.getCoordinate().toPoint());
+        pc.setPosition(new Point(-1, -1));
         assertFalse(tileLevel.isOnEndTile(entity));
     }
 

@@ -1,6 +1,5 @@
 package controller;
 
-import basiselements.Removable;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -14,7 +13,7 @@ import tools.Constants;
  *
  * @param <T> A libGDX <code>Actor</code> that has also the removable property.
  */
-public class ScreenController<T extends Actor & Removable> extends AbstractController<T> {
+public class ScreenController<T extends Actor> extends AbstractController<T> {
     protected Stage stage;
 
     /**

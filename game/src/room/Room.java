@@ -1,6 +1,6 @@
 package room;
 
-import basiselements.DungeonElement;
+import ecs.entities.Entity;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import level.elements.TileLevel;
@@ -15,7 +15,7 @@ public class Room extends TileLevel implements IRoom {
 
     private LinkedHashSet<DoorTile> doors = new LinkedHashSet<>();
 
-    private ArrayList<DungeonElement> elements = new ArrayList<>();
+    private ArrayList<Entity> elements = new ArrayList<>();
 
     private LevelNode levelNode;
 
@@ -38,15 +38,15 @@ public class Room extends TileLevel implements IRoom {
         doors.add(door);
     }
 
-    public void addElement(DungeonElement dungeonElement) {
+    public void addElement(Entity dungeonElement) {
         elements.add(dungeonElement);
     }
 
-    public void removeElement(DungeonElement dungeonElement) {
+    public void removeElement(Entity dungeonElement) {
         elements.remove(dungeonElement);
     }
 
-    public ArrayList<DungeonElement> getElements() {
+    public ArrayList<Entity> getElements() {
         return elements;
     }
 

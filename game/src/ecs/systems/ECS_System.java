@@ -1,10 +1,9 @@
 package ecs.systems;
 
-import basiselements.Removable;
 import mydungeon.ECS;
 
 /** Marks a Class as a System in the ECS */
-public abstract class ECS_System implements Removable {
+public abstract class ECS_System {
 
     protected boolean run;
 
