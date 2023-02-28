@@ -28,11 +28,7 @@ public class InteractionSystem {
                                                 .stream())
                         .map(ic1 -> convertToData(ic1, heroPosition))
                         .filter(x -> x.ic.getRadius() - x.dist > 0)
-                        .min(
-                                (x, y) ->
-                                        Float.compare(
-                                                x.ic.getRadius() - x.dist,
-                                                y.ic.getRadius() - y.dist));
+                        .min((x, y) -> Float.compare(x.dist, y.dist));
         data.ifPresent(x -> x.ic.triggerInteraction());
     }
 
