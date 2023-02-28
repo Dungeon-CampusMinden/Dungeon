@@ -1,0 +1,16 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>380</x><y>220</y><w>250</w><h>50</h></coordinates><panel_attributes>InteractionSystem
+-
+-
+_+ interactWithClosestInteractable():void_</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>680</x><y>220</y><w>150</w><h>120</h></coordinates><panel_attributes>InteractionComponent
+--
+- radius: float
+- repeatable: boolean
+- onInteraction: IInteraction
+--
++ triggerInteraction():void
++ getRadius():float
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>700</x><y>140</y><w>100</w><h>30</h></coordinates><panel_attributes>/Component/</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>740</x><y>160</y><w>30</w><h>80</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>620</x><y>230</y><w>80</w><h>30</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>60;10;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>630</x><y>380</y><w>240</w><h>60</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+IInteraction
+--
+onInteraction(entity: Entity): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>740</x><y>330</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>130</x><y>220</y><w>150</w><h>30</h></coordinates><panel_attributes>KeyboardSystem
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>270</x><y>230</y><w>130</w><h>30</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>110;10;10;10</additional_attributes></element></diagram>
