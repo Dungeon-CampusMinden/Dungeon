@@ -10,6 +10,8 @@ import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import mydungeon.ECS;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -17,14 +19,23 @@ import tools.Point;
 
 public class InteractionSystemTest {
 
+    private static Hero fullMockedHero(boolean havingpc) {
+        Hero mock = mock(Hero.class);
+        Optional<Component> pc;
+        if (havingpc) {
+            pc = Optional.of(new PositionComponent(mock, new Point(0, 0)));
+        } else {
+            pc = Optional.empty();
+        }
+        when(mock.getComponent(PositionComponent.class)).thenReturn(pc);
+        return mock;
+    }
+
     /** Tests the functionality when the Hero does not have the PositionComponent */
     @Test
     public void interactWithClosestInteractableHeroMissingPositionComponent() {
-        ECS.hero = Mockito.mock(Hero.class);
+        ECS.hero = fullMockedHero(false);
 
-        Entity e2 = new Entity();
-        Optional<Component> opt = Optional.empty();
-        Mockito.when(ECS.hero.getComponent(PositionComponent.class)).thenReturn(opt);
         MissingComponentException e =
                 assertThrows(
                         MissingComponentException.class,
@@ -32,19 +43,20 @@ public class InteractionSystemTest {
         assertTrue(e.getMessage().contains(InteractionSystem.class.getName()));
         assertTrue(e.getMessage().contains(Hero.class.getName()));
         assertTrue(e.getMessage().contains(PositionComponent.class.getName()));
+        cleanup();
+    }
+
+    private static void cleanup() {
+        ECS.entities.clear();
         ECS.hero = null;
     }
 
     /** Tests the functionality when there are no Entities in the ECS */
     @Test
     public void interactWithClosestInteractableNoEntities() {
-        ECS.hero = Mockito.mock(Hero.class);
-        Entity e2 = new Entity();
-        Optional<Component> opt = Optional.of(new PositionComponent(e2, new Point(0, 0)));
-        Mockito.when(ECS.hero.getComponent(PositionComponent.class)).thenReturn(opt);
-
+        ECS.hero = fullMockedHero(true);
         InteractionSystem.interactWithClosestInteractable();
-        ECS.hero = null;
+        cleanup();
     }
 
     /**
@@ -52,13 +64,10 @@ public class InteractionSystemTest {
      */
     @Test
     public void interactWithClosestInteractableNoInteractable() {
-        ECS.hero = Mockito.mock(Hero.class);
-        Optional<Component> opt = Optional.of(new PositionComponent(ECS.hero, new Point(0, 0)));
-        Mockito.when(ECS.hero.getComponent(PositionComponent.class)).thenReturn(opt);
+        ECS.hero = fullMockedHero(true);
         ECS.entities.add(ECS.hero);
         InteractionSystem.interactWithClosestInteractable();
-        ECS.entities.clear();
-        ECS.hero = null;
+        cleanup();
     }
 
     /**
@@ -67,23 +76,21 @@ public class InteractionSystemTest {
      */
     @Test
     public void interactWithClosestInteractableOneInteractableOutOfRange() {
-        ECS.hero = Mockito.mock(Hero.class);
-        Optional<Component> opt = Optional.of(new PositionComponent(ECS.hero, new Point(0, 0)));
-        Mockito.when(ECS.hero.getComponent(PositionComponent.class)).thenReturn(opt);
+        ECS.hero = fullMockedHero(true);
         ECS.entities.add(ECS.hero);
+
+        AtomicInteger eInteractions = new AtomicInteger();
 
         Entity e = new Entity();
         new PositionComponent(e, new Point(10, 10));
-        InteractionComponent interactionComponent = Mockito.mock(InteractionComponent.class);
-        when(interactionComponent.getRadius()).thenReturn(5f);
-        e.addComponent(interactionComponent);
-        ECS.entities.add(e);
+        new InteractionComponent(e, 5f, false, (x)-> eInteractions.getAndIncrement());
+
 
         InteractionSystem.interactWithClosestInteractable();
         verify(interactionComponent, never()).triggerInteraction();
 
         ECS.entities.clear();
-        ECS.hero = null;
+        cleanup();
     }
 
     /**
@@ -92,7 +99,7 @@ public class InteractionSystemTest {
      */
     @Test
     public void interactWithClosestInteractableOneInteractableInRange() {
-        ECS.hero = Mockito.mock(Hero.class);
+        ECS.hero = fullMockedHero(true);
         Optional<Component> opt = Optional.of(new PositionComponent(ECS.hero, new Point(0, 0)));
         Mockito.when(ECS.hero.getComponent(PositionComponent.class)).thenReturn(opt);
         ECS.entities.add(ECS.hero);
@@ -113,13 +120,13 @@ public class InteractionSystemTest {
         verify(interactionComponent).triggerInteraction();
 
         ECS.entities.clear();
-        ECS.hero = null;
+        cleanup();
     }
 
     /** Test if the interactable is missing the PositionComponent */
     @Test
     public void interactWithClosestInteractableOneInteractableInRangeMissingPosition() {
-        ECS.hero = Mockito.mock(Hero.class);
+        ECS.hero = fullMockedHero(true);
         Optional<Component> opt = Optional.of(new PositionComponent(ECS.hero, new Point(0, 0)));
         Mockito.when(ECS.hero.getComponent(PositionComponent.class)).thenReturn(opt);
         ECS.entities.add(ECS.hero);
@@ -145,7 +152,7 @@ public class InteractionSystemTest {
         verify(interactionComponent, never()).triggerInteraction();
 
         ECS.entities.clear();
-        ECS.hero = null;
+        cleanup();
     }
 
     /**
@@ -154,7 +161,7 @@ public class InteractionSystemTest {
      */
     @Test
     public void interactWithClosestInteractableClosestEntityFirst() {
-        ECS.hero = Mockito.mock(Hero.class);
+        ECS.hero = fullMockedHero(true);
         Optional<Component> opt = Optional.of(new PositionComponent(ECS.hero, new Point(0, 0)));
         Mockito.when(ECS.hero.getComponent(PositionComponent.class)).thenReturn(opt);
 
@@ -185,7 +192,7 @@ public class InteractionSystemTest {
         verify(ic2, never()).triggerInteraction();
 
         ECS.entities.clear();
-        ECS.hero = null;
+        cleanup();
     }
 
     /**
@@ -194,7 +201,7 @@ public class InteractionSystemTest {
     @Test
     public void interactWithClosestInteractableClosestEntityLast() {
 
-        ECS.hero = Mockito.mock(Hero.class);
+        ECS.hero = fullMockedHero(true);
         Optional<Component> opt = Optional.of(new PositionComponent(ECS.hero, new Point(0, 0)));
         Mockito.when(ECS.hero.getComponent(PositionComponent.class)).thenReturn(opt);
 
@@ -225,6 +232,6 @@ public class InteractionSystemTest {
         verify(ic2, never()).triggerInteraction();
 
         ECS.entities.clear();
-        ECS.hero = null;
+        cleanup();
     }
 }
