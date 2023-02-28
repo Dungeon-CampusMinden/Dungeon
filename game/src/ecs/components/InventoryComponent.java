@@ -64,4 +64,11 @@ public class InventoryComponent extends Component {
     public int getMaxSize() {
         return maxSize;
     }
+
+    /**
+     * @return a copy of the inventory
+     */
+    public List<Item> getAllItems() {
+        return new ArrayList<>(inventory);
+    }
 }

@@ -6,9 +6,11 @@ import static org.junit.Assert.assertTrue;
 
 import ecs.entities.Entity;
 import ecs.items.Item;
+import java.util.List;
 import org.junit.Test;
 
 public class InventoryComponentTest {
+
     /** simple Item implementation since Item is abstract and can´t be used for testing otherwise */
     private static class ItemImpl extends Item {}
 
@@ -103,5 +105,52 @@ public class InventoryComponentTest {
         assertEquals(1, ic.filledSlots());
         assertEquals(0, ic.emptySlots());
         assertEquals(1, ic.getMaxSize());
+    }
+
+    /** empty inventory should return an empty List */
+    @Test
+    public void getAllItemsEmptyInventory() {
+        Entity e = new Entity();
+        InventoryComponent ic = new InventoryComponent(e, 0);
+        List<Item> list = ic.getAllItems();
+        assertEquals("should have no Items", 0, list.size());
+    }
+
+    /** an inventory with one Item should return a List with this Item */
+    @Test
+    public void getAllItemsInventoryWithOnlyOneItem() {
+        Entity e = new Entity();
+        InventoryComponent ic = new InventoryComponent(e, 1);
+        Item item = new Item() {};
+        ic.addItem(item);
+        List<Item> list = ic.getAllItems();
+        assertEquals("should have one Item", 1, list.size());
+        assertTrue("Item should be in returned List", list.contains(item));
+    }
+
+    /** an inventory with one Item should return a List with this Item */
+    @Test
+    public void getAllItemsInventoryWithTwoItems() {
+        Entity e = new Entity();
+        InventoryComponent ic = new InventoryComponent(e, 2);
+        Item item1 = new Item() {};
+        ic.addItem(item1);
+        Item item2 = new Item() {};
+        ic.addItem(item2);
+        List<Item> list = ic.getAllItems();
+        assertEquals("should have two Items", 2, list.size());
+        assertTrue("Item 1 should be in returned List", list.contains(item1));
+        assertTrue("Item 2 should be in returned List", list.contains(item2));
+    }
+
+    /** an inventory should only be able to return Items it contains */
+    @Test
+    public void getAllItemsInventoryNoAddedItemButCreated() {
+        Entity e = new Entity();
+        InventoryComponent ic = new InventoryComponent(e, 1);
+        Item item = new Item() {};
+        List<Item> list = ic.getAllItems();
+        assertEquals("should have no Items", 0, list.size());
+        assertFalse("Item should be in returned List", list.contains(item));
     }
 }
