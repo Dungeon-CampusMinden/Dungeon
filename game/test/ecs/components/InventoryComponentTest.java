@@ -112,7 +112,7 @@ public class InventoryComponentTest {
     public void getAllItemsEmptyInventory() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(e, 0);
-        List<Item> list = ic.getAllItems();
+        List<Item> list = ic.getItems();
         assertEquals("should have no Items", 0, list.size());
     }
 
@@ -123,7 +123,7 @@ public class InventoryComponentTest {
         InventoryComponent ic = new InventoryComponent(e, 1);
         Item item = new Item() {};
         ic.addItem(item);
-        List<Item> list = ic.getAllItems();
+        List<Item> list = ic.getItems();
         assertEquals("should have one Item", 1, list.size());
         assertTrue("Item should be in returned List", list.contains(item));
     }
@@ -137,7 +137,7 @@ public class InventoryComponentTest {
         ic.addItem(item1);
         Item item2 = new Item() {};
         ic.addItem(item2);
-        List<Item> list = ic.getAllItems();
+        List<Item> list = ic.getItems();
         assertEquals("should have two Items", 2, list.size());
         assertTrue("Item 1 should be in returned List", list.contains(item1));
         assertTrue("Item 2 should be in returned List", list.contains(item2));
@@ -149,7 +149,7 @@ public class InventoryComponentTest {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(e, 1);
         Item item = new Item() {};
-        List<Item> list = ic.getAllItems();
+        List<Item> list = ic.getItems();
         assertEquals("should have no Items", 0, list.size());
         assertFalse("Item should be in returned List", list.contains(item));
     }

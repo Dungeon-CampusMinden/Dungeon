@@ -68,7 +68,7 @@ public class InventoryComponent extends Component {
     /**
      * @return a copy of the inventory
      */
-    public List<Item> getAllItems() {
+    public List<Item> getItems() {
         return new ArrayList<>(inventory);
     }
 }

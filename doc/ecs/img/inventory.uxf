@@ -1,4 +1,4 @@
-<diagram program="umletino" version="15.0.0"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>600</x><y>220</y><w>150</w><h>140</h></coordinates><panel_attributes>InventoryComponent
+<diagram program="umletino" version="15.0.0"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>580</x><y>220</y><w>210</w><h>150</h></coordinates><panel_attributes>InventoryComponent
 --
 - inventory: List&lt;Item&gt;
 - maxSize: int
@@ -8,4 +8,4 @@
 + filledSlots():int
 + emptySlots():int
 + getMaxSize():int
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>620</x><y>80</y><w>100</w><h>30</h></coordinates><panel_attributes>/Component/</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>660</x><y>100</y><w>30</w><h>140</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;120</additional_attributes></element></diagram>
++ getItems():List&lt;Item&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>620</x><y>80</y><w>100</w><h>30</h></coordinates><panel_attributes>/Component/</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>660</x><y>100</y><w>30</w><h>140</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;120</additional_attributes></element></diagram>
