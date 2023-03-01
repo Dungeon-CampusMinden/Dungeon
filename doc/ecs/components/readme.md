@@ -12,4 +12,4 @@ title: "Startpage: Components"
 | `PlayableComponent`  | Markiert eine Entität als die Spieler-Entität                                           | Ist nur für den Helden gedacht       |
 | `SkillComponent`     | Speichert die Skills einer Entität                                                      | Aktuell noch in Entwicklung          |
 | `HealthComponent`    | Verwaltet die Lebenspunkte von Entitäten im Dungeon                                     |                                      |
-| `XPComponent`        | Verwalten von Erfahrungspunkten einer Entität                                           | In Entwicklung                       |
+| `XPComponent`        | Verwalten von Erfahrungspunkten einer Entität                                           |                                      |
