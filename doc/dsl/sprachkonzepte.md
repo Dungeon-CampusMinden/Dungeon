@@ -84,6 +84,7 @@ Konzepte gesammelt:
   - String
   - FunctionAsValue
 - Level-Konfig / Quest-Konfig
+
 - **geplant, noch nicht realisiert:**
   - Arrays
   - control flow
@@ -175,25 +176,60 @@ werden kann (gültige Ausdrücke sind im Kapitel [Ausdrücke](#ausdrücke) darge
 
 ### Ausdrücke
 
+Als "Ausdruck" wird alles bezeichnet, was der `DSLInterperter` zu einem Wert evaluieren kann.
+Folgende Ausdrücke werden unterstützt:
+
+**Ganzzahliger Wert**
+
+Ganzzahlige Werte haben in der DSL den `int` Datentyp.
 ```
-// ganzzahliger Wert
 property_name: 42
+```
 
-// Dezimalwert
+**Dezimalwert**
+
+Dezimalwerte haben in der DSL den `float` Datentyp.
+```
 property_name: 3.14
+```
 
-// String (Zeichenkette)
+**Zeichenketten (Strings)**
+
+Zeichenketten (auch Strings genannt) mit beliebiger Länge haben in der DSL den `string` Datentyp.
+```
 property_name: "Hello, World!"
+```
 
-// Funktionsaufruf
-property_name: function(param1, param2)
+**Variablenname**
 
-// Identifier
+Wird der Name einer Variablen als Ausdruck verwendet, setzt der Interpreter an die Stelle des verwendeten
+Variablennamens den Wert der Variablen ein.
+```
 property_name: id
+```
 
+**Funktionsaufrufe**
+
+Ein Funktionsaufruf kann optional einen Wert zurückgeben (siehe [Funktionsdefinition](#funktionsdefinition)).
+```
+property_name: function(param1, param2)
+```
+
+Der `DSLInterpreter` evaluiert die Ausdrücke, die als Argumente (hier `param1` und `param2`) an die Funktion übergeben werden, führt die
+Funktion aus und setzt den Rückgabewert der Funktion an der Stelle des Funktionsaufrufs ein.
+
+**Funktionsreferenz**
+
+Einige [Komponenten des ECS](../ecs/components/readme.md) bieten die Möglichkeit, Event-Handler Funktionen zu
+registrieren, über die das Verhalten der Komponenten per DSL beeinflusst werden kann. Diese Event-Handler
+Funktionen werden für die jeweilige Komponente als Reaktion auf das Eintreten eines bestimmten Falls aufgerufen.
+```
 // Funktion als Wert
 property_name: function
 ```
+Damit eine DSL Funktion als Event-Handler Funktion für ein bestimmtes Event verwendet werden kann, muss die
+Funktionssignatur (also Datentypen und Anzahl der Parameter sowie Rückgabetyp) der DSL Funktion zu der
+Signatur passen, die von der Komponente für diese Event-Handler Funktion erwartet wird.
 
 ### Quest-Config
 
