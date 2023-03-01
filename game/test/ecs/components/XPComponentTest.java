@@ -26,7 +26,7 @@ public class XPComponentTest {
 
     /** Test if xp is added correctly. */
     @Test
-    public void testAddXP2() {
+    public void testAddXPSingle() {
         /* Prepare */
         ECS.entities.clear();
         ECS.systems = new SystemController();
@@ -40,7 +40,7 @@ public class XPComponentTest {
 
     /** Test if xp is added correctly. */
     @Test
-    public void testAddXP3() {
+    public void testAddXPMultiple() {
         /* Prepare */
         ECS.entities.clear();
         ECS.systems = new SystemController();
@@ -53,8 +53,9 @@ public class XPComponentTest {
         assertEquals(20, xpComponent.getCurrentXP());
     }
 
+    /** Tests if getXPToNextLevel() returns correct value if not enough xp is added. */
     @Test
-    public void testXPToNextLevel1() {
+    public void testXPToNextLevelNonZero() {
         /* Prepare */
         ECS.entities.clear();
         ECS.systems = new SystemController();
@@ -66,8 +67,9 @@ public class XPComponentTest {
         assertEquals(90, xpComponent.getXPToNextLevel());
     }
 
+    /** Tests if getXPToNextLevel() returns correct value if enough xp is added. */
     @Test
-    public void testXPToNextLevel2() {
+    public void testXPToNextLevelExact() {
         /* Prepare */
         ECS.entities.clear();
         ECS.systems = new SystemController();
@@ -79,8 +81,9 @@ public class XPComponentTest {
         assertEquals(0, xpComponent.getXPToNextLevel());
     }
 
+    /** Tests if getXPToNextLevel() returns correct value. If more xp is added than needed. */
     @Test
-    public void testXPToNextLevel3() {
+    public void testXPToNextLevelMore() {
         /* Prepare */
         ECS.entities.clear();
         ECS.systems = new SystemController();
