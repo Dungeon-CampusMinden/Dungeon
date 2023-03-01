@@ -121,6 +121,10 @@ Kommentar
 
 TODO: wo unterbringen?
 
+### Variablendefinition
+
+
+
 ### Objektdefinition
 
 Note: Geht aktuell nur für `quest_config`.
@@ -149,6 +153,10 @@ type id {
     property2: other_value
 }
 ```
+
+**inline Objektdefinition**
+
+TODO: kommt mit [PR #272](https://github.com/Programmiermethoden/Dungeon/pull/272)
 
 #### Eigenschaftsdefinition (Propertydefinition)
 
@@ -238,4 +246,73 @@ graph g {
 ### Funktionsdefinition
 
 Funktionen bieten die Möglichkeit, Anweisungen zu kapseln und in Abhängigkeit von Parametern
-bestimmtes Verhalten zu implementieren.
+bestimmtes Verhalten zu implementieren (beispielsweise native Dungeon-Funktionen aufzurufen).
+
+Beispiel für eine simple Funktion ohne Parameter und ohne Rückgabewert:
+```
+fn my_function() {
+    print("Hello, World!");
+}
+```
+
+Das Keyword, um eine Funktionsdefinition zu kennzeichnen, ist `fn`. Anschließend folgt der Name der
+Funktion (`my_function`), die Parameterlist in runden Klammern (hier leer), ein optionaler Rückgabewert und
+die Anweisungsliste innerhalb von geschweiften Klammern. Die Anweisungen müssen mit einem `;` beendet werden.
+
+**Parameter**
+
+Beispiel für eine Funktion mit Parametern:
+```
+fn function_with_parameters(int number, string text) {
+    print(text);
+    print(number);
+}
+```
+
+Parameter werden als Kombination aus Datentyp (z.B. `int`) und Namen (z.B.`number`) definiert und können
+einer Funktion beim Aufruf übergeben werden.
+
+```
+// ...
+
+// Funktionsaufruf mit Argumenten
+function_with_parameters(42, "Hello, World!");
+
+// ...
+```
+
+Die Ausgabe (TODO: beschreiben, wo die landet) dieses Funktionsaufrufs sieht wie folgt aus:
+
+```
+> "Hello, World!"
+> 42
+```
+
+**Rückgabewert**
+
+Beispiel für eine Funktion mit Rückgabewert:
+```
+fn function_with_return_value() -> string {
+    "Dieser String wird der Rückgabewert"
+}
+```
+
+Der Datentyp des Rückgabewerts muss hinter einem `->` angegeben werden (hier `string`).
+Der letzte Ausdruck innerhalb der Anweisungsliste der Funktion wird implizit als Rückgabewert behandelt
+(hier `"Dieser String wird der Rückgabewert"`).
+
+Der Rückgabewert wird bei einem Funktionsaufruf von der Funktion zurückgegeben und kann als Ausdruck
+weiterverwendet werden, wie in folgendem Beispiel zu sehen:
+
+```
+// ...
+my_variable = function_with_return_value();
+print(my_variable);
+// ...
+```
+
+Die Ausgabe für diese Anweisungen ist:
+
+```
+> "Dieser String wird der Rückgabewert"
+```
