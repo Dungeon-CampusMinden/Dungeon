@@ -16,8 +16,12 @@ title: "XP Component"
 ## Wie nutzt man es
 - Hinzufügen der Komponente `XPComponent` zu einer Entität durch Erzeugen eines neuen
 XP-Component-Objekts, bei dem als Konstruktorparameter die Entität übergeben wird.
-- `FORMULA_A` & `FORMULA_B` sind zwei Parameter zum Anpassen der XP->Level Formel.
-Die Formel gibt an wie viele XP pro Level benötigt werden.
+- `LEVEL_1_XP` & `FORMULA_SLOPE` sind zwei Parameter zum Anpassen Formel zur Berechnung der benötigten XP pro Level.
+  - `LEVEL_1_XP` ist die XP, die für das Erreichen des ersten Levels benötigt wird. (Y-Achsenabschnitt)
+  - `FORMULA_SLOPE` ist die Steigung der Funktion, daher wie stark die Anzahl an benötigten XP pro level steigt.
+- Implementation einer Aktion bei LevelUp durch Strategy-Pattern via `ILevelUp` Interface
+  - Methode `onLevelUp(long level)`, im Interface, wird vom XPSystem aufgerufen, wenn ein LevelUp stattfindet.
+  - Interface-Implementation wird in XPComponent-Constructor übergeben
 
 ## Testabdeckung
 - Es werden alle Methoden der Funktion getestet.
