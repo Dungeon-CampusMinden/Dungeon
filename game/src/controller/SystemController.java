@@ -1,6 +1,6 @@
-package ecs.systems;
+package controllerDrei;
 
-import controller.AbstractController;
+import ecs.systems.ECS_System;
 
 /** used to integrate ECS_Systems in PM-Dungeon game loop */
 public class SystemController extends AbstractController<ECS_System> {
