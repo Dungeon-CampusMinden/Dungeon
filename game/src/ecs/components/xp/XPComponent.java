@@ -5,8 +5,8 @@ import ecs.entities.Entity;
 
 public class XPComponent extends Component {
 
-    private static final long FORMULA_A = 100;
-    private static final long FORMULA_B = 10;
+    private static final double LEVEL_1_XP = 100;
+    private static final double FORMULA_SLOPE = 0.5;
     private long currentLevel;
     private long currentXP;
     private long lootXP = -1;
@@ -27,9 +27,10 @@ public class XPComponent extends Component {
      * @param entity associated entity
      * @param levelUp callback for when the entity levels up
      */
-    public XPComponent(Entity entity, ILevelUp levelUp) {
+    public XPComponent(Entity entity, ILevelUp levelUp, int lootXP) {
         super(entity);
         this.callbackLevelUp = levelUp;
+        this.lootXP = lootXP;
     }
 
     /**
@@ -51,13 +52,13 @@ public class XPComponent extends Component {
     }
 
     /**
-     * Add xp to the entity
+     * Add xp to the entity. Adding negative xp will decrease the current xp. The minimum xp of an
+     * entity is 0.
      *
      * @param xp xp to add
      */
     public void addXP(long xp) {
-        this.currentXP += xp;
-        if (this.currentXP < 0) this.currentXP = 0;
+        this.currentXP = Math.max(0, currentXP + xp);
     }
 
     /**
@@ -107,12 +108,14 @@ public class XPComponent extends Component {
     }
 
     /**
-     * Calculate xp left to next level. XP are calculated based on the following formula:
-     * sqrt((currentLevel + 1) * FORMULA_A) * FORMULA_B
+     * Calculate xp left to next level. XP are calculated based on the following formula: {@code
+     * FORMULA_SLOPE * (currentLevel + 1)^2 + LEVEL_1_XP} It's a quadratic function with a slope of
+     * {@code FORMULAR_SLOPE} and a y-intercept of {@code LEVEL_1_XP}
      *
      * @return xp left to next level
      */
     public long getXPToNextLevel() {
-        return Math.round(Math.sqrt((currentLevel + 1) * FORMULA_A) * FORMULA_B) - currentXP;
+        // level 0 in Formula is level 1 in game.
+        return Math.round(FORMULA_SLOPE * Math.pow(currentLevel, 2) + LEVEL_1_XP) - currentXP;
     }
 }
