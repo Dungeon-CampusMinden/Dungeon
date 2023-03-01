@@ -7,6 +7,7 @@ import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
@@ -174,7 +175,7 @@ public class HealthComponent extends Component {
     /**
      * @return The last entity that caused damage to this entity.
      */
-    public Entity getLastDamageCause() {
-        return lastCause;
+    public Optional<Entity> getLastDamageCause() {
+        return Optional.ofNullable(this.lastCause);
     }
 }

@@ -75,12 +75,9 @@ public class HealthSystem extends ECS_System {
                 .ifPresent(
                         component -> {
                             XPComponent deadXPComponent = (XPComponent) component;
-                            if (hsd.hc.getLastDamageCause() == null) {
-                                return;
-                            }
                             hsd.hc
                                     .getLastDamageCause()
-                                    .getComponent(XPComponent.class)
+                                    .flatMap(entity -> entity.getComponent(XPComponent.class))
                                     .ifPresent(
                                             c -> {
                                                 XPComponent killerXPComponent = (XPComponent) c;
