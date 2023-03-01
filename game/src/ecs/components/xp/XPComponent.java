@@ -33,6 +33,11 @@ public class XPComponent extends Component {
         this.lootXP = lootXP;
     }
 
+    public XPComponent(Entity entity, ILevelUp levelUp) {
+        super(entity);
+        this.callbackLevelUp = levelUp;
+    }
+
     /**
      * Get the current level of the entity
      *
@@ -99,7 +104,7 @@ public class XPComponent extends Component {
     }
 
     /**
-     * Set the amount of xp that will be dropped when the entity dies
+     * Set the amount of xp that will be dropped when the entity dies. Set to -1 to use the default.
      *
      * @param lootXP xp that will be dropped
      */
