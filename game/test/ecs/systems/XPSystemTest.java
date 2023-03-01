@@ -84,7 +84,7 @@ public class XPSystemTest {
 
     /**
      * Test if two level ups are triggered if the xp is exact the needed amount for two levels.
-     * First Level is reached with 100 XP, second level is reached with 141 XP (100 + 141 = 241)
+     * First Level is reached with 100 XP, second level is reached with 101 XP (100 + 101 = 201)
      */
     @Test
     public void testLevelUpMultipleExact() {
@@ -97,7 +97,7 @@ public class XPSystemTest {
         XPSystem xpSystem = new XPSystem();
 
         /* Test */
-        xpComponent.addXP(241);
+        xpComponent.addXP(201);
         xpSystem.update();
         assertEquals(2, xpComponent.getCurrentLevel());
         assertEquals(0, xpComponent.getCurrentXP());
@@ -105,7 +105,7 @@ public class XPSystemTest {
 
     /**
      * Test if two level ups are triggered if the xp is more than the needed amount for two levels.
-     * First Level is reached with 100 XP, second level is reached with 141 XP (100 + 141 = 241)
+     * First Level is reached with 100 XP, second level is reached with 141 XP (100 + 101 = 201)
      */
     @Test
     public void testLevelUpMultipleOverflow() {
@@ -118,7 +118,7 @@ public class XPSystemTest {
         XPSystem xpSystem = new XPSystem();
 
         /* Test */
-        xpComponent.addXP(261);
+        xpComponent.addXP(221);
         xpSystem.update();
         assertEquals(2, xpComponent.getCurrentLevel());
         assertEquals(20, xpComponent.getCurrentXP());
