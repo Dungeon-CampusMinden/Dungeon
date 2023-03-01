@@ -2,6 +2,7 @@ package level;
 
 import static org.junit.Assert.*;
 
+import level.elements.tile.*;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import org.junit.Test;

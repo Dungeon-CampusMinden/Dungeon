@@ -1,4 +1,4 @@
-package controllerDrei;
+package controller;
 
 import ecs.systems.ECS_System;
 

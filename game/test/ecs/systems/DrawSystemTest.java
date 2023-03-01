@@ -2,6 +2,7 @@ package ecs.systems;
 
 import static org.junit.Assert.assertThrows;
 
+import controller.SystemController;
 import ecs.components.AnimationComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;

@@ -2,6 +2,7 @@ package ecs.systems;
 
 import static org.junit.Assert.assertEquals;
 
+import controller.SystemController;
 import ecs.components.ai.AIComponent;
 import ecs.components.ai.transition.ITransition;
 import ecs.entities.Entity;

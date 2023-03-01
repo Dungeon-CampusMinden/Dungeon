@@ -2,6 +2,7 @@ package ecs.systems;
 
 import static org.junit.Assert.*;
 
+import controller.SystemController;
 import ecs.components.AnimationComponent;
 import ecs.components.HealthComponent;
 import ecs.components.IOnDeathFunction;
