@@ -6,7 +6,7 @@ import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.List;
-import mydungeon.ECS;
+import starter.ECS;
 import tools.Point;
 
 public abstract class Item {

@@ -1,8 +1,8 @@
 package dslToGame;
 
 import graphic.Animation;
+import graphic.textures.TextureHandler;
 import semanticAnalysis.types.DSLTypeAdapter;
-import textures.TextureHandler;
 
 public class AnimationBuilder {
     public static int frameTime = 5;

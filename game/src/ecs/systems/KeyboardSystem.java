@@ -6,7 +6,7 @@ import ecs.components.MissingComponentException;
 import ecs.components.PlayableComponent;
 import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
-import mydungeon.ECS;
+import starter.ECS;
 
 /** Used to control the player */
 public class KeyboardSystem extends ECS_System {

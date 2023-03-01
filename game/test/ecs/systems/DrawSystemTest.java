@@ -8,10 +8,10 @@ import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
 import graphic.Painter;
-import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import starter.ECS;
 import tools.Point;
 
 public class DrawSystemTest {

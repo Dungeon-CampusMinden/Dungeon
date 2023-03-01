@@ -12,7 +12,7 @@ import java.util.Random;
 import level.elements.ILevel;
 import level.elements.tile.Tile;
 import level.tools.Coordinate;
-import mydungeon.ECS;
+import starter.ECS;
 import tools.Point;
 
 public class AITools {

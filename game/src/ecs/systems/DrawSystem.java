@@ -9,7 +9,7 @@ import graphic.Painter;
 import graphic.PainterConfig;
 import java.util.HashMap;
 import java.util.Map;
-import mydungeon.ECS;
+import starter.ECS;
 
 /** used to draw entities */
 public class DrawSystem extends ECS_System {

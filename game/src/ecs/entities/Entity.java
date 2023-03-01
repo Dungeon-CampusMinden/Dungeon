@@ -3,9 +3,9 @@ package ecs.entities;
 import ecs.components.Component;
 import java.util.HashMap;
 import java.util.Optional;
-import mydungeon.ECS;
 import semanticAnalysis.types.DSLContextPush;
 import semanticAnalysis.types.DSLType;
+import starter.ECS;
 
 /** Entity is a unique identifier for an object in the game world */
 @DSLType(name = "game_object")

@@ -5,7 +5,7 @@ import ecs.components.ai.AITools;
 import ecs.components.skill.Skill;
 import ecs.entities.Entity;
 import level.elements.tile.Tile;
-import mydungeon.ECS;
+import starter.ECS;
 import tools.Constants;
 
 public class MeleeAI implements IFightAI {

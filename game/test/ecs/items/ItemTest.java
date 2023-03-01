@@ -8,9 +8,9 @@ import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.List;
-import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
+import starter.ECS;
 import tools.Point;
 
 public class ItemTest {

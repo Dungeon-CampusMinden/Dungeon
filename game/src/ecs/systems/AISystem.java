@@ -2,7 +2,7 @@ package ecs.systems;
 
 import ecs.components.ai.AIComponent;
 import ecs.entities.Entity;
-import mydungeon.ECS;
+import starter.ECS;
 
 /** Controls the AI */
 public class AISystem extends ECS_System {

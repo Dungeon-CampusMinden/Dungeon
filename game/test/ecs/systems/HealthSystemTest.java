@@ -10,9 +10,9 @@ import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.entities.Entity;
 import graphic.Animation;
-import mydungeon.ECS;
 import org.junit.Test;
 import org.mockito.Mockito;
+import starter.ECS;
 
 public class HealthSystemTest {
 

@@ -1,5 +1,6 @@
 package runtime;
 
+import dslToGame.graph.Graph;
 import semanticAnalysis.types.BuiltInType;
 import semanticAnalysis.types.IType;
 
@@ -116,7 +117,7 @@ public class Value implements IClonable {
         } else if (typeName.equals(BuiltInType.stringType.getName())) {
             return "";
         } else if (typeName.equals(BuiltInType.graphType.getName())) {
-            return new graph.Graph<String>(null, null);
+            return new Graph<String>(null, null);
         } else {
             return null;
         }

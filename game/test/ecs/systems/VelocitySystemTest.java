@@ -11,10 +11,10 @@ import ecs.entities.Entity;
 import graphic.Animation;
 import level.elements.ILevel;
 import level.elements.tile.Tile;
-import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import starter.ECS;
 import tools.Point;
 
 public class VelocitySystemTest {

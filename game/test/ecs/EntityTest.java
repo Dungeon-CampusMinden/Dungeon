@@ -4,10 +4,10 @@ import static org.junit.Assert.*;
 
 import ecs.components.Component;
 import ecs.entities.Entity;
-import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import starter.ECS;
 
 public class EntityTest {
 

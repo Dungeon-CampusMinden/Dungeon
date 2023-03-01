@@ -4,7 +4,7 @@ import ecs.components.HitboxComponent;
 import ecs.entities.Entity;
 import java.lang.reflect.InvocationTargetException;
 import level.elements.tile.Tile;
-import mydungeon.ECS;
+import starter.ECS;
 
 /** System to check for collisions between two entities */
 public class CollisionSystem extends ECS_System {

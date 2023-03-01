@@ -1,9 +1,9 @@
 package dslToGame;
 
-import graph.Graph;
-import graph.Node;
+import dslToGame.graph.Graph;
+import dslToGame.graph.Node;
 import java.util.HashMap;
-import levelgraph.LevelNode;
+import level.levelgraph.LevelNode;
 
 public record ConvertedGraph(
         Graph<String> graph,

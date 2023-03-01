@@ -1,10 +1,10 @@
 package dslToGame;
 
-import graph.Edge;
-import graph.Graph;
-import graph.Node;
+import dslToGame.graph.Edge;
+import dslToGame.graph.Graph;
+import dslToGame.graph.Node;
 import java.util.*;
-import levelgraph.LevelNode;
+import level.levelgraph.LevelNode;
 
 public class DotToLevelGraph {
 

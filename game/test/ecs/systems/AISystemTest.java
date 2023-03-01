@@ -5,10 +5,10 @@ import static org.junit.Assert.assertEquals;
 import ecs.components.ai.AIComponent;
 import ecs.components.ai.transition.ITransition;
 import ecs.entities.Entity;
-import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import starter.ECS;
 
 public class AISystemTest {
 

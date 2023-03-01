@@ -1,6 +1,6 @@
 package ecs.systems;
 
-import mydungeon.ECS;
+import starter.ECS;
 
 /** Marks a Class as a System in the ECS */
 public abstract class ECS_System {

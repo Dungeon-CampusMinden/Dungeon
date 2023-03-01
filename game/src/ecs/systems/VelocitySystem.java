@@ -6,7 +6,7 @@ import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
-import mydungeon.ECS;
+import starter.ECS;
 import tools.Point;
 
 /** MovementSystem is a system that updates the position of entities */

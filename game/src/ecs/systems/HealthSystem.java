@@ -8,7 +8,7 @@ import ecs.components.AnimationComponent;
 import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
 import ecs.entities.Entity;
-import mydungeon.ECS;
+import starter.ECS;
 
 /**
  * The HealthSystem offsets the damage to be done to all entities with the HealthComponent. Triggers

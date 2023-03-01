@@ -11,7 +11,7 @@ public class BuiltInType extends Symbol implements IType {
     public static BuiltInType floatType = new BuiltInType("float", Scope.NULL);
     public static BuiltInType stringType = new BuiltInType("string", Scope.NULL);
     // TODO: this should not be a basic type
-    public static BuiltInType graphType = new BuiltInType("graph", Scope.NULL);
+    public static BuiltInType graphType = new BuiltInType("dslToGame/graph", Scope.NULL);
     // TODO: is this a good idea?
     public static BuiltInType funcType = new BuiltInType("func", Scope.NULL);
 

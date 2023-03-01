@@ -2,6 +2,9 @@ package graph;
 
 import static org.junit.Assert.assertEquals;
 
+import dslToGame.graph.Edge;
+import dslToGame.graph.Node;
+import dslToGame.graph.Property;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 

@@ -2,9 +2,9 @@ package ecs.components;
 
 import ecs.entities.Entity;
 import level.tools.LevelElement;
-import mydungeon.ECS;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
+import starter.ECS;
 import tools.Point;
 
 /** PositionComponent is a component that stores the x, y (as Point) position of an entity */
