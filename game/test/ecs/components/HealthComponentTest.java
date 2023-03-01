@@ -32,6 +32,22 @@ public class HealthComponentTest {
     }
 
     @Test
+    public void testDamageCause() {
+        ECS.entities.clear();
+        Entity entity = new Entity();
+        Entity damager = new Entity();
+        Entity damager2 = new Entity();
+        HealthComponent hc = new HealthComponent(entity);
+        Damage dmg = new Damage(3, DamageType.FIRE, damager);
+        Damage dmg2 = new Damage(5, DamageType.FIRE, damager2);
+        hc.receiveHit(dmg);
+        hc.receiveHit(dmg2);
+        assertEquals(damager2, hc.getLastDamageCause().get());
+        hc.receiveHit(dmg);
+        assertEquals(damager, hc.getLastDamageCause().get());
+    }
+
+    @Test
     public void setMaximalHealthPointsLowerThanCurrent() {
         Game.entities.clear();
         Entity entity = new Entity();
