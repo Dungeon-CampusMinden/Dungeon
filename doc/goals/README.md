@@ -104,3 +104,12 @@ Spielszenario beeinflussen.
 - beliebig tiefe Verschachtelung von Aufgaben: Zur Lösung einer Aufgabe müssen Teil-Aufgaben x, y,z. Teilaufgaben liefern Ergebnisse/Items die zum Lösen der Hauptaufgabe nötig sind.```
   gelöst werden
 
+## Konkrete Aufgaben
+
+### Regex-monster
+
+### Codesmells erkennen (PM)
+
+### Sortieralgorithmus (ADS)
+
+### CSP mit Forward Checking lösen (KI)
