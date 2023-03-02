@@ -8,12 +8,12 @@ public class ConfigKey<Type> {
     protected String[] path;
     protected final ConfigValue<Type> value;
 
-    ConfigKey(String[] path, ConfigValue<Type> defaultValue) {
+    public ConfigKey(String[] path, ConfigValue<Type> defaultValue) {
         this.path = Arrays.stream(path).map(String::toLowerCase).toArray(String[]::new);
         this.value = defaultValue;
     }
 
-    ConfigKey(String path, ConfigValue<Type> defaultValue) {
+    public ConfigKey(String path, ConfigValue<Type> defaultValue) {
         this.path =
                 Arrays.stream(path.split("\\.")).map(String::toLowerCase).toArray(String[]::new);
         this.value = defaultValue;
