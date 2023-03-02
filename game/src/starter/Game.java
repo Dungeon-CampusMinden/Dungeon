@@ -8,6 +8,8 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import controller.AbstractController;
 import controller.SystemController;
+import configuration.Configuration;
+import controller.Game;
 import dslToGame.QuestConfig;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
@@ -23,6 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import level.IOnLevelLoader;
+import java.io.IOException;
+import java.util.*;
 import level.LevelAPI;
 import level.elements.ILevel;
 import level.elements.tile.Tile;
@@ -225,6 +229,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     public static void main(String[] args) {
         // start the game
+        try {
+            Configuration.loadConfiguration();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         DesktopLauncher.run(new Game());
     }
 }
