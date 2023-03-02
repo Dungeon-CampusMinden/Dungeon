@@ -31,7 +31,7 @@ public class ECS extends Game {
     public static SystemController systems;
 
     public static ILevel currentLevel;
-    private static PauseMenu pauseMenu;
+    private static PauseMenu <?> pauseMenu;
     private PositionComponent heroPositionComponent;
     public static Hero hero;
 
@@ -40,7 +40,7 @@ public class ECS extends Game {
         controller.clear();
         systems = new SystemController();
         controller.add(systems);
-        pauseMenu = new PauseMenu();
+        pauseMenu = new PauseMenu <>();
         controller.add(pauseMenu);
         hero = new Hero(new Point(0, 0));
         heroPositionComponent =
@@ -68,6 +68,7 @@ public class ECS extends Game {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
     }
 
+    @SuppressWarnings("SpellCheckingInspection")
     @Override
     public void onLevelLoad() {
         currentLevel = levelAPI.getCurrentLevel();
@@ -97,9 +98,7 @@ public class ECS extends Game {
     private boolean isOnEndTile() {
         Tile currentTile =
                 currentLevel.getTileAt(heroPositionComponent.getPosition().toCoordinate());
-        if (currentTile.equals(currentLevel.getEndTile())) return true;
-
-        return false;
+        return (currentTile.equals(currentLevel.getEndTile()));
     }
 
     private void setupDSLInput() {
