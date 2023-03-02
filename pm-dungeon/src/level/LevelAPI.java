@@ -5,6 +5,8 @@ import graphic.Painter;
 import graphic.PainterConfig;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
+
 import level.elements.ILevel;
 import level.elements.tile.Tile;
 import level.generator.IGenerator;
@@ -18,6 +20,7 @@ public class LevelAPI {
     private final IOnLevelLoader onLevelLoader;
     private IGenerator gen;
     private ILevel currentLevel;
+    private Logger levelAPI_logger = Logger.getLogger(this.getClass().getName());
 
     /**
      * @param batch Batch on which to draw.
@@ -40,6 +43,8 @@ public class LevelAPI {
     public void loadLevel() {
         currentLevel = gen.getLevel();
         onLevelLoader.onLevelLoad();
+
+        levelAPI_logger.info("Es wurde ein neues Level geladen.");
     }
 
     /**

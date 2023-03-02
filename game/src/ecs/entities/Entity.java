@@ -3,6 +3,8 @@ package ecs.entities;
 import ecs.components.Component;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.logging.Logger;
+
 import mydungeon.ECS;
 import semanticAnalysis.types.DSLContextPush;
 import semanticAnalysis.types.DSLType;
@@ -14,10 +16,12 @@ public class Entity {
     private static int nextId = 0;
     public final int id = nextId++;
     private HashMap<Class, Component> components;
+    private final Logger entityLogger = Logger.getLogger(this.getClass().getName());
 
     public Entity() {
         components = new HashMap<>();
         ECS.entities.add(this);
+        entityLogger.info("Die Entität '" + this.getClass().getSimpleName() + "' wurde erstellt");
     }
 
     /**
