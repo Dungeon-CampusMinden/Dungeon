@@ -113,20 +113,10 @@ public class Configuration {
     /** Load the default configuration from the static fields in the ConfigKey classes */
     private static void loadDefault() {
         configRoot = new JsonValue(JsonValue.ValueType.object);
-        // Get all static fields in KeyboardConfig with type ConfigKey
         Field[] fields = findConfigFields();
         for (Field field : fields) {
             try {
                 ConfigKey<?> key = (ConfigKey<?>) field.get(null);
-                String[] path;
-                if (field.getClass().isAnnotationPresent(ConfigMap.class)) {
-                    ConfigMap annotation = field.getClass().getAnnotation(ConfigMap.class);
-                    path = new String[annotation.path().length + key.path.length];
-                    System.arraycopy(annotation.path(), 0, path, 0, annotation.path().length);
-                    System.arraycopy(key.path, 0, path, annotation.path().length, key.path.length);
-                } else {
-                    path = key.path;
-                }
                 JsonValue node = findOrCreate(key.path);
                 node.set(key.value.serialize());
             } catch (IllegalAccessException e) {
