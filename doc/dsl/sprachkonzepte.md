@@ -118,13 +118,61 @@ Kommentar
 */
 ```
 
-### Allgemein: Datentypen
-
-TODO: wo unterbringen?
-
 ### Variablendefinition
 
+Variablen haben einen Namen und können einen Wert annehmen. Variablen haben einen festen Datentyp, der ihnen
+bei der Deklaration zugewiesen wird. Dieser Datentyp bestimmt, welche Werte eine Variable annehmen kann.
+"Deklaration" bezeichnet das "Bekanntmachen" der Variable, "Definition"
+bezeichnet die initiale Zuweisung eines Werts zu der Variablen.
 
+Variablen haben eine Lebensdauer, je nachdem, in welchem Scope (siehe [semantische Analyse](semantische-analyse.md))
+sie deklariert werden.
+Variablen werden zerstört, wenn der Scope, in dem sie deklariert wurden, zerstört wird.
+Variablen im globalen Scope "leben" dementsprechend für die gesamte Dauer der Laufzeit des DungeonDSL Programms (TODO: genau
+dokumentieren, was das bedeutet).
+
+Es gibt unterschiedliche Arten, Variablen zu deklarieren und zu definieren:
+```
+// kombinierte Deklaration und Definition
+variablen_name = 42;
+```
+
+```
+// Deklaration mit angabe des Datentyps
+variablen_name : datentyp_name;
+```
+
+```
+// NICHT zulässig
+variablen_name;
+```
+
+```
+variablen_name = complex_type {
+    property1: expression1,
+    property2: expression2
+}
+```
+
+### Datentypen
+
+Wie zuvor beschrieben, bestimmt der Datentyp einer Variablen, welche Werte der Variablen zugewiesen werden
+können. Die DungeonDSL unterscheidet im Wesentlichen zwei Arten von Datentypen: primitive und komplexe Datentypen.
+
+Die primitiven Datentypen sind:
+- `int`: ganzzahlige Werte
+- `float`: dezimale Werte
+- `string`: Zeichenketten
+- `bool`: Wahrheitswert, entweder `true` oder `false` (Note: das ist noch nicht implementiert)
+
+Primitive Datentypen können zu komplexen Datentypen zusammengesetzt werden. Ein komplexer Datentyp hat
+"Member", das sind Variablen, die nur im Kontext eines Datentypen gültig sind. Ein Beispiel für einen
+komplexen Datentyp ist der `quest_config` Datentyp.
+
+Es existiert aktuell kein Mechanismus für DSL-Nutzende, abseits von
+[Entitätsdefinitionen](#entitätsdefinition), per DSL-Eingabe komplexe Datentypen zu erstellen.
+Alle komplexen Datentypen werden in der Implementierung der DSL und des `DSLInterpreters` definiert, diese
+Implementierung ist DSL-Nutzenden nicht zugänglich.
 
 ### Objektdefinition
 
