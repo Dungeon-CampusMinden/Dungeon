@@ -23,13 +23,13 @@ Eine Spielmechanik bietet die Möglichkeit einen Aufgabentypen zu realsieren.
 
 Beispiele: Der Spieler legt einen Hebel um, um eine Antwort zu geben.
 
-Aus den Spielmechaniken müssen in der Implmentierung konkrete Components und Systeme erstellt werden. 
+Aus den Spielmechaniken müssen in der Implmentierung konkrete Components und Systeme erstellt werden.
 
 **Spielszenario**
 
-Ein Spielszenario beschreibt wie die Spielemechanik genutzt wird, um den Spieler die Aufgabe im Dungeon zu präsentieren. 
+Ein Spielszenario beschreibt wie die Spielemechanik genutzt wird, um den Spieler die Aufgabe im Dungeon zu präsentieren.
 
-Beispiel: In einem Raum befindet sich ein NPC und verschiedene Schalter. Der NPC stellt dem Spieler eine Frage und sagt ihm, welcher Hebel für welche Antwort steht. 
+Beispiel: In einem Raum befindet sich ein NPC und verschiedene Schalter. Der NPC stellt dem Spieler eine Frage und sagt ihm, welcher Hebel für welche Antwort steht.
 
 **Steuermechanismen**
 
@@ -92,27 +92,39 @@ Spielszenario beeinflussen.
 ## Aufgabentypen
 
 ### Single-Choice (Andre)
-Es wird eine Frage gestellt und eine Menge an Antwortmöglichkeiten gegeben. 
-Nur eine Antwort ist richtig. Die richtige Antwort muss ausgewählt werden. 
+Es wird eine Frage gestellt und eine Menge an Antwortmöglichkeiten gegeben.
+Nur eine Antwort ist richtig. Die richtige Antwort muss ausgewählt werden.
 
 ### Multiple-Choice  (Andre)
 
 ### Lückentext  (Andre)
 - Gibt eine Frage
-- Spieler gibt eine Antwort in Textform 
+- Spieler gibt eine Antwort in Textform
 - Antwort wird ausgewertet
 
 ### Zuordnen  (Andre)
 
 ### Sortieren  (Andre)
 
-### Ersetzen   (Malte)
+### Ersetzen
 
-### Kombinieren   (Malte)
+Aus einer Reihe aus Elementen (kann auch nur eins sein) muss ein Element durch ein oder mehrere andere Elemente ersetzt werden.
+Hierdurch wird die Reihe aus Elementen sowie deren Anzahl verändert.
 
-### Objekte in der richtigen Reihenfolge auswählen     (Malte)
+### Kombinieren
 
-### Matrix füllen   (Malte)
+Aus einer Reihe aus Elementen müssen mehrere Elemente (oder alle) zu einem anderen Element zusammengefasst werden.
+Hierdurch wird die Reihe aus Elementen sowie deren Anzahl verändert.
+
+### Objekte in der richtigen Reihenfolge auswählen
+
+Es muss in der richtigen Reihenfolge ein Element nach dem anderen aus einer Menge ausgewählt werden.
+Anders als beim Aufgabentyp [Sortieren](#sortieren--andre-) müssen hier nicht alle Elemente von Anfang
+an bekannt sein.
+
+### Matrix füllen
+
+Die Elemente einer Matrix mit beliebigen Dimensionen müssen befüllt werden.
 
 ## Spielmechanik
 
@@ -124,11 +136,11 @@ Nur eine Antwort ist richtig. Die richtige Antwort muss ausgewählt werden.
 - Ein UI geht auf, da steht die Frage drin
 - Gibt ein Textfeld um Text einzugeben
 - Gibt einen Button "okay" zum bestätigen oder abbrechen
-- Wenn okay: -> Antwort wird ausgewertet, Belohnung/Bestrafung wird durchgeführt, UI geht zu 
+- Wenn okay: -> Antwort wird ausgewertet, Belohnung/Bestrafung wird durchgeführt, UI geht zu
 - Wenn abbrechen -> UI schließt sich
 - Was brauch ich dafür:
  - Text anzeigen
- -  
+ -
 
 ### Item an NPC abgeben  (Malte)
 
@@ -142,7 +154,7 @@ Nur eine Antwort ist richtig. Die richtige Antwort muss ausgewählt werden.
 
 ### Kämpfen (Andre)
 
-## Spielszenario 
+## Spielszenario
 
 ### Liste an Entitäten (later)
 
@@ -154,7 +166,7 @@ Nur eine Antwort ist richtig. Die richtige Antwort muss ausgewählt werden.
 Stellt Frage du gibst Antwort, NPC Happy
 
 ### Monster greift mit Lückentext-Frage an  (Andre)
-Das Monster rennt in den Spieler und bei kollision wird eine Lückentext-Frage gestellt.  
+Das Monster rennt in den Spieler und bei kollision wird eine Lückentext-Frage gestellt.
 
 ### Truhe ist mit Frage verschlossen (Andre)
 
@@ -183,35 +195,35 @@ Das Monster rennt in den Spieler und bei kollision wird eine Lückentext-Frage g
 
                       GUI-Buttons drücken    Mehre Gui Buttosn drücken       Item(s) abgeben        Schalter betätigen          Blöcke Schieben
 Single Choice                 x                                                    x                        x
- 
+
 - Matrix
   Spalte: Szenario
-  Zeile: Aufgabentyp 
-  Wert 1 Wenn der Typ in diesem Szenario abgebildet werden kann 
-  Wert 0 Wenn der Typ in diesem Szenario nicht abgebildet werden kann 
+  Zeile: Aufgabentyp
+  Wert 1 Wenn der Typ in diesem Szenario abgebildet werden kann
+  Wert 0 Wenn der Typ in diesem Szenario nicht abgebildet werden kann
 
 
 ## Zuordnung  Spielmechanik und Spielszenario (Malte vorbereiten, rest later)
 
-                      Monster greift mit Lückentext-Frage an   NPC stellt Lückentextfrage 
+                      Monster greift mit Lückentext-Frage an   NPC stellt Lückentextfrage
  GUI Text eingeben:       x                                                 x
 Mecnanik XYZ              x
 
 - Matrix
   Spalte: Spielszenario
-  Zeile: Spielmechanik 
-  Wert 1 Wenn das Szenario mit dieser Mechanik abgebildet werden kann 
-  Wert 0 Wenn das Szenario mit dieser Mechanik nicht abgebildet werden kann 
+  Zeile: Spielmechanik
+  Wert 1 Wenn das Szenario mit dieser Mechanik abgebildet werden kann
+  Wert 0 Wenn das Szenario mit dieser Mechanik nicht abgebildet werden kann
 
 
 ## Konkrete Aufgaben
 
 ### Regex-monster (Andre)
-Monster greift einen an und man muss die Frage "XYZ" beantworten, indem man den passenden regulären Ausdruck eingibt. 
+Monster greift einen an und man muss die Frage "XYZ" beantworten, indem man den passenden regulären Ausdruck eingibt.
 
 Aufgabentyp: Lückentext
 Spielmechanik: Gui Text eingeben
-Spielszenario: Monster greift mit Lückentext-Frage an 
+Spielszenario: Monster greift mit Lückentext-Frage an
 
 ### Codesmells erkennen (PM) (Andre)
 
