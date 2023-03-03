@@ -1,10 +1,11 @@
-package controller;
+package starter;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import controller.AbstractController;
 import graphic.DungeonCamera;
 import graphic.Painter;
 import java.util.ArrayList;

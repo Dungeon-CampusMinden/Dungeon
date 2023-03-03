@@ -2,7 +2,6 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import controller.Game;
 import controller.SystemController;
 import dslToGame.QuestConfig;
 import ecs.components.MissingComponentException;

@@ -2,7 +2,6 @@ package starter;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import controller.Game;
 import tools.Constants;
 
 /** A class to wrap the passed {@link Game} and start the dungeon. */

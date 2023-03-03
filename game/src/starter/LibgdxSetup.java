@@ -1,7 +1,6 @@
 package starter;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import controller.Game;
 
 /** {@link com.badlogic.gdx.Game} class that delegates to the {@link Game}. Just some setup. */
 public class LibgdxSetup extends com.badlogic.gdx.Game {
