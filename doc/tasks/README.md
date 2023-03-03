@@ -252,22 +252,33 @@ Mecnanik XYZ              x
   Wert 0 Wenn das Szenario mit dieser Mechanik nicht abgebildet werden kann 
 
 
-## Konkrete Aufgaben
+## Konkrete Aufgaben 
 
-### Regex-monster (Andre)
-Monster greift einen an und man muss die Frage "XYZ" beantworten, indem man den passenden regulären Ausdruck eingibt. 
-
+### Regex-monster
+Aufgabe: "Geben Sie einen gültigen Regulären ausdruck an, der Telefonnummern mit mindestens 7 aber maximal 10 Ziffern beschreibt."
 Aufgabentyp: Lückentext
-Spielmechanik: Gui Text eingeben
-Spielszenario: Monster greift mit Lückentext-Frage an 
+Spielmechanik: GUI Text eingabe
+Spielszenario: Monster greift mit Frage an 
 
-### Codesmells erkennen (PM) (Andre)
+### Pattern erkennen (PM)
+Aufgabe: "Ordnen Sie die UML-Klassendiagramme den richtigen Pattern zu."
+UMLs: *liste an Pfaden mit Bilddateien*.  (UML-A,UML-B,UML-C)
+Lösungsvorschläge: "Strategy-Pattern", "Observer-Pattern", "Visitor-Pattern", "Das ist kein Pattern", "Builder-Pattern"
+Aufgabentyp: Zuordnen 
+Spielmechanik: Item(s) in Container tuen 
+Spielszenario: Items müssen in Truhen abgelegt werden 
 
-### Sortieralgorithmus (ADS) (Andre)
+### Sortieralgorithmus (ADS)
+Aufgabe: "Sortieren Sie das Array [12,4,31,-3,3] mit dem Bubblesort Algorithmus. Geben Sie das Array nach dem dritten Schritt an. 
+Aufgabentyp: Sortieren
+Spielmechanik: Blöcke schieben
+Spielszenario: Blöcke müssen in die richtige Reihenfolge geschoben werden
 
-### CSP mit Forward Checking lösen (KI) (Andre)
-
-
+### CSP mit Forward Checking lösen (KI)
+Aufgabe: "(Bild von Karte mit verschieden Ländern und Färbungen) Geben sie für jede Variable jeden gültigen Zustand an, wenn Sie die Backtracking Search verwenden."
+Aufgabentyp: Zuordnen
+Spielmechanik: Item(s) aus Container nehmen
+Spielszenario: Items müssen aus einer Trhue entfernt werden
 
 ### Notizen (delete later)
 
