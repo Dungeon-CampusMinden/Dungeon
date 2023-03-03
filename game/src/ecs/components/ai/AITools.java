@@ -105,8 +105,7 @@ public class AITools {
      */
     public static Coordinate getRandomAccessibleTileCoordinateInRange(Point center, float radius) {
         List<Tile> tiles = getAccessibleTilesInRange(center, radius);
-        Coordinate newPosition = tiles.get(random.nextInt(tiles.size())).getCoordinate();
-        return newPosition;
+        return tiles.get(random.nextInt(tiles.size())).getCoordinate();
     }
 
     /**
@@ -183,7 +182,7 @@ public class AITools {
     }
 
     /**
-     * @param entity
+     * @param entity ...
      * @return Path from the entity to the hero
      */
     public static GraphPath<Tile> calculatePathToHero(Entity entity) {
@@ -204,8 +203,8 @@ public class AITools {
     }
 
     /**
-     * @param entity1
-     * @param entity2
+     * @param entity1 ...
+     * @param entity2 ...
      * @param range search radius
      * @return if the position of the two entities is within the given radius
      */
@@ -261,7 +260,11 @@ public class AITools {
         boolean onPath = false;
         Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
         for (Tile tile : path) {
-            if (currentTile == tile) onPath = true;
+            if (currentTile == tile)
+                {
+                    onPath = true;
+                    break;
+                }
         }
 
         return !onPath || finished;
@@ -302,7 +305,11 @@ public class AITools {
         boolean onPath = false;
         Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
         for (Tile tile : path) {
-            if (currentTile == tile) onPath = true;
+            if (currentTile == tile)
+            {
+                onPath = true;
+                break;
+            }
         }
         return !onPath;
     }
