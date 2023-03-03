@@ -91,36 +91,36 @@ Spielszenario beeinflussen.
 
 ## Aufgabentypen
 
-### Single-Choice
+### Single-Choice (Andre)
 Es wird eine Frage gestellt und eine Menge an Antwortmöglichkeiten gegeben. 
 Nur eine Antwort ist richtig. Die richtige Antwort muss ausgewählt werden. 
 
-### Multiple-Choice
+### Multiple-Choice  (Andre)
 
-### Lückentext
+### Lückentext  (Andre)
 - Gibt eine Frage
 - Spieler gibt eine Antwort in Textform 
 - Antwort wird ausgewertet
 
-### Zuordnen
+### Zuordnen  (Andre)
 
-### Sortieren
+### Sortieren  (Andre)
 
-### Ersetzen 
+### Ersetzen   (Malte)
 
-### Kombinieren
+### Kombinieren   (Malte)
 
-### Objekte in der richtigen Reihenfolge auswählen  
+### Objekte in der richtigen Reihenfolge auswählen     (Malte)
 
-### Matrix füllen
+### Matrix füllen   (Malte)
 
 ## Spielmechanik
 
-### Ein GUI-Button drücken
+### Ein GUI-Button drücken (Andre)
 
-### GUI Checkboxen anhaken
+### GUI Checkboxen anhaken (Andre)
 
-### GUI Text eingeben
+### GUI Text eingeben (Andre)
 - Ein UI geht auf, da steht die Frage drin
 - Gibt ein Textfeld um Text einzugeben
 - Gibt einen Button "okay" zum bestätigen oder abbrechen
@@ -130,53 +130,53 @@ Nur eine Antwort ist richtig. Die richtige Antwort muss ausgewählt werden.
  - Text anzeigen
  -  
 
-### Item an NPC abgeben 
+### Item an NPC abgeben  (Malte)
 
-### Item(s) in Container tuen
+### Item(s) in Container tuen (Malte)
 
-### Item(s) aus Container nehmen
+### Item(s) aus Container nehmen (Malte)
 
-### Blöcke schieben
+### Blöcke schieben (Andre)
 
-### Schalter betätigen
+### Schalter betätigen (Malter)
 
-### Kämpfen
+### Kämpfen (Andre)
 
 ## Spielszenario 
 
-### Liste an Entitäten
+### Liste an Entitäten (later)
 
 - Name
   - ComponentA
   - ComponentB
 
-### NPC stellt Frage
+### NPC stellt Frage (Andre)
 Stellt Frage du gibst Antwort, NPC Happy
 
-### Monster greift mit Lückentext-Frage an 
+### Monster greift mit Lückentext-Frage an  (Andre)
 Das Monster rennt in den Spieler und bei kollision wird eine Lückentext-Frage gestellt.  
 
-### Truhe ist mit Frage verschlossen
+### Truhe ist mit Frage verschlossen (Andre)
 
-### Mehrere Truhen aber nur eine ist richtig
+### Mehrere Truhen aber nur eine ist richtig (Andre)
 
-### Blöcke müssen in die richtige Reihenfolge geschoben werden
+### Blöcke müssen in die richtige Reihenfolge geschoben werden (Malte)
 
-### Schalter müssen in der richigen Reihenfolge betätigt werden
+### Schalter müssen in der richigen Reihenfolge betätigt werden (Malte)
 
-### Samlung an Schalter müssen in die richtigen Zustände gebracht werden
+### Samlung an Schalter müssen in die richtigen Zustände gebracht werden (Malte)
 
-### Monster müssen in der richtigen Reihenfolge gehauen werden
+### Monster müssen in der richtigen Reihenfolge gehauen werden (Malte)
 
-### Verschiedene Monster müssen so verprügelt werden, dass das richtige Verhältniss entsteht
+### Verschiedene Monster müssen so verprügelt werden, dass das richtige Verhältniss entsteht (Andre)
 
-### Items müssen in Truhen abgelegt werden
+### Items müssen in Truhen abgelegt werden (Malte)
 
-### Items müssen aus einer Trhue entfernt werden
+### Items müssen aus einer Trhue entfernt werden (Malte)
 
-### Items müssen in einen Briefkasten gepackt werden
+### Items müssen in einen Briefkasten gepackt werden (Malte)
 
-## Zuordnung Aufgabentyp und Spielmechniken
+## Zuordnung Aufgabentyp und Spielmechniken (Malte vorbereiten, rest later)
 
 
 
@@ -191,7 +191,7 @@ Single Choice                 x                                                 
   Wert 0 Wenn der Typ in diesem Szenario nicht abgebildet werden kann 
 
 
-## Zuordnung  Spielmechanik und Spielszenario
+## Zuordnung  Spielmechanik und Spielszenario (Malte vorbereiten, rest later)
 
                       Monster greift mit Lückentext-Frage an   NPC stellt Lückentextfrage 
  GUI Text eingeben:       x                                                 x
@@ -206,18 +206,18 @@ Mecnanik XYZ              x
 
 ## Konkrete Aufgaben
 
-### Regex-monster
+### Regex-monster (Andre)
 Monster greift einen an und man muss die Frage "XYZ" beantworten, indem man den passenden regulären Ausdruck eingibt. 
 
 Aufgabentyp: Lückentext
 Spielmechanik: Gui Text eingeben
 Spielszenario: Monster greift mit Lückentext-Frage an 
 
-### Codesmells erkennen (PM)
+### Codesmells erkennen (PM) (Andre)
 
-### Sortieralgorithmus (ADS)
+### Sortieralgorithmus (ADS) (Andre)
 
-### CSP mit Forward Checking lösen (KI)
+### CSP mit Forward Checking lösen (KI) (Andre)
 
 
 
