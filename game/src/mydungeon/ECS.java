@@ -20,6 +20,8 @@ import level.generator.randomwalk.RandomWalkGenerator;
 import starter.DesktopLauncher;
 import tools.Point;
 
+import static logging.LoggerConfig.initBaseLogger;
+
 public class ECS extends Game {
 
     /** All entities that are currently active in the dungeon */
@@ -37,6 +39,8 @@ public class ECS extends Game {
 
     @Override
     protected void setup() {
+        initBaseLogger();
+
         controller.clear();
         systems = new SystemController();
         controller.add(systems);
