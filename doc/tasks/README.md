@@ -154,6 +154,19 @@ Die Elemente einer Matrix mit beliebigen Dimensionen müssen befüllt werden.
 - Der NPC reagiert in bestimmter Form auf den Fall, dass das falsche Item abgegeben wurde und in anderer Form
   auf den Fall, dass das korrekte Item abgegeben wurde
 
+### Item(s) in Container ablegen (Malte)
+
+- Eine Menge an Items ist im Dungeon verteilt (dabei ist nicht relevant, wie und wo der Spieler die
+  Items findet und erhält)
+- Die Items können vom Spieler aufgesammelt werden
+- Bei Interaktion mit Container kann der Spieler eine beliebige Anzahl der gesammelten Items in den Container
+  legen
+  - Hierfür öffnet sich ein UI-Element, welches das Spielerinventar anzeigt und eine Auswahl der Item(s) ermöglicht
+  - Hierbei werden Informationen über die Items angezeigt
+- Die Überprüfung der Korrektheit der im Container abgelegten Items kann zu unterschiedlichen Zeitpunkten geschehen
+  - Direkt nach dem Schließen des UI-Elements zur Auswahl der Items
+  - Bei externem Event (bspw. Betätigung eines Schalters)
+
 ### Item(s) aus Container nehmen (Malte)
 
 ### Blöcke schieben (Andre)
