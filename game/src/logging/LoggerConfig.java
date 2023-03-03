@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
@@ -40,7 +39,7 @@ public class LoggerConfig {
     }
 
     /**
-     * Creates a new Baselogger that records all occuring logs to a file.
+     * Creates a new base logger that records all occurring logs to a file.
      */
     public static void initBaseLogger() {
         baseLogger = Logger.getLogger("");
