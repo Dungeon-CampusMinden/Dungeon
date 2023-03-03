@@ -3,7 +3,7 @@ package dslToGame.graph;
 import java.util.HashMap;
 
 public class PropertyBag {
-    private HashMap<String, Property> properties;
+    final HashMap<String, Property> properties;
 
     /** Constructor */
     public PropertyBag() {
