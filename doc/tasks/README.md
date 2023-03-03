@@ -5,20 +5,8 @@ title: "Aufgaben"
 ## Begriffsklärung
 
 Folgende Begriffe haben im Kontext der Aufgabenbeschreibung eine besondere Bedeutung und werden
-daher nochmal definiert:
+daher nochmal aus Sicht der aufgabendefinierenden Lehrperson definiert:
 
-**Spielelement**
-
-Ein Spielelement ist ein "Objekt" mit bestimmten Eigenschaften und [Komponenten](../ecs/components/readme.md),
-welches im Dungeon platziert ist. Ein Beispiel hierfür wäre eine Truhe, also Objekt, welche eine Truhen-Textur
-und eine Inventar-Komponente hat, in der weitere Items (die wiederum auch Spielelemente sind) gespeichert werden
-können.
-
-**Spielmechanik**
-
-Eine Spielmechanik definiert, wie verschiedene Spielelemente miteinander interagieren. Beispiele hierfür
-wäre eine Mechanik, die es dem Spielercharakter erlaubt, Items aus einer Truhe herauszunehmen und in sein
-eigenes Inventar zu transferieren.
 
 **Aufgabentyp**
 
@@ -28,17 +16,27 @@ bei dem aus einer Menge mehrerer Elemente das eine korrekte Element ausgewählt 
 Beispiel wäre eine Sortieraufgabe, bei der eine festgelegte Anzahl an Elementen in die korrekte Reihenfolge
 gebracht werden muss.
 
+**Spielmechanik**
+
+Eine Spielmechanik beschreibt eine Sammlung an verschiedenen Aktionen die der Spieler im Spiel tätigen kann.
+Eine Spielmechanik bietet die Möglichkeit einen Aufgabentypen zu realsieren.
+
+Beispiele: Der Spieler legt einen Hebel um, um eine Antwort zu geben.
+
+Aus den Spielmechaniken müssen in der Implmentierung konkrete Components und Systeme erstellt werden. 
+
 **Spielszenario**
 
-Ein Spielszenario ist eine Komposition aus Spielelementen und Spielmechaniken, die genutzt wird um eine
-konkrete Aufgabe im Dungeon abzubilden.
+Ein Spielszenario beschreibt wie die Spielemechanik genutzt wird, um den Spieler die Aufgabe im Dungeon zu präsentieren. 
+
+Beispiel: In einem Raum befindet sich ein NPC und verschiedene Schalter. Der NPC stellt dem Spieler eine Frage und sagt ihm, welcher Hebel für welche Antwort steht. 
 
 **Steuermechanismen**
 
 Steuermechanismen sind alle Mechanismen des Systems, die den Ablauf der Umsetzung einer Aufgabe in ein
 Spielszenario beeinflussen.
 
-### Spielelemente gesammelt
+### Spielmechaniken gesammelt
 
 - Räume
 - Truhen, "Briefkästen", bzw. allgemein ein Spielobjekt mit Inventar
@@ -52,8 +50,6 @@ Spielszenario beeinflussen.
 - "Bodenaktivator" -> bspw. ein "Pentagram" auf dessen Spitzen Kerzen gelegt werden müssen
 - UI-Elemente für "einfache / kleine Aufgaben" (also plain Single Choice, Multiple Choice, Freitexteingabe)
 - abstrakt: Item-Kombinator (bspw. "Zauberkessel"), der die Möglichkeit bietet, Items zu kombinieren
-
-### Spielmechaniken gesammelt
 
 - Dinge aus einem Inventar herausnehmen und in das Spielerinventar ablegen (bspw. aus einer Truhe)
 - Dinge aus dem Spielerinventar in ein anderes Inventar ablegen (bspw. in eine Truhe)
@@ -70,18 +66,6 @@ Spielszenario beeinflussen.
 - Durch eine (ggfs. gekennzeichnete) Tür gehen und somit einen anderen Raum betreten
 - Auf eine richtige "Antwort" reagieren und den Spieler belohnen
 - Auf eine falsche "Antwort" reagieren und den Spieler bestrafen
-
-### Aufgabentypen gesammelt
-
-- bestimmte Anzahl Objekte sortieren
-- Objekte einander Zuordnen
-- Single Choice
-- Multiple Choice
-- Freitexteingabe
-- Objekte miteinander zu neuen Objekten kombinieren
-- Ein Objekt in weitere Objekte unterteilen
-- Objekte in der richtigen Reihenfolge auswählen
-- Eine Matrix füllen
 
 ### Steuermechanismen gesammelt
 
@@ -104,12 +88,151 @@ Spielszenario beeinflussen.
 - beliebig tiefe Verschachtelung von Aufgaben: Zur Lösung einer Aufgabe müssen Teil-Aufgaben x, y,z. Teilaufgaben liefern Ergebnisse/Items die zum Lösen der Hauptaufgabe nötig sind.```
   gelöst werden
 
+
+## Aufgabentypen
+
+### Single-Choice (Andre)
+Es wird eine Frage gestellt und eine Menge an Antwortmöglichkeiten gegeben. 
+Nur eine Antwort ist richtig. Die richtige Antwort muss ausgewählt werden. 
+
+### Multiple-Choice  (Andre)
+
+### Lückentext  (Andre)
+- Gibt eine Frage
+- Spieler gibt eine Antwort in Textform 
+- Antwort wird ausgewertet
+
+### Zuordnen  (Andre)
+
+### Sortieren  (Andre)
+
+### Ersetzen   (Malte)
+
+### Kombinieren   (Malte)
+
+### Objekte in der richtigen Reihenfolge auswählen     (Malte)
+
+### Matrix füllen   (Malte)
+
+## Spielmechanik
+
+### Ein GUI-Button drücken (Andre)
+
+### GUI Checkboxen anhaken (Andre)
+
+### GUI Text eingeben (Andre)
+- Ein UI geht auf, da steht die Frage drin
+- Gibt ein Textfeld um Text einzugeben
+- Gibt einen Button "okay" zum bestätigen oder abbrechen
+- Wenn okay: -> Antwort wird ausgewertet, Belohnung/Bestrafung wird durchgeführt, UI geht zu 
+- Wenn abbrechen -> UI schließt sich
+- Was brauch ich dafür:
+ - Text anzeigen
+ -  
+
+### Item an NPC abgeben  (Malte)
+
+### Item(s) in Container tuen (Malte)
+
+### Item(s) aus Container nehmen (Malte)
+
+### Blöcke schieben (Andre)
+
+### Schalter betätigen (Malter)
+
+### Kämpfen (Andre)
+
+## Spielszenario 
+
+### Liste an Entitäten (later)
+
+- Name
+  - ComponentA
+  - ComponentB
+
+### NPC stellt Frage (Andre)
+Stellt Frage du gibst Antwort, NPC Happy
+
+### Monster greift mit Lückentext-Frage an  (Andre)
+Das Monster rennt in den Spieler und bei kollision wird eine Lückentext-Frage gestellt.  
+
+### Truhe ist mit Frage verschlossen (Andre)
+
+### Mehrere Truhen aber nur eine ist richtig (Andre)
+
+### Blöcke müssen in die richtige Reihenfolge geschoben werden (Malte)
+
+### Schalter müssen in der richigen Reihenfolge betätigt werden (Malte)
+
+### Samlung an Schalter müssen in die richtigen Zustände gebracht werden (Malte)
+
+### Monster müssen in der richtigen Reihenfolge gehauen werden (Malte)
+
+### Verschiedene Monster müssen so verprügelt werden, dass das richtige Verhältniss entsteht (Andre)
+
+### Items müssen in Truhen abgelegt werden (Malte)
+
+### Items müssen aus einer Trhue entfernt werden (Malte)
+
+### Items müssen in einen Briefkasten gepackt werden (Malte)
+
+## Zuordnung Aufgabentyp und Spielmechniken (Malte vorbereiten, rest later)
+
+
+
+
+                      GUI-Buttons drücken    Mehre Gui Buttosn drücken       Item(s) abgeben        Schalter betätigen          Blöcke Schieben
+Single Choice                 x                                                    x                        x
+ 
+- Matrix
+  Spalte: Szenario
+  Zeile: Aufgabentyp 
+  Wert 1 Wenn der Typ in diesem Szenario abgebildet werden kann 
+  Wert 0 Wenn der Typ in diesem Szenario nicht abgebildet werden kann 
+
+
+## Zuordnung  Spielmechanik und Spielszenario (Malte vorbereiten, rest later)
+
+                      Monster greift mit Lückentext-Frage an   NPC stellt Lückentextfrage 
+ GUI Text eingeben:       x                                                 x
+Mecnanik XYZ              x
+
+- Matrix
+  Spalte: Spielszenario
+  Zeile: Spielmechanik 
+  Wert 1 Wenn das Szenario mit dieser Mechanik abgebildet werden kann 
+  Wert 0 Wenn das Szenario mit dieser Mechanik nicht abgebildet werden kann 
+
+
 ## Konkrete Aufgaben
 
-### Regex-monster
+### Regex-monster (Andre)
+Monster greift einen an und man muss die Frage "XYZ" beantworten, indem man den passenden regulären Ausdruck eingibt. 
 
-### Codesmells erkennen (PM)
+Aufgabentyp: Lückentext
+Spielmechanik: Gui Text eingeben
+Spielszenario: Monster greift mit Lückentext-Frage an 
 
-### Sortieralgorithmus (ADS)
+### Codesmells erkennen (PM) (Andre)
 
-### CSP mit Forward Checking lösen (KI)
+### Sortieralgorithmus (ADS) (Andre)
+
+### CSP mit Forward Checking lösen (KI) (Andre)
+
+
+
+### Notizen (delete later)
+
+                                    MechanikSammlung A        Szenario-MechanikSammlung-B-1
+(Aufgabe (A4) ->) Aufgabe-Typen ->  MechanikSammlung B  ->    Szenario-MechanikSammlung-B-2       ---> Implementierungsdetails
+                                    MechanikSammlung C        Szenario-MechanikSammlung-B-2
+
+
+                  Knopf im UI drücken                          -> Szeario A: NPC stellt dir die Frage, Szenario B: Monster greifkt dich an und fragt dich, Szeario C: Kiste ist verschlossen und fragt dich
+Single Choice ->  Hebel Umlegen der die richtige Antwort ist  -> Kommst in ein Raum, da steht wer und sag dir was sache ist (Hebel A ist "Antwort A" Hebel B "Antwort B) etc. leg den richtigen um
+                  Monter hauen das das richtige ist           -> Kommst in Rau mit Monstenr, jedes Monster gibt ne Antwort, in der Mitte steht nen Text mit der Frage, hau das richtige Monster
+                  Richtiges Item abgeben                      -> Jedes Item ist ne Antwort, dem NPC musst du das richtige Item geben  (der stellt dir die Frage) Items sind im level verteilt
+
+
+
+
