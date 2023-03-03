@@ -11,6 +11,7 @@ import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
 
 /** The HealthComponent makes an entity vulnerable and killable */
+@SuppressWarnings("ALL")
 @DSLType(name = "health_component")
 public class HealthComponent extends Component {
     private static final List<String> missingTexture = List.of("animation/missingTexture.png");

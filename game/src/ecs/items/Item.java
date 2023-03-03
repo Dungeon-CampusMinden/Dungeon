@@ -27,11 +27,11 @@ public abstract class Item {
     /**
      * creates a New Inventory item.
      *
-     * @param itemType
-     * @param inventoryTexture
-     * @param worldTexture
-     * @param itemName
-     * @param description
+     * @param itemType Item type
+     * @param inventoryTexture Texture of an inventar
+     * @param worldTexture Texture of the world
+     * @param itemName an items name
+     * @param description description
      */
     public Item(
             ItemType itemType,
