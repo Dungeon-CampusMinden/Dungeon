@@ -3,6 +3,7 @@ package ecs.components.ai.transition;
 import ecs.entities.Entity;
 
 /** Determines when an ai switches between idle and fight */
+@SuppressWarnings("ALL")
 public interface ITransition {
 
     /**

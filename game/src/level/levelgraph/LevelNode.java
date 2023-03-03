@@ -76,7 +76,7 @@ public class LevelNode<T extends IRoom> {
     /**
      * Set the room for this node
      *
-     * @param room
+     * @param room ...
      */
     public void setRoom(T room) {
         this.room = room;
@@ -85,8 +85,8 @@ public class LevelNode<T extends IRoom> {
     /**
      * Get the neighbour node on a specific direction
      *
-     * @param direction
-     * @return
+     * @param direction ...
+     * @return ...
      */
     public LevelNode getNeighbour(DoorDirection direction) {
         return neighbours[direction.getValue()];
