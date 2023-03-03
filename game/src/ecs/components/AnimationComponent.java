@@ -3,6 +3,9 @@ package ecs.components;
 import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.List;
+import java.util.logging.Logger;
+
+import logging.CustomLogLevel;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
@@ -17,6 +20,7 @@ public class AnimationComponent extends Component {
     private @DSLTypeMember(name = "idle_left") Animation idleLeft;
     private @DSLTypeMember(name = "idle_right") Animation idleRight;
     private @DSLTypeMember(name = "current_animation") Animation currentAnimation;
+    private Logger animCompLogger = Logger.getLogger(this.getClass().getSimpleName());
 
     /**
      * @param entity associated entity
@@ -59,6 +63,9 @@ public class AnimationComponent extends Component {
      * @return current animation of the entity
      */
     public Animation getCurrentAnimation() {
+        if (currentAnimation.getNextAnimationTexturePath().equals(missingTexture.get(0))) {
+            animCompLogger.log(CustomLogLevel.ERROR, "The AnimationComponent uses the default textures!");
+        }
         return currentAnimation;
     }
 

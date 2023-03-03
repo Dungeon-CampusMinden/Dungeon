@@ -1,5 +1,7 @@
 package ecs.components;
 
+import logging.CustomLogLevel;
+
 import java.util.logging.Logger;
 
 public class MissingComponentException extends NullPointerException {
@@ -7,6 +9,6 @@ public class MissingComponentException extends NullPointerException {
     public MissingComponentException(String message) {
         super("Missing Component:" + message);
         Logger exceptionLogger = Logger.getLogger(this.getClass().getName());
-        exceptionLogger.severe("Missing Component: " + message);
+        exceptionLogger.log(CustomLogLevel.FATAL,"Missing Component: " + message);
     }
 }
