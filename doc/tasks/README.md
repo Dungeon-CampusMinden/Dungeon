@@ -73,14 +73,14 @@ Spielszenario beeinflussen.
 
 ### Aufgabentypen gesammelt
 
-- bestimmte Anzahl Objekte sortieren
-- Objekte einander Zuordnen
-- Single Choice
-- Multiple Choice
-- Freitexteingabe
-- Objekte miteinander zu neuen Objekten kombinieren
+- bestimmte Anzahl Objekte sortieren (Sortieren)
+- Objekte einander Zuordnen (Zuordnen)
+- Single Choice (Single-Choice)
+- Multiple Choice (Multiple-Choice)
+- Freitexteingabe (Lückentext)
+- Objekte miteinander zu neuen Objekten kombinieren 
 - Ein Objekt in weitere Objekte unterteilen
-- Objekte in der richtigen Reihenfolge auswählen
+- Objekte in der richtigen Reihenfolge auswählen 
 - Eine Matrix füllen
 
 ### Steuermechanismen gesammelt
@@ -103,6 +103,83 @@ Spielszenario beeinflussen.
   gesamten Aufgabe einfließen)
 - beliebig tiefe Verschachtelung von Aufgaben: Zur Lösung einer Aufgabe müssen Teil-Aufgaben x, y,z. Teilaufgaben liefern Ergebnisse/Items die zum Lösen der Hauptaufgabe nötig sind.```
   gelöst werden
+
+
+## Aufgabentypen
+
+### Single-Choice
+
+### Multiple-Choice
+
+### Lückentext
+
+### Zuordnen
+
+### Sortieren
+
+
+## Spielmechanik
+
+### GUI-Buttons drücken
+
+### GUI Text eingeben
+
+### Item(s) abgeben
+
+### Item(s) in Kiste tuen
+
+### Item(s) aus Kiste nehmen
+
+### Blöcke Schieben
+
+### Schalter betätigen
+
+### Kämpfen
+
+### Mit Entitäten interagieren 
+- Lesen/Sprechen
+
+## Spielszenario 
+
+### NPC stellt Frage
+
+### Monster greift mit Frage an 
+
+### Truhe ist mit Frage verschlossen
+
+### Mehrere Truhen aber nur eine ist richtig
+
+### Blöcke müssen in die richtige Reihenfolge geschoben werden
+
+### Schalter müssen in der richigen Reihenfolge betätigt werden
+
+### Samlung an Schalter müssen in die richtigen Zustände gebracht werden
+
+### Monster müssen in der richtigen Reihenfolge gehauen werden
+
+### Verschiedene Monster müssen so verprügelt werden, dass das richtige Verhältniss entsteht
+
+### Items müssen in Truhen abgelegt werden
+
+### Items müssen aus einer Trhue entfernt werden
+
+
+
+## Zuordnung Spielszenario und Spielmechanik
+- Matrix
+  Spalte: Spielszenario
+  Zeile: Spielmechanik 
+  Wert 1 Wenn das Szenario mit dieser Mechanik abgebildet werden kann 
+  Wert 0 Wenn das Szenario mit dieser Mechanik nicht abgebildet werden kann 
+
+## Zuordnung Aufgabentyp und Spielszenario
+
+- Matrix
+  Spalte: Szenario
+  Zeile: Aufgabentyp 
+  Wert 1 Wenn der Typ in diesem Szenario abgebildet werden kann 
+  Wert 0 Wenn der Typ in diesem Szenario nicht abgebildet werden kann 
+
 
 ## Konkrete Aufgaben
 
