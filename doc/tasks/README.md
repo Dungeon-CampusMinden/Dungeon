@@ -91,20 +91,28 @@ Spielszenario beeinflussen.
 
 ## Aufgabentypen
 
-### Single-Choice (Andre)
-Es wird eine Frage gestellt und eine Menge an Antwortmöglichkeiten gegeben.
-Nur eine Antwort ist richtig. Die richtige Antwort muss ausgewählt werden.
 
-### Multiple-Choice  (Andre)
+### Single-Choice
+Die Aufgabenstellung besteht aus einem Fragetext und einer Menge an vorgegebenen Antwortmöglickeiten.
+Nur eine Antwort ist richtig. 
+Die richtige Antwort muss ausgewählt werden. 
 
-### Lückentext  (Andre)
-- Gibt eine Frage
-- Spieler gibt eine Antwort in Textform
-- Antwort wird ausgewertet
+### Multiple-Choice
+Die Aufgabenstellung besteht aus einem Fragetext und einer Menge an vorgegebenen Antwortmöglickeiten.
+Mehrere Antworten sind richtig. 
+Es müssen alle richtigen Antworten markiert wereden. Es dürfen keine falschen Antworten markiert werden.
 
-### Zuordnen  (Andre)
+### Lückentext
+Die Aufgabenstellung besteht aus einem Fragetext. 
+Die Antwort ist ein kurzer Freitext. 
+Es muss die richtige Antwort in den Freitext eingegeben werden.
+Die richtige Antwort kann ein konkreter Wert oder eine Eingabe passend zu einem regulären Ausdruck sein. 
 
-### Sortieren  (Andre)
+### Zuordnen
+Es gint die Mengen `V` und `A` an Vorgabetexten (Das können Fragen, Behauptungen, Beschreibungen etc. sein).
+Für jeden eintrag `Vi` in `V`gibt es mindestens einen Eintrag `Ai` in `A` der `Vi` zugeordnet werden kann.
+Die Aufgabe besteht daraus, die richtigen Einträge aus `A` mit den entsprechenden Einträgen in `V` zu verbinden.
+Nicht zu jedem `Ai` muss es auch ein `Vi` geben.
 
 ### Ersetzen
 
@@ -128,19 +136,21 @@ Die Elemente einer Matrix mit beliebigen Dimensionen müssen befüllt werden.
 
 ## Spielmechanik
 
-### Ein GUI-Button drücken (Andre)
+### Ein GUI-Button drücken
+- Es wird eine GUI bestehend aus einem Feld für den Aufgabentext (Text oder Bild) und mehrere Buttons mit Antworten (Text oder Bild) angezeigt
+- Der Spieler muss auf den Button mit der Antwort klicken, die er abgeben möchte.
 
-### GUI Checkboxen anhaken (Andre)
+### GUI Checkboxen anhaken
+- Es wird eine GUI bestehend aus einem Feld für den Aufgabentext (Text oder Bild) und mehrere Buttons mit Antworten (Text oder Bild) angezeigt
+- Der Spieler muss auf die Buttons mit der Antwort klicken, die er für richtig hält.
+- Mit einem Klick aktiviert er eine nicht aktive (nicht ausgewählte) Antwort oder deaktivert eine aktivierte Antwort. 
+- Mit einen Bestätigungsbutton muss der Spieler seine Antworten einloggen. 
 
-### GUI Text eingeben (Andre)
-- Ein UI geht auf, da steht die Frage drin
-- Gibt ein Textfeld um Text einzugeben
-- Gibt einen Button "okay" zum bestätigen oder abbrechen
-- Wenn okay: -> Antwort wird ausgewertet, Belohnung/Bestrafung wird durchgeführt, UI geht zu
-- Wenn abbrechen -> UI schließt sich
-- Was brauch ich dafür:
- - Text anzeigen
- -
+### GUI Text eingeben
+- Es wird eine GUI bestehend aus einem Feld für den Aufgabentext (Text oder Bild) und einem Feld zur Texteingabe angezeigt.
+- Der Spieler muss seine Antwort in das Eingabefeld schreiben. 
+- Mit einen Bestätigungsbutton muss der Spieler seine Antworten einloggen. 
+
 
 ### Item an NPC abgeben  (Malte)
 
@@ -168,7 +178,6 @@ Die Elemente einer Matrix mit beliebigen Dimensionen müssen befüllt werden.
   - Bei externem Event (bspw. Betätigung eines Schalters)
 
 ### Item(s) aus Container nehmen (Malte)
-
 - In einem Container ist eine Menge von Items gespeichert
 - Durch Interaktion mit dem Container kann der Spieler eine beliebige Anzahl Items aus dem Container herausnehmen
   - Hierzu öffnet sich ein UI-Element, welches das Inventar des Containers anzeigt
@@ -178,7 +187,14 @@ Die Elemente einer Matrix mit beliebigen Dimensionen müssen befüllt werden.
   - Direkt nach dem Schließen des UI-Elements zur Auswahl der Items
   - Bei externem Event (bspw. Betätigung eines Schalters)
 
-### Blöcke schieben (Andre)
+### Blöcke schieben
+- Im Raum sind verschiedene Blöcke platziert
+- Jeder Block kann angeschaut und untersucht werden (dann wirt Text angezeigt)
+- Blöcke können geschoben und gezogen werden, um dessen Position zu ändern
+- Es gibt spezielle Felder zu denen die Blöcke geschoben werden müsse. 
+- Die platzierung der Blöcke auf den Felder gibt die Reihenfolge der Blöcke an
+- Der Spieler muss die Blöcke untersuchen und sie so Anordnene, dass sie die Aufgabenstellung lösen
+- Um seine Anordnung abzugeben, muss er einen Schalter betätigen
 
 ### Schalter betätigen
 
@@ -192,7 +208,10 @@ Die Elemente einer Matrix mit beliebigen Dimensionen müssen befüllt werden.
   - Direkt nach Betätigung eines Schalters
   - Bei einem externen Event (bspw. Ansprechen eines NPCs und Bestätigung über UI-Element)
 
-### Kämpfen (Andre)
+### Kämpfen
+- Im Dungeon laufen Monster herum.
+- Der Spieler muss die Monster mit Waffen oder Zaubern angreifen und besiegen. 
+- Besiegte Monster werden aus dem Spiel gelöscht und können Items fallen lassen. 
 
 ## Spielszenario
 
@@ -203,14 +222,34 @@ Die Elemente einer Matrix mit beliebigen Dimensionen müssen befüllt werden.
   - ComponentB
 
 ### NPC stellt Frage (Andre)
-Stellt Frage du gibst Antwort, NPC Happy
+Im Level steht ein Questgeber mit dem der Spieler reden kann.
+Im Gespräch stellt der NPC dem Spieler eine Frage die er beantworten muss. 
+Beantwortet der Spieler die Frage richtig, bekommt er eine Belohnung.
+Beantwortet der Spieler die Frage falsch, bekommt er keine Belohnung. 
 
-### Monster greift mit Lückentext-Frage an  (Andre)
-Das Monster rennt in den Spieler und bei kollision wird eine Lückentext-Frage gestellt.
+### Monster greift mit Frage an
+Im Level läuft ein Monster herum.
+Wenn das Monster den Spieler sieht, läuft es in den Spieler hinein (bis zur Kollision).
+Bei Kollision stellt das Monster dem Spieler eine Frage.
+Beantwortet der Spieler die Frage richtig, stirbt das Monster.
+Beantwortet der Spieler die Frage falsch, bekommt er viel Schaden und das Monster rennt weg. 
+  
 
-### Truhe ist mit Frage verschlossen (Andre)
+### Truhe ist mit Frage verschlossen
+Im Level steht eine Schatzkiste herum.
+Wenn der Spieler die Schatzkiste öffnen will, stellt diese ihm eine Frage.
+Beantwortet der Spieler die Frage richtig, geht die Schatzkiste auf.
+Beantwortet der Spieler die Frage falsch, bleibt die Schatzkiste verschlossen. 
 
-### Mehrere Truhen aber nur eine ist richtig (Andre)
+### Mehrere Truhen aber nicht alle sind richtig
+Der Spieler kommt in einen Raum.
+Der Questgeber stellt ihn eine Frage.
+Die Antwortmöglichkeiten sind in formen von Schatzkisten im Raum verteilt. 
+Wenn der Spieler mit den Schatzkisten interagiert, sagen diese ihm, welche Antwort sie sind. 
+Der Spieler muss die Schatzkiste/n mit der/den richtigen Antwort/en öffnen.
+
+Beantwortet der Spieler die Frage richtig, bekommt er eine Belohnung.
+Beantwortet der Spieler die Frage falsch, bekommt er keine Belohnung.
 
 ### Blöcke müssen in die richtige Reihenfolge geschoben werden
 
@@ -286,7 +325,13 @@ Das Monster rennt in den Spieler und bei kollision wird eine Lückentext-Frage g
 - Falls der Spieler die falsche Antwort gegeben hat, kann durch Steuermechanismen beeinflusst werden, ob er
   seine Antwort korrigieren kann und wie so eine korrigierte Antwort in die Bewertung einfließt
 
-### Verschiedene Monster müssen so verprügelt werden, dass das richtige Verhältniss entsteht (Andre)
+### Verschiedene Monster müssen so verprügelt werden, dass das richtige Verhältniss entsteht
+Der Spieler kommt in einen Raum mit verschiedenen Monstern. 
+Der Questgeber erklärt den Spieler, die Aufgabe.
+Der Spieler muss die Monster so bekämpfen, dass das richtige Verhältniss erreicht ist. 
+
+Löst der Spieler die Aufgabe richtig, bekommt er eine Belohnung.
+Löst der Spieler die Aufgabe falsch, bekommt er keine Belohnung.
 
 ### Items müssen in Truhen abgelegt werden
 
@@ -360,19 +405,6 @@ Das Monster rennt in den Spieler und bei kollision wird eine Lückentext-Frage g
 | **Matrix füllen**                    |                        |                            |                       |                         |                                  |                                  |                     |                        |             |
 
 
-
-### Notizen (delete later)
-
-                      GUI-Buttons drücken    Mehre Gui Buttosn drücken       Item(s) abgeben        Schalter betätigen          Blöcke Schieben
-Single Choice                 x                                                    x                        x
-
-- Matrix
-  Spalte: Szenario
-  Zeile: Aufgabentyp
-  Wert 1 Wenn der Typ in diesem Szenario abgebildet werden kann
-  Wert 0 Wenn der Typ in diesem Szenario nicht abgebildet werden kann
-
-
 ## Zuordnung  Spielmechanik und Spielszenario (Malte vorbereiten, rest later)
 
 |                                  | **NPC stellt Frage** | **Monster greift mit Lückentext-Frage an** | **Truhe ist mit Frage verschlossen** | **Mehrere Truhen aber nur eine ist richtig** | **Blöcke müssen in die richtige Reihenfolge geschoben werden** | **Schalter müssen in der richtigen Reihenfolge betätigt werden** | **Sammlung an Schaltern müssen in die richtigen Zustände gebracht werden** | **Monster müssen in der richtigen Reihenfolge gehauen werden** | **Verschiedene Monster müssen so verprügelt werden, dass das richtige Verhältnis entsteht** | **Items müssen in Truhen abgelegt werden** | **Items müssen aus einer Truhe entfernt werden** | **Items müssen in einen Briefkasten gepackt werden** |
@@ -387,49 +419,35 @@ Single Choice                 x                                                 
 | **Schalter betätigen**           |                      |                                            |                                      |                                              |                                                                |                                                                  |                                                                            |                                                                |                                                                                             |                                            |                                                  |                                                      |
 | **Kämpfen**                      |                      |                                            |                                      |                                              |                                                                |                                                                  |                                                                            |                                                                |                                                                                             |                                            |                                                  |                                                      |
 
+## Konkrete Aufgaben 
 
-### Notizen (delete later)
-
-                      Monster greift mit Lückentext-Frage an   NPC stellt Lückentextfrage
- GUI Text eingeben:       x                                                 x
-Mecnanik XYZ              x
-
-- Matrix
-  Spalte: Spielszenario
-  Zeile: Spielmechanik
-  Wert 1 Wenn das Szenario mit dieser Mechanik abgebildet werden kann
-  Wert 0 Wenn das Szenario mit dieser Mechanik nicht abgebildet werden kann
-
-
-## Konkrete Aufgaben
-
-### Regex-monster (Andre)
-Monster greift einen an und man muss die Frage "XYZ" beantworten, indem man den passenden regulären Ausdruck eingibt.
-
+### Regex-monster
+Aufgabe: "Geben Sie einen gültigen Regulären ausdruck an, der Telefonnummern mit mindestens 7 aber maximal 10 Ziffern beschreibt."
 Aufgabentyp: Lückentext
+Spielmechanik: GUI Text eingabe
+Spielszenario: Monster greift mit Frage an 
+
+### Pattern erkennen (PM)
+Aufgabe: "Ordnen Sie die UML-Klassendiagramme den richtigen Pattern zu."
+UMLs: *liste an Pfaden mit Bilddateien*.  (UML-A,UML-B,UML-C)
+Lösungsvorschläge: "Strategy-Pattern", "Observer-Pattern", "Visitor-Pattern", "Das ist kein Pattern", "Builder-Pattern"
+Aufgabentyp: Zuordnen 
+Spielmechanik: Item(s) in Container tuen 
+Spielszenario: Items müssen in Truhen abgelegt werden 
+
+### Sortieralgorithmus (ADS)
+Aufgabe: "Sortieren Sie das Array [12,4,31,-3,3] mit dem Bubblesort Algorithmus. Geben Sie das Array nach dem dritten Schritt an. 
+Aufgabentyp: Sortieren
+Spielmechanik: Blöcke schieben
+Spielszenario: Blöcke müssen in die richtige Reihenfolge geschoben werden
+
+### CSP mit Forward Checking lösen (KI)
+Aufgabe: "(Bild von Karte mit verschieden Ländern und Färbungen) Geben sie für jede Variable jeden gültigen Zustand an, wenn Sie die Backtracking Search verwenden."
+Aufgabentyp: Zuordnen
+Spielmechanik: Item(s) aus Container nehmen
+Spielszenario: Items müssen aus einer Trhue entfernt werden
 Spielmechanik: Gui Text eingeben
 Spielszenario: Monster greift mit Lückentext-Frage an
-
-### Codesmells erkennen (PM) (Andre)
-
-### Sortieralgorithmus (ADS) (Andre)
-
-### CSP mit Forward Checking lösen (KI) (Andre)
-
-
-
-### Notizen (delete later)
-
-                                    MechanikSammlung A        Szenario-MechanikSammlung-B-1
-(Aufgabe (A4) ->) Aufgabe-Typen ->  MechanikSammlung B  ->    Szenario-MechanikSammlung-B-2       ---> Implementierungsdetails
-                                    MechanikSammlung C        Szenario-MechanikSammlung-B-2
-
-
-                  Knopf im UI drücken                          -> Szeario A: NPC stellt dir die Frage, Szenario B: Monster greifkt dich an und fragt dich, Szeario C: Kiste ist verschlossen und fragt dich
-Single Choice ->  Hebel Umlegen der die richtige Antwort ist  -> Kommst in ein Raum, da steht wer und sag dir was sache ist (Hebel A ist "Antwort A" Hebel B "Antwort B) etc. leg den richtigen um
-                  Monter hauen das das richtige ist           -> Kommst in Rau mit Monstenr, jedes Monster gibt ne Antwort, in der Mitte steht nen Text mit der Frage, hau das richtige Monster
-                  Richtiges Item abgeben                      -> Jedes Item ist ne Antwort, dem NPC musst du das richtige Item geben  (der stellt dir die Frage) Items sind im level verteilt
-
 
 
 
