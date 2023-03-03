@@ -12,8 +12,8 @@ import tools.Point;
 
 @DSLType(name = "hitbox_component")
 public class HitboxComponent extends Component {
-    private /*@DSLTypeMember(name="offset")*/ Point offset;
-    private /*@DSLTypeMember(name="size")*/ Point size;
+    final  /*@DSLTypeMember(name="offset")*/ Point offset;
+    final /*@DSLTypeMember(name="size")*/ Point size;
     private ICollide collideMethod;
     private final Logger hitboxLogger = Logger.getLogger(this.getClass().getName());
 
@@ -49,8 +49,8 @@ public class HitboxComponent extends Component {
     /**
      * @param other hitbox of another entity
      * @param direction direction in which the collision happens
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException
+     * @throws InvocationTargetException checked exception that wraps an exception thrown by an invoked method or constructor
+     * @throws IllegalAccessException .
      */
     public void collide(HitboxComponent other, Tile.Direction direction)
             throws InvocationTargetException, IllegalAccessException {

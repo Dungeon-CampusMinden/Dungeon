@@ -9,7 +9,7 @@ public class SkillComponent extends Component {
 
     public static String name = "SkillComponent";
 
-    private Set<Skill> skillSet;
+    final Set<Skill> skillSet;
 
     /**
      * @param entity associated entity
