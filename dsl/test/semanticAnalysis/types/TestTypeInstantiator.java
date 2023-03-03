@@ -1,7 +1,7 @@
 package semanticAnalysis.types;
 
 import dslToGame.QuestConfig;
-import graph.Graph;
+import dslToGame.graph.Graph;
 import helpers.Helpers;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;

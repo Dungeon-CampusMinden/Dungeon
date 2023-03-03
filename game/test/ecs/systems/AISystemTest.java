@@ -2,13 +2,14 @@ package ecs.systems;
 
 import static org.junit.Assert.assertEquals;
 
+import controller.SystemController;
 import ecs.components.ai.AIComponent;
 import ecs.components.ai.transition.ITransition;
 import ecs.entities.Entity;
-import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import starter.Game;
 
 public class AISystemTest {
 
@@ -18,8 +19,8 @@ public class AISystemTest {
 
     @Before
     public void setup() {
-        ECS.systems = Mockito.mock(SystemController.class);
-        ECS.entities.clear();
+        Game.systems = Mockito.mock(SystemController.class);
+        Game.entities.clear();
         system = new AISystem();
         entity = new Entity();
         AIComponent component = new AIComponent(entity);

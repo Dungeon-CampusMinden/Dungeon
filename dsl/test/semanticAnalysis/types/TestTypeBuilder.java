@@ -2,7 +2,7 @@ package semanticAnalysis.types;
 
 import static org.junit.Assert.*;
 
-import graph.Graph;
+import dslToGame.graph.Graph;
 import interpreter.mockECS.ExternalType;
 import interpreter.mockECS.ExternalTypeBuilderMultiParam;
 import java.lang.reflect.InvocationTargetException;

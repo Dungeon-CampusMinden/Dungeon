@@ -6,7 +6,7 @@ import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.List;
-import mydungeon.ECS;
+import starter.Game;
 import tools.Point;
 
 public abstract class Item {
@@ -67,13 +67,13 @@ public abstract class Item {
         HitboxComponent component = new HitboxComponent(droppedItem);
         component.setCollideMethod(
                 (a, b, direction) -> {
-                    if (b.equals(ECS.hero)) {
+                    if (b.equals(Game.hero)) {
                         System.out.println("add item to inventory");
-                        ECS.entitiesToRemove.add(droppedItem);
+                        Game.entitiesToRemove.add(droppedItem);
                     }
                 });
 
-        ECS.entities.add(droppedItem);
+        Game.entities.add(droppedItem);
     }
 
     public ItemType getItemType() {

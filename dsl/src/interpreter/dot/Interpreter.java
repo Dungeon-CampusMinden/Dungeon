@@ -1,6 +1,7 @@
 package interpreter.dot;
 
-import graph.Graph;
+import dslToGame.graph.Edge;
+import dslToGame.graph.Graph;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -9,24 +10,24 @@ import java.util.Hashtable;
 import parser.AST.*;
 // CHECKSTYLE:ON: AvoidStarImport
 
-public class Interpreter implements AstVisitor<graph.Node<String>> {
+public class Interpreter implements AstVisitor<dslToGame.graph.Node<String>> {
     // how to build graph?
     // - need nodes -> hashset, quasi symboltable
-    Dictionary<String, graph.Node<String>> graphNodes = new Hashtable<>();
+    Dictionary<String, dslToGame.graph.Node<String>> graphNodes = new Hashtable<>();
 
     // - need edges (between two nodes)
     //      -> hashset with string-concat of Names with edge_op as key
-    Dictionary<String, graph.Edge> graphEdges = new Hashtable<>();
+    Dictionary<String, Edge> graphEdges = new Hashtable<>();
 
-    ArrayList<graph.Graph<String>> graphs = new ArrayList<>();
+    ArrayList<Graph<String>> graphs = new ArrayList<>();
 
     /**
-     * Parses a dot definition and creates a {@link graph.Graph} from it
+     * Parses a dot definition and creates a {@link Graph} from it
      *
      * @param dotDefinition The DotDefNode to parse as a graph
-     * @return The {@link graph.Graph} object created from the dotDefinition
+     * @return The {@link Graph} object created from the dotDefinition
      */
-    public graph.Graph<String> getGraph(DotDefNode dotDefinition) {
+    public Graph<String> getGraph(DotDefNode dotDefinition) {
         graphNodes = new Hashtable<>();
         graphEdges = new Hashtable<>();
 
@@ -34,7 +35,7 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
 
         // sort edges
         var edgeIter = graphEdges.elements().asIterator();
-        ArrayList<graph.Edge> edgeList = new ArrayList<>(graphEdges.size());
+        ArrayList<Edge> edgeList = new ArrayList<>(graphEdges.size());
 
         while (edgeIter.hasNext()) {
             edgeList.add(edgeIter.next());
@@ -44,7 +45,7 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
 
         // sort nodes
         var nodeIter = graphNodes.elements().asIterator();
-        ArrayList<graph.Node<String>> nodeList = new ArrayList<>(graphNodes.size());
+        ArrayList<dslToGame.graph.Node<String>> nodeList = new ArrayList<>(graphNodes.size());
 
         while (nodeIter.hasNext()) {
             nodeList.add(nodeIter.next());
@@ -56,7 +57,7 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
     }
 
     @Override
-    public graph.Node<String> visit(Node node) {
+    public dslToGame.graph.Node<String> visit(Node node) {
         // traverse down..
         for (Node child : node.getChildren()) {
             if (child.type == Node.Type.DotDefinition) {
@@ -70,11 +71,11 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
     }
 
     @Override
-    public graph.Node<String> visit(IdNode node) {
+    public dslToGame.graph.Node<String> visit(IdNode node) {
         String name = node.getName();
         // lookup and create, if not present previously
         if (graphNodes.get(name) == null) {
-            graphNodes.put(name, new graph.Node<>(name));
+            graphNodes.put(name, new dslToGame.graph.Node<>(name));
         }
 
         // return Dot-Node
@@ -82,7 +83,7 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
     }
 
     @Override
-    public graph.Node<String> visit(DotDefNode node) {
+    public dslToGame.graph.Node<String> visit(DotDefNode node) {
         this.graphEdges = new Hashtable<>();
         this.graphNodes = new Hashtable<>();
 
@@ -94,25 +95,25 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
     }
 
     @Override
-    public graph.Node<String> visit(EdgeStmtNode node) {
+    public dslToGame.graph.Node<String> visit(EdgeStmtNode node) {
         // TODO: add handling of edge-attributes
 
         // node will contain all edge definitions
         var lhsDotNode = node.getLhsId().accept(this);
-        graph.Node<String> rhsDotNode = null;
+        dslToGame.graph.Node<String> rhsDotNode = null;
 
         for (Node edge : node.getRhsStmts()) {
             assert (edge.type.equals(Node.Type.DotEdgeRHS));
 
             EdgeRhsNode edgeRhs = (EdgeRhsNode) edge;
-            rhsDotNode = (graph.Node<String>) edgeRhs.getIdNode().accept(this);
+            rhsDotNode = (dslToGame.graph.Node<String>) edgeRhs.getIdNode().accept(this);
 
-            graph.Edge.Type edgeType =
+            Edge.Type edgeType =
                     edgeRhs.getEdgeOpType().equals(EdgeOpNode.Type.arrow)
-                            ? graph.Edge.Type.directed
-                            : graph.Edge.Type.undirected;
+                            ? Edge.Type.directed
+                            : Edge.Type.undirected;
 
-            var graphEdge = new graph.Edge(edgeType, lhsDotNode, rhsDotNode);
+            var graphEdge = new Edge(edgeType, lhsDotNode, rhsDotNode);
             graphEdges.put(graphEdge.getName(), graphEdge);
 
             lhsDotNode = rhsDotNode;

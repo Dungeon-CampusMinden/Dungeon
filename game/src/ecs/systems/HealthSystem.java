@@ -8,7 +8,7 @@ import ecs.components.AnimationComponent;
 import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
 import ecs.entities.Entity;
-import mydungeon.ECS;
+import starter.Game;
 
 /**
  * The HealthSystem offsets the damage to be done to all entities with the HealthComponent. Triggers
@@ -21,7 +21,7 @@ public class HealthSystem extends ECS_System {
 
     @Override
     public void update() {
-        ECS.entities.stream()
+        Game.entities.stream()
                 // Consider only entities that have a HealthComponent
                 .flatMap(e -> e.getComponent(HealthComponent.class).stream())
                 // Form triples (e, hc, ac)
@@ -66,7 +66,7 @@ public class HealthSystem extends ECS_System {
         hsd.hc.triggerOnDeath();
         hsd.ac.setCurrentAnimation(hsd.hc.getDieAnimation());
         // TODO: Before removing the entity, check if the animation is finished (Issue #246)
-        ECS.entitiesToRemove.add(hsd.hc.getEntity());
+        Game.entitiesToRemove.add(hsd.hc.getEntity());
     }
 
     private static MissingComponentException missingAC() {
