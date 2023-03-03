@@ -12,6 +12,7 @@ import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 
 /** AIComponent is a component that stores the idle and combat behavior of AI controlled entities */
+@SuppressWarnings("GrazieInspection")
 @DSLType(name = "ai_component")
 public class AIComponent extends Component {
 
