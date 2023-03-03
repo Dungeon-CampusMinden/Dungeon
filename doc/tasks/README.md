@@ -212,26 +212,142 @@ Das Monster rennt in den Spieler und bei kollision wird eine Lückentext-Frage g
 
 ### Mehrere Truhen aber nur eine ist richtig (Andre)
 
-### Blöcke müssen in die richtige Reihenfolge geschoben werden (Malte)
+### Blöcke müssen in die richtige Reihenfolge geschoben werden
 
-### Schalter müssen in der richigen Reihenfolge betätigt werden (Malte)
+- Eine Menge verschiebbarer Blöcke stehen in einem Raum
+- Ein NPC stellt den Aufgabentext: "Bringe die Blöcke in die passende Reihenfolge nach folgender Vorgabe:
+  (abhängig von der konkreten Aufgabenstellung)"
+- Der Spieler interagiert mit den verschiebbaren Blöcken und bringt sie in die geforderte Reihenfolge
+  - Hierbei müssen die Blöcke auf speziellen Feldern auf dem Boden platziert werden
+- Wenn der Spieler erneut mit dem NPC interagiert, öffnet sich ein UI-Element, in dem entweder die Aufgabenstellung
+  erneut angezeigt werden kann, oder die Konfiguration der Blöcke auf den speziellen Felder als Antwort geloggt
+  wird
+- Wenn die Konfiguration der Blöcke auf den speziellen Feldern korrekt ist, wird der Spieler belohnt, die Belohnung könnte sein
+  - eine Textnachricht über UI: "Ja, gut gemacht!"
+  - ein Item, was vom NPC fallen gelassen wird
+- Wenn die Konfiguration der Blöcke falsch ist, wird der Spieler bestraft, die Bestrafung könnte sein
+  - eine Textnachricht über UI: "Nein, das war leider falsch!"
+  - Monster spawnen, sodass der Spieler kämpfen muss
+- Falls der Spieler die falsche Antwort gegeben hat, kann durch Steuermechanismen beeinflusst werden, ob er
+  seine Antwort korrigieren kann und wie so eine korrigierte Antwort in die Bewertung einfließt
 
-### Samlung an Schalter müssen in die richtigen Zustände gebracht werden (Malte)
+### Schalter müssen in der richigen Reihenfolge betätigt werden
 
-### Monster müssen in der richtigen Reihenfolge gehauen werden (Malte)
+- In einem Raum sind mehrere tastende Schalter platziert
+- NPC stellt den Aufgabentext: "Betätige die Schalter in der Richtigen Reihnenfolge nach folgender Vorgabe:
+  (abhängig von der konkreten Aufgabenstellung)"
+- Spieler interagiert mit den verschiedenen Tastern
+- Reihenfolge der Betätigungen wird geloggt
+- Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die Aufgabenstellung erneut
+  angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder die Reihenfolge als Antwort abgegeben werden
+  kann
+- Wenn die Reihenfolge der Betätigungen korrekt ist, wird der Spieler belohnt, die Belohnung könnte sein
+    - eine Textnachricht über UI: "Ja, gut gemacht!"
+    - ein Item, was vom NPC fallen gelassen wird
+- Wenn die Reihenfolge der Betätigungen falsch ist, wird der Spieler bestraft, die Bestrafung könnte sein
+    - eine Textnachricht über UI: "Nein, das war leider falsch!"
+    - Monster spawnen, sodass der Spieler kämpfen muss
+- Falls der Spieler die falsche Antwort gegeben hat, kann durch Steuermechanismen beeinflusst werden, ob er
+  seine Antwort korrigieren kann und wie so eine korrigierte Antwort in die Bewertung einfließt
+
+### Sammlung an Schalter müssen in die richtigen Zustände gebracht werden
+
+- In einem Raum sind mehrere Schalter mit Zustandsanzahl > 2 platziert
+- NPC stellt den Aufgabentext: "Bringe die Schalter in die richtigen Zustände nach folgender Vorgabe:
+  (abhängig von der konkreten Aufgabenstellung)"
+- Spieler interagiert mit den verschiedenen Schaltern
+- Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die Aufgabenstellung erneut
+  angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder die Zustände aller Schalter als Antwort abgegeben werden
+  kann
+- Wenn die Zustände der Schalter korrekt ist, wird der Spieler belohnt, die Belohnung könnte sein
+    - eine Textnachricht über UI: "Ja, gut gemacht!"
+    - ein Item, was vom NPC fallen gelassen wird
+- Wenn die Zustände der Schalter falsch ist, wird der Spieler bestraft, die Bestrafung könnte sein
+    - eine Textnachricht über UI: "Nein, das war leider falsch!"
+    - Monster spawnen, sodass der Spieler kämpfen muss
+- Falls der Spieler die falsche Antwort gegeben hat, kann durch Steuermechanismen beeinflusst werden, ob er
+  seine Antwort korrigieren kann und wie so eine korrigierte Antwort in die Bewertung einfließt
+
+### Monster müssen in der richtigen Reihenfolge gehauen werden
+
+- In einem Raum laufen mehrere unterscheidbare Monster umher
+- NPC stellt den Aufgabentext: "Besiege die Monster in der richtigen Reihenfolge nach folgender Vorgabe:
+  (abhängig von der konkreten Aufgabenstellung)"
+- Spieler kämpft gegen die Monster
+- Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die Aufgabenstellung erneut
+  angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder die Reihenfolge der besiegten Monster als
+  Antwort geloggt werden kann
+- Wenn die Reihenfolge der besiegten Monster korrekt ist, wird der Spieler belohnt, die Belohnung könnte sein
+    - eine Textnachricht über UI: "Ja, gut gemacht!"
+    - ein Item, was vom NPC fallen gelassen wird
+- Wenn die Reihenfolge der besiegten Monster falsch ist, wird der Spieler bestraft, die Bestrafung könnte sein
+    - eine Textnachricht über UI: "Nein, das war leider falsch!"
+    - mehr Monster spawnen, sodass der Spieler kämpfen muss
+- Falls der Spieler die falsche Antwort gegeben hat, kann durch Steuermechanismen beeinflusst werden, ob er
+  seine Antwort korrigieren kann und wie so eine korrigierte Antwort in die Bewertung einfließt
 
 ### Verschiedene Monster müssen so verprügelt werden, dass das richtige Verhältniss entsteht (Andre)
 
-### Items müssen in Truhen abgelegt werden (Malte)
+### Items müssen in Truhen abgelegt werden
 
-### Items müssen aus einer Trhue entfernt werden (Malte)
+- In einem Raum stehen mehrere unterscheidbare Truhen
+- Im Dungeon (nicht nur im Truhen-Raum) sind Items versteckt
+- NPC stellt den Aufgabentext: "Finde und platziere Items in den richtigen Truhen nach folgender Vorgabe:
+  (abhängig von der konkreten Aufgabenstellung)"
+- Spieler sucht im Dungeon nach Items und legt sie in Truhen ab
+- Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die Aufgabenstellung erneut
+  angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder die abgelegten Items in den Truhen als
+  Antwort geloggt werden kann
+- Wenn die richtigen Items in den richtigen Truhen platziert wurden, wird der Spieler belohnt, die Belohnung könnte sein
+    - eine Textnachricht über UI: "Ja, gut gemacht!"
+    - ein Item, was vom NPC fallen gelassen wird
+- Wenn die falschen Items in den falschen Truhen platziert wurden, wird der Spieler bestraft, die Bestrafung könnte sein
+    - eine Textnachricht über UI: "Nein, das war leider falsch!"
+    - mehr Monster spawnen, sodass der Spieler kämpfen muss
+- Falls der Spieler die falsche Antwort gegeben hat, kann durch Steuermechanismen beeinflusst werden, ob er
+  seine Antwort korrigieren kann und wie so eine korrigierte Antwort in die Bewertung einfließt
 
-### Items müssen in einen Briefkasten gepackt werden (Malte)
+### Items müssen aus einer Truhe entfernt werden
 
-## Zuordnung Aufgabentyp und Spielmechniken (Malte vorbereiten, rest later)
+- In einem Raum steht eine Truhe, die eine Menge von Items speichert
+- NPC stellt den Aufgabentext: "Entferne Items in den aus der Truhe nach folgender Vorgabe:
+  (abhängig von der konkreten Aufgabenstellung)"
+- Spieler entfernt Items aus der Truhe
+- Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die Aufgabenstellung erneut
+  angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder die entfernten Items als
+  Antwort geloggt werden kann
+- Wenn die richtigen Items entfernt wurden, wird der Spieler belohnt, die Belohnung könnte sein
+    - eine Textnachricht über UI: "Ja, gut gemacht!"
+    - ein Item, was vom NPC fallen gelassen wird
+- Wenn die falschen Items entfernt wurden, wird der Spieler bestraft, die Bestrafung könnte sein
+    - eine Textnachricht über UI: "Nein, das war leider falsch!"
+    - mehr Monster spawnen, sodass der Spieler kämpfen muss
+- Falls der Spieler die falsche Antwort gegeben hat, kann durch Steuermechanismen beeinflusst werden, ob er
+  seine Antwort korrigieren kann und wie so eine korrigierte Antwort in die Bewertung einfließt
 
+### Items müssen in einen Briefkasten gepackt werden
 
+- In einem Raum steht ein Briefkasten und ein NPC
+- Im Dungeon (nicht nur im Briefkasten-Raum) sind Items versteckt
+- NPC stellt den Aufgabentext: "Finde und werfe Items in den Briefkasten nach folgender Vorgabe:
+  (abhängig von der konkreten Aufgabenstellung)"
+- Spieler sucht im Dungeon nach Items und wirft sie in den Briefkasten
+  - Nachdem der Spieler die Items eingeworfen hat, können sie nicht mehr herausgenommen werden
+- Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die Aufgabenstellung erneut
+  angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder die abgegebenen Items als
+  Antwort geloggt werden kann
+- Wenn die richtigen Items abgegeben wurden, wird der Spieler belohnt, die Belohnung könnte sein
+    - eine Textnachricht über UI: "Ja, gut gemacht!"
+    - ein Item, was vom NPC fallen gelassen wird
+- Wenn die falschen Items abgegeben wurden, wird der Spieler bestraft, die Bestrafung könnte sein
+    - eine Textnachricht über UI: "Nein, das war leider falsch!"
+    - mehr Monster spawnen, sodass der Spieler kämpfen muss
+- Falls der Spieler die falsche Antwort gegeben hat, kann durch Steuermechanismen beeinflusst werden, ob er
+  seine Antwort korrigieren kann und wie so eine korrigierte Antwort in die Bewertung einfließt
 
+## Zuordnung Aufgabentyp und Spielmechaniken (Malte vorbereiten, rest later)
+
+### Notizen (delete later)
 
                       GUI-Buttons drücken    Mehre Gui Buttosn drücken       Item(s) abgeben        Schalter betätigen          Blöcke Schieben
 Single Choice                 x                                                    x                        x
@@ -244,6 +360,8 @@ Single Choice                 x                                                 
 
 
 ## Zuordnung  Spielmechanik und Spielszenario (Malte vorbereiten, rest later)
+
+### Notizen (delete later)
 
                       Monster greift mit Lückentext-Frage an   NPC stellt Lückentextfrage
  GUI Text eingeben:       x                                                 x
