@@ -93,23 +93,27 @@ Spielszenario beeinflussen.
 
 
 ### Single-Choice
+
 Die Aufgabenstellung besteht aus einem Fragetext und einer Menge an vorgegebenen Antwortmöglickeiten.
-Nur eine Antwort ist richtig. 
-Die richtige Antwort muss ausgewählt werden. 
+Nur eine Antwort ist richtig.
+Die richtige Antwort muss ausgewählt werden.
 
 ### Multiple-Choice
+
 Die Aufgabenstellung besteht aus einem Fragetext und einer Menge an vorgegebenen Antwortmöglickeiten.
-Mehrere Antworten sind richtig. 
+Mehrere Antworten sind richtig.
 Es müssen alle richtigen Antworten markiert wereden. Es dürfen keine falschen Antworten markiert werden.
 
 ### Lückentext
-Die Aufgabenstellung besteht aus einem Fragetext. 
-Die Antwort ist ein kurzer Freitext. 
+
+Die Aufgabenstellung besteht aus einem Fragetext.
+Die Antwort ist ein kurzer Freitext.
 Es muss die richtige Antwort in den Freitext eingegeben werden.
-Die richtige Antwort kann ein konkreter Wert oder eine Eingabe passend zu einem regulären Ausdruck sein. 
+Die richtige Antwort kann ein konkreter Wert oder eine Eingabe passend zu einem regulären Ausdruck sein.
 
 ### Zuordnen
-Es gint die Mengen `V` und `A` an Vorgabetexten (Das können Fragen, Behauptungen, Beschreibungen etc. sein).
+
+Es gibt die Mengen `V` und `A` an Vorgabetexten (Das können Fragen, Behauptungen, Beschreibungen etc. sein).
 Für jeden eintrag `Vi` in `V`gibt es mindestens einen Eintrag `Ai` in `A` der `Vi` zugeordnet werden kann.
 Die Aufgabe besteht daraus, die richtigen Einträge aus `A` mit den entsprechenden Einträgen in `V` zu verbinden.
 Nicht zu jedem `Ai` muss es auch ein `Vi` geben.
@@ -137,22 +141,25 @@ Die Elemente einer Matrix mit beliebigen Dimensionen müssen befüllt werden.
 ## Spielmechanik
 
 ### Ein GUI-Button drücken
+
 - Es wird eine GUI bestehend aus einem Feld für den Aufgabentext (Text oder Bild) und mehrere Buttons mit Antworten (Text oder Bild) angezeigt
 - Der Spieler muss auf den Button mit der Antwort klicken, die er abgeben möchte.
 
 ### GUI Checkboxen anhaken
+
 - Es wird eine GUI bestehend aus einem Feld für den Aufgabentext (Text oder Bild) und mehrere Buttons mit Antworten (Text oder Bild) angezeigt
 - Der Spieler muss auf die Buttons mit der Antwort klicken, die er für richtig hält.
-- Mit einem Klick aktiviert er eine nicht aktive (nicht ausgewählte) Antwort oder deaktivert eine aktivierte Antwort. 
-- Mit einen Bestätigungsbutton muss der Spieler seine Antworten einloggen. 
+- Mit einem Klick aktiviert er eine nicht aktive (nicht ausgewählte) Antwort oder deaktiviert eine aktivierte Antwort.
+- Mit einem Bestätigungsbutton muss der Spieler seine Antworten einloggen.
 
 ### GUI Text eingeben
+
 - Es wird eine GUI bestehend aus einem Feld für den Aufgabentext (Text oder Bild) und einem Feld zur Texteingabe angezeigt.
-- Der Spieler muss seine Antwort in das Eingabefeld schreiben. 
-- Mit einen Bestätigungsbutton muss der Spieler seine Antworten einloggen. 
+- Der Spieler muss seine Antwort in das Eingabefeld schreiben.
+- Mit einem Bestätigungsbutton muss der Spieler seine Antworten einloggen.
 
 
-### Item an NPC abgeben  (Malte)
+### Item an NPC abgeben
 
 - Eine Menge an Items ist im Dungeon verteilt (dabei ist nicht relevant, wie und wo der Spieler die
   Items findet und erhält)
@@ -164,7 +171,7 @@ Die Elemente einer Matrix mit beliebigen Dimensionen müssen befüllt werden.
 - Der NPC reagiert in bestimmter Form auf den Fall, dass das falsche Item abgegeben wurde und in anderer Form
   auf den Fall, dass das korrekte Item abgegeben wurde
 
-### Item(s) in Container ablegen (Malte)
+### Item(s) in Container ablegen
 
 - Eine Menge an Items ist im Dungeon verteilt (dabei ist nicht relevant, wie und wo der Spieler die
   Items findet und erhält)
@@ -177,7 +184,8 @@ Die Elemente einer Matrix mit beliebigen Dimensionen müssen befüllt werden.
   - Direkt nach dem Schließen des UI-Elements zur Auswahl der Items
   - Bei externem Event (bspw. Betätigung eines Schalters)
 
-### Item(s) aus Container nehmen (Malte)
+### Item(s) aus Container nehmen
+
 - In einem Container ist eine Menge von Items gespeichert
 - Durch Interaktion mit dem Container kann der Spieler eine beliebige Anzahl Items aus dem Container herausnehmen
   - Hierzu öffnet sich ein UI-Element, welches das Inventar des Containers anzeigt
@@ -188,10 +196,11 @@ Die Elemente einer Matrix mit beliebigen Dimensionen müssen befüllt werden.
   - Bei externem Event (bspw. Betätigung eines Schalters)
 
 ### Blöcke schieben
+
 - Im Raum sind verschiedene Blöcke platziert
 - Jeder Block kann angeschaut und untersucht werden (dann wirt Text angezeigt)
 - Blöcke können geschoben und gezogen werden, um dessen Position zu ändern
-- Es gibt spezielle Felder zu denen die Blöcke geschoben werden müsse. 
+- Es gibt spezielle Felder zu denen die Blöcke geschoben werden müsse.
 - Die platzierung der Blöcke auf den Felder gibt die Reihenfolge der Blöcke an
 - Der Spieler muss die Blöcke untersuchen und sie so Anordnene, dass sie die Aufgabenstellung lösen
 - Um seine Anordnung abzugeben, muss er einen Schalter betätigen
@@ -209,9 +218,10 @@ Die Elemente einer Matrix mit beliebigen Dimensionen müssen befüllt werden.
   - Bei einem externen Event (bspw. Ansprechen eines NPCs und Bestätigung über UI-Element)
 
 ### Kämpfen
+
 - Im Dungeon laufen Monster herum.
-- Der Spieler muss die Monster mit Waffen oder Zaubern angreifen und besiegen. 
-- Besiegte Monster werden aus dem Spiel gelöscht und können Items fallen lassen. 
+- Der Spieler muss die Monster mit Waffen oder Zaubern angreifen und besiegen.
+- Besiegte Monster werden aus dem Spiel gelöscht und können Items fallen lassen.
 
 ## Spielszenario
 
@@ -222,30 +232,34 @@ Die Elemente einer Matrix mit beliebigen Dimensionen müssen befüllt werden.
   - ComponentB
 
 ### NPC stellt Frage (Andre)
+
 Im Level steht ein Questgeber mit dem der Spieler reden kann.
-Im Gespräch stellt der NPC dem Spieler eine Frage die er beantworten muss. 
+Im Gespräch stellt der NPC dem Spieler eine Frage die er beantworten muss.
 Beantwortet der Spieler die Frage richtig, bekommt er eine Belohnung.
-Beantwortet der Spieler die Frage falsch, bekommt er keine Belohnung. 
+Beantwortet der Spieler die Frage falsch, bekommt er keine Belohnung.
 
 ### Monster greift mit Frage an
+
 Im Level läuft ein Monster herum.
 Wenn das Monster den Spieler sieht, läuft es in den Spieler hinein (bis zur Kollision).
 Bei Kollision stellt das Monster dem Spieler eine Frage.
 Beantwortet der Spieler die Frage richtig, stirbt das Monster.
-Beantwortet der Spieler die Frage falsch, bekommt er viel Schaden und das Monster rennt weg. 
-  
+Beantwortet der Spieler die Frage falsch, bekommt er viel Schaden und das Monster rennt weg.
+
 
 ### Truhe ist mit Frage verschlossen
+
 Im Level steht eine Schatzkiste herum.
 Wenn der Spieler die Schatzkiste öffnen will, stellt diese ihm eine Frage.
 Beantwortet der Spieler die Frage richtig, geht die Schatzkiste auf.
-Beantwortet der Spieler die Frage falsch, bleibt die Schatzkiste verschlossen. 
+Beantwortet der Spieler die Frage falsch, bleibt die Schatzkiste verschlossen.
 
 ### Mehrere Truhen aber nicht alle sind richtig
+
 Der Spieler kommt in einen Raum.
 Der Questgeber stellt ihn eine Frage.
-Die Antwortmöglichkeiten sind in formen von Schatzkisten im Raum verteilt. 
-Wenn der Spieler mit den Schatzkisten interagiert, sagen diese ihm, welche Antwort sie sind. 
+Die Antwortmöglichkeiten sind in formen von Schatzkisten im Raum verteilt.
+Wenn der Spieler mit den Schatzkisten interagiert, sagen diese ihm, welche Antwort sie sind.
 Der Spieler muss die Schatzkiste/n mit der/den richtigen Antwort/en öffnen.
 
 Beantwortet der Spieler die Frage richtig, bekommt er eine Belohnung.
@@ -326,9 +340,10 @@ Beantwortet der Spieler die Frage falsch, bekommt er keine Belohnung.
   seine Antwort korrigieren kann und wie so eine korrigierte Antwort in die Bewertung einfließt
 
 ### Verschiedene Monster müssen so verprügelt werden, dass das richtige Verhältniss entsteht
-Der Spieler kommt in einen Raum mit verschiedenen Monstern. 
+
+Der Spieler kommt in einen Raum mit verschiedenen Monstern.
 Der Questgeber erklärt den Spieler, die Aufgabe.
-Der Spieler muss die Monster so bekämpfen, dass das richtige Verhältniss erreicht ist. 
+Der Spieler muss die Monster so bekämpfen, dass das richtige Verhältniss erreicht ist.
 
 Löst der Spieler die Aufgabe richtig, bekommt er eine Belohnung.
 Löst der Spieler die Aufgabe falsch, bekommt er keine Belohnung.
