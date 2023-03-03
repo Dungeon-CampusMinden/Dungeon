@@ -1,6 +1,6 @@
 package quest;
 
-public interface Evaluable {
+public interface IEvaluable {
 
     public void evaluate();
 }
