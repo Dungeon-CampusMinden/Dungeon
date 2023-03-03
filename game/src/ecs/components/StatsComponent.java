@@ -3,7 +3,7 @@ package ecs.components;
 import ecs.entities.Entity;
 import ecs.stats.Stats;
 
-public class StatsComponent extends Component{
+public class StatsComponent extends Component {
 
     private Stats stats = new Stats();
 
@@ -18,6 +18,7 @@ public class StatsComponent extends Component{
 
     /**
      * Get the stats object of the entity
+     *
      * @return stats object
      */
     public Stats getStats() {
@@ -26,10 +27,10 @@ public class StatsComponent extends Component{
 
     /**
      * Overwrite the stats object of the entity
+     *
      * @param stats new stats object
      */
     public void setStats(Stats stats) {
         this.stats = stats;
     }
-
 }
