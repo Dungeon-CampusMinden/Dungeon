@@ -20,7 +20,7 @@ public class LevelAPI {
     private final IOnLevelLoader onLevelLoader;
     private IGenerator gen;
     private ILevel currentLevel;
-    private Logger levelAPI_logger = Logger.getLogger(this.getClass().getName());
+    private final Logger levelAPI_logger = Logger.getLogger(this.getClass().getName());
 
     /**
      * @param batch Batch on which to draw.
@@ -44,7 +44,7 @@ public class LevelAPI {
         currentLevel = gen.getLevel();
         onLevelLoader.onLevelLoad();
 
-        levelAPI_logger.info("Es wurde ein neues Level geladen.");
+        levelAPI_logger.info("A new level was loaded.");
     }
 
     /**

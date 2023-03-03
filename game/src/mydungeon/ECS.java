@@ -12,6 +12,8 @@ import ecs.systems.*;
 import hud.PauseMenu;
 import interpreter.DSLInterpreter;
 import java.util.*;
+import java.util.logging.Logger;
+
 import level.LevelAPI;
 import level.elements.ILevel;
 import level.elements.tile.Tile;
@@ -36,6 +38,7 @@ public class ECS extends Game {
     private static PauseMenu pauseMenu;
     private PositionComponent heroPositionComponent;
     public static Hero hero;
+    private Logger ecsLogger = Logger.getLogger(this.getClass().getSimpleName());
 
     @Override
     protected void setup() {
@@ -67,6 +70,9 @@ public class ECS extends Game {
     protected void frame() {
         camera.setFocusPoint(heroPositionComponent.getPosition());
         entities.removeAll(entitiesToRemove);
+        for (Entity entity : entitiesToRemove) {
+            ecsLogger.info("Entity '" + entity.getClass().getSimpleName() + "' was deleted.");
+        }
         entitiesToRemove.clear();
         if (isOnEndTile()) levelAPI.loadLevel();
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();

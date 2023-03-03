@@ -16,12 +16,12 @@ public class Entity {
     private static int nextId = 0;
     public final int id = nextId++;
     private HashMap<Class, Component> components;
-    private final Logger entityLogger = Logger.getLogger(this.getClass().getName());
 
     public Entity() {
         components = new HashMap<>();
         ECS.entities.add(this);
-        entityLogger.info("Die Entität '" + this.getClass().getSimpleName() + "' wurde erstellt");
+        Logger entityLogger = Logger.getLogger(this.getClass().getName());
+        entityLogger.info("The entity '" + this.getClass().getSimpleName() + "' was created.");
     }
 
     /**
