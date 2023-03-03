@@ -51,7 +51,7 @@ sourceCompatibility = 17
 sourceSets.main.java.srcDirs = ["game/src/", "dsl/src/","api/src", "$projectDir/build/generated-src/"]
 sourceSets.main.resources.srcDirs = ["game/assets/"]
 sourceSets.test.resources.srcDirs = ["dsl/test_resources"]
-sourceSets.test.java.srcDirs = ["game/test/", "dsl/test/","api/test"]
+sourceSets.test.java.srcDirs = ["game/test/", "dsl/test/", "api/test"]
 sourceSets.main.antlr.srcDirs = ["dsl/src/antlr"]
 
 project.ext.mainClassName = "starter.ECS"
