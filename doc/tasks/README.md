@@ -169,6 +169,15 @@ Die Elemente einer Matrix mit beliebigen Dimensionen müssen befüllt werden.
 
 ### Item(s) aus Container nehmen (Malte)
 
+- In einem Container ist eine Menge von Items gespeichert
+- Durch Interaktion mit dem Container kann der Spieler eine beliebige Anzahl Items aus dem Container herausnehmen
+  - Hierzu öffnet sich ein UI-Element, welches das Inventar des Containers anzeigt
+     und die Auswahl der herauszunehmenden Items ermöglicht
+  - Hierbei werden Informationen über die Items angezeigt
+- Die Überprüfung der Korrektheit der aus dem Container entnommenen Items kann zu unterschiedlichen Zeitpunkten geschehen
+  - Direkt nach dem Schließen des UI-Elements zur Auswahl der Items
+  - Bei externem Event (bspw. Betätigung eines Schalters)
+
 ### Blöcke schieben (Andre)
 
 ### Schalter betätigen (Malter)
