@@ -2,12 +2,13 @@ package ecs.systems;
 
 import static org.junit.Assert.*;
 
+import controller.SystemController;
 import ecs.components.xp.ILevelUp;
 import ecs.components.xp.XPComponent;
 import ecs.entities.Entity;
-import mydungeon.ECS;
 import org.junit.Test;
 import org.mockito.Mockito;
+import starter.Game;
 
 public class XPSystemTest {
 
@@ -15,8 +16,8 @@ public class XPSystemTest {
     @Test
     public void testStartingWithZero() {
         /* Prepare */
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
@@ -33,8 +34,8 @@ public class XPSystemTest {
     @Test
     public void testNoLevelUp() {
         /* Prepare */
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
@@ -50,8 +51,8 @@ public class XPSystemTest {
     @Test
     public void testLevelUpExact() {
         /* Prepare */
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
@@ -68,8 +69,8 @@ public class XPSystemTest {
     @Test
     public void testLevelUpOverflow() {
         /* Prepare */
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
@@ -89,8 +90,8 @@ public class XPSystemTest {
     @Test
     public void testLevelUpMultipleExact() {
         /* Prepare */
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
@@ -110,8 +111,8 @@ public class XPSystemTest {
     @Test
     public void testLevelUpMultipleOverflow() {
         /* Prepare */
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
@@ -128,8 +129,8 @@ public class XPSystemTest {
     @Test
     public void testNegativeXP() {
         /* Prepare */
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);

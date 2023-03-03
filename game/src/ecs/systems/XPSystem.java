@@ -1,13 +1,13 @@
 package ecs.systems;
 
 import ecs.components.xp.XPComponent;
-import mydungeon.ECS;
+import starter.Game;
 
 public class XPSystem extends ECS_System {
 
     @Override
     public void update() {
-        ECS.entities.stream()
+        Game.entities.stream()
                 .flatMap(e -> e.getComponent(XPComponent.class).stream())
                 .forEach(
                         component -> {

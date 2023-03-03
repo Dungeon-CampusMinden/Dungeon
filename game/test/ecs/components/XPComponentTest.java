@@ -2,11 +2,11 @@ package ecs.components;
 
 import static org.junit.Assert.*;
 
+import controller.SystemController;
 import ecs.components.xp.XPComponent;
 import ecs.entities.Entity;
-import ecs.systems.SystemController;
-import mydungeon.ECS;
 import org.junit.Test;
+import starter.Game;
 
 public class XPComponentTest {
 
@@ -14,8 +14,8 @@ public class XPComponentTest {
     @Test
     public void testStartXP() {
         /* Prepare */
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 
@@ -28,8 +28,8 @@ public class XPComponentTest {
     @Test
     public void testAddXPSingle() {
         /* Prepare */
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 
@@ -42,8 +42,8 @@ public class XPComponentTest {
     @Test
     public void testAddXPMultiple() {
         /* Prepare */
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 
@@ -57,8 +57,8 @@ public class XPComponentTest {
     @Test
     public void testXPToNextLevelNonZero() {
         /* Prepare */
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 
@@ -71,8 +71,8 @@ public class XPComponentTest {
     @Test
     public void testXPToNextLevelExact() {
         /* Prepare */
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 
@@ -85,8 +85,8 @@ public class XPComponentTest {
     @Test
     public void testXPToNextLevelMore() {
         /* Prepare */
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 

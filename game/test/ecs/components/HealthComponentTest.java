@@ -33,7 +33,7 @@ public class HealthComponentTest {
 
     @Test
     public void testDamageCause() {
-        ECS.entities.clear();
+        Game.entities.clear();
         Entity entity = new Entity();
         Entity damager = new Entity();
         Entity damager2 = new Entity();
