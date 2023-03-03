@@ -6,8 +6,8 @@ import graphic.Animation;
 public class Skill {
 
     private boolean active;
-    private Animation animation;
-    private ISkillFunction skillFunction;
+    final Animation animation;
+    final ISkillFunction skillFunction;
 
     /**
      * @param animation Animation of this skill

@@ -13,9 +13,9 @@ import semanticAnalysis.types.DSLTypeMember;
  */
 @DSLType(name = "animation_component")
 public class AnimationComponent extends Component {
-    private static List<String> missingTexture = List.of("animation/missingTexture.png");
-    private @DSLTypeMember(name = "idle_left") Animation idleLeft;
-    private @DSLTypeMember(name = "idle_right") Animation idleRight;
+    final static List<String> missingTexture = List.of("animation/missingTexture.png");
+    final @DSLTypeMember(name = "idle_left") Animation idleLeft;
+    final @DSLTypeMember(name = "idle_right") Animation idleRight;
     private @DSLTypeMember(name = "current_animation") Animation currentAnimation;
 
     /**

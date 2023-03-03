@@ -9,10 +9,6 @@ public abstract class Component {
     protected Entity entity;
 
     /**
-     * @param entity associated with this component
-     */
-
-    /**
      * Create a new component and add it to the associated entity
      *
      * @param entity associated entity
