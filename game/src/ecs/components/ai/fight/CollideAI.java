@@ -4,7 +4,7 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import ecs.components.ai.AITools;
 import ecs.entities.Entity;
 import level.elements.tile.Tile;
-import starter.ECS;
+import starter.Game;
 import tools.Constants;
 
 public class CollideAI implements IFightAI {
@@ -27,13 +27,13 @@ public class CollideAI implements IFightAI {
     public void fight(Entity entity) {
         if (AITools.playerInRange(entity, rushRange)) {
             // the faster pathing once a certain range is reached
-            path = AITools.calculatePath(entity, ECS.hero);
+            path = AITools.calculatePath(entity, Game.hero);
             AITools.move(entity, path);
             timeSinceLastUpdate = delay;
         } else {
             // check if new pathing update
             if (timeSinceLastUpdate >= delay) {
-                path = AITools.calculatePath(entity, ECS.hero);
+                path = AITools.calculatePath(entity, Game.hero);
                 timeSinceLastUpdate = -1;
             }
             timeSinceLastUpdate++;

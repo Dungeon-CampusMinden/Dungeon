@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Optional;
 import semanticAnalysis.types.DSLContextPush;
 import semanticAnalysis.types.DSLType;
-import starter.ECS;
+import starter.Game;
 
 /** Entity is a unique identifier for an object in the game world */
 @DSLType(name = "game_object")
@@ -17,7 +17,7 @@ public class Entity {
 
     public Entity() {
         components = new HashMap<>();
-        ECS.entities.add(this);
+        Game.entities.add(this);
     }
 
     /**

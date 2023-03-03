@@ -9,13 +9,13 @@ import ecs.entities.Entity;
 import graphic.Animation;
 import org.junit.Test;
 import org.mockito.Mockito;
-import starter.ECS;
+import starter.Game;
 
 public class HealthComponentTest {
 
     @Test
     public void receiveHit() {
-        ECS.entities.clear();
+        Game.entities.clear();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity);
         Damage fdmg = new Damage(3, DamageType.FIRE);
@@ -33,7 +33,7 @@ public class HealthComponentTest {
 
     @Test
     public void setMaximalHealthPointsLowerThanCurrent() {
-        ECS.entities.clear();
+        Game.entities.clear();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity, 10, null, null, null);
         assertEquals(10, hc.getMaximalHealthpoints());
@@ -45,7 +45,7 @@ public class HealthComponentTest {
 
     @Test
     public void setMaximalHealthPointsHigherThanCurrent() {
-        ECS.entities.clear();
+        Game.entities.clear();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity, 10, null, null, null);
         assertEquals(10, hc.getMaximalHealthpoints());
@@ -57,7 +57,7 @@ public class HealthComponentTest {
 
     @Test
     public void setCurrentHealthPointsHigherThanMaximum() {
-        ECS.entities.clear();
+        Game.entities.clear();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity, 10, null, null, null);
         hc.setCurrentHealthpoints(12);
@@ -66,7 +66,7 @@ public class HealthComponentTest {
 
     @Test
     public void setCurrentHealthPointsLowerThanMaximum() {
-        ECS.entities.clear();
+        Game.entities.clear();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity, 10, null, null, null);
         hc.setCurrentHealthpoints(8);
@@ -75,7 +75,7 @@ public class HealthComponentTest {
 
     @Test
     public void triggerOnDeath() {
-        ECS.entities.clear();
+        Game.entities.clear();
         Entity entity = new Entity();
         IOnDeathFunction onDeathFunction = Mockito.mock(IOnDeathFunction.class);
         HealthComponent hc = new HealthComponent(entity, 10, onDeathFunction, null, null);
@@ -85,7 +85,7 @@ public class HealthComponentTest {
 
     @Test
     public void setDieAnimation() {
-        ECS.entities.clear();
+        Game.entities.clear();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity);
         Animation animation = Mockito.mock(Animation.class);
@@ -95,7 +95,7 @@ public class HealthComponentTest {
 
     @Test
     public void setGetHitAnimation() {
-        ECS.entities.clear();
+        Game.entities.clear();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity);
         Animation animation = Mockito.mock(Animation.class);
@@ -105,7 +105,7 @@ public class HealthComponentTest {
 
     @Test
     public void setOnDeathFunction() {
-        ECS.entities.clear();
+        Game.entities.clear();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity);
         IOnDeathFunction function = Mockito.mock(IOnDeathFunction.class);

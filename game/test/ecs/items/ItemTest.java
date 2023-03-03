@@ -10,7 +10,7 @@ import graphic.Animation;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import starter.ECS;
+import starter.Game;
 import tools.Point;
 
 public class ItemTest {
@@ -61,17 +61,17 @@ public class ItemTest {
 
     @Before
     public void before() {
-        ECS.entities.clear();
+        Game.entities.clear();
     }
 
     @Test
     public void onDropCheckEntity() {
         Item item = new ItemImpl();
-        assertEquals(0, ECS.entities.size());
+        assertEquals(0, Game.entities.size());
         Point point = new Point(0, 0);
         item.onDrop(point);
-        assertEquals(1, ECS.entities.size());
-        Entity e = ECS.entities.iterator().next();
+        assertEquals(1, Game.entities.size());
+        Entity e = Game.entities.iterator().next();
         PositionComponent pc =
                 (PositionComponent) e.getComponent(PositionComponent.class).orElseThrow();
         assertEquals(point.x, pc.getPosition().x, 0.001);

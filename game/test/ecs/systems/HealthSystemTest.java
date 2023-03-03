@@ -13,14 +13,14 @@ import ecs.entities.Entity;
 import graphic.Animation;
 import org.junit.Test;
 import org.mockito.Mockito;
-import starter.ECS;
+import starter.Game;
 
 public class HealthSystemTest {
 
     @Test
     public void updateEntityDies() {
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
         Animation dieAnimation = Mockito.mock(Animation.class);
@@ -30,13 +30,13 @@ public class HealthSystemTest {
         component.setCurrentHealthpoints(0);
         system.update();
         assertEquals(dieAnimation, ac.getCurrentAnimation());
-        assertTrue(ECS.entitiesToRemove.contains(entity));
+        assertTrue(Game.entitiesToRemove.contains(entity));
     }
 
     @Test
     public void updateEntityGetDamage() {
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
         Animation hitAnimation = Mockito.mock(Animation.class);
@@ -52,8 +52,8 @@ public class HealthSystemTest {
 
     @Test
     public void updateEntityGetNegativeDamage() {
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
         Animation hitAnimation = Mockito.mock(Animation.class);
@@ -69,8 +69,8 @@ public class HealthSystemTest {
 
     @Test
     public void updateEntityGetZeroDamage() {
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
         Animation hitAnimation = Mockito.mock(Animation.class);
@@ -85,8 +85,8 @@ public class HealthSystemTest {
 
     @Test
     public void updateWithoutHealthComponent() {
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         HealthSystem system = new HealthSystem();
         system.update();
@@ -94,8 +94,8 @@ public class HealthSystemTest {
 
     @Test
     public void updateWithoutAnimationComponent() {
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         Entity entity = new Entity();
         HealthComponent component = new HealthComponent(entity);
         HealthSystem system = new HealthSystem();

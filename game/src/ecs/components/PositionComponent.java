@@ -4,7 +4,7 @@ import ecs.entities.Entity;
 import level.tools.LevelElement;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
-import starter.ECS;
+import starter.Game;
 import tools.Point;
 
 /** PositionComponent is a component that stores the x, y (as Point) position of an entity */
@@ -28,7 +28,7 @@ public class PositionComponent extends Component {
     public PositionComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);
         this.position =
-                ECS.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint();
+                Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint();
     }
 
     /**

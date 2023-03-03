@@ -15,7 +15,7 @@ import level.elements.tile.Tile;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import starter.ECS;
+import starter.Game;
 import tools.Point;
 
 public class VelocitySystemTest {
@@ -41,10 +41,10 @@ public class VelocitySystemTest {
 
     @Before
     public void setup() {
-        ECS.systems = Mockito.mock(SystemController.class);
-        ECS.currentLevel = level;
+        Game.systems = Mockito.mock(SystemController.class);
+        Game.currentLevel = level;
         Mockito.when(level.getTileAt(Mockito.any())).thenReturn(tile);
-        ECS.entities.clear();
+        Game.entities.clear();
         entity = new Entity();
 
         velocitySystem = new VelocitySystem();

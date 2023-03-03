@@ -6,14 +6,14 @@ import ecs.components.MissingComponentException;
 import ecs.components.PlayableComponent;
 import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
-import starter.ECS;
+import starter.Game;
 
 /** Used to control the player */
 public class KeyboardSystem extends ECS_System {
 
     @Override
     public void update() {
-        for (Entity entity : ECS.entities) {
+        for (Entity entity : Game.entities) {
             entity.getComponent(PlayableComponent.class)
                     .ifPresent(
                             pc -> {

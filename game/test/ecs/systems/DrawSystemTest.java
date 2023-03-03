@@ -12,7 +12,7 @@ import graphic.Painter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import starter.ECS;
+import starter.Game;
 import tools.Point;
 
 public class DrawSystemTest {
@@ -24,8 +24,8 @@ public class DrawSystemTest {
 
     @Before
     public void setup() {
-        ECS.systems = Mockito.mock(SystemController.class);
-        ECS.entities.clear();
+        Game.systems = Mockito.mock(SystemController.class);
+        Game.entities.clear();
         drawSystem = new DrawSystem(painter);
         entity = new Entity();
         new AnimationComponent(entity, animation);

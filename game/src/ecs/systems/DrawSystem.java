@@ -9,7 +9,7 @@ import graphic.Painter;
 import graphic.PainterConfig;
 import java.util.HashMap;
 import java.util.Map;
-import starter.ECS;
+import starter.Game;
 
 /** used to draw entities */
 public class DrawSystem extends ECS_System {
@@ -28,7 +28,7 @@ public class DrawSystem extends ECS_System {
 
     /** draw entities at their position */
     public void update() {
-        for (Entity entity : ECS.entities) {
+        for (Entity entity : Game.entities) {
             entity.getComponent(AnimationComponent.class)
                     .ifPresent(
                             ac -> {

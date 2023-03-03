@@ -7,7 +7,7 @@ import ecs.entities.Entity;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import starter.ECS;
+import starter.Game;
 
 public class EntityTest {
 
@@ -16,14 +16,14 @@ public class EntityTest {
 
     @Before
     public void setup() {
-        ECS.entities.clear();
+        Game.entities.clear();
         entity = new Entity();
         entity.addComponent(testComponent);
     }
 
     @Test
     public void cTor() {
-        assertTrue(ECS.entities.contains(entity));
+        assertTrue(Game.entities.contains(entity));
     }
 
     @Test

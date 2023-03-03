@@ -4,7 +4,7 @@ import ecs.components.HitboxComponent;
 import ecs.entities.Entity;
 import java.lang.reflect.InvocationTargetException;
 import level.elements.tile.Tile;
-import starter.ECS;
+import starter.Game;
 
 /** System to check for collisions between two entities */
 public class CollisionSystem extends ECS_System {
@@ -12,12 +12,12 @@ public class CollisionSystem extends ECS_System {
     /** checks if there is a collision between two entities based on their hitbox */
     @Override
     public void update() {
-        for (Entity entity : ECS.entities) {
+        for (Entity entity : Game.entities) {
 
             entity.getComponent(HitboxComponent.class)
                     .ifPresent(
                             hitbox1 -> {
-                                for (Entity entity2 : ECS.entities) {
+                                for (Entity entity2 : Game.entities) {
                                     if (entity != entity2) {
 
                                         entity2.getComponent(HitboxComponent.class)

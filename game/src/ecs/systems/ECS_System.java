@@ -1,6 +1,6 @@
 package ecs.systems;
 
-import starter.ECS;
+import starter.Game;
 
 /** Marks a Class as a System in the ECS */
 public abstract class ECS_System {
@@ -8,7 +8,7 @@ public abstract class ECS_System {
     protected boolean run;
 
     public ECS_System() {
-        ECS.systems.add(this);
+        Game.systems.add(this);
         run = true;
     }
 

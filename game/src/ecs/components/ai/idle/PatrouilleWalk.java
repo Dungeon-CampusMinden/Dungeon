@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import level.elements.tile.Tile;
-import starter.ECS;
+import starter.Game;
 import tools.Constants;
 import tools.Point;
 
@@ -64,7 +64,7 @@ public class PatrouilleWalk implements IIdleAI {
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         Point center = position.getPosition();
-        Tile tile = ECS.currentLevel.getTileAt(position.getPosition().toCoordinate());
+        Tile tile = Game.currentLevel.getTileAt(position.getPosition().toCoordinate());
 
         if (tile == null) {
             return;
