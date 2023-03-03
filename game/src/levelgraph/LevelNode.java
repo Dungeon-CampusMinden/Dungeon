@@ -12,11 +12,11 @@ import room.IRoom;
  */
 public class LevelNode<T extends IRoom> {
     private T room;
-    private LevelNode[] neighbours;
+    final LevelNode[] neighbours;
 
-    private DoorTile.DoorColor[] colors;
+    final DoorTile.DoorColor[] colors;
 
-    private ArrayList<DoorDirection> toTry = new ArrayList<>();
+    final ArrayList<DoorDirection> toTry = new ArrayList<>();
 
     public LevelNode() {
         neighbours = new LevelNode[4];
