@@ -20,32 +20,27 @@ public class LoggerConfig {
         String directoryPath = "./logs/systemlogs/";
         String filepath = directoryPath + timestamp + ".log";
         File newLogFile = new File(filepath);
-        try{
+        try {
             Files.createDirectories(Paths.get(directoryPath));
             if (newLogFile.exists()) {
                 baseLogger.info("Logfile already exists;");
-            }
-            else {
+            } else {
                 newLogFile.createNewFile();
                 baseLogger.info("Logfile '" + filepath + "' was created.");
             }
             customFileHandler = new FileHandler(filepath);
             customFileHandler.setFormatter(new SimpleFormatter());
+        } catch (IOException ioE) {
+            baseLogger.warning(
+                    "Creation of FileHandler in class 'LoggerConfig' failed: " + ioE.getMessage());
         }
-        catch (IOException ioE){
-            baseLogger.warning("Creation of FileHandler in class 'LoggerConfig' failed: " + ioE.getMessage());
-        }
-
     }
 
-    /**
-     * Creates a new base logger that records all occurring logs to a file.
-     */
+    /** Creates a new base logger that records all occurring logs to a file. */
     public static void initBaseLogger() {
         baseLogger = Logger.getLogger("");
         createCustomFileHandler();
 
         baseLogger.addHandler(customFileHandler);
     }
-
 }

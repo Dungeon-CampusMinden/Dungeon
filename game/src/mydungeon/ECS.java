@@ -1,5 +1,7 @@
 package mydungeon;
 
+import static logging.LoggerConfig.initBaseLogger;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import controller.Game;
@@ -13,7 +15,6 @@ import hud.PauseMenu;
 import interpreter.DSLInterpreter;
 import java.util.*;
 import java.util.logging.Logger;
-
 import level.LevelAPI;
 import level.elements.ILevel;
 import level.elements.tile.Tile;
@@ -21,8 +22,6 @@ import level.generator.postGeneration.WallGenerator;
 import level.generator.randomwalk.RandomWalkGenerator;
 import starter.DesktopLauncher;
 import tools.Point;
-
-import static logging.LoggerConfig.initBaseLogger;
 
 public class ECS extends Game {
 

@@ -4,7 +4,6 @@ import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.List;
 import java.util.logging.Logger;
-
 import logging.CustomLogLevel;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
@@ -64,7 +63,8 @@ public class AnimationComponent extends Component {
      */
     public Animation getCurrentAnimation() {
         if (currentAnimation.getNextAnimationTexturePath().equals(missingTexture.get(0))) {
-            animCompLogger.log(CustomLogLevel.ERROR, "The AnimationComponent uses the default textures!");
+            animCompLogger.log(
+                    CustomLogLevel.ERROR, "The AnimationComponent uses the default textures!");
         }
         return currentAnimation;
     }
