@@ -180,7 +180,17 @@ Die Elemente einer Matrix mit beliebigen Dimensionen müssen befüllt werden.
 
 ### Blöcke schieben (Andre)
 
-### Schalter betätigen (Malter)
+### Schalter betätigen
+
+- Aus einer Menge von Schaltern müssen ein oder mehr korrekte Schalter ausgewählt werden
+- Die Schalter können dabei entweder Tastend, Schaltend oder mit einer Zustandszahl > 2 agieren
+- Bei Interaktion mit einem Schalter öffnet sich ein UI-Element, welches Informationen über
+  den Schalter anzeigt (bspw. Beschreibungstext und aktuellen Zustand)
+  - Bei Schaltern mit Zustandszahl > 2 besteht die Möglichkeit, den gewünschten Zustand über das UI-Element
+    auszuwählen
+- Die Überprüfung der Korrektheit der Schalterbetätigungen kann zu unterschiedlichen Zeitpunkten geschehen
+  - Direkt nach Betätigung eines Schalters
+  - Bei einem externen Event (bspw. Ansprechen eines NPCs und Bestätigung über UI-Element)
 
 ### Kämpfen (Andre)
 
