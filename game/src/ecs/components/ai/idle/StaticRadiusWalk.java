@@ -16,8 +16,6 @@ public class StaticRadiusWalk implements IIdleAI {
     private final int breakTime;
     private int currentBreak = 0;
     private Point center;
-    private Point currentPosition;
-    private Point newEndTile;
 
     /**
      * Finds a point in the radius and then moves there. When the point has been reached, a new
@@ -46,8 +44,8 @@ public class StaticRadiusWalk implements IIdleAI {
                 PositionComponent pc2 =
                         (PositionComponent)
                                 entity.getComponent(PositionComponent.class).orElseThrow();
-                currentPosition = pc2.getPosition();
-                newEndTile = getRandomAccessibleTileCoordinateInRange(center, radius).toPoint();
+                Point currentPosition = pc2.getPosition();
+                Point newEndTile = getRandomAccessibleTileCoordinateInRange(center, radius).toPoint();
                 path = AITools.calculatePath(currentPosition, newEndTile);
                 idle(entity);
             }
