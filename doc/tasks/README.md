@@ -91,20 +91,31 @@ Spielszenario beeinflussen.
 
 ## Aufgabentypen
 
-### Single-Choice (Andre)
-Es wird eine Frage gestellt und eine Menge an Antwortmöglichkeiten gegeben. 
-Nur eine Antwort ist richtig. Die richtige Antwort muss ausgewählt werden. 
+### Single-Choice
+Die Aufgabenstellung besteht aus einem Fragetext und einer Menge an vorgegebenen Antwortmöglickeiten.
+Nur eine Antwort ist richtig. 
+Die richtige Antwort muss ausgewählt werden. 
 
-### Multiple-Choice  (Andre)
+### Multiple-Choice
+Die Aufgabenstellung besteht aus einem Fragetext und einer Menge an vorgegebenen Antwortmöglickeiten.
+Mehrere Antworten sind richtig. 
+Es müssen alle richtigen Antworten markiert wereden. Es dürfen keine falschen Antworten markiert werden.
 
-### Lückentext  (Andre)
-- Gibt eine Frage
-- Spieler gibt eine Antwort in Textform 
-- Antwort wird ausgewertet
+### Lückentext
+Die Aufgabenstellung besteht aus einem Fragetext. 
+Die Antwort ist ein kurzer Freitext. 
+Es muss die richtige Antwort in den Freitext eingegeben werden.
+Die richtige Antwort kann ein konkreter Wert oder eine Eingabe passend zu einem regulären Ausdruck sein. 
 
-### Zuordnen  (Andre)
+### Zuordnen
+Es gint die Mengen `V` und `A` an Vorgabetexten (Das können Fragen, Behauptungen, Beschreibungen etc. sein).
+Für jeden eintrag `Vi` in `V`gibt es mindestens einen Eintrag `Ai` in `A` der `Vi` zugeordnet werden kann.
+Die Aufgabe besteht daraus, die richtigen Einträge aus `A` mit den entsprechenden Einträgen in `V` zu verbinden.
+Nicht zu jedem `Ai` muss es auch ein `Vi` geben.
 
-### Sortieren  (Andre)
+### Sortieren
+Es wird ein unsortierte Liste `V` and sortierbaren Werten übergeben, die in eine bestimmte Reihenfolge gebracht werden müssen. 
+Die richtige Reihenfolge ergibt sich aus der Aufgabenstellung. 
 
 ### Ersetzen   (Malte)
 
@@ -116,19 +127,20 @@ Nur eine Antwort ist richtig. Die richtige Antwort muss ausgewählt werden.
 
 ## Spielmechanik
 
-### Ein GUI-Button drücken (Andre)
+### Ein GUI-Button drücken
+- Es wird eine GUI bestehend aus einem Feld für den Aufgabentext (Text oder Bild) und mehrere Buttons mit Antworten (Text oder Bild) angezeigt
+- Der Spieler muss auf den Button mit der Antwort klicken, die er abgeben möchte.
 
-### GUI Checkboxen anhaken (Andre)
+### GUI Checkboxen anhaken
+- Es wird eine GUI bestehend aus einem Feld für den Aufgabentext (Text oder Bild) und mehrere Buttons mit Antworten (Text oder Bild) angezeigt
+- Der Spieler muss auf die Buttons mit der Antwort klicken, die er für richtig hält.
+- Mit einem Klick aktiviert er eine nicht aktive (nicht ausgewählte) Antwort oder deaktivert eine aktivierte Antwort. 
+- Mit einen Bestätigungsbutton muss der Spieler seine Antworten einloggen. 
 
-### GUI Text eingeben (Andre)
-- Ein UI geht auf, da steht die Frage drin
-- Gibt ein Textfeld um Text einzugeben
-- Gibt einen Button "okay" zum bestätigen oder abbrechen
-- Wenn okay: -> Antwort wird ausgewertet, Belohnung/Bestrafung wird durchgeführt, UI geht zu 
-- Wenn abbrechen -> UI schließt sich
-- Was brauch ich dafür:
- - Text anzeigen
- -  
+### GUI Text eingeben
+- Es wird eine GUI bestehend aus einem Feld für den Aufgabentext (Text oder Bild) und einem Feld zur Texteingabe angezeigt.
+- Der Spieler muss seine Antwort in das Eingabefeld schreiben. 
+- Mit einen Bestätigungsbutton muss der Spieler seine Antworten einloggen. 
 
 ### Item an NPC abgeben  (Malte)
 
@@ -136,11 +148,21 @@ Nur eine Antwort ist richtig. Die richtige Antwort muss ausgewählt werden.
 
 ### Item(s) aus Container nehmen (Malte)
 
-### Blöcke schieben (Andre)
+### Blöcke schieben
+- Im Raum sind verschiedene Blöcke platziert
+- Jeder Block kann angeschaut und untersucht werden (dann wirt Text angezeigt)
+- Blöcke können geschoben und gezogen werden, um dessen Position zu ändern
+- Es gibt spezielle Felder zu denen die Blöcke geschoben werden müsse. 
+- Die platzierung der Blöcke auf den Felder gibt die Reihenfolge der Blöcke an
+- Der Spieler muss die Blöcke untersuchen und sie so Anordnene, dass sie die Aufgabenstellung lösen
+- Um seine Anordnung abzugeben, muss er einen Schalter betätigen
 
 ### Schalter betätigen (Malter)
 
-### Kämpfen (Andre)
+### Kämpfen
+- Im Dungeon laufen Monster herum.
+- Der Spieler muss die Monster mit Waffen oder Zaubern angreifen und besiegen. 
+- Besiegte Monster werden aus dem Spiel gelöscht und können Items fallen lassen. 
 
 ## Spielszenario 
 
@@ -151,14 +173,34 @@ Nur eine Antwort ist richtig. Die richtige Antwort muss ausgewählt werden.
   - ComponentB
 
 ### NPC stellt Frage (Andre)
-Stellt Frage du gibst Antwort, NPC Happy
+Im Level steht ein Questgeber mit dem der Spieler reden kann.
+Im Gespräch stellt der NPC dem Spieler eine Frage die er beantworten muss. 
+Beantwortet der Spieler die Frage richtig, bekommt er eine Belohnung.
+Beantwortet der Spieler die Frage falsch, bekommt er keine Belohnung. 
 
-### Monster greift mit Lückentext-Frage an  (Andre)
-Das Monster rennt in den Spieler und bei kollision wird eine Lückentext-Frage gestellt.  
+### Monster greift mit Frage an
+Im Level läuft ein Monster herum.
+Wenn das Monster den Spieler sieht, läuft es in den Spieler hinein (bis zur Kollision).
+Bei Kollision stellt das Monster dem Spieler eine Frage.
+Beantwortet der Spieler die Frage richtig, stirbt das Monster.
+Beantwortet der Spieler die Frage falsch, bekommt er viel Schaden und das Monster rennt weg. 
+  
 
-### Truhe ist mit Frage verschlossen (Andre)
+### Truhe ist mit Frage verschlossen
+Im Level steht eine Schatzkiste herum.
+Wenn der Spieler die Schatzkiste öffnen will, stellt diese ihm eine Frage.
+Beantwortet der Spieler die Frage richtig, geht die Schatzkiste auf.
+Beantwortet der Spieler die Frage falsch, bleibt die Schatzkiste verschlossen. 
 
-### Mehrere Truhen aber nur eine ist richtig (Andre)
+### Mehrere Truhen aber nicht alle sind richtig
+Der Spieler kommt in einen Raum.
+Der Questgeber stellt ihn eine Frage.
+Die Antwortmöglichkeiten sind in formen von Schatzkisten im Raum verteilt. 
+Wenn der Spieler mit den Schatzkisten interagiert, sagen diese ihm, welche Antwort sie sind. 
+Der Spieler muss die Schatzkiste/n mit der/den richtigen Antwort/en öffnen.
+
+Beantwortet der Spieler die Frage richtig, bekommt er eine Belohnung.
+Beantwortet der Spieler die Frage falsch, bekommt er keine Belohnung.
 
 ### Blöcke müssen in die richtige Reihenfolge geschoben werden (Malte)
 
@@ -168,7 +210,13 @@ Das Monster rennt in den Spieler und bei kollision wird eine Lückentext-Frage g
 
 ### Monster müssen in der richtigen Reihenfolge gehauen werden (Malte)
 
-### Verschiedene Monster müssen so verprügelt werden, dass das richtige Verhältniss entsteht (Andre)
+### Verschiedene Monster müssen so verprügelt werden, dass das richtige Verhältniss entsteht
+Der Spieler kommt in einen Raum mit verschiedenen Monstern. 
+Der Questgeber erklärt den Spieler, die Aufgabe.
+Der Spieler muss die Monster so bekämpfen, dass das richtige Verhältniss erreicht ist. 
+
+Löst der Spieler die Aufgabe richtig, bekommt er eine Belohnung.
+Löst der Spieler die Aufgabe falsch, bekommt er keine Belohnung.
 
 ### Items müssen in Truhen abgelegt werden (Malte)
 
