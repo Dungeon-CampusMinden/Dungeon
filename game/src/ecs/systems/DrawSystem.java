@@ -14,8 +14,8 @@ import mydungeon.ECS;
 /** used to draw entities */
 public class DrawSystem extends ECS_System {
 
-    private Painter painter;
-    private Map<String, PainterConfig> configs;
+    final Painter painter;
+    final Map<String, PainterConfig> configs;
 
     /**
      * @param painter PM-Dungeon painter to draw
@@ -41,7 +41,7 @@ public class DrawSystem extends ECS_System {
                                                                 () ->
                                                                         new MissingComponentException(
                                                                                 "PositionComponent"));
-                                ;
+
 
                                 String currentAnimationTexture =
                                         animation.getNextAnimationTexturePath();

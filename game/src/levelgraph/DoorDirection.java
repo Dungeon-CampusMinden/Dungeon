@@ -3,7 +3,7 @@ package levelgraph;
 /**
  * Defines on which side of the room the door is located
  *
- * @quthor Andre Matutat
+ * @author Andre Matutat
  */
 public enum DoorDirection {
     UP(0),
@@ -12,7 +12,7 @@ public enum DoorDirection {
     DOWN(2),
     RIGHT(3);
 
-    private int value;
+    final int value;
 
     DoorDirection(int value) {
         this.value = value;
@@ -25,7 +25,7 @@ public enum DoorDirection {
     /**
      * Returns the opposite side of the room
      *
-     * @param direction
+     * @param direction .
      * @return opposite side of the room
      */
     public static DoorDirection getOpposite(DoorDirection direction) {
