@@ -144,7 +144,15 @@ Die Elemente einer Matrix mit beliebigen Dimensionen müssen befüllt werden.
 
 ### Item an NPC abgeben  (Malte)
 
-### Item(s) in Container tuen (Malte)
+- Eine Menge an Items ist im Dungeon verteilt (dabei ist nicht relevant, wie und wo der Spieler die
+  Items findet und erhält)
+- Die Items können vom Spieler aufgesammelt werden
+- Bei Interaktion mit einem NPC kann der Spieler ein aufgesammeltes Item auswählen und an den NPC abgeben
+  - Hierfür öffnet sich ein UI-Element, welches das Spielerinventar anzeigt und eine Auswahl der Item(s) ermöglicht
+  - Hierbei werden Informationen über die Items angezeigt
+- Überprüfung der Korrektheit des abgegebenen Items
+- Der NPC reagiert in bestimmter Form auf den Fall, dass das falsche Item abgegeben wurde und in anderer Form
+  auf den Fall, dass das korrekte Item abgegeben wurde
 
 ### Item(s) aus Container nehmen (Malte)
 
