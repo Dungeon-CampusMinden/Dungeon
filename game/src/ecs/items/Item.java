@@ -68,13 +68,13 @@ public abstract class Item {
         HitboxComponent component = new HitboxComponent(droppedItem);
         component.setCollideMethod(
                 (a, b, direction) -> {
-                    if (b.equals(ECS.hero)) {
-                        ECS.hero
+                    if (b.equals(Game.hero)) {
+                        Game.hero
                                 .getComponent(InventoryComponent.class)
                                 .ifPresent(
                                         (x) -> {
                                             if (((InventoryComponent) x).addItem(this))
-                                                ECS.entitiesToRemove.add(droppedItem);
+                                                Game.entitiesToRemove.add(droppedItem);
                                         });
                     }
                 });
