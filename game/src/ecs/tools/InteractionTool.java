@@ -1,4 +1,4 @@
-package ecs.systems;
+package ecs.tools;
 
 import ecs.components.InteractionComponent;
 import ecs.components.MissingComponentException;
@@ -6,20 +6,20 @@ import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
 import java.util.Optional;
-import mydungeon.ECS;
+import starter.Game;
 import tools.Point;
 
-public class InteractionSystem {
+public class InteractionTool {
     private record ISData(Entity e, PositionComponent pc, InteractionComponent ic, float dist) {}
 
     public static void interactWithClosestInteractable() {
         PositionComponent heroPosition =
                 (PositionComponent)
-                        ECS.hero
+                        Game.hero
                                 .getComponent(PositionComponent.class)
                                 .orElseThrow(() -> MissingPCFromEntity(Hero.class.getName()));
         Optional<ISData> data =
-                ECS.entities.stream()
+                Game.entities.stream()
                         .flatMap(
                                 x ->
                                         x
@@ -32,7 +32,7 @@ public class InteractionSystem {
         data.ifPresent(x -> x.ic.triggerInteraction());
     }
 
-    private static InteractionSystem.ISData convertToData(
+    private static InteractionTool.ISData convertToData(
             InteractionComponent ic, PositionComponent heroPosition) {
         Entity entity = ic.getEntity();
 
@@ -55,6 +55,6 @@ public class InteractionSystem {
                         + " from "
                         + entity
                         + " in "
-                        + InteractionSystem.class.getName());
+                        + InteractionTool.class.getName());
     }
 }
