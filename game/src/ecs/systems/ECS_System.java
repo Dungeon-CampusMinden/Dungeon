@@ -1,7 +1,7 @@
 package ecs.systems;
 
-import starter.Game;
 import java.util.logging.Logger;
+import starter.Game;
 
 /** Marks a Class as a System in the ECS */
 public abstract class ECS_System {

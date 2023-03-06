@@ -13,7 +13,9 @@ public class SystemController extends AbstractController<ECS_System> {
     @Override
     public void process(ECS_System e) {
         if (e.isRunning()) {
-            e.systemLogger.log(CustomLogLevel.TRACE, "System '" + e.getClass().getSimpleName() + "' is running.");
+            e.systemLogger.log(
+                    CustomLogLevel.TRACE,
+                    "System '" + e.getClass().getSimpleName() + "' is running.");
             e.update();
         }
     }
