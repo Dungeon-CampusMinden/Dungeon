@@ -73,7 +73,7 @@ public class Configuration {
     }
 
     /** Save the current configuration to the file */
-    private void saveConfiguration() {
+    public void saveConfiguration() {
         try {
             File file = new File(configFilePath);
             FileOutputStream fos = new FileOutputStream(file, false);
