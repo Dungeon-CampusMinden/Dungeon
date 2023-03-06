@@ -13,3 +13,4 @@ title: "Startpage: Components"
 | `SkillComponent`     | Speichert die Skills einer Entität                                                      | Aktuell noch in Entwicklung          |
 | `HealthComponent`    | Verwaltet die Lebenspunkte von Entitäten im Dungeon                                     |                                      |
 | `XPComponent`        | Verwalten von Erfahrungspunkten einer Entität                                           |                                      |
+| `InventoryComponent` | Speichert das Inventar einer Entität                                                    |                                      |
