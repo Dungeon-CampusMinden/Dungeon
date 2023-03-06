@@ -1,11 +1,13 @@
 package ecs.systems;
 
 import starter.Game;
+import java.util.logging.Logger;
 
 /** Marks a Class as a System in the ECS */
 public abstract class ECS_System {
 
     protected boolean run;
+    public Logger systemLogger = Logger.getLogger(this.getClass().getSimpleName());
 
     public ECS_System() {
         Game.systems.add(this);

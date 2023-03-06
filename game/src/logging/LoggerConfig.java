@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
@@ -39,6 +40,7 @@ public class LoggerConfig {
     /** Creates a new base logger that records all occurring logs to a file. */
     public static void initBaseLogger() {
         baseLogger = Logger.getLogger("");
+        baseLogger.setLevel(Level.ALL);
         createCustomFileHandler();
 
         baseLogger.addHandler(customFileHandler);
