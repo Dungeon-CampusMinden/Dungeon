@@ -18,10 +18,10 @@ public class HealthComponentTest {
         Game.entities.clear();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity);
-        Damage fdmg = new Damage(3, DamageType.FIRE);
-        Damage fdmg2 = new Damage(5, DamageType.FIRE);
-        Damage mdmg = new Damage(-1, DamageType.MAGIC);
-        Damage pdmg = new Damage(4, DamageType.PHYSICAL);
+        Damage fdmg = new Damage(3, DamageType.FIRE, null);
+        Damage fdmg2 = new Damage(5, DamageType.FIRE, null);
+        Damage mdmg = new Damage(-1, DamageType.MAGIC, null);
+        Damage pdmg = new Damage(4, DamageType.PHYSICAL, null);
         hc.receiveHit(fdmg);
         hc.receiveHit(fdmg2);
         hc.receiveHit(mdmg);
@@ -29,6 +29,22 @@ public class HealthComponentTest {
         assertEquals(fdmg.damageAmount() + fdmg2.damageAmount(), hc.getDamage(DamageType.FIRE));
         assertEquals(mdmg.damageAmount(), hc.getDamage(DamageType.MAGIC));
         assertEquals(pdmg.damageAmount(), hc.getDamage(DamageType.PHYSICAL));
+    }
+
+    @Test
+    public void testDamageCause() {
+        Game.entities.clear();
+        Entity entity = new Entity();
+        Entity damager = new Entity();
+        Entity damager2 = new Entity();
+        HealthComponent hc = new HealthComponent(entity);
+        Damage dmg = new Damage(3, DamageType.FIRE, damager);
+        Damage dmg2 = new Damage(5, DamageType.FIRE, damager2);
+        hc.receiveHit(dmg);
+        hc.receiveHit(dmg2);
+        assertEquals(damager2, hc.getLastDamageCause().get());
+        hc.receiveHit(dmg);
+        assertEquals(damager, hc.getLastDamageCause().get());
     }
 
     @Test
