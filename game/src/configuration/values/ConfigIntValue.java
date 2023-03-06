@@ -1,11 +1,9 @@
 package configuration.values;
 
-public class ConfigIntValue implements ConfigValue<Integer> {
-
-    private Integer value;
+public class ConfigIntValue extends ConfigValue<Integer> {
 
     public ConfigIntValue(Integer value) {
-        this.value = value;
+        super(value);
     }
 
     @Override
@@ -17,15 +15,5 @@ public class ConfigIntValue implements ConfigValue<Integer> {
     public Integer deserialize(String value) {
         this.value = Integer.parseInt(value);
         return this.value;
-    }
-
-    @Override
-    public Integer get() {
-        return this.value;
-    }
-
-    @Override
-    public void set(Integer value) {
-        this.value = value;
     }
 }

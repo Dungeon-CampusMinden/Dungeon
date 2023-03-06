@@ -1,11 +1,10 @@
 package configuration.values;
 
-public class ConfigFloatValue implements ConfigValue<Float> {
+public class ConfigFloatValue extends ConfigValue<Float> {
 
-    private Float value;
 
     public ConfigFloatValue(Float value) {
-        this.value = value;
+       super(value);
     }
 
     @Override
@@ -17,15 +16,5 @@ public class ConfigFloatValue implements ConfigValue<Float> {
     public Float deserialize(String value) {
         this.value = Float.parseFloat(value);
         return this.value;
-    }
-
-    @Override
-    public Float get() {
-        return this.value;
-    }
-
-    @Override
-    public void set(Float value) {
-        this.value = value;
     }
 }

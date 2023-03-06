@@ -1,12 +1,22 @@
 package configuration.values;
 
-public interface ConfigValue<T> {
+public abstract class ConfigValue<T> {
 
-    String serialize();
+    protected T value;
 
-    T deserialize(String value);
+    public abstract String serialize();
 
-    T get();
+    public abstract T deserialize(String value);
 
-    void set(T value);
+    public ConfigValue(T value) {
+        this.value = value;
+    }
+
+    public T get() {
+        return value;
+    }
+
+    public void set(T value) {
+        this.value = value;
+    }
 }

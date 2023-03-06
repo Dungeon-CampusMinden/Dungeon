@@ -1,11 +1,9 @@
 package configuration.values;
 
-public class ConfigCharValue implements ConfigValue<Character> {
-
-    private Character value;
+public class ConfigCharValue extends ConfigValue<Character> {
 
     public ConfigCharValue(Character value) {
-        this.value = value;
+        super(value);
     }
 
     @Override
@@ -21,15 +19,5 @@ public class ConfigCharValue implements ConfigValue<Character> {
         }
         this.value = value.charAt(0);
         return this.value;
-    }
-
-    @Override
-    public Character get() {
-        return this.value;
-    }
-
-    @Override
-    public void set(Character value) {
-        this.value = value;
     }
 }

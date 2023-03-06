@@ -1,11 +1,9 @@
 package configuration.values;
 
-public class ConfigBooleanValue implements ConfigValue<Boolean> {
-
-    private Boolean value;
+public class ConfigBooleanValue extends ConfigValue<Boolean> {
 
     public ConfigBooleanValue(Boolean value) {
-        this.value = value;
+        super(value);
     }
 
     @Override
@@ -17,15 +15,5 @@ public class ConfigBooleanValue implements ConfigValue<Boolean> {
     public Boolean deserialize(String value) {
         this.value = Boolean.parseBoolean(value);
         return this.value;
-    }
-
-    @Override
-    public Boolean get() {
-        return this.value;
-    }
-
-    @Override
-    public void set(Boolean value) {
-        this.value = value;
     }
 }

@@ -1,11 +1,9 @@
 package configuration.values;
 
-public class ConfigStringValue implements ConfigValue<String> {
-
-    private String value;
+public class ConfigStringValue extends ConfigValue<String> {
 
     public ConfigStringValue(String value) {
-        this.value = value;
+        super(value);
     }
 
     @Override
@@ -19,13 +17,4 @@ public class ConfigStringValue implements ConfigValue<String> {
         return this.value;
     }
 
-    @Override
-    public String get() {
-        return this.value;
-    }
-
-    @Override
-    public void set(String value) {
-        this.value = value;
-    }
 }

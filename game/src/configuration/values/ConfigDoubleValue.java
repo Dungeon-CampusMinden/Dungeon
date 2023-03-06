@@ -1,11 +1,9 @@
 package configuration.values;
 
-public class ConfigDoubleValue implements ConfigValue<Double> {
-
-    private Double value;
+public class ConfigDoubleValue extends ConfigValue<Double> {
 
     public ConfigDoubleValue(Double value) {
-        this.value = value;
+        super(value);
     }
 
     @Override
@@ -17,15 +15,5 @@ public class ConfigDoubleValue implements ConfigValue<Double> {
     public Double deserialize(String value) {
         this.value = Double.parseDouble(value);
         return this.value;
-    }
-
-    @Override
-    public Double get() {
-        return this.value;
-    }
-
-    @Override
-    public void set(Double value) {
-        this.value = value;
     }
 }
