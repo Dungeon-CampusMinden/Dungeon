@@ -42,7 +42,6 @@ public class GraphicsConfigMap {
 
 }
 ```
-
 ```java
 package example;
 
@@ -51,12 +50,39 @@ import configuration.ConfigMap;
 import configuration.ConfigKey;
 
 @ConfigMap(prefix= {"settings", "keyboard"})
-public class GraphicsConfigMap {
+public class KeyboardConfigMap {
 
     public static ConfigKey<Integer> INTERACT_EXAMPLE = new ConfigKey<>("interact", new ConfigIntValueValue(Input.Keys.E));
     public static ConfigKey<Integer> INTERACT_EXAMPLE = new ConfigKey<>("inventory.open", new ConfigIntValueValue(Input.Keys.I));
     public static ConfigKey<Integer> INTERACT_EXAMPLE = new ConfigKey<>("menu.open", new ConfigIntValueValue(Input.Keys.ESC));
 
+}
+```
+
+Wenn beide ConfigMaps via [`Configuration.loadAndGetConfiguration()`](./Configuration.md) geladen werden, werden die Felder der ConfigMaps mit den entsprechenden Werten aus der Konfigurationsdatei initialisiert.
+Sollte die Konfigurationsdatei nicht existieren, werden die Felder mit dem Standardwert aus der ConfigValue initialisiert und gespeichert werden.
+Die produzierte Konfigurationsdatei würde so, oder ähnlich aussehen:
+
+```json
+{
+    "settings": {
+        "graphics": {
+            "fullscreen": "false",
+            "resolution": {
+                "x": "1920",
+                "y": "1080"
+            }
+        },
+        "keyboard": {
+            "interact": "69",
+            "inventory": {
+                "open": "73"
+            },
+            "menu": {
+                "open": "27"
+            }
+        }
+    }
 }
 ```
 
