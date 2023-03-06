@@ -5,7 +5,7 @@ public class ConfigCharValue extends ConfigValue<Character> {
     /**
      * Creates a new ConfigValue of type Character.
      *
-     * @param value
+     * @param value Value.
      */
     public ConfigCharValue(Character value) {
         super(value);
