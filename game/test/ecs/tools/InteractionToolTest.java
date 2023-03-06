@@ -41,6 +41,12 @@ public class InteractionToolTest {
         return mock;
     }
 
+    /** cleanup to reset static Attributes from Game used by the InteractionTool */
+    private static void cleanup() {
+        Game.entities.clear();
+        Game.hero = null;
+    }
+
     /** Tests the functionality when the Hero does not have the PositionComponent */
     @Test
     public void interactWithClosestInteractableHeroMissingPositionComponent() {
@@ -54,11 +60,6 @@ public class InteractionToolTest {
         Assert.assertTrue(e.getMessage().contains(Hero.class.getName()));
         Assert.assertTrue(e.getMessage().contains(PositionComponent.class.getName()));
         cleanup();
-    }
-
-    private static void cleanup() {
-        Game.entities.clear();
-        Game.hero = null;
     }
 
     /** Tests the functionality when there are no Entities in the Game */
