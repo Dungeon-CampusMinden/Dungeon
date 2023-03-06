@@ -16,5 +16,4 @@ public class ConfigStringValue extends ConfigValue<String> {
         this.value = value;
         return this.value;
     }
-
 }

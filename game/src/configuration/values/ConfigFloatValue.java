@@ -2,9 +2,8 @@ package configuration.values;
 
 public class ConfigFloatValue extends ConfigValue<Float> {
 
-
     public ConfigFloatValue(Float value) {
-       super(value);
+        super(value);
     }
 
     @Override
