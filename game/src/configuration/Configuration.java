@@ -7,19 +7,23 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class Configuration {
 
-    private static final Class<?>[] CONFIG_CLASSES = new Class<?>[] {KeyboardConfig.class};
-    private static boolean fieldsLoaded = false;
-    private static JsonValue configRoot;
+    private static final HashMap<String, Configuration> loadedConfigurationFiles = new HashMap<>();
     private static final JsonValue.PrettyPrintSettings prettyPrintSettings =
             new JsonValue.PrettyPrintSettings();
+    private final Class<?>[] configClasses;
+    private boolean fieldsLoaded = false;
+    private JsonValue configRoot;
+    private final String configFilePath;
 
-    private static String currentConfigFilePath = "./config.json";
-
-    static {
+    private Configuration(Class<?>[] configMapClasses, String configFilePath) {
+        this.configFilePath = configFilePath;
+        configClasses = configMapClasses;
         prettyPrintSettings.outputType = JsonWriter.OutputType.json;
         prettyPrintSettings.wrapNumericArrays = true;
         prettyPrintSettings.singleLineColumns = 0;
@@ -27,23 +31,12 @@ public class Configuration {
     }
 
     /**
-     * Loads the default configuration (dungeon_config.json in work directory)
-     *
-     * @throws IOException
-     */
-    public static void loadConfiguration() throws IOException {
-        loadConfiguration("./dungeon_config.json");
-    }
-
-    /**
      * Loads the configuration from the given path
      *
-     * @param path Path to the configuration file
-     * @throws IOException
+     * @throws IOException If the file could not be read
      */
-    public static void loadConfiguration(String path) throws IOException {
-        currentConfigFilePath = path;
-        File file = new File(path);
+    private void load() throws IOException {
+        File file = new File(configFilePath);
         if (file.createNewFile()) { // Create file & load default config if not exists
             loadDefault();
             saveConfiguration();
@@ -80,9 +73,9 @@ public class Configuration {
     }
 
     /** Save the current configuration to the file */
-    private static void saveConfiguration() {
+    private void saveConfiguration() {
         try {
-            File file = new File(currentConfigFilePath);
+            File file = new File(configFilePath);
             FileOutputStream fos = new FileOutputStream(file, false);
             OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
             osw.write(configRoot.prettyPrint(prettyPrintSettings));
@@ -99,7 +92,7 @@ public class Configuration {
      * @param path Path to the node
      * @return JsonNode for the given path
      */
-    private static JsonValue findOrCreate(String[] path) {
+    private JsonValue findOrCreate(String[] path) {
         JsonValue node = configRoot;
         for (String pathPart : path) {
             if (!node.hasChild(pathPart)) {
@@ -111,7 +104,7 @@ public class Configuration {
     }
 
     /** Load the default configuration from the static fields in the ConfigKey classes */
-    private static void loadDefault() {
+    private void loadDefault() {
         configRoot = new JsonValue(JsonValue.ValueType.object);
         Field[] fields = findConfigFields();
         for (Field field : fields) {
@@ -126,8 +119,8 @@ public class Configuration {
     }
 
     // Find all Classes with KeyMap annotation
-    private static Field[] findConfigFields() {
-        return Stream.of(CONFIG_CLASSES)
+    private Field[] findConfigFields() {
+        return Stream.of(configClasses)
                 .flatMap(clazz -> Stream.of(clazz.getDeclaredFields()))
                 .filter(
                         field ->
@@ -138,7 +131,7 @@ public class Configuration {
     }
 
     /** Prepare the fields in the ConfigKey classes (use the path from the ConfigMap as prefix) */
-    private static void prepareFields() {
+    private void prepareFields() {
         if (fieldsLoaded) return;
         Stream.of(findConfigFields())
                 .filter(field -> field.getDeclaringClass().isAnnotationPresent(ConfigMap.class))
@@ -148,6 +141,7 @@ public class Configuration {
                                     field.getDeclaringClass().getAnnotation(ConfigMap.class).path();
                             try {
                                 ConfigKey<?> key = (ConfigKey<?>) field.get(null);
+                                key.configuration = Optional.of(this);
                                 String[] path = new String[mapPath.length + key.path.length];
                                 System.arraycopy(mapPath, 0, path, 0, mapPath.length);
                                 System.arraycopy(
@@ -165,9 +159,30 @@ public class Configuration {
      *
      * @param key Key to update
      */
-    protected static void update(ConfigKey<?> key) {
+    protected void update(ConfigKey<?> key) {
         JsonValue node = findOrCreate(key.path);
         node.set(key.value.serialize());
         saveConfiguration();
+    }
+
+    /**
+     * Load the configuration from the given path and return it. If the configuration has already
+     * been loaded, the cached version will be returned.
+     *
+     * @param path Path to the configuration file
+     * @param configMapClasses Classes where the ConfigKey fields are located (may be annotated with
+     *     ConfigMap annotation)
+     * @return Configuration
+     * @throws IOException If the file could not be read
+     */
+    public static Configuration loadAndGetConfiguration(String path, Class<?>... configMapClasses)
+            throws IOException {
+        if (loadedConfigurationFiles.containsKey(path)) {
+            return loadedConfigurationFiles.get(path);
+        }
+        Configuration config = new Configuration(configMapClasses, path);
+        config.load();
+        loadedConfigurationFiles.put(path, config);
+        return config;
     }
 }

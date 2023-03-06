@@ -2,6 +2,7 @@ package configuration;
 
 import configuration.values.ConfigValue;
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * A ConfigKey is a key to a value in the configuration file.
@@ -12,6 +13,7 @@ public class ConfigKey<Type> {
 
     protected String[] path;
     protected final ConfigValue<Type> value;
+    protected Optional<Configuration> configuration = Optional.empty();
 
     /**
      * Creates a new ConfigKey.
@@ -52,6 +54,6 @@ public class ConfigKey<Type> {
      */
     public void set(Type value) {
         this.value.set(value);
-        Configuration.update(this);
+        this.configuration.ifPresent(c -> c.update(this));
     }
 }

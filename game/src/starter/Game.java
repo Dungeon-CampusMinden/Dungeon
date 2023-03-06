@@ -7,6 +7,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import configuration.Configuration;
+import configuration.KeyboardConfig;
 import controller.AbstractController;
 import controller.SystemController;
 import dslToGame.QuestConfig;
@@ -228,7 +229,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static void main(String[] args) {
         // start the game
         try {
-            Configuration.loadConfiguration();
+            Configuration.loadAndGetConfiguration("dungeon_config.json", KeyboardConfig.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
