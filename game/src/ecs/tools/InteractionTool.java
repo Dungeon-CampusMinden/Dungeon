@@ -15,10 +15,10 @@ public class InteractionTool {
     private record InteractionData(
             Entity e, PositionComponent pc, InteractionComponent ic, float dist, Point unitDir) {}
 
-    public static void interactWithClosestInteractable() {
+    public static void interactWithClosestInteractable(Entity entity) {
         PositionComponent heroPosition =
                 (PositionComponent)
-                        Game.hero
+                        entity
                                 .getComponent(PositionComponent.class)
                                 .orElseThrow(() -> MissingPCFromEntity(Hero.class.getName()));
         Optional<InteractionData> data =
