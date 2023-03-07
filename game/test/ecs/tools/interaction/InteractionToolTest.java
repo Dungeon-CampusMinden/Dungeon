@@ -6,7 +6,6 @@ import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
-import ecs.tools.interaction.InteractionTool;
 import java.util.Optional;
 import level.elements.ILevel;
 import level.elements.TileLevel;
@@ -16,20 +15,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import starter.Game;
+import testinghelper.SimpleCounter;
 import tools.Point;
 
 public class InteractionToolTest {
-    private static final class SimpleCounter {
-        private int count = 0;
-
-        public void inc() {
-            count++;
-        }
-
-        public int getCount() {
-            return count;
-        }
-    }
 
     private static ILevel prepareLevel() {
         LevelElement[][] layout = new LevelElement[5][5];
