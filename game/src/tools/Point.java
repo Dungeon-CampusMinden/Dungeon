@@ -40,6 +40,23 @@ public class Point {
     }
 
     /**
+     * Creates the unit vector between point a and b
+     *
+     * @param a Point A
+     * @param b Point B
+     * @return the unit vector
+     */
+    public static Point getUnitDirectionalVector(Point b, Point a) {
+        Point interactionDir = new Point(b);
+        // (interactable - a) / len(interactable - a)
+        interactionDir.x -= a.x;
+        interactionDir.y -= a.y;
+        double vecLength = calculateDistance(a, b);
+        interactionDir.x /= vecLength;
+        interactionDir.y /= vecLength;
+        return interactionDir;
+    }
+    /**
      * calculates the distance between two points
      *
      * @param p1 Point A

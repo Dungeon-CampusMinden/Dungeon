@@ -10,6 +10,10 @@ import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
 import java.util.Optional;
+import level.elements.ILevel;
+import level.elements.TileLevel;
+import level.tools.DesignLabel;
+import level.tools.LevelElement;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -29,6 +33,27 @@ public class InteractionToolTest {
         }
     }
 
+    private static ILevel prepareLevel(int xSize, int ySize) {
+        LevelElement[][] layout = new LevelElement[ySize][xSize];
+        for (int y = 0; y < ySize; y++) {
+            for (int x = 0; x < xSize; x++) {
+                layout[y][x] = LevelElement.FLOOR;
+            }
+        }
+        return new TileLevel(layout, DesignLabel.DEFAULT);
+    }
+
+    private static ILevel prepareLevel() {
+        return prepareLevel(5, 5);
+    }
+
+    /**
+     * Helper Method which prepares a mock, of the Hero which can´t be created using the
+     * constructor.
+     *
+     * @param havingpc if the Hero should have the PositionComponent
+     * @return the Mocked Hero
+     */
     private static Hero fullMockedHero(boolean havingpc) {
         Hero mock = Mockito.mock(Hero.class);
         Optional<Component> pc;
@@ -45,12 +70,14 @@ public class InteractionToolTest {
     private static void cleanup() {
         Game.entities.clear();
         Game.hero = null;
+        Game.currentLevel = null;
     }
 
     /** Tests the functionality when the Hero does not have the PositionComponent */
     @Test
     public void interactWithClosestInteractableHeroMissingPositionComponent() {
         Game.hero = fullMockedHero(false);
+        Game.currentLevel = prepareLevel();
 
         MissingComponentException e =
                 Assert.assertThrows(
@@ -66,6 +93,7 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableNoEntities() {
         Game.hero = fullMockedHero(true);
+        Game.currentLevel = prepareLevel();
         InteractionTool.interactWithClosestInteractable();
         cleanup();
     }
@@ -76,6 +104,7 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableNoInteractable() {
         Game.hero = fullMockedHero(true);
+        Game.currentLevel = prepareLevel();
         Game.entities.add(Game.hero);
         InteractionTool.interactWithClosestInteractable();
         cleanup();
@@ -88,6 +117,7 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableOneInteractableOutOfRange() {
         Game.hero = fullMockedHero(true);
+        Game.currentLevel = prepareLevel();
         Game.entities.add(Game.hero);
 
         Entity e = new Entity();
@@ -109,6 +139,7 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableOneInteractableInRange() {
         Game.hero = fullMockedHero(true);
+        Game.currentLevel = prepareLevel();
         Game.entities.add(Game.hero);
 
         Entity e = new Entity();
@@ -127,6 +158,7 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableOneInteractableInRangeMissingPosition() {
         Game.hero = fullMockedHero(true);
+        Game.currentLevel = prepareLevel();
 
         Game.entities.add(Game.hero);
 
@@ -154,7 +186,7 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableClosestEntityFirst() {
         Game.hero = fullMockedHero(true);
-
+        Game.currentLevel = prepareLevel();
         // distance 2
         Entity eClose = new Entity();
         new PositionComponent(eClose, new Point(2, 0));
@@ -184,6 +216,7 @@ public class InteractionToolTest {
     public void interactWithClosestInteractableClosestEntityLast() {
 
         Game.hero = fullMockedHero(true);
+        Game.currentLevel = prepareLevel();
 
         // distance 3
         Entity eFar = new Entity();
