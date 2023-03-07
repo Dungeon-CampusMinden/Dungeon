@@ -1,9 +1,8 @@
 package ecs.components;
 
 import ecs.entities.Entity;
-import logging.CustomLogLevel;
-
 import java.util.logging.Logger;
+import logging.CustomLogLevel;
 
 /** Marks an entity as player */
 public class PlayableComponent extends Component {
@@ -21,7 +20,9 @@ public class PlayableComponent extends Component {
      * @return the playable state
      */
     public boolean isPlayable() {
-        playableCompLogger.log(CustomLogLevel.DEBUG, "Checking if entity '" + entity.getClass().getSimpleName() + "' is playable.");
+        playableCompLogger.log(
+                CustomLogLevel.DEBUG,
+                "Checking if entity '" + entity.getClass().getSimpleName() + "' is playable.");
         return playable;
     }
 
