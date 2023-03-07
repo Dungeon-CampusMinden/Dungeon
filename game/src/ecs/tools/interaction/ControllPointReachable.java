@@ -21,9 +21,10 @@ public class ControllPointReachable implements IReachable {
                                         (int) (dirvec.x * i + interactionData.pc().getPosition().x),
                                         (int)
                                                 (dirvec.y * i
-                                                        + interactionData.pc().getPosition().x)))
+                                                        + interactionData.pc().getPosition().y)))
                         .isAccessible()) {
                     pathBlocked = true;
+                    break;
                 }
             }
         }
