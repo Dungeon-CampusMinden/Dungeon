@@ -6,7 +6,7 @@ import ecs.components.MissingComponentException;
 import ecs.components.PlayableComponent;
 import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
-import ecs.tools.InteractionTool;
+import ecs.tools.interaction.InteractionTool;
 import starter.Game;
 
 /** Used to control the player */

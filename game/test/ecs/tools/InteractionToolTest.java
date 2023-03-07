@@ -1,17 +1,16 @@
 package ecs.tools;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import ecs.components.Component;
 import ecs.components.InteractionComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
+import ecs.tools.interaction.InteractionTool;
 import java.util.Optional;
 import level.elements.ILevel;
 import level.elements.TileLevel;
+import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import org.junit.Assert;
@@ -82,7 +81,7 @@ public class InteractionToolTest {
         MissingComponentException e =
                 Assert.assertThrows(
                         MissingComponentException.class,
-                    () -> InteractionTool.interactWithClosestInteractable(Game.hero));
+                        () -> InteractionTool.interactWithClosestInteractable(Game.hero));
         Assert.assertTrue(e.getMessage().contains(InteractionTool.class.getName()));
         Assert.assertTrue(e.getMessage().contains(Hero.class.getName()));
         Assert.assertTrue(e.getMessage().contains(PositionComponent.class.getName()));
@@ -170,7 +169,7 @@ public class InteractionToolTest {
         MissingComponentException exception =
                 Assert.assertThrows(
                         MissingComponentException.class,
-                    () -> InteractionTool.interactWithClosestInteractable(Game.hero));
+                        () -> InteractionTool.interactWithClosestInteractable(Game.hero));
         Assert.assertTrue(exception.getMessage().contains(InteractionTool.class.getName()));
         Assert.assertTrue(exception.getMessage().contains(e.getClass().getName()));
         Assert.assertTrue(exception.getMessage().contains(PositionComponent.class.getName()));
@@ -235,6 +234,23 @@ public class InteractionToolTest {
         InteractionTool.interactWithClosestInteractable(Game.hero);
         Assert.assertEquals("One interaction should happen", 1, sc_eClose.getCount());
         Assert.assertEquals("No interaction should happen", 0, sc_eFar.getCount());
+
+        cleanup();
+    }
+
+    /** Diagonal */
+    @Test
+    public void interactWithClosestNoLineOfSightDiagonal() {
+        Game.hero = fullMockedHero(true);
+        Game.currentLevel = prepareLevel();
+        Game.currentLevel.getTileAt(new Coordinate(1, 1)).setLevelElement(LevelElement.WALL);
+        Entity entity = new Entity();
+        PositionComponent pc2 = new PositionComponent(entity, new Point(3, 3));
+
+        SimpleCounter simpleCounter = new SimpleCounter();
+        new InteractionComponent(entity, 5f, false, (x) -> simpleCounter.inc());
+        InteractionTool.interactWithClosestInteractable(Game.hero);
+        Assert.assertEquals("No interaction should happen", 0, simpleCounter.getCount());
 
         cleanup();
     }

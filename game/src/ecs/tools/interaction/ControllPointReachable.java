@@ -1,0 +1,32 @@
+package ecs.tools.interaction;
+
+import level.tools.Coordinate;
+import starter.Game;
+import tools.Point;
+
+public class ControllPointReachable implements IReachable {
+
+    @Override
+    public boolean cheackReachable(InteractionData interactionData) {
+        boolean reachable = false;
+        boolean pathBlocked = false;
+        if ((interactionData.ic().getRadius() - interactionData.dist()) > 0) {
+            reachable = true;
+            // check path
+            Point dirvec = interactionData.unitDir();
+            for (int i = 1; i < interactionData.dist(); i++) {
+                if (!Game.currentLevel
+                        .getTileAt(
+                                new Coordinate(
+                                        (int) (dirvec.x * i + interactionData.pc().getPosition().x),
+                                        (int)
+                                                (dirvec.y * i
+                                                        + interactionData.pc().getPosition().x)))
+                        .isAccessible()) {
+                    pathBlocked = true;
+                }
+            }
+        }
+        return reachable && !pathBlocked;
+    }
+}
