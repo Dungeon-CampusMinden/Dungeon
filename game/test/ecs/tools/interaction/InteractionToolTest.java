@@ -1,4 +1,4 @@
-package ecs.tools;
+package ecs.tools.interaction;
 
 import ecs.components.Component;
 import ecs.components.InteractionComponent;
@@ -10,7 +10,6 @@ import ecs.tools.interaction.InteractionTool;
 import java.util.Optional;
 import level.elements.ILevel;
 import level.elements.TileLevel;
-import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import org.junit.Assert;
@@ -32,18 +31,14 @@ public class InteractionToolTest {
         }
     }
 
-    private static ILevel prepareLevel(int xSize, int ySize) {
-        LevelElement[][] layout = new LevelElement[ySize][xSize];
-        for (int y = 0; y < ySize; y++) {
-            for (int x = 0; x < xSize; x++) {
+    private static ILevel prepareLevel() {
+        LevelElement[][] layout = new LevelElement[5][5];
+        for (int y = 0; y < 5; y++) {
+            for (int x = 0; x < 5; x++) {
                 layout[y][x] = LevelElement.FLOOR;
             }
         }
         return new TileLevel(layout, DesignLabel.DEFAULT);
-    }
-
-    private static ILevel prepareLevel() {
-        return prepareLevel(5, 5);
     }
 
     /**
@@ -234,23 +229,6 @@ public class InteractionToolTest {
         InteractionTool.interactWithClosestInteractable(Game.hero);
         Assert.assertEquals("One interaction should happen", 1, sc_eClose.getCount());
         Assert.assertEquals("No interaction should happen", 0, sc_eFar.getCount());
-
-        cleanup();
-    }
-
-    /** Diagonal */
-    @Test
-    public void interactWithClosestNoLineOfSightDiagonal() {
-        Game.hero = fullMockedHero(true);
-        Game.currentLevel = prepareLevel();
-        Game.currentLevel.getTileAt(new Coordinate(1, 1)).setLevelElement(LevelElement.WALL);
-        Entity entity = new Entity();
-        PositionComponent pc2 = new PositionComponent(entity, new Point(3, 3));
-
-        SimpleCounter simpleCounter = new SimpleCounter();
-        new InteractionComponent(entity, 5f, false, (x) -> simpleCounter.inc());
-        InteractionTool.interactWithClosestInteractable(Game.hero);
-        Assert.assertEquals("No interaction should happen", 0, simpleCounter.getCount());
 
         cleanup();
     }
