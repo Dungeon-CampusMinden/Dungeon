@@ -68,10 +68,13 @@ public class AnimationComponent extends Component {
                         + " fetching animation for entity '"
                         + entity.getClass().getSimpleName()
                         + "'.");
-        if (currentAnimation.getNextAnimationTexturePath().equals(missingTexture.get(0))) {
-            animCompLogger.log(
+        if (currentAnimation.getAnimationFrames().size() > 0) {
+            if (currentAnimation.getAnimationFrames().get(0).equals(missingTexture.get(0)) ) {
+                animCompLogger.log(
                     CustomLogLevel.ERROR, "The AnimationComponent uses the default textures!");
+            }
         }
+
         return currentAnimation;
     }
 

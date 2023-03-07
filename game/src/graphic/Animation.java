@@ -49,4 +49,8 @@ public class Animation {
         }
         return stringToReturn;
     }
+
+    public List<String> getAnimationFrames() {
+        return animationFrames;
+    }
 }
