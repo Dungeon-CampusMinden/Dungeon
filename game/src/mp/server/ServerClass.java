@@ -8,19 +8,26 @@ import mp.packages.response.PingResponse;
 import java.io.IOException;
 public class ServerClass {
 
+    // TODO: Outsource config parameters
+    private static final Integer port = 25444;
+
     public static void main(String[] args){
 
-        Server server = new Server();
+        final Server server = new Server();
 
         server.start();
 
         try {
-            server.bind(25444);
+            server.bind(port);
         } catch (IOException e) {
+
             e.printStackTrace();
         }
 
+        server.addListener(new ServerListener());
+
         Kryo kryo = server.getKryo();
+        // register all packages that should be able to be received and sent
         kryo.register(PingRequest.class);
         kryo.register(PingResponse.class);
     }
