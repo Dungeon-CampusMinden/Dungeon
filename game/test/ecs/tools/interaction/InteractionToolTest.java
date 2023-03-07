@@ -46,6 +46,7 @@ public class InteractionToolTest {
             pc = Optional.empty();
         }
         Mockito.when(mock.getComponent(PositionComponent.class)).thenReturn(pc);
+
         return mock;
     }
 
