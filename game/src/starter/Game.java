@@ -6,6 +6,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import configuration.Configuration;
+import configuration.KeyboardConfig;
 import controller.AbstractController;
 import controller.SystemController;
 import dslToGame.QuestConfig;
@@ -18,6 +20,7 @@ import graphic.DungeonCamera;
 import graphic.Painter;
 import graphic.hud.PauseMenu;
 import interpreter.DSLInterpreter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -226,6 +229,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     public static void main(String[] args) {
         // start the game
+        try {
+            Configuration.loadAndGetConfiguration("dungeon_config.json", KeyboardConfig.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         DesktopLauncher.run(new Game());
     }
 }
