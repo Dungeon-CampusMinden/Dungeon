@@ -34,7 +34,7 @@ public class InteractionTool {
                                                 .map(InteractionComponent.class::cast)
                                                 .stream())
                         .map(ic1 -> convertToData(ic1, heroPosition))
-                        .filter(iReachable::cheackReachable)
+                        .filter(iReachable::checkReachable)
                         .min((x, y) -> Float.compare(x.dist(), y.dist()));
         data.ifPresent(x -> x.ic().triggerInteraction());
     }

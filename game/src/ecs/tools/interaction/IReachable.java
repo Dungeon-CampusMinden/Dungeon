@@ -7,5 +7,5 @@ public interface IReachable {
      * @param interactionData the prepared Data of an Interaction between two Entities
      * @return true if the interaction is valid, otherwise false
      */
-    boolean cheackReachable(InteractionData interactionData);
+    boolean checkReachable(InteractionData interactionData);
 }

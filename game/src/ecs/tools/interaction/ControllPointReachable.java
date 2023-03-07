@@ -7,7 +7,7 @@ import tools.Point;
 public class ControllPointReachable implements IReachable {
 
     @Override
-    public boolean cheackReachable(InteractionData interactionData) {
+    public boolean checkReachable(InteractionData interactionData) {
         boolean reachable = false;
         boolean pathBlocked = false;
         if ((interactionData.ic().getRadius() - interactionData.dist()) > 0) {
