@@ -71,11 +71,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static PauseMenu pauseMenu;
     private PositionComponent heroPositionComponent;
     public static Hero hero;
-    private Logger ecsLogger = Logger.getLogger(this.getClass().getSimpleName());
+    private Logger ecsLogger;
 
     /** Called once at the beginning of the game. */
     protected void setup() {
         initBaseLogger();
+        ecsLogger = Logger.getLogger(this.getClass().getSimpleName());
         controller.clear();
         systems = new SystemController();
         controller.add(systems);
