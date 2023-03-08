@@ -2,16 +2,20 @@ package ecs.components;
 
 import ecs.entities.Entity;
 import level.tools.LevelElement;
+import logging.CustomLogLevel;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import starter.Game;
 import tools.Point;
+
+import java.util.logging.Logger;
 
 /** PositionComponent is a component that stores the x, y (as Point) position of an entity */
 @DSLType(name = "position_component")
 public class PositionComponent extends Component {
 
     private /*@DSLTypeMember(name="position")*/ Point position;
+    private final Logger positionCompLogger = Logger.getLogger(this.getClass().getSimpleName());
 
     /**
      * @param entity associated entity
@@ -35,6 +39,7 @@ public class PositionComponent extends Component {
      * @return the position of the associated entity
      */
     public Point getPosition() {
+        positionCompLogger.log(CustomLogLevel.DEBUG, "Fetching position for entity '" + entity.getClass().getSimpleName() + "'.");
         return position;
     }
 
