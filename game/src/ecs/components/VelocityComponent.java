@@ -20,7 +20,7 @@ public class VelocityComponent extends Component {
 
     private @DSLTypeMember(name = "move_right_animation") Animation moveRightAnimation;
     private @DSLTypeMember(name = "move_left_animation") Animation moveLeftAnimation;
-    private final Logger velocityCompLogger = Logger.getLogger(this.getClass().getSimpleName());
+    private final Logger velocityCompLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * @param entity associated entity

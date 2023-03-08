@@ -19,7 +19,7 @@ public class AnimationComponent extends Component {
     private @DSLTypeMember(name = "idle_left") Animation idleLeft;
     private @DSLTypeMember(name = "idle_right") Animation idleRight;
     private @DSLTypeMember(name = "current_animation") Animation currentAnimation;
-    private Logger animCompLogger = Logger.getLogger(this.getClass().getSimpleName());
+    private Logger animCompLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * @param entity associated entity

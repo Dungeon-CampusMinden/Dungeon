@@ -7,7 +7,7 @@ import starter.Game;
 public abstract class ECS_System {
 
     protected boolean run;
-    public Logger systemLogger = Logger.getLogger(this.getClass().getSimpleName());
+    public Logger systemLogger = Logger.getLogger(this.getClass().getName());
 
     public ECS_System() {
         Game.systems.add(this);

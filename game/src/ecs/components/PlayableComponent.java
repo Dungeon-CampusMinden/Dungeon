@@ -8,7 +8,7 @@ import logging.CustomLogLevel;
 public class PlayableComponent extends Component {
 
     private boolean playable;
-    private final Logger playableCompLogger = Logger.getLogger(this.getClass().getSimpleName());
+    private final Logger playableCompLogger = Logger.getLogger(this.getClass().getName());
 
     /** {@inheritDoc} */
     public PlayableComponent(Entity entity) {

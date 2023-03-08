@@ -14,7 +14,7 @@ import tools.Point;
 public class PositionComponent extends Component {
 
     private /*@DSLTypeMember(name="position")*/ Point position;
-    private final Logger positionCompLogger = Logger.getLogger(this.getClass().getSimpleName());
+    private final Logger positionCompLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * @param entity associated entity

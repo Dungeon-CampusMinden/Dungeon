@@ -76,7 +76,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /** Called once at the beginning of the game. */
     protected void setup() {
         initBaseLogger();
-        ecsLogger = Logger.getLogger(this.getClass().getSimpleName());
+        ecsLogger = Logger.getLogger(this.getClass().getName());
         controller.clear();
         systems = new SystemController();
         controller.add(systems);

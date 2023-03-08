@@ -15,7 +15,7 @@ public class HitboxComponent extends Component {
     private /*@DSLTypeMember(name="offset")*/ Point offset;
     private /*@DSLTypeMember(name="size")*/ Point size;
     private ICollide collideMethod;
-    private final Logger hitboxLogger = Logger.getLogger(this.getClass().getSimpleName());
+    private final Logger hitboxLogger = Logger.getLogger(this.getClass().getName());
 
     public HitboxComponent(Entity entity, Point offset, Point size, ICollide collideMethod) {
         super(entity);
