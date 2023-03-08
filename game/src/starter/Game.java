@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import level.IOnLevelLoader;
+import java.util.logging.Logger;
 import level.LevelAPI;
 import level.elements.ILevel;
 import level.elements.tile.Tile;
@@ -70,6 +71,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static PauseMenu pauseMenu;
     private PositionComponent heroPositionComponent;
     public static Hero hero;
+    private Logger ecsLogger = Logger.getLogger(this.getClass().getSimpleName());
 
     /** Called once at the beginning of the game. */
     protected void setup() {
@@ -101,6 +103,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     protected void frame() {
         camera.setFocusPoint(heroPositionComponent.getPosition());
         entities.removeAll(entitiesToRemove);
+        for (Entity entity : entitiesToRemove) {
+            ecsLogger.info("Entity '" + entity.getClass().getSimpleName() + "' was deleted.");
+        }
         entitiesToRemove.clear();
         if (isOnEndTile()) levelAPI.loadLevel();
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();

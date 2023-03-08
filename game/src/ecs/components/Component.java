@@ -10,7 +10,6 @@ import java.util.logging.Logger;
  */
 public abstract class Component {
     protected Entity entity;
-    private Logger componentLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * @param entity associated with this component
@@ -24,7 +23,8 @@ public abstract class Component {
     public Component(Entity entity) {
         this.entity = entity;
         entity.addComponent(this);
-        componentLogger.info("Die Komponente '" + this.getClass().getSimpleName() + "' wurde zu der Entität '" + entity.getClass().getSimpleName() + "' hinzugefügt.");
+        Logger componentLogger = Logger.getLogger(this.getClass().getName());
+        componentLogger.info("The component '" + this.getClass().getSimpleName() + "' was added to entity '" + entity.getClass().getSimpleName() + "'.");
     }
 
     /**
