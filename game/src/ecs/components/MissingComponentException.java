@@ -1,5 +1,7 @@
 package ecs.components;
 
+import logging.CustomLogLevel;
+
 import java.util.logging.Logger;
 import logging.CustomLogLevel;
 
