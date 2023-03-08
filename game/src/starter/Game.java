@@ -34,6 +34,7 @@ import level.generator.postGeneration.WallGenerator;
 import level.generator.randomwalk.RandomWalkGenerator;
 import tools.Constants;
 import tools.Point;
+import static logging.LoggerConfig.initBaseLogger;
 
 /** The heart of the framework. From here all strings are pulled. */
 public class Game extends ScreenAdapter implements IOnLevelLoader {
@@ -72,6 +73,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /** Called once at the beginning of the game. */
     protected void setup() {
+        initBaseLogger();
         controller.clear();
         systems = new SystemController();
         controller.add(systems);
