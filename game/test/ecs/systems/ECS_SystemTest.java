@@ -3,9 +3,10 @@ package ecs.systems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import mydungeon.ECS;
+import controller.SystemController;
 import org.junit.Before;
 import org.junit.Test;
+import starter.Game;
 
 public class ECS_SystemTest {
 
@@ -15,7 +16,7 @@ public class ECS_SystemTest {
     @Before
     public void setup() {
         updates = 0;
-        ECS.systems = new SystemController();
+        Game.systems = new SystemController();
         testSystem =
                 new ECS_System() {
                     @Override
@@ -27,19 +28,19 @@ public class ECS_SystemTest {
 
     @Test
     public void cTor() {
-        assertTrue(ECS.systems.contains(testSystem));
+        assertTrue(Game.systems.contains(testSystem));
     }
 
     @Test
     public void pause() {
         assertEquals(0, updates);
-        ECS.systems.update();
+        Game.systems.update();
         assertEquals(1, updates);
         testSystem.toggleRun();
-        ECS.systems.update();
+        Game.systems.update();
         assertEquals(1, updates);
         testSystem.toggleRun();
-        ECS.systems.update();
+        Game.systems.update();
         assertEquals(2, updates);
     }
 }

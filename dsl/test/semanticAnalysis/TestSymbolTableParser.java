@@ -1,6 +1,6 @@
 package semanticAnalysis;
 
-import graph.Graph;
+import dslToGame.graph.Graph;
 import helpers.Helpers;
 import org.junit.Assert;
 import org.junit.Test;

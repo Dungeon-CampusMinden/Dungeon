@@ -6,7 +6,7 @@ import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
-import mydungeon.ECS;
+import starter.Game;
 import tools.Point;
 
 /** MovementSystem is a system that updates the position of entities */
@@ -14,7 +14,7 @@ public class VelocitySystem extends ECS_System {
 
     /** Updates the position of all entities based on their velocity */
     public void update() {
-        for (Entity entity : ECS.entities) {
+        for (Entity entity : Game.entities) {
 
             entity.getComponent(VelocityComponent.class)
                     .ifPresent(
@@ -35,7 +35,7 @@ public class VelocitySystem extends ECS_System {
                                         position.getPosition().y
                                                 + ((VelocityComponent) vc).getCurrentYVelocity();
                                 Point newPosition = new Point(newX, newY);
-                                if (ECS.currentLevel
+                                if (Game.currentLevel
                                         .getTileAt(newPosition.toCoordinate())
                                         .isAccessible()) {
                                     position.setPosition(newPosition);

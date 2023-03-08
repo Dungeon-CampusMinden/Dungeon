@@ -56,3 +56,7 @@ replay_pid*
 *.zip
 *.tgz
 *.tar.gz
+
+# Game Generated Files #
+########################
+dungeon_config.json

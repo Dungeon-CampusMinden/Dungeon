@@ -3,6 +3,7 @@ package ecs.systems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
+import controller.SystemController;
 import ecs.components.AnimationComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
@@ -11,10 +12,10 @@ import ecs.entities.Entity;
 import graphic.Animation;
 import level.elements.ILevel;
 import level.elements.tile.Tile;
-import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import starter.Game;
 import tools.Point;
 
 public class VelocitySystemTest {
@@ -40,10 +41,10 @@ public class VelocitySystemTest {
 
     @Before
     public void setup() {
-        ECS.systems = Mockito.mock(SystemController.class);
-        ECS.currentLevel = level;
+        Game.systems = Mockito.mock(SystemController.class);
+        Game.currentLevel = level;
         Mockito.when(level.getTileAt(Mockito.any())).thenReturn(tile);
-        ECS.entities.clear();
+        Game.entities.clear();
         entity = new Entity();
 
         velocitySystem = new VelocitySystem();
