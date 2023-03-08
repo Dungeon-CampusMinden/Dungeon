@@ -6,11 +6,14 @@ import ecs.components.InventoryComponent;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
+import java.util.ArrayList;
 import java.util.List;
 import starter.Game;
 import tools.Point;
 
 public abstract class Item {
+
+    public static final List<Item> ITEM_REGISTER = new ArrayList<>();
     public static final List<String> missingTexture = List.of("animation/missingTexture.png");
 
     public static final String DEFAULT_DESCRIPTION = "Default Description.";
