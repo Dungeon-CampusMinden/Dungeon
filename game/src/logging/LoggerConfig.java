@@ -36,7 +36,9 @@ public class LoggerConfig {
         }
     }
 
-    /** Creates a new base logger that records all occurring logs to a file. */
+    /**
+     * Creates a new base logger that records all occurring logs to a file.
+     */
     public static void initBaseLogger() {
         baseLogger = Logger.getLogger("");
         createCustomFileHandler();
