@@ -2,6 +2,9 @@ package logging;
 
 import java.util.logging.Level;
 
+/**
+ * This class provides custom log levels to provide further log separation possibilities.
+ */
 public class CustomLogLevel extends Level {
     public static CustomLogLevel FATAL = new CustomLogLevel("FATAL", 1100);
     public static CustomLogLevel ERROR = new CustomLogLevel("ERROR", 950);
