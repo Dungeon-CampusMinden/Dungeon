@@ -6,6 +6,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryonet.Client;
 import controller.AbstractController;
 import controller.SystemController;
 import dslToGame.QuestConfig;
@@ -18,6 +20,8 @@ import graphic.DungeonCamera;
 import graphic.Painter;
 import graphic.hud.PauseMenu;
 import interpreter.DSLInterpreter;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +33,11 @@ import level.elements.tile.Tile;
 import level.generator.IGenerator;
 import level.generator.postGeneration.WallGenerator;
 import level.generator.randomwalk.RandomWalkGenerator;
+import mp.client.ClientListener;
+import mp.packages.request.LoadMapRequest;
+import mp.packages.request.PingRequest;
+import mp.packages.response.LoadMapResponse;
+import mp.packages.response.PingResponse;
 import tools.Constants;
 import tools.Point;
 
@@ -66,6 +75,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static PauseMenu pauseMenu;
     private PositionComponent heroPositionComponent;
     public static Hero hero;
+    private static Client client;
 
     /** Called once at the beginning of the game. */
     protected void setup() {
@@ -82,6 +92,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
                                         () -> new MissingComponentException("PositionComponent"));
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel();
+
+        // Todo - diff between player 1 and other players
+        // only for testing purposes
+        setupClient();
 
         new VelocitySystem();
         new DrawSystem(painter);
@@ -221,6 +235,28 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         DSLInterpreter interpreter = new DSLInterpreter();
         QuestConfig config = (QuestConfig) interpreter.getQuestConfig(program);
         entities.add(config.entity());
+    }
+
+    private void setupClient(){
+        client = new Client();
+        client.start();
+        try {
+            client.connect(5000, "127.0.0.1", 25444);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        client.addListener(new ClientListener());
+
+        // register all packages that should be able to be received and sent
+        Kryo kryo = client.getKryo();
+        kryo.register(PingRequest.class);
+        kryo.register(PingResponse.class);
+        kryo.register(LoadMapRequest.class);
+        kryo.register(LoadMapResponse.class);
+
+        LoadMapRequest loadMapRequest = new LoadMapRequest(currentLevel);
+        client.sendTCP(loadMapRequest);
     }
 
     public static void main(String[] args) {
