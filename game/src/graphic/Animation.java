@@ -8,16 +8,16 @@ import java.util.List;
 public class Animation {
 
     /** The set of textures that build the animation. */
-    private final List<String> animationFrames;
+    protected final List<String> animationFrames;
 
     /** The count of textures for the animation. */
-    private final int frames;
+    protected final int frames;
 
     /** Number of frames between switching to the next animation? */
     private final int frameTime;
 
     /** Index of the NEXT texture that will be returned. */
-    private int currentFrameIndex = 0;
+    protected int currentFrameIndex = 0;
 
     /** How many frames since the last texture switching? */
     private int frameTimeCounter = 0;
