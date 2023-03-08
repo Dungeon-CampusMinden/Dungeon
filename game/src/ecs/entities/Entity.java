@@ -15,11 +15,12 @@ public class Entity {
     private static int nextId = 0;
     public final int id = nextId++;
     private HashMap<Class, Component> components;
+    private final Logger entityLogger;
 
     public Entity() {
         components = new HashMap<>();
         Game.entities.add(this);
-        Logger entityLogger = Logger.getLogger(this.getClass().getName());
+        entityLogger = Logger.getLogger(this.getClass().getName());
         entityLogger.info("The entity '" + this.getClass().getSimpleName() + "' was created.");
     }
 
