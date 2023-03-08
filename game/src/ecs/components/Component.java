@@ -3,11 +3,14 @@ package ecs.components;
 import ecs.entities.Entity;
 import java.util.logging.Logger;
 
+import java.util.logging.Logger;
+
 /*+
  *Component is a piece of data associated with an entity
  */
 public abstract class Component {
     protected Entity entity;
+    private Logger componentLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * @param entity associated with this component
@@ -21,13 +24,7 @@ public abstract class Component {
     public Component(Entity entity) {
         this.entity = entity;
         entity.addComponent(this);
-        Logger componentLogger = Logger.getLogger(this.getClass().getName());
-        componentLogger.info(
-                "The component '"
-                        + this.getClass().getSimpleName()
-                        + "' was added to entity '"
-                        + entity.getClass().getSimpleName()
-                        + "'.");
+        componentLogger.info("Die Komponente '" + this.getClass().getSimpleName() + "' wurde zu der Entität '" + entity.getClass().getSimpleName() + "' hinzugefügt.");
     }
 
     /**
