@@ -25,6 +25,7 @@ public class ClientListener extends Listener {
         if (object instanceof PingResponse) {
             final PingResponse pingResponse = (PingResponse)object;
             System.out.println("[Client] Time: " + pingResponse.getTime());
+            connection.sendTCP(new LoadMapRequest());
         } else if (object instanceof LoadMapResponse){
             final LoadMapResponse loadMapResponse = (LoadMapResponse)object;
             System.out.println("[Server] Map loaded: " + loadMapResponse.isLoaded());

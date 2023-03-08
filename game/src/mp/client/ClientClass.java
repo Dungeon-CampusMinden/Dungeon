@@ -2,7 +2,9 @@ package mp.client;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Client;
+import mp.packages.request.LoadMapRequest;
 import mp.packages.request.PingRequest;
+import mp.packages.response.LoadMapResponse;
 import mp.packages.response.PingResponse;
 
 import java.io.IOException;
@@ -32,6 +34,8 @@ public class ClientClass {
         // register all packages that should be able to be received and sent
         kryo.register(PingRequest.class);
         kryo.register(PingResponse.class);
+        kryo.register(LoadMapRequest.class);
+        kryo.register(LoadMapResponse.class);
 
         PingRequest pingRequest = new PingRequest();
         client.sendTCP(pingRequest);

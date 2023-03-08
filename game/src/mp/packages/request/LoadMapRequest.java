@@ -3,7 +3,7 @@ package mp.packages.request;
 import level.elements.ILevel;
 
 public class LoadMapRequest {
-    static ILevel currentLevel;
+    ILevel currentLevel;
 
     public LoadMapRequest(){}
 
@@ -11,7 +11,7 @@ public class LoadMapRequest {
         this.currentLevel = currentLevel;
     }
 
-    static public ILevel getCurrentLevel(){
+    public ILevel getCurrentLevel(){
         return currentLevel;
     }
 }
