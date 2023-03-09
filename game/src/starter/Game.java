@@ -71,12 +71,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static PauseMenu pauseMenu;
     private PositionComponent heroPositionComponent;
     public static Hero hero;
-    private Logger ecsLogger;
+    private Logger gameLogger;
 
     /** Called once at the beginning of the game. */
     protected void setup() {
         initBaseLogger();
-        ecsLogger = Logger.getLogger(this.getClass().getName());
+        gameLogger = Logger.getLogger(this.getClass().getName());
         controller.clear();
         systems = new SystemController();
         controller.add(systems);
@@ -105,7 +105,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         camera.setFocusPoint(heroPositionComponent.getPosition());
         entities.removeAll(entitiesToRemove);
         for (Entity entity : entitiesToRemove) {
-            ecsLogger.info("Entity '" + entity.getClass().getSimpleName() + "' was deleted.");
+            gameLogger.info("Entity '" + entity.getClass().getSimpleName() + "' was deleted.");
         }
         entitiesToRemove.clear();
         if (isOnEndTile()) levelAPI.loadLevel();
