@@ -10,6 +10,7 @@ public abstract class ItemPassive extends Item {
 
     private Stats stats;
 
+    /** Create new passive Item with default values. */
     public ItemPassive() {
         super(
                 ItemType.Passive,
@@ -20,6 +21,12 @@ public abstract class ItemPassive extends Item {
         this.stats = new Stats();
     }
 
+    /**
+     * Create new passive Item with given name and description.
+     *
+     * @param name Name of the item
+     * @param description Description of the item
+     */
     public ItemPassive(String name, String description) {
         super(
                 ItemType.Passive,
@@ -30,6 +37,13 @@ public abstract class ItemPassive extends Item {
         this.stats = new Stats();
     }
 
+    /**
+     * Create new passive Item with given name, description and stats.
+     *
+     * @param name Name of the item
+     * @param description Description of the item
+     * @param stats Stats of the item
+     */
     public ItemPassive(String name, String description, Stats stats) {
         super(
                 ItemType.Passive,
@@ -40,6 +54,15 @@ public abstract class ItemPassive extends Item {
         this.stats = stats;
     }
 
+    /**
+     * Create new passive Item with given name, description, stats and textures.
+     *
+     * @param name Name of the item
+     * @param description Description of the item
+     * @param stats Stats of the item
+     * @param inventoryTexture Texture of the item in the inventory
+     * @param worldTexture Texture of the item in the world
+     */
     public ItemPassive(
             String name,
             String description,
@@ -50,10 +73,20 @@ public abstract class ItemPassive extends Item {
         this.stats = stats;
     }
 
+    /**
+     * Get the stats of the item.
+     *
+     * @return Stats of the item
+     */
     public Stats getStats() {
         return stats;
     }
 
+    /**
+     * Set the stats of the item.
+     *
+     * @param stats Stats of the item
+     */
     public void setStats(Stats stats) {
         this.stats = stats;
     }
