@@ -19,7 +19,7 @@ public class AnimationComponent extends Component {
     private @DSLTypeMember(name = "idle_left") Animation idleLeft;
     private @DSLTypeMember(name = "idle_right") Animation idleRight;
     private @DSLTypeMember(name = "current_animation") Animation currentAnimation;
-    private Logger animCompLogger = Logger.getLogger(this.getClass().getName());
+    private final Logger animCompLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * @param entity associated entity
@@ -49,6 +49,8 @@ public class AnimationComponent extends Component {
         this.idleLeft = new Animation(missingTexture, 100);
         this.idleRight = new Animation(missingTexture, 100);
         this.currentAnimation = new Animation(missingTexture, 100);
+        animCompLogger.log(
+                CustomLogLevel.ERROR, "The AnimationComponent for entity '" + entity.getClass().getName() + "' was created with default textures!");
     }
 
     /**
@@ -68,12 +70,6 @@ public class AnimationComponent extends Component {
                         + " fetching animation for entity '"
                         + entity.getClass().getSimpleName()
                         + "'.");
-        if (currentAnimation.getAnimationFrames().size() > 0) {
-            if (currentAnimation.getAnimationFrames().get(0).equals(missingTexture.get(0))) {
-                animCompLogger.log(
-                        CustomLogLevel.ERROR, "The AnimationComponent uses the default textures!");
-            }
-        }
 
         return currentAnimation;
     }
