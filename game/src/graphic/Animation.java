@@ -50,6 +50,10 @@ public class Animation {
         return stringToReturn;
     }
 
+    /**
+     * Get the List of animation frames.
+     * @return List containing the paths of the single frames of the animation.
+     */
     public List<String> getAnimationFrames() {
         return animationFrames;
     }
