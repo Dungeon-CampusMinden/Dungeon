@@ -3,7 +3,7 @@ package ecs.systems;
 import ecs.components.AnimationComponent;
 import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
-import ecs.components.StatsComponent;
+import ecs.components.stats.StatsComponent;
 import ecs.components.xp.XPComponent;
 import ecs.damage.DamageType;
 import ecs.entities.Entity;
