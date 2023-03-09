@@ -3,21 +3,21 @@ package ecs.items;
 import ecs.entities.Entity;
 import graphic.Animation;
 
-public abstract class ItemUsable extends Item {
+public abstract class ItemActive extends Item {
 
     private static final String DEFAULT_NAME = "Usable Item";
     private static final String DEFAULT_DESCRIPTION = "This is a usable item.";
 
-    private IItemUse callbackItemUse;
+    private final IItemUse callbackItemUse;
 
     /** Creates a new usable Item with default values. */
-    public ItemUsable() {
+    public ItemActive() {
         this(
                 DEFAULT_NAME,
                 DEFAULT_DESCRIPTION,
                 DEFAULT_INVENTORY_ANIMATION,
                 DEFAULT_WORLD_ANIMATION,
-                ItemUsable::defaultUseCallback);
+                ItemActive::defaultUseCallback);
     }
 
     /**
@@ -27,13 +27,13 @@ public abstract class ItemUsable extends Item {
      * @param name Name of the item
      * @param description Description of the item
      */
-    public ItemUsable(String name, String description) {
+    public ItemActive(String name, String description) {
         this(
                 name,
                 description,
                 DEFAULT_INVENTORY_ANIMATION,
                 DEFAULT_WORLD_ANIMATION,
-                ItemUsable::defaultUseCallback);
+                ItemActive::defaultUseCallback);
     }
 
     /**
@@ -44,9 +44,9 @@ public abstract class ItemUsable extends Item {
      * @param inventoryTexture Texture of the item in the inventory
      * @param worldTexture Texture of the item in the world
      */
-    public ItemUsable(
+    public ItemActive(
             String name, String description, Animation inventoryTexture, Animation worldTexture) {
-        this(name, description, inventoryTexture, worldTexture, ItemUsable::defaultUseCallback);
+        this(name, description, inventoryTexture, worldTexture, ItemActive::defaultUseCallback);
     }
 
     /**
@@ -58,13 +58,13 @@ public abstract class ItemUsable extends Item {
      * @param worldTexture Texture of the item in the world
      * @param callback Callback to be called when the item is used
      */
-    public ItemUsable(
+    public ItemActive(
             String name,
             String description,
             Animation inventoryTexture,
             Animation worldTexture,
             IItemUse callback) {
-        super(ItemType.Usable, inventoryTexture, worldTexture, name, description);
+        super(ItemType.Active, inventoryTexture, worldTexture, name, description);
         callbackItemUse = callback;
     }
 
@@ -77,7 +77,7 @@ public abstract class ItemUsable extends Item {
         callbackItemUse.onUse(entity, this);
     }
 
-    private static void defaultUseCallback(Entity e, ItemUsable item) {
+    private static void defaultUseCallback(Entity e, ItemActive item) {
         System.out.printf("Item \"%s\" used by entity %d\n", item.getItemName(), e.id);
     }
 }

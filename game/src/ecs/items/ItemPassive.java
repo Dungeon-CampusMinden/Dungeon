@@ -1,18 +1,18 @@
 package ecs.items;
 
-import ecs.stats.Stats;
+import ecs.components.stats.Stats;
 import graphic.Animation;
 
-public abstract class ItemEquipment extends Item {
+public abstract class ItemPassive extends Item {
 
     private static final String DEFAULT_NAME = "Equipment Item";
     private static final String DEFAULT_DESCRIPTION = "This is an equipment item.";
 
     private Stats stats;
 
-    public ItemEquipment() {
+    public ItemPassive() {
         super(
-                ItemType.Equipment,
+                ItemType.Passive,
                 DEFAULT_INVENTORY_ANIMATION,
                 DEFAULT_WORLD_ANIMATION,
                 DEFAULT_NAME,
@@ -20,9 +20,9 @@ public abstract class ItemEquipment extends Item {
         this.stats = new Stats();
     }
 
-    public ItemEquipment(String name, String description) {
+    public ItemPassive(String name, String description) {
         super(
-                ItemType.Equipment,
+                ItemType.Passive,
                 DEFAULT_INVENTORY_ANIMATION,
                 DEFAULT_WORLD_ANIMATION,
                 name,
@@ -30,9 +30,9 @@ public abstract class ItemEquipment extends Item {
         this.stats = new Stats();
     }
 
-    public ItemEquipment(String name, String description, Stats stats) {
+    public ItemPassive(String name, String description, Stats stats) {
         super(
-                ItemType.Equipment,
+                ItemType.Passive,
                 DEFAULT_INVENTORY_ANIMATION,
                 DEFAULT_WORLD_ANIMATION,
                 name,
@@ -40,13 +40,13 @@ public abstract class ItemEquipment extends Item {
         this.stats = stats;
     }
 
-    public ItemEquipment(
+    public ItemPassive(
             String name,
             String description,
             Stats stats,
             Animation inventoryTexture,
             Animation worldTexture) {
-        super(ItemType.Equipment, inventoryTexture, worldTexture, name, description);
+        super(ItemType.Passive, inventoryTexture, worldTexture, name, description);
         this.stats = stats;
     }
 

@@ -1,7 +1,7 @@
-package ecs.components;
+package ecs.components.stats;
 
+import ecs.components.Component;
 import ecs.entities.Entity;
-import ecs.stats.Stats;
 
 public class StatsComponent extends Component {
 
