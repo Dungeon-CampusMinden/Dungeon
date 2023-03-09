@@ -81,7 +81,8 @@ public class AnimationComponent extends Component {
                 this.getClass().getSimpleName()
                         + " fetching animation for entity '"
                         + entity.getClass().getSimpleName()
-                        + "'.");
+                        + "'. First path: "
+                        + currentAnimation.getAnimationFrames().get(0));
 
         return currentAnimation;
     }

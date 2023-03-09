@@ -40,7 +40,12 @@ public class PositionComponent extends Component {
     public Point getPosition() {
         positionCompLogger.log(
                 CustomLogLevel.DEBUG,
-                "Fetching position for entity '" + entity.getClass().getSimpleName() + "'.");
+                "Fetching position for entity '"
+                        + entity.getClass().getSimpleName()
+                        + "': x = "
+                        + position.x
+                        + " --- y = "
+                        + position.y);
         return position;
     }
 

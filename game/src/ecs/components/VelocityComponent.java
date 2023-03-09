@@ -91,7 +91,10 @@ public class VelocityComponent extends Component {
     public float getXVelocity() {
         velocityCompLogger.log(
                 CustomLogLevel.DEBUG,
-                "Fetching x-velocity for entity '" + entity.getClass().getSimpleName() + "'.");
+                "Fetching x-velocity for entity '"
+                        + entity.getClass().getSimpleName()
+                        + "': "
+                        + xVelocity);
         return xVelocity;
     }
 
@@ -110,7 +113,10 @@ public class VelocityComponent extends Component {
     public float getYVelocity() {
         velocityCompLogger.log(
                 CustomLogLevel.DEBUG,
-                "Fetching y-velocity for entity '" + entity.getClass().getSimpleName() + "'.");
+                "Fetching y-velocity for entity '"
+                        + entity.getClass().getSimpleName()
+                        + "': "
+                        + yVelocity);
         return yVelocity;
     }
     /**

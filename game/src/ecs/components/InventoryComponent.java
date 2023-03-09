@@ -4,11 +4,14 @@ import ecs.entities.Entity;
 import ecs.items.Item;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+import logging.CustomLogLevel;
 
 public class InventoryComponent extends Component {
 
     private List<Item> inventory;
     private int maxSize;
+    private final Logger inventoryLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * creates a new InventoryComponent
@@ -31,6 +34,13 @@ public class InventoryComponent extends Component {
      */
     public boolean addItem(Item item) {
         if (inventory.size() >= maxSize) return false;
+        inventoryLogger.log(
+                CustomLogLevel.DEBUG,
+                "Item '"
+                        + this.getClass().getSimpleName()
+                        + "' was added to the inventory of entity '"
+                        + entity.getClass().getSimpleName()
+                        + "'.");
         return inventory.add(item);
     }
 
@@ -41,6 +51,13 @@ public class InventoryComponent extends Component {
      * @return true if the element was removed, otherwise false
      */
     public boolean removeItem(Item item) {
+        inventoryLogger.log(
+                CustomLogLevel.DEBUG,
+                "Removing item '"
+                        + this.getClass().getSimpleName()
+                        + "' from inventory of entity '"
+                        + entity.getClass().getSimpleName()
+                        + "'.");
         return inventory.remove(item);
     }
 

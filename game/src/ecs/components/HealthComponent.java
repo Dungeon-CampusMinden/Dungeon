@@ -89,16 +89,21 @@ public class HealthComponent extends Component {
      * @return Sum of all damage objects of type dt (default: 0)
      */
     public int getDamage(DamageType dt) {
+        int damageSum =
+                damageToGet.stream()
+                        .filter(d -> d.damageType() == dt)
+                        .mapToInt(Damage::damageAmount)
+                        .sum();
+
         healthLogger.log(
                 CustomLogLevel.DEBUG,
                 this.getClass().getSimpleName()
-                        + " is processing damage for entity '"
+                        + " processed damage for entity '"
                         + entity.getClass().getSimpleName()
-                        + "'.");
-        return damageToGet.stream()
-                .filter(d -> d.damageType() == dt)
-                .mapToInt(Damage::damageAmount)
-                .sum();
+                        + "': "
+                        + damageSum);
+
+        return damageSum;
     }
 
     /** Clear the damage list */
