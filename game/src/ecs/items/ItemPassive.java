@@ -12,13 +12,7 @@ public abstract class ItemPassive extends Item {
 
     /** Create new passive Item with default values. */
     public ItemPassive() {
-        super(
-                ItemType.Passive,
-                DEFAULT_INVENTORY_ANIMATION,
-                DEFAULT_WORLD_ANIMATION,
-                DEFAULT_NAME,
-                DEFAULT_DESCRIPTION);
-        this.stats = new Stats();
+        this(DEFAULT_NAME, DEFAULT_DESCRIPTION);
     }
 
     /**
@@ -28,13 +22,7 @@ public abstract class ItemPassive extends Item {
      * @param description Description of the item
      */
     public ItemPassive(String name, String description) {
-        super(
-                ItemType.Passive,
-                DEFAULT_INVENTORY_ANIMATION,
-                DEFAULT_WORLD_ANIMATION,
-                name,
-                description);
-        this.stats = new Stats();
+        this(name, description, new Stats());
     }
 
     /**
@@ -45,13 +33,7 @@ public abstract class ItemPassive extends Item {
      * @param stats Stats of the item
      */
     public ItemPassive(String name, String description, Stats stats) {
-        super(
-                ItemType.Passive,
-                DEFAULT_INVENTORY_ANIMATION,
-                DEFAULT_WORLD_ANIMATION,
-                name,
-                description);
-        this.stats = stats;
+        this(name, description, stats, DEFAULT_INVENTORY_ANIMATION, DEFAULT_WORLD_ANIMATION);
     }
 
     /**
