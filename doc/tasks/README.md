@@ -495,4 +495,16 @@ Spielmechanik: Gui Text eingeben
 Spielszenario: Monster greift mit Lückentext-Frage an
 
 
+## Offene Punkte
 
+- Zwischen den abstrakten "Antwortmöglichkeiten" einer Aufgabe (per DSL definiert) und den konkreten Items, bzw. Interaktionen
+  die diese abstrakten Antworten im Dungeon abbilden muss eine Zuordnung bestehen (vgl. z.B. das
+  Szenario [Blöcke müssen in richtige Reihenfolge geschoben werden](#blöcke-müssen-in-die-richtige-reihenfolge-geschoben-werden); **damit der Spieler die
+  Aufgabe korrekt lösen kann, muss diese Aufgabe-zu-Dungeon Zuordnung klar und deutlich angezeigt werden**, wie das genau
+  aussieht und was dafür nötig ist, ist noch unklar
+- Der Aufgabentyp bestimmt die Art, auf die eine Aufgabe bewertet werden muss, das bestimmt auch die Art, in der
+  der Dungeon die Antworten loggt und welche Datenstruktur dafür verwendet werden muss
+  - **Ob und wie das noch über die Angabe des Aufgabentypen in der DSL hinaus geht und welcher Aufgabentyp welche
+    Bewertung genau benötigt, ist noch nicht ausreichend definiert**
+  - Bei der Konzeptionierung der [Steuermechanismen](#steuermechanismen-gesammelt) sollte diese Frage dringend
+    mit bedacht werden
