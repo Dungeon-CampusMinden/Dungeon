@@ -1,5 +1,6 @@
 package ecs.items;
 
+import ecs.components.InventoryComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
 
@@ -77,7 +78,20 @@ public abstract class ItemActive extends Item {
         callbackItemUse.onUse(entity, this);
     }
 
+    /**
+     * Default callback for item use. Prints a message to the console and removes the item from the
+     * inventory.
+     *
+     * @param e Entity that uses the item
+     * @param item Item that is used
+     */
     private static void defaultUseCallback(Entity e, ItemActive item) {
+        e.getComponent(InventoryComponent.class)
+                .ifPresent(
+                        component -> {
+                            InventoryComponent invComp = (InventoryComponent) component;
+                            invComp.removeItem(item);
+                        });
         System.out.printf("Item \"%s\" used by entity %d\n", item.getItemName(), e.id);
     }
 }
