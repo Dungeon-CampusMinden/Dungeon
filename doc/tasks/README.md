@@ -218,6 +218,22 @@ mit einem Element aus der Menge der Antwortmöglichkeiten belegt sein.
 - Der Spieler muss die Monster mit Waffen oder Zaubern angreifen und besiegen.
 - Besiegte Monster werden aus dem Spiel gelöscht und können Items fallen lassen.
 
+### Crafting
+
+- Crafting ermöglich die Transmutation einer Menge von Items in eine andere Menge (wobei die Mengen auch nur
+  aus einem einzelnen Element bestehen können)
+- Ein Beispiel für die Transmutation einer Item-Menge mit Elementzahl > 1 in eine Item-Menge mit Elementzahl = 1 wäre ein
+  "Zauberkessel", in den Items (evtl. unter Berücksichtigung der Reihenfolge) eingeworfen werden können und so zu
+  einem neuen Item kombiniert werden können
+- Ein Beispiel für die Transmutation einer Item-Menge mit Elementzahl = 1 in eine Item-Menge mit Elementzahl > 1 wäre
+  die Anwendung eines "Zauberspruchs" (evtl. auch *genau des richtigen Zauberspruchs*) auf ein Item, um eine Item-Menge
+  mit neuen Items zu erzeugen und so die ursprüngliche Item-Menge zu ersetzen
+    - Hierfür könnte der Spieler einen "Zaubertisch"/"Zauberbuch" nutzen, welches als Entität im Spiel platziert ist
+- Für das Crafting öffnet sich bei der Interaktion mit dem "Zauberkessel" / "Zaubertisch" ein UI-Element, in dem
+  Items und "Zaubersprüche" ausgewählt werden können und Buttons zum "Verzaubern" zur Verfügung stehen
+  - Der Aufbau dieses UI-Elements und die genaue Funktion der Bedienelemente ist nicht trivial und muss noch genau
+    definiert werden
+
 ## Spielszenario
 
 ### Liste an Entitäten (later)
