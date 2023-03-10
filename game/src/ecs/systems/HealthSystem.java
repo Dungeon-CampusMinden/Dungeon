@@ -51,17 +51,7 @@ public class HealthSystem extends ECS_System {
                 .ifPresentOrElse(
                         sc -> {
                             StatsComponent scomp = (StatsComponent) sc;
-                            setDmgAmount(
-                                    hsd,
-                                    Stream.of(DamageType.values())
-                                            .mapToInt(
-                                                    dt ->
-                                                            Math.round(
-                                                                    scomp.getStats()
-                                                                                    .getMultiplier(
-                                                                                            dt)
-                                                                            * hsd.hc.getDamage(dt)))
-                                            .sum());
+                            setDmgAmount(hsd, calculateDamageWithMultipliers(scomp, hsd));
                         },
                         () -> {
                             setDmgAmount(
@@ -71,6 +61,22 @@ public class HealthSystem extends ECS_System {
                                             .sum());
                         });
         return hsd;
+    }
+
+    /**
+     * Calculates damage with multipliers of the StatsComponent.
+     *
+     * @param statsComponent The StatsComponent of the entity.
+     * @param hsd The HealthSystemData object.
+     */
+    private int calculateDamageWithMultipliers(StatsComponent statsComponent, HSData hsd) {
+        return Stream.of(DamageType.values())
+                .mapToInt(
+                        dt ->
+                                Math.round(
+                                        statsComponent.getStats().getMultiplier(dt)
+                                                * hsd.hc.getDamage(dt)))
+                .sum();
     }
 
     private void setDmgAmount(HSData hsd, int dmgAmount) {
