@@ -492,6 +492,43 @@ Spielszenario: Items müssen aus einer Trhue entfernt werden
 Spielmechanik: Gui Text eingeben
 Spielszenario: Monster greift mit Lückentext-Frage an
 
+## Realisierung
+
+Die Tabellen unter [Zuordnung Aufgabentyp und Spielmechaniken](#zuordnung-aufgabentyp-und-spielmechaniken) und
+[Zuordnung Spielmechanik und Spielszenario](#zuordnung--spielmechanik-und-spielszenario) werden als
+Entscheidungsgrundlage verwendet, um die im Projekt zu realisierenden Aufgabentypen, Mechaniken und Szenarien
+festzulegen.
+
+### Aufgabentypen
+
+- [Single Choice](#single-choice)
+- [Multiple Choice](#multiple-choice)
+- [Lückentext](#lückentext)
+- [Positionieren](#positionieren)
+- [Ersetzen](#ersetzen)
+- [Kombinieren](#kombinieren)
+
+### Mechaniken
+
+- [GUI Button](#ein-gui-button-drücken), [GUI Checkbox](#gui-checkboxen-anhaken), [GUI Text eingeben](#gui-text-eingeben)
+- [Crafting](#crafting)
+- [Items in Container ablegen](#item--s--in-container-ablegen)
+- [Items aus Container nehmen](#item--s--aus-container-nehmen)
+
+**Mechaniken, die im Projekt nicht realisiert werden**
+
+- [Kämpfen](#kämpfen) bleibt als Grundmechanik des Spiels erhalte, wird aber vorerst nicht als Aufgabenmechanik umgesetzt
+- [Blöcke schieben](#blöcke-schieben), da wahrscheinlich sehr komplex in der Umsetzung
+- [Schalter betätigen](#schalter-betätigen), da wahrscheinlich sehr komplex in der Umsetzung
+
+### Szenarien
+
+- [NPC stellt Frage](#npc-stellt-frage--andre)
+- [Monster greift mit Frage an](#monster-greift-mit-frage-an)
+- [Truhe ist mit Frage verschlossen](#truhe-ist-mit-frage-verschlossen)
+- [Mehrere Truhen aber nicht alle sind richtig](#mehrere-truhen-aber-nicht-alle-sind-richtig)
+- [Crafting: Items in Crafting-Container reinwerfen](#items-müssen-in-crafting-container-geworfen-werden)
+- [Items müssen in Briefkasten gepackt werden](#items-müssen-in-einen-briefkasten-gepackt-werden)
 
 ## Offene Punkte
 
