@@ -37,6 +37,10 @@ public abstract class ItemActive extends Item {
                 ItemActive::defaultUseCallback);
     }
 
+    public ItemActive(String name, String description, IItemUse callback) {
+        this(name, description, DEFAULT_INVENTORY_ANIMATION, DEFAULT_WORLD_ANIMATION, callback);
+    }
+
     /**
      * Creates a new usable Item with the given name, description and textures.
      *
@@ -75,6 +79,7 @@ public abstract class ItemActive extends Item {
      * @param entity Entity that uses the item
      */
     public void use(Entity entity) {
+        if (callbackItemUse == null) return;
         callbackItemUse.onUse(entity, this);
     }
 
