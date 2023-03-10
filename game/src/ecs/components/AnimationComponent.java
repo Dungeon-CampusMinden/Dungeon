@@ -76,13 +76,22 @@ public class AnimationComponent extends Component {
      * @return current animation of the entity
      */
     public Animation getCurrentAnimation() {
-        animCompLogger.log(
-                CustomLogLevel.DEBUG,
-                this.getClass().getSimpleName()
-                        + " fetching animation for entity '"
-                        + entity.getClass().getSimpleName()
-                        + "'. First path: "
-                        + currentAnimation.getAnimationFrames().get(0));
+        if (currentAnimation.getAnimationFrames().size() > 0) {
+            animCompLogger.log(
+                    CustomLogLevel.DEBUG,
+                    this.getClass().getSimpleName()
+                            + " fetching animation for entity '"
+                            + entity.getClass().getSimpleName()
+                            + "'. First path: "
+                            + currentAnimation.getAnimationFrames().get(0));
+        } else {
+            animCompLogger.log(
+                    CustomLogLevel.DEBUG,
+                    this.getClass().getSimpleName()
+                            + " fetching animation for entity '"
+                            + entity.getClass().getSimpleName()
+                            + "'. This entity has currently no animation.");
+        }
 
         return currentAnimation;
     }
