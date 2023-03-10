@@ -70,7 +70,7 @@ public abstract class ItemActive extends Item {
     }
 
     /**
-     * Use item
+     * Using active Item by calling associated callback.
      *
      * @param entity Entity that uses the item
      */
