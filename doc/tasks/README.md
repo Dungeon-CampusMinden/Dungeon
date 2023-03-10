@@ -111,13 +111,6 @@ Die Antwort ist ein kurzer Freitext.
 Es muss die richtige Antwort in den Freitext eingegeben werden.
 Die richtige Antwort kann ein konkreter Wert oder eine Eingabe passend zu einem regulären Ausdruck sein.
 
-### Zuordnen
-
-Es gibt die Mengen `V` und `A` an Vorgabetexten (Das können Fragen, Behauptungen, Beschreibungen etc. sein).
-Für jeden eintrag `Vi` in `V`gibt es mindestens einen Eintrag `Ai` in `A` der `Vi` zugeordnet werden kann.
-Die Aufgabe besteht daraus, die richtigen Einträge aus `A` mit den entsprechenden Einträgen in `V` zu verbinden.
-Nicht zu jedem `Ai` muss es auch ein `Vi` geben.
-
 ### Ersetzen
 
 Aus einer Reihe aus Elementen (kann auch nur eins sein) muss ein Element durch ein oder mehrere andere Elemente ersetzt werden.
@@ -131,12 +124,14 @@ Hierdurch wird die Reihe aus Elementen sowie deren Anzahl verändert.
 ### Objekte in der richtigen Reihenfolge auswählen
 
 Es muss in der richtigen Reihenfolge ein Element nach dem anderen aus einer Menge ausgewählt werden.
-Anders als beim Aufgabentyp [Sortieren](#sortieren--andre-) müssen hier nicht alle Elemente von Anfang
-an bekannt sein.
+Es müssen nicht alle Elemente von Anfang an bekannt sein.
 
-### Matrix füllen
+### Positionieren
 
-Die Elemente einer Matrix mit beliebigen Dimensionen müssen befüllt werden.
+Positionierung bezeichnet im Allgemeinen die Aufgabe, Elemente aus einer Menge (z.B. Antwortmöglichkeiten)
+zu Positionen (bspw. Array-Index, Reihe-Spalte Kombination einer Matrix) zuzuordnen. Hierbei muss nicht jedes
+Element aus der Menge der Antwortmöglichkeiten auch einer Position zugeordnet werden. Allerdings muss jede Postion
+mit einem Element aus der Menge der Antwortmöglichkeiten belegt sein.
 
 ## Spielmechanik
 
@@ -412,14 +407,12 @@ Löst der Spieler die Aufgabe falsch, bekommt er keine Belohnung.
 | **Single Choice**                    | X                      |                            |                       | X                       | X                                | X                                |                     | X                      | X           |
 | **Multiple Choice**                  |                        | X                          |                       |                         | X                                | X                                |                     | X                      | X           |
 | **Lückentext**                       |                        |                            | X                     |                         |                                  |                                  |                     |                        |             |
-| **Zuordnen**                         |                        |                            |                       | X                       | X                                | X                                |                     |                        |             |
-| **Sortieren**                        |                        |                            | (X)                   |                         | X                                |                                  | X                   |                        |             |
 | **Ersetzen**                         |                        |                            |                       | (X)                     | (X)                              | (X)                              |                     |                        |             |
 | **Kombinieren**                      |                        |                            |                       | (X)                     | (X)                              | (X)                              |                     |                        |             |
 | **Objekte in Reihenfolge auswählen** |                        |                            |                       |                         |                                  |                                  |                     | X                      | X           |
-| **Matrix füllen**                    |                        |                            | (X)                   |                         |                                  |                                  |                     |                        |             |
+| **Positionieren**                    |                        |                            | (X)                   | X                       | X                                | X                                | X                   |                        |             |
 
-Note: Aktuell noch keine wirklich geeignete Mechanik fürs **Ersetzen**, **Kombinieren** und **Matrix füllen**
+Note: Aktuell noch keine wirklich geeignete Mechanik fürs **Ersetzen**, **Kombinieren**
 
 ## Zuordnung  Spielmechanik und Spielszenario (Malte vorbereiten, rest later)
 
