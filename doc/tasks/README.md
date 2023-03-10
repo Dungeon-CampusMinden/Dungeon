@@ -36,61 +36,8 @@ Beispiel: In einem Raum befindet sich ein NPC und verschiedene Schalter. Der NPC
 Steuermechanismen sind alle Mechanismen des Systems, die den Ablauf der Umsetzung einer Aufgabe in ein
 Spielszenario beeinflussen.
 
-### Spielmechaniken gesammelt
-
-- Räume
-- Truhen, "Briefkästen", bzw. allgemein ein Spielobjekt mit Inventar
-- Questgeber-NPC
-- "Brief", bzw. Item, auf dem etwas drauf steht, was der Spieler lesen kann
-- verschiebbare Spielelemente ("Klötze", "Statuen")
-- Monster
-- Türen (evtl. mit erkennbarer Kennzeichnung)
-- Hinweis / Hilfemeldung
-- Schalter / Hebel mit booleschen Zuständen oder größerer Zustandsmenge
-- "Bodenaktivator" -> bspw. ein "Pentagram" auf dessen Spitzen Kerzen gelegt werden müssen
-- UI-Elemente für "einfache / kleine Aufgaben" (also plain Single Choice, Multiple Choice, Freitexteingabe)
-- abstrakt: Item-Kombinator (bspw. "Zauberkessel"), der die Möglichkeit bietet, Items zu kombinieren
-
-- Dinge aus einem Inventar herausnehmen und in das Spielerinventar ablegen (bspw. aus einer Truhe)
-- Dinge aus dem Spielerinventar in ein anderes Inventar ablegen (bspw. in eine Truhe)
-- Dinge aus dem Spielerinventar auf den Boden fallen lassen
-- Zustand bzw. Inhalt eines Inventars auf "Korrektheit" (je nach Aufgabe definiert) überprüfen
-- Bodenaktivator durch bestimmten Itemtyp aktivieren
-- Schalter / Hebel betätigen (wahlweise tastend, schaltend oder bei Zustandsanzahl > 2 den Zustand festlegen)
-- NPC ansprechen
-- UI-Elemente für kleine Aufgaben anzeigen
-- Monster angreifen
-- verschiebbares Spielelement schieben oder ziehen (auf Gitter oder frei?)
-- Ein Item durch ein anderes (oder mehrere) ersetzen
-- Mehrere Items zu einem Item zusammenfassen
-- Durch eine (ggfs. gekennzeichnete) Tür gehen und somit einen anderen Raum betreten
-- Auf eine richtige "Antwort" reagieren und den Spieler belohnen
-- Auf eine falsche "Antwort" reagieren und den Spieler bestrafen
-
-### Steuermechanismen gesammelt
-
-- Unterteilung einer Aufgabe in Teilaufgaben
-- Festlegung des Aufgabentyps für eine Aufgabe
-- Definition, welche Spielmechaniken in der konkreten Realisierung einer Aufgabe
-  im Dungeon-Level genutzt werden sollen (oder, falls nicht angegeben, eine aus
-  den für den Aufgabentyp möglichen auswählen)
-- Definition von richtigen Lösungen für eine (Teil-)Aufgabe
-- Definition von richtigen Lösungsmengen für eine (Teil-)Aufgabe, falls mehrere Lösungen möglich sind
-- Definition von falschen Lösungen für eine (Teil-)Aufgabe
-- Definition, wie die DSL / der Dungeon falsche Antworten für eine (Teil-)Aufgabe
-  generieren soll (ggfs. mit Schranken / Bedingungen)
-    - Bspw. Alle Integer-Werte von 0 bis 100 außer 42
-- Petri-Netz für die sequentielle Organisation von Aufgaben
-- Petri-Netz für die sequentielle Organisation von Teil-Aufgaben (also innerhalb einer Aufgabe)
-- Logging von "Antworten" für eine (Teil-)Aufgabe
-- Gewichtung von Teilaufgaben (sodass bestimmte Teilaufgaben stärker in die Bewertung einer
-  gesamten Aufgabe einfließen)
-- beliebig tiefe Verschachtelung von Aufgaben: Zur Lösung einer Aufgabe müssen Teil-Aufgaben x, y,z. Teilaufgaben liefern Ergebnisse/Items die zum Lösen der Hauptaufgabe nötig sind.```
-  gelöst werden
-
 
 ## Aufgabentypen
-
 
 ### Single-Choice
 
@@ -465,12 +412,14 @@ mit viel Aufwand verbunden ist und die Mechanik nur "über Umwege" für den Aufg
 ## Konkrete Aufgaben
 
 ### Regex-monster
+
 Aufgabe: "Geben Sie einen gültigen Regulären ausdruck an, der Telefonnummern mit mindestens 7 aber maximal 10 Ziffern beschreibt."
 Aufgabentyp: Lückentext
 Spielmechanik: GUI Text eingabe
 Spielszenario: Monster greift mit Frage an
 
 ### Pattern erkennen (PM)
+
 Aufgabe: "Ordnen Sie die UML-Klassendiagramme den richtigen Pattern zu."
 UMLs: *liste an Pfaden mit Bilddateien*.  (UML-A,UML-B,UML-C)
 Lösungsvorschläge: "Strategy-Pattern", "Observer-Pattern", "Visitor-Pattern", "Das ist kein Pattern", "Builder-Pattern"
@@ -479,12 +428,14 @@ Spielmechanik: Item(s) in Container tuen
 Spielszenario: Items müssen in Truhen abgelegt werden
 
 ### Sortieralgorithmus (ADS)
+
 Aufgabe: "Sortieren Sie das Array [12,4,31,-3,3] mit dem Bubblesort Algorithmus. Geben Sie das Array nach dem dritten Schritt an.
 Aufgabentyp: Sortieren
 Spielmechanik: Blöcke schieben
 Spielszenario: Blöcke müssen in die richtige Reihenfolge geschoben werden
 
 ### CSP mit Forward Checking lösen (KI)
+
 Aufgabe: "(Bild von Karte mit verschieden Ländern und Färbungen) Geben sie für jede Variable jeden gültigen Zustand an, wenn Sie die Backtracking Search verwenden."
 Aufgabentyp: Zuordnen
 Spielmechanik: Item(s) aus Container nehmen
@@ -543,3 +494,57 @@ festzulegen.
     Bewertung genau benötigt, ist noch nicht ausreichend definiert**
   - Bei der Konzeptionierung der [Steuermechanismen](#steuermechanismen-gesammelt) sollte diese Frage dringend
     mit bedacht werden
+
+## Initiale Gedankensammlung zu Mechaniken und Steuermechanismen (damit sie nicht verloren geht)
+
+### Spielmechaniken gesammelt
+
+- Räume
+- Truhen, "Briefkästen", bzw. allgemein ein Spielobjekt mit Inventar
+- Questgeber-NPC
+- "Brief", bzw. Item, auf dem etwas drauf steht, was der Spieler lesen kann
+- verschiebbare Spielelemente ("Klötze", "Statuen")
+- Monster
+- Türen (evtl. mit erkennbarer Kennzeichnung)
+- Hinweis / Hilfemeldung
+- Schalter / Hebel mit booleschen Zuständen oder größerer Zustandsmenge
+- "Bodenaktivator" -> bspw. ein "Pentagram" auf dessen Spitzen Kerzen gelegt werden müssen
+- UI-Elemente für "einfache / kleine Aufgaben" (also plain Single Choice, Multiple Choice, Freitexteingabe)
+- abstrakt: Item-Kombinator (bspw. "Zauberkessel"), der die Möglichkeit bietet, Items zu kombinieren
+
+- Dinge aus einem Inventar herausnehmen und in das Spielerinventar ablegen (bspw. aus einer Truhe)
+- Dinge aus dem Spielerinventar in ein anderes Inventar ablegen (bspw. in eine Truhe)
+- Dinge aus dem Spielerinventar auf den Boden fallen lassen
+- Zustand bzw. Inhalt eines Inventars auf "Korrektheit" (je nach Aufgabe definiert) überprüfen
+- Bodenaktivator durch bestimmten Itemtyp aktivieren
+- Schalter / Hebel betätigen (wahlweise tastend, schaltend oder bei Zustandsanzahl > 2 den Zustand festlegen)
+- NPC ansprechen
+- UI-Elemente für kleine Aufgaben anzeigen
+- Monster angreifen
+- verschiebbares Spielelement schieben oder ziehen (auf Gitter oder frei?)
+- Ein Item durch ein anderes (oder mehrere) ersetzen
+- Mehrere Items zu einem Item zusammenfassen
+- Durch eine (ggfs. gekennzeichnete) Tür gehen und somit einen anderen Raum betreten
+- Auf eine richtige "Antwort" reagieren und den Spieler belohnen
+- Auf eine falsche "Antwort" reagieren und den Spieler bestrafen
+
+### Steuermechanismen gesammelt
+
+- Unterteilung einer Aufgabe in Teilaufgaben
+- Festlegung des Aufgabentyps für eine Aufgabe
+- Definition, welche Spielmechaniken in der konkreten Realisierung einer Aufgabe
+  im Dungeon-Level genutzt werden sollen (oder, falls nicht angegeben, eine aus
+  den für den Aufgabentyp möglichen auswählen)
+- Definition von richtigen Lösungen für eine (Teil-)Aufgabe
+- Definition von richtigen Lösungsmengen für eine (Teil-)Aufgabe, falls mehrere Lösungen möglich sind
+- Definition von falschen Lösungen für eine (Teil-)Aufgabe
+- Definition, wie die DSL / der Dungeon falsche Antworten für eine (Teil-)Aufgabe
+  generieren soll (ggfs. mit Schranken / Bedingungen)
+    - Bspw. Alle Integer-Werte von 0 bis 100 außer 42
+- Petri-Netz für die sequentielle Organisation von Aufgaben
+- Petri-Netz für die sequentielle Organisation von Teil-Aufgaben (also innerhalb einer Aufgabe)
+- Logging von "Antworten" für eine (Teil-)Aufgabe
+- Gewichtung von Teilaufgaben (sodass bestimmte Teilaufgaben stärker in die Bewertung einer
+  gesamten Aufgabe einfließen)
+- beliebig tiefe Verschachtelung von Aufgaben: Zur Lösung einer Aufgabe müssen Teil-Aufgaben x, y,z. Teilaufgaben liefern Ergebnisse/Items die zum Lösen der Hauptaufgabe nötig sind.```
+  gelöst werden
