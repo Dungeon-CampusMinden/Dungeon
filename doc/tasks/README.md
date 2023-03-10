@@ -432,7 +432,7 @@ Löst der Spieler die Aufgabe falsch, bekommt er keine Belohnung.
     - ein Item, was vom NPC fallen gelassen wird
 - Je nach Aufgabenstellung könnte das neu erzeugte Item wieder eine "Zutat" für eine weitere Kombination sein
 
-## Zuordnung Aufgabentyp und Spielmechaniken (Malte vorbereiten, rest later)
+## Zuordnung Aufgabentyp und Spielmechaniken
 
 |                                      | **GUI Button drücken** | **GUI Checkboxen anhaken** | **GUI Text eingeben** | **Item an NPC abgeben** | **Item(s) in Container ablegen** | **Item(s) aus Container nehmen** | **Blöcke schieben** | **Schalter betätigen** | **Kämpfen** | **Crafting** |
 |--------------------------------------|------------------------|----------------------------|-----------------------|-------------------------|----------------------------------|----------------------------------|---------------------|------------------------|-------------|--------------|
@@ -447,9 +447,7 @@ Löst der Spieler die Aufgabe falsch, bekommt er keine Belohnung.
 Note: `(X)` bedeutet, dass eine Umsetzung eines Aufgabentyps mit einer Mechanik möglich wäre, allerdings (vermutlich)
 mit viel Aufwand verbunden ist und die Mechanik nur "über Umwege" für den Aufgabentyp eignet.
 
-Note: Aktuell noch keine wirklich geeignete Mechanik fürs **Ersetzen**, **Kombinieren**
-
-## Zuordnung  Spielmechanik und Spielszenario (Malte vorbereiten, rest later)
+## Zuordnung  Spielmechanik und Spielszenario
 
 |                                  | **NPC stellt Frage** | **Monster greift mit Frage an**   | **Truhe ist mit Frage verschlossen** | **Mehrere Truhen aber nicht alle sind richtig** | **Blöcke müssen in die richtige Reihenfolge geschoben werden** | **Schalter müssen in der richtigen Reihenfolge betätigt werden** | **Sammlung an Schaltern müssen in die richtigen Zustände gebracht werden** | **Monster müssen in der richtigen Reihenfolge gehauen werden** | **Verschiedene Monster müssen so verprügelt werden, dass das richtige Verhältnis entsteht** | **Items müssen in Truhen abgelegt werden** | **Items müssen aus einer Truhe entfernt werden** | **Items müssen in einen Briefkasten gepackt werden** | **Items müssen in Crafting-Container geworfen werden** |
 |----------------------------------|----------------------|-----------------------------------|--------------------------------------|-------------------------------------------------|----------------------------------------------------------------|------------------------------------------------------------------|----------------------------------------------------------------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------|--------------------------------------------|--------------------------------------------------|------------------------------------------------------|--------------------------------------------------------|
