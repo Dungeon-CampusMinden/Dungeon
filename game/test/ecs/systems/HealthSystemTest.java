@@ -7,6 +7,7 @@ import ecs.components.AnimationComponent;
 import ecs.components.HealthComponent;
 import ecs.components.IOnDeathFunction;
 import ecs.components.MissingComponentException;
+import ecs.components.stats.StatsComponent;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.entities.Entity;
@@ -100,5 +101,85 @@ public class HealthSystemTest {
         HealthComponent component = new HealthComponent(entity);
         HealthSystem system = new HealthSystem();
         assertThrows(MissingComponentException.class, () -> system.update());
+    }
+
+    @Test
+    public void testDamageWithModifier() {
+        Game.entities.clear();
+        Game.systems = new SystemController();
+        Entity entity = new Entity();
+        new AnimationComponent(entity);
+        StatsComponent statsComponent = new StatsComponent(entity);
+        statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, 2);
+
+        HealthComponent healthComponent = new HealthComponent(entity);
+        healthComponent.setMaximalHealthpoints(100);
+        healthComponent.setCurrentHealthpoints(100);
+        healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
+
+        HealthSystem system = new HealthSystem();
+        system.update();
+
+        assertEquals(80, healthComponent.getCurrentHealthpoints()); // 100 - 10 * 2
+    }
+
+    @Test
+    public void testDamageWithModifierNegative() {
+        Game.entities.clear();
+        Game.systems = new SystemController();
+        Entity entity = new Entity();
+        new AnimationComponent(entity);
+        StatsComponent statsComponent = new StatsComponent(entity);
+        statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, -2);
+
+        HealthComponent healthComponent = new HealthComponent(entity);
+        healthComponent.setMaximalHealthpoints(200);
+        healthComponent.setCurrentHealthpoints(100);
+        healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
+
+        HealthSystem system = new HealthSystem();
+        system.update();
+
+        assertEquals(120, healthComponent.getCurrentHealthpoints()); // 100 - 10 * -2
+    }
+
+    @Test
+    public void testDamageWithModifierZero() {
+        Game.entities.clear();
+        Game.systems = new SystemController();
+        Entity entity = new Entity();
+        new AnimationComponent(entity);
+        StatsComponent statsComponent = new StatsComponent(entity);
+        statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, 0);
+
+        HealthComponent healthComponent = new HealthComponent(entity);
+        healthComponent.setMaximalHealthpoints(200);
+        healthComponent.setCurrentHealthpoints(100);
+        healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
+
+        HealthSystem system = new HealthSystem();
+        system.update();
+
+        assertEquals(100, healthComponent.getCurrentHealthpoints()); // 100 - 10 * 0
+    }
+
+    @Test
+    public void testDamageWithModifierHuge() {
+        Game.entities.clear();
+        Game.systems = new SystemController();
+        Entity entity = new Entity();
+        new AnimationComponent(entity);
+        StatsComponent statsComponent = new StatsComponent(entity);
+        statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, 100);
+
+        HealthComponent healthComponent = new HealthComponent(entity);
+        healthComponent.setMaximalHealthpoints(200);
+        healthComponent.setCurrentHealthpoints(100);
+        healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
+
+        HealthSystem system = new HealthSystem();
+        system.update();
+
+        assertTrue(healthComponent.getCurrentHealthpoints() <= 0); // 100 - 10 * 100
     }
 }
