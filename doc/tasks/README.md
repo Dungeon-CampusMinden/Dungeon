@@ -412,6 +412,9 @@ Löst der Spieler die Aufgabe falsch, bekommt er keine Belohnung.
 | **Objekte in Reihenfolge auswählen** |                        |                            |                       |                         |                                  |                                  |                     | X                      | X           |
 | **Positionieren**                    |                        |                            | (X)                   | X                       | X                                | X                                | X                   |                        |             |
 
+Note: `(X)` bedeutet, dass eine Umsetzung eines Aufgabentyps mit einer Mechanik möglich wäre, allerdings (vermutlich)
+mit viel Aufwand verbunden ist und die Mechanik nur "über Umwege" für den Aufgabentyp eignet.
+
 Note: Aktuell noch keine wirklich geeignete Mechanik fürs **Ersetzen**, **Kombinieren**
 
 ## Zuordnung  Spielmechanik und Spielszenario (Malte vorbereiten, rest later)
