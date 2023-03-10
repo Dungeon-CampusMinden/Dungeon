@@ -1,6 +1,6 @@
 package ecs.items;
 
-import ecs.components.stats.Stats;
+import ecs.components.stats.DamageModifier;
 import graphic.Animation;
 
 public abstract class ItemPassive extends Item {
@@ -8,7 +8,7 @@ public abstract class ItemPassive extends Item {
     private static final String DEFAULT_NAME = "Equipment Item";
     private static final String DEFAULT_DESCRIPTION = "This is an equipment item.";
 
-    private Stats stats;
+    private DamageModifier damageModifier;
 
     /** Create new passive Item with default values. */
     public ItemPassive() {
@@ -22,7 +22,7 @@ public abstract class ItemPassive extends Item {
      * @param description Description of the item
      */
     public ItemPassive(String name, String description) {
-        this(name, description, new Stats());
+        this(name, description, new DamageModifier());
     }
 
     /**
@@ -30,10 +30,15 @@ public abstract class ItemPassive extends Item {
      *
      * @param name Name of the item
      * @param description Description of the item
-     * @param stats Stats of the item
+     * @param damageModifier Stats of the item
      */
-    public ItemPassive(String name, String description, Stats stats) {
-        this(name, description, stats, DEFAULT_INVENTORY_ANIMATION, DEFAULT_WORLD_ANIMATION);
+    public ItemPassive(String name, String description, DamageModifier damageModifier) {
+        this(
+                name,
+                description,
+                damageModifier,
+                DEFAULT_INVENTORY_ANIMATION,
+                DEFAULT_WORLD_ANIMATION);
     }
 
     /**
@@ -41,18 +46,18 @@ public abstract class ItemPassive extends Item {
      *
      * @param name Name of the item
      * @param description Description of the item
-     * @param stats Stats of the item
+     * @param damageModifier Stats of the item
      * @param inventoryTexture Texture of the item in the inventory
      * @param worldTexture Texture of the item in the world
      */
     public ItemPassive(
             String name,
             String description,
-            Stats stats,
+            DamageModifier damageModifier,
             Animation inventoryTexture,
             Animation worldTexture) {
         super(ItemType.Passive, inventoryTexture, worldTexture, name, description);
-        this.stats = stats;
+        this.damageModifier = damageModifier;
     }
 
     /**
@@ -60,16 +65,16 @@ public abstract class ItemPassive extends Item {
      *
      * @return Stats of the item
      */
-    public Stats getStats() {
-        return stats;
+    public DamageModifier getDamageModifier() {
+        return damageModifier;
     }
 
     /**
      * Set the stats of the item.
      *
-     * @param stats Stats of the item
+     * @param damageModifier Stats of the item
      */
-    public void setStats(Stats stats) {
-        this.stats = stats;
+    public void setDamageModifier(DamageModifier damageModifier) {
+        this.damageModifier = damageModifier;
     }
 }

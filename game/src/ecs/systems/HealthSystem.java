@@ -74,7 +74,7 @@ public class HealthSystem extends ECS_System {
                 .mapToInt(
                         dt ->
                                 Math.round(
-                                        statsComponent.getStats().getMultiplier(dt)
+                                        statsComponent.getDamageModifiers().getMultiplier(dt)
                                                 * hsd.hc.getDamage(dt)))
                 .sum();
     }

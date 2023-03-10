@@ -4,7 +4,7 @@ import ecs.damage.DamageType;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Stats {
+public class DamageModifier {
 
     private final Map<DamageType, Float> damageMultipliers = new HashMap<>();
 

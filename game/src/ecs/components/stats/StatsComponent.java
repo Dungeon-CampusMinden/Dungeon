@@ -5,7 +5,7 @@ import ecs.entities.Entity;
 
 public class StatsComponent extends Component {
 
-    private Stats stats = new Stats();
+    private DamageModifier damageModifier = new DamageModifier();
 
     /**
      * Create a new component and add it to the associated entity
@@ -21,16 +21,16 @@ public class StatsComponent extends Component {
      *
      * @return stats object
      */
-    public Stats getStats() {
-        return this.stats;
+    public DamageModifier getDamageModifiers() {
+        return this.damageModifier;
     }
 
     /**
      * Overwrite the stats object of the entity
      *
-     * @param stats new stats object
+     * @param damageModifier new stats object
      */
-    public void setStats(Stats stats) {
-        this.stats = stats;
+    public void setDamageModifier(DamageModifier damageModifier) {
+        this.damageModifier = damageModifier;
     }
 }
