@@ -416,6 +416,22 @@ Löst der Spieler die Aufgabe falsch, bekommt er keine Belohnung.
 - Falls der Spieler die falsche Antwort gegeben hat, kann durch Steuermechanismen beeinflusst werden, ob er
   seine Antwort korrigieren kann und wie so eine korrigierte Antwort in die Bewertung einfließt
 
+### Items müssen in Crafting-Container geworfen werden
+
+- In einem Raum steht ein Crafting-Container und ein NPC
+- Im Dungeon (nicht nur im Crafting-Container Raum) sind Items versteckt
+- NPC stellt den Aufgabentext: "Finde und werfe Items in den Zauberkessel nach folgender Vorgabe: (abhängig von der
+  konkreten Aufgabenstellung)"
+- Spieler sucht im Dungeon nach Items und wirft sie in den Crafting-Container
+- Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die Aufgabenstellung erneut
+  angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder die abgegebenen Items als
+  Antwort geloggt werden können
+- Wenn die richtigen Items abgegeben wurden, wird der Spieler belohnt und die abgegebenen Items
+  werden zu einem neuen Item kombiniert, die Belohnung könnte sein
+    - eine Textnachricht über UI: "Ja, gut gemacht!"
+    - ein Item, was vom NPC fallen gelassen wird
+- Je nach Aufgabenstellung könnte das neu erzeugte Item wieder eine "Zutat" für eine weitere Kombination sein
+
 ## Zuordnung Aufgabentyp und Spielmechaniken (Malte vorbereiten, rest later)
 
 |                                      | **GUI Button drücken** | **GUI Checkboxen anhaken** | **GUI Text eingeben** | **Item an NPC abgeben** | **Item(s) in Container ablegen** | **Item(s) aus Container nehmen** | **Blöcke schieben** | **Schalter betätigen** | **Kämpfen** | **Crafting** |
