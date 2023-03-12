@@ -241,10 +241,12 @@ public class TileLevel implements ILevel {
             case EXIT -> addExitTile((ExitTile) tile);
             case DOOR -> addDoorTile((DoorTile) tile);
         }
-        this.addConnectionsToNeighbours(tile);
-        for (Connection<Tile> neighbor : tile.getConnections().items) {
-            Tile n = neighbor.getToNode();
-            n.addConnection(tile);
+        if(tile.isAccessible()){
+            this.addConnectionsToNeighbours(tile);
+            for (Connection<Tile> neighbor : tile.getConnections().items) {
+                Tile n = neighbor.getToNode();
+                n.addConnection(tile);
+            }
         }
 
         nodeCount++;
