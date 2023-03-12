@@ -164,6 +164,22 @@ public class TileLevelTest {
 
     @Test
     public void test_getRandomTile_WithElementType() {
+        LevelElement[][] layout = new LevelElement[3][3];
+        for (int x = 0; x < 3; x++) {
+            for (int y = 0; y < 3; y++) {
+                if (x < 2) {
+                    layout[y][x] = LevelElement.FLOOR;
+                } else {
+                    layout[y][x] = LevelElement.WALL;
+                }
+            }
+        }
+        layout[2][1] = LevelElement.EXIT;
+
+        TileLevel tileLevel = new TileLevel(layout, DesignLabel.DEFAULT);
+        Tile endTile = tileLevel.getEndTile();
+        Tile startTile = tileLevel.getStartTile();
+
         Point randomWallPoint = tileLevel.getRandomTilePoint(LevelElement.WALL);
         assertNotNull(randomWallPoint);
         Tile randomWall = tileLevel.getTileAt(randomWallPoint.toCoordinate());
@@ -180,6 +196,22 @@ public class TileLevelTest {
 
     @Test
     public void test_getRandomTilePoint_WithElementType() {
+        LevelElement[][] layout = new LevelElement[3][3];
+        for (int x = 0; x < 3; x++) {
+            for (int y = 0; y < 3; y++) {
+                if (x < 2) {
+                    layout[y][x] = LevelElement.FLOOR;
+                } else {
+                    layout[y][x] = LevelElement.WALL;
+                }
+            }
+        }
+        layout[2][1] = LevelElement.EXIT;
+
+        TileLevel tileLevel = new TileLevel(layout, DesignLabel.DEFAULT);
+        Tile endTile = tileLevel.getEndTile();
+        Tile startTile = tileLevel.getStartTile();
+
         Point randomWallPoint = tileLevel.getRandomTilePoint(LevelElement.WALL);
         Point randomFloorPoint = tileLevel.getRandomTilePoint(LevelElement.FLOOR);
         Tile randomWall = tileLevel.getTileAt(randomWallPoint.toCoordinate());
