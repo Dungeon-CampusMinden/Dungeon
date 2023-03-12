@@ -17,18 +17,18 @@ public class StatsComponent extends Component {
     }
 
     /**
-     * Get the stats object of the entity
+     * Get the DamageModifier object of the entity
      *
-     * @return stats object
+     * @return {@link ecs.components.stats.DamageModifier} object
      */
     public DamageModifier getDamageModifiers() {
         return this.damageModifier;
     }
 
     /**
-     * Overwrite the stats object of the entity
+     * Overwrite the DamageModifier object of the entity
      *
-     * @param damageModifier new stats object
+     * @param damageModifier new {@link ecs.components.stats.DamageModifier} object
      */
     public void setDamageModifier(DamageModifier damageModifier) {
         this.damageModifier = damageModifier;

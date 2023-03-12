@@ -26,11 +26,11 @@ public abstract class ItemPassive extends Item {
     }
 
     /**
-     * Create new passive Item with given name, description and stats.
+     * Create new passive Item with given name, description and DamageModifier.
      *
      * @param name Name of the item
      * @param description Description of the item
-     * @param damageModifier Stats of the item
+     * @param damageModifier {@link ecs.components.stats.DamageModifier} of the item
      */
     public ItemPassive(String name, String description, DamageModifier damageModifier) {
         this(
@@ -42,11 +42,11 @@ public abstract class ItemPassive extends Item {
     }
 
     /**
-     * Create new passive Item with given name, description, stats and textures.
+     * Create new passive Item with given name, description, DamageModifier and textures.
      *
      * @param name Name of the item
      * @param description Description of the item
-     * @param damageModifier Stats of the item
+     * @param damageModifier {@link ecs.components.stats.DamageModifier} of the item
      * @param inventoryTexture Texture of the item in the inventory
      * @param worldTexture Texture of the item in the world
      */
@@ -61,18 +61,18 @@ public abstract class ItemPassive extends Item {
     }
 
     /**
-     * Get the stats of the item.
+     * Get the DamageModifier of the item.
      *
-     * @return Stats of the item
+     * @return {@link ecs.components.stats.DamageModifier} of the item
      */
     public DamageModifier getDamageModifier() {
         return damageModifier;
     }
 
     /**
-     * Set the stats of the item.
+     * Set the DamageModifier of the item.
      *
-     * @param damageModifier Stats of the item
+     * @param damageModifier {@link ecs.components.stats.DamageModifier} of the item
      */
     public void setDamageModifier(DamageModifier damageModifier) {
         this.damageModifier = damageModifier;

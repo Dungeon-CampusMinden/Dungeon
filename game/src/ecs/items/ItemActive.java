@@ -37,6 +37,13 @@ public abstract class ItemActive extends Item {
                 ItemActive::defaultUseCallback);
     }
 
+    /**
+     * Creates a new usable Item with the given name, description and callback.
+     *
+     * @param name Name of the item
+     * @param description Description of the item
+     * @param callback Callback to be called when the item is used
+     */
     public ItemActive(String name, String description, IItemUse callback) {
         this(name, description, DEFAULT_INVENTORY_ANIMATION, DEFAULT_WORLD_ANIMATION, callback);
     }
