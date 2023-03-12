@@ -1,5 +1,6 @@
 package level.elements;
 
+import com.badlogic.gdx.ai.pfa.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import level.elements.astar.TileHeuristic;
@@ -212,7 +213,40 @@ public class TileLevel implements ILevel {
                 doorTiles.remove(tile);
             }
         }
+        // remove all connections to the removed Tile
+        tile.getConnections()
+                .forEach(
+                        x ->
+                                x.getToNode()
+                                        .getConnections()
+                                        .forEach(
+                                                y -> {
+                                                    if (y.getToNode() == tile)
+                                                        x.getToNode()
+                                                                .getConnections()
+                                                                .removeValue(y, true);
+                                                }));
+
         nodeCount--;
+    }
+
+    @Override
+    public void addTile(Tile tile) {
+        switch (tile.getLevelElement()) {
+            case SKIP -> addSkipTile((SkipTile) tile);
+            case FLOOR -> addFloorTile((FloorTile) tile);
+            case WALL -> addWallTile((WallTile) tile);
+            case HOLE -> addHoleTile((HoleTile) tile);
+            case EXIT -> addExitTile((ExitTile) tile);
+            case DOOR -> addDoorTile((DoorTile) tile);
+        }
+        this.addConnectionsToNeighbours(tile);
+        for (Connection<Tile> neighbor : tile.getConnections().items) {
+            Tile n = neighbor.getToNode();
+            n.addConnection(tile);
+        }
+
+        nodeCount++;
     }
 
     @Override

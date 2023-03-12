@@ -82,28 +82,7 @@ public interface ILevel extends ITileable {
      *
      * @param tile tile to add
      */
-    default void addTile(Tile tile) {
-        switch (tile.getLevelElement()) {
-            case SKIP -> {
-                addSkipTile((SkipTile) tile);
-            }
-            case FLOOR -> {
-                addFloorTile((FloorTile) tile);
-            }
-            case WALL -> {
-                addWallTile((WallTile) tile);
-            }
-            case HOLE -> {
-                addHoleTile((HoleTile) tile);
-            }
-            case EXIT -> {
-                addExitTile((ExitTile) tile);
-            }
-            case DOOR -> {
-                addDoorTile((DoorTile) tile);
-            }
-        }
-    }
+    void addTile(Tile tile);
 
     /**
      * Removes tile from the level
@@ -199,13 +178,7 @@ public interface ILevel extends ITileable {
                         changeInto,
                         tile.getDesignLabel(),
                         level);
-        // newTile.setIndex(tile.getIndex());
         level.addTile(newTile);
-        // level.addConnectionsToNeighbours(newTile);
-        // for (Connection<Tile> neighbor : newTile.getConnections().items) {
-        //    Tile n = neighbor.getToNode();
-        //    n.addConnection(newTile);
-        // }
         level.getLayout()[tile.getCoordinate().y][tile.getCoordinate().x] = newTile;
         if (changeInto == LevelElement.EXIT) {
             level.setEndTile(newTile);
