@@ -211,4 +211,28 @@ public interface ILevel extends ITileable {
             level.setEndTile(newTile);
         }
     }
+
+    @Override
+    default Tile getRandomTile(LevelElement elementType) {
+        return switch (elementType) {
+            case SKIP -> getSkipTiles().size() > 0
+                    ? getSkipTiles().get(RANDOM.nextInt(getSkipTiles().size()))
+                    : null;
+            case FLOOR -> getFloorTiles().size() > 0
+                    ? getFloorTiles().get(RANDOM.nextInt(getFloorTiles().size()))
+                    : null;
+            case WALL -> getWallTiles().size() > 0
+                    ? getWallTiles().get(RANDOM.nextInt(getWallTiles().size()))
+                    : null;
+            case HOLE -> getHoleTiles().size() > 0
+                    ? getHoleTiles().get(RANDOM.nextInt(getHoleTiles().size()))
+                    : null;
+            case EXIT -> getExitTiles().size() > 0
+                    ? getExitTiles().get(RANDOM.nextInt(getExitTiles().size()))
+                    : null;
+            case DOOR -> getDoorTiles().size() > 0
+                    ? getDoorTiles().get(RANDOM.nextInt(getDoorTiles().size()))
+                    : null;
+        };
+    }
 }

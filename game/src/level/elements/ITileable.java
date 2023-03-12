@@ -83,14 +83,8 @@ public interface ITileable extends IPathable {
      * @param elementType Type of the Tile
      * @return A random Tile of the given Type
      */
-    default Tile getRandomTile(LevelElement elementType) {
-        Tile randomTile = getRandomTile();
-        if (randomTile.getLevelElement() == elementType) {
-            return randomTile;
-        } else {
-            return getRandomTile(elementType);
-        }
-    }
+    Tile getRandomTile(LevelElement elementType);
+
     /**
      * Get the position of a random Tile as Point
      *
