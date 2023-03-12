@@ -44,7 +44,9 @@ public class ItemActiveTest {
         Entity entity = new Entity();
         InventoryComponent inventoryComponent = new InventoryComponent(entity, 2);
         inventoryComponent.addItem(item);
-        assertTrue(inventoryComponent.getItems().contains(item));
+        assertTrue(
+                "ItemActive needs to be in entities inventory.",
+                inventoryComponent.getItems().contains(item));
         item.use(entity);
         assertFalse(
                 "Item was not removed from inventory after use.",

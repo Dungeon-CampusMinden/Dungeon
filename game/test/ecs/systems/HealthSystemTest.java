@@ -180,6 +180,8 @@ public class HealthSystemTest {
         HealthSystem system = new HealthSystem();
         system.update();
 
-        assertTrue(healthComponent.getCurrentHealthpoints() <= 0); // 100 - 10 * 100
+        assertTrue(
+                "Entity should have 0 ore less health points.",
+                healthComponent.getCurrentHealthpoints() <= 0); // 100 - 10 * 100
     }
 }
