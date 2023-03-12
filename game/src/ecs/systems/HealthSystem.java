@@ -51,10 +51,10 @@ public class HealthSystem extends ECS_System {
                 .ifPresentOrElse(
                         sc -> {
                             StatsComponent scomp = (StatsComponent) sc;
-                            setDmgAmount(hsd, calculateDamageWithMultipliers(scomp, hsd));
+                            doDamageAndAnimation(hsd, calculateDamageWithMultipliers(scomp, hsd));
                         },
                         () -> {
-                            setDmgAmount(
+                            doDamageAndAnimation(
                                     hsd,
                                     Stream.of(DamageType.values())
                                             .mapToInt(hsd.hc::getDamage)
@@ -79,7 +79,7 @@ public class HealthSystem extends ECS_System {
                 .sum();
     }
 
-    private void setDmgAmount(HSData hsd, int dmgAmount) {
+    private void doDamageAndAnimation(HSData hsd, int dmgAmount) {
         if (dmgAmount > 0) {
             // we have some damage - let's show a little dance
             hsd.ac.setCurrentAnimation(hsd.hc.getGetHitAnimation());
