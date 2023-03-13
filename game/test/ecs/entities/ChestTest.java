@@ -7,6 +7,9 @@ import ecs.items.BasicItem;
 import ecs.items.Item;
 import java.util.List;
 import java.util.Optional;
+import level.elements.TileLevel;
+import level.tools.DesignLabel;
+import level.tools.LevelElement;
 import org.junit.Test;
 import starter.Game;
 import tools.Point;
@@ -92,7 +95,14 @@ public class ChestTest {
     @Test
     public void checkGeneratorMethod() {
         cleanup();
-
+        Game.currentLevel =
+                new TileLevel(
+                        new LevelElement[][] {
+                            new LevelElement[] {
+                                LevelElement.FLOOR,
+                            }
+                        },
+                        DesignLabel.DEFAULT);
         Chest newChest = Chest.createNewChest();
         assertTrue("Chest is added to Game", Game.entities.contains(newChest));
         assertTrue(
@@ -108,7 +118,24 @@ public class ChestTest {
                                 .get()
                                 .getItems()
                                 .size());
-
+        assertEquals(
+                "x Position has to be 0. Only Tile is at 0,0",
+                0,
+                newChest.getComponent(PositionComponent.class)
+                        .map(PositionComponent.class::cast)
+                        .get()
+                        .getPosition()
+                        .x,
+                0.00001f);
+        assertEquals(
+                "y Position has to be 0. Only Tile is at 0,0",
+                0,
+                newChest.getComponent(PositionComponent.class)
+                        .map(PositionComponent.class::cast)
+                        .get()
+                        .getPosition()
+                        .y,
+                0.00001f);
         cleanup();
     }
 }
