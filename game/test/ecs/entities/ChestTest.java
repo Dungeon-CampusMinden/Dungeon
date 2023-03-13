@@ -20,13 +20,13 @@ public class ChestTest {
     private static void cleanup() {
         Game.entities.clear();
         Item.ITEM_REGISTER.clear();
-        BasicItem.FillRegister();
     }
 
     /** checks the correct creation of the Chest */
     @Test
     public void checkCreation() {
         cleanup();
+        BasicItem.FillRegister();
         List<Item> items = List.of();
         Point position = new Point(0, 0);
         Chest c = new Chest(items, position);
@@ -55,7 +55,7 @@ public class ChestTest {
     @Test
     public void checkInteractionDroppingItems() {
         cleanup();
-
+        BasicItem.FillRegister();
         List<Item> items = List.of(Item.ITEM_REGISTER.get(0));
         Point position = new Point(0, 0);
         Chest c = new Chest(items, position);
@@ -72,6 +72,8 @@ public class ChestTest {
     /** checks the dropped Item */
     @Test
     public void checkInteractionOnDroppedItems() {
+        cleanup();
+        BasicItem.FillRegister();
         List<Item> items = List.of(Item.ITEM_REGISTER.get(0));
         Point position = new Point(0, 0);
         Chest c = new Chest(items, position);
@@ -95,6 +97,7 @@ public class ChestTest {
     @Test
     public void checkGeneratorMethod() {
         cleanup();
+        BasicItem.FillRegister();
         Game.currentLevel =
                 new TileLevel(
                         new LevelElement[][] {
