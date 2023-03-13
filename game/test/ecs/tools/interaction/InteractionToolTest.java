@@ -60,6 +60,7 @@ public class InteractionToolTest {
     /** Tests the functionality when the Hero does not have the PositionComponent */
     @Test
     public void interactWithClosestInteractableHeroMissingPositionComponent() {
+        cleanup();
         Game.hero = fullMockedHero(false);
         Game.currentLevel = prepareLevel();
 
@@ -76,6 +77,7 @@ public class InteractionToolTest {
     /** Tests the functionality when there are no Entities in the Game */
     @Test
     public void interactWithClosestInteractableNoEntities() {
+        cleanup();
         Game.hero = fullMockedHero(true);
         Game.currentLevel = prepareLevel();
         InteractionTool.interactWithClosestInteractable(Game.hero);
@@ -87,6 +89,7 @@ public class InteractionToolTest {
      */
     @Test
     public void interactWithClosestInteractableNoInteractable() {
+        cleanup();
         Game.hero = fullMockedHero(true);
         Game.currentLevel = prepareLevel();
         Game.entities.add(Game.hero);
@@ -100,6 +103,7 @@ public class InteractionToolTest {
      */
     @Test
     public void interactWithClosestInteractableOneInteractableOutOfRange() {
+        cleanup();
         Game.hero = fullMockedHero(true);
         Game.currentLevel = prepareLevel();
         Game.entities.add(Game.hero);
@@ -122,6 +126,7 @@ public class InteractionToolTest {
      */
     @Test
     public void interactWithClosestInteractableOneInteractableInRange() {
+        cleanup();
         Game.hero = fullMockedHero(true);
         Game.currentLevel = prepareLevel();
         Game.entities.add(Game.hero);
@@ -141,6 +146,7 @@ public class InteractionToolTest {
     /** Test if the interactable is missing the PositionComponent */
     @Test
     public void interactWithClosestInteractableOneInteractableInRangeMissingPosition() {
+        cleanup();
         Game.hero = fullMockedHero(true);
         Game.currentLevel = prepareLevel();
 
@@ -169,6 +175,7 @@ public class InteractionToolTest {
      */
     @Test
     public void interactWithClosestInteractableClosestEntityFirst() {
+        cleanup();
         Game.hero = fullMockedHero(true);
         Game.currentLevel = prepareLevel();
         // distance 2
@@ -198,7 +205,7 @@ public class InteractionToolTest {
      */
     @Test
     public void interactWithClosestInteractableClosestEntityLast() {
-
+        cleanup();
         Game.hero = fullMockedHero(true);
         Game.currentLevel = prepareLevel();
 
