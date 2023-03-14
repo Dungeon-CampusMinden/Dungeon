@@ -1,9 +1,12 @@
 package ecs.components.ai.idle;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
+import com.badlogic.gdx.utils.JsonValue;
 import ecs.components.ai.AITools;
 import ecs.entities.Entity;
 import level.elements.tile.Tile;
+import savegame.GameSerialization;
+import savegame.Reflections;
 import tools.Constants;
 
 public class RadiusWalk implements IIdleAI {
@@ -36,5 +39,23 @@ public class RadiusWalk implements IIdleAI {
             currentBreak++;
 
         } else AITools.move(entity, path);
+    }
+
+    @Override
+    public JsonValue serialize() {
+        JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        json.addChild("radius", new JsonValue(radius));
+        json.addChild("breakTime", new JsonValue(breakTime));
+        json.addChild("currentBreak", new JsonValue(currentBreak));
+        json.addChild("path", GameSerialization.serializeGraphPath(path));
+        return json;
+    }
+
+    @Override
+    public void deserialize(JsonValue data) {
+        Reflections.setFinalField(this, "radius", data.getFloat("radius"));
+        Reflections.setFinalField(this, "breakTime", data.getInt("breakTime"));
+        currentBreak = data.getInt("currentBreak");
+        path = GameSerialization.deserializeGraphPath(data.get("path"));
     }
 }

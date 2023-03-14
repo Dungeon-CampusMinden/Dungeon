@@ -7,11 +7,9 @@ import java.util.logging.Logger;
  *Component is a piece of data associated with an entity
  */
 public abstract class Component {
-    protected Entity entity;
 
-    /**
-     * @param entity associated with this component
-     */
+    /** associated with this component */
+    protected Entity entity;
 
     /**
      * Create a new component and add it to the associated entity

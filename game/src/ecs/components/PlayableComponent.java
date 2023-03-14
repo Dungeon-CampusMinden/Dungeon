@@ -1,17 +1,18 @@
 package ecs.components;
 
-import ecs.components.skill.Skill;
+import com.badlogic.gdx.utils.JsonValue;
 import ecs.entities.Entity;
 import java.util.Optional;
 import java.util.logging.Logger;
 import logging.CustomLogLevel;
+import savegame.ISerializable;
 
 /**
  * This component is for the player character entity only. It should only be implemented by one
  * entity and mark this entity as the player character. This component stores data that is only
  * relevant for the player character. The PlayerSystems acts on the PlayableComponent.
  */
-public class PlayableComponent extends Component {
+public class PlayableComponent extends Component implements ISerializable {
 
     private boolean playable;
     private final Logger playableCompLogger = Logger.getLogger(this.getClass().getName());
@@ -83,5 +84,17 @@ public class PlayableComponent extends Component {
      */
     public Optional<Skill> getSkillSlot2() {
         return Optional.ofNullable(skillSlot2);
+    }
+
+    @Override
+    public JsonValue serialize() {
+        JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        json.addChild("playable", new JsonValue(playable));
+        return json;
+    }
+
+    @Override
+    public void deserialize(JsonValue data) {
+        playable = data.getBoolean("playable");
     }
 }

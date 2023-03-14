@@ -1,8 +1,10 @@
 package ecs.components;
 
+import com.badlogic.gdx.utils.JsonValue;
 import ecs.entities.Entity;
 import java.util.logging.Logger;
 import logging.CustomLogLevel;
+import savegame.ISerializable;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import starter.Game;
@@ -10,7 +12,7 @@ import tools.Point;
 
 /** A PositionComponent stores the associated entity's position in the level */
 @DSLType(name = "position_component")
-public class PositionComponent extends Component {
+public class PositionComponent extends Component implements ISerializable {
 
     private final Logger positionCompLogger = Logger.getLogger(this.getClass().getName());
     private /*@DSLTypeMember(name="position")*/ Point position;
@@ -90,5 +92,18 @@ public class PositionComponent extends Component {
      */
     public void setPosition(Point position) {
         this.position = position;
+    }
+
+    @Override
+    public JsonValue serialize() {
+        JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        json.addChild("x", new JsonValue(position.x));
+        json.addChild("y", new JsonValue(position.y));
+        return json;
+    }
+
+    @Override
+    public void deserialize(JsonValue data) {
+        position = new Point(data.getFloat("x"), data.getFloat("y"));
     }
 }

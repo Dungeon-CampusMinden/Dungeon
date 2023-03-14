@@ -1,7 +1,9 @@
 package ecs.entities;
 
 import ecs.components.Component;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 import semanticAnalysis.types.DSLContextPush;
@@ -50,5 +52,9 @@ public class Entity {
      */
     public Optional<Component> getComponent(Class klass) {
         return Optional.ofNullable(components.get(klass));
+    }
+
+    public List<Component> getComponents() {
+        return new ArrayList<>(this.components.values());
     }
 }

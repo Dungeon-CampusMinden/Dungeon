@@ -1,10 +1,13 @@
 package ecs.components;
 
+import com.badlogic.gdx.utils.JsonValue;
 import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.List;
 import java.util.logging.Logger;
 import logging.CustomLogLevel;
+import savegame.GameSerialization;
+import savegame.ISerializable;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
@@ -14,7 +17,7 @@ import semanticAnalysis.types.DSLTypeMember;
  * of an entity
  */
 @DSLType(name = "animation_component")
-public class AnimationComponent extends Component {
+public class AnimationComponent extends Component implements ISerializable {
     private static List<String> missingTexture = List.of("animation/missingTexture.png");
     private @DSLTypeMember(name = "idle_left") Animation idleLeft;
     private @DSLTypeMember(name = "idle_right") Animation idleRight;
@@ -108,5 +111,21 @@ public class AnimationComponent extends Component {
      */
     public Animation getIdleRight() {
         return idleRight;
+    }
+
+    @Override
+    public JsonValue serialize() {
+        JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        json.addChild("idleLeft", GameSerialization.serializeAnimation(idleLeft));
+        json.addChild("idleRight", GameSerialization.serializeAnimation(idleRight));
+        json.addChild("currentAnimation", GameSerialization.serializeAnimation(currentAnimation));
+        return json;
+    }
+
+    @Override
+    public void deserialize(JsonValue data) {
+        idleLeft = GameSerialization.deserializeAnimation(data.get("idleLeft"));
+        idleRight = GameSerialization.deserializeAnimation(data.get("idleRight"));
+        currentAnimation = GameSerialization.deserializeAnimation(data.get("currentAnimation"));
     }
 }

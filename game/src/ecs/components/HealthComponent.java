@@ -1,22 +1,26 @@
 package ecs.components;
 
+import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Null;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.entities.Entity;
 import graphic.Animation;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 import logging.CustomLogLevel;
+import savegame.GameSerialization;
+import savegame.ISerializable;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
 
 /** The HealthComponent makes an entity vulnerable and killable */
 @DSLType(name = "health_component")
-public class HealthComponent extends Component {
+public class HealthComponent extends Component implements ISerializable {
     private static final List<String> missingTexture = List.of("animation/missingTexture.png");
 
     private final List<Damage> damageToGet;
@@ -191,5 +195,25 @@ public class HealthComponent extends Component {
      */
     public Optional<Entity> getLastDamageCause() {
         return Optional.ofNullable(this.lastCause);
+    }
+
+    @Override
+    public JsonValue serialize() {
+        JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        json.addChild("maximalHealthpoints", new JsonValue(maximalHealthpoints));
+        json.addChild("currentHealthpoints", new JsonValue(currentHealthpoints));
+        json.addChild("getHitAnimation", GameSerialization.serializeAnimation(getHitAnimation));
+        json.addChild("dieAnimation", GameSerialization.serializeAnimation(dieAnimation));
+        json.addChild("onDeath", GameSerialization.serialize(this.onDeath));
+        return json;
+    }
+
+    @Override
+    public void deserialize(JsonValue data) {
+        this.maximalHealthpoints = data.getInt("maximalHealthpoints");
+        this.currentHealthpoints = data.getInt("currentHealthpoints");
+        this.getHitAnimation = GameSerialization.deserializeAnimation(data.get("getHitAnimation"));
+        this.dieAnimation = GameSerialization.deserializeAnimation(data.get("dieAnimation"));
+        this.onDeath = GameSerialization.deserialize(data.get("onDeath"));
     }
 }

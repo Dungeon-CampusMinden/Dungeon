@@ -1,10 +1,14 @@
 package ecs.components.ai.fight;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
+import com.badlogic.gdx.utils.JsonValue;
 import ecs.components.ai.AITools;
 import ecs.components.skill.Skill;
 import ecs.entities.Entity;
 import level.elements.tile.Tile;
+import savegame.GameSerialization;
+import savegame.Reflections;
+import starter.Game;
 import tools.Constants;
 
 public class MeleeAI implements IFightAI {
@@ -38,5 +42,25 @@ public class MeleeAI implements IFightAI {
             timeSinceLastUpdate++;
             AITools.move(entity, path);
         }
+    }
+
+    @Override
+    public JsonValue serialize() {
+        JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        json.addChild("attackRange", new JsonValue(attackRange));
+        json.addChild("fightSkill", fightSkill.serialize());
+        json.addChild("timeSinceLastUpdate", new JsonValue(timeSinceLastUpdate));
+        json.addChild("path", GameSerialization.serializeGraphPath(path));
+        return json;
+    }
+
+    @Override
+    public void deserialize(JsonValue data) {
+        Skill skill = Reflections.generateInstance(Skill.class);
+        skill.deserialize(data.get("fightSkill"));
+        Reflections.setFinalField(this, "fightSkill", skill);
+        Reflections.setFinalField(this, "attackRange", data.getFloat("attackRange"));
+        timeSinceLastUpdate = data.getInt("timeSinceLastUpdate");
+        path = GameSerialization.deserializeGraphPath(data.get("path"));
     }
 }

@@ -1,6 +1,7 @@
 package ecs.components.ai.idle;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
+import com.badlogic.gdx.utils.JsonValue;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.components.ai.AITools;
@@ -9,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import level.elements.tile.Tile;
+import savegame.GameSerialization;
+import savegame.Reflections;
 import starter.Game;
 import tools.Constants;
 import tools.Point;
@@ -159,5 +162,33 @@ public class PatrouilleWalk implements IIdleAI {
             }
             default -> {}
         }
+    }
+
+    @Override
+    public JsonValue serialize() {
+        JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        json.addChild("radius", new JsonValue(radius));
+        json.addChild("numberCheckpoints", new JsonValue(numberCheckpoints));
+        json.addChild("pauseFrames", new JsonValue(pauseFrames));
+        json.addChild("mode", new JsonValue(mode.toString()));
+        json.addChild("initialized", new JsonValue(initialized));
+        json.addChild("forward", new JsonValue(forward));
+        json.addChild("frameCounter", new JsonValue(frameCounter));
+        json.addChild("currentCheckpoint", new JsonValue(currentCheckpoint));
+        json.addChild("currentPath", GameSerialization.serializeGraphPath(currentPath));
+        return json;
+    }
+
+    @Override
+    public void deserialize(JsonValue data) {
+        Reflections.setFinalField(this, "radius", data.getFloat("radius"));
+        Reflections.setFinalField(this, "numberCheckpoints", data.getInt("numberCheckpoints"));
+        Reflections.setFinalField(this, "pauseFrames", data.getInt("pauseFrames"));
+        Reflections.setFinalField(this, "mode", MODE.valueOf(data.getString("mode")));
+        initialized = data.getBoolean("initialized");
+        forward = data.getBoolean("forward");
+        frameCounter = data.getInt("frameCounter");
+        currentCheckpoint = data.getInt("currentCheckpoint");
+        currentPath = GameSerialization.deserializeGraphPath(data.get("currentPath"));
     }
 }

@@ -1,16 +1,18 @@
 package ecs.components;
 
+import com.badlogic.gdx.utils.JsonValue;
 import ecs.components.collision.ICollide;
 import ecs.entities.Entity;
 import java.util.logging.Logger;
 import level.elements.tile.Tile;
 import logging.CustomLogLevel;
+import savegame.ISerializable;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import tools.Point;
 
 @DSLType(name = "hitbox_component")
-public class HitboxComponent extends Component {
+public class HitboxComponent extends Component implements ISerializable {
     public static final Point DEFAULT_OFFSET = new Point(0.25f, 0.25f);
     public static final Point DEFAULT_SIZE = new Point(0.5f, 0.5f);
     public static final ICollide DEFAULT_COLLIDER = (a, b, c) -> System.out.println("Collide");
@@ -145,5 +147,25 @@ public class HitboxComponent extends Component {
     private static MissingComponentException getMissingPositionComponentException() {
         return new MissingComponentException(
                 PositionComponent.class.getName() + " in " + HitboxComponent.class.getName());
+    }
+
+    @Override
+    public JsonValue serialize() {
+        JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        JsonValue offsetJson = new JsonValue(JsonValue.ValueType.object);
+        offsetJson.addChild("x", new JsonValue(offset.x));
+        offsetJson.addChild("y", new JsonValue(offset.y));
+        json.addChild("offset", offsetJson);
+        JsonValue sizeJson = new JsonValue(JsonValue.ValueType.object);
+        sizeJson.addChild("x", new JsonValue(size.x));
+        sizeJson.addChild("y", new JsonValue(size.y));
+        json.addChild("size", sizeJson);
+        return json;
+    }
+
+    @Override
+    public void deserialize(JsonValue data) {
+        offset = new Point(data.get("offset").getFloat("x"), data.get("offset").getFloat("y"));
+        size = new Point(data.get("size").getFloat("x"), data.get("size").getFloat("y"));
     }
 }

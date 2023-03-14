@@ -1,9 +1,13 @@
 package ecs.components.skill;
 
+import com.badlogic.gdx.utils.JsonValue;
 import ecs.entities.Entity;
+import graphic.Animation;
 import tools.Constants;
+import savegame.GameSerialization;
+import savegame.ISerializable;
 
-public class Skill {
+public class Skill implements ISerializable {
 
     private ISkillFunction skillFunction;
     private int coolDownInFrames;
@@ -45,5 +49,21 @@ public class Skill {
     /** reduces the current cool down by frame */
     public void reduceCoolDown() {
         currentCoolDownInFrames = Math.max(0, --currentCoolDownInFrames);
+    }
+
+    @Override
+    public JsonValue serialize() {
+        JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        json.addChild("active", new JsonValue(active));
+        json.addChild("animation", GameSerialization.serializeAnimation(animation));
+        json.addChild("skillFunction", GameSerialization.serialize(skillFunction));
+        return json;
+    }
+
+    @Override
+    public void deserialize(JsonValue data) {
+        active = data.get("active").asBoolean();
+        animation = GameSerialization.deserializeAnimation(data.get("animation"));
+        skillFunction = GameSerialization.deserialize(data.get("skillFunction"));
     }
 }
