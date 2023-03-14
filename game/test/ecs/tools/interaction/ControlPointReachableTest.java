@@ -97,13 +97,13 @@ public class ControlPointReachableTest {
         Point unitDirectionalVector =
                 Point.getUnitDirectionalVector(first.pc.getPosition(), second.pc.getPosition());
         int dist = 0;
-        boolean b =
+        boolean reachable =
                 i.checkReachable(
                         new InteractionData(
                                 first.e, first.pc, first.ic, dist, unitDirectionalVector));
         assertEquals(0, first.sc.getCount());
         assertEquals(0, second.sc.getCount());
-        assertTrue(b);
+        assertTrue("should be true the Points are on the same Tile.", reachable);
 
         cleanup();
     }
@@ -124,13 +124,13 @@ public class ControlPointReachableTest {
         Point unitDirectionalVector =
                 Point.getUnitDirectionalVector(second.pc.getPosition(), first.pc.getPosition());
         float dist = Point.calculateDistance(first.pc.getPosition(), second.pc.getPosition());
-        boolean b =
+        boolean reachable =
                 i.checkReachable(
                         new InteractionData(
                                 first.e, first.pc, first.ic, dist, unitDirectionalVector));
         assertEquals(0, first.sc.getCount());
         assertEquals(0, second.sc.getCount());
-        assertTrue(b);
+        assertTrue("The Points have a line of sight and are close enough", reachable);
     }
 
     /** check if the Entities are diagonal of each other */
@@ -149,13 +149,13 @@ public class ControlPointReachableTest {
         Point unitDirectionalVector =
                 Point.getUnitDirectionalVector(second.pc.getPosition(), first.pc.getPosition());
         float dist = Point.calculateDistance(first.pc.getPosition(), second.pc.getPosition());
-        boolean b =
+        boolean reachable =
                 i.checkReachable(
                         new InteractionData(
                                 first.e, first.pc, first.ic, dist, unitDirectionalVector));
         assertEquals(0, first.sc.getCount());
         assertEquals(0, second.sc.getCount());
-        assertTrue(b);
+        assertTrue("Distance is close enough and the Points have a line of sight", reachable);
         cleanup();
     }
 
@@ -175,13 +175,13 @@ public class ControlPointReachableTest {
         Point unitDirectionalVector =
                 Point.getUnitDirectionalVector(second.pc.getPosition(), first.pc.getPosition());
         float dist = Point.calculateDistance(first.pc.getPosition(), second.pc.getPosition());
-        boolean b =
+        boolean reachable =
                 i.checkReachable(
                         new InteractionData(
                                 first.e, first.pc, first.ic, dist, unitDirectionalVector));
         assertEquals(0, first.sc.getCount());
         assertEquals(0, second.sc.getCount());
-        assertFalse(b);
+        assertFalse("Distance is close enough but there is a Wall between the Points", reachable);
         cleanup();
     }
 
@@ -201,13 +201,13 @@ public class ControlPointReachableTest {
         Point unitDirectionalVector =
                 Point.getUnitDirectionalVector(second.pc.getPosition(), first.pc.getPosition());
         float dist = Point.calculateDistance(first.pc.getPosition(), second.pc.getPosition());
-        boolean b =
+        boolean reachable =
                 i.checkReachable(
                         new InteractionData(
                                 first.e, first.pc, first.ic, dist, unitDirectionalVector));
         assertEquals(0, first.sc.getCount());
         assertEquals(0, second.sc.getCount());
-        assertFalse(b);
+        assertFalse("Distance is close enough but there is a Wall between the Points", reachable);
         cleanup();
     }
 
@@ -230,13 +230,13 @@ public class ControlPointReachableTest {
         Point unitDirectionalVector =
                 Point.getUnitDirectionalVector(second.pc.getPosition(), first.pc.getPosition());
         float dist = Point.calculateDistance(first.pc.getPosition(), second.pc.getPosition());
-        boolean b =
+        boolean reachable =
                 i.checkReachable(
                         new InteractionData(
                                 first.e, first.pc, first.ic, dist, unitDirectionalVector));
         assertEquals(0, first.sc.getCount());
         assertEquals(0, second.sc.getCount());
-        assertFalse(b);
+        assertFalse("Distance not close enough and no line of sight.", reachable);
         cleanup();
     }
 
@@ -259,12 +259,12 @@ public class ControlPointReachableTest {
         Point unitDirectionalVector =
                 Point.getUnitDirectionalVector(second.pc.getPosition(), first.pc.getPosition());
         float dist = Point.calculateDistance(first.pc.getPosition(), second.pc.getPosition());
-        boolean b =
+        boolean reachable =
                 i.checkReachable(
                         new InteractionData(
                                 first.e, first.pc, first.ic, dist, unitDirectionalVector));
         assertEquals(0, first.sc.getCount());
         assertEquals(0, second.sc.getCount());
-        assertFalse(b);
+        assertFalse(reachable);
     }
 }
