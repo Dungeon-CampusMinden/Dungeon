@@ -1,12 +1,12 @@
 package ecs.systems;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
+import configuration.KeyboardConfig;
 import ecs.components.MissingComponentException;
 import ecs.components.PlayableComponent;
 import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
-import mydungeon.ECS;
+import starter.Game;
 
 /** Used to control the player */
 public class KeyboardSystem extends ECS_System {
@@ -15,7 +15,6 @@ public class KeyboardSystem extends ECS_System {
 
     @Override
     public void update() {
-
         ECS.entities.stream()
                 .flatMap(e -> e.getComponent(PlayableComponent.class).stream())
                 .map(pc -> buildDataObject((PlayableComponent) pc))

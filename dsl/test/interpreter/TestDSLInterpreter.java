@@ -3,7 +3,7 @@ package interpreter;
 import static org.junit.Assert.*;
 
 import dslToGame.QuestConfig;
-import graph.Graph;
+import dslToGame.graph.Graph;
 import helpers.Helpers;
 import interpreter.mockECS.*;
 import java.io.ByteArrayOutputStream;

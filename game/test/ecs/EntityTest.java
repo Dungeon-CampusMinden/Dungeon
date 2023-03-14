@@ -4,10 +4,10 @@ import static org.junit.Assert.*;
 
 import ecs.components.Component;
 import ecs.entities.Entity;
-import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import starter.Game;
 
 public class EntityTest {
 
@@ -16,14 +16,14 @@ public class EntityTest {
 
     @Before
     public void setup() {
-        ECS.entities.clear();
+        Game.entities.clear();
         entity = new Entity();
         entity.addComponent(testComponent);
     }
 
     @Test
     public void cTor() {
-        assertTrue(ECS.entities.contains(entity));
+        assertTrue(Game.entities.contains(entity));
     }
 
     @Test

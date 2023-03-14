@@ -2,11 +2,12 @@ package ecs.items;
 
 import ecs.components.AnimationComponent;
 import ecs.components.HitboxComponent;
+import ecs.components.InventoryComponent;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.List;
-import mydungeon.ECS;
+import starter.Game;
 import tools.Point;
 
 public abstract class Item {
@@ -56,7 +57,7 @@ public abstract class Item {
     }
 
     /**
-     * implements what should happen ones the Item is dropped.
+     * implements what should happen once the Item is dropped.
      *
      * @param position the location of the drop
      */
@@ -67,52 +68,37 @@ public abstract class Item {
         HitboxComponent component = new HitboxComponent(droppedItem);
         component.setCollideMethod(
                 (a, b, direction) -> {
-                    if (b.equals(ECS.hero)) {
-                        System.out.println("add item to inventory");
-                        ECS.entitiesToRemove.add(droppedItem);
+                    if (b.equals(Game.hero)) {
+                        Game.hero
+                                .getComponent(InventoryComponent.class)
+                                .ifPresent(
+                                        (x) -> {
+                                            if (((InventoryComponent) x).addItem(this))
+                                                Game.entitiesToRemove.add(droppedItem);
+                                        });
                     }
                 });
 
-        ECS.entities.add(droppedItem);
+        Game.entities.add(droppedItem);
     }
 
     public ItemType getItemType() {
         return itemType;
     }
 
-    public void setItemType(ItemType itemType) {
-        this.itemType = itemType;
-    }
-
     public Animation getInventoryTexture() {
         return inventoryTexture;
-    }
-
-    public void setInventoryTexture(Animation inventoryTexture) {
-        this.inventoryTexture = inventoryTexture;
     }
 
     public Animation getWorldTexture() {
         return worldTexture;
     }
 
-    public void setWorldTexture(Animation worldTexture) {
-        this.worldTexture = worldTexture;
-    }
-
     public String getItemName() {
         return itemName;
     }
 
-    public void setItemName(String itemName) {
-        this.itemName = itemName;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 }

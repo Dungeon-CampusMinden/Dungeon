@@ -3,7 +3,7 @@ package ecs.systems;
 import ecs.components.*;
 import ecs.entities.Entity;
 import graphic.Animation;
-import mydungeon.ECS;
+import starter.Game;
 import tools.Point;
 
 /** MovementSystem is a system that updates the position of entities */
@@ -13,7 +13,6 @@ public class VelocitySystem extends ECS_System {
 
     /** Updates the position of all entities based on their velocity */
     public void update() {
-
         ECS.entities.stream()
                 .flatMap(e -> e.getComponent(VelocityComponent.class).stream())
                 .map(vc -> buildDataObject((VelocityComponent) vc))

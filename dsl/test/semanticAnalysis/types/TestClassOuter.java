@@ -1,6 +1,6 @@
 package semanticAnalysis.types;
 
-import graph.Graph;
+import dslToGame.graph.Graph;
 
 @DSLType
 public class TestClassOuter {

@@ -12,7 +12,7 @@ import java.util.Random;
 import level.elements.ILevel;
 import level.elements.tile.Tile;
 import level.tools.Coordinate;
-import mydungeon.ECS;
+import starter.Game;
 import tools.Point;
 
 public class AITools {
@@ -40,7 +40,7 @@ public class AITools {
                         entity.getComponent(VelocityComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("VelocityComponent"));
-        ILevel level = ECS.currentLevel;
+        ILevel level = Game.currentLevel;
         Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
         int i = 0;
         Tile nextTile = null;
@@ -77,7 +77,7 @@ public class AITools {
      */
     public static List<Tile> getTilesInRange(Point center, float radius) {
         List<Tile> tiles = new ArrayList<>();
-        ILevel level = ECS.currentLevel;
+        ILevel level = Game.currentLevel;
         for (float x = center.x - radius; x <= center.x + radius; x++) {
             for (float y = center.y - radius; y <= center.y + radius; y++) {
                 tiles.add(level.getTileAt(new Point(x, y).toCoordinate()));
@@ -124,7 +124,7 @@ public class AITools {
      * @return Path from the start coordinate to the end coordinate
      */
     public static GraphPath<Tile> calculatePath(Coordinate from, Coordinate to) {
-        ILevel level = ECS.currentLevel;
+        ILevel level = Game.currentLevel;
         return level.findPath(level.getTileAt(from), level.getTileAt(to));
     }
 
@@ -187,7 +187,7 @@ public class AITools {
      * @return Path from the entity to the hero
      */
     public static GraphPath<Tile> calculatePathToHero(Entity entity) {
-        return calculatePath(entity, ECS.hero);
+        return calculatePath(entity, Game.hero);
     }
 
     /**
@@ -237,11 +237,11 @@ public class AITools {
      *     entity.
      */
     public static boolean playerInRange(Entity entity, float range) {
-        return entityInRange(entity, ECS.hero, range);
+        return entityInRange(entity, Game.hero, range);
     }
 
     /**
-     * Check if the entity is on the end of the path
+     * Check if the entity is on the end of the path or has left the path.
      *
      * @param entity Entity
      * @param path Path
@@ -253,7 +253,7 @@ public class AITools {
                         entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        ILevel level = ECS.currentLevel;
+        ILevel level = Game.currentLevel;
         boolean finished =
                 path.get(path.getCount() - 1)
                         .equals(level.getTileAt(pc.getPosition().toCoordinate()));
@@ -265,5 +265,45 @@ public class AITools {
         }
 
         return !onPath || finished;
+    }
+
+    /**
+     * Check if the entity is on the end of the path
+     *
+     * @param entity Entity
+     * @param path Path
+     * @return true, if the entity is on the end of the path.
+     */
+    public static boolean pathFinished(Entity entity, GraphPath<Tile> path) {
+        PositionComponent pc =
+                (PositionComponent)
+                        entity.getComponent(PositionComponent.class)
+                                .orElseThrow(
+                                        () -> new MissingComponentException("PositionComponent"));
+        ILevel level = Game.currentLevel;
+        return path.get(path.getCount() - 1)
+                .equals(level.getTileAt(pc.getPosition().toCoordinate()));
+    }
+
+    /**
+     * Check if the entity has left the path
+     *
+     * @param entity Entity
+     * @param path Path
+     * @return true, if the entity has left the path.
+     */
+    public static boolean pathLeft(Entity entity, GraphPath<Tile> path) {
+        PositionComponent pc =
+                (PositionComponent)
+                        entity.getComponent(PositionComponent.class)
+                                .orElseThrow(
+                                        () -> new MissingComponentException("PositionComponent"));
+        ILevel level = Game.currentLevel;
+        boolean onPath = false;
+        Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
+        for (Tile tile : path) {
+            if (currentTile == tile) onPath = true;
+        }
+        return !onPath;
     }
 }

@@ -2,7 +2,7 @@ package ecs.systems;
 
 import ecs.components.ai.AIComponent;
 import ecs.entities.Entity;
-import mydungeon.ECS;
+import starter.Game;
 
 /** Controls the AI */
 public class AISystem extends ECS_System {
@@ -11,7 +11,6 @@ public class AISystem extends ECS_System {
 
     @Override
     public void update() {
-
         ECS.entities.stream()
                 .flatMap(e -> e.getComponent(AIComponent.class).stream())
                 .map(aic -> buildDataObject((AIComponent) aic))

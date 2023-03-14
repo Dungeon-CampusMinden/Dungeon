@@ -2,16 +2,17 @@ package ecs.systems;
 
 import static org.junit.Assert.assertThrows;
 
+import controller.SystemController;
 import ecs.components.AnimationComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
 import graphic.Painter;
-import mydungeon.ECS;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import starter.Game;
 import tools.Point;
 
 public class DrawSystemTest {
@@ -23,8 +24,8 @@ public class DrawSystemTest {
 
     @Before
     public void setup() {
-        ECS.systems = Mockito.mock(SystemController.class);
-        ECS.entities.clear();
+        Game.systems = Mockito.mock(SystemController.class);
+        Game.entities.clear();
         drawSystem = new DrawSystem(painter);
         entity = new Entity();
         new AnimationComponent(entity, animation);
