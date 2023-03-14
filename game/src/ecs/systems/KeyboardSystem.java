@@ -1,7 +1,7 @@
 package ecs.systems;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
+import configuration.KeyboardConfig;
 import ecs.components.MissingComponentException;
 import ecs.components.PlayableComponent;
 import ecs.components.VelocityComponent;
@@ -22,13 +22,13 @@ public class KeyboardSystem extends ECS_System {
     }
 
     private void checkKeystroke(KSData ksd) {
-        if (Gdx.input.isKeyPressed(Input.Keys.W))
+        if (Gdx.input.isKeyPressed(KeyboardConfig.MOVEMENT_UP.get()))
             ksd.vc.setCurrentYVelocity(1 * ksd.vc.getYVelocity());
-        else if (Gdx.input.isKeyPressed(Input.Keys.S))
+        else if (Gdx.input.isKeyPressed(KeyboardConfig.MOVEMENT_DOWN.get()))
             ksd.vc.setCurrentYVelocity(-1 * ksd.vc.getYVelocity());
-        else if (Gdx.input.isKeyPressed(Input.Keys.D))
+        else if (Gdx.input.isKeyPressed(KeyboardConfig.MOVEMENT_RIGHT.get()))
             ksd.vc.setCurrentXVelocity(1 * ksd.vc.getXVelocity());
-        else if (Gdx.input.isKeyPressed(Input.Keys.A))
+        else if (Gdx.input.isKeyPressed(KeyboardConfig.MOVEMENT_LEFT.get()))
             ksd.vc.setCurrentXVelocity(-1 * ksd.vc.getXVelocity());
     }
 
