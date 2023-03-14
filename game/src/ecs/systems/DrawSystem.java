@@ -17,6 +17,8 @@ public class DrawSystem extends ECS_System {
     private Painter painter;
     private Map<String, PainterConfig> configs;
 
+    private record DSData(Entity e, AnimationComponent ac, PositionComponent pc) {}
+
     /**
      * @param painter PM-Dungeon painter to draw
      */
@@ -28,39 +30,41 @@ public class DrawSystem extends ECS_System {
 
     /** draw entities at their position */
     public void update() {
-        for (Entity entity : Game.entities) {
-            entity.getComponent(AnimationComponent.class)
-                    .ifPresent(
-                            ac -> {
-                                final Animation animation =
-                                        ((AnimationComponent) ac).getCurrentAnimation();
-                                PositionComponent positionComponent =
-                                        (PositionComponent)
-                                                entity.getComponent(PositionComponent.class)
-                                                        .orElseThrow(
-                                                                () ->
-                                                                        new MissingComponentException(
-                                                                                "PositionComponent"));
-                                ;
+        Game.entities.stream()
+                .flatMap(e -> e.getComponent(AnimationComponent.class).stream())
+                .map(ac -> buildDataObject((AnimationComponent) ac))
+                .forEach(this::draw);
+    }
 
-                                String currentAnimationTexture =
-                                        animation.getNextAnimationTexturePath();
-                                if (!configs.containsKey(currentAnimationTexture)) {
-                                    configs.put(
-                                            currentAnimationTexture,
-                                            new PainterConfig(currentAnimationTexture));
-                                }
-                                painter.draw(
-                                        positionComponent.getPosition(),
-                                        currentAnimationTexture,
-                                        configs.get(currentAnimationTexture));
-                            });
+    private void draw(DSData dsd) {
+        final Animation animation = dsd.ac.getCurrentAnimation();
+        String currentAnimationTexture = animation.getNextAnimationTexturePath();
+        if (!configs.containsKey(currentAnimationTexture)) {
+            configs.put(currentAnimationTexture, new PainterConfig(currentAnimationTexture));
         }
+        painter.draw(
+                dsd.pc.getPosition(),
+                currentAnimationTexture,
+                configs.get(currentAnimationTexture));
+    }
+
+    private DSData buildDataObject(AnimationComponent ac) {
+        Entity e = ac.getEntity();
+
+        PositionComponent pc =
+                (PositionComponent)
+                        e.getComponent(PositionComponent.class).orElseThrow(DrawSystem::missingPC);
+
+        return new DSData(e, ac, pc);
     }
 
     @Override
     public void toggleRun() {
         // DrawSystem cant pause
         run = true;
+    }
+
+    private static MissingComponentException missingPC() {
+        return new MissingComponentException("PositionComponent");
     }
 }
