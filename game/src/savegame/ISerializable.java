@@ -10,12 +10,14 @@ public interface ISerializable {
      *
      * @return the serialized object
      */
-    JsonValue serialize();
+    default JsonValue serialize() {
+        return new JsonValue(JsonValue.ValueType.object);
+    }
 
     /**
      * Deserialize the object from a JsonValue.
      *
      * @param data the data to deserialize
      */
-    void deserialize(JsonValue data);
+    default void deserialize(JsonValue data) {}
 }
