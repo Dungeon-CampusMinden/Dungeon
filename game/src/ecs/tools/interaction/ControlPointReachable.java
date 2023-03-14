@@ -4,7 +4,7 @@ import level.tools.Coordinate;
 import starter.Game;
 import tools.Point;
 
-public class ControllPointReachable implements IReachable {
+public class ControlPointReachable implements IReachable {
 
     @Override
     public boolean checkReachable(InteractionData interactionData) {

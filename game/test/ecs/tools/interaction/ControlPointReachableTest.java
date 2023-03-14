@@ -13,7 +13,7 @@ import starter.Game;
 import testinghelper.SimpleCounter;
 import tools.Point;
 
-public class ControllPointReachableTest {
+public class ControlPointReachableTest {
     private record PreparedEntityWithCounter(
             Entity e, SimpleCounter sc, PositionComponent pc, InteractionComponent ic) {}
 
@@ -30,7 +30,7 @@ public class ControllPointReachableTest {
      * testlayout for the Level this Reach check uses the currentLevel to check for walls or not
      * accessible Tiles
      *
-     * <p>F F F F F F W F F F F W F F F F W F F F F F F F F
+     * <p>All normal Floors except the second column which has from row 2-4 Walls
      */
     private LevelElement[][] testLayout =
             new LevelElement[][] {
@@ -83,10 +83,10 @@ public class ControllPointReachableTest {
 
     /** Check when the Entities are on top of each other */
     @Test
-    public void controllDefault() {
+    public void controlDefault() {
         setup();
 
-        IReachable i = new ControllPointReachable();
+        IReachable i = new ControlPointReachable();
 
         Point e1Point = new Point(0, 0);
         PreparedEntityWithCounter first = getEntityCounter(e1Point);
@@ -110,10 +110,10 @@ public class ControllPointReachableTest {
 
     /** Check when the Entities are in a straight line without anything between */
     @Test
-    public void controllStraightNotBlocked() {
+    public void controlStraightNotBlocked() {
         setup();
 
-        IReachable i = new ControllPointReachable();
+        IReachable i = new ControlPointReachable();
 
         Point e1Point = new Point(0, 0);
         PreparedEntityWithCounter first = getEntityCounter(e1Point);
@@ -133,12 +133,12 @@ public class ControllPointReachableTest {
         assertTrue(b);
     }
 
-    /** checkif the Entities are diagonal of each other */
+    /** check if the Entities are diagonal of each other */
     @Test
-    public void controllDiagonaltNotBlocked() {
+    public void controlsDiagonalNotBlocked() {
         setup();
 
-        IReachable i = new ControllPointReachable();
+        IReachable i = new ControlPointReachable();
 
         Point e1Point = new Point(2, 0);
         PreparedEntityWithCounter first = getEntityCounter(e1Point);
@@ -161,10 +161,10 @@ public class ControllPointReachableTest {
 
     /** check if the return value is false when between the Entities is a nonAccessible Tile */
     @Test
-    public void controllDiagonaltBlocked() {
+    public void controlDiagonalBlocked() {
         setup();
 
-        IReachable i = new ControllPointReachable();
+        IReachable i = new ControlPointReachable();
 
         Point e1Point = new Point(0, 0);
         PreparedEntityWithCounter first = getEntityCounter(e1Point);
@@ -187,10 +187,10 @@ public class ControllPointReachableTest {
 
     /** check if the return value is false when between the Entities is a nonAccessible Tile */
     @Test
-    public void controllStraightBlocked() {
+    public void controlStraightBlocked() {
         setup();
 
-        IReachable i = new ControllPointReachable();
+        IReachable i = new ControlPointReachable();
 
         Point e1Point = new Point(0, 1);
         PreparedEntityWithCounter first = getEntityCounter(e1Point);
@@ -213,13 +213,13 @@ public class ControllPointReachableTest {
 
     /**
      * check if the return value is false when between the Entities is a nonAccessible Tile and the
-     * interactionradius is smaller then the distance
+     * interaction-radius is smaller than the distance
      */
     @Test
-    public void controllStraightBlockedOutOfRadius() {
+    public void controlStraightBlockedOutOfRadius() {
         setup();
 
-        IReachable i = new ControllPointReachable();
+        IReachable i = new ControlPointReachable();
 
         Point e1Point = new Point(0, 1);
         PreparedEntityWithCounter first = getEntityCounter(e1Point);
@@ -242,13 +242,13 @@ public class ControllPointReachableTest {
 
     /**
      * check if the return value is false when the distance between the Entities is bigger then the
-     * interactionradius
+     * interaction-radius
      */
     @Test
-    public void controllStraightNotBlockedOutOfRAnge() {
+    public void controlStraightNotBlockedOutOfRAnge() {
         setup();
 
-        IReachable i = new ControllPointReachable();
+        IReachable i = new ControlPointReachable();
 
         Point e1Point = new Point(0, 0);
         PreparedEntityWithCounter first = getEntityCounter(e1Point);

@@ -14,7 +14,7 @@ public class InteractionTool {
     public static final IReachable SIMPLE_REACHABLE =
             (interactionData -> (interactionData.ic().getRadius() - interactionData.dist()) > 0);
 
-    public static final IReachable CONTROLL_POINTS_REACHABLE = new ControllPointReachable();
+    public static final IReachable CONTROLL_POINTS_REACHABLE = new ControlPointReachable();
 
     public static void interactWithClosestInteractable(Entity entity) {
         interactWithClosestInteractable(entity, SIMPLE_REACHABLE);
