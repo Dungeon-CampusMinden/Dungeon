@@ -13,7 +13,7 @@ public class VelocitySystem extends ECS_System {
 
     /** Updates the position of all entities based on their velocity */
     public void update() {
-        ECS.entities.stream()
+        Game.entities.stream()
                 .flatMap(e -> e.getComponent(VelocityComponent.class).stream())
                 .map(vc -> buildDataObject((VelocityComponent) vc))
                 .forEach(this::updatePosition);
@@ -23,7 +23,7 @@ public class VelocitySystem extends ECS_System {
         float newX = vsd.pc.getPosition().x + vsd.vc.getCurrentXVelocity();
         float newY = vsd.pc.getPosition().y + vsd.vc.getCurrentYVelocity();
         Point newPosition = new Point(newX, newY);
-        if (ECS.currentLevel.getTileAt(newPosition.toCoordinate()).isAccessible()) {
+        if (Game.currentLevel.getTileAt(newPosition.toCoordinate()).isAccessible()) {
             vsd.pc.setPosition(newPosition);
             movementAnimation(vsd.e);
         }

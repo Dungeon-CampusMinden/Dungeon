@@ -1,7 +1,7 @@
 package ecs.systems;
 
 import com.badlogic.gdx.Gdx;
-import configuration.KeyboardConfig;
+import com.badlogic.gdx.Input;
 import ecs.components.MissingComponentException;
 import ecs.components.PlayableComponent;
 import ecs.components.VelocityComponent;
@@ -15,7 +15,7 @@ public class KeyboardSystem extends ECS_System {
 
     @Override
     public void update() {
-        ECS.entities.stream()
+        Game.entities.stream()
                 .flatMap(e -> e.getComponent(PlayableComponent.class).stream())
                 .map(pc -> buildDataObject((PlayableComponent) pc))
                 .forEach(this::checkKeystroke);

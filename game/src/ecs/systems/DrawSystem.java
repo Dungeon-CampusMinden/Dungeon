@@ -30,7 +30,7 @@ public class DrawSystem extends ECS_System {
 
     /** draw entities at their position */
     public void update() {
-        ECS.entities.stream()
+        Game.entities.stream()
                 .flatMap(e -> e.getComponent(AnimationComponent.class).stream())
                 .map(ac -> buildDataObject((AnimationComponent) ac))
                 .forEach(this::draw);
