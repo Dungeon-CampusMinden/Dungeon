@@ -11,7 +11,7 @@ import starter.Game;
 
 /** Used to control the player */
 public class PlayerSystem extends ECS_System {
-    
+
     private record KSData(Entity e, PlayableComponent pc, VelocityComponent vc) {}
 
     @Override
@@ -31,11 +31,11 @@ public class PlayerSystem extends ECS_System {
             ksd.vc.setCurrentXVelocity(1 * ksd.vc.getXVelocity());
         else if (Gdx.input.isKeyPressed(KeyboardConfig.MOVEMENT_LEFT.get()))
             ksd.vc.setCurrentXVelocity(-1 * ksd.vc.getXVelocity());
-
-        if (Gdx.input.isKeyPressed(KeyboardConfig.INTERACT_WORLD.get()))
+        
+        else if (Gdx.input.isKeyPressed(KeyboardConfig.INTERACT_WORLD.get()))
             InteractionTool.interactWithClosestInteractable(Game.hero);
 
-            // check skills
+        // check skills
         else if (Gdx.input.isKeyPressed(KeyboardConfig.FIRST_SKILL.get()))
             Game.hero.getFirstSkill().execute(Game.hero);
         else if (Gdx.input.isKeyPressed(KeyboardConfig.SECOND_SKILL.get()))
