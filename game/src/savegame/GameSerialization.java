@@ -20,6 +20,13 @@ public class GameSerialization {
 
     private static final URI baseURI = new File("").toURI();
 
+    /**
+     * Serialize an object. Object must be serializable by the ISerializable interface or by the
+     * java.io.Serializable interface.
+     *
+     * @param object Object to serialize
+     * @return Serialized object
+     */
     public static JsonValue serialize(Object object) {
         if (ISerializable.class.isAssignableFrom(object.getClass())) {
             return serializeISerializable((ISerializable) object);
@@ -32,6 +39,14 @@ public class GameSerialization {
         }
     }
 
+    /**
+     * Deserialize an object from JsonValue. Object must be serializable by the ISerializable
+     * interface or by the java.io.Serializable interface.
+     *
+     * @param data Serialized object
+     * @return Deserialized Object
+     * @param <T> Type of the object
+     */
     public static <T extends Serializable & ISerializable> T deserialize(JsonValue data) {
         if (data.getString("type").equals(Serializable.class.getName())) {
             return (T) deserializeObject(data);
@@ -42,6 +57,12 @@ public class GameSerialization {
         }
     }
 
+    /**
+     * Serialize an {@link Animation} object.
+     *
+     * @param animation Animation to serialize
+     * @return Serialized animation
+     */
     public static JsonValue serializeAnimation(Animation animation) {
         JsonValue json = new JsonValue(JsonValue.ValueType.object);
         try {
@@ -78,9 +99,15 @@ public class GameSerialization {
         return json;
     }
 
+    /**
+     * Deserialize an {@link Animation} object.
+     *
+     * @param data Serialized animation
+     * @return Deserialized animation
+     */
     public static Animation deserializeAnimation(JsonValue data) {
         Class<Animation> clazz = Animation.class;
-        Animation obj = Reflections.generateInstance(clazz);
+        Animation obj = Reflections.createInstance(clazz);
 
         Reflections.setFinalField(
                 obj, "animationFrames", List.of(data.get("frames").asStringArray()));
@@ -91,6 +118,12 @@ public class GameSerialization {
         return obj;
     }
 
+    /**
+     * Serialize an {@link Damage} object.
+     *
+     * @param damage Damage to serialize
+     * @return Serialized damage
+     */
     public static JsonValue serializeDamage(Damage damage) {
         // TODO: Save associated entity
         JsonValue json = new JsonValue(JsonValue.ValueType.object);
@@ -100,12 +133,77 @@ public class GameSerialization {
         return json;
     }
 
+    /**
+     * Deserialize an {@link Damage} object.
+     *
+     * @param data Serialized damage
+     * @return Deserialized damage
+     */
     public static Damage deserializeDamage(JsonValue data) {
         // TODO: Load associated entity
         return new Damage(
                 data.getInt("damageAmount"),
                 DamageType.valueOf(data.getString("damageType")),
                 null);
+    }
+
+    /**
+     * Serialize a {@link Point} object.
+     *
+     * @param point Point to serialize
+     * @return Serialized object
+     */
+    public static JsonValue serializePoint(Point point) {
+        JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        json.addChild("x", new JsonValue(point.x));
+        json.addChild("y", new JsonValue(point.y));
+        return json;
+    }
+
+    /**
+     * Deserialize a {@link Point} object.
+     *
+     * @param data Serialized Point
+     * @return Deserialized Point Object
+     */
+    public static Point deserializePoint(JsonValue data) {
+        return new Point(data.getInt("x"), data.getInt("y"));
+    }
+
+    /**
+     * Serialize a {@link GraphPath<Tile>} object.
+     *
+     * @param path Path to serialize
+     * @return Serialized object
+     */
+    public static JsonValue serializeGraphPath(GraphPath<Tile> path) {
+        if (path == null) {
+            return new JsonValue(JsonValue.ValueType.nullValue);
+        }
+        JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        json.addChild("class", new JsonValue(path.getClass().getName()));
+        json.addChild("geneticType", new JsonValue(Tile.class.getName()));
+        JsonValue nodes = new JsonValue(JsonValue.ValueType.array);
+        for (int i = 0; i < path.getCount(); i++) {
+            nodes.addChild(serializePoint(path.get(i).getCoordinate().toPoint()));
+        }
+        json.addChild("nodes", nodes);
+        return json;
+    }
+
+    /**
+     * Deserializes a {@link GraphPath<Tile>} from a JsonValue. REQUIRED: The Game musst have the
+     * current level loaded.
+     *
+     * @param data The JsonValue to deserialize from
+     * @return The deserialized GraphPath
+     */
+    public static GraphPath<Tile> deserializeGraphPath(JsonValue data) {
+        GraphPath<Tile> path = new DefaultGraphPath<>();
+        for (JsonValue node : data.get("nodes")) {
+            path.add(Game.currentLevel.getTileAt(deserializePoint(node).toCoordinate()));
+        }
+        return path;
     }
 
     private static JsonValue serializeObject(Object object) {
@@ -161,47 +259,6 @@ public class GameSerialization {
             throw new RuntimeException(
                     "Could not deserialize object of class " + data.getString("class"), e);
         }
-    }
-
-    public static JsonValue serializePoint(Point point) {
-        JsonValue json = new JsonValue(JsonValue.ValueType.object);
-        json.addChild("x", new JsonValue(point.x));
-        json.addChild("y", new JsonValue(point.y));
-        return json;
-    }
-
-    public static Point deserializePoint(JsonValue data) {
-        return new Point(data.getInt("x"), data.getInt("y"));
-    }
-
-    public static JsonValue serializeGraphPath(GraphPath<Tile> path) {
-        if (path == null) {
-            return new JsonValue(JsonValue.ValueType.nullValue);
-        }
-        JsonValue json = new JsonValue(JsonValue.ValueType.object);
-        json.addChild("class", new JsonValue(path.getClass().getName()));
-        json.addChild("geneticType", new JsonValue(Tile.class.getName()));
-        JsonValue nodes = new JsonValue(JsonValue.ValueType.array);
-        for (int i = 0; i < path.getCount(); i++) {
-            nodes.addChild(serializePoint(path.get(i).getCoordinate().toPoint()));
-        }
-        json.addChild("nodes", nodes);
-        return json;
-    }
-
-    /**
-     * Deserializes a GraphPath from a JsonValue. REQUIRED: The Game musst have the current level
-     * loaded.
-     *
-     * @param data The JsonValue to deserialize from
-     * @return The deserialized GraphPath
-     */
-    public static GraphPath<Tile> deserializeGraphPath(JsonValue data) {
-        GraphPath<Tile> path = new DefaultGraphPath<>();
-        for (JsonValue node : data.get("nodes")) {
-            path.add(Game.currentLevel.getTileAt(deserializePoint(node).toCoordinate()));
-        }
-        return path;
     }
 
     private static JsonValue serializeISerializable(ISerializable serializable) {

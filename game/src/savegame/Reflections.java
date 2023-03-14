@@ -5,6 +5,13 @@ import java.lang.reflect.Field;
 
 public class Reflections {
 
+    /**
+     * Set a final field of an object to a new value.
+     *
+     * @param object Object where the field is located
+     * @param fieldName the name of the field
+     * @param value the new value
+     */
     public static void setFinalField(Object object, String fieldName, Object value) {
         try {
             Field field = object.getClass().getDeclaredField(fieldName);
@@ -16,7 +23,14 @@ public class Reflections {
         }
     }
 
-    public static <T> T generateInstance(Class<T> clazz) {
+    /**
+     * Create a new instance of a class using the default constructor.
+     *
+     * @param clazz the class to instantiate
+     * @return the new instance
+     * @param <T> the type of the class
+     */
+    public static <T> T createInstance(Class<T> clazz) {
         try {
             Constructor<T> constructor = (Constructor<T>) clazz.getConstructors()[0];
             constructor.setAccessible(true);
@@ -26,6 +40,14 @@ public class Reflections {
         }
     }
 
+    /**
+     * Get the value of a field of an object.
+     *
+     * @param object the object
+     * @param fieldName the name of the field
+     * @return the value of the field
+     * @param <T> the type of the field
+     */
     public static <T> T getFieldValue(Object object, String fieldName) {
         try {
             Field field = object.getClass().getDeclaredField(fieldName);

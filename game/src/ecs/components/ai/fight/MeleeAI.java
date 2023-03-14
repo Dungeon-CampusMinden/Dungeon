@@ -56,7 +56,7 @@ public class MeleeAI implements IFightAI {
 
     @Override
     public void deserialize(JsonValue data) {
-        Skill skill = Reflections.generateInstance(Skill.class);
+        Skill skill = Reflections.createInstance(Skill.class);
         skill.deserialize(data.get("fightSkill"));
         Reflections.setFinalField(this, "fightSkill", skill);
         Reflections.setFinalField(this, "attackRange", data.getFloat("attackRange"));

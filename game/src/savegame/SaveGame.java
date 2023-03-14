@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.JsonWriter;
 import ecs.entities.Entity;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import starter.Game;
 
@@ -19,7 +20,12 @@ public class SaveGame {
         PRETTY_PRINT_SETTINGS.singleLineColumns = 0;
     }
 
-    private static JsonValue getEntityData() throws Exception {
+    /**
+     * Gather all entities and their components
+     *
+     * @return JsonValue containing all entities and their components
+     */
+    private static JsonValue getEntityData() {
 
         JsonValue entities = new JsonValue(JsonValue.ValueType.array);
 
@@ -37,7 +43,12 @@ public class SaveGame {
         return entities;
     }
 
-    public static void save() throws Exception {
+    /**
+     * Save the current game state to a file
+     *
+     * @throws IOException If the file could not be written
+     */
+    public static void save() throws IOException {
         System.out.println(getEntityData().toJson(JsonWriter.OutputType.json));
 
         JsonValue root = new JsonValue(JsonValue.ValueType.object);
