@@ -2,7 +2,7 @@ package ecs.components.skill;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
-import mydungeon.ECS;
+import starter.Game;
 import tools.Point;
 
 public class SkillTools {
@@ -64,7 +64,7 @@ public class SkillTools {
 
     public static Point getCursorPositionAsPoint() {
         Vector3 mousePosition =
-                ECS.dungeoncamera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+                Game.camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
         return new Point(mousePosition.x, mousePosition.y);
     }
 }

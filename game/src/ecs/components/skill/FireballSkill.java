@@ -9,7 +9,7 @@ public class FireballSkill extends DamageProjectileSkill {
         super(
                 "monster/imp/", // TODO change texture
                 0.5f,
-                new Damage(1, DamageType.FIRE),
+                new Damage(1, DamageType.FIRE, null),
                 new Point(10, 10),
                 targetSelection,
                 10f);

@@ -35,7 +35,7 @@ public class VelocitySystem extends ECS_System {
             // tiles
             else if (vsd.e.getComponent(ProjectileComponent.class).isPresent())
                 Game.entitiesToRemove.add(vsd.e);
-
+            
         vsd.vc.setCurrentYVelocity(0);
         vsd.vc.setCurrentXVelocity(0);
 

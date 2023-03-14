@@ -3,7 +3,7 @@ package ecs.systems;
 import ecs.components.*;
 import ecs.components.skill.ProjectileComponent;
 import ecs.entities.Entity;
-import mydungeon.ECS;
+import starter.Game;
 import tools.Point;
 
 public class ProjectileSystem extends ECS_System {
@@ -15,7 +15,7 @@ public class ProjectileSystem extends ECS_System {
     /** reduces the cool down for all skills */
     @Override
     public void update() {
-        ECS.entities.stream()
+        Game.entities.stream()
                 // Consider only entities that have a ProjectileComponent
                 .flatMap(e -> e.getComponent(ProjectileComponent.class).stream())
                 .map(hc -> buildDataObject((ProjectileComponent) hc))
@@ -55,7 +55,7 @@ public class ProjectileSystem extends ECS_System {
     }
 
     private void removeDeadEntities(HSData data) {
-        ECS.entitiesToRemove.add(data.pc.getEntity());
+        Game.entitiesToRemove.add(data.pc.getEntity());
     }
 
     public boolean hasReachedEndpoint(Point start, Point end, Point current) {

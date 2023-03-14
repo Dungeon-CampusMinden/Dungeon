@@ -7,7 +7,7 @@ import ecs.damage.Damage;
 import ecs.entities.Entity;
 import graphic.Animation;
 import level.elements.tile.Tile;
-import mydungeon.ECS;
+import starter.Game;
 import tools.Point;
 
 public abstract class DamageProjectileSkill implements ISkillFunction {
@@ -67,7 +67,7 @@ public abstract class DamageProjectileSkill implements ISkillFunction {
                                     .ifPresent(
                                             hc -> {
                                                 ((HealthComponent) hc).receiveHit(projectileDamage);
-                                                ECS.entitiesToRemove.add(projectile);
+                                                Game.entitiesToRemove.add(projectile);
                                             });
                         }
                     }
