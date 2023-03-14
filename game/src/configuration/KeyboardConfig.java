@@ -22,4 +22,6 @@ public class KeyboardConfig {
             new ConfigKey<>(new String[] {"skill", "first"}, new ConfigIntValue(Input.Keys.Q));
     public static final ConfigKey<Integer> SECOND_SKILL =
             new ConfigKey<>(new String[] {"skill", "second"}, new ConfigIntValue(Input.Keys.R));
+    public static final ConfigKey<Integer> GAME_SAVE =
+            new ConfigKey<>(new String[] {"game", "save"}, new ConfigIntValue(Input.Keys.O));
 }
