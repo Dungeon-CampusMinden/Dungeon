@@ -2,21 +2,22 @@ package ecs.systems;
 
 import static org.junit.Assert.*;
 
+import controller.SystemController;
 import ecs.components.skill.ISkillFunction;
 import ecs.components.skill.Skill;
 import ecs.components.skill.SkillComponent;
 import ecs.entities.Entity;
-import mydungeon.ECS;
 import org.junit.Test;
 import org.mockito.Mockito;
+import starter.Game;
 import tools.Constants;
 
 public class SkillSystemTest {
 
     @Test
     public void update() {
-        ECS.entities.clear();
-        ECS.systems = new SystemController();
+        Game.entities.clear();
+        Game.systems = new SystemController();
         SkillSystem system = new SkillSystem();
         Entity entity = new Entity();
         ISkillFunction skillFunction = Mockito.mock(ISkillFunction.class);

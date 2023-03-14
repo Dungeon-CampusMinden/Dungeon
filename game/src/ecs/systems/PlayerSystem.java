@@ -34,6 +34,12 @@ public class PlayerSystem extends ECS_System {
 
         if (Gdx.input.isKeyPressed(KeyboardConfig.INTERACT_WORLD.get()))
             InteractionTool.interactWithClosestInteractable(Game.hero);
+
+            // check skills
+        else if (Gdx.input.isKeyPressed(KeyboardConfig.FIRST_SKILL.get()))
+            Game.hero.getFirstSkill().execute(Game.hero);
+        else if (Gdx.input.isKeyPressed(KeyboardConfig.SECOND_SKILL.get()))
+            Game.hero.getSecondSkill().execute(Game.hero);
     }
 
     private KSData buildDataObject(PlayableComponent pc) {
