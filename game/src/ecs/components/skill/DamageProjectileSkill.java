@@ -6,7 +6,6 @@ import ecs.components.collision.ICollide;
 import ecs.damage.Damage;
 import ecs.entities.Entity;
 import graphic.Animation;
-import level.elements.tile.Tile;
 import starter.Game;
 import tools.Point;
 
@@ -59,20 +58,18 @@ public abstract class DamageProjectileSkill implements ISkillFunction {
                 new VelocityComponent(projectile, velocity.x, velocity.y, animation, animation);
         new ProjectileComponent(projectile, epc.getPosition(), targetPoint);
         ICollide collide =
-                new ICollide() {
-                    @Override
-                    public void onCollision(Entity a, Entity b, Tile.Direction from) {
-                        if (b != entity) {
-                            b.getComponent(HealthComponent.class)
-                                    .ifPresent(
-                                            hc -> {
-                                                ((HealthComponent) hc).receiveHit(projectileDamage);
-                                                Game.entitiesToRemove.add(projectile);
-                                            });
-                        }
+                (a, b, from) -> {
+                    if (b != entity) {
+                        b.getComponent(HealthComponent.class)
+                                .ifPresent(
+                                        hc -> {
+                                            ((HealthComponent) hc).receiveHit(projectileDamage);
+                                            Game.entitiesToRemove.add(projectile);
+                                        });
                     }
                 };
 
-        new HitboxComponent(projectile, new Point(0.25f, 0.25f), projectileHitboxSize, collide);
+        new HitboxComponent(
+                projectile, new Point(0.25f, 0.25f), projectileHitboxSize, collide, null);
     }
 }

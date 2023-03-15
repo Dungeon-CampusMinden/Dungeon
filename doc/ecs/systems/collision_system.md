@@ -3,8 +3,7 @@ title: "Collision System"
 ---
 
 ## Funktion
-- Was macht das System
+Das Kollisionssystem löst aus das wenn zwei Entitäten Kollidieren oder nicht mehr kollidieren die jeweilige Strategie der HitboxComponent aufgerufen wird. 
 
 ## Welche Key-Components
-## Welche benötigten Components
-## Welche Optionalen Components
+Damit das CollisionSystem die Entitäten kontrolliert wird die Hitbox Komponente benötigt.

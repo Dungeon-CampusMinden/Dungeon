@@ -25,7 +25,11 @@ public class Hero extends Entity {
         new PositionComponent(this, startPosition);
         new PlayableComponent(this);
         SkillComponent sc = new SkillComponent(this);
-        new HitboxComponent(this, (a, b, c) -> System.out.println("heroCollision"));
+
+        new HitboxComponent(
+                this,
+                (a, b, c) -> System.out.println("heroCollisionEnter"),
+                (a, b, c) -> System.out.println("heroCollisionLeave"));
 
         ISkillFunction function = (e -> System.out.println("HERO SKILL"));
         firstSkill =
