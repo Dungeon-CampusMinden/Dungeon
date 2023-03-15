@@ -18,4 +18,8 @@ public class KeyboardConfig {
             new ConfigKey<>(new String[] {"inventory", "open"}, new ConfigIntValue(Input.Keys.I));
     public static final ConfigKey<Integer> INTERACT_WORLD =
             new ConfigKey<>(new String[] {"interact", "world"}, new ConfigIntValue(Input.Keys.E));
+    public static final ConfigKey<Integer> FIRST_SKILL =
+            new ConfigKey<>(new String[] {"skill", "first"}, new ConfigIntValue(Input.Keys.Q));
+    public static final ConfigKey<Integer> SECOND_SKILL =
+            new ConfigKey<>(new String[] {"skill", "second"}, new ConfigIntValue(Input.Keys.R));
 }
