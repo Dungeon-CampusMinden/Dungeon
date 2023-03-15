@@ -227,7 +227,7 @@ public class TileLevel implements ILevel {
                                                                 .getConnections()
                                                                 .removeValue(y, true);
                                                 }));
-        // TODO better fix
+        // TODO Issue #461
         if (tile.isAccessible()) nodeCount--;
     }
 
@@ -247,7 +247,7 @@ public class TileLevel implements ILevel {
                 Tile n = neighbor.getToNode();
                 n.addConnection(tile);
             }
-            // TODO Better fix
+            // TODO Issue #461
             nodeCount++;
         }
     }
