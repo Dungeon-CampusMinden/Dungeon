@@ -1,14 +1,13 @@
 package ecs.systems;
 
-import static ecs.damage.DamageType.FIRE;
-import static ecs.damage.DamageType.MAGIC;
-import static ecs.damage.DamageType.PHYSICAL;
-
 import ecs.components.AnimationComponent;
 import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
+import ecs.components.stats.StatsComponent;
 import ecs.components.xp.XPComponent;
+import ecs.damage.DamageType;
 import ecs.entities.Entity;
+import java.util.stream.Stream;
 import starter.Game;
 
 /**
@@ -47,19 +46,47 @@ public class HealthSystem extends ECS_System {
     }
 
     private HSData applyDamage(HSData hsd) {
-        int dmgAmount =
-                hsd.hc.getDamage(PHYSICAL) + hsd.hc.getDamage(MAGIC) + hsd.hc.getDamage(FIRE);
+        hsd.e
+                .getComponent(StatsComponent.class)
+                .ifPresentOrElse(
+                        sc -> {
+                            StatsComponent scomp = (StatsComponent) sc;
+                            doDamageAndAnimation(hsd, calculateDamageWithMultipliers(scomp, hsd));
+                        },
+                        () -> {
+                            doDamageAndAnimation(
+                                    hsd,
+                                    Stream.of(DamageType.values())
+                                            .mapToInt(hsd.hc::getDamage)
+                                            .sum());
+                        });
+        return hsd;
+    }
 
+    /**
+     * Calculates damage with multipliers of the StatsComponent.
+     *
+     * @param statsComponent The StatsComponent of the entity.
+     * @param hsd The HealthSystemData object.
+     */
+    private int calculateDamageWithMultipliers(StatsComponent statsComponent, HSData hsd) {
+        return Stream.of(DamageType.values())
+                .mapToInt(
+                        dt ->
+                                Math.round(
+                                        statsComponent.getDamageModifiers().getMultiplier(dt)
+                                                * hsd.hc.getDamage(dt)))
+                .sum();
+    }
+
+    private void doDamageAndAnimation(HSData hsd, int dmgAmount) {
         if (dmgAmount > 0) {
             // we have some damage - let's show a little dance
             hsd.ac.setCurrentAnimation(hsd.hc.getGetHitAnimation());
         }
-
         // reset all damage objects in health component and apply damage
         hsd.hc.clearDamage();
         hsd.hc.setCurrentHealthpoints(hsd.hc.getCurrentHealthpoints() - dmgAmount);
-
-        return hsd;
     }
 
     private void removeDeadEntities(HSData hsd) {
