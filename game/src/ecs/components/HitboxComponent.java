@@ -3,7 +3,9 @@ package ecs.components;
 import ecs.components.collision.ICollide;
 import ecs.entities.Entity;
 import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Logger;
 import level.elements.tile.Tile;
+import logging.CustomLogLevel;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import tools.Point;
@@ -13,6 +15,7 @@ public class HitboxComponent extends Component {
     private /*@DSLTypeMember(name="offset")*/ Point offset;
     private /*@DSLTypeMember(name="size")*/ Point size;
     private ICollide collideMethod;
+    private final Logger hitboxLogger = Logger.getLogger(this.getClass().getName());
 
     public HitboxComponent(Entity entity, Point offset, Point size, ICollide collideMethod) {
         super(entity);
@@ -51,6 +54,14 @@ public class HitboxComponent extends Component {
      */
     public void collide(HitboxComponent other, Tile.Direction direction)
             throws InvocationTargetException, IllegalAccessException {
+        hitboxLogger.log(
+                CustomLogLevel.DEBUG,
+                this.getClass().getSimpleName()
+                        + " is processing collision between entities '"
+                        + entity.getClass().getSimpleName()
+                        + "' and '"
+                        + other.getClass().getSimpleName()
+                        + "'.");
         collideMethod.onCollision(this.entity, other.entity, direction);
     }
 

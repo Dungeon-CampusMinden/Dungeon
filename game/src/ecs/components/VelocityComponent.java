@@ -3,6 +3,8 @@ package ecs.components;
 import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.List;
+import java.util.logging.Logger;
+import logging.CustomLogLevel;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
@@ -18,6 +20,7 @@ public class VelocityComponent extends Component {
 
     private @DSLTypeMember(name = "move_right_animation") Animation moveRightAnimation;
     private @DSLTypeMember(name = "move_left_animation") Animation moveLeftAnimation;
+    private final Logger velocityCompLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * @param entity associated entity
@@ -86,6 +89,12 @@ public class VelocityComponent extends Component {
      * @return speed with which the entity moves on the x-axis
      */
     public float getXVelocity() {
+        velocityCompLogger.log(
+                CustomLogLevel.DEBUG,
+                "Fetching x-velocity for entity '"
+                        + entity.getClass().getSimpleName()
+                        + "': "
+                        + xVelocity);
         return xVelocity;
     }
 
@@ -102,6 +111,12 @@ public class VelocityComponent extends Component {
      * @return Speed with which the entity moves on the y-axis
      */
     public float getYVelocity() {
+        velocityCompLogger.log(
+                CustomLogLevel.DEBUG,
+                "Fetching y-velocity for entity '"
+                        + entity.getClass().getSimpleName()
+                        + "': "
+                        + yVelocity);
         return yVelocity;
     }
     /**

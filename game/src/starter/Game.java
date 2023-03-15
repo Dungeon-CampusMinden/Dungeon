@@ -1,6 +1,7 @@
 package starter;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
+import static logging.LoggerConfig.initBaseLogger;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 import level.IOnLevelLoader;
 import level.LevelAPI;
 import level.elements.ILevel;
@@ -69,9 +71,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static PauseMenu pauseMenu;
     private PositionComponent heroPositionComponent;
     public static Hero hero;
+    private Logger gameLogger;
 
     /** Called once at the beginning of the game. */
     protected void setup() {
+        initBaseLogger();
+        gameLogger = Logger.getLogger(this.getClass().getName());
         controller.clear();
         systems = new SystemController();
         controller.add(systems);
@@ -99,6 +104,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     protected void frame() {
         camera.setFocusPoint(heroPositionComponent.getPosition());
         entities.removeAll(entitiesToRemove);
+        for (Entity entity : entitiesToRemove) {
+            gameLogger.info("Entity '" + entity.getClass().getSimpleName() + "' was deleted.");
+        }
         entitiesToRemove.clear();
         if (isOnEndTile()) levelAPI.loadLevel();
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
