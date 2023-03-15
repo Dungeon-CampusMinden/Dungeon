@@ -1,6 +1,10 @@
 package ecs.systems;
 
-import ecs.components.*;
+import ecs.components.AnimationComponent;
+import ecs.components.MissingComponentException;
+import ecs.components.PositionComponent;
+import ecs.components.VelocityComponent;
+import ecs.components.skill.ProjectileComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
 import starter.Game;
@@ -27,6 +31,12 @@ public class VelocitySystem extends ECS_System {
             vsd.pc.setPosition(newPosition);
             movementAnimation(vsd.e);
         }
+
+        // remove projectiles that hit the wall or other non-accessible
+        // tiles
+        else if (vsd.e.getComponent(ProjectileComponent.class).isPresent())
+            Game.entitiesToRemove.add(vsd.e);
+
         vsd.vc.setCurrentYVelocity(0);
         vsd.vc.setCurrentXVelocity(0);
 

@@ -48,7 +48,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /** Contais all Controller of the Dungeon */
     protected List<AbstractController<?>> controller;
 
-    protected DungeonCamera camera;
+    public static DungeonCamera camera;
     /** Draws objects */
     protected Painter painter;
 
