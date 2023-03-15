@@ -1,0 +1,20 @@
+{
+"keyboard": {
+	"movement": {
+		"up": "51",
+		"down": "47",
+		"left": "29",
+		"right": "32"
+	},
+	"inventory": {
+		"open": "37"
+	},
+	"interact": {
+		"world": "33"
+	},
+	"skill": {
+		"first": "45",
+		"second": "46"
+	}
+}
+}

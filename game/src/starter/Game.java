@@ -98,6 +98,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new CollisionSystem();
         new HealthSystem();
         new XPSystem();
+        new SkillSystem();
     }
 
     /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
