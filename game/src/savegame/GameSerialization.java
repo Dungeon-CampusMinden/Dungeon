@@ -12,7 +12,10 @@ import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.Base64;
 import java.util.List;
+
+import level.elements.tile.DoorTile;
 import level.elements.tile.Tile;
+import level.tools.LevelElement;
 import starter.Game;
 import tools.Point;
 
@@ -204,6 +207,14 @@ public class GameSerialization {
             path.add(Game.currentLevel.getTileAt(deserializePoint(node).toCoordinate()));
         }
         return path;
+    }
+
+    public static JsonValue serializeTile(Tile tile) {
+        JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        json.addChild("class", new JsonValue(tile.getClass().getName()));
+        json.addChild("levelElement", new JsonValue(tile.getLevelElement().name()));
+        json.addChild("location", serializePoint(tile.getCoordinate().toPoint()));
+        return json;
     }
 
     private static JsonValue serializeObject(Object object) {
