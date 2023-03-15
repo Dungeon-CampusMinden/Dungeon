@@ -66,7 +66,7 @@ public abstract class Item {
         new PositionComponent(droppedItem, position);
         new AnimationComponent(droppedItem, worldTexture);
         HitboxComponent component = new HitboxComponent(droppedItem);
-        component.setCollideMethod(
+        component.setiCollideEnter(
                 (a, b, direction) -> {
                     if (b.equals(Game.hero)) {
                         Game.hero

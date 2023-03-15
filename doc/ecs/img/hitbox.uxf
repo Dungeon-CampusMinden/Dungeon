@@ -1,0 +1,20 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>290</x><y>130</y><w>100</w><h>30</h></coordinates><panel_attributes>CollisionSystem
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>290</x><y>50</y><w>100</w><h>30</h></coordinates><panel_attributes>ECS_System</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>330</x><y>70</y><w>30</w><h>80</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>470</x><y>130</y><w>290</w><h>200</h></coordinates><panel_attributes>HitboxComponent
+--
+- offset: Point
+- size: Point
+- iCollideEnter: ICollide
+- iCollideLeave: ICollide
+--
++ onEnter(HitboComponent other, direction)
++ onLeave(HitboComponent other, direction)
++ getBottomLeft(): Point
++ getTopRight(): Point
++ getCenter(): Point
++ setICollideEnter(iCollideEnter: IColide): void
++ setICollideLeave(iCollideLeave: ICollide): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>570</x><y>50</y><w>100</w><h>30</h></coordinates><panel_attributes>/Component/</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>610</x><y>70</y><w>30</w><h>80</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>380</x><y>140</y><w>110</w><h>30</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>90;10;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>450</x><y>430</y><w>320</w><h>60</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+ICollide
+--
+onCollision(a: Entity, b:Entity, from:Tile.Direction): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>610</x><y>320</y><w>30</w><h>130</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;110;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>450</x><y>550</y><w>140</w><h>30</h></coordinates><panel_attributes>CollisionStrategyA
+bg=red</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>620</x><y>550</y><w>130</w><h>30</h></coordinates><panel_attributes>CollisionStrategyB
+bg=red</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>680</x><y>480</y><w>30</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;10;10;70</additional_attributes></element><element><id>Relation</id><coordinates><x>510</x><y>480</y><w>30</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;10;10;70</additional_attributes></element></diagram>
