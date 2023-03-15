@@ -31,6 +31,9 @@ public class KeyboardSystem extends ECS_System {
             ksd.vc.setCurrentXVelocity(1 * ksd.vc.getXVelocity());
         else if (Gdx.input.isKeyPressed(KeyboardConfig.MOVEMENT_LEFT.get()))
             ksd.vc.setCurrentXVelocity(-1 * ksd.vc.getXVelocity());
+
+        if (Gdx.input.isKeyPressed(KeyboardConfig.INTERACT_WORLD.get()))
+            InteractionTool.interactWithClosestInteractable(Game.hero);
     }
 
     private KSData buildDataObject(PlayableComponent pc) {
