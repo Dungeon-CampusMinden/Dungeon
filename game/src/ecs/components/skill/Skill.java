@@ -1,22 +1,21 @@
 package ecs.components.skill;
 
 import ecs.entities.Entity;
-import graphic.Animation;
+import tools.Constants;
 
 public class Skill {
 
-    private boolean active;
-    private Animation animation;
     private ISkillFunction skillFunction;
+    private int coolDownInFrames;
+    private int currentCoolDownInFrames;
 
     /**
-     * @param animation Animation of this skill
      * @param skillFunction Function of this skill
      */
-    public Skill(Animation animation, ISkillFunction skillFunction) {
-        this.animation = animation;
+    public Skill(ISkillFunction skillFunction, float coolDownInSeconds) {
         this.skillFunction = skillFunction;
-        active = true;
+        this.coolDownInFrames = (int) (coolDownInSeconds * Constants.FRAME_RATE);
+        this.currentCoolDownInFrames = 0;
     }
 
     /**
@@ -25,24 +24,26 @@ public class Skill {
      * @param entity entity which uses the skill
      */
     public void execute(Entity entity) {
-        if (active) {
+        if (!isOnCoolDown()) {
             skillFunction.execute(entity);
+            activateCoolDown();
         }
     }
 
-    /** Toggle the active state of this skill */
-    public void toggleActive() {
-        active = !active;
-    }
-
     /**
-     * @return if this skill is currently active or not
+     * @return true if cool down is not 0, else false
      */
-    public boolean getActive() {
-        return active;
+    public boolean isOnCoolDown() {
+        return currentCoolDownInFrames > 0;
     }
 
-    public Animation getAnimation() {
-        return animation;
+    /** activate cool down */
+    public void activateCoolDown() {
+        currentCoolDownInFrames = coolDownInFrames;
+    }
+
+    /** reduces the current cool down by frame */
+    public void reduceCoolDown() {
+        currentCoolDownInFrames = Math.max(0, --currentCoolDownInFrames);
     }
 }
