@@ -38,4 +38,34 @@ public class Point {
     public Coordinate toCoordinate() {
         return new Coordinate((int) x, (int) y);
     }
+
+    /**
+     * Creates the unit vector between point a and b
+     *
+     * @param a Point A
+     * @param b Point B
+     * @return the unit vector
+     */
+    public static Point getUnitDirectionalVector(Point b, Point a) {
+        Point interactionDir = new Point(b);
+        // (interactable - a) / len(interactable - a)
+        interactionDir.x -= a.x;
+        interactionDir.y -= a.y;
+        double vecLength = calculateDistance(a, b);
+        interactionDir.x /= vecLength;
+        interactionDir.y /= vecLength;
+        return interactionDir;
+    }
+    /**
+     * calculates the distance between two points
+     *
+     * @param p1 Point A
+     * @param p2 Point B
+     * @return the Distance between the two points
+     */
+    public static float calculateDistance(Point p1, Point p2) {
+        float xDiff = p1.x - p2.x;
+        float yDiff = p1.y - p2.y;
+        return (float) Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+    }
 }
