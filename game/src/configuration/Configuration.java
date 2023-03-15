@@ -9,6 +9,7 @@ import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 public class Configuration {
@@ -55,6 +56,7 @@ public class Configuration {
             saveConfiguration();
         }
 
+        AtomicBoolean dirty = new AtomicBoolean(false);
         Stream.of(findConfigFields())
                 .map(
                         field -> {
@@ -68,8 +70,16 @@ public class Configuration {
                         obj -> {
                             ConfigKey<?> configKey = (ConfigKey<?>) obj;
                             JsonValue node = findOrCreate(configKey.path);
+                            if (node.isNull() || node.asString() == null) {
+                                node.set(configKey.value.serialize());
+                                dirty.set(true);
+                                return;
+                            }
                             configKey.value.deserialize(node.asString());
                         });
+        if (dirty.get()) {
+            saveConfiguration();
+        }
     }
 
     /** Save the current configuration to the file */
@@ -94,8 +104,11 @@ public class Configuration {
      */
     private JsonValue findOrCreate(String[] path) {
         JsonValue node = configRoot;
-        for (String pathPart : path) {
-            if (!node.hasChild(pathPart)) {
+        for (int i = 0; i < path.length; i++) {
+            String pathPart = path[i];
+            if (i == path.length - 1 && !node.has(pathPart)) {
+                node.addChild(pathPart, new JsonValue(JsonValue.ValueType.stringValue));
+            } else if (i < path.length - 1 && !node.has(pathPart)) {
                 node.addChild(pathPart, new JsonValue(JsonValue.ValueType.object));
             }
             node = node.get(pathPart);
