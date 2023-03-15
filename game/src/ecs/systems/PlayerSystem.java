@@ -1,7 +1,6 @@
 package ecs.systems;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import configuration.KeyboardConfig;
 import ecs.components.MissingComponentException;
 import ecs.components.PlayableComponent;

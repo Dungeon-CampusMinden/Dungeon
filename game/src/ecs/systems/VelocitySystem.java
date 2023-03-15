@@ -29,12 +29,13 @@ public class VelocitySystem extends ECS_System {
         Point newPosition = new Point(newX, newY);
         if (Game.currentLevel.getTileAt(newPosition.toCoordinate()).isAccessible()) {
             vsd.pc.setPosition(newPosition);
-            movementAnimation(vsd.e);}
-        
-            // remove projectiles that hit the wall or other non-accessible
-            // tiles
-            else if (vsd.e.getComponent(ProjectileComponent.class).isPresent())
-                Game.entitiesToRemove.add(vsd.e);
+            movementAnimation(vsd.e);
+        }
+
+        // remove projectiles that hit the wall or other non-accessible
+        // tiles
+        else if (vsd.e.getComponent(ProjectileComponent.class).isPresent())
+            Game.entitiesToRemove.add(vsd.e);
 
         vsd.vc.setCurrentYVelocity(0);
         vsd.vc.setCurrentXVelocity(0);
