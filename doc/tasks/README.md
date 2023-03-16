@@ -144,7 +144,10 @@ mit einem Element aus der Menge der Antwortmöglichkeiten belegt sein.
 - Im Raum sind verschiedene Blöcke platziert
 - Jeder Block kann angeschaut und untersucht werden (dann wird Text angezeigt)
 - Blöcke können geschoben und gezogen werden, um dessen Position zu ändern
-- Es gibt spezielle Felder zu denen die Blöcke geschoben werden müsse.
+- Es gibt spezielle Felder zu denen die Blöcke geschoben werden müssen
+```Es gibt spezielle Felder, zu denen die Blöcke geschoben werden müssen
+oder 
+Es gibt spezielle Felder, auf die die Blöcke geschoben werden müssen
 - Die platzierung der Blöcke auf den Felder gibt die Reihenfolge der Blöcke an
 - Der Spieler muss die Blöcke untersuchen und sie so Anordnene, dass sie die Aufgabenstellung lösen
 - Um seine Anordnung abzugeben, muss er einen Schalter betätigen
