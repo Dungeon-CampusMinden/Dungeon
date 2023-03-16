@@ -29,7 +29,7 @@ public final class Constants {
     public static final String WINDOW_TITLE = "PM-Dungeon";
 
     /** Sets the LibGDX-window logo path. */
-    public static final String LOGO_PATH = "logo/logo32x32.png";
+    public static final String LOGO_PATH = "logo/CatLogo_35x35.png";
 
     /**
      * @param path the relative path to the resource
