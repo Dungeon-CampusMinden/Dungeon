@@ -82,7 +82,7 @@ zu Positionen (bspw. Array-Index, Reihe-Spalte Kombination einer Matrix) zuzuord
 Element aus der Menge der Antwortmöglichkeiten auch einer Position zugeordnet werden. Allerdings muss jede Postion
 mit einem Element aus der Menge der Antwortmöglichkeiten belegt sein.
 
-## Spielmechanik
+## Spielmechaniken
 
 ### Ein GUI-Button drücken
 
