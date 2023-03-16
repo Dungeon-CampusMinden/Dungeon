@@ -149,7 +149,7 @@ mit einem Element aus der Menge der Antwortmöglichkeiten belegt sein.
 oder 
 Es gibt spezielle Felder, auf die die Blöcke geschoben werden müssen
 - Die Platzierung der Blöcke auf den Feldern gibt die Reihenfolge der Blöcke an
-- Der Spieler muss die Blöcke untersuchen und sie so Anordnene, dass sie die Aufgabenstellung lösen
+- Der Spieler muss die Blöcke untersuchen und sie so anordnen, dass sie die Aufgabenstellung lösen
 - Um seine Anordnung abzugeben, muss er einen Schalter betätigen
 
 ### Schalter betätigen
