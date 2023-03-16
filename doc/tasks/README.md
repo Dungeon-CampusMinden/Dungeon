@@ -25,7 +25,7 @@ Eine Spielmechanik bietet die Möglichkeit einen Aufgabentypen zu realsieren.
 
 Beispiele: Der Spieler legt einen Hebel um, um eine Antwort zu geben.
 
-Aus den Spielmechaniken müssen in der Implmentierung konkrete Components und Systeme erstellt werden.
+Aus den Spielmechaniken müssen in der Implementierung konkrete Components und Systems erstellt werden.
 
 **Spielszenario**
 
