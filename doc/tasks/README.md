@@ -20,7 +20,7 @@ gebracht werden muss.
 
 **Spielmechanik**
 
-Eine Spielmechanik beschreibt eine Sammlung an verschiedenen Aktionen die der Spieler im Spiel tätigen kann.
+Eine Spielmechanik beschreibt eine Sammlung an verschiedenen Aktionen, die der Spieler im Spiel tätigen kann.
 Eine Spielmechanik stellt eine mögliche Umsetzung eines Aufgabentyps dar.
 
 Beispiele: Der Spieler legt einen Hebel um, um eine Antwort zu geben.
