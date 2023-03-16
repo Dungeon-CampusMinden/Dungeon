@@ -103,7 +103,7 @@ mit einem Element aus der Menge der Antwortmöglichkeiten belegt sein.
 - Mit einem Bestätigungsbutton muss der Spieler seine Antworten einloggen.
 
 
-### Item an NPC abgeben
+### Item(s) an NPC abgeben
 
 - Eine Menge an Items ist im Dungeon verteilt (dabei ist nicht relevant, wie und wo der Spieler die
   Items findet und erhält)
