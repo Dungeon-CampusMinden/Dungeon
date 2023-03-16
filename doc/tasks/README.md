@@ -51,7 +51,7 @@ Die richtige Antwort muss ausgewählt werden.
 
 Die Aufgabenstellung besteht aus einem Fragetext und einer Menge an vorgegebenen Antwortmöglickeiten.
 Mehrere Antworten sind richtig.
-Es müssen alle richtigen Antworten markiert wereden. Es dürfen keine falschen Antworten markiert werden.
+Es müssen alle richtigen Antworten markiert werden. Es dürfen keine falschen Antworten markiert werden. Die Reihenfolge spielt keine Rolle.
 
 ### Lückentext
 
