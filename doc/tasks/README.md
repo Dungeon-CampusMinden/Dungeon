@@ -29,7 +29,7 @@ Aus den Spielmechaniken müssen in der Implementierung konkrete Components und S
 
 **Spielszenario**
 
-Ein Spielszenario beschreibt wie die Spielemechanik genutzt wird, um den Spieler die Aufgabe im Dungeon zu präsentieren.
+Ein Spielszenario beschreibt, wie die Spielemechanik genutzt wird, um dem Spieler die Aufgabe im Dungeon zu präsentieren.
 
 Beispiel: In einem Raum befindet sich ein NPC und verschiedene Schalter. Der NPC stellt dem Spieler eine Frage und sagt ihm, welcher Hebel für welche Antwort steht.
 
