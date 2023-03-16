@@ -218,7 +218,7 @@ Beantwortet der Spieler die Frage falsch, bleibt die Schatzkiste verschlossen.
 
 Der Spieler kommt in einen Raum.
 Der Questgeber stellt ihm eine Frage.
-Die Antwortmöglichkeiten sind in formen von Schatzkisten im Raum verteilt.
+Die Antwortmöglichkeiten sind in Form von Schatzkisten im Raum verteilt.
 Wenn der Spieler mit den Schatzkisten interagiert, sagen diese ihm, welche Antwort sie sind.
 Der Spieler muss die Schatzkiste/n mit der/den richtigen Antwort/en öffnen.
 
