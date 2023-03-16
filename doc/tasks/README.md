@@ -142,7 +142,7 @@ mit einem Element aus der Menge der Antwortmöglichkeiten belegt sein.
 ### Blöcke schieben
 
 - Im Raum sind verschiedene Blöcke platziert
-- Jeder Block kann angeschaut und untersucht werden (dann wirt Text angezeigt)
+- Jeder Block kann angeschaut und untersucht werden (dann wird Text angezeigt)
 - Blöcke können geschoben und gezogen werden, um dessen Position zu ändern
 - Es gibt spezielle Felder zu denen die Blöcke geschoben werden müsse.
 - Die platzierung der Blöcke auf den Felder gibt die Reihenfolge der Blöcke an
