@@ -11,7 +11,9 @@ daher hier aus Sicht der aufgabendefinierenden Lehrperson definiert:
 **Aufgabentyp**
 
 Ein Aufgabentyp beschreibt in abstrakter Weise, welche Datenstrukturen nötig sind und in welcher Form sie
-zur Bewertung einer Aufgabe verarbeitet werden. Ein Beispiel hierfür ist der Aufgabentyp Single Choice,
+zur Bearbeitung und zur Bewertung einer Aufgabe verarbeitet werden. 
+
+Ein Beispiel hierfür ist der Aufgabentyp Single Choice,
 bei dem aus einer Menge mehrerer Elemente das eine korrekte Element ausgewählt werden muss. Ein weiteres
 Beispiel wäre eine Sortieraufgabe, bei der eine festgelegte Anzahl an Elementen in die korrekte Reihenfolge
 gebracht werden muss.
