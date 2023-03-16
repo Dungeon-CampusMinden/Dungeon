@@ -56,7 +56,7 @@ Es müssen alle richtigen Antworten markiert werden. Es dürfen keine falschen A
 ### Lückentext
 
 Die Aufgabenstellung besteht aus einem Fragetext.
-Die Antwort ist ein kurzer Freitext.
+Die Antwort besteht aus einem oder mehreren Freitexten.
 Es muss die richtige Antwort in den Freitext eingegeben werden.
 Die richtige Antwort kann ein konkreter Wert oder eine Eingabe passend zu einem regulären Ausdruck sein.
 
