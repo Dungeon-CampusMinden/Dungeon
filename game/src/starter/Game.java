@@ -7,6 +7,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.serializers.DefaultSerializers;
 import com.esotericsoftware.kryonet.Client;
 import controller.AbstractController;
 import controller.SystemController;
@@ -22,24 +24,26 @@ import graphic.hud.PauseMenu;
 import interpreter.DSLInterpreter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
 import level.IOnLevelLoader;
 import level.LevelAPI;
 import level.elements.ILevel;
 import level.elements.TileLevel;
-import level.elements.tile.ExitTile;
-import level.elements.tile.Tile;
+import level.elements.astar.TileHeuristic;
+import level.elements.tile.*;
 import level.generator.IGenerator;
 import level.generator.postGeneration.WallGenerator;
 import level.generator.randomwalk.RandomWalkGenerator;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
+import level.tools.LevelElement;
 import mp.client.ClientListener;
+import mp.client.MultiplayerClient;
+import mp.packages.request.DataChunk;
 import mp.packages.request.LoadMapRequest;
 import mp.packages.request.PingRequest;
+import mp.packages.TileSerializer;
 import mp.packages.response.LoadMapResponse;
 import mp.packages.response.PingResponse;
 import tools.Constants;
@@ -79,7 +83,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static PauseMenu pauseMenu;
     private PositionComponent heroPositionComponent;
     public static Hero hero;
-    private static Client client;
+    private static MultiplayerClient client;
 
     /** Called once at the beginning of the game. */
     protected void setup() {
@@ -241,39 +245,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         entities.add(config.entity());
     }
 
-    private void setupClient(){
-        client = new Client(1000000, 1000000);
-
-
-        // register all packages that should be able to be received and sent
-        Kryo kryo = client.getKryo();
-        kryo.register(PingRequest.class);
-        kryo.register(PingResponse.class);
-        kryo.register(LoadMapRequest.class);
-        kryo.register(LoadMapResponse.class);
-        kryo.register(ILevel.class);
-        kryo.register(Tile.class);
-        kryo.register(TileLevel.class);
-        kryo.register(ExitTile.class);
-        kryo.register(ArrayList.class);
-        kryo.register(DesignLabel.class);
-        kryo.register(Coordinate.class);
-
-        client.addListener(new ClientListener());
-
-        try {
-            client.start();
-            client.connect(10000, "127.0.0.1", 25444);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void setupClient() {
+        client = new MultiplayerClient();
 
         LoadMapRequest loadMapRequest = new LoadMapRequest(currentLevel);
-        client.sendTCP(loadMapRequest);
-
-        while(true) {
-
-        }
+//        client.send(loadMapRequest);
+        client.sendChunked(loadMapRequest);
     }
 
     public static void main(String[] args) {

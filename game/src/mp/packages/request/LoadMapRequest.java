@@ -1,17 +1,18 @@
 package mp.packages.request;
 
 import level.elements.ILevel;
+import java.io.Serializable;
 
-public class LoadMapRequest {
-    ILevel currentLevel;
+public class LoadMapRequest implements Serializable {
+    private ILevel level;
 
     public LoadMapRequest(){}
 
     public LoadMapRequest(ILevel currentLevel){
-        this.currentLevel = currentLevel;
+        this.level = currentLevel;
     }
 
-    public ILevel getCurrentLevel(){
-        return currentLevel;
+    public ILevel getLevel() {
+        return this.level;
     }
 }
