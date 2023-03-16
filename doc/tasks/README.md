@@ -5,7 +5,7 @@ title: "Aufgaben"
 ## Begriffsklärung
 
 Folgende Begriffe haben im Kontext der Aufgabenbeschreibung eine besondere Bedeutung und werden
-daher nochmal aus Sicht der aufgabendefinierenden Lehrperson definiert:
+daher hier aus Sicht der aufgabendefinierenden Lehrperson definiert:
 
 
 **Aufgabentyp**
