@@ -247,8 +247,8 @@ Beantwortet der Spieler die Frage falsch, bekommt er keine Belohnung.
 ### Schalter müssen in der richtigen Reihenfolge betätigt werden
 
 - In einem Raum sind mehrere tastende Schalter platziert
-- NPC stellt den Aufgabentext: "Betätige die Schalter in der Richtigen Reihnenfolge nach folgender Vorgabe:
-  (abhängig von der konkreten Aufgabenstellung)"
+- NPC stellt den Aufgabentext: "Betätige die Schalter in der richtigen Reihenfolge nach folgender Vorgabe:
+  _(abhängig von der konkreten Aufgabenstellung)_"
 - Spieler interagiert mit den verschiedenen Tastern
 - Reihenfolge der Betätigungen wird geloggt
 - Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die Aufgabenstellung erneut
