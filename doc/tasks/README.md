@@ -11,7 +11,7 @@ daher hier aus Sicht der aufgabendefinierenden Lehrperson definiert:
 **Aufgabentyp**
 
 Ein Aufgabentyp beschreibt in abstrakter Weise, welche Datenstrukturen nötig sind und in welcher Form sie
-zur Bearbeitung und zur Bewertung einer Aufgabe verarbeitet werden. 
+zur Bearbeitung und zur Bewertung einer Aufgabe verarbeitet werden.
 
 Ein Beispiel hierfür ist der Aufgabentyp Single Choice,
 bei dem aus einer Menge mehrerer Elemente das eine korrekte Element ausgewählt werden muss. Ein weiteres
@@ -144,10 +144,7 @@ mit einem Element aus der Menge der Antwortmöglichkeiten belegt sein.
 - Im Raum sind verschiedene Blöcke platziert
 - Jeder Block kann angeschaut und untersucht werden (dann wird Text angezeigt)
 - Blöcke können geschoben und gezogen werden, um dessen Position zu ändern
-- Es gibt spezielle Felder zu denen die Blöcke geschoben werden müssen
-```Es gibt spezielle Felder, zu denen die Blöcke geschoben werden müssen
-oder 
-Es gibt spezielle Felder, auf die die Blöcke geschoben werden müssen
+- Es gibt spezielle Felder, auf die die Blöcke geschoben werden müssen
 - Die Platzierung der Blöcke auf den Feldern gibt die Reihenfolge der Blöcke an
 - Der Spieler muss die Blöcke untersuchen und sie so anordnen, dass sie die Aufgabenstellung lösen
 - Um seine Anordnung abzugeben, muss er einen Schalter betätigen
@@ -155,7 +152,7 @@ Es gibt spezielle Felder, auf die die Blöcke geschoben werden müssen
 ### Schalter betätigen
 
 - Aus einer Menge von Schaltern müssen ein oder mehr korrekte Schalter ausgewählt werden
-- Die Schalter können dabei entweder Tastend, Schaltend oder mit einer Zustandszahl > 2 agieren
+- Die Schalter können dabei entweder tastend, schaltend oder mit einer Zustandszahl > 2 agieren
 - Bei Interaktion mit einem Schalter öffnet sich ein UI-Element, welches Informationen über
   den Schalter anzeigt (bspw. Beschreibungstext und aktuellen Zustand)
   - Bei Schaltern mit Zustandszahl > 2 besteht die Möglichkeit, den gewünschten Zustand über das UI-Element
@@ -173,18 +170,18 @@ Es gibt spezielle Felder, auf die die Blöcke geschoben werden müssen
 ### Crafting
 
 - Crafting ermöglich die Transmutation einer Menge von Items in eine andere Menge (wobei die Mengen auch nur
-  aus einem einzelnen Element bestehen können)
+  aus einem einzelnen Element bestehen können).
 - Ein Beispiel für die Transmutation einer Item-Menge mit Elementzahl > 1 in eine Item-Menge mit Elementzahl = 1 wäre ein
   "Zauberkessel", in den Items (evtl. unter Berücksichtigung der Reihenfolge) eingeworfen werden können und so zu
-  einem neuen Item kombiniert werden können
+  einem neuen Item kombiniert werden können.
 - Ein Beispiel für die Transmutation einer Item-Menge mit Elementzahl = 1 in eine Item-Menge mit Elementzahl > 1 wäre
   die Anwendung eines "Zauberspruchs" (evtl. auch *genau des richtigen Zauberspruchs*) auf ein Item, um eine Item-Menge
-  mit neuen Items zu erzeugen und so die ursprüngliche Item-Menge zu ersetzen
-    - Hierfür könnte der Spieler einen "Zaubertisch"/"Zauberbuch" nutzen, welches als Entität im Spiel platziert ist
+  mit neuen Items zu erzeugen und so die ursprüngliche Item-Menge zu ersetzen.
+    - Hierfür könnte der Spieler einen "Zaubertisch"/"Zauberbuch" nutzen, welches als Entität im Spiel platziert ist.
 - Für das Crafting öffnet sich bei der Interaktion mit dem "Zauberkessel" / "Zaubertisch" ein UI-Element, in dem
-  Items und "Zaubersprüche" ausgewählt werden können und Buttons zum "Verzaubern" zur Verfügung stehen
+  Items und "Zaubersprüche" ausgewählt werden können und Buttons zum "Verzaubern" zur Verfügung stehen.
   - Der Aufbau dieses UI-Elements und die genaue Funktion der Bedienelemente ist nicht trivial und muss noch genau
-    definiert werden
+    definiert werden.
 
 ## Spielszenarien
 
@@ -194,10 +191,10 @@ Es gibt spezielle Felder, auf die die Blöcke geschoben werden müssen
   - ComponentA
   - ComponentB
 
-### NPC stellt Frage (Andre)
+### NPC stellt Frage
 
-Im Level steht ein Questgeber mit dem der Spieler reden kann.
-Im Gespräch stellt der NPC dem Spieler eine Frage die er beantworten muss.
+Im Level steht ein Questgeber, mit dem der Spieler reden kann.
+Im Gespräch stellt der NPC dem Spieler eine Frage, die er beantworten muss.
 Beantwortet der Spieler die Frage richtig, bekommt er eine Belohnung.
 Beantwortet der Spieler die Frage falsch, bekommt er keine Belohnung.
 
@@ -274,7 +271,7 @@ Beantwortet der Spieler die Frage falsch, bekommt er keine Belohnung.
 - Spieler interagiert mit den verschiedenen Schaltern
 - Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die Aufgabenstellung erneut
   angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder die Zustände aller Schalter als Antwort abgegeben werden
-  kann
+  können
 - Wenn die Zustände der Schalter korrekt ist, wird der Spieler belohnt, die Belohnung könnte sein
     - eine Textnachricht über UI: "Ja, gut gemacht!"
     - ein Item, was vom NPC fallen gelassen wird
@@ -302,11 +299,11 @@ Beantwortet der Spieler die Frage falsch, bekommt er keine Belohnung.
 - Falls der Spieler die falsche Antwort gegeben hat, kann durch Steuermechanismen beeinflusst werden, ob er
   seine Antwort korrigieren kann und wie so eine korrigierte Antwort in die Bewertung einfließt
 
-### Verschiedene Monster müssen so verprügelt werden, dass das richtige Verhältniss entsteht
+### Verschiedene Monsterarten müssen so verprügelt werden, dass das richtige Verhältnis zwischen den Monsterarten entsteht
 
 Der Spieler kommt in einen Raum mit verschiedenen Monstern.
 Der Questgeber erklärt den Spieler, die Aufgabe.
-Der Spieler muss die Monster so bekämpfen, dass das richtige Verhältniss erreicht ist.
+Der Spieler muss die Monster so bekämpfen, dass das richtige Verhältnis zwischen den Arten erreicht ist.
 
 Löst der Spieler die Aufgabe richtig, bekommt er eine Belohnung.
 Löst der Spieler die Aufgabe falsch, bekommt er keine Belohnung.
@@ -320,7 +317,7 @@ Löst der Spieler die Aufgabe falsch, bekommt er keine Belohnung.
 - Spieler sucht im Dungeon nach Items und legt sie in Truhen ab
 - Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die Aufgabenstellung erneut
   angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder die abgelegten Items in den Truhen als
-  Antwort geloggt werden kann
+  Antwort geloggt werden können
 - Wenn die richtigen Items in den richtigen Truhen platziert wurden, wird der Spieler belohnt, die Belohnung könnte sein
     - eine Textnachricht über UI: "Ja, gut gemacht!"
     - ein Item, was vom NPC fallen gelassen wird
@@ -338,7 +335,7 @@ Löst der Spieler die Aufgabe falsch, bekommt er keine Belohnung.
 - Spieler entfernt Items aus der Truhe
 - Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die Aufgabenstellung erneut
   angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder die entfernten Items als
-  Antwort geloggt werden kann
+  Antwort geloggt werden können
 - Wenn die richtigen Items entfernt wurden, wird der Spieler belohnt, die Belohnung könnte sein
     - eine Textnachricht über UI: "Ja, gut gemacht!"
     - ein Item, was vom NPC fallen gelassen wird
@@ -358,7 +355,7 @@ Löst der Spieler die Aufgabe falsch, bekommt er keine Belohnung.
   - Nachdem der Spieler die Items eingeworfen hat, können sie nicht mehr herausgenommen werden
 - Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die Aufgabenstellung erneut
   angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder die abgegebenen Items als
-  Antwort geloggt werden kann
+  Antwort geloggt werden können
 - Wenn die richtigen Items abgegeben wurden, wird der Spieler belohnt, die Belohnung könnte sein
     - eine Textnachricht über UI: "Ja, gut gemacht!"
     - ein Item, was vom NPC fallen gelassen wird
