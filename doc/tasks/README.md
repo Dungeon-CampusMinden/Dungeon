@@ -183,7 +183,7 @@ mit einem Element aus der Menge der Antwortmöglichkeiten belegt sein.
   - Der Aufbau dieses UI-Elements und die genaue Funktion der Bedienelemente ist nicht trivial und muss noch genau
     definiert werden
 
-## Spielszenario
+## Spielszenarien
 
 ### Liste an Entitäten (later)
 
