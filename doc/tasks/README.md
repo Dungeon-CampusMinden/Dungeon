@@ -62,7 +62,7 @@ Die richtige Antwort kann ein konkreter Wert oder eine Eingabe passend zu einem 
 
 ### Ersetzen
 
-Aus einer Reihe aus Elementen (kann auch nur eins sein) muss ein Element durch ein oder mehrere andere Elemente ersetzt werden.
+Aus einer Reihe aus Elementen (kann auch nur eins sein) muss ein Element durch ein oder mehrere andere (vorgegebene) Elemente ersetzt werden.
 Hierdurch wird die Reihe aus Elementen sowie deren Anzahl verändert.
 
 ### Kombinieren
