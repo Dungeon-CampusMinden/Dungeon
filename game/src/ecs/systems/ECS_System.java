@@ -28,4 +28,14 @@ public abstract class ECS_System {
     public void toggleRun() {
         run = !run;
     }
+
+    /**Turns off all systems*/
+    public void notRun() {
+        run = false;
+    }
+
+    /**Turns on all systems*/
+    public void allRun() {
+        run = true;
+    }
 }

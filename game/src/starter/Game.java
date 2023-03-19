@@ -95,7 +95,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
-        levelAPI.loadLevel(LEVELSIZE);
+        levelAPI.loadLevel();
 
         new VelocitySystem();
         new DrawSystem(painter);
@@ -117,6 +117,18 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             gameLogger.info("Entity '" + entity.getClass().getSimpleName() + "' was deleted.");
         }
         entitiesToRemove.clear();
+        if (isOnEndTile()) levelAPI.loadLevel();
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P))
+            togglePause();
+
+        if(pauseMenu.MustBeHidden()) {
+            if (systems != null) {
+                systems.forEach(ECS_System::allRun);
+            }
+            pauseMenu = new PauseMenu();
+            controller.add(pauseMenu);
+        }
         entitiesToAdd.clear();
         if (isOnEndTile()) levelAPI.loadLevel(LEVELSIZE);
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
@@ -195,13 +207,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /** Toggle between pause and run */
     public static void togglePause() {
-        paused = !paused;
-        if (systems != null) {
-            systems.forEach(ECS_System::toggleRun);
+       if (systems != null) {
+            systems.forEach(ECS_System::notRun);
         }
         if (pauseMenu != null) {
-            if (paused) pauseMenu.showMenu();
-            else pauseMenu.hideMenu();
+            pauseMenu.isPaused();
         }
     }
 
