@@ -26,5 +26,4 @@ public class KeyboardConfig {
             new ConfigKey<>(new String[] {"game", "save"}, new ConfigIntValue(Input.Keys.O));
     public static final ConfigKey<Integer> GAME_LOAD =
             new ConfigKey<>(new String[] {"game", "load"}, new ConfigIntValue(Input.Keys.L));
-
 }

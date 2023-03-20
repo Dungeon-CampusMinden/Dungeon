@@ -1,9 +1,8 @@
 package ecs.components.skill;
 
 import ecs.entities.Entity;
-import tools.Constants;
-
 import java.io.Serializable;
+import tools.Constants;
 
 public class Skill implements Serializable {
 

@@ -2,9 +2,8 @@ package ecs.components.skill;
 
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
-import tools.Point;
-
 import java.io.Serializable;
+import tools.Point;
 
 public class FireballSkill extends DamageProjectileSkill implements Serializable {
 

@@ -1,7 +1,6 @@
 package ecs.entities;
 
 import ecs.components.Component;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;

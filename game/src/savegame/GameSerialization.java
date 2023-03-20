@@ -5,15 +5,12 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.utils.JsonValue;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
-import ecs.entities.Entity;
 import graphic.Animation;
 import java.io.*;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.Base64;
 import java.util.List;
-
 import level.elements.tile.Tile;
 import level.tools.Coordinate;
 import starter.Game;
@@ -51,7 +48,7 @@ public class GameSerialization {
      * @return Deserialized Object
      * @param <T> Type of the object
      */
-    public static <T> T deserialize(JsonValue data, Object ... constructorArgs) {
+    public static <T> T deserialize(JsonValue data, Object... constructorArgs) {
         if (data.getString("type").equals(Serializable.class.getName())) {
             return (T) deserializeObject(data);
         } else if (data.getString("type").equals(ISerializable.class.getName())) {
@@ -112,8 +109,10 @@ public class GameSerialization {
      * @return Deserialized animation
      */
     public static Animation deserializeAnimation(JsonValue data) {
-        Animation obj = new Animation(List.of(data.get("frames").asStringArray()), data.getInt("duration"));
-        Reflections.setFieldValue(obj, "animationFrames", List.of(data.get("frames").asStringArray()));
+        Animation obj =
+                new Animation(List.of(data.get("frames").asStringArray()), data.getInt("duration"));
+        Reflections.setFieldValue(
+                obj, "animationFrames", List.of(data.get("frames").asStringArray()));
         Reflections.setFieldValue(obj, "frameTime", data.getInt("duration"));
         Reflections.setFieldValue(obj, "currentFrameIndex", data.getInt("currentFrameIndex"));
         Reflections.setFieldValue(obj, "frameTimeCounter", data.getInt("frameTimeCounter"));
@@ -175,6 +174,7 @@ public class GameSerialization {
 
     /**
      * Serialize a {@link Coordinate} object.
+     *
      * @param coordinate Coordinate to serialize
      * @return Serialized object
      */
@@ -188,6 +188,7 @@ public class GameSerialization {
 
     /**
      * Deserialize a {@link Coordinate} object.
+     *
      * @param data Serialized Coordinate
      * @return Deserialized Coordinate Object
      */
@@ -224,7 +225,7 @@ public class GameSerialization {
      * @return The deserialized GraphPath
      */
     public static GraphPath<Tile> deserializeGraphPath(JsonValue data) {
-        if(data.isNull() || data.get("nodes").isNull()) return null;
+        if (data.isNull() || data.get("nodes").isNull()) return null;
         GraphPath<Tile> path = new DefaultGraphPath<>();
         for (JsonValue node : data.get("nodes")) {
             path.add(Game.currentLevel.getTileAt(deserializePoint(node).toCoordinate()));
@@ -303,7 +304,7 @@ public class GameSerialization {
         return json;
     }
 
-    private static Object deserializeISerializable(JsonValue data, Object ... constructorArgs) {
+    private static Object deserializeISerializable(JsonValue data, Object... constructorArgs) {
         try {
             Class<?> clazz1 = Class.forName(data.getString("class"));
             if (ISerializable.class.isAssignableFrom(clazz1)) {

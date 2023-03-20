@@ -31,7 +31,7 @@ public class Reflections {
      * @return the new instance
      * @param <T> the type of the class
      */
-    public static <T> T createInstance(Class<T> clazz, Object ... constructorArgs) {
+    public static <T> T createInstance(Class<T> clazz, Object... constructorArgs) {
         try {
             Constructor<?>[] constructors = clazz.getConstructors();
             Constructor<?> constructor = null;
@@ -72,6 +72,7 @@ public class Reflections {
 
     /**
      * Call a method of an object that does not return a value.
+     *
      * @param object the object
      * @param method the name of the method
      */
@@ -85,5 +86,4 @@ public class Reflections {
                     "Could not call method " + method + " of " + object.getClass().getName(), e);
         }
     }
-
 }

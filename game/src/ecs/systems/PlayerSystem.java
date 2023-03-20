@@ -42,10 +42,10 @@ public class PlayerSystem extends ECS_System {
         else if (Gdx.input.isKeyPressed(KeyboardConfig.SECOND_SKILL.get()))
             ksd.pc.getSkillSlot2().ifPresent(skill -> skill.execute(ksd.e));
 
-        //Save Game
-        if(Gdx.input.isKeyJustPressed(KeyboardConfig.GAME_SAVE.get())) {
+        // Save Game
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.GAME_SAVE.get())) {
             SaveGame.save();
-        } else if(Gdx.input.isKeyJustPressed(KeyboardConfig.GAME_LOAD.get())) {
+        } else if (Gdx.input.isKeyJustPressed(KeyboardConfig.GAME_LOAD.get())) {
             SaveGame.load();
         }
     }

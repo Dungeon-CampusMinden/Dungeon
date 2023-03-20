@@ -2,7 +2,6 @@ package ecs.damage;
 
 import com.badlogic.gdx.utils.Null;
 import ecs.entities.Entity;
-
 import java.io.Serializable;
 
 /**
@@ -14,4 +13,5 @@ import java.io.Serializable;
  *     account resistances or vulnerabilities
  * @param cause Entity that caused the damage (e.g. the player) can be null
  */
-public record Damage(int damageAmount, DamageType damageType, @Null Entity cause) implements Serializable {}
+public record Damage(int damageAmount, DamageType damageType, @Null Entity cause)
+        implements Serializable {}

@@ -1,7 +1,6 @@
 package ecs.components.skill;
 
 import ecs.entities.Entity;
-
 import java.io.Serializable;
 
 public interface ISkillFunction extends Serializable {
