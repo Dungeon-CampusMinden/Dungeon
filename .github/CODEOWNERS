@@ -2,11 +2,11 @@
 * @cagix
 
 # game owner
-/game/ @AMatutat @cagix
+/game/ @AMatutat
 
 # dsl owner
-/dsl/ @malt-r @cagix
+/dsl/ @malt-r
 
 #dsl connector owner
-/dsl-connector/ @malt-r @AMatutat @cagix
+/dsl-connector/ @malt-r @AMatutat
 
