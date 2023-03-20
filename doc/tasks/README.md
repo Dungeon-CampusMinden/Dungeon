@@ -7,8 +7,7 @@ title: "Aufgaben"
 Folgende Begriffe haben im Kontext der Aufgabenbeschreibung eine besondere Bedeutung und werden
 daher hier aus Sicht der aufgabendefinierenden Lehrperson definiert:
 
-
-**Aufgabentyp**
+### Aufgabentyp
 
 Ein Aufgabentyp beschreibt in abstrakter Weise, welche Datenstrukturen nötig sind und in welcher Form sie
 zur Bearbeitung und zur Bewertung einer Aufgabe verarbeitet werden.
@@ -19,7 +18,7 @@ Beispiel wäre eine Sortieraufgabe, bei der eine festgelegte Anzahl an Elementen
 gebracht werden muss.
 
 
-**Entitätstyp*
+### Entitätstyp
 
 Ein Entitätstyp beschreibt eine definierte Zusammenstellung aus Komponenten die
 eine bestimmte Rolle in einer Spielmechanik einnehmen. Ein Beispiel für einen
@@ -48,7 +47,7 @@ definiert. Einige Beispiele für Ausprägungen des "Container"-Entitätstyps sin
 und kann von dem tatsächlichen Verhalten der (noch nicht implementierten) Ausprägungen
 abweichen.
 
-**Spielmechanik**
+### Spielmechanik
 
 Eine Spielmechanik beschreibt die Interaktion von verschiedenen Entitätstypen im Spiel. Beispiel: ein Item, welches im Dungeon liegt, kann aufgehoben und in das Inventar des Spielcharakters transferiert werden.
 
@@ -58,15 +57,14 @@ Aus einer Spielmechanik kann abgeleitet werden, welche Komponenten an der Mechan
     - alternativ ein InteractionComponent im Item, falls das Item per
     dedizierter Spielendenaktion (bspw. Tastendruck) aufgehoben werden soll
 
-**Spielszenario**
+### Spielszenario
 
 Ein Spielszenario beschreibt, wie die Spielemechanik genutzt wird, um dem Spieler die Aufgabe im Dungeon zu präsentieren.
 
 Beispiel: In einem Raum befindet sich ein NPC und verschiedene Schalter. Der NPC stellt dem Spieler eine Frage und sagt ihm, welcher Hebel für welche Antwort steht.
 
-**
+### Steuermechanismen
 
-**Steuermechanismen**
 
 Steuermechanismen sind alle Mechanismen des Systems, die den Ablauf der Umsetzung einer Aufgabe in ein
 Spielszenario beeinflussen.
