@@ -65,10 +65,10 @@ public class StaticRadiusWalk implements IIdleAI {
         json.addChild("radius", new JsonValue(radius));
         json.addChild("breakTime", new JsonValue(breakTime));
         json.addChild("currentBreak", new JsonValue(currentBreak));
-        json.addChild("center", GameSerialization.serializePoint(center));
-        json.addChild("currentPosition", GameSerialization.serializePoint(currentPosition));
-        json.addChild("newEndTile", GameSerialization.serializePoint(newEndTile));
-        json.addChild("path", GameSerialization.serializeGraphPath(path));
+        json.addChild("center", GameSerialization.serialize(center));
+        json.addChild("currentPosition", GameSerialization.serialize(currentPosition));
+        json.addChild("newEndTile", GameSerialization.serialize(newEndTile));
+        json.addChild("path", GameSerialization.serialize(path));
         return json;
     }
 
@@ -77,9 +77,9 @@ public class StaticRadiusWalk implements IIdleAI {
         Reflections.setFieldValue(this, "radius", data.getFloat("radius"));
         Reflections.setFieldValue(this, "breakTime", data.getInt("breakTime"));
         currentBreak = data.getInt("currentBreak");
-        center = GameSerialization.deserializePoint(data.get("center"));
-        currentPosition = GameSerialization.deserializePoint(data.get("currentPosition"));
-        newEndTile = GameSerialization.deserializePoint(data.get("newEndTile"));
-        path = GameSerialization.deserializeGraphPath(data.get("path"));
+        center = GameSerialization.deserialize(data.get("center"));
+        currentPosition = GameSerialization.deserialize(data.get("currentPosition"));
+        newEndTile = GameSerialization.deserialize(data.get("newEndTile"));
+        path = GameSerialization.deserialize(data.get("path"));
     }
 }

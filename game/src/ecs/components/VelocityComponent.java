@@ -152,9 +152,8 @@ public class VelocityComponent extends Component implements ISerializable {
         json.addChild("vY", new JsonValue(yVelocity));
         json.addChild("currentVX", new JsonValue(currentXVelocity));
         json.addChild("currentVY", new JsonValue(currentYVelocity));
-        json.addChild("moveLeftAnimation", GameSerialization.serializeAnimation(moveLeftAnimation));
-        json.addChild(
-                "moveRightAnimation", GameSerialization.serializeAnimation(moveLeftAnimation));
+        json.addChild("moveLeftAnimation", GameSerialization.serialize(moveLeftAnimation));
+        json.addChild("moveRightAnimation", GameSerialization.serialize(moveLeftAnimation));
         return json;
     }
 
@@ -166,7 +165,7 @@ public class VelocityComponent extends Component implements ISerializable {
         currentYVelocity = data.getFloat("currentVY");
         JsonValue moveLeftAnimationFrames = data.get("moveLeftAnimation");
         JsonValue moveRightAnimationFrames = data.get("moveRightAnimation");
-        this.moveLeftAnimation = GameSerialization.deserializeAnimation(moveLeftAnimationFrames);
-        this.moveRightAnimation = GameSerialization.deserializeAnimation(moveRightAnimationFrames);
+        this.moveLeftAnimation = GameSerialization.deserialize(moveLeftAnimationFrames);
+        this.moveRightAnimation = GameSerialization.deserialize(moveRightAnimationFrames);
     }
 }

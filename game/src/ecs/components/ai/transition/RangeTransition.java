@@ -2,8 +2,9 @@ package ecs.components.ai.transition;
 
 import ecs.components.ai.AITools;
 import ecs.entities.Entity;
+import savegame.IFieldSerializing;
 
-public class RangeTransition implements ITransition {
+public class RangeTransition implements ITransition, IFieldSerializing {
 
     private final float range;
 

@@ -175,7 +175,7 @@ public class PatrouilleWalk implements IIdleAI {
         json.addChild("forward", new JsonValue(forward));
         json.addChild("frameCounter", new JsonValue(frameCounter));
         json.addChild("currentCheckpoint", new JsonValue(currentCheckpoint));
-        json.addChild("currentPath", GameSerialization.serializeGraphPath(currentPath));
+        json.addChild("currentPath", GameSerialization.serialize(currentPath));
         return json;
     }
 
@@ -189,6 +189,6 @@ public class PatrouilleWalk implements IIdleAI {
         forward = data.getBoolean("forward");
         frameCounter = data.getInt("frameCounter");
         currentCheckpoint = data.getInt("currentCheckpoint");
-        currentPath = GameSerialization.deserializeGraphPath(data.get("currentPath"));
+        currentPath = GameSerialization.deserialize(data.get("currentPath"));
     }
 }

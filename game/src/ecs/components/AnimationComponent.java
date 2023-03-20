@@ -116,16 +116,16 @@ public class AnimationComponent extends Component implements ISerializable {
     @Override
     public JsonValue serialize() {
         JsonValue json = new JsonValue(JsonValue.ValueType.object);
-        json.addChild("idleLeft", GameSerialization.serializeAnimation(idleLeft));
-        json.addChild("idleRight", GameSerialization.serializeAnimation(idleRight));
-        json.addChild("currentAnimation", GameSerialization.serializeAnimation(currentAnimation));
+        json.addChild("idleLeft", GameSerialization.serialize(idleLeft));
+        json.addChild("idleRight", GameSerialization.serialize(idleRight));
+        json.addChild("currentAnimation", GameSerialization.serialize(currentAnimation));
         return json;
     }
 
     @Override
     public void deserialize(JsonValue data) {
-        idleLeft = GameSerialization.deserializeAnimation(data.get("idleLeft"));
-        idleRight = GameSerialization.deserializeAnimation(data.get("idleRight"));
-        currentAnimation = GameSerialization.deserializeAnimation(data.get("currentAnimation"));
+        idleLeft = GameSerialization.deserialize(data.get("idleLeft"));
+        idleRight = GameSerialization.deserialize(data.get("idleRight"));
+        currentAnimation = GameSerialization.deserialize(data.get("currentAnimation"));
     }
 }

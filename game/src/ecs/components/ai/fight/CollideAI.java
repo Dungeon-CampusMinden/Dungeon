@@ -49,7 +49,7 @@ public class CollideAI implements IFightAI {
         JsonValue json = new JsonValue(JsonValue.ValueType.object);
         json.addChild("rushRange", new JsonValue(rushRange));
         json.addChild("timeSinceLastUpdate", new JsonValue(timeSinceLastUpdate));
-        json.addChild("path", GameSerialization.serializeGraphPath(path));
+        json.addChild("path", GameSerialization.serialize(path));
         json.addChild("delay", new JsonValue(delay));
         return json;
     }
@@ -59,6 +59,6 @@ public class CollideAI implements IFightAI {
         Reflections.setFieldValue(this, "delay", data.getInt("delay"));
         timeSinceLastUpdate = data.getInt("timeSinceLastUpdate");
         rushRange = data.getFloat("rushRange");
-        path = GameSerialization.deserializeGraphPath(data.get("path"));
+        path = GameSerialization.deserialize(data.get("path"));
     }
 }

@@ -202,8 +202,8 @@ public class HealthComponent extends Component implements ISerializable {
         JsonValue json = new JsonValue(JsonValue.ValueType.object);
         json.addChild("maximalHealthpoints", new JsonValue(maximalHealthpoints));
         json.addChild("currentHealthpoints", new JsonValue(currentHealthpoints));
-        json.addChild("getHitAnimation", GameSerialization.serializeAnimation(getHitAnimation));
-        json.addChild("dieAnimation", GameSerialization.serializeAnimation(dieAnimation));
+        json.addChild("getHitAnimation", GameSerialization.serialize(getHitAnimation));
+        json.addChild("dieAnimation", GameSerialization.serialize(dieAnimation));
         json.addChild("onDeath", GameSerialization.serialize(this.onDeath));
         return json;
     }
@@ -212,8 +212,8 @@ public class HealthComponent extends Component implements ISerializable {
     public void deserialize(JsonValue data) {
         this.maximalHealthpoints = data.getInt("maximalHealthpoints");
         this.currentHealthpoints = data.getInt("currentHealthpoints");
-        this.getHitAnimation = GameSerialization.deserializeAnimation(data.get("getHitAnimation"));
-        this.dieAnimation = GameSerialization.deserializeAnimation(data.get("dieAnimation"));
+        this.getHitAnimation = GameSerialization.deserialize(data.get("getHitAnimation"));
+        this.dieAnimation = GameSerialization.deserialize(data.get("dieAnimation"));
         this.onDeath = GameSerialization.deserialize(data.get("onDeath"));
     }
 }

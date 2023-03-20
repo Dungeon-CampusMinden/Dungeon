@@ -50,7 +50,7 @@ public class MeleeAI implements IFightAI {
         json.addChild("attackRange", new JsonValue(attackRange));
         json.addChild("fightSkill", GameSerialization.serialize(fightSkill));
         json.addChild("timeSinceLastUpdate", new JsonValue(timeSinceLastUpdate));
-        json.addChild("path", GameSerialization.serializeGraphPath(path));
+        json.addChild("path", GameSerialization.serialize(path));
         return json;
     }
 
@@ -60,6 +60,6 @@ public class MeleeAI implements IFightAI {
                 this, "fightSkill", GameSerialization.deserialize(data.get("fightSkill")));
         Reflections.setFieldValue(this, "attackRange", data.getFloat("attackRange"));
         timeSinceLastUpdate = data.getInt("timeSinceLastUpdate");
-        path = GameSerialization.deserializeGraphPath(data.get("path"));
+        path = GameSerialization.deserialize(data.get("path"));
     }
 }
