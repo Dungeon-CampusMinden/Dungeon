@@ -6,7 +6,7 @@ import java.lang.annotation.Target;
 
 @Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Deserializer {
+@interface Deserializer {
 
     public Class<?> value() default NotSerializable.class;
 
