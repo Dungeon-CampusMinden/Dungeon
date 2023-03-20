@@ -15,7 +15,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-
 import level.elements.tile.Tile;
 import level.tools.Coordinate;
 import starter.Game;
@@ -25,7 +24,7 @@ public class GameSerialization {
 
     /*
      * IMPORTANT: You might want to read this...
-     * 
+     *
      * All Methods in this class have a purpose. They may seem unused but are invoked via reflections based
      * on the parameters type.
      * You need a new custom Serializer/Deserializer? Add a new static method with the @Serializer or @Deserializer annotation.
@@ -244,8 +243,8 @@ public class GameSerialization {
                 oos.writeObject(object);
                 oos.close();
                 json.addChild(
-                    DATA_FIELD,
-                    new JsonValue(Base64.getEncoder().encodeToString(baos.toByteArray())));
+                        DATA_FIELD,
+                        new JsonValue(Base64.getEncoder().encodeToString(baos.toByteArray())));
                 baos.close();
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -253,8 +252,8 @@ public class GameSerialization {
             return json;
         } else {
             throw new RuntimeException(
-                "Object of " + object.getClass().getName() + " could not be serialized.",
-                new NotSerializableException("Object is not serializable"));
+                    "Object of " + object.getClass().getName() + " could not be serialized.",
+                    new NotSerializableException("Object is not serializable"));
         }
     }
 
@@ -281,7 +280,7 @@ public class GameSerialization {
             }
         } catch (ReflectiveOperationException | NotSerializableException e) {
             throw new RuntimeException(
-                "Could not deserialize object of class " + data.getString(CLASS_FIELD), e);
+                    "Could not deserialize object of class " + data.getString(CLASS_FIELD), e);
         }
     }
 
