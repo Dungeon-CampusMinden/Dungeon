@@ -27,11 +27,42 @@ Beispiele: Der Spieler legt einen Hebel um, um eine Antwort zu geben.
 
 Aus den Spielmechaniken müssen in der Implementierung konkrete Components und Systems erstellt werden.
 
+**Entitätstyp*
+
+Ein Entitätstyp beschreibt eine definierte Zusammenstellung aus Komponenten die
+eine bestimmte Rolle in einer Spielmechanik einnehmen. Ein Beispiel für einen
+Entitätstyp wäre "Container". Eine "Container"-Entität könnte folgende Komponenten enthalten:
+- AnimationComponent (zum Anzeigen einer Textur und zum Abspielen von Animationen, bspw.
+    beim Öffnen des Containers)
+- InventoryComponent (zum Speichern von Items im Container)
+- InteractionComponent (um dem Spielcharacter die Möglichkeit der Interaktion mit dem
+    Container zu geben)
+
+Ein Entitätstyp definiert nicht die konkreten Werte in den enthaltenen Komponenten.
+Die konkreten Werte werden erst durch konkrete Ausprägungen der Entitätstypen
+definiert. Einige Beispiele für Ausprägungen des "Container"-Entitätstyps sind:
+- Briefkasten
+    - AnimationComponent speicher Briefkastentexturen
+    - InteractionComponent ruft ein Verhalten auf, welches nur das Transferieren
+        eines Items aus dem Spielerinventar in das InventoryComponent des Briefkastens
+        zulässt
+- Truhe
+    - AnimationCompnent speichert Truhentextur
+    - InteractionComponent überprüft eine externe Bedingung (z.B., ob die Korrekte
+        Antwort auf eine Frage gegeben wurde) und transferiert bei Erfüllung der
+        Bedingung alle Items aus dem InventoryComponent in das Inventar des Spielercharakters
+
+**Note:** Das beschriebene Verhalten der Ausprägungen dient nur der Veranschaulichung
+und kann von dem tatsächlichen Verhalten der (noch nicht implementierten) Ausprägungen
+abweichen.
+
 **Spielszenario**
 
 Ein Spielszenario beschreibt, wie die Spielemechanik genutzt wird, um dem Spieler die Aufgabe im Dungeon zu präsentieren.
 
 Beispiel: In einem Raum befindet sich ein NPC und verschiedene Schalter. Der NPC stellt dem Spieler eine Frage und sagt ihm, welcher Hebel für welche Antwort steht.
+
+**
 
 **Steuermechanismen**
 
