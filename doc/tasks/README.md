@@ -504,8 +504,8 @@ festzulegen.
 
 - [GUI Button](#ein-gui-button-drücken), [GUI Checkbox](#gui-checkboxen-anhaken), [GUI Text eingeben](#gui-text-eingeben)
 - [Crafting](#crafting)
-- [Items in Container ablegen](#item--s--in-container-ablegen)
-- [Items aus Container nehmen](#item--s--aus-container-nehmen)
+- [Items in Container ablegen](#items-in-container-ablegen)
+- [Items aus Container nehmen](#items--aus-container-nehmen)
 
 **Mechaniken, die im Projekt nicht realisiert werden**
 
@@ -515,7 +515,7 @@ festzulegen.
 
 ### Szenarien
 
-- [NPC stellt Frage](#npc-stellt-frage--andre)
+- [NPC stellt Frage](#npc-stellt-frage)
 - [Monster greift mit Frage an](#monster-greift-mit-frage-an)
 - [Truhe ist mit Frage verschlossen](#truhe-ist-mit-frage-verschlossen)
 - [Mehrere Truhen aber nicht alle sind richtig](#mehrere-truhen-aber-nicht-alle-sind-richtig)
