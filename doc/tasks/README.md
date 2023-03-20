@@ -18,15 +18,6 @@ bei dem aus einer Menge mehrerer Elemente das eine korrekte Element ausgewählt 
 Beispiel wäre eine Sortieraufgabe, bei der eine festgelegte Anzahl an Elementen in die korrekte Reihenfolge
 gebracht werden muss.
 
-**Spielmechanik**
-
-Eine Spielmechanik beschreibt die Interaktion von verschiedenen Entitätstypen im Spiel. Beispiel: ein Item, welches im Dungeon liegt, kann aufgehoben und in das Inventar des Spielcharakters transferiert werden.
-
-Aus einer Spielmechanik kann abgeleitet werden, welche Komponenten an der Mechanik beteiligt sind. Für obiges Beispiel sind folgende Komponenten erforderlich:
-- InventoryComponent im Spielcharakter (zur Realisierung des Spielerinventars)
-- CollisionComponent im Spielcharakter und im Item, um ein Event auszulösen, sobald der Spielcharakter über das Item läuft
-    - alternativ ein InteractionComponent im Item, falls das Item per
-    dedizierter Spielendenaktion (bspw. Tastendruck) aufgehoben werden soll
 
 **Entitätstyp*
 
@@ -56,6 +47,16 @@ definiert. Einige Beispiele für Ausprägungen des "Container"-Entitätstyps sin
 **Note:** Das beschriebene Verhalten der Ausprägungen dient nur der Veranschaulichung
 und kann von dem tatsächlichen Verhalten der (noch nicht implementierten) Ausprägungen
 abweichen.
+
+**Spielmechanik**
+
+Eine Spielmechanik beschreibt die Interaktion von verschiedenen Entitätstypen im Spiel. Beispiel: ein Item, welches im Dungeon liegt, kann aufgehoben und in das Inventar des Spielcharakters transferiert werden.
+
+Aus einer Spielmechanik kann abgeleitet werden, welche Komponenten an der Mechanik beteiligt sind. Für obiges Beispiel sind folgende Komponenten erforderlich:
+- InventoryComponent im Spielcharakter (zur Realisierung des Spielerinventars)
+- CollisionComponent im Spielcharakter und im Item, um ein Event auszulösen, sobald der Spielcharakter über das Item läuft
+    - alternativ ein InteractionComponent im Item, falls das Item per
+    dedizierter Spielendenaktion (bspw. Tastendruck) aufgehoben werden soll
 
 **Spielszenario**
 
