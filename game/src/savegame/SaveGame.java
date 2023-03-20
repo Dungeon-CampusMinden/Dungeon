@@ -1,21 +1,30 @@
 package savegame;
 
+import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
+import controller.AbstractController;
 import controller.SystemController;
+import ecs.components.Component;
+import ecs.components.PositionComponent;
 import ecs.entities.Entity;
+import ecs.entities.Hero;
+import ecs.systems.ECS_System;
+import level.LevelAPI;
+import level.elements.ILevel;
 import level.elements.TileLevel;
 import level.elements.tile.Tile;
+import level.tools.DesignLabel;
+import level.tools.LevelElement;
 import starter.Game;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 
 public class SaveGame {
 
@@ -98,6 +107,34 @@ public class SaveGame {
         return json;
     }
 
+    private static TileLevel loadLevelData(JsonValue data) {
+        JsonValue size = data.get("size");
+        LevelElement[][] layout = new LevelElement[size.getInt("x")][size.getInt("y")];
+        JsonValue tiles = data.get("tiles");
+        for(JsonValue tile : tiles) {
+            JsonValue location = tile.get("location");
+            int x = location.getInt("y"); //x and y are swapped in the json
+            int y = location.getInt("x");
+            layout[x][y] = LevelElement.valueOf(tile.getString("levelElement"));
+        }
+        return new TileLevel(layout, DesignLabel.DEFAULT);
+    }
+
+    private static HashSet<Entity> loadEntityData(JsonValue data) {
+        HashSet<Entity> entities = new HashSet<>();
+        for(JsonValue jsonEntity : data) {
+            Entity entity = new Entity();
+            entity.getComponents().stream().map(Component::getClass).forEach(entity::removeComponent);
+            for(JsonValue jsonComponent : jsonEntity.get("components")) {
+                entity.addComponent(GameSerialization.deserialize(jsonComponent, entity));
+            }
+            Game.entities.remove(entity); //Remove from Game.entities to avoid duplicates
+            entities.add(entity);
+        }
+        return entities;
+    }
+
+
     public static void save() {
         save(String.format("savegame_%s", DATE_FORMAT.format(new Date())));
     }
@@ -127,12 +164,7 @@ public class SaveGame {
      */
     public static void load() {
         File saveDir = new File(PATH_SAVE_DIR);
-        File[] files = saveDir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.getName().endsWith(".json");
-            }
-        });
+        File[] files = saveDir.listFiles();
         assert files != null;
         Arrays.sort(files, (o1, o2) -> Long.compare(o2.lastModified(), o1.lastModified()));
         if(files.length > 0) {
@@ -147,9 +179,57 @@ public class SaveGame {
      * @param filename name of the savegame file
      */
     public static void load(String filename) {
+        System.out.println("Loading savegame " + filename);
 
-        Game.entities.clear();
-        Game.systems = new SystemController();
+        JsonValue root;
+
+        try {
+            FileInputStream fis = new FileInputStream(PATH_SAVE_DIR + File.separator + filename);
+            InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
+            JsonReader jsonReader = new JsonReader();
+            root = jsonReader.parse(isr);
+            isr.close();
+            fis.close();
+        } catch(IOException e) {
+            throw new RuntimeException("Could not load savegame!", e);
+        }
+
+        new Thread(() -> {
+            Game.systems.forEach(ECS_System::toggleRun);
+            try {
+                Thread.sleep(10); //Wait a few milliseconds so the game can finish the current tick
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            Game.entities = new HashSet<>();
+            Game.systems = new SystemController();
+
+            ILevel level = loadLevelData(root.get("level"));
+
+            //Set current level without triggering onLevelLoad()
+            LevelAPI levelAPI = Reflections.getFieldValue(Game.instance, "levelAPI");
+            Reflections.setFieldValue(levelAPI, "currentLevel", level);
+
+            HashSet<Entity> entities = loadEntityData(root.get("entities"));
+
+            //Find Hero in entities and set it as Game.hero
+            entities.stream().filter(e -> e instanceof Hero).map(Hero.class::cast).findFirst().ifPresent(h -> Game.hero = h);
+
+            Reflections.callVoidMethod(Game.instance, "setupSystems");
+
+
+            //Set entities.
+            Game.entities = loadEntityData(root.get("entities"));
+            Reflections.setFieldValue(Game.instance, "heroPositionComponent", Game.hero.getComponent(PositionComponent.class).get());
+
+
+            System.out.println("Loaded savegame " + filename);
+
+            List<AbstractController<?>> controllers = Reflections.getFieldValue(Game.instance, "controller");
+            controllers.clear();
+            controllers.add(Game.systems);
+
+        }, "SaveGameLoad").start();
 
     }
 

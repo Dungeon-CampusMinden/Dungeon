@@ -74,8 +74,8 @@ public class StaticRadiusWalk implements IIdleAI {
 
     @Override
     public void deserialize(JsonValue data) {
-        Reflections.setFinalField(this, "radius", data.getFloat("radius"));
-        Reflections.setFinalField(this, "breakTime", data.getInt("breakTime"));
+        Reflections.setFieldValue(this, "radius", data.getFloat("radius"));
+        Reflections.setFieldValue(this, "breakTime", data.getInt("breakTime"));
         currentBreak = data.getInt("currentBreak");
         center = GameSerialization.deserializePoint(data.get("center"));
         currentPosition = GameSerialization.deserializePoint(data.get("currentPosition"));

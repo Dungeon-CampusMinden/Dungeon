@@ -1,13 +1,11 @@
 package ecs.components.skill;
 
-import com.badlogic.gdx.utils.JsonValue;
 import ecs.entities.Entity;
-import graphic.Animation;
 import tools.Constants;
-import savegame.GameSerialization;
-import savegame.ISerializable;
 
-public class Skill implements ISerializable {
+import java.io.Serializable;
+
+public class Skill implements Serializable {
 
     private ISkillFunction skillFunction;
     private int coolDownInFrames;
@@ -51,19 +49,19 @@ public class Skill implements ISerializable {
         currentCoolDownInFrames = Math.max(0, --currentCoolDownInFrames);
     }
 
-    @Override
+    /*@Override
     public JsonValue serialize() {
         JsonValue json = new JsonValue(JsonValue.ValueType.object);
-        json.addChild("active", new JsonValue(active));
-        json.addChild("animation", GameSerialization.serializeAnimation(animation));
+        json.addChild("coolDownInFrames", new JsonValue(coolDownInFrames));
+        json.addChild("currentCoolDownInFrames", new JsonValue(currentCoolDownInFrames));
         json.addChild("skillFunction", GameSerialization.serialize(skillFunction));
         return json;
     }
 
     @Override
     public void deserialize(JsonValue data) {
-        active = data.get("active").asBoolean();
-        animation = GameSerialization.deserializeAnimation(data.get("animation"));
+        coolDownInFrames = data.getInt("coolDownInFrames");
+        currentCoolDownInFrames = data.getInt("currentCoolDownInFrames");
         skillFunction = GameSerialization.deserialize(data.get("skillFunction"));
-    }
+    }*/
 }

@@ -181,10 +181,10 @@ public class PatrouilleWalk implements IIdleAI {
 
     @Override
     public void deserialize(JsonValue data) {
-        Reflections.setFinalField(this, "radius", data.getFloat("radius"));
-        Reflections.setFinalField(this, "numberCheckpoints", data.getInt("numberCheckpoints"));
-        Reflections.setFinalField(this, "pauseFrames", data.getInt("pauseFrames"));
-        Reflections.setFinalField(this, "mode", MODE.valueOf(data.getString("mode")));
+        Reflections.setFieldValue(this, "radius", data.getFloat("radius"));
+        Reflections.setFieldValue(this, "numberCheckpoints", data.getInt("numberCheckpoints"));
+        Reflections.setFieldValue(this, "pauseFrames", data.getInt("pauseFrames"));
+        Reflections.setFieldValue(this, "mode", MODE.valueOf(data.getString("mode")));
         initialized = data.getBoolean("initialized");
         forward = data.getBoolean("forward");
         frameCounter = data.getInt("frameCounter");

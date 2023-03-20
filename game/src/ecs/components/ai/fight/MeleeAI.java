@@ -48,7 +48,7 @@ public class MeleeAI implements IFightAI {
     public JsonValue serialize() {
         JsonValue json = new JsonValue(JsonValue.ValueType.object);
         json.addChild("attackRange", new JsonValue(attackRange));
-        json.addChild("fightSkill", fightSkill.serialize());
+        json.addChild("fightSkill", GameSerialization.serialize(fightSkill));
         json.addChild("timeSinceLastUpdate", new JsonValue(timeSinceLastUpdate));
         json.addChild("path", GameSerialization.serializeGraphPath(path));
         return json;
@@ -56,10 +56,8 @@ public class MeleeAI implements IFightAI {
 
     @Override
     public void deserialize(JsonValue data) {
-        Skill skill = Reflections.createInstance(Skill.class);
-        skill.deserialize(data.get("fightSkill"));
-        Reflections.setFinalField(this, "fightSkill", skill);
-        Reflections.setFinalField(this, "attackRange", data.getFloat("attackRange"));
+        Reflections.setFieldValue(this, "fightSkill", GameSerialization.deserialize(data.get("fightSkill")));
+        Reflections.setFieldValue(this, "attackRange", data.getFloat("attackRange"));
         timeSinceLastUpdate = data.getInt("timeSinceLastUpdate");
         path = GameSerialization.deserializeGraphPath(data.get("path"));
     }

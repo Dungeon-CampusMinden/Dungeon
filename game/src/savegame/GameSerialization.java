@@ -5,6 +5,7 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.utils.JsonValue;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
+import ecs.entities.Entity;
 import graphic.Animation;
 import java.io.*;
 import java.lang.reflect.Constructor;
@@ -13,9 +14,8 @@ import java.net.URI;
 import java.util.Base64;
 import java.util.List;
 
-import level.elements.tile.DoorTile;
 import level.elements.tile.Tile;
-import level.tools.LevelElement;
+import level.tools.Coordinate;
 import starter.Game;
 import tools.Point;
 
@@ -47,16 +47,19 @@ public class GameSerialization {
      * interface or by the java.io.Serializable interface.
      *
      * @param data Serialized object
+     * @param constructorArgs Parameters for the constructor of the object
      * @return Deserialized Object
      * @param <T> Type of the object
      */
-    public static <T extends Serializable & ISerializable> T deserialize(JsonValue data) {
+    public static <T> T deserialize(JsonValue data, Object ... constructorArgs) {
         if (data.getString("type").equals(Serializable.class.getName())) {
             return (T) deserializeObject(data);
         } else if (data.getString("type").equals(ISerializable.class.getName())) {
-            return (T) deserializeISerializable(data);
+            return (T) deserializeISerializable(data, constructorArgs);
         } else {
-            return null;
+            throw new RuntimeException(
+                    "Object of class " + data.getString("type") + " is not serializable",
+                    new NotSerializableException(data.getString("type")));
         }
     }
 
@@ -109,15 +112,11 @@ public class GameSerialization {
      * @return Deserialized animation
      */
     public static Animation deserializeAnimation(JsonValue data) {
-        Class<Animation> clazz = Animation.class;
-        Animation obj = Reflections.createInstance(clazz);
-
-        Reflections.setFinalField(
-                obj, "animationFrames", List.of(data.get("frames").asStringArray()));
-        Reflections.setFinalField(obj, "frameTime", data.getInt("duration"));
-        Reflections.setFinalField(obj, "currentFrameIndex", data.getInt("currentFrameIndex"));
-        Reflections.setFinalField(obj, "frameTimeCounter", data.getInt("frameTimeCounter"));
-
+        Animation obj = new Animation(List.of(data.get("frames").asStringArray()), data.getInt("duration"));
+        Reflections.setFieldValue(obj, "animationFrames", List.of(data.get("frames").asStringArray()));
+        Reflections.setFieldValue(obj, "frameTime", data.getInt("duration"));
+        Reflections.setFieldValue(obj, "currentFrameIndex", data.getInt("currentFrameIndex"));
+        Reflections.setFieldValue(obj, "frameTimeCounter", data.getInt("frameTimeCounter"));
         return obj;
     }
 
@@ -158,6 +157,7 @@ public class GameSerialization {
      */
     public static JsonValue serializePoint(Point point) {
         JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        json.addChild("class", new JsonValue(point.getClass().getName()));
         json.addChild("x", new JsonValue(point.x));
         json.addChild("y", new JsonValue(point.y));
         return json;
@@ -170,7 +170,29 @@ public class GameSerialization {
      * @return Deserialized Point Object
      */
     public static Point deserializePoint(JsonValue data) {
-        return new Point(data.getInt("x"), data.getInt("y"));
+        return new Point(data.getFloat("x"), data.getFloat("y"));
+    }
+
+    /**
+     * Serialize a {@link Coordinate} object.
+     * @param coordinate Coordinate to serialize
+     * @return Serialized object
+     */
+    public static JsonValue serializeCoordinate(Coordinate coordinate) {
+        JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        json.addChild("class", new JsonValue(coordinate.getClass().getName()));
+        json.addChild("x", new JsonValue(coordinate.x));
+        json.addChild("y", new JsonValue(coordinate.y));
+        return json;
+    }
+
+    /**
+     * Deserialize a {@link Coordinate} object.
+     * @param data Serialized Coordinate
+     * @return Deserialized Coordinate Object
+     */
+    public static Coordinate deserializeCoordinate(JsonValue data) {
+        return new Coordinate(data.getInt("x"), data.getInt("y"));
     }
 
     /**
@@ -202,6 +224,7 @@ public class GameSerialization {
      * @return The deserialized GraphPath
      */
     public static GraphPath<Tile> deserializeGraphPath(JsonValue data) {
+        if(data.isNull() || data.get("nodes").isNull()) return null;
         GraphPath<Tile> path = new DefaultGraphPath<>();
         for (JsonValue node : data.get("nodes")) {
             path.add(Game.currentLevel.getTileAt(deserializePoint(node).toCoordinate()));
@@ -213,7 +236,7 @@ public class GameSerialization {
         JsonValue json = new JsonValue(JsonValue.ValueType.object);
         json.addChild("class", new JsonValue(tile.getClass().getName()));
         json.addChild("levelElement", new JsonValue(tile.getLevelElement().name()));
-        json.addChild("location", serializePoint(tile.getCoordinate().toPoint()));
+        json.addChild("location", serializeCoordinate(tile.getCoordinate()));
         return json;
     }
 
@@ -280,13 +303,12 @@ public class GameSerialization {
         return json;
     }
 
-    private static Object deserializeISerializable(JsonValue data) {
+    private static Object deserializeISerializable(JsonValue data, Object ... constructorArgs) {
         try {
-            Class<?> clazz = Class.forName(data.getString("class"));
-            if (ISerializable.class.isAssignableFrom(clazz)) {
-                Constructor<?> constructor = clazz.getConstructor();
-                constructor.setAccessible(true);
-                ISerializable object = (ISerializable) constructor.newInstance();
+            Class<?> clazz1 = Class.forName(data.getString("class"));
+            if (ISerializable.class.isAssignableFrom(clazz1)) {
+                Class<ISerializable> clazz = (Class<ISerializable>) clazz1;
+                ISerializable object = Reflections.createInstance(clazz, constructorArgs);
                 object.deserialize(data.get("data"));
                 return object;
             } else {

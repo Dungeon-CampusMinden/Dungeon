@@ -56,7 +56,7 @@ public class CollideAI implements IFightAI {
 
     @Override
     public void deserialize(JsonValue data) {
-        Reflections.setFinalField(this, "delay", data.getInt("delay"));
+        Reflections.setFieldValue(this, "delay", data.getInt("delay"));
         timeSinceLastUpdate = data.getInt("timeSinceLastUpdate");
         rushRange = data.getFloat("rushRange");
         path = GameSerialization.deserializeGraphPath(data.get("path"));

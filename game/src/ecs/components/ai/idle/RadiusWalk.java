@@ -53,8 +53,8 @@ public class RadiusWalk implements IIdleAI {
 
     @Override
     public void deserialize(JsonValue data) {
-        Reflections.setFinalField(this, "radius", data.getFloat("radius"));
-        Reflections.setFinalField(this, "breakTime", data.getInt("breakTime"));
+        Reflections.setFieldValue(this, "radius", data.getFloat("radius"));
+        Reflections.setFieldValue(this, "breakTime", data.getInt("breakTime"));
         currentBreak = data.getInt("currentBreak");
         path = GameSerialization.deserializeGraphPath(data.get("path"));
     }

@@ -37,8 +37,12 @@ import tools.Point;
 /** The heart of the framework. From here all strings are pulled. */
 public class Game extends ScreenAdapter implements IOnLevelLoader {
 
+    public static final Game instance;
     private final LevelSize LEVELSIZE = LevelSize.SMALL;
 
+    static {
+        instance = new Game();
+    }
     /**
      * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
      * batch.
@@ -81,7 +85,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        DesktopLauncher.run(new Game());
+        DesktopLauncher.run(Game.instance));
     }
 
     /**
