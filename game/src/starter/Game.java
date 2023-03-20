@@ -63,6 +63,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static Set<Entity> entities = new HashSet<>();
     /** All entities to be removed from the dungeon in the next frame */
     public static Set<Entity> entitiesToRemove = new HashSet<>();
+
     public static Set<Entity> entitiesToAdd = new HashSet<>();
 
     /** List of all Systems in the ECS */
@@ -100,6 +101,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new HealthSystem();
         new XPSystem();
         new SkillSystem();
+        new ProjectileSystem();
     }
 
     /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */

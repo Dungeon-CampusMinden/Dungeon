@@ -41,7 +41,7 @@ public class Hero extends Entity {
                                         return SkillTools.getCursorPositionAsPoint();
                                     }
                                 }),
-                        3);
+                        1);
         secondSkill = new Skill(function, 3);
         sc.addSkill(firstSkill);
         sc.addSkill(secondSkill);

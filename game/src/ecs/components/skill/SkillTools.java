@@ -8,9 +8,6 @@ import tools.Point;
 public class SkillTools {
     public static Point calculateLastPositionInRange(
             Point startPoint, Point goalPoint, float range, float speed) {
-        // TODO fix bug where return point is wrong if goalPoint is out of radius
-        // TODO if goalPoint is in radius, calculate last point in radius in the angle (always
-        // fly max distance)
 
         // calculate the distance between start point and goal point
         float tmpdx = startPoint.x - goalPoint.x;
@@ -33,7 +30,9 @@ public class SkillTools {
         double dy2 = startPoint.y - finalY;
         double finalDistance = Math.sqrt(dx2 * dx2 + dy2 * dy2);
         if (finalDistance <= range) {
-            return new Point((int) finalX, (int) finalY);
+            double closestX = startPoint.x + (finalX - startPoint.x) * range / finalDistance;
+            double closestY = startPoint.y + (finalY - startPoint.y) * range / finalDistance;
+            return new Point((int) closestX, (int) closestY);
         }
 
         // calculate the direction and distance from the final position back to the start point
