@@ -20,12 +20,13 @@ gebracht werden muss.
 
 **Spielmechanik**
 
-Eine Spielmechanik beschreibt eine Sammlung an verschiedenen Aktionen, die der Spieler im Spiel tätigen kann.
-Eine Spielmechanik stellt eine mögliche Umsetzung eines Aufgabentyps dar.
+Eine Spielmechanik beschreibt die Interaktion von verschiedenen Entitätstypen im Spiel. Beispiel: ein Item, welches im Dungeon liegt, kann aufgehoben und in das Inventar des Spielcharakters transferiert werden.
 
-Beispiele: Der Spieler legt einen Hebel um, um eine Antwort zu geben.
-
-Aus den Spielmechaniken müssen in der Implementierung konkrete Components und Systems erstellt werden.
+Aus einer Spielmechanik kann abgeleitet werden, welche Komponenten an der Mechanik beteiligt sind. Für obiges Beispiel sind folgende Komponenten erforderlich:
+- InventoryComponent im Spielcharakter (zur Realisierung des Spielerinventars)
+- CollisionComponent im Spielcharakter und im Item, um ein Event auszulösen, sobald der Spielcharakter über das Item läuft
+    - alternativ ein InteractionComponent im Item, falls das Item per
+    dedizierter Spielendenaktion (bspw. Tastendruck) aufgehoben werden soll
 
 **Entitätstyp*
 
