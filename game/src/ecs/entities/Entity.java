@@ -19,7 +19,7 @@ public class Entity {
 
     public Entity() {
         components = new HashMap<>();
-        Game.entities.add(this);
+        Game.entitiesToAdd.add(this);
         entityLogger = Logger.getLogger(this.getClass().getName());
         entityLogger.info("The entity '" + this.getClass().getSimpleName() + "' was created.");
     }
