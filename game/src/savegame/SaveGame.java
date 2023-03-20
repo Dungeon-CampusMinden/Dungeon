@@ -27,6 +27,8 @@ import starter.Game;
 
 public class SaveGame {
 
+    private static final String FILE_VERSION = "0.0.1";
+
     public static final String GAME_DIR_NAME = "PMDungeon";
     public static final String PATH_GAME_DIR;
     public static final String PATH_SAVE_DIR;
@@ -98,7 +100,7 @@ public class SaveGame {
                 if (tile == null) {
                     continue;
                 }
-                tiles.addChild(GameSerialization.serializeTile(tile));
+                tiles.addChild(GameSerialization.serialize(tile));
             }
         }
         json.addChild("tiles", tiles);
@@ -108,12 +110,12 @@ public class SaveGame {
 
     private static TileLevel loadLevelData(JsonValue data) {
         JsonValue size = data.get("size");
-        LevelElement[][] layout = new LevelElement[size.getInt("x")][size.getInt("y")];
+        LevelElement[][] layout = new LevelElement[size.getInt("y")][size.getInt("x")];
         JsonValue tiles = data.get("tiles");
         for (JsonValue tile : tiles) {
             JsonValue location = tile.get("location");
-            int x = location.getInt("y"); // x and y are swapped in the json
-            int y = location.getInt("x");
+            int x = location.getInt("x"); // x and y are swapped in the json
+            int y = location.getInt("y");
             layout[x][y] = LevelElement.valueOf(tile.getString("levelElement"));
         }
         return new TileLevel(layout, DesignLabel.DEFAULT);
@@ -144,6 +146,7 @@ public class SaveGame {
         createGameDir();
 
         JsonValue root = new JsonValue(JsonValue.ValueType.object);
+        root.addChild("version", new JsonValue(FILE_VERSION));
         root.addChild("level", getLevelData());
         root.addChild("entities", getEntityData());
         String jsonString = root.prettyPrint(PRETTY_PRINT_SETTINGS);
@@ -191,6 +194,13 @@ public class SaveGame {
             fis.close();
         } catch (IOException e) {
             throw new RuntimeException("Could not load savegame!", e);
+        }
+
+        if (root == null) {
+            throw new RuntimeException("Could not load savegame!");
+        }
+        if (root.has("version") && !root.getString("version").equals(FILE_VERSION)) {
+            throw new RuntimeException("Savegame version does not match!");
         }
 
         new Thread(

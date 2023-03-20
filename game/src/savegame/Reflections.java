@@ -3,6 +3,9 @@ package savegame;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.stream.Stream;
+import sun.reflect.ReflectionFactory;
 
 public class Reflections {
 
@@ -25,6 +28,24 @@ public class Reflections {
     }
 
     /**
+     * Get all fields of a class.
+     *
+     * @param object the object
+     * @param field the field
+     * @param value the new value
+     */
+    public static void setFieldValue(Object object, Field field, Object value) {
+        try {
+            field.setAccessible(true);
+            field.set(object, value);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(
+                    "Could not set field " + field.getName() + " of " + object.getClass().getName(),
+                    e);
+        }
+    }
+
+    /**
      * Create a new instance of a class using the default constructor.
      *
      * @param clazz the class to instantiate
@@ -33,7 +54,7 @@ public class Reflections {
      */
     public static <T> T createInstance(Class<T> clazz, Object... constructorArgs) {
         try {
-            Constructor<?>[] constructors = clazz.getConstructors();
+            Constructor<?>[] constructors = clazz.getDeclaredConstructors();
             Constructor<?> constructor = null;
             for (Constructor<?> c : constructors) {
                 if (c.getParameterCount() == constructorArgs.length) {
@@ -42,7 +63,7 @@ public class Reflections {
                 }
             }
             if (constructor == null) {
-                constructor = constructors[0];
+                return createInstance2(clazz);
             }
             constructor.setAccessible(true);
             return (T) constructor.newInstance(constructorArgs);
@@ -62,11 +83,29 @@ public class Reflections {
     public static <T> T getFieldValue(Object object, String fieldName) {
         try {
             Field field = object.getClass().getDeclaredField(fieldName);
+            return getFieldValue(object, field);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(
+                    "Could not get field " + fieldName + " of " + object.getClass().getName(), e);
+        }
+    }
+
+    /**
+     * Get the value of a field of an object.
+     *
+     * @param object the object
+     * @param field the field
+     * @return the value of the field
+     * @param <T> the type of the field
+     */
+    public static <T> T getFieldValue(Object object, Field field) {
+        try {
             field.setAccessible(true);
             return (T) field.get(object);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(
-                    "Could not get field " + fieldName + " of " + object.getClass().getName(), e);
+                    "Could not get field " + field.getName() + " of " + object.getClass().getName(),
+                    e);
         }
     }
 
@@ -85,5 +124,48 @@ public class Reflections {
             throw new RuntimeException(
                     "Could not call method " + method + " of " + object.getClass().getName(), e);
         }
+    }
+
+    /**
+     * Create Instance of given Class using ReflectionFactory.
+     *
+     * @param clazz the class to instantiate
+     * @return the new instance
+     * @param <T> the type of the class
+     */
+    public static <T> T createInstance2(Class<T> clazz) {
+        try {
+            ReflectionFactory rf = ReflectionFactory.getReflectionFactory();
+            Constructor<?> objDef = Object.class.getDeclaredConstructor();
+            Constructor<?> seriConstr = rf.newConstructorForSerialization(clazz, objDef);
+            return (T) seriConstr.newInstance();
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Could not instantiate " + clazz.getName(), e);
+        }
+    }
+
+    /**
+     * Get all fields of a class including the fields of the super class.
+     *
+     * @param clazz the class
+     * @param filterFinals if true, final fields are excluded
+     * @param filterStatics if true, static fields are excluded
+     * @return all fields of the class
+     */
+    public static Field[] getFieldsOfClass(
+            Class<?> clazz, boolean filterFinals, boolean filterStatics) {
+        Field[] fields = clazz.getDeclaredFields();
+        Field[] superFields = clazz.getSuperclass().getDeclaredFields();
+        Field[] allFields = new Field[fields.length + superFields.length];
+        System.arraycopy(fields, 0, allFields, 0, fields.length);
+        System.arraycopy(superFields, 0, allFields, fields.length, superFields.length);
+        return Stream.of(allFields)
+                .filter(
+                        field -> {
+                            int modifiers = field.getModifiers();
+                            return !((Modifier.isFinal(modifiers) && filterFinals)
+                                    || (Modifier.isStatic(modifiers) && filterStatics));
+                        })
+                .toArray(Field[]::new);
     }
 }
