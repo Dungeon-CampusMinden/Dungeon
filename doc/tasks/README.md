@@ -49,7 +49,8 @@ abweichen.
 
 ### Spielmechanik
 
-Eine Spielmechanik beschreibt die Interaktion von verschiedenen Entitätstypen im Spiel. Beispiel: ein Item, welches im Dungeon liegt, kann aufgehoben und in das Inventar des Spielcharakters transferiert werden.
+Eine Spielmechanik beschreibt die Interaktion von verschiedenen Entitätstypen im Spiel. Spielmechaniken beziehen sich ausschließlich auf die Interaktion von Spielelementen, die aus Game-Design Perspektive relevant sind (siehe [Steuermechanismen](#steuermechanismen) für alle anderen "Mechaniken").
+Beispiel: ein Item, welches im Dungeon liegt, kann aufgehoben und in das Inventar des Spielcharakters transferiert werden.
 
 Aus einer Spielmechanik kann abgeleitet werden, welche Komponenten an der Mechanik beteiligt sind. Für obiges Beispiel sind folgende Komponenten erforderlich:
 - InventoryComponent im Spielcharakter (zur Realisierung des Spielerinventars)
@@ -65,10 +66,9 @@ Beispiel: In einem Raum befindet sich ein NPC und verschiedene Schalter. Der NPC
 
 ### Steuermechanismen
 
+Steuermechanismen sind alle Mechanismen des Systems, die den Ablauf der Umsetzung einer Aufgabe in ein Spielszenario beeinflussen.
 
-Steuermechanismen sind alle Mechanismen des Systems, die den Ablauf der Umsetzung einer Aufgabe in ein
-Spielszenario beeinflussen.
-
+Steuermechanismen grenzen sich von Spielmechaniken ab, indem sie die übergeordneten Mechanismen realisieren, die sich nicht ausschließlich auf Game-Design Elemente beziehen. Hierzu zählen unter anderem das Logging von Antworten, die Organisation der Aufgabenfolge und Aufgabenverschachtelung.
 
 ## Aufgabentypen
 
