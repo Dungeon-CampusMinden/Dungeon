@@ -12,7 +12,7 @@ public class ProjectileSystem extends ECS_System {
     private record PSData(
             Entity e, ProjectileComponent prc, PositionComponent pc, VelocityComponent vc) {}
 
-    /** sets the velocity and removes entities that reached their endpoint*/
+    /** sets the velocity and removes entities that reached their endpoint */
     @Override
     public void update() {
         Game.entities.stream()
@@ -59,9 +59,10 @@ public class ProjectileSystem extends ECS_System {
 
     /**
      * checks if the endpoint is reached
-     * @param start start point
-     * @param end endpoint
-     * @param current current point
+     *
+     * @param start position to start the calculation
+     * @param end point to check if projectile has reached its goal
+     * @param current current position
      * @return true if the endpoint was reached or passed, else false
      */
     public boolean hasReachedEndpoint(Point start, Point end, Point current) {

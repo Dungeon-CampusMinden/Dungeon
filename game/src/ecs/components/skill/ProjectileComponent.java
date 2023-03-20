@@ -16,18 +16,18 @@ public class ProjectileComponent extends Component {
     }
 
     /**
-     * get gol location
+     * gets the goal position of the projectile
      *
-     * @return goal location
+     * @return goal position of the projectile
      */
     public Point getGoalLocation() {
         return goalLocation;
     }
 
     /**
-     * get start position
+     * gets the start position of the projectile
      *
-     * @return start position
+     * @return start position of the projectile
      */
     public Point getStartPosition() {
         return startPosition;

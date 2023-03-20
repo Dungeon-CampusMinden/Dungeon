@@ -1,6 +1,7 @@
 package ecs.components.skill;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import starter.Game;
 import tools.Point;
@@ -8,54 +9,30 @@ import tools.Point;
 public class SkillTools {
 
     /**
-     * Calculates the last position in range regardless of cursor position
+     * calculates the last position in range regardless of aimed position
      *
-     * @param startPoint start point
-     * @param goalPoint goal point
-     * @param range range from start point
-     * @param speed speed
-     * @return closest Point to goalPoint given the range
+     * @param startPoint position to start the calculation
+     * @param aimPoint point to aim for
+     * @param range range from start to
+     * @return last position in range if you follow the directon from startPoint to aimPoint
      */
     public static Point calculateLastPositionInRange(
-            Point startPoint, Point goalPoint, float range, float speed) {
-        // TODO fix bug where return point is wrong if goalPoint is out of radius
+            Point startPoint, Point aimPoint, float range) {
 
-        // calculate the distance between start point and goal point
-        float tmpdx = startPoint.x - goalPoint.x;
-        float tmpdy = startPoint.y - goalPoint.y;
-        double distance = Math.sqrt(tmpdx * tmpdx + tmpdy * tmpdy);
+        // calculate distance from startPoint to aimPoint
+        float dx = aimPoint.x - startPoint.x;
+        float dy = aimPoint.y - startPoint.y;
 
-        // calculate the time it takes to travel the distance at the given speed
-        double time = distance / speed;
+        // vector from startPoint to aimPoint
+        Vector2 scv = new Vector2(dx, dy);
 
-        // calculate the direction vector from the start point to the goal point
-        double dx = (goalPoint.x - startPoint.x) / distance;
-        double dy = (goalPoint.y - startPoint.y) / distance;
+        // normalize the vector (length of 1)
+        scv.nor();
 
-        // calculate the final position based on the time and speed
-        double finalX = startPoint.x + time * speed * dx;
-        double finalY = startPoint.y + time * speed * dy;
+        // resize the vector to the length of the range
+        scv.scl(range);
 
-        // check if the final position is within the range of the start point
-        double dx2 = startPoint.x - finalX;
-        double dy2 = startPoint.y - finalY;
-        double finalDistance = Math.sqrt(dx2 * dx2 + dy2 * dy2);
-        if (finalDistance <= range) {
-            double closestX = startPoint.x + (finalX - startPoint.x) * range / finalDistance;
-            double closestY = startPoint.y + (finalY - startPoint.y) * range / finalDistance;
-            return new Point((int) closestX, (int) closestY);
-        }
-
-        // calculate the direction and distance from the final position back to the start point
-        double backDx = (startPoint.x - finalX) / finalDistance;
-        double backDy = (startPoint.y - finalY) / finalDistance;
-        double backDistance = range;
-
-        // calculate the position within the range of the start point
-        double rangeX = finalX + backDistance * backDx;
-        double rangeY = finalY + backDistance * backDy;
-
-        return new Point((float) rangeX, (float) rangeY);
+        return new Point(startPoint.x + scv.x, startPoint.y + scv.y);
     }
 
     public static Point calculateVelocity(Point start, Point goal, float speed) {
