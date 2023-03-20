@@ -496,6 +496,10 @@ festzulegen.
 - [Ersetzen](#ersetzen)
 - [Kombinieren](#kombinieren)
 
+**Aufgabentypen, die im Projekt nicht realisiert werden**
+
+- [Objekte in der richtigen Reihenfolge auswählen](#objekte-in-der-richtigen-reihenfolge-auswählen), da die anderen Aufgabentypen ein breiteres Anwendungsfeld versprechen
+
 ### Mechaniken
 
 - [GUI Button](#ein-gui-button-drücken), [GUI Checkbox](#gui-checkboxen-anhaken), [GUI Text eingeben](#gui-text-eingeben)
