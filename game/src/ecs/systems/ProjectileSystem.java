@@ -12,7 +12,7 @@ public class ProjectileSystem extends ECS_System {
     private record PSData(
             Entity e, ProjectileComponent prc, PositionComponent pc, VelocityComponent vc) {}
 
-    /** reduces the cool down for all skills */
+    /** sets the velocity and removes entities that reached their endpoint*/
     @Override
     public void update() {
         Game.entities.stream()
@@ -57,6 +57,13 @@ public class ProjectileSystem extends ECS_System {
         Game.entitiesToRemove.add(data.pc.getEntity());
     }
 
+    /**
+     * checks if the endpoint is reached
+     * @param start start point
+     * @param end endpoint
+     * @param current current point
+     * @return true if the endpoint was reached or passed, else false
+     */
     public boolean hasReachedEndpoint(Point start, Point end, Point current) {
         float dx = start.x - current.x;
         float dy = start.y - current.y;

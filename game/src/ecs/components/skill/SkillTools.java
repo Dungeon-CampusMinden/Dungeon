@@ -6,8 +6,19 @@ import starter.Game;
 import tools.Point;
 
 public class SkillTools {
+
+    /**
+     * Calculates the last position in range regardless of cursor position
+     *
+     * @param startPoint start point
+     * @param goalPoint goal point
+     * @param range range from start point
+     * @param speed speed
+     * @return closest Point to goalPoint given the range
+     */
     public static Point calculateLastPositionInRange(
             Point startPoint, Point goalPoint, float range, float speed) {
+        // TODO fix bug where return point is wrong if goalPoint is out of radius
 
         // calculate the distance between start point and goal point
         float tmpdx = startPoint.x - goalPoint.x;
@@ -61,6 +72,11 @@ public class SkillTools {
         return new Point(velocityX, velocityY);
     }
 
+    /**
+     * gets the current cursor position as Point
+     *
+     * @return mouse cursor position as Point
+     */
     public static Point getCursorPositionAsPoint() {
         Vector3 mousePosition =
                 Game.camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));

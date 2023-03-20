@@ -15,10 +15,20 @@ public class ProjectileComponent extends Component {
         this.startPosition = startPosition;
     }
 
+    /**
+     * get gol location
+     *
+     * @return goal location
+     */
     public Point getGoalLocation() {
         return goalLocation;
     }
 
+    /**
+     * get start position
+     *
+     * @return start position
+     */
     public Point getStartPosition() {
         return startPosition;
     }
