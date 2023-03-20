@@ -7,6 +7,7 @@ title: "Aufgaben"
 Folgende Begriffe haben im Kontext der Aufgabenbeschreibung eine besondere Bedeutung und werden
 daher hier aus Sicht der aufgabendefinierenden Lehrperson definiert:
 
+
 ### Aufgabentyp
 
 Ein Aufgabentyp beschreibt in abstrakter Weise, welche Datenstrukturen nötig sind und in welcher Form sie
@@ -58,9 +59,12 @@ Aus einer Spielmechanik kann abgeleitet werden, welche Komponenten an der Mechan
     - alternativ ein InteractionComponent im Item, falls das Item per
     dedizierter Spielendenaktion (bspw. Tastendruck) aufgehoben werden soll
 
+TODO: Frage für morgen: nochmal Unterscheidung zwischen optischer Ausprägung und funktionaler Ausprägung machen? Und wenn ja, wo (ist das dann einfach ein anderer Entitätstyp, oder eine andere Ausprägung)?
+
 ### Spielszenario
 
-Ein Spielszenario beschreibt, wie die Spielemechanik genutzt wird, um dem Spieler die Aufgabe im Dungeon zu präsentieren.
+Ein Spielszenario beschreibt, welche Spielmechaniken, welche Entitätstypen und auf welche Art diese in einem konkreten Dungeonlevel in Verbindung gebracht werden, um eine abstrakte Aufgabe zu realisieren.
+Ein Spielszenario beschreibt nicht, welche visuellen
 
 Beispiel: In einem Raum befindet sich ein NPC und verschiedene Schalter. Der NPC stellt dem Spieler eine Frage und sagt ihm, welcher Hebel für welche Antwort steht.
 
