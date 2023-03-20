@@ -7,6 +7,7 @@ import ecs.components.PlayableComponent;
 import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
 import ecs.tools.interaction.InteractionTool;
+import savegame.SaveGame;
 import starter.Game;
 
 /** Used to control the player */
@@ -40,6 +41,13 @@ public class PlayerSystem extends ECS_System {
             ksd.pc.getSkillSlot1().ifPresent(skill -> skill.execute(ksd.e));
         else if (Gdx.input.isKeyPressed(KeyboardConfig.SECOND_SKILL.get()))
             ksd.pc.getSkillSlot2().ifPresent(skill -> skill.execute(ksd.e));
+
+        //Save Game
+        if(Gdx.input.isKeyJustPressed(KeyboardConfig.GAME_SAVE.get())) {
+            SaveGame.save();
+        } else if(Gdx.input.isKeyJustPressed(KeyboardConfig.GAME_LOAD.get())) {
+            SaveGame.load();
+        }
     }
 
     private KSData buildDataObject(PlayableComponent pc) {
