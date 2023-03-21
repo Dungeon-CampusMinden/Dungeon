@@ -30,6 +30,15 @@ public class Debugger extends ECS_System {
 
     /** Teleport the Hero to the current cursor Position */
     public static void TELEPORT_TO_CURSOR() {
+        TELEPORT(SkillTools.getCursorPositionAsPoint());
+    }
+
+    /**
+     * Teleport the Hero to the given location
+     *
+     * @param targetLocation
+     */
+    public static void TELEPORT(Point targetLocation) {
         PositionComponent pc =
                 (PositionComponent)
                         Game.hero
@@ -38,8 +47,7 @@ public class Debugger extends ECS_System {
                                         () ->
                                                 new MissingComponentException(
                                                         "Hero is missing PositionComponent"));
-        Point cP = SkillTools.getCursorPositionAsPoint();
-        if (Game.currentLevel.getTileAt(cP.toCoordinate()).isAccessible())
+        if (Game.currentLevel.getTileAt(targetLocation.toCoordinate()).isAccessible())
             pc.setPosition(SkillTools.getCursorPositionAsPoint());
     }
 }
