@@ -6,10 +6,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Output;
-import com.esotericsoftware.kryo.serializers.DefaultSerializers;
-import com.esotericsoftware.kryonet.Client;
 import controller.AbstractController;
 import controller.SystemController;
 import dslToGame.QuestConfig;
@@ -23,29 +19,17 @@ import graphic.Painter;
 import graphic.hud.PauseMenu;
 import interpreter.DSLInterpreter;
 
-import java.io.IOException;
 import java.util.*;
 
 import level.IOnLevelLoader;
 import level.LevelAPI;
 import level.elements.ILevel;
-import level.elements.TileLevel;
-import level.elements.astar.TileHeuristic;
 import level.elements.tile.*;
 import level.generator.IGenerator;
 import level.generator.postGeneration.WallGenerator;
 import level.generator.randomwalk.RandomWalkGenerator;
-import level.tools.Coordinate;
-import level.tools.DesignLabel;
-import level.tools.LevelElement;
-import mp.client.ClientListener;
 import mp.client.MultiplayerClient;
-import mp.packages.request.DataChunk;
 import mp.packages.request.LoadMapRequest;
-import mp.packages.request.PingRequest;
-import mp.packages.TileSerializer;
-import mp.packages.response.LoadMapResponse;
-import mp.packages.response.PingResponse;
 import tools.Constants;
 import tools.Point;
 
@@ -98,7 +82,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
                         hero.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
+        levelAPI = new LevelAPI(batch, painter, this, new WallGenerator(new RandomWalkGenerator()));
         levelAPI.loadLevel();
 
         new VelocitySystem();
@@ -160,7 +144,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         setupCameras();
         painter = new Painter(batch, camera);
         generator = new RandomWalkGenerator();
-        levelAPI = new LevelAPI(batch, painter, generator, this);
+        levelAPI = new LevelAPI(batch, painter, this, generator);
         setup();
     }
 
@@ -248,11 +232,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private void setupClient() {
         client = new MultiplayerClient();
 
-        LoadMapRequest loadMapRequest = new LoadMapRequest(currentLevel);
-//        client.send(loadMapRequest);
-        client.sendChunked(loadMapRequest);
+        LoadMapRequest loadMapRequest = new LoadMapRequest();
+        client.send(loadMapRequest);
     }
-
     public static void main(String[] args) {
         // start the game
         DesktopLauncher.run(new Game());
