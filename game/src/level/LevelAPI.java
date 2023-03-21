@@ -11,6 +11,7 @@ import level.elements.tile.Tile;
 import level.generator.IGenerator;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
+import level.tools.LevelSize;
 
 /** Manages the level. */
 public class LevelAPI {
@@ -38,22 +39,39 @@ public class LevelAPI {
         this.onLevelLoader = onLevelLoader;
     }
 
-    /** Load a new level. */
-    public void loadLevel() {
-        currentLevel = gen.getLevel();
+    /**
+     * Load a new Level
+     *
+     * @param size The size that the level should have
+     * @param label The design that the level should have
+     */
+    public void loadLevel(LevelSize size, DesignLabel label) {
+        currentLevel = gen.getLevel(label, size);
         onLevelLoader.onLevelLoad();
-
         levelAPI_logger.info("A new level was loaded.");
     }
 
     /**
-     * Load a new level
+     * Load a new level with random size and the given desing
      *
      * @param designLabel The design that the level should have
      */
     public void loadLevel(DesignLabel designLabel) {
-        currentLevel = gen.getLevel(designLabel);
-        onLevelLoader.onLevelLoad();
+        loadLevel(LevelSize.randomSize(), designLabel);
+    }
+
+    /**
+     * Load a new level with the given size and a random desing
+     *
+     * @param size wanted size of the level
+     */
+    public void loadLevel(LevelSize size) {
+        loadLevel(size, DesignLabel.randomDesign());
+    }
+
+    /** Load a new level with random size and random design. */
+    public void loadLevel() {
+        loadLevel(LevelSize.randomSize(), DesignLabel.randomDesign());
     }
 
     /** Draw level */
