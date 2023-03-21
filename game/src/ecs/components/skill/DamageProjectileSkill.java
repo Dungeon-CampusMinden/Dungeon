@@ -51,7 +51,7 @@ public abstract class DamageProjectileSkill implements ISkillFunction {
         Point aimedOn = selectionFunction.selectTargetPoint();
         Point targetPoint =
                 SkillTools.calculateLastPositionInRange(
-                        epc.getPosition(), aimedOn, projectileRange, projectileSpeed);
+                        epc.getPosition(), aimedOn, projectileRange);
         Point velocity =
                 SkillTools.calculateVelocity(epc.getPosition(), targetPoint, projectileSpeed);
         VelocityComponent vc =

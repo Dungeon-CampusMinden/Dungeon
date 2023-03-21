@@ -68,6 +68,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /** All entities to be removed from the dungeon in the next frame */
     public static Set<Entity> entitiesToRemove = new HashSet<>();
 
+    public static Set<Entity> entitiesToAdd = new HashSet<>();
+
     /** List of all Systems in the ECS */
     public static SystemController systems;
 
@@ -103,16 +105,19 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new HealthSystem();
         new XPSystem();
         new SkillSystem();
+        new ProjectileSystem();
     }
 
     /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
     protected void frame() {
         camera.setFocusPoint(heroPositionComponent.getPosition());
         entities.removeAll(entitiesToRemove);
+        entities.addAll(entitiesToAdd);
         for (Entity entity : entitiesToRemove) {
             gameLogger.info("Entity '" + entity.getClass().getSimpleName() + "' was deleted.");
         }
         entitiesToRemove.clear();
+        entitiesToAdd.clear();
         if (isOnEndTile()) levelAPI.loadLevel(LEVELSIZE);
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
     }

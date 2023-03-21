@@ -9,30 +9,29 @@ import tools.Point;
 public class ProjectileSystem extends ECS_System {
 
     // private record to hold all data during streaming
-    private record HSData(
+    private record PSData(
             Entity e, ProjectileComponent prc, PositionComponent pc, VelocityComponent vc) {}
 
-    /** reduces the cool down for all skills */
+    /** sets the velocity and removes entities that reached their endpoint */
     @Override
     public void update() {
         Game.entities.stream()
                 // Consider only entities that have a ProjectileComponent
                 .flatMap(e -> e.getComponent(ProjectileComponent.class).stream())
-                .map(hc -> buildDataObject((ProjectileComponent) hc))
-                // Apply damage
+                .map(prc -> buildDataObject((ProjectileComponent) prc))
                 .map(this::setVelocity)
-                // Filter all dead entities
+                // Filter all entities that have reached their endpoint
                 .filter(
-                        hsd ->
+                        psd ->
                                 hasReachedEndpoint(
-                                        hsd.prc.getStartPosition(),
-                                        hsd.prc.getGoalLocation(),
-                                        hsd.pc.getPosition()))
-                // Remove all dead entities
-                .forEach(this::removeDeadEntities);
+                                        psd.prc.getStartPosition(),
+                                        psd.prc.getGoalLocation(),
+                                        psd.pc.getPosition()))
+                // Remove all entities who reached their endpoint
+                .forEach(this::removeEntitiesOnEndpoint);
     }
 
-    private ProjectileSystem.HSData buildDataObject(ProjectileComponent prc) {
+    private PSData buildDataObject(ProjectileComponent prc) {
         Entity e = prc.getEntity();
 
         PositionComponent pc =
@@ -44,20 +43,28 @@ public class ProjectileSystem extends ECS_System {
                         e.getComponent(VelocityComponent.class)
                                 .orElseThrow(ProjectileSystem::missingAC);
 
-        return new HSData(e, prc, pc, vc);
+        return new PSData(e, prc, pc, vc);
     }
 
-    private HSData setVelocity(HSData data) {
+    private PSData setVelocity(PSData data) {
         data.vc.setCurrentYVelocity(data.vc.getYVelocity());
         data.vc.setCurrentXVelocity(data.vc.getXVelocity());
 
         return data;
     }
 
-    private void removeDeadEntities(HSData data) {
+    private void removeEntitiesOnEndpoint(PSData data) {
         Game.entitiesToRemove.add(data.pc.getEntity());
     }
 
+    /**
+     * checks if the endpoint is reached
+     *
+     * @param start position to start the calculation
+     * @param end point to check if projectile has reached its goal
+     * @param current current position
+     * @return true if the endpoint was reached or passed, else false
+     */
     public boolean hasReachedEndpoint(Point start, Point end, Point current) {
         float dx = start.x - current.x;
         float dy = start.y - current.y;

@@ -45,6 +45,8 @@ public class VelocitySystemTest {
         Game.currentLevel = level;
         Mockito.when(level.getTileAt(Mockito.any())).thenReturn(tile);
         Game.entities.clear();
+        Game.entitiesToAdd.clear();
+        Game.entitiesToRemove.clear();
         entity = new Entity();
 
         velocitySystem = new VelocitySystem();
@@ -53,6 +55,8 @@ public class VelocitySystemTest {
         positionComponent =
                 new PositionComponent(entity, new Point(startXPosition, startYPosition));
         animationComponent = new AnimationComponent(entity, idleLeft, idleRight);
+        Game.entities.addAll(Game.entitiesToAdd);
+        Game.entitiesToAdd.clear();
     }
 
     @Test
