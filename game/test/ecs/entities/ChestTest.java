@@ -19,6 +19,8 @@ public class ChestTest {
     /** Helper cleans up class attributes used by Chest Initializes the Item#ITEM_REGISTER */
     private static void cleanup() {
         Game.entities.clear();
+        Game.entitiesToAdd.clear();
+        Game.entitiesToRemove.clear();
         Item.ITEM_REGISTER.clear();
     }
 
@@ -30,6 +32,8 @@ public class ChestTest {
         List<Item> items = List.of();
         Point position = new Point(0, 0);
         Chest c = new Chest(items, position);
+        Game.entities.addAll(Game.entitiesToAdd);
+        Game.entitiesToAdd.clear();
         assertEquals("Chest is added to Game", 1, Game.entities.size());
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
@@ -59,6 +63,8 @@ public class ChestTest {
         List<Item> items = List.of(Item.ITEM_REGISTER.get(0));
         Point position = new Point(0, 0);
         Chest c = new Chest(items, position);
+        Game.entities.addAll(Game.entitiesToAdd);
+        Game.entitiesToAdd.clear();
         assertEquals(1, Game.entities.size());
         c.getComponent(InteractionComponent.class)
                 .map(InteractionComponent.class::cast)
@@ -107,6 +113,8 @@ public class ChestTest {
                         },
                         DesignLabel.DEFAULT);
         Chest newChest = Chest.createNewChest();
+        Game.entities.addAll(Game.entitiesToAdd);
+        Game.entitiesToAdd.clear();
         assertTrue("Chest is added to Game", Game.entities.contains(newChest));
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
