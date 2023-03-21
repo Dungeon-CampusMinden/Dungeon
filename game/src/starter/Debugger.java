@@ -8,6 +8,7 @@ import ecs.components.skill.SkillTools;
 import ecs.systems.ECS_System;
 import level.elements.tile.Tile;
 import level.tools.Coordinate;
+import level.tools.LevelSize;
 import tools.Point;
 
 /** Collection of functions for easy debugging */
@@ -21,6 +22,8 @@ public class Debugger extends ECS_System {
         if (Gdx.input.isKeyJustPressed(Input.Keys.O)) Debugger.TELEPORT_TO_CURSOR();
         if (Gdx.input.isKeyJustPressed(Input.Keys.J)) Debugger.TELEPORT_TO_END();
         if (Gdx.input.isKeyJustPressed(Input.Keys.H)) Debugger.TELEPORT_TO_START();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.G)) Debugger.LOAD_NEXT_LEVEL();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) Debugger.TOGGLE_LEVEL_SIZE(); //Z is Y on QWERTZ because libGDX
     }
 
     /**
@@ -55,6 +58,13 @@ public class Debugger extends ECS_System {
         }
     }
 
+    /**
+     * Will teleport the Hero on the EndTile so the next level gets loaded
+     */
+    public static void LOAD_NEXT_LEVEL(){
+        TELEPORT(Game.currentLevel.getEndTile().getCoordinate().toPoint());
+    }
+
     /** Teleport the Hero to the start of the level */
     public static void TELEPORT_TO_START() {
         TELEPORT(Game.currentLevel.getStartTile().getCoordinate().toPoint());
@@ -76,5 +86,17 @@ public class Debugger extends ECS_System {
                                                         "Hero is missing PositionComponent"));
         if (Game.currentLevel.getTileAt(targetLocation.toCoordinate()).isAccessible())
             pc.setPosition(targetLocation);
+    }
+
+    /**
+     * Switch between Small, Medium and Large level.
+     * Changes will affect on next level load
+     */
+    public static void TOGGLE_LEVEL_SIZE(){
+        switch (Game.LEVELSIZE){
+            case SMALL -> Game.LEVELSIZE= LevelSize.MEDIUM;
+            case MEDIUM -> Game.LEVELSIZE=LevelSize.LARGE;
+            case LARGE -> Game.LEVELSIZE=LevelSize.SMALL;
+        }
     }
 }
