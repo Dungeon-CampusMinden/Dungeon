@@ -1,6 +1,7 @@
 package level;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.times;
@@ -20,6 +21,7 @@ import level.generator.IGenerator;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
+import level.tools.LevelSize;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,9 +63,9 @@ public class TileLevelAPITest {
 
     @Test
     public void test_loadLevel() {
-        when(generator.getLevel()).thenReturn(level);
-        api.loadLevel();
-        verify(generator).getLevel();
+        when(generator.getLevel(Mockito.any(), Mockito.any())).thenReturn(level);
+        api.loadLevel(LevelSize.SMALL, DesignLabel.DEFAULT);
+        verify(generator).getLevel(DesignLabel.DEFAULT, LevelSize.SMALL);
         Mockito.verifyNoMoreInteractions(generator);
         verify(onLevelLoader).onLevelLoad();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
@@ -71,10 +73,32 @@ public class TileLevelAPITest {
     }
 
     @Test
-    public void test_loadLevel_withDesign() {
-        when(generator.getLevel(DesignLabel.DEFAULT)).thenReturn(level);
+    public void test_loadLevel_noParameter() {
+        when(generator.getLevel(Mockito.any(), Mockito.any())).thenReturn(level);
+        api.loadLevel();
+        verify(generator).getLevel(Mockito.any(), Mockito.any());
+        Mockito.verifyNoMoreInteractions(generator);
+        verify(onLevelLoader).onLevelLoad();
+        Mockito.verifyNoMoreInteractions(onLevelLoader);
+        assertEquals(level, api.getCurrentLevel());
+    }
+
+    @Test
+    public void test_loadLevel_withDesign_noSize() {
+        when(generator.getLevel(eq(DesignLabel.DEFAULT), any())).thenReturn(level);
         api.loadLevel(DesignLabel.DEFAULT);
-        verify(generator).getLevel(DesignLabel.DEFAULT);
+        verify(generator).getLevel(eq(DesignLabel.DEFAULT), any());
+        Mockito.verifyNoMoreInteractions(generator);
+        verify(onLevelLoader).onLevelLoad();
+        Mockito.verifyNoMoreInteractions(onLevelLoader);
+        assertEquals(level, api.getCurrentLevel());
+    }
+
+    @Test
+    public void test_loadLevel_noDesign_WithSize() {
+        when(generator.getLevel(any(), eq(LevelSize.SMALL))).thenReturn(level);
+        api.loadLevel(LevelSize.SMALL);
+        verify(generator).getLevel(any(), eq(LevelSize.SMALL));
         Mockito.verifyNoMoreInteractions(generator);
         verify(onLevelLoader).onLevelLoad();
         Mockito.verifyNoMoreInteractions(onLevelLoader);

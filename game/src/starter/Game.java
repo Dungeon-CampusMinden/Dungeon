@@ -34,11 +34,15 @@ import level.elements.tile.Tile;
 import level.generator.IGenerator;
 import level.generator.postGeneration.WallGenerator;
 import level.generator.randomwalk.RandomWalkGenerator;
+import level.tools.LevelSize;
 import tools.Constants;
 import tools.Point;
 
 /** The heart of the framework. From here all strings are pulled. */
 public class Game extends ScreenAdapter implements IOnLevelLoader {
+
+    private final LevelSize LEVELSIZE = LevelSize.SMALL;
+
     /**
      * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
      * batch.
@@ -89,7 +93,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
-        levelAPI.loadLevel();
+        levelAPI.loadLevel(LEVELSIZE);
 
         new VelocitySystem();
         new DrawSystem(painter);
@@ -109,7 +113,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             gameLogger.info("Entity '" + entity.getClass().getSimpleName() + "' was deleted.");
         }
         entitiesToRemove.clear();
-        if (isOnEndTile()) levelAPI.loadLevel();
+        if (isOnEndTile()) levelAPI.loadLevel(LEVELSIZE);
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
     }
 
