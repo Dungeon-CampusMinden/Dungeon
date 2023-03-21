@@ -6,6 +6,8 @@ import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.components.skill.SkillTools;
 import ecs.systems.ECS_System;
+import level.elements.tile.Tile;
+import level.tools.Coordinate;
 import tools.Point;
 
 /** Collection of functions for easy debugging */
@@ -35,17 +37,25 @@ public class Debugger extends ECS_System {
         TELEPORT(SkillTools.getCursorPositionAsPoint());
     }
 
-
-    /**
-     * Teleport the Hero to the end of the level. Will load the next level
-     */
+    /** Teleport the Hero to the end of the level. */
     public static void TELEPORT_TO_END() {
-        TELEPORT(Game.currentLevel.getEndTile().getCoordinate().toPoint());
+        Coordinate endTile = Game.currentLevel.getEndTile().getCoordinate();
+        Coordinate[] neighborTiles = {
+            new Coordinate(endTile.x + 1, endTile.y),
+            new Coordinate(endTile.x - 1, endTile.y),
+            new Coordinate(endTile.x, endTile.y + 1),
+            new Coordinate(endTile.x, endTile.y - 1)
+        };
+        for (Coordinate neighborTile : neighborTiles) {
+            Tile neighbor = Game.currentLevel.getTileAt(neighborTile);
+            if (neighbor.isAccessible()) {
+                TELEPORT(neighborTile.toPoint());
+                return;
+            }
+        }
     }
 
-    /**
-     * Teleport the Hero to the start of the level
-     */
+    /** Teleport the Hero to the start of the level */
     public static void TELEPORT_TO_START() {
         TELEPORT(Game.currentLevel.getStartTile().getCoordinate().toPoint());
     }
