@@ -2,10 +2,16 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import ecs.components.MissingComponentException;
-import ecs.components.PositionComponent;
+import dslToGame.AnimationBuilder;
+import ecs.components.*;
+import ecs.components.ai.AIComponent;
+import ecs.components.ai.fight.CollideAI;
+import ecs.components.ai.idle.RadiusWalk;
+import ecs.components.ai.transition.SelfDefendTransition;
 import ecs.components.skill.SkillTools;
+import ecs.entities.Entity;
 import ecs.systems.ECS_System;
+import graphic.Animation;
 import level.elements.tile.Tile;
 import level.tools.Coordinate;
 import level.tools.LevelSize;
@@ -23,7 +29,9 @@ public class Debugger extends ECS_System {
         if (Gdx.input.isKeyJustPressed(Input.Keys.J)) Debugger.TELEPORT_TO_END();
         if (Gdx.input.isKeyJustPressed(Input.Keys.H)) Debugger.TELEPORT_TO_START();
         if (Gdx.input.isKeyJustPressed(Input.Keys.G)) Debugger.LOAD_NEXT_LEVEL();
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) Debugger.TOGGLE_LEVEL_SIZE(); //Z is Y on QWERTZ because libGDX
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
+            Debugger.TOGGLE_LEVEL_SIZE(); // Z is Y on QWERTZ because libGDX
+        if (Gdx.input.isKeyJustPressed(Input.Keys.X)) Debugger.SPAWN_MONSTER_ON_CURSOR();
     }
 
     /**
@@ -58,10 +66,8 @@ public class Debugger extends ECS_System {
         }
     }
 
-    /**
-     * Will teleport the Hero on the EndTile so the next level gets loaded
-     */
-    public static void LOAD_NEXT_LEVEL(){
+    /** Will teleport the Hero on the EndTile so the next level gets loaded */
+    public static void LOAD_NEXT_LEVEL() {
         TELEPORT(Game.currentLevel.getEndTile().getCoordinate().toPoint());
     }
 
@@ -88,15 +94,37 @@ public class Debugger extends ECS_System {
             pc.setPosition(targetLocation);
     }
 
-    /**
-     * Switch between Small, Medium and Large level.
-     * Changes will affect on next level load
-     */
-    public static void TOGGLE_LEVEL_SIZE(){
-        switch (Game.LEVELSIZE){
-            case SMALL -> Game.LEVELSIZE= LevelSize.MEDIUM;
-            case MEDIUM -> Game.LEVELSIZE=LevelSize.LARGE;
-            case LARGE -> Game.LEVELSIZE=LevelSize.SMALL;
+    /** Switch between Small, Medium and Large level. Changes will affect on next level load */
+    public static void TOGGLE_LEVEL_SIZE() {
+        switch (Game.LEVELSIZE) {
+            case SMALL -> Game.LEVELSIZE = LevelSize.MEDIUM;
+            case MEDIUM -> Game.LEVELSIZE = LevelSize.LARGE;
+            case LARGE -> Game.LEVELSIZE = LevelSize.SMALL;
         }
+    }
+
+    /** Spawn a Monster on the Cursor-Position */
+    public static void SPAWN_MONSTER_ON_CURSOR() {
+        SPAWN_MONSTER(SkillTools.getCursorPositionAsPoint());
+    }
+
+    /**
+     * Spawn a monster at the given Position
+     *
+     * @param position
+     */
+    public static void SPAWN_MONSTER(Point position) {
+        Entity monster = new Entity();
+        monster.addComponent(new PositionComponent(monster, position));
+        Animation idleLeft = AnimationBuilder.buildAnimation("character/monster/chort/idleLeft/");
+        Animation idleRight = AnimationBuilder.buildAnimation("character/monster/chort/idleRight/");
+        new AnimationComponent(monster, idleLeft, idleRight);
+        Animation runRight = AnimationBuilder.buildAnimation("character/monster/chort/runRight/");
+        Animation runLeft = AnimationBuilder.buildAnimation("character/monster/chort/runLeft/");
+        new VelocityComponent(monster, 0.1f, 0.1f, runLeft, runRight);
+        new HealthComponent(monster);
+        new HitboxComponent(monster);
+        new AIComponent(
+                monster, new CollideAI(1), new RadiusWalk(5, 1), new SelfDefendTransition());
     }
 }
