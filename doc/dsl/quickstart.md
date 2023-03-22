@@ -99,3 +99,8 @@ level_config my_config {
 }
 ```
 
+### Definition von verschiedenen Szenarien
+
+- Ziel: Randomisierung der Szenarien und verwendeten Spielmechaniken für einen bestimmten
+Aufgabentyp
+- Mithilfe der [Taskbuilder-Methoden](https://github.com/Programmiermethoden/Dungeon/issues/197) können die Szenarien zusammengebaut werden (das ist allerdings bisher nur ein Konzept).
