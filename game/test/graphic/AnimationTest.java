@@ -5,15 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Animation.class})
-class AnimationTest {
-    // Because of use of PowerMockRunner we need an empty constructor here
-    public AnimationTest() {}
+public class AnimationTest {
 
     @Test(expected = AssertionError.class)
     public void test_constructor_1() {
