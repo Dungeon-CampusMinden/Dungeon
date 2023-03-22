@@ -106,7 +106,7 @@ public class Debugger extends ECS_System {
     /**
      * Teleport the Hero to the given location
      *
-     * @param targetLocation
+     * @param targetLocation locations to telport to
      */
     public static void TELEPORT(Point targetLocation) {
         debugger_logger.log(
@@ -149,7 +149,7 @@ public class Debugger extends ECS_System {
     /**
      * Spawn a monster at the given Position
      *
-     * @param position
+     * @param position location to spawn monster on
      */
     public static void SPAWN_MONSTER(Point position) {
 
