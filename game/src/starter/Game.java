@@ -73,6 +73,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static Entity hero;
     private Logger gameLogger;
 
+    private Debugger debugger;
 
     public static void main(String[] args) {
         // start the game
@@ -149,6 +150,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             // Dialogue for quiz questions (display of quiz questions and the answer area in test
             // mode)
             DummyQuizQuestionList.getRandomQuestion().askQuizQuestionWithUI();
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ACTIVATE_DEACTIVATE.get())) {
+            debugger.toggleRun();
+            gameLogger.info("Debugger ist now " + debugger.isRunning());
         }
     }
 
@@ -279,6 +285,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new XPSystem();
         new SkillSystem();
         new ProjectileSystem();
-        new Debugger();
+        debugger = new Debugger();
     }
 }
