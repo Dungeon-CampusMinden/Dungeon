@@ -3,7 +3,6 @@ package ecs.entities;
 import ecs.components.*;
 import ecs.items.Item;
 import graphic.Animation;
-import graphic.TerminatingAnimation;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -56,8 +55,8 @@ public class Chest extends Entity {
         AnimationComponent ac =
                 new AnimationComponent(
                         this,
-                        new Animation(DEFAULT_CLOSED_ANIMATION_FRAMES, 100),
-                        new TerminatingAnimation(DEFAULT_OPENING_ANIMATION_FRAMES, 100));
+                        new Animation(DEFAULT_CLOSED_ANIMATION_FRAMES, 100, false),
+                        new Animation(DEFAULT_OPENING_ANIMATION_FRAMES, 100, false));
     }
 
     private void dropItems(Entity entity) {

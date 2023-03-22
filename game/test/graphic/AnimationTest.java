@@ -34,4 +34,24 @@ public class AnimationTest {
             }
         }
     }
+
+    @Test
+    public void CheckAnimationIteration() {
+        List<String> testStrings = List.of("a", "b");
+        Animation ta = new Animation(testStrings, 1, false);
+        assertEquals(testStrings.get(0), ta.getNextAnimationTexturePath());
+        assertEquals(testStrings.get(1), ta.getNextAnimationTexturePath());
+        assertEquals(testStrings.get(1), ta.getNextAnimationTexturePath());
+    }
+
+    @Test
+    public void CheckAnimationIterationBiggerOne() {
+        List<String> testStrings = List.of("a", "b");
+        Animation ta = new Animation(testStrings, 2, false);
+        assertEquals(testStrings.get(0), ta.getNextAnimationTexturePath());
+        assertEquals(testStrings.get(0), ta.getNextAnimationTexturePath());
+        assertEquals(testStrings.get(1), ta.getNextAnimationTexturePath());
+        assertEquals(testStrings.get(1), ta.getNextAnimationTexturePath());
+        assertEquals(testStrings.get(1), ta.getNextAnimationTexturePath());
+    }
 }
