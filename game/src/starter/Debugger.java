@@ -46,7 +46,7 @@ public class Debugger extends ECS_System {
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_ON_END.get()))
             Debugger.LOAD_NEXT_LEVEL();
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_LEVELSIZE.get()))
-            Debugger.TOGGLE_LEVEL_SIZE(); // Z is Y on QWERTZ because libGDX
+            Debugger.TOGGLE_LEVEL_SIZE();
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.get()))
             Debugger.SPAWN_MONSTER_ON_CURSOR();
     }
@@ -106,7 +106,7 @@ public class Debugger extends ECS_System {
     /**
      * Teleport the Hero to the given location
      *
-     * @param targetLocation locations to telport to
+     * @param targetLocation locations to teleport to
      */
     public static void TELEPORT(Point targetLocation) {
         debugger_logger.log(
@@ -123,7 +123,7 @@ public class Debugger extends ECS_System {
         if (Game.currentLevel.getTileAt(targetLocation.toCoordinate()).isAccessible()) {
             pc.setPosition(targetLocation);
             debugger_logger.info("teleport successful");
-        } else debugger_logger.info("Can not teleport to unaccessbile tile");
+        } else debugger_logger.info("Can not teleport to non accessible tile");
     }
 
     /** Switch between Small, Medium and Large level. Changes will affect on next level load */
@@ -133,7 +133,7 @@ public class Debugger extends ECS_System {
             case MEDIUM -> Game.LEVELSIZE = LevelSize.LARGE;
             case LARGE -> Game.LEVELSIZE = LevelSize.SMALL;
         }
-        debugger_logger.info("Levelsize toggled to: " + Game.LEVELSIZE);
+        debugger_logger.info("LevelSize toggled to: " + Game.LEVELSIZE);
     }
 
     /** Spawn a Monster on the Cursor-Position */
@@ -172,6 +172,6 @@ public class Debugger extends ECS_System {
             new AIComponent(
                     monster, new CollideAI(1), new RadiusWalk(5, 1), new SelfDefendTransition());
             debugger_logger.info("Monster spawned");
-        } else debugger_logger.info("Cant spawn Monster on unaccessbile tile");
+        } else debugger_logger.info("Cant spawn Monster on non accessible tile");
     }
 }
