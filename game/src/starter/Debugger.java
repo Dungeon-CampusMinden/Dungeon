@@ -50,7 +50,11 @@ public class Debugger extends ECS_System {
 
     /** Teleport the Hero to the current cursor Position */
     public static void TELEPORT_TO_CURSOR() {
-        TELEPORT(SkillTools.getCursorPositionAsPoint());
+        try {
+            TELEPORT(SkillTools.getCursorPositionAsPoint());
+        } catch (NullPointerException exception) {
+            exception.printStackTrace();
+        }
     }
 
     /** Teleport the Hero to the end of the level. */
@@ -110,7 +114,11 @@ public class Debugger extends ECS_System {
 
     /** Spawn a Monster on the Cursor-Position */
     public static void SPAWN_MONSTER_ON_CURSOR() {
-        SPAWN_MONSTER(SkillTools.getCursorPositionAsPoint());
+        try {
+            SPAWN_MONSTER(SkillTools.getCursorPositionAsPoint());
+        } catch (NullPointerException exception) {
+            exception.printStackTrace();
+        }
     }
 
     /**
@@ -119,17 +127,25 @@ public class Debugger extends ECS_System {
      * @param position
      */
     public static void SPAWN_MONSTER(Point position) {
-        Entity monster = new Entity();
-        monster.addComponent(new PositionComponent(monster, position));
-        Animation idleLeft = AnimationBuilder.buildAnimation("character/monster/chort/idleLeft/");
-        Animation idleRight = AnimationBuilder.buildAnimation("character/monster/chort/idleRight/");
-        new AnimationComponent(monster, idleLeft, idleRight);
-        Animation runRight = AnimationBuilder.buildAnimation("character/monster/chort/runRight/");
-        Animation runLeft = AnimationBuilder.buildAnimation("character/monster/chort/runLeft/");
-        new VelocityComponent(monster, 0.1f, 0.1f, runLeft, runRight);
-        new HealthComponent(monster);
-        new HitboxComponent(monster);
-        new AIComponent(
-                monster, new CollideAI(1), new RadiusWalk(5, 1), new SelfDefendTransition());
+
+        // check if the point is in the level and accessible
+        if (Game.currentLevel.getTileAt(position.toCoordinate()).isAccessible()) {
+
+            Entity monster = new Entity();
+            monster.addComponent(new PositionComponent(monster, position));
+            Animation idleLeft =
+                    AnimationBuilder.buildAnimation("character/monster/chort/idleLeft/");
+            Animation idleRight =
+                    AnimationBuilder.buildAnimation("character/monster/chort/idleRight/");
+            new AnimationComponent(monster, idleLeft, idleRight);
+            Animation runRight =
+                    AnimationBuilder.buildAnimation("character/monster/chort/runRight/");
+            Animation runLeft = AnimationBuilder.buildAnimation("character/monster/chort/runLeft/");
+            new VelocityComponent(monster, 0.1f, 0.1f, runLeft, runRight);
+            new HealthComponent(monster);
+            new HitboxComponent(monster);
+            new AIComponent(
+                    monster, new CollideAI(1), new RadiusWalk(5, 1), new SelfDefendTransition());
+        }
     }
 }
