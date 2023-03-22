@@ -20,6 +20,11 @@ import tools.Point;
 /** Collection of functions for easy debugging */
 public class Debugger extends ECS_System {
 
+    public Debugger() {
+        super();
+        toggleRun();
+    }
+
     @Override
     public void update() {
         // DEBUGGER
