@@ -1,0 +1,32 @@
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>100</x><y>0</y><w>310</w><h>170</h></coordinates><panel_attributes>Item
+--
+- name: String
+- descripton: String
+- onCollect: IOnCollect
+- onDrop: IOnDrop
+- onUse: IOnUse
+--
+Item(name: String, description: String, 
+         onCollect: IOnCollect, onDrop: IOnDrop, 
+         onUse: IOnUse)
+Item(itemComponent: ItemComponent)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>570</x><y>0</y><w>280</w><h>50</h></coordinates><panel_attributes>WorldItemBuilder
+--
+buildWorldItem(item: Item, where: Point)</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>750</x><y>40</y><w>30</w><h>190</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;10;10;170</additional_attributes></element><element><id>UMLClass</id><coordinates><x>620</x><y>310</y><w>210</w><h>30</h></coordinates><panel_attributes>Component</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>100</x><y>220</y><w>360</w><h>160</h></coordinates><panel_attributes>ItemComponent
+--
+- name: String
+- description: String
+- onCollect: IOnCollect
+- onDrop: IOnDrop
+- onUse: IOnUse
+--
+ItemComponent(name: String, description: String, 
+                           onCollect: IOnCollect, onDrop: IOnDrop, 
+                           onUse: IOnUse)</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>450</x><y>310</y><w>190</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>170;10;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>670</x><y>420</y><w>210</w><h>50</h></coordinates><panel_attributes>InventoryComponent
+--
+List&lt;Item&gt; inventory</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>740</x><y>330</y><w>30</w><h>110</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;90</additional_attributes></element><element><id>Relation</id><coordinates><x>270</x><y>160</y><w>30</w><h>80</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>80</x><y>420</y><w>310</w><h>50</h></coordinates><panel_attributes>IOnCollect
+--
+onCollect(worldItemEntity: Entity, whoCollects: Entity)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>600</x><y>210</y><w>210</w><h>50</h></coordinates><panel_attributes>IOnDrop
+--
+onDrop(entity: Entity, where: Point)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>430</x><y>420</y><w>210</w><h>50</h></coordinates><panel_attributes>IOnUse
+--
+onUse(user: Entity, whoAmI: Item)</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>250</x><y>370</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>450</x><y>330</y><w>100</w><h>110</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;80;10;80;90</additional_attributes></element><element><id>Relation</id><coordinates><x>450</x><y>240</y><w>170</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;150;10</additional_attributes></element></diagram>
