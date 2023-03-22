@@ -4,7 +4,7 @@ import ecs.components.InventoryComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
 
-public abstract class ItemActive extends Item {
+public abstract class ItemDataActive extends ItemData {
 
     private static final String DEFAULT_NAME = "Usable Item";
     private static final String DEFAULT_DESCRIPTION = "This is a usable item.";
@@ -12,13 +12,13 @@ public abstract class ItemActive extends Item {
     private final IItemUse callbackItemUse;
 
     /** Creates a new usable Item with default values. */
-    public ItemActive() {
+    public ItemDataActive() {
         this(
                 DEFAULT_NAME,
                 DEFAULT_DESCRIPTION,
                 DEFAULT_INVENTORY_ANIMATION,
                 DEFAULT_WORLD_ANIMATION,
-                ItemActive::defaultUseCallback);
+                ItemDataActive::defaultUseCallback);
     }
 
     /**
@@ -28,13 +28,13 @@ public abstract class ItemActive extends Item {
      * @param name Name of the item
      * @param description Description of the item
      */
-    public ItemActive(String name, String description) {
+    public ItemDataActive(String name, String description) {
         this(
                 name,
                 description,
                 DEFAULT_INVENTORY_ANIMATION,
                 DEFAULT_WORLD_ANIMATION,
-                ItemActive::defaultUseCallback);
+                ItemDataActive::defaultUseCallback);
     }
 
     /**
@@ -44,7 +44,7 @@ public abstract class ItemActive extends Item {
      * @param description Description of the item
      * @param callback Callback to be called when the item is used
      */
-    public ItemActive(String name, String description, IItemUse callback) {
+    public ItemDataActive(String name, String description, IItemUse callback) {
         this(name, description, DEFAULT_INVENTORY_ANIMATION, DEFAULT_WORLD_ANIMATION, callback);
     }
 
@@ -56,9 +56,9 @@ public abstract class ItemActive extends Item {
      * @param inventoryTexture Texture of the item in the inventory
      * @param worldTexture Texture of the item in the world
      */
-    public ItemActive(
+    public ItemDataActive(
             String name, String description, Animation inventoryTexture, Animation worldTexture) {
-        this(name, description, inventoryTexture, worldTexture, ItemActive::defaultUseCallback);
+        this(name, description, inventoryTexture, worldTexture, ItemDataActive::defaultUseCallback);
     }
 
     /**
@@ -70,7 +70,7 @@ public abstract class ItemActive extends Item {
      * @param worldTexture Texture of the item in the world
      * @param callback Callback to be called when the item is used
      */
-    public ItemActive(
+    public ItemDataActive(
             String name,
             String description,
             Animation inventoryTexture,
@@ -97,7 +97,7 @@ public abstract class ItemActive extends Item {
      * @param e Entity that uses the item
      * @param item Item that is used
      */
-    private static void defaultUseCallback(Entity e, ItemActive item) {
+    private static void defaultUseCallback(Entity e, ItemDataActive item) {
         e.getComponent(InventoryComponent.class)
                 .ifPresent(
                         component -> {

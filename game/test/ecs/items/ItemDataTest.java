@@ -13,9 +13,9 @@ import org.junit.Test;
 import starter.Game;
 import tools.Point;
 
-public class ItemTest {
-    private static class ItemImpl extends Item {
-        public ItemImpl(
+public class ItemDataTest {
+    private static class ItemDataImpl extends ItemData {
+        public ItemDataImpl(
                 ItemType itemType,
                 Animation inventoryTexture,
                 Animation worldTexture,
@@ -24,17 +24,17 @@ public class ItemTest {
             super(itemType, inventoryTexture, worldTexture, itemName, description);
         }
 
-        public ItemImpl() {}
+        public ItemDataImpl() {}
     }
 
     @Test
     public void testDefaultConstructor() {
-        Item item = new ItemImpl();
-        assertEquals(Item.DEFAULT_NAME, item.getItemName());
-        assertEquals(Item.DEFAULT_DESCRIPTION, item.getDescription());
-        assertEquals(Item.DEFAULT_ITEM_TYPE, item.getItemType());
-        assertEquals(Item.DEFAULT_WORLD_ANIMATION, item.getWorldTexture());
-        assertEquals(Item.DEFAULT_INVENTORY_ANIMATION, item.getInventoryTexture());
+        ItemData itemData = new ItemDataImpl();
+        assertEquals(ItemData.DEFAULT_NAME, itemData.getItemName());
+        assertEquals(ItemData.DEFAULT_DESCRIPTION, itemData.getDescription());
+        assertEquals(ItemData.DEFAULT_ITEM_TYPE, itemData.getItemType());
+        assertEquals(ItemData.DEFAULT_WORLD_ANIMATION, itemData.getWorldTexture());
+        assertEquals(ItemData.DEFAULT_INVENTORY_ANIMATION, itemData.getInventoryTexture());
     }
 
     @Test
@@ -44,19 +44,20 @@ public class ItemTest {
         String worldTexture = "WorldTexture";
         String item_name = "r Item Name";
         String item_description = "r Item Description";
-        Item item =
-                new ItemImpl(
+        ItemData itemData =
+                new ItemDataImpl(
                         type,
                         new Animation(List.of(inventoryTexture), 1),
                         new Animation(List.of(worldTexture), 1),
                         item_name,
                         item_description);
 
-        assertEquals(type, item.getItemType());
-        assertEquals(inventoryTexture, item.getInventoryTexture().getNextAnimationTexturePath());
-        assertEquals(worldTexture, item.getWorldTexture().getNextAnimationTexturePath());
-        assertEquals(item_name, item.getItemName());
-        assertEquals(item_description, item.getDescription());
+        assertEquals(type, itemData.getItemType());
+        assertEquals(
+                inventoryTexture, itemData.getInventoryTexture().getNextAnimationTexturePath());
+        assertEquals(worldTexture, itemData.getWorldTexture().getNextAnimationTexturePath());
+        assertEquals(item_name, itemData.getItemName());
+        assertEquals(item_description, itemData.getDescription());
     }
 
     @Before
@@ -66,10 +67,10 @@ public class ItemTest {
 
     @Test
     public void onDropCheckEntity() {
-        Item item = new ItemImpl();
+        ItemData itemData = new ItemDataImpl();
         assertEquals(0, Game.getEntities().size());
         Point point = new Point(0, 0);
-        item.onDrop(point);
+        itemData.onDrop(point);
         assertEquals(1, Game.getEntities().size());
         Entity e = Game.getEntities().iterator().next();
         PositionComponent pc =
@@ -78,7 +79,7 @@ public class ItemTest {
         assertEquals(point.y, pc.getPosition().y, 0.001);
         AnimationComponent ac =
                 (AnimationComponent) e.getComponent(AnimationComponent.class).orElseThrow();
-        assertEquals(Item.DEFAULT_WORLD_ANIMATION, ac.getCurrentAnimation());
+        assertEquals(ItemData.DEFAULT_WORLD_ANIMATION, ac.getCurrentAnimation());
 
         HitboxComponent hc = (HitboxComponent) e.getComponent(HitboxComponent.class).orElseThrow();
     }

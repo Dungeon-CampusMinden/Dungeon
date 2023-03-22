@@ -3,8 +3,8 @@ package ecs.entities;
 import static org.junit.Assert.*;
 
 import ecs.components.*;
-import ecs.items.BasicItem;
-import ecs.items.Item;
+import ecs.items.BasicItemData;
+import ecs.items.ItemData;
 import java.util.List;
 import java.util.Optional;
 import level.elements.TileLevel;
@@ -21,17 +21,17 @@ public class ChestTest {
         Game.getEntities().clear();
         Game.getEntitiesToAdd().clear();
         Game.getEntitiesToRemove().clear();
-        Item.ITEM_REGISTER.clear();
+        ItemData.ITEM_DATA_REGISTER.clear();
     }
 
     /** checks the correct creation of the Chest */
     @Test
     public void checkCreation() {
         cleanup();
-        BasicItem.FillRegister();
-        List<Item> items = List.of();
+        BasicItemData.FillRegister();
+        List<ItemData> itemData = List.of();
         Point position = new Point(0, 0);
-        Chest c = new Chest(items, position);
+        Chest c = new Chest(itemData, position);
         Game.getEntities().addAll(Game.getEntitiesToAdd());
         Game.getEntitiesToAdd().clear();
         assertEquals("Chest is added to Game", 1, Game.getEntities().size());
@@ -42,7 +42,7 @@ public class ChestTest {
         assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
         assertEquals(
                 "Chest should have the given Items",
-                items,
+                itemData,
                 inventoryComponent.map(InventoryComponent.class::cast).get().getItems());
         Optional<Component> positionComponent = c.getComponent(PositionComponent.class);
         assertTrue(
@@ -59,10 +59,10 @@ public class ChestTest {
     @Test
     public void checkInteractionDroppingItems() {
         cleanup();
-        BasicItem.FillRegister();
-        List<Item> items = List.of(Item.ITEM_REGISTER.get(0));
+        BasicItemData.FillRegister();
+        List<ItemData> itemData = List.of(ItemData.ITEM_DATA_REGISTER.get(0));
         Point position = new Point(0, 0);
-        Chest c = new Chest(items, position);
+        Chest c = new Chest(itemData, position);
         Game.getEntities().addAll(Game.getEntitiesToAdd());
         Game.getEntitiesToAdd().clear();
         assertEquals(1, Game.getEntities().size());
@@ -79,11 +79,11 @@ public class ChestTest {
     @Test
     public void checkInteractionOnDroppedItems() {
         cleanup();
-        BasicItem.FillRegister();
-        List<Item> items = List.of(Item.ITEM_REGISTER.get(0));
+        BasicItemData.FillRegister();
+        List<ItemData> itemData = List.of(ItemData.ITEM_DATA_REGISTER.get(0));
         Point position = new Point(0, 0);
-        Chest c = new Chest(items, position);
-        Game.removeEntity(c);
+        Chest c = new Chest(itemData, position);
+        Game.getEntities().remove(c);
         assertEquals(0, Game.getEntities().size());
         c.getComponent(InteractionComponent.class)
                 .map(InteractionComponent.class::cast)
@@ -103,7 +103,7 @@ public class ChestTest {
     @Test
     public void checkGeneratorMethod() {
         cleanup();
-        BasicItem.FillRegister();
+        BasicItemData.FillRegister();
         Game.currentLevel =
                 new TileLevel(
                         new LevelElement[][] {

@@ -3,7 +3,7 @@ package ecs.items;
 import ecs.components.stats.DamageModifier;
 import graphic.Animation;
 
-public abstract class ItemPassive extends Item {
+public abstract class ItemDataPassive extends ItemData {
 
     private static final String DEFAULT_NAME = "Equipment Item";
     private static final String DEFAULT_DESCRIPTION = "This is an equipment item.";
@@ -11,7 +11,7 @@ public abstract class ItemPassive extends Item {
     private DamageModifier damageModifier;
 
     /** Create new passive Item with default values. */
-    public ItemPassive() {
+    public ItemDataPassive() {
         this(DEFAULT_NAME, DEFAULT_DESCRIPTION);
     }
 
@@ -21,7 +21,7 @@ public abstract class ItemPassive extends Item {
      * @param name Name of the item
      * @param description Description of the item
      */
-    public ItemPassive(String name, String description) {
+    public ItemDataPassive(String name, String description) {
         this(name, description, new DamageModifier());
     }
 
@@ -32,7 +32,7 @@ public abstract class ItemPassive extends Item {
      * @param description Description of the item
      * @param damageModifier {@link ecs.components.stats.DamageModifier} of the item
      */
-    public ItemPassive(String name, String description, DamageModifier damageModifier) {
+    public ItemDataPassive(String name, String description, DamageModifier damageModifier) {
         this(
                 name,
                 description,
@@ -50,7 +50,7 @@ public abstract class ItemPassive extends Item {
      * @param inventoryTexture Texture of the item in the inventory
      * @param worldTexture Texture of the item in the world
      */
-    public ItemPassive(
+    public ItemDataPassive(
             String name,
             String description,
             DamageModifier damageModifier,

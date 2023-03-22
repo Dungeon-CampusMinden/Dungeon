@@ -1,7 +1,7 @@
 package ecs.components;
 
 import ecs.entities.Entity;
-import ecs.items.Item;
+import ecs.items.ItemData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -9,7 +9,7 @@ import logging.CustomLogLevel;
 
 public class InventoryComponent extends Component {
 
-    private List<Item> inventory;
+    private List<ItemData> inventory;
     private int maxSize;
     private final Logger inventoryLogger = Logger.getLogger(this.getClass().getName());
 
@@ -29,10 +29,10 @@ public class InventoryComponent extends Component {
      * Adding an Element to the Inventory does not allow adding more items than the size of the
      * Inventory.
      *
-     * @param item the item which should be added
+     * @param itemData the item which should be added
      * @return true if the item was added, otherwise false
      */
-    public boolean addItem(Item item) {
+    public boolean addItem(ItemData itemData) {
         if (inventory.size() >= maxSize) return false;
         inventoryLogger.log(
                 CustomLogLevel.DEBUG,
@@ -41,16 +41,16 @@ public class InventoryComponent extends Component {
                         + "' was added to the inventory of entity '"
                         + entity.getClass().getSimpleName()
                         + "'.");
-        return inventory.add(item);
+        return inventory.add(itemData);
     }
 
     /**
      * removes the given Item from the inventory
      *
-     * @param item the item which should be removed
+     * @param itemData the item which should be removed
      * @return true if the element was removed, otherwise false
      */
-    public boolean removeItem(Item item) {
+    public boolean removeItem(ItemData itemData) {
         inventoryLogger.log(
                 CustomLogLevel.DEBUG,
                 "Removing item '"
@@ -58,7 +58,7 @@ public class InventoryComponent extends Component {
                         + "' from inventory of entity '"
                         + entity.getClass().getSimpleName()
                         + "'.");
-        return inventory.remove(item);
+        return inventory.remove(itemData);
     }
 
     /**
@@ -85,7 +85,7 @@ public class InventoryComponent extends Component {
     /**
      * @return a copy of the inventory
      */
-    public List<Item> getItems() {
+    public List<ItemData> getItems() {
         return new ArrayList<>(inventory);
     }
 }

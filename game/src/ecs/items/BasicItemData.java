@@ -2,26 +2,26 @@ package ecs.items;
 
 import graphic.Animation;
 
-public class BasicItem extends Item {
+public class BasicItemData extends ItemData {
 
     /** Fills the ITEM_REIGSTER with predefined Items */
     public static void FillRegister() {
-        ITEM_REGISTER.add(
-                new BasicItem(
+        ITEM_DATA_REGISTER.add(
+                new BasicItemData(
                         ItemType.Basic,
                         new Animation(missingTexture, 1),
                         new Animation(missingTexture, 1),
                         "Buch",
                         "Ein sehr lehrreiches Buch."));
-        ITEM_REGISTER.add(
-                new BasicItem(
+        ITEM_DATA_REGISTER.add(
+                new BasicItemData(
                         ItemType.Basic,
                         new Animation(missingTexture, 1),
                         new Animation(missingTexture, 1),
                         "Tuch",
                         "Ein sauberes Tuch.."));
-        ITEM_REGISTER.add(
-                new BasicItem(
+        ITEM_DATA_REGISTER.add(
+                new BasicItemData(
                         ItemType.Basic,
                         new Animation(missingTexture, 1),
                         new Animation(missingTexture, 1),
@@ -33,7 +33,7 @@ public class BasicItem extends Item {
         FillRegister();
     }
 
-    public BasicItem(
+    public BasicItemData(
             ItemType itemType,
             Animation inventoryTexture,
             Animation worldTexture,

@@ -7,15 +7,15 @@ import ecs.entities.Entity;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class ItemActiveTest {
+public class ItemDataActiveTest {
 
     /** Tests if set callback is called. */
     @Test
     public void testUseCallback() {
         IItemUse callback = Mockito.mock(IItemUse.class);
-        ItemActive item =
+        ItemDataActive item =
                 Mockito.mock(
-                        ItemActive.class,
+                        ItemDataActive.class,
                         Mockito.withSettings()
                                 .useConstructor("name", "description", callback)
                                 .defaultAnswer(Mockito.CALLS_REAL_METHODS));
@@ -27,9 +27,9 @@ public class ItemActiveTest {
     /** Tests if no exception is thrown when callback is null. */
     @Test
     public void testUseNullCallback() {
-        ItemActive item =
+        ItemDataActive item =
                 Mockito.mock(
-                        ItemActive.class,
+                        ItemDataActive.class,
                         Mockito.withSettings()
                                 .useConstructor("name", "description", null)
                                 .defaultAnswer(Mockito.CALLS_REAL_METHODS));
@@ -40,7 +40,7 @@ public class ItemActiveTest {
     /** Tests if item is removed from inventory after use. */
     @Test
     public void testItemRemovedAfterUseWithDefaultCallback() {
-        ItemActive item = new ItemActive() {};
+        ItemDataActive item = new ItemDataActive() {};
         Entity entity = new Entity();
         InventoryComponent inventoryComponent = new InventoryComponent(entity, 2);
         inventoryComponent.addItem(item);

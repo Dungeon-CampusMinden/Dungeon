@@ -1,11 +1,11 @@
 package ecs.components;
 
 import ecs.entities.Entity;
-import ecs.items.Item;
+import ecs.items.ItemData;
 import tools.Point;
 
 public class DropLoot implements IOnDeathFunction {
-    private record DLData(Entity e, Components dlc, Item i) {}
+    private record DLData(Entity e, Components dlc, ItemData i) {}
 
     private record Components(InventoryComponent ic, PositionComponent pc) {}
 

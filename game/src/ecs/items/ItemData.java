@@ -11,9 +11,9 @@ import java.util.List;
 import starter.Game;
 import tools.Point;
 
-public abstract class Item {
+public class ItemData {
 
-    public static final List<Item> ITEM_REGISTER = new ArrayList<>();
+    public static final List<ItemData> ITEM_DATA_REGISTER = new ArrayList<>();
     public static final List<String> missingTexture = List.of("animation/missingTexture.png");
 
     public static final String DEFAULT_DESCRIPTION = "Default Description.";
@@ -37,7 +37,7 @@ public abstract class Item {
      * @param itemName
      * @param description
      */
-    public Item(
+    public ItemData(
             ItemType itemType,
             Animation inventoryTexture,
             Animation worldTexture,
@@ -50,7 +50,7 @@ public abstract class Item {
         this.description = description;
     }
 
-    public Item() {
+    public ItemData() {
         this(
                 DEFAULT_ITEM_TYPE,
                 DEFAULT_INVENTORY_ANIMATION,
