@@ -1,7 +1,7 @@
 package starter;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
+import configuration.KeyboardConfig;
 import dslToGame.AnimationBuilder;
 import ecs.components.*;
 import ecs.components.ai.AIComponent;
@@ -28,15 +28,22 @@ public class Debugger extends ECS_System {
     @Override
     public void update() {
         // DEBUGGER
-        if (Gdx.input.isKeyJustPressed(Input.Keys.L)) Debugger.ZOOM_CAMERA(-0.2f);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.K)) Debugger.ZOOM_CAMERA(0.2f);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.O)) Debugger.TELEPORT_TO_CURSOR();
-        if (Gdx.input.isKeyJustPressed(Input.Keys.J)) Debugger.TELEPORT_TO_END();
-        if (Gdx.input.isKeyJustPressed(Input.Keys.H)) Debugger.TELEPORT_TO_START();
-        if (Gdx.input.isKeyJustPressed(Input.Keys.G)) Debugger.LOAD_NEXT_LEVEL();
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_OUT.get()))
+            Debugger.ZOOM_CAMERA(-0.2f);
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_IN.get()))
+            Debugger.ZOOM_CAMERA(0.2f);
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_CURSOR.get()))
+            Debugger.TELEPORT_TO_CURSOR();
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_END.get()))
+            Debugger.TELEPORT_TO_END();
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_START.get()))
+            Debugger.TELEPORT_TO_START();
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_ON_END.get()))
+            Debugger.LOAD_NEXT_LEVEL();
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_LEVELSIZE.get()))
             Debugger.TOGGLE_LEVEL_SIZE(); // Z is Y on QWERTZ because libGDX
-        if (Gdx.input.isKeyJustPressed(Input.Keys.X)) Debugger.SPAWN_MONSTER_ON_CURSOR();
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.get()))
+            Debugger.SPAWN_MONSTER_ON_CURSOR();
     }
 
     /**
