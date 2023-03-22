@@ -2,7 +2,6 @@ package graphic;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 
@@ -15,7 +14,7 @@ public class AnimationTest {
 
     @Test(expected = AssertionError.class)
     public void test_constructor_2() {
-        new Animation(new ArrayList<>(), 10);
+        new Animation(List.of(), 10);
     }
 
     @Test(expected = AssertionError.class)
