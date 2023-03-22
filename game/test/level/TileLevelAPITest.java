@@ -56,7 +56,7 @@ public class TileLevelAPITest {
         generator = Mockito.mock(IGenerator.class);
         onLevelLoader = Mockito.mock(IOnLevelLoader.class);
         level = Mockito.mock(TileLevel.class);
-        api = new LevelAPI(batch, painter, generator, onLevelLoader);
+        api = new LevelAPI(batch, painter, onLevelLoader, generator);
     }
 
     @Test

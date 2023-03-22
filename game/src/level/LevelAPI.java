@@ -26,11 +26,22 @@ public class LevelAPI {
      * @param onLevelLoader Object that implements the onLevelLoad method.
      */
     public LevelAPI(
-            SpriteBatch batch,
-            Painter painter,
-            IGenerator generator,
-            IOnLevelLoader onLevelLoader) {
+        SpriteBatch batch,
+        Painter painter,
+        IOnLevelLoader onLevelLoader,
+        IGenerator generator) {
         this.gen = generator;
+        this.batch = batch;
+        this.painter = painter;
+        this.onLevelLoader = onLevelLoader;
+    }
+
+    public LevelAPI(
+        SpriteBatch batch,
+        Painter painter,
+        IOnLevelLoader onLevelLoader,
+        ILevel level) {
+        this.currentLevel = level;
         this.batch = batch;
         this.painter = painter;
         this.onLevelLoader = onLevelLoader;

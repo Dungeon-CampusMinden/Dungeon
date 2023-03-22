@@ -28,6 +28,7 @@ import level.elements.tile.*;
 import level.generator.IGenerator;
 import level.generator.postGeneration.WallGenerator;
 import level.generator.randomwalk.RandomWalkGenerator;
+import mp.client.IMultiplayerClientObserver;
 import mp.client.MultiplayerClient;
 import mp.packages.request.LoadMapRequest;
 import tools.Constants;
@@ -67,7 +68,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static PauseMenu pauseMenu;
     private PositionComponent heroPositionComponent;
     public static Hero hero;
-    private static MultiplayerClient client;
+
+    public Game(ILevel level) {
+        currentLevel = level;
+    }
+
 
     /** Called once at the beginning of the game. */
     protected void setup() {
@@ -78,12 +83,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         controller.add(pauseMenu);
         hero = new Hero(new Point(0, 0));
         heroPositionComponent =
-                (PositionComponent)
-                        hero.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
-        levelAPI = new LevelAPI(batch, painter, this, new WallGenerator(new RandomWalkGenerator()));
-        levelAPI.loadLevel();
+            (PositionComponent)
+                hero.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
+        levelAPI = new LevelAPI(batch, painter, this, currentLevel);
+        onLevelLoad();
 
         new VelocitySystem();
         new DrawSystem(painter);
@@ -91,10 +96,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new AISystem();
         new CollisionSystem();
         new HealthSystem();
-
-        // Todo - diff between player 1 and other players
-        // only for testing purposes
-        setupClient();
     }
 
     /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
@@ -114,23 +115,23 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     @Override
     public void render(float delta) {
-        if (doFirstFrame) {
-            firstFrame();
-        }
-        batch.setProjectionMatrix(camera.combined);
-        if (runLoop()) {
-            frame();
+            if (doFirstFrame) {
+                firstFrame();
+            }
+            batch.setProjectionMatrix(camera.combined);
             if (runLoop()) {
-                clearScreen();
-                levelAPI.update();
+                frame();
                 if (runLoop()) {
-                    controller.forEach(AbstractController::update);
+                    clearScreen();
+                    levelAPI.update();
                     if (runLoop()) {
-                        camera.update();
+                        controller.forEach(AbstractController::update);
+                        if (runLoop()) {
+                            camera.update();
+                        }
                     }
                 }
             }
-        }
     }
 
     private void clearScreen() {
@@ -143,8 +144,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         controller = new ArrayList<>();
         setupCameras();
         painter = new Painter(batch, camera);
-        generator = new RandomWalkGenerator();
-        levelAPI = new LevelAPI(batch, painter, this, generator);
+//        generator = new RandomWalkGenerator();
+//        levelAPI = new LevelAPI(batch, painter, this, generator);
         setup();
     }
 
@@ -227,16 +228,5 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         DSLInterpreter interpreter = new DSLInterpreter();
         QuestConfig config = (QuestConfig) interpreter.getQuestConfig(program);
         entities.add(config.entity());
-    }
-
-    private void setupClient() {
-        client = new MultiplayerClient();
-
-        LoadMapRequest loadMapRequest = new LoadMapRequest();
-        client.send(loadMapRequest);
-    }
-    public static void main(String[] args) {
-        // start the game
-        DesktopLauncher.run(new Game());
     }
 }
