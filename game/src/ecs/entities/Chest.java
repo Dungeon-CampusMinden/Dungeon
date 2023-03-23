@@ -82,7 +82,8 @@ public class Chest extends Entity {
                 .forEach(
                         index ->
                                 itemData.get(index)
-                                        .onDrop(
+                                        .triggerDrop(
+                                                entity,
                                                 calculateDropPosition(
                                                         positionComponent, index / count)));
         entity.getComponent(AnimationComponent.class)

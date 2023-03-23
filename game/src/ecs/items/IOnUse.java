@@ -3,7 +3,7 @@ package ecs.items;
 import ecs.entities.Entity;
 
 /** Interface for ItemUsable. Implements the callback for when the item is used. */
-public interface IItemUse {
+public interface IOnUse {
 
     /**
      * Called when the item is used.

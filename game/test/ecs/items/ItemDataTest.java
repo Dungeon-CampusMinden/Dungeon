@@ -67,10 +67,11 @@ public class ItemDataTest {
 
     @Test
     public void onDropCheckEntity() {
+
         ItemData itemData = new ItemDataImpl();
         assertEquals(0, Game.getEntities().size());
         Point point = new Point(0, 0);
-        itemData.onDrop(point);
+        itemData.triggerDrop(null, point);
         assertEquals(1, Game.getEntities().size());
         Entity e = Game.getEntities().iterator().next();
         PositionComponent pc =

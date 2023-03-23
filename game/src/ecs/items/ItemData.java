@@ -28,6 +28,10 @@ public class ItemData {
     private String itemName;
     private String description;
 
+    private IOnCollect onCollect;
+    private IOnDrop onDrop;
+    private IOnUse onUse;
+
     /**
      * creates a New Inventory item.
      *
@@ -64,28 +68,31 @@ public class ItemData {
      *
      * @param position the location of the drop
      */
-    public void onDrop(Point position) {
+    public void triggerDrop(Entity e, Point position) {
+        onDrop.onDrop(e, this, position);
+    }
+
+    private static void defaultDrop(Entity who, ItemData which, Point position) {
         Entity droppedItem = new Entity();
         new PositionComponent(droppedItem, position);
-        new AnimationComponent(droppedItem, worldTexture);
+        new AnimationComponent(droppedItem, which.worldTexture);
         HitboxComponent component = new HitboxComponent(droppedItem);
         component.setiCollideEnter(
                 (a, b, direction) -> {
-                    Game.getHero().ifPresent(hero -> checkCollisionWithHero(hero, droppedItem, b));
+                    Game.getHero()
+                            .ifPresent(
+                                    hero -> {
+                                        if (b.equals(hero)) {
+                                            hero.getComponent(InventoryComponent.class)
+                                                    .ifPresent(
+                                                            (x) -> {
+                                                                if (((InventoryComponent) x)
+                                                                        .addItem(which))
+                                                                    Game.removeEntity(droppedItem);
+                                                            });
+                                        }
+                                    });
                 });
-
-        Game.getEntities().add(droppedItem);
-    }
-
-    private void checkCollisionWithHero(Entity hero, Entity droppedItem, Entity b) {
-        if (b.equals(hero)) {
-            hero.getComponent(InventoryComponent.class)
-                    .ifPresent(
-                            (x) -> {
-                                if (((InventoryComponent) x).addItem(this))
-                                    Game.removeEntity(droppedItem);
-                            });
-        }
     }
 
     public ItemType getItemType() {

@@ -71,7 +71,7 @@ public class DropLoot implements IOnDeathFunction {
      * @param d the needed Data for dropping an Item
      */
     private void dropItem(DLData d) {
-        d.i.onDrop(new Point(d.dlc.pc.getPosition()));
+        d.i.triggerDrop(d.e, new Point(d.dlc.pc.getPosition()));
         d.dlc.ic.removeItem(d.i);
     }
 }
