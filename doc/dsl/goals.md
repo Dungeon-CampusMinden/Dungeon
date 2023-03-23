@@ -3,7 +3,7 @@ title: "Ziele und Zustand der aktuellen DungeonDSL Implementierung"
 author: @malt-r
 ---
 
-Dieses Dokument hält den aktuellen Zustand der DungeonDSL-Implementierung, also alle geplanten Features und deren aktueller Realisierungsstand.
+Dieses Dokument dokumentiert den aktuellen Zustand der DungeonDSL-Implementierung, also alle geplanten Features und deren aktueller Realisierungsstand.
 
 Mögliche Zustände:
 - geplant, kein klares Konzept vorhanden: 💭
@@ -11,11 +11,12 @@ Mögliche Zustände:
 - implementiert, nicht getestet ☑
 - implementiert, getestet: ✅
 
+### High Level Konzepte
+
 | Feature | Was und warum? | Zustand |
 |-|-|-|
-| **High Level Konzepte**| | |
 | Taskdefinition | Die zentrale Definition für Aufgaben im Dungeon und wird vermutlich für die meisten Lehrpersonen das sein, was sie am häufigsten erstellen und verwenden |💡 |
-| Level-Konfig | Die primäre Verbindung zwischen der DungeonDSL-Datei und dem Dungeon; konfiguriert, welche Aufgaben in einem Level dargestellt werden | 💡|
+| Level\Quest-Konfiguration | Die primäre Verbindung zwischen der DungeonDSL-Datei und dem Dungeon; konfiguriert, welche Aufgaben in einem Level dargestellt werden | 💡|
 | Task-Organisation | Bietet die Möglichkeit, mehrere Aufgaben in Beziehung zu setzen, um sequentielle und parallele Aufgaben und Aufgabenverschachtelung zu realisieren; wird höchstwahrscheinlich auf Petri-Netzen basieren| 💡|
 | Level-Organisation | Ein ähnliches Konzept wie für Task-Organisation, allerdings auf Level-Ebene; hiermit soll konfiguriert werden, welche Aufgaben / Level geladen werden, wenn ein Level abgeschlossen wurde| 💡|
 | Entitätstyp-Definition | Definition von Entitätstypen (benannte Zusammenstellung aus mehreren Komponenten) | ✅ (als `game_object` Definition) |
@@ -23,7 +24,21 @@ Mögliche Zustände:
 | Event-Handler Funktion | Bietet die Möglichkeit, auf bestimmte Events aus dem Dungeon-Kontext oder dem Kontext einer einzelnen Entität zu reagieren. Wichtig, um (aufgabenbezogenes) Verhalten zu definieren, was von dem Default-Verhalten abweicht. | 💡|
 | Task-Builder Methode | Methoden, die vom Dungeon aufgerufen werden, um eine Taskdefinition in ein konkretes Szenario zu übersetzen. Erzeugen eine Menge Entitäten, definieren und verknüpfen deren Event-Handler Methoden und geben sie an den Dungeon zurück| 💡|
 | Bewertungskonfiguration | Die Bewertung einer Aufgabe soll über die DSL konfigurierbar sein, um bspw. festzulegen, wann und welche Daten als Antwort für eine Aufgabe geloggt werden, wie Fehlversuche in die Bewertung eingehen, etc. | 💭|
-| **Sprachkonzepte**| | |
+
+### DungeonDSL "Ökosystem"
+
+| Feature | Was und warum? | Zustand |
+|-|-|-|
+| Typechecking | Typechecking ist essentiell, um die richtige Verwendung aller Datentypen in der DungeonDSL sicherzustellen| 💡|
+| Typebuilding | Bspw. die Komponentendefinitionen auf der Java-Seite des Dungeons müssen der DSL verfügbar gemacht werden, damit in der DSL Entitätsdefinitionen mit Komponenten definiert werden könenn.| ✅|
+| Error-Handling/-Recovery | Fehler in der Nutzung der DSL werden passieren. Ein konkretes Konzept für die Behandlung dieser Fehler ist daher erforderlich. | 💭|
+| Error-Messages | Zu der Fehlerbehandlung gehört auch die Kommunikation der Fehler an die Nutzenden, damit diese eine Chance haben, die Fehler zu beheben und zu verstehen. Dafür muss ein Kommunikationskanal festgelegt werden und festgelegt werden, wie die Fehlermeldungen aussehen sollen, bzw. welchen Inhalt sie brauchen.| 💭|
+| Funktionsschnittstelle zum Dungeon | Event-Handler Funktionen setzen eine Kommunikation zwischen DSL-Interpreter und Dungeon voraus; die sollte klar definiert werden. | 💡|
+
+### Sprachkonzepte
+
+| Feature | Was und warum? | Zustand |
+|-|-|-|
 | Property-Bag für Entitätsdefinitionen| Es kann hilfreich sein, wenn einer Entitätsdefinition Eigenschaften zugewiesen werden können, die unabhängig von den Komponenten sind. So könnte bspw. die Verknüpfung einer Entität mit einer Aufgabe realisiert werden. | 💡|
 | Funktionsdefinitionen | Funktionen lagern Logik aus, nehmen Parameter an und geben einen Rückgabewert zurück. Wichtig für Event-Handler Methoden| ☑||
 | Funktionsaufrufe | Funktionen müssen aufgerufen werden können| ✅|
@@ -44,9 +59,4 @@ Mögliche Zustände:
 | Enum-Variant Binding | Einer Eigenschaft eines Objekts sollte ein Enum-Variante zugewiesen werden können, bspw. für die Wahl eines [Aufgabentyps](../tasks/readme.md#aufgabentypen) könnte das nützlich sein. | 💭|
 | Arrays/Listen | Task-Builder Methoden sollen eine Menge an Entitäten an den Dungeon zurückgeben, daher muss die DSL in der Lage sein, Mengen von Objekten abzubilden. | 💭|
 | Kontrollflussmechanismen | Um in Event-Handlern flexibler auf bestimmte Ereignisse reagieren zu können, sollen Kontrollflussmechanismen (if,else,while) umgesetzt werden| 💭|
-| **DungeonDSL "Ökosystem"**|| |
-| Typechecking | Typechecking ist essentiell, um die richtige Verwendung aller Datentypen in der DungeonDSL sicherzustellen| 💡|
-| Typebuilding | Bspw. die Komponentendefinitionen auf der Java-Seite des Dungeons müssen der DSL verfügbar gemacht werden, damit in der DSL Entitätsdefinitionen mit Komponenten definiert werden könenn.| ✅|
-| Error-Handling/-Recovery | Fehler in der Nutzung der DSL werden passieren. Ein konkretes Konzept für die Behandlung dieser Fehler ist daher erforderlich. | 💭|
-| Error-Messages | Zu der Fehlerbehandlung gehört auch die Kommunikation der Fehler an die Nutzenden, damit diese eine Chance haben, die Fehler zu beheben und zu verstehen. Dafür muss ein Kommunikationskanal festgelegt werden und festgelegt werden, wie die Fehlermeldungen aussehen sollen, bzw. welchen Inhalt sie brauchen.| 💭|
-| Funktionsschnittstelle zum Dungeon | Event-Handler Funktionen setzen eine Kommunikation zwischen DSL-Interpreter und Dungeon voraus; die sollte klar definiert werden.| 💡|
+

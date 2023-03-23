@@ -88,3 +88,5 @@ TODO
 
 - [Typebuilding](https://github.com/Programmiermethoden/Dungeon/wiki/Typebuilding) wird benötigt, um das Typsystem der DungeonDSL zu erweitern und bspw. die Komponenten des [ECS](../ecs/readme.md) über die DungeonDSL konfigurierbar zu machen.
 - [Interpretation und Laufzeit](interpretation-laufzeit.md) beschreibt, wie ein DungeonDSL Programm übersetzt und ausgeführt wird
+
+[Aktueller Entwicklungsstand](goals.md)
