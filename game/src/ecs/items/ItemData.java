@@ -53,8 +53,8 @@ public class ItemData {
                 ItemConfig.DESCRIPTION.get());
     }
 
-    public void triggerCollect(Entity worldItemEntity, Entity whoTriesCollects){
-        onCollect.onCollect(worldItemEntity,whoTriesCollects);
+    public void triggerCollect(Entity worldItemEntity, Entity whoTriesCollects) {
+        if (onCollect != null) onCollect.onCollect(worldItemEntity, whoTriesCollects);
     }
 
     /**
@@ -63,7 +63,7 @@ public class ItemData {
      * @param position the location of the drop
      */
     public void triggerDrop(Entity e, Point position) {
-        onDrop.onDrop(e, this, position);
+        if (onDrop != null) onDrop.onDrop(e, this, position);
     }
 
     /**
