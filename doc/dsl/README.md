@@ -23,7 +23,7 @@ nicht jede Entität im Dungeon selbst beschreiben müssen, sondern auf eine Reih
 vorgefertigter Szenarien zugreifen können. Diese Szenarien sind ebenfalls in der DSL
 umgesetzt und können aus der Standardbibliothek eingebunden werden.
 
-### Konzepte und Begriffe
+## Konzepte und Begriffe
 
 **Taskdefinition**
 
