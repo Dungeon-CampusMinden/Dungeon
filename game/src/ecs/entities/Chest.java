@@ -2,6 +2,7 @@ package ecs.entities;
 
 import ecs.components.*;
 import ecs.items.ItemData;
+import ecs.items.ItemDataGenerator;
 import graphic.Animation;
 import java.util.List;
 import java.util.Random;
@@ -29,13 +30,11 @@ public class Chest extends Entity {
      */
     public static Chest createNewChest() {
         Random random = new Random();
+        ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
+
         List<ItemData> itemData =
                 IntStream.range(0, random.nextInt(1, 3))
-                        .mapToObj(
-                                i ->
-                                        ItemData.ITEM_DATA_REGISTER.get(
-                                                random.nextInt(
-                                                        0, ItemData.ITEM_DATA_REGISTER.size())))
+                        .mapToObj(i -> itemDataGenerator.generateItemData())
                         .toList();
         return new Chest(
                 itemData,
