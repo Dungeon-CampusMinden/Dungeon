@@ -41,7 +41,7 @@ Eine Taskorganisation...
     Abschluss von Aufgaben fest (falls eine Aufgabe Unteraufgaben hat, gilt sie erst
     als abgeschlossen, falls eine bestimmte Anzahl an Unteraufgaben abgeschlossen ist)
 
-**Level/Quest-Config**
+### Level/Quest-Config
 
 Eine Level/Quest-Config (der Name ist noch nicht final festgelegt):
 - beschreibt, welche Aufgaben in einem Level des Dungeons geladen werden
