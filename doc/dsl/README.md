@@ -22,6 +22,43 @@ nicht jede Entität im Dungeon selbst beschreiben müssen, sondern auf eine Reih
 vorgefertigter Szenarien zugreifen können. Diese Szenarien sind ebenfalls in der DSL
 umgesetzt und können aus der Standardbibliothek eingebunden werden.
 
+### Beispiel
+
+Die folgende DSL-Eingabe zeigt eine Aufgabendefinition für eine Single Choice Frage mit
+drei Antwortmöglichkeiten:
+
+```
+// file: single_choice_task.ds
+
+task single_choice_task {
+    text: "Was ist die Laufzeitkomplexität von Heapsort?",
+    answers: {
+        A: O(n^2),
+        B: O(n log n),
+        C: O(n)
+    },
+    correct_answer: answers.B,
+    type: SINGLE_CHOICE
+}
+
+level_config my_config {
+    task: single_choice_task
+}
+```
+
+Die eigentliche Aufgabendefinition wird in dem `task`-Objekt vorgenommen. Je nach
+Aufgabentyp unterscheiden sich die hier nötigen Definitionen.
+
+Über das `level_config`-Objekt wird die Aufgabendefinition dem DSL-Interpreter übergeben.
+Dieser erstellt anschließend aus der Aufgabendefinition ein konkretes Szenario in
+einem Dungeon-Level.
+Die Aufgabenbeschreibung könnte von einem Zauberer-NPC vorgelesen werden, sobald der Spielcharakter mit
+ihm interagiert.
+Hierbei könnten die Antwortmöglichkeiten (`answers {A:..., B:..., C:...}`)
+auf "Schriftrollen" abgebildet sein, welche im Level versteckt sind und erst vom
+Spielenden gefunden werden müssen. Die Beantwortung der Frage erfolgt durch das Übergeben
+der Schriftrolle mit der korrekten Antwort an den Zauberer-NPC.
+
 ## Konzepte und Begriffe
 
 ### Taskdefinition
