@@ -1,6 +1,5 @@
 ---
 title: "DSL Quickstart Guide"
-author: @malt-r
 ---
 
 ## Definition einer Aufgabe

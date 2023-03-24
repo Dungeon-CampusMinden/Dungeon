@@ -1,6 +1,5 @@
 ---
 title: "DSL Überblick"
-author: @malt-r
 ---
 
 ## Überblick: Ideen und Ziele

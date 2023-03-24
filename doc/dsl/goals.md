@@ -1,6 +1,5 @@
 ---
 title: "Ziele und Zustand der aktuellen DungeonDSL Implementierung"
-author: @malt-r
 ---
 
 Dieses Dokument dokumentiert den aktuellen Zustand der DungeonDSL-Implementierung,
