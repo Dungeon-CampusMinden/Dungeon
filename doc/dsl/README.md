@@ -49,7 +49,7 @@ Eine Level/Quest-Config (der Name ist noch nicht final festgelegt):
     werden (vgl. [Szenarien](doc/tasks/README.md#Szenarien) // Note: Link ist von [PR #444](https://github.com/Programmiermethoden/Dungeon/pull/444) abhängig
 
 
-**Entitätstyp-Definition**
+### Entitätstyp-Definition
 
 Eine Entitätstyp-Definition:
 - legt fest, welche [Komponenten](../doc/ecs/components/readme.md) in einem Entitätstyp enthalten sind
