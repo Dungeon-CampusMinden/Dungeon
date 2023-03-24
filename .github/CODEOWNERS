@@ -5,7 +5,7 @@
 /game/ @AMatutat @Programmiermethoden/codrs
 
 # dsl owner
-/dsl/ @malt-r
+/dsl/ @malt-r @Programmiermethoden/dungeon
 
 #dsl connector owner
 /dsl-connector/ @malt-r @AMatutat
