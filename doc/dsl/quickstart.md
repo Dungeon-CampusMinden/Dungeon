@@ -99,7 +99,7 @@ level_config my_config {
 }
 ```
 
-### Definition von verschiedenen Szenarien
+## Definition von verschiedenen Szenarien
 
 - Ziel: Randomisierung der Szenarien und verwendeten Spielmechaniken für einen bestimmten
 Aufgabentyp
