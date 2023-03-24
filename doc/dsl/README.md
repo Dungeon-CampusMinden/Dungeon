@@ -31,7 +31,7 @@ drei Antwortmöglichkeiten:
 // file: single_choice_task.ds
 
 task single_choice_task {
-    text: "Was ist die Laufzeitkomplexität von Heapsort?",
+    text: "Welche Laufzeitkomplexität hat Heapsort?",
     answers: {
         A: O(n^2),
         B: O(n log n),
