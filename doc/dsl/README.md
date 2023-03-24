@@ -56,7 +56,7 @@ Eine Entitätstyp-Definition:
 - bietet die Möglichkeit, die Werte der Komponenten zu definieren
 - kann weitergehen konfiguriert werden, d.h. die Werte der Komponenten einer bestehende Entitätstyp-Definition verändert und überschrieben werden, sodass eine konkrete Ausprägung eines Entitätstyps entsteht
 
-**Event-Handler-Funktion**
+### Event-Handler-Funktion
 
 Event-Handler-Funktionen bieten die Möglichkeit:
 - auf eine bestimmtes Ereignis aus dem Kontext des Dungeon-Levels oder einer Komponente zu reagieren (bspw.: "eine andere Hitbox kollidiert mit der Hitbox des `CollisionComponent` dieser Entität")
