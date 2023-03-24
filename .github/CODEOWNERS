@@ -10,3 +10,5 @@
 #dsl connector owner
 /dsl-connector/ @malt-r @AMatutat
 
+#doc folder
+/doc/ @Programmiermethoden/dungeon
