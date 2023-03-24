@@ -63,7 +63,7 @@ Event-Handler-Funktionen bieten die Möglichkeit:
 - Parameter anzunehmen, welche den Kontext des Ereignisses beschreiben
 - im Rumpf Logik zu implementieren, welche native Funktionen aufrufen, bedingte Programmverzweigungen realisieren und auf Objekte des Dungeons zugreifen kann, um bestimmtes Verhalten zu erzeugen (bspw.: "Wenn die Entität der Hitbox mit der ich kollidiere ein Item ist, dann hebe ich das Item auf")
 
-**Taskbuilder-Methode**
+### Taskbuilder-Methode
 
 Die Taskbuilder-Methoden sind dafür zuständig, eine abstrakte Aufgabendefinition in ein konkretes Szenario im Dungeon Level zu übersetzen. Sie bekommen als Parameter die Taskdefinition übergeben und müssen eine Menge Entitäten zurückgeben, welche an dem Szenario beteiligt sind.
 
