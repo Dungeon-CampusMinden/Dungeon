@@ -1,10 +1,16 @@
 package ecs.items;
 
 import configuration.ItemConfig;
+import ecs.components.AnimationComponent;
+import ecs.components.HitboxComponent;
+import ecs.components.InventoryComponent;
+import ecs.components.ItemComponent;
+import ecs.components.PositionComponent;
 import ecs.components.stats.DamageModifier;
 import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.List;
+import starter.Game;
 import tools.Point;
 
 public class ItemData {
@@ -22,6 +28,27 @@ public class ItemData {
     // passive
     private DamageModifier damageModifier;
 
+    public ItemData(
+            ItemType itemType,
+            Animation inventoryTexture,
+            Animation worldTexture,
+            String itemName,
+            String description,
+            IOnCollect onCollect,
+            IOnDrop onDrop,
+            IOnUse onUse,
+            DamageModifier damageModifier) {
+        this.itemType = itemType;
+        this.inventoryTexture = inventoryTexture;
+        this.worldTexture = worldTexture;
+        this.itemName = itemName;
+        this.description = description;
+        this.onCollect = onCollect;
+        this.onDrop = onDrop;
+        this.onUse = onUse;
+        this.damageModifier = damageModifier;
+    }
+
     /**
      * creates a New Inventory item.
      *
@@ -37,11 +64,16 @@ public class ItemData {
             Animation worldTexture,
             String itemName,
             String description) {
-        this.itemType = itemType;
-        this.inventoryTexture = inventoryTexture;
-        this.worldTexture = worldTexture;
-        this.itemName = itemName;
-        this.description = description;
+        this(
+                itemType,
+                inventoryTexture,
+                worldTexture,
+                itemName,
+                description,
+                ItemData::defaultCollect,
+                ItemData::defaultDrop,
+                ItemData::defaultUseCallback,
+                new DamageModifier());
     }
 
     public ItemData() {
@@ -116,26 +148,34 @@ public class ItemData {
     private static void defaultDrop(Entity who, ItemData which, Point position) {
         Entity droppedItem = new Entity();
         new PositionComponent(droppedItem, position);
-        new AnimationComponent(droppedItem, which.worldTexture);
+        new AnimationComponent(droppedItem, which.getWorldTexture());
         HitboxComponent component = new HitboxComponent(droppedItem);
-        component.setiCollideEnter(
-                (a, b, direction) -> which.triggerCollect(a,b));
+        component.setiCollideEnter((a, b, direction) -> which.triggerCollect(a, b));
     }
 
-    private static void defaultCollect(Entity worldItem, Entity whoCollected){
-        Game.getHero().ifPresent(hero->
-            {
-                if (whoCollected.equals(hero)) {
-                    hero
-                        .getComponent(InventoryComponent.class)
-                        .ifPresent(
-                            (x) -> {
-                                if (((InventoryComponent) x).addItem(worldItem.getComponent(ItemComponent.class).map(ItemComponent.class::cast).get().itemData))
-                                    Game.removeEntity(worldItem);
-                            });
-                }
-            }
-            );
-
+    private static void defaultCollect(Entity worldItem, Entity whoCollected) {
+        Game.getHero()
+                .ifPresent(
+                        hero -> {
+                            if (whoCollected.equals(hero)) {
+                                hero.getComponent(InventoryComponent.class)
+                                        .ifPresent(
+                                                (x) -> {
+                                                    if (((InventoryComponent) x)
+                                                            .addItem(
+                                                                    worldItem
+                                                                            .getComponent(
+                                                                                    ItemComponent
+                                                                                            .class)
+                                                                            .map(
+                                                                                    ItemComponent
+                                                                                                    .class
+                                                                                            ::cast)
+                                                                            .get()
+                                                                            .itemData))
+                                                        Game.removeEntity(worldItem);
+                                                });
+                            }
+                        });
     }
 }

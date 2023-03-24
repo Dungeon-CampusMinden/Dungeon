@@ -4,5 +4,5 @@ import ecs.entities.Entity;
 import tools.Point;
 
 public interface IOnDrop {
-    boolean onDrop(Entity user, ItemData which, Point position);
+    void onDrop(Entity user, ItemData which, Point position);
 }
