@@ -71,7 +71,7 @@ Die Taskbuilder-Methoden sind dafür zuständig, eine abstrakte Aufgabendefiniti
 
 Der [Quickstart Guide](quickstart.md) gibt Hinweise für die Erstellung der ersten Aufgaben mit der DungeonDSL.
 
-### Weitere Dokumentation
+## Weitere Dokumentation
 
 Die folgenden Dokumentationsseiten beleuchten einzelne Aspekte der Nutzung der DungeonDSL detaillierter als der Quickstart Guide.
 
