@@ -25,7 +25,7 @@ Mögliche Zustände:
 | Task-Builder Methode | Methoden, die vom Dungeon aufgerufen werden, um eine Taskdefinition in ein konkretes Szenario zu übersetzen. Erzeugen eine Menge Entitäten, definieren und verknüpfen deren Event-Handler Methoden und geben sie an den Dungeon zurück| 💡|
 | Bewertungskonfiguration | Die Bewertung einer Aufgabe soll über die DSL konfigurierbar sein, um bspw. festzulegen, wann und welche Daten als Antwort für eine Aufgabe geloggt werden, wie Fehlversuche in die Bewertung eingehen, etc. | 💭|
 
-### DungeonDSL "Ökosystem"
+## DungeonDSL "Ökosystem"
 
 | Feature | Was und warum? | Zustand |
 |-|-|-|
