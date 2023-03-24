@@ -32,7 +32,7 @@ Die Taskdefinition...
 - enthält die Aufgabenbeschreibung
 - hat einen Aufgabentyp (siehe [Aufgabentyp](doc/tasks/README.md#Aufgabentypen), der einen großen Einfluss auf die Bewertung der Aufgabe // Note: Link ist von [PR #444](https://github.com/Programmiermethoden/Dungeon/pull/444) abhängig
 
-**Taskorganisation**
+### Taskorganisation
 
 Eine Taskorganisation...
 - modelliert die Organisation mehrerer Aufgaben untereinander (Sequenz, Parallelismus, Verschachtelung)
