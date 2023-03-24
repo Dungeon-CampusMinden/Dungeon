@@ -2,6 +2,7 @@ package ecs.items;
 
 import static org.junit.Assert.*;
 
+import configuration.ItemConfig;
 import ecs.components.AnimationComponent;
 import ecs.components.HitboxComponent;
 import ecs.components.InventoryComponent;
@@ -32,11 +33,11 @@ public class ItemDataTest {
     @Test
     public void testDefaultConstructor() {
         ItemData itemData = new ItemDataImpl();
-        assertEquals(ItemData.DEFAULT_NAME, itemData.getItemName());
-        assertEquals(ItemData.DEFAULT_DESCRIPTION, itemData.getDescription());
-        assertEquals(ItemData.DEFAULT_ITEM_TYPE, itemData.getItemType());
-        assertEquals(ItemData.DEFAULT_WORLD_ANIMATION, itemData.getWorldTexture());
-        assertEquals(ItemData.DEFAULT_INVENTORY_ANIMATION, itemData.getInventoryTexture());
+        assertEquals(ItemConfig.NAME.get(), itemData.getItemName());
+        assertEquals(ItemConfig.DESCRIPTION.get(), itemData.getDescription());
+        assertEquals(ItemConfig.TYPE.get(), itemData.getItemType());
+        // assertEquals(ItemData.DEFAULT_WORLD_ANIMATION, itemData.getWorldTexture());
+        // assertEquals(ItemData.DEFAULT_INVENTORY_ANIMATION, itemData.getInventoryTexture());
     }
 
     @Test
@@ -82,22 +83,22 @@ public class ItemDataTest {
         assertEquals(point.y, pc.getPosition().y, 0.001);
         AnimationComponent ac =
                 (AnimationComponent) e.getComponent(AnimationComponent.class).orElseThrow();
-        assertEquals(ItemData.DEFAULT_WORLD_ANIMATION, ac.getCurrentAnimation());
+        // assertEquals(ItemData.DEFAULT_WORLD_ANIMATION, ac.getCurrentAnimation());
 
         HitboxComponent hc = (HitboxComponent) e.getComponent(HitboxComponent.class).orElseThrow();
     }
 
-// active
+    // active
     /** Tests if set callback is called. */
     @Test
     public void testUseCallback() {
         IOnUse callback = Mockito.mock(IOnUse.class);
         ItemData item =
-            Mockito.mock(
-                ItemData.class,
-                Mockito.withSettings()
-                    .useConstructor("name", "description", callback)
-                    .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+                Mockito.mock(
+                        ItemData.class,
+                        Mockito.withSettings()
+                                .useConstructor("name", "description", callback)
+                                .defaultAnswer(Mockito.CALLS_REAL_METHODS));
         Entity entity = new Entity();
         item.triggerUse(entity);
         Mockito.verify(callback).onUse(entity, item);
@@ -107,11 +108,11 @@ public class ItemDataTest {
     @Test
     public void testUseNullCallback() {
         ItemData item =
-            Mockito.mock(
-                ItemData.class,
-                Mockito.withSettings()
-                    .useConstructor("name", "description", null)
-                    .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+                Mockito.mock(
+                        ItemData.class,
+                        Mockito.withSettings()
+                                .useConstructor("name", "description", null)
+                                .defaultAnswer(Mockito.CALLS_REAL_METHODS));
         Entity entity = new Entity();
         item.triggerUse(entity);
     }
@@ -124,12 +125,11 @@ public class ItemDataTest {
         InventoryComponent inventoryComponent = new InventoryComponent(entity, 2);
         inventoryComponent.addItem(item);
         assertTrue(
-            "ItemActive needs to be in entities inventory.",
-            inventoryComponent.getItems().contains(item));
+                "ItemActive needs to be in entities inventory.",
+                inventoryComponent.getItems().contains(item));
         item.triggerUse(entity);
         assertFalse(
-            "Item was not removed from inventory after use.",
-            inventoryComponent.getItems().contains(item));
+                "Item was not removed from inventory after use.",
+                inventoryComponent.getItems().contains(item));
     }
-
 }

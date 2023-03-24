@@ -1,35 +1,13 @@
 package ecs.items;
 
-import ecs.components.AnimationComponent;
-import ecs.components.HitboxComponent;
-import ecs.components.InventoryComponent;
-import ecs.components.ItemComponent;
-import ecs.components.PositionComponent;
+import configuration.ItemConfig;
 import ecs.components.stats.DamageModifier;
 import ecs.entities.Entity;
 import graphic.Animation;
-import java.util.ArrayList;
 import java.util.List;
-import starter.Game;
 import tools.Point;
 
 public class ItemData {
-    // passive
-    private static final String DEFAULT_PASSIVE_NAME = "Equipment Item";
-    private static final String DEFAULT_PASSIVE_DESCRIPTION = "This is an equipment item.";
-    // active
-    private static final String DEFAULT_ACTIVE_NAME = "Usable Item";
-    private static final String DEFAULT_ACTIVE_DESCRIPTION = "This is a usable equipment item.";
-
-    public static final List<ItemData> ITEM_DATA_REGISTER = new ArrayList<>();
-    public static final List<String> missingTexture = List.of("animation/missingTexture.png");
-
-    public static final String DEFAULT_DESCRIPTION = "Default Description.";
-    public static final ItemType DEFAULT_ITEM_TYPE = ItemType.Basic;
-    public static final String DEFAULT_NAME = "Default_name";
-    public static final Animation DEFAULT_WORLD_ANIMATION = new Animation(missingTexture, 1);
-    public static final Animation DEFAULT_INVENTORY_ANIMATION = new Animation(missingTexture, 1);
-
     private ItemType itemType;
     private Animation inventoryTexture;
     private Animation worldTexture;
@@ -38,7 +16,6 @@ public class ItemData {
 
     private IOnCollect onCollect;
     private IOnDrop onDrop;
-
     // active
     private IOnUse onUse;
 
@@ -69,11 +46,11 @@ public class ItemData {
 
     public ItemData() {
         this(
-                DEFAULT_ITEM_TYPE,
-                DEFAULT_INVENTORY_ANIMATION,
-                DEFAULT_WORLD_ANIMATION,
-                DEFAULT_NAME,
-                DEFAULT_DESCRIPTION);
+                ItemConfig.TYPE.get(),
+                new Animation(List.of(ItemConfig.TEXTURE.get()), 1),
+                new Animation(List.of(ItemConfig.TEXTURE.get()), 1),
+                ItemConfig.NAME.get(),
+                ItemConfig.DESCRIPTION.get());
     }
 
     public void triggerCollect(Entity worldItemEntity, Entity whoTriesCollects){
