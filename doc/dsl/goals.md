@@ -11,7 +11,7 @@ Mögliche Zustände:
 - implementiert, nicht getestet ☑
 - implementiert, getestet: ✅
 
-### High Level Konzepte
+## High Level Konzepte
 
 | Feature | Was und warum? | Zustand |
 |-|-|-|
