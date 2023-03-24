@@ -52,12 +52,16 @@ Aufgabentyp unterscheiden sich die hier nötigen Definitionen.
 Über das `level_config`-Objekt wird die Aufgabendefinition dem DSL-Interpreter übergeben.
 Dieser erstellt anschließend aus der Aufgabendefinition ein konkretes Szenario in
 einem Dungeon-Level.
+
+**Ein Beispiel für ein konkretes Szenario für die obige Aufgabe:**
+
 Die Aufgabenbeschreibung könnte von einem Zauberer-NPC vorgelesen werden, sobald der Spielcharakter mit
 ihm interagiert.
 Hierbei könnten die Antwortmöglichkeiten (`answers {A:..., B:..., C:...}`)
 auf "Schriftrollen" abgebildet sein, welche im Level versteckt sind und erst vom
 Spielenden gefunden werden müssen. Die Beantwortung der Frage erfolgt durch das Übergeben
-der Schriftrolle mit der korrekten Antwort an den Zauberer-NPC.
+der Schriftrolle mit der korrekten Antwort an den Zauberer-NPC. Dieser gibt anschließend
+Feedback über die Korrektheit der Antwort.
 
 ## Konzepte und Begriffe
 
