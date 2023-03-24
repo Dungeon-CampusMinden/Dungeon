@@ -3,7 +3,9 @@ package ecs.items;
 import ecs.components.AnimationComponent;
 import ecs.components.HitboxComponent;
 import ecs.components.InventoryComponent;
+import ecs.components.ItemComponent;
 import ecs.components.PositionComponent;
+import ecs.components.stats.DamageModifier;
 import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.ArrayList;
@@ -12,6 +14,12 @@ import starter.Game;
 import tools.Point;
 
 public class ItemData {
+    // passive
+    private static final String DEFAULT_PASSIVE_NAME = "Equipment Item";
+    private static final String DEFAULT_PASSIVE_DESCRIPTION = "This is an equipment item.";
+    // active
+    private static final String DEFAULT_ACTIVE_NAME = "Usable Item";
+    private static final String DEFAULT_ACTIVE_DESCRIPTION = "This is a usable equipment item.";
 
     public static final List<ItemData> ITEM_DATA_REGISTER = new ArrayList<>();
     public static final List<String> missingTexture = List.of("animation/missingTexture.png");
@@ -30,7 +38,12 @@ public class ItemData {
 
     private IOnCollect onCollect;
     private IOnDrop onDrop;
+
+    // active
     private IOnUse onUse;
+
+    // passive
+    private DamageModifier damageModifier;
 
     /**
      * creates a New Inventory item.
@@ -63,6 +76,10 @@ public class ItemData {
                 DEFAULT_DESCRIPTION);
     }
 
+    public void triggerCollect(Entity worldItemEntity, Entity whoTriesCollects){
+        onCollect.onCollect(worldItemEntity,whoTriesCollects);
+    }
+
     /**
      * implements what should happen once the Item is dropped.
      *
@@ -72,27 +89,14 @@ public class ItemData {
         onDrop.onDrop(e, this, position);
     }
 
-    private static void defaultDrop(Entity who, ItemData which, Point position) {
-        Entity droppedItem = new Entity();
-        new PositionComponent(droppedItem, position);
-        new AnimationComponent(droppedItem, which.worldTexture);
-        HitboxComponent component = new HitboxComponent(droppedItem);
-        component.setiCollideEnter(
-                (a, b, direction) -> {
-                    Game.getHero()
-                            .ifPresent(
-                                    hero -> {
-                                        if (b.equals(hero)) {
-                                            hero.getComponent(InventoryComponent.class)
-                                                    .ifPresent(
-                                                            (x) -> {
-                                                                if (((InventoryComponent) x)
-                                                                        .addItem(which))
-                                                                    Game.removeEntity(droppedItem);
-                                                            });
-                                        }
-                                    });
-                });
+    /**
+     * Using active Item by calling associated callback.
+     *
+     * @param entity Entity that uses the item
+     */
+    public void triggerUse(Entity entity) {
+        if (onUse == null) return;
+        onUse.onUse(entity, this);
     }
 
     public ItemType getItemType() {
@@ -113,5 +117,48 @@ public class ItemData {
 
     public String getDescription() {
         return description;
+    }
+
+    /**
+     * Default callback for item use. Prints a message to the console and removes the item from the
+     * inventory.
+     *
+     * @param e Entity that uses the item
+     * @param item Item that is used
+     */
+    private static void defaultUseCallback(Entity e, ItemData item) {
+        e.getComponent(InventoryComponent.class)
+                .ifPresent(
+                        component -> {
+                            InventoryComponent invComp = (InventoryComponent) component;
+                            invComp.removeItem(item);
+                        });
+        System.out.printf("Item \"%s\" used by entity %d\n", item.getItemName(), e.id);
+    }
+
+    private static void defaultDrop(Entity who, ItemData which, Point position) {
+        Entity droppedItem = new Entity();
+        new PositionComponent(droppedItem, position);
+        new AnimationComponent(droppedItem, which.worldTexture);
+        HitboxComponent component = new HitboxComponent(droppedItem);
+        component.setiCollideEnter(
+                (a, b, direction) -> which.triggerCollect(a,b));
+    }
+
+    private static void defaultCollect(Entity worldItem, Entity whoCollected){
+        Game.getHero().ifPresent(hero->
+            {
+                if (whoCollected.equals(hero)) {
+                    hero
+                        .getComponent(InventoryComponent.class)
+                        .ifPresent(
+                            (x) -> {
+                                if (((InventoryComponent) x).addItem(worldItem.getComponent(ItemComponent.class).map(ItemComponent.class::cast).get().itemData))
+                                    Game.removeEntity(worldItem);
+                            });
+                }
+            }
+            );
+
     }
 }

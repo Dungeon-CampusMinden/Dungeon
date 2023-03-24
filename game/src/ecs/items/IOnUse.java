@@ -11,5 +11,5 @@ public interface IOnUse {
      * @param e The entity that used the item.
      * @param item The item that was used.
      */
-    void onUse(Entity e, ItemDataActive item);
+    void onUse(Entity e, ItemData item);
 }

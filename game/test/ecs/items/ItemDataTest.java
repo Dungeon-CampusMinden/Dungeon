@@ -4,12 +4,14 @@ import static org.junit.Assert.*;
 
 import ecs.components.AnimationComponent;
 import ecs.components.HitboxComponent;
+import ecs.components.InventoryComponent;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import starter.Game;
 import tools.Point;
 
@@ -84,4 +86,50 @@ public class ItemDataTest {
 
         HitboxComponent hc = (HitboxComponent) e.getComponent(HitboxComponent.class).orElseThrow();
     }
+
+// active
+    /** Tests if set callback is called. */
+    @Test
+    public void testUseCallback() {
+        IOnUse callback = Mockito.mock(IOnUse.class);
+        ItemData item =
+            Mockito.mock(
+                ItemData.class,
+                Mockito.withSettings()
+                    .useConstructor("name", "description", callback)
+                    .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+        Entity entity = new Entity();
+        item.triggerUse(entity);
+        Mockito.verify(callback).onUse(entity, item);
+    }
+
+    /** Tests if no exception is thrown when callback is null. */
+    @Test
+    public void testUseNullCallback() {
+        ItemData item =
+            Mockito.mock(
+                ItemData.class,
+                Mockito.withSettings()
+                    .useConstructor("name", "description", null)
+                    .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+        Entity entity = new Entity();
+        item.triggerUse(entity);
+    }
+
+    /** Tests if item is removed from inventory after use. */
+    @Test
+    public void testItemRemovedAfterUseWithDefaultCallback() {
+        ItemData item = new ItemData() {};
+        Entity entity = new Entity();
+        InventoryComponent inventoryComponent = new InventoryComponent(entity, 2);
+        inventoryComponent.addItem(item);
+        assertTrue(
+            "ItemActive needs to be in entities inventory.",
+            inventoryComponent.getItems().contains(item));
+        item.triggerUse(entity);
+        assertFalse(
+            "Item was not removed from inventory after use.",
+            inventoryComponent.getItems().contains(item));
+    }
+
 }
