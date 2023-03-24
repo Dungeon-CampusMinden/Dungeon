@@ -3,7 +3,7 @@ title: "DSL Überblick"
 author: @malt-r
 ---
 
-## Überblick über Idee und Ziele die mit der DSL verfolgt werden
+## Überblick: Ideen und Ziele
 
 Die DSL ermöglicht...
 - textuelle Beschreibung von abstrakten Aufgaben aus dem Umfeld der Lehre für Lehrpersonen, welche durch DSL-Interpreter in eine konkretes Szenario in einem Dungeon Level übersetzt werden
