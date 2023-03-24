@@ -5,8 +5,8 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import level.elements.ILevel;
 import mp.packages.NetworkSetup;
-import mp.packages.request.LoadMapRequest;
-import mp.packages.response.LoadMapResponse;
+import mp.packages.request.InitializeServerRequest;
+import mp.packages.response.InitializeServerResponse;
 import mp.packages.response.PingResponse;
 
 import java.io.*;
@@ -57,12 +57,10 @@ public class MultiplayerClient extends Listener {
         if (object instanceof PingResponse) {
             final PingResponse pingResponse = (PingResponse)object;
             System.out.println("Ping response received. Time: " + pingResponse.getTime());
-            connection.sendTCP(new LoadMapRequest());
-        } else if (object instanceof LoadMapResponse){
-            ILevel level = ((LoadMapResponse)object).getLevel();
-            for (IMultiplayerClientObserver observer :
-                observers) {
-                observer.onLevelReceived(level);
+        } else if (object instanceof InitializeServerResponse){
+            boolean isSucceed = ((InitializeServerResponse)object).isSucceed();
+            for (IMultiplayerClientObserver observer: observers) {
+                observer.onServerInitializedReceived(isSucceed);
             }
         }
     }

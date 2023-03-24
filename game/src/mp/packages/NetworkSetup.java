@@ -9,9 +9,9 @@ import level.elements.tile.*;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
-import mp.packages.request.LoadMapRequest;
+import mp.packages.request.InitializeServerRequest;
 import mp.packages.request.PingRequest;
-import mp.packages.response.LoadMapResponse;
+import mp.packages.response.InitializeServerResponse;
 import mp.packages.response.PingResponse;
 import mp.packages.serializer.*;
 
@@ -27,8 +27,8 @@ public class NetworkSetup {
 
         kryo.register(PingRequest.class);
         kryo.register(PingResponse.class);
-        kryo.register(LoadMapRequest.class);
-        kryo.register(LoadMapResponse.class, new LoadMapResponseSerializer());
+        kryo.register(InitializeServerRequest.class, new InitializeServerRequestSerializer());
+        kryo.register(InitializeServerResponse.class, new InitializeServerResponseSerializer());
         kryo.register(ArrayList.class);
         kryo.register(Coordinate.class, new CoordinateSerializer());
         kryo.register(ILevel.class);
