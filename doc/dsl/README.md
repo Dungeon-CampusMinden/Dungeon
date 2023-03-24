@@ -111,18 +111,12 @@ Der [Quickstart Guide](quickstart.md) gibt Hinweise für die Erstellung der erst
 
 Die folgenden Dokumentationsseiten beleuchten einzelne Aspekte der Nutzung der DungeonDSL detaillierter als der Quickstart Guide.
 
-- Die [Sprachkonzept Dokumentation](sprachkonzepte.md) beschreibt die Sprachkonzepte der DungeonDSL auf einer tiefergehenden Ebene als der Quickstart Guide.
-- [Typsystem](typsystem.md) beschreibt, wie Typen in der DungeonDSL funktionieren.
+- [Sprachkonzepte der DungeonDSL im Detail](sprachkonzepte.md)
+- [Typsystem der DungeonDSL](typsystem.md)
 
-## DSL Pipeline
+## Technische Dokumentation
 
-TODO
-
-- sequentielle Beschreibung der Schritte, die zur Verarbeitung eines DSL Programms durchlaufen werden (mit Links zu den Wiki-Seiten mit weiteren Details)
-
-## Entwicklerdokumentation
-
-- [Typebuilding](https://github.com/Programmiermethoden/Dungeon/wiki/Typebuilding) wird benötigt, um das Typsystem der DungeonDSL zu erweitern und bspw. die Komponenten des [ECS](../ecs/readme.md) über die DungeonDSL konfigurierbar zu machen.
-- [Interpretation und Laufzeit](interpretation-laufzeit.md) beschreibt, wie ein DungeonDSL Programm übersetzt und ausgeführt wird
-
-[Aktueller Entwicklungsstand](goals.md)
+- [Einordnung der DSL-Interpreters in das Gesamtsystem](schnittstellen.md)
+- [Typebuilding - Erweiterung des DungeonDSL Typsystems](https://github.com/Programmiermethoden/Dungeon/wiki/Typebuilding)
+- [Interpretation und Laufzeit eines DungeonDSL Programms](interpretation-laufzeit.md)
+- [Aktueller Entwicklungsstand der DungeonDSL](status.md)
