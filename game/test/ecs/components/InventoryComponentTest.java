@@ -10,10 +10,6 @@ import java.util.List;
 import org.junit.Test;
 
 public class InventoryComponentTest {
-
-    /** simple Item implementation since Item is abstract and can´t be used for testing otherwise */
-    private static class ItemDataImpl extends ItemData {}
-
     /** constructor should create the inventory with the given parameters. */
     @Test
     public void validCreation() {
@@ -30,7 +26,7 @@ public class InventoryComponentTest {
     public void addItemValid() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(e, 1);
-        ItemData itemData = new ItemDataImpl();
+        ItemData itemData = new ItemData();
         assertTrue(ic.addItem(itemData));
         assertEquals(1, ic.filledSlots());
         assertEquals(0, ic.emptySlots());
@@ -44,8 +40,8 @@ public class InventoryComponentTest {
     public void addItemValidMultiple() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(e, 3);
-        ic.addItem(new ItemDataImpl());
-        assertTrue(ic.addItem(new ItemDataImpl()));
+        ic.addItem(new ItemData());
+        assertTrue(ic.addItem(new ItemData()));
 
         assertEquals(2, ic.filledSlots());
         assertEquals(1, ic.emptySlots());
@@ -57,8 +53,8 @@ public class InventoryComponentTest {
     public void addItemOverSize() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(e, 1);
-        ic.addItem(new ItemDataImpl());
-        assertFalse(ic.addItem(new ItemDataImpl()));
+        ic.addItem(new ItemData());
+        assertFalse(ic.addItem(new ItemData()));
         assertEquals(1, ic.filledSlots());
         assertEquals(0, ic.emptySlots());
         assertEquals(1, ic.getMaxSize());
@@ -69,7 +65,7 @@ public class InventoryComponentTest {
     public void removeItemExisting() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(e, 1);
-        ItemData itemData = new ItemDataImpl();
+        ItemData itemData = new ItemData();
         ic.addItem(itemData);
         assertTrue(ic.removeItem(itemData));
 
@@ -83,7 +79,7 @@ public class InventoryComponentTest {
     public void removeItemTwice() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(e, 1);
-        ItemData itemData = new ItemDataImpl();
+        ItemData itemData = new ItemData();
         ic.addItem(itemData);
         ic.removeItem(itemData);
         assertFalse(ic.removeItem(itemData));
@@ -98,7 +94,7 @@ public class InventoryComponentTest {
     public void removeItemNull() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(e, 1);
-        ItemData itemData = new ItemDataImpl();
+        ItemData itemData = new ItemData();
         ic.addItem(itemData);
         assertFalse(ic.removeItem(null));
 
@@ -121,7 +117,7 @@ public class InventoryComponentTest {
     public void getAllItemsInventoryWithOnlyOneItem() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(e, 1);
-        ItemData itemData = new ItemData() {};
+        ItemData itemData = new ItemData();
         ic.addItem(itemData);
         List<ItemData> list = ic.getItems();
         assertEquals("should have one Item", 1, list.size());
@@ -133,9 +129,9 @@ public class InventoryComponentTest {
     public void getAllItemsInventoryWithTwoItems() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(e, 2);
-        ItemData itemData1 = new ItemData() {};
+        ItemData itemData1 = new ItemData();
         ic.addItem(itemData1);
-        ItemData itemData2 = new ItemData() {};
+        ItemData itemData2 = new ItemData();
         ic.addItem(itemData2);
         List<ItemData> list = ic.getItems();
         assertEquals("should have two Items", 2, list.size());
@@ -148,7 +144,7 @@ public class InventoryComponentTest {
     public void getAllItemsInventoryNoAddedItemButCreated() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(e, 1);
-        ItemData itemData = new ItemData() {};
+        ItemData itemData = new ItemData();
         List<ItemData> list = ic.getItems();
         assertEquals("should have no Items", 0, list.size());
         assertFalse("Item should be in returned List", list.contains(itemData));

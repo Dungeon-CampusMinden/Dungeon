@@ -20,10 +20,10 @@ public class ItemData {
     private String itemName;
     private String description;
 
-    private IOnCollect onCollect;
-    private IOnDrop onDrop;
+    public IOnCollect onCollect;
+    public IOnDrop onDrop;
     // active
-    private IOnUse onUse;
+    public IOnUse onUse;
 
     // passive
     private DamageModifier damageModifier;

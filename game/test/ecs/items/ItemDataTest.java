@@ -17,22 +17,14 @@ import starter.Game;
 import tools.Point;
 
 public class ItemDataTest {
-    private static class ItemDataImpl extends ItemData {
-        public ItemDataImpl(
-                ItemType itemType,
-                Animation inventoryTexture,
-                Animation worldTexture,
-                String itemName,
-                String description) {
-            super(itemType, inventoryTexture, worldTexture, itemName, description);
-        }
-
-        public ItemDataImpl() {}
+    @Before
+    public void before() {
+        Game.getEntitiesToAdd().clear();
     }
 
     @Test
     public void testDefaultConstructor() {
-        ItemData itemData = new ItemDataImpl();
+        ItemData itemData = new ItemData();
         assertEquals(ItemConfig.NAME.get(), itemData.getItemName());
         assertEquals(ItemConfig.DESCRIPTION.get(), itemData.getDescription());
         assertEquals(ItemConfig.TYPE.get(), itemData.getItemType());
@@ -48,7 +40,7 @@ public class ItemDataTest {
         String item_name = "r Item Name";
         String item_description = "r Item Description";
         ItemData itemData =
-                new ItemDataImpl(
+                new ItemData(
                         type,
                         new Animation(List.of(inventoryTexture), 1),
                         new Animation(List.of(worldTexture), 1),
@@ -63,20 +55,15 @@ public class ItemDataTest {
         assertEquals(item_description, itemData.getDescription());
     }
 
-    @Before
-    public void before() {
-        Game.getEntities().clear();
-    }
-
     @Test
     public void onDropCheckEntity() {
 
-        ItemData itemData = new ItemDataImpl();
-        assertEquals(0, Game.getEntities().size());
+        ItemData itemData = new ItemData();
+        assertEquals(0, Game.getEntitiesToAdd().size());
         Point point = new Point(0, 0);
         itemData.triggerDrop(null, point);
-        assertEquals(1, Game.getEntities().size());
-        Entity e = Game.getEntities().iterator().next();
+        assertEquals(1, Game.getEntitiesToAdd().size());
+        Entity e = Game.getEntitiesToAdd().iterator().next();
         PositionComponent pc =
                 (PositionComponent) e.getComponent(PositionComponent.class).orElseThrow();
         assertEquals(point.x, pc.getPosition().x, 0.001);
@@ -93,12 +80,8 @@ public class ItemDataTest {
     @Test
     public void testUseCallback() {
         IOnUse callback = Mockito.mock(IOnUse.class);
-        ItemData item =
-                Mockito.mock(
-                        ItemData.class,
-                        Mockito.withSettings()
-                                .useConstructor("name", "description", callback)
-                                .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+        ItemData item = new ItemData();
+        item.onUse = callback;
         Entity entity = new Entity();
         item.triggerUse(entity);
         Mockito.verify(callback).onUse(entity, item);
@@ -107,12 +90,8 @@ public class ItemDataTest {
     /** Tests if no exception is thrown when callback is null. */
     @Test
     public void testUseNullCallback() {
-        ItemData item =
-                Mockito.mock(
-                        ItemData.class,
-                        Mockito.withSettings()
-                                .useConstructor("name", "description", null)
-                                .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+        ItemData item = new ItemData();
+        item.onUse = null;
         Entity entity = new Entity();
         item.triggerUse(entity);
     }
@@ -120,7 +99,7 @@ public class ItemDataTest {
     /** Tests if item is removed from inventory after use. */
     @Test
     public void testItemRemovedAfterUseWithDefaultCallback() {
-        ItemData item = new ItemData() {};
+        ItemData item = new ItemData();
         Entity entity = new Entity();
         InventoryComponent inventoryComponent = new InventoryComponent(entity, 2);
         inventoryComponent.addItem(item);
