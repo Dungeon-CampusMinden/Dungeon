@@ -25,7 +25,7 @@ umgesetzt und können aus der Standardbibliothek eingebunden werden.
 
 ## Konzepte und Begriffe
 
-**Taskdefinition**
+### Taskdefinition
 
 Die Taskdefinition...
 - ist die zentrale Definition für eine Aufgabe aus dem Umfeld der Lehre
