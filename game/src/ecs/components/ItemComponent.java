@@ -1,2 +1,28 @@
-package ecs.components;public class ItemComponent {
+package ecs.components;
+
+import ecs.entities.Entity;
+import ecs.items.ItemData;
+
+public class ItemComponent extends Component {
+    public ItemData itemData;
+
+    /**
+     * Create a new component and add it to the associated entity
+     *
+     * @param entity associated entity
+     */
+    public ItemComponent(Entity entity) {
+        super(entity);
+    }
+
+    /**
+     * Creates a new ItemComponent and adds it to the associated entity
+     *
+     * @param entity associated entity
+     * @param itemData data of the item for the component
+     */
+    public ItemComponent(Entity entity, ItemData itemData) {
+        super(entity);
+        this.itemData = itemData;
+    }
 }
