@@ -1,4 +1,4 @@
-package graphic.hud;
+package graphic.hud.widgets;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -29,7 +29,9 @@ public class ScreenButton extends TextButton {
             String text, Point position, TextButtonListener listener, TextButtonStyle style) {
         super(text, style);
         this.setPosition(position.x, position.y);
-        this.addListener(listener);
+        if (listener != null) {
+            this.addListener(listener);
+        }
         this.setScale(1 / Constants.DEFAULT_ZOOM_FACTOR);
     }
 

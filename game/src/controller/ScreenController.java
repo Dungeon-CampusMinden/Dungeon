@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import tools.Constants;
@@ -22,13 +23,18 @@ public class ScreenController<T extends Actor> extends AbstractController<T> {
      *
      * @param batch the batch which should be used to draw with
      */
-    public ScreenController(SpriteBatch batch) {
+    public ScreenController(SpriteBatch batch, @Null Stage stage) {
         super();
-        stage =
-                new Stage(
-                        new ScalingViewport(
-                                Scaling.stretch, Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT),
-                        batch);
+        if (stage != null) {
+            this.stage = stage;
+        }
+        else {
+            this.stage =
+                    new Stage(
+                            new ScalingViewport(
+                                    Scaling.stretch, Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT),
+                            batch);
+        }
 
         Gdx.input.setInputProcessor(stage);
     }

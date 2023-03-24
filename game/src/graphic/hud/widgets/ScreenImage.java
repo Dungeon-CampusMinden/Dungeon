@@ -1,4 +1,4 @@
-package graphic.hud;
+package graphic.hud.widgets;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
