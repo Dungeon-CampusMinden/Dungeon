@@ -35,7 +35,7 @@ Mögliche Zustände:
 | Error-Messages | Zu der Fehlerbehandlung gehört auch die Kommunikation der Fehler an die Nutzenden, damit diese eine Chance haben, die Fehler zu beheben und zu verstehen. Dafür muss ein Kommunikationskanal festgelegt werden und festgelegt werden, wie die Fehlermeldungen aussehen sollen, bzw. welchen Inhalt sie brauchen.| 💭|
 | Funktionsschnittstelle zum Dungeon | Event-Handler Funktionen setzen eine Kommunikation zwischen DSL-Interpreter und Dungeon voraus; die sollte klar definiert werden. | 💡|
 
-### Sprachkonzepte
+## Sprachkonzepte
 
 | Feature | Was und warum? | Zustand |
 |-|-|-|
