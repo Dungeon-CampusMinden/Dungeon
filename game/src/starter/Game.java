@@ -225,8 +225,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         if (Gdx.input.isKeyJustPressed(Input.Keys.P) && !startMenu.isVisible()) togglePause();
         if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
             if (paused) togglePause();
-            startMenu.resetView();
-            showMenu(startMenu);
+            if (!startMenu.isVisible()) {
+                startMenu.resetView();
+                showMenu(startMenu);
+            }
         }
     }
 
