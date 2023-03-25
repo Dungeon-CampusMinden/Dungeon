@@ -4,8 +4,6 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import level.elements.ILevel;
-import level.generator.postGeneration.WallGenerator;
-import level.generator.randomwalk.RandomWalkGenerator;
 import mp.packages.NetworkSetup;
 import mp.packages.request.InitializeServerRequest;
 import mp.packages.request.PingRequest;
@@ -23,9 +21,8 @@ public class MultiplayerServer extends Listener {
     private static final Integer maxObjectSizeExpected = 8000000;
     private static final Integer writeBufferSize = maxObjectSizeExpected;
     private static final Integer objectBufferSize = maxObjectSizeExpected;
-    private static final Integer port = 25444;
+    private static final Integer tcpPort = 25444;
     private final Server server = new Server(writeBufferSize, objectBufferSize );
-
     private ILevel level;
     private final PlayersAPI playersAPI = new PlayersAPI();
 
@@ -34,8 +31,7 @@ public class MultiplayerServer extends Listener {
         NetworkSetup.register(server);
 
         try {
-            server.bind(port);
-            server.start();
+            server.bind(tcpPort);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -65,7 +61,15 @@ public class MultiplayerServer extends Listener {
         }
     }
 
-    public static void main(String[] args){
-        new MultiplayerServer();
+    public void start() {
+        server.start();
+    }
+
+    public void stop() {
+        server.stop();
+    }
+
+    public Integer getTcpPort() {
+        return tcpPort;
     }
 }

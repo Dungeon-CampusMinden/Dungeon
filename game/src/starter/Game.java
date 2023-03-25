@@ -34,6 +34,8 @@ import level.generator.randomwalk.RandomWalkGenerator;
 import mp.client.IMultiplayerClientObserver;
 import mp.client.MultiplayerClient;
 import mp.packages.request.InitializeServerRequest;
+import mp.packages.request.JoinSessionRequest;
+import mp.server.MultiplayerServer;
 import tools.Constants;
 import tools.Point;
 
@@ -68,11 +70,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     public static SystemController systems;
 
     public static ILevel currentLevel;
-    private static Menu activeMenu;
     private static PauseMenu pauseMenu;
     private static StartMenu startMenu;
     private PositionComponent heroPositionComponent;
-    private static MultiplayerClient client;
+    private static MultiplayerClient multiplayerClient;
+    private static MultiplayerServer multiplayerServer;
     public static Hero hero;
 
     /** Called once at the beginning of the game. */
@@ -80,8 +82,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         controller.clear();
         systems = new SystemController();
         controller.add(systems);
-        client = new MultiplayerClient();
 
+        setupServer();
+        setupClient();
         setupMenus();
         setupHero();
         setupLevel();
@@ -134,28 +137,49 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
 
     @Override
     public void onGameModeChosen(GameMode gameMode) {
-        // refresh level because was loaded on setup as background for start menu
-        setupLevel();
-
         switch (gameMode) {
             case SinglePlayer -> {
-                // Nothing to do for now. Everything ready for single player
+                // Nothing to do for now. Everything ready for single player but for now just refresh level
+                setupLevel();
+                hideMenu(startMenu);
             }
             case MultiplayerClient -> {
                 // TODO: configure client as slave
+                // TODO: get address and port info as event parameter
+                String hostAddress = "Invalid";
+                Integer hostPort = 999999999;
+                if (!multiplayerClient.connectToHost(hostAddress, hostPort)) {
+                    // TODO: error handling like popup menu with error message
+                    System.out.println(String.format("Could not connect to host %s:%d", hostAddress, hostPort));
+                } else {
+                    multiplayerClient.send(new JoinSessionRequest());
+                }
             }
             case MultiplayerHost -> {
+                multiplayerServer.start();
                 // TODO: configure client as host
-                client.send(new InitializeServerRequest(currentLevel));
+                // For now, just enter server host manually. Later, port need to be detected or get from config.
+                if (!multiplayerClient.connectToHost("127.0.0.1", multiplayerServer.getTcpPort())) {
+                    // TODO: error handling
+                    System.out.println(String.format("Could not connect to host on this device at port %d.", multiplayerServer.getTcpPort()));
+                } else {
+                    // refresh level because was loaded on setup as background for start menu
+                    setupLevel();
+                    multiplayerClient.send(new InitializeServerRequest(currentLevel));
+                }
             }
         }
-
-        hideMenu(startMenu);
     }
 
     @Override
     public void onServerInitializedReceived(boolean isSucceed) {
         // TODO: do some stuff
+        if (isSucceed) {
+            hideMenu(startMenu);
+        } else {
+            // TODO: error handling like popup menu with error message
+            System.out.println("Multiplayer host session failed to initialize");
+        }
     }
 
     public void setSpriteBatch(SpriteBatch batch) {
@@ -243,6 +267,15 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
                 hero.getComponent(PositionComponent.class)
                     .orElseThrow(
                         () -> new MissingComponentException("PositionComponent"));
+    }
+
+    private void setupServer() {
+        multiplayerServer = new MultiplayerServer();
+    }
+
+    private void setupClient() {
+        multiplayerClient = new MultiplayerClient();
+        multiplayerClient.addObserver(this);
     }
 
     private void setupMenus() {
