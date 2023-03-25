@@ -1,6 +1,5 @@
 package ecs.components;
 
-import com.badlogic.gdx.utils.JsonValue;
 import ecs.entities.Entity;
 import java.util.Optional;
 import java.util.logging.Logger;

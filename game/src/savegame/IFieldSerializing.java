@@ -30,7 +30,7 @@ public interface IFieldSerializing extends ISerializable {
             }
             Object obj = Reflections.getFieldValue(this, field);
             // Lamdba fields must not be serialized
-            if (obj.getClass().getName().contains("$$Lambda$")) {
+            if (obj != null && obj.getClass().getName().contains("$$Lambda$")) {
                 continue;
             }
 
