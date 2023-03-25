@@ -13,7 +13,6 @@ import tools.Point;
 
 public class MultiplayerOpenToLanMenu<T extends Actor> extends Menu<T> {
 
-    private static final int buttonTextLabelScale = 2;
 //    private final ScreenInput inputSessionInfo;
     private final ScreenButton buttonOpen;
 

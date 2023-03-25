@@ -13,7 +13,6 @@ import tools.Point;
 
 public class GameModeMenu<T extends Actor> extends Menu<T> {
 
-    private static final int buttonTextLabelScale = 2;
     private final ScreenButton buttonSinglePlayer;
     private final ScreenButton buttonMultiPlayer;
 

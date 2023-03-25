@@ -8,15 +8,10 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Null;
 import graphic.hud.menus.Menu;
-import graphic.hud.menus.startmenu.GameModeMenu;
-import graphic.hud.menus.startmenu.MultiplayerHostOrJoinMenu;
-import graphic.hud.menus.startmenu.MultiplayerJoinSessionMenu;
-import graphic.hud.menus.startmenu.MultiplayerOpenToLanMenu;
 import graphic.hud.widgets.FontBuilder;
 import graphic.hud.widgets.ScreenButton;
 import graphic.hud.widgets.TextButtonListener;
 import graphic.hud.widgets.TextButtonStyleBuilder;
-import mp.client.IMultiplayerClientObserver;
 import tools.Constants;
 import tools.Point;
 
@@ -31,7 +26,6 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         MultiplayerJoinSession
     }
 
-    private static final int buttonTextLabelScale = 2;
     private MenuType menuTypeCurrent;
     private final ScreenButton buttonNavigateBack;
     private final GameModeMenu gameModeMenu;

@@ -9,6 +9,8 @@ import controller.ScreenController;
 public abstract class Menu<T extends Actor> extends ScreenController<T> {
 
     protected boolean isVisible;
+    // TODO: outsource
+    protected static final int buttonTextLabelScale = 2;
 
     /**
      * Creates a Screencontroller with a ScalingViewport which stretches the ScreenElements on
