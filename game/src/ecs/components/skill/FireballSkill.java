@@ -2,12 +2,9 @@ package ecs.components.skill;
 
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
-import java.io.Serializable;
 import tools.Point;
 
-public class FireballSkill extends DamageProjectileSkill implements Serializable {
-
-    public static final long serialVersionUID = 1L;
+public class FireballSkill extends DamageProjectileSkill {
 
     public FireballSkill(ITargetSelection targetSelection) {
         super(

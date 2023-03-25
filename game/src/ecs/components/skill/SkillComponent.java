@@ -1,14 +1,12 @@
 package ecs.components.skill;
 
-import com.badlogic.gdx.utils.JsonValue;
 import ecs.components.Component;
 import ecs.entities.Entity;
 import java.util.HashSet;
 import java.util.Set;
-import savegame.GameSerialization;
-import savegame.ISerializable;
+import savegame.IFieldSerializing;
 
-public class SkillComponent extends Component implements ISerializable {
+public class SkillComponent extends Component implements IFieldSerializing {
 
     public static String name = "SkillComponent";
 
@@ -50,25 +48,5 @@ public class SkillComponent extends Component implements ISerializable {
     /** reduces the cool down of each skill by 1 frame */
     public void reduceAllCoolDowns() {
         for (Skill skill : skillSet) skill.reduceCoolDown();
-    }
-
-    @Override
-    public JsonValue serialize() {
-        JsonValue json = new JsonValue(JsonValue.ValueType.object);
-        JsonValue skillSetJson = new JsonValue(JsonValue.ValueType.array);
-        for (Skill skill : skillSet) {
-            skillSetJson.addChild(GameSerialization.serialize(skill));
-        }
-        json.addChild("skillSet", skillSetJson);
-        return json;
-    }
-
-    @Override
-    public void deserialize(JsonValue data) {
-        JsonValue skillSetJson = data.get("skillSet");
-        for (JsonValue skillJson : skillSetJson) {
-            Skill skill = GameSerialization.deserialize(skillJson);
-            skillSet.add(skill);
-        }
     }
 }

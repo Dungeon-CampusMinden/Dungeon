@@ -1,8 +1,9 @@
 package ecs.components;
 
 import ecs.entities.Entity;
+import savegame.IFieldSerializing;
 
-public class InteractionComponent extends Component {
+public class InteractionComponent extends Component implements IFieldSerializing {
     public static final int DEFAULT_RADIUS = 5;
     public static final boolean DEFAULT_REPEATABLE = true;
     private float radius;

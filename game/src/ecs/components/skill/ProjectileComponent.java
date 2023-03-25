@@ -2,9 +2,10 @@ package ecs.components.skill;
 
 import ecs.components.Component;
 import ecs.entities.Entity;
+import savegame.IFieldSerializing;
 import tools.Point;
 
-public class ProjectileComponent extends Component {
+public class ProjectileComponent extends Component implements IFieldSerializing {
 
     private Point goalLocation;
     private Point startPosition;

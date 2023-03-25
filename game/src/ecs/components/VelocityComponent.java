@@ -1,20 +1,18 @@
 package ecs.components;
 
-import com.badlogic.gdx.utils.JsonValue;
 import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.List;
 import java.util.logging.Logger;
 import logging.CustomLogLevel;
-import savegame.GameSerialization;
-import savegame.ISerializable;
+import savegame.IFieldSerializing;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
 
 /** VelocityComponent is a component that stores the x, y movement direction */
 @DSLType(name = "velocity_component")
-public class VelocityComponent extends Component implements ISerializable {
+public class VelocityComponent extends Component implements IFieldSerializing {
     private static List<String> missingTexture = List.of("animation/missingTexture.png");
     private float currentXVelocity;
     private float currentYVelocity;
@@ -143,29 +141,5 @@ public class VelocityComponent extends Component implements ISerializable {
      */
     public Animation getMoveLeftAnimation() {
         return moveLeftAnimation;
-    }
-
-    @Override
-    public JsonValue serialize() {
-        JsonValue json = new JsonValue(JsonValue.ValueType.object);
-        json.addChild("vX", new JsonValue(xVelocity));
-        json.addChild("vY", new JsonValue(yVelocity));
-        json.addChild("currentVX", new JsonValue(currentXVelocity));
-        json.addChild("currentVY", new JsonValue(currentYVelocity));
-        json.addChild("moveLeftAnimation", GameSerialization.serialize(moveLeftAnimation));
-        json.addChild("moveRightAnimation", GameSerialization.serialize(moveLeftAnimation));
-        return json;
-    }
-
-    @Override
-    public void deserialize(JsonValue data) {
-        xVelocity = data.getFloat("vX");
-        yVelocity = data.getFloat("vY");
-        currentXVelocity = data.getFloat("currentVX");
-        currentYVelocity = data.getFloat("currentVY");
-        JsonValue moveLeftAnimationFrames = data.get("moveLeftAnimation");
-        JsonValue moveRightAnimationFrames = data.get("moveRightAnimation");
-        this.moveLeftAnimation = GameSerialization.deserialize(moveLeftAnimationFrames);
-        this.moveRightAnimation = GameSerialization.deserialize(moveRightAnimationFrames);
     }
 }

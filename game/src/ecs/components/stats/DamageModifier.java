@@ -3,8 +3,9 @@ package ecs.components.stats;
 import ecs.damage.DamageType;
 import java.util.HashMap;
 import java.util.Map;
+import savegame.IFieldSerializing;
 
-public class DamageModifier {
+public class DamageModifier implements IFieldSerializing {
 
     private final Map<DamageType, Float> damageMultipliers = new HashMap<>();
 

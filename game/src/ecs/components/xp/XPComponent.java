@@ -1,13 +1,11 @@
 package ecs.components.xp;
 
-import com.badlogic.gdx.utils.JsonValue;
 import ecs.components.Component;
 import ecs.entities.Entity;
 import java.io.*;
-import savegame.GameSerialization;
-import savegame.ISerializable;
+import savegame.IFieldSerializing;
 
-public class XPComponent extends Component implements ISerializable {
+public class XPComponent extends Component implements IFieldSerializing {
 
     private static final double LEVEL_1_XP = 100;
     private static final double FORMULA_SLOPE = 0.5;
@@ -126,23 +124,5 @@ public class XPComponent extends Component implements ISerializable {
     public long getXPToNextLevel() {
         // level 0 in Formula is level 1 in game.
         return Math.round(FORMULA_SLOPE * Math.pow(currentLevel, 2) + LEVEL_1_XP) - currentXP;
-    }
-
-    @Override
-    public JsonValue serialize() {
-        JsonValue json = new JsonValue(JsonValue.ValueType.object);
-        json.addChild("currentLevel", new JsonValue(currentLevel));
-        json.addChild("currentXP", new JsonValue(currentXP));
-        json.addChild("lootXP", new JsonValue(lootXP));
-        json.addChild("callbackLevelUp", GameSerialization.serialize(this.callbackLevelUp));
-        return json;
-    }
-
-    @Override
-    public void deserialize(JsonValue data) {
-        this.currentLevel = data.getLong("currentLevel");
-        this.currentXP = data.getLong("currentXP");
-        this.lootXP = data.getLong("lootXP");
-        this.callbackLevelUp = GameSerialization.deserialize(data.get("callbackLevelUp"));
     }
 }

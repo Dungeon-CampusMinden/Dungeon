@@ -5,14 +5,14 @@ import ecs.entities.Entity;
 import java.util.Optional;
 import java.util.logging.Logger;
 import logging.CustomLogLevel;
-import savegame.ISerializable;
+import savegame.IFieldSerializing;
 
 /**
  * This component is for the player character entity only. It should only be implemented by one
  * entity and mark this entity as the player character. This component stores data that is only
  * relevant for the player character. The PlayerSystems acts on the PlayableComponent.
  */
-public class PlayableComponent extends Component implements ISerializable {
+public class PlayableComponent extends Component implements IFieldSerializing {
 
     private boolean playable;
     private final Logger playableCompLogger = Logger.getLogger(this.getClass().getName());

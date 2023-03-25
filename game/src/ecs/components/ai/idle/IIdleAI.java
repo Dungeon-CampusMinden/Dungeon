@@ -1,9 +1,9 @@
 package ecs.components.ai.idle;
 
 import ecs.entities.Entity;
-import savegame.ISerializable;
+import savegame.IFieldSerializing;
 
-public interface IIdleAI extends ISerializable {
+public interface IIdleAI extends IFieldSerializing {
 
     /**
      * Implements the idle behavior of an AI controlled entity

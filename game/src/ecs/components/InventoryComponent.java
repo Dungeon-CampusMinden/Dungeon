@@ -1,17 +1,15 @@
 package ecs.components;
 
-import com.badlogic.gdx.utils.JsonValue;
 import ecs.entities.Entity;
 import ecs.items.ItemData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import logging.CustomLogLevel;
-import savegame.GameSerialization;
-import savegame.ISerializable;
+import savegame.IFieldSerializing;
 
 /** Allows an Entity to carry Items */
-public class InventoryComponent extends Component implements ISerializable {
+public class InventoryComponent extends Component implements IFieldSerializing {
 
     private List<ItemData> inventory;
     private int maxSize;
@@ -91,25 +89,5 @@ public class InventoryComponent extends Component implements ISerializable {
      */
     public List<ItemData> getItems() {
         return new ArrayList<>(inventory);
-    }
-
-    @Override
-    public JsonValue serialize() {
-        JsonValue json = new JsonValue(JsonValue.ValueType.object);
-        json.addChild("maxSize", new JsonValue(maxSize));
-        json.addChild("items", new JsonValue(JsonValue.ValueType.array));
-        for (Item item : inventory) {
-            json.get("items").addChild(GameSerialization.serialize(item));
-        }
-        return json;
-    }
-
-    @Override
-    public void deserialize(JsonValue data) {
-        maxSize = data.getInt("maxSize");
-        inventory = new ArrayList<>(maxSize);
-        for (JsonValue item : data.get("items")) {
-            inventory.add(GameSerialization.deserialize(item));
-        }
     }
 }

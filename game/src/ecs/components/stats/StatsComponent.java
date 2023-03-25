@@ -2,8 +2,9 @@ package ecs.components.stats;
 
 import ecs.components.Component;
 import ecs.entities.Entity;
+import savegame.IFieldSerializing;
 
-public class StatsComponent extends Component {
+public class StatsComponent extends Component implements IFieldSerializing {
 
     private DamageModifier damageModifier = new DamageModifier();
 

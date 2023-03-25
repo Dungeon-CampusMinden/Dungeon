@@ -1,10 +1,10 @@
 package ecs.components.ai.transition;
 
 import ecs.entities.Entity;
-import java.io.Serializable;
+import savegame.IFieldSerializing;
 
 /** Determines when an ai switches between idle and fight */
-public interface ITransition extends Serializable {
+public interface ITransition extends IFieldSerializing {
 
     /**
      * Function that determines whether an entity should be in combat mode

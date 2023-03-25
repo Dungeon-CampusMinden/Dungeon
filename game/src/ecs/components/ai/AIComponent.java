@@ -1,6 +1,5 @@
 package ecs.components.ai;
 
-import com.badlogic.gdx.utils.JsonValue;
 import ecs.components.Component;
 import ecs.components.ai.fight.CollideAI;
 import ecs.components.ai.fight.IFightAI;
@@ -9,14 +8,13 @@ import ecs.components.ai.idle.RadiusWalk;
 import ecs.components.ai.transition.ITransition;
 import ecs.components.ai.transition.RangeTransition;
 import ecs.entities.Entity;
-import savegame.GameSerialization;
-import savegame.ISerializable;
+import savegame.IFieldSerializing;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 
 /** AIComponent is a component that stores the idle and combat behavior of AI controlled entities */
 @DSLType(name = "ai_component")
-public class AIComponent extends Component implements ISerializable {
+public class AIComponent extends Component implements IFieldSerializing {
 
     public static String name = "AIComponent";
     private /*@DSLTypeMember(name="fight_ai)*/ IFightAI fightAI;
@@ -104,21 +102,5 @@ public class AIComponent extends Component implements ISerializable {
      */
     public IFightAI getFightAI() {
         return fightAI;
-    }
-
-    @Override
-    public JsonValue serialize() {
-        JsonValue json = new JsonValue(JsonValue.ValueType.object);
-        json.addChild("fightAI", GameSerialization.serialize(fightAI));
-        json.addChild("idleAI", GameSerialization.serialize(idleAI));
-        json.addChild("transitionAI", GameSerialization.serialize(transitionAI));
-        return json;
-    }
-
-    @Override
-    public void deserialize(JsonValue data) {
-        fightAI = GameSerialization.deserialize(data.get("fightAI"));
-        idleAI = GameSerialization.deserialize(data.get("idleAI"));
-        transitionAI = GameSerialization.deserialize(data.get("transitionAI"));
     }
 }
