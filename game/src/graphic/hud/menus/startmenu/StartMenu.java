@@ -67,7 +67,7 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         gameModeMenu.getButtonSinglePlayer().addListener(new ClickListener() {
            @Override
            public void clicked(InputEvent event, float x, float y) {
-               observers.forEach((IStartMenuObserver observer) -> observer.onGameModeChosen(GameMode.SinglePlayer));
+               observers.forEach((IStartMenuObserver observer) -> observer.onSinglePlayerModeChosen());
            }
         });
         gameModeMenu.getButtonMultiPlayer().addListener(new ClickListener() {
@@ -79,7 +79,7 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         multiplayerModeMenu.getButtonStartSession().addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                observers.forEach((IStartMenuObserver observer) -> observer.onGameModeChosen(GameMode.MultiplayerHost));
+                observers.forEach((IStartMenuObserver observer) -> observer.onMultiPlayerHostModeChosen());
             }
         });
         multiplayerModeMenu.getButtonJoinSession().addListener(new ClickListener() {
@@ -91,7 +91,17 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         multiplayerJoinSessionMenu.getButtonJoin().addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                observers.forEach((IStartMenuObserver observer) -> observer.onGameModeChosen(GameMode.MultiplayerClient));
+                String[] temp = multiplayerJoinSessionMenu.getInputHostIpPort().getText().split(":");
+                // length has to be 2 => address and port
+                if (temp.length == 2) {
+                    String address = temp[0];
+                    try {
+                        Integer port = Integer.parseInt(temp[1]);
+                        observers.forEach((IStartMenuObserver observer) -> observer.onMultiPlayerClientModeChosen(address, port));
+                    } catch (NumberFormatException e) {
+                        // TODO: show error message, that port is invalid
+                    }
+                }
             }
         });
 

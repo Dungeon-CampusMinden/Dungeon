@@ -22,7 +22,6 @@ import ecs.systems.*;
 import graphic.DungeonCamera;
 import graphic.Painter;
 import graphic.hud.menus.*;
-import graphic.hud.menus.startmenu.GameMode;
 import graphic.hud.menus.startmenu.IStartMenuObserver;
 import graphic.hud.menus.startmenu.StartMenu;
 import interpreter.DSLInterpreter;
@@ -159,38 +158,35 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     }
 
     @Override
-    public void onGameModeChosen(GameMode gameMode) {
-        switch (gameMode) {
-            case SinglePlayer -> {
-                // Nothing to do for now. Everything ready for single player but for now just refresh level
-                setupLevel();
-                hideMenu(startMenu);
-            }
-            case MultiplayerClient -> {
-                // TODO: configure client as slave
-                // TODO: get address and port info as event parameter
-                String hostAddress = "Invalid";
-                Integer hostPort = 999999999;
-                if (!multiplayerClient.connectToHost(hostAddress, hostPort)) {
-                    // TODO: error handling like popup menu with error message
-                    System.out.println(String.format("Could not connect to host %s:%d", hostAddress, hostPort));
-                } else {
-                    multiplayerClient.send(new JoinSessionRequest());
-                }
-            }
-            case MultiplayerHost -> {
-                multiplayerServer.start();
-                // TODO: configure client as host
-                // For now, just enter server host manually. Later, port need to be detected or get from config.
-                if (!multiplayerClient.connectToHost("127.0.0.1", multiplayerServer.getTcpPort())) {
-                    // TODO: error handling
-                    System.out.println(String.format("Could not connect to host on this device at port %d.", multiplayerServer.getTcpPort()));
-                } else {
-                    // refresh level because was loaded on setup as background for start menu
-                    setupLevel();
-                    multiplayerClient.send(new InitializeServerRequest(currentLevel));
-                }
-            }
+    public void onSinglePlayerModeChosen() {
+        // Nothing to do for now. Everything ready for single player but for now just refresh level
+        setupLevel();
+        hideMenu(startMenu);
+    }
+
+    @Override
+    public void onMultiPlayerHostModeChosen() {
+        multiplayerServer.start();
+        // TODO: configure client as host
+        // For now, just enter server host manually. Later, port need to be detected or get from config.
+        if (!multiplayerClient.connectToHost("127.0.0.1", multiplayerServer.getTcpPort())) {
+            // TODO: error handling
+            System.out.println(String.format("Could not connect to host on this device at port %d.", multiplayerServer.getTcpPort()));
+        } else {
+            // refresh level because was loaded on setup as background for start menu
+            setupLevel();
+            multiplayerClient.send(new InitializeServerRequest(currentLevel));
+        }
+    }
+
+    @Override
+    public void onMultiPlayerClientModeChosen(String hostAddress, Integer port) {
+        // TODO: configure client as slave
+        if (!multiplayerClient.connectToHost(hostAddress, port)) {
+            // TODO: error handling like popup menu with error message
+            System.out.println(String.format("Could not connect to host %s:%d", hostAddress, port));
+        } else {
+            multiplayerClient.send(new JoinSessionRequest());
         }
     }
 

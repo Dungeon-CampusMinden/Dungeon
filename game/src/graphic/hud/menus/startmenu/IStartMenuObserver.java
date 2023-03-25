@@ -1,5 +1,7 @@
 package graphic.hud.menus.startmenu;
 
 public interface IStartMenuObserver {
-    void onGameModeChosen(GameMode gameMode);
+    void onSinglePlayerModeChosen();
+    void onMultiPlayerHostModeChosen();
+    void onMultiPlayerClientModeChosen(String hostAddress, Integer port);
 }
