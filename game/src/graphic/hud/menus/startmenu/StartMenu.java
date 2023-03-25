@@ -21,16 +21,14 @@ public class StartMenu<T extends Actor> extends Menu<T> {
 
     private enum MenuType {
         GameMode,
-        MultiplayerHostOrJoin,
-        MultiplayerOpenToLan,
+        MultiplayerStartOrJoinSession,
         MultiplayerJoinSession
     }
 
     private MenuType menuTypeCurrent;
     private final ScreenButton buttonNavigateBack;
     private final GameModeMenu gameModeMenu;
-    private final MultiplayerHostOrJoinMenu multiplayerModeMenu;
-    private final MultiplayerOpenToLanMenu multiplayerOpenToLanMenu;
+    private final MultiplayerStartOrJoinSessionMenu multiplayerModeMenu;
     private final MultiplayerJoinSessionMenu multiplayerJoinSessionMenu;
     private final ArrayList<IStartMenuObserver> observers = new ArrayList<>();
 
@@ -47,8 +45,7 @@ public class StartMenu<T extends Actor> extends Menu<T> {
     public StartMenu(SpriteBatch batch, @Null Stage stage) {
         super(batch, stage);
         gameModeMenu = new GameModeMenu(batch, this.stage);
-        multiplayerModeMenu = new MultiplayerHostOrJoinMenu(batch, this.stage);
-        multiplayerOpenToLanMenu = new MultiplayerOpenToLanMenu(batch, this.stage);
+        multiplayerModeMenu = new MultiplayerStartOrJoinSessionMenu(batch, this.stage);
         multiplayerJoinSessionMenu = new MultiplayerJoinSessionMenu(batch, this.stage);
 
         buttonNavigateBack = new ScreenButton(
@@ -76,25 +73,19 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         gameModeMenu.getButtonMultiPlayer().addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                setActiveMenu(MenuType.MultiplayerHostOrJoin);
+                setActiveMenu(MenuType.MultiplayerStartOrJoinSession);
             }
         });
-        multiplayerModeMenu.getButtonOpenToLan().addListener(new ClickListener() {
+        multiplayerModeMenu.getButtonStartSession().addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                setActiveMenu(MenuType.MultiplayerOpenToLan);
+                observers.forEach((IStartMenuObserver observer) -> observer.onGameModeChosen(GameMode.MultiplayerHost));
             }
         });
         multiplayerModeMenu.getButtonJoinSession().addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 setActiveMenu(MenuType.MultiplayerJoinSession);
-            }
-        });
-        multiplayerOpenToLanMenu.getButtonOpen().addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                observers.forEach((IStartMenuObserver observer) -> observer.onGameModeChosen(GameMode.MultiplayerHost));
             }
         });
         multiplayerJoinSessionMenu.getButtonJoin().addListener(new ClickListener() {
@@ -112,7 +103,6 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         super.hideMenu();
         gameModeMenu.hideMenu();
         multiplayerModeMenu.hideMenu();
-        multiplayerOpenToLanMenu.hideMenu();
         multiplayerJoinSessionMenu.hideMenu();
     }
 
@@ -131,7 +121,6 @@ public class StartMenu<T extends Actor> extends Menu<T> {
     private void setActiveMenu(MenuType menuType) {
         gameModeMenu.hideMenu();
         multiplayerModeMenu.hideMenu();
-        multiplayerOpenToLanMenu.hideMenu();
         multiplayerJoinSessionMenu.hideMenu();
         menuTypeCurrent = menuType;
 
@@ -139,11 +128,8 @@ public class StartMenu<T extends Actor> extends Menu<T> {
             case GameMode -> {
                 gameModeMenu.showMenu();
             }
-            case MultiplayerHostOrJoin -> {
+            case MultiplayerStartOrJoinSession -> {
                 multiplayerModeMenu.showMenu();
-            }
-            case MultiplayerOpenToLan -> {
-                multiplayerOpenToLanMenu.showMenu();
             }
             case MultiplayerJoinSession -> {
                 multiplayerJoinSessionMenu.showMenu();
@@ -152,15 +138,16 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         }
 
         buttonNavigateBack.setVisible(menuType != MenuType.GameMode);
+        this.update();
     }
 
     private void navigateBack() {
         switch (menuTypeCurrent) {
-            case MultiplayerHostOrJoin -> {
+            case MultiplayerStartOrJoinSession -> {
                 setActiveMenu(MenuType.GameMode);
             }
-            case MultiplayerOpenToLan, MultiplayerJoinSession -> {
-                setActiveMenu(MenuType.MultiplayerHostOrJoin);
+            case MultiplayerJoinSession -> {
+                setActiveMenu(MenuType.MultiplayerStartOrJoinSession);
             }
         }
     }
