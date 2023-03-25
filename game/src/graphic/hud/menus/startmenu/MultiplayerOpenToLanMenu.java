@@ -13,6 +13,7 @@ import tools.Point;
 
 public class MultiplayerOpenToLanMenu<T extends Actor> extends Menu<T> {
 
+    private static final int buttonTextLabelScale = 2;
     private final ScreenInput inputSessionInfo;
     private final ScreenButton buttonOpen;
 
@@ -50,6 +51,7 @@ public class MultiplayerOpenToLanMenu<T extends Actor> extends Menu<T> {
             (Constants.WINDOW_WIDTH) / 2f,
             (Constants.WINDOW_HEIGHT) / 3.5f + buttonOpen.getHeight(),
             Align.center | Align.bottom);
+        buttonOpen.getLabel().setFontScale(buttonTextLabelScale);
 
         add((T) inputSessionInfo);
         add((T) buttonOpen);

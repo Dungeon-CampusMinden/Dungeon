@@ -6,7 +6,6 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import level.elements.ILevel;
 import mp.packages.request.InitializeServerRequest;
-import mp.packages.response.InitializeServerResponse;
 
 public class InitializeServerRequestSerializer extends Serializer<InitializeServerRequest> {
     @Override
