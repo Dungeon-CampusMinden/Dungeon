@@ -31,6 +31,7 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         MultiplayerJoinSession
     }
 
+    private static final int buttonTextLabelScale = 2;
     private MenuType menuTypeCurrent;
     private final ScreenButton buttonNavigateBack;
     private final GameModeMenu gameModeMenu;
@@ -57,8 +58,8 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         multiplayerJoinSessionMenu = new MultiplayerJoinSessionMenu(batch, this.stage);
 
         buttonNavigateBack = new ScreenButton(
-            "Back",
-            new Point(10, Constants.WINDOW_HEIGHT - 25),
+            "<",
+            new Point(15, Constants.WINDOW_HEIGHT - 30),
             new TextButtonListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -66,9 +67,10 @@ public class StartMenu<T extends Actor> extends Menu<T> {
                 }
             },
             new TextButtonStyleBuilder(FontBuilder.DEFAULT_FONT)
-                .setFontColor(Color.YELLOW)
+                .setFontColor(Color.WHITE)
                 .build()
         );
+        buttonNavigateBack.getLabel().setFontScale(buttonTextLabelScale);
         add((T)buttonNavigateBack);
 
         gameModeMenu.getButtonSinglePlayer().addListener(new ClickListener() {
