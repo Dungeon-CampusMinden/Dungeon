@@ -18,8 +18,11 @@ import java.io.IOException;
 public class MultiplayerServer extends Listener {
 
     // TODO: Outsource config parameters
-    private static final Integer writeBufferSize = Integer.MAX_VALUE / 2;
-    private static final Integer objectBufferSize = 4096;
+    // According to several tests, random generated level can have a maximum size of about 500k bytes
+    // => set max expected size to double
+    private static final Integer maxObjectSizeExpected = 8000000;
+    private static final Integer writeBufferSize = maxObjectSizeExpected;
+    private static final Integer objectBufferSize = maxObjectSizeExpected;
     private static final Integer port = 25444;
     private final Server server = new Server(writeBufferSize, objectBufferSize );
 
@@ -29,6 +32,7 @@ public class MultiplayerServer extends Listener {
     public MultiplayerServer() {
         server.addListener(this);
         NetworkSetup.register(server);
+
         try {
             server.bind(port);
             server.start();
