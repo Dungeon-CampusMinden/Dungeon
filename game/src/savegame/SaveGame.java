@@ -235,7 +235,7 @@ public class SaveGame {
                             Reflections.callVoidMethod(Game.instance, "setupSystems");
 
                             // Set entities.
-                            Game.entities = loadEntityData(root.get("entities"));
+                            Game.entities = entities;
                             Reflections.setFieldValue(
                                     Game.instance,
                                     "heroPositionComponent",

@@ -1,6 +1,6 @@
 package savegame;
 
-public class UnserializableFieldException extends Error {
+public class UnserializableFieldException extends Exception {
 
     public UnserializableFieldException() {
         super();

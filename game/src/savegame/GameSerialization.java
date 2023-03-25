@@ -11,10 +11,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URI;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import level.elements.tile.Tile;
 import level.tools.Coordinate;
 import starter.Game;
@@ -45,10 +42,12 @@ public class GameSerialization {
      *
      */
 
-    private static final String TYPE_FIELD = "__serialize_type";
-    private static final String CLASS_FIELD = "__serialize_class";
-    private static final String DATA_FIELD = "__serialize_data";
-    private static final String GENETIC_FIELD = "__serialize_genetic";
+    public static final String TYPE_FIELD = "__serialize_type";
+    public static final String CLASS_FIELD = "__serialize_class";
+    public static final String DATA_FIELD = "__serialize_data";
+    public static final String GENETIC_FIELD = "__serialize_genetic";
+    public static final String NOT_COMPLETE_FIELD =
+            "__serialize_not_complete"; // Marks a field as not complete
     private static final URI baseURI = new File("").toURI();
     private static final HashMap<String, Method> customSerializers = new HashMap<>();
     private static final HashMap<String, Method> customDeserializers = new HashMap<>();
@@ -114,28 +113,50 @@ public class GameSerialization {
         }
         JsonValue ret;
 
-        if (ISerializable.class.isAssignableFrom(object.getClass())) {
-            ret = serializeISerializable((ISerializable) object);
-            if (!ret.has(TYPE_FIELD)
-                    || !ret.getString(TYPE_FIELD).equals(ISerializable.class.getName())) {
-                ret.remove(TYPE_FIELD);
-                ret.addChild(TYPE_FIELD, new JsonValue(ISerializable.class.getName()));
+        System.err.print("Serializing " + object.getClass().getName() + " -> ");
+
+        if (object.getClass().getName().contains("$$Lambda$")) {
+            if (Serializable.class.isAssignableFrom(object.getClass())) {
+                System.err.println("Lambda: " + Serializable.class.getName());
+                try {
+                    ret = serializeObject(object);
+                    if (!ret.has(TYPE_FIELD)
+                            || !ret.getString(TYPE_FIELD).equals(Serializable.class.getName())) {
+                        ret.remove(TYPE_FIELD);
+                        ret.addChild(TYPE_FIELD, new JsonValue(Serializable.class.getName()));
+                    }
+                } catch (Exception ex) {
+                    return createNotCompleteJson(object, Serializable.class.getName(), ex);
+                }
+            } else {
+                System.err.println("Lambda: Not serializable!");
+                return createNotCompleteJson(object, Serializable.class.getName());
             }
-        } else if (Serializable.class.isAssignableFrom(object.getClass())) {
-            ret = serializeObject(object);
-            if (!ret.has(TYPE_FIELD)
-                    || !ret.getString(TYPE_FIELD).equals(Serializable.class.getName())) {
-                ret.remove(TYPE_FIELD);
-                ret.addChild(TYPE_FIELD, new JsonValue(Serializable.class.getName()));
+        } else if (ISerializable.class.isAssignableFrom(object.getClass())) {
+            System.err.println(ISerializable.class.getName());
+            try {
+                ret = serializeISerializable((ISerializable) object);
+                if (!ret.has(TYPE_FIELD)
+                        || !ret.getString(TYPE_FIELD).equals(ISerializable.class.getName())) {
+                    ret.remove(TYPE_FIELD);
+                    ret.addChild(TYPE_FIELD, new JsonValue(ISerializable.class.getName()));
+                }
+            } catch (Exception ex) {
+                return createNotCompleteJson(object, ISerializable.class.getName(), ex);
             }
-        } else {
+        } else if (isPrimitive(object)) {
+            System.err.println("@Primitive");
+            ret = serializePrimitive(object);
+            assert ret != null;
+            if (!ret.has(TYPE_FIELD) || !ret.getString(TYPE_FIELD).equals("@Primitive")) {
+                ret.remove(TYPE_FIELD);
+                ret.addChild(TYPE_FIELD, new JsonValue("@Primitive"));
+            }
+        } else if (getSerializer(object.getClass())
+                != null) { // TODO: Call getSerializer(...) only once
             Class<?> clazz = object.getClass();
             Method m = getSerializer(clazz);
-            if (m == null) {
-                throw new RuntimeException(
-                        "Object of class " + object.getClass().getName() + " is not serializable",
-                        new NotSerializableException(object.getClass().getName()));
-            }
+            System.err.println("@Serializer(" + clazz.getName() + ")");
             try {
                 ret = (JsonValue) m.invoke(null, object);
                 if (!ret.has(TYPE_FIELD)
@@ -145,8 +166,30 @@ public class GameSerialization {
                     ret.addChild(TYPE_FIELD, new JsonValue("@Serializer(" + clazz.getName() + ")"));
                 }
             } catch (ReflectiveOperationException e) {
-                throw new RuntimeException(e);
+                return createNotCompleteJson(object, "@Serializer(" + clazz.getName() + ")", e);
             }
+        } else if (Serializable.class.isAssignableFrom(object.getClass())) {
+            System.err.println(Serializable.class.getName());
+            try {
+                ret = serializeObject(object);
+                if (!ret.has(TYPE_FIELD)
+                        || !ret.getString(TYPE_FIELD).equals(Serializable.class.getName())) {
+                    ret.remove(TYPE_FIELD);
+                    ret.addChild(TYPE_FIELD, new JsonValue(Serializable.class.getName()));
+                }
+            } catch (Exception ex) {
+                return createNotCompleteJson(object, Serializable.class.getName(), ex);
+            }
+        } else {
+            System.err.println("None");
+            return createNotCompleteJson(
+                    object,
+                    "None",
+                    new RuntimeException(
+                            "Object of class "
+                                    + object.getClass().getName()
+                                    + " is not serializable",
+                            new NotSerializableException(object.getClass().getName())));
         }
 
         if (!ret.has(CLASS_FIELD)
@@ -171,10 +214,23 @@ public class GameSerialization {
         if (data.isNull()) {
             return null;
         }
+        if (data.has(NOT_COMPLETE_FIELD) && data.getBoolean(NOT_COMPLETE_FIELD)) {
+            try {
+                return (T)
+                        Reflections.createInstance(
+                                Class.forName(data.getString(CLASS_FIELD)), constructorArgs);
+            } catch (ReflectiveOperationException ex) {
+                ex.printStackTrace();
+                return null;
+            }
+        }
+
         if (data.getString(TYPE_FIELD).equals(Serializable.class.getName())) {
             return (T) deserializeObject(data);
         } else if (data.getString(TYPE_FIELD).equals(ISerializable.class.getName())) {
             return (T) deserializeISerializable(data, constructorArgs);
+        } else if (data.getString(TYPE_FIELD).equals("@Primitive")) {
+            return (T) deserializePrimitive(data);
         } else {
             try {
                 Class<?> clazz = Class.forName(data.getString(CLASS_FIELD));
@@ -188,7 +244,7 @@ public class GameSerialization {
                 }
                 return (T) m.invoke(null, data);
             } catch (ReflectiveOperationException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("JsonPath: " + data.toString(), e);
             }
         }
     }
@@ -306,6 +362,99 @@ public class GameSerialization {
         } catch (ReflectiveOperationException | NotSerializableException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static JsonValue serializePrimitive(Object primitive) {
+        JsonValue ret = new JsonValue(JsonValue.ValueType.object);
+        ret.addChild(CLASS_FIELD, new JsonValue(primitive.getClass().getName()));
+        ret.addChild(TYPE_FIELD, new JsonValue("@Primitive"));
+        if (primitive.getClass().equals(Integer.class)) {
+            ret.addChild("value", new JsonValue((int) primitive));
+        } else if (primitive.getClass().equals(Float.class)) {
+            ret.addChild("value", new JsonValue((float) primitive));
+        } else if (primitive.getClass().equals(Double.class)) {
+            ret.addChild("value", new JsonValue((double) primitive));
+        } else if (primitive.getClass().equals(Boolean.class)) {
+            ret.addChild("value", new JsonValue((boolean) primitive));
+        } else if (primitive.getClass().equals(Long.class)) {
+            ret.addChild("value", new JsonValue((long) primitive));
+        } else if (primitive.getClass().equals(Short.class)) {
+            ret.addChild("value", new JsonValue((short) primitive));
+        } else if (primitive.getClass().equals(Byte.class)) {
+            ret.addChild("value", new JsonValue((byte) primitive));
+        } else if (primitive.getClass().equals(Character.class)) {
+            ret.addChild("value", new JsonValue((char) primitive));
+        } else if (primitive.getClass().equals(String.class)) {
+            ret.addChild("value", new JsonValue((String) primitive));
+        } else {
+            throw new IllegalArgumentException("Object is not a primitive");
+        }
+        return ret;
+    }
+
+    private static Object deserializePrimitive(JsonValue json) {
+        if (!json.getString(TYPE_FIELD).equals("@Primitive")) {
+            throw new IllegalArgumentException("JsonValue is not a primitive");
+        }
+        JsonValue data = json.get("value");
+        try {
+            Class<?> clazz = Class.forName(json.getString(CLASS_FIELD));
+            if (clazz.equals(Integer.class)) {
+                return data.asInt();
+            } else if (clazz.equals(Float.class)) {
+                return data.asFloat();
+            } else if (clazz.equals(Double.class)) {
+                return data.asDouble();
+            } else if (clazz.equals(Boolean.class)) {
+                return data.asBoolean();
+            } else if (clazz.equals(Long.class)) {
+                return data.asLong();
+            } else if (clazz.equals(Short.class)) {
+                return data.asShort();
+            } else if (clazz.equals(Byte.class)) {
+                return data.asByte();
+            } else if (clazz.equals(Character.class)) {
+                return data.asChar();
+            } else if (clazz.equals(String.class)) {
+                return data
+                        .asString(); // String is not really a primitive, but it is handled like one
+            } else {
+                return null;
+            }
+        } catch (ReflectiveOperationException ex) {
+            throw new RuntimeException("Could not deserialize primitive", ex);
+        }
+    }
+
+    private static boolean isPrimitive(Object object) {
+        return object.getClass().isPrimitive()
+                || object.getClass().equals(Integer.class)
+                || object.getClass().equals(Float.class)
+                || object.getClass().equals(Double.class)
+                || object.getClass().equals(Boolean.class)
+                || object.getClass().equals(Long.class)
+                || object.getClass().equals(Short.class)
+                || object.getClass().equals(Byte.class)
+                || object.getClass().equals(Character.class)
+                || object.getClass()
+                        .equals(String.class); // String is not really a primitive, but it is
+        // handled like one
+    }
+
+    private static JsonValue createNotCompleteJson(
+            Object object, String serialType, Exception... exceptions) {
+        JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        json.addChild(CLASS_FIELD, new JsonValue(object.getClass().getName()));
+        json.addChild(TYPE_FIELD, new JsonValue(serialType));
+        json.addChild(NOT_COMPLETE_FIELD, new JsonValue(true));
+        for (Exception except : exceptions) {
+            try {
+                throw except;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return json;
     }
 
     /*
@@ -437,5 +586,89 @@ public class GameSerialization {
         json.addChild("levelElement", new JsonValue(tile.getLevelElement().name()));
         json.addChild("location", serialize(tile.getCoordinate()));
         return json;
+    }
+
+    @Serializer(HashSet.class)
+    private static JsonValue serializeIterable(HashSet<?> hashSet) {
+        JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        if (!hashSet.isEmpty()) {
+            json.addChild(
+                    "entryType", new JsonValue(hashSet.iterator().next().getClass().getName()));
+        } else {
+            json.addChild("entryType", new JsonValue(Object.class.getName()));
+        }
+        JsonValue entries = new JsonValue(JsonValue.ValueType.array);
+        hashSet.forEach(o -> entries.addChild(serialize(o)));
+        json.addChild("entries", entries);
+        return json;
+    }
+
+    @Deserializer(HashSet.class)
+    private static HashSet<?> deserializeIterable(JsonValue data) {
+        HashSet<?> collection = new HashSet<>();
+        for (JsonValue entry : data.get("entries")) {
+            collection.add(deserialize(entry));
+        }
+        return collection;
+    }
+
+    @Serializer(HashMap.class)
+    private static JsonValue serializeMap(HashMap<?, ?> map) {
+        JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        if (!map.isEmpty()) {
+            json.addChild(
+                    "keyType", new JsonValue(map.keySet().iterator().next().getClass().getName()));
+            json.addChild(
+                    "valueType",
+                    new JsonValue(map.values().iterator().next().getClass().getName()));
+        } else {
+            json.addChild("keyType", new JsonValue(Object.class.getName()));
+            json.addChild("valueType", new JsonValue(Object.class.getName()));
+        }
+        JsonValue entries = new JsonValue(JsonValue.ValueType.array);
+        map.forEach(
+                (k, v) -> {
+                    JsonValue entry = new JsonValue(JsonValue.ValueType.object);
+                    entry.addChild("key", serialize(k));
+                    entry.addChild("value", serialize(v));
+                    entries.addChild(entry);
+                });
+        json.addChild("entries", entries);
+        return json;
+    }
+
+    @Deserializer(HashMap.class)
+    private static HashMap<?, ?> deserializeMap(JsonValue data) {
+        HashMap<?, ?> map = new HashMap<>();
+        for (JsonValue entry : data.get("entries")) {
+            map.put(deserialize(entry.get("key")), deserialize(entry.get("value")));
+        }
+        return map;
+    }
+
+    @Serializer(ArrayList.class)
+    private static JsonValue serializeList(ArrayList<?> list) {
+        JsonValue json = new JsonValue(JsonValue.ValueType.object);
+        if (!list.isEmpty()) {
+            json.addChild(
+                    "entryType",
+                    new JsonValue(
+                            list.get(0).getClass().getName())); // Requires List to be non-empty!
+        } else {
+            json.addChild("entryType", new JsonValue(Object.class.getName()));
+        }
+        JsonValue entries = new JsonValue(JsonValue.ValueType.array);
+        list.forEach(o -> entries.addChild(serialize(o)));
+        json.addChild("entries", entries);
+        return json;
+    }
+
+    @Deserializer(ArrayList.class)
+    private static ArrayList<?> deserializeList(JsonValue data) {
+        ArrayList<?> list = new ArrayList<>();
+        for (JsonValue entry : data.get("entries")) {
+            list.add(deserialize(entry));
+        }
+        return list;
     }
 }
