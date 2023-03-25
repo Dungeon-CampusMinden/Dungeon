@@ -31,8 +31,7 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         MultiplayerJoinSession
     }
 
-    private Menu menuPrevious;
-    private Menu menuCurrent;
+    private MenuType menuTypeCurrent;
     private final ScreenButton buttonNavigateBack;
     private final GameModeMenu gameModeMenu;
     private final MultiplayerHostOrJoinMenu multiplayerModeMenu;
@@ -70,7 +69,6 @@ public class StartMenu<T extends Actor> extends Menu<T> {
                 .setFontColor(Color.YELLOW)
                 .build()
         );
-        buttonNavigateBack.setVisible(false);
         add((T)buttonNavigateBack);
 
         gameModeMenu.getButtonSinglePlayer().addListener(new ClickListener() {
@@ -83,21 +81,18 @@ public class StartMenu<T extends Actor> extends Menu<T> {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 setActiveMenu(MenuType.MultiplayerHostOrJoin);
-                menuPrevious = gameModeMenu;
             }
         });
         multiplayerModeMenu.getButtonOpenToLan().addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 setActiveMenu(MenuType.MultiplayerOpenToLan);
-                menuPrevious = multiplayerModeMenu;
             }
         });
         multiplayerModeMenu.getButtonJoinSession().addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 setActiveMenu(MenuType.MultiplayerJoinSession);
-                menuPrevious = multiplayerModeMenu;
             }
         });
         multiplayerOpenToLanMenu.getButtonOpen().addListener(new ClickListener() {
@@ -138,22 +133,19 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         multiplayerModeMenu.hideMenu();
         multiplayerOpenToLanMenu.hideMenu();
         multiplayerJoinSessionMenu.hideMenu();
+        menuTypeCurrent = menuType;
 
         switch (menuType) {
             case GameMode -> {
-                menuCurrent = gameModeMenu;
                 gameModeMenu.showMenu();
             }
             case MultiplayerHostOrJoin -> {
-                menuCurrent = multiplayerModeMenu;
                 multiplayerModeMenu.showMenu();
             }
             case MultiplayerOpenToLan -> {
-                menuCurrent = multiplayerOpenToLanMenu;
                 multiplayerOpenToLanMenu.showMenu();
             }
             case MultiplayerJoinSession -> {
-                menuCurrent = multiplayerJoinSessionMenu;
                 multiplayerJoinSessionMenu.showMenu();
             }
             default -> throw new RuntimeException("Invalid menu type");
@@ -163,12 +155,13 @@ public class StartMenu<T extends Actor> extends Menu<T> {
     }
 
     private void navigateBack() {
-        if (menuPrevious != null) {
-            Menu menuTemp = menuCurrent;
-            menuCurrent = menuPrevious;
-            menuPrevious = menuTemp;
-            menuPrevious.hideMenu();
-            menuCurrent.showMenu();
+        switch (menuTypeCurrent) {
+            case MultiplayerHostOrJoin -> {
+                setActiveMenu(MenuType.GameMode);
+            }
+            case MultiplayerOpenToLan, MultiplayerJoinSession -> {
+                setActiveMenu(MenuType.MultiplayerHostOrJoin);
+            }
         }
     }
 }
