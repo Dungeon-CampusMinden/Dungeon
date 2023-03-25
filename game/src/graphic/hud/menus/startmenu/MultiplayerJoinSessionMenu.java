@@ -47,7 +47,6 @@ public class MultiplayerJoinSessionMenu<T extends Actor> extends Menu<T> {
             new Point(0, 0),
             new TextFieldStyleBuilder(inputFont)
                 .setFontColor(Color.RED)
-                .setBackground(Color.WHITE)
                 .build()
         );
         GlyphLayout glyphLayout = new GlyphLayout();
