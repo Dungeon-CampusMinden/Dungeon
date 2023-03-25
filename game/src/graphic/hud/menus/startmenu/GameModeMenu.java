@@ -13,6 +13,7 @@ import tools.Point;
 
 public class GameModeMenu<T extends Actor> extends Menu<T> {
 
+    private static final int buttonTextLabelScale = 2;
     private final ScreenButton buttonSinglePlayer;
     private final ScreenButton buttonMultiPlayer;
 
@@ -40,6 +41,8 @@ public class GameModeMenu<T extends Actor> extends Menu<T> {
             (Constants.WINDOW_WIDTH) / 2f,
             (Constants.WINDOW_HEIGHT) / 1.5f + buttonSinglePlayer.getHeight(),
             Align.center | Align.bottom);
+        buttonSinglePlayer.getLabel().setFontScale(buttonTextLabelScale);
+
         buttonMultiPlayer = new ScreenButton(
             "Multi-Player",
             new Point(0, 0),
@@ -52,6 +55,7 @@ public class GameModeMenu<T extends Actor> extends Menu<T> {
             (Constants.WINDOW_WIDTH) / 2f,
             (Constants.WINDOW_HEIGHT) / 3.5f + buttonMultiPlayer.getHeight(),
             Align.center | Align.bottom);
+        buttonMultiPlayer.getLabel().setFontScale(buttonTextLabelScale);
 
         add((T) buttonSinglePlayer);
         add((T) buttonMultiPlayer);

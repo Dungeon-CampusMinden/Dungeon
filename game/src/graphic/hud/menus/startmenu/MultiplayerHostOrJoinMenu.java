@@ -15,6 +15,7 @@ import tools.Point;
 
 public class MultiplayerHostOrJoinMenu<T extends Actor> extends Menu<T> {
 
+    private static final int buttonTextLabelScale = 2;
     private final ScreenButton buttonOpenToLan;
     private final ScreenButton buttonJoinSession;
 
@@ -42,6 +43,7 @@ public class MultiplayerHostOrJoinMenu<T extends Actor> extends Menu<T> {
             (Constants.WINDOW_WIDTH) / 2f,
             (Constants.WINDOW_HEIGHT) / 1.5f + buttonOpenToLan.getHeight(),
             Align.center | Align.bottom);
+        buttonOpenToLan.getLabel().setFontScale(buttonTextLabelScale);
 
         buttonJoinSession = new ScreenButton(
             "Join a Session",
@@ -55,6 +57,7 @@ public class MultiplayerHostOrJoinMenu<T extends Actor> extends Menu<T> {
             (Constants.WINDOW_WIDTH) / 2f,
             (Constants.WINDOW_HEIGHT) / 3.5f + buttonJoinSession.getHeight(),
             Align.center | Align.bottom);
+        buttonJoinSession.getLabel().setFontScale(buttonTextLabelScale);
 
         add((T) buttonOpenToLan);
         add((T) buttonJoinSession);
