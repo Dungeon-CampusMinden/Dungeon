@@ -10,8 +10,10 @@ import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import mp.packages.request.InitializeServerRequest;
+import mp.packages.request.JoinSessionRequest;
 import mp.packages.request.PingRequest;
 import mp.packages.response.InitializeServerResponse;
+import mp.packages.response.JoinSessionResponse;
 import mp.packages.response.PingResponse;
 import mp.packages.serializer.*;
 
@@ -29,6 +31,8 @@ public class NetworkSetup {
         kryo.register(PingResponse.class);
         kryo.register(InitializeServerRequest.class, new InitializeServerRequestSerializer());
         kryo.register(InitializeServerResponse.class, new InitializeServerResponseSerializer());
+        kryo.register(JoinSessionRequest.class);
+        kryo.register(JoinSessionResponse.class, new JoinSessionResponseSerializer());
         kryo.register(ArrayList.class);
         kryo.register(Coordinate.class, new CoordinateSerializer());
         kryo.register(ILevel.class);
