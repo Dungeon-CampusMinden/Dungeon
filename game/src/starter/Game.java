@@ -109,7 +109,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         setupClient();
         setupMenus();
         setupHero();
-        setupLevel();
+        setupRandomLevel();
         setupSystems();
 
         showMenu(startMenu);
@@ -160,7 +160,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     @Override
     public void onSinglePlayerModeChosen() {
         // Nothing to do for now. Everything ready for single player but for now just refresh level
-        setupLevel();
+        setupRandomLevel();
         hideMenu(startMenu);
     }
 
@@ -174,7 +174,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
             System.out.println(String.format("Could not connect to host on this device at port %d.", multiplayerServer.getTcpPort()));
         } else {
             // refresh level because was loaded on setup as background for start menu
-            setupLevel();
+            setupRandomLevel();
             multiplayerClient.send(new InitializeServerRequest(currentLevel));
         }
     }
@@ -194,6 +194,18 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     public void onServerInitializedReceived(boolean isSucceed) {
         // TODO: do some stuff
         if (isSucceed) {
+            hideMenu(startMenu);
+        } else {
+            // TODO: error handling like popup menu with error message
+            System.out.println("Multiplayer host session failed to initialize");
+        }
+    }
+
+    @Override
+    public void onSessionJoined(ILevel level) {
+        // TODO: do some stuff
+        if (level != null) {
+            levelAPI.setLevel(level);
             hideMenu(startMenu);
         } else {
             // TODO: error handling like popup menu with error message
@@ -240,7 +252,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         // https://stackoverflow.com/questions/52011592/libgdx-set-ortho-camera
     }
 
-    private void setupLevel() {
+    private void setupRandomLevel() {
         levelAPI = new LevelAPI(batch, painter, this, new WallGenerator(new RandomWalkGenerator()));
         levelAPI.loadLevel();
     }

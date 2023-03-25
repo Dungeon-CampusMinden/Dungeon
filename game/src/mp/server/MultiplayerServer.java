@@ -6,8 +6,10 @@ import com.esotericsoftware.kryonet.Server;
 import level.elements.ILevel;
 import mp.packages.NetworkSetup;
 import mp.packages.request.InitializeServerRequest;
+import mp.packages.request.JoinSessionRequest;
 import mp.packages.request.PingRequest;
 import mp.packages.response.InitializeServerResponse;
+import mp.packages.response.JoinSessionResponse;
 import mp.packages.response.PingResponse;
 import mp.player.PlayersAPI;
 
@@ -58,6 +60,8 @@ public class MultiplayerServer extends Listener {
             System.out.println("Initialize request received");
             level = ((InitializeServerRequest) object).getLevel();
             connection.sendTCP(new InitializeServerResponse(true));
+        } else if (object instanceof JoinSessionRequest) {
+            connection.sendTCP(new JoinSessionResponse(level));
         }
     }
 

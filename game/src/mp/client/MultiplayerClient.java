@@ -7,6 +7,7 @@ import level.elements.ILevel;
 import mp.packages.NetworkSetup;
 import mp.packages.request.InitializeServerRequest;
 import mp.packages.response.InitializeServerResponse;
+import mp.packages.response.JoinSessionResponse;
 import mp.packages.response.PingResponse;
 
 import java.io.*;
@@ -50,6 +51,11 @@ public class MultiplayerClient extends Listener {
             boolean isSucceed = ((InitializeServerResponse)object).isSucceed();
             for (IMultiplayerClientObserver observer: observers) {
                 observer.onServerInitializedReceived(isSucceed);
+            }
+        } else if (object instanceof JoinSessionResponse) {
+            ILevel level = ((JoinSessionResponse)object).getLevel();
+            for (IMultiplayerClientObserver observer: observers) {
+                observer.onSessionJoined(level);
             }
         }
     }
