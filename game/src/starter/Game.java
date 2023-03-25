@@ -77,10 +77,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
 
     /** Called once at the beginning of the game. */
     protected void setup() {
-        client = new MultiplayerClient();
         controller.clear();
         systems = new SystemController();
         controller.add(systems);
+        client = new MultiplayerClient();
 
         setupMenus();
         setupHero();
@@ -146,6 +146,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
             }
             case MultiplayerHost -> {
                 // TODO: configure client as host
+                client.send(new InitializeServerRequest(currentLevel));
             }
         }
 
