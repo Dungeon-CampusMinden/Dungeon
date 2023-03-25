@@ -11,8 +11,8 @@ public class ScreenInput extends TextField {
     static {
         DEFAULT_TEXT_FIELD_STYLE =
                 new TextFieldStyleBuilder(FontBuilder.DEFAULT_FONT)
-                        .setFontColor(Color.BLACK)
-                        .build();
+                    .setFontColor(Color.BLACK)
+                    .build();
     }
 
     /**
@@ -22,8 +22,7 @@ public class ScreenInput extends TextField {
      * @param position the position where the ScreenInput should be drawn
      */
     public ScreenInput(String text, Point position) {
-        super(text, DEFAULT_TEXT_FIELD_STYLE);
-        setPosition(position.x, position.y);
+        this(text, position, DEFAULT_TEXT_FIELD_STYLE);
     }
 
     /**

@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 /** Builder implementation to help create a {@link TextFieldStyle}. */
 public class TextFieldStyleBuilder {
@@ -73,7 +74,13 @@ public class TextFieldStyleBuilder {
      */
     public TextFieldStyleBuilder setBackground(String backgroundTexture) {
         requireNonNull(backgroundTexture);
-        this.background = createDrawable(backgroundTexture);
+        background = createDrawable(backgroundTexture);
+        return this;
+    }
+
+    public TextFieldStyleBuilder setBackground(Color backgroundColor) {
+        requireNonNull(backgroundColor);
+        this.background = new SolidColorDrawable(backgroundColor);
         return this;
     }
 
