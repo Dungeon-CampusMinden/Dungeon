@@ -14,7 +14,7 @@ import tools.Point;
 public class MultiplayerOpenToLanMenu<T extends Actor> extends Menu<T> {
 
     private static final int buttonTextLabelScale = 2;
-    private final ScreenInput inputSessionInfo;
+//    private final ScreenInput inputSessionInfo;
     private final ScreenButton buttonOpen;
 
     public MultiplayerOpenToLanMenu() { this(new SpriteBatch(), null); }
@@ -27,17 +27,17 @@ public class MultiplayerOpenToLanMenu<T extends Actor> extends Menu<T> {
      */
     public MultiplayerOpenToLanMenu(SpriteBatch batch, @Null Stage stage) {
         super(batch, stage);
-        inputSessionInfo = new ScreenInput(
-            "Lets come together",
-            new Point(0, 0),
-            new TextFieldStyleBuilder(FontBuilder.DEFAULT_FONT)
-                .setFontColor(Color.RED)
-                .build()
-        );
-        inputSessionInfo.setPosition(
-            (Constants.WINDOW_WIDTH) / 2f,
-            (Constants.WINDOW_HEIGHT) / 1.5f + inputSessionInfo.getHeight(),
-            Align.center | Align.bottom);
+//        inputSessionInfo = new ScreenInput(
+//            "Lets come together",
+//            new Point(0, 0),
+//            new TextFieldStyleBuilder(FontBuilder.DEFAULT_FONT)
+//                .setFontColor(Color.RED)
+//                .build()
+//        );
+//        inputSessionInfo.setPosition(
+//            (Constants.WINDOW_WIDTH) / 2f,
+//            (Constants.WINDOW_HEIGHT) / 1.5f + inputSessionInfo.getHeight(),
+//            Align.center | Align.bottom);
 
         buttonOpen = new ScreenButton(
             "Open",
@@ -49,18 +49,18 @@ public class MultiplayerOpenToLanMenu<T extends Actor> extends Menu<T> {
         );
         buttonOpen.setPosition(
             (Constants.WINDOW_WIDTH) / 2f,
-            (Constants.WINDOW_HEIGHT) / 3.5f + buttonOpen.getHeight(),
+            (Constants.WINDOW_HEIGHT) / 2f + buttonOpen.getHeight(),
             Align.center | Align.bottom);
         buttonOpen.getLabel().setFontScale(buttonTextLabelScale);
 
-        add((T) inputSessionInfo);
+//        add((T) inputSessionInfo);
         add((T) buttonOpen);
         hideMenu();
     }
 
-    public ScreenInput getInputSessionInfo() {
-        return inputSessionInfo;
-    }
+//    public ScreenInput getInputSessionInfo() {
+//        return inputSessionInfo;
+//    }
 
     public ScreenButton getButtonOpen() {
         return buttonOpen;
