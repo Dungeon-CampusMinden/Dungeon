@@ -111,14 +111,6 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         setActiveMenu(MenuType.GameMode);
     }
 
-    public boolean addObserver(IStartMenuObserver observer) {
-        return observers.add(observer);
-    }
-
-    public boolean removeObserver(IStartMenuObserver observer) {
-        return observers.remove(observer);
-    }
-
     @Override
     public void hideMenu() {
         super.hideMenu();
@@ -126,6 +118,18 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         multiplayerModeMenu.hideMenu();
         multiplayerOpenToLanMenu.hideMenu();
         multiplayerJoinSessionMenu.hideMenu();
+    }
+
+    public void resetView() {
+        setActiveMenu(MenuType.GameMode);
+    }
+
+    public boolean addObserver(IStartMenuObserver observer) {
+        return observers.add(observer);
+    }
+
+    public boolean removeObserver(IStartMenuObserver observer) {
+        return observers.remove(observer);
     }
 
     private void setActiveMenu(MenuType menuType) {
