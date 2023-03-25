@@ -4,7 +4,7 @@ import level.elements.ILevel;
 
 import java.io.*;
 
-public class InitializeServerRequest implements Serializable {
+public class InitializeServerRequest {
     private final ILevel level;
 
     public InitializeServerRequest(ILevel currentLevel){
