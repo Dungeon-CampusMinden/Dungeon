@@ -15,8 +15,11 @@ import java.util.ArrayList;
 public class MultiplayerClient extends Listener {
 
     // TODO: Outsource config parameters
-    private static final Integer writeBufferSize = 4096;
-    private static final Integer objectBufferSize = Integer.MAX_VALUE / 2;
+    // According to several tests, random generated level can have a maximum size of about 500k bytes
+    // => set max expected size to double
+    private static final Integer maxObjectSizeExpected = 8000000;
+    private static final Integer writeBufferSize = maxObjectSizeExpected;
+    private static final Integer objectBufferSize = maxObjectSizeExpected;
     private static final Integer connectionTimeout = 5000;
     private static final Integer serverPort = 25444;
     private static final String serverAddress = "127.0.0.1";
@@ -30,25 +33,29 @@ public class MultiplayerClient extends Listener {
 
         client.start();
 
-        try {
-            client.connect(connectionTimeout, serverAddress, serverPort);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        new Thread("Connect") {
+            public void run () {
+                try {
+                    client.connect(connectionTimeout, serverAddress, serverPort);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
-    public void addObservers(IMultiplayerClientObserver observer) {
+    public void addObserver(IMultiplayerClientObserver observer) {
         observers.add(observer);
     }
 
     @Override
     public void connected(Connection connection) {
-        System.out.println("Connected to server!");
+//        System.out.println("Connected to server!");
     }
 
     @Override
     public void disconnected(Connection connection) {
-        System.out.println("Disconnected from server!");
+//        System.out.println("Disconnected from server!");
     }
 
     @Override
