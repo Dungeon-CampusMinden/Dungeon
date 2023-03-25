@@ -15,7 +15,6 @@ import tools.Point;
 
 public class MultiplayerHostOrJoinMenu<T extends Actor> extends Menu<T> {
 
-    private static final int buttonTextLabelScale = 2;
     private final ScreenButton buttonOpenToLan;
     private final ScreenButton buttonJoinSession;
 

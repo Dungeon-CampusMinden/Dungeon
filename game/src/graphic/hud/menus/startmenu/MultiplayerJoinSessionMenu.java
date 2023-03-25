@@ -13,7 +13,6 @@ import tools.Point;
 
 public class MultiplayerJoinSessionMenu<T extends Actor> extends Menu<T> {
 
-    private static final int buttonTextLabelScale = 2;
     private final ScreenInput inputSessionInfo;
     private final ScreenButton buttonJoin;
 
