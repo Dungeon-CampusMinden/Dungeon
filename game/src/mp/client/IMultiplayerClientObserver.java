@@ -4,4 +4,5 @@ import level.elements.ILevel;
 
 public interface IMultiplayerClientObserver {
     void onServerInitializedReceived(boolean isSucceed);
+    void onSessionJoined(ILevel level);
 }
