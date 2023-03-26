@@ -215,6 +215,7 @@ public class SaveGame {
                             }
                             Game.entities = new HashSet<>();
                             Game.systems = new SystemController();
+                            disableAllSystems();
 
                             ILevel level = loadLevelData(root.get("level"));
 
@@ -232,8 +233,6 @@ public class SaveGame {
                                     .findFirst()
                                     .ifPresent(h -> Game.hero = h);
 
-                            Reflections.callVoidMethod(Game.instance, "setupSystems");
-
                             // Set entities.
                             Game.entities = entities;
                             Reflections.setFieldValue(
@@ -241,12 +240,13 @@ public class SaveGame {
                                     "heroPositionComponent",
                                     Game.hero.getComponent(PositionComponent.class).get());
 
-                            System.out.println("Loaded savegame " + filename);
-
-                            List<AbstractController<?>> controllers =
-                                    Reflections.getFieldValue(Game.instance, "controller");
+                            Reflections.callVoidMethod(Game.instance, "setupSystems");
+                            List<AbstractController<?>> controllers =  Reflections.getFieldValue(Game.instance, "controller");
                             controllers.clear();
                             controllers.add(Game.systems);
+                            controllers.add(Reflections.getFieldValue(Game.instance, "pauseMenu"));
+
+                            System.out.println("Loaded savegame " + filename);
                         },
                         "SaveGameLoad")
                 .start();
@@ -277,4 +277,25 @@ public class SaveGame {
             }
         }
     }
+
+    private static void disableAllSystems() {
+        Game.systems.forEach(system -> {
+            if (system != null) {
+                if((boolean) Reflections.getFieldValue(system, "run")) {
+                    system.toggleRun();
+                }
+            }
+        });
+    }
+
+    private static void enableAllSystems() {
+        Game.systems.forEach(system -> {
+            if (system != null) {
+                if (!(boolean) Reflections.getFieldValue(system, "run")) {
+                    system.toggleRun();
+                }
+            }
+        });
+    }
+
 }
