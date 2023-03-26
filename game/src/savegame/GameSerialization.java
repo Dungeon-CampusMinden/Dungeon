@@ -589,7 +589,7 @@ public class GameSerialization {
     }
 
     @Serializer(HashSet.class)
-    private static JsonValue serializeIterable(HashSet<?> hashSet) {
+    private static JsonValue serializeHashSet(HashSet<?> hashSet) {
         JsonValue json = new JsonValue(JsonValue.ValueType.object);
         if (!hashSet.isEmpty()) {
             json.addChild(
@@ -604,7 +604,7 @@ public class GameSerialization {
     }
 
     @Deserializer(HashSet.class)
-    private static HashSet<?> deserializeIterable(JsonValue data) {
+    private static HashSet<?> deserializeHashSet(JsonValue data) {
         HashSet<?> collection = new HashSet<>();
         for (JsonValue entry : data.get("entries")) {
             collection.add(deserialize(entry));
