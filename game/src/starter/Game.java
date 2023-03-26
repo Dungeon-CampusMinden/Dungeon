@@ -82,7 +82,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         systems = new SystemController();
         controller.add(systems);
 
-        setupServer();
         setupClient();
         setupMenus();
         setupHero();
@@ -143,6 +142,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
 
     @Override
     public void onMultiPlayerHostModeChosen() {
+        setupServer();
         multiplayerServer.start();
         // TODO: configure client as host
         // For now, just enter server host manually. Later, port need to be detected or get from config.
