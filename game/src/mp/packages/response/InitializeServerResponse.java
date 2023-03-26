@@ -11,4 +11,5 @@ public class InitializeServerResponse {
     public boolean isSucceed() {
         return isSucceed;
     }
+
 }

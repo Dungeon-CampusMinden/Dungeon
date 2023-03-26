@@ -34,9 +34,12 @@ import mp.client.IMultiplayerClientObserver;
 import mp.client.MultiplayerClient;
 import mp.packages.request.InitializeServerRequest;
 import mp.packages.request.JoinSessionRequest;
+import mp.packages.request.UpdateOwnPositionRequest;
 import mp.server.MultiplayerServer;
 import tools.Constants;
 import tools.Point;
+
+import javax.swing.text.Position;
 
 /** The heart of the framework. From here all strings are pulled. */
 public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObserver, IMultiplayerClientObserver {
@@ -74,6 +77,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     private PositionComponent heroPositionComponent;
     private static MultiplayerClient multiplayerClient;
     private static MultiplayerServer multiplayerServer;
+    private static int playerId;
     public static Hero hero;
 
     /** Called once at the beginning of the game. */
@@ -168,10 +172,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     }
 
     @Override
-    public void onServerInitializedReceived(boolean isSucceed) {
+    public void onServerInitializedReceived(boolean isSucceed, int id) {
         // TODO: do some stuff
         if (isSucceed) {
+            playerId = id;
             hideMenu(startMenu);
+            sendPosition();
         } else {
             // TODO: error handling like popup menu with error message
             System.out.println("Multiplayer host session failed to initialize");
@@ -179,15 +185,23 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     }
 
     @Override
-    public void onSessionJoined(ILevel level) {
+    public void onSessionJoined(ILevel level, int id) {
         // TODO: do some stuff
         if (level != null) {
             levelAPI.setLevel(level);
+            playerId = id;
             hideMenu(startMenu);
         } else {
             // TODO: error handling like popup menu with error message
             System.out.println("Multiplayer host session failed to initialize");
         }
+    }
+
+    private void sendPosition(){
+        PositionComponent pos = (PositionComponent) hero.getComponent(PositionComponent.class).orElseThrow();
+        UpdateOwnPositionRequest posReq = new UpdateOwnPositionRequest(playerId, pos.getPosition());
+
+        multiplayerClient.send(posReq);
     }
 
     public void setSpriteBatch(SpriteBatch batch) {
@@ -254,8 +268,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
             idle_left: "monster/imp/idleLeft",
             idle_right: "monster/imp/idleRight",
             current_animation: "monster/imp/idleLeft"
-        },
-        ai_component {
         },
         hitbox_component {
         }

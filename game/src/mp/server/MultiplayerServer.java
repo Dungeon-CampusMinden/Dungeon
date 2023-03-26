@@ -8,12 +8,15 @@ import mp.packages.NetworkSetup;
 import mp.packages.request.InitializeServerRequest;
 import mp.packages.request.JoinSessionRequest;
 import mp.packages.request.PingRequest;
+import mp.packages.request.UpdateOwnPositionRequest;
 import mp.packages.response.InitializeServerResponse;
 import mp.packages.response.JoinSessionResponse;
 import mp.packages.response.PingResponse;
 import mp.player.PlayersAPI;
+import tools.Point;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 public class MultiplayerServer extends Listener {
 
@@ -27,6 +30,8 @@ public class MultiplayerServer extends Listener {
     private final Server server = new Server(writeBufferSize, objectBufferSize );
     private ILevel level;
     private final PlayersAPI playersAPI = new PlayersAPI();
+
+    private HashMap<Integer, Point> playerPositions = new HashMap<Integer, Point>();
 
     public MultiplayerServer() {
         server.addListener(this);
@@ -62,6 +67,9 @@ public class MultiplayerServer extends Listener {
             connection.sendTCP(new InitializeServerResponse(true));
         } else if (object instanceof JoinSessionRequest) {
             connection.sendTCP(new JoinSessionResponse(level));
+        } else if (object instanceof UpdateOwnPositionRequest) {
+            UpdateOwnPositionRequest posReq = (UpdateOwnPositionRequest) object;
+            playerPositions.put(posReq.getPlayerId(), posReq.getPosition());
         }
     }
 

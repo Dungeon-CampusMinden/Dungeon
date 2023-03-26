@@ -12,10 +12,12 @@ import level.tools.LevelElement;
 import mp.packages.request.InitializeServerRequest;
 import mp.packages.request.JoinSessionRequest;
 import mp.packages.request.PingRequest;
+import mp.packages.request.UpdateOwnPositionRequest;
 import mp.packages.response.InitializeServerResponse;
 import mp.packages.response.JoinSessionResponse;
 import mp.packages.response.PingResponse;
 import mp.packages.serializer.*;
+import tools.Point;
 
 import java.util.ArrayList;
 
@@ -35,6 +37,7 @@ public class NetworkSetup {
         kryo.register(JoinSessionResponse.class, new JoinSessionResponseSerializer());
         kryo.register(ArrayList.class);
         kryo.register(Coordinate.class, new CoordinateSerializer());
+        kryo.register(Point.class, new PointSerializer());
         kryo.register(ILevel.class);
         kryo.register(Tile[].class);
         kryo.register(Tile[][].class);
@@ -48,5 +51,6 @@ public class NetworkSetup {
         kryo.register(SkipTile.class);
         kryo.register(DesignLabel.class);
         kryo.register(LevelElement.class);
+        kryo.register(UpdateOwnPositionRequest.class, new UpdateOwnPositionRequestSerializer());
     }
 }
