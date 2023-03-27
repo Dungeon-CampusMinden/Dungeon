@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
+import com.badlogic.gdx.utils.Null;
 import tools.Constants;
 import tools.Point;
 
@@ -56,16 +57,34 @@ public class ScreenButton extends TextButton {
         this(text, position, listener, DEFAULT_BUTTON_STYLE);
     }
 
-    public void setBackground(Color color) {
-        Drawable grayBackground = createColoredBackground(color, getWidth(), getHeight());
-        getStyle().up = grayBackground;
+    public void setBackground(@Null Color color) {
+        getStyle().up = color != null ? createDrawableColorBackground(color, getWidth(), getHeight(), 1) : null;
     }
 
-    private Drawable createColoredBackground(Color color, float width, float height) {
-        Pixmap pixmap = new Pixmap((int)width, (int)height, Pixmap.Format.RGBA8888);
+    private Drawable createDrawableColorBackground(Color color, float width, float height, int borderThickness) {
+//        Pixmap pixmap = new Pixmap((int)width, (int)height, Pixmap.Format.RGBA8888);
+//        pixmap.setColor(color);
+//        pixmap.fill();
+//        NinePatch ninePatch = new NinePatch(new TextureRegion(new Texture(pixmap)), 4, 4, 4, 4);
+//        return new NinePatchDrawable(ninePatch);
+        Pixmap pixmap = new Pixmap((int)(width + borderThickness*2), (int)(height + borderThickness*2), Pixmap.Format.RGBA8888);
         pixmap.setColor(color);
         pixmap.fill();
-        NinePatch ninePatch = new NinePatch(new TextureRegion(new Texture(pixmap)), 4, 4, 4, 4);
+
+        // Draw the border
+        pixmap.setColor(Color.BLACK); // Use the color you want for the border
+        pixmap.fillRectangle(0, 0, pixmap.getWidth(), borderThickness); // Top
+        pixmap.fillRectangle(0, 0, borderThickness, pixmap.getHeight()); // Left
+        pixmap.fillRectangle(0, pixmap.getHeight()-borderThickness, pixmap.getWidth(), borderThickness); // Bottom
+        pixmap.fillRectangle(pixmap.getWidth()-borderThickness, 0, borderThickness, pixmap.getHeight()); // Right
+
+        NinePatch ninePatch = new NinePatch(
+            new TextureRegion(new Texture(pixmap)),
+            borderThickness,
+            borderThickness,
+            borderThickness,
+            borderThickness
+        );
         return new NinePatchDrawable(ninePatch);
     }
 }
