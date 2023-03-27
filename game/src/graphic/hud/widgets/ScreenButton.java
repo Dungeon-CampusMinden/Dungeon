@@ -17,12 +17,13 @@ public class ScreenButton extends TextButton {
     private static final TextButtonStyle DEFAULT_BUTTON_STYLE;
     private static final Color DEFAULT_BACKGROUND_COLOR_UP = Color.DARK_GRAY;
     private static final Color DEFAULT_BACKGROUND_COLOR_DOWN = Color.LIGHT_GRAY;
+    private static final Color DEFAULT_BORDER_COLOR = Color.BLACK;
+    private static final int DEFAULT_BORDER_THICKNESS = 1;
 
     static {
         DEFAULT_BUTTON_STYLE =
                 new TextButtonStyleBuilder(FontBuilder.DEFAULT_FONT)
                         .setFontColor(Color.WHITE)
-//                        .setBackgroundColor(Color.GRAY)
                         .build();
     }
 
@@ -36,8 +37,8 @@ public class ScreenButton extends TextButton {
      */
     public ScreenButton(String text, Point position, TextButtonListener listener, TextButtonStyle style) {
         super(text, style);
-        setUpBackground(DEFAULT_BACKGROUND_COLOR_UP);
-        setDownBackground(DEFAULT_BACKGROUND_COLOR_DOWN);
+        setUpBackground(DEFAULT_BACKGROUND_COLOR_UP, DEFAULT_BORDER_COLOR, DEFAULT_BORDER_THICKNESS);
+        setDownBackground(DEFAULT_BACKGROUND_COLOR_DOWN, DEFAULT_BORDER_COLOR, DEFAULT_BORDER_THICKNESS);
 
         this.setPosition(position.x, position.y);
         if (listener != null) {
@@ -59,26 +60,29 @@ public class ScreenButton extends TextButton {
         this(text, position, listener, DEFAULT_BUTTON_STYLE);
     }
 
-    public void setUpBackground(@Null Color color) {
-        getStyle().up = color != null ? createDrawableColorBackground(color, getWidth(), getHeight(), 1) : null;
+    public void setUpBackground(@Null Color backgroundColor, @Null Color borderColor, int borderThickness) {
+        getStyle().up =
+            backgroundColor != null
+                ? createDrawableBackground(backgroundColor, borderColor,  borderThickness, getWidth(), getHeight())
+                : null;
     }
 
-    public void setDownBackground(@Null Color color) {
-        getStyle().down = color != null ? createDrawableColorBackground(color, getWidth(), getHeight(), 1) : null;
+    public void setDownBackground(@Null Color backgroundColor, @Null Color borderColor, int borderThickness) {
+        getStyle().down =
+            backgroundColor != null
+                ? createDrawableBackground(backgroundColor, borderColor,  borderThickness, getWidth(), getHeight())
+                : null;
     }
 
-    private Drawable createDrawableColorBackground(Color color, float width, float height, int borderThickness) {
-//        Pixmap pixmap = new Pixmap((int)width, (int)height, Pixmap.Format.RGBA8888);
-//        pixmap.setColor(color);
-//        pixmap.fill();
-//        NinePatch ninePatch = new NinePatch(new TextureRegion(new Texture(pixmap)), 4, 4, 4, 4);
-//        return new NinePatchDrawable(ninePatch);
+    private Drawable createDrawableBackground(Color backgroundColor, Color borderColor, int borderThickness, float width, float height) {
         Pixmap pixmap = new Pixmap((int)(width + borderThickness*2), (int)(height + borderThickness*2), Pixmap.Format.RGBA8888);
-        pixmap.setColor(color);
+
+        // Draw background
+        pixmap.setColor(backgroundColor);
         pixmap.fill();
 
         // Draw the border
-        pixmap.setColor(Color.BLACK); // Use the color you want for the border
+        pixmap.setColor(borderColor);
         pixmap.fillRectangle(0, 0, pixmap.getWidth(), borderThickness); // Top
         pixmap.fillRectangle(0, 0, borderThickness, pixmap.getHeight()); // Left
         pixmap.fillRectangle(0, pixmap.getHeight()-borderThickness, pixmap.getWidth(), borderThickness); // Bottom
