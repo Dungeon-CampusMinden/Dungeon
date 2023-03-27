@@ -130,6 +130,15 @@ public class StartMenu<T extends Actor> extends Menu<T> {
     }
 
     @Override
+    public void showMenu() {
+        this.forEach((Actor s) -> s.setVisible(true));
+        if (menuTypeCurrent.equals(MenuType.GameMode)) {
+            buttonNavigateBack.setVisible(false);
+        }
+        isVisible = true;
+    }
+
+    @Override
     public void hideMenu() {
         super.hideMenu();
         gameModeMenu.hideMenu();
