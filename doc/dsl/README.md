@@ -107,7 +107,7 @@ Event-Handler-Funktionen bieten die Möglichkeit:
 
 Die Taskbuilder-Methoden sind dafür zuständig, eine abstrakte Aufgabendefinition in ein konkretes Szenario im Dungeon Level zu übersetzen. Sie bekommen als Parameter die Taskdefinition übergeben und müssen eine Menge Entitäten zurückgeben, welche an dem Szenario beteiligt sind.
 
-## Quickstart Guide und Dokumentation
+## Quickstart Guide und User-Dokumentation
 
 Der [Quickstart Guide](quickstart.md) gibt Hinweise für die Erstellung der ersten Aufgaben mit der DungeonDSL.
 
