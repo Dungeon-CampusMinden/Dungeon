@@ -1,21 +1,3 @@
-# Welche Konzepte werden über die DSL abgebildet?
-
-- Für jedes Konzept:
-  - Was genau beschreibt das Konzept (was *tut* die Sprache)?
-  - Warum ist das wichtig?
-  - Wie sieht das in der DSL-Syntax aus?
-
-## Graphendefinition
-
-## Propertydefinition
-
-## Entitätsdefinition
-
-## Level-Config
-
-## Taskdefinition
-
-## Funktionsdefinition
 
 ## High-Level Konzepte und Begriffe
 
@@ -79,3 +61,23 @@ Die Taskbuilder-Methoden sind dafür zuständig, eine abstrakte Aufgabendefiniti
 konkretes Szenario im Dungeon Level zu übersetzen. Sie bekommen als Parameter die
 Taskdefinition übergeben und müssen eine Menge Entitäten zurückgeben, welche an dem Szenario
 beteiligt sind.
+
+## Sprachkonzepte
+
+- Für jedes Konzept:
+  - Was genau beschreibt das Konzept (was *tut* die Sprache)?
+  - Warum ist das wichtig?
+  - Wie sieht das in der DSL-Syntax aus?
+
+## Graphendefinition
+
+## Propertydefinition
+
+## Entitätsdefinition
+
+## Level-Config
+
+## Taskdefinition
+
+## Funktionsdefinition
+
