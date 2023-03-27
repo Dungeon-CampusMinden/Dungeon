@@ -21,7 +21,13 @@ import graphic.hud.menus.startmenu.IStartMenuObserver;
 import graphic.hud.menus.startmenu.StartMenu;
 import interpreter.DSLInterpreter;
 
+import java.io.IOException;
+import java.net.BindException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.UnknownHostException;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 import level.IOnLevelLoader;
 import level.LevelAPI;
@@ -38,8 +44,6 @@ import mp.packages.request.UpdateOwnPositionRequest;
 import mp.server.MultiplayerServer;
 import tools.Constants;
 import tools.Point;
-
-import javax.swing.text.Position;
 
 /** The heart of the framework. From here all strings are pulled. */
 public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObserver, IMultiplayerClientObserver {
@@ -147,12 +151,21 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     @Override
     public void onMultiPlayerHostModeChosen() {
         setupServer();
-        multiplayerServer.start();
-        // TODO: configure client as host
-        // For now, just enter server host manually. Later, port need to be detected or get from config.
-        if (!multiplayerClient.connectToHost("127.0.0.1", multiplayerServer.getTcpPort())) {
+        // Check whether which random port is not already in use and listen to this on serverside
+        boolean isRandomPortAlreadyInUse = false;
+        int serverPort;
+        do {
+            // Create random 5 digit port
+            serverPort = ThreadLocalRandom.current().nextInt(10000, 65535 + 1);
+            try {
+                multiplayerServer.startListening(serverPort);
+            } catch (Exception e) {
+                isRandomPortAlreadyInUse = true;
+            }
+        } while(isRandomPortAlreadyInUse);
+        if (!multiplayerClient.connectToHost("127.0.0.1", serverPort)) {
             // TODO: error handling
-            System.out.println(String.format("Could not connect to host on this device at port %d.", multiplayerServer.getTcpPort()));
+            System.out.println(String.format("Could not connect to host on this device at port %d.", serverPort));
         } else {
             // refresh level because was loaded on setup as background for start menu
             setupRandomLevel();
@@ -370,6 +383,24 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         }
 
         return false;
+    }
+
+    private int getAccessibleTcpPort() {
+        try {
+            boolean isRandomPortAlreadyInUse = true;
+            int randomPort;
+            do {
+                randomPort = ThreadLocalRandom.current().nextInt(10000, 65535 + 1);
+                try (ServerSocket serverSocket = new ServerSocket(randomPort)) {
+                    // Port is already in use
+                } catch (Exception ex) {
+                    isRandomPortAlreadyInUse = false;
+                }
+            } while(isRandomPortAlreadyInUse);
+            return randomPort;
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
     public static void main(String[] args) {
