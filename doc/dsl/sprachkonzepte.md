@@ -1,3 +1,6 @@
+---
+title: "Sprachkonzepte der DungeonDSL"
+---
 
 ## High-Level Konzepte und Begriffe
 
