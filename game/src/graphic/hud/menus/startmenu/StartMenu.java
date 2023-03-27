@@ -16,6 +16,8 @@ import graphic.hud.widgets.*;
 import tools.Constants;
 import tools.Point;
 
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.ArrayList;
 
 public class StartMenu<T extends Actor> extends Menu<T> {
@@ -116,9 +118,11 @@ public class StartMenu<T extends Actor> extends Menu<T> {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 String[] temp = multiplayerJoinSessionMenu.getInputHostIpPort().getText().split(":");
-                try {
+                try (Socket socket = new Socket()) {
                     String address = temp[0];
                     Integer port = Integer.parseInt(temp[1]);
+                    socket.connect(new InetSocketAddress(address, port), 1000);
+                    socket.close();
                     observers.forEach((IStartMenuObserver observer) -> observer.onMultiPlayerClientModeChosen(address, port));
                 } catch (Exception e) {
                     multiplayerJoinSessionMenu.getTextInvalidAddress().setVisible(true);
