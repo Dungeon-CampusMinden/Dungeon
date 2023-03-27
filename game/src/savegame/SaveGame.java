@@ -241,7 +241,8 @@ public class SaveGame {
                                     Game.hero.getComponent(PositionComponent.class).get());
 
                             Reflections.callVoidMethod(Game.instance, "setupSystems");
-                            List<AbstractController<?>> controllers =  Reflections.getFieldValue(Game.instance, "controller");
+                            List<AbstractController<?>> controllers =
+                                    Reflections.getFieldValue(Game.instance, "controller");
                             controllers.clear();
                             controllers.add(Game.systems);
                             controllers.add(Reflections.getFieldValue(Game.instance, "pauseMenu"));
@@ -279,23 +280,24 @@ public class SaveGame {
     }
 
     private static void disableAllSystems() {
-        Game.systems.forEach(system -> {
-            if (system != null) {
-                if((boolean) Reflections.getFieldValue(system, "run")) {
-                    system.toggleRun();
-                }
-            }
-        });
+        Game.systems.forEach(
+                system -> {
+                    if (system != null) {
+                        if ((boolean) Reflections.getFieldValue(system, "run")) {
+                            system.toggleRun();
+                        }
+                    }
+                });
     }
 
     private static void enableAllSystems() {
-        Game.systems.forEach(system -> {
-            if (system != null) {
-                if (!(boolean) Reflections.getFieldValue(system, "run")) {
-                    system.toggleRun();
-                }
-            }
-        });
+        Game.systems.forEach(
+                system -> {
+                    if (system != null) {
+                        if (!(boolean) Reflections.getFieldValue(system, "run")) {
+                            system.toggleRun();
+                        }
+                    }
+                });
     }
-
 }
