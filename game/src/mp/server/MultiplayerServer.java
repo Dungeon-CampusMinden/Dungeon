@@ -1,7 +1,5 @@
 package mp.server;
 
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Null;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
@@ -78,11 +76,10 @@ public class MultiplayerServer extends Listener {
         server.start();
     }
 
+    /**
+     * Closes ports and stops the server.
+     */
     public void stop() {
         server.stop();
-    }
-
-    public Integer getTcpPort() {
-        return DEFAULT_TCP_PORT;
     }
 }
