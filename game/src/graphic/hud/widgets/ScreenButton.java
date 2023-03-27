@@ -15,7 +15,8 @@ import tools.Point;
 /** This class is intended for the configuration of the button to be displayed. */
 public class ScreenButton extends TextButton {
     private static final TextButtonStyle DEFAULT_BUTTON_STYLE;
-    private static final Color DEFAULT_BACKGROUND_COLOR = Color.DARK_GRAY;
+    private static final Color DEFAULT_BACKGROUND_COLOR_UP = Color.DARK_GRAY;
+    private static final Color DEFAULT_BACKGROUND_COLOR_DOWN = Color.LIGHT_GRAY;
 
     static {
         DEFAULT_BUTTON_STYLE =
@@ -35,7 +36,8 @@ public class ScreenButton extends TextButton {
      */
     public ScreenButton(String text, Point position, TextButtonListener listener, TextButtonStyle style) {
         super(text, style);
-        setBackground(DEFAULT_BACKGROUND_COLOR);
+        setUpBackground(DEFAULT_BACKGROUND_COLOR_UP);
+        setDownBackground(DEFAULT_BACKGROUND_COLOR_DOWN);
 
         this.setPosition(position.x, position.y);
         if (listener != null) {
@@ -57,8 +59,12 @@ public class ScreenButton extends TextButton {
         this(text, position, listener, DEFAULT_BUTTON_STYLE);
     }
 
-    public void setBackground(@Null Color color) {
+    public void setUpBackground(@Null Color color) {
         getStyle().up = color != null ? createDrawableColorBackground(color, getWidth(), getHeight(), 1) : null;
+    }
+
+    public void setDownBackground(@Null Color color) {
+        getStyle().down = color != null ? createDrawableColorBackground(color, getWidth(), getHeight(), 1) : null;
     }
 
     private Drawable createDrawableColorBackground(Color color, float width, float height, int borderThickness) {
