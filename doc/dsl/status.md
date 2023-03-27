@@ -2,10 +2,11 @@
 title: "Ziele und Zustand der aktuellen DungeonDSL Implementierung"
 ---
 
-Dieses Dokument dokumentiert den aktuellen Zustand der DungeonDSL-Implementierung,
-also alle geplanten Features und deren aktueller Realisierungsstand.
+Dieses Dokument dokumentiert den aktuellen Zustand der DungeonDSL-Implementierung, also alle
+geplanten Features und deren aktueller Realisierungsstand.
 
 Mögliche Zustände:
+
 - geplant, kein klares Konzept vorhanden: 💭
 - geplant, Konzept vorhanden: 💡
 - implementiert, nicht getestet ☑
@@ -25,7 +26,7 @@ Mögliche Zustände:
 | Task-Builder Methode      | Methoden, die vom Dungeon aufgerufen werden, um eine Taskdefinition in ein konkretes Szenario zu übersetzen. Erzeugen eine Menge Entitäten, definieren und verknüpfen deren Event-Handler Methoden und geben sie an den Dungeon zurück                                                                                  | 💡                                |
 | Bewertungskonfiguration   | Die Bewertung einer Aufgabe soll über die DSL konfigurierbar sein, um bspw. festzulegen, wann und welche Daten als Antwort für eine Aufgabe geloggt werden, wie Fehlversuche in die Bewertung eingehen, etc.                                                                                                            | 💭                                |
 
-## DungeonDSL "Ökosystem"
+## DungeonDSL “Ökosystem”
 
 | Feature                            | Was und warum?                                                                                                                                                                                                                                                                                                   | Zustand |
 |------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|

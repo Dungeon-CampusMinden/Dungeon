@@ -4,8 +4,7 @@ title: "DSL Quickstart Guide"
 
 ## Definition einer Aufgabe
 
-- Beispiel für das "Hello World" Äquivalent für die DSL, Erstellung einer einfachen
-Aufgabe
+- Beispiel für das “Hello World” Äquivalent für die DSL, Erstellung einer einfachen Aufgabe
 
 ```
 // file: my_simple_task.ds
@@ -27,14 +26,15 @@ level_config my_config {
 ```
 
 - Hier folgen einige Bilder, die zeigen, wie die Übersetzung der Definition im Dungeon Level
-aussieht
+  aussieht
 
 - Hier folgt die Beschreibung der einzelnen Komponenten dieses Beispiels:
-    - Task-Definition
-    - Level-Config
 
-- Hier wird beschrieben, wie man die obige Definition in den Dungeon lädt und startet,
-    da ist aktuell noch unklar, wie das funktioniert
+  - Task-Definition
+  - Level-Config
+
+- Hier wird beschrieben, wie man die obige Definition in den Dungeon lädt und startet, da
+  ist aktuell noch unklar, wie das funktioniert
 
 ## Konfiguration der Bewertung von Aufgaben
 
@@ -101,5 +101,7 @@ level_config my_config {
 ## Definition von verschiedenen Szenarien
 
 - Ziel: Randomisierung der Szenarien und verwendeten Spielmechaniken für einen bestimmten
-Aufgabentyp
-- Mithilfe der [Taskbuilder-Methoden](https://github.com/Programmiermethoden/Dungeon/issues/197) können die Szenarien zusammengebaut werden (das ist allerdings bisher nur ein Konzept).
+  Aufgabentyp
+- Mithilfe der
+  [Taskbuilder-Methoden](https://github.com/Programmiermethoden/Dungeon/issues/197) können
+  die Szenarien zusammengebaut werden (das ist allerdings bisher nur ein Konzept).
