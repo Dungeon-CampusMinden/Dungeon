@@ -4,11 +4,15 @@ import static java.util.Objects.requireNonNull;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 
 public class TextButtonStyleBuilder {
@@ -87,6 +91,7 @@ public class TextButtonStyleBuilder {
         this.downFontColor = downFontColor;
         return this;
     }
+
     /**
      * Set a color for the font when the {@link ScreenButton} is hovered
      *
@@ -96,6 +101,26 @@ public class TextButtonStyleBuilder {
     public TextButtonStyleBuilder setOverFontColor(Color overFontColor) {
         requireNonNull(overFontColor);
         this.overFontColor = overFontColor;
+        return this;
+    }
+
+    public TextButtonStyleBuilder setBackgroundColor(Color backgroundColor) {
+        requireNonNull(backgroundColor);
+        Drawable background = createDrawable(backgroundColor);
+        up = background;
+        down = background;
+        return this;
+    }
+
+    public TextButtonStyleBuilder setUpBackgroundColor(Color backgroundColor) {
+        requireNonNull(backgroundColor);
+        up = createDrawable(backgroundColor);
+        return this;
+    }
+
+    public TextButtonStyleBuilder setDownBackgroundColor(Color backgroundColor) {
+        requireNonNull(backgroundColor);
+        down = createDrawable(backgroundColor);
         return this;
     }
 
@@ -120,5 +145,13 @@ public class TextButtonStyleBuilder {
      */
     private Drawable createDrawable(String path) {
         return new SpriteDrawable(new Sprite(new Texture(Gdx.files.internal(path))));
+    }
+
+    private Drawable createDrawable(Color color) {
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(color);
+        pixmap.fill();
+        NinePatch ninePatch = new NinePatch(new TextureRegion(new Texture(pixmap)), 4, 4, 4, 4);
+        return new NinePatchDrawable(ninePatch);
     }
 }
