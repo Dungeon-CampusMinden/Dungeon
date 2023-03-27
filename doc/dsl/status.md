@@ -1,5 +1,5 @@
 ---
-title: "Ziele und Zustand der aktuellen DungeonDSL Implementierung"
+title: "Ziele und Zustand der aktuellen DungeonDSL-Implementierung"
 ---
 
 Dieses Dokument dokumentiert den aktuellen Zustand der DungeonDSL-Implementierung, also alle
