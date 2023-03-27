@@ -73,8 +73,8 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         buttonNavigateBack.getLabel().setFontScale(buttonTextLabelScale);
         GlyphLayout glyphLayout = new GlyphLayout();
         glyphLayout.setText(buttonNavigateBack.getStyle().font, buttonNavigateBack.getText());
-        float prefWidth = glyphLayout.width;
-        buttonNavigateBack.setSize(glyphLayout.width * 2.5f, buttonNavigateBack.getStyle().font.getLineHeight() * 2f);
+        float labelWidth = glyphLayout.width;
+        buttonNavigateBack.setSize(labelWidth * 3f, buttonNavigateBack.getStyle().font.getLineHeight() * 2f);
 
         add((T) textTitle);
         add((T)buttonNavigateBack);
