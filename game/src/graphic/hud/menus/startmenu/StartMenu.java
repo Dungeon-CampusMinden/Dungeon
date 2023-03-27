@@ -5,7 +5,9 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Null;
@@ -103,19 +105,23 @@ public class StartMenu<T extends Actor> extends Menu<T> {
                 setActiveMenu(MenuType.MultiplayerJoinSession);
             }
         });
+        multiplayerJoinSessionMenu.getInputHostIpPort().addListener(new InputListener() {
+            @Override
+            public boolean keyTyped(InputEvent event, char character) {
+                multiplayerJoinSessionMenu.getTextInvalidAddress().setVisible(false);
+                return true;
+            }
+        });
         multiplayerJoinSessionMenu.getButtonJoin().addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 String[] temp = multiplayerJoinSessionMenu.getInputHostIpPort().getText().split(":");
-                // length has to be 2 => address and port
-                if (temp.length == 2) {
+                try {
                     String address = temp[0];
-                    try {
-                        Integer port = Integer.parseInt(temp[1]);
-                        observers.forEach((IStartMenuObserver observer) -> observer.onMultiPlayerClientModeChosen(address, port));
-                    } catch (NumberFormatException e) {
-                        // TODO: show error message, that port is invalid
-                    }
+                    Integer port = Integer.parseInt(temp[1]);
+                    observers.forEach((IStartMenuObserver observer) -> observer.onMultiPlayerClientModeChosen(address, port));
+                } catch (Exception e) {
+                    multiplayerJoinSessionMenu.getTextInvalidAddress().setVisible(true);
                 }
             }
         });

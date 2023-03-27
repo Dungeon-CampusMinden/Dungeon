@@ -22,6 +22,7 @@ public class MultiplayerJoinSessionMenu<T extends Actor> extends Menu<T> {
     private static final float ACTOR_MARGIN = 30;
     private final ScreenInput inputHostIpPort;
     private final ScreenButton buttonJoin;
+    private final ScreenText textInvalidAddress;
 
     public MultiplayerJoinSessionMenu() {
         this(new SpriteBatch(), null);
@@ -70,9 +71,29 @@ public class MultiplayerJoinSessionMenu<T extends Actor> extends Menu<T> {
             Align.center | Align.bottom
         );
 
+        textInvalidAddress = new ScreenText(
+            "Invalid host address. Check ip and port.",
+            new Point(0, 0),
+            6f,
+            new LabelStyleBuilder(FontBuilder.DEFAULT_FONT).setFontcolor(Color.RED).build()
+        );
+        textInvalidAddress.setPosition(
+            inputHostIpPort.getX(),
+            inputHostIpPort.getY() - textInvalidAddress.getHeight()
+        );
+
         add((T) inputHostIpPort);
         add((T) buttonJoin);
+        add((T) textInvalidAddress);
+
         hideMenu();
+    }
+
+    @Override
+    public void showMenu() {
+        this.forEach((Actor s) -> s.setVisible(true));
+        textInvalidAddress.setVisible(false);
+        isVisible = true;
     }
 
     public ScreenInput getInputHostIpPort() {
@@ -82,4 +103,6 @@ public class MultiplayerJoinSessionMenu<T extends Actor> extends Menu<T> {
     public ScreenButton getButtonJoin() {
         return buttonJoin;
     }
+
+    public ScreenText getTextInvalidAddress() { return textInvalidAddress; }
 }
