@@ -53,8 +53,6 @@ Aufgabentyp unterscheiden sich die hier nötigen Definitionen.
 Dieser erstellt anschließend aus der Aufgabendefinition ein konkretes Szenario in
 einem Dungeon-Level.
 
-**Ein Beispiel für ein konkretes Szenario für die obige Aufgabe:**
-
 Die Aufgabenbeschreibung könnte von einem Zauberer-NPC vorgelesen werden, sobald der Spielcharakter mit
 ihm interagiert.
 Hierbei könnten die Antwortmöglichkeiten (`answers {A:..., B:..., C:...}`)
