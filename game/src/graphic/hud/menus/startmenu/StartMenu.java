@@ -1,17 +1,16 @@
 package graphic.hud.menus.startmenu;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Null;
 import graphic.hud.menus.Menu;
-import graphic.hud.widgets.FontBuilder;
-import graphic.hud.widgets.ScreenButton;
-import graphic.hud.widgets.TextButtonListener;
-import graphic.hud.widgets.TextButtonStyleBuilder;
+import graphic.hud.widgets.*;
 import tools.Constants;
 import tools.Point;
 
@@ -26,6 +25,7 @@ public class StartMenu<T extends Actor> extends Menu<T> {
     }
 
     private MenuType menuTypeCurrent;
+    private final ScreenText textTitle;
     private final ScreenButton buttonNavigateBack;
     private final GameModeMenu gameModeMenu;
     private final MultiplayerStartOrJoinSessionMenu multiplayerModeMenu;
@@ -48,20 +48,35 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         multiplayerModeMenu = new MultiplayerStartOrJoinSessionMenu(batch, this.stage);
         multiplayerJoinSessionMenu = new MultiplayerJoinSessionMenu(batch, this.stage);
 
+        textTitle = new ScreenText(
+            "PM-DUNGEON",
+            new Point(0, 0),
+            6f,
+            new LabelStyleBuilder(FontBuilder.DEFAULT_FONT).setFontcolor(Color.RED).build()
+        );
+        textTitle.setFontScale(3);
+        textTitle.setPosition(
+            (Constants.WINDOW_WIDTH) / 2f - textTitle.getWidth(),
+            (Constants.WINDOW_HEIGHT) - (textTitle.getHeight() * 4f),
+            Align.center | Align.bottom);
+
         buttonNavigateBack = new ScreenButton(
             "<",
-            new Point(15, Constants.WINDOW_HEIGHT - 30),
+            new Point(15, Constants.WINDOW_HEIGHT - 50),
             new TextButtonListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     navigateBack();
                 }
-            },
-            new TextButtonStyleBuilder(FontBuilder.DEFAULT_FONT)
-                .setFontColor(Color.WHITE)
-                .build()
+            }
         );
         buttonNavigateBack.getLabel().setFontScale(buttonTextLabelScale);
+        GlyphLayout glyphLayout = new GlyphLayout();
+        glyphLayout.setText(buttonNavigateBack.getStyle().font, buttonNavigateBack.getText());
+        float prefWidth = glyphLayout.width;
+        buttonNavigateBack.setSize(glyphLayout.width * 2.5f, buttonNavigateBack.getStyle().font.getLineHeight() * 2f);
+
+        add((T) textTitle);
         add((T)buttonNavigateBack);
 
         gameModeMenu.getButtonSinglePlayer().addListener(new ClickListener() {

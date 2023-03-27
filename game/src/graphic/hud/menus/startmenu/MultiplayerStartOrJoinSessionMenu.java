@@ -15,6 +15,8 @@ import tools.Point;
 
 public class MultiplayerStartOrJoinSessionMenu<T extends Actor> extends Menu<T> {
 
+    private static final float BUTTON_WIDTH = Constants.WINDOW_WIDTH / 2f;
+    private static final float BUTTON_MARGIN = 30;
     private final ScreenButton buttonStartSession;
     private final ScreenButton buttonJoinSession;
 
@@ -33,30 +35,28 @@ public class MultiplayerStartOrJoinSessionMenu<T extends Actor> extends Menu<T> 
         buttonStartSession = new ScreenButton(
             "Start a session",
             new Point(0, 0),
-            null,
-            new TextButtonStyleBuilder(FontBuilder.DEFAULT_FONT)
-                .setFontColor(Color.RED)
-                .build()
+            null
         );
+        buttonStartSession.getLabel().setFontScale(buttonTextLabelScale);
+        buttonStartSession.setSize(BUTTON_WIDTH,buttonStartSession.getStyle().font.getLineHeight() * 2.5f);
         buttonStartSession.setPosition(
             (Constants.WINDOW_WIDTH) / 2f,
-            (Constants.WINDOW_HEIGHT) / 1.5f + buttonStartSession.getHeight(),
-            Align.center | Align.bottom);
-        buttonStartSession.getLabel().setFontScale(buttonTextLabelScale);
+            (Constants.WINDOW_HEIGHT + buttonStartSession.getHeight()) / 2f,
+            Align.center | Align.bottom
+        );
 
         buttonJoinSession = new ScreenButton(
             "Join a Session",
             new Point(0, 0),
-            null,
-            new TextButtonStyleBuilder(FontBuilder.DEFAULT_FONT)
-                .setFontColor(Color.GREEN)
-                .build()
+            null
         );
-        buttonJoinSession.setPosition(
-            (Constants.WINDOW_WIDTH) / 2f,
-            (Constants.WINDOW_HEIGHT) / 3.5f + buttonJoinSession.getHeight(),
-            Align.center | Align.bottom);
         buttonJoinSession.getLabel().setFontScale(buttonTextLabelScale);
+        buttonJoinSession.setSize(BUTTON_WIDTH, buttonJoinSession.getStyle().font.getLineHeight() * 2.5f);
+        buttonJoinSession.setPosition(
+            BUTTON_WIDTH,
+            buttonStartSession.getY() - buttonJoinSession.getHeight() - BUTTON_MARGIN,
+            Align.center | Align.bottom
+        );
 
         add((T) buttonStartSession);
         add((T) buttonJoinSession);

@@ -18,6 +18,8 @@ import java.net.UnknownHostException;
 
 public class MultiplayerJoinSessionMenu<T extends Actor> extends Menu<T> {
 
+    private static final float BUTTON_WIDTH = Constants.WINDOW_WIDTH / 2f;
+    private static final float ACTOR_MARGIN = 30;
     private final ScreenInput inputHostIpPort;
     private final ScreenButton buttonJoin;
 
@@ -40,7 +42,7 @@ public class MultiplayerJoinSessionMenu<T extends Actor> extends Menu<T> {
             deviceIpAddress = "Error";
         }
         BitmapFont inputFont = new BitmapFont();
-        inputFont.getData().setScale(2f, 2f);
+        inputFont.getData().setScale(2f);
         inputHostIpPort = new ScreenInput(
             String.format("%s:%d", deviceIpAddress, 25444),
             new Point(0, 0),
@@ -49,28 +51,24 @@ public class MultiplayerJoinSessionMenu<T extends Actor> extends Menu<T> {
                 .setBackground(Color.WHITE)
                 .build()
         );
-        GlyphLayout glyphLayout = new GlyphLayout();
-        glyphLayout.setText(inputHostIpPort.getStyle().font, inputHostIpPort.getText());
-        float prefWidth = glyphLayout.width;
-        inputHostIpPort.setWidth(prefWidth);
+        inputHostIpPort.setWidth(Constants.WINDOW_WIDTH / 2f);
         inputHostIpPort.setPosition(
             (Constants.WINDOW_WIDTH) / 2f,
-            (Constants.WINDOW_HEIGHT) / 1.5f + inputHostIpPort.getHeight(),
+            (Constants.WINDOW_HEIGHT + inputHostIpPort.getHeight()) / 2f,
             Align.center | Align.bottom);
 
         buttonJoin = new ScreenButton(
             "Connect",
             new Point(0, 0),
-            null,
-            new TextButtonStyleBuilder(FontBuilder.DEFAULT_FONT)
-                .setFontColor(Color.GREEN)
-                .build()
+            null
         );
-        buttonJoin.setPosition(
-            (Constants.WINDOW_WIDTH) / 2f,
-            (Constants.WINDOW_HEIGHT) / 3.5f + buttonJoin.getHeight(),
-            Align.center | Align.bottom);
         buttonJoin.getLabel().setFontScale(buttonTextLabelScale);
+        buttonJoin.setSize(BUTTON_WIDTH,buttonJoin.getStyle().font.getLineHeight() * 2.5f);
+        buttonJoin.setPosition(
+            BUTTON_WIDTH,
+            inputHostIpPort.getY() - buttonJoin.getHeight() - ACTOR_MARGIN,
+            Align.center | Align.bottom
+        );
 
         add((T) inputHostIpPort);
         add((T) buttonJoin);

@@ -1,14 +1,8 @@
 package graphic.hud.menus.startmenu;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Null;
 import graphic.hud.menus.Menu;
@@ -18,6 +12,8 @@ import tools.Point;
 
 public class GameModeMenu<T extends Actor> extends Menu<T> {
 
+    private static final float BUTTON_WIDTH = Constants.WINDOW_WIDTH / 2f;
+    private static final float ACTOR_MARGIN = 30;
     private final ScreenButton buttonSinglePlayer;
     private final ScreenButton buttonMultiPlayer;
 
@@ -33,33 +29,31 @@ public class GameModeMenu<T extends Actor> extends Menu<T> {
      */
     public GameModeMenu(SpriteBatch batch, @Null Stage stage) {
         super(batch, stage);
+
         buttonSinglePlayer = new ScreenButton(
-            "Single-Player",
+            "Singleplayer",
             new Point(0, 0),
-            null,
-            new TextButtonStyleBuilder(FontBuilder.DEFAULT_FONT)
-                .setFontColor(Color.RED)
-                .build()
+            null
         );
+        buttonSinglePlayer.getLabel().setFontScale(buttonTextLabelScale);
+        buttonSinglePlayer.setSize(BUTTON_WIDTH,buttonSinglePlayer.getStyle().font.getLineHeight() * 2.5f);
         buttonSinglePlayer.setPosition(
             (Constants.WINDOW_WIDTH) / 2f,
-            (Constants.WINDOW_HEIGHT) / 1.5f + buttonSinglePlayer.getHeight(),
+            (Constants.WINDOW_HEIGHT + buttonSinglePlayer.getHeight()) / 2f,
             Align.center | Align.bottom);
-        buttonSinglePlayer.getLabel().setFontScale(buttonTextLabelScale);
 
         buttonMultiPlayer = new ScreenButton(
-            "Multi-Player",
+            "Multiplayer",
             new Point(0, 0),
-            null,
-            new TextButtonStyleBuilder(FontBuilder.DEFAULT_FONT)
-                .setFontColor(Color.GREEN)
-                .build()
+            null
         );
-        buttonMultiPlayer.setPosition(
-            (Constants.WINDOW_WIDTH) / 2f,
-            (Constants.WINDOW_HEIGHT) / 3.5f + buttonMultiPlayer.getHeight(),
-            Align.center | Align.bottom);
         buttonMultiPlayer.getLabel().setFontScale(buttonTextLabelScale);
+        buttonMultiPlayer.setSize(BUTTON_WIDTH, buttonMultiPlayer.getStyle().font.getLineHeight() * 2.5f);
+        buttonMultiPlayer.setPosition(
+            BUTTON_WIDTH,
+            buttonSinglePlayer.getY() - buttonMultiPlayer.getHeight() - ACTOR_MARGIN,
+            Align.center | Align.bottom
+        );
 
         add((T) buttonSinglePlayer);
         add((T) buttonMultiPlayer);
