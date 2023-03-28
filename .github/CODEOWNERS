@@ -1,0 +1,14 @@
+# global owner
+* @cagix
+
+# game owner
+/game/ @AMatutat @Programmiermethoden/codrs
+
+# dsl owner
+/dsl/ @malt-r @Programmiermethoden/dungeon
+
+#dsl connector owner
+/dsl-connector/ @malt-r @AMatutat @Programmiermethoden/dungeon
+
+#doc folder
+/doc/ @Programmiermethoden/dungeon
