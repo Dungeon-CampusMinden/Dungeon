@@ -65,11 +65,7 @@ public class Debugger extends ECS_System {
     /** Teleport the Hero to the current cursor Position */
     public static void TELEPORT_TO_CURSOR() {
         debugger_logger.log(CustomLogLevel.DEBUG, "TELEPORT TO CURSOR");
-        try {
-            TELEPORT(SkillTools.getCursorPositionAsPoint());
-        } catch (NullPointerException exception) {
-            debugger_logger.info(exception.getMessage());
-        }
+        TELEPORT(SkillTools.getCursorPositionAsPoint());
     }
 
     /** Teleport the Hero to the end of the level. */
@@ -120,10 +116,18 @@ public class Debugger extends ECS_System {
                                         () ->
                                                 new MissingComponentException(
                                                         "Hero is missing PositionComponent"));
-        if (Game.currentLevel.getTileAt(targetLocation.toCoordinate()).isAccessible()) {
+
+        Tile t = null;
+        try {
+            t = Game.currentLevel.getTileAt(targetLocation.toCoordinate());
+        } catch (NullPointerException ex) {
+            debugger_logger.info(ex.getMessage());
+        }
+        // check if the point is in the level and accessible
+        if (t != null && t.isAccessible()) {
             pc.setPosition(targetLocation);
             debugger_logger.info("teleport successful");
-        } else debugger_logger.info("Can not teleport to non accessible tile");
+        } else debugger_logger.info("Can not teleport to non existing or non accessible tile");
     }
 
     /** Switch between Small, Medium and Large level. Changes will affect on next level load */
@@ -139,11 +143,7 @@ public class Debugger extends ECS_System {
     /** Spawn a Monster on the Cursor-Position */
     public static void SPAWN_MONSTER_ON_CURSOR() {
         debugger_logger.info("Spawn Monster on Cursor");
-        try {
-            SPAWN_MONSTER(SkillTools.getCursorPositionAsPoint());
-        } catch (NullPointerException exception) {
-            debugger_logger.info(exception.getMessage());
-        }
+        SPAWN_MONSTER(SkillTools.getCursorPositionAsPoint());
     }
 
     /**
@@ -152,9 +152,14 @@ public class Debugger extends ECS_System {
      * @param position location to spawn monster on
      */
     public static void SPAWN_MONSTER(Point position) {
-
+        Tile t = null;
+        try {
+            t = Game.currentLevel.getTileAt(position.toCoordinate());
+        } catch (NullPointerException ex) {
+            debugger_logger.info(ex.getMessage());
+        }
         // check if the point is in the level and accessible
-        if (Game.currentLevel.getTileAt(position.toCoordinate()).isAccessible()) {
+        if (t != null && t.isAccessible()) {
 
             Entity monster = new Entity();
             monster.addComponent(new PositionComponent(monster, position));
@@ -172,6 +177,6 @@ public class Debugger extends ECS_System {
             new AIComponent(
                     monster, new CollideAI(1), new RadiusWalk(5, 1), new SelfDefendTransition());
             debugger_logger.info("Monster spawned");
-        } else debugger_logger.info("Cant spawn Monster on non accessible tile");
+        } else debugger_logger.info("Cant spawn Monster on non exisiting or non accessible tile");
     }
 }
