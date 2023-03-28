@@ -28,20 +28,9 @@ public class LevelAPI {
     public LevelAPI(
         SpriteBatch batch,
         Painter painter,
-        IOnLevelLoader onLevelLoader,
-        IGenerator generator) {
+        IGenerator generator,
+        IOnLevelLoader onLevelLoader) {
         this.gen = generator;
-        this.batch = batch;
-        this.painter = painter;
-        this.onLevelLoader = onLevelLoader;
-    }
-
-    public LevelAPI(
-        SpriteBatch batch,
-        Painter painter,
-        IOnLevelLoader onLevelLoader,
-        ILevel level) {
-        this.currentLevel = level;
         this.batch = batch;
         this.painter = painter;
         this.onLevelLoader = onLevelLoader;
