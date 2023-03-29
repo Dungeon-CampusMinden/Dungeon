@@ -196,7 +196,8 @@ public class TileLevel implements ILevel {
                                         .forEach(
                                                 y -> { // alle verbindungen ausgehend
                                                     if (y.getToNode() == tile)
-                                                        y.getFromNode().getConnections()
+                                                        y.getFromNode()
+                                                                .getConnections()
                                                                 .removeValue(y, true);
                                                 }));
         if (tile.isAccessible()) removeIndex(tile.getIndex());

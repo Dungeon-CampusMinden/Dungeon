@@ -3,8 +3,9 @@ package level;
 import static org.junit.Assert.*;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
-import ecs.components.PositionComponent;
-import ecs.entities.Entity;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.concurrent.atomic.AtomicInteger;
 import level.elements.TileLevel;
 import level.elements.tile.ExitTile;
 import level.elements.tile.FloorTile;
@@ -13,68 +14,88 @@ import level.elements.tile.WallTile;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
-import org.junit.Before;
 import org.junit.Test;
 import tools.Point;
 
 public class TileLevelTest {
-    private TileLevel tileLevel;
-    private Tile[][] layout;
-    private Tile endTile;
-    private Tile startTile;
-
-    @Before
-    public void setup() {
-        layout = new Tile[3][3];
-        for (int x = 0; x < 3; x++) {
-            for (int y = 0; y < 3; y++) {
-                if (x < 2) {
-                    layout[y][x] =
-                            new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT, null);
-                } else {
-                    layout[y][x] =
-                            new WallTile("", new Coordinate(x, y), DesignLabel.DEFAULT, null);
-                }
-            }
-        }
-        layout[2][1] = new ExitTile("", new Coordinate(1, 2), DesignLabel.DEFAULT, null);
-
-        tileLevel = new TileLevel(layout);
-        endTile = tileLevel.getEndTile();
-        startTile = tileLevel.getStartTile();
-    }
 
     @Test
     public void test_levelCTOR_LevelElements() {
-        LevelElement[][] elementsLayout = new LevelElement[2][2];
-        elementsLayout[0][0] = LevelElement.WALL;
-        elementsLayout[0][1] = LevelElement.FLOOR;
-        elementsLayout[1][0] = LevelElement.WALL;
-        elementsLayout[1][1] = LevelElement.FLOOR;
-        tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+        LevelElement[][] elementsLayout =
+                new LevelElement[][] {
+                    {LevelElement.WALL, LevelElement.FLOOR}, {LevelElement.WALL, LevelElement.EXIT}
+                };
+        TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
         Tile[][] layout = tileLevel.getLayout();
         assertSame(elementsLayout[0][0], layout[0][0].getLevelElement());
         assertSame(elementsLayout[1][0], layout[1][0].getLevelElement());
-        assertTrue(
-                elementsLayout[0][1] == layout[0][1].getLevelElement()
-                        || LevelElement.EXIT == layout[0][1].getLevelElement());
-        assertTrue(
-                elementsLayout[1][1] == layout[1][1].getLevelElement()
-                        || LevelElement.EXIT == layout[1][1].getLevelElement());
+        assertSame(elementsLayout[0][1], layout[0][1].getLevelElement());
+        assertSame(elementsLayout[1][1], layout[1][1].getLevelElement());
+    }
+
+    @Test
+    public void test_levelCTOR_LevelElementsNoExit() {
+        LevelElement[][] elementsLayout =
+            new LevelElement[][] {
+                {LevelElement.WALL, LevelElement.FLOOR}, {LevelElement.WALL, LevelElement.FLOOR}
+            };
+        TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+        Tile[][] layout = tileLevel.getLayout();
+        assertSame(elementsLayout[0][0], layout[0][0].getLevelElement());
+        assertSame(elementsLayout[1][0], layout[1][0].getLevelElement());
+        assertTrue("Es muss mindestens einen Ausgang geben!", layout[0][1].getLevelElement() == LevelElement.EXIT ||  layout[1][1].getLevelElement() == LevelElement.EXIT);
+    }
+
+    @Test
+    public void test_levelCTOR_Tiles() {
+        Tile[][] tileLayout =
+            new Tile[][] {
+                {
+                    new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT, null),
+                    new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null)
+                },
+                {
+                    new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null),
+                    new ExitTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null)
+                }
+            };
+        TileLevel tileLevel = new TileLevel(tileLayout);
+        Tile[][] layout = tileLevel.getLayout();
+        assertArrayEquals(tileLayout,layout);
+    }
+
+    @Test
+    public void test_levelCTOR_TilesNoExit() {
+        Tile[][] tileLayout =
+                new Tile[][] {
+                    {
+                        new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT, null),
+                        new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null)
+                    },
+                    {
+                        new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null),
+                        new FloorTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null)
+                    }
+                };
+        TileLevel tileLevel = new TileLevel(tileLayout);
+        Tile[][] layout = tileLevel.getLayout();
+        assertSame(tileLayout[0][0], layout[0][0]);
+        assertSame(tileLayout[1][0], layout[1][0]);
+        assertTrue("Es muss mindestens einen Ausgang geben!", layout[0][1].getLevelElement() == LevelElement.EXIT ||  layout[1][1].getLevelElement() == LevelElement.EXIT);
     }
 
     @Test
     public void test_findPath_onlyOnePathPossible() {
-        layout = new Tile[3][3];
+        Tile[][] layout = new Tile[3][3];
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
                 layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT, null);
             }
         }
         layout[1][1] = new WallTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null);
-        layout[0][1] = new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null);
-        layout[0][2] = new ExitTile("", new Coordinate(0, 2), DesignLabel.DEFAULT, null);
-        tileLevel = new TileLevel(layout);
+        layout[0][1] = new WallTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null);
+        layout[0][2] = new ExitTile("", new Coordinate(2, 0), DesignLabel.DEFAULT, null);
+        TileLevel tileLevel = new TileLevel(layout);
         tileLevel.setStartTile(layout[0][0]);
 
         /* How the level layout looks: (S=start, W=Wall,F=Floor,E=exit) SWE FWF FFF */
@@ -91,16 +112,16 @@ public class TileLevelTest {
 
     @Test
     public void test_findPath_moreThanOnePathPossible() {
-        layout = new Tile[3][3];
+        Tile[][] layout = new Tile[3][3];
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
                 layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT, null);
             }
         }
         layout[0][1] = new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null);
-        tileLevel = new TileLevel(layout);
+        TileLevel tileLevel = new TileLevel(layout);
         tileLevel.setStartTile(layout[0][0]);
-        tileLevel.setEndTile(layout[0][2]);
+        tileLevel.changeTileElementType(layout[0][2], LevelElement.EXIT);
         /* How the level layout looks: (S=start, W=Wall,F=Floor,E=exit) SWE FFF FFF */
         // should take the shortest path
         GraphPath<Tile> path = tileLevel.findPath(tileLevel.getStartTile(), tileLevel.getEndTile());
@@ -143,23 +164,28 @@ public class TileLevelTest {
     }
 
     @Test
-    public void test_isOnEndTile() {
-        Entity entity = new Entity();
-        PositionComponent pc = new PositionComponent(entity, endTile.getCoordinate().toPoint());
-        entity.addComponent(pc);
-        assertTrue(tileLevel.isOnEndTile(entity));
-        pc.setPosition(new Point(-1, -1));
-        assertFalse(tileLevel.isOnEndTile(entity));
-    }
-
-    @Test
     public void test_getTileAt() {
-        assertEquals(layout[1][2], tileLevel.getTileAt(new Coordinate(2, 1)));
+        var levelLayout = new LevelElement[3][3];
+
+        for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 3; x++) {
+                levelLayout[y][x] = LevelElement.FLOOR;
+            }
+        }
+        var level = new TileLevel(levelLayout, DesignLabel.randomDesign());
+        assertEquals(levelLayout[1][2], level.getTileAt(new Coordinate(2, 1)).getLevelElement());
     }
 
     @Test
     public void test_getRandomTile() {
-        assertNotNull(tileLevel.getRandomTile());
+        var levelLayout = new LevelElement[3][3];
+        for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 3; x++) {
+                levelLayout[y][x] = LevelElement.FLOOR;
+            }
+        }
+        var level = new TileLevel(levelLayout, DesignLabel.randomDesign());
+        assertNotNull(level.getRandomTile());
     }
 
     @Test
@@ -177,8 +203,6 @@ public class TileLevelTest {
         layout[2][1] = LevelElement.EXIT;
 
         TileLevel tileLevel = new TileLevel(layout, DesignLabel.DEFAULT);
-        Tile endTile = tileLevel.getEndTile();
-        Tile startTile = tileLevel.getStartTile();
 
         Point randomWallPoint = tileLevel.getRandomTilePoint(LevelElement.WALL);
         assertNotNull(randomWallPoint);
@@ -189,9 +213,16 @@ public class TileLevelTest {
 
     @Test
     public void test_getRandomTilePoint() {
-        Point randomPoint = tileLevel.getRandomTilePoint();
+        var levelLayout = new LevelElement[3][3];
+        for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 3; x++) {
+                levelLayout[y][x] = LevelElement.FLOOR;
+            }
+        }
+        var level = new TileLevel(levelLayout, DesignLabel.randomDesign());
+        Point randomPoint = level.getRandomTilePoint();
         assertNotNull(randomPoint);
-        assertNotNull(tileLevel.getTileAt(randomPoint.toCoordinate()));
+        assertNotNull(level.getTileAt(randomPoint.toCoordinate()));
     }
 
     @Test
@@ -209,8 +240,6 @@ public class TileLevelTest {
         layout[2][1] = LevelElement.EXIT;
 
         TileLevel tileLevel = new TileLevel(layout, DesignLabel.DEFAULT);
-        Tile endTile = tileLevel.getEndTile();
-        Tile startTile = tileLevel.getStartTile();
 
         Point randomWallPoint = tileLevel.getRandomTilePoint(LevelElement.WALL);
         Point randomFloorPoint = tileLevel.getRandomTilePoint(LevelElement.FLOOR);
@@ -221,18 +250,41 @@ public class TileLevelTest {
     }
 
     @Test
-    public void test_getLayout() {
-        assertArrayEquals(layout, tileLevel.getLayout());
+    public void test_getLayout_from_TileLayout() {
+        Tile[][] tileLayout =
+                new Tile[][] {
+                    new Tile[] {
+                        new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT, null),
+                        new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null),
+                    },
+                    new Tile[] {
+                        new FloorTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null),
+                        new WallTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null),
+                    }
+                };
+
+        var level = new TileLevel(tileLayout);
+        assertArrayEquals(tileLayout, level.getLayout());
     }
 
     @Test
     public void test_toString() {
+        LevelElement[][] tileLayout =
+                new LevelElement[][] {
+                    new LevelElement[] {
+                        LevelElement.WALL, LevelElement.FLOOR,
+                    },
+                    new LevelElement[] {
+                        LevelElement.EXIT, LevelElement.WALL,
+                    }
+                };
+        var level = new TileLevel(tileLayout, DesignLabel.DEFAULT);
         StringBuilder compareString = new StringBuilder();
-        for (Tile[] tiles : layout) {
-            for (int x = 0; x < layout[0].length; x++) {
-                if (tiles[x].getLevelElement() == LevelElement.FLOOR) {
+        for (LevelElement[] tiles : tileLayout) {
+            for (int x = 0; x < tiles.length; x++) {
+                if (tiles[x] == LevelElement.FLOOR) {
                     compareString.append("F");
-                } else if (tiles[x].getLevelElement() == LevelElement.WALL) {
+                } else if (tiles[x] == LevelElement.WALL) {
                     compareString.append("W");
                 } else {
                     compareString.append("E");
@@ -240,6 +292,60 @@ public class TileLevelTest {
             }
             compareString.append("\n");
         }
-        assertEquals(compareString.toString(), tileLevel.printLevel());
+        assertEquals(compareString.toString(), level.printLevel());
+    }
+
+    @Test
+    public void test_changeTileElementType_SameElementType() {
+        LevelElement[][] layout =
+                new LevelElement[][] {
+                    new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
+                };
+        TileLevel level = new TileLevel(layout, DesignLabel.DEFAULT);
+        level.changeTileElementType(level.getTileAt(new Coordinate(0, 0)), LevelElement.FLOOR);
+        assertEquals(3, level.getNodeCount());
+        AtomicInteger counter = new AtomicInteger();
+        Arrays.stream(level.getLayout())
+                .flatMap(Arrays::stream)
+                .sorted(Comparator.comparingInt(Tile::getIndex))
+                .filter(Tile::isAccessible)
+                .forEachOrdered(x -> assertEquals(counter.getAndIncrement(), x.getIndex()));
+        assertEquals(3, counter.get());
+    }
+
+    @Test
+    public void test_changeTileElementType_SameAccess() {
+        LevelElement[][] layout =
+                new LevelElement[][] {
+                    new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
+                };
+        TileLevel level = new TileLevel(layout, DesignLabel.DEFAULT);
+        level.changeTileElementType(level.getTileAt(new Coordinate(0, 0)), LevelElement.EXIT);
+        assertEquals(3, level.getNodeCount());
+        AtomicInteger counter = new AtomicInteger();
+        Arrays.stream(level.getLayout())
+                .flatMap(Arrays::stream)
+                .filter(Tile::isAccessible)
+                .sorted(Comparator.comparingInt(Tile::getIndex))
+                .forEachOrdered(x -> assertEquals(counter.getAndIncrement(), x.getIndex()));
+        assertEquals(3, counter.get());
+    }
+
+    @Test
+    public void test_changeTileElementType_toNotAccessible() {
+        LevelElement[][] layout =
+                new LevelElement[][] {
+                    new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
+                };
+        TileLevel level = new TileLevel(layout, DesignLabel.DEFAULT);
+        level.changeTileElementType(level.getTileAt(new Coordinate(0, 0)), LevelElement.WALL);
+        assertEquals(2, level.getNodeCount());
+        AtomicInteger counter = new AtomicInteger();
+        Arrays.stream(level.getLayout())
+                .flatMap(Arrays::stream)
+                .sorted(Comparator.comparingInt(Tile::getIndex))
+                .filter(Tile::isAccessible)
+                .forEachOrdered(x -> assertEquals(counter.getAndIncrement(), x.getIndex()));
+        assertEquals(2, counter.get());
     }
 }
