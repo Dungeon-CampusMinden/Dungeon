@@ -74,8 +74,7 @@ public class TileLevel implements ILevel {
                                 new TileTextureFactory.LevelPart(
                                         layout[y][x], designLabel, layout, coordinate));
                 tileLayout[y][x] =
-                        TileFactory.createTile(
-                                texturePath, coordinate, layout[y][x], designLabel, this);
+                        TileFactory.createTile(texturePath, coordinate, layout[y][x], designLabel);
             }
         }
         return tileLayout;
