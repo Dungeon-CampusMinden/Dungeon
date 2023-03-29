@@ -4,13 +4,12 @@ title: "Documentation_Basics"
 
 ## Installation
 
+Für das Dungeon wird das Java Development Kit 17.x.x oder höher benötigt.
 
+Wie Sie das Projekt in Ihre IDE zu laden, können Sie in dem [Wiki: Import-Project](https://github.com/Programmiermethoden/Dungeon/wiki/Import-Project) nachlesen.
 
-- Java SE Development Kit 17.x.x oder höher benötigt
-- in IDE einbinden
-- libGDX wird verwendet, ist aber schon eingebunden und muss nicht extra installiert werden
+*Falls Sie Probleme beim Installieren haben, schauen Sie in die [Kompatibilitätsliste](https://github.com/Programmiermethoden/Dungeon/wiki/JDK-Kompatibilität) und die [FAQ](https://github.com/Programmiermethoden/Dungeon/wiki/FAQ). Melden Sie sich frühzeitig falls Ihr Problem damit nicht behoben werden konnte.*
 
-- bei Problemen: [FAQ](https://github.com/Programmiermethoden/Dungeon/wiki/FAQ)
 
 ## Überblick
 - Kurze Erklärung: was ist ein ECS? 
