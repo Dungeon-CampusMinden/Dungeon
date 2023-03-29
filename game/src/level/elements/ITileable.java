@@ -50,20 +50,6 @@ public interface ITileable extends IPathable {
      * @return The start tile.
      */
     Tile getStartTile();
-    /**
-     * Checks if the passed entity is on the tile to the next level.
-     *
-     * @param entity entity to check for.
-     * @return if the passed entity is on the tile to the next level
-     */
-    default boolean isOnEndTile(Entity entity) {
-        if (getEndTile() == null) {
-            return false;
-        }
-        PositionComponent pc =
-                (PositionComponent) entity.getComponent(PositionComponent.class).get();
-        return pc.getPosition().toCoordinate().equals(getEndTile().getCoordinate());
-    }
 
     /**
      * Returns the tile the given entity is standing on.
