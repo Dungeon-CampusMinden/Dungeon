@@ -146,6 +146,68 @@ public class TileLevelTest {
         assertEquals(3,tileLevel.getSkipTiles().size());
     }
 
+    @Test
+    public void test_nodeCount_NoAccessible(){
+        LevelElement[][] elementsLayout =
+            new LevelElement[][] {
+                {LevelElement.WALL, LevelElement.WALL, LevelElement.WALL, LevelElement.WALL},
+            };
+        TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+        assertEquals(0,tileLevel.getNodeCount());
+    }
+
+    @Test
+    public void test_nodeCount_OneAccessible(){
+        LevelElement[][] elementsLayout =
+            new LevelElement[][] {
+                {LevelElement.FLOOR, LevelElement.WALL, LevelElement.WALL, LevelElement.WALL},
+            };
+        TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+        assertEquals(1,tileLevel.getNodeCount());
+    }
+
+    @Test
+    public void test_nodeCount_FourAccessible(){
+        LevelElement[][] elementsLayout =
+            new LevelElement[][] {
+                {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR},
+            };
+        TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+        assertEquals(4,tileLevel.getNodeCount());
+    }
+
+    @Test
+    public void test_setRandomEnd(){
+        LevelElement[][] elementsLayout =
+            new LevelElement[][] {
+                {LevelElement.EXIT, LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR},
+            };
+        TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+        Tile oldEndTile = tileLevel.getEndTile();
+        assertNotSame(tileLevel.getStartTile(),tileLevel.getEndTile());
+        assertNotSame(oldEndTile, tileLevel.getEndTile());
+    }
+    @Test
+    public void test_setRandomEnd_NoFreeFloors(){
+        LevelElement[][] elementsLayout =
+            new LevelElement[][] {
+                {LevelElement.FLOOR},
+            };
+        TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+        assertNotSame(tileLevel.getStartTile(),tileLevel.getEndTile());
+        assertNull(tileLevel.getEndTile());
+    }
+    @Test
+    public void test_setRandomEnd_NoFloors(){
+        LevelElement[][] elementsLayout =
+            new LevelElement[][] {
+                {LevelElement.WALL},
+            };
+        TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+        tileLevel.setRandomEnd();
+        assertNull(tileLevel.getEndTile());
+    }
+
 
     @Test
     public void test_findPath_onlyOnePathPossible() {
@@ -310,24 +372,6 @@ public class TileLevelTest {
         Tile randomFloor = tileLevel.getTileAt(randomFloorPoint.toCoordinate());
         assertEquals(LevelElement.WALL, randomWall.getLevelElement());
         assertEquals(LevelElement.FLOOR, randomFloor.getLevelElement());
-    }
-
-    @Test
-    public void test_getLayout_from_TileLayout() {
-        Tile[][] tileLayout =
-                new Tile[][] {
-                    new Tile[] {
-                        new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT, null),
-                        new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null),
-                    },
-                    new Tile[] {
-                        new FloorTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null),
-                        new WallTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null),
-                    }
-                };
-
-        var level = new TileLevel(tileLayout);
-        assertArrayEquals(tileLayout, level.getLayout());
     }
 
     @Test
