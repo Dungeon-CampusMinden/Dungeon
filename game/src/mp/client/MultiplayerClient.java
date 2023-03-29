@@ -50,12 +50,12 @@ public class MultiplayerClient extends Listener {
         } else if (object instanceof InitializeServerResponse){
             boolean isSucceed = ((InitializeServerResponse)object).isSucceed();
             for (IMultiplayerClientObserver observer: observers) {
-                observer.onServerInitializedReceived(isSucceed);
+                observer.onServerInitializedReceived(isSucceed, connection.getID());
             }
         } else if (object instanceof JoinSessionResponse) {
             ILevel level = ((JoinSessionResponse)object).getLevel();
             for (IMultiplayerClientObserver observer: observers) {
-                observer.onSessionJoined(level);
+                observer.onSessionJoined(level, connection.getID());
             }
         }
     }
