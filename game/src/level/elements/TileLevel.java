@@ -149,7 +149,6 @@ public class TileLevel implements ILevel {
     public List<FloorTile> getFloorTiles() {
         return floorTiles;
     }
-    ;
 
     @Override
     public List<WallTile> getWallTiles() {
