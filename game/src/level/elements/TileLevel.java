@@ -18,7 +18,6 @@ import level.tools.TileTextureFactory;
 public class TileLevel implements ILevel {
     protected final TileHeuristic tileHeuristic = new TileHeuristic();
     protected Tile startTile;
-    protected Tile endTile;
     protected int nodeCount = 0;
     protected Tile[][] layout;
 
@@ -245,11 +244,14 @@ public class TileLevel implements ILevel {
 
     @Override
     public Tile getEndTile() {
-        return endTile;
+        return exitTiles.size() > 0 ? exitTiles.get(0) : null;
     }
 
     @Override
     public void setEndTile(Tile end) {
-        endTile = end;
+        exitTiles.clear();
+        if (end != null) {
+            exitTiles.add((ExitTile) end);
+        }
     }
 }
