@@ -20,6 +20,47 @@ import tools.Point;
 public class TileLevelTest {
 
     @Test
+    public void test_levelCTOR_Tiles() {
+        Tile[][] tileLayout =
+            new Tile[][] {
+                {
+                    new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT, null),
+                    new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null)
+                },
+                {
+                    new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null),
+                    new ExitTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null)
+                }
+            };
+        TileLevel tileLevel = new TileLevel(tileLayout);
+        Tile[][] layout = tileLevel.getLayout();
+        assertArrayEquals(tileLayout, layout);
+    }
+
+    @Test
+    public void test_levelCTOR_TilesNoExit() {
+        Tile[][] tileLayout =
+            new Tile[][] {
+                {
+                    new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT, null),
+                    new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null)
+                },
+                {
+                    new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null),
+                    new FloorTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null)
+                }
+            };
+        TileLevel tileLevel = new TileLevel(tileLayout);
+        Tile[][] layout = tileLevel.getLayout();
+        assertSame(tileLayout[0][0], layout[0][0]);
+        assertSame(tileLayout[1][0], layout[1][0]);
+        assertTrue(
+            "Es muss mindestens einen Ausgang geben!",
+            layout[0][1].getLevelElement() == LevelElement.EXIT
+                || layout[1][1].getLevelElement() == LevelElement.EXIT);
+    }
+
+    @Test
     public void test_levelCTOR_LevelElements() {
         LevelElement[][] elementsLayout =
                 new LevelElement[][] {
@@ -43,46 +84,52 @@ public class TileLevelTest {
         Tile[][] layout = tileLevel.getLayout();
         assertSame(elementsLayout[0][0], layout[0][0].getLevelElement());
         assertSame(elementsLayout[1][0], layout[1][0].getLevelElement());
-        assertTrue("Es muss mindestens einen Ausgang geben!", layout[0][1].getLevelElement() == LevelElement.EXIT ||  layout[1][1].getLevelElement() == LevelElement.EXIT);
+        assertTrue(
+            "Es muss mindestens einen Ausgang geben!",
+            layout[0][1].getLevelElement() == LevelElement.EXIT
+                || layout[1][1].getLevelElement() == LevelElement.EXIT);
     }
 
     @Test
-    public void test_levelCTOR_Tiles() {
-        Tile[][] tileLayout =
-            new Tile[][] {
-                {
-                    new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT, null),
-                    new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null)
-                },
-                {
-                    new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null),
-                    new ExitTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null)
-                }
+    public void test_levelCTOR_LevelElementsNoFloors() {
+        LevelElement[][] elementsLayout =
+            new LevelElement[][] {
+                {LevelElement.WALL, LevelElement.WALL}, {LevelElement.WALL, LevelElement.WALL}
             };
-        TileLevel tileLevel = new TileLevel(tileLayout);
-        Tile[][] layout = tileLevel.getLayout();
-        assertArrayEquals(tileLayout,layout);
+
+        TileLevel level = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+        assertNull(level.getStartTile());
+        assertNull(level.getEndTile());
     }
 
     @Test
-    public void test_levelCTOR_TilesNoExit() {
-        Tile[][] tileLayout =
-                new Tile[][] {
-                    {
-                        new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT, null),
-                        new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null)
-                    },
-                    {
-                        new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null),
-                        new FloorTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null)
-                    }
-                };
-        TileLevel tileLevel = new TileLevel(tileLayout);
-        Tile[][] layout = tileLevel.getLayout();
-        assertSame(tileLayout[0][0], layout[0][0]);
-        assertSame(tileLayout[1][0], layout[1][0]);
-        assertTrue("Es muss mindestens einen Ausgang geben!", layout[0][1].getLevelElement() == LevelElement.EXIT ||  layout[1][1].getLevelElement() == LevelElement.EXIT);
+    public void test_levelCTOR_LevelElementsEnoughFloorsForStartButNotExit() {
+        LevelElement[][] elementsLayout =
+            new LevelElement[][] {
+                {LevelElement.WALL, LevelElement.FLOOR}, {LevelElement.WALL, LevelElement.WALL}
+            };
+
+        TileLevel level = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+        assertNotNull(level.getStartTile());
+        assertNull(level.getEndTile());
     }
+    @Test
+    public void test_levelCTOR_LevelElements_connections(){
+        LevelElement[][] elementsLayout =
+            new LevelElement[][] {
+                {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.EXIT}
+        };
+        TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+        Tile[][] layout = tileLevel.getLayout();
+        assertEquals(1, layout[0][0].getConnections().size);
+        assertSame(layout[0][1], layout[0][0].getConnections().first().getToNode());
+        assertEquals(2, layout[0][1].getConnections().size);
+        assertSame(layout[0][0], layout[0][1].getConnections().get(0).getToNode());
+        assertSame(layout[0][2], layout[0][1].getConnections().get(1).getToNode());
+        assertEquals(1, layout[0][2].getConnections().size);
+        assertSame(layout[0][1], layout[0][2].getConnections().first().getToNode());
+    }
+
 
     @Test
     public void test_findPath_onlyOnePathPossible() {
