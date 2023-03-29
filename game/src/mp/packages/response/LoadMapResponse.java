@@ -1,6 +1,15 @@
 package mp.packages.response;
 
+import level.elements.ILevel;
+
 public class LoadMapResponse {
-    boolean loaded = true;
-    public boolean isLoaded(){return loaded;}
+    private ILevel level;
+
+    public LoadMapResponse(ILevel currentLevel){
+        this.level = currentLevel;
+    }
+
+    public ILevel getLevel() {
+        return this.level;
+    }
 }
