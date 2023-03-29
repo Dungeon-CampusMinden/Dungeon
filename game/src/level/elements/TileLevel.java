@@ -39,8 +39,8 @@ public class TileLevel implements ILevel {
     public TileLevel(Tile[][] layout) {
         this.layout = layout;
         putTilesInLists();
-        if (exitTiles.size() == 0) setRandomEnd();
         if (startTile == null) setRandomStart();
+        if (exitTiles.size() == 0) setRandomEnd();
     }
 
     /**
