@@ -39,9 +39,9 @@ public class TileLevel implements ILevel {
      */
     public TileLevel(Tile[][] layout) {
         this.layout = layout;
-        makeConnections();
-        // setRandomEnd();
-        setRandomStart();
+        putTilesInLists();
+        if (exitTiles.size() == 0) setRandomEnd();
+        if (startTile == null) setRandomStart();
     }
 
     /**
@@ -51,10 +51,15 @@ public class TileLevel implements ILevel {
      * @param designLabel The design the level should have
      */
     public TileLevel(LevelElement[][] layout, DesignLabel designLabel) {
-        this.layout = convertLevelElementToTile(layout, designLabel);
-        makeConnections();
-        // setRandomEnd();
-        setRandomStart();
+        this(convertLevelElementToTile(layout, designLabel));
+    }
+
+    private void putTilesInLists() {
+        for (int y = 0; y < layout.length; y++) {
+            for (int x = 0; x < layout[0].length; x++) {
+                addTile(layout[y][x]);
+            }
+        }
     }
 
     /**
@@ -64,7 +69,8 @@ public class TileLevel implements ILevel {
      * @param designLabel The selected Design for the Tiles
      * @return The converted Tile[][]
      */
-    protected Tile[][] convertLevelElementToTile(LevelElement[][] layout, DesignLabel designLabel) {
+    private static Tile[][] convertLevelElementToTile(
+            LevelElement[][] layout, DesignLabel designLabel) {
         Tile[][] tileLayout = new Tile[layout.length][layout[0].length];
         for (int y = 0; y < layout.length; y++) {
             for (int x = 0; x < layout[0].length; x++) {
@@ -88,24 +94,6 @@ public class TileLevel implements ILevel {
     @Override
     public TileHeuristic getTileHeuristic() {
         return tileHeuristic;
-    }
-
-    /** Connect each tile with its neighbour tiles. */
-    protected void makeConnections() {
-        for (int x = 0; x < layout[0].length; x++) {
-            for (Tile[] tiles : layout) {
-                if (tiles[x].getLevel() == null) {
-                    tiles[x].setLevel(this);
-                }
-                if (endTile == null && tiles[x].getLevelElement() == LevelElement.EXIT) {
-                    setEndTile(tiles[x]);
-                }
-                if (tiles[x].isAccessible()) {
-                    tiles[x].setIndex(nodeCount++);
-                    addConnectionsToNeighbours(tiles[x]);
-                }
-            }
-        }
     }
 
     /**
