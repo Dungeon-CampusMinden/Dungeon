@@ -10,6 +10,7 @@ import mp.packages.response.LoadMapResponse;
 import mp.packages.response.PingResponse;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public class MultiplayerClient extends Listener {
 
@@ -20,7 +21,7 @@ public class MultiplayerClient extends Listener {
     private static final Integer serverPort = 25444;
     private static final String serverAddress = "127.0.0.1";
     private static final Client client = new Client(writeBufferSize, objectBufferSize);
-
+    private final ArrayList<IMultiplayerClientObserver> observers = new ArrayList<>();
     public ILevel currentLevel;
 
     public MultiplayerClient() {
@@ -34,6 +35,10 @@ public class MultiplayerClient extends Listener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void addObservers(IMultiplayerClientObserver observer) {
+        observers.add(observer);
     }
 
     @Override
@@ -54,7 +59,11 @@ public class MultiplayerClient extends Listener {
             System.out.println("Ping response received. Time: " + pingResponse.getTime());
             connection.sendTCP(new LoadMapRequest());
         } else if (object instanceof LoadMapResponse){
-            currentLevel = ((LoadMapResponse)object).getLevel();
+            ILevel level = ((LoadMapResponse)object).getLevel();
+            for (IMultiplayerClientObserver observer :
+                observers) {
+                observer.onLevelReceived(level);
+            }
         }
     }
 

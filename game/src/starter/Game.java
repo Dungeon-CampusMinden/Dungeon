@@ -41,6 +41,7 @@ import level.tools.LevelSize;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
+import mp.client.IMultiplayerClientObserver;
 import mp.client.MultiplayerClient;
 import mp.packages.request.LoadMapRequest;
 import tools.Constants;
@@ -88,6 +89,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private Logger gameLogger;
     private static MultiplayerClient client;
 
+    public Game(ILevel level) {
+        currentLevel = level;
+    }
+
+
     /** Called once at the beginning of the game. */
     protected void setup() {
         initBaseLogger();
@@ -99,12 +105,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         controller.add(pauseMenu);
         hero = new Hero(new Point(0, 0));
         heroPositionComponent =
-                (PositionComponent)
-                        hero.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
-        levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
-        levelAPI.loadLevel(LEVELSIZE);
+            (PositionComponent)
+                hero.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
+        levelAPI = new LevelAPI(batch, painter, this, currentLevel);
+        onLevelLoad();
 
         new VelocitySystem();
         new DrawSystem(painter);
@@ -143,23 +149,23 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     @Override
     public void render(float delta) {
-        if (doFirstFrame) {
-            firstFrame();
-        }
-        batch.setProjectionMatrix(camera.combined);
-        if (runLoop()) {
-            frame();
+            if (doFirstFrame) {
+                firstFrame();
+            }
+            batch.setProjectionMatrix(camera.combined);
             if (runLoop()) {
-                clearScreen();
-                levelAPI.update();
+                frame();
                 if (runLoop()) {
-                    controller.forEach(AbstractController::update);
+                    clearScreen();
+                    levelAPI.update();
                     if (runLoop()) {
-                        camera.update();
+                        controller.forEach(AbstractController::update);
+                        if (runLoop()) {
+                            camera.update();
+                        }
                     }
                 }
             }
-        }
     }
 
     private void clearScreen() {
@@ -172,8 +178,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         controller = new ArrayList<>();
         setupCameras();
         painter = new Painter(batch, camera);
-        generator = new RandomWalkGenerator();
-        levelAPI = new LevelAPI(batch, painter, generator, this);
+//        generator = new RandomWalkGenerator();
+//        levelAPI = new LevelAPI(batch, painter, this, generator);
         setup();
     }
 
@@ -271,6 +277,5 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        DesktopLauncher.run(new Game());
     }
 }
