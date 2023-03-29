@@ -9,6 +9,8 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import configuration.Configuration;
 import configuration.KeyboardConfig;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import controller.AbstractController;
 import controller.SystemController;
 import dslToGame.QuestConfig;
@@ -19,7 +21,7 @@ import ecs.entities.Hero;
 import ecs.systems.*;
 import graphic.DungeonCamera;
 import graphic.Painter;
-import graphic.hud.PauseMenu;
+import graphic.hud.menus.*;
 import interpreter.DSLInterpreter;
 
 import java.io.IOException;
@@ -48,7 +50,7 @@ import tools.Constants;
 import tools.Point;
 
 /** The heart of the framework. From here all strings are pulled. */
-public class Game extends ScreenAdapter implements IOnLevelLoader {
+public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayerClientObserver {
 
     private final LevelSize LEVELSIZE = LevelSize.SMALL;
 
@@ -83,16 +85,13 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static SystemController systems;
 
     public static ILevel currentLevel;
+    private static Menu activeMenu;
     private static PauseMenu pauseMenu;
+    private static StartMenu startMenu;
     private PositionComponent heroPositionComponent;
     public static Hero hero;
     private Logger gameLogger;
     private static MultiplayerClient client;
-
-    public Game(ILevel level) {
-        currentLevel = level;
-    }
-
 
     /** Called once at the beginning of the game. */
     protected void setup() {
@@ -101,16 +100,15 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         controller.clear();
         systems = new SystemController();
         controller.add(systems);
-        pauseMenu = new PauseMenu();
-        controller.add(pauseMenu);
+        this.setupMenus();
         hero = new Hero(new Point(0, 0));
         heroPositionComponent =
             (PositionComponent)
                 hero.getComponent(PositionComponent.class)
                     .orElseThrow(
                         () -> new MissingComponentException("PositionComponent"));
-        levelAPI = new LevelAPI(batch, painter, this, currentLevel);
-        onLevelLoad();
+        levelAPI = new LevelAPI(batch, painter, this, new WallGenerator(new RandomWalkGenerator()));
+        levelAPI.loadLevel();
 
         new VelocitySystem();
         new DrawSystem(painter);
@@ -125,11 +123,16 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         // Todo - diff between player 1 and other players
         // only for testing purposes
         setupClient();
+
+        showMenu(startMenu);
+//        setupClient();
     }
 
     /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
     protected void frame() {
-        camera.setFocusPoint(heroPositionComponent.getPosition());
+        if (hero != null && heroPositionComponent != null) {
+            camera.setFocusPoint(heroPositionComponent.getPosition());
+        }
         entities.removeAll(entitiesToRemove);
         entities.addAll(entitiesToAdd);
         for (Entity entity : entitiesToRemove) {
@@ -168,6 +171,38 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             }
     }
 
+    private void togglePause() {
+        paused = !paused;
+        if (paused) {
+            showMenu(pauseMenu);
+        }
+        else {
+            hideMenu(pauseMenu);
+        }
+    }
+
+    private void setupMenus() {
+        pauseMenu = new PauseMenu();
+        startMenu = new StartMenu();
+
+        if (controller != null) {
+            controller.add(pauseMenu);
+            controller.add(startMenu);
+        }
+    }
+
+    private void showMenu(Menu menuToBeShown) {
+        if (menuToBeShown != null) {
+            stopSystems();
+            menuToBeShown.showMenu();
+        }
+    }
+
+    private void hideMenu(Menu menu) {
+        menu.hideMenu();
+        resumeSystems();
+    }
+
     private void clearScreen() {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
@@ -204,30 +239,34 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         currentLevel = levelAPI.getCurrentLevel();
 
         entities.clear();
-        entities.add(hero);
-        heroPositionComponent.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
+        if (hero != null) {
+            entities.add(hero);
+            heroPositionComponent.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
+        }
 
         // TODO: when calling this before currentLevel is set, the default ctor of PositionComponent
         // triggers NullPointerException
         setupDSLInput();
     }
 
-    /** Toggle between pause and run */
-    public static void togglePause() {
-        paused = !paused;
+    private void resumeSystems() {
         if (systems != null) {
             systems.forEach(ECS_System::toggleRun);
         }
-        if (pauseMenu != null) {
-            if (paused) pauseMenu.showMenu();
-            else pauseMenu.hideMenu();
+    }
+
+    private void stopSystems() {
+        if (systems != null) {
+            systems.forEach(ECS_System::toggleRun);
         }
     }
 
     private boolean isOnEndTile() {
-        Tile currentTile =
-                currentLevel.getTileAt(heroPositionComponent.getPosition().toCoordinate());
-        if (currentTile.equals(currentLevel.getEndTile())) return true;
+        if (hero != null && heroPositionComponent != null) {
+            Tile currentTile =
+                    currentLevel.getTileAt(heroPositionComponent.getPosition().toCoordinate());
+            return currentTile.equals(currentLevel.getEndTile());
+        }
 
         return false;
     }
@@ -266,10 +305,20 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private void setupClient() {
         client = new MultiplayerClient();
-
+        client.addObservers(this);
         LoadMapRequest loadMapRequest = new LoadMapRequest();
         client.send(loadMapRequest);
+
+        while (true) {
+
+        }
     }
+
+    @Override
+    public void onLevelReceived(ILevel level) {
+        // TODO: do some shit to start the game
+    }
+
     public static void main(String[] args) {
         // start the game
         try {
@@ -277,5 +326,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        DesktopLauncher.run(new Game());
     }
 }

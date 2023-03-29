@@ -1,23 +1,28 @@
-package graphic.hud;
+package graphic.hud.menus;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Null;
 import controller.ScreenController;
+import graphic.hud.widgets.FontBuilder;
+import graphic.hud.widgets.LabelStyleBuilder;
+import graphic.hud.widgets.ScreenText;
 import tools.Constants;
 import tools.Point;
 
-public class PauseMenu<T extends Actor> extends ScreenController<T> {
+public class PauseMenu<T extends Actor> extends Menu<T> {
 
     /** Creates a new PauseMenu with a new Spritebatch */
     public PauseMenu() {
-        this(new SpriteBatch());
+        this(new SpriteBatch(), null);
     }
 
     /** Creates a new PauseMenu with a given Spritebatch */
-    public PauseMenu(SpriteBatch batch) {
-        super(batch);
+    public PauseMenu(SpriteBatch batch, @Null Stage stage) {
+        super(batch, stage);
         ScreenText screenText =
                 new ScreenText(
                         "Paused",
@@ -33,15 +38,5 @@ public class PauseMenu<T extends Actor> extends ScreenController<T> {
                 Align.center | Align.bottom);
         add((T) screenText);
         hideMenu();
-    }
-
-    /** shows the Menu */
-    public void showMenu() {
-        this.forEach((Actor s) -> s.setVisible(true));
-    }
-
-    /** hides the Menu */
-    public void hideMenu() {
-        this.forEach((Actor s) -> s.setVisible(false));
     }
 }
