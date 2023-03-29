@@ -21,11 +21,15 @@ public interface ILevel extends ITileable {
 
     /** Mark a random tile as end */
     default void setRandomEnd() {
-        Tile newEnd = getRandomTile(LevelElement.FLOOR);
-        while (newEnd == getStartTile()) {
-            newEnd = getRandomTile(LevelElement.FLOOR);
+        List<FloorTile> floorTiles = getFloorTiles();
+        if (floorTiles.size() <= 1) {
+            // not enough Tiles for startTile and ExitTile
+            return;
         }
-        changeTileElementType(newEnd, LevelElement.EXIT);
+        int startTileIndex = floorTiles.indexOf(getStartTile());
+        int index = RANDOM.nextInt(floorTiles.size() - 1);
+        changeTileElementType(
+                floorTiles.get(index < startTileIndex ? index : index + 1), LevelElement.EXIT);
     }
 
     /**
