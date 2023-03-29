@@ -165,10 +165,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
                 // Nothing to do for now. Everything ready for single player
             }
             case MultiplayerClient -> {
-
+                // TODO: configure client as slave
             }
             case MultiplayerHost -> {
-
+                // TODO: configure client as host
             }
         }
 
@@ -197,7 +197,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         entitiesToRemove.clear();
         entitiesToAdd.clear();
         if (isOnEndTile()) levelAPI.loadLevel(LEVELSIZE);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P) && !startMenu.isVisible()) togglePause();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+            if (paused) togglePause();
+            startMenu.resetView();
+            showMenu(startMenu);
+        }
     }
 
     protected boolean runLoop() {
