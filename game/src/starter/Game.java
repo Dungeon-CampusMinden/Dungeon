@@ -32,11 +32,15 @@ import java.util.logging.Logger;
 import level.IOnLevelLoader;
 import level.LevelAPI;
 import level.elements.ILevel;
+import level.elements.TileLevel;
+import level.elements.tile.ExitTile;
 import level.elements.tile.Tile;
 import level.generator.IGenerator;
 import level.generator.postGeneration.WallGenerator;
 import level.generator.randomwalk.RandomWalkGenerator;
 import level.tools.LevelSize;
+import level.tools.Coordinate;
+import level.tools.DesignLabel;
 import mp.client.ClientListener;
 import mp.packages.request.LoadMapRequest;
 import mp.packages.request.PingRequest;
@@ -105,10 +109,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel(LEVELSIZE);
 
-        // Todo - diff between player 1 and other players
-        // only for testing purposes
-        setupClient();
-
         new VelocitySystem();
         new DrawSystem(painter);
         new PlayerSystem();
@@ -118,6 +118,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new XPSystem();
         new SkillSystem();
         new ProjectileSystem();
+
+        // Todo - diff between player 1 and other players
+        // only for testing purposes
+        setupClient();
     }
 
     /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
@@ -258,15 +262,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     private void setupClient(){
-        client = new Client();
-        client.start();
-        try {
-            client.connect(5000, "127.0.0.1", 25444);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        client = new Client(1000000, 1000000);
 
-        client.addListener(new ClientListener());
 
         // register all packages that should be able to be received and sent
         Kryo kryo = client.getKryo();
@@ -274,9 +271,29 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         kryo.register(PingResponse.class);
         kryo.register(LoadMapRequest.class);
         kryo.register(LoadMapResponse.class);
+        kryo.register(ILevel.class);
+        kryo.register(Tile.class);
+        kryo.register(TileLevel.class);
+        kryo.register(ExitTile.class);
+        kryo.register(ArrayList.class);
+        kryo.register(DesignLabel.class);
+        kryo.register(Coordinate.class);
+
+        client.addListener(new ClientListener());
+
+        try {
+            client.start();
+            client.connect(10000, "127.0.0.1", 25444);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         LoadMapRequest loadMapRequest = new LoadMapRequest(currentLevel);
         client.sendTCP(loadMapRequest);
+
+        while(true) {
+
+        }
     }
 
     public static void main(String[] args) {
