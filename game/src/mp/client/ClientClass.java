@@ -4,7 +4,6 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Client;
 import mp.packages.request.PingRequest;
 import mp.packages.response.PingResponse;
-import mp.server.ServerListener;
 
 import java.io.IOException;
 
@@ -21,7 +20,7 @@ public class ClientClass {
         client.start();
 
         try {
-            client.connect(connectionTimeout, serverAddress, 25444);
+            client.connect(connectionTimeout, serverAddress, serverPort);
         } catch (
         IOException e) {
             e.printStackTrace();
@@ -31,8 +30,8 @@ public class ClientClass {
 
         Kryo kryo = client.getKryo();
         // register all packages that should be able to be received and sent
-        kryo.register(PingRequest .class);
-        kryo.register(PingResponse .class);
+        kryo.register(PingRequest.class);
+        kryo.register(PingResponse.class);
 
         PingRequest pingRequest = new PingRequest();
         client.sendTCP(pingRequest);
