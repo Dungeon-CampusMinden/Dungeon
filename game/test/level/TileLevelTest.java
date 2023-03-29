@@ -130,6 +130,22 @@ public class TileLevelTest {
         assertSame(layout[0][1], layout[0][2].getConnections().first().getToNode());
     }
 
+    @Test
+    public void test_levelCTOR_LevelElements_tileTypeLists(){
+        LevelElement[][] elementsLayout =
+            new LevelElement[][] {
+                {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.EXIT, LevelElement.SKIP},
+                {LevelElement.WALL, LevelElement.WALL, LevelElement.SKIP, LevelElement.SKIP},
+                {LevelElement.DOOR, LevelElement.DOOR, LevelElement.HOLE, LevelElement.HOLE},
+            };
+        TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+        assertEquals(2,tileLevel.getFloorTiles().size());
+        assertEquals(2,tileLevel.getDoorTiles().size());
+        assertEquals(2,tileLevel.getHoleTiles().size());
+        assertEquals(2,tileLevel.getWallTiles().size());
+        assertEquals(3,tileLevel.getSkipTiles().size());
+    }
+
 
     @Test
     public void test_findPath_onlyOnePathPossible() {
