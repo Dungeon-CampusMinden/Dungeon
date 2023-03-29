@@ -1,7 +1,7 @@
 package level.elements;
 
-import com.badlogic.gdx.ai.pfa.Connection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import level.elements.astar.TileHeuristic;
 import level.elements.tile.*;
@@ -181,41 +181,33 @@ public class TileLevel implements ILevel {
     @Override
     public void removeTile(Tile tile) {
         switch (tile.getLevelElement()) {
-            case SKIP -> {
-                skipTiles.remove(tile);
-            }
-            case FLOOR -> {
-                floorTiles.remove(tile);
-            }
-            case WALL -> {
-                wallTiles.remove(tile);
-            }
-            case HOLE -> {
-                holeTiles.remove(tile);
-            }
-            case EXIT -> {
-                exitTiles.remove(tile);
-                setEndTile(null);
-            }
-            case DOOR -> {
-                doorTiles.remove(tile);
-            }
+            case SKIP -> skipTiles.remove(tile);
+            case FLOOR -> floorTiles.remove(tile);
+            case WALL -> wallTiles.remove(tile);
+            case HOLE -> holeTiles.remove(tile);
+            case DOOR -> doorTiles.remove(tile);
+            case EXIT -> exitTiles.remove(tile);
         }
         // remove all connections to the removed Tile
         tile.getConnections()
-                .forEach(
+                .forEach( // alle verbindungen
                         x ->
                                 x.getToNode()
                                         .getConnections()
                                         .forEach(
-                                                y -> {
+                                                y -> { // alle verbindungen ausgehend
                                                     if (y.getToNode() == tile)
-                                                        x.getToNode()
-                                                                .getConnections()
+                                                        y.getFromNode().getConnections()
                                                                 .removeValue(y, true);
                                                 }));
-        // TODO Issue #461
-        if (tile.isAccessible()) nodeCount--;
+        if (tile.isAccessible()) removeIndex(tile.getIndex());
+    }
+
+    private void removeIndex(int index) {
+        Arrays.stream(layout)
+                .flatMap(x -> Arrays.stream(x).filter(y -> y.getIndex() > index))
+                .forEach(x -> x.setIndex(x.getIndex() - 1));
+        nodeCount--;
     }
 
     @Override
@@ -230,12 +222,9 @@ public class TileLevel implements ILevel {
         }
         if (tile.isAccessible()) {
             this.addConnectionsToNeighbours(tile);
-            for (Connection<Tile> neighbor : tile.getConnections().items) {
-                Tile n = neighbor.getToNode();
-                n.addConnection(tile);
-            }
-            // TODO Issue #461
-            nodeCount++;
+            tile.getConnections().forEach(x -> x.getToNode().addConnection(tile));
+
+            tile.setIndex(nodeCount++);
         }
     }
 
