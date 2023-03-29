@@ -138,7 +138,6 @@ public class TileLevel implements ILevel {
             changeTileElementType(getEndTile(), LevelElement.FLOOR);
         }
         exitTiles.add(tile);
-        setEndTile(tile);
     }
 
     @Override
@@ -223,9 +222,9 @@ public class TileLevel implements ILevel {
         if (tile.isAccessible()) {
             this.addConnectionsToNeighbours(tile);
             tile.getConnections().forEach(x -> x.getToNode().addConnection(tile));
-
             tile.setIndex(nodeCount++);
         }
+        tile.setLevel(this);
     }
 
     @Override
@@ -246,13 +245,5 @@ public class TileLevel implements ILevel {
     @Override
     public Tile getEndTile() {
         return exitTiles.size() > 0 ? exitTiles.get(0) : null;
-    }
-
-    @Override
-    public void setEndTile(Tile end) {
-        exitTiles.clear();
-        if (end != null) {
-            exitTiles.add((ExitTile) end);
-        }
     }
 }

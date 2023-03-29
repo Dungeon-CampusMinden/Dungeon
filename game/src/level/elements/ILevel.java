@@ -29,13 +29,6 @@ public interface ILevel extends ITileable {
     }
 
     /**
-     * Set the end tile.
-     *
-     * @param end The end tile.
-     */
-    void setEndTile(Tile end);
-
-    /**
      * Add floor tile to level.
      *
      * @param tile new floor tile
@@ -179,9 +172,6 @@ public interface ILevel extends ITileable {
                         tile.getDesignLabel());
         level.getLayout()[tile.getCoordinate().y][tile.getCoordinate().x] = newTile;
         level.addTile(newTile);
-        if (changeInto == LevelElement.EXIT) {
-            level.setEndTile(newTile);
-        }
     }
 
     @Override
