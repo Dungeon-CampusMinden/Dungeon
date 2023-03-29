@@ -1,13 +1,12 @@
-package graphic.hud.menus;
+package graphic.hud.menus.startmenu;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Event;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Null;
+import graphic.hud.menus.Menu;
 import graphic.hud.widgets.*;
 import tools.Constants;
 import tools.Point;

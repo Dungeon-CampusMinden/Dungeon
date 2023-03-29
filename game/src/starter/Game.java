@@ -22,6 +22,9 @@ import ecs.systems.*;
 import graphic.DungeonCamera;
 import graphic.Painter;
 import graphic.hud.menus.*;
+import graphic.hud.menus.startmenu.GameMode;
+import graphic.hud.menus.startmenu.IStartMenuObserver;
+import graphic.hud.menus.startmenu.StartMenu;
 import interpreter.DSLInterpreter;
 
 import java.io.IOException;
@@ -45,12 +48,12 @@ import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import mp.client.IMultiplayerClientObserver;
 import mp.client.MultiplayerClient;
-import mp.packages.request.LoadMapRequest;
+import mp.packages.request.InitializeServerRequest;
 import tools.Constants;
 import tools.Point;
 
 /** The heart of the framework. From here all strings are pulled. */
-public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayerClientObserver {
+public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObserver, IMultiplayerClientObserver {
 
     private final LevelSize LEVELSIZE = LevelSize.SMALL;
 
@@ -97,51 +100,17 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayerC
     protected void setup() {
         initBaseLogger();
         gameLogger = Logger.getLogger(this.getClass().getName());
+        client = new MultiplayerClient();
         controller.clear();
         systems = new SystemController();
         controller.add(systems);
-        this.setupMenus();
-        hero = new Hero(new Point(0, 0));
-        heroPositionComponent =
-            (PositionComponent)
-                hero.getComponent(PositionComponent.class)
-                    .orElseThrow(
-                        () -> new MissingComponentException("PositionComponent"));
-        levelAPI = new LevelAPI(batch, painter, this, new WallGenerator(new RandomWalkGenerator()));
-        levelAPI.loadLevel();
 
-        new VelocitySystem();
-        new DrawSystem(painter);
-        new PlayerSystem();
-        new AISystem();
-        new CollisionSystem();
-        new HealthSystem();
-        new XPSystem();
-        new SkillSystem();
-        new ProjectileSystem();
-
-        // Todo - diff between player 1 and other players
-        // only for testing purposes
-        setupClient();
+        setupMenus();
+        setupHero();
+        setupLevel();
+        setupSystems();
 
         showMenu(startMenu);
-//        setupClient();
-    }
-
-    /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
-    protected void frame() {
-        if (hero != null && heroPositionComponent != null) {
-            camera.setFocusPoint(heroPositionComponent.getPosition());
-        }
-        entities.removeAll(entitiesToRemove);
-        entities.addAll(entitiesToAdd);
-        for (Entity entity : entitiesToRemove) {
-            gameLogger.info("Entity '" + entity.getClass().getSimpleName() + "' was deleted.");
-        }
-        entitiesToRemove.clear();
-        entitiesToAdd.clear();
-        if (isOnEndTile()) levelAPI.loadLevel(LEVELSIZE);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
     }
 
     /**
@@ -171,19 +140,142 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayerC
             }
     }
 
-    private void togglePause() {
-        paused = !paused;
-        if (paused) {
-            showMenu(pauseMenu);
+    @Override
+    public void onLevelLoad() {
+        currentLevel = levelAPI.getCurrentLevel();
+
+        entities.clear();
+        if (hero != null) {
+            entities.add(hero);
+            heroPositionComponent.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
         }
-        else {
-            hideMenu(pauseMenu);
+
+        // TODO: when calling this before currentLevel is set, the default ctor of PositionComponent
+        // triggers NullPointerException
+        setupDSLInput();
+    }
+
+    @Override
+    public void onGameModeChosen(GameMode gameMode) {
+        // refresh level because was loaded on setup as background for start menu
+        setupLevel();
+
+        switch (gameMode) {
+            case SinglePlayer -> {
+                // Nothing to do for now. Everything ready for single player
+            }
+            case MultiplayerClient -> {
+
+            }
+            case MultiplayerHost -> {
+
+            }
         }
+
+        hideMenu(startMenu);
+    }
+
+    @Override
+    public void onServerInitializedReceived(boolean isSucceed) {
+        // TODO: do some stuff
+    }
+
+    public void setSpriteBatch(SpriteBatch batch) {
+        this.batch = batch;
+    }
+
+    /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
+    protected void frame() {
+        if (hero != null && heroPositionComponent != null) {
+            camera.setFocusPoint(heroPositionComponent.getPosition());
+        }
+        entities.removeAll(entitiesToRemove);
+        entities.addAll(entitiesToAdd);
+        for (Entity entity : entitiesToRemove) {
+            gameLogger.info("Entity '" + entity.getClass().getSimpleName() + "' was deleted.");
+        }
+        entitiesToRemove.clear();
+        entitiesToAdd.clear();
+        if (isOnEndTile()) levelAPI.loadLevel(LEVELSIZE);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
+    }
+
+    protected boolean runLoop() {
+        return true;
+    }
+
+    private void setupCameras() {
+        camera = new DungeonCamera(null, Constants.VIRTUAL_WIDTH, Constants.VIRTUAL_HEIGHT);
+        camera.zoom = Constants.DEFAULT_ZOOM_FACTOR;
+
+        // See also:
+        // https://stackoverflow.com/questions/52011592/libgdx-set-ortho-camera
+    }
+
+    private void setupLevel() {
+        levelAPI = new LevelAPI(batch, painter, this, new WallGenerator(new RandomWalkGenerator()));
+        levelAPI.loadLevel();
+    }
+
+    private void setupSystems() {
+        new VelocitySystem();
+        new DrawSystem(painter);
+        new PlayerSystem();
+        new AISystem();
+        new CollisionSystem();
+        new HealthSystem();
+        new XPSystem();
+        new SkillSystem();
+        new ProjectileSystem();
+    }
+
+    private void setupDSLInput() {
+        String program =
+            """
+    game_object monster {
+        position_component {
+        },
+        velocity_component {
+        x_velocity: 0.1,
+        y_velocity: 0.1,
+        move_right_animation:"monster/imp/runRight",
+        move_left_animation: "monster/imp/runLeft"
+        },
+        animation_component{
+            idle_left: "monster/imp/idleLeft",
+            idle_right: "monster/imp/idleRight",
+            current_animation: "monster/imp/idleLeft"
+        },
+        ai_component {
+        },
+        hitbox_component {
+        }
+    }
+
+    quest_config config {
+        entity: monster
+    }
+    """;
+        DSLInterpreter interpreter = new DSLInterpreter();
+        QuestConfig config = (QuestConfig) interpreter.getQuestConfig(program);
+        entities.add(config.entity());
+    }
+
+    private void setupHero() {
+        hero = new Hero(new Point(0, 0));
+        heroPositionComponent =
+            (PositionComponent)
+                hero.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
     }
 
     private void setupMenus() {
         pauseMenu = new PauseMenu();
         startMenu = new StartMenu();
+        if (!startMenu.addObserver(this)) {
+            throw new RuntimeException("Failed to register observer to start menu");
+        };
 
         if (controller != null) {
             controller.add(pauseMenu);
@@ -203,6 +295,16 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayerC
         resumeSystems();
     }
 
+    private void togglePause() {
+        paused = !paused;
+        if (paused) {
+            showMenu(pauseMenu);
+        }
+        else {
+            hideMenu(pauseMenu);
+        }
+    }
+
     private void clearScreen() {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
@@ -216,37 +318,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayerC
 //        generator = new RandomWalkGenerator();
 //        levelAPI = new LevelAPI(batch, painter, this, generator);
         setup();
-    }
-
-    public void setSpriteBatch(SpriteBatch batch) {
-        this.batch = batch;
-    }
-
-    protected boolean runLoop() {
-        return true;
-    }
-
-    private void setupCameras() {
-        camera = new DungeonCamera(null, Constants.VIRTUAL_WIDTH, Constants.VIRTUAL_HEIGHT);
-        camera.zoom = Constants.DEFAULT_ZOOM_FACTOR;
-
-        // See also:
-        // https://stackoverflow.com/questions/52011592/libgdx-set-ortho-camera
-    }
-
-    @Override
-    public void onLevelLoad() {
-        currentLevel = levelAPI.getCurrentLevel();
-
-        entities.clear();
-        if (hero != null) {
-            entities.add(hero);
-            heroPositionComponent.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
-        }
-
-        // TODO: when calling this before currentLevel is set, the default ctor of PositionComponent
-        // triggers NullPointerException
-        setupDSLInput();
     }
 
     private void resumeSystems() {
@@ -269,54 +340,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayerC
         }
 
         return false;
-    }
-
-    private void setupDSLInput() {
-        String program =
-                """
-        game_object monster {
-            position_component {
-            },
-            velocity_component {
-            x_velocity: 0.1,
-            y_velocity: 0.1,
-            move_right_animation:"monster/imp/runRight",
-            move_left_animation: "monster/imp/runLeft"
-            },
-            animation_component{
-                idle_left: "monster/imp/idleLeft",
-                idle_right: "monster/imp/idleRight",
-                current_animation: "monster/imp/idleLeft"
-            },
-            ai_component {
-            },
-            hitbox_component {
-            }
-        }
-
-        quest_config config {
-            entity: monster
-        }
-        """;
-        DSLInterpreter interpreter = new DSLInterpreter();
-        QuestConfig config = (QuestConfig) interpreter.getQuestConfig(program);
-        entities.add(config.entity());
-    }
-
-    private void setupClient() {
-        client = new MultiplayerClient();
-        client.addObservers(this);
-        LoadMapRequest loadMapRequest = new LoadMapRequest();
-        client.send(loadMapRequest);
-
-        while (true) {
-
-        }
-    }
-
-    @Override
-    public void onLevelReceived(ILevel level) {
-        // TODO: do some shit to start the game
     }
 
     public static void main(String[] args) {

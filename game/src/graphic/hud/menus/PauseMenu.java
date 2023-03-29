@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Null;
-import controller.ScreenController;
 import graphic.hud.widgets.FontBuilder;
 import graphic.hud.widgets.LabelStyleBuilder;
 import graphic.hud.widgets.ScreenText;

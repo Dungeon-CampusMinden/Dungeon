@@ -1,25 +1,24 @@
-package graphic.hud.menus;
+package graphic.hud.menus.startmenu;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Null;
+import graphic.hud.menus.Menu;
 import graphic.hud.widgets.FontBuilder;
 import graphic.hud.widgets.ScreenButton;
-import graphic.hud.widgets.TextButtonListener;
 import graphic.hud.widgets.TextButtonStyleBuilder;
 import tools.Constants;
 import tools.Point;
 
-public class MultiplayerMenu<T extends Actor> extends Menu<T> {
+public class MultiplayerHostOrJoinMenu<T extends Actor> extends Menu<T> {
 
     private final ScreenButton buttonOpenToLan;
     private final ScreenButton buttonJoinSession;
 
-    public MultiplayerMenu() {
+    public MultiplayerHostOrJoinMenu() {
         this(new SpriteBatch(), null);
     }
 
@@ -29,7 +28,7 @@ public class MultiplayerMenu<T extends Actor> extends Menu<T> {
      *
      * @param batch the batch which should be used to draw with
      */
-    public MultiplayerMenu(SpriteBatch batch, @Null Stage stage) {
+    public MultiplayerHostOrJoinMenu(SpriteBatch batch, @Null Stage stage) {
         super(batch, stage);
         buttonOpenToLan = new ScreenButton(
             "Open to Lan",
