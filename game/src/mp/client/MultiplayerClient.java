@@ -21,31 +21,13 @@ public class MultiplayerClient extends Listener {
     private static final Integer writeBufferSize = maxObjectSizeExpected;
     private static final Integer objectBufferSize = maxObjectSizeExpected;
     private static final Integer connectionTimeout = 5000;
-    private static final Integer serverPort = 25444;
-    private static final String serverAddress = "127.0.0.1";
     private static final Client client = new Client(writeBufferSize, objectBufferSize);
     private final ArrayList<IMultiplayerClientObserver> observers = new ArrayList<>();
-    public ILevel currentLevel;
 
     public MultiplayerClient() {
         client.addListener(this);
         NetworkSetup.register(client);
-
         client.start();
-
-        new Thread("Connect") {
-            public void run () {
-                try {
-                    client.connect(connectionTimeout, serverAddress, serverPort);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }.start();
-    }
-
-    public void addObserver(IMultiplayerClientObserver observer) {
-        observers.add(observer);
     }
 
     @Override
@@ -74,5 +56,19 @@ public class MultiplayerClient extends Listener {
 
     public void send(Object object) {
         client.sendTCP(object);
+    }
+
+    public boolean connectToHost(String address, Integer port) {
+        try {
+            client.connect(connectionTimeout, address, port);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public void addObserver(IMultiplayerClientObserver observer) {
+        observers.add(observer);
     }
 }
