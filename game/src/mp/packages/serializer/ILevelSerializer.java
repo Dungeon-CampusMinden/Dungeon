@@ -5,7 +5,7 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import level.elements.ILevel;
-import level.elements.tile.Tile;
+import level.elements.tile.*;
 
 import java.lang.reflect.Constructor;
 
@@ -15,6 +15,7 @@ public class ILevelSerializer extends Serializer<ILevel> {
         Class<? extends ILevel> concreteClass = object.getClass();
         kryo.writeClass(output, concreteClass);
         kryo.writeObject(output, object.getLayout());
+        kryo.writeObject(output, object.getStartTile());
     }
 
     @Override
@@ -24,6 +25,7 @@ public class ILevelSerializer extends Serializer<ILevel> {
         try {
             Constructor<? extends ILevel> constructor = concreteClass.getConstructor(Tile[][].class);
             ILevel instance = constructor.newInstance(new Object[]{layout});
+            instance.setStartTile(kryo.readObject(input, FloorTile.class));
             return instance;
         } catch (Exception e) {
             e.printStackTrace();
