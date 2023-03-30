@@ -18,6 +18,7 @@ Wie Sie das Projekt in Ihre IDE zu laden, können Sie in dem [Wiki: Import-Proje
   - S: System: Beinhalten die eigentliche logik und agieren auf die Components
   - siehe auch [readme.md](https://github.com/Programmiermethoden/Dungeon/blob/master/doc/ecs/readme.md)
 - TODO: UML Diagramm mit `Game` (im Center), `Component`, `ECS_System`, `Entity`, `libGDX basics`
+![Dungeon_UML.png](https://github.com/Programmiermethoden/Dungeon/blob/dk_lg/Documentation_Basics/doc/Dungeon_UML.png)
 
 ## Die Klasse Game
 ### Erster Start
