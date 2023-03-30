@@ -9,9 +9,11 @@ import mp.packages.request.InitializeServerRequest;
 import mp.packages.response.InitializeServerResponse;
 import mp.packages.response.JoinSessionResponse;
 import mp.packages.response.PingResponse;
+import mp.packages.response.UpdateAllPositionsResponse;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MultiplayerClient extends Listener {
 
@@ -56,6 +58,11 @@ public class MultiplayerClient extends Listener {
             ILevel level = ((JoinSessionResponse)object).getLevel();
             for (IMultiplayerClientObserver observer: observers) {
                 observer.onSessionJoined(level, connection.getID());
+            }
+        } else if (object instanceof UpdateAllPositionsResponse){
+            HashMap playerPositions = ((UpdateAllPositionsResponse)object).getPlayerPositions();
+            for (IMultiplayerClientObserver observer: observers){
+                observer.onPositionUpdate(playerPositions);
             }
         }
     }

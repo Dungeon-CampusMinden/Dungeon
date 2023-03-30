@@ -105,6 +105,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     private static int playerId;
     public static Hero hero;
 
+    private static HashMap<Integer, Point> playerPositions;
+
     /** Called once at the beginning of the game. */
     protected void setup() {
         initBaseLogger();
@@ -238,6 +240,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         UpdateOwnPositionRequest posReq = new UpdateOwnPositionRequest(playerId, pos.getPosition());
 
         multiplayerClient.send(posReq);
+    }
+
+    @Override
+    public void onPositionUpdate(HashMap playerPositions){
+        this.playerPositions = playerPositions;
     }
 
     public void setSpriteBatch(SpriteBatch batch) {

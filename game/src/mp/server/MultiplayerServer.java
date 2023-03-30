@@ -13,6 +13,7 @@ import mp.packages.request.UpdateOwnPositionRequest;
 import mp.packages.response.InitializeServerResponse;
 import mp.packages.response.JoinSessionResponse;
 import mp.packages.response.PingResponse;
+import mp.packages.response.UpdateAllPositionsResponse;
 import mp.player.PlayersAPI;
 import tools.Point;
 
@@ -46,6 +47,7 @@ public class MultiplayerServer extends Listener {
 
     @Override
     public void disconnected(Connection connection) {
+        playerPositions.remove(connection.getID());
 //        System.out.println("Player " + connection.getID() + " disconnected");
     }
 
@@ -63,6 +65,8 @@ public class MultiplayerServer extends Listener {
         } else if (object instanceof UpdateOwnPositionRequest) {
             UpdateOwnPositionRequest posReq = (UpdateOwnPositionRequest) object;
             playerPositions.put(posReq.getPlayerId(), posReq.getPosition());
+
+            server.sendToAllTCP(new UpdateAllPositionsResponse(playerPositions));
         }
     }
 

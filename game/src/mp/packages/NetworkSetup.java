@@ -16,10 +16,12 @@ import mp.packages.request.UpdateOwnPositionRequest;
 import mp.packages.response.InitializeServerResponse;
 import mp.packages.response.JoinSessionResponse;
 import mp.packages.response.PingResponse;
+import mp.packages.response.UpdateAllPositionsResponse;
 import mp.packages.serializer.*;
 import tools.Point;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class NetworkSetup {
 
@@ -52,5 +54,7 @@ public class NetworkSetup {
         kryo.register(DesignLabel.class);
         kryo.register(LevelElement.class);
         kryo.register(UpdateOwnPositionRequest.class, new UpdateOwnPositionRequestSerializer());
+        kryo.register(HashMap.class);
+        kryo.register(UpdateAllPositionsResponse.class, new UpdateAllPositionsResponseSerializer());
     }
 }
