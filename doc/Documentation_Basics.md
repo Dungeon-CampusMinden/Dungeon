@@ -2,6 +2,16 @@
 title: "Documentation_Basics"
 ---
 
+# Quickstart
+
+
+Dieses Dokument liefert einen Einstieg in das Dungeon. Es erläutert die Installation des Spiels und die ersten Schritte, um eigene Inhalte zum Dungeon hinzuzufügen. Es dient als Grundlage für alle weiteren Praktika. Lesen Sie das Dokument daher aufmerksam durch und versuchen Sie sich zusätzlich selbst mit dem Aufbau vertraut zu machen.
+Das Spiel befindet sich im [`Dungeon`](https://github.com/Programmiermethoden/Dungeon)-Repo.
+
+Sie benötigen nur dieses Projekt für die Aufgaben, die zusätzlichen Abhängigkeiten werden automatisch über Gradle eingebunden.
+
+*Hinweis: Achten Sie darauf, Daten nur dann in öffentliche Git-Repos zu laden, wenn Sie die nötigen Rechte an diesen Daten haben. Dies gilt insbesondere auch für Artefakte wie Bilder, Bitmaps, Musik oder Soundeffekte.*
+
 ## Installation
 
 Für das Dungeon wird das Java Development Kit 17.x.x oder höher benötigt.
