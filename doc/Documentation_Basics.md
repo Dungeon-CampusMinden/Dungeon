@@ -25,14 +25,33 @@ Sie können über die run-Funktion Ihrer IDE überprüfen, ob die Installation l
 *Falls Sie Probleme beim Installieren haben, schauen Sie in die [Kompatibilitätsliste](https://github.com/Programmiermethoden/Dungeon/wiki/JDK-Kompatibilität) und die [FAQ](https://github.com/Programmiermethoden/Dungeon/wiki/FAQ). Melden Sie sich frühzeitig falls Ihr Problem damit nicht behoben werden konnte.*
 
 
-## Überblick
-- Kurze Erklärung: was ist ein ECS? 
-  - E: Entity: Entitites sind die Objekte des Spiels
-  - C: Component: Components speichern die Datensätze der Entität. Eine Component-Instanz gehört zu genau einer Enitity.
-  - S: System: Beinhalten die eigentliche logik und agieren auf die Components
-  - siehe auch [readme.md](https://github.com/Programmiermethoden/Dungeon/blob/master/doc/ecs/readme.md)
-- TODO: UML Diagramm mit `Game` (im Center), `Component`, `ECS_System`, `Entity`, `libGDX basics`
-![Dungeon_UML.png](https://github.com/Programmiermethoden/Dungeon/blob/dk_lg/Documentation_Basics/doc/Dungeon_UML.png)
+## Grundlagen
+
+Zu Beginn einige grundlegende Prinzipien, die Sie verstanden haben sollten, bevor Sie mit dem Dungeon arbeiten.
+
+Das Dungeon benutzt das Cross-Plattform-Java-Framework [`libGDX`](https://libgdx.com) als Backend.
+Dieses ist im `Dungeon`-Projekt bereits als Abhängigkeit in die Gradle-Konfiguration integriert, Sie müssen dieses nicht extra installieren. Die Ihnen zur Verfügung gestellten sind so umgesetzt, dass Sie kein tieferes Verständnis für `libGDX` benötigen, um die Aufgaben zu lösen. Sollten Sie allerdings einmal auf Probleme stoßen, kann es unter Umständen helfen, einen Blick in die [Dokumentation von `libGDX`](https://libgdx.com/wiki/) zu werfen.
+
+
+Das `Dungeon`-Projekt fungiert, ganz vereinfacht gesagt, als eine Facade zwischen `libGDX` und Ihrer eigenen Implementierung. Es implementiert ein Entity-Component-System (ECS):
+- Entity: Entitites sind die Elemente (Helden, Monster, Schatzkisten, etc.) des Spiels
+- Component: Components speichern die Datensätze der Entitäten (z.B. die Lebenspunkte)
+- System: Beinhalten die eigentliche Logik und agieren auf die Components
+
+*Weiteres zum ECS im Dungeon erfahren Sie [hier](https://github.com/Programmiermethoden/Dungeon/blob/master/doc/ecs/readme.md).*
+
+Sie selbst nutzen und erweitern die Components und Systeme der Vorgaben. Sie werden ebenfalls neue Entities, Components und Systeme konzeptionieren und implementieren. So erschaffen Sie z.B. Ihre eigenen Monster und fallengespickte Level.
+
+Sie werden im Laufe der Praktika verschiedene Assets benötigen. Diese liegen per Default im `assets`-Verzeichnis. Sie können das Standardverzeichnis in der `build.gradle` anpassen.
+
+- Standardpfad für Texturen: `assets/`
+- Standardpfad für Charaktere: `assets/character/`
+- Standardpfad für Level-Texturen: `assets/textures/dungeon/`
+
+## Strukturen
+
+- TODO: upgedatetes UML-Diagramm, wie [hier](https://github.com/Programmiermethoden/Dungeon/blob/master/doc/ecs/img/ecs.png)  
+
 
 ## Die Klasse Game
 
