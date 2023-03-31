@@ -163,7 +163,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
 
         // TODO: when calling this before currentLevel is set, the default ctor of PositionComponent
         // triggers NullPointerException
-        setupDSLInput();
+//        setupDSLInput();
     }
 
     @Override
@@ -397,7 +397,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         setupCameras();
         painter = new Painter(batch, camera);
 //        generator = new RandomWalkGenerator();
-//        levelAPI = new LevelAPI(batch, painter, this, generator);
+//        levelAPI = new LevelAPI(batch, painter, generator, this);
         setup();
     }
 
@@ -421,24 +421,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         }
 
         return false;
-    }
-
-    private int getAccessibleTcpPort() {
-        try {
-            boolean isRandomPortAlreadyInUse = true;
-            int randomPort;
-            do {
-                randomPort = ThreadLocalRandom.current().nextInt(10000, 65535 + 1);
-                try (ServerSocket serverSocket = new ServerSocket(randomPort)) {
-                    // Port is already in use
-                } catch (Exception ex) {
-                    isRandomPortAlreadyInUse = false;
-                }
-            } while(isRandomPortAlreadyInUse);
-            return randomPort;
-        } catch (Exception e) {
-            return -1;
-        }
     }
 
     public static void main(String[] args) {
