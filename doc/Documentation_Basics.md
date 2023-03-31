@@ -143,25 +143,42 @@ zwischen den einzelnen Tiles bewegen und miteinander interagieren können.
 
 
 
-## Held bauen
+## Übung: Eigenen Helden erstellen
 
-### Entity
-- Held ist eine Entität, hat aber eine eigene Klasse unter `ecs/components/entities`
+Zwar gibt es in den Vorlagen bereits einen Helden (den schauen wir uns am Ende dieses Kapitels genauer an), trotzdem wird Ihnen hier erklärtm wie Sie Ihre erste eigene Entität in das Spiel implementieren.
+*Hinweis: @cagix @AMatutat der bestehende Hero lässt aufgrund besteheder Abhängigkeiten nicht einfach löschen, daher ist nachprogrammieren in diesem Abschnitt schwierig*
+
+### Held Entität erstellen
+
+- Warum muss das eigentlich ne Entität sein? 
+- - Held ist eine Entität, hat aber eine eigene Klasse unter `ecs/components/entities`
 	- vergleiche Abschnitt `Eigene Klasse für Hero` unter [structure_design_desicions.md](https://github.com/Programmiermethoden/Dungeon/blob/master/doc/ecs/structure_design_decisions.md)
 
-- Warum muss das eigentlich ne Entität sein?
-- Wie kommt das jetzt in das ECS/Spiel/Game-Loop rein?  
+- Entität `myHero` in `Game#onLevelLoad` anlegen
+    - Warum in onLevelLoad?
+- erklären wie der in der Game-Loop ist (entitiesToAdd)
 
 
 ### Held zeichnen
-- Was brauch ich da?
-- Warum wird der denn jetzt gezeichnet wenn der diese Components hat? (`ECS_Systeme` erklären) 
+
+- positinComponent erstellen
+    - Wofür ist das da
+    - welche werte sind sinnvoll
+- AnimationCompoent erstellen
+    - Wofür ist das da
+    - wie wird eine Animation erstellt
+
+- DrawSystem [Link zum Code](https://github.com/Programmiermethoden/Dungeon/blob/master/game/src/ecs/systems/DrawSystem.java)
 
 ### Held bewegen
-- Was brauch ich da?
-- Key Konfiguration erklären
 
-- Um mit WASD den Helden zu steuern, erst die Tastaturbelegung in `configuaration/KeyboardConfig.java` festlegen
+- VelocityComponent
+    - VelocitySystem arbeitet darauf
+- PlayableComponent
+    - PlayerSystem arbeitet darauf
+
+
+- Um mit WASD den Helden zu steuern, erst die Tastaturbelegung in `configuaration/KeyboardConfig.java` festlegen *Muss nicht so exolizit erklärt werden, vielleicht raus*
 - Beispiel:
 
 ```java
@@ -177,21 +194,30 @@ if (Gdx.input.isKeyPressed(KeyboardConfig.MOVEMENT_UP.get()))
 else if (Gdx.input.isKeyPressed(KeyboardConfig.MOVEMENT_DOWN.get()))
             ksd.vc.setCurrentYVelocity(-1 * ksd.vc.getYVelocity());
 ```
-*Hinweis: quer laufen geht nicht, da immer nur eine Taste abgefragt wird*
+*Hinweis: quer laufen geht nicht, da immer nur eine Taste abgefragt wird. Haben Sie eine Idee wie man das umsetzen könnte?*
 
-- In `starter/Game.java` innerhalb der Methode `setup` ein PlayerSystem erstellen
+
+
 
 ### Existierenden Helden analysieren
-- Was hat der denn noch so? 
-- Was ist interessant davon? 
+
+Jetzt schauen wir und den bereits existierenden 
+
+- Warum hat der eine eigene Klasse?
+- Welche anderen Components hat der noch?
+    - HitboxComponent
+        - Wofür ist das da?
+        - `heroCollision(HitboxComponent other, Tile.Direction from)`
+        - Verwendete Parameter erklären
+    - SkillComponent
+        - Was ist das?
+        - beiden getter erklären
+        - Verwendete Parameter erklären/FeuerballSkill erklären
+        - StrategyPattern im ECS verlinken
+           
 
 ## Erweitert
-
 
 ### HUD
 - Wie erstelle ich Elemente für das HUD
 - Text, Bild, Button
-
-##Erstellen weiteren Contents
-
-- siehe [create_own_content.md](https://github.com/Programmiermethoden/Dungeon/blob/master/doc/ecs/create_own_content.md)
