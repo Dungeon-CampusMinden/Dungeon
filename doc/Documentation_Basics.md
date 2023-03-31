@@ -14,9 +14,13 @@ Sie benötigen nur dieses Projekt für die Aufgaben, die zusätzlichen Abhängig
 
 ## Installation
 
-Für das Dungeon wird das Java Development Kit 17.x.x oder höher benötigt.
+Für das Dungeon wird das Java Development Kit 17.x.x (JDK 17) oder höher benötigt, stellen Sie sicher, dass Sie es installiert haben.
 
-Wie Sie das Projekt in Ihre IDE zu laden, können Sie in dem [Wiki: Import-Project](https://github.com/Programmiermethoden/Dungeon/wiki/Import-Project) nachlesen.
+Laden Sie das Projekt herunter und binden Sie es als Gradle-Projekt in Ihre IDE ein. 
+Eine genauere Anleitung finden Sie [hier](https://github.com/Programmiermethoden/Dungeon/wiki/Import-Project)
+
+Sie können über die run-Funktion Ihrer IDE überprüfen, ob die Installation lauffähig ist. Alternativ können Sie per Konsole in das Dungeon-Verzeichnis wechseln und `./gradlew run` ausführen.
+
 
 *Falls Sie Probleme beim Installieren haben, schauen Sie in die [Kompatibilitätsliste](https://github.com/Programmiermethoden/Dungeon/wiki/JDK-Kompatibilität) und die [FAQ](https://github.com/Programmiermethoden/Dungeon/wiki/FAQ). Melden Sie sich frühzeitig falls Ihr Problem damit nicht behoben werden konnte.*
 
@@ -31,9 +35,6 @@ Wie Sie das Projekt in Ihre IDE zu laden, können Sie in dem [Wiki: Import-Proje
 ![Dungeon_UML.png](https://github.com/Programmiermethoden/Dungeon/blob/dk_lg/Documentation_Basics/doc/Dungeon_UML.png)
 
 ## Die Klasse Game
-### Erster Start
-- Vorgabe ist lauffähig und kann über die run-Funktion der IDE gestartet werden
-- Alternativ per Konsole in das Dungeon-Verzeichnes wechseln und `./gradlew run` ausführen
 
 ### Gameloop
 - Was ist die GameLoop
