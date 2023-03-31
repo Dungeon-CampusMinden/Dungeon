@@ -50,14 +50,98 @@ Sie werden im Laufe der Praktika verschiedene Assets benötigen. Diese liegen pe
 
 ## Strukturen
 
+In diesem Abschnitt werden Ihnen die wichtigsten Klassen im Dungeon vorgestellt.
+
+
 - TODO: upgedatetes UML-Diagramm, wie [hier](https://github.com/Programmiermethoden/Dungeon/blob/master/doc/ecs/img/ecs.png)  
 
+- `entity` Die Java-Implementierung der Entitäten eines ECS
+- `component` Abstrakte Klasse, jedes Component im ECS leitet hiervon ab
+- `ECS-Systems` Abstrakte Klasse, jedes System um ECS eitet hiervon ab
+- LevelAPI: Kümmert sich darum, dass neue Level erzeugt und geladen werden.
+- DungeonCamera: Ihr Auge in das Dungeon.
+- libGDXSetup: Bereitet die Anwendung vor, für die Verwendung des Dungeons ist die genau Funktionalität nicht notwendig
+- Game erstellt die Entitäten, Components und Systeme des ECS und beinhaltet die Game-Loop. Game ist Ihr Einstiegspunkt in das Dungeon
+- Game-Loop: Die Game-Loop ist die wichtigste Komponente des Spieles. Sie ist eine Endlosschleife, welche einmal pro Frame aufgerufen wird. Das Spiel läuft in 30 FPS (also 30 frames per seconds), die Game-Loop wird also 30-mal in der Sekunde aufgerufen. Alle Aktionen, die wiederholt ausgeführt werden müssen, wie zum Beispiel das Bewegen und Zeichnen von Figuren, müssen innerhalb der Game-Loop stattfinden. Das Framework ermöglicht es Ihnen, eigene Aktionen in die Game-Loop zu integrieren. Wie genau das geht, erfahren Sie im Laufe dieser Anleitung.
+*Hinweis: Die Game-Loop wird automatisch ausgeführt, Sie müssen sie nicht aktiv aufrufen.*
 
-## Die Klasse Game
+Zusätzlich existieren noch eine Vielzahl an weiteren Hilfsklassen, mit denen Sie mal mehr oder mal weniger Kontakt haben werden.
 
-### Gameloop
-- Was ist die GameLoop
-- Was sind die wichtigen Methode (Frame, Setup) was machen die
+### Game
+
+Game implementiert einige wichtige Methoden:
+
+- `setup` wird zu Beginn der Anwendung aufgerufen. In dieser Methode werden die Objekte (wie die Systeme) initialisiert und konfiguriert, welche bereits vor dem Spielstart existieren müssen. In der Vorgabe wird hier bereits das erste Level geladen, die Systeme angelegt und der Herd initialisert.
+- `render` Ruft die Logiken der Systeme auf.
+- `onLevelLoad` wird immer dann aufgerufen, wenn ein Level geladen wird. Hier werden später Entitäten erstellt, die initial im Level verteilt werden.
+- `frame` wird in jedem Frame einmal aufgerufen.
+- `main` startet das Spiel.
+
+- `entities`
+-entitiestoadd
+-entitiestoremove
+
+### Component
+
+- Components speichern immer die Entität zu der sie gehören
+- alle bereits implementierten Components finden Sie [hier](https://github.com/Programmiermethoden/Dungeon/blob/master/doc/ecs/components/readme.md)
+- um eigene Components zu schreiben, leiten Sie von der eigentlichen Component Klasse ab
+- siehe [create_own_content.md](https://github.com/Programmiermethoden/Dungeon/blob/master/doc/ecs/create_own_content.md)
+
+### Entity
+
+- Entitäten sind leere Container und speichern Components
+- um ein Component einer Entität zu erhalten, benutzen Sie die Methode `entity#getComponent(component.class klass)`
+    - Anmerkung: Sie erhalten ein `Optional zurück`
+- siehe [create_own_content.md](https://github.com/Programmiermethoden/Dungeon/blob/master/doc/ecs/create_own_content.md)
+
+### System
+
+- um eigene Components zu schreiben, leiten Sie von der ECS_Systems Klasse ab
+- in der `ECS_System#update()` iterieren die Systeme über alle Entitäten mit bestimmten Components und agieren darauf
+- alle bereits implementierten Systeme finden Sie [hier](https://github.com/Programmiermethoden/Dungeon/blob/master/doc/ecs/systems/readme.md)
+- siehe [create_own_content.md](https://github.com/Programmiermethoden/Dungeon/blob/master/doc/ecs/create_own_content.md)
+
+### LevelAPI
+
+Die LevelAPI ist dafür Zuständig neue Level zu erzeugen und diese zu laden. 
+Bevor ein neues Level mit der angegebenen oder zufälligen Größe und einem zufälligen Design geladen werden kann,
+muss dieses erstmal erzeugt werden.
+Mit `runPreGeneration()` wird ein Level aus `SKIP`-Level-Elementen vorgeneriert, die später durch
+die Dungeonelemente wie (`FLOOR`(Bodenplatten des Dungeons), `WALL`(Wände des Dungeons), `HOLE`(fehlende Bodenplatten im Dungeon, die den Weg blockueren)) überschrieben werden. Wände werden am äußeren Rand eines Levels erzeugt.
+Liegen die `SKIP`-Level-Elemente neben einem `FLOOR`und es gibt keinen Platz für eine `WALL`, werden die `SKIP`-LevelElemente durch
+eine `HOLE` ersetzt.
+Es entsteht ein 2D Spielefeld, bei dem jedes Tile mit seinem unmittelbaren Nachbarn verbunden wird.
+Funktion onLevelLoad sorg dafür, dass alle vorhandenen Levelelemente beim Laden des Levels vorhanden sind.
+Zudem folgt die Erstellung eines Helden und eines wandelnden Monsters.
+```java
+public void onLevelLoad() {
+        currentLevel = levelAPI.getCurrentLevel();
+
+        entities.clear();
+        entities.add(hero);
+        heroPositionComponent.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
+        
+        // TODO: when calling this before currentLevel is set, the default ctor of PositionComponent
+        // triggers NullPointerException
+        setupDSLInput();
+    }
+ ```
+
+Damit wird der Held auf seine Startposition zu beginn des Spils gesetzt. 
+```java
+heroPositionComponent.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
+```
+Die Level werden als ein 2D Tile-Array gespeichert, wobei jedes Tile eine feste Coordinate (Index der Position des Tiles im Array) im Array besitzt.
+Ein Tile ist ein einzelnes Feld innerhalb des Levels (`FLOOR`, etc), welches zur Laufzeit zur vollständigen Ebene zusammengesetzt werden kann (Speilfeld). 
+Es muss ausßerdem zwischen einer `Coordinate` und einem `Point` unterschieden werden. 
+Die `Coordinate` beinhalten zwei integer Werte x und y, durch welche die Tile Positionen im Dungeon bestimmt werden.
+Der `Point` beinhalten zwei float Werte x und y und wird verwendet, um die Position einer Entität (`Hero`, `Chest`, etc.) im Spiel anzugeben. 
+Die Umwandlung des `Point` zu einer `Coordinate` erfolgt durch Parsen von float zu int, dies dient dazu, damit sich die Entitäten (z.B Monster) 
+zwischen den einzelnen Tiles bewegen und miteinander interagieren können.
+
+
+
 
 ## Held bauen
 
@@ -102,43 +186,6 @@ else if (Gdx.input.isKeyPressed(KeyboardConfig.MOVEMENT_DOWN.get()))
 - Was ist interessant davon? 
 
 ## Erweitert
-
-### Level API
-Die LevelAPI ist dafür Zuständig neue Level zu erzeugen und diese zu laden. 
-Bevor ein neues Level mit der angegebenen oder zufälligen Größe und einem zufälligen Design geladen werden kann,
-muss dieses erstmal erzeugt werden.
-Mit `runPreGeneration()` wird ein Level aus `SKIP`-Level-Elementen vorgeneriert, die später durch
-die Dungeonelemente wie (`FLOOR`(Bodenplatten des Dungeons), `WALL`(Wände des Dungeons), `HOLE`(fehlende Bodenplatten im Dungeon, die den Weg blockueren)) überschrieben werden. Wände werden am äußeren Rand eines Levels erzeugt.
-Liegen die `SKIP`-Level-Elemente neben einem `FLOOR`und es gibt keinen Platz für eine `WALL`, werden die `SKIP`-LevelElemente durch
-eine `HOLE` ersetzt.
-Es entsteht ein 2D Spielefeld, bei dem jedes Tile mit seinem unmittelbaren Nachbarn verbunden wird.
-Funktion onLevelLoad sorg dafür, dass alle vorhandenen Levelelemente beim Laden des Levels vorhanden sind.
-Zudem folgt die Erstellung eines Helden und eines wandelnden Monsters.
-```java
-public void onLevelLoad() {
-        currentLevel = levelAPI.getCurrentLevel();
-
-        entities.clear();
-        entities.add(hero);
-        heroPositionComponent.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
-        
-        // TODO: when calling this before currentLevel is set, the default ctor of PositionComponent
-        // triggers NullPointerException
-        setupDSLInput();
-    }
- ```
-
-Damit wird der Held auf seine Startposition zu beginn des Spils gesetzt. 
-```java
-heroPositionComponent.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
-```
-Die Level werden als ein 2D Tile-Array gespeichert, wobei jedes Tile eine feste Coordinate (Index der Position des Tiles im Array) im Array besitzt.
-Ein Tile ist ein einzelnes Feld innerhalb des Levels (`FLOOR`, etc), welches zur Laufzeit zur vollständigen Ebene zusammengesetzt werden kann (Speilfeld). 
-Es muss ausßerdem zwischen einer `Coordinate` und einem `Point` unterschieden werden. 
-Die `Coordinate` beinhalten zwei integer Werte x und y, durch welche die Tile Positionen im Dungeon bestimmt werden.
-Der `Point` beinhalten zwei float Werte x und y und wird verwendet, um die Position einer Entität (`Hero`, `Chest`, etc.) im Spiel anzugeben. 
-Die Umwandlung des `Point` zu einer `Coordinate` erfolgt durch Parsen von float zu int, dies dient dazu, damit sich die Entitäten (z.B Monster) 
-zwischen den einzelnen Tiles bewegen und miteinander interagieren können.
 
 
 ### HUD
