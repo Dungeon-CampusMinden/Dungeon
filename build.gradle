@@ -90,6 +90,7 @@ test {
     testLogging {
         events "passed", "skipped", "failed"
     }
+    jvmArgs '--add-opens=java.logging/java.util.logging=ALL-UNNAMED'
 }
 
 checkstyle {

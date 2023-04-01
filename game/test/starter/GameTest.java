@@ -54,18 +54,16 @@ class GameTest {
 
     @Test
     public void test_render() {
-        /*
         game.setSpriteBatch(batch);
-         Mockito.verify(game).setSpriteBatch(batch);
-         Mockito.verifyNoMoreInteractions(game, batch);
+        Mockito.verify(game).setSpriteBatch(batch);
+        Mockito.verifyNoMoreInteractions(game, batch);
 
-         game.render(someArbitraryValueGreater0forDelta);
-         Mockito.verify(game).render(someArbitraryValueGreater0forDelta);
-         Mockito.verify(game).setup();
-         Mockito.verify(game).frame();
-         Mockito.verify(game, Mockito.times(4)).runLoop();
-         Mockito.verifyNoMoreInteractions(game);
-        */
+        game.render(someArbitraryValueGreater0forDelta);
+        Mockito.verify(game).render(someArbitraryValueGreater0forDelta);
+        Mockito.verify(game).setup();
+        Mockito.verify(game).frame();
+        Mockito.verify(game, Mockito.times(4)).runLoop();
+        Mockito.verifyNoMoreInteractions(game);
     }
 
     @Test
