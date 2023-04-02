@@ -22,10 +22,7 @@ import graphic.Painter;
 import graphic.hud.PauseMenu;
 import interpreter.DSLInterpreter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 import level.IOnLevelLoader;
 import level.LevelAPI;
@@ -292,5 +289,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     public static Set<Entity> getEntitiesToRemove() {
         return entitiesToRemove;
+    }
+
+    /**
+     * @return the player character, can be null if not initialized
+     */
+    public static Optional <Entity> getHero(){
+        return Optional.ofNullable(hero);
     }
 }
