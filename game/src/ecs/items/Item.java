@@ -100,7 +100,7 @@ public abstract class Item {
         return worldTexture;
     }
 
-    public String getItemName(s) {
+    public String getItemName() {
         return itemName;
     }
 
