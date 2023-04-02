@@ -287,7 +287,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         return entitiesToAdd;
     }
 
-    /**
+    /**s
      * @return Set with all entities that will be removed from the game next frame
      */
     public static Set<Entity> getEntitiesToRemove() {
