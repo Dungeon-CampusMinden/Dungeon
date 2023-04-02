@@ -11,7 +11,7 @@ Um eine eigene Entität zu erstellen, muss man:
 1. Eine neue Instanz vom Typ `Entity` anlegen
 2. Die gewünschten Komponenten erstellen
 
-Beispiel: 
+Beispiel:
 ```java
 Entity monster = new Entity();
 
@@ -22,6 +22,8 @@ VelocityComponent vc = new AnimationComponent(monster);
 ```
 
 *Anmerkung*: Die Komponenten wurden im Beispiel alle mit den jeweiligen Default-Werten initialisiert. Die Verwendung der anderen Konstruktoren (mit eigenen Werten) geht natürlich auch.
+
+*Hinweis: Um Entitäten aus dem Spiel zu entfernen, nutzen Sie die Methode `Game#removeEntity`.*
 
 ## Component erstellen
 
@@ -40,9 +42,9 @@ Systeme werden im package `ecs.systems` abgelegt und sollen den Namensschema `$W
 
 
 Die Funktionalität des Systems wird in der `update`-Methode implementiert. Diese wird einmal pro Frame aufgerufen.
-In der `update`-Methode wird dann über die Collectiom `ECS.entities`iteriert, alle Entitäten mit dem Key-Component gefiltert und dann die eigentliche System-Logik auf die Entiäten angewendet.
+In der `update`-Methode wird dann über die Collectiom `Game.entities`iteriert, alle Entitäten mit dem Key-Component gefiltert und dann die eigentliche System-Logik auf die Entiäten angewendet.
 
-Beispiel aus dem `HealthSystem`: 
+Beispiel aus dem `HealthSystem`:
 ```java
 
  // private record to hold all data during streaming
@@ -51,7 +53,7 @@ private record HSData(Entity e, HealthComponent hc, AnimationComponent ac) {}
 
  @Override
 public void update() {
-        ECS.entities.stream()
+        Game.getEntities().stream()
                 // Consider only entities that have a HealthComponent
                 .flatMap(e -> e.getComponent(HealthComponent.class).stream())
                 // Form triples (e, hc, ac)
@@ -63,7 +65,7 @@ public void update() {
                 // Remove all dead entities
                 .forEach(this::removeDeadEntities);
     }
- 
+
 private HSData buildDataObject(HealthComponent hc) {
         Entity e = hc.getEntity();
 

@@ -18,7 +18,7 @@ public class CollisionSystem extends ECS_System {
     /** checks if there is a collision between two entities based on their hitbox */
     @Override
     public void update() {
-        Game.entities.stream()
+        Game.getEntities().stream()
                 .flatMap(
                         a ->
                                 a
@@ -27,7 +27,7 @@ public class CollisionSystem extends ECS_System {
                                         .stream())
                 .flatMap(
                         a ->
-                                Game.entities.stream()
+                                Game.getEntities().stream()
                                         .filter(b -> a.getEntity().id < b.id)
                                         .flatMap(
                                                 b ->

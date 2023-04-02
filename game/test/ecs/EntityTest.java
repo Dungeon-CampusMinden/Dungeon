@@ -16,18 +16,18 @@ public class EntityTest {
 
     @Before
     public void setup() {
-        Game.entities.clear();
-        Game.entitiesToAdd.clear();
-        Game.entitiesToRemove.clear();
+        Game.getEntities().clear();
+        Game.getEntitiesToAdd().clear();
+        Game.getEntitiesToRemove().clear();
         entity = new Entity();
         entity.addComponent(testComponent);
     }
 
     @Test
     public void cTor() {
-        Game.entities.addAll(Game.entitiesToAdd);
-        Game.entitiesToAdd.clear();
-        assertTrue(Game.entities.contains(entity));
+        Game.getEntities().addAll(Game.getEntitiesToAdd());
+        Game.getEntitiesToAdd().clear();
+        assertTrue(Game.getEntities().contains(entity));
     }
 
     @Test

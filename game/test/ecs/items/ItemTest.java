@@ -61,17 +61,17 @@ public class ItemTest {
 
     @Before
     public void before() {
-        Game.entities.clear();
+        Game.getEntities().clear();
     }
 
     @Test
     public void onDropCheckEntity() {
         Item item = new ItemImpl();
-        assertEquals(0, Game.entities.size());
+        assertEquals(0, Game.getEntities().size());
         Point point = new Point(0, 0);
         item.onDrop(point);
-        assertEquals(1, Game.entities.size());
-        Entity e = Game.entities.iterator().next();
+        assertEquals(1, Game.getEntities().size());
+        Entity e = Game.getEntities().iterator().next();
         PositionComponent pc =
                 (PositionComponent) e.getComponent(PositionComponent.class).orElseThrow();
         assertEquals(point.x, pc.getPosition().x, 0.001);

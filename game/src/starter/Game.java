@@ -65,11 +65,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private boolean doFirstFrame = true;
 
     /** All entities that are currently active in the dungeon */
-    public static Set<Entity> entities = new HashSet<>();
+    private static Set<Entity> entities = new HashSet<>();
     /** All entities to be removed from the dungeon in the next frame */
-    public static Set<Entity> entitiesToRemove = new HashSet<>();
-
-    public static Set<Entity> entitiesToAdd = new HashSet<>();
+    private static Set<Entity> entitiesToRemove = new HashSet<>();
+    /** All entities to be added from the dungeon in the next frame */
+    private static Set<Entity> entitiesToAdd = new HashSet<>();
 
     /** List of all Systems in the ECS */
     public static SystemController systems;
@@ -301,5 +301,44 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             throw new RuntimeException(e);
         }
         DesktopLauncher.run(new Game());
+    }
+
+    /**
+     * Given entity will be added to the game in the next frame
+     *
+     * @param entity will be added to the game next frame
+     */
+    public static void addEntity(Entity entity) {
+        entitiesToAdd.add(entity);
+    }
+
+    /**
+     * Given entity will be removed from the game in the next frame
+     *
+     * @param entity will be removed from the game next frame
+     */
+    public static void removeEntity(Entity entity) {
+        entitiesToRemove.add(entity);
+    }
+
+    /**
+     * @return Set with all entities currently in game
+     */
+    public static Set<Entity> getEntities() {
+        return entities;
+    }
+
+    /**
+     * @return Set with all entities that will be added to the game next frame
+     */
+    public static Set<Entity> getEntitiesToAdd() {
+        return entitiesToAdd;
+    }
+
+    /**
+     * @return Set with all entities that will be removed from the game next frame
+     */
+    public static Set<Entity> getEntitiesToRemove() {
+        return entitiesToRemove;
     }
 }

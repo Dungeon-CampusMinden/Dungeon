@@ -1,8 +1,12 @@
 package starter;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import ecs.entities.Entity;
 import graphic.DungeonCamera;
 import graphic.Painter;
 import level.LevelAPI;
@@ -29,6 +33,10 @@ class GameTest {
 
     @Before
     public void setUp() throws Exception {
+        Game.getEntities().clear();
+        Game.getEntitiesToAdd().clear();
+        Game.getEntitiesToRemove().clear();
+
         game = Mockito.spy(Game.class);
         batch = Mockito.mock(SpriteBatch.class);
 
@@ -85,4 +93,31 @@ class GameTest {
         Mockito.verifyNoMoreInteractions(game);
          */
     }
+
+    @Test
+    public void addEntity() {
+        Entity e1 = Mockito.mock(Entity.class);
+        Game.addEntity(e1);
+        assertTrue(Game.getEntitiesToAdd().contains(e1));
+        assertEquals(1, Game.getEntitiesToAdd().size());
+        Game.getEntities().clear();
+        Game.getEntitiesToAdd().clear();
+    }
+
+    @Test
+    public void removeEntity() {
+        Entity e1 = Mockito.mock(Entity.class);
+        Game.removeEntity(e1);
+        assertTrue(Game.getEntitiesToRemove().contains(e1));
+        assertEquals(1, Game.getEntitiesToRemove().size());
+        Game.getEntities().clear();
+        Game.getEntitiesToRemove().clear();
+    }
+
+    /*
+    Cannot be tested at the moment, render test must be fixed first
+
+    @Test
+    public void test_getEntity(){}
+     */
 }

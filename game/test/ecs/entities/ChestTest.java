@@ -18,9 +18,9 @@ public class ChestTest {
 
     /** Helper cleans up class attributes used by Chest Initializes the Item#ITEM_REGISTER */
     private static void cleanup() {
-        Game.entities.clear();
-        Game.entitiesToAdd.clear();
-        Game.entitiesToRemove.clear();
+        Game.getEntities().clear();
+        Game.getEntitiesToAdd().clear();
+        Game.getEntitiesToRemove().clear();
         Item.ITEM_REGISTER.clear();
     }
 
@@ -32,9 +32,9 @@ public class ChestTest {
         List<Item> items = List.of();
         Point position = new Point(0, 0);
         Chest c = new Chest(items, position);
-        Game.entities.addAll(Game.entitiesToAdd);
-        Game.entitiesToAdd.clear();
-        assertEquals("Chest is added to Game", 1, Game.entities.size());
+        Game.getEntities().addAll(Game.getEntitiesToAdd());
+        Game.getEntitiesToAdd().clear();
+        assertEquals("Chest is added to Game", 1, Game.getEntities().size());
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
                 c.getComponent(AnimationComponent.class).isPresent());
@@ -63,14 +63,14 @@ public class ChestTest {
         List<Item> items = List.of(Item.ITEM_REGISTER.get(0));
         Point position = new Point(0, 0);
         Chest c = new Chest(items, position);
-        Game.entities.addAll(Game.entitiesToAdd);
-        Game.entitiesToAdd.clear();
-        assertEquals(1, Game.entities.size());
+        Game.getEntities().addAll(Game.getEntitiesToAdd());
+        Game.getEntitiesToAdd().clear();
+        assertEquals(1, Game.getEntities().size());
         c.getComponent(InteractionComponent.class)
                 .map(InteractionComponent.class::cast)
                 .get()
                 .triggerInteraction();
-        assertEquals(2, Game.entities.size());
+        assertEquals(2, Game.getEntities().size());
 
         cleanup();
     }
@@ -83,13 +83,13 @@ public class ChestTest {
         List<Item> items = List.of(Item.ITEM_REGISTER.get(0));
         Point position = new Point(0, 0);
         Chest c = new Chest(items, position);
-        Game.entities.remove(c);
-        assertEquals(0, Game.entities.size());
+        Game.removeEntity(c);
+        assertEquals(0, Game.getEntities().size());
         c.getComponent(InteractionComponent.class)
                 .map(InteractionComponent.class::cast)
                 .ifPresent(InteractionComponent::triggerInteraction);
-        assertEquals(1, Game.entities.size());
-        Entity droppedItem = Game.entities.iterator().next();
+        assertEquals(1, Game.getEntities().size());
+        Entity droppedItem = Game.getEntities().iterator().next();
         assertTrue(
                 "droppedItem should have the HitboxComponent",
                 droppedItem
@@ -113,9 +113,9 @@ public class ChestTest {
                         },
                         DesignLabel.DEFAULT);
         Chest newChest = Chest.createNewChest();
-        Game.entities.addAll(Game.entitiesToAdd);
-        Game.entitiesToAdd.clear();
-        assertTrue("Chest is added to Game", Game.entities.contains(newChest));
+        Game.getEntities().addAll(Game.getEntitiesToAdd());
+        Game.getEntitiesToAdd().clear();
+        assertTrue("Chest is added to Game", Game.getEntities().contains(newChest));
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
                 newChest.getComponent(AnimationComponent.class).isPresent());

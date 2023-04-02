@@ -16,7 +16,7 @@ public class PlayerSystem extends ECS_System {
 
     @Override
     public void update() {
-        Game.entities.stream()
+        Game.getEntities().stream()
                 .flatMap(e -> e.getComponent(PlayableComponent.class).stream())
                 .map(pc -> buildDataObject((PlayableComponent) pc))
                 .forEach(this::checkKeystroke);
