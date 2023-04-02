@@ -33,13 +33,13 @@ public class PlayerSystem extends ECS_System {
             ksd.vc.setCurrentXVelocity(-1 * ksd.vc.getXVelocity());
 
         if (Gdx.input.isKeyPressed(KeyboardConfig.INTERACT_WORLD.get()))
-            InteractionTool.interactWithClosestInteractable(Game.hero);
+            InteractionTool.interactWithClosestInteractable(ksd.e);
 
         // check skills
         else if (Gdx.input.isKeyPressed(KeyboardConfig.FIRST_SKILL.get()))
-            Game.hero.getFirstSkill().execute(Game.hero);
+            ksd.pc.getSkillSlot1().ifPresent(skill -> skill.execute(ksd.e));
         else if (Gdx.input.isKeyPressed(KeyboardConfig.SECOND_SKILL.get()))
-            Game.hero.getSecondSkill().execute(Game.hero);
+            ksd.pc.getSkillSlot2().ifPresent(skill -> skill.execute(ksd.e));
     }
 
     private KSData buildDataObject(PlayableComponent pc) {

@@ -5,7 +5,6 @@ import ecs.components.ai.AITools;
 import ecs.components.skill.Skill;
 import ecs.entities.Entity;
 import level.elements.tile.Tile;
-import starter.Game;
 import tools.Constants;
 
 public class MeleeAI implements IFightAI {
@@ -33,7 +32,7 @@ public class MeleeAI implements IFightAI {
             fightSkill.execute(entity);
         } else {
             if (timeSinceLastUpdate >= delay) {
-                path = AITools.calculatePath(entity, Game.hero);
+                path = AITools.calculatePathToHero(entity);
                 timeSinceLastUpdate = -1;
             }
             timeSinceLastUpdate++;
