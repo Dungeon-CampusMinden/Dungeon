@@ -294,7 +294,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /**
      * @return the player character, can be null if not initialized
      */
-    public static Optional <Entity> getHero(){
+    public static Optional<Entity> getHero() {
         return Optional.ofNullable(hero);
     }
 }
