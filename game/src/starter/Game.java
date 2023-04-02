@@ -260,7 +260,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * @param entity will be added to the game next frame
      */
-    public static void addEntity(Entity entity) {
+    public static void addEntity(Entity entity){
         entitiesToAdd.add(entity);
     }
 

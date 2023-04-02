@@ -82,7 +82,7 @@ public abstract class Item {
                     }
                 });
 
-        Game.getEntities().add(droppedItem);
+        Game.addEntity(droppedItem);
     }
 
     public ItemType getItemType() {
@@ -97,7 +97,7 @@ public abstract class Item {
         return worldTexture;
     }
 
-    public String getItemName() {
+    public String getItemName(s) {
         return itemName;
     }
 
