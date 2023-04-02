@@ -5,10 +5,7 @@ import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import level.elements.ILevel;
 import level.elements.tile.Tile;
 import level.tools.Coordinate;
@@ -184,10 +181,12 @@ public class AITools {
 
     /**
      * @param entity
-     * @return Path from the entity to the hero
+     * @return Path from the entity to the hero, if there is no hero, path from the entity to itself
      */
     public static GraphPath<Tile> calculatePathToHero(Entity entity) {
-        return calculatePath(entity, Game.hero);
+        Optional<Entity> hero = Game.getHero();
+        if (hero.isPresent()) return calculatePath(entity, hero.get());
+        else return calculatePath(entity, entity);
     }
 
     /**
@@ -231,10 +230,13 @@ public class AITools {
      * @param entity Entity whose position specifies the center point
      * @param range search radius
      * @return if the position of the player is within the given radius of the position of the given
-     *     entity.
+     *     entity. If there is no hero, return false.
      */
     public static boolean playerInRange(Entity entity, float range) {
-        return entityInRange(entity, Game.hero, range);
+
+        Optional<Entity> hero = Game.getHero();
+        if (hero.isPresent()) return entityInRange(entity, hero.get(), range);
+        else return false;
     }
 
     /**
