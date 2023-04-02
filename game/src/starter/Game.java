@@ -76,7 +76,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static ILevel currentLevel;
     private static PauseMenu pauseMenu;
     private PositionComponent heroPositionComponent;
-    public static Entity hero;
+    private static Entity hero;
     private Logger gameLogger;
 
     /** Called once at the beginning of the game. */
