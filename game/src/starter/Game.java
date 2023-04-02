@@ -64,11 +64,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     static boolean paused = false;
 
     /** All entities that are currently active in the dungeon */
-    public static Set<Entity> entities = new HashSet<>();
+    private static Set<Entity> entities = new HashSet<>();
     /** All entities to be removed from the dungeon in the next frame */
-    public static Set<Entity> entitiesToRemove = new HashSet<>();
-
-    public static Set<Entity> entitiesToAdd = new HashSet<>();
+    private static Set<Entity> entitiesToRemove = new HashSet<>();
+    /** All entities to be added from the dungeon in the next frame */
+    private static Set<Entity> entitiesToAdd = new HashSet<>();
 
     /** List of all Systems in the ECS */
     public static SystemController systems;
@@ -253,5 +253,31 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             throw new RuntimeException(e);
         }
         DesktopLauncher.run(new Game());
+    }
+
+    /**
+     * Saves entities that are added in next frame
+     *
+     * @param entity will be added next frame
+     */
+    public static void addEntity(Entity entity){
+        entitiesToAdd.add(entity);
+    }
+
+    /**
+     * Saves entities that are removed in next frame
+     *
+     * @param entity will be removed next frame
+     */
+    public static void removeEntity(Entity entity){
+        entitiesToRemove.add(entity);
+    }
+
+    /**
+     *
+     * @return Set with all entities currently in game
+     */
+    public static Set<Entity> getEntities(){
+        return entities;
     }
 }

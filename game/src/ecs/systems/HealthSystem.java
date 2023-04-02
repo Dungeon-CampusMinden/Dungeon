@@ -21,7 +21,7 @@ public class HealthSystem extends ECS_System {
 
     @Override
     public void update() {
-        Game.entities.stream()
+        Game.getEntities().stream()
                 // Consider only entities that have a HealthComponent
                 .flatMap(e -> e.getComponent(HealthComponent.class).stream())
                 // Form triples (e, hc, ac)
@@ -94,7 +94,7 @@ public class HealthSystem extends ECS_System {
         hsd.hc.triggerOnDeath();
         hsd.ac.setCurrentAnimation(hsd.hc.getDieAnimation());
         // TODO: Before removing the entity, check if the animation is finished (Issue #246)
-        Game.entitiesToRemove.add(hsd.hc.getEntity());
+        Game.removeEntity(hsd.hc.getEntity());
 
         // Add XP
         hsd.e

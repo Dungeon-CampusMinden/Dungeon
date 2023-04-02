@@ -11,7 +11,7 @@ public class AISystem extends ECS_System {
 
     @Override
     public void update() {
-        Game.entities.stream()
+        Game.getEntities().stream()
                 .flatMap(e -> e.getComponent(AIComponent.class).stream())
                 .map(aic -> buildDataObject((AIComponent) aic))
                 .forEach(aic -> aic.aic.execute());

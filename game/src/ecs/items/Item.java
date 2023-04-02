@@ -77,12 +77,12 @@ public abstract class Item {
                                 .ifPresent(
                                         (x) -> {
                                             if (((InventoryComponent) x).addItem(this))
-                                                Game.entitiesToRemove.add(droppedItem);
+                                                Game.removeEntity(droppedItem);
                                         });
                     }
                 });
 
-        Game.entities.add(droppedItem);
+        Game.addEntity(droppedItem);
     }
 
     public ItemType getItemType() {
