@@ -15,7 +15,7 @@ Wählt automatisch beim Aufruf von `getNextAnimationTexturePath()` die passende 
 
 
 ## Wie erstelle ich das?
-- Aufruf des Konstruktors in 3 Geschmacksarten:
+- Aufruf des Konstruktors in 2 Geschmacksarten:
   - einfacher erstellt immer wiederholende Animationen
     - benötigt die Sammlung der Grafiken
     - benötigt die Anzeigedauer
