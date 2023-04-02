@@ -73,7 +73,7 @@ public class ControlPointReachableTest {
 
     private void cleanup() {
         Game.currentLevel = null;
-        Game.entities.clear();
+        Game.getEntities().clear();
     }
 
     private void setup() {

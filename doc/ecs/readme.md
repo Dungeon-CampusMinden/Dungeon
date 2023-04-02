@@ -3,7 +3,7 @@ title: "ECS Basics"
 ---
 
 
-Im Projekt wird das [ECS-Paradigmas](https://en.wikipedia.org/wiki/Entity_component_system) angewendet. 
+Im Projekt wird das [ECS-Paradigmas](https://en.wikipedia.org/wiki/Entity_component_system) angewendet.
 
 ## Was ist ein ECS (Kurzform)
 
@@ -21,23 +21,23 @@ Siehe auch [Strategy Pattern im ECS](ecs_and_strategy_pattern.md)
 Systeme agieren auf Components und ändern die Werte in diesen. Sie beschreiben also das Verhalten der Entitäten. Ein System kann auf ein oder mehreren Components agieren.
 In Systemen wird die eigentliche Logik implementiert.
 
-Der Zustand einer Entität wird also über ihre Components bestimmt, und ihr Verhalten über die Systeme, die mit der jeweiligen Component-Kombination arbeiten. 
+Der Zustand einer Entität wird also über ihre Components bestimmt, und ihr Verhalten über die Systeme, die mit der jeweiligen Component-Kombination arbeiten.
 
 ## Basisstruktur
 
 ![Struktur ECS](img/ecs.png)
 
-Neu erzeugte Entitäten speichern sich automatisch im HashSet `entities` der `ECS`-Klasse ab.
-`ECS_System`e speichern sich automatisch im `SystemController` `systems` der `ECS`-Klasse ab.
+*Anmerkung: Das abgebildete UML ist nicht aktuell, es wird in #496 aktualisiert.*
 
-Die Systeme iterieren über die in `ECS` gespeicherten Entitäten und greifen über die Methode `Entite#getComponent` auf die für die jeweilige Funktionalität benötigten Components zu.
+Neu erzeugte Entitäten speichern sich automatisch im HashSet `entities` der `Game`-Klasse ab.
+`ECS_System`e speichern sich automatisch im `SystemController` `systems` der `Game`-Klasse ab.
+
+Die Systeme iterieren über die in `Game` gespeicherten Entitäten und greifen über die Methode `Entity#getComponent` auf die für die jeweilige Funktionalität benötigten Components zu.
 
 *Anmerkung*: Gelb hinterlegte Klassen stammen aus dem PM-Dungeon-Framework.
 
 *Anmerkung*: Das UML-Diagramm ist auf die wesentlichen Bestandteile gekürzt.
 
-## Integration des ECS in das PM-Dungeon-Framework
+## Integration des ECS in die Game-Loop
 
-Die Klasse `ECS` ist die Start-Klasse und erbt von `Game` des PM-Dungeon-Frameworks.
-
-Um die Systeme in die GameLoop des Frameworks zu integrieren, wird ein Objekt vom Typ `SystemController` genutzt. Dieser Controller funktioniert analog zu den anderen Controllern des Frameworks: Er hält die Menge aller vorhandenen Systeme und ruft einmal pro Frame für jedes System die `update`-Methode. Die Registrierung der Systeme beim Controller wird über den Konstruktor der Klasse `ECS_System` erledigt - dadurch müssen abgeleitete Systeme dies nicht selbst machen.
+Um die Systeme in die GameLoop zu integrieren, wird ein Objekt vom Typ `SystemController` genutzt. Er hält die Menge aller vorhandenen Systeme und ruft einmal pro Frame für jedes System die `update`-Methode. Die Registrierung der Systeme beim Controller wird über den Konstruktor der Klasse `ECS_System` erledigt - dadurch müssen abgeleitete Systeme dies nicht selbst machen.

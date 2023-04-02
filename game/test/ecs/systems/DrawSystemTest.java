@@ -25,15 +25,15 @@ public class DrawSystemTest {
     @Before
     public void setup() {
         Game.systems = Mockito.mock(SystemController.class);
-        Game.entities.clear();
-        Game.entitiesToAdd.clear();
-        Game.entitiesToRemove.clear();
+        Game.getEntities().clear();
+        Game.getEntitiesToAdd().clear();
+        Game.getEntitiesToRemove().clear();
         drawSystem = new DrawSystem(painter);
         entity = new Entity();
         new AnimationComponent(entity, animation);
         new PositionComponent(entity, new Point(3, 3));
-        Game.entities.addAll(Game.entitiesToAdd);
-        Game.entitiesToAdd.clear();
+        Game.getEntities().addAll(Game.getEntitiesToAdd());
+        Game.getEntitiesToAdd().clear();
     }
 
     @Test

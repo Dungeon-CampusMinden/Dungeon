@@ -15,7 +15,7 @@ public class ProjectileSystem extends ECS_System {
     /** sets the velocity and removes entities that reached their endpoint */
     @Override
     public void update() {
-        Game.entities.stream()
+        Game.getEntities().stream()
                 // Consider only entities that have a ProjectileComponent
                 .flatMap(e -> e.getComponent(ProjectileComponent.class).stream())
                 .map(prc -> buildDataObject((ProjectileComponent) prc))
@@ -54,7 +54,7 @@ public class ProjectileSystem extends ECS_System {
     }
 
     private void removeEntitiesOnEndpoint(PSData data) {
-        Game.entitiesToRemove.add(data.pc.getEntity());
+        Game.removeEntity(data.pc.getEntity());
     }
 
     /**

@@ -16,12 +16,12 @@ public class SkillSystemTest {
 
     @Test
     public void update() {
-        Game.entities.clear();
+        Game.getEntities().clear();
         Game.systems = new SystemController();
         SkillSystem system = new SkillSystem();
         Entity entity = new Entity();
-        Game.entities.addAll(Game.entitiesToAdd);
-        Game.entitiesToAdd.clear();
+        Game.getEntities().addAll(Game.getEntitiesToAdd());
+        Game.getEntitiesToAdd().clear();
         ISkillFunction skillFunction = Mockito.mock(ISkillFunction.class);
         int coolDownInSeconds = 2;
         Skill testSkill = new Skill(skillFunction, coolDownInSeconds);
