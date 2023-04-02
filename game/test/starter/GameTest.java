@@ -120,4 +120,14 @@ class GameTest {
     @Test
     public void test_getEntity(){}
      */
+
+    @Test
+    public void setHero() {
+        Entity hero = Mockito.mock(Entity.class);
+        Game.setHero(hero);
+        assertEquals(hero, Game.getHero().get());
+        Entity hero2 = Mockito.mock(Entity.class);
+        Game.setHero(hero2);
+        assertEquals(hero2, Game.getHero().get());
+    }
 }
