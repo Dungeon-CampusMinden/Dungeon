@@ -256,44 +256,41 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
-     * Saves entities that are added in next frame
+     * Given entity will be added to the game in the next frame
      *
-     * @param entity will be added next frame
+     * @param entity will be added to the game next frame
      */
-    public static void addEntity(Entity entity){
+    public static void addEntity(Entity entity) {
         entitiesToAdd.add(entity);
     }
 
     /**
-     * Saves entities that are removed in next frame
+     * Given entity will be removed from the game in the next frame
      *
-     * @param entity will be removed next frame
+     * @param entity will be removed from the game next frame
      */
-    public static void removeEntity(Entity entity){
+    public static void removeEntity(Entity entity) {
         entitiesToRemove.add(entity);
     }
 
     /**
-     *
      * @return Set with all entities currently in game
      */
-    public static Set<Entity> getEntities(){
+    public static Set<Entity> getEntities() {
         return entities;
     }
 
     /**
-     *
-     * @return Set with all entities currently in game
+     * @return Set with all entities that will be added to the game next frame
      */
-    public static Set<Entity> getEntitiesToAdd(){
+    public static Set<Entity> getEntitiesToAdd() {
         return entitiesToAdd;
     }
 
     /**
-     *
-     * @return Set with all entities currently in game
+     * @return Set with all entities that will be removed from the game next frame
      */
-    public static Set<Entity> getEntitiesToRemove(){
+    public static Set<Entity> getEntitiesToRemove() {
         return entitiesToRemove;
     }
 }
