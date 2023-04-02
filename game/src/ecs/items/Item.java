@@ -71,18 +71,21 @@ public abstract class Item {
         HitboxComponent component = new HitboxComponent(droppedItem);
         component.setiCollideEnter(
                 (a, b, direction) -> {
-                    if (b.equals(Game.hero)) {
-                        Game.hero
-                                .getComponent(InventoryComponent.class)
-                                .ifPresent(
-                                        (x) -> {
-                                            if (((InventoryComponent) x).addItem(this))
-                                                Game.removeEntity(droppedItem);
-                                        });
-                    }
+                    Game.getHero().ifPresent(hero -> checkCollisionWithHero(hero, droppedItem, b));
                 });
 
         Game.getEntities().add(droppedItem);
+    }
+
+    private void checkCollisionWithHero(Entity hero, Entity droppedItem, Entity b) {
+        if (b.equals(hero)) {
+            hero.getComponent(InventoryComponent.class)
+                    .ifPresent(
+                            (x) -> {
+                                if (((InventoryComponent) x).addItem(this))
+                                    Game.removeEntity(droppedItem);
+                            });
+        }
     }
 
     public ItemType getItemType() {
