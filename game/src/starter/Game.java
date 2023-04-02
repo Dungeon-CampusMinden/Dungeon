@@ -15,7 +15,8 @@ import controller.SystemController;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
-import ecs.entities.Hero;import ecs.systems.*;
+import ecs.entities.Hero;
+import ecs.systems.*;
 import graphic.DungeonCamera;
 import graphic.Painter;
 import graphic.hud.PauseMenu;
@@ -244,6 +245,16 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     public static Optional<Entity> getHero() {
         return Optional.ofNullable(hero);
+    }
+
+    /**
+     * set the reference of the playable character careful: old hero will not be removed from the
+     * game
+     *
+     * @param hero new reference of hero
+     */
+    public static void setHero(Entity hero) {
+        Game.hero = hero;
     }
 
     public void setSpriteBatch(SpriteBatch batch) {
