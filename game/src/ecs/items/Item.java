@@ -82,7 +82,7 @@ public abstract class Item {
                     }
                 });
 
-        Game.addEntity(droppedItem);
+        Game.getEntities().add(droppedItem);
     }
 
     public ItemType getItemType() {
