@@ -4,7 +4,6 @@ import ecs.components.InteractionComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
-import ecs.entities.Hero;
 import java.util.Optional;
 import starter.Game;
 import tools.Point;
@@ -24,7 +23,7 @@ public class InteractionTool {
         PositionComponent heroPosition =
                 (PositionComponent)
                         entity.getComponent(PositionComponent.class)
-                                .orElseThrow(() -> MissingPCFromEntity(Hero.class.getName()));
+                                .orElseThrow(() -> MissingPCFromEntity(Entity.class.getName()));
         Optional<InteractionData> data =
                 Game.getEntities().stream()
                         .flatMap(
