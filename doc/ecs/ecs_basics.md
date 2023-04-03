@@ -27,7 +27,14 @@ Der Zustand einer Entität wird also über ihre Components bestimmt, und ihr Ver
 
 ![Struktur ECS](img/ecs.png)
 
-*Anmerkung: Das abgebildete UML ist nicht aktuell, es wird in #496 aktualisiert.*
+Game ist die Basisklasse von der alles ausgeht. Die Methode `Game#render` ist die Game-Loop. Die Klassen `Entity`, `Component` und `ECS_System` sind die Implementierungen des ECS.
+
+Die LevelAPI generiert, zeichnet und speichert das aktuelle Level. Mehr zum Thema Level erfahren Sie [hier](../level/readme.md).
+
+*Anmerkung:* Das UML ist für bessere Lesbarkeit gekürzt.
+
+*Anmerkung:* Die in Gelb hinterlegten Klassen des UML-Diagramms sind für ein Basisverständnis des Dungeons nicht nötig.
+
 
 Neu erzeugte Entitäten speichern sich automatisch im HashSet `entities` der `Game`-Klasse ab.
 `ECS_System`e speichern sich automatisch im `SystemController` `systems` der `Game`-Klasse ab.

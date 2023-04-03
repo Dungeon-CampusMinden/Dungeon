@@ -53,7 +53,7 @@ Sie werden im Laufe der Praktika verschiedene Assets benötigen. Diese liegen pe
 In diesem Abschnitt werden Ihnen die wichtigsten Klassen im Dungeon vorgestellt.
 
 
-- TODO: upgedatetes UML-Diagramm, wie [hier](https://github.com/Programmiermethoden/Dungeon/blob/master/doc/ecs/img/ecs.png)  
+![Struktur ECS](img/ecs.png)
 
 - `entity` Die Java-Implementierung der Entitäten eines ECS
 - `component` Abstrakte Klasse, jedes Component im ECS leitet hiervon ab
