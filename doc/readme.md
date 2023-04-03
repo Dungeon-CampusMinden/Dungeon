@@ -253,13 +253,46 @@ Jetzt sollten Sie ihren Helden bewegen können:
 
 ### Nächstes Level laden
 
+Ihnen ist sicherlich schon aufgefallen, dass ein neues Level geladen wird, wenn Sie die Leiter mit Ihrem Helden berühren:
+
 ![Next-Level](figs/next-level.gif)
 
-- onLevelLoad erklären
+Schauen wir einmal in die Methode `Game#frame`, wird dort die Methode `loadNextLevelIfEntityIsOnEndTile` aufgerufen.
+
+```java
+    /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
+    protected void frame() {
+        setCameraFocus();
+        manageEntitiesSets();
+        getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
+    }
+```
+
+Diese Methode prüft, ob sich der Held auf der Leiter befindet. Wenn ja, wird über die `LevelAPI` ein neues Level geladen.
+
+```java
+    private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
+        if (isOnEndTile(hero)) levelAPI.loadLevel(LEVELSIZE);
+    }
+```
+
+Beim Laden eines neuen Levels wird automatisch die `Game#onLevelLoad`-Methode aufgerufen.
+
+```java
+    @Override
+    public void onLevelLoad() {
+        currentLevel = levelAPI.getCurrentLevel();
+        entities.clear();
+        getHero().ifPresent(this::placeOnLevelStart);
+    }
+```
+
+In der Standardimplementierung werden dabei alle Entitäten entfernt und wenn es einen Helden gibt, wird dieser auf die Startposition des neuen Levels platziert und wieder in das Spiel geladen.
 
 ### Existierenden Helden analysieren
 
-Jetzt schauen wir und den bereits existierenden 
+Jetzt schauen wir und den bereits existierenden Helden.
 
 - Warum hat der eine eigene Klasse?
 - Welche anderen Components hat der noch?
