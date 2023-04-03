@@ -37,9 +37,7 @@ public class Hero extends Entity {
         setupAnimationComponent();
         setupHitboxComponent();
         PlayableComponent pc = new PlayableComponent(this);
-        SkillComponent sc = new SkillComponent(this);
         setupFireballSkill();
-        sc.addSkill(firstSkill);
         pc.setSkillSlot1(firstSkill);
     }
 
