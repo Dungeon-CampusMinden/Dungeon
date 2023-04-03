@@ -111,19 +111,70 @@ Game implementiert einige wichtige Methoden:
 
 ## Übung: Eigenen Helden erstellen
 
-Zwar gibt es in den Vorlagen bereits einen Helden (den schauen wir uns am Ende dieses Kapitels genauer an), trotzdem wird Ihnen hier erklärtm wie Sie Ihre erste eigene Entität in das Spiel implementieren.
-*Hinweis: @cagix @AMatutat der bestehende Hero lässt aufgrund besteheder Abhängigkeiten nicht einfach löschen, daher ist nachprogrammieren in diesem Abschnitt schwierig*
+Zwar gibt es in den Vorlagen bereits einen Helden (den schauen wir uns am Ende dieses Kapitels genauer an), trotzdem wird Ihnen hier erklärt, wie Sie Ihre erste eigene Entität in das Spiel implementieren.
+
+*Hinweis: Wenn Sie mitprogrammieren wollen, löschen Sie die Klasse `ecs.entities.Hero` und löschen Sie in `starter.Game` die Zeile 118 (`hero = new Hero(new Point(0, 0));`) und das Import-Statement `import ecs.entities.Hero;`.*
 
 ### Held Entität erstellen
 
-- Warum muss das eigentlich ne Entität sein? 
-- - Held ist eine Entität, hat aber eine eigene Klasse unter `ecs/components/entities`
-	- vergleiche Abschnitt `Eigene Klasse für Hero` unter [structure_design_desicions.md](ecs/structure_design_decisions.md)
+Zu Beginn erstellen Sie sich eine neue Java-Klasse namens `MyHero`. Diese erbt von der Klasse `Entity`.
 
-- Entität `myHero` in `Game#onLevelLoad` anlegen
-    - Warum in onLevelLoad?
-- erklären wie der in der Game-Loop ist (entitiesToAdd)
+``` java
+package ecs.entities;
 
+public class MyHero extends Entity{}
+```
+
+Der Held ist ein Element im Spiel und daher eine Entität im ECS.
+
+Damit der Held im Level platziert werden kann, braucht er ein `PositionComponent`. Das `PositionComponent` speichert den `Point` (also die Position) auf dem sich der Held befindet.
+
+Im Dungeon existieren zwei Koordinatensysteme. Die Level werden als Matrix von `Tile`s gespeichert. `Tile`s sind die Felder im Level (Boden, Wand, Loch, etc.). Mehr zum Level finden Sie [hier](level/readme.md). Die Position der `Tile`s werden als `Coordinate`s gespeichert (Index des Tiles in der Matrix). Entitäten können auch zwischen zwei Tiles stehen. Daher werden ihre Positionen als `Point`s gespeichert.
+
+Im Konstruktur des Helden legen wir das `PositionComponent` an. Dazu erzeugen wir ein neues `PositionComponent` mit der Startposition `(0|0)`
+
+``` java
+package ecs.entities;
+
+import ecs.components.PositionComponent;
+import tools.Point;
+
+public class MyHero extends Entity {
+
+    public MyHero() {
+        super();
+        new PositionComponent(this, new Point(0, 0));
+    }
+}
+```
+
+*Hinweis: Wenn Sie mal ein `Component` einer Entität abfragen wollen, nutzen SIe die Methode `Entity#getComponent` und übergeben Sie die `class` des gesuchten `Component`s. Beispiel: `hero.getComponent(PositionComponent.class);`*
+
+Jetzt muss unser Held noch in das Spiel geladen werden. Dafür gehen wir in die Klasse `starter.Game` und fügen den Helden an erster Stelle in `Game#setup` hinzu, indem Sie die bereits existierende Referenz `hero` initialisieren.
+
+```java
+    /** Called once at the beginning of the game. */
+    protected void setup() {
+        hero = new MyHero();
+        doSetup = false;
+        controller = new ArrayList<>();
+        setupCameras();
+        painter = new Painter(batch, camera);
+        generator = new RandomWalkGenerator();
+        levelAPI = new LevelAPI(batch, painter, generator, this);
+        initBaseLogger();
+        gameLogger = Logger.getLogger(this.getClass().getName());
+        systems = new SystemController();
+        controller.add(systems);
+        pauseMenu = new PauseMenu<>();
+        controller.add(pauseMenu);
+        levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
+        levelAPI.loadLevel(LEVELSIZE);
+        createSystems();
+    }
+```
+
+Wenn Sie nun das Spiel starten, sehen Sie zwar das Level im Dungeon, aber Ihren Helden noch nicht.
 
 ### Held zeichnen
 
