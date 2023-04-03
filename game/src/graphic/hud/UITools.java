@@ -1,59 +1,41 @@
 package graphic.hud;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.utils.Align;
-import tools.Constants;
-
-/**Formatierung verschiedener Inhalte der Widgets*/
+/** Formatting various contents of the widgets */
 public class UITools {
-    private TextDialog dialog;
-    public UITools ()
-    {
-    }
+    /** beschränkt länge des Strings auf 40 Zeichen, danach erfolgt automatisch ein Zeilenumbruch */
+    private static final int maxRowLength = 40;
 
-    /**function showInfoText display the content in the GUI
-     * @param infoMsg Inhalt des Textes der im label ausgegeben wird
-     * @param arrayOfMessages weitere messeges, die erste von denen die beschriftung des Buttons ist (var-args)*/
-    public static TextDialog showInfoText(String infoMsg, String... arrayOfMessages )
-    {
-        String buttonMsg = "";
+    /**
+     * display the content in the Dialog
+     *
+     * @param arrayOfMessages optional Content of the text that is printed in the label and Caption
+     *     for Dialogue elements
+     * @param arrayOfMessages [0]Content displayed in the label [1]Button name [2]label heading
+     */
+    public static void showInfoText(String... arrayOfMessages) {
+        String infoMsg = "";
 
-        if(arrayOfMessages.length > 0)
-            buttonMsg = arrayOfMessages[0];
+        if (arrayOfMessages.length > 0) infoMsg = arrayOfMessages[0];
 
-        /**Removes all wraps and replaces them with blanks*/
+        /** Removes all wraps and replaces them with blanks */
         infoMsg = infoMsg.replaceAll("\n", " ");
 
         String[] words = infoMsg.split(" ");
         String formatedMsg = "";
 
-        /**maxRowLength limits line length to a maximum of 40 characters*/
-        final int maxRowLength = 40;
+        /** maxRowLength limits line length to a maximum of 40 characters */
         int sumLength = 0;
 
-        /**String formatting after certain line length*/
+        /** String formatting after certain line length */
         for (String word : words) {
             sumLength += word.length();
-            formatedMsg =  formatedMsg + word + " ";
+            formatedMsg = formatedMsg + word + " ";
 
-            if(sumLength > maxRowLength) {
+            if (sumLength > maxRowLength) {
                 formatedMsg += "\n";
-                sumLength =0;
+                sumLength = 0;
             }
         }
-
-        Skin skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
-        Color myC = new Color(1,1,1,1);
-
-        TextDialog textDlg = new TextDialog("pause-message", buttonMsg, skin, formatedMsg, false );
-        textDlg.setColor(myC);
-        textDlg.setWidth(Constants.WINDOW_WIDTH -100);
-        textDlg.setHeight(Constants.WINDOW_HEIGHT -100);
-        textDlg.setPosition(( Constants.WINDOW_WIDTH)/2f,
-            ( Constants.WINDOW_HEIGHT)/2f,
-            Align.center|Align.top/2);
-        return textDlg;
+        arrayOfMessages[0] = formatedMsg;
     }
 }

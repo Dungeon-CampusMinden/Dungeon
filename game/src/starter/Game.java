@@ -4,9 +4,10 @@ import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 import static logging.LoggerConfig.initBaseLogger;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import configuration.Configuration;
 import configuration.KeyboardConfig;
 import controller.AbstractController;
@@ -19,7 +20,7 @@ import ecs.entities.Hero;
 import ecs.systems.*;
 import graphic.DungeonCamera;
 import graphic.Painter;
-import graphic.hud.PauseMenu;
+import graphic.hud.EventResponsiveDialogue;
 import interpreter.DSLInterpreter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private final LevelSize LEVELSIZE = LevelSize.SMALL;
 
+    private static final String exceptSystemName = "DrawSystem";
     /**
      * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
      * batch.
@@ -61,7 +63,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     protected IGenerator generator;
 
     private boolean doFirstFrame = true;
-    static boolean paused = false;
 
     /** All entities that are currently active in the dungeon */
     public static Set<Entity> entities = new HashSet<>();
@@ -74,7 +75,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static SystemController systems;
 
     public static ILevel currentLevel;
-    private static PauseMenu pauseMenu;
+    private static EventResponsiveDialogue eventResponsiveDialogue;
     private PositionComponent heroPositionComponent;
     public static Hero hero;
     private Logger gameLogger;
@@ -86,8 +87,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         controller.clear();
         systems = new SystemController();
         controller.add(systems);
-        pauseMenu = new PauseMenu();
-        controller.add(pauseMenu);
         hero = new Hero(new Point(0, 0));
         heroPositionComponent =
                 (PositionComponent)
@@ -118,20 +117,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
         entitiesToRemove.clear();
         if (isOnEndTile()) levelAPI.loadLevel();
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P))
-            togglePause();
-
-        if(pauseMenu.mustBeHidden()) {
-            if (systems != null) {
-                systems.forEach(ECS_System::allRun);
-            }
-            pauseMenu = new PauseMenu();
-            controller.add(pauseMenu);
-        }
+        manageEventResponsiveDialogue(controller, systems);
         entitiesToAdd.clear();
         if (isOnEndTile()) levelAPI.loadLevel(LEVELSIZE);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
     }
 
     /**
@@ -205,16 +193,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         setupDSLInput();
     }
 
-    /** Toggle between pause and run */
-    public static void togglePause() {
-       if (systems != null) {
-            systems.forEach(ECS_System::notRun);
-        }
-        if (pauseMenu != null) {
-            pauseMenu.isPaused();
-        }
-    }
-
     private boolean isOnEndTile() {
         Tile currentTile =
                 currentLevel.getTileAt(heroPositionComponent.getPosition().toCoordinate());
@@ -253,6 +231,66 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         DSLInterpreter interpreter = new DSLInterpreter();
         QuestConfig config = (QuestConfig) interpreter.getQuestConfig(program);
         entities.add(config.entity());
+    }
+    /**
+     * Key Event creates a dialogue which pauses the game and is formatted according to the event.
+     * After leaving the dialogue, the pause is cancelled. The dialogue object is deleted.
+     *
+     * @param controller manages elements of a certain type and is based on a layer system
+     * @param systems ECS_Systems, which control components of all entities in game loop
+     */
+    private void manageEventResponsiveDialogue(
+            List<AbstractController<?>> controller, SystemController systems) {
+        if (EventResponsiveDialogue.isDialogCalledByKeyboardEvent()) {
+            generateEventResponsiveDialogue(controller, systems);
+        } else if (eventResponsiveDialogue != null && !eventResponsiveDialogue.isEnable()) {
+            deleteEventResponsiveDialogue(controller, systems);
+        }
+    }
+
+    /**
+     * If no dialogue is created, a new dialogue is created according to the pressed key (button).
+     * Pause all systems except DrawSystem
+     *
+     * @param controller manages elements of a certain type and is based on a layer system
+     * @param systems ECS_Systems, which control components of all entities in game loop
+     */
+    private void generateEventResponsiveDialogue(
+            List<AbstractController<?>> controller, SystemController systems) {
+        if (eventResponsiveDialogue != null) deleteEventResponsiveDialogue(controller, systems);
+
+        String msg = "";
+        eventResponsiveDialogue =
+                new EventResponsiveDialogue(
+                        msg, new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG)), Color.WHITE);
+
+        if (controller != null) controller.add(eventResponsiveDialogue);
+
+        if (systems != null) {
+            for (ECS_System system : systems) {
+                system.notRunExceptSystems(exceptSystemName);
+            }
+        }
+    }
+
+    /**
+     * After leaving the dialogue, it is removed from the stage, the game is unpaused by releasing
+     * all systems and deleting the dialogue obejct.
+     *
+     * @param controller manages elements of a certain type and is based on a layer system
+     * @param systems ECS_Systems, which control components of all entities in game loop
+     */
+    private void deleteEventResponsiveDialogue(
+            List<AbstractController<?>> controller, SystemController systems) {
+        if (eventResponsiveDialogue == null) return;
+
+        if (controller != null && controller.contains(eventResponsiveDialogue))
+            controller.remove(eventResponsiveDialogue);
+
+        if (systems != null) {
+            systems.forEach(ECS_System::allRun);
+        }
+        eventResponsiveDialogue = null;
     }
 
     public static void main(String[] args) {

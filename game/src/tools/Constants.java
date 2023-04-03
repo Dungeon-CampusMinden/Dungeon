@@ -31,6 +31,9 @@ public final class Constants {
     /** Sets the LibGDX-window logo path. */
     public static final String LOGO_PATH = "logo/CatLogo_35x35.png";
 
+    /** set Path to libgdx Skins */
+    public static final String SKIN_FOR_DIALOG = "skin/uiskin.json";
+
     /**
      * @param path the relative path to the resource
      * @return the absolute path of the internal resource

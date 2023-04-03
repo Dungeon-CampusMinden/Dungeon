@@ -29,13 +29,20 @@ public abstract class ECS_System {
         run = !run;
     }
 
-    /**Turns off all systems*/
+    /** switch off a specific system */
     public void notRun() {
-        run = false;
+        if (run) run = false;
     }
 
-    /**Turns on all systems*/
+    /** switch on a specific system */
     public void allRun() {
-        run = true;
+        if (!run) run = true;
+    }
+
+    public void notRunExceptSystems(String systemName) {
+        final String searchValue = this.getClass().getName();
+        if (!searchValue.contains(systemName)) {
+            run = false;
+        }
     }
 }

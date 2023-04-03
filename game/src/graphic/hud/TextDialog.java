@@ -4,60 +4,30 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
 import tools.Constants;
-/**Stellt Dialog mit scrollbarem Label und einem Button dar*/
+
+/** Displays dialogue with scrollable label and a button */
 public final class TextDialog extends Dialog {
-    public enum Visibility
-    {
-        VISIBLE, NOT_VISIBLE
-    }
 
-    Visibility result;
+    /** button ID (used when control is pressed) */
+    private static final String btnID = "confirm exit";
+
+    private static final String defaulMsg = "No message was load.";
+    private static final String defaultBtnMsg = "OK";
+    private boolean enable;
+
     /**
-     * @param title Titel des Dialoges
-     * @param skin Skin für den Dialog(Style der Elemente)
+     * @param skin Skin for the dialogue (resources that can be used by UI widgets)
      */
-    public TextDialog(String title, Skin skin, String windowStyleName)
-    {
-        super( title, skin, windowStyleName );
-        result = Visibility.NOT_VISIBLE;
-    }
+    public TextDialog(Skin skin) {
+        super("", skin);
+        enable = false;
 
-    /**
-     * @param title Titel des Dialoges
-     * @param skin Skin für den Dialog(Style der Elemente)*/
-    public TextDialog(String title, Skin skin )
-    {
-        super( title, skin );
-        result = Visibility.NOT_VISIBLE;
-    }
-    /**
-     * @param title Titel des Dialoges
-     * @param windowStyle Styling des Fensters */
-    public TextDialog(String title, WindowStyle windowStyle) {
-        super(title, windowStyle);
-        result = Visibility.NOT_VISIBLE;
-    }
-    /**
-     * @param title Titel des Dialoges
-     * @param buttonMsg text für den Button
-     * @param skin Skin für den Dialog(Style der Elemente)
-     * @param msg Inhalt der im scrollbaren Label dargestellt wird
-     * @param flagOutputDefaultMsg ausgabe einer Default message, wenn kein Text zum Ausgeben vorhanden ist*/
-
-    public TextDialog(String title, String buttonMsg, Skin skin, String msg, boolean flagOutputDefaultMsg )
-    {
-        super( title, skin );
-        result = Visibility.NOT_VISIBLE;
-
-        if( flagOutputDefaultMsg || msg =="" )
-            msg = "No message was load.";
-
-        Label gamelog = new Label(msg, skin);
-        gamelog.setAlignment(Align.left);
-        gamelog.setColor(Color.BLUE);
+        Label labelContent = new Label(defaulMsg, skin);
+        labelContent.setAlignment(Align.left);
+        labelContent.setColor(Color.WHITE);
 
         Table scrollTable = new Table();
-        scrollTable.add(gamelog);
+        scrollTable.add(labelContent);
         scrollTable.row();
 
         ScrollPane scroller = new ScrollPane(scrollTable, skin);
@@ -66,38 +36,60 @@ public final class TextDialog extends Dialog {
 
         Table table = new Table();
         table.setFillParent(true);
-        table.add(scroller).size(Constants.WINDOW_WIDTH -200, Constants.WINDOW_HEIGHT -200);
+        table.add(scroller).size(Constants.WINDOW_WIDTH - 200, Constants.WINDOW_HEIGHT - 200);
         this.addActor(table);
 
-        if( buttonMsg == "" )
-            buttonMsg = "Ok";
-
-        button(buttonMsg, "confirm exit" );
-    }
-/**zeigt an ob der Dialog sichtbar oder unsichtbar ist*/
-    public boolean getResult()
-    {
-        if( result == Visibility.VISIBLE )
-            return true;
-
-        return false;
-    }
-/**setzen eines Wertes ob Dialog sichtbar oder unsichtbar ist
- * @param res zeigt an ob Dialog sichtbar oder unsichtbar ist*/
-    public void setResult( boolean res)
-    {
-        if( res == false)
-            result = Visibility.NOT_VISIBLE;
-
-        result = Visibility.VISIBLE;
+        button(defaultBtnMsg, btnID);
     }
 
-    /**Zeigt resultat nach drücken des Buttons
-     * @param object Objekt, welches mit dem Button assoziiert wird */
+    /**
+     * @param title Title of the dialogue
+     * @param buttonMsg text for the button
+     * @param skin Skin for the dialogue (resources that can be used by UI widgets)
+     * @param outputMsg Content displayed in the scrollable label
+     */
+    public TextDialog(Skin skin, String outputMsg, String buttonMsg, String title) {
+        super(title, skin);
+        enable = false;
+
+        if (outputMsg.trim().isEmpty()) outputMsg = defaulMsg;
+
+        Label labelContent = new Label(outputMsg, skin);
+        labelContent.setAlignment(Align.left);
+        labelContent.setColor(Color.WHITE);
+
+        Table scrollTable = new Table();
+        scrollTable.add(labelContent);
+        scrollTable.row();
+
+        ScrollPane scroller = new ScrollPane(scrollTable, skin);
+        scroller.setFadeScrollBars(false);
+        scroller.setScrollbarsVisible(true);
+
+        Table table = new Table();
+        table.setFillParent(true);
+        table.add(scroller).size(Constants.WINDOW_WIDTH - 200, Constants.WINDOW_HEIGHT - 200);
+        this.addActor(table);
+
+        if (buttonMsg.trim().isEmpty()) buttonMsg = defaultBtnMsg;
+
+        button(buttonMsg, btnID);
+    }
+
+    /** Indicates whether the dialogue must be deleted */
+    public boolean getEnable() {
+        return enable;
+    }
+    /** */
+    public void setEnable(final boolean isEnable) {
+        enable = isEnable;
+    }
+
+    /**
+     * @param object Object associated with the button
+     */
     @Override
-    protected void result(final Object object)
-    {
-        if( object.toString() == "confirm exit" )
-            result = Visibility.NOT_VISIBLE;
+    protected void result(final Object object) {
+        if (object.toString() == btnID) enable = false;
     }
 }
