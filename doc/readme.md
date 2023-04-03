@@ -178,16 +178,34 @@ Wenn Sie nun das Spiel starten, sehen Sie zwar das Level im Dungeon, aber Ihren 
 
 ### Held zeichnen
 
+Damit der Held im Spiel auch angezeigt werden kann, braucht er ein `AnimationComponent`, denn dann wird das `DrawSystem` den Helden an seiner aktuellen Position zeichnen. Für das `AnimationComponent` benötigen wir zwei `Animation`s. Eine für `idleRight` und eine für `idleLeft`. `Animation`s sind eine Reihe an Bildern, die abwechselnd angezeigt werden. 
+
+Animation können wir mit dem `AnimationBuilder` erzeugen, indem wir `AnimationBuilder.buildAnimation` aufrufen und als Parameter das Verzeichnis mit den Bildern übergeben, die zu einer Animation zusammengefasst werden sollen. Das `AnimationComponent` wird im Konstruktor erstellt.
+
+``` java
+package ecs.entities;
+
+import dslToGame.AnimationBuilder;
+import ecs.components.AnimationComponent;
+import ecs.components.PositionComponent;
+import graphic.Animation;
+import tools.Point;
+
+public class MyHero extends Entity {
+
+    public MyHero() {
+        super();
+        new PositionComponent(this, new Point(0, 0));
+        Animation idleLeft = AnimationBuilder.buildAnimation("character/knight/idleLeft");
+        Animation idleRight = AnimationBuilder.buildAnimation("character/knight/idleRight");
+        new AnimationComponent(this, idleLeft, idleRight);
+    }
+}
+
+```
+Wenn Sie das Spiel jetzt starten, sollten SIe ihren Helden sehen:
+
 ![Animation](figs/animation.gif)
-
-- positinComponent erstellen
-    - Wofür ist das da
-    - welche werte sind sinnvoll
-- AnimationCompoent erstellen
-    - Wofür ist das da
-    - wie wird eine Animation erstellt
-
-- DrawSystem [Link zum Code](https://github.com/Programmiermethoden/Dungeon/blob/master/game/src/ecs/systems/DrawSystem.java)
 
 ### Held bewegen
 
