@@ -9,7 +9,6 @@ import ecs.components.InteractionComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
-import ecs.entities.Hero;
 import java.util.Optional;
 import level.elements.ILevel;
 import level.elements.TileLevel;
@@ -40,8 +39,8 @@ public class InteractionToolTest {
      * @param havingPositionComponent if the Hero should have the PositionComponent
      * @return the Mocked Hero
      */
-    private static Hero fullMockedHero(boolean havingPositionComponent) {
-        Hero mock = Mockito.mock(Hero.class);
+    private static Entity fullMockedHero(boolean havingPositionComponent) {
+        Entity mock = Mockito.mock(Entity.class);
         Optional<Component> pc;
         if (havingPositionComponent) {
             pc = Optional.of(new PositionComponent(mock, new Point(0, 0)));
@@ -80,7 +79,7 @@ public class InteractionToolTest {
                 e.getMessage().contains(InteractionTool.class.getName()));
         assertTrue(
                 "Errormessage should contain information about which class did miss the Component.",
-                e.getMessage().contains(Hero.class.getName()));
+                e.getMessage().contains(Entity.class.getName()));
         assertTrue(
                 "Errormessage should contain information about which Component is missing.",
                 e.getMessage().contains(PositionComponent.class.getName()));
