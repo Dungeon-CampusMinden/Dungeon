@@ -209,31 +209,47 @@ Wenn Sie das Spiel jetzt starten, sollten SIe ihren Helden sehen:
 
 ### Held bewegen
 
+Damit der Held vom `VelocitySystem` bewegt werden kann, benötigt er das `VelocityComponent`. Das `VelocityComponent` speichert die Maximalgeschwindigkeit des Helden, sowie die aktuelle geschwindigkeit des Helden.
+
+Damit wir den Helden auch per Tastatur steuern können, benötigt er das `PlayableComponent`, denn dann wird das `PlayerSystem` die Werte des Helden auf Knopfdruck aktualisieren.
+
+*Hinweis: Mehr zur Konfiguration der Tastenbelegung erfahren Sie [hier](configuration/readme.md).*
+
+Genau wie die anderen `Component`s fügen wir das `VelocityComponent` und das `PlaybaleComponent` zum Konstruktor hinzu.
+
+``` java
+package ecs.entities;
+
+import dslToGame.AnimationBuilder;
+import ecs.components.AnimationComponent;
+import ecs.components.PlayableComponent;
+import ecs.components.PositionComponent;
+import ecs.components.VelocityComponent;
+import graphic.Animation;
+import tools.Point;
+
+public class MyHero extends Entity {
+
+    public MyHero() {
+        super();
+        new PositionComponent(this, new Point(0, 0));
+        Animation idleLeft = AnimationBuilder.buildAnimation("character/knight/idleLeft");
+        Animation idleRight = AnimationBuilder.buildAnimation("character/knight/idleRight");
+        new AnimationComponent(this, idleLeft, idleRight);
+        new PlayableComponent(this);
+        float xSpeed = 0.3f;
+        float ySpeed = 0.3f;
+        Animation runLeft = AnimationBuilder.buildAnimation("character/knight/runLeft");
+        Animation runRight = AnimationBuilder.buildAnimation("character/knight/runRight");
+        new VelocityComponent(this, xSpeed, ySpeed, runLeft, runRight);
+    }
+}
+
+```
+
+Jetzt sollten Sie ihren Helden bewegen können:
+
 ![Bewegen](figs/move.gif)
-
-- VelocityComponent
-    - VelocitySystem arbeitet darauf
-- PlayableComponent
-    - PlayerSystem arbeitet darauf
-
-
-- Um mit WASD den Helden zu steuern, erst die Tastaturbelegung in `configuaration/KeyboardConfig.java` festlegen *Muss nicht so exolizit erklärt werden, vielleicht raus*
-- Beispiel:
-
-```java
-public static final ConfigKey<Integer> MOVEMENT_UP = new ConfigKey<>(new String[] {"movement", "up"}, new ConfigIntValue(Input.Keys.W));
-```
-
-- Dann innerhalb der Methode `checkKeystroke` in `ecs/systems/PlayerSystem.java` die Steuerung des Helden anlegen
-- Beispiel:
-
-```java
-if (Gdx.input.isKeyPressed(KeyboardConfig.MOVEMENT_UP.get()))
-            ksd.vc.setCurrentYVelocity(1 * ksd.vc.getYVelocity());
-else if (Gdx.input.isKeyPressed(KeyboardConfig.MOVEMENT_DOWN.get()))
-            ksd.vc.setCurrentYVelocity(-1 * ksd.vc.getYVelocity());
-```
-*Hinweis: quer laufen geht nicht, da immer nur eine Taste abgefragt wird. Haben Sie eine Idee wie man das umsetzen könnte?*
 
 ### Nächstes Level laden
 
