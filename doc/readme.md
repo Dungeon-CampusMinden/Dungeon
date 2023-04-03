@@ -292,21 +292,33 @@ In der Standardimplementierung werden dabei alle Entitäten entfernt und wenn es
 
 ### Existierenden Helden analysieren
 
-Jetzt schauen wir und den bereits existierenden Helden.
+Wenn Sie wollen, können Sie mit Ihrem Helden weiterarbeiten, oder Sie holen sich den ebereits existierenden Helden zurück.
 
-- Warum hat der eine eigene Klasse?
-- Welche anderen Components hat der noch?
-    - HitboxComponent
-        - Wofür ist das da?
-        - `heroCollision(HitboxComponent other, Tile.Direction from)`
-        - Verwendete Parameter erklären
-    - SkillComponent
-        - Was ist das?
-        - beiden getter erklären
-        - Verwendete Parameter erklären/FeuerballSkill erklären
-        - StrategyPattern im ECS verlinken
+Der vorgwfertigte Held hat zwei weitere Besonderheiten, die Sie noch nicht kennen. Zum einem besitzt er einen Feuerball-Skill. Dieser wird in `Hero#setupFireballSkill` erstellt.
+
+```java
+    private void setupFireballSkill() {
+        firstSkill =
+                new Skill(
+                        new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
+    }
+```
+
+In der Standardkonfiguration können SIe den Feuerball in richung ihres Mauscursors mit der Taste R abfeuer. Mehr zum Thema Skill finden Sie [hier](ecs/skills/readme.md).
+
+Zusätzlich besitzt der Held ein `HitboxComponent`. Damit kann er mit anderen Entitäten, die ebenfalls ein `HitboxComponent` haben, kolidieren.
+
+```java
+    private void setupHitboxComponent() {
+        new HitboxComponent(
+                this,
+                (you, other, direction) -> System.out.println("heroCollisionEnter"),
+                (you, other, direction) -> System.out.println("heroCollisionLeave"));
+    }
+```
+
+Wenn Sie mehr dazu erfahren wollen, schauen Sie [hier](ecs/components/hitbox_component.md).
            
-
 ## Linksammlung
 
 Hier finden Sie noch einige Links um Ihr Verständnis des Dungeons zu vertiefen:
