@@ -49,6 +49,8 @@ public class TileConnection implements Connection<Tile> {
 
     @Override
     public boolean equals(Object obj) {
-        return obj.getClass() == TileConnection.class && ((TileConnection)obj).from == from && ((TileConnection)obj).to == to;
+        return obj.getClass() == TileConnection.class
+                && ((TileConnection) obj).from == from
+                && ((TileConnection) obj).to == to;
     }
 }

@@ -7,9 +7,11 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
 import level.elements.TileLevel;
+import level.elements.astar.TileConnection;
 import level.elements.tile.ExitTile;
 import level.elements.tile.FloorTile;
 import level.elements.tile.Tile;
+import level.elements.tile.TileFactory;
 import level.elements.tile.WallTile;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
@@ -22,16 +24,16 @@ public class TileLevelTest {
     @Test
     public void test_levelCTOR_Tiles() {
         Tile[][] tileLayout =
-            new Tile[][] {
-                {
-                    new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT, null),
-                    new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null)
-                },
-                {
-                    new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null),
-                    new ExitTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null)
-                }
-            };
+                new Tile[][] {
+                    {
+                        new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT, null),
+                        new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null)
+                    },
+                    {
+                        new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null),
+                        new ExitTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null)
+                    }
+                };
         TileLevel tileLevel = new TileLevel(tileLayout);
         Tile[][] layout = tileLevel.getLayout();
         assertArrayEquals(tileLayout, layout);
@@ -40,24 +42,24 @@ public class TileLevelTest {
     @Test
     public void test_levelCTOR_TilesNoExit() {
         Tile[][] tileLayout =
-            new Tile[][] {
-                {
-                    new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT, null),
-                    new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null)
-                },
-                {
-                    new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null),
-                    new FloorTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null)
-                }
-            };
+                new Tile[][] {
+                    {
+                        new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT, null),
+                        new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null)
+                    },
+                    {
+                        new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null),
+                        new FloorTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null)
+                    }
+                };
         TileLevel tileLevel = new TileLevel(tileLayout);
         Tile[][] layout = tileLevel.getLayout();
         assertSame(tileLayout[0][0], layout[0][0]);
         assertSame(tileLayout[1][0], layout[1][0]);
         assertTrue(
-            "Es muss mindestens einen Ausgang geben!",
-            layout[0][1].getLevelElement() == LevelElement.EXIT
-                || layout[1][1].getLevelElement() == LevelElement.EXIT);
+                "Es muss mindestens einen Ausgang geben!",
+                layout[0][1].getLevelElement() == LevelElement.EXIT
+                        || layout[1][1].getLevelElement() == LevelElement.EXIT);
     }
 
     @Test
@@ -77,25 +79,25 @@ public class TileLevelTest {
     @Test
     public void test_levelCTOR_LevelElementsNoExit() {
         LevelElement[][] elementsLayout =
-            new LevelElement[][] {
-                {LevelElement.WALL, LevelElement.FLOOR}, {LevelElement.WALL, LevelElement.FLOOR}
-            };
+                new LevelElement[][] {
+                    {LevelElement.WALL, LevelElement.FLOOR}, {LevelElement.WALL, LevelElement.FLOOR}
+                };
         TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
         Tile[][] layout = tileLevel.getLayout();
         assertSame(elementsLayout[0][0], layout[0][0].getLevelElement());
         assertSame(elementsLayout[1][0], layout[1][0].getLevelElement());
         assertTrue(
-            "Es muss mindestens einen Ausgang geben!",
-            layout[0][1].getLevelElement() == LevelElement.EXIT
-                || layout[1][1].getLevelElement() == LevelElement.EXIT);
+                "Es muss mindestens einen Ausgang geben!",
+                layout[0][1].getLevelElement() == LevelElement.EXIT
+                        || layout[1][1].getLevelElement() == LevelElement.EXIT);
     }
 
     @Test
     public void test_levelCTOR_LevelElementsNoFloors() {
         LevelElement[][] elementsLayout =
-            new LevelElement[][] {
-                {LevelElement.WALL, LevelElement.WALL}, {LevelElement.WALL, LevelElement.WALL}
-            };
+                new LevelElement[][] {
+                    {LevelElement.WALL, LevelElement.WALL}, {LevelElement.WALL, LevelElement.WALL}
+                };
 
         TileLevel level = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
         assertNull(level.getStartTile());
@@ -105,20 +107,19 @@ public class TileLevelTest {
     @Test
     public void test_levelCTOR_LevelElementsEnoughFloorsForStartButNotExit() {
         LevelElement[][] elementsLayout =
-            new LevelElement[][] {
-                {LevelElement.WALL, LevelElement.FLOOR}, {LevelElement.WALL, LevelElement.WALL}
-            };
+                new LevelElement[][] {
+                    {LevelElement.WALL, LevelElement.FLOOR}, {LevelElement.WALL, LevelElement.WALL}
+                };
 
         TileLevel level = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
         assertNotNull(level.getStartTile());
         assertNull(level.getEndTile());
     }
+
     @Test
-    public void test_levelCTOR_LevelElements_connections(){
+    public void test_levelCTOR_LevelElements_connections() {
         LevelElement[][] elementsLayout =
-            new LevelElement[][] {
-                {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.EXIT}
-        };
+                new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.EXIT}};
         TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
         Tile[][] layout = tileLevel.getLayout();
         assertEquals(1, layout[0][0].getConnections().size);
@@ -131,83 +132,91 @@ public class TileLevelTest {
     }
 
     @Test
-    public void test_levelCTOR_LevelElements_tileTypeLists(){
+    public void test_levelCTOR_LevelElements_tileTypeLists() {
         LevelElement[][] elementsLayout =
-            new LevelElement[][] {
-                {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.EXIT, LevelElement.SKIP},
-                {LevelElement.WALL, LevelElement.WALL, LevelElement.SKIP, LevelElement.SKIP},
-                {LevelElement.DOOR, LevelElement.DOOR, LevelElement.HOLE, LevelElement.HOLE},
-            };
+                new LevelElement[][] {
+                    {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.EXIT, LevelElement.SKIP},
+                    {LevelElement.WALL, LevelElement.WALL, LevelElement.SKIP, LevelElement.SKIP},
+                    {LevelElement.DOOR, LevelElement.DOOR, LevelElement.HOLE, LevelElement.HOLE},
+                };
         TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
-        assertEquals(2,tileLevel.getFloorTiles().size());
-        assertEquals(2,tileLevel.getDoorTiles().size());
-        assertEquals(2,tileLevel.getHoleTiles().size());
-        assertEquals(2,tileLevel.getWallTiles().size());
-        assertEquals(3,tileLevel.getSkipTiles().size());
+        assertEquals(2, tileLevel.getFloorTiles().size());
+        assertEquals(2, tileLevel.getDoorTiles().size());
+        assertEquals(2, tileLevel.getHoleTiles().size());
+        assertEquals(2, tileLevel.getWallTiles().size());
+        assertEquals(3, tileLevel.getSkipTiles().size());
     }
 
     @Test
-    public void test_nodeCount_NoAccessible(){
+    public void test_nodeCount_NoAccessible() {
         LevelElement[][] elementsLayout =
-            new LevelElement[][] {
-                {LevelElement.WALL, LevelElement.WALL, LevelElement.WALL, LevelElement.WALL},
-            };
+                new LevelElement[][] {
+                    {LevelElement.WALL, LevelElement.WALL, LevelElement.WALL, LevelElement.WALL},
+                };
         TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
-        assertEquals(0,tileLevel.getNodeCount());
+        assertEquals(0, tileLevel.getNodeCount());
     }
 
     @Test
-    public void test_nodeCount_OneAccessible(){
+    public void test_nodeCount_OneAccessible() {
         LevelElement[][] elementsLayout =
-            new LevelElement[][] {
-                {LevelElement.FLOOR, LevelElement.WALL, LevelElement.WALL, LevelElement.WALL},
-            };
+                new LevelElement[][] {
+                    {LevelElement.FLOOR, LevelElement.WALL, LevelElement.WALL, LevelElement.WALL},
+                };
         TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
-        assertEquals(1,tileLevel.getNodeCount());
+        assertEquals(1, tileLevel.getNodeCount());
     }
 
     @Test
-    public void test_nodeCount_FourAccessible(){
+    public void test_nodeCount_FourAccessible() {
         LevelElement[][] elementsLayout =
-            new LevelElement[][] {
-                {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR},
-            };
+                new LevelElement[][] {
+                    {
+                        LevelElement.FLOOR,
+                        LevelElement.FLOOR,
+                        LevelElement.FLOOR,
+                        LevelElement.FLOOR
+                    },
+                };
         TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
-        assertEquals(4,tileLevel.getNodeCount());
+        assertEquals(4, tileLevel.getNodeCount());
     }
 
     @Test
-    public void test_setRandomEnd(){
+    public void test_setRandomEnd() {
         LevelElement[][] elementsLayout =
-            new LevelElement[][] {
-                {LevelElement.EXIT, LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR},
-            };
+                new LevelElement[][] {
+                    {LevelElement.EXIT, LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR},
+                };
         TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
         Tile oldEndTile = tileLevel.getEndTile();
-        assertNotSame(tileLevel.getStartTile(),tileLevel.getEndTile());
+        tileLevel.setRandomEnd();
+        assertNotSame(tileLevel.getStartTile(), tileLevel.getEndTile());
         assertNotSame(oldEndTile, tileLevel.getEndTile());
     }
+
     @Test
-    public void test_setRandomEnd_NoFreeFloors(){
+    public void test_setRandomEnd_NoFreeFloors() {
         LevelElement[][] elementsLayout =
-            new LevelElement[][] {
-                {LevelElement.FLOOR},
-            };
+                new LevelElement[][] {
+                    {LevelElement.FLOOR},
+                };
         TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
-        assertNotSame(tileLevel.getStartTile(),tileLevel.getEndTile());
+        tileLevel.setRandomEnd();
+        assertNotSame(tileLevel.getStartTile(), tileLevel.getEndTile());
         assertNull(tileLevel.getEndTile());
     }
+
     @Test
-    public void test_setRandomEnd_NoFloors(){
+    public void test_setRandomEnd_NoFloors() {
         LevelElement[][] elementsLayout =
-            new LevelElement[][] {
-                {LevelElement.WALL},
-            };
+                new LevelElement[][] {
+                    {LevelElement.WALL},
+                };
         TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
         tileLevel.setRandomEnd();
         assertNull(tileLevel.getEndTile());
     }
-
 
     @Test
     public void test_findPath_onlyOnePathPossible() {
@@ -293,10 +302,9 @@ public class TileLevelTest {
         var levelLayout = new LevelElement[3][3];
 
         for (int y = 0; y < 3; y++) {
-            for (int x = 0; x < 3; x++) {
-                levelLayout[y][x] = LevelElement.FLOOR;
-            }
+            Arrays.fill(levelLayout[y], LevelElement.FLOOR);
         }
+        levelLayout[0][0] = LevelElement.EXIT;
         var level = new TileLevel(levelLayout, DesignLabel.randomDesign());
         assertEquals(levelLayout[1][2], level.getTileAt(new Coordinate(2, 1)).getLevelElement());
     }
@@ -305,9 +313,7 @@ public class TileLevelTest {
     public void test_getRandomTile() {
         var levelLayout = new LevelElement[3][3];
         for (int y = 0; y < 3; y++) {
-            for (int x = 0; x < 3; x++) {
-                levelLayout[y][x] = LevelElement.FLOOR;
-            }
+            Arrays.fill(levelLayout[y], LevelElement.FLOOR);
         }
         var level = new TileLevel(levelLayout, DesignLabel.randomDesign());
         assertNotNull(level.getRandomTile());
@@ -340,9 +346,7 @@ public class TileLevelTest {
     public void test_getRandomTilePoint() {
         var levelLayout = new LevelElement[3][3];
         for (int y = 0; y < 3; y++) {
-            for (int x = 0; x < 3; x++) {
-                levelLayout[y][x] = LevelElement.FLOOR;
-            }
+            Arrays.fill(levelLayout[y], LevelElement.FLOOR);
         }
         var level = new TileLevel(levelLayout, DesignLabel.randomDesign());
         Point randomPoint = level.getRandomTilePoint();
@@ -400,6 +404,234 @@ public class TileLevelTest {
             compareString.append("\n");
         }
         assertEquals(compareString.toString(), level.printLevel());
+    }
+
+    @Test
+    public void test_addTile_FloorTile() {
+        TileLevel level =
+                new TileLevel(
+                        new LevelElement[][] {
+                            {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
+                        },
+                        DesignLabel.DEFAULT);
+        Tile tile =
+                TileFactory.createTile(
+                        "", new Coordinate(1, 0), LevelElement.FLOOR, DesignLabel.DEFAULT);
+        level.removeTile(level.getLayout()[0][1]);
+        level.getLayout()[0][1] = tile;
+        level.addTile(tile);
+        assertTrue(
+                "tile needs to be added to specific Tile list",
+                level.getFloorTiles().contains(tile));
+        assertEquals(level.getNodeCount() - 1, tile.getIndex());
+        assertTrue(
+                "All neighbouring tiles need to be informed about the new tile",
+                level.getFloorTiles().stream()
+                        .filter(x -> !(x == tile))
+                        .allMatch(
+                                x ->
+                                        x.getConnections().size == 1
+                                                && x.getConnections()
+                                                        .contains(
+                                                                new TileConnection(x, tile),
+                                                                false)));
+        assertSame("tile needs to know its new level", level, tile.getLevel());
+        assertEquals(
+                "each accessible tile needs to have a unique index",
+                3,
+                Arrays.stream(level.getLayout())
+                        .flatMap(x -> Arrays.stream(x).map(Tile::getIndex))
+                        .distinct()
+                        .count());
+    }
+
+    @Test
+    public void test_addTile_ExitTile() {
+        TileLevel level =
+                new TileLevel(
+                        new LevelElement[][] {
+                            {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
+                        },
+                        DesignLabel.DEFAULT);
+        Tile tile =
+                TileFactory.createTile(
+                        "", new Coordinate(1, 0), LevelElement.EXIT, DesignLabel.DEFAULT);
+        level.removeTile(level.getLayout()[0][1]);
+        level.getLayout()[0][1] = tile;
+        level.addTile(tile);
+        assertTrue(
+                "tile needs to be added to specific Tile list",
+                level.getExitTiles().contains(tile));
+        assertEquals(level.getNodeCount() - 1, tile.getIndex());
+        assertTrue(
+                "All neighbouring tiles need to be informed about the new tile",
+                level.getFloorTiles().stream()
+                        .filter(x -> !(x == tile))
+                        .allMatch(
+                                x ->
+                                        x.getConnections().size == 1
+                                                && x.getConnections()
+                                                        .contains(
+                                                                new TileConnection(x, tile),
+                                                                false)));
+        assertSame("tile needs to know its new level", level, tile.getLevel());
+        assertEquals(
+                "each accessible tile needs to have a unique index",
+                3,
+                Arrays.stream(level.getLayout())
+                        .flatMap(x -> Arrays.stream(x).map(Tile::getIndex))
+                        .distinct()
+                        .count());
+    }
+
+    @Test
+    public void test_addTile_DoorTile() {
+        TileLevel level =
+                new TileLevel(
+                        new LevelElement[][] {
+                            {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
+                        },
+                        DesignLabel.DEFAULT);
+        Tile tile =
+                TileFactory.createTile(
+                        "", new Coordinate(1, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
+        level.removeTile(level.getLayout()[0][1]);
+        level.getLayout()[0][1] = tile;
+        level.addTile(tile);
+        assertTrue(
+                "tile needs to be added to specific Tile list",
+                level.getDoorTiles().contains(tile));
+        assertEquals(level.getNodeCount() - 1, tile.getIndex());
+        assertTrue(
+                "All neighbouring tiles need to be informed about the new tile",
+                level.getFloorTiles().stream()
+                        .filter(x -> !(x == tile))
+                        .allMatch(
+                                x ->
+                                        x.getConnections().size == 1
+                                                && x.getConnections()
+                                                        .contains(
+                                                                new TileConnection(x, tile),
+                                                                false)));
+        assertSame("tile needs to know its new level", level, tile.getLevel());
+        assertEquals(
+                "each accessible tile needs to have a unique index",
+                3,
+                Arrays.stream(level.getLayout())
+                        .flatMap(x -> Arrays.stream(x).map(Tile::getIndex))
+                        .distinct()
+                        .count());
+    }
+
+    @Test
+    public void test_addTile_SkipTile() {
+        TileLevel level =
+                new TileLevel(
+                        new LevelElement[][] {
+                            {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
+                        },
+                        DesignLabel.DEFAULT);
+        Tile tile =
+                TileFactory.createTile(
+                        "", new Coordinate(1, 0), LevelElement.SKIP, DesignLabel.DEFAULT);
+        level.removeTile(level.getLayout()[0][1]);
+        level.getLayout()[0][1] = tile;
+        level.addTile(tile);
+        assertTrue(
+                "tile needs to be added to specific Tile list",
+                level.getSkipTiles().contains(tile));
+        assertEquals(0, tile.getIndex());
+        assertTrue(
+                "All neighbouring tiles need to be informed about the new tile",
+                level.getFloorTiles().stream()
+                        .filter(x -> !(x == tile))
+                        .allMatch(x -> x.getConnections().size == 0));
+        assertSame("tile needs to know its new level", level, tile.getLevel());
+        assertEquals(
+                "each accessible tile needs to have a unique index",
+                2,
+                Arrays.stream(level.getLayout())
+                        .flatMap(
+                                x ->
+                                        Arrays.stream(x)
+                                                .filter(Tile::isAccessible)
+                                                .map(Tile::getIndex))
+                        .distinct()
+                        .count());
+    }
+
+    @Test
+    public void test_addTile_WallTile() {
+        TileLevel level =
+                new TileLevel(
+                        new LevelElement[][] {
+                            {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
+                        },
+                        DesignLabel.DEFAULT);
+        Tile tile =
+                TileFactory.createTile(
+                        "", new Coordinate(1, 0), LevelElement.WALL, DesignLabel.DEFAULT);
+        level.removeTile(level.getLayout()[0][1]);
+        level.getLayout()[0][1] = tile;
+        level.addTile(tile);
+        assertTrue(
+                "tile needs to be added to specific Tile list",
+                level.getWallTiles().contains(tile));
+        assertEquals(0, tile.getIndex());
+        assertTrue(
+                "All neighbouring tiles need to be informed about the new tile",
+                level.getFloorTiles().stream()
+                        .filter(x -> !(x == tile))
+                        .allMatch(x -> x.getConnections().size == 0));
+        assertSame("tile needs to know its new level", level, tile.getLevel());
+        assertEquals(
+                "each accessible tile needs to have a unique index",
+                2,
+                Arrays.stream(level.getLayout())
+                        .flatMap(
+                                x ->
+                                        Arrays.stream(x)
+                                                .filter(Tile::isAccessible)
+                                                .map(Tile::getIndex))
+                        .distinct()
+                        .count());
+    }
+
+    @Test
+    public void test_addTile_HoleTile() {
+        TileLevel level =
+                new TileLevel(
+                        new LevelElement[][] {
+                            {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
+                        },
+                        DesignLabel.DEFAULT);
+        Tile tile =
+                TileFactory.createTile(
+                        "", new Coordinate(1, 0), LevelElement.HOLE, DesignLabel.DEFAULT);
+        level.removeTile(level.getLayout()[0][1]);
+        level.getLayout()[0][1] = tile;
+        level.addTile(tile);
+        assertTrue(
+                "tile needs to be added to specific Tile list",
+                level.getHoleTiles().contains(tile));
+        assertEquals(0, tile.getIndex());
+        assertTrue(
+                "All neighbouring tiles need to be informed about the new tile",
+                level.getFloorTiles().stream()
+                        .filter(x -> !(x == tile))
+                        .allMatch(x -> x.getConnections().size == 0));
+        assertSame("tile needs to know its new level", level, tile.getLevel());
+        assertEquals(
+                "each accessible tile needs to have a unique index",
+                2,
+                Arrays.stream(level.getLayout())
+                        .flatMap(
+                                x ->
+                                        Arrays.stream(x)
+                                                .filter(Tile::isAccessible)
+                                                .map(Tile::getIndex))
+                        .distinct()
+                        .count());
     }
 
     @Test

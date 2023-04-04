@@ -3,9 +3,6 @@ package level.elements;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import com.badlogic.gdx.ai.pfa.Connection;
-import com.badlogic.gdx.utils.Array;
 import level.elements.astar.TileConnection;
 import level.elements.astar.TileHeuristic;
 import level.elements.tile.*;
@@ -110,8 +107,11 @@ public class TileLevel implements ILevel {
                     new Coordinate(
                             checkTile.getCoordinate().x + v.x, checkTile.getCoordinate().y + v.y);
             Tile t = getTileAt(c);
-            if (t != null && t.isAccessible() &&
-                !checkTile.getConnections().contains(new TileConnection(checkTile,t),false)) {
+            if (t != null
+                    && t.isAccessible()
+                    && !checkTile
+                            .getConnections()
+                            .contains(new TileConnection(checkTile, t), false)) {
                 checkTile.addConnection(t);
             }
         }
@@ -195,7 +195,9 @@ public class TileLevel implements ILevel {
                 .forEach(
                         x ->
                                 x.getToNode()
-                                        .getConnections().removeValue(new TileConnection(x.getToNode(), tile),false));
+                                        .getConnections()
+                                        .removeValue(
+                                                new TileConnection(x.getToNode(), tile), false));
         if (tile.isAccessible()) removeIndex(tile.getIndex());
     }
 
@@ -218,10 +220,14 @@ public class TileLevel implements ILevel {
         }
         if (tile.isAccessible()) {
             this.addConnectionsToNeighbours(tile);
-            tile.getConnections().forEach(x -> {
-                if(!x.getToNode().getConnections().contains(new TileConnection(x.getToNode(),tile), false))
-                    x.getToNode().addConnection(tile);
-            });
+            tile.getConnections()
+                    .forEach(
+                            x -> {
+                                if (!x.getToNode()
+                                        .getConnections()
+                                        .contains(new TileConnection(x.getToNode(), tile), false))
+                                    x.getToNode().addConnection(tile);
+                            });
             tile.setIndex(nodeCount++);
         }
         tile.setLevel(this);
