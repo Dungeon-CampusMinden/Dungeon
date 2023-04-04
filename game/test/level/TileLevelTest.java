@@ -687,4 +687,26 @@ public class TileLevelTest {
                 .forEachOrdered(x -> assertEquals(counter.getAndIncrement(), x.getIndex()));
         assertEquals(2, counter.get());
     }
+
+    @Test
+    public void test_changeTileElementType_notOnLevel() {
+        LevelElement[][] layout =
+                new LevelElement[][] {
+                    new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
+                };
+        TileLevel level = new TileLevel(layout, DesignLabel.DEFAULT);
+        level.changeTileElementType(
+                TileFactory.createTile(
+                        "", new Coordinate(1, 0), LevelElement.FLOOR, DesignLabel.DEFAULT),
+                LevelElement.WALL);
+        assertEquals(3, level.getNodeCount());
+        AtomicInteger counter = new AtomicInteger();
+        Arrays.stream(level.getLayout())
+                .flatMap(Arrays::stream)
+                .sorted(Comparator.comparingInt(Tile::getIndex))
+                .filter(Tile::isAccessible)
+                .forEachOrdered(x -> assertEquals(counter.getAndIncrement(), x.getIndex()));
+        assertNotEquals(LevelElement.WALL, level.getTileAt(new Coordinate(1, 0)).getLevelElement());
+        assertEquals(3, counter.get());
+    }
 }
