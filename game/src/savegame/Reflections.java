@@ -18,9 +18,18 @@ public class Reflections {
      */
     public static void setFieldValue(Object object, String fieldName, Object value) {
         try {
-            Field field = object.getClass().getDeclaredField(fieldName);
+            Field field;
+            try {
+                field = object.getClass().getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                field = object.getClass().getSuperclass().getDeclaredField(fieldName);
+            }
             field.setAccessible(true);
-            field.set(object, value);
+            if (!Modifier.isStatic(field.getModifiers())) {
+                field.set(object, value);
+            } else {
+                field.set(null, value);
+            }
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(
                     "Could not set field " + fieldName + " of " + object.getClass().getName(), e);
@@ -37,7 +46,11 @@ public class Reflections {
     public static void setFieldValue(Object object, Field field, Object value) {
         try {
             field.setAccessible(true);
-            field.set(object, value);
+            if (!Modifier.isStatic(field.getModifiers())) {
+                field.set(object, value);
+            } else {
+                field.set(null, value);
+            }
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(
                     "Could not set field " + field.getName() + " of " + object.getClass().getName(),
@@ -82,7 +95,12 @@ public class Reflections {
      */
     public static <T> T getFieldValue(Object object, String fieldName) {
         try {
-            Field field = object.getClass().getDeclaredField(fieldName);
+            Field field;
+            try {
+                field = object.getClass().getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                field = object.getClass().getSuperclass().getDeclaredField(fieldName);
+            }
             return getFieldValue(object, field);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(

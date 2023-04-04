@@ -9,7 +9,7 @@ import ecs.components.Component;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
-import ecs.systems.ECS_System;
+import graphic.DungeonCamera;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -212,15 +212,17 @@ public class SaveGame {
 
         new Thread(
                         () -> {
-                            Game.systems.forEach(ECS_System::toggleRun);
+                            disableAllSystems();
                             try {
                                 Thread.sleep(
-                                        10); // Wait a few milliseconds so the game can finish the
+                                        100); // Wait a few milliseconds so the game can finish the
                                 // current tick
                             } catch (InterruptedException e) {
                                 throw new RuntimeException(e);
                             }
-                            Reflections.setFieldValue(Game.instance, "entities", new HashSet<>());
+                            Game.getEntities().clear();
+                            Game.getEntitiesToRemove().clear();
+                            Game.getEntitiesToAdd().clear();
                             Game.systems = new SystemController();
                             disableAllSystems();
 
@@ -241,16 +243,9 @@ public class SaveGame {
                                     .ifPresent(Game::setHero);
 
                             // Set entities.
-                            Reflections.setFieldValue(Game.instance, "entities", entities);
-                            Reflections.setFieldValue(
-                                    Game.instance,
-                                    "heroPositionComponent",
-                                    Game.getHero()
-                                            .get()
-                                            .getComponent(PositionComponent.class)
-                                            .get());
+                            Game.getEntitiesToAdd().addAll(entities);
 
-                            Reflections.callVoidMethod(Game.instance, "setupSystems");
+                            Reflections.callVoidMethod(Game.instance, "createSystems");
                             List<AbstractController<?>> controllers =
                                     Reflections.getFieldValue(Game.instance, "controller");
                             controllers.clear();
@@ -258,6 +253,14 @@ public class SaveGame {
                             controllers.add(Reflections.getFieldValue(Game.instance, "pauseMenu"));
 
                             System.out.println("Loaded savegame " + filename);
+                            DungeonCamera camera =
+                                    Reflections.getFieldValue(Game.instance, "camera");
+                            Game.getHero()
+                                    .flatMap(
+                                            hero ->
+                                                    hero.getComponent(PositionComponent.class)
+                                                            .map(PositionComponent.class::cast))
+                                    .ifPresent(camera::follow);
                         },
                         "SaveGameLoad")
                 .start();
@@ -295,6 +298,10 @@ public class SaveGame {
                     if (system != null) {
                         if ((boolean) Reflections.getFieldValue(system, "run")) {
                             system.toggleRun();
+                            if ((boolean) Reflections.getFieldValue(system, "run")) {
+                                // System still running (DrawSystem)
+                                Reflections.setFieldValue(system, "run", false);
+                            }
                         }
                     }
                 });
