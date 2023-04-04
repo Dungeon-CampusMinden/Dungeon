@@ -3,6 +3,7 @@ package starter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.GdxNativesLoader;
 import graphic.DungeonCamera;
 import graphic.Painter;
 import level.LevelAPI;
@@ -29,6 +30,7 @@ class GameTest {
 
     @Before
     public void setUp() throws Exception {
+        GdxNativesLoader.load(); // needed to load gdx libraries for test
         game = Mockito.spy(Game.class);
         batch = Mockito.mock(SpriteBatch.class);
 
@@ -50,6 +52,7 @@ class GameTest {
                 .thenReturn(Mockito.mock(RandomWalkGenerator.class));
 
         PowerMockito.mockStatic(Constants.class, invocation -> "abc");
+
     }
 
     @Test
