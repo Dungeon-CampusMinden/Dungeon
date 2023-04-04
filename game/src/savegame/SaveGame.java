@@ -59,7 +59,7 @@ public class SaveGame {
      */
     private static JsonValue getEntityData() {
         JsonValue entities = new JsonValue(JsonValue.ValueType.array);
-        for (Entity entity : Game.entities) {
+        for (Entity entity : Game.getEntities()) {
             JsonValue json = new JsonValue(JsonValue.ValueType.object);
             json.addChild("class", new JsonValue(entity.getClass().getName()));
             JsonValue components = new JsonValue(JsonValue.ValueType.array);
@@ -97,7 +97,7 @@ public class SaveGame {
         for (int x = 0; x < layout.length; x++) {
             for (int y = 0; y < layout[x].length; y++) {
                 Tile tile = layout[x][y];
-                if (tile == null) {
+                if (tile == null || tile.getLevelElement() == LevelElement.SKIP) {
                     continue;
                 }
                 tiles.addChild(GameSerialization.serialize(tile));
@@ -118,6 +118,13 @@ public class SaveGame {
             int y = location.getInt("y");
             layout[x][y] = LevelElement.valueOf(tile.getString("levelElement"));
         }
+        for(int x = 0; x < layout.length; x++) {
+            for(int y = 0; y < layout[x].length; y++) {
+                if(layout[x][y] == null) {
+                    layout[x][y] = LevelElement.SKIP;
+                }
+            }
+        }
         return new TileLevel(layout, DesignLabel.DEFAULT);
     }
 
@@ -131,7 +138,7 @@ public class SaveGame {
             for (JsonValue jsonComponent : jsonEntity.get("components")) {
                 entity.addComponent(GameSerialization.deserialize(jsonComponent, entity));
             }
-            Game.entities.remove(entity); // Remove from Game.entities to avoid duplicates
+            Game.getEntities().remove(entity); // Remove from Game.entities to avoid duplicates
             entities.add(entity);
         }
         return entities;
@@ -213,7 +220,7 @@ public class SaveGame {
                             } catch (InterruptedException e) {
                                 throw new RuntimeException(e);
                             }
-                            Game.entities = new HashSet<>();
+                            Reflections.setFieldValue(Game.instance, "entities", new HashSet<>());
                             Game.systems = new SystemController();
                             disableAllSystems();
 
@@ -231,14 +238,14 @@ public class SaveGame {
                                     .filter(e -> e instanceof Hero)
                                     .map(Hero.class::cast)
                                     .findFirst()
-                                    .ifPresent(h -> Game.hero = h);
+                                    .ifPresent(Game::setHero);
 
                             // Set entities.
-                            Game.entities = entities;
+                            Reflections.setFieldValue(Game.instance, "entities", entities);
                             Reflections.setFieldValue(
                                     Game.instance,
                                     "heroPositionComponent",
-                                    Game.hero.getComponent(PositionComponent.class).get());
+                                    Game.getHero().get().getComponent(PositionComponent.class).get());
 
                             Reflections.callVoidMethod(Game.instance, "setupSystems");
                             List<AbstractController<?>> controllers =

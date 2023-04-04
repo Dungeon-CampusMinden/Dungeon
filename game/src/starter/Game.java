@@ -85,7 +85,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        DesktopLauncher.run(Game.instance));
+        DesktopLauncher.run(Game.instance);
     }
 
     /**

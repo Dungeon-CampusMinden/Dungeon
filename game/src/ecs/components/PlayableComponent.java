@@ -1,5 +1,6 @@
 package ecs.components;
 
+import ecs.components.skill.Skill;
 import ecs.entities.Entity;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -85,15 +86,4 @@ public class PlayableComponent extends Component implements IFieldSerializing {
         return Optional.ofNullable(skillSlot2);
     }
 
-    @Override
-    public JsonValue serialize() {
-        JsonValue json = new JsonValue(JsonValue.ValueType.object);
-        json.addChild("playable", new JsonValue(playable));
-        return json;
-    }
-
-    @Override
-    public void deserialize(JsonValue data) {
-        playable = data.getBoolean("playable");
-    }
 }
