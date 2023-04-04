@@ -30,7 +30,7 @@ class GameTest {
 
     @Before
     public void setUp() throws Exception {
-        GdxNativesLoader.load(); // needed to load gdx libraries for test
+        GdxNativesLoader.load(); // needed to load gdx libraries for test, without this some Tests WILL break
         game = Mockito.spy(Game.class);
         batch = Mockito.mock(SpriteBatch.class);
 
