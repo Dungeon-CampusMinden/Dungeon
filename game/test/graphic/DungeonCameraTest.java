@@ -167,6 +167,7 @@ public class DungeonCameraTest {
         assertEquals("Camera should be at (2, 2, 0).", camera.position, new Vector3(2, 2, 0));
         assertSame("Camera should follow entity.", camera.getFollowedObject(), positionComponent);
         camera.setFocusPoint(new Point(15, 23));
+        camera.update();
         assertEquals(
                 "Camera should be at (15, 23, 0) after setFocusPoint().",
                 camera.position,
@@ -189,6 +190,7 @@ public class DungeonCameraTest {
                 "Camera should be at (0, 0, 0) initially.", camera.position, new Vector3(0, 0, 0));
         assertNull("Camera should not follow anything", camera.getFollowedObject());
         camera.setFocusPoint(new Point(15, 23));
+        camera.update();
         assertEquals(
                 "Camera should be at (15, 23, 0) after setFocusPoint().",
                 camera.position,
