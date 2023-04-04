@@ -85,5 +85,4 @@ public class PlayableComponent extends Component implements IFieldSerializing {
     public Optional<Skill> getSkillSlot2() {
         return Optional.ofNullable(skillSlot2);
     }
-
 }

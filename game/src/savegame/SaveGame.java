@@ -118,9 +118,9 @@ public class SaveGame {
             int y = location.getInt("y");
             layout[x][y] = LevelElement.valueOf(tile.getString("levelElement"));
         }
-        for(int x = 0; x < layout.length; x++) {
-            for(int y = 0; y < layout[x].length; y++) {
-                if(layout[x][y] == null) {
+        for (int x = 0; x < layout.length; x++) {
+            for (int y = 0; y < layout[x].length; y++) {
+                if (layout[x][y] == null) {
                     layout[x][y] = LevelElement.SKIP;
                 }
             }
@@ -245,7 +245,10 @@ public class SaveGame {
                             Reflections.setFieldValue(
                                     Game.instance,
                                     "heroPositionComponent",
-                                    Game.getHero().get().getComponent(PositionComponent.class).get());
+                                    Game.getHero()
+                                            .get()
+                                            .getComponent(PositionComponent.class)
+                                            .get());
 
                             Reflections.callVoidMethod(Game.instance, "setupSystems");
                             List<AbstractController<?>> controllers =

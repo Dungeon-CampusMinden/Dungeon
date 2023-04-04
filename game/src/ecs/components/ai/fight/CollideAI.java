@@ -4,7 +4,6 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import ecs.components.ai.AITools;
 import ecs.entities.Entity;
 import level.elements.tile.Tile;
-import starter.Game;
 import tools.Constants;
 
 public class CollideAI implements IFightAI {
