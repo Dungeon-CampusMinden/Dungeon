@@ -67,7 +67,8 @@ public class DungeonCamera extends OrthographicCamera {
     }
 
     /**
-     * Checks if point (x,y) is probably visible on screen. Points that are not visible should not be rendered.
+     * Checks if point (x,y) is probably visible on screen. Points that are not visible should not
+     * be rendered.
      */
     public boolean isPointInFrustum(float x, float y) {
         final float OFFSET = 1f;
