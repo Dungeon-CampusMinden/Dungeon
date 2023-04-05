@@ -11,16 +11,26 @@ import java.util.HashMap;
 import java.util.Map;
 import starter.Game;
 
-/** used to draw entities */
+/**
+ * A system used to draw entities on the screen based on their current animation and position. It
+ * uses a Painter object to draw the entities and maintains a mapping of PainterConfig objects for
+ * each texture used.
+ */
 public class DrawSystem extends ECS_System {
 
     private Painter painter;
     private Map<String, PainterConfig> configs;
 
+    /**
+     * Private record class used to store the entity, its animation component and its position
+     * component in one object
+     */
     private record DSData(Entity e, AnimationComponent ac, PositionComponent pc) {}
 
     /**
-     * @param painter PM-Dungeon painter to draw
+     * Constructor for DrawSystem
+     *
+     * @param painter the PM-Dungeon painter used to draw the entities
      */
     public DrawSystem(Painter painter) {
         super();
@@ -28,7 +38,11 @@ public class DrawSystem extends ECS_System {
         configs = new HashMap<>();
     }
 
-    /** draw entities at their position */
+    /**
+     * It loops through all the entities in the game and draws the animation component of each
+     * entity that has it. It uses the current animation of the entity and draws it at the position
+     * of the entity.
+     */
     public void update() {
         Game.getEntities().stream()
                 .flatMap(e -> e.getComponent(AnimationComponent.class).stream())
@@ -36,6 +50,11 @@ public class DrawSystem extends ECS_System {
                 .forEach(this::draw);
     }
 
+    /**
+     * Draws the current animation of the provided entity at the current location
+     *
+     * @param dsd object containing the entity, its animation component and its position component
+     */
     private void draw(DSData dsd) {
         final Animation animation = dsd.ac.getCurrentAnimation();
         String currentAnimationTexture = animation.getNextAnimationTexturePath();
@@ -48,6 +67,14 @@ public class DrawSystem extends ECS_System {
                 configs.get(currentAnimationTexture));
     }
 
+    /**
+     * Builds a DSData object containing the entity, its animation component and its position
+     * component
+     *
+     * @param ac the animation component of the entity
+     * @return the DSData object containing the entity, its animation component and its position
+     *     component
+     */
     private DSData buildDataObject(AnimationComponent ac) {
         Entity e = ac.getEntity();
 
@@ -58,12 +85,18 @@ public class DrawSystem extends ECS_System {
         return new DSData(e, ac, pc);
     }
 
+    /** It is not possible to pause the DrawSystem, so it always runs. */
     @Override
     public void toggleRun() {
         // DrawSystem cant pause
         run = true;
     }
 
+    /**
+     * Returns a new MissingComponentException for a missing PositionComponent
+     *
+     * @return the new MissingComponentException
+     */
     private static MissingComponentException missingPC() {
         return new MissingComponentException("PositionComponent");
     }
