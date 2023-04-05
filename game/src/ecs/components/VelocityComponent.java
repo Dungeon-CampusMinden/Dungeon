@@ -9,7 +9,11 @@ import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
 
-/** VelocityComponent is a component that stores the x, y movement direction */
+/**
+ * The VelocityComponent class represents a component that stores the x and y movement direction and
+ * the movement animations of an entity. This component is used to control the speed and animations
+ * of the associated entity.
+ */
 @DSLType(name = "velocity_component")
 public class VelocityComponent extends Component {
     private static List<String> missingTexture = List.of("animation/missingTexture.png");
@@ -23,11 +27,14 @@ public class VelocityComponent extends Component {
     private final Logger velocityCompLogger = Logger.getLogger(this.getClass().getName());
 
     /**
-     * @param entity associated entity
-     * @param xVelocity Speed with which the entity moves on the x-axis
-     * @param yVelocity Speed with which the entity moves on the y-axis
-     * @param moveLeftAnimation Animation that plays when the entity moves to the left
-     * @param moveRightAnimation Animation that plays when the entity moves to the right
+     * Constructs a VelocityComponent with the given associated entity, x and y movement speed, and
+     * move animations.
+     *
+     * @param entity the associated entity
+     * @param xVelocity the speed at which the entity moves on the x-axis
+     * @param yVelocity the speed at which the entity moves on the y-axis
+     * @param moveLeftAnimation the animation that plays when the entity moves to the left
+     * @param moveRightAnimation the animation that plays when the entity moves to the right
      */
     public VelocityComponent(
             Entity entity,
@@ -45,7 +52,10 @@ public class VelocityComponent extends Component {
     }
 
     /**
-     * @param entity associated entity
+     * Constructs a VelocityComponent with the given associated entity and default values for speed
+     * and move animations.
+     *
+     * @param entity the associated entity
      */
     public VelocityComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);
@@ -58,35 +68,45 @@ public class VelocityComponent extends Component {
     }
 
     /**
-     * @return x movement
+     * Gets the current x movement of the associated entity.
+     *
+     * @return the current x movement
      */
     public float getCurrentXVelocity() {
         return currentXVelocity;
     }
 
     /**
-     * @param currentXVelocity set x velocity
+     * Sets the current x movement of the associated entity.
+     *
+     * @param currentXVelocity the current x movement to set
      */
     public void setCurrentXVelocity(float currentXVelocity) {
         this.currentXVelocity = currentXVelocity;
     }
 
     /**
-     * @return y velocity
+     * Gets the current y movement of the associated entity.
+     *
+     * @return the current y movement
      */
     public float getCurrentYVelocity() {
         return currentYVelocity;
     }
 
     /**
-     * @param currentYVelocity set y velocity
+     * Sets the current y movement of the associated entity.
+     *
+     * @param currentYVelocity the current y movement to set
      */
     public void setCurrentYVelocity(float currentYVelocity) {
         this.currentYVelocity = currentYVelocity;
     }
 
     /**
-     * @return speed with which the entity moves on the x-axis
+     * Returns the speed at which the entity can move on the x-axis.
+     *
+     * @return the speed at which the entity can move on the x-axis
      */
     public float getXVelocity() {
         velocityCompLogger.log(
@@ -99,16 +119,18 @@ public class VelocityComponent extends Component {
     }
 
     /**
-     * Set speed with which the entity moves on the x-axis
+     * Sets the speed at which the entity can move on the x-axis.
      *
-     * @param xVelocity
+     * @param xVelocity the new speed at which the entity can move on the x-axis
      */
     public void setXVelocity(float xVelocity) {
         this.xVelocity = xVelocity;
     }
 
     /**
-     * @return Speed with which the entity moves on the y-axis
+     * Returns the speed at which the entity can move on the y-axis.
+     *
+     * @return the speed at which the entity can move on the y-axis
      */
     public float getYVelocity() {
         velocityCompLogger.log(
@@ -120,23 +142,27 @@ public class VelocityComponent extends Component {
         return yVelocity;
     }
     /**
-     * Set speed with which the entity moves on the y-axis
+     * Sets the speed at which the entity can move on the y-axis.
      *
-     * @param yVelocity
+     * @param yVelocity the new speed at which the entity can move on the y-axis
      */
     public void setYVelocity(float yVelocity) {
         this.yVelocity = yVelocity;
     }
 
     /**
-     * @return Animation that plays when the entity moves to the right
+     * Returns the animation that plays when the entity moves to the right.
+     *
+     * @return the animation that plays when the entity moves to the right
      */
     public Animation getMoveRightAnimation() {
         return moveRightAnimation;
     }
 
     /**
-     * @return Animation that plays when the entity moves to the left
+     * Returns the animation that plays when the entity moves to the left.
+     *
+     * @return the animation that plays when the entity moves to the left
      */
     public Animation getMoveLeftAnimation() {
         return moveLeftAnimation;
