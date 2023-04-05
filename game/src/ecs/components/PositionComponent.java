@@ -9,7 +9,11 @@ import semanticAnalysis.types.DSLType;
 import starter.Game;
 import tools.Point;
 
-/** PositionComponent is a component that stores the x, y (as Point) position of an entity */
+/**
+ * The PositionComponent class represents a component that stores the x and y coordinates of an
+ * entity as a Point object. It is used to associate entities with their positions in the game
+ * world.
+ */
 @DSLType(name = "position_component")
 public class PositionComponent extends Component {
 
@@ -17,8 +21,11 @@ public class PositionComponent extends Component {
     private final Logger positionCompLogger = Logger.getLogger(this.getClass().getName());
 
     /**
-     * @param entity associated entity
-     * @param point position of the entity
+     * This constructor creates a new instance of the PositionComponent class with the given entity
+     * and point parameters.
+     *
+     * @param entity The entity that is associated with this PositionComponent.
+     * @param point The position of the entity, expressed as a Point object
      */
     public PositionComponent(@DSLContextMember(name = "entity") Entity entity, Point point) {
         super(entity);
@@ -26,7 +33,10 @@ public class PositionComponent extends Component {
     }
 
     /**
-     * @param entity associated entity
+     * This constructor creates a new instance of the PositionComponent class with the given entity
+     * and a random accessible position in the game world.
+     *
+     * @param entity The entity that is associated with this PositionComponent.
      */
     public PositionComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);
@@ -35,7 +45,9 @@ public class PositionComponent extends Component {
     }
 
     /**
-     * @return the position of the associated entity
+     * Returns the position of the associated entity.
+     *
+     * @return The position of the associated entity as a Point object.
      */
     public Point getPosition() {
         positionCompLogger.log(
@@ -50,7 +62,9 @@ public class PositionComponent extends Component {
     }
 
     /**
-     * @param position new Position of the associated entity
+     * Sets the position of the associated entity.
+     *
+     * @param position The new position of the associated entity as a Point object.
      */
     public void setPosition(Point position) {
         this.position = position;
