@@ -10,8 +10,11 @@ import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
 
 /**
- * AnimationComponent is a component that stores the possible animations and the current animation
- * of an entity
+ * The AnimationComponent class represents a component that stores the possible idle animations and
+ * the current animation of an entity. The AnimationComponent can have two idle animations when the
+ * entity is not moving, an idle animation for when the entity is facing left and another idle
+ * animation for when the entity is facing right. The current animation is the animation that is
+ * currently being displayed.
  */
 @DSLType(name = "animation_component")
 public class AnimationComponent extends Component {
@@ -22,9 +25,12 @@ public class AnimationComponent extends Component {
     private final Logger animCompLogger = Logger.getLogger(this.getClass().getName());
 
     /**
-     * @param entity associated entity
-     * @param idleLeft Idleanimation faced left
-     * @param idleRight Idleanimation faced right
+     * Creates an AnimationComponent object with the associated entity, idle animation faced left,
+     * and idle animation faced right.
+     *
+     * @param entity the associated entity
+     * @param idleLeft the idle animation faced left
+     * @param idleRight the idle animation faced right
      */
     public AnimationComponent(Entity entity, Animation idleLeft, Animation idleRight) {
         super(entity);
@@ -34,15 +40,19 @@ public class AnimationComponent extends Component {
     }
 
     /**
-     * @param entity associated entity
-     * @param idle Idleanimation
+     * Creates an AnimationComponent object with the associated entity and idle animation.
+     *
+     * @param entity the associated entity
+     * @param idle the idle animation
      */
     public AnimationComponent(Entity entity, Animation idle) {
         this(entity, idle, idle);
     }
 
     /**
-     * @param entity associated entity
+     * Creates an AnimationComponent object with the associated entity and default idle animations.
+     *
+     * @param entity the associated entity
      */
     public AnimationComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);
@@ -57,7 +67,9 @@ public class AnimationComponent extends Component {
     }
 
     /**
-     * @param animation new current animation of the entity
+     * Sets the current animation of the entity to the given animation.
+     *
+     * @param animation the new current animation of the entity
      */
     public void setCurrentAnimation(Animation animation) {
         if (animation.getAnimationFrames().size() > 0) {
@@ -73,7 +85,9 @@ public class AnimationComponent extends Component {
     }
 
     /**
-     * @return current animation of the entity
+     * Returns the current animation of the entity.
+     *
+     * @return the current animation of the entity
      */
     public Animation getCurrentAnimation() {
         if (currentAnimation.getAnimationFrames().size() > 0) {
@@ -97,14 +111,18 @@ public class AnimationComponent extends Component {
     }
 
     /**
-     * @return Idleanimation faced left
+     * Returns the idle animation faced left of the entity.
+     *
+     * @return the idle animation faced left of the entity
      */
     public Animation getIdleLeft() {
         return idleLeft;
     }
 
     /**
-     * @return Idleanimation faced right
+     * Returns the idle animation faced right of the entity.
+     *
+     * @return the idle animation faced right of the entity
      */
     public Animation getIdleRight() {
         return idleRight;
