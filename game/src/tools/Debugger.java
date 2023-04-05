@@ -118,10 +118,6 @@ public class Debugger extends ECS_System {
      */
     public static void TELEPORT(Point targetLocation) {
         if (Game.getHero().isPresent()) {
-            debugger_logger.log(
-                    CustomLogLevel.DEBUG,
-                    "Try to teleport to " + targetLocation.x + ":" + targetLocation.y);
-
             PositionComponent pc =
                     (PositionComponent)
                             Game.getHero()
@@ -132,17 +128,18 @@ public class Debugger extends ECS_System {
                                                     new MissingComponentException(
                                                             "Hero is missing PositionComponent"));
 
-            Tile t = null;
-            try {
-                t = Game.currentLevel.getTileAt(targetLocation.toCoordinate());
-            } catch (NullPointerException ex) {
-                debugger_logger.info(ex.getMessage());
+            // Attempt to teleport to targetLocation
+            debugger_logger.log(
+                    CustomLogLevel.DEBUG,
+                    "Trying to teleport to " + targetLocation.x + ":" + targetLocation.y);
+            Tile t = Game.currentLevel.getTileAt(targetLocation.toCoordinate());
+            if (t == null || !t.isAccessible()) {
+                debugger_logger.info("Cannot teleport to non-existing or non-accessible tile");
+                return;
             }
-            // check if the point is in the level and accessible
-            if (t != null && t.isAccessible()) {
-                pc.setPosition(targetLocation);
-                debugger_logger.info("teleport successful");
-            } else debugger_logger.info("Can not teleport to non existing or non accessible tile");
+
+            pc.setPosition(targetLocation);
+            debugger_logger.info("Teleport successful");
         }
     }
 
