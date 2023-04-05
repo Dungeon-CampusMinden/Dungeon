@@ -1,0 +1,50 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>12</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLNote</id><coordinates><x>96</x><y>396</y><w>420</w><h>516</h></coordinates><panel_attributes># my_file.dsl
+
+single_choice_task t1 {
+  answers: ["A", "B", "C"],
+  correct_answer: answers[0] 
+} 
+
+game_object scroll {
+  // other components...
+
+  task_data_component {
+    task_element: // empty for now
+  }
+}
+
+fn build_task(task t) -&gt; room[] {
+  for answer : t.answers {
+    scrollObject = dng.create(scroll);
+    scrollObject.task_data_component.task_element = answer;
+  }
+
+  ...
+}
+
+level_config c {
+  task: t1,
+  task_builder: build_task
+}
+
+bg=white</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>516</x><y>636</y><w>144</w><h>36</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>100;10;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>792</x><y>540</y><w>144</w><h>60</h></coordinates><panel_attributes>t1:Task
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>624</x><y>720</y><w>144</w><h>60</h></coordinates><panel_attributes>t1[0] : TaskAnswer
+--
+Value: "A"</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>960</x><y>720</y><w>144</w><h>60</h></coordinates><panel_attributes>t1[2] : TaskAnswer
+--
+Value: "C"</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>792</x><y>720</y><w>144</w><h>60</h></coordinates><panel_attributes>t1[1] : TaskAnswer
+--
+Value: "B"</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>684</x><y>588</y><w>204</w><h>156</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>150;10;150;50;10;50;10;110</additional_attributes></element><element><id>Relation</id><coordinates><x>852</x><y>588</y><w>204</w><h>156</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>10;10;10;50;150;50;150;110</additional_attributes></element><element><id>Relation</id><coordinates><x>852</x><y>588</y><w>36</w><h>156</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1068</x><y>432</y><w>144</w><h>60</h></coordinates><panel_attributes>scrollA:Entity
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1536</x><y>432</y><w>144</w><h>60</h></coordinates><panel_attributes>scrollC:Entity
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1296</x><y>432</y><w>144</w><h>60</h></coordinates><panel_attributes>scrollB:Entity
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1020</x><y>540</y><w>216</w><h>60</h></coordinates><panel_attributes>dataA : TaskDataComponent
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1260</x><y>540</y><w>216</w><h>60</h></coordinates><panel_attributes>dataB : TaskDataComponent
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1500</x><y>540</y><w>216</w><h>60</h></coordinates><panel_attributes>dataC : TaskDataComponent
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1128</x><y>480</y><w>36</w><h>84</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>1356</x><y>480</y><w>36</w><h>84</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>1596</x><y>480</y><w>36</w><h>84</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>756</x><y>588</y><w>408</w><h>240</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>320;10;320;180;20;180;20;120;10;120</additional_attributes></element><element><id>Relation</id><coordinates><x>924</x><y>588</y><w>468</w><h>228</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>370;10;370;170;20;170;20;120;10;120</additional_attributes></element><element><id>Relation</id><coordinates><x>1092</x><y>588</y><w>540</w><h>216</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>430;10;430;160;20;160;20;120;10;120</additional_attributes></element></diagram>
