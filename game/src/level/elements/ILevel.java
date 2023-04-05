@@ -21,19 +21,16 @@ public interface ILevel extends ITileable {
 
     /** Mark a random tile as end */
     default void setRandomEnd() {
-        Tile newEnd = getRandomTile(LevelElement.FLOOR);
-        while (newEnd == getStartTile()) {
-            newEnd = getRandomTile(LevelElement.FLOOR);
+        List<FloorTile> floorTiles = getFloorTiles();
+        if (floorTiles.size() <= 1) {
+            // not enough Tiles for startTile and ExitTile
+            return;
         }
-        changeTileElementType(newEnd, LevelElement.EXIT);
+        int startTileIndex = floorTiles.indexOf(getStartTile());
+        int index = RANDOM.nextInt(floorTiles.size() - 1);
+        changeTileElementType(
+                floorTiles.get(index < startTileIndex ? index : index + 1), LevelElement.EXIT);
     }
-
-    /**
-     * Set the end tile.
-     *
-     * @param end The end tile.
-     */
-    void setEndTile(Tile end);
 
     /**
      * Add floor tile to level.
@@ -176,13 +173,9 @@ public interface ILevel extends ITileable {
                         TileTextureFactory.findTexturePath(tile, getLayout(), changeInto),
                         tile.getCoordinate(),
                         changeInto,
-                        tile.getDesignLabel(),
-                        level);
-        level.addTile(newTile);
+                        tile.getDesignLabel());
         level.getLayout()[tile.getCoordinate().y][tile.getCoordinate().x] = newTile;
-        if (changeInto == LevelElement.EXIT) {
-            level.setEndTile(newTile);
-        }
+        level.addTile(newTile);
     }
 
     @Override
