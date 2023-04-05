@@ -40,9 +40,7 @@ import tools.Point;
 /** The heart of the framework. From here all strings are pulled. */
 public class Game extends ScreenAdapter implements IOnLevelLoader {
 
-    /**
-     * Currently used level-size configuration for generating new level
-     */
+    /** Currently used level-size configuration for generating new level */
     public static LevelSize LEVELSIZE = LevelSize.SMALL;
 
     /**

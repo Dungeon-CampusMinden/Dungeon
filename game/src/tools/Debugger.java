@@ -11,26 +11,26 @@ import ecs.components.ai.transition.SelfDefendTransition;
 import ecs.components.skill.SkillTools;
 import ecs.entities.Entity;
 import ecs.systems.ECS_System;
-import graphic.Animation;
 import java.util.logging.Logger;
 import level.elements.tile.Tile;
 import level.tools.Coordinate;
 import level.tools.LevelSize;
 import logging.CustomLogLevel;
 import starter.Game;
-import tools.Point;
 
-/** The debugger is not a ECS_System in the classical sense.
- * It provides functions to create certain game situations faster and thus to test the functionality of the own implementation.
- * The debugger is integrated as ECS_System in the GameLoop.
- * */
+/**
+ * The Debugger is an auxiliary system designed to accelerate the creation and testing of specific
+ * game scenarios. While not strictly an ECS_System in the traditional sense, it provides useful
+ * functionalities that can aid in verifying the correct behavior of a game implementation. The
+ * Debugger is integrated into the GameLoop as an ECS_System.
+ */
 public class Debugger extends ECS_System {
 
     private static final Logger debugger_logger = Logger.getLogger(Debugger.class.getName());
 
     /**
-     * Create a new (inactive) Debugger.
-     * To activate it use the `togglePause`function.
+     * Constructs a new Debugger instance, initially in an inactive state. To activate it, use the
+     * togglePause method.
      */
     public Debugger() {
         super();
@@ -39,7 +39,8 @@ public class Debugger extends ECS_System {
     }
 
     /**
-     * Checks if one of the debugger keys has been pressed and if so, executes the corresponding function.
+     * Checks for key input corresponding to Debugger functionalities, and executes the relevant
+     * function if detected.
      */
     @Override
     public void update() {
@@ -63,9 +64,9 @@ public class Debugger extends ECS_System {
     }
 
     /**
-     * Zoom in or out
+     * Zooms the camera in or out by the given amount.
      *
-     * @param amount Zoom length
+     * @param amount the length of the zoom change
      */
     public static void ZOOM_CAMERA(float amount) {
         debugger_logger.log(CustomLogLevel.DEBUG, "Change Camera Zoom " + amount);
@@ -73,13 +74,13 @@ public class Debugger extends ECS_System {
         debugger_logger.log(CustomLogLevel.DEBUG, "Camera Zoom is now " + Game.camera.zoom);
     }
 
-    /** Teleport the Hero to the current cursor position */
+    /** Teleports the Hero to the current position of the cursor. */
     public static void TELEPORT_TO_CURSOR() {
         debugger_logger.log(CustomLogLevel.DEBUG, "TELEPORT TO CURSOR");
         TELEPORT(SkillTools.getCursorPositionAsPoint());
     }
 
-    /** Teleport the Hero to the end of the level. */
+    /** Teleports the Hero to the end of the level, on a neighboring accessible tile if possible. */
     public static void TELEPORT_TO_END() {
         debugger_logger.info("TELEPORT TO END");
         Coordinate endTile = Game.currentLevel.getEndTile().getCoordinate();
@@ -104,16 +105,16 @@ public class Debugger extends ECS_System {
         TELEPORT(Game.currentLevel.getEndTile().getCoordinate().toPoint());
     }
 
-    /** Teleport the Hero to the start of the level */
+    /** Teleports the hero to the start of the level. */
     public static void TELEPORT_TO_START() {
         debugger_logger.info("TELEPORT TO START");
         TELEPORT(Game.currentLevel.getStartTile().getCoordinate().toPoint());
     }
 
     /**
-     * Teleport the Hero to the given location
+     * Teleports the hero to the given location.
      *
-     * @param targetLocation locations to teleport to
+     * @param targetLocation the location to teleport to
      */
     public static void TELEPORT(Point targetLocation) {
         if (Game.getHero().isPresent()) {
@@ -145,7 +146,10 @@ public class Debugger extends ECS_System {
         }
     }
 
-    /** Switch between Small, Medium and Large level. Changes will affect on next level load */
+    /**
+     * Toggles the level size between small, medium, and large. Changes will affect the next level
+     * load.
+     */
     public static void TOGGLE_LEVEL_SIZE() {
         switch (Game.LEVELSIZE) {
             case SMALL -> Game.LEVELSIZE = LevelSize.MEDIUM;
@@ -155,43 +159,58 @@ public class Debugger extends ECS_System {
         debugger_logger.info("LevelSize toggled to: " + Game.LEVELSIZE);
     }
 
-    /** Spawn a Monster on the Cursor-Position */
+    /** Spawns a monster at the cursor's position. */
     public static void SPAWN_MONSTER_ON_CURSOR() {
         debugger_logger.info("Spawn Monster on Cursor");
         SPAWN_MONSTER(SkillTools.getCursorPositionAsPoint());
     }
 
     /**
-     * Spawn a monster at the given Position
+     * Spawn a monster at the given position if it is in the level and accessible.
      *
-     * @param position location to spawn monster on
+     * @param position The location to spawn the monster on.
      */
     public static void SPAWN_MONSTER(Point position) {
-        Tile t = null;
+        // Get the tile at the given position
+        Tile tile = null;
         try {
-            t = Game.currentLevel.getTileAt(position.toCoordinate());
+            tile = Game.currentLevel.getTileAt(position.toCoordinate());
         } catch (NullPointerException ex) {
             debugger_logger.info(ex.getMessage());
         }
-        // check if the point is in the level and accessible
-        if (t != null && t.isAccessible()) {
 
+        // If the tile is accessible, spawn a monster at the position
+        if (tile != null && tile.isAccessible()) {
             Entity monster = new Entity();
+
+            // Add components to the monster entity
             monster.addComponent(new PositionComponent(monster, position));
-            Animation idleLeft =
-                    AnimationBuilder.buildAnimation("character/monster/chort/idleLeft/");
-            Animation idleRight =
-                    AnimationBuilder.buildAnimation("character/monster/chort/idleRight/");
-            new AnimationComponent(monster, idleLeft, idleRight);
-            Animation runRight =
-                    AnimationBuilder.buildAnimation("character/monster/chort/runRight/");
-            Animation runLeft = AnimationBuilder.buildAnimation("character/monster/chort/runLeft/");
-            new VelocityComponent(monster, 0.1f, 0.1f, runLeft, runRight);
-            new HealthComponent(monster);
-            new HitboxComponent(monster);
-            new AIComponent(
-                    monster, new CollideAI(1), new RadiusWalk(5, 1), new SelfDefendTransition());
-            debugger_logger.info("Monster spawned");
-        } else debugger_logger.info("Cant spawn Monster on non exisiting or non accessible tile");
+            monster.addComponent(
+                    new AnimationComponent(
+                            monster,
+                            AnimationBuilder.buildAnimation("character/monster/chort/idleLeft/"),
+                            AnimationBuilder.buildAnimation("character/monster/chort/idleRight/")));
+            monster.addComponent(
+                    new VelocityComponent(
+                            monster,
+                            0.1f,
+                            0.1f,
+                            AnimationBuilder.buildAnimation("character/monster/chort/runLeft/"),
+                            AnimationBuilder.buildAnimation("character/monster/chort/runRight/")));
+            monster.addComponent(new HealthComponent(monster));
+            monster.addComponent(new HitboxComponent(monster));
+            monster.addComponent(
+                    new AIComponent(
+                            monster,
+                            new CollideAI(1),
+                            new RadiusWalk(5, 1),
+                            new SelfDefendTransition()));
+
+            // Log that the monster was spawned
+            debugger_logger.info("Spawned monster at position " + position);
+        } else {
+            // Log that the monster couldn't be spawned
+            debugger_logger.info("Cannot spawn monster at non-existent or non-accessible tile");
+        }
     }
 }
