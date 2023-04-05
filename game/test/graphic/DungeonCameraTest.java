@@ -30,20 +30,20 @@ public class DungeonCameraTest {
 
         // Testing
         assertEquals(
-                "Pos should be (0, 0, 0) initially.",
-                camera.position,
-                new Vector3(0, 0, 0)); // Camera is initially at (0, 0, 0)
+                "Camera not initialized correctly",
+                new Vector3(0, 0, 0),
+                camera.position); // Camera is initially at (0, 0, 0)
         camera.update();
         assertEquals(
-                "Pos should be (2, 2, 0) after update.",
-                camera.position,
-                new Vector3(2, 2, 0)); // Because it follows the positionComponent
+                "Camera position should change after update",
+                new Vector3(2, 2, 0),
+                camera.position); // Because it follows the positionComponent
         positionComponent.setPosition(new Point(15, 23));
         camera.update();
         assertEquals(
-                "Pos should be (15, 23, 0) after update.",
-                camera.position,
-                new Vector3(15, 23, 0)); // Because it follows the positionComponent
+                "Camera position should change after update",
+                new Vector3(15, 23, 0),
+                camera.position); // Because it follows the positionComponent
 
         // Cleanup
         Game.getEntities().clear();
@@ -58,13 +58,17 @@ public class DungeonCameraTest {
 
         // Testing
         camera.update();
-        assertEquals("Pos should be (0, 0, 0) initially.", camera.position, new Vector3(0, 0, 0));
+        assertEquals("Pos not initialized correctly", new Vector3(0, 0, 0), camera.position);
         camera.setFocusPoint(new Point(15, 23));
         assertEquals(
-                "Pos should be (0, 0, 0) before update.", camera.position, new Vector3(0, 0, 0));
+                "Camera position should not change until update",
+                new Vector3(0, 0, 0),
+                camera.position);
         camera.update();
         assertEquals(
-                "Pos should be (15, 23, 0) after update.", camera.position, new Vector3(15, 23, 0));
+                "Camera position should change after update",
+                new Vector3(15, 23, 0),
+                camera.position);
 
         // Cleanup
         Game.getEntities().clear();
@@ -80,19 +84,18 @@ public class DungeonCameraTest {
                 new DungeonCamera(null, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
 
         // Testing
-        assertEquals(
-                "Camera should be at (0, 0, 0) initially.", camera.position, new Vector3(0, 0, 0));
+        assertEquals("Camera not correctly initialized.", new Vector3(0, 0, 0), camera.position);
         camera.follow(positionComponent);
-        assertSame("Camera should follow entity.", camera.getFollowedObject(), positionComponent);
+        assertSame("Camera should follow entity.", positionComponent, camera.getFollowedObject());
         assertEquals(
-                "Camera should still be at (7, 11, 0). (No update() after follow())",
-                camera.position,
-                new Vector3(0, 0, 0));
+                "Camera position should not change until update",
+                new Vector3(0, 0, 0),
+                camera.position);
         camera.update();
         assertEquals(
-                "Camera should be at (2, 2, 0) after update.",
-                camera.position,
-                new Vector3(2, 2, 0));
+                "Camera position should change after update",
+                new Vector3(2, 2, 0),
+                camera.position);
 
         // Cleanup
         Game.getEntities().clear();
@@ -112,8 +115,8 @@ public class DungeonCameraTest {
         camera.update();
         assertEquals(
                 "Camera should follow given positionComponent",
-                camera.getFollowedObject(),
-                positionComponent);
+                positionComponent,
+                camera.getFollowedObject());
         camera.follow(null);
         assertNull("Camera should not follow anything", camera.getFollowedObject());
 
@@ -132,7 +135,7 @@ public class DungeonCameraTest {
                         positionComponent, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
 
         // Testing
-        assertSame("Camera should follow entity.", camera.getFollowedObject(), positionComponent);
+        assertSame("Camera should follow entity.", positionComponent, camera.getFollowedObject());
 
         // Cleanup
         Game.getEntities().clear();
@@ -164,14 +167,14 @@ public class DungeonCameraTest {
         camera.update();
 
         // Testing
-        assertEquals("Camera should be at (2, 2, 0).", camera.position, new Vector3(2, 2, 0));
+        assertEquals("Camera should be at entity position.", new Vector3(2, 2, 0), camera.position);
         assertSame("Camera should follow entity.", camera.getFollowedObject(), positionComponent);
         camera.setFocusPoint(new Point(15, 23));
         camera.update();
         assertEquals(
-                "Camera should be at (15, 23, 0) after setFocusPoint().",
-                camera.position,
-                new Vector3(15, 23, 0));
+                "Camera position should be equal to set position.",
+                new Vector3(15, 23, 0),
+                camera.position);
         assertNull("Camera should not follow anything", camera.getFollowedObject());
 
         // Cleanup
@@ -186,15 +189,14 @@ public class DungeonCameraTest {
                 new DungeonCamera(null, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
 
         // Testing
-        assertEquals(
-                "Camera should be at (0, 0, 0) initially.", camera.position, new Vector3(0, 0, 0));
+        assertEquals("Camera not initialized correctly.", new Vector3(0, 0, 0), camera.position);
         assertNull("Camera should not follow anything", camera.getFollowedObject());
         camera.setFocusPoint(new Point(15, 23));
         camera.update();
         assertEquals(
-                "Camera should be at (15, 23, 0) after setFocusPoint().",
-                camera.position,
-                new Vector3(15, 23, 0));
+                "Camera position should be equal to set position.",
+                new Vector3(15, 23, 0),
+                camera.position);
         assertNull("Camera should not follow anything", camera.getFollowedObject());
 
         // Cleanup
