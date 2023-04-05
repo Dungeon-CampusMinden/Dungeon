@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/** A list of textures from an animation. */
+/**
+
+ A collection of textures that form an animation sequence.
+ Animations are used to draw entities on the screen.
+ */
 public class Animation {
 
     /** The set of textures that build the animation. */
