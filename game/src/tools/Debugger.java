@@ -1,4 +1,4 @@
-package starter;
+package tools;
 
 import com.badlogic.gdx.Gdx;
 import configuration.KeyboardConfig;
@@ -17,19 +17,30 @@ import level.elements.tile.Tile;
 import level.tools.Coordinate;
 import level.tools.LevelSize;
 import logging.CustomLogLevel;
+import starter.Game;
 import tools.Point;
 
-/** Collection of functions for easy debugging */
+/** The debugger is not a ECS_System in the classical sense.
+ * It provides functions to create certain game situations faster and thus to test the functionality of the own implementation.
+ * The debugger is integrated as ECS_System in the GameLoop.
+ * */
 public class Debugger extends ECS_System {
 
     private static final Logger debugger_logger = Logger.getLogger(Debugger.class.getName());
 
+    /**
+     * Create a new (inactive) Debugger.
+     * To activate it use the `togglePause`function.
+     */
     public Debugger() {
         super();
         toggleRun();
         debugger_logger.info("Create new Debugger");
     }
 
+    /**
+     * Checks if one of the debugger keys has been pressed and if so, executes the corresponding function.
+     */
     @Override
     public void update() {
         // DEBUGGER
@@ -62,7 +73,7 @@ public class Debugger extends ECS_System {
         debugger_logger.log(CustomLogLevel.DEBUG, "Camera Zoom is now " + Game.camera.zoom);
     }
 
-    /** Teleport the Hero to the current cursor Position */
+    /** Teleport the Hero to the current cursor position */
     public static void TELEPORT_TO_CURSOR() {
         debugger_logger.log(CustomLogLevel.DEBUG, "TELEPORT TO CURSOR");
         TELEPORT(SkillTools.getCursorPositionAsPoint());

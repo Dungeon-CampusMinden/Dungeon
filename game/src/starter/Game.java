@@ -34,12 +34,16 @@ import level.generator.randomwalk.RandomWalkGenerator;
 import level.tools.LevelSize;
 import quizquestion.DummyQuizQuestionList;
 import tools.Constants;
+import tools.Debugger;
 import tools.Point;
 
 /** The heart of the framework. From here all strings are pulled. */
 public class Game extends ScreenAdapter implements IOnLevelLoader {
 
-    protected static LevelSize LEVELSIZE = LevelSize.SMALL;
+    /**
+     * Currently used level-size configuration for generating new level
+     */
+    public static LevelSize LEVELSIZE = LevelSize.SMALL;
 
     /**
      * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
