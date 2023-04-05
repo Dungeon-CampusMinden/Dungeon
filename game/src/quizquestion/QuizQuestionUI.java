@@ -15,6 +15,11 @@ public class QuizQuestionUI {
     public static void showQuizQuestion(QuizQuestion question) {
         // todo setup basic ui window
         // todo add "Dialog" (?) with Questiontext (question.question() )
+        // todo check the type of the QuizQuestionContent question.qestion()
+        // if text -> show it
+        // if image -> use the inage path in question.qestion() -> show it
+        // if text_and_image -> use a regex to find the path in the text  -> show text and image
+
         // todo replace type Object with correct type
         Object answerUI;
         switch (question.type()) {
@@ -33,17 +38,37 @@ public class QuizQuestionUI {
 
     // todo return ui konstrukt not Object
     private static Object createSingleChoiceUI(QuizQuestionContent[] answers) {
-        // todo create a button for each answer
-        // todo for each button -> if pressed unmark all other buttons and mark this one (maybe we
-        // need some sort of button gropus for this)
+        // todo setup answer ui
+        for (QuizQuestionContent abswer : answers) {
+            // todo create a button
+            // todo add content on the button
+            // todo check the type of the answers
+            // if text -> show it
+            // if image -> use the inage path in answers -> show it
+            // if text_and_image -> use a regex to find the path in the text  -> show text and image
+            // todo  if pressed unmark all other buttons and mark this one (maybe weneed some sort
+            // of button gropus for this)
+            // todo add answer button to answer ui
+        }
+        // todo return answer ui
         return new Object();
     }
 
     // todo return ui konstrukt not Object
     private static Object createMultipleChoiceUI(QuizQuestionContent[] answers) {
-        // todo create a button for each answer
-        // todo for each button -> if button is pressed mark him, if its presse again unmark him
-        // (repeat)
+        // todo setup answer ui
+        for (QuizQuestionContent abswer : answers) {
+            // todo create a button
+            // todo add content on the button
+            // todo check the type of the answers
+            // if text -> show it
+            // if image -> use the inage path in answers -> show it
+            // if text_and_image -> use a regex to find the path in the text  -> show text and image
+            // todo  if button is pressed mark him, if its presse again unmark him
+            // todo add answer button to answer ui
+
+        }
+        // todo return answer ui
         return new Object();
     }
 
