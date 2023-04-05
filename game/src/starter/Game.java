@@ -75,22 +75,22 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private Debugger debugger;
 
-
     public static void main(String[] args) {
         // start the game
         try {
             Configuration.loadAndGetConfiguration("dungeon_config.json", KeyboardConfig.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
-
-        } }
+        }
+        DesktopLauncher.run(new Game());
+    }
 
     /**
-         * Main game loop. Redraws the dungeon and calls the own implementation (beginFrame, endFrame
-         * and onLevelLoad).
-         *
-         * @param delta Time since last loop.
-         */
+     * Main game loop. Redraws the dungeon and calls the own implementation (beginFrame, endFrame
+     * and onLevelLoad).
+     *
+     * @param delta Time since last loop.
+     */
     @Override
     public void render(float delta) {
         if (doSetup) setup();

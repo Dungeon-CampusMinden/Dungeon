@@ -105,29 +105,33 @@ public class Debugger extends ECS_System {
      * @param targetLocation locations to teleport to
      */
     public static void TELEPORT(Point targetLocation) {
-        debugger_logger.log(
-                CustomLogLevel.DEBUG,
-                "Try to teleport to " + targetLocation.x + ":" + targetLocation.y);
-        PositionComponent pc =
-                (PositionComponent)
-                        Game.hero
-                                .getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () ->
-                                                new MissingComponentException(
-                                                        "Hero is missing PositionComponent"));
+        if (Game.getHero().isPresent()) {
+            debugger_logger.log(
+                    CustomLogLevel.DEBUG,
+                    "Try to teleport to " + targetLocation.x + ":" + targetLocation.y);
 
-        Tile t = null;
-        try {
-            t = Game.currentLevel.getTileAt(targetLocation.toCoordinate());
-        } catch (NullPointerException ex) {
-            debugger_logger.info(ex.getMessage());
+            PositionComponent pc =
+                    (PositionComponent)
+                            Game.getHero()
+                                    .get()
+                                    .getComponent(PositionComponent.class)
+                                    .orElseThrow(
+                                            () ->
+                                                    new MissingComponentException(
+                                                            "Hero is missing PositionComponent"));
+
+            Tile t = null;
+            try {
+                t = Game.currentLevel.getTileAt(targetLocation.toCoordinate());
+            } catch (NullPointerException ex) {
+                debugger_logger.info(ex.getMessage());
+            }
+            // check if the point is in the level and accessible
+            if (t != null && t.isAccessible()) {
+                pc.setPosition(targetLocation);
+                debugger_logger.info("teleport successful");
+            } else debugger_logger.info("Can not teleport to non existing or non accessible tile");
         }
-        // check if the point is in the level and accessible
-        if (t != null && t.isAccessible()) {
-            pc.setPosition(targetLocation);
-            debugger_logger.info("teleport successful");
-        } else debugger_logger.info("Can not teleport to non existing or non accessible tile");
     }
 
     /** Switch between Small, Medium and Large level. Changes will affect on next level load */
