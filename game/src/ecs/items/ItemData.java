@@ -13,6 +13,9 @@ import java.util.List;
 import starter.Game;
 import tools.Point;
 
+/**
+ * A Class which contains the Information of a specific Item.
+ */
 public class ItemData {
     private ItemType itemType;
     private Animation inventoryTexture;
@@ -20,14 +23,27 @@ public class ItemData {
     private String itemName;
     private String description;
 
-    public IOnCollect onCollect;
-    public IOnDrop onDrop;
+    private IOnCollect onCollect;
+    private IOnDrop onDrop;
     // active
-    public IOnUse onUse;
+    private IOnUse onUse;
 
     // passive
     private DamageModifier damageModifier;
 
+    /**
+     * creates a new item data object.
+     *
+     * @param itemType
+     * @param inventoryTexture
+     * @param worldTexture
+     * @param itemName
+     * @param description
+     * @param onCollect
+     * @param onDrop
+     * @param onUse
+     * @param damageModifier
+     */
     public ItemData(
             ItemType itemType,
             Animation inventoryTexture,
@@ -43,14 +59,14 @@ public class ItemData {
         this.worldTexture = worldTexture;
         this.itemName = itemName;
         this.description = description;
-        this.onCollect = onCollect;
-        this.onDrop = onDrop;
-        this.onUse = onUse;
+        this.setOnCollect(onCollect);
+        this.setOnDrop(onDrop);
+        this.setOnUse(onUse);
         this.damageModifier = damageModifier;
     }
 
     /**
-     * creates a New Inventory item.
+     * creates a new item data object. With a basic handling of collecting and dropping
      *
      * @param itemType
      * @param inventoryTexture
@@ -85,8 +101,14 @@ public class ItemData {
                 ItemConfig.DESCRIPTION.get());
     }
 
+    /**
+     * what should happen when an Entity interacts with the Item while it is lying in the World.
+     *
+     * @param worldItemEntity
+     * @param whoTriesCollects
+     */
     public void triggerCollect(Entity worldItemEntity, Entity whoTriesCollects) {
-        if (onCollect != null) onCollect.onCollect(worldItemEntity, whoTriesCollects);
+        if (getOnCollect() != null) getOnCollect().onCollect(worldItemEntity, whoTriesCollects);
     }
 
     /**
@@ -95,7 +117,7 @@ public class ItemData {
      * @param position the location of the drop
      */
     public void triggerDrop(Entity e, Point position) {
-        if (onDrop != null) onDrop.onDrop(e, this, position);
+        if (getOnDrop() != null) getOnDrop().onDrop(e, this, position);
     }
 
     /**
@@ -104,8 +126,8 @@ public class ItemData {
      * @param entity Entity that uses the item
      */
     public void triggerUse(Entity entity) {
-        if (onUse == null) return;
-        onUse.onUse(entity, this);
+        if (getOnUse() == null) return;
+        getOnUse().onUse(entity, this);
     }
 
     public ItemType getItemType() {
@@ -177,5 +199,29 @@ public class ItemData {
                                                 });
                             }
                         });
+    }
+
+    public IOnCollect getOnCollect() {
+        return onCollect;
+    }
+
+    public void setOnCollect(IOnCollect onCollect) {
+        this.onCollect = onCollect;
+    }
+
+    public IOnDrop getOnDrop() {
+        return onDrop;
+    }
+
+    public void setOnDrop(IOnDrop onDrop) {
+        this.onDrop = onDrop;
+    }
+
+    public IOnUse getOnUse() {
+        return onUse;
+    }
+
+    public void setOnUse(IOnUse onUse) {
+        this.onUse = onUse;
     }
 }

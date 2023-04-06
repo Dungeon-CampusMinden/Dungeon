@@ -81,7 +81,7 @@ public class ItemDataTest {
     public void testUseCallback() {
         IOnUse callback = Mockito.mock(IOnUse.class);
         ItemData item = new ItemData();
-        item.onUse = callback;
+        item.setOnUse(callback);
         Entity entity = new Entity();
         item.triggerUse(entity);
         Mockito.verify(callback).onUse(entity, item);
@@ -91,7 +91,7 @@ public class ItemDataTest {
     @Test
     public void testUseNullCallback() {
         ItemData item = new ItemData();
-        item.onUse = null;
+        item.setOnUse(null);
         Entity entity = new Entity();
         item.triggerUse(entity);
     }
