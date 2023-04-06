@@ -31,8 +31,7 @@ public class PositionComponent extends Component {
      * @param y y-position of the entity
      */
     public PositionComponent(@DSLContextMember(name = "entity") Entity entity, float x, float y) {
-        super(entity);
-        this.position = new Point(x, y);
+        this(entity, new Point(x, y));
     }
 
     /**
