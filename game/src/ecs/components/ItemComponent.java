@@ -27,10 +27,16 @@ public class ItemComponent extends Component {
         this.itemData = itemData;
     }
 
+    /**
+     * @return the ItemData
+     */
     public ItemData getItemData() {
         return itemData;
     }
 
+    /**
+     * @param itemData data of the item for the component
+     */
     public void setItemData(ItemData itemData) {
         this.itemData = itemData;
     }
