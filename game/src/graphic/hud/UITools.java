@@ -31,11 +31,11 @@ public class UITools {
      *     label; [1] Button name; [2]label heading
      */
     public static void showInfoText(String... arrayOfMessages) {
-        formatStringForDialigWindow(arrayOfMessages);
+        formatStringForDialogWindow(arrayOfMessages);
         generateDialogue(arrayOfMessages);
     }
 
-    private static void formatStringForDialigWindow(String[] arrayOfMessages) {
+    private static void formatStringForDialogWindow(String[] arrayOfMessages) {
         if (arrayOfMessages != null && arrayOfMessages.length != 0) {
             String infoMsg = arrayOfMessages[0];
             infoMsg = infoMsg.replaceAll("\n", " ");
@@ -59,7 +59,7 @@ public class UITools {
 
     /**
      * After leaving the dialogue, it is removed from the stage, the game is unpaused by releasing
-     * all systems and deleting the dialogue Obejct.
+     * all systems and deleting the dialogue Object.
      */
     public static void deleteDialogue() {
         if (dialog != null) {

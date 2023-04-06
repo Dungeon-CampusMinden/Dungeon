@@ -114,7 +114,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel(LEVELSIZE);
         createSystems();
-        new UITools(controller, systems);
     }
 
     /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */

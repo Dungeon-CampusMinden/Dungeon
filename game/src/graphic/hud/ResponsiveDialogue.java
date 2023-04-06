@@ -14,11 +14,11 @@ import tools.Constants;
  */
 public class ResponsiveDialogue<T extends Actor> extends ScreenController<T> {
     /** Dialogue with info field and button to cancel play pause */
-    private static TextDialog dialog;
+    private TextDialog dialog;
 
     private static final int differenceMeasure = 100;
     private static final String defaultHeading = "default";
-    private static final String defaulMsg = "No message was load.";
+    private static final String defaultMsg = "No message was load.";
     private static final String defaultBtnMsg = "OK";
     /**
      * Creates a new ResponsiveDialogue with a new Spritebatch
@@ -47,7 +47,7 @@ public class ResponsiveDialogue<T extends Actor> extends ScreenController<T> {
         add((T) dialog);
     }
     /**
-     * Creates Dialog with a label for textoutput and Button
+     * Creates Dialog with a label for text-output and Button
      *
      * @param skin Resources that can be used by UI widgets
      * @param arrayOfMessages Content displayed in the dialogue
@@ -59,7 +59,7 @@ public class ResponsiveDialogue<T extends Actor> extends ScreenController<T> {
                 new TextDialog(skin, formatIdentifier[0], formatIdentifier[1], formatIdentifier[2]);
     }
     /**
-     * All values for the variable Indentifier are correctly read from the parameter arrayOfMessages
+     * All values for the variable Identifier are correctly read from the parameter arrayOfMessages
      * and assigned to it.
      *
      * @param formatIdentifier Parameters that are passed to the dialogue
@@ -68,7 +68,7 @@ public class ResponsiveDialogue<T extends Actor> extends ScreenController<T> {
     private void setupMessagesForIdentifier(String[] formatIdentifier, String... arrayOfMessages) {
         final int inputArraySize = arrayOfMessages.length;
         final int outputArraySize = formatIdentifier.length;
-        final String[] defaultCaptions = {defaulMsg, defaultBtnMsg, defaultHeading};
+        final String[] defaultCaptions = {defaultMsg, defaultBtnMsg, defaultHeading};
 
         for (int counter = 0; counter < outputArraySize; counter++) {
             if (inputArraySize > counter

@@ -11,7 +11,7 @@ public final class TextDialog extends Dialog {
     /** button ID (used when control is pressed) */
     private static final String btnID = "confirm exit";
 
-    private static final String defaulMsg = "No message was load.";
+    private static final String defaultMsg = "No message was load.";
     private static final String defaultBtnMsg = "OK";
     private static final int differenceMeasure = 200;
 
@@ -24,7 +24,7 @@ public final class TextDialog extends Dialog {
     public TextDialog(Skin skin, String outputMsg, String buttonMsg, String title) {
         super(title, skin);
 
-        if (outputMsg.trim().isEmpty()) outputMsg = defaulMsg;
+        if (outputMsg.trim().isEmpty()) outputMsg = defaultMsg;
 
         Label labelContent = new Label(outputMsg, skin);
         labelContent.setAlignment(Align.left);
@@ -58,7 +58,7 @@ public final class TextDialog extends Dialog {
      */
     @Override
     protected void result(final Object object) {
-        if (object.toString() == btnID) {
+        if (object.toString().equals(btnID)) {
             UITools.deleteDialogue();
         }
     }
