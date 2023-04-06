@@ -31,7 +31,11 @@ public class UITools {
      *     label; [1] Button name; [2]label heading
      */
     public static void showInfoText(String... arrayOfMessages) {
+        formatStringForDialigWindow(arrayOfMessages);
+        generateDialogue(arrayOfMessages);
+    }
 
+    private static void formatStringForDialigWindow(String[] arrayOfMessages) {
         if (arrayOfMessages != null && arrayOfMessages.length != 0) {
             String infoMsg = arrayOfMessages[0];
             infoMsg = infoMsg.replaceAll("\n", " ");
@@ -51,8 +55,6 @@ public class UITools {
             }
             arrayOfMessages[0] = formatedMsg;
         }
-
-        generateDialogue(arrayOfMessages);
     }
 
     /**
