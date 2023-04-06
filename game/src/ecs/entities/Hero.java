@@ -7,7 +7,6 @@ import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.components.skill.*;
 import graphic.Animation;
-import tools.Point;
 
 /**
  * The Hero is the player character. It's entity in the ECS. This class helps to setup the hero with
@@ -25,14 +24,10 @@ public class Hero extends Entity {
     private final String pathToRunRight = "knight/runRight";
     private Skill firstSkill;
 
-    /**
-     * Entity with Components
-     *
-     * @param startPosition position at start
-     */
-    public Hero(Point startPosition) {
+    /** Entity with Components */
+    public Hero() {
         super();
-        new PositionComponent(this, startPosition);
+        new PositionComponent(this);
         setupVelocityComponent();
         setupAnimationComponent();
         setupHitboxComponent();

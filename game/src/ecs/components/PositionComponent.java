@@ -27,11 +27,26 @@ public class PositionComponent extends Component {
 
     /**
      * @param entity associated entity
+     * @param x x-position of the entity
+     * @param y y-position of the entity
+     */
+    public PositionComponent(@DSLContextMember(name = "entity") Entity entity, float x, float y) {
+        super(entity);
+        this.position = new Point(x, y);
+    }
+
+    /**
+     * Set the position of this entity on a random floor tile in the level. if no level is loaded,
+     * set the position to (0,0)
+     *
+     * @param entity associated entity
      */
     public PositionComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);
-        this.position =
-                Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint();
+        if (Game.currentLevel != null)
+            position =
+                    Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint();
+        else position = new Point(0, 0);
     }
 
     /**
