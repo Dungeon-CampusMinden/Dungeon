@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import logging.CustomLogLevel;
 
+/** Allows an Entity to carry Items */
 public class InventoryComponent extends Component {
 
     private List<ItemData> inventory;

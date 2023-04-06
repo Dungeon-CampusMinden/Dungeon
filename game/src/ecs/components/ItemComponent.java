@@ -3,6 +3,7 @@ package ecs.components;
 import ecs.entities.Entity;
 import ecs.items.ItemData;
 
+/** Marks an Entity as an Item. */
 public class ItemComponent extends Component {
     public ItemData itemData;
 
