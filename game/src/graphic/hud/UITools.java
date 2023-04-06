@@ -21,7 +21,6 @@ public class UITools {
     private static final int maxRowLength = 40;
 
     private static final String emptyMessage = "";
-    private static final String exceptSystemName = "DrawSystem";
 
     /* controller manages elements of a certain type and is based on a layer system */
     private static List<AbstractController<?>> controller;
