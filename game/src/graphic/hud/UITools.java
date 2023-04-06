@@ -3,10 +3,8 @@ package graphic.hud;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import controller.AbstractController;
-import controller.SystemController;
 import ecs.systems.ECS_System;
-import java.util.List;
+import starter.Game;
 import tools.Constants;
 
 /**
@@ -22,19 +20,8 @@ public class UITools {
 
     private static final String emptyMessage = "";
 
-    /* controller manages elements of a certain type and is based on a layer system */
-    private static List<AbstractController<?>> controller;
-
-    /* systems ECS_Systems, which control components of all entities in game loop */
-    private static SystemController systems;
-
     /** Dialogue with info field and button to cancel play pause */
     private static ResponsiveDialogue dialog;
-
-    public UITools(List<AbstractController<?>> controller, SystemController systems) {
-        this.controller = controller;
-        this.systems = systems;
-    }
 
     /**
      * display the content in the Dialog
@@ -75,10 +62,10 @@ public class UITools {
     public static void deleteDialogue() {
         if (dialog == null) return;
 
-        if (controller != null && controller.contains(dialog)) controller.remove(dialog);
+        if (Game.controller != null) Game.controller.remove(dialog);
 
-        if (systems != null) {
-            systems.forEach(ECS_System::run);
+        if (Game.systems != null) {
+            Game.systems.forEach(ECS_System::run);
         }
         dialog = null;
     }
@@ -96,10 +83,10 @@ public class UITools {
                         Color.WHITE,
                         arrayOfMessages);
 
-        if (controller != null) controller.add(dialog);
+        if (Game.controller != null) Game.controller.add(dialog);
 
-        if (systems != null) {
-            systems.forEach(ECS_System::stop);
+        if (Game.systems != null) {
+            Game.systems.forEach(ECS_System::stop);
         }
     }
 }

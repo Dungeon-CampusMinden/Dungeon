@@ -45,7 +45,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     protected SpriteBatch batch;
 
     /** Contains all Controller of the Dungeon */
-    protected List<AbstractController<?>> controller;
+    public static List<AbstractController<?>> controller;
 
     public static DungeonCamera camera;
     /** Draws objects */
