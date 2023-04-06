@@ -78,18 +78,19 @@ public class UITools {
      * systems except DrawSystem
      */
     private static void generateDialogue(String... arrayOfMessages) {
-        if (dialog != null) return;
+        if (dialog != null) {
 
-        dialog =
-                new ResponsiveDialogue(
-                        new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG)),
-                        Color.WHITE,
-                        arrayOfMessages);
+            dialog =
+                    new ResponsiveDialogue(
+                            new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG)),
+                            Color.WHITE,
+                            arrayOfMessages);
 
-        if (Game.controller != null) Game.controller.add(dialog);
+            if (Game.controller != null) Game.controller.add(dialog);
 
-        if (Game.systems != null) {
-            Game.systems.forEach(ECS_System::stop);
+            if (Game.systems != null) {
+                Game.systems.forEach(ECS_System::stop);
+            }
         }
     }
 }
