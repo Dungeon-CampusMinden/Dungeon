@@ -267,7 +267,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     private void setupCameras() {
-        camera = new DungeonCamera(null, Constants.VIRTUAL_WIDTH, Constants.VIRTUAL_HEIGHT);
+        camera = new DungeonCamera(null, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
         camera.zoom = Constants.DEFAULT_ZOOM_FACTOR;
 
         // See also:
