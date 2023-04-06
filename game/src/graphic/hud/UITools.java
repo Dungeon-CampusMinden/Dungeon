@@ -79,7 +79,7 @@ public class UITools {
         if (controller != null && controller.contains(dialog)) controller.remove(dialog);
 
         if (systems != null) {
-            systems.forEach(ECS_System::allRun);
+            systems.forEach(ECS_System::run);
         }
         dialog = null;
     }
@@ -100,9 +100,7 @@ public class UITools {
         if (controller != null) controller.add(dialog);
 
         if (systems != null) {
-            for (ECS_System system : systems) {
-                system.notRunExceptSystems(exceptSystemName);
-            }
+            systems.forEach(ECS_System::stop);
         }
     }
 }

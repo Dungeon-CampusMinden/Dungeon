@@ -58,8 +58,16 @@ public class DrawSystem extends ECS_System {
         return new DSData(e, ac, pc);
     }
 
+    /** DrawSystem cant be paused */
     @Override
     public void toggleRun() {
+        // DrawSystem cant pause
+        run = true;
+    }
+
+    /** DrawSystem cant be paused */
+    @Override
+    public void stop() {
         // DrawSystem cant pause
         run = true;
     }
