@@ -5,7 +5,7 @@ import ecs.items.ItemData;
 
 /** Marks an Entity as an Item. */
 public class ItemComponent extends Component {
-    public ItemData itemData;
+    private ItemData itemData;
 
     /**
      * Create a new component and add it to the associated entity
@@ -24,6 +24,14 @@ public class ItemComponent extends Component {
      */
     public ItemComponent(Entity entity, ItemData itemData) {
         super(entity);
+        this.itemData = itemData;
+    }
+
+    public ItemData getItemData() {
+        return itemData;
+    }
+
+    public void setItemData(ItemData itemData) {
         this.itemData = itemData;
     }
 }

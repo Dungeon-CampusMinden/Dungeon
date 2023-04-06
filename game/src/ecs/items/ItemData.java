@@ -192,7 +192,7 @@ public class ItemData {
                                                                                                     .class
                                                                                             ::cast)
                                                                             .get()
-                                                                            .itemData))
+                                                                            .getItemData()))
                                                         Game.removeEntity(worldItem);
                                                 });
                             }
