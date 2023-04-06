@@ -44,7 +44,6 @@ public class ResponsiveDialogue<T extends Actor> extends ScreenController<T> {
         super(batch);
         createDialog(skin, arrayOfMessages);
         formatDependingOnGameScreen(msgColor);
-        add((T) dialog);
     }
     /**
      * Creates Dialog with a label for text-output and Button
@@ -57,6 +56,7 @@ public class ResponsiveDialogue<T extends Actor> extends ScreenController<T> {
         setupMessagesForIdentifier(formatIdentifier, arrayOfMessages);
         dialog =
                 new TextDialog(skin, formatIdentifier[0], formatIdentifier[1], formatIdentifier[2]);
+        add((T) dialog);
     }
     /**
      * All values for the variable Identifier are correctly read from the parameter arrayOfMessages

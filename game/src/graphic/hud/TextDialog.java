@@ -59,7 +59,7 @@ public final class TextDialog extends Dialog {
     @Override
     protected void result(final Object object) {
         if (object.toString().equals(btnID)) {
-            UITools.deleteDialogue();
+            UITools.deleteDialogue(this);
         }
     }
 }

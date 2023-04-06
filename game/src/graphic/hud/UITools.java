@@ -2,6 +2,7 @@ package graphic.hud;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import ecs.systems.ECS_System;
 import starter.Game;
@@ -19,9 +20,6 @@ public class UITools {
     private static final int maxRowLength = 40;
 
     private static final String emptyMessage = "";
-
-    /** Dialogue with info field and button to cancel play pause */
-    private static ResponsiveDialogue dialog;
 
     /**
      * display the content in the Dialog
@@ -61,7 +59,7 @@ public class UITools {
      * After leaving the dialogue, it is removed from the stage, the game is unpaused by releasing
      * all systems and deleting the dialogue Object.
      */
-    public static void deleteDialogue() {
+    public static void deleteDialogue(Dialog dialog) {
         if (dialog != null) {
 
             if (Game.controller != null) Game.controller.remove(dialog);
@@ -69,7 +67,6 @@ public class UITools {
             if (Game.systems != null) {
                 Game.systems.forEach(ECS_System::run);
             }
-            dialog = null;
         }
     }
 
@@ -78,19 +75,15 @@ public class UITools {
      * systems except DrawSystem
      */
     private static void generateDialogue(String... arrayOfMessages) {
-        if (dialog != null) {
+        ResponsiveDialogue dialog =
+                new ResponsiveDialogue(
+                        new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG)),
+                        Color.WHITE,
+                        arrayOfMessages);
 
-            dialog =
-                    new ResponsiveDialogue(
-                            new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG)),
-                            Color.WHITE,
-                            arrayOfMessages);
-
-            if (Game.controller != null) Game.controller.add(dialog);
-
-            if (Game.systems != null) {
-                Game.systems.forEach(ECS_System::stop);
-            }
+        if (Game.controller != null) Game.controller.add(dialog);
+        if (Game.systems != null) {
+            Game.systems.forEach(ECS_System::stop);
         }
     }
 }
