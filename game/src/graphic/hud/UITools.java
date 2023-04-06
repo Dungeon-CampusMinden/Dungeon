@@ -62,14 +62,15 @@ public class UITools {
      * all systems and deleting the dialogue Obejct.
      */
     public static void deleteDialogue() {
-        if (dialog == null) return;
+        if (dialog != null) {
 
-        if (Game.controller != null) Game.controller.remove(dialog);
+            if (Game.controller != null) Game.controller.remove(dialog);
 
-        if (Game.systems != null) {
-            Game.systems.forEach(ECS_System::run);
+            if (Game.systems != null) {
+                Game.systems.forEach(ECS_System::run);
+            }
+            dialog = null;
         }
-        dialog = null;
     }
 
     /**
