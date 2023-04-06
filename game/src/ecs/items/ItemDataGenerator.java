@@ -4,6 +4,9 @@ import graphic.Animation;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Generator which creates a random ItemData based on the Templates prepared.
+ */
 public class ItemDataGenerator {
     private static final List<String> missingTexture = List.of("animation/missingTexture.png");
 
@@ -29,6 +32,9 @@ public class ItemDataGenerator {
                             "Ein Namensschild wo der Name nicht mehr lesbar ist.."));
     private Random rand = new Random();
 
+    /**
+     * @return a new randomItemData
+     */
     public ItemData generateItemData() {
         return templates.get(rand.nextInt(templates.size()));
     }
