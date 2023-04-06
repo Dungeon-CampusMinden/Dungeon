@@ -6,9 +6,7 @@ import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import tools.Point;
 
-/**
- * Class which creates all needed Components for a basic WorldItem
- */
+/** Class which creates all needed Components for a basic WorldItem */
 public class WorldItemBuilder {
 
     /**

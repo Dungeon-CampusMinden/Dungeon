@@ -4,9 +4,7 @@ import graphic.Animation;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Generator which creates a random ItemData based on the Templates prepared.
- */
+/** Generator which creates a random ItemData based on the Templates prepared. */
 public class ItemDataGenerator {
     private static final List<String> missingTexture = List.of("animation/missingTexture.png");
 
