@@ -44,7 +44,6 @@ public class ResponsiveDialogue<T extends Actor> extends ScreenController<T> {
         super(batch);
         createDialog(skin, arrayOfMessages);
         formatDependingOnGameScreen(msgColor);
-        dialog.setEnable(true);
         add((T) dialog);
     }
     /**

@@ -13,7 +13,6 @@ public final class TextDialog extends Dialog {
 
     private static final String defaulMsg = "No message was load.";
     private static final String defaultBtnMsg = "OK";
-    private boolean enable;
     private static final int differenceMeasure = 200;
 
     /**
@@ -24,7 +23,6 @@ public final class TextDialog extends Dialog {
      */
     public TextDialog(Skin skin, String outputMsg, String buttonMsg, String title) {
         super(title, skin);
-        enable = false;
 
         if (outputMsg.trim().isEmpty()) outputMsg = defaulMsg;
 
@@ -54,15 +52,6 @@ public final class TextDialog extends Dialog {
     }
 
     /**
-     * sets identification whether the key has been pressed*
-     *
-     * @param isEnable Identification
-     */
-    public void setEnable(final boolean isEnable) {
-        enable = isEnable;
-    }
-
-    /**
      * Provides information about the pressed Button
      *
      * @param object Object associated with the button
@@ -70,7 +59,6 @@ public final class TextDialog extends Dialog {
     @Override
     protected void result(final Object object) {
         if (object.toString() == btnID) {
-            enable = false;
             UITools.deleteDialogue();
         }
     }
