@@ -16,7 +16,7 @@ public class WorldItemBuilder {
      * @param itemData the Data which should be given to the world Item
      * @return the newly created Entity
      */
-    public static Entity bah(ItemData itemData) {
+    public static Entity buildWorldItem(ItemData itemData) {
         Entity droppedItem = new Entity();
         new PositionComponent(droppedItem, new Point(0, 0));
         new AnimationComponent(droppedItem, itemData.getWorldTexture());
