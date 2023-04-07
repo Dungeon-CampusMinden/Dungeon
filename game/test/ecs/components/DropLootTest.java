@@ -3,7 +3,7 @@ package ecs.components;
 import static org.junit.Assert.*;
 
 import ecs.entities.Entity;
-import ecs.items.Item;
+import ecs.items.ItemData;
 import org.junit.Test;
 import starter.Game;
 import tools.Point;
@@ -51,9 +51,13 @@ public class DropLootTest {
         Point entityPosition = new Point(1, 2);
         new PositionComponent(entity, entityPosition);
         InventoryComponent inventoryComponent = new InventoryComponent(entity, 10);
-        inventoryComponent.addItem(new Item() {});
+        inventoryComponent.addItem(new ItemData());
+        Game.getEntities().addAll(Game.getEntitiesToAdd());
+        Game.getEntitiesToAdd().clear();
         Game.getEntities().clear();
         dropLoot.onDeath(entity);
+        Game.getEntities().addAll(Game.getEntitiesToAdd());
+        Game.getEntitiesToAdd().clear();
         assertEquals(1, Game.getEntities().size());
         assertTrue(
                 Game.getEntities().stream()
@@ -77,10 +81,16 @@ public class DropLootTest {
         Point entityPosition = new Point(1, 2);
         new PositionComponent(entity, entityPosition);
         InventoryComponent inventoryComponent = new InventoryComponent(entity, 10);
-        inventoryComponent.addItem(new Item() {});
-        inventoryComponent.addItem(new Item() {});
+        inventoryComponent.addItem(new ItemData());
+        inventoryComponent.addItem(new ItemData());
+
+        Game.getEntities().addAll(Game.getEntitiesToAdd());
+        Game.getEntitiesToAdd().clear();
         Game.getEntities().clear();
         dropLoot.onDeath(entity);
+
+        Game.getEntities().addAll(Game.getEntitiesToAdd());
+        Game.getEntitiesToAdd().clear();
         assertEquals(2, Game.getEntities().size());
         assertTrue(
                 Game.getEntities().stream()

@@ -1,7 +1,8 @@
 package ecs.entities;
 
 import ecs.components.*;
-import ecs.items.Item;
+import ecs.items.ItemData;
+import ecs.items.ItemDataGenerator;
 import graphic.Animation;
 import java.util.List;
 import java.util.Random;
@@ -29,28 +30,27 @@ public class Chest extends Entity {
      */
     public static Chest createNewChest() {
         Random random = new Random();
-        List<Item> items =
+        ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
+
+        List<ItemData> itemData =
                 IntStream.range(0, random.nextInt(1, 3))
-                        .mapToObj(
-                                i ->
-                                        Item.ITEM_REGISTER.get(
-                                                random.nextInt(0, Item.ITEM_REGISTER.size())))
+                        .mapToObj(i -> itemDataGenerator.generateItemData())
                         .toList();
         return new Chest(
-                items,
+                itemData,
                 Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint());
     }
 
     /**
      * Creates a new Chest which drops the given items on interaction
      *
-     * @param items which the chest is supposed to drop
+     * @param itemData which the chest is supposed to drop
      * @param position the position where the chest is placed
      */
-    public Chest(List<Item> items, Point position) {
+    public Chest(List<ItemData> itemData, Point position) {
         new PositionComponent(this, position);
-        InventoryComponent ic = new InventoryComponent(this, items.size());
-        items.forEach(ic::addItem);
+        InventoryComponent ic = new InventoryComponent(this, itemData.size());
+        itemData.forEach(ic::addItem);
         new InteractionComponent(this, defaultInteractionRadius, false, this::dropItems);
         AnimationComponent ac =
                 new AnimationComponent(
@@ -74,14 +74,15 @@ public class Chest extends Entity {
                                 () ->
                                         createMissingComponentException(
                                                 PositionComponent.class.getName(), entity));
-        List<Item> items = inventoryComponent.getItems();
-        double count = items.size();
+        List<ItemData> itemData = inventoryComponent.getItems();
+        double count = itemData.size();
 
-        IntStream.range(0, items.size())
+        IntStream.range(0, itemData.size())
                 .forEach(
                         index ->
-                                items.get(index)
-                                        .onDrop(
+                                itemData.get(index)
+                                        .triggerDrop(
+                                                entity,
                                                 calculateDropPosition(
                                                         positionComponent, index / count)));
         entity.getComponent(AnimationComponent.class)
