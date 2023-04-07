@@ -35,8 +35,9 @@ public class PositionComponent extends Component {
     }
 
     /**
-     * Set the position of this entity on a random floor tile in the level. if no level is loaded,
-     * set the position to (0,0)
+     * Set the position of this entity on a random floor tile in the level. If no level is loaded,
+     * set the position to (0,0). Please note that (0,0) may not necessarily be a playable area
+     * within the level, it could be a wall or an "out of level" area.
      *
      * @param entity associated entity
      */
