@@ -2,6 +2,7 @@ package ecs.items;
 
 import ecs.components.AnimationComponent;
 import ecs.components.HitboxComponent;
+import ecs.components.ItemComponent;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import tools.Point;
@@ -19,6 +20,7 @@ public class WorldItemBuilder {
         Entity droppedItem = new Entity();
         new PositionComponent(droppedItem, new Point(0, 0));
         new AnimationComponent(droppedItem, itemData.getWorldTexture());
+        new ItemComponent(droppedItem,itemData);
         HitboxComponent component = new HitboxComponent(droppedItem);
         component.setiCollideEnter(
                 (a, b, direction) -> {
