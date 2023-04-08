@@ -10,7 +10,7 @@ import tools.Point;
 
 import java.util.logging.Logger;
 
-/** PositionComponent is a component that stores the x, y (as Point) position of an entity */
+/** A PositionComponent stores the associated entity's position in the level */
 @DSLType(name = "position_component")
 public class PositionComponent extends Component {
 
@@ -18,10 +18,12 @@ public class PositionComponent extends Component {
     private /*@DSLTypeMember(name="position")*/ Point position;
 
     /**
-     * Creates a new PositionComponent to store the associated entity's position in the level and
+     * Creates a new PositionComponent at a given point.
+     *
+     * <p>Creates a new PositionComponent to store the associated entity's position in the level and
      * add this component to the associated entity.
      *
-     * <p>Set the position of this entity to the given Point.
+     * <p>Sets the position of this entity to the given point.
      *
      * @param entity associated entity
      * @param point position of the entity
@@ -32,10 +34,12 @@ public class PositionComponent extends Component {
     }
 
     /**
-     * Creates a new PositionComponent to store the associated entity's position in the level and
+     * Creates a new PositionComponent at a given point.
+     *
+     * <p>Creates a new PositionComponent to store the associated entity's position in the level and
      * add this component to the associated entity.
      *
-     * <p>Set the position of this entity to a Point with the given x and y positions.
+     * <p>Sets the position of this entity to a Point with the given x and y positions.
      *
      * @param entity associated entity
      * @param x x-position of the entity
@@ -46,12 +50,14 @@ public class PositionComponent extends Component {
     }
 
     /**
-     * Creates a new PositionComponent to store the associated entity's position in the level and
+     * Creates a new PositionComponent at a random point.
+     *
+     * <p>Creates a new PositionComponent to store the associated entity's position in the level and
      * add this component to the associated entity.
      *
-     * <p>Set the position of this entity on a random floor tile in the level. If no level is
-     * loaded, set the position to (0,0). Please note that (0,0) may not necessarily be a playable
-     * area within the level, it could be a wall or an "out of level" area.
+     * <p>Sets the position of this entity on a random floor tile in the level. If no level is
+     * loaded, set the position to (0,0). Beware that (0,0) may not necessarily be a playable area
+     * within the level, it could be a wall or an "out of level" area.
      *
      * @param entity associated entity
      */
