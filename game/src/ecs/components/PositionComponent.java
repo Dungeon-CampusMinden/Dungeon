@@ -30,6 +30,7 @@ public class PositionComponent extends Component {
      */
     public PositionComponent(@DSLContextMember(name = "entity") Entity entity, Point point) {
         super(entity);
+
         this.position = point;
     }
 
@@ -63,10 +64,13 @@ public class PositionComponent extends Component {
      */
     public PositionComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);
-        if (Game.currentLevel != null)
+
+        if (Game.currentLevel != null) {
             position =
                     Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint();
-        else position = new Point(0, 0);
+        } else {
+            position = new Point(0, 0);
+        }
     }
 
     /**
