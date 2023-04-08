@@ -3,6 +3,8 @@ package level.elements.tile;
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.utils.Array;
 import ecs.entities.Entity;
+import java.util.ArrayList;
+import java.util.List;
 import level.elements.ILevel;
 import level.elements.TileLevel;
 import level.elements.astar.TileConnection;
@@ -10,9 +12,6 @@ import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import tools.Point;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A Tile is a field of the level.

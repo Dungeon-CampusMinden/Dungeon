@@ -66,8 +66,7 @@ public class PositionComponent extends Component {
         super(entity);
 
         if (Game.currentLevel != null) {
-            position =
-                    Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint();
+            position = Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinateAsPoint();
         } else {
             position = new Point(0, 0);
         }
