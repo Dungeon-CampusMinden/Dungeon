@@ -47,7 +47,7 @@ public class MultiplayerServer extends Listener {
 
     @Override
     public void disconnected(Connection connection) {
-        playerPositions.remove(connection.getID());
+        //playerPositions.remove(connection.getID());
 //        System.out.println("Player " + connection.getID() + " disconnected");
     }
 

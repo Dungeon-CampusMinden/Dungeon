@@ -13,12 +13,18 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import controller.AbstractController;
 import controller.SystemController;
+import dslToGame.AnimationBuilder;
 import dslToGame.QuestConfig;
+import ecs.components.AnimationComponent;
+import ecs.components.Component;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
+import ecs.components.mp.MultiplayerComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
+import ecs.entities.HeroDummy;
 import ecs.systems.*;
+import graphic.Animation;
 import graphic.DungeonCamera;
 import graphic.Painter;
 import graphic.hud.menus.*;
@@ -59,6 +65,8 @@ import mp.packages.request.UpdateOwnPositionRequest;
 import mp.server.MultiplayerServer;
 import tools.Constants;
 import tools.Point;
+
+import javax.swing.text.Position;
 
 /** The heart of the framework. From here all strings are pulled. */
 public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObserver, IMultiplayerClientObserver {
@@ -106,6 +114,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     public static Hero hero;
 
     private static HashMap<Integer, Point> playerPositions;
+    private HashMap<Integer, Entity> playerEntities = new HashMap<Integer, Entity>();
 
     /** Called once at the beginning of the game. */
     protected void setup() {
@@ -214,6 +223,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         // TODO: do some stuff
         if (isSucceed) {
             playerId = id;
+            playerEntities.put(id, hero);
             hideMenu(startMenu);
             sendPosition();
         } else {
@@ -229,6 +239,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
             levelAPI.setLevel(level);
             playerId = id;
             hideMenu(startMenu);
+            sendPosition();
+
+            // Creating HeroDummy
+            //playerEntities.put(id,new HeroDummy(new Point(0.0f,0.0f)));
+
         } else {
             // TODO: error handling like popup menu with error message
             System.out.println("Multiplayer host session failed to initialize");
@@ -245,6 +260,18 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     @Override
     public void onPositionUpdate(HashMap playerPositions){
         this.playerPositions = playerPositions;
+
+        playerPositions.forEach((id, position) -> {
+            if(playerId == (int) id){
+                return;
+            } else if(!playerEntities.containsKey(id)){
+                playerEntities.put((int) id, new HeroDummy((Point)position));
+            }
+
+            Entity herotestdummy = playerEntities.get(id);
+            PositionComponent pc = (PositionComponent) herotestdummy.getComponent(PositionComponent.class).orElseThrow();
+            pc.setPosition((Point)position);
+        });
     }
 
     public void setSpriteBatch(SpriteBatch batch) {
