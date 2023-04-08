@@ -9,6 +9,7 @@ import level.elements.astar.TileConnection;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
+import tools.Point;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +73,13 @@ public abstract class Tile {
      */
     public Coordinate getCoordinate() {
         return globalPosition;
+    }
+
+    /**
+     * @return The global coordinate of the tile as point.
+     */
+    public Point getCoordinateAsPoint() {
+        return getCoordinate().toPoint();
     }
 
     /**
