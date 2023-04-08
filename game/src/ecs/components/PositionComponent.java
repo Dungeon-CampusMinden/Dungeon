@@ -17,6 +17,11 @@ public class PositionComponent extends Component {
     private final Logger positionCompLogger = Logger.getLogger(this.getClass().getName());
 
     /**
+     * Creates a new PositionComponent to store the associated entity's position in the level and
+     * add this component to the associated entity.
+     *
+     * <p>Set the position of this entity to the given Point.
+     *
      * @param entity associated entity
      * @param point position of the entity
      */
@@ -26,6 +31,11 @@ public class PositionComponent extends Component {
     }
 
     /**
+     * Creates a new PositionComponent to store the associated entity's position in the level and
+     * add this component to the associated entity.
+     *
+     * <p>Set the position of this entity to a Point with the given x and y positions.
+     *
      * @param entity associated entity
      * @param x x-position of the entity
      * @param y y-position of the entity
@@ -35,9 +45,12 @@ public class PositionComponent extends Component {
     }
 
     /**
-     * Set the position of this entity on a random floor tile in the level. If no level is loaded,
-     * set the position to (0,0). Please note that (0,0) may not necessarily be a playable area
-     * within the level, it could be a wall or an "out of level" area.
+     * Creates a new PositionComponent to store the associated entity's position in the level and
+     * add this component to the associated entity.
+     *
+     * <p>Set the position of this entity on a random floor tile in the level. If no level is
+     * loaded, set the position to (0,0). Please note that (0,0) may not necessarily be a playable
+     * area within the level, it could be a wall or an "out of level" area.
      *
      * @param entity associated entity
      */
