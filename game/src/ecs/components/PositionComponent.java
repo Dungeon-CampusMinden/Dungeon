@@ -1,7 +1,6 @@
 package ecs.components;
 
 import ecs.entities.Entity;
-import level.tools.LevelElement;
 import logging.CustomLogLevel;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
@@ -66,7 +65,7 @@ public class PositionComponent extends Component {
         super(entity);
 
         if (Game.currentLevel != null) {
-            position = Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinateAsPoint();
+            position = Game.currentLevel.getRandomFloorTile().getCoordinateAsPoint();
         } else {
             position = new Point(0, 0);
         }

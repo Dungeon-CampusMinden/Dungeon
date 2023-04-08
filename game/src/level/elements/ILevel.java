@@ -1,9 +1,10 @@
 package level.elements;
 
-import java.util.List;
 import level.elements.tile.*;
 import level.tools.LevelElement;
 import level.tools.TileTextureFactory;
+
+import java.util.List;
 
 public interface ILevel extends ITileable {
 
@@ -200,5 +201,12 @@ public interface ILevel extends ITileable {
                     ? getDoorTiles().get(RANDOM.nextInt(getDoorTiles().size()))
                     : null;
         };
+    }
+
+    /**
+     * @return random floor tile
+     */
+    default Tile getRandomFloorTile() {
+        return getRandomTile(LevelElement.FLOOR);
     }
 }
