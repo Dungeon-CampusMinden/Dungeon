@@ -39,7 +39,7 @@ public class PositionComponent extends Component {
      * <p>Creates a new PositionComponent to store the associated entity's position in the level and
      * add this component to the associated entity.
      *
-     * <p>Sets the position of this entity to a Point with the given x and y positions.
+     * <p>Sets the position of this entity to a point with the given x and y positions.
      *
      * @param entity associated entity
      * @param x x-position of the entity
