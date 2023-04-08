@@ -1,13 +1,12 @@
 package ecs.components;
 
 import ecs.entities.Entity;
+import java.util.logging.Logger;
 import logging.CustomLogLevel;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import starter.Game;
 import tools.Point;
-
-import java.util.logging.Logger;
 
 /** A PositionComponent stores the associated entity's position in the level */
 @DSLType(name = "position_component")

@@ -1,10 +1,9 @@
 package level.elements;
 
+import java.util.List;
 import level.elements.tile.*;
 import level.tools.LevelElement;
 import level.tools.TileTextureFactory;
-
-import java.util.List;
 
 public interface ILevel extends ITileable {
 
