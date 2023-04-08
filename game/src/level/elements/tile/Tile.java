@@ -3,14 +3,15 @@ package level.elements.tile;
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.utils.Array;
 import ecs.entities.Entity;
-import java.util.ArrayList;
-import java.util.List;
 import level.elements.ILevel;
 import level.elements.TileLevel;
 import level.elements.astar.TileConnection;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A Tile is a field of the level.
@@ -51,28 +52,19 @@ public abstract class Tile {
     public abstract void onEntering(Entity element);
 
     /**
+     * @return path to the texture of this tile
+     */
+    public String getTexturePath() {
+        return texturePath;
+    }
+
+    /**
      * Change texture of the tile.
      *
      * @param texture New texture of the tile.
      */
     public void setTexturePath(String texture) {
         this.texturePath = texture;
-    }
-
-    /**
-     * Change the type of the tile.
-     *
-     * @param newLevelElement New type of the tile.
-     */
-    public void setLevelElement(LevelElement newLevelElement) {
-        this.levelElement = newLevelElement;
-    }
-
-    /**
-     * @return path to the texture of this tile
-     */
-    public String getTexturePath() {
-        return texturePath;
     }
 
     /**
@@ -94,6 +86,15 @@ public abstract class Tile {
      */
     public LevelElement getLevelElement() {
         return levelElement;
+    }
+
+    /**
+     * Change the type of the tile.
+     *
+     * @param newLevelElement New type of the tile.
+     */
+    public void setLevelElement(LevelElement newLevelElement) {
+        this.levelElement = newLevelElement;
     }
 
     /**
