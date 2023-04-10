@@ -11,6 +11,7 @@ import level.elements.astar.TileConnection;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
+import tools.Point;
 
 /**
  * A Tile is a field of the level.
@@ -51,6 +52,13 @@ public abstract class Tile {
     public abstract void onEntering(Entity element);
 
     /**
+     * @return path to the texture of this tile
+     */
+    public String getTexturePath() {
+        return texturePath;
+    }
+
+    /**
      * Change texture of the tile.
      *
      * @param texture New texture of the tile.
@@ -60,26 +68,17 @@ public abstract class Tile {
     }
 
     /**
-     * Change the type of the tile.
-     *
-     * @param newLevelElement New type of the tile.
-     */
-    public void setLevelElement(LevelElement newLevelElement) {
-        this.levelElement = newLevelElement;
-    }
-
-    /**
-     * @return path to the texture of this tile
-     */
-    public String getTexturePath() {
-        return texturePath;
-    }
-
-    /**
      * @return The global coordinate of the tile.
      */
     public Coordinate getCoordinate() {
         return globalPosition;
+    }
+
+    /**
+     * @return The global coordinate of the tile as point.
+     */
+    public Point getCoordinateAsPoint() {
+        return getCoordinate().toPoint();
     }
 
     /**
@@ -94,6 +93,15 @@ public abstract class Tile {
      */
     public LevelElement getLevelElement() {
         return levelElement;
+    }
+
+    /**
+     * Change the type of the tile.
+     *
+     * @param newLevelElement New type of the tile.
+     */
+    public void setLevelElement(LevelElement newLevelElement) {
+        this.levelElement = newLevelElement;
     }
 
     /**

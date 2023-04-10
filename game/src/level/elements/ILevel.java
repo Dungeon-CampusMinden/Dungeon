@@ -201,4 +201,11 @@ public interface ILevel extends ITileable {
                     : null;
         };
     }
+
+    /**
+     * @return random floor tile
+     */
+    default Tile getRandomFloorTile() {
+        return getRandomTile(LevelElement.FLOOR);
+    }
 }
