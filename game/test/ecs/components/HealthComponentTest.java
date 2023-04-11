@@ -3,6 +3,8 @@ package ecs.components;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 
+import ecs.components.health.HealthComponent;
+import ecs.components.health.death.IOnDeathFunction;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.entities.Entity;

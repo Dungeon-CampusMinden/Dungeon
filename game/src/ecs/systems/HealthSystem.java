@@ -1,8 +1,8 @@
 package ecs.systems;
 
 import ecs.components.AnimationComponent;
-import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
+import ecs.components.health.HealthComponent;
 import ecs.components.stats.StatsComponent;
 import ecs.components.xp.XPComponent;
 import ecs.damage.DamageType;

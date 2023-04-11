@@ -2,6 +2,7 @@ package ecs.components;
 
 import static org.junit.Assert.*;
 
+import ecs.components.health.death.DropLoot;
 import ecs.entities.Entity;
 import ecs.items.ItemData;
 import org.junit.Test;

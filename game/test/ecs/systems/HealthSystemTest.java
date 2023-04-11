@@ -4,9 +4,9 @@ import static org.junit.Assert.*;
 
 import controller.SystemController;
 import ecs.components.AnimationComponent;
-import ecs.components.HealthComponent;
-import ecs.components.IOnDeathFunction;
 import ecs.components.MissingComponentException;
+import ecs.components.health.HealthComponent;
+import ecs.components.health.death.IOnDeathFunction;
 import ecs.components.stats.StatsComponent;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;

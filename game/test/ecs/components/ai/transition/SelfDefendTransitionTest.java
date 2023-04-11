@@ -2,8 +2,8 @@ package ecs.components.ai.transition;
 
 import static org.junit.Assert.*;
 
-import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
+import ecs.components.health.HealthComponent;
 import ecs.entities.Entity;
 import org.junit.Test;
 

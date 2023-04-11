@@ -3,6 +3,7 @@ package ecs.components.skill;
 import dslToGame.AnimationBuilder;
 import ecs.components.*;
 import ecs.components.collision.ICollide;
+import ecs.components.health.HealthComponent;
 import ecs.damage.Damage;
 import ecs.entities.Entity;
 import graphic.Animation;

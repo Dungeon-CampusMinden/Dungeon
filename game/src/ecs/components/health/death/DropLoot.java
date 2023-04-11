@@ -1,5 +1,8 @@
-package ecs.components;
+package ecs.components.health.death;
 
+import ecs.components.InventoryComponent;
+import ecs.components.MissingComponentException;
+import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.items.ItemData;
 import tools.Point;

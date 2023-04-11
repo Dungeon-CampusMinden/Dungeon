@@ -1,6 +1,8 @@
-package ecs.components;
+package ecs.components.health;
 
 import com.badlogic.gdx.utils.Null;
+import ecs.components.Component;
+import ecs.components.health.death.IOnDeathFunction;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.entities.Entity;
