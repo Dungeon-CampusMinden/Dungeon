@@ -29,7 +29,15 @@ public class HealthSystem extends ECS_System {
                 // Apply damage
                 .map(this::applyDamage)
                 // Filter all dead entities
-                .filter(hsd -> hsd.hc.getCurrentHealthpoints() <= 0)
+                .filter(hsd -> hsd.hc.isDead())
+                .filter(
+                        hsd -> {
+                            if (hsd.hc.getDeathAnimation() == null) return true;
+                            if (!hsd.ac.getCurrentAnimation().equals(hsd.hc.getDeathAnimation())) {
+                                hsd.ac.setCurrentAnimation(hsd.hc.getDeathAnimation());
+                                return false;
+                            } else return hsd.ac.getCurrentAnimation().isFinished();
+                        })
                 // Remove all dead entities
                 .forEach(this::removeDeadEntities);
     }
@@ -92,7 +100,7 @@ public class HealthSystem extends ECS_System {
     private void removeDeadEntities(HSData hsd) {
         // Entity appears to be dead, so let's clean up the mess
         hsd.hc.triggerOnDeath();
-        hsd.ac.setCurrentAnimation(hsd.hc.getDieAnimation());
+        hsd.ac.setCurrentAnimation(hsd.hc.getDeathAnimation());
         // TODO: Before removing the entity, check if the animation is finished (Issue #246)
         Game.removeEntity(hsd.hc.getEntity());
 
