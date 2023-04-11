@@ -33,7 +33,7 @@ Die LevelAPI generiert, zeichnet und speichert das aktuelle Level. Mehr zum Them
 
 *Anmerkung:* Das UML ist für bessere Lesbarkeit gekürzt.
 
-*Anmerkung:* Die in Gelb hinterlegten Klassen des UML-Diagramms sind für ein Basisverständnis des Dungeons nicht nötig.
+*Anmerkung:* Ein Verständnis der in Gelb hinterlegten Klassen des UML-Diagramms sind für ein Basisverständnis des Dungeons nicht nötig.
 
 
 Neu erzeugte Entitäten speichern sich automatisch im HashSet `entities` der `Game`-Klasse ab.
