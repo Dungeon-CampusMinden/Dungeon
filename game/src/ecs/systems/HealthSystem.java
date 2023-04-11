@@ -35,8 +35,8 @@ public class HealthSystem extends ECS_System {
                             if (hsd.hc.getDeathAnimation() == null) return true;
                             if (!hsd.ac.getCurrentAnimation().equals(hsd.hc.getDeathAnimation())) {
                                 hsd.ac.setCurrentAnimation(hsd.hc.getDeathAnimation());
-                                return false;
-                            } else return hsd.ac.getCurrentAnimation().isFinished();
+                            }
+                            return hsd.ac.getCurrentAnimation().isFinished();
                         })
                 // Remove all dead entities
                 .forEach(this::removeDeadEntities);
@@ -101,7 +101,6 @@ public class HealthSystem extends ECS_System {
         // Entity appears to be dead, so let's clean up the mess
         hsd.hc.triggerOnDeath();
         hsd.ac.setCurrentAnimation(hsd.hc.getDeathAnimation());
-        // TODO: Before removing the entity, check if the animation is finished (Issue #246)
         Game.removeEntity(hsd.hc.getEntity());
 
         // Add XP
