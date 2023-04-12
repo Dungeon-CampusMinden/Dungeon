@@ -32,7 +32,8 @@ public class HealthSystem extends ECS_System {
                 .filter(hsd -> hsd.hc.isDead())
                 .filter(
                         hsd -> {
-                            if (hsd.hc.getDeathAnimation() == null) return true;
+                            if (hsd.hc.getDeathAnimation() == null
+                                    || hsd.hc.getDeathAnimation().isLooping()) return true;
                             if (!hsd.ac.getCurrentAnimation().equals(hsd.hc.getDeathAnimation())) {
                                 hsd.ac.setCurrentAnimation(hsd.hc.getDeathAnimation());
                             }

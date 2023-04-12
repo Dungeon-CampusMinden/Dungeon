@@ -75,6 +75,13 @@ public class Animation {
     }
 
     /**
+     * @return true when looping, otherwise false
+     */
+    public boolean isLooping() {
+        return looping;
+    }
+
+    /**
      * Get the List of animation frames.
      *
      * @return List containing the paths of the single frames of the animation.
