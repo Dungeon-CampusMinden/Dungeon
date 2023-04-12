@@ -6,7 +6,7 @@ title: "Quickstart: How to Dungeon"
 
 
 Dieses Dokument liefert einen Einstieg in das Dungeon. Es erläutert die Installation des Spiels und die ersten Schritte, um eigene Inhalte zum Dungeon hinzuzufügen. Es dient als Grundlage für alle weiteren Praktika. Lesen Sie das Dokument daher aufmerksam durch und versuchen Sie sich zusätzlich selbst mit dem Aufbau vertraut zu machen.
-Das Spiel befindet sich im [`Dungeon`](https://github.com/Programmiermethoden/Dungeon)-Repo.
+Das Spiel befindet sich im [`Dungeon`-Repo](https://github.com/Programmiermethoden/Dungeon).
 
 Sie benötigen nur dieses Projekt für die Aufgaben, die zusätzlichen Abhängigkeiten werden automatisch über Gradle eingebunden.
 
@@ -322,7 +322,7 @@ Wenn Sie mehr dazu erfahren wollen, schauen Sie [hier](ecs/components/hitbox_com
 Hier finden Sie noch einige Links um Ihr Verständnis des Dungeons zu vertiefen:
 
 - [ECS Basics](ecs/ecs_basics.md)
-- [Eigener Inhalt](ecs/create_own_content.md)
+- [Entitäten, Components und Systeme selbst erstellen](ecs/create_own_content.md)
 - [Übersicht der Systeme](ecs/systems/readme.md)
 - [Übersicht der Components](ecs/components/readme.md)
 - [Übersicht der Spielelemente](ecs/gameelements/)

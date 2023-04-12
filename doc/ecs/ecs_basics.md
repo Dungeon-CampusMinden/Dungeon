@@ -27,23 +27,18 @@ Der Zustand einer Entität wird also über ihre Components bestimmt, und ihr Ver
 
 ![Struktur ECS](img/ecs.png)
 
-Game ist die Basisklasse von der alles ausgeht. Die Methode `Game#render` ist die Game-Loop. Die Klassen `Entity`, `Component` und `ECS_System` sind die Implementierungen des ECS.
+*Anmerkung:* Das UML ist für bessere Lesbarkeit auf die wesentlichen Bestandteile gekürzt.
 
-Die LevelAPI generiert, zeichnet und speichert das aktuelle Level. Mehr zum Thema Level erfahren Sie [hier](../level/readme.md).
+Die in Grün gekennzeichnete Klasse `Game` ist die Basisklasse, von der alles ausgeht. Die Methode `Game#render` ist die Game-Loop. Das ECS wird durch die in weiß gekennzeichneten Klassen `Entity`, `Component` und `ECS_System` implementiert.
 
-*Anmerkung:* Das UML ist für bessere Lesbarkeit gekürzt.
-
-*Anmerkung:* Ein Verständnis der in Gelb hinterlegten Klassen des UML-Diagramms sind für ein Basisverständnis des Dungeons nicht nötig.
-
+Die LevelAPI generiert, zeichnet und speichert das aktuelle [Level](../level/readme.md). Klassen, die rot gekennzeichnet sind, gehören dazu.
 
 Neu erzeugte Entitäten speichern sich automatisch im HashSet `entities` der `Game`-Klasse ab.
 `ECS_System`e speichern sich automatisch im `SystemController` `systems` der `Game`-Klasse ab.
 
-Die Systeme iterieren über die in `Game` gespeicherten Entitäten und greifen über die Methode `Entity#getComponent` auf die für die jeweilige Funktionalität benötigten Components zu.
+Die Systeme iterieren über die in `Game` gespeicherten Entitäten und greifen über die Methode `Entity#getComponent` auf die für die jeweilige Funktionalität benötigten Components zu. Die orangefarbenen `System`s und `Controller` sind in dem UML-Diagramm Beispiele für die bereits bestehenden `System`s und `Controller`.
 
-*Anmerkung*: Gelb hinterlegte Klassen stammen aus dem PM-Dungeon-Framework.
-
-*Anmerkung*: Das UML-Diagramm ist auf die wesentlichen Bestandteile gekürzt.
+Die in Gelb hinterlegten Klassen stammen aus dem PM-Dungeon-Framework. Für ein Basisverständnis des Dungeons ist ein Wissen über die Funktionalität dieser Klassen nicht nötig.
 
 ## Integration des ECS in die Game-Loop
 
