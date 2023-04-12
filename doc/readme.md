@@ -17,7 +17,7 @@ Sie benötigen nur dieses Projekt für die Aufgaben, die zusätzlichen Abhängig
 Für das Dungeon wird das Java Development Kit 17.x.x (JDK 17) oder höher benötigt, stellen Sie sicher, dass Sie es installiert haben.
 
 Laden Sie das Projekt herunter und binden Sie es als Gradle-Projekt in Ihre IDE ein.
-Eine genauere Anleitung finden Sie [hier](https://github.com/Programmiermethoden/Dungeon/wiki/Import-Project)
+Eine genauere [Anleitung](https://github.com/Programmiermethoden/Dungeon/wiki/Import-Project) finden Sie in dem Projekt-Wiki.
 
 Sie können über die run-Funktion Ihrer IDE überprüfen, ob die Installation lauffähig ist. Alternativ können Sie per Konsole in das Dungeon-Verzeichnis wechseln und `./gradlew run` ausführen.
 
@@ -36,7 +36,7 @@ Das `Dungeon`-Projekt fungiert, ganz vereinfacht gesagt, als eine [Fassade](http
 - Component: Components speichern die Datensätze der Entitäten (z.B. die Lebenspunkte)
 - System: Systeme beinhalten die eigentliche Logik und agieren auf die Components
 
-*Weiteres zum ECS im Dungeon erfahren Sie [hier](ecs/ecs_basics.md)*.
+* Weiteres dazu erfahren Sie unter [ECS im Dungeon](ecs/ecs_basics.md).*
 
 Sie selbst nutzen und erweitern die Components und Systeme der Vorgaben. Sie werden ebenfalls neue Entities, Components und Systeme konzeptionieren und implementieren. So erschaffen Sie z.B. Ihre eigenen Monster und fallengespickte Level.
 
@@ -52,13 +52,19 @@ In diesem Abschnitt werden Ihnen die wichtigsten Klassen im Dungeon vorgestellt.
 
 ![Struktur ECS](ecs/img/ecs.png)
 
-Game ist die Basisklasse, von der alles ausgeht. Die Methode `Game#render` ist die Game-Loop. Die Klassen `Entity`, `Component` und `ECS_System` sind die Implementierungen des ECS.
+*Anmerkung:* Das UML ist für bessere Lesbarkeit auf die wesentlichen Bestandteile gekürzt.
 
-Die LevelAPI generiert, zeichnet und speichert das aktuelle Level. Mehr zum Thema Level erfahren Sie [hier](level/readme.md).
+Die in Grün gekennzeichnete Klasse `Game` ist die Basisklasse, von der alles ausgeht. Die Methode `Game#render` ist die Game-Loop. Das ECS wird durch die in weiß gekennzeichneten Klassen `Entity`, `Component` und `ECS_System` implementiert.
 
-*Anmerkung:* Das UML ist für bessere Lesbarkeit gekürzt.
+Die LevelAPI generiert, zeichnet und speichert das aktuelle [Level](../level/readme.md). Klassen, die rot gekennzeichnet sind, gehören dazu.
 
-*Anmerkung:* Die in Gelb hinterlegten Klassen des UML-Diagramms sind für ein Basisverständnis des Dungeons nicht nötig.
+Neu erzeugte Entitäten speichern sich automatisch im HashSet `entities` der `Game`-Klasse ab.
+`ECS_System`e speichern sich automatisch im `SystemController` `systems` der `Game`-Klasse ab.
+
+Die Systeme iterieren über die in `Game` gespeicherten Entitäten und greifen über die Methode `Entity#getComponent` auf die für die jeweilige Funktionalität benötigten Components zu. Die orangefarbenen `System`s und `Controller` sind in dem UML-Diagramm Beispiele für die bereits bestehenden `System`s und `Controller`.
+
+Die in Gelb hinterlegten Klassen stammen aus dem PM-Dungeon-Framework. Für ein Basisverständnis des Dungeons ist ein Wissen über die Funktionalität dieser Klassen nicht nötig.
+
 
 - `Entity`: Die Java-Implementierung der Entitäten eines ECS
 - `Component`: Abstrakte Klasse, jedes Component im ECS leitet hiervon ab
@@ -67,7 +73,7 @@ Die LevelAPI generiert, zeichnet und speichert das aktuelle Level. Mehr zum Them
 - `DungeonCamera`: Ihr Auge in das Dungeon
 - `libGDXSetup`: Bereitet die Anwendung vor, für die Verwendung des Dungeons ist Verständnis für die genaue Funktionalität nicht notwendig
 - `Game`: Erstellt die Entitäten, Components und Systeme des ECS und beinhaltet die Game-Loop. Game ist Ihr Einstiegspunkt in das Dungeon
-- Game-Loop: Die Game-Loop ist die wichtigste Komponente des Spieles. Sie ist eine Endlosschleife, welche einmal pro Frame aufgerufen wird. Das Spiel läuft in 30 FPS (also 30 frames per seconds), die Game-Loop wird also 30-mal in der Sekunde aufgerufen. Alle Aktionen, die wiederholt ausgeführt werden müssen, wie zum Beispiel das Bewegen und Zeichnen von Figuren, müssen innerhalb der Game-Loop stattfinden. Das Framework ermöglicht es Ihnen, eigene Aktionen in die Game-Loop zu integrieren. Wie genau das geht, erfahren Sie im Laufe dieser Anleitung.
+- Game-Loop: Die Game-Loop ist der wichtigste Bestandteil des Spieles. Sie ist eine Endlosschleife, welche einmal pro Frame aufgerufen wird. Das Spiel läuft in 30 FPS (also 30 frames per seconds), die Game-Loop wird also 30-mal in der Sekunde aufgerufen. Alle Aktionen, die wiederholt ausgeführt werden müssen, wie zum Beispiel das Bewegen und Zeichnen von Figuren, müssen innerhalb der Game-Loop stattfinden. Das Framework ermöglicht es Ihnen, eigene Aktionen in die Game-Loop zu integrieren. Wie genau das geht, erfahren Sie im Laufe dieser Anleitung.
 
 *Hinweis:* Die Game-Loop wird automatisch ausgeführt, Sie müssen sie nicht aktiv aufrufen.
 
@@ -113,11 +119,13 @@ Zusätzlich existieren noch eine Vielzahl an weiteren Hilfsklassen, mit denen Si
 
 Zwar gibt es in den Vorlagen bereits einen Helden (den schauen wir uns am Ende dieses Kapitels genauer an), trotzdem wird Ihnen hier erklärt, wie Sie Ihre erste eigene Entität in das Spiel implementieren.
 
-*Hinweis:* Wenn Sie mitprogrammieren wollen, löschen Sie die Klasse `ecs.entities.Hero` und löschen Sie in `starter.Game` die Zeile 118 (`hero = new Hero(new Point(0, 0));`) und das Import-Statement `import ecs.entities.Hero;`.
+*Hinweis:* Wenn Sie mitprogrammieren wollen, löschen Sie in `starter.Game` die Zeile 118 (`hero = new Hero(new Point(0, 0));`) und das Import-Statement `import ecs.entities.Hero;`.
 
 ### Held als Entität erstellen
 
 Zu Beginn erstellen Sie sich eine neue Java-Klasse namens `MyHero`. Diese erbt von der Klasse `Entity`.
+
+*Anmerkung:* Wie alle Spielelemente im Dungeon, ist auch der Held eine Entität und kann auch direkt als `Entity` implementiert werden. Das Erstellen einer eigenen Klasse `MyHero`, welche von `Entity` erbt, dient nur der Übersichtlichkeit.
 
 ``` java
 package ecs.entities;
@@ -129,7 +137,7 @@ Der Held ist ein Element im Spiel und daher eine Entität im ECS.
 
 Damit der Held im Level platziert werden kann, braucht er ein `PositionComponent`. Das `PositionComponent` speichert den `Point` (also die Position) auf dem sich der Held befindet.
 
-*Anmerkung:* Im Dungeon existieren zwei Koordinatensysteme. Die Level werden als Matrix von `Tile`s gespeichert. `Tile`s sind die Felder im Level (Boden, Wand, Loch, etc.). Mehr zum Level finden Sie [hier](level/readme.md). Die Position der `Tile`s werden als `Coordinate`s gespeichert (Index des Tiles in der Matrix). Entitäten können auch zwischen zwei Tiles stehen. Daher werden ihre Positionen als `Point`s gespeichert.
+*Anmerkung:* Im Dungeon existieren zwei Koordinatensysteme: `Point` und `Coordinate`. Die Level werden als Matrix von `Tile`s gespeichert. `Tile`s sind die Felder im [Level](level/readme.md) (Boden, Wand, Loch, etc.). Die Position der `Tile`s werden als `Coordinate`s gespeichert (Index des Tiles in der Matrix). Entitäten können auch zwischen zwei Tiles stehen. Daher werden ihre Positionen als `Point`s gespeichert.
 
 Im Konstruktur des Helden legen wir das `PositionComponent` an. Dazu erzeugen wir ein neues `PositionComponent` mit der Startposition `(0|0)`
 
@@ -143,7 +151,9 @@ public class MyHero extends Entity {
 
     public MyHero() {
         super();
-        new PositionComponent(this, new Point(0, 0));
+
+        //erzeugen der Position für den Helden
+        new PositionComponent(this);
     }
 }
 ```
@@ -156,21 +166,7 @@ Jetzt muss unser Held noch in das Spiel geladen werden. Dafür gehen wir in die 
     /** Called once at the beginning of the game. */
     protected void setup() {
         hero = new MyHero();
-        doSetup = false;
-        controller = new ArrayList<>();
-        setupCameras();
-        painter = new Painter(batch, camera);
-        generator = new RandomWalkGenerator();
-        levelAPI = new LevelAPI(batch, painter, generator, this);
-        initBaseLogger();
-        gameLogger = Logger.getLogger(this.getClass().getName());
-        systems = new SystemController();
-        controller.add(systems);
-        pauseMenu = new PauseMenu<>();
-        controller.add(pauseMenu);
-        levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
-        levelAPI.loadLevel(LEVELSIZE);
-        createSystems();
+        ...
     }
 ```
 
@@ -195,9 +191,14 @@ public class MyHero extends Entity {
 
     public MyHero() {
         super();
-        new PositionComponent(this, new Point(0, 0));
+
+        //erzeugen der Position für den Helden
+        new PositionComponent(this);
+
+        //erstellen der Idle-Animationen
         Animation idleLeft = AnimationBuilder.buildAnimation("character/knight/idleLeft");
         Animation idleRight = AnimationBuilder.buildAnimation("character/knight/idleRight");
+        //'zeichnen' des Helden
         new AnimationComponent(this, idleLeft, idleRight);
     }
 }
@@ -212,7 +213,7 @@ Damit der Held vom `VelocitySystem` bewegt werden kann, benötigt er das `Veloci
 
 Damit wir den Helden auch per Tastatur steuern können, benötigt er das `PlayableComponent`, denn dann wird das `PlayerSystem` die Werte des Helden auf Knopfdruck aktualisieren.
 
-*Hinweis*: Mehr zur Konfiguration der Tastenbelegung erfahren Sie [hier](configuration/readme.md).
+*Hinweis*: Hier erfahren Sie mehr zur Konfiguration der [Tastenbelegung](configuration/readme.md).
 
 Genau wie die anderen `Component`s fügen wir das `VelocityComponent` und das `PlaybaleComponent` zum Konstruktor hinzu.
 
@@ -231,15 +232,28 @@ public class MyHero extends Entity {
 
     public MyHero() {
         super();
-        new PositionComponent(this, new Point(0, 0));
+
+        //erzeugen der Position für den Helden
+        new PositionComponent(this);
+
+        //erstellen der Idle-Animationen
         Animation idleLeft = AnimationBuilder.buildAnimation("character/knight/idleLeft");
         Animation idleRight = AnimationBuilder.buildAnimation("character/knight/idleRight");
+        //'zeichnen' des Helden
         new AnimationComponent(this, idleLeft, idleRight);
+
+        //der Held wir 'steuerbar'
         new PlayableComponent(this);
+
+        //Geschwindigkeit, mit der der Held läuft
         float xSpeed = 0.3f;
         float ySpeed = 0.3f;
+
+        //erzeugen der Lauf-Animationen
         Animation runLeft = AnimationBuilder.buildAnimation("character/knight/runLeft");
         Animation runRight = AnimationBuilder.buildAnimation("character/knight/runRight");
+
+        //der Held läuft mit den Animationen und der Geschwindigkeit
         new VelocityComponent(this, xSpeed, ySpeed, runLeft, runRight);
     }
 }
