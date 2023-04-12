@@ -1,10 +1,10 @@
 package ecs.systems;
 
 import ecs.components.AnimationComponent;
+import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
-import ecs.components.health.HealthComponent;
 import ecs.components.skill.ProjectileComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
