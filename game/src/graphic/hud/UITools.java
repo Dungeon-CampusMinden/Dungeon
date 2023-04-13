@@ -2,11 +2,10 @@ package graphic.hud;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import controller.AbstractController;
-import controller.SystemController;
 import ecs.systems.ECS_System;
-import java.util.List;
+import starter.Game;
 import tools.Constants;
 
 /**
@@ -21,21 +20,6 @@ public class UITools {
     private static final int maxRowLength = 40;
 
     private static final String emptyMessage = "";
-    private static final String exceptSystemName = "DrawSystem";
-
-    /* controller manages elements of a certain type and is based on a layer system */
-    private static List<AbstractController<?>> controller;
-
-    /* systems ECS_Systems, which control components of all entities in game loop */
-    private static SystemController systems;
-
-    /** Dialogue with info field and button to cancel play pause */
-    private static ResponsiveDialogue dialog;
-
-    public UITools(List<AbstractController<?>> controller, SystemController systems) {
-        this.controller = controller;
-        this.systems = systems;
-    }
 
     /**
      * display the content in the Dialog
@@ -45,7 +29,11 @@ public class UITools {
      *     label; [1] Button name; [2]label heading
      */
     public static void showInfoText(String... arrayOfMessages) {
+        formatStringForDialogWindow(arrayOfMessages);
+        generateDialogue(arrayOfMessages);
+    }
 
+    private static void formatStringForDialogWindow(String[] arrayOfMessages) {
         if (arrayOfMessages != null && arrayOfMessages.length != 0) {
             String infoMsg = arrayOfMessages[0];
             infoMsg = infoMsg.replaceAll("\n", " ");
@@ -65,23 +53,21 @@ public class UITools {
             }
             arrayOfMessages[0] = formatedMsg;
         }
-
-        generateDialogue(arrayOfMessages);
     }
 
     /**
      * After leaving the dialogue, it is removed from the stage, the game is unpaused by releasing
-     * all systems and deleting the dialogue Obejct.
+     * all systems and deleting the dialogue Object.
      */
-    public static void deleteDialogue() {
-        if (dialog == null) return;
+    public static void deleteDialogue(Dialog dialog) {
+        if (dialog != null) {
 
-        if (controller != null && controller.contains(dialog)) controller.remove(dialog);
+            if (Game.controller != null) Game.controller.remove(dialog);
 
-        if (systems != null) {
-            systems.forEach(ECS_System::allRun);
+            if (Game.systems != null) {
+                Game.systems.forEach(ECS_System::run);
+            }
         }
-        dialog = null;
     }
 
     /**
@@ -89,20 +75,15 @@ public class UITools {
      * systems except DrawSystem
      */
     private static void generateDialogue(String... arrayOfMessages) {
-        if (dialog != null) return;
-
-        dialog =
+        ResponsiveDialogue dialog =
                 new ResponsiveDialogue(
                         new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG)),
                         Color.WHITE,
                         arrayOfMessages);
 
-        if (controller != null) controller.add(dialog);
-
-        if (systems != null) {
-            for (ECS_System system : systems) {
-                system.notRunExceptSystems(exceptSystemName);
-            }
+        if (Game.controller != null) Game.controller.add(dialog);
+        if (Game.systems != null) {
+            Game.systems.forEach(ECS_System::stop);
         }
     }
 }
