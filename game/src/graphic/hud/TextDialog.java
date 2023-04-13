@@ -11,9 +11,8 @@ public final class TextDialog extends Dialog {
     /** button ID (used when control is pressed) */
     private static final String btnID = "confirm exit";
 
-    private static final String defaulMsg = "No message was load.";
+    private static final String defaultMsg = "No message was load.";
     private static final String defaultBtnMsg = "OK";
-    private boolean enable;
     private static final int differenceMeasure = 200;
 
     /**
@@ -24,9 +23,8 @@ public final class TextDialog extends Dialog {
      */
     public TextDialog(Skin skin, String outputMsg, String buttonMsg, String title) {
         super(title, skin);
-        enable = false;
 
-        if (outputMsg.trim().isEmpty()) outputMsg = defaulMsg;
+        if (outputMsg.trim().isEmpty()) outputMsg = defaultMsg;
 
         Label labelContent = new Label(outputMsg, skin);
         labelContent.setAlignment(Align.left);
@@ -54,24 +52,14 @@ public final class TextDialog extends Dialog {
     }
 
     /**
-     * sets identification whether the key has been pressed*
-     *
-     * @param isEnable Identification
-     */
-    public void setEnable(final boolean isEnable) {
-        enable = isEnable;
-    }
-
-    /**
      * Provides information about the pressed Button
      *
      * @param object Object associated with the button
      */
     @Override
     protected void result(final Object object) {
-        if (object.toString() == btnID) {
-            enable = false;
-            UITools.deleteDialogue();
+        if (object.toString().equals(btnID)) {
+            UITools.deleteDialogue(this);
         }
     }
 }
