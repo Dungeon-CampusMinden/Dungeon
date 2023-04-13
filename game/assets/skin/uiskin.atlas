@@ -1,0 +1,246 @@
+
+uiskin.png
+size: 1024, 1024
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+Unbenannt
+  rotate: false
+  xy: 257, 322
+  size: 36, 31
+  split: 1, 0, 3, 4
+  pad: 0, 0, 0, 0
+  orig: 36, 31
+  offset: 0, 0
+  index: -1
+checkbox
+  rotate: false
+  xy: 204, 249
+  size: 18, 18
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+checkbox-on
+  rotate: false
+  xy: 515, 698
+  size: 18, 18
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+checkbox-over
+  rotate: false
+  xy: 111, 128
+  size: 22, 22
+  orig: 22, 22
+  offset: 0, 0
+  index: -1
+cursor
+  rotate: false
+  xy: 559, 753
+  size: 4, 7
+  split: 1, 1, 2, 2
+  pad: 0, 0, 0, 0
+  orig: 4, 7
+  offset: 0, 0
+  index: -1
+horizontal-split-pane
+  rotate: false
+  xy: 248, 300
+  size: 5, 11
+  split: 2, 2, 2, 2
+  orig: 5, 11
+  offset: 0, 0
+  index: -1
+list
+  rotate: false
+  xy: 515, 762
+  size: 51, 12
+  split: 2, 2, 2, 2
+  pad: 5, 5, 5, 5
+  orig: 51, 12
+  offset: 0, 0
+  index: -1
+minus
+  rotate: false
+  xy: 588, 805
+  size: 12, 13
+  orig: 12, 13
+  offset: 0, 0
+  index: -1
+myFont
+  rotate: false
+  xy: 1, 355
+  size: 512, 512
+  orig: 512, 512
+  offset: 0, 0
+  index: -1
+neu
+  rotate: false
+  xy: 588, 823
+  size: 48, 44
+  split: 10, 10, 11, 11
+  pad: 0, 0, 0, 0
+  orig: 48, 44
+  offset: 0, 0
+  index: -1
+plus
+  rotate: false
+  xy: 638, 828
+  size: 12, 13
+  orig: 12, 13
+  offset: 0, 0
+  index: -1
+progress-bar
+  rotate: false
+  xy: 1, 38
+  size: 46, 46
+  split: 10, 10, 10, 10
+  pad: 6, 6, 6, 6
+  orig: 46, 46
+  offset: 0, 0
+  index: -1
+progress-bar-fill
+  rotate: false
+  xy: 204, 213
+  size: 1, 34
+  orig: 1, 34
+  offset: 0, 0
+  index: -1
+progress-bar-fill-vert
+  rotate: false
+  xy: 588, 820
+  size: 34, 1
+  orig: 34, 1
+  offset: 0, 0
+  index: -1
+radio
+  rotate: false
+  xy: 49, 68
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+radio-on
+  rotate: false
+  xy: 295, 337
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+round-gray
+  rotate: false
+  xy: 67, 108
+  size: 42, 42
+  split: 13, 13, 13, 13
+  pad: 9, 9, 5, 5
+  orig: 42, 42
+  offset: 0, 0
+  index: -1
+round-white
+  rotate: false
+  xy: 204, 269
+  size: 42, 42
+  split: 13, 13, 13, 13
+  pad: 9, 9, 5, 5
+  orig: 42, 42
+  offset: 0, 0
+  index: -1
+round-white-small
+  rotate: false
+  xy: 1, 12
+  size: 24, 24
+  split: 10, 10, 10, 10
+  pad: 10, 10, 2, 2
+  orig: 24, 24
+  offset: 0, 0
+  index: -1
+selectbox
+  rotate: false
+  xy: 204, 313
+  size: 51, 40
+  split: 2, 31, 2, 27
+  pad: 2, 35, 2, 2
+  orig: 51, 40
+  offset: 0, 0
+  index: -1
+selection
+  rotate: false
+  xy: 1, 1
+  size: 9, 9
+  split: 2, 1, 2, 1
+  pad: 4, 3, 4, 3
+  orig: 9, 9
+  offset: 0, 0
+  index: -1
+slider-horizontal
+  rotate: false
+  xy: 67, 96
+  size: 20, 10
+  split: 4, 4, 4, 4
+  pad: 1, 2, 2, 2
+  orig: 20, 10
+  offset: 0, 0
+  index: -1
+slider-knob
+  rotate: false
+  xy: 638, 843
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: -1
+slider-vertical
+  rotate: false
+  xy: 664, 847
+  size: 9, 20
+  split: 4, 3, 3, 3
+  pad: 3, 3, 2, 2
+  orig: 9, 20
+  offset: 0, 0
+  index: -1
+textfield
+  rotate: false
+  xy: 515, 718
+  size: 42, 42
+  split: 8, 8, 8, 8
+  orig: 42, 42
+  offset: 0, 0
+  index: -1
+touchpad
+  rotate: false
+  xy: 1, 152
+  size: 201, 201
+  orig: 201, 201
+  offset: 0, 0
+  index: -1
+touchpad-knob
+  rotate: false
+  xy: 1, 86
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+vertical-split-pane
+  rotate: false
+  xy: 568, 769
+  size: 11, 5
+  split: 2, 2, 1, 1
+  pad: 1, 1, 1, 1
+  orig: 11, 5
+  offset: 0, 0
+  index: -1
+white
+  rotate: false
+  xy: 257, 319
+  size: 1, 1
+  orig: 1, 1
+  offset: 0, 0
+  index: -1
+window
+  rotate: false
+  xy: 515, 776
+  size: 71, 91
+  split: 15, 15, 35, 15
+  pad: 9, 10, 37, 5
+  orig: 71, 91
+  offset: 0, 0
+  index: -1
