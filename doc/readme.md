@@ -76,17 +76,19 @@ Die Klasse erstellt die Entitäten, Components und Systeme des ECS und beinhalte
 
 Die **Game-Loop** ist der wichtigste Bestandteil des Spieles. Sie ist eine Endlosschleife, welche einmal pro Frame aufgerufen wird. Das Spiel läuft in 30 FPS (also 30 frames per seconds), die Game-Loop wird also 30-mal in der Sekunde aufgerufen. Alle Aktionen, die wiederholt ausgeführt werden müssen, wie zum Beispiel das Bewegen und Zeichnen von Figuren, müssen innerhalb der Game-Loop stattfinden.
 
-//TODO ablaufdiagramm
+![Game Loop](img/gameloop.png)
 
-`Game` erbt von `ScreenAdapter`, eine libGDX-Klasse, wo die Methode `render()` vorgegeben wird, die wir überschreiben. `render()` wird von libGDX in jedem Frame aufgerufen. Vermutlich wird in libGDX eine Loop sein, auf die wir keinen Zugriff haben, weshalb wir `render()` als unseren Game-Loop benutzen.
+*Hinweis:* Die Farbcodierung ist dieselbe wie beim UML-Klassendiagramm.
+
+*Hinweis:* `Game` erbt von `ScreenAdapter`, eine `libGDX`-Klasse, wo die Methode `render` vorgegeben wird, die überschrieben wird. `render` wird von `libGDX` in jedem Frame aufgerufen. `libGDX` beinhaltet eine Loop, auf die wir keinen Zugriff haben, weshalb wir `render` als unseren Game-Loop benutzen.
 
 *Hinweis:* Die Game-Loop wird automatisch ausgeführt, Sie müssen sie nicht aktiv aufrufen.
 
 `Game` implementiert noch weitere wichtige Methoden:
 
 - `setup` wird zu Beginn der Anwendung aufgerufen. In dieser Methode werden die Objekte (wie die Systeme) initialisiert und konfiguriert, welche bereits vor dem Spielstart existieren müssen. In der Vorgabe wird hier bereits das erste Level geladen, die Systeme angelegt und der Held initialisiert.
-- `onLevelLoad` wird immer dann aufgerufen, wenn ein Level geladen wird. Hier werden später Entitäten erstellt, die initial im Level verteilt werden.
 - `frame` wird in jedem Frame einmal aufgerufen.
+- `onLevelLoad` wird immer dann aufgerufen, wenn ein Level geladen wird. Hier werden später Entitäten erstellt, die initial im Level verteilt werden.
 - `getEntities` liefert das HashSet `entities` zurück. `entities` speichert alle Entitäten, welche sich momentan im Dungeon befinden.
 - `addEntity` fügt neue Entitäten im nächsten Frame in das Spiel ein.
 - `removeEntity` entfernt Entitäten im nächsten Frame aus dem Spiel.
