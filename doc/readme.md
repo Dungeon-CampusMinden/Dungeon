@@ -4,13 +4,13 @@ title: "Quickstart: How to Dungeon"
 
 # Quickstart
 
-
 Dieses Dokument liefert einen Einstieg in das Dungeon. Es erläutert die Installation des Spiels und die ersten Schritte, um eigene Inhalte zum Dungeon hinzuzufügen. Es dient als Grundlage für alle weiteren Praktika. Lesen Sie das Dokument daher aufmerksam durch und versuchen Sie sich zusätzlich selbst mit dem Aufbau vertraut zu machen.
 Das Spiel befindet sich im [`Dungeon`-Repo](https://github.com/Programmiermethoden/Dungeon).
 
 Sie benötigen nur dieses Projekt für die Aufgaben, die zusätzlichen Abhängigkeiten werden automatisch über Gradle eingebunden.
 
 *Hinweis:* Achten Sie darauf, Daten nur dann in öffentliche Git-Repos zu laden, wenn Sie die nötigen Rechte an diesen Daten haben. Dies gilt insbesondere auch für Artefakte wie Bilder, Bitmaps, Musik oder Soundeffekte.
+
 
 ## Installation
 
@@ -21,8 +21,8 @@ Eine genauere [Anleitung](https://github.com/Programmiermethoden/Dungeon/wiki/Im
 
 Sie können über die run-Funktion Ihrer IDE überprüfen, ob die Installation lauffähig ist. Alternativ können Sie per Konsole in das Dungeon-Verzeichnis wechseln und `./gradlew run` ausführen.
 
-
 *Hinweis:* Falls Sie Probleme beim Installieren haben, schauen Sie in die [Kompatibilitätsliste](https://github.com/Programmiermethoden/Dungeon/wiki/JDK-Kompatibilität) und die [FAQ](https://github.com/Programmiermethoden/Dungeon/wiki/FAQ). Melden Sie sich frühzeitig, falls Ihr Problem damit nicht behoben werden konnte.
+
 
 ## Grundlagen
 
@@ -46,6 +46,7 @@ Sie werden im Laufe der Praktika verschiedene Assets benötigen. Diese liegen pe
 - Standardpfad für Charaktere: `assets/character/`
 - Standardpfad für Level-Texturen: `assets/textures/dungeon/`
 
+
 ## Wichtige Klassen im Dungeon
 
 In diesem Abschnitt werden Ihnen die wichtigsten Klassen im Dungeon vorgestellt.
@@ -66,6 +67,7 @@ Die LevelAPI generiert, zeichnet und speichert das aktuelle Level. Klassen, die 
 Die in Gelb hinterlegten Klassen stammen aus dem PM-Dungeon-Framework. Für ein Basisverständnis des Dungeons ist ein Wissen über die Funktionalität dieser Klassen nicht nötig.
 
 Zusätzlich existieren noch eine Vielzahl an weiteren Hilfsklassen, mit denen Sie mal mehr oder mal weniger Kontakt haben werden.
+
 
 ### Klasse *Game*
 
@@ -91,35 +93,38 @@ Die **Game-Loop** ist der wichtigste Bestandteil des Spieles. Sie ist eine Endlo
 - `main` startet das Spiel.
 
 
-### Component
-
-- `Component`: Abstrakte Klasse, jedes Component im ECS leitet hiervon ab
-
-- Components speichern immer die Entität zu der sie gehören
-- alle bereits implementierten Components finden Sie [hier](ecs/components/readme.md)
-- um eigene Components zu schreiben, leiten Sie von der eigentlichen Component Klasse ab
-- siehe [create_own_content.md](ecs/create_own_content.md)
-
 ### Entity
 
-- Entitäten sind leere Container und speichern Components
-- um ein Component einer Entität zu erhalten, benutzen Sie die Methode `entity#getComponent(component.class klass)`
-    - Anmerkung: Sie erhalten ein `Optional zurück`
-- siehe [create_own_content.md](ecs/create_own_content.md)
+Entitäten sind die Objekte im Spiel. Im Code sind sie nur leere Container, dessen Eigenschaften über die zugewiesenen Components bestimmt werden. Entitäten haben neben den Components keine eigenen Attribute oder Funktionen.
+
+Sie werden nicht durch Ableiten der Klasse `Entity` erzeugt (Ausnahme ist der Held, dazu später mehr). Stattdessen werden sie durch Erzeugen einer Instanz von `Entity` und Hinzufügen von`Component`s implementiert.
+
+
+### Component
+
+Die `Component`s sind die Datensätze der Entitäten und beschreiben dessen Eigenschaften. Eine Component-Instanz gehört zu genau einer Entität-Instanz.
+
+Jedes Component muss von der abstrakten Klasse `Component` abgeleitet werden.
+Schauen Sie sich auch die [bereits implementierten Components](ecs/components/readme.md) an.
+
 
 ### ECS_System
 
-- um eigene Systeme zu schreiben, leiten Sie von der `ECS_Systems` Klasse ab
-- in der `ECS_System#update()` iterieren die Systeme über alle Entitäten mit bestimmten Components und agieren darauf
-- alle bereits implementierten Systeme finden Sie [hier](ecs/systems/readme.md)
-- siehe [create_own_content.md](ecs/create_own_content.md)
-- `ECS_System`: Abstrakte Klasse, jedes System im ECS leitet hiervon ab
+Systeme agieren auf die Components und ändern die Werte in diesen. Sie bestimmen also das Verhalten der Entitäten.
+Ein System kann auf mehrere Components agieren.
+
+Um ein eigenes System zu erstellen, muss von der abstrakten Klasse `ECS_System` abgeleitet werden.
+Schauen Sie sich auch die [bereits implementierten Systeme](ecs/systems/readme.md) an.
+
+*Hinweis:* Um mehr darüber zu erfahren, wie Sie eigene Entitäten, Components und Systeme erstellen, werfen Sie einen Blick in [Eigene Inhalte erstellen](ecs/create_own_content.md).
+
 
 ## Übung: Eigenen Helden erstellen
 
 Zwar gibt es in den Vorlagen bereits einen Helden (den schauen wir uns am Ende dieses Kapitels genauer an), trotzdem wird Ihnen hier erklärt, wie Sie Ihre erste eigene Entität in das Spiel implementieren.
 
 *Hinweis:* Wenn Sie mitprogrammieren wollen, löschen Sie in `starter.Game` die Zeile 118 (`hero = new Hero(new Point(0, 0));`) und das Import-Statement `import ecs.entities.Hero;`.
+
 
 ### Held als Entität erstellen
 
@@ -139,7 +144,7 @@ Damit der Held im Level platziert werden kann, braucht er ein `PositionComponent
 
 *Anmerkung:* Im Dungeon existieren zwei Koordinatensysteme: `Point` und `Coordinate`. Die Level werden als Matrix von `Tile`s gespeichert. `Tile`s sind die Felder im [Level](level/readme.md) (Boden, Wand, Loch, etc.). Die Position der `Tile`s werden als `Coordinate`s gespeichert (Index des Tiles in der Matrix). Entitäten können auch zwischen zwei Tiles stehen. Daher werden ihre Positionen als `Point`s gespeichert.
 
-Im Konstruktur des Helden legen wir das `PositionComponent` an. Dazu erzeugen wir ein neues `PositionComponent` mit der Startposition `(0|0)`
+Im Konstruktor des Helden legen wir das `PositionComponent` an. Dazu erzeugen wir ein neues `PositionComponent` mit der Startposition `(0|0)`
 
 ``` java
 package ecs.entities;
@@ -171,6 +176,7 @@ Jetzt muss unser Held noch in das Spiel geladen werden. Dafür gehen wir in die 
 ```
 
 Wenn Sie nun das Spiel starten, sehen Sie zwar das Level im Dungeon, aber Ihren Helden noch nicht.
+
 
 ### Held zeichnen
 
@@ -206,6 +212,7 @@ public class MyHero extends Entity {
 Wenn Sie das Spiel jetzt starten, sollten Sie ihren Helden sehen:
 
 ![Animation](figs/animation.gif)
+
 
 ### Held bewegen
 
@@ -263,9 +270,11 @@ Jetzt sollten Sie ihren Helden bewegen können:
 
 ![Bewegen](figs/move.gif)
 
+
 ## Bestehenden Code analysieren
 
 Da Sie nun einen eigenen Helden erstellt haben und bewegen können, schauen wir uns nun weitere Bestandteile des Dungeons an.
+
 
 ### Nächstes Level laden
 
@@ -306,6 +315,7 @@ Beim Laden eines neuen Levels wird automatisch die `Game#onLevelLoad`-Methode au
 
 In der Standardimplementierung werden dabei alle Entitäten entfernt und wenn es einen Helden gibt, wird dieser auf die Startposition des neuen Levels platziert und wieder in das Spiel geladen.
 
+
 ### Existierenden Helden analysieren
 
 Wenn Sie wollen, können Sie mit Ihrem Helden weiterarbeiten, oder Sie holen sich den bereits existierenden Helden zurück.
@@ -332,6 +342,7 @@ Zusätzlich besitzt der Held ein [`HitboxComponent`](ecs/components/hitbox_compo
                 (you, other, direction) -> System.out.println("heroCollisionLeave"));
     }
 ```
+
 
 ## Linksammlung
 
