@@ -32,13 +32,13 @@ Das Dungeon benutzt das Cross-Plattform-Java-Framework [`libGDX`](https://libgdx
 Dieses ist im `Dungeon`-Projekt bereits als Abhängigkeit in die Gradle-Konfiguration integriert, Sie müssen dieses nicht extra installieren. Die Ihnen zur Verfügung gestellten Vorgaben sind so umgesetzt, dass Sie kein tieferes Verständnis für `libGDX` benötigen, um die Aufgaben zu lösen. Sollten Sie allerdings einmal auf Probleme stoßen, kann es unter Umständen helfen, einen Blick in die [Dokumentation von `libGDX`](https://libgdx.com/wiki/) zu werfen.
 
 Das `Dungeon`-Projekt fungiert, ganz vereinfacht gesagt, als eine [Fassade](https://en.wikipedia.org/wiki/Facade_pattern) zwischen `libGDX` und Ihrer eigenen Implementierung. Es implementiert ein [Entity-Component-System (ECS)](https://en.wikipedia.org/wiki/Entity_component_system):
-- Entity: Entitites sind die Elemente (Helden, Monster, Schatzkisten, etc.) des Spiels
-- Component: Components speichern die Datensätze der Entitäten (z.B. die Lebenspunkte)
-- System: Systeme beinhalten die eigentliche Logik und agieren auf die Components
+- `Entity`: Entitites sind die Elemente (Helden, Monster, Schatzkisten, etc.) des Spiels
+- `Component`: Components speichern die Datensätze der Entitäten (z.B. die Lebenspunkte)
+- `System`: Systeme beinhalten die eigentliche Logik und agieren auf die Components
 
-* Weiteres dazu erfahren Sie unter [ECS im Dungeon](ecs/ecs_basics.md).*
+Weiteres dazu erfahren Sie unter [ECS im Dungeon](ecs/ecs_basics.md).
 
-Sie selbst nutzen und erweitern die Components und Systeme der Vorgaben. Sie werden ebenfalls neue Entities, Components und Systeme konzeptionieren und implementieren. So erschaffen Sie z.B. Ihre eigenen Monster und fallengespickte Level.
+Sie selbst nutzen und erweitern die `Component`s und `System`s der Vorgaben. Sie werden ebenfalls neue Entities, Components und Systeme konzeptionieren und implementieren. So erschaffen Sie z.B. Ihre eigenen Monster und fallengespickte Level.
 
 Sie werden im Laufe der Praktika verschiedene Assets benötigen. Diese liegen per Default im `assets`-Verzeichnis. Sie können das Standardverzeichnis in der `build.gradle` anpassen.
 
@@ -54,46 +54,46 @@ In diesem Abschnitt werden Ihnen die wichtigsten Klassen im Dungeon vorgestellt.
 
 *Anmerkung:* Das UML ist für bessere Lesbarkeit auf die wesentlichen Bestandteile gekürzt.
 
-Die in Grün gekennzeichnete Klasse `Game` ist die Basisklasse, von der alles ausgeht. Die Methode `Game#render` ist die Game-Loop. Das ECS wird durch die in weiß gekennzeichneten Klassen `Entity`, `Component` und `ECS_System` implementiert.
-
-Die LevelAPI generiert, zeichnet und speichert das aktuelle [Level](../level/readme.md). Klassen, die rot gekennzeichnet sind, gehören dazu.
+Die in Grün gekennzeichnete Klasse `Game` ist die Basisklasse, von der alles ausgeht. Die Methode `Game#render` ist die Game-Loop. Das ECS wird durch die in weiß gekennzeichneten Klassen `Entity`, `Component` und `ECS_System` implementiert. Im weiteren Verlauf wird noch genauer hierauf eingegangen.
 
 Neu erzeugte Entitäten speichern sich automatisch im HashSet `entities` der `Game`-Klasse ab.
 `ECS_System`e speichern sich automatisch im `SystemController` `systems` der `Game`-Klasse ab.
 
 Die Systeme iterieren über die in `Game` gespeicherten Entitäten und greifen über die Methode `Entity#getComponent` auf die für die jeweilige Funktionalität benötigten Components zu. Die orangefarbenen `System`s und `Controller` sind in dem UML-Diagramm Beispiele für die bereits bestehenden `System`s und `Controller`.
 
+Die LevelAPI generiert, zeichnet und speichert das aktuelle Level. Klassen, die rot gekennzeichnet sind, gehören zur Implementierung von [Level](level/readme.md).
+
 Die in Gelb hinterlegten Klassen stammen aus dem PM-Dungeon-Framework. Für ein Basisverständnis des Dungeons ist ein Wissen über die Funktionalität dieser Klassen nicht nötig.
-
-
-- `Entity`: Die Java-Implementierung der Entitäten eines ECS
-- `Component`: Abstrakte Klasse, jedes Component im ECS leitet hiervon ab
-- `ECS_System`: Abstrakte Klasse, jedes System im ECS leitet hiervon ab
-- `LevelAPI`: Kümmert sich darum, dass neue Level erzeugt und geladen werden
-- `DungeonCamera`: Ihr Auge in das Dungeon
-- `libGDXSetup`: Bereitet die Anwendung vor, für die Verwendung des Dungeons ist Verständnis für die genaue Funktionalität nicht notwendig
-- `Game`: Erstellt die Entitäten, Components und Systeme des ECS und beinhaltet die Game-Loop. Game ist Ihr Einstiegspunkt in das Dungeon
-- Game-Loop: Die Game-Loop ist der wichtigste Bestandteil des Spieles. Sie ist eine Endlosschleife, welche einmal pro Frame aufgerufen wird. Das Spiel läuft in 30 FPS (also 30 frames per seconds), die Game-Loop wird also 30-mal in der Sekunde aufgerufen. Alle Aktionen, die wiederholt ausgeführt werden müssen, wie zum Beispiel das Bewegen und Zeichnen von Figuren, müssen innerhalb der Game-Loop stattfinden. Das Framework ermöglicht es Ihnen, eigene Aktionen in die Game-Loop zu integrieren. Wie genau das geht, erfahren Sie im Laufe dieser Anleitung.
-
-*Hinweis:* Die Game-Loop wird automatisch ausgeführt, Sie müssen sie nicht aktiv aufrufen.
 
 Zusätzlich existieren noch eine Vielzahl an weiteren Hilfsklassen, mit denen Sie mal mehr oder mal weniger Kontakt haben werden.
 
 ### Klasse *Game*
 
-`Game` implementiert einige wichtige Methoden:
+`Game` ist Ihr Einstiegspunkt in das Dungeon.
+Die Klasse erstellt die Entitäten, Components und Systeme des ECS und beinhaltet die **Game-Loop**.
+
+Die **Game-Loop** ist der wichtigste Bestandteil des Spieles. Sie ist eine Endlosschleife, welche einmal pro Frame aufgerufen wird. Das Spiel läuft in 30 FPS (also 30 frames per seconds), die Game-Loop wird also 30-mal in der Sekunde aufgerufen. Alle Aktionen, die wiederholt ausgeführt werden müssen, wie zum Beispiel das Bewegen und Zeichnen von Figuren, müssen innerhalb der Game-Loop stattfinden.
+
+//TODO ablaufdiagramm
+
+`Game` erbt von `ScreenAdapter`, eine libGDX-Klasse, wo die Methode `render()` vorgegeben wird, die wir überschreiben. `render()` wird von libGDX in jedem Frame aufgerufen. Vermutlich wird in libGDX eine Loop sein, auf die wir keinen Zugriff haben, weshalb wir `render()` als unseren Game-Loop benutzen.
+
+*Hinweis:* Die Game-Loop wird automatisch ausgeführt, Sie müssen sie nicht aktiv aufrufen.
+
+`Game` implementiert noch weitere wichtige Methoden:
 
 - `setup` wird zu Beginn der Anwendung aufgerufen. In dieser Methode werden die Objekte (wie die Systeme) initialisiert und konfiguriert, welche bereits vor dem Spielstart existieren müssen. In der Vorgabe wird hier bereits das erste Level geladen, die Systeme angelegt und der Held initialisiert.
-- `render` ruft die Logiken der Systeme auf. Dies ist die Game-Loop.
 - `onLevelLoad` wird immer dann aufgerufen, wenn ein Level geladen wird. Hier werden später Entitäten erstellt, die initial im Level verteilt werden.
 - `frame` wird in jedem Frame einmal aufgerufen.
+- `getEntities` liefert das HashSet `entities` zurück. `entities` speichert alle Entitäten, welche sich momentan im Dungeon befinden.
+- `addEntity` fügt neue Entitäten im nächsten Frame in das Spiel ein.
+- `removeEntity` entfernt Entitäten im nächsten Frame aus dem Spiel.
 - `main` startet das Spiel.
 
-- `getEntities`
-- `addEntity`
-- `removeEntity`
 
 ### Component
+
+- `Component`: Abstrakte Klasse, jedes Component im ECS leitet hiervon ab
 
 - Components speichern immer die Entität zu der sie gehören
 - alle bereits implementierten Components finden Sie [hier](ecs/components/readme.md)
@@ -113,7 +113,7 @@ Zusätzlich existieren noch eine Vielzahl an weiteren Hilfsklassen, mit denen Si
 - in der `ECS_System#update()` iterieren die Systeme über alle Entitäten mit bestimmten Components und agieren darauf
 - alle bereits implementierten Systeme finden Sie [hier](ecs/systems/readme.md)
 - siehe [create_own_content.md](ecs/create_own_content.md)
-
+- `ECS_System`: Abstrakte Klasse, jedes System im ECS leitet hiervon ab
 
 ## Übung: Eigenen Helden erstellen
 
@@ -263,6 +263,10 @@ Jetzt sollten Sie ihren Helden bewegen können:
 
 ![Bewegen](figs/move.gif)
 
+## Bestehenden Code analysieren
+
+Da Sie nun einen eigenen Helden erstellt haben und bewegen können, schauen wir uns nun weitere Bestandteile des Dungeons an.
+
 ### Nächstes Level laden
 
 Ihnen ist sicherlich schon aufgefallen, dass ein neues Level geladen wird, wenn Sie die Leiter mit Ihrem Helden berühren:
@@ -306,7 +310,7 @@ In der Standardimplementierung werden dabei alle Entitäten entfernt und wenn es
 
 Wenn Sie wollen, können Sie mit Ihrem Helden weiterarbeiten, oder Sie holen sich den bereits existierenden Helden zurück.
 
-Der vorgefertigte Held hat zwei weitere Besonderheiten, die Sie noch nicht kennen. Zum einen besitzt er einen Feuerball-Skill. Dieser wird in `Hero#setupFireballSkill` erstellt.
+Der vorgefertigte Held hat zwei weitere Besonderheiten, die Sie noch nicht kennen. Zum einen besitzt er einen Feuerball-[Skill](ecs/skills/readme.md). Dieser wird in `Hero#setupFireballSkill` erstellt.
 
 ```java
     private void setupFireballSkill() {
@@ -316,9 +320,9 @@ Der vorgefertigte Held hat zwei weitere Besonderheiten, die Sie noch nicht kenne
     }
 ```
 
-In der Standardkonfiguration können Sie den Feuerball in Richtung Ihres Mauscursors mit der Taste R abfeuern. Mehr zum Thema Skill finden Sie [hier](ecs/skills/readme.md).
+In der Standardkonfiguration können Sie den Feuerball in Richtung Ihres Mauscursors mit der Taste R abfeuern.
 
-Zusätzlich besitzt der Held ein `HitboxComponent`. Damit kann er mit anderen Entitäten, die ebenfalls ein `HitboxComponent` haben, kollidieren.
+Zusätzlich besitzt der Held ein [`HitboxComponent`](ecs/components/hitbox_component.md). Damit kann er mit anderen Entitäten, die ebenfalls ein `HitboxComponent` haben, kollidieren.
 
 ```java
     private void setupHitboxComponent() {
@@ -328,8 +332,6 @@ Zusätzlich besitzt der Held ein `HitboxComponent`. Damit kann er mit anderen En
                 (you, other, direction) -> System.out.println("heroCollisionLeave"));
     }
 ```
-
-Wenn Sie mehr dazu erfahren wollen, schauen Sie [hier](ecs/components/hitbox_component.md).
 
 ## Linksammlung
 
