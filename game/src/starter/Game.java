@@ -250,7 +250,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         }
     }
 
-    private void sendPosition(){
+    public static void sendPosition(){
         PositionComponent pos = (PositionComponent) hero.getComponent(PositionComponent.class).orElseThrow();
         UpdateOwnPositionRequest posReq = new UpdateOwnPositionRequest(playerId, pos.getPosition());
 
