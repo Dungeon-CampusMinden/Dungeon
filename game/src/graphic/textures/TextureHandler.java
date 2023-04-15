@@ -10,18 +10,21 @@ import java.util.stream.Stream;
 /**
  * A texture handler class for managing textures paths for further use.
  *
- * <p>Singleton (possibly thread-safe).
+ * <p>Singleton.
  */
 public class TextureHandler {
-    private static final TextureHandler INSTANCE = new TextureHandler();
+    private static TextureHandler INSTANCE;
 
     private final Map<String, Set<FileHandle>> pathMap = new LinkedHashMap<>();
 
     private TextureHandler() {
-        addAllAssets(Gdx.files.internal(Gdx.files.getLocalStoragePath()));
+        addAllAssets(Gdx.files.internal("build/resources"));
     }
 
     public static TextureHandler getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new TextureHandler();
+        }
         return INSTANCE;
     }
 
@@ -41,41 +44,6 @@ public class TextureHandler {
         return pathMap.get(path).stream().map(FileHandle::path);
     }
 
-    private List<String> firstFindFilter(final List<String> pathsOriginal) {
-        List<String> pathsCopy = new ArrayList<>();
-        for (final String path1 : pathsOriginal) {
-            FileHandle fh1 = Gdx.files.absolute(path1);
-            boolean isFirst = true;
-            for (final String path2 : pathsCopy) {
-                FileHandle fh2 = Gdx.files.absolute(path2);
-                int differeces = 0;
-                FileHandle parent1 = fh1;
-                FileHandle parent2 = fh2;
-                while (true) {
-                    if (parent1.name().isEmpty() || parent2.name().isEmpty()) {
-                        if (parent1.name().isEmpty() ^ parent2.name().isEmpty()) {
-                            differeces++;
-                        }
-                        break;
-                    }
-                    if (!parent1.name().equals(parent2.name())) {
-                        differeces++;
-                    }
-                    parent1 = parent1.parent();
-                    parent2 = parent2.parent();
-                }
-                if (differeces > 1) {
-                    isFirst = false;
-                    break;
-                }
-            }
-            if (isFirst) {
-                pathsCopy.add(path1);
-            }
-        }
-        return pathsCopy;
-    }
-
     /**
      * Searches for all textures paths that matches with the given regular expression.
      *
@@ -87,11 +55,9 @@ public class TextureHandler {
      */
     public List<String> getTexturePaths(String regex) {
         Pattern pattern = Pattern.compile(regex);
-        List<String> paths =
-                getAvailablePaths().stream()
-                        .filter(pattern.asPredicate())
-                        .flatMap(this::getTexturesForPath)
-                        .collect(Collectors.toList());
-        return firstFindFilter(paths);
+        return getAvailablePaths().stream()
+                .filter(pattern.asPredicate())
+                .flatMap(this::getTexturesForPath)
+                .collect(Collectors.toList());
     }
 }
