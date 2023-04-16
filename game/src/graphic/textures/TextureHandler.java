@@ -18,7 +18,26 @@ public class TextureHandler {
     private final Map<String, Set<FileHandle>> pathMap = new LinkedHashMap<>();
 
     private TextureHandler() {
-        addAllAssets(Gdx.files.internal("build/resources"));
+        List<FileHandle> roots =
+                getRoots(new ArrayList<>(), Gdx.files.internal(Gdx.files.getLocalStoragePath()));
+        assert roots != null;
+        assert !roots.isEmpty();
+        // take the first assets root dir:
+        addAllAssets(roots.get(0).parent());
+    }
+
+    public List<FileHandle> getRoots(List<FileHandle> roots, FileHandle current) {
+        if (current.isDirectory()) {
+            FileHandle[] fhs = current.list();
+            for (FileHandle fh : fhs) {
+                getRoots(roots, fh);
+            }
+        } else {
+            if ("8a9bb8f548811f493045ff0ac6c7d3f9.png".equals(current.name())) {
+                roots.add(current);
+            }
+        }
+        return roots;
     }
 
     public static TextureHandler getInstance() {
