@@ -123,7 +123,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
-            UITools.showInfoText("Spiel wurde pausiert");
+            UITools.showInfoText(Constants.DEFAULT_MESSAGE);
         }
     }
 

@@ -34,6 +34,11 @@ public final class Constants {
     /** set Path to libgdx default Skins */
     public static final String SKIN_FOR_DIALOG = "skin/uiskin.json";
 
+    public static final int DIALG_DIFFERENCE_MEASURE = 100;
+    public static final String DEFAULT_HEADING = "Default heading";
+    public static final String DEFAULT_MESSAGE = "Das Spiel ist pausiert.";
+    public static final String DEFAULT_BUTTON_MESSAGE = "OK";
+    public static final String EMPTY_MESSAGE = "";
     /**
      * @param path the relative path to the resource
      * @return the absolute path of the internal resource
