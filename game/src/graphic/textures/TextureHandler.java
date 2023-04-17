@@ -2,7 +2,13 @@ package graphic.textures;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -13,37 +19,39 @@ import java.util.stream.Stream;
  * <p>Singleton.
  */
 public class TextureHandler {
-    private static TextureHandler INSTANCE;
+    private static final TextureHandler INSTANCE = new TextureHandler();
 
     private final Map<String, Set<FileHandle>> pathMap = new LinkedHashMap<>();
 
     private TextureHandler() {
         List<FileHandle> roots =
-                getRoots(new ArrayList<>(), Gdx.files.internal(Gdx.files.getLocalStoragePath()));
-        assert roots != null;
+                getAllAssetRoots(
+                        new ArrayList<>(), Gdx.files.internal(Gdx.files.getLocalStoragePath()));
         assert !roots.isEmpty();
         // take the first assets root dir:
         addAllAssets(roots.get(0).parent());
     }
 
-    public List<FileHandle> getRoots(List<FileHandle> roots, FileHandle current) {
+    private List<FileHandle> getAllAssetRoots(List<FileHandle> roots, FileHandle current) {
         if (current.isDirectory()) {
             FileHandle[] fhs = current.list();
             for (FileHandle fh : fhs) {
-                getRoots(roots, fh);
+                getAllAssetRoots(roots, fh);
             }
         } else {
-            if ("8a9bb8f548811f493045ff0ac6c7d3f9.png".equals(current.name())) {
+            if ("placeholder-asset-do-not-delete.png".equals(current.name())) {
                 roots.add(current);
             }
         }
         return roots;
     }
 
+    /**
+     * Returns an instance of this {@link TextureHandler}.
+     *
+     * @return Returns an instance of this {@link TextureHandler}.
+     */
     public static TextureHandler getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new TextureHandler();
-        }
         return INSTANCE;
     }
 
@@ -55,6 +63,12 @@ public class TextureHandler {
         }
     }
 
+    /**
+     * Returns all available asset paths, that was found. Can be used with {@link
+     * TextureHandler#getTexturePaths(String)}.
+     *
+     * @return Returns all available asset paths, that was found.
+     */
     public Set<String> getAvailablePaths() {
         return pathMap.keySet();
     }
