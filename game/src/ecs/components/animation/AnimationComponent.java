@@ -1,5 +1,6 @@
 package ecs.components.animation;
 
+import com.badlogic.gdx.utils.Null;
 import ecs.components.Component;
 import ecs.entities.Entity;
 import graphic.Animation;
@@ -21,6 +22,8 @@ public class AnimationComponent extends Component {
     private @DSLTypeMember(name = "idle_right") Animation idleRight;
     private @DSLTypeMember(name = "current_animation") Animation currentAnimation;
     private final Logger animCompLogger = Logger.getLogger(this.getClass().getName());
+    private @Null IOnAnimationEnd onAnimationEnd;
+    private boolean animationEndTriggered = false;
 
     /**
      * @param entity associated entity
@@ -109,5 +112,39 @@ public class AnimationComponent extends Component {
      */
     public Animation getIdleRight() {
         return idleRight;
+    }
+
+    /**
+     * Set the callback that is called when the animation ends
+     *
+     * @param onAnimationEnd the callback, may be null
+     */
+    public void setOnAnimationEnd(@Null IOnAnimationEnd onAnimationEnd) {
+        this.onAnimationEnd = onAnimationEnd;
+    }
+
+    /**
+     * Get the callback that is called when the animation ends
+     *
+     * @return the callback, may be null
+     */
+    public IOnAnimationEnd getOnAnimationEnd() {
+        return onAnimationEnd;
+    }
+
+    /** Trigger the callback that is called when the animation ends */
+    public void triggerOnAnimationEnd() {
+        if (!animationEndTriggered && onAnimationEnd != null) {
+            onAnimationEnd.onAnimationEnd();
+            animationEndTriggered = true;
+        }
+    }
+
+    /**
+     * Reset that the callback was triggered. This is used to prevent the callback from being
+     * triggered multiple times
+     */
+    public void resetTriggerOnAnimationEnd() {
+        animationEndTriggered = false;
     }
 }
