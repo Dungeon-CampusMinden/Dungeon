@@ -46,6 +46,12 @@ public class DrawSystem extends ECS_System {
                 dsd.pc.getPosition(),
                 currentAnimationTexture,
                 configs.get(currentAnimationTexture));
+
+        if (animation.isFinished()) {
+            dsd.ac.triggerOnAnimationEnd();
+        } else {
+            dsd.ac.resetTriggerOnAnimationEnd();
+        }
     }
 
     private DSData buildDataObject(AnimationComponent ac) {
