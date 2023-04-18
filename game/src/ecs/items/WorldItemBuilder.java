@@ -1,9 +1,9 @@
 package ecs.items;
 
-import ecs.components.AnimationComponent;
 import ecs.components.HitboxComponent;
 import ecs.components.ItemComponent;
 import ecs.components.PositionComponent;
+import ecs.components.animation.AnimationComponent;
 import ecs.entities.Entity;
 import tools.Point;
 

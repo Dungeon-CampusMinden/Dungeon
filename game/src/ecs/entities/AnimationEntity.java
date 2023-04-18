@@ -1,7 +1,7 @@
 package ecs.entities;
 
-import ecs.components.AnimationComponent;
 import ecs.components.PositionComponent;
+import ecs.components.animation.AnimationComponent;
 import graphic.Animation;
 import tools.Point;
 

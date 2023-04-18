@@ -2,6 +2,7 @@ package ecs.components;
 
 import static org.junit.Assert.assertEquals;
 
+import ecs.components.animation.AnimationComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
 import org.junit.Before;

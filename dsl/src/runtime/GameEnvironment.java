@@ -2,11 +2,11 @@ package runtime;
 
 import dslToGame.AnimationBuilder;
 import dslToGame.QuestConfig;
-import ecs.components.AnimationComponent;
 import ecs.components.HitboxComponent;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.components.ai.AIComponent;
+import ecs.components.animation.AnimationComponent;
 import ecs.entities.Entity;
 import java.util.ArrayList;
 import java.util.HashMap;

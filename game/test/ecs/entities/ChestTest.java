@@ -3,6 +3,7 @@ package ecs.entities;
 import static org.junit.Assert.*;
 
 import ecs.components.*;
+import ecs.components.animation.AnimationComponent;
 import ecs.items.ItemData;
 import ecs.items.ItemDataGenerator;
 import java.util.List;

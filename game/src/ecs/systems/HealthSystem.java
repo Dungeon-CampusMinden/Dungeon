@@ -1,7 +1,7 @@
 package ecs.systems;
 
-import ecs.components.AnimationComponent;
 import ecs.components.MissingComponentException;
+import ecs.components.animation.AnimationComponent;
 import ecs.components.health.HealthComponent;
 import ecs.components.stats.StatsComponent;
 import ecs.components.xp.XPComponent;

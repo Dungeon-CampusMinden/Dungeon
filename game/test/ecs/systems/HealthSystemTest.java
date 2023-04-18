@@ -3,8 +3,8 @@ package ecs.systems;
 import static org.junit.Assert.*;
 
 import controller.SystemController;
-import ecs.components.AnimationComponent;
 import ecs.components.MissingComponentException;
+import ecs.components.animation.AnimationComponent;
 import ecs.components.health.HealthComponent;
 import ecs.components.health.death.IOnDeathFunction;
 import ecs.components.stats.StatsComponent;

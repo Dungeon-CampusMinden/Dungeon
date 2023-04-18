@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 import controller.SystemController;
-import ecs.components.AnimationComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
+import ecs.components.animation.AnimationComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
 import level.elements.ILevel;

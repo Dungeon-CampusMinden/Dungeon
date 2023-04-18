@@ -1,9 +1,9 @@
 package ecs.systems;
 
-import ecs.components.AnimationComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
+import ecs.components.animation.AnimationComponent;
 import ecs.components.skill.ProjectileComponent;
 import ecs.entities.Entity;
 import graphic.Animation;

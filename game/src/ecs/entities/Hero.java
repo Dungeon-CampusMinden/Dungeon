@@ -2,9 +2,9 @@ package ecs.entities;
 
 import dslToGame.AnimationBuilder;
 import ecs.components.*;
-import ecs.components.AnimationComponent;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
+import ecs.components.animation.AnimationComponent;
 import ecs.components.skill.*;
 import graphic.Animation;
 

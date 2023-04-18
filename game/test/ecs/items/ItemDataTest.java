@@ -3,10 +3,10 @@ package ecs.items;
 import static org.junit.Assert.*;
 
 import configuration.ItemConfig;
-import ecs.components.AnimationComponent;
 import ecs.components.HitboxComponent;
 import ecs.components.InventoryComponent;
 import ecs.components.PositionComponent;
+import ecs.components.animation.AnimationComponent;
 import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.List;

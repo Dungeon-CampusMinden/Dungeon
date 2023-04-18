@@ -1,5 +1,6 @@
-package ecs.components;
+package ecs.components.animation;
 
+import ecs.components.Component;
 import ecs.entities.Entity;
 import graphic.Animation;
 import java.util.List;

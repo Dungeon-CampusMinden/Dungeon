@@ -1,6 +1,7 @@
 package ecs.entities;
 
 import ecs.components.*;
+import ecs.components.animation.AnimationComponent;
 import ecs.items.ItemData;
 import ecs.items.ItemDataGenerator;
 import graphic.Animation;
