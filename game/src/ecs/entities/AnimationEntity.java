@@ -3,6 +3,7 @@ package ecs.entities;
 import ecs.components.PositionComponent;
 import ecs.components.animation.AnimationComponent;
 import graphic.Animation;
+import starter.Game;
 import tools.Point;
 
 public class AnimationEntity extends Entity {
@@ -25,7 +26,12 @@ public class AnimationEntity extends Entity {
 
     private void setupComponents() {
         new PositionComponent(this, this.location);
-        new AnimationComponent(this, this.animation);
+        AnimationComponent animationComponent = new AnimationComponent(this, this.animation);
+
+        animationComponent.setOnAnimationEnd(
+                () -> {
+                    Game.removeEntity(this);
+                });
     }
 
     /**
