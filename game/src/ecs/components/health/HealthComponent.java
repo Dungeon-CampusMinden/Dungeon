@@ -27,7 +27,7 @@ public class HealthComponent extends Component {
     private @Null Entity lastCause = null;
     private @DSLTypeMember(name = "on_death_function") IOnDeathFunction onDeath;
     private @DSLTypeMember(name = "get_hit_animation") Animation getHitAnimation;
-    private @DSLTypeMember(name = "die_animation") Animation dieAnimation;
+    private @DSLTypeMember(name = "die_animation") Animation deathAnimation;
     private final Logger healthLogger = Logger.getLogger(this.getClass().getName());
 
     /**
@@ -38,20 +38,20 @@ public class HealthComponent extends Component {
      *     that
      * @param onDeath Function that gets called, when this entity dies
      * @param getHitAnimation Animation to be played as the entity was hit
-     * @param dieAnimation Animation to be played as the entity dies
+     * @param deathAnimation Animation to be played as the entity dies
      */
     public HealthComponent(
             Entity entity,
             int maximalHitPoints,
             IOnDeathFunction onDeath,
             Animation getHitAnimation,
-            Animation dieAnimation) {
+            Animation deathAnimation) {
         super(entity);
         this.maximalHealthpoints = maximalHitPoints;
         this.currentHealthpoints = maximalHitPoints;
         this.onDeath = onDeath;
         this.getHitAnimation = getHitAnimation;
-        this.dieAnimation = dieAnimation;
+        this.deathAnimation = deathAnimation;
         damageToGet = new ArrayList<>();
     }
 
@@ -138,8 +138,8 @@ public class HealthComponent extends Component {
      *
      * @param dieAnimation new dieAnimation
      */
-    public void setDieAnimation(Animation dieAnimation) {
-        this.dieAnimation = dieAnimation;
+    public void setDeathAnimation(Animation deathAnimation) {
+        this.deathAnimation = deathAnimation;
     }
 
     /**
@@ -184,8 +184,8 @@ public class HealthComponent extends Component {
     /**
      * @return Animation to be played when dying
      */
-    public Animation getDieAnimation() {
-        return dieAnimation;
+    public Animation getDeathAnimation() {
+        return deathAnimation;
     }
 
     /**

@@ -92,7 +92,7 @@ public class HealthSystem extends ECS_System {
     private void removeDeadEntities(HSData hsd) {
         // Entity appears to be dead, so let's clean up the mess
         hsd.hc.triggerOnDeath();
-        hsd.ac.setCurrentAnimation(hsd.hc.getDieAnimation());
+        hsd.ac.setCurrentAnimation(hsd.hc.getDeathAnimation());
         // TODO: Before removing the entity, check if the animation is finished (Issue #246)
         Game.removeEntity(hsd.hc.getEntity());
 
