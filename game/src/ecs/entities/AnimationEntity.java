@@ -5,7 +5,7 @@ import ecs.components.PositionComponent;
 import graphic.Animation;
 import tools.Point;
 
-public class EntityAnimation extends Entity {
+public class AnimationEntity extends Entity {
 
     private Point location;
     private Animation animation;
@@ -16,7 +16,7 @@ public class EntityAnimation extends Entity {
      * @param animation {@link Animation}
      * @param location {@link Point}
      */
-    public EntityAnimation(Animation animation, Point location) {
+    public AnimationEntity(Animation animation, Point location) {
         super();
         this.animation = animation;
         this.location = location;
