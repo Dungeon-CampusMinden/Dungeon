@@ -24,7 +24,7 @@ public class MultiplayerServer extends Listener {
 
     // TODO: Outsource config parameters
     public static final Integer DEFAULT_TCP_PORT = 25444;
-    public static final Integer DEFAULT_UDP_PORT = DEFAULT_TCP_PORT;
+    public static final Integer DEFAULT_UDP_PORT = DEFAULT_TCP_PORT + 1;
     // According to several tests, random generated level can have a maximum size of about 500k bytes
     // => set max expected size to double
     private static final Integer maxObjectSizeExpected = 8000000;
@@ -77,7 +77,7 @@ public class MultiplayerServer extends Listener {
      * @param port a preconfigured port. If null, default port is used.
      */
     public void startListening(@Null Integer port) throws IOException {
-        server.bind(port != null ? port : DEFAULT_TCP_PORT, port != null ? port : DEFAULT_UDP_PORT);
+        server.bind(port != null ? port : DEFAULT_TCP_PORT);
         server.start();
     }
 
