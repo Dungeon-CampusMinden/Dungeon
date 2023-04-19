@@ -233,13 +233,14 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     }
 
     @Override
-    public void onSessionJoined(ILevel level, int id) {
+    public void onSessionJoined(ILevel level, int id, HashMap playerPositions) {
         // TODO: do some stuff
         if (level != null) {
             levelAPI.setLevel(level);
             playerId = id;
             hideMenu(startMenu);
             sendPosition();
+            onPositionUpdate(playerPositions);
 
             // Creating HeroDummy
             //playerEntities.put(id,new HeroDummy(new Point(0.0f,0.0f)));

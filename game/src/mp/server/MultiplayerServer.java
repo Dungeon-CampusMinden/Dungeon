@@ -61,7 +61,7 @@ public class MultiplayerServer extends Listener {
             level = ((InitializeServerRequest) object).getLevel();
             connection.sendTCP(new InitializeServerResponse(true));
         } else if (object instanceof JoinSessionRequest) {
-            connection.sendTCP(new JoinSessionResponse(level));
+            connection.sendTCP(new JoinSessionResponse(level, playerPositions));
         } else if (object instanceof UpdateOwnPositionRequest) {
             UpdateOwnPositionRequest posReq = (UpdateOwnPositionRequest) object;
             playerPositions.put(posReq.getPlayerId(), posReq.getPosition());

@@ -55,9 +55,9 @@ public class MultiplayerClient extends Listener {
                 observer.onServerInitializedReceived(isSucceed, connection.getID());
             }
         } else if (object instanceof JoinSessionResponse) {
-            ILevel level = ((JoinSessionResponse)object).getLevel();
+            JoinSessionResponse response = (JoinSessionResponse)object;
             for (IMultiplayerClientObserver observer: observers) {
-                observer.onSessionJoined(level, connection.getID());
+                observer.onSessionJoined(response.getLevel(), connection.getID(), response.getPlayerPositions());
             }
         } else if (object instanceof UpdateAllPositionsResponse){
             HashMap playerPositions = ((UpdateAllPositionsResponse)object).getPlayerPositions();

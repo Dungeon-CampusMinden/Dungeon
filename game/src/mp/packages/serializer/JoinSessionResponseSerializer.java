@@ -8,15 +8,19 @@ import level.elements.ILevel;
 import mp.packages.request.InitializeServerRequest;
 import mp.packages.response.JoinSessionResponse;
 
+import java.util.HashMap;
+
 public class JoinSessionResponseSerializer extends Serializer<JoinSessionResponse> {
     @Override
     public void write(Kryo kryo, Output output, JoinSessionResponse object) {
         kryo.writeObject(output, object.getLevel());
+        kryo.writeObject(output, object.getPlayerPositions());
     }
 
     @Override
     public JoinSessionResponse read(Kryo kryo, Input input, Class<JoinSessionResponse> type) {
         ILevel level = kryo.readObject(input, ILevel.class);
-        return new JoinSessionResponse(level);
+        HashMap playerPositions = kryo.readObject(input, HashMap.class);
+        return new JoinSessionResponse(level, playerPositions);
     }
 }
