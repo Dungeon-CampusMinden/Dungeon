@@ -2,23 +2,19 @@
 title: "HUD"
 ---
 
-work in progress
+WIP, Issue #529
 
-## Head-Up-Display (HUD)
-Der HUD ist Teil einer visuellen Benutzeroberfläche eines Spiels, welcher dazu verwendet werden kann den Spieler
-während des Spiels mit wichtigen Informationen zu versorgen.
-Die Darstellung erfolgt als Overlay, welcher die Informationen als 2D -Text oder als Symbole (z.B Lebensanzeige in Herzform)
-auf dem Bildschirm über der Spieleszene anzeigt.
-Bevor man mit der HUD arbeiten kann, ist es erforderlich einen `ScreenController` anzulegen, welcher
-zur Darstellung und Verwaltung von UI-Elementen verwendet wird.
-Für dessen Erstellung wird eine `Batch` benötigt, welche bereits im Spiel integriert ist und wird verwendet, um Objekte 
-auf dem Bildschirm darstellen zu können.
-Zur HUD Darstellung und der Event bearbeitung ist es zudem erforderlich den neu erstellten `ScreenController`
-den anderen Controllern hinzuzufügen. 
-Die Konstanten `Constants.WINDOW_WIDTH` und `Constants.WINDOW_HEIGHT` entsprechen einer festen Displaygröße, bei veränderung
-des Displays werden alle Elemente durch den `ScreenController` entsprechend ausgerichtet. 
+Der HUD ist Teil einer visuellen Benutzeroberfläche eines Spiels, welcher dazu verwendet werden kann den Spieler während
+des Spiels mit wichtigen Informationen zu versorgen. Die Darstellung erfolgt als Overlay, welcher die Informationen als
+2D -Text oder als Symbole (z.B Lebensanzeige in Herzform) auf dem Bildschirm über der Spieleszene anzeigt. Bevor man mit
+der HUD arbeiten kann, ist es erforderlich einen `ScreenController` anzulegen, welcher zur Darstellung und Verwaltung
+von UI-Elementen verwendet wird. Für dessen Erstellung wird eine `Batch` benötigt, welche bereits im Spiel integriert
+ist und wird verwendet, um Objekte auf dem Bildschirm darstellen zu können. Zur HUD Darstellung und der Event
+bearbeitung ist es zudem erforderlich den neu erstellten `ScreenController` den anderen Controllern hinzuzufügen. Die
+Konstanten `Constants.WINDOW_WIDTH` und `Constants.WINDOW_HEIGHT` entsprechen einer festen Displaygröße, bei veränderung
+des Displays werden alle Elemente durch den `ScreenController` entsprechend ausgerichtet.
 
-```java
+``` java
 package controller;
 
 import com.badlogic.gdx.Gdx;
@@ -32,26 +28,25 @@ import tools.Constants;
 public class ScreenController<T extends Actor> extends AbstractController<T> {
 
 public ScreenController(SpriteBatch batch) {
-        super();
-        stage =
-                new Stage(
-                        new ScalingViewport(
-                                Scaling.stretch, Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT),
-                        batch);
+    super();
+    stage = new Stage(
+        new ScalingViewport(Scaling.stretch, Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT), batch);
 
         Gdx.input.setInputProcessor(stage);
     }
 ...
 }
-````
-#### UI Elemente 
-##### ScreenImage	
-Kann verwendet werden, um ein nicht bewegliches Bild an einer bestimmten Position auf dem Bildschirm auszugeben
-und zu konfigurieren. 
-Bei der Zeichenfläche kann es sich entweder eine Textur, Texturregion, Ninepatch etc. handeln und kann innerhalb
-der Grenzen des Bild-Widgets auf verschiedene Weise skaliert und ausgerichtet werden.
+```
 
-```java
+## UI Elemente
+
+### ScreenImage
+
+Kann verwendet werden, um ein nicht bewegliches Bild an einer bestimmten Position auf dem Bildschirm auszugeben und zu
+konfigurieren. Bei der Zeichenfläche kann es sich entweder eine Textur, Texturregion, Ninepatch etc. handeln und kann
+innerhalb der Grenzen des Bild-Widgets auf verschiedene Weise skaliert und ausgerichtet werden.
+
+``` java
 public class ScreenImage extends Image {
 
     /**
@@ -66,13 +61,14 @@ public class ScreenImage extends Image {
         this.setScale(1 / Constants.DEFAULT_ZOOM_FACTOR);
     }
 }
-````
+```
 
-##### ScreenText
-Wird verwendet um Texte an einer bestimmten Stelle durch `setPosition()` des Bildschirms ausgegeben und ermöglicht zudem eine dynamische 
-Konfiguration des Standardstils für den generierten Text.
+### ScreenText
 
-```java
+Wird verwendet um Texte an einer bestimmten Stelle durch `setPosition()` des Bildschirms ausgegeben und ermöglicht zudem
+eine dynamische Konfiguration des Standardstils für den generierten Text.
+
+``` java
 package graphic.hud;
 
 import com.badlogic.gdx.graphics.Color;
@@ -111,19 +107,19 @@ public class ScreenText extends Label {
         this(text, position, scaleXY, DEFAULT_LABEL_STYLE);
     }
 }
+```
 
-````
+### ScreenButton
 
-##### ScreenButton	
-Beim Button handelt es sich um eine leere, erweiterbare Schaltfläche, welche einen checked"-Status besitzt und in Abhängigkeit,
-ob der Button angeklickt oder nicht angeklickt wurde, den unteren- oder den oberen Hintergrund anzeigt. 
+Beim Button handelt es sich um eine leere, erweiterbare Schaltfläche, welche einen checked"-Status besitzt und in
+Abhängigkeit, ob der Button angeklickt oder nicht angeklickt wurde, den unteren- oder den oberen Hintergrund anzeigt.
 Der Button kann außerdem durch eine Beschriftung in einer Bitmap-Schriftart und beliebiger Textfarbe dargestellt werden,
-wobei sich die Textfarbe des Buttons in Abhängigkeit der Zustände verändern kann.  
-Auch das Erweitern des Buttons durch ein Bild-Widget ist ebenfalls möglich, welches sich in Abhängigkeit der Zustände
-gecklickt oder nicht geklickt verändern kann. Größe und Ausrichtung des Elementes können durch folgende
-Funktionen `setScale()` sowie `setPosition()` verändert werden.
+wobei sich die Textfarbe des Buttons in Abhängigkeit der Zustände verändern kann. Auch das Erweitern des Buttons durch
+ein Bild-Widget ist ebenfalls möglich, welches sich in Abhängigkeit der Zustände gecklickt oder nicht geklickt verändern
+kann. Größe und Ausrichtung des Elementes können durch folgende Funktionen `setScale()` sowie `setPosition()` verändert
+werden.
 
-```java
+``` java
 package graphic.hud;
 
 import com.badlogic.gdx.graphics.Color;
@@ -168,5 +164,4 @@ public class ScreenButton extends TextButton {
         this(text, position, listener, DEFAULT_BUTTON_STYLE);
     }
 }
-
-````
+```
