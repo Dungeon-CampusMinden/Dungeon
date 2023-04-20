@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import starter.Game;
 import tools.Point;
 
+/** An entity used to display animations in the dungeon. */
 public class AnimationEntity extends Entity {
 
     private static final Logger logger = Logger.getLogger(AnimationEntity.class.getName());
