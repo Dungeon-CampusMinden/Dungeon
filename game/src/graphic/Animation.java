@@ -82,4 +82,13 @@ public class Animation {
     public List<String> getAnimationFrames() {
         return animationFrames;
     }
+
+    /**
+     * Get if the animation is looping.
+     *
+     * @return true if the animation is looping, false otherwise.
+     */
+    public boolean isLooping() {
+        return looping;
+    }
 }
