@@ -154,7 +154,7 @@ Blick in [Eigene Inhalte erstellen](ecs/create_own_content.md).
 Zwar gibt es in den Vorlagen bereits einen Helden (den schauen wir uns am Ende dieses Kapitels genauer an), trotzdem
 wird Ihnen hier erklärt, wie Sie Ihre erste eigene Entität in das Spiel implementieren.
 
-*Hinweis:* Wenn Sie mitprogrammieren wollen, kommentieren Sie in `starter.Game` die Zeile kommentieren Sie in der
+*Hinweis:* Wenn Sie mitprogrammieren wollen, kommentieren Sie in der
 Methode `starter.Game#setup()` die Zeile `hero = new Hero();` aus.
 
 ### Held als Entität erstellen
