@@ -54,6 +54,10 @@ public class Hero extends Entity {
                         new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
     }
 
+    public static void addHp(int hp){
+        hp += hp;
+    }
+
     private void setupHitboxComponent() {
         new HitboxComponent(
                 this,

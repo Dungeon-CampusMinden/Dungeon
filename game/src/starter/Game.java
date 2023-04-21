@@ -15,6 +15,7 @@ import controller.SystemController;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
+import ecs.entities.FriendlyGhost;
 import ecs.entities.Hero;
 import ecs.systems.*;
 import graphic.DungeonCamera;
@@ -74,6 +75,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static Entity hero;
     private Logger gameLogger;
 
+    private FriendlyGhost friendlyGhost;
+
     public static void main(String[] args) {
         // start the game
         try {
@@ -119,6 +122,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel(LEVELSIZE);
         createSystems();
+
     }
 
     /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
@@ -134,6 +138,13 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         currentLevel = levelAPI.getCurrentLevel();
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
+        loadGhost();
+    }
+
+    //Spawn ghost if random is true
+    private void loadGhost(){
+        Random random = new Random();
+        if(random.nextBoolean()) friendlyGhost = new FriendlyGhost(hero);
     }
 
     private void manageEntitiesSets() {
