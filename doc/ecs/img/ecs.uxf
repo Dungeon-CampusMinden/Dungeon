@@ -1,44 +1,77 @@
-<diagram program="umletino" version="15.0.0"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>610</x><y>630</y><w>150</w><h>90</h></coordinates><panel_attributes>/ECS_System/
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>170</x><y>430</y><w>150</w><h>90</h></coordinates><panel_attributes>/ECS_System/
 --
 + update(): void
 + toggleRun(): void
 + isRunning(): boolean
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1160</x><y>680</y><w>170</w><h>100</h></coordinates><panel_attributes>/Component/
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1060</x><y>510</y><w>170</w><h>100</h></coordinates><panel_attributes>/Component/
 --
 - entity: Entity
 --
 + Component (entity: Entity)
-+ getEntity(): Entity</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1070</x><y>430</y><w>410</w><h>150</h></coordinates><panel_attributes>Entity
++ getEntity(): Entity</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>930</x><y>290</y><w>410</w><h>100</h></coordinates><panel_attributes>Entity
 --
 - components: HashMap&lt;Class,Component&gt;
 --
 + addComponent(c: Component): void
 + removeComponent(klass: Class): void
-+ getComponent(klass: Class): Optional&lt;Component&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>650</x><y>210</y><w>470</w><h>130</h></coordinates><panel_attributes>ECS
++ getComponent(klass: Class): Optional&lt;Component&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>400</x><y>90</y><w>470</w><h>280</h></coordinates><panel_attributes>Game
 --
-_+ entities: HashSet&lt;Entity&gt;_
-_+ entitiesToRemove: HashSet&lt;Entity&gt;_
+_+ camera: DungeonCamera_
+# painter: Painter
+_- entities: Set&lt;Entity&gt;_
+_- entitiesToAdd: Set&lt;Entity&gt;_
+_- entitiesToRemove: Set&lt;Entity&gt;_
 _+ systems: SystemController_
 _+ currentLevel: ILevel_
-_+ hero: Entity_
 --
-_+ togglePause(): void_</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>430</x><y>280</y><w>140</w><h>30</h></coordinates><panel_attributes>SystemController</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>430</x><y>170</y><w>140</w><h>40</h></coordinates><panel_attributes>/AbstractController/
++ render(delta: float): void
+# setup(): void
+# frame(): void
++ onLevelLoad(): void
+_+ togglePause(): void_
+_+ addEntity(entity: Entity): void_
+_+ removeEntity(entity: Entity): void_
+_+ getEntities(): Set&lt;Entity&gt;_
+_+ getHero(): Optional&lt;Entity&gt;_
+bg=green
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>180</x><y>310</y><w>140</w><h>30</h></coordinates><panel_attributes>SystemController
+bg=yellow</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>180</x><y>200</y><w>140</w><h>40</h></coordinates><panel_attributes>/AbstractController/
 bg=yellow
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>860</x><y>80</y><w>100</w><h>30</h></coordinates><panel_attributes>Game
-bg=yellow</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>900</x><y>100</y><w>30</w><h>130</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>Relation</id><coordinates><x>480</x><y>200</y><w>30</w><h>100</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;80</additional_attributes></element><element><id>Relation</id><coordinates><x>560</x><y>290</y><w>110</w><h>40</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
-m2=1</panel_attributes><additional_attributes>90;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>480</x><y>300</y><w>150</w><h>390</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
-m2=n</panel_attributes><additional_attributes>10;10;10;360;130;360</additional_attributes></element><element><id>Relation</id><coordinates><x>1110</x><y>250</y><w>160</w><h>200</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
-m2=n</panel_attributes><additional_attributes>10;10;130;10;130;180</additional_attributes></element><element><id>Relation</id><coordinates><x>1230</x><y>570</y><w>40</w><h>130</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>580</x><y>0</y><w>100</w><h>30</h></coordinates><panel_attributes>ScreenAdapter
+bg=yellow</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>620</x><y>20</y><w>30</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;70</additional_attributes></element><element><id>Relation</id><coordinates><x>230</x><y>230</y><w>30</w><h>100</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;80</additional_attributes></element><element><id>Relation</id><coordinates><x>310</x><y>320</y><w>110</w><h>40</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=1</panel_attributes><additional_attributes>90;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>230</x><y>330</y><w>40</w><h>120</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=n</panel_attributes><additional_attributes>10;10;10;100</additional_attributes></element><element><id>Relation</id><coordinates><x>860</x><y>230</y><w>310</w><h>80</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=n</panel_attributes><additional_attributes>10;10;280;10;280;60</additional_attributes></element><element><id>Relation</id><coordinates><x>1130</x><y>380</y><w>40</w><h>150</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
 m2=n
-m1=1</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>UMLClass</id><coordinates><x>410</x><y>850</y><w>150</w><h>40</h></coordinates><panel_attributes>AnimationSystem
-bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>590</x><y>850</y><w>150</w><h>40</h></coordinates><panel_attributes>VelocitySystem
-bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>780</x><y>850</y><w>150</w><h>40</h></coordinates><panel_attributes>...
-bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1370</x><y>970</y><w>150</w><h>40</h></coordinates><panel_attributes>...
-bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1180</x><y>970</y><w>150</w><h>40</h></coordinates><panel_attributes>VelocityComponent
-bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1000</x><y>970</y><w>150</w><h>40</h></coordinates><panel_attributes>VelocityComponent
-bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1380</x><y>620</y><w>280</w><h>70</h></coordinates><panel_attributes>Hero
+m1=1</panel_attributes><additional_attributes>10;10;10;130</additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>700</y><w>150</w><h>40</h></coordinates><panel_attributes>AnimationSystem
+bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>170</x><y>700</y><w>150</w><h>40</h></coordinates><panel_attributes>VelocitySystem
+bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>340</x><y>700</y><w>150</w><h>40</h></coordinates><panel_attributes>...
+bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1240</x><y>700</y><w>150</w><h>40</h></coordinates><panel_attributes>...
+bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1070</x><y>700</y><w>150</w><h>40</h></coordinates><panel_attributes>VelocityComponent
+bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>900</x><y>700</y><w>150</w><h>40</h></coordinates><panel_attributes>PositionComponent
+bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>960</x><y>550</y><w>120</w><h>170</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>100;10;10;10;10;150</additional_attributes></element><element><id>Relation</id><coordinates><x>1140</x><y>600</y><w>30</w><h>120</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;100</additional_attributes></element><element><id>Relation</id><coordinates><x>1220</x><y>550</y><w>120</w><h>170</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;100;10;100;150</additional_attributes></element><element><id>Relation</id><coordinates><x>240</x><y>510</y><w>30</w><h>210</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;190</additional_attributes></element><element><id>Relation</id><coordinates><x>310</x><y>470</y><w>130</w><h>250</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;110;10;110;230</additional_attributes></element><element><id>Relation</id><coordinates><x>70</x><y>470</y><w>120</w><h>250</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>100;10;10;10;10;230</additional_attributes></element><element><id>UMLClass</id><coordinates><x>520</x><y>470</y><w>100</w><h>30</h></coordinates><panel_attributes>Painter
+bg=yellow</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>740</x><y>470</y><w>110</w><h>30</h></coordinates><panel_attributes>DungeonCamera
+bg=yellow</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>560</x><y>360</y><w>40</w><h>130</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=1
+</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>Relation</id><coordinates><x>790</x><y>360</y><w>40</w><h>130</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=1
+</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>UMLClass</id><coordinates><x>540</x><y>580</y><w>310</w><h>170</h></coordinates><panel_attributes>LevelAPI
 --
-- components: HashMap&lt;Class,Component&gt;
++ LevelAPI(batch: SpriteBatch, 				 
+             painter: Painter,
+             generator: IGenerator,
+             onLevelLoader: IOnLevelLoader)
++ loadLevel(size: LevelSize , label: DesignLabel): void
++ loadLevel(designLabel: DesignLabel): void
++ loadLevel(size: LevelSize): void
++ loadLevel(): void
++ getCurrentLevel(): ILevel
+
+bg=red</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>680</x><y>360</y><w>40</w><h>240</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=1
+</panel_attributes><additional_attributes>10;10;10;220</additional_attributes></element><element><id>UMLClass</id><coordinates><x>730</x><y>0</y><w>130</w><h>50</h></coordinates><panel_attributes>IOnLevelLoader
+bg=red
 --
-+  Hero (startPosition: Point)
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1470</x><y>520</y><w>70</w><h>120</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;50;10;50;100</additional_attributes></element><element><id>Relation</id><coordinates><x>1060</x><y>720</y><w>120</w><h>270</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>100;10;10;10;10;250</additional_attributes></element><element><id>Relation</id><coordinates><x>1240</x><y>770</y><w>30</w><h>220</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;200</additional_attributes></element><element><id>Relation</id><coordinates><x>1320</x><y>720</y><w>150</w><h>270</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;130;10;130;250</additional_attributes></element><element><id>Relation</id><coordinates><x>660</x><y>710</y><w>30</w><h>160</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;140</additional_attributes></element><element><id>Relation</id><coordinates><x>750</x><y>690</y><w>130</w><h>180</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;110;10;110;160</additional_attributes></element><element><id>Relation</id><coordinates><x>480</x><y>690</y><w>150</w><h>180</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>130;10;10;10;10;160</additional_attributes></element></diagram>
+--
++ onLevelLoad(): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>790</x><y>40</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>UMLClass</id><coordinates><x>430</x><y>0</y><w>100</w><h>30</h></coordinates><panel_attributes>LibgdxSetup
+bg=yellow</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>470</x><y>20</y><w>30</w><h>90</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;70;10;10</additional_attributes></element></diagram>
