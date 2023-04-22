@@ -4,14 +4,29 @@ import dslToGame.AnimationBuilder;
 import ecs.components.AnimationComponent;
 import ecs.components.HitboxComponent;
 import ecs.components.PositionComponent;
-import ecs.components.collision.ICollide;
 import graphic.Animation;
-import level.elements.tile.Tile;
 
-public class Grave extends Entity implements ICollide {
+/**
+ * A grave is spawned by a FriendlyGhost
+ *
+ *
+ * The grave doesn't do anything special at all, it is an animated entity
+ * without any movement.
+ *
+ * If the hero collides with the grave, the grave will call the reward
+ * function of the ghost. This can only happen once in a level per grave
+ *
+ */
+public class Grave extends Entity {
     private final String pathToIdleRight = "dungeon/gravestone";
     private final FriendlyGhost ghost;
 
+    public boolean found = false;
+
+    /**Constructor
+     *
+     * @param ghost - Is needed for the grave to call the reward function on it
+     */
     public Grave(FriendlyGhost ghost){
         super();
         new PositionComponent(this);
@@ -27,12 +42,19 @@ public class Grave extends Entity implements ICollide {
     private void setupHitboxComponent() {
         new HitboxComponent(
             this,
-            (you, other, direction) -> System.out.println("heroCollisionEnter"),
-            (you, other, direction) -> System.out.println("heroCollisionLeave"));
+            (you, other, direction) -> setfound(other),
+            (you, other, direction) -> System.out.println("graveCollisionLeave"));
     }
 
-    @Override
-    public void onCollision(Entity a, Entity b, Tile.Direction from) {
-        //TODO: Kollision mit Geist - if(b instanceof FriendlyGhost)
+
+    /**If hero with a following ghost collides wit grave the hero gets rewarded by the ghost**/
+    public void setfound(Entity other){
+        if(other instanceof Hero && !found){
+            ghost.reward();
+            found = true;
+        }
+        System.out.println("FOUND");
     }
+
+
 }

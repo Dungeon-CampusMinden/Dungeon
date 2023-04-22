@@ -73,6 +73,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static ILevel currentLevel;
     private static PauseMenu<Actor> pauseMenu;
     private static Entity hero;
+
+    private static Hero playHero;
     private Logger gameLogger;
 
     private FriendlyGhost friendlyGhost;
@@ -118,7 +120,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         controller.add(systems);
         pauseMenu = new PauseMenu<>();
         controller.add(pauseMenu);
-        hero = new Hero();
+        playHero = new Hero();
+        hero = playHero;
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel(LEVELSIZE);
         createSystems();
@@ -141,10 +144,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         loadGhost();
     }
 
-    //Spawn ghost if random is true
+    /**Spawn ghost, there is a 10% chance it doesnt spawn**/
     private void loadGhost(){
         Random random = new Random();
-        if(random.nextBoolean()) friendlyGhost = new FriendlyGhost(hero);
+        if(random.nextInt(0,100)>10) friendlyGhost = new FriendlyGhost(playHero);
     }
 
     private void manageEntitiesSets() {

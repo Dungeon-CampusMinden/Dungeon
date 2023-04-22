@@ -12,7 +12,7 @@ import graphic.Animation;
  * The Hero is the player character. It's entity in the ECS. This class helps to setup the hero with
  * all its components and attributes .
  */
-public class Hero extends Entity {
+public class Hero extends Entity implements IOnDeathFunction {
 
     private final int fireballCoolDown = 5;
     private final float xSpeed = 0.3f;
@@ -22,6 +22,10 @@ public class Hero extends Entity {
     private final String pathToIdleRight = "knight/idleRight";
     private final String pathToRunLeft = "knight/runLeft";
     private final String pathToRunRight = "knight/runRight";
+
+    private final String onHit = "knight/hit";
+
+    private HealthComponent hp;
     private Skill firstSkill;
 
     /** Entity with Components */
@@ -33,7 +37,9 @@ public class Hero extends Entity {
         setupHitboxComponent();
         PlayableComponent pc = new PlayableComponent(this);
         setupFireballSkill();
+        setupHealthComponent();
         pc.setSkillSlot1(firstSkill);
+        this.hp.setCurrentHealthpoints(50); //Set to 50 for testing purposes
     }
 
     private void setupVelocityComponent() {
@@ -54,9 +60,13 @@ public class Hero extends Entity {
                         new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
     }
 
-    public static void addHp(int hp){
-        hp += hp;
+    /** Modifies the curret health by passed amount **/
+    public void setHealth(int amount){
+        System.out.println("HP before: " + this.hp.getCurrentHealthpoints());
+        this.hp.setCurrentHealthpoints(this.hp.getCurrentHealthpoints()+amount);
+        System.out.println("HP after: " + this.hp.getCurrentHealthpoints());
     }
+
 
     private void setupHitboxComponent() {
         new HitboxComponent(
@@ -64,4 +74,16 @@ public class Hero extends Entity {
                 (you, other, direction) -> System.out.println("heroCollisionEnter"),
                 (you, other, direction) -> System.out.println("heroCollisionLeave"));
     }
+
+    //TODO: Fix death animation
+    private void setupHealthComponent(){
+        Animation hit = AnimationBuilder.buildAnimation(onHit);
+        this.hp = new HealthComponent(this, 100, this::onDeath ,hit,hit);
+    }
+
+    @Override
+    public void onDeath(Entity entity) {
+        System.out.println("Hero dead");
+    }
+
 }
