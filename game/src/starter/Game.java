@@ -17,6 +17,10 @@ import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.entities.FriendlyGhost;
 import ecs.entities.Hero;
+import ecs.entities.Monster;
+import ecs.entities.Monsters.Demon;
+import ecs.entities.Monsters.Imp;
+import ecs.entities.Monsters.Slime;
 import ecs.systems.*;
 import graphic.DungeonCamera;
 import graphic.Painter;
@@ -73,7 +77,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static ILevel currentLevel;
     private static PauseMenu<Actor> pauseMenu;
     private static Entity hero;
-
+    //private Entity monster;
     private static Hero playHero;
     private Logger gameLogger;
 
@@ -122,6 +126,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         controller.add(pauseMenu);
         playHero = new Hero();
         hero = playHero;
+        //monster = new Monster();
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel(LEVELSIZE);
         createSystems();
@@ -140,8 +145,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public void onLevelLoad() {
         currentLevel = levelAPI.getCurrentLevel();
         entities.clear();
+        //getMonster().ifPresent(this::placeOnLevelStart);
         getHero().ifPresent(this::placeOnLevelStart);
         loadGhost();
+        //new Slime();
+        new Imp();
+        new Demon();
     }
 
     /**Spawn ghost, there is a 10% chance it doesnt spawn**/
@@ -270,6 +279,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static void setHero(Entity hero) {
         Game.hero = hero;
     }
+
+
 
     public void setSpriteBatch(SpriteBatch batch) {
         this.batch = batch;
