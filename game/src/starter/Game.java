@@ -152,12 +152,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
         loadGhost();
-<<<<<<< HEAD
         spawnMonster();
+        new Mine();
+        new BearTrap();
         currentLvl++;
         System.out.println("Current Level:" + currentLvl);
-=======
->>>>>>> Feature/Trap
     }
 
     /**Spawn ghost, there is a 10% chance it doesn't spawn**/
