@@ -12,7 +12,8 @@ import ecs.components.ai.idle.heroLastPosition;
 import ecs.components.ai.transition.FriendlyTransition;
 import ecs.components.ai.transition.SelfDefendTransition;
 import ecs.entities.Monster;
-import graphic.Animation;
+import ecs.graphic.Animation;
+
 
 import java.util.Random;
 

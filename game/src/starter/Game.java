@@ -14,7 +14,6 @@ import controller.AbstractController;
 import controller.SystemController;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
-<<<<<<< HEAD
 import ecs.entities.Entity;
 import ecs.entities.FriendlyGhost;
 import ecs.entities.Hero;
@@ -22,9 +21,7 @@ import ecs.entities.Monster;
 import ecs.entities.Monsters.Demon;
 import ecs.entities.Monsters.Imp;
 import ecs.entities.Monsters.Slime;
-=======
 import ecs.entities.*;
->>>>>>> Feature/Trap
 import ecs.systems.*;
 import ecs.graphic.DungeonCamera;
 import ecs.graphic.Painter;

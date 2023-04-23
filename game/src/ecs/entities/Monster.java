@@ -1,7 +1,6 @@
 package ecs.entities;
-import dslToGame.AnimationBuilder;
 import ecs.components.*;
-import graphic.Animation;
+
 /**
  * The monster is an entity. It is defined as an abstract class because we never have a Monster object.
  * All future existing monsters will inherit from this class

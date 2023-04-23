@@ -9,7 +9,7 @@ import ecs.components.ai.transition.FriendlyTransition;
 import ecs.components.ai.transition.SelfDefendTransition;
 import ecs.entities.Entity;
 import ecs.entities.Monster;
-import graphic.Animation;
+import ecs.graphic.Animation;
 
 /**
  * The Slime is an enemy monster which inherits from the Monster class.
