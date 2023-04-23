@@ -8,6 +8,7 @@ import ecs.components.VelocityComponent;
 import ecs.components.ai.AIComponent;
 import ecs.components.ai.fight.CollideAI;
 import ecs.components.ai.idle.RadiusWalk;
+import ecs.components.ai.idle.heroLastPosition;
 import ecs.components.ai.transition.FriendlyTransition;
 import ecs.components.ai.transition.SelfDefendTransition;
 import ecs.entities.Monster;
@@ -29,17 +30,23 @@ public class Imp extends Monster {
 
     private final float xSpeed = 0.2f;
     private final float ySpeed = 0.2f;
-    private final int dmg = 1;
-    private final int maxHealthpoint = 5;
+    private int dmg = 1;
+    private int maxHealthpoint = 5;
 
-    /** Entity with Components */
-    public Imp(){
+    /** Entity with Components
+     *
+     * @param lvlFactor - the factor by which damage and health is increased
+     * */
+    public Imp(int lvlFactor){
         super();
         new PositionComponent(this);
-        new AIComponent(this,new CollideAI(4f),new RadiusWalk(7,4),new FriendlyTransition());
+        new AIComponent(this,new CollideAI(4f),new heroLastPosition(5),new FriendlyTransition());
         setupVelocityComponent();
         setupAnimationComponent();
         setupHitboxComponent();
+        if(lvlFactor == 0) lvlFactor++;
+        this.dmg = this.dmg * lvlFactor;
+        this.maxHealthpoint = this.maxHealthpoint * lvlFactor;
     }
 
     private void setupVelocityComponent() {

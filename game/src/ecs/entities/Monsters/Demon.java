@@ -31,18 +31,24 @@ public class Demon extends Monster {
 
     private final float xSpeed = 0.1f;
     private final float ySpeed = 0.1f;
-    private final int dmg = 3;
-    private final int maxHealthpoint = 4;
+    private int dmg = 3;
+    private int maxHealthpoint = 4;
 
 
-    /** Entity with Components */
-    public Demon(){
+    /** Entity with Components
+     *
+     * @param lvlFactor - the factor by which damage and health is increased
+     * */
+    public Demon(int lvlFactor){
         super();
         new PositionComponent(this);
         new AIComponent(this,new CollideAI(5f),new RadiusWalk(5,2),new FriendlyTransition());
         setupVelocityComponent();
         setupAnimationComponent();
         setupHitboxComponent();
+        if(lvlFactor == 0) lvlFactor++;
+        this.dmg = this.dmg * lvlFactor;
+        this.maxHealthpoint = this.maxHealthpoint * lvlFactor;
     }
 
 

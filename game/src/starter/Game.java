@@ -81,6 +81,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static Hero playHero;
     private Logger gameLogger;
 
+    private int currentLvl;
+
     private FriendlyGhost friendlyGhost;
 
     public static void main(String[] args) {
@@ -126,7 +128,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         controller.add(pauseMenu);
         playHero = new Hero();
         hero = playHero;
-        //monster = new Monster();
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel(LEVELSIZE);
         createSystems();
@@ -145,19 +146,40 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public void onLevelLoad() {
         currentLevel = levelAPI.getCurrentLevel();
         entities.clear();
-        //getMonster().ifPresent(this::placeOnLevelStart);
         getHero().ifPresent(this::placeOnLevelStart);
         loadGhost();
-        //new Slime();
-        new Imp();
-        new Demon();
+        spawnMonster();
+        currentLvl++;
+        System.out.println("Current Level:" + currentLvl);
     }
 
-    /**Spawn ghost, there is a 10% chance it doesnt spawn**/
+    /**Spawn ghost, there is a 10% chance it doesn't spawn**/
     private void loadGhost(){
         Random random = new Random();
         if(random.nextInt(0,100)>10) friendlyGhost = new FriendlyGhost(playHero);
     }
+
+    /**Spawns monster in relation to current level progress**/
+    private void spawnMonster(){
+        Random random = new Random();
+
+        int monster = 0;
+
+        for(int i = 0; i < ((currentLvl)+1); i++){
+
+            int rng = random.nextInt(0,3);
+
+            if(rng == 0) new Imp(currentLvl);
+            if(rng == 1) new Demon(currentLvl);
+            if(rng == 2) new Slime(currentLvl);
+
+            monster++;
+        }
+
+        System.out.println("Amount of monsters: " + monster);
+    }
+
+
 
     private void manageEntitiesSets() {
         entities.removeAll(entitiesToRemove);

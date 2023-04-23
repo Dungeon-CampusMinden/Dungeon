@@ -18,26 +18,32 @@ import graphic.Animation;
 
 public class Slime extends Monster {
 
-    public String pathToIdleLeft = null;
-    public String pathToIdleRight = null;
-    public String pathToRunLeft = null;
-    public String pathToRunRight = null;
+    private final String pathToIdleLeft = "character/monster/slime/idleLeft";
+    private final String pathToIdleRight = "character/monster/slime/idleRight";
+    private final String pathToRunLeft = "character/monster/slime/runLeft";
+    private final String pathToRunRight = "character/monster/slime/idleRight";
 
     private float xSpeed = 0.05f;
     private float ySpeed = 0.05f;
     public int dmg = 1;
-    private final int maxHealthpoint = 8;
+    private int maxHealthpoint = 8;
 
 
 
-    /** Entity with Components */
-    public Slime(){
+    /** Entity with Components
+     *
+     * @param lvlFactor - the factor by which damage and health is increased
+     * */
+    public Slime(int lvlFactor){
         super();
         new PositionComponent(this);
         new AIComponent(this,new CollideAI(3f),new RadiusWalk(2,8),new FriendlyTransition());
         setupVelocityComponent();
         setupAnimationComponent();
         setupHitboxComponent();
+        if(lvlFactor == 0) lvlFactor++;
+        this.dmg = this.dmg * lvlFactor;
+        this.maxHealthpoint = this.maxHealthpoint * lvlFactor;
     }
 
 

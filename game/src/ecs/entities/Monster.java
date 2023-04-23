@@ -11,11 +11,12 @@ public class Monster extends Entity {
 
     private float xSpeed = 0;
     private float ySpeed = 0;
-    private float dmg = 0;
+    private int dmg = 0;
 
     /** Entity with Components */
     public Monster(){
         super();
+
         new PositionComponent(this);
        // setupHealthComponent();
     }
