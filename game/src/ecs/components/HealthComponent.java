@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Null;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.entities.Entity;
-import graphic.Animation;
+import ecs.graphic.Animation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

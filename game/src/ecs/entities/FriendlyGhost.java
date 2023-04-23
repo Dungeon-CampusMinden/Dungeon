@@ -9,7 +9,7 @@ import ecs.components.ai.AIComponent;
 import ecs.components.ai.fight.CollideAI;
 import ecs.components.ai.idle.RadiusWalk;
 import ecs.components.ai.transition.FriendlyTransition;
-import graphic.Animation;
+import ecs.graphic.Animation;
 
 import java.util.Random;
 

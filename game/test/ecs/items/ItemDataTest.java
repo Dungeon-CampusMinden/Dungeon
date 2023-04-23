@@ -8,7 +8,7 @@ import ecs.components.HitboxComponent;
 import ecs.components.InventoryComponent;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
-import graphic.Animation;
+import ecs.graphic.Animation;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;

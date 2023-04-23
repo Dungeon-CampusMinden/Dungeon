@@ -6,7 +6,7 @@ import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.components.skill.ProjectileComponent;
 import ecs.entities.Entity;
-import graphic.Animation;
+import ecs.graphic.Animation;
 import starter.Game;
 import tools.Point;
 

@@ -4,7 +4,7 @@ import dslToGame.AnimationBuilder;
 import ecs.components.AnimationComponent;
 import ecs.components.HitboxComponent;
 import ecs.components.PositionComponent;
-import graphic.Animation;
+import ecs.graphic.Animation;
 
 /**
  * A grave is spawned by a FriendlyGhost

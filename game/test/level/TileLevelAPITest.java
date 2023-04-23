@@ -11,9 +11,9 @@ import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import graphic.Painter;
-import graphic.PainterConfig;
-import graphic.textures.TextureMap;
+import ecs.graphic.Painter;
+import ecs.graphic.PainterConfig;
+import ecs.graphic.textures.TextureMap;
 import level.elements.ILevel;
 import level.elements.TileLevel;
 import level.elements.tile.Tile;

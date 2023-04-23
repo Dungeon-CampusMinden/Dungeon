@@ -14,6 +14,7 @@ import controller.AbstractController;
 import controller.SystemController;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
+<<<<<<< HEAD
 import ecs.entities.Entity;
 import ecs.entities.FriendlyGhost;
 import ecs.entities.Hero;
@@ -21,10 +22,13 @@ import ecs.entities.Monster;
 import ecs.entities.Monsters.Demon;
 import ecs.entities.Monsters.Imp;
 import ecs.entities.Monsters.Slime;
+=======
+import ecs.entities.*;
+>>>>>>> Feature/Trap
 import ecs.systems.*;
-import graphic.DungeonCamera;
-import graphic.Painter;
-import graphic.hud.PauseMenu;
+import ecs.graphic.DungeonCamera;
+import ecs.graphic.Painter;
+import ecs.graphic.hud.PauseMenu;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -148,9 +152,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
         loadGhost();
+<<<<<<< HEAD
         spawnMonster();
         currentLvl++;
         System.out.println("Current Level:" + currentLvl);
+=======
+>>>>>>> Feature/Trap
     }
 
     /**Spawn ghost, there is a 10% chance it doesn't spawn**/

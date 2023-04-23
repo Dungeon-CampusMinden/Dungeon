@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxNativesLoader;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
+import ecs.graphic.DungeonCamera;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import starter.Game;

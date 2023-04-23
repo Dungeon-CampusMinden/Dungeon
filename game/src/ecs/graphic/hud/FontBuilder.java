@@ -1,4 +1,4 @@
-package graphic.hud;
+package ecs.graphic.hud;
 
 import static java.util.Objects.requireNonNull;
 

@@ -3,7 +3,7 @@ package ecs.components;
 import static org.junit.Assert.assertEquals;
 
 import ecs.entities.Entity;
-import graphic.Animation;
+import ecs.graphic.Animation;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

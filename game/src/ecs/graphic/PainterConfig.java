@@ -1,7 +1,7 @@
-package graphic;
+package ecs.graphic;
 
 import com.badlogic.gdx.graphics.Texture;
-import graphic.textures.TextureMap;
+import ecs.graphic.textures.TextureMap;
 
 /**
  * This class serves as a configuration class for the {@link Painter} class.

@@ -1,6 +1,6 @@
 package ecs.items;
 
-import graphic.Animation;
+import ecs.graphic.Animation;
 import java.util.List;
 import java.util.Random;
 

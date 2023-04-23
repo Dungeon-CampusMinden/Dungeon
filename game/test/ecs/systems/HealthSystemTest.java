@@ -11,7 +11,7 @@ import ecs.components.stats.StatsComponent;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.entities.Entity;
-import graphic.Animation;
+import ecs.graphic.Animation;
 import org.junit.Test;
 import org.mockito.Mockito;
 import starter.Game;

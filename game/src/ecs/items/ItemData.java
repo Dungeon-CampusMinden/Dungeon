@@ -8,7 +8,7 @@ import ecs.components.ItemComponent;
 import ecs.components.PositionComponent;
 import ecs.components.stats.DamageModifier;
 import ecs.entities.Entity;
-import graphic.Animation;
+import ecs.graphic.Animation;
 import java.util.List;
 import starter.Game;
 import tools.Point;

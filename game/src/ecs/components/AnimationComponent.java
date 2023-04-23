@@ -1,7 +1,7 @@
 package ecs.components;
 
 import ecs.entities.Entity;
-import graphic.Animation;
+import ecs.graphic.Animation;
 import java.util.List;
 import java.util.logging.Logger;
 import logging.CustomLogLevel;

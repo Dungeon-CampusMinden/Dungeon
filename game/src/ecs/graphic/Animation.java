@@ -1,4 +1,4 @@
-package graphic;
+package ecs.graphic;
 
 import java.util.ArrayList;
 import java.util.Collection;

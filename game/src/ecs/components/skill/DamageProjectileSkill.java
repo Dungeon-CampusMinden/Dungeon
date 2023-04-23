@@ -5,7 +5,7 @@ import ecs.components.*;
 import ecs.components.collision.ICollide;
 import ecs.damage.Damage;
 import ecs.entities.Entity;
-import graphic.Animation;
+import ecs.graphic.Animation;
 import starter.Game;
 import tools.Point;
 

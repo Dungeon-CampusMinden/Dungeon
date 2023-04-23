@@ -1,8 +1,8 @@
-package graphic;
+package ecs.graphic;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import graphic.textures.TextureMap;
+import ecs.graphic.textures.TextureMap;
 import tools.Point;
 
 /** Uses LibGDX to draw sprites on the various <code>SpriteBatch</code>es. */
