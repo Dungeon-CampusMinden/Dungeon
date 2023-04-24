@@ -9,22 +9,15 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import configuration.Configuration;
 import configuration.KeyboardConfig;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import controller.AbstractController;
 import controller.SystemController;
-import dslToGame.AnimationBuilder;
 import dslToGame.QuestConfig;
-import ecs.components.AnimationComponent;
-import ecs.components.Component;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
-import ecs.components.mp.MultiplayerComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
 import ecs.entities.HeroDummy;
 import ecs.systems.*;
-import graphic.Animation;
 import graphic.DungeonCamera;
 import graphic.Painter;
 import graphic.hud.menus.*;
@@ -33,15 +26,11 @@ import graphic.hud.menus.startmenu.StartMenu;
 import interpreter.DSLInterpreter;
 
 import java.io.IOException;
-import java.net.BindException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.UnknownHostException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Logger;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -54,9 +43,6 @@ import level.generator.IGenerator;
 import level.generator.postGeneration.WallGenerator;
 import level.generator.randomwalk.RandomWalkGenerator;
 import level.tools.LevelSize;
-import level.tools.Coordinate;
-import level.tools.DesignLabel;
-import level.tools.LevelElement;
 import mp.client.IMultiplayerClientObserver;
 import mp.client.MultiplayerClient;
 import mp.packages.request.InitializeServerRequest;
@@ -65,8 +51,6 @@ import mp.packages.request.UpdateOwnPositionRequest;
 import mp.server.MultiplayerServer;
 import tools.Constants;
 import tools.Point;
-
-import javax.swing.text.Position;
 
 /** The heart of the framework. From here all strings are pulled. */
 public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObserver, IMultiplayerClientObserver {
@@ -94,6 +78,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     static boolean paused = false;
 
     /** All entities that are currently active in the dungeon */
+//    public static Set<Entity> entities = Collections.synchronizedSet(new HashSet<Entity>());
     public static Set<Entity> entities = new HashSet<>();
     /** All entities to be removed from the dungeon in the next frame */
     public static Set<Entity> entitiesToRemove = new HashSet<>();
@@ -113,8 +98,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     private static int playerId;
     public static Hero hero;
 
-    private static HashMap<Integer, Point> playerPositions;
-    private HashMap<Integer, Entity> playerEntities = new HashMap<Integer, Entity>();
+    private HashMap<Integer, HeroDummy> opponentsById = new HashMap<Integer, HeroDummy>();
 
     /** Called once at the beginning of the game. */
     protected void setup() {
@@ -223,7 +207,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         // TODO: do some stuff
         if (isSucceed) {
             playerId = id;
-            playerEntities.put(id, hero);
             hideMenu(startMenu);
             sendPosition();
         } else {
@@ -240,7 +223,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
             playerId = id;
             hideMenu(startMenu);
             sendPosition();
-            onPositionUpdate(playerPositions);
 
             // Creating HeroDummy
             //playerEntities.put(id,new HeroDummy(new Point(0.0f,0.0f)));
@@ -254,26 +236,67 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     public static void sendPosition(){
         PositionComponent pos = (PositionComponent) hero.getComponent(PositionComponent.class).orElseThrow();
         UpdateOwnPositionRequest posReq = new UpdateOwnPositionRequest(playerId, pos.getPosition());
-
         multiplayerClient.send(posReq);
     }
 
     @Override
     public void onPositionUpdate(HashMap playerPositions){
-        this.playerPositions = playerPositions;
+        if (playerPositions != null) {
+            // Update opponent positions
+            playerPositions.forEach((id, position) -> {
+                if(playerId == (int) id){
+                    return;
+                }
 
-        playerPositions.forEach((id, position) -> {
-            if(playerId == (int) id){
-                return;
-            } else if(!playerEntities.containsKey(id)){
-                playerEntities.put((int) id, new HeroDummy((Point)position));
-            }
+                // add new opponent, if new joined session
+                if(!opponentsById.containsKey(id)){
+                    HeroDummy newHero = new HeroDummy((Point)position);
+                    opponentsById.put((int) id, newHero);
+                    entitiesToAdd.add(newHero);
+                }
 
-            Entity herotestdummy = playerEntities.get(id);
-            PositionComponent pc = (PositionComponent) herotestdummy.getComponent(PositionComponent.class).orElseThrow();
-            pc.setPosition((Point)position);
-        });
+                Entity herotestdummy = opponentsById.get(id);
+                PositionComponent pc = (PositionComponent) herotestdummy.getComponent(PositionComponent.class).orElseThrow();
+                pc.setPosition((Point)position);
+            });
+
+            // Check whether hero was disconnected => remove from client scene
+            Set<Integer> heroIdsToBeRemoved = new HashSet<>();
+            opponentsById.forEach((Integer id, HeroDummy heroDummy) -> {
+                if (!playerPositions.containsKey(id)) {
+                    heroIdsToBeRemoved.add(id);
+                }
+            });
+            heroIdsToBeRemoved.forEach((Integer id) -> {
+                HeroDummy toBeRemoved = opponentsById.get(id);
+                opponentsById.remove(id);
+                entitiesToRemove.add(toBeRemoved);
+            });
+        }
     }
+
+//    private void updateOponents() {
+//        if (opponentsById != null) {
+//            opponentsById.forEach((id, heroDummy) -> {
+//                if (!entities.contains(heroDummy)) {
+//                    entities.add(heroDummy);
+//                }
+//
+//
+//                if(!opponentsById.containsKey(id)){
+//                    HeroDummy newHero = new HeroDummy((Point)position);
+//                    opponentsById.put((int) id, newHero);
+//                }
+//
+//                entities.stream().filter(x -> x == heroDummy)
+//                    .flatMap(x -> {
+//                        PositionComponent pc = (PositionComponent) herotestdummy.getComponent(PositionComponent.class).orElseThrow();
+//                        pc.setPosition((Point)position);
+//                        return true;
+//                    });
+//            });
+//        }
+//    }
 
     public void setSpriteBatch(SpriteBatch batch) {
         this.batch = batch;

@@ -48,8 +48,8 @@ public class MultiplayerServer extends Listener {
 
     @Override
     public void disconnected(Connection connection) {
-        //playerPositions.remove(connection.getID());
-//        System.out.println("Player " + connection.getID() + " disconnected");
+        playerPositions.remove(connection.getID());
+        server.sendToAllTCP(new UpdateAllPositionsResponse(playerPositions));
     }
 
     @Override
@@ -62,11 +62,10 @@ public class MultiplayerServer extends Listener {
             level = ((InitializeServerRequest) object).getLevel();
             connection.sendTCP(new InitializeServerResponse(true));
         } else if (object instanceof JoinSessionRequest) {
-            connection.sendTCP(new JoinSessionResponse(level, playerPositions));
+            connection.sendTCP(new JoinSessionResponse(level, connection.getID(), playerPositions));
         } else if (object instanceof UpdateOwnPositionRequest) {
             UpdateOwnPositionRequest posReq = (UpdateOwnPositionRequest) object;
             playerPositions.put(posReq.getPlayerId(), posReq.getPosition());
-
             server.sendToAllTCP(new UpdateAllPositionsResponse(playerPositions));
         }
     }

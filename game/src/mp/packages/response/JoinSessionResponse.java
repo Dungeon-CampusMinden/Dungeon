@@ -7,10 +7,12 @@ import java.util.HashMap;
 public class JoinSessionResponse {
 
     private ILevel level;
+    private Integer playerId;
     private HashMap playerPositions;
 
-    public JoinSessionResponse(ILevel level, HashMap playerPositions) {
+    public JoinSessionResponse(ILevel level, Integer playerId, HashMap playerPositions) {
         this.level = level;
+        this.playerId = playerId;
         this.playerPositions = playerPositions;
     }
 
@@ -21,4 +23,6 @@ public class JoinSessionResponse {
     public HashMap getPlayerPositions() {
         return this.playerPositions;
     }
+
+    public Integer getPlayerId() { return this.playerId; }
 }
