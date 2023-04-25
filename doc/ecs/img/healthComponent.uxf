@@ -1,0 +1,36 @@
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>300</x><y>230</y><w>480</w><h>410</h></coordinates><panel_attributes>HealthComponent
+--
+_- missingTexture: List&lt;string&gt;_
+- damageToGet: List&lt;Damage&gt; {read-only}
+- maximalHealthpoints: int
+- currentHealthpoints: int
+- lastCause: Entity
+- onDeath: IOnDeathFunction
+- getHitAnimation: Animation
+- dieAnimation: Animation
+--
++ HealthComponent(entity: Entity)
++ HealthComponent(entity: Entity, maxHitPoints: int, onDeath: IOnDeathFunction,
+   getHitAnimation: Animation, dieAnimation: Animation)
++ receiveHit(damage: Damage): void
++ triggerOnDeath(): void
++ getDamage(dt: DamageType): int
++ clearDamage(): void
++ setCurrentHealthpoints(amount: int): void
++ setMaximalHealthpoints(amount: int): void
++ setDieAnimation(dieAnimation: Animation): void
++ setGetHitAnimation(isHitAnimation: Animation): void
++ setOnDeath(onDeath: IOnDeathFunction): void
++ getCurrentHealthpoints(): int
++ getMaximalHealhtpoints(): int
++ getGetHitAnimation(): Animation
++ getDieAnimation(): Animation
++ getLastDamageCause(): Optional&lt;Entity&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>400</x><y>170</y><w>30</w><h>80</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>360</x><y>150</y><w>100</w><h>30</h></coordinates><panel_attributes>/Component/
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>140</x><y>150</y><w>100</w><h>30</h></coordinates><panel_attributes>ECS_System</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>180</x><y>170</y><w>30</w><h>80</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>140</x><y>230</y><w>100</w><h>30</h></coordinates><panel_attributes>HealthSystem</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>230</x><y>230</y><w>90</w><h>30</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>70;10;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>430</x><y>700</y><w>180</w><h>80</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+IOnDeathFunction
+--
++ onDeath(entity: Entity): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>510</x><y>630</y><w>30</w><h>90</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;70;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>220</x><y>750</y><w>160</w><h>30</h></coordinates><panel_attributes>bg=red
+onDeathStrategy B
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>370</x><y>760</y><w>80</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>60;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>370</x><y>710</y><w>80</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>60;10;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>220</x><y>700</y><w>160</w><h>30</h></coordinates><panel_attributes>bg=red
+onDeathStrategy A
+</panel_attributes><additional_attributes></additional_attributes></element></diagram>

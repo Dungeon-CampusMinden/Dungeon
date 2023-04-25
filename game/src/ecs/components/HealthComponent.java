@@ -14,11 +14,10 @@ import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
 
-/** The HealthComponent makes an entity vulnerable and killable */
+/** The HealthComponent adds health points and the ability to take damage and die to an entity. */
 @DSLType(name = "health_component")
 public class HealthComponent extends Component {
     private static final List<String> missingTexture = List.of("animation/missingTexture.png");
-
     private final List<Damage> damageToGet;
     private @DSLTypeMember(name = "maximal_health_points") int maximalHealthpoints;
     private int currentHealthpoints;
