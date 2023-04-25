@@ -34,6 +34,9 @@ public class AIComponent extends Component {
     }
 
     /**
+     * Creates AIComponent with default behavior: RadiusWalk(5, 2) as IdleAI, RangeTransition(5.0f)
+     * as transitionAI and CollideAI(2.0f) as fightAI.
+     *
      * @param entity associated entity
      */
     public AIComponent(@DSLContextMember(name = "entity") Entity entity) {
