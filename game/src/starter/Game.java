@@ -12,13 +12,20 @@ import configuration.Configuration;
 import configuration.KeyboardConfig;
 import controller.AbstractController;
 import controller.SystemController;
+import ecs.components.HealthComponent;
+import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
+import ecs.damage.Damage;
+import ecs.damage.DamageType;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
 import ecs.systems.*;
+import ecs.tools.Flags.Flag;
+import game.src.ecs.entities.Imp;
 import graphic.DungeonCamera;
 import graphic.Painter;
+import graphic.hud.GameOverMenu;
 import graphic.hud.PauseMenu;
 import java.io.IOException;
 import java.util.*;
@@ -40,7 +47,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private final LevelSize LEVELSIZE = LevelSize.SMALL;
 
     /**
-     * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
+     * The batch is necessary to draw ALL the stuff. Every object that uses draw
+     * need to know the
      * batch.
      */
     protected SpriteBatch batch;
@@ -71,8 +79,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     public static ILevel currentLevel;
     private static PauseMenu<Actor> pauseMenu;
+    private static GameOverMenu<Actor> gameOverMenu;
     private static Entity hero;
     private Logger gameLogger;
+    private int level = 0;
 
     public static void main(String[] args) {
         // start the game
@@ -81,18 +91,25 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        DesktopLauncher.run(new Game());
+        try {
+            DesktopLauncher.run(new Game());
+        } catch (Flag flag) {
+            // Game end
+        }
+
     }
 
     /**
-     * Main game loop. Redraws the dungeon and calls the own implementation (beginFrame, endFrame
+     * Main game loop. Redraws the dungeon and calls the own implementation
+     * (beginFrame, endFrame
      * and onLevelLoad).
      *
      * @param delta Time since last loop.
      */
     @Override
     public void render(float delta) {
-        if (doSetup) setup();
+        if (doSetup)
+            setup();
         batch.setProjectionMatrix(camera.combined);
         frame();
         clearScreen();
@@ -103,6 +120,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /** Called once at the beginning of the game. */
     protected void setup() {
+        level = 0;
         doSetup = false;
         controller = new ArrayList<>();
         setupCameras();
@@ -115,25 +133,36 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         controller.add(systems);
         pauseMenu = new PauseMenu<>();
         controller.add(pauseMenu);
+        gameOverMenu = new GameOverMenu(this);
+        controller.add(gameOverMenu);
         hero = new Hero();
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel(LEVELSIZE);
         createSystems();
     }
 
-    /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
+    /**
+     * Called at the beginning of each frame. Before the controllers call
+     * <code>update</code>.
+     */
     protected void frame() {
         setCameraFocus();
         manageEntitiesSets();
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P))
+            togglePause();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.K))
+            ((HealthComponent) hero.getComponent(HealthComponent.class).get())
+                    .receiveHit(new Damage(100, DamageType.PHYSICAL, hero));
     }
 
     @Override
     public void onLevelLoad() {
+        level++;
         currentLevel = levelAPI.getCurrentLevel();
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
+        addEntity(new Imp(level));
     }
 
     private void manageEntitiesSets() {
@@ -151,41 +180,36 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private void setCameraFocus() {
         if (getHero().isPresent()) {
-            PositionComponent pc =
-                    (PositionComponent)
-                            getHero()
-                                    .get()
-                                    .getComponent(PositionComponent.class)
-                                    .orElseThrow(
-                                            () ->
-                                                    new MissingComponentException(
-                                                            "PositionComponent"));
+            PositionComponent pc = (PositionComponent) getHero()
+                    .get()
+                    .getComponent(PositionComponent.class)
+                    .orElseThrow(
+                            () -> new MissingComponentException(
+                                    "PositionComponent"));
             camera.setFocusPoint(pc.getPosition());
 
-        } else camera.setFocusPoint(new Point(0, 0));
+        } else
+            camera.setFocusPoint(new Point(0, 0));
     }
 
     private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
-        if (isOnEndTile(hero)) levelAPI.loadLevel(LEVELSIZE);
+        if (isOnEndTile(hero))
+            levelAPI.loadLevel(LEVELSIZE);
     }
 
     private boolean isOnEndTile(Entity entity) {
-        PositionComponent pc =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+        PositionComponent pc = (PositionComponent) entity.getComponent(PositionComponent.class)
+                .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
         Tile currentTile = currentLevel.getTileAt(pc.getPosition().toCoordinate());
         return currentTile.equals(currentLevel.getEndTile());
     }
 
     private void placeOnLevelStart(Entity hero) {
         entities.add(hero);
-        PositionComponent pc =
-                (PositionComponent)
-                        hero.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+        PositionComponent pc = (PositionComponent) hero.getComponent(PositionComponent.class)
+                .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
         pc.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
     }
 
@@ -196,9 +220,19 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             systems.forEach(ECS_System::toggleRun);
         }
         if (pauseMenu != null) {
-            if (paused) pauseMenu.showMenu();
-            else pauseMenu.hideMenu();
+            if (paused)
+                pauseMenu.showMenu();
+            else
+                pauseMenu.hideMenu();
         }
+    }
+
+    /**Opens Game Over Screen */
+    public static void gameOver() {
+        if (systems != null) {
+            systems.forEach(ECS_System::toggleRun);
+        }
+        gameOverMenu.showMenu();
     }
 
     /**
@@ -248,7 +282,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
-     * set the reference of the playable character careful: old hero will not be removed from the
+     * set the reference of the playable character careful: old hero will not be
+     * removed from the
      * game
      *
      * @param hero new reference of hero
@@ -284,5 +319,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new XPSystem();
         new SkillSystem();
         new ProjectileSystem();
+    }
+
+    /** restarts the game by redoing the setup */
+    public void restart() {
+        setup();
     }
 }

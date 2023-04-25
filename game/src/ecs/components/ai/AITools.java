@@ -16,27 +16,24 @@ public class AITools {
     private static final Random random = new Random();
 
     /**
-     * Sets the velocity of the passed entity so that it takes the next necessary step to get to the
+     * Sets the velocity of the passed entity so that it takes the next necessary
+     * step to get to the
      * end of the path.
      *
      * @param entity Entity moving on the path
-     * @param path Path on which the entity moves
+     * @param path   Path on which the entity moves
      */
     public static void move(Entity entity, GraphPath<Tile> path) {
         // entity is already at the end
         if (pathFinishedOrLeft(entity, path)) {
             return;
         }
-        PositionComponent pc =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
-        VelocityComponent vc =
-                (VelocityComponent)
-                        entity.getComponent(VelocityComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("VelocityComponent"));
+        PositionComponent pc = (PositionComponent) entity.getComponent(PositionComponent.class)
+                .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
+        VelocityComponent vc = (VelocityComponent) entity.getComponent(VelocityComponent.class)
+                .orElseThrow(
+                        () -> new MissingComponentException("VelocityComponent"));
         ILevel level = Game.currentLevel;
         Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
         int i = 0;
@@ -108,7 +105,7 @@ public class AITools {
 
     /**
      * @param from start point
-     * @param to end point
+     * @param to   end point
      * @return Path from the start point to the end point
      */
     public static GraphPath<Tile> calculatePath(Point from, Point to) {
@@ -117,7 +114,7 @@ public class AITools {
 
     /**
      * @param from start coordinate
-     * @param to end coordinate
+     * @param to   end coordinate
      * @return Path from the start coordinate to the end coordinate
      */
     public static GraphPath<Tile> calculatePath(Coordinate from, Coordinate to) {
@@ -126,10 +123,11 @@ public class AITools {
     }
 
     /**
-     * Finds the path to a random (accessible) tile in the given radius, starting from the given
+     * Finds the path to a random (accessible) tile in the given radius, starting
+     * from the given
      * center point
      *
-     * @param point Center point
+     * @param point  Center point
      * @param radius Search radius
      * @return Path from the center point to the randomly selected tile
      */
@@ -139,7 +137,8 @@ public class AITools {
     }
 
     /**
-     * Finds the path to a random (accessible) tile in the given radius, starting from the position
+     * Finds the path to a random (accessible) tile in the given radius, starting
+     * from the position
      * of the given entity.
      *
      * @param entity Entity whose position is the center point
@@ -147,51 +146,48 @@ public class AITools {
      * @return Path from the position of the entity to the randomly selected tile
      */
     public static GraphPath<Tile> calculatePathToRandomTileInRange(Entity entity, float radius) {
-        Point point =
-                ((PositionComponent)
-                                entity.getComponent(PositionComponent.class)
-                                        .orElseThrow(
-                                                () ->
-                                                        new MissingComponentException(
-                                                                "PositionComponent")))
-                        .getPosition();
+        Point point = ((PositionComponent) entity.getComponent(PositionComponent.class)
+                .orElseThrow(
+                        () -> new MissingComponentException(
+                                "PositionComponent")))
+                .getPosition();
         return calculatePathToRandomTileInRange(point, radius);
     }
 
     /**
-     * Finds the path from the position of one entity to the position of another entity.
+     * Finds the path from the position of one entity to the position of another
+     * entity.
      *
      * @param from Entity whose position is the start point
-     * @param to Entity whose position is the goal point
+     * @param to   Entity whose position is the goal point
      * @return Path
      */
     public static GraphPath<Tile> calculatePath(Entity from, Entity to) {
-        PositionComponent fromPositionComponent =
-                (PositionComponent)
-                        from.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
-        PositionComponent positionComponent =
-                (PositionComponent)
-                        to.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+        PositionComponent fromPositionComponent = (PositionComponent) from.getComponent(PositionComponent.class)
+                .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
+        PositionComponent positionComponent = (PositionComponent) to.getComponent(PositionComponent.class)
+                .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
         return calculatePath(fromPositionComponent.getPosition(), positionComponent.getPosition());
     }
 
     /**
      * @param entity
-     * @return Path from the entity to the hero, if there is no hero, path from the entity to itself
+     * @return Path from the entity to the hero, if there is no hero, path from the
+     *         entity to itself
      */
     public static GraphPath<Tile> calculatePathToHero(Entity entity) {
         Optional<Entity> hero = Game.getHero();
-        if (hero.isPresent()) return calculatePath(entity, hero.get());
-        else return calculatePath(entity, entity);
+        if (hero.isPresent())
+            return calculatePath(entity, hero.get());
+        else
+            return calculatePath(entity, entity);
     }
 
     /**
-     * @param p1 Point A
-     * @param p2 Point B
+     * @param p1    Point A
+     * @param p2    Point B
      * @param range Radius
      * @return if the distance between the two points is within the radius
      */
@@ -202,65 +198,60 @@ public class AITools {
     /**
      * @param entity1
      * @param entity2
-     * @param range search radius
+     * @param range   search radius
      * @return if the position of the two entities is within the given radius
      */
     public static boolean entityInRange(Entity entity1, Entity entity2, float range) {
 
-        Point entity1Position =
-                ((PositionComponent)
-                                entity1.getComponent(PositionComponent.class)
-                                        .orElseThrow(
-                                                () ->
-                                                        new MissingComponentException(
-                                                                "PositionComponent")))
-                        .getPosition();
-        Point entity2Position =
-                ((PositionComponent)
-                                entity2.getComponent(PositionComponent.class)
-                                        .orElseThrow(
-                                                () ->
-                                                        new MissingComponentException(
-                                                                "PositionComponent")))
-                        .getPosition();
+        Point entity1Position = ((PositionComponent) entity1.getComponent(PositionComponent.class)
+                .orElseThrow(
+                        () -> new MissingComponentException(
+                                "PositionComponent")))
+                .getPosition();
+        Point entity2Position = ((PositionComponent) entity2.getComponent(PositionComponent.class)
+                .orElseThrow(
+                        () -> new MissingComponentException(
+                                "PositionComponent")))
+                .getPosition();
         return inRange(entity1Position, entity2Position, range);
     }
 
     /**
      * @param entity Entity whose position specifies the center point
-     * @param range search radius
-     * @return if the position of the player is within the given radius of the position of the given
-     *     entity. If there is no hero, return false.
+     * @param range  search radius
+     * @return if the position of the player is within the given radius of the
+     *         position of the given
+     *         entity. If there is no hero, return false.
      */
     public static boolean playerInRange(Entity entity, float range) {
 
         Optional<Entity> hero = Game.getHero();
-        if (hero.isPresent()) return entityInRange(entity, hero.get(), range);
-        else return false;
+        if (hero.isPresent())
+            return entityInRange(entity, hero.get(), range);
+        else
+            return false;
     }
 
     /**
      * Check if the entity is on the end of the path or has left the path.
      *
      * @param entity Entity
-     * @param path Path
+     * @param path   Path
      * @return true, if the entity is on the end of the path or has left the path
      */
     public static boolean pathFinishedOrLeft(Entity entity, GraphPath<Tile> path) {
-        PositionComponent pc =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+        PositionComponent pc = (PositionComponent) entity.getComponent(PositionComponent.class)
+                .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
         ILevel level = Game.currentLevel;
-        boolean finished =
-                path.get(path.getCount() - 1)
-                        .equals(level.getTileAt(pc.getPosition().toCoordinate()));
+        boolean finished = path.get(path.getCount() - 1)
+                .equals(level.getTileAt(pc.getPosition().toCoordinate()));
 
         boolean onPath = false;
         Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
         for (Tile tile : path) {
-            if (currentTile == tile) onPath = true;
+            if (currentTile == tile)
+                onPath = true;
         }
 
         return !onPath || finished;
@@ -270,15 +261,13 @@ public class AITools {
      * Check if the entity is on the end of the path
      *
      * @param entity Entity
-     * @param path Path
+     * @param path   Path
      * @return true, if the entity is on the end of the path.
      */
     public static boolean pathFinished(Entity entity, GraphPath<Tile> path) {
-        PositionComponent pc =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+        PositionComponent pc = (PositionComponent) entity.getComponent(PositionComponent.class)
+                .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
         ILevel level = Game.currentLevel;
         return path.get(path.getCount() - 1)
                 .equals(level.getTileAt(pc.getPosition().toCoordinate()));
@@ -288,20 +277,19 @@ public class AITools {
      * Check if the entity has left the path
      *
      * @param entity Entity
-     * @param path Path
+     * @param path   Path
      * @return true, if the entity has left the path.
      */
     public static boolean pathLeft(Entity entity, GraphPath<Tile> path) {
-        PositionComponent pc =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+        PositionComponent pc = (PositionComponent) entity.getComponent(PositionComponent.class)
+                .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
         ILevel level = Game.currentLevel;
         boolean onPath = false;
         Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
         for (Tile tile : path) {
-            if (currentTile == tile) onPath = true;
+            if (currentTile == tile)
+                onPath = true;
         }
         return !onPath;
     }
