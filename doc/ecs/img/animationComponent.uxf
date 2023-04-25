@@ -1,0 +1,17 @@
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>300</x><y>230</y><w>470</w><h>220</h></coordinates><panel_attributes>AnimationComponent
+--
+_- missingTexture: List&lt;string&gt;_
+- animCompLogger: Logger {read-only}
+- idleLeft: Animation
+- idleRight: Animation
+- currentAnimation: Animation
+--
++ AnimationComponent(entity: Entity)
++ AnimationComponent(entity: Entity, idle: Animation)
++ AnimationComponent(entity: Entity, idleLeft: Animation, idleRight: Animation)
++ setCurrentAnimation(animation: Animation): void
++ getCurrentAnimation(): Animation
++ getIdleLeft(): Animation
++ getIdleRight(): Animation
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>400</x><y>170</y><w>30</w><h>80</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>360</x><y>150</y><w>100</w><h>30</h></coordinates><panel_attributes>/Component/
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>140</x><y>150</y><w>100</w><h>30</h></coordinates><panel_attributes>ECS_System</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>180</x><y>170</y><w>30</w><h>80</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>140</x><y>230</y><w>100</w><h>30</h></coordinates><panel_attributes>DrawSystem</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>230</x><y>230</y><w>90</w><h>30</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>70;10;10;10</additional_attributes></element></diagram>
