@@ -13,7 +13,9 @@ public class AnimationEntity extends Entity {
     private static final Logger logger = Logger.getLogger(AnimationEntity.class.getName());
 
     /**
-     * Creates a new entity animation. An entity used to display animations in the dungeon.
+     * Creates a new entity animation. The animation entity will be removed when the animation ends.
+     * Looping animations will trigger a warning in the console and won't be removed until removal
+     * is triggered otherwise.
      *
      * @param animation {@link Animation}
      * @param location {@link Point}
