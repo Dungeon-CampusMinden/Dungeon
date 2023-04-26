@@ -28,15 +28,15 @@ public class AITools {
             return;
         }
         PositionComponent pc =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+            (PositionComponent)
+                entity.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
         VelocityComponent vc =
-                (VelocityComponent)
-                        entity.getComponent(VelocityComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("VelocityComponent"));
+            (VelocityComponent)
+                entity.getComponent(VelocityComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("VelocityComponent"));
         ILevel level = Game.currentLevel;
         Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
         int i = 0;
@@ -148,13 +148,13 @@ public class AITools {
      */
     public static GraphPath<Tile> calculatePathToRandomTileInRange(Entity entity, float radius) {
         Point point =
-                ((PositionComponent)
-                                entity.getComponent(PositionComponent.class)
-                                        .orElseThrow(
-                                                () ->
-                                                        new MissingComponentException(
-                                                                "PositionComponent")))
-                        .getPosition();
+            ((PositionComponent)
+                entity.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () ->
+                            new MissingComponentException(
+                                "PositionComponent")))
+                .getPosition();
         return calculatePathToRandomTileInRange(point, radius);
     }
 
@@ -167,15 +167,15 @@ public class AITools {
      */
     public static GraphPath<Tile> calculatePath(Entity from, Entity to) {
         PositionComponent fromPositionComponent =
-                (PositionComponent)
-                        from.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+            (PositionComponent)
+                from.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
         PositionComponent positionComponent =
-                (PositionComponent)
-                        to.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+            (PositionComponent)
+                to.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
         return calculatePath(fromPositionComponent.getPosition(), positionComponent.getPosition());
     }
 
@@ -208,21 +208,21 @@ public class AITools {
     public static boolean entityInRange(Entity entity1, Entity entity2, float range) {
 
         Point entity1Position =
-                ((PositionComponent)
-                                entity1.getComponent(PositionComponent.class)
-                                        .orElseThrow(
-                                                () ->
-                                                        new MissingComponentException(
-                                                                "PositionComponent")))
-                        .getPosition();
+            ((PositionComponent)
+                entity1.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () ->
+                            new MissingComponentException(
+                                "PositionComponent")))
+                .getPosition();
         Point entity2Position =
-                ((PositionComponent)
-                                entity2.getComponent(PositionComponent.class)
-                                        .orElseThrow(
-                                                () ->
-                                                        new MissingComponentException(
-                                                                "PositionComponent")))
-                        .getPosition();
+            ((PositionComponent)
+                entity2.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () ->
+                            new MissingComponentException(
+                                "PositionComponent")))
+                .getPosition();
         return inRange(entity1Position, entity2Position, range);
     }
 
@@ -248,14 +248,14 @@ public class AITools {
      */
     public static boolean pathFinishedOrLeft(Entity entity, GraphPath<Tile> path) {
         PositionComponent pc =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+            (PositionComponent)
+                entity.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
         ILevel level = Game.currentLevel;
         boolean finished =
-                path.get(path.getCount() - 1)
-                        .equals(level.getTileAt(pc.getPosition().toCoordinate()));
+            path.get(path.getCount() - 1)
+                .equals(level.getTileAt(pc.getPosition().toCoordinate()));
 
         boolean onPath = false;
         Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
@@ -274,14 +274,17 @@ public class AITools {
      * @return true, if the entity is on the end of the path.
      */
     public static boolean pathFinished(Entity entity, GraphPath<Tile> path) {
+        if (path.getCount() == 0) {
+            return false;
+        }
         PositionComponent pc =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+            (PositionComponent)
+                entity.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
         ILevel level = Game.currentLevel;
         return path.get(path.getCount() - 1)
-                .equals(level.getTileAt(pc.getPosition().toCoordinate()));
+            .equals(level.getTileAt(pc.getPosition().toCoordinate()));
     }
 
     /**
@@ -293,10 +296,10 @@ public class AITools {
      */
     public static boolean pathLeft(Entity entity, GraphPath<Tile> path) {
         PositionComponent pc =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+            (PositionComponent)
+                entity.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
         ILevel level = Game.currentLevel;
         boolean onPath = false;
         Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());

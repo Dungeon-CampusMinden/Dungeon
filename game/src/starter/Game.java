@@ -16,13 +16,21 @@ import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
+import ecs.entities.Teleportsystem;
+import ecs.entities.monsters.Chort;
+import ecs.entities.monsters.Goblin;
+import ecs.entities.monsters.LittleChort;
+import ecs.entities.nps.Ghost;
+import ecs.entities.objects.Tombstone;
 import ecs.systems.*;
 import graphic.DungeonCamera;
 import graphic.Painter;
 import graphic.hud.PauseMenu;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
+
 import level.IOnLevelLoader;
 import level.LevelAPI;
 import level.elements.ILevel;
@@ -34,7 +42,9 @@ import level.tools.LevelSize;
 import tools.Constants;
 import tools.Point;
 
-/** The heart of the framework. From here all strings are pulled. */
+/**
+ * The heart of the framework. From here all strings are pulled.
+ */
 public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private final LevelSize LEVELSIZE = LevelSize.SMALL;
@@ -45,33 +55,53 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     protected SpriteBatch batch;
 
-    /** Contains all Controller of the Dungeon */
+    /**
+     * Contains all Controller of the Dungeon
+     */
     protected List<AbstractController<?>> controller;
 
     public static DungeonCamera camera;
-    /** Draws objects */
+    /**
+     * Draws objects
+     */
     protected Painter painter;
 
     protected LevelAPI levelAPI;
-    /** Generates the level */
+    /**
+     * Generates the level
+     */
     protected IGenerator generator;
 
     private boolean doSetup = true;
     private static boolean paused = false;
 
-    /** All entities that are currently active in the dungeon */
+    /**
+     * All entities that are currently active in the dungeon
+     */
     private static final Set<Entity> entities = new HashSet<>();
-    /** All entities to be removed from the dungeon in the next frame */
+    /**
+     * All entities to be removed from the dungeon in the next frame
+     */
     private static final Set<Entity> entitiesToRemove = new HashSet<>();
-    /** All entities to be added from the dungeon in the next frame */
+    /**
+     * All entities to be added from the dungeon in the next frame
+     */
     private static final Set<Entity> entitiesToAdd = new HashSet<>();
 
-    /** List of all Systems in the ECS */
+    /**
+     * List of all Systems in the ECS
+     */
     public static SystemController systems;
 
     public static ILevel currentLevel;
     private static PauseMenu<Actor> pauseMenu;
     private static Entity hero;
+    private static Entity tombstone;
+    private static Entity ghost;
+
+    private int currentDepth = 1;
+    public Teleportsystem teleportsystem = new Teleportsystem();
+
     private Logger gameLogger;
 
     public static void main(String[] args) {
@@ -101,7 +131,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         camera.update();
     }
 
-    /** Called once at the beginning of the game. */
+    /**
+     * Called once at the beginning of the game.
+     */
     protected void setup() {
         doSetup = false;
         controller = new ArrayList<>();
@@ -116,17 +148,23 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         pauseMenu = new PauseMenu<>();
         controller.add(pauseMenu);
         hero = new Hero();
+        tombstone = new Tombstone();
+        ghost = new Ghost();
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel(LEVELSIZE);
         createSystems();
     }
 
-    /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
+    /**
+     * Called at the beginning of each frame. Before the controllers call <code>update</code>.
+     */
     protected void frame() {
         setCameraFocus();
         manageEntitiesSets();
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
+        teleportsystem.updateTeleportSystem();  //telportsystem updating counting//
+
     }
 
     @Override
@@ -134,7 +172,76 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         currentLevel = levelAPI.getCurrentLevel();
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
+        placeOnLevelStart(ghost);
+        placeOnLevel(tombstone);
+        teleportsystem.makePads();             // bei jeden neuen level aufrufen der Methode//
+
+        // Erstellen und platzieren Sie eine zufällige Anzahl von Monstern basierend auf der aktuellen Tiefe
+        int numberOfMonsters = calculateNumberOfMonsters();
+        for (int i = 0; i < numberOfMonsters; i++) {
+            Entity monster = createRandomMonster(currentDepth);
+            placeOnLevel(monster);
+        }
+
+        // Inkrementiere die Tiefe des Dungeons, nachdem das Level geladen wurde
+        currentDepth++;
     }
+
+    private int calculateNumberOfMonsters() {
+        // Bestimmen Sie die Anzahl der Monster basierend auf der aktuellen Tiefe des Dungeons
+        int numMonsters = currentDepth + 1;
+        int numStrongMonsters = 0;
+
+        // Erhöhen Sie die Anzahl der Monster und die Anzahl starker Monster, je tiefer der Spieler im Dungeon ist
+        for (int i = 2; i <= currentDepth; i++) {
+            numMonsters += i + 1;
+            numStrongMonsters += i;
+        }
+
+        // Zufällige Auswahl, ob starke Monster erzeugt werden sollen
+        Random random = new Random();
+        boolean strongMonsters = random.nextBoolean();
+
+        // Fügen Sie starke Monster hinzu, wenn zufällig ausgewählt und es welche gibt
+        if (strongMonsters && numStrongMonsters > 0) {
+            int strongMonsterCount = random.nextInt(numStrongMonsters) + 1;
+            numMonsters += strongMonsterCount;
+        }
+
+        return numMonsters;
+    }
+
+
+    private Entity createRandomMonster(int depth) {
+        // Beispiel: Erstellen Sie zufällig einen von drei Monstertypen und erhöhen Sie ihre Stärke basierend auf der Tiefe
+        int monsterType = new Random().nextInt(3);
+        Entity monster;
+
+        switch (monsterType) {
+            case 0:
+                monster = new Chort(0.1f, 0.1f, 10);
+                if(currentDepth > 3) {
+                    monster = new Chort(0.3f, 0.3f, 15);
+                }
+                // Passen Sie die Stärke des Chort-Monsters basierend auf der Tiefe an
+                break;
+            case 1:
+                monster = new Goblin();
+                // Passen Sie die Stärke des Goblin-Monsters basierend auf der Tiefe an
+                break;
+            case 2:
+                monster = new LittleChort();
+                // Passen Sie die Stärke des LittleChort-Monsters basierend auf der Tiefe an
+                break;
+            default:
+                throw new IllegalStateException("Unerwarteter Wert: " + monsterType);
+        }
+
+        // Passen Sie hier die Stärke des Monsters basierend auf der Tiefe an, z. B. indem Sie den Schaden, die Gesundheit oder andere Attribute erhöhen
+
+        return monster;
+    }
+
 
     private void manageEntitiesSets() {
         entities.removeAll(entitiesToRemove);
@@ -152,14 +259,14 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private void setCameraFocus() {
         if (getHero().isPresent()) {
             PositionComponent pc =
-                    (PositionComponent)
-                            getHero()
-                                    .get()
-                                    .getComponent(PositionComponent.class)
-                                    .orElseThrow(
-                                            () ->
-                                                    new MissingComponentException(
-                                                            "PositionComponent"));
+                (PositionComponent)
+                    getHero()
+                        .get()
+                        .getComponent(PositionComponent.class)
+                        .orElseThrow(
+                            () ->
+                                new MissingComponentException(
+                                    "PositionComponent"));
             camera.setFocusPoint(pc.getPosition());
 
         } else camera.setFocusPoint(new Point(0, 0));
@@ -171,10 +278,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private boolean isOnEndTile(Entity entity) {
         PositionComponent pc =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+            (PositionComponent)
+                entity.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
         Tile currentTile = currentLevel.getTileAt(pc.getPosition().toCoordinate());
         return currentTile.equals(currentLevel.getEndTile());
     }
@@ -182,14 +289,29 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private void placeOnLevelStart(Entity hero) {
         entities.add(hero);
         PositionComponent pc =
-                (PositionComponent)
-                        hero.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+            (PositionComponent)
+                hero.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
         pc.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
     }
 
-    /** Toggle between pause and run */
+    private void placeOnLevel(Entity entity) {
+        entities.add(entity);
+        PositionComponent pc =
+            (PositionComponent)
+                entity.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
+        pc.setPosition(currentLevel.getRandomFloorTile().getCoordinate().toPoint());
+    }
+
+
+
+
+    /**
+     * Toggle between pause and run
+     */
     public static void togglePause() {
         paused = !paused;
         if (systems != null) {
@@ -246,6 +368,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static Optional<Entity> getHero() {
         return Optional.ofNullable(hero);
     }
+
+
 
     /**
      * set the reference of the playable character careful: old hero will not be removed from the

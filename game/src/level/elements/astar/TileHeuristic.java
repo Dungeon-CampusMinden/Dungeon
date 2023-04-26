@@ -18,6 +18,9 @@ public class TileHeuristic implements Heuristic<Tile> {
      */
     @Override
     public float estimate(Tile start, Tile goal) {
+        if (start == null || goal == null) {
+            throw new IllegalArgumentException("Start or goal tile must not be null.");
+        }
         return Vector2.dst2(
                 start.getCoordinate().x,
                 start.getCoordinate().y,

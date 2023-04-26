@@ -3,15 +3,19 @@ package ecs.components.ai;
 import ecs.components.Component;
 import ecs.components.ai.fight.CollideAI;
 import ecs.components.ai.fight.IFightAI;
+import ecs.components.ai.idle.GhostIdle;
 import ecs.components.ai.idle.IIdleAI;
 import ecs.components.ai.idle.RadiusWalk;
 import ecs.components.ai.transition.ITransition;
 import ecs.components.ai.transition.RangeTransition;
 import ecs.entities.Entity;
+import ecs.entities.nps.Ghost;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 
-/** AIComponent is a component that stores the idle and combat behavior of AI controlled entities */
+/**
+ * AIComponent is a component that stores the idle and combat behavior of AI controlled entities
+ */
 @DSLType(name = "ai_component")
 public class AIComponent extends Component {
 
@@ -21,9 +25,9 @@ public class AIComponent extends Component {
     private /*@DSLTypeMember(name="transition_ai)*/ ITransition transitionAI;
 
     /**
-     * @param entity associated entity
-     * @param fightAI combat behavior
-     * @param idleAI idle behavior
+     * @param entity     associated entity
+     * @param fightAI    combat behavior
+     * @param idleAI     idle behavior
      * @param transition Determines when to fight
      */
     public AIComponent(Entity entity, IFightAI fightAI, IIdleAI idleAI, ITransition transition) {
@@ -32,6 +36,7 @@ public class AIComponent extends Component {
         this.idleAI = idleAI;
         this.transitionAI = transition;
     }
+
 
     /**
      * @param entity associated entity
@@ -43,7 +48,10 @@ public class AIComponent extends Component {
         fightAI = new CollideAI(2f);
     }
 
-    /** Excecute the ai behavior */
+
+    /**
+     * Excecute the ai behavior
+     */
     public void execute() {
         if (transitionAI.isInFightMode(entity)) fightAI.fight(entity);
         else idleAI.idle(entity);

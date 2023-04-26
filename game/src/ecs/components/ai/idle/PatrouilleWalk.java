@@ -59,10 +59,10 @@ public class PatrouilleWalk implements IIdleAI {
     private void init(Entity entity) {
         initialized = true;
         PositionComponent position =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+            (PositionComponent)
+                entity.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
         Point center = position.getPosition();
         Tile tile = Game.currentLevel.getTileAt(position.getPosition().toCoordinate());
 
@@ -78,8 +78,8 @@ public class PatrouilleWalk implements IIdleAI {
 
         int maxTries = 0;
         while (this.checkpoints.size() < numberCheckpoints
-                || accessibleTiles.size() == this.checkpoints.size()
-                || maxTries >= 1000) {
+            || accessibleTiles.size() == this.checkpoints.size()
+            || maxTries >= 1000) {
             Tile t = accessibleTiles.get(random.nextInt(accessibleTiles.size()));
             if (!this.checkpoints.contains(t)) {
                 this.checkpoints.add(t);
@@ -93,17 +93,17 @@ public class PatrouilleWalk implements IIdleAI {
         if (!initialized) this.init(entity);
 
         PositionComponent position =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+            (PositionComponent)
+                entity.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
 
         if (currentPath != null && !AITools.pathFinished(entity, currentPath)) {
             if (AITools.pathLeft(entity, currentPath)) {
                 currentPath =
-                        AITools.calculatePath(
-                                position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                    AITools.calculatePath(
+                        position.getPosition(),
+                        this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
             }
             AITools.move(entity, currentPath);
             return;
@@ -127,16 +127,16 @@ public class PatrouilleWalk implements IIdleAI {
                 Random rnd = new Random();
                 currentCheckpoint = rnd.nextInt(checkpoints.size());
                 currentPath =
-                        AITools.calculatePath(
-                                position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                    AITools.calculatePath(
+                        position.getPosition(),
+                        this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
             }
             case LOOP -> {
                 currentCheckpoint = (currentCheckpoint + 1) % checkpoints.size();
                 currentPath =
-                        AITools.calculatePath(
-                                position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                    AITools.calculatePath(
+                        position.getPosition(),
+                        this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
             }
             case BACK_AND_FORTH -> {
                 if (forward) {
@@ -153,9 +153,9 @@ public class PatrouilleWalk implements IIdleAI {
                     }
                 }
                 currentPath =
-                        AITools.calculatePath(
-                                position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                    AITools.calculatePath(
+                        position.getPosition(),
+                        this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
             }
             default -> {}
         }
