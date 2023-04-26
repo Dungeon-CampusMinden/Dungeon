@@ -8,6 +8,9 @@ import starter.Game;
 
 import java.lang.reflect.*;
 
+/** 
+ * Trap-Strategy to summon 3 monsters of the same class
+ */
 public class Summon implements ITrigger {
 
     public static final Class IMP = Imp.class;

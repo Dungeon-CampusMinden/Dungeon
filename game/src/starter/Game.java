@@ -97,6 +97,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        // Our way to end the game
         try {
             DesktopLauncher.run(new Game());
         } catch (Flag flag) {
@@ -157,6 +158,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         if (Gdx.input.isKeyJustPressed(Input.Keys.P))
             togglePause();
+        // "K" the Suicide Button (You'll probably want to press it)
         if (Gdx.input.isKeyJustPressed(Input.Keys.K))
             ((HealthComponent) hero.getComponent(HealthComponent.class).get())
                     .receiveHit(new Damage(100, DamageType.PHYSICAL, hero));
@@ -337,6 +339,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         setup();
     }
 
+    // spawns both monsters and taps accordingly to the size of the floor
     private void levelSetup() {
         for (int i = 0; i < (level * currentLevel.getFloorTiles().size()) / 100; i++) {
             spawnMonster();
@@ -347,6 +350,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
     }
 
+    // Monster spawn mechanics
     private void spawnMonster() {
         int random = (int) (Math.random() * 3);
         if (random == 0)
@@ -357,6 +361,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             addEntity(new DarkKnight(level));
     }
 
+    // Trap spawn mechanics
     private void spawnTraps() {
         int random = (int) (Math.random() * 3);
         if (random == 0)

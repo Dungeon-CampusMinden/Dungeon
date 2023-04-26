@@ -22,6 +22,9 @@ import tools.Point;
 import java.lang.Math;
 
 /**
+ * The DarkKnight is a hostile mob(npc). It's entity in the ECS. This class helps to
+ * setup darkknights with all its components and attributes.
+ * 
  * I'm Batman
  */
 
@@ -43,6 +46,7 @@ public class DarkKnight extends Monster {
 
     private Skill attack;
 
+    /** Entity with Components */
     public DarkKnight(int level) {
         super(level);
         this.level = level;

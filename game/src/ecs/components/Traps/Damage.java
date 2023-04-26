@@ -4,6 +4,7 @@ import ecs.components.HealthComponent;
 import ecs.entities.Entity;
 import ecs.damage.DamageType;
 
+/** Trap-Strategy to deal damage */
 public class Damage implements ITrigger {
 
     private static final int DAMAGE_AMOUNT = 40;

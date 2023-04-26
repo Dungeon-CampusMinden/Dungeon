@@ -14,11 +14,11 @@ import graphic.Animation;
 import tools.Constants;
 import java.lang.Math;
 
+ /**
+ * The SummoningTrap is a Trap. It's entity in the ECS. This class helps to
+ * setup summoningtraps with all its components and attributes .
+ */
 public class SummoningTrap extends Trap {
-
-    // private final String pathToIdle = "traps/summon/idle";
-    // private final String pathToTriggered = "traps/summon/triggered";
-    // private final String pathToPostTriggered = "traps/summon/postTriggered";
 
     private final String pathToIdle = "traps/summon/idle";
     private final String pathToTriggered = "traps/summon/triggered";
@@ -28,6 +28,7 @@ public class SummoningTrap extends Trap {
 
     private ITrigger trigger;
 
+    /** Entity with Components */
     public SummoningTrap() {
         super();
         new PositionComponent(this);

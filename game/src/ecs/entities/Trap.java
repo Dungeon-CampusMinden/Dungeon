@@ -6,6 +6,11 @@ import ecs.entities.Entity;
 import game.src.ecs.components.Traps.ITrigger;
 import graphic.Animation;
 
+
+/**
+ * Class that helps me remember what traps need
+ * But otherwise its mostly useless
+ */
 public class Trap extends Entity {
 
     private final String pathToIdle = "";

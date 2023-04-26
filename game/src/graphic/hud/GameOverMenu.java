@@ -22,7 +22,7 @@ import ecs.tools.Flags.Flag;
 public class GameOverMenu<T extends Actor> extends ScreenController<T> {
     private Game game;
 
-    /** Creates a new PauseMenu with a new Spritebatch */
+    /** Creates a new GameOverMenu with a new Spritebatch */
     public GameOverMenu(Game game) {
         this(new SpriteBatch());
         this.game = game;

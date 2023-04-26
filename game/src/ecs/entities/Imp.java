@@ -20,6 +20,10 @@ import tools.Point;
 
 import java.lang.Math;
 
+/**
+ * The Imp is a hostile mob(npc). It's entity in the ECS. This class helps to
+ * setup imps with all its components and attributes .
+ */
 public class Imp extends Monster {
 
     private final float xSpeed = 0.5f;
@@ -38,6 +42,7 @@ public class Imp extends Monster {
 
     private Skill attack;
 
+    /** Entity with Components */
     public Imp(int level) {
         super(level);
         this.level = level;

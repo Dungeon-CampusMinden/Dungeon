@@ -21,6 +21,10 @@ import tools.Point;
 
 import java.lang.Math;
 
+/**
+ * The Chort is a hostile mob(npc). It's entity in the ECS. This class helps to
+ * setup chorts with all its components and attributes .
+ */
 public class Chort extends Monster {
 
     private final float xSpeed = 0.2f;
@@ -37,6 +41,7 @@ public class Chort extends Monster {
     private final String pathToGetHit = "monster/chort/getHit";
     private final String pathToDie = "monster/chort/die";
 
+    /** Entity with Components */
     public Chort(int level) {
         super(level);
         this.level = level;

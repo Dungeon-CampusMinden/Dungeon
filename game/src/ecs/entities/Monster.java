@@ -18,6 +18,7 @@ import java.lang.Math;
 
 /**
  * Class that helps me remember what monsters need
+ * But otherwise its mostly useless
  */
 
 public class Monster extends Entity {

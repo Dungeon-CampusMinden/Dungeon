@@ -12,6 +12,10 @@ import game.src.ecs.components.Traps.Teleportation;
 import graphic.Animation;
 import tools.Constants;
 
+/**
+ * The TeleportationTrap is a "trap" or more like slight nuisance. It's entity in the ECS. This class helps to
+ * setup teleportationtraps with all its components and attributes .
+ */
 public class TeleportationTrap extends Trap {
 
     private final String pathToIdle = "traps/teleportation/idle";
@@ -22,6 +26,7 @@ public class TeleportationTrap extends Trap {
 
     private ITrigger trigger = new Teleportation();
 
+    /** Entity with Components */
     public TeleportationTrap() {
         super();
         new PositionComponent(this);
