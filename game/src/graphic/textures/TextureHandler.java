@@ -2,13 +2,16 @@ package graphic.textures;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,26 +27,40 @@ public class TextureHandler {
     private final Map<String, Set<FileHandle>> pathMap = new LinkedHashMap<>();
 
     private TextureHandler() {
-        List<FileHandle> roots =
-                getAllAssetRoots(
-                        new ArrayList<>(), Gdx.files.internal(Gdx.files.getLocalStoragePath()));
-        assert !roots.isEmpty();
-        // take the first assets root dir:
-        addAllAssets(roots.get(0).parent());
+        List<FileHandle> placeholderAssets = findAllPlaceholderAssets();
+        assert placeholderAssets.size() == 2;
+        // takes the placeholder assets with the longest path string...
+        if (placeholderAssets.get(0).path().length() > placeholderAssets.get(0).path().length()) {
+            addAllAssets(placeholderAssets.get(0).parent());
+        } else {
+            addAllAssets(placeholderAssets.get(1).parent());
+        }
     }
 
-    private List<FileHandle> getAllAssetRoots(List<FileHandle> roots, FileHandle current) {
-        if (current.isDirectory()) {
-            FileHandle[] fhs = current.list();
-            for (FileHandle fh : fhs) {
-                getAllAssetRoots(roots, fh);
+    private List<FileHandle> findAllPlaceholderAssets() {
+        // needs circa 277 currentDir.list() calls...
+        List<FileHandle> results = new ArrayList<>();
+        Deque<FileHandle> dirQueue = new ArrayDeque<>();
+        dirQueue.add(Gdx.files.internal(Gdx.files.getLocalStoragePath()));
+        while (!dirQueue.isEmpty()) {
+            FileHandle currentDir = dirQueue.removeFirst();
+            FileHandle[] list = currentDir.list();
+            List<FileHandle> currentDirs =
+                    Arrays.stream(list).filter(FileHandle::isDirectory).toList();
+            List<FileHandle> currentFiles =
+                    Arrays.stream(list).filter(Predicate.not(FileHandle::isDirectory)).toList();
+            boolean hasPlaceholderAsset = false;
+            for (FileHandle file : currentFiles) {
+                if ("placeholder-asset-do-not-delete.png".equals(file.name())) {
+                    hasPlaceholderAsset = true;
+                    results.add(file);
+                }
             }
-        } else {
-            if ("placeholder-asset-do-not-delete.png".equals(current.name())) {
-                roots.add(current);
+            if (!hasPlaceholderAsset) {
+                dirQueue.addAll(currentDirs);
             }
         }
-        return roots;
+        return results;
     }
 
     /**
