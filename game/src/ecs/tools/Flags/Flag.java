@@ -3,7 +3,7 @@ package ecs.tools.Flags;
 import java.lang.RuntimeException;
 
 /**
- * Used to signal certain events like the game end or the heros death.
+ * Used to signal certain events like the game end .
  */
 public class Flag extends RuntimeException {
     

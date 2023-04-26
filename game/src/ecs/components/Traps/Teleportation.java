@@ -6,6 +6,7 @@ import level.elements.tile.Tile;
 import starter.Game;
 import ecs.entities.Entity;
 
+/** Trap-Strategy to teleport entities around the dungeon */
 public class Teleportation implements ITrigger{
     
     public void trigger(Entity entity) {

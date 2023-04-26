@@ -22,7 +22,7 @@ public class SummoningTrap extends Trap {
 
     private final String pathToIdle = "traps/summon/idle";
     private final String pathToTriggered = "traps/summon/triggered";
-    private final String pathToPostTriggered = "traps/summon/idle";
+    private final String pathToPostTriggered = "traps/summon/postTriggered";
 
     private boolean active = true;
 
@@ -34,10 +34,10 @@ public class SummoningTrap extends Trap {
         setupAnimationComponent();
         setupHitboxComponent();
         Class klass;
-        int r = (int) Math.random() * 3;
+        int r = (int) (Math.random() * 3);
         if (r == 0) klass = Summon.IMP;
-        else if (r == 1) klass = Summon.IMP;
-        else klass = Summon.IMP;
+        else if (r == 1) klass = Summon.CHORT;
+        else klass = Summon.DARKKNIGHT;
         trigger = new Summon(klass);
     }
 

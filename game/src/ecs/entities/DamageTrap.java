@@ -13,16 +13,22 @@ import game.src.ecs.components.Traps.Teleportation;
 import graphic.Animation;
 import tools.Constants;
 
+
+/**
+ * The DamageTrap is a Trap. It's entity in the ECS. This class helps to
+ * setup damagetraps with all its components and attributes .
+ */
 public class DamageTrap extends Trap {
 
     private final String pathToIdle = "traps/damage/idle";
     private final String pathToTriggered = "traps/damage/triggered";
-    private final String pathToPostTriggered = "traps/damage/idle";
+    private final String pathToPostTriggered = "traps/damage/postTriggered";
 
     private boolean active = true;
 
     private ITrigger trigger = new Damage();
 
+    /** Entity with Components */
     public DamageTrap() {
         super();
         new PositionComponent(this);
@@ -48,6 +54,7 @@ public class DamageTrap extends Trap {
         Animation triggered = AnimationBuilder.buildAnimation(pathToTriggered);
         ((AnimationComponent) this.getComponent(AnimationComponent.class).get()).setCurrentAnimation(triggered);
         trigger.trigger(entity);
+        active = !active;
         Animation postTriggered = AnimationBuilder.buildAnimation(pathToPostTriggered);
         ((AnimationComponent) this.getComponent(AnimationComponent.class).get()).setCurrentAnimation(postTriggered);
     }

@@ -55,7 +55,9 @@ public class GameOverMenu<T extends Actor> extends ScreenController<T> {
                     }
                 },
                 new TextButtonStyleBuilder(FontBuilder.DEFAULT_FONT)
-                        .setFontColor(Color.GRAY)
+                        .setFontColor(Color.RED)
+                        .setDownFontColor(Color.BLUE)
+                        .setOverFontColor(Color.YELLOW)
                         .build());
         screenButtonQuit.setPosition(
                 (Constants.WINDOW_WIDTH) / 3f - screenText.getWidth(),
@@ -73,7 +75,9 @@ public class GameOverMenu<T extends Actor> extends ScreenController<T> {
                     }
                 },
                 new TextButtonStyleBuilder(FontBuilder.DEFAULT_FONT)
-                        .setFontColor(Color.GRAY)
+                        .setFontColor(Color.RED)
+                        .setDownFontColor(Color.BLUE)
+                        .setOverFontColor(Color.YELLOW)
                         .build());
         screenButtonRestart.setPosition(
                 2 * (Constants.WINDOW_WIDTH) / 3f - screenText.getWidth(),

@@ -16,6 +16,10 @@ import starter.Game;
 import ecs.components.ai.idle.*;
 import java.lang.Math;
 
+/**
+ * Class that helps me remember what monsters need
+ */
+
 public class Monster extends Entity {
 
     private final float xSpeed = 0.0f;

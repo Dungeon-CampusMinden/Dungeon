@@ -1,6 +1,8 @@
 package game.src.ecs.components.Traps;
 
 import ecs.entities.Entity;
+import game.src.ecs.entities.Chort;
+import game.src.ecs.entities.DarkKnight;
 import game.src.ecs.entities.Imp;
 import starter.Game;
 
@@ -9,6 +11,8 @@ import java.lang.reflect.*;
 public class Summon implements ITrigger {
 
     public static final Class IMP = Imp.class;
+    public static final Class CHORT = Chort.class;
+    public static final Class DARKKNIGHT = DarkKnight.class;
 
     private Class klass;
 

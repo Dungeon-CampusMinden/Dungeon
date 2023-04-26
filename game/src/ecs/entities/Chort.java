@@ -4,13 +4,14 @@ import dslToGame.AnimationBuilder;
 import ecs.components.*;
 import ecs.components.skill.*;
 import ecs.damage.Damage;
+import ecs.damage.DamageType;
 import ecs.entities.Entity;
 import graphic.Animation;
 import ecs.components.OnDeathFunctions.EndGame;
 import ecs.components.ai.AIComponent;
 import ecs.components.ai.AITools;
 import ecs.components.ai.fight.IFightAI;
-import ecs.components.ai.fight.MeleeAI;
+import ecs.components.ai.fight.CollideAI;
 import ecs.components.ai.idle.IIdleAI;
 import ecs.components.ai.idle.PatrouilleWalk;
 import ecs.components.ai.transition.ITransition;
@@ -20,25 +21,23 @@ import tools.Point;
 
 import java.lang.Math;
 
-public class Imp extends Monster {
+public class Chort extends Monster {
 
-    private final float xSpeed = 0.5f;
-    private final float ySpeed = 0.5f;
+    private final float xSpeed = 0.2f;
+    private final float ySpeed = 0.2f;
     private final int maxHealth = 20;
     private final float attackRange = 0.5f;
     private int level;
     private int attackCooldown = 1;
 
-    private final String pathToIdleLeft = "monster/imp/idleLeft";
-    private final String pathToIdleRight = "monster/imp/idleRight";
-    private final String pathToRunLeft = "monster/imp/runLeft";
-    private final String pathToRunRight = "monster/imp/runRight";
-    private final String pathToGetHit = "monster/imp/getHit";
-    private final String pathToDie = "monster/imp/die";
+    private final String pathToIdleLeft = "monster/chort/idleLeft";
+    private final String pathToIdleRight = "monster/chort/idleRight";
+    private final String pathToRunLeft = "monster/chort/runLeft";
+    private final String pathToRunRight = "monster/chort/runRight";
+    private final String pathToGetHit = "monster/chort/getHit";
+    private final String pathToDie = "monster/chort/die";
 
-    private Skill attack;
-
-    public Imp(int level) {
+    public Chort(int level) {
         super(level);
         this.level = level;
         new PositionComponent(this);
@@ -64,7 +63,7 @@ public class Imp extends Monster {
     private void setupHitboxComponent() {
         new HitboxComponent(
                 this,
-                (you, other, direction) -> System.out.println("monsterCollisionEnter"),
+                (you, other, direction) -> attack(other),
                 (you, other, direction) -> System.out.println("monsterCollisionLeave"));
     }
 
@@ -79,26 +78,23 @@ public class Imp extends Monster {
         new HealthComponent(this, maxHealth, iOnDeathFunction, getHit, die);
     }
 
-    private void setupSkillComponent() {
-        Point start = ((PositionComponent) this.getComponent(PositionComponent.class).get()).getPosition();
-        Point end = ((PositionComponent) Game.getHero().get().getComponent(PositionComponent.class).get()).getPosition();
-        attack = new Skill(
-                new FireballSkill(() -> SkillTools.calculateLastPositionInRange(start, end, attackRange)),
-                attackCooldown);
-        new SkillComponent(this).addSkill(attack);
-    }
-
     private IFightAI setupFightStrategy() {
-        return new MeleeAI(attackRange, attack);
+        return new CollideAI(3);
     }
 
     private void setupAIComponent() {
-        setupSkillComponent();
         new AIComponent(this, setupFightStrategy(), setupIdleStrategy(), setupTransition());
     }
 
+    private void attack(Entity entity) {
+        Damage damage = new Damage(calcDamage(), DamageType.PHYSICAL, this);
+        if (entity.getComponent(HealthComponent.class).isPresent()) {
+            ((HealthComponent) entity.getComponent(HealthComponent.class).get()).receiveHit(damage);
+        }
+    }
+
     private int calcDamage() {
-        return 3 + (int) Math.sqrt(3 * level);
+        return 2 + (int) Math.sqrt(4 * level);
     }
 
 }

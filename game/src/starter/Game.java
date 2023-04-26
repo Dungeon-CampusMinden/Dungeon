@@ -22,7 +22,9 @@ import ecs.entities.Entity;
 import ecs.entities.Hero;
 import ecs.systems.*;
 import ecs.tools.Flags.Flag;
+import game.src.ecs.entities.Chort;
 import game.src.ecs.entities.DamageTrap;
+import game.src.ecs.entities.DarkKnight;
 import game.src.ecs.entities.Imp;
 import game.src.ecs.entities.SummoningTrap;
 import game.src.ecs.entities.TeleportationTrap;
@@ -43,6 +45,7 @@ import level.generator.randomwalk.RandomWalkGenerator;
 import level.tools.LevelSize;
 import tools.Constants;
 import tools.Point;
+import java.lang.Math;
 
 /** The heart of the framework. From here all strings are pulled. */
 public class Game extends ScreenAdapter implements IOnLevelLoader {
@@ -165,10 +168,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         currentLevel = levelAPI.getCurrentLevel();
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
-        addEntity(new Imp(level));
-        addEntity(new TeleportationTrap());
-        addEntity(new SummoningTrap());
-        addEntity(new DamageTrap());
+        levelSetup();
     }
 
     private void manageEntitiesSets() {
@@ -233,7 +233,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
     }
 
-    /**Opens Game Over Screen */
+    /** Opens Game Over Screen */
     public static void gameOver() {
         if (systems != null) {
             systems.forEach(ECS_System::toggleRun);
@@ -335,5 +335,35 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /** restarts the game by redoing the setup */
     public void restart() {
         setup();
+    }
+
+    private void levelSetup() {
+        for (int i = 0; i < (level * currentLevel.getFloorTiles().size()) / 100; i++) {
+            spawnMonster();
+        }
+        for (int i = 0; i < level; i++) {
+            if (i % 5 == 0)
+                spawnTraps();
+        }
+    }
+
+    private void spawnMonster() {
+        int random = (int) (Math.random() * 3);
+        if (random == 0)
+            addEntity(new Imp(level));
+        else if (random == 1)
+            addEntity(new Chort(level));
+        else
+            addEntity(new DarkKnight(level));
+    }
+
+    private void spawnTraps() {
+        int random = (int) (Math.random() * 3);
+        if (random == 0)
+            addEntity(new TeleportationTrap());
+        else if (random == 1)
+            addEntity(new SummoningTrap());
+        else
+            addEntity(new DamageTrap());
     }
 }
