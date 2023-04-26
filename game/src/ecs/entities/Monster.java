@@ -22,13 +22,13 @@ public class Monster extends Entity {
     private final float ySpeed = 0.0f;
     private final int maxHealth = 100;
     private int level = 0;
-    
-    private final String pathToIdleLeft = "animation";
-    private final String pathToIdleRight = "animation";
-    private final String pathToRunLeft = "animation";
-    private final String pathToRunRight = "animation";
-    private final String pathToGetHit = "animation";
-    private final String pathToDie = "animation";
+
+    private final String pathToIdleLeft = "";
+    private final String pathToIdleRight = "";
+    private final String pathToRunLeft = "";
+    private final String pathToRunRight = "";
+    private final String pathToGetHit = "";
+    private final String pathToDie = "";
 
     public Monster(int level) {
         super();

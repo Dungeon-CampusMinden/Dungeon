@@ -22,7 +22,10 @@ import ecs.entities.Entity;
 import ecs.entities.Hero;
 import ecs.systems.*;
 import ecs.tools.Flags.Flag;
+import game.src.ecs.entities.DamageTrap;
 import game.src.ecs.entities.Imp;
+import game.src.ecs.entities.SummoningTrap;
+import game.src.ecs.entities.TeleportationTrap;
 import graphic.DungeonCamera;
 import graphic.Painter;
 import graphic.hud.GameOverMenu;
@@ -82,7 +85,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static GameOverMenu<Actor> gameOverMenu;
     private static Entity hero;
     private Logger gameLogger;
-    private int level = 0;
+    private static int level = 0;
 
     public static void main(String[] args) {
         // start the game
@@ -163,6 +166,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
         addEntity(new Imp(level));
+        addEntity(new TeleportationTrap());
+        addEntity(new SummoningTrap());
+        addEntity(new DamageTrap());
     }
 
     private void manageEntitiesSets() {
@@ -319,6 +325,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new XPSystem();
         new SkillSystem();
         new ProjectileSystem();
+    }
+
+    /** returns current level of the dungeon */
+    public static int getLevel() {
+        return level;
     }
 
     /** restarts the game by redoing the setup */
