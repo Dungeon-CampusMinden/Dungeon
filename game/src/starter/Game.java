@@ -14,6 +14,7 @@ import controller.SystemController;
 import dslToGame.QuestConfig;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
+import ecs.components.mp.MultiplayerComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
 import ecs.entities.HeroDummy;
@@ -99,6 +100,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     public static Hero hero;
 
     private HashMap<Integer, HeroDummy> opponentsById = new HashMap<Integer, HeroDummy>();
+    private HashMap<Integer, Point> playerPositions;
 
     /** Called once at the beginning of the game. */
     protected void setup() {
@@ -223,7 +225,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
             playerId = id;
             hideMenu(startMenu);
             sendPosition();
-
+            this.playerPositions = playerPositions;
             // Creating HeroDummy
             //playerEntities.put(id,new HeroDummy(new Point(0.0f,0.0f)));
 
@@ -239,41 +241,91 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         multiplayerClient.send(posReq);
     }
 
-    @Override
-    public void onPositionUpdate(HashMap playerPositions){
-        if (playerPositions != null) {
-            // Update opponent positions
+    private record MPData(Entity e, MultiplayerComponent mc, PositionComponent pc) {}
+
+    private MPData buildDataObject(MultiplayerComponent mc){
+        Entity e = mc.getEntity();
+
+        PositionComponent pc =
+            (PositionComponent)
+            e.getComponent(PositionComponent.class).orElseThrow();
+
+        return new MPData(e, mc, pc);
+    }
+
+    private void updatePositions(MPData mpd){
+        mpd.pc.setPosition(playerPositions.get(mpd.mc.getPlayerId()));
+    }
+
+    private void updateAllPos(){
+        if (this.playerPositions != null && playerId != 0) {
+
+            //Add new oppenent, if new player joined
             playerPositions.forEach((id, position) -> {
-                if(playerId == (int) id){
+                if(playerId == (int) id) {
                     return;
                 }
 
-                // add new opponent, if new joined session
-                if(!opponentsById.containsKey(id)){
-                    HeroDummy newHero = new HeroDummy((Point)position);
-                    opponentsById.put((int) id, newHero);
-                    entitiesToAdd.add(newHero);
-                }
-
-                Entity herotestdummy = opponentsById.get(id);
-                PositionComponent pc = (PositionComponent) herotestdummy.getComponent(PositionComponent.class).orElseThrow();
-                pc.setPosition((Point)position);
-            });
-
-            // Check whether hero was disconnected => remove from client scene
-            Set<Integer> heroIdsToBeRemoved = new HashSet<>();
-            opponentsById.forEach((Integer id, HeroDummy heroDummy) -> {
-                if (!playerPositions.containsKey(id)) {
-                    heroIdsToBeRemoved.add(id);
+                if(!entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
+                    .map(e -> (MultiplayerComponent)e)
+                    .anyMatch(e -> e.getPlayerId() == (int) id)){
+                    new HeroDummy(new Point(0,0), (int) id);
                 }
             });
-            heroIdsToBeRemoved.forEach((Integer id) -> {
-                HeroDummy toBeRemoved = opponentsById.get(id);
-                opponentsById.remove(id);
-                entitiesToRemove.add(toBeRemoved);
-            });
+
+            entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
+                .map(e -> (MultiplayerComponent) e)
+                .forEach(mc -> {
+                    if(!playerPositions.containsKey(mc.getPlayerId())){
+                        entitiesToRemove.add(mc.getEntity());
+                    }
+                });
+
+            //Update all positions of all entities with a multiplayerComponent
+            entities.stream()
+                //.filter(e -> e instanceof HeroDummy)
+                .flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
+                .map(mc -> buildDataObject((MultiplayerComponent) mc))
+                .forEach(this::updatePositions);
         }
     }
+
+    @Override
+    public void onPositionUpdate(HashMap playerPositions) {
+        this.playerPositions = playerPositions;
+    }
+//            // Update opponent positions
+//            playerPositions.forEach((id, position) -> {
+//                if(playerId == (int) id){
+//                    return;
+//                }
+//
+//                // add new opponent, if new joined session
+//                if(!opponentsById.containsKey(id)) {
+//                    HeroDummy newHero = new HeroDummy((Point) position, (int) id);
+//                    opponentsById.put((int) id, newHero);
+//                    //entitiesToAdd.add(newHero);
+//                }
+//
+//                Entity herotestdummy = opponentsById.get(id);
+//                PositionComponent pc = (PositionComponent) herotestdummy.getComponent(PositionComponent.class).orElseThrow();
+//                pc.setPosition((Point)position);
+//            });
+//
+//            // Check whether hero was disconnected => remove from client scene
+//            Set<Integer> heroIdsToBeRemoved = new HashSet<>();
+//            opponentsById.forEach((Integer id, HeroDummy heroDummy) -> {
+//                if (!playerPositions.containsKey(id)) {
+//                    heroIdsToBeRemoved.add(id);
+//                }
+//            });
+//            heroIdsToBeRemoved.forEach((Integer id) -> {
+//                HeroDummy toBeRemoved = opponentsById.get(id);
+//                opponentsById.remove(id);
+//                entitiesToRemove.add(toBeRemoved);
+//            });
+//        }
+//    }
 
 //    private void updateOponents() {
 //        if (opponentsById != null) {
@@ -307,6 +359,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         if (hero != null && heroPositionComponent != null) {
             camera.setFocusPoint(heroPositionComponent.getPosition());
         }
+        updateAllPos();
         entities.removeAll(entitiesToRemove);
         entities.addAll(entitiesToAdd);
         for (Entity entity : entitiesToRemove) {

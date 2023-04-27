@@ -4,14 +4,16 @@ import dslToGame.AnimationBuilder;
 import ecs.components.AnimationComponent;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
+import ecs.components.mp.MultiplayerComponent;
 import graphic.Animation;
 import tools.Point;
 
 public class HeroDummy extends Entity{
 
-    public HeroDummy(Point startPosition){
+    public HeroDummy(Point startPosition, int id){
         super();
         new PositionComponent(this, startPosition);
+        new MultiplayerComponent(this, id);
         //new MultiplayerComponent(this, playerId);
         setupAnimationComponent();
     }
