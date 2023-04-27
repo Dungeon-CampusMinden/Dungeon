@@ -30,7 +30,7 @@ public class TextureHandler {
         List<FileHandle> placeholderAssets = findAllPlaceholderAssets();
         assert placeholderAssets.size() == 2;
         // takes the placeholder assets with the longest path string...
-        if (placeholderAssets.get(0).path().length() > placeholderAssets.get(0).path().length()) {
+        if (placeholderAssets.get(0).path().length() > placeholderAssets.get(1).path().length()) {
             addAllAssets(placeholderAssets.get(0).parent());
         } else {
             addAllAssets(placeholderAssets.get(1).parent());
