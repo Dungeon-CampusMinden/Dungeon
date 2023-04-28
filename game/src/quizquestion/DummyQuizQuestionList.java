@@ -1,0 +1,179 @@
+package quizquestion;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class DummyQuizQuestionList {
+
+    private static List<QuizQuestion> questions =
+        new ArrayList<>() {
+            {
+                // "Einfache" Testfrage für SingleChoice
+                add(
+                    new QuizQuestion(
+                        new QuizQuestionContent(
+                            QuizQuestionContent.QuizQuestionContentType.TEXT,
+                            "Was ist kein Ziel von Refactoring?"),
+                        new QuizQuestionContent[] {
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Lesbarkeit von Code verbessern"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Verständlichkeit von Code verbessern"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Wartbarkeit von Code verbessern"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Fehler im Code ausmerzen"),
+                        },
+                        QuizQuestion.QuizQuestionType.SINGLE_CHOICE));
+
+                // Testfrage für Multiple Choice
+                add(
+                    new QuizQuestion(
+                        new QuizQuestionContent(
+                            QuizQuestionContent.QuizQuestionContentType.TEXT,
+                            "Welche der hier genannten Komponenten sind \"atomare Komponenten\"?"),
+                        new QuizQuestionContent[] {
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Buttons"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Frames"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Label"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Panels"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Groups"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "EventListener"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Events"),
+                        },
+                        QuizQuestion.QuizQuestionType.MULTIPLE_CHOICE));
+
+                // Testfrage für Antwortmöglichkeiten mit bis zu 45 Buchstaben
+                add(
+                    new QuizQuestion(
+                        new QuizQuestionContent(
+                            QuizQuestionContent.QuizQuestionContentType.TEXT,
+                            "Welche Methode/n muss der Observer mindestens implementieren?"),
+                        new QuizQuestionContent[] {
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Eine update-Methode und eine register-Methode"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Eine notify-Methode und eine register-Methode"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Eine notify-Methode"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Eine register-Methode"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Eine update-Methode"),
+                        },
+                        QuizQuestion.QuizQuestionType.SINGLE_CHOICE));
+
+                // Testfrage für Freitextfrage und lange Quizfragen mit bis zu 156 Buchstaben
+                add(
+                    new QuizQuestion(
+                        new QuizQuestionContent(
+                            QuizQuestionContent.QuizQuestionContentType.TEXT,
+                            "Mit welchem Befehl kann man sich Dateien in der Workingcopy anzeigen "
+                                + "lassen, die unversioniert sind oder in denen es Änderungen seit dem letzten Commit gab?"),
+                        new QuizQuestionContent[] {},
+                        QuizQuestion.QuizQuestionType.FREETEXT));
+
+                // Testfrage für maximal zwei Antwortmöglichkeiten
+                add(
+                    new QuizQuestion(
+                        new QuizQuestionContent(
+                            QuizQuestionContent.QuizQuestionContentType.TEXT,
+                            "Mit git log kann man sich eine Liste aller Commits anzeigen lassen."),
+                        new QuizQuestionContent[] {
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Wahr"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Falsch"),
+                        },
+                        QuizQuestion.QuizQuestionType.SINGLE_CHOICE));
+
+                // Testfrage für lange Quizfragen mit bis zu 130 Buchstaben
+                add(
+                    new QuizQuestion(
+                        new QuizQuestionContent(
+                            QuizQuestionContent.QuizQuestionContentType.TEXT,
+                            "Über welche Methode kann ein Thread thread1 darauf warten, dass ein "
+                                + "anderer Thread thread2 ihn über ein Objekt obj benachrichtigt?"),
+                        new QuizQuestionContent[] {
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "obj.wait()"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "obj.wait(otherThread)"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "obj.waitFor(otherThread)"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Thread.wait(obj, otherThread)"),
+                        },
+                        QuizQuestion.QuizQuestionType.SINGLE_CHOICE));
+
+                // Testfrage für sehr lange Antwortmöglichkeiten mit bis zu 77 Buchstaben
+                // (optional)
+                add(
+                    new QuizQuestion(
+                        new QuizQuestionContent(
+                            QuizQuestionContent.QuizQuestionContentType.TEXT,
+                            "Was macht die notify()-Methode?"),
+                        new QuizQuestionContent[] {
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Sie benachrichtigt alle Threads, die \"auf\" einem Objekt warten"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Sie benachrichtigt einen Thread, der \"auf\" einem Objekt wartet"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Sie benachrichtigt ein Objekt über den Zugriff eines Threads"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Sie benachrichtigt ein Objekt über Zustandsänderungen in einem anderen Objekt"),
+                            new QuizQuestionContent(
+                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                "Sie benachrichtigt den ersten Thread in der Warteliste auf einem Objekt"),
+                        },
+                        QuizQuestion.QuizQuestionType.SINGLE_CHOICE));
+            }
+        };
+
+    public static QuizQuestion getQuestionById(int id) {
+        if (id < 0 || id >= questions.size()) {
+            throw new RuntimeException("Invalid question id");
+        }
+
+        return questions.get(id);
+    }
+
+    public static QuizQuestion getRandomQuestion() {
+        Random rnd = new Random();
+        return questions.get(rnd.nextInt(questions.size()));
+    }
+}

@@ -3,17 +3,19 @@ package graphic.hud;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
+import quizquestion.QuizQuestion;
+import quizquestion.QuizQuestionContent;
 import tools.Constants;
+import tools.Point;
+// https://github.com/libgdx/libgdx/blob/master/tests/gdx-tests/src/com/badlogic/gdx/tests/UITest.java
 
 /** Contains Constructor, which immediately creates the dialogue including all its elements. */
 public final class TextDialog extends Dialog {
 
     /** button ID (used when control is pressed) */
     private static final String btnID = "confirm exit";
-
     private static final String defaultMsg = "No message was load.";
     private static final String defaultBtnMsg = "OK";
-    private static final int differenceMeasure = 200;
 
     /**
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
@@ -21,33 +23,24 @@ public final class TextDialog extends Dialog {
      * @param buttonMsg text for the button
      * @param title Title of the dialogue
      */
+    public TextDialog(Skin skin, QuizQuestion quizQuestion, String outputMsg, String buttonMsg, String title) {
+        super(title, skin);
+        DialogDesign dialogDesign = new DialogDesign();
+        if (outputMsg.trim().isEmpty()) outputMsg = defaultMsg;
+        dialogDesign.QuizQuestion( quizQuestion, skin, outputMsg );
+        addActor(dialogDesign);
+        if (buttonMsg.trim().isEmpty()) buttonMsg = defaultBtnMsg;
+        button(buttonMsg, btnID);
+    }
+
+
     public TextDialog(Skin skin, String outputMsg, String buttonMsg, String title) {
         super(title, skin);
-
+        DialogDesign dialogDesign = new DialogDesign();
         if (outputMsg.trim().isEmpty()) outputMsg = defaultMsg;
-
-        Label labelContent = new Label(outputMsg, skin);
-        labelContent.setAlignment(Align.left);
-        labelContent.setColor(Color.WHITE);
-
-        Table scrollTable = new Table();
-        scrollTable.add(labelContent);
-        scrollTable.row();
-
-        ScrollPane scroller = new ScrollPane(scrollTable, skin);
-        scroller.setFadeScrollBars(false);
-        scroller.setScrollbarsVisible(true);
-
-        Table table = new Table();
-        table.setFillParent(true);
-        table.add(scroller)
-                .size(
-                        Constants.WINDOW_WIDTH - differenceMeasure,
-                        Constants.WINDOW_HEIGHT - differenceMeasure);
-        this.addActor(table);
-
+        dialogDesign.TextDialog( skin, outputMsg );
+        addActor(dialogDesign);
         if (buttonMsg.trim().isEmpty()) buttonMsg = defaultBtnMsg;
-
         button(buttonMsg, btnID);
     }
 
