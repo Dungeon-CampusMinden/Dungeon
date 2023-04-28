@@ -1,7 +1,10 @@
 package quizquestion;
 
-/** A class that provides methods for displaying quiz questions in a graphical user interface. */
-public class QuizQuestionUI {
+import graphic.hud.UITools;
+import tools.Constants;
+
+/** A class that askQuizQuestionWithUI provides methods for displaying quiz questions in a graphical user interface. */
+public  class QuizQuestionUI {
 
     /**
      * Displays a quiz question in a graphical user interface, allowing the user to select or input
@@ -15,6 +18,7 @@ public class QuizQuestionUI {
     public static void showQuizQuestion(QuizQuestion question) {
         // todo setup basic ui window
         // todo add "Dialog" (?) with Questiontext (question.question() )
+
         // todo check the type of the QuizQuestionContent question.qestion()
         // if text -> show it
         // if image -> use the inage path in question.qestion() -> show it
