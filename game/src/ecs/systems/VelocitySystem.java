@@ -30,7 +30,9 @@ public class VelocitySystem extends ECS_System {
         Point newPosition = new Point(newX, newY);
         if (Game.currentLevel.getTileAt(newPosition.toCoordinate()).isAccessible()) {
             vsd.pc.setPosition(newPosition);
-            if (newPosition.x != previousPosition.x || newPosition.y != previousPosition.y) Game.sendPosition();
+            boolean hasPositionChanged = newPosition.x != previousPosition.x || newPosition.y != previousPosition.y;
+            if (hasPositionChanged)
+                Game.multiplayerAPI.updateOwnPosition(newPosition);
             movementAnimation(vsd.e);
         }
 

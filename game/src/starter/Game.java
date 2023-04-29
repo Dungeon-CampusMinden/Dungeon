@@ -90,7 +90,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     private Logger gameLogger;
     public static Hero hero;
 
-    private static MultiplayerAPI multiplayerAPI;
+    public static MultiplayerAPI multiplayerAPI;
 
     /** Called once at the beginning of the game. */
     protected void setup() {
@@ -202,15 +202,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         }
     }
 
-    public static void sendPosition(){
-        PositionComponent positionComponent =
-            (PositionComponent) hero
-                .getComponent(PositionComponent.class)
-                .orElseThrow();
-        multiplayerAPI.updateOwnPosition(positionComponent.getPosition());
-    }
-
-    private void updateAllHeroPositions() {
+    private void synchronizePositionsFromMultiplayerSession() {
 
         if (multiplayerAPI.isConnectedToSession()) {
             final HashMap<Integer, Point> heroPositionByPlayerIdExceptOwn =
@@ -260,7 +252,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         if (hero != null && heroPositionComponent != null) {
             camera.setFocusPoint(heroPositionComponent.getPosition());
         }
-        updateAllHeroPositions();
+        synchronizePositionsFromMultiplayerSession();
         entities.removeAll(entitiesToRemove);
         entities.addAll(entitiesToAdd);
         for (Entity entity : entitiesToRemove) {
