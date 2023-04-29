@@ -3,9 +3,7 @@ package mp.client;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import level.elements.ILevel;
 import mp.packages.NetworkSetup;
-import mp.packages.request.InitializeServerRequest;
 import mp.packages.response.InitializeServerResponse;
 import mp.packages.response.JoinSessionResponse;
 import mp.packages.response.PingResponse;
@@ -52,17 +50,17 @@ public class MultiplayerClient extends Listener {
         } else if (object instanceof InitializeServerResponse){
             boolean isSucceed = ((InitializeServerResponse)object).isSucceed();
             for (IMultiplayerClientObserver observer: observers) {
-                observer.onServerInitializedReceived(isSucceed, connection.getID());
+                observer.onInitializeServerResponseReceived(isSucceed, connection.getID());
             }
         } else if (object instanceof JoinSessionResponse) {
             JoinSessionResponse response = (JoinSessionResponse)object;
             for (IMultiplayerClientObserver observer: observers) {
-                observer.onSessionJoined(response.getLevel(), response.getPlayerId(), response.getPlayerPositions());
+                observer.onJoinSessionResponseReceived(response.getLevel(), response.getPlayerId(), response.getPlayerPositions());
             }
         } else if (object instanceof UpdateAllPositionsResponse){
             HashMap playerPositions = ((UpdateAllPositionsResponse)object).getPlayerPositions();
             for (IMultiplayerClientObserver observer: observers){
-                observer.onPositionUpdate(playerPositions);
+                observer.onHeroPositionsChangedEventReceived(playerPositions);
             }
         }
     }

@@ -31,10 +31,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Logger;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 import level.IOnLevelLoader;
 import level.LevelAPI;
@@ -44,17 +42,13 @@ import level.generator.IGenerator;
 import level.generator.postGeneration.WallGenerator;
 import level.generator.randomwalk.RandomWalkGenerator;
 import level.tools.LevelSize;
-import mp.client.IMultiplayerClientObserver;
-import mp.client.MultiplayerClient;
-import mp.packages.request.InitializeServerRequest;
-import mp.packages.request.JoinSessionRequest;
-import mp.packages.request.UpdateOwnPositionRequest;
-import mp.server.MultiplayerServer;
+import mp.IMultiplayer;
+import mp.MultiplayerAPI;
 import tools.Constants;
 import tools.Point;
 
 /** The heart of the framework. From here all strings are pulled. */
-public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObserver, IMultiplayerClientObserver {
+public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObserver, IMultiplayer {
 
     private final LevelSize LEVELSIZE = LevelSize.SMALL;
 
@@ -94,13 +88,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     private static StartMenu startMenu;
     private PositionComponent heroPositionComponent;
     private Logger gameLogger;
-    private static MultiplayerClient multiplayerClient;
-    private static MultiplayerServer multiplayerServer;
-    private static int playerId;
     public static Hero hero;
 
-    private HashMap<Integer, HeroDummy> opponentsById = new HashMap<Integer, HeroDummy>();
-    private HashMap<Integer, Point> playerPositions;
+    private static MultiplayerAPI multiplayerAPI;
 
     /** Called once at the beginning of the game. */
     protected void setup() {
@@ -109,8 +99,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         controller.clear();
         systems = new SystemController();
         controller.add(systems);
+        multiplayerAPI = new MultiplayerAPI(this);
 
-        setupClient();
         setupMenus();
         setupHero();
         setupRandomLevel();
@@ -170,75 +160,54 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
 
     @Override
     public void onMultiPlayerHostModeChosen() {
-        setupServer();
-        // Check whether which random port is not already in use and listen to this on serverside
-        boolean isRandomPortAlreadyInUse = false;
-        int serverPort;
-        do {
-            // Create random 5 digit port
-            serverPort = ThreadLocalRandom.current().nextInt(10000, 65535 + 1);
-            try {
-                multiplayerServer.startListening(serverPort);
-            } catch (Exception e) {
-                isRandomPortAlreadyInUse = true;
-            }
-        } while(isRandomPortAlreadyInUse);
-        if (!multiplayerClient.connectToHost("127.0.0.1", serverPort)) {
-            // TODO: error handling
-            System.out.println(String.format("Could not connect to host on this device at port %d.", serverPort));
-        } else {
-            // refresh level because was loaded on setup as background for start menu
-            setupRandomLevel();
-            multiplayerClient.send(new InitializeServerRequest(currentLevel));
+        setupRandomLevel();
+        try {
+            multiplayerAPI.startSession(currentLevel);
+        } catch (Exception e) {
+            // TODO: Nicer error handling
+            System.out.println("Multiplayer session failed to start.");
+            e.printStackTrace();
         }
     }
 
     @Override
-    public void onMultiPlayerClientModeChosen(String hostAddress, Integer port) {
-        // TODO: configure client as slave
-        if (!multiplayerClient.connectToHost(hostAddress, port)) {
-            // TODO: error handling like popup menu with error message
-            System.out.println(String.format("Could not connect to host %s:%d", hostAddress, port));
-        } else {
-            multiplayerClient.send(new JoinSessionRequest());
+    public void onMultiPlayerClientModeChosen(final String hostAddress, final Integer port) {
+        try {
+            multiplayerAPI.joinSession(hostAddress, port);
+        } catch (Exception e) {
+            // TODO: Nicer error handling
+            System.out.println("Multiplayer session failed to join.");
+            e.printStackTrace();
         }
     }
 
     @Override
-    public void onServerInitializedReceived(boolean isSucceed, int id) {
-        // TODO: do some stuff
+    public void onMultiplayerSessionStarted(final boolean isSucceed) {
         if (isSucceed) {
-            playerId = id;
             hideMenu(startMenu);
             sendPosition();
         } else {
             // TODO: error handling like popup menu with error message
-            System.out.println("Multiplayer host session failed to initialize");
         }
     }
 
     @Override
-    public void onSessionJoined(ILevel level, int id, HashMap playerPositions) {
-        // TODO: do some stuff
+    public void onMultiplayerSessionJoined(final ILevel level) {
         if (level != null) {
             levelAPI.setLevel(level);
-            playerId = id;
             hideMenu(startMenu);
             sendPosition();
-            this.playerPositions = playerPositions;
-            // Creating HeroDummy
-            //playerEntities.put(id,new HeroDummy(new Point(0.0f,0.0f)));
-
         } else {
             // TODO: error handling like popup menu with error message
-            System.out.println("Multiplayer host session failed to initialize");
         }
     }
 
     public static void sendPosition(){
-        PositionComponent pos = (PositionComponent) hero.getComponent(PositionComponent.class).orElseThrow();
-        UpdateOwnPositionRequest posReq = new UpdateOwnPositionRequest(playerId, pos.getPosition());
-        multiplayerClient.send(posReq);
+        PositionComponent positionComponent =
+            (PositionComponent) hero
+                .getComponent(PositionComponent.class)
+                .orElseThrow();
+        multiplayerAPI.updateOwnPosition(positionComponent.getPosition());
     }
 
     private record MPData(Entity e, MultiplayerComponent mc, PositionComponent pc) {}
@@ -254,101 +223,42 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     }
 
     private void updatePositions(MPData mpd){
-        mpd.pc.setPosition(playerPositions.get(mpd.mc.getPlayerId()));
+        mpd.pc.setPosition(multiplayerAPI.getHeroPositionByPlayerId().get(mpd.mc.getPlayerId()));
     }
 
-    private void updateAllPos(){
-        if (this.playerPositions != null && playerId != 0) {
+    private void updateAllHeroPositions() {
 
-            //Add new oppenent, if new player joined
-            playerPositions.forEach((id, position) -> {
-                if(playerId == (int) id) {
-                    return;
-                }
+        if (multiplayerAPI.isConnectedToSession()) {
+            final HashMap<Integer, Point> heroPositionByPlayerIdExceptOwn =
+                multiplayerAPI.getHeroPositionByPlayerIdExceptOwn();
 
-                if(!entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
-                    .map(e -> (MultiplayerComponent)e)
-                    .anyMatch(e -> e.getPlayerId() == (int) id)){
-                    new HeroDummy(new Point(0,0), (int) id);
-                }
-            });
-
-            entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
-                .map(e -> (MultiplayerComponent) e)
-                .forEach(mc -> {
-                    if(!playerPositions.containsKey(mc.getPlayerId())){
-                        entitiesToRemove.add(mc.getEntity());
-                    }
+            if (heroPositionByPlayerIdExceptOwn != null) {
+                //Add new hero, if new player joined
+                heroPositionByPlayerIdExceptOwn.forEach((Integer playerId, Point position) -> {
+                    if(!entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
+                        .map(component -> (MultiplayerComponent)component)
+                        .anyMatch(component -> component.getPlayerId() == playerId)) {
+                            new HeroDummy(new Point(0,0), playerId);
+                        }
                 });
 
-            //Update all positions of all entities with a multiplayerComponent
-            entities.stream()
-                //.filter(e -> e instanceof HeroDummy)
-                .flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
-                .map(mc -> buildDataObject((MultiplayerComponent) mc))
-                .forEach(this::updatePositions);
+                entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
+                    .map(e -> (MultiplayerComponent) e)
+                    .forEach(mc -> {
+                        if(!heroPositionByPlayerIdExceptOwn.containsKey(mc.getPlayerId())){
+                            entitiesToRemove.add(mc.getEntity());
+                        }
+                    });
+
+                //Update all positions of all entities with a multiplayerComponent
+                entities.stream()
+                    //.filter(e -> e instanceof HeroDummy)
+                    .flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
+                    .map(mc -> buildDataObject((MultiplayerComponent) mc))
+                    .forEach(this::updatePositions);
+            }
         }
     }
-
-    @Override
-    public void onPositionUpdate(HashMap playerPositions) {
-        this.playerPositions = playerPositions;
-    }
-//            // Update opponent positions
-//            playerPositions.forEach((id, position) -> {
-//                if(playerId == (int) id){
-//                    return;
-//                }
-//
-//                // add new opponent, if new joined session
-//                if(!opponentsById.containsKey(id)) {
-//                    HeroDummy newHero = new HeroDummy((Point) position, (int) id);
-//                    opponentsById.put((int) id, newHero);
-//                    //entitiesToAdd.add(newHero);
-//                }
-//
-//                Entity herotestdummy = opponentsById.get(id);
-//                PositionComponent pc = (PositionComponent) herotestdummy.getComponent(PositionComponent.class).orElseThrow();
-//                pc.setPosition((Point)position);
-//            });
-//
-//            // Check whether hero was disconnected => remove from client scene
-//            Set<Integer> heroIdsToBeRemoved = new HashSet<>();
-//            opponentsById.forEach((Integer id, HeroDummy heroDummy) -> {
-//                if (!playerPositions.containsKey(id)) {
-//                    heroIdsToBeRemoved.add(id);
-//                }
-//            });
-//            heroIdsToBeRemoved.forEach((Integer id) -> {
-//                HeroDummy toBeRemoved = opponentsById.get(id);
-//                opponentsById.remove(id);
-//                entitiesToRemove.add(toBeRemoved);
-//            });
-//        }
-//    }
-
-//    private void updateOponents() {
-//        if (opponentsById != null) {
-//            opponentsById.forEach((id, heroDummy) -> {
-//                if (!entities.contains(heroDummy)) {
-//                    entities.add(heroDummy);
-//                }
-//
-//
-//                if(!opponentsById.containsKey(id)){
-//                    HeroDummy newHero = new HeroDummy((Point)position);
-//                    opponentsById.put((int) id, newHero);
-//                }
-//
-//                entities.stream().filter(x -> x == heroDummy)
-//                    .flatMap(x -> {
-//                        PositionComponent pc = (PositionComponent) herotestdummy.getComponent(PositionComponent.class).orElseThrow();
-//                        pc.setPosition((Point)position);
-//                        return true;
-//                    });
-//            });
-//        }
-//    }
 
     public void setSpriteBatch(SpriteBatch batch) {
         this.batch = batch;
@@ -359,7 +269,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         if (hero != null && heroPositionComponent != null) {
             camera.setFocusPoint(heroPositionComponent.getPosition());
         }
-        updateAllPos();
+        updateAllHeroPositions();
         entities.removeAll(entitiesToRemove);
         entities.addAll(entitiesToAdd);
         for (Entity entity : entitiesToRemove) {
@@ -444,15 +354,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
                 hero.getComponent(PositionComponent.class)
                     .orElseThrow(
                         () -> new MissingComponentException("PositionComponent"));
-    }
-
-    private void setupServer() {
-        multiplayerServer = new MultiplayerServer();
-    }
-
-    private void setupClient() {
-        multiplayerClient = new MultiplayerClient();
-        multiplayerClient.addObserver(this);
     }
 
     private void setupMenus() {
