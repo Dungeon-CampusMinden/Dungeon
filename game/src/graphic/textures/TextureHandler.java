@@ -2,16 +2,15 @@ package graphic.textures;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,40 +27,24 @@ public class TextureHandler {
     private final Map<String, Set<FileHandle>> pathMap = new LinkedHashMap<>();
 
     private TextureHandler() {
-        List<FileHandle> placeholderAssets = findAllPlaceholderAssets();
-        assert placeholderAssets.size() == 2;
-        // takes the placeholder assets with the longest path string...
-        if (placeholderAssets.get(0).path().length() > placeholderAssets.get(1).path().length()) {
-            addAllAssets(placeholderAssets.get(0).parent());
+        List<Path> placeholderPaths = findAllPlaceholderPaths();
+        assert placeholderPaths.size() == 2;
+        // takes the placeholder path with the longest path string...
+        if (placeholderPaths.get(0).toString().length()
+                > placeholderPaths.get(1).toString().length()) {
+            addAllAssets(new FileHandle(placeholderPaths.get(0).toFile()));
         } else {
-            addAllAssets(placeholderAssets.get(1).parent());
+            addAllAssets(new FileHandle(placeholderPaths.get(1).toFile()));
         }
     }
 
-    private List<FileHandle> findAllPlaceholderAssets() {
-        // needs circa 277 currentDir.list() calls...
-        List<FileHandle> results = new ArrayList<>();
-        Deque<FileHandle> dirQueue = new ArrayDeque<>();
-        dirQueue.add(Gdx.files.internal(Gdx.files.getLocalStoragePath()));
-        while (!dirQueue.isEmpty()) {
-            FileHandle currentDir = dirQueue.removeFirst();
-            FileHandle[] list = currentDir.list();
-            List<FileHandle> currentDirs =
-                    Arrays.stream(list).filter(FileHandle::isDirectory).toList();
-            List<FileHandle> currentFiles =
-                    Arrays.stream(list).filter(Predicate.not(FileHandle::isDirectory)).toList();
-            boolean hasPlaceholderAsset = false;
-            for (FileHandle file : currentFiles) {
-                if ("placeholder-asset-do-not-delete.png".equals(file.name())) {
-                    hasPlaceholderAsset = true;
-                    results.add(file);
-                }
-            }
-            if (!hasPlaceholderAsset) {
-                dirQueue.addAll(currentDirs);
-            }
+    private List<Path> findAllPlaceholderPaths() {
+        try (Stream<Path> walk = Files.walk(Path.of(Gdx.files.getLocalStoragePath()), 3)) {
+            return walk.filter(x -> Files.isRegularFile(x) && x.endsWith(PLACEHOLDER_FILENAME))
+                    .toList();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
-        return results;
     }
 
     /**
