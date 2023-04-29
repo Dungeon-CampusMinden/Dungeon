@@ -32,15 +32,19 @@ public class TextureHandler {
         // takes the placeholder path with the longest path string...
         if (placeholderPaths.get(0).toString().length()
                 > placeholderPaths.get(1).toString().length()) {
-            addAllAssets(new FileHandle(placeholderPaths.get(0).toFile()));
+            addAllAssets(new FileHandle(placeholderPaths.get(0).getParent().toFile()));
         } else {
-            addAllAssets(new FileHandle(placeholderPaths.get(1).toFile()));
+            addAllAssets(new FileHandle(placeholderPaths.get(1).getParent().toFile()));
         }
     }
 
     private List<Path> findAllPlaceholderPaths() {
-        try (Stream<Path> walk = Files.walk(Path.of(Gdx.files.getLocalStoragePath()), 3)) {
-            return walk.filter(x -> Files.isRegularFile(x) && x.endsWith(PLACEHOLDER_FILENAME))
+        try (Stream<Path> walk = Files.walk(Path.of(Gdx.files.getLocalStoragePath()), 4)) {
+            return walk.filter(
+                            x ->
+                                    Files.isRegularFile(x)
+                                            && PLACEHOLDER_FILENAME.equals(
+                                                    x.getFileName().toString()))
                     .toList();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
