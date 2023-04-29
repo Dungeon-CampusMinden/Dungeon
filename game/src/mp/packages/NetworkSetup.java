@@ -16,7 +16,8 @@ import mp.packages.request.UpdateOwnPositionRequest;
 import mp.packages.response.InitializeServerResponse;
 import mp.packages.response.JoinSessionResponse;
 import mp.packages.response.PingResponse;
-import mp.packages.response.UpdateAllPositionsResponse;
+import mp.packages.event.HeroPositionsChangedEvent;
+import mp.packages.response.UpdateOwnPositionResponse;
 import mp.packages.serializer.*;
 import tools.Point;
 
@@ -55,6 +56,7 @@ public class NetworkSetup {
         kryo.register(LevelElement.class);
         kryo.register(UpdateOwnPositionRequest.class, new UpdateOwnPositionRequestSerializer());
         kryo.register(HashMap.class);
-        kryo.register(UpdateAllPositionsResponse.class, new UpdateAllPositionsResponseSerializer());
+        kryo.register(HeroPositionsChangedEvent.class, new HeroPositionsChangedEventSerializer());
+        kryo.register(UpdateOwnPositionResponse.class);
     }
 }

@@ -10,8 +10,8 @@ import tools.Point;
 public class UpdateOwnPositionRequestSerializer extends Serializer<UpdateOwnPositionRequest> {
     @Override
     public void write(Kryo kryo, Output output, UpdateOwnPositionRequest object) {
-        output.writeInt(object.getPlayerId());
-        kryo.writeObject(output, object.getPosition());
+        output.writeInt(object.getClientId());
+        kryo.writeObject(output, object.getHeroPosition());
     }
 
     @Override

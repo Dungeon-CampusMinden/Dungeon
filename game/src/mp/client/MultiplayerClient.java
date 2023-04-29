@@ -7,7 +7,8 @@ import mp.packages.NetworkSetup;
 import mp.packages.response.InitializeServerResponse;
 import mp.packages.response.JoinSessionResponse;
 import mp.packages.response.PingResponse;
-import mp.packages.response.UpdateAllPositionsResponse;
+import mp.packages.event.HeroPositionsChangedEvent;
+import mp.packages.response.UpdateOwnPositionResponse;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -38,7 +39,9 @@ public class MultiplayerClient extends Listener {
 
     @Override
     public void disconnected(Connection connection) {
-//        System.out.println("Disconnected from server!");
+        for (IMultiplayerClientObserver observer: observers) {
+            observer.onDisconnected();
+        }
     }
 
     @Override
@@ -57,10 +60,14 @@ public class MultiplayerClient extends Listener {
             for (IMultiplayerClientObserver observer: observers) {
                 observer.onJoinSessionResponseReceived(response.getLevel(), response.getPlayerId(), response.getPlayerPositions());
             }
-        } else if (object instanceof UpdateAllPositionsResponse){
-            HashMap playerPositions = ((UpdateAllPositionsResponse)object).getPlayerPositions();
+        } else if (object instanceof HeroPositionsChangedEvent){
+            HashMap playerPositions = ((HeroPositionsChangedEvent)object).getHeroPositionByClientId();
             for (IMultiplayerClientObserver observer: observers){
                 observer.onHeroPositionsChangedEventReceived(playerPositions);
+            }
+        } else if (object instanceof UpdateOwnPositionResponse) {
+            for (IMultiplayerClientObserver observer: observers){
+                observer.onUpdateOwnPositionResponseReceived();
             }
         }
     }

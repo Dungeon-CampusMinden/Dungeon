@@ -2,20 +2,23 @@ package mp.packages.request;
 
 import tools.Point;
 
+import static java.util.Objects.requireNonNull;
+
 public class UpdateOwnPositionRequest{
-    private int playerId;
-    private Point position;
+    private int clientId;
+    private Point heroPosition;
 
-    public UpdateOwnPositionRequest(int playerId, Point position){
-        this.playerId = playerId;
-        this.position = position;
+    public UpdateOwnPositionRequest(final int clientId, final Point heroPosition){
+        requireNonNull(heroPosition);
+        this.clientId = clientId;
+        this.heroPosition = heroPosition;
     }
 
-    public int getPlayerId() {
-        return playerId;
+    public int getClientId() {
+        return clientId;
     }
 
-    public Point getPosition() {
-        return position;
+    public Point getHeroPosition() {
+        return heroPosition;
     }
 }

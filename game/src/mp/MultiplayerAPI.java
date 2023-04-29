@@ -51,6 +51,11 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     }
 
     @Override
+    public void onUpdateOwnPositionResponseReceived() {
+
+    }
+
+    @Override
     public void onHeroPositionsChangedEventReceived(final HashMap<Integer, Point> heroPositionByClientId) {
         requireNonNull(heroPositionByClientId);
         this.heroPositionByPlayerId = heroPositionByClientId;
@@ -63,8 +68,7 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
 
     @Override
     public void onDisconnected() {
-        playerId = 0;
-        heroPositionByPlayerId.clear();
+        clearSessionData();
     }
 
     /** */
@@ -88,7 +92,8 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
 
     /** */
     public void stopSession() {
-        this.multiplayerServer.stop();
+        clearSessionData();
+        multiplayerServer.stop();
     }
 
     /** */
@@ -121,5 +126,10 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
 
     public boolean isConnectedToSession() {
         return playerId != 0;
+    }
+
+    private void clearSessionData() {
+        playerId = 0;
+        heroPositionByPlayerId.clear();
     }
 }

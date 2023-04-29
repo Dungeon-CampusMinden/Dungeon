@@ -13,8 +13,8 @@ import mp.packages.request.UpdateOwnPositionRequest;
 import mp.packages.response.InitializeServerResponse;
 import mp.packages.response.JoinSessionResponse;
 import mp.packages.response.PingResponse;
-import mp.packages.response.UpdateAllPositionsResponse;
-import mp.player.PlayersAPI;
+import mp.packages.event.HeroPositionsChangedEvent;
+import mp.packages.response.UpdateOwnPositionResponse;
 import tools.Point;
 
 import java.io.IOException;
@@ -32,7 +32,6 @@ public class MultiplayerServer extends Listener {
     private static final Integer objectBufferSize = maxObjectSizeExpected;
     private final Server server = new Server(writeBufferSize, objectBufferSize );
     private ILevel level;
-    private final PlayersAPI playersAPI = new PlayersAPI();
 
     private HashMap<Integer, Point> playerPositions = new HashMap<Integer, Point>();
 
@@ -49,7 +48,7 @@ public class MultiplayerServer extends Listener {
     @Override
     public void disconnected(Connection connection) {
         playerPositions.remove(connection.getID());
-        server.sendToAllTCP(new UpdateAllPositionsResponse(playerPositions));
+        server.sendToAllTCP(new HeroPositionsChangedEvent(playerPositions));
     }
 
     @Override
@@ -65,8 +64,13 @@ public class MultiplayerServer extends Listener {
             connection.sendTCP(new JoinSessionResponse(level, connection.getID(), playerPositions));
         } else if (object instanceof UpdateOwnPositionRequest) {
             UpdateOwnPositionRequest posReq = (UpdateOwnPositionRequest) object;
-            playerPositions.put(posReq.getPlayerId(), posReq.getPosition());
-            server.sendToAllTCP(new UpdateAllPositionsResponse(playerPositions));
+            playerPositions.put(posReq.getClientId(), posReq.getHeroPosition());
+            connection.sendTCP(new UpdateOwnPositionResponse());
+
+            /** For now: directly emit event to all clients, that position of one hero changed.
+             * Later: Emit positions of all heros tickwise, to avoid high network use.
+             * */
+            server.sendToAllTCP(new HeroPositionsChangedEvent(playerPositions));
         }
     }
 

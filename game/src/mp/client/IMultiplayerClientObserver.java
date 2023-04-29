@@ -9,6 +9,7 @@ public interface IMultiplayerClientObserver {
     void onInitializeServerResponseReceived(boolean isSucceed, int clientId);
     void onJoinSessionResponseReceived(ILevel level, int clientId, HashMap<Integer, Point> heroPositionByClientId);
     void onHeroPositionsChangedEventReceived(HashMap<Integer, Point> heroPositionByClientId);
+    void onUpdateOwnPositionResponseReceived();
     void onConnected();
     void onDisconnected();
 }
