@@ -32,7 +32,7 @@ public class VelocitySystem extends ECS_System {
             vsd.pc.setPosition(newPosition);
             boolean hasPositionChanged = newPosition.x != previousPosition.x || newPosition.y != previousPosition.y;
             if (hasPositionChanged)
-                Game.multiplayerAPI.updateOwnPosition(newPosition);
+                Game.sendPosition();
             movementAnimation(vsd.e);
         }
 

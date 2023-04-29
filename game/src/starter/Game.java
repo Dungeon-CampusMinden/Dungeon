@@ -90,7 +90,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     private Logger gameLogger;
     public static Hero hero;
 
-    public static MultiplayerAPI multiplayerAPI;
+    private static MultiplayerAPI multiplayerAPI;
 
     /** Called once at the beginning of the game. */
     protected void setup() {
@@ -200,6 +200,14 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         } else {
             // TODO: error handling like popup menu with error message
         }
+    }
+
+    public static void sendPosition(){
+        PositionComponent positionComponent =
+            (PositionComponent) hero
+                .getComponent(PositionComponent.class)
+                .orElseThrow();
+        multiplayerAPI.updateOwnPosition(positionComponent.getPosition());
     }
 
     private void synchronizePositionsFromMultiplayerSession() {
