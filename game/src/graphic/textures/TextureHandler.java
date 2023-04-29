@@ -22,6 +22,7 @@ import java.util.stream.Stream;
  * <p>Singleton.
  */
 public class TextureHandler {
+    public static final String PLACEHOLDER_FILENAME = ".resource_root_please_not_modify";
     private static final TextureHandler INSTANCE = new TextureHandler();
 
     private final Map<String, Set<FileHandle>> pathMap = new LinkedHashMap<>();
