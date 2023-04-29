@@ -210,22 +210,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         multiplayerAPI.updateOwnPosition(positionComponent.getPosition());
     }
 
-    private record MPData(Entity e, MultiplayerComponent mc, PositionComponent pc) {}
-
-    private MPData buildDataObject(MultiplayerComponent mc){
-        Entity e = mc.getEntity();
-
-        PositionComponent pc =
-            (PositionComponent)
-            e.getComponent(PositionComponent.class).orElseThrow();
-
-        return new MPData(e, mc, pc);
-    }
-
-    private void updatePositions(MPData mpd){
-        mpd.pc.setPosition(multiplayerAPI.getHeroPositionByPlayerId().get(mpd.mc.getPlayerId()));
-    }
-
     private void updateAllHeroPositions() {
 
         if (multiplayerAPI.isConnectedToSession()) {
@@ -242,6 +226,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
                         }
                 });
 
+                // Remove entities not connected to multiplayer session anymore
                 entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
                     .map(e -> (MultiplayerComponent) e)
                     .forEach(mc -> {
@@ -250,12 +235,18 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
                         }
                     });
 
-                //Update all positions of all entities with a multiplayerComponent
-                entities.stream()
-                    //.filter(e -> e instanceof HeroDummy)
-                    .flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
-                    .map(mc -> buildDataObject((MultiplayerComponent) mc))
-                    .forEach(this::updatePositions);
+                // Update all positions of all entities with a multiplayerComponent
+                for (Entity entity: entities) {
+                    if (entity.getComponent(MultiplayerComponent.class).isPresent()) {
+                        MultiplayerComponent multiplayerComponent =
+                            (MultiplayerComponent)entity.getComponent(MultiplayerComponent.class).orElseThrow();
+                        PositionComponent positionComponent =
+                            (PositionComponent) entity.getComponent(PositionComponent.class).orElseThrow();
+                        positionComponent.setPosition(
+                            multiplayerAPI.getHeroPositionByPlayerId().get(multiplayerComponent.getPlayerId())
+                        );
+                    }
+                }
             }
         }
     }
