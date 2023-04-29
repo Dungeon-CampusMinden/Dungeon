@@ -36,10 +36,10 @@ public class FriendlyGhost extends Entity{
 
     private Hero hero;
 
-    private final String pathToIdleLeft = "monster/ghost";
-    private final String pathToIdleRight = "monster/ghost";
-    private final String pathToRunLeft = "monster/ghost";
-    private final String pathToRunRight = "monster/ghost";
+    private final String pathToIdleLeft = "monster/ghost/idelLeft";
+    private final String pathToIdleRight = "monster/ghost/idelRight";
+    private final String pathToRunLeft = "monster/ghost/runLeft";
+    private final String pathToRunRight = "monster/ghost/runRight";
 
     /** Constructor
      *

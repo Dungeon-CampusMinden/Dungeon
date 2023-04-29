@@ -30,8 +30,8 @@ public class Demon extends Monster {
     private final String pathToRunLeft = "character/monster/chort/runLeft";
     private final String pathToRunRight = "character/monster/chort/idleRight";
 
-    private final float xSpeed = 0.1f;
-    private final float ySpeed = 0.1f;
+    private float xSpeed = 0.1f;
+    private float ySpeed = 0.1f;
     private int dmg = 3;
     private int maxHealthpoint = 4;
 

@@ -29,8 +29,8 @@ public class Imp extends Monster {
     private final String pathToRunLeft = "character/monster/imp/runLeft";
     private final String pathToRunRight = "character/monster/imp/idleRight";
 
-    private final float xSpeed = 0.2f;
-    private final float ySpeed = 0.2f;
+    private float xSpeed = 0.2f;
+    private float ySpeed = 0.2f;
     private int dmg = 1;
     private int maxHealthpoint = 5;
 
