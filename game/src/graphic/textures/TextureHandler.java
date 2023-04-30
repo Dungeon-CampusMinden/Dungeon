@@ -57,8 +57,6 @@ public class TextureHandler {
             logger.warning(e.toString());
             logger.warning("No resource root found.");
             logger.warning(PLACEHOLDER_FILENAME + " may have been removed.");
-            logger.warning("Program will exit.");
-            Gdx.app.exit();
             return null;
         }
     }
