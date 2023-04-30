@@ -20,7 +20,8 @@ import java.util.stream.Stream;
 /**
  * A texture handler class for managing textures paths for further use.
  *
- * <p>Singleton.
+ * <p>This class is designed as Singleton, because all asset paths should be read only once at the
+ * beginning of the application.
  */
 public class TextureHandler {
     public static final String PLACEHOLDER_FILENAME = ".resource_root";
