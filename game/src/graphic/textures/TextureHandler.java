@@ -54,7 +54,7 @@ public class TextureHandler {
     /**
      * Returns an instance of this {@link TextureHandler}.
      *
-     * @return Returns an instance of this {@link TextureHandler}.
+     * @return an instance of this {@link TextureHandler}.
      */
     public static TextureHandler getInstance() {
         return INSTANCE;
@@ -69,10 +69,10 @@ public class TextureHandler {
     }
 
     /**
-     * Returns all available asset paths, that was found. Can be used with {@link
+     * Returns all available asset paths, that were found. Can be used with {@link
      * TextureHandler#getTexturePaths(String)}.
      *
-     * @return Returns all available asset paths, that was found.
+     * @return all available asset paths, that were found.
      */
     public Set<String> getAvailablePaths() {
         return pathMap.keySet();
