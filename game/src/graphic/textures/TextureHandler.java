@@ -6,11 +6,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,33 +23,33 @@ import java.util.stream.Stream;
  * <p>Singleton.
  */
 public class TextureHandler {
-    public static final String PLACEHOLDER_FILENAME = ".resource_root_please_not_modify";
+    public static final String PLACEHOLDER_FILENAME = ".resource_root";
+    private static final int MAX_DEPTH_GUESS = 4;
     private static final TextureHandler INSTANCE = new TextureHandler();
 
     private final Map<String, Set<FileHandle>> pathMap = new LinkedHashMap<>();
 
     private TextureHandler() {
-        List<Path> placeholderPaths = findAllPlaceholderPaths();
-        assert placeholderPaths.size() == 2;
-        // takes the placeholder path with the longest path string...
-        if (placeholderPaths.get(0).toString().length()
-                > placeholderPaths.get(1).toString().length()) {
-            addAllAssets(new FileHandle(placeholderPaths.get(0).getParent().toFile()));
-        } else {
-            addAllAssets(new FileHandle(placeholderPaths.get(1).getParent().toFile()));
+        try {
+            addAllAssets(getResourceRoot());
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("No resource root found.");
+            System.exit(0);
         }
     }
 
-    private List<Path> findAllPlaceholderPaths() {
-        try (Stream<Path> walk = Files.walk(Path.of(Gdx.files.getLocalStoragePath()), 4)) {
-            return walk.filter(
-                            x ->
-                                    Files.isRegularFile(x)
-                                            && PLACEHOLDER_FILENAME.equals(
-                                                    x.getFileName().toString()))
-                    .toList();
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
+    private FileHandle getResourceRoot() throws IOException {
+        Predicate<Path> filter =
+                p ->
+                        Files.isRegularFile(p)
+                                && PLACEHOLDER_FILENAME.equals(p.getFileName().toString());
+        try (Stream<Path> walk =
+                Files.walk(Path.of(Gdx.files.getLocalStoragePath()), MAX_DEPTH_GUESS)) {
+            return walk.filter(filter)
+                    .max(Comparator.comparingInt(a -> a.toString().length()))
+                    .map(p -> new FileHandle(p.getParent().toString()))
+                    .orElseThrow();
         }
     }
 
@@ -69,8 +71,8 @@ public class TextureHandler {
     }
 
     /**
-     * Returns all available asset paths, that were found. Can be used with {@link
-     * TextureHandler#getTexturePaths(String)}.
+     * This Method is public only for unit tests. Returns all available asset paths, that were
+     * found. Can be used with {@link TextureHandler#getTexturePaths(String)}.
      *
      * @return all available asset paths, that were found.
      */
