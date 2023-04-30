@@ -2,7 +2,6 @@ package graphic.textures;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -11,8 +10,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,32 +26,40 @@ import java.util.stream.Stream;
  */
 public class TextureHandler {
     public static final String PLACEHOLDER_FILENAME = ".resource_root";
-    private static final int MAX_DEPTH_GUESS = 4;
+
     private static final TextureHandler INSTANCE = new TextureHandler();
 
     private final Map<String, Set<FileHandle>> pathMap = new LinkedHashMap<>();
 
     private TextureHandler() {
-        try {
-            addAllAssets(getResourceRoot());
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("No resource root found.");
-            System.exit(0);
-        }
+        addAllAssets(Objects.requireNonNull(getResourceRoot()));
     }
 
-    private FileHandle getResourceRoot() throws IOException {
-        Predicate<Path> filter =
-                p ->
-                        Files.isRegularFile(p)
-                                && PLACEHOLDER_FILENAME.equals(p.getFileName().toString());
+    /**
+     * Searches for the resource root that has the longest path name string. Internal helper method.
+     *
+     * @return the resource root with the longest path name string.
+     */
+    private FileHandle getResourceRoot() {
+        Predicate<Path> isRegularFile = Files::isRegularFile;
+        Predicate<Path> isNamedSameAs =
+                p -> PLACEHOLDER_FILENAME.equals(p.getFileName().toString());
+        Predicate<Path> isBothPredicate = p -> isRegularFile.test(p) && isNamedSameAs.test(p);
+        int maxDepthBestGuess = 4;
         try (Stream<Path> walk =
-                Files.walk(Path.of(Gdx.files.getLocalStoragePath()), MAX_DEPTH_GUESS)) {
-            return walk.filter(filter)
+                Files.walk(Path.of(Gdx.files.getLocalStoragePath()), maxDepthBestGuess)) {
+            return walk.filter(isBothPredicate)
                     .max(Comparator.comparingInt(a -> a.toString().length()))
                     .map(p -> new FileHandle(p.getParent().toString()))
                     .orElseThrow();
+        } catch (Exception e) {
+            Logger logger = Logger.getLogger(this.getClass().getName());
+            logger.warning(e.toString());
+            logger.warning("No resource root found.");
+            logger.warning(PLACEHOLDER_FILENAME + " may have been removed.");
+            logger.warning("Program will exit.");
+            Gdx.app.exit();
+            return null;
         }
     }
 
