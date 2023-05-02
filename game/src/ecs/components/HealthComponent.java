@@ -14,7 +14,13 @@ import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
 
-/** The HealthComponent adds health points and the ability to take damage and die to an entity. */
+/**
+ * The HealthComponent adds health points and the ability to take damage and die to an entity. It
+ * stores the current health points and the maximal health points. For retrieving what killed or
+ * damaged the entity, the last cause of damage is stored as well as some animations for getting hit
+ * and dying. Also there is the possibility to add functionality to be executed on death. To add
+ * damage to the entity the {@link #receiveHit(Damage) receiveHit} method is used.
+ */
 @DSLType(name = "health_component")
 public class HealthComponent extends Component {
     private static final List<String> missingTexture = List.of("animation/missingTexture.png");
@@ -28,7 +34,8 @@ public class HealthComponent extends Component {
     private final Logger healthLogger = Logger.getLogger(this.getClass().getName());
 
     /**
-     * Creates a new HealthComponent
+     * Creates a new HealthComponent by explicitly setting maximal health points, onDeath function,
+     * a getHitAnimation and a dieAnimation.
      *
      * @param entity associated entity
      * @param maximalHitPoints maximum amount of hit-points, currentHitPoints can't be bigger than
@@ -53,7 +60,9 @@ public class HealthComponent extends Component {
     }
 
     /**
-     * Creates a HealthComponent with default values
+     * Creates a HealthComponent with default values. The maximal health points are set to 1, the
+     * onDeath function is empty and the animations are set to an animation composed of the
+     * "missingTexture" texture.
      *
      * @param entity associated entity
      */
@@ -105,7 +114,10 @@ public class HealthComponent extends Component {
         return damageSum;
     }
 
-    /** Clear the damage list */
+    /**
+     * Clear the damage list. The damage list is used to determine the damage the entity should
+     * receive on next tick.
+     */
     public void clearDamage() {
         damageToGet.clear();
     }
