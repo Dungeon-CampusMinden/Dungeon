@@ -2,6 +2,7 @@ package graphic.textures;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -10,10 +11,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,7 +31,11 @@ public class TextureHandler {
     private final Map<String, Set<FileHandle>> pathMap = new LinkedHashMap<>();
 
     private TextureHandler() {
-        addAllAssets(getResourceRoot());
+        try {
+            addAllAssets(getResourceRoot());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -40,17 +43,16 @@ public class TextureHandler {
      *
      * @return the resource root with the longest path name string.
      */
-    private FileHandle getResourceRoot() {
+    private FileHandle getResourceRoot() throws IOException {
         Predicate<Path> isPlaceHolder =
                 p -> PLACEHOLDER_FILENAME.equals(p.getFileName().toString());
-        int maxDepthBestGuess = 4;
-        Stream<Path> walk =
-                Files.walk(Path.of(Gdx.files.getLocalStoragePath()), maxDepthBestGuess)) {
-            return walk.filter(Files::isRegularFile)
-                    .filter(isPlaceHolder)
-                    .max(Comparator.comparingInt(a -> a.toString().length()))
-                    .map(p -> new FileHandle(p.getParent().toString()))
-                    .orElseThrow();
+        int maxDepth = 4;
+        return Files.walk(Path.of(Gdx.files.getLocalStoragePath()), maxDepth)
+                .filter(Files::isRegularFile)
+                .filter(isPlaceHolder)
+                .max(Comparator.comparingInt(a -> a.toString().length()))
+                .map(p -> new FileHandle(p.getParent().toString()))
+                .orElseThrow();
     }
 
     /**
