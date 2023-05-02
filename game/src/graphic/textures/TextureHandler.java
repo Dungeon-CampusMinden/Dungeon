@@ -32,7 +32,7 @@ public class TextureHandler {
     private final Map<String, Set<FileHandle>> pathMap = new LinkedHashMap<>();
 
     private TextureHandler() {
-        addAllAssets(Objects.requireNonNull(getResourceRoot()));
+        addAllAssets(getResourceRoot());
     }
 
     /**
@@ -41,24 +41,16 @@ public class TextureHandler {
      * @return the resource root with the longest path name string.
      */
     private FileHandle getResourceRoot() {
-        Predicate<Path> isRegularFile = Files::isRegularFile;
-        Predicate<Path> isNamedSameAs =
+        Predicate<Path> isPlaceHolder =
                 p -> PLACEHOLDER_FILENAME.equals(p.getFileName().toString());
-        Predicate<Path> isBothPredicate = p -> isRegularFile.test(p) && isNamedSameAs.test(p);
         int maxDepthBestGuess = 4;
-        try (Stream<Path> walk =
+        Stream<Path> walk =
                 Files.walk(Path.of(Gdx.files.getLocalStoragePath()), maxDepthBestGuess)) {
-            return walk.filter(isBothPredicate)
+            return walk.filter(Files::isRegularFile)
+                    .filter(isPlaceHolder)
                     .max(Comparator.comparingInt(a -> a.toString().length()))
                     .map(p -> new FileHandle(p.getParent().toString()))
                     .orElseThrow();
-        } catch (Exception e) {
-            Logger logger = Logger.getLogger(this.getClass().getName());
-            logger.warning(e.toString());
-            logger.warning("No resource root found.");
-            logger.warning(PLACEHOLDER_FILENAME + " may have been removed.");
-            return null;
-        }
     }
 
     /**
