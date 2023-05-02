@@ -46,6 +46,9 @@ public class TextureHandler {
     private FileHandle getResourceRoot() throws IOException {
         Predicate<Path> isPlaceHolder =
                 p -> PLACEHOLDER_FILENAME.equals(p.getFileName().toString());
+        // We assume that the build directory structure looks like this: Dungeon/<build
+        // dir>/resources/main/<...>. So we need to dive at least into the directories with a depth
+        // of 4.
         int maxDepth = 4;
         return Files.walk(Path.of(Gdx.files.getLocalStoragePath()), maxDepth)
                 .filter(Files::isRegularFile)
