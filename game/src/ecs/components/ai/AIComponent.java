@@ -11,7 +11,11 @@ import ecs.entities.Entity;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 
-/** AIComponent is a component that stores the idle and combat behavior of AI controlled entities */
+/**
+ * AIComponent is a component that stores the idle and combat behavior of AI controlled entities. If
+ * the implicit constructor is used the entity will have a default behavior composed of a {@link RadiusWalk} as {@link IIdleAI IdleAI},
+ * {@link RangeTransition} as {@link ITransition TransitionAI} and {@link CollideAI} as {@link IFightAI FightAI.
+ */
 @DSLType(name = "ai_component")
 public class AIComponent extends Component {
 
@@ -21,6 +25,8 @@ public class AIComponent extends Component {
     private /*@DSLTypeMember(name="transition_ai)*/ ITransition transitionAI;
 
     /**
+     * Create AIComponent with the explicit set behavior.
+     *
      * @param entity associated entity
      * @param fightAI combat behavior
      * @param idleAI idle behavior
@@ -34,8 +40,8 @@ public class AIComponent extends Component {
     }
 
     /**
-     * Creates AIComponent with default behavior: RadiusWalk(5, 2) as IdleAI, RangeTransition(5.0f)
-     * as transitionAI and CollideAI(2.0f) as fightAI.
+     * Creates AIComponent with default behavior. For default behavior see class documentation of
+     * {@link AIComponent}.
      *
      * @param entity associated entity
      */
