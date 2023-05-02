@@ -1,4 +1,6 @@
-
+---
+title: "Typebuilding"
+---
 
 ## Was bedeutet Typebuilding im Kontext der DSL?
 

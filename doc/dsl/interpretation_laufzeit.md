@@ -1,9 +1,13 @@
-# Überblick: Wie funktioniert die Interpretation allgemein
+---
+title: "Interpreter Laufzeit"
+---
 
-# `MemorySpace`s und `Value`s
+## Überblick: Wie funktioniert die Interpretation allgemein
 
-# Funktionsaufrufe
+## `MemorySpace`s und `Value`s
 
-# Welche Klassen (neben `DSLInterpreter`) sind beteiligt?
+## Funktionsaufrufe
 
-# Typinstanziierung
+## Welche Klassen (neben `DSLInterpreter`) sind beteiligt?
+
+## Typinstanziierung
