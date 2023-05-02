@@ -25,10 +25,10 @@ public class TextureHandlerTest {
     }
 
     @Test
-    public void test_getAvailablePaths() {
+    public void test_getTexturePaths_all() {
         TextureHandler instance = TextureHandler.getInstance();
         Assert.assertNotNull(instance);
-        Set<String> paths = instance.getAvailablePaths();
+        List<String> paths = instance.getTexturePaths("");
         Assert.assertNotNull(paths);
         Assert.assertFalse(paths.isEmpty());
         for (String path : paths) {
@@ -37,7 +37,7 @@ public class TextureHandlerTest {
     }
 
     @Test
-    public void test_getTexturePaths() {
+    public void test_getTexturePaths_placeholder() {
         TextureHandler instance = TextureHandler.getInstance();
         Assert.assertNotNull(instance);
         List<String> paths = instance.getTexturePaths(TextureHandler.PLACEHOLDER_FILENAME);
