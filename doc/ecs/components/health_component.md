@@ -34,102 +34,102 @@ Konstruktors `HealthComponent(entity: Entity, maxHitPoints: int, onDeath: IOnDea
 | getHitAnimation | Animation        | Die Animation, die abgespielt wird, wenn die Entität Schaden nimmt |
 | dieAnimation    | Animation        | Die Animation, die abgespielt wird, wenn die Entität stirbt        |
 
-### Methoden
+## Methoden
 
-> ## receiveHit(damage: Damage): void
->
-> Füge der zugehörigen Entität Schaden hinzu.
->
-> ### Parameter
->
-> | Parametername | Typ     | Beschreibung                             |
-> |---------------|---------|------------------------------------------|
-> | damage        | Damage  | Der Schaden, der hinzugefügt werden soll |
+### receiveHit(damage: Damage): void
 
-> ## triggerOnDeath(): void
->
-> Löst die hinterlegte `onDeath`-Funktion aus.
+Füge der zugehörigen Entität Schaden hinzu.
 
-> ## getDamage(dt: DamageType): int
->
-> Gibt den Schaden zurück, den die Entität im nächsten Tick von einem bestimmten `DamageType` erhält
->
-> ### Parameter
->
-> | Parametername | Typ         | Beschreibung                                              |
-> |---------------|-------------|-----------------------------------------------------------|
-> | dt            | DamageType  | Der Schadenstyp, dessen Schaden zurückgegeben werden soll |
+#### Parameter
 
-> ## clearDamage(): void
->
-> Setzt den Schaden, den die Entität im nächsten Tick erhält, auf 0 zurück.
+| Parametername | Typ     | Beschreibung                             |
+|---------------|---------|------------------------------------------|
+| damage        | Damage  | Der Schaden, der hinzugefügt werden soll |
 
-> ## setCurrentHealthpoints(amount: int): void
->
-> Setzt die aktuellen Lebenspunkte der Entität auf einen bestimmten Wert.
->
-> ### Parameter
->
-> | Parametername | Typ | Beschreibung                       |
-> |---------------|-----|------------------------------------|
-> | amount        | int | Der neue Wert für die Lebenspunkte |
+### triggerOnDeath(): void
 
-> ## setMaximalHealthpoints(amount: int): void
->
-> Setzt die maximalen Lebenspunkte der Entität auf einen bestimmten Wert.
->
-> ### Parameter
->
-> | Parametername | Typ | Beschreibung                                  |
-> |---------------|-----|-----------------------------------------------|
-> | amount        | int | Der neue Wert für die maximalen Lebenspunkte  |
+Löst die hinterlegte `onDeath`-Funktion aus.
 
-> ## setDieAnimation(dieAnimation: Animation): void
->
-> Setzt die Animation, die abgespielt wird, wenn die Entität stirbt.
->
-> ### Parameter
->
-> | Parametername | Typ       | Beschreibung                                   |
-> |---------------|-----------|------------------------------------------------|
-> | dieAnimation  | Animation | Die neue Animation, die abgespielt werden soll |
+### getDamage(dt: DamageType): int
 
-> ## setGetHitAnimation(getHitAnimation: Animation): void
->
-> Setzt die Animation, die abgespielt wird, wenn die Entität Schaden nimmt.
->
-> ### Parameter
->
-> | Parametername   | Typ       | Beschreibung                                   |
-> |-----------------|-----------|------------------------------------------------|
-> | getHitAnimation | Animation | Die neue Animation, die abgespielt werden soll |
+Gibt den Schaden zurück, den die Entität im nächsten Tick von einem bestimmten `DamageType` erhält
 
-> ## setOnDeath(onDeath: IOnDeathFunction): void
->
-> Setzt die Funktion, die aufgerufen wird, wenn die Entität stirbt.
->
-> ### Parameter
->
-> | Parametername | Typ              | Beschreibung                                   |
-> |---------------|------------------|------------------------------------------------|
-> | onDeath       | IOnDeathFunction | Die neue Funktion, die aufgerufen werden soll  |
+#### Parameter
 
-> ## getCurrentHealthpoints(): int
->
-> Gibt die aktuellen Lebenspunkte der Entität zurück.
+| Parametername | Typ         | Beschreibung                                              |
+|---------------|-------------|-----------------------------------------------------------|
+| dt            | DamageType  | Der Schadenstyp, dessen Schaden zurückgegeben werden soll |
 
-> ## getMaximalHealthpoints(): int
->
-> Gibt die maximalen Lebenspunkte der Entität zurück.
+### clearDamage(): void
 
-> ## getDieAnimation(): Animation
->
-> Gibt die Animation, die abgespielt wird, wenn die Entität stirbt, zurück.
+Setzt den Schaden, den die Entität im nächsten Tick erhält, auf 0 zurück.
 
-> ## getGetHitAnimation(): Animation
->
-> Gibt die Animation, die abgespielt wird, wenn die Entität Schaden nimmt, zurück.
+### setCurrentHealthpoints(amount: int): void
 
-> ## getLastDamageCause(): Optional<Entity>
->
-> Gibt die Entität zurück, die den letzten Schaden verursacht hat.
+Setzt die aktuellen Lebenspunkte der Entität auf einen bestimmten Wert.
+
+#### Parameter
+
+| Parametername | Typ | Beschreibung                       |
+|---------------|-----|------------------------------------|
+| amount        | int | Der neue Wert für die Lebenspunkte |
+
+### setMaximalHealthpoints(amount: int): void
+
+Setzt die maximalen Lebenspunkte der Entität auf einen bestimmten Wert.
+
+#### Parameter
+
+| Parametername | Typ | Beschreibung                                  |
+|---------------|-----|-----------------------------------------------|
+| amount        | int | Der neue Wert für die maximalen Lebenspunkte  |
+
+### setDieAnimation(dieAnimation: Animation): void
+
+Setzt die Animation, die abgespielt wird, wenn die Entität stirbt.
+
+#### Parameter
+
+| Parametername | Typ       | Beschreibung                                   |
+|---------------|-----------|------------------------------------------------|
+| dieAnimation  | Animation | Die neue Animation, die abgespielt werden soll |
+
+### setGetHitAnimation(getHitAnimation: Animation): void
+
+Setzt die Animation, die abgespielt wird, wenn die Entität Schaden nimmt.
+
+#### Parameter
+
+| Parametername   | Typ       | Beschreibung                                   |
+|-----------------|-----------|------------------------------------------------|
+| getHitAnimation | Animation | Die neue Animation, die abgespielt werden soll |
+
+### setOnDeath(onDeath: IOnDeathFunction): void
+
+Setzt die Funktion, die aufgerufen wird, wenn die Entität stirbt.
+
+#### Parameter
+
+| Parametername | Typ              | Beschreibung                                   |
+|---------------|------------------|------------------------------------------------|
+| onDeath       | IOnDeathFunction | Die neue Funktion, die aufgerufen werden soll  |
+
+### getCurrentHealthpoints(): int
+
+Gibt die aktuellen Lebenspunkte der Entität zurück.
+
+### getMaximalHealthpoints(): int
+
+Gibt die maximalen Lebenspunkte der Entität zurück.
+
+### getDieAnimation(): Animation
+
+Gibt die Animation, die abgespielt wird, wenn die Entität stirbt, zurück.
+
+### getGetHitAnimation(): Animation
+
+Gibt die Animation, die abgespielt wird, wenn die Entität Schaden nimmt, zurück.
+
+### getLastDamageCause(): Optional<Entity>
+
+Gibt die Entität zurück, die den letzten Schaden verursacht hat.
