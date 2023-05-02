@@ -46,7 +46,7 @@ public class TextureHandler {
     }
 
     /**
-     * Searches for the resource root that has the longest path name string. Internal helper method.
+     * Searches for the resource root that has the longest path name string.
      *
      * <p>{@link TextureHandler#maxDepth}: We assume that the build directory structure looks like
      * this: "Dungeon/<build dir>/resources/main/<...>". So we need to dive at least into the
