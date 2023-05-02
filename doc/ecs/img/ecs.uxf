@@ -1,4 +1,4 @@
-<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>170</x><y>430</y><w>150</w><h>90</h></coordinates><panel_attributes>/ECS_System/
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>170</x><y>430</y><w>150</w><h>90</h></coordinates><panel_attributes>/System/
 --
 + update(): void
 + toggleRun(): void
@@ -57,7 +57,7 @@ m2=1
 m2=1
 </panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>UMLClass</id><coordinates><x>540</x><y>580</y><w>310</w><h>170</h></coordinates><panel_attributes>LevelAPI
 --
-+ LevelAPI(batch: SpriteBatch, 				 
++ LevelAPI(batch: SpriteBatch,
              painter: Painter,
              generator: IGenerator,
              onLevelLoader: IOnLevelLoader)
