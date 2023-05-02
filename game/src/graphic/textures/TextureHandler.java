@@ -24,32 +24,39 @@ import java.util.stream.Stream;
  * beginning of the application.
  */
 public class TextureHandler {
-    public static final String PLACEHOLDER_FILENAME = ".resource_root";
+    protected static final String PLACEHOLDER_FILENAME = ".resource_root";
 
-    private static final TextureHandler INSTANCE = new TextureHandler();
+    /** See also: {@link TextureHandler#getResourceRoot()} */
+    private static final int maxDepth = 4;
 
-    private final Map<String, Set<FileHandle>> pathMap = new LinkedHashMap<>();
+    private static final TextureHandler INSTANCE;
 
-    private TextureHandler() {
+    static {
         try {
-            addAllAssets(getResourceRoot());
+            INSTANCE = new TextureHandler();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+    private final Map<String, Set<FileHandle>> pathMap = new LinkedHashMap<>();
+
+    private TextureHandler() throws IOException {
+        addAllAssets(getResourceRoot());
+    }
+
     /**
      * Searches for the resource root that has the longest path name string. Internal helper method.
+     *
+     * <p>{@link TextureHandler#maxDepth}: We assume that the build directory structure looks like
+     * this: "Dungeon/<build dir>/resources/main/<...>". So we need to dive at least into the
+     * directories with a depth of 4.
      *
      * @return the resource root with the longest path name string.
      */
     private FileHandle getResourceRoot() throws IOException {
         Predicate<Path> isPlaceHolder =
                 p -> PLACEHOLDER_FILENAME.equals(p.getFileName().toString());
-        // We assume that the build directory structure looks like this: Dungeon/<build
-        // dir>/resources/main/<...>. So we need to dive at least into the directories with a depth
-        // of 4.
-        int maxDepth = 4;
         return Files.walk(Path.of(Gdx.files.getLocalStoragePath()), maxDepth)
                 .filter(Files::isRegularFile)
                 .filter(isPlaceHolder)
