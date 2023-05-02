@@ -30,26 +30,26 @@ Erzeugen eines neuen `AnimationComponent`-Objektes mithilfe des komplexeren Kons
 Erzeugen eines neuen `AnimationComponent`-Objektes mithilfe des komplexeren Konstruktors `AnimationComponent(entity: Entity, idleLeft: Animation, idleRight: Animation)`.
 Hier werden die Animationen entsprechend der Parameternamen gesetzt.
 
-### Methoden
+## Methoden
 
-> ## setCurrentAnimation(animation: Animation): void
->
-> Setzt die aktuelle Animation der Entität. Die hier übergebene Animation muss ***NICHT*** aus dem `AnimationComponent` stammen.
->
-> ### Parameter
->
-> | Parametername | Typ       | Beschreibung                                 |
-> |---------------|-----------|----------------------------------------------|
-> | animation     | Animation | Die Animation, welche angezeigt werden soll. |
+### setCurrentAnimation(animation: Animation): void
 
-> ## getCurrentAnimation(): Animation
->
-> Gibt die aktuelle Animation zurück.
+Setzt die aktuelle Animation der Entität. Die hier übergebene Animation muss ***NICHT*** aus dem `AnimationComponent` stammen.
 
-> ## getIdleLeft(): Animation
->
-> Gibt die Idle-Animation für die Links zurück.
+#### Parameter
 
-> ## getIdleRight(): Animation
->
-> Gibt die Idle-Animation für Rechts zurück.
+| Parametername | Typ       | Beschreibung                                 |
+|---------------|-----------|----------------------------------------------|
+| animation     | Animation | Die Animation, welche angezeigt werden soll. |
+
+### getCurrentAnimation(): Animation
+
+Gibt die aktuelle Animation zurück.
+
+### getIdleLeft(): Animation
+
+Gibt die Idle-Animation für die Links zurück.
+
+### getIdleRight(): Animation
+
+Gibt die Idle-Animation für Rechts zurück.
