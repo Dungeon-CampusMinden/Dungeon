@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Files;
 import com.badlogic.gdx.utils.GdxNativesLoader;
 import java.util.List;
-import java.util.Set;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
