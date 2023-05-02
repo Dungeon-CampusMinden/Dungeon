@@ -14,7 +14,7 @@ import starter.Game;
  * The HealthSystem offsets the damage to be done to all entities with the HealthComponent. Triggers
  * the death of an entity when the health-points have fallen below 0.
  */
-public class HealthSystem extends ECS_System {
+public class HealthSystem extends System {
 
     // private record to hold all data during streaming
     private record HSData(Entity e, HealthComponent hc, AnimationComponent ac) {}

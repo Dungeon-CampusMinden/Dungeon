@@ -4,12 +4,12 @@ import java.util.logging.Logger;
 import starter.Game;
 
 /** Marks a Class as a System in the ECS */
-public abstract class ECS_System {
+public abstract class System {
 
     protected boolean run;
     public Logger systemLogger = Logger.getLogger(this.getClass().getName());
 
-    public ECS_System() {
+    public System() {
         Game.systems.add(this);
         run = true;
     }

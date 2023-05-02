@@ -7,7 +7,7 @@ import level.elements.tile.Tile;
 import starter.Game;
 
 /** System to check for collisions between two entities */
-public class CollisionSystem extends ECS_System {
+public class CollisionSystem extends System {
 
     private record CollisionKey(int a, int b) {}
 

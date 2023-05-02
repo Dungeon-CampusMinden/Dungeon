@@ -6,7 +6,7 @@ import ecs.entities.Entity;
 import starter.Game;
 import tools.Point;
 
-public class ProjectileSystem extends ECS_System {
+public class ProjectileSystem extends System {
 
     // private record to hold all data during streaming
     private record PSData(

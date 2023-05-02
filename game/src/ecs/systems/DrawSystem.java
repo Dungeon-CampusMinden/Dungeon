@@ -12,7 +12,7 @@ import java.util.Map;
 import starter.Game;
 
 /** used to draw entities */
-public class DrawSystem extends ECS_System {
+public class DrawSystem extends System {
 
     private Painter painter;
     private Map<String, PainterConfig> configs;

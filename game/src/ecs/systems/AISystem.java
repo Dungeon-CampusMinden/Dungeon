@@ -5,7 +5,7 @@ import ecs.entities.Entity;
 import starter.Game;
 
 /** Controls the AI */
-public class AISystem extends ECS_System {
+public class AISystem extends System {
 
     private record AISData(Entity e, AIComponent aic) {}
 
