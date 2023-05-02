@@ -73,12 +73,12 @@ public class TextureHandler {
     }
 
     /**
-     * This Method is public only for unit tests. Returns all available asset paths, that were
-     * found. Can be used with {@link TextureHandler#getTexturePaths(String)}.
+     * Returns all available asset paths, that were found. Should be used with {@link
+     * TextureHandler#getTexturePaths(String)}.
      *
      * @return all available asset paths, that were found.
      */
-    public Set<String> getAvailablePaths() {
+    private Set<String> getAvailablePaths() {
         return pathMap.keySet();
     }
 
