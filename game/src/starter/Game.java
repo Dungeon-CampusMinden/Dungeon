@@ -187,60 +187,67 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         currentDepth++;
     }
 
-    private int calculateNumberOfMonsters() {
-        // Bestimmen Sie die Anzahl der Monster basierend auf der aktuellen Tiefe des Dungeons
-        int numMonsters = currentDepth + 1;
-        int numStrongMonsters = 0;
+        /**
+         * Berechnet die Gesamtzahl der Monster, die in der aktuellen Ebene erstellt werden sollen.
+         * Die Anzahl der schwachen und starken Monster wird basierend auf der aktuellen Tiefe berechnet.
+         * Wenn starke Monster generiert werden sollen, wird eine zufällige Anzahl von ihnen zur Gesamtanzahl der Monster hinzugefügt.
+         * @return Die Gesamtzahl der Monster, die in der aktuellen Ebene erstellt werden sollen.
+         */
+        private int calculateNumberOfMonsters() {
 
-        // Erhöhen Sie die Anzahl der Monster und die Anzahl starker Monster, je tiefer der Spieler im Dungeon ist
-        for (int i = 2; i <= currentDepth; i++) {
-            numMonsters += i + 1;
-            numStrongMonsters += i;
+            int numMonsters = currentDepth + 1;
+            int numStrongMonsters = 0;
+
+            for (int i = 2; i <= currentDepth; i++) {
+                numMonsters += i + 1;
+                numStrongMonsters += i;
+            }
+
+            Random random = new Random();
+            boolean strongMonsters = random.nextBoolean();
+
+            if (strongMonsters && numStrongMonsters > 0) {
+                int strongMonsterCount = random.nextInt(numStrongMonsters) + 1;
+                numMonsters += strongMonsterCount;
+            }
+
+            return numMonsters;
         }
 
-        // Zufällige Auswahl, ob starke Monster erzeugt werden sollen
-        Random random = new Random();
-        boolean strongMonsters = random.nextBoolean();
 
-        // Fügen Sie starke Monster hinzu, wenn zufällig ausgewählt und es welche gibt
-        if (strongMonsters && numStrongMonsters > 0) {
-            int strongMonsterCount = random.nextInt(numStrongMonsters) + 1;
-            numMonsters += strongMonsterCount;
+        /**
+         * Erstellt eine zufällige Monsterentität basierend auf einer zufällig generierten Zahl.
+         * Es gibt drei Arten von Monstern zur Auswahl: Chort, Goblin und LittleChort.
+         * Jeder Monster-Typ hat eine spezielle Konfiguration, die von der aktuellen Tiefe abhängt.
+         * Wenn die aktuelle Tiefe größer als 3 ist, wird eine stärkere Version des Chorts mit höheren Geschwindigkeiten und mehr Gesundheitspunkten erstellt.
+         * @param depth Die aktuelle Tiefeebene des Spiels.
+         * @return Eine zufällig generierte Monsterentität.
+         * @throws IllegalStateException Wenn die zufällig generierte Zahl keinen gültigen Monster-Typ ergibt.
+         */
+        private Entity createRandomMonster(int depth) {
+            int monsterType = new Random().nextInt(3);
+            Entity monster;
+
+            switch (monsterType) {
+                case 0:
+                    monster = new Chort(0.1f, 0.1f, 10);
+                    if(currentDepth > 3) {
+                        monster = new Chort(0.3f, 0.3f, 15);
+                    }
+                    break;
+                case 1:
+                    monster = new Goblin();
+                    break;
+                case 2:
+                    monster = new LittleChort();
+                    break;
+                default:
+                    throw new IllegalStateException("Unerwarteter Wert: " + monsterType);
+            }
+
+            return monster;
         }
 
-        return numMonsters;
-    }
-
-
-    private Entity createRandomMonster(int depth) {
-        // Beispiel: Erstellen Sie zufällig einen von drei Monstertypen und erhöhen Sie ihre Stärke basierend auf der Tiefe
-        int monsterType = new Random().nextInt(3);
-        Entity monster;
-
-        switch (monsterType) {
-            case 0:
-                monster = new Chort(0.1f, 0.1f, 10);
-                if(currentDepth > 3) {
-                    monster = new Chort(0.3f, 0.3f, 15);
-                }
-                // Passen Sie die Stärke des Chort-Monsters basierend auf der Tiefe an
-                break;
-            case 1:
-                monster = new Goblin();
-                // Passen Sie die Stärke des Goblin-Monsters basierend auf der Tiefe an
-                break;
-            case 2:
-                monster = new LittleChort();
-                // Passen Sie die Stärke des LittleChort-Monsters basierend auf der Tiefe an
-                break;
-            default:
-                throw new IllegalStateException("Unerwarteter Wert: " + monsterType);
-        }
-
-        // Passen Sie hier die Stärke des Monsters basierend auf der Tiefe an, z. B. indem Sie den Schaden, die Gesundheit oder andere Attribute erhöhen
-
-        return monster;
-    }
 
 
     private void manageEntitiesSets() {
