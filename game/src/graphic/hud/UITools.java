@@ -2,20 +2,20 @@ package graphic.hud;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import ecs.systems.ECS_System;
 import quizquestion.QuizQuestion;
-import quizquestion.QuizQuestionContent;
 import starter.Game;
 import tools.Constants;
 
 /**
- * Formatting of the main message (content displayed in the label) and controls the creation of a
- * dialogue object depending on an event.
+ * Formatting of the window or dialog and controls the creation of a dialogue object depending on an
+ * event.
  */
 public class UITools {
-    /** index of the dialogue in the controller */
+    /** index of the dialogue in the controller. */
     private static int indexForDialogueInController;
     /**
      * Limits the length of the string to 40 characters, after which a line break occurs
@@ -24,7 +24,7 @@ public class UITools {
     private static final int maxRowLength = 40;
 
     /**
-     * display the content in the Dialog
+     * display the Text-content (Info Message) in the Dialog
      *
      * @param arrayOfMessages Content 'msg', which is to be output on the screen, optional the name
      *     of the button, as well as the label heading can be passed. [0] Content displayed in the
@@ -35,17 +35,28 @@ public class UITools {
         setDialogIndexInController(-1);
         generateTextDialogue(arrayOfMessages);
     }
+    /**
+     * display the Question-Content (Question and answer options (no pictures) as text, picture,
+     * text and picture, single or multiple choice ) in the Dialog
+     *
+     * @param question Various question configurations
+     */
+    public static void showQuizDialog(QuizQuestion question) {
 
-   public static void showQuizDialog(QuizQuestion question) {
-
-        if( question != null) {
+        if (question != null) {
             String[] contentArray = {question.question().content()};
             formatStringForDialogWindow(contentArray);
             setDialogIndexInController(-1);
             generateQuizDialogue(question, contentArray);
         }
-   }
-
+    }
+    /**
+     * String formatting for content of the 'msg'(message) to be output on the screen
+     *
+     * @param arrayOfMessages Content 'msg', which is to be output on the screen, optional the name
+     *     of the button, as well as the label heading can be passed. [0] Content displayed in the
+     *     label; [1] Button name; [2]label heading
+     */
     private static void formatStringForDialogWindow(String[] arrayOfMessages) {
         if (arrayOfMessages != null && arrayOfMessages.length != 0) {
             String infoMsg = arrayOfMessages[0];
@@ -70,7 +81,7 @@ public class UITools {
     /**
      * set index of the dialogue in the controller
      *
-     * @param index Index für den Text-Dialog der im Controller gefunden wurde
+     * @param index Index for the text dialogue found in the controller
      */
     public static void setDialogIndexInController(final int index) {
         indexForDialogueInController = index;
@@ -84,18 +95,18 @@ public class UITools {
      */
     private static void searchIndexOfResponsiveDialogInController(final Dialog txtDialog) {
         Game.controller
-            .iterator()
-            .forEachRemaining(
-                elementFromController -> {
-                    for (int count = 0; count < Game.controller.size(); count++) {
-                        if (elementFromController instanceof ResponsiveDialogue) {
-                            if (txtDialog == null
-                                || elementFromController.contains(txtDialog)) {
-                                setDialogIndexInController(count);
+                .iterator()
+                .forEachRemaining(
+                        elementFromController -> {
+                            for (int count = 0; count < Game.controller.size(); count++) {
+                                if (elementFromController instanceof ResponsiveDialogue) {
+                                    if (txtDialog == null
+                                            || elementFromController.contains(txtDialog)) {
+                                        setDialogIndexInController(count);
+                                    }
+                                }
                             }
-                        }
-                    }
-                });
+                        });
     }
 
     /**
@@ -110,8 +121,8 @@ public class UITools {
             searchIndexOfResponsiveDialogInController(txtDialog);
 
             if (indexForDialogueInController >= 0
-                && Game.controller != null
-                && Game.systems != null) {
+                    && Game.controller != null
+                    && Game.systems != null) {
                 Game.controller.remove(indexForDialogueInController);
                 Game.systems.forEach(ECS_System::run);
             }
@@ -119,8 +130,8 @@ public class UITools {
     }
 
     /**
-     * If no dialogue is created, a new dialogue is created according to the event key. Pause all
-     * systems except DrawSystem
+     * If no Text-Dialogue is created, a new dialogue is created according to the event key. Pause
+     * all systems except DrawSystem
      *
      * @param arrayOfMessages Contains the text of the message in the dialogue and can contain the
      *     title of the dialogue and the button.
@@ -130,27 +141,36 @@ public class UITools {
 
         if (indexForDialogueInController == -1 && Game.controller != null && Game.systems != null) {
             Game.controller.add(
-                new ResponsiveDialogue(
-                    new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG)),
-                    Color.WHITE,
-                    arrayOfMessages));
+                    new ResponsiveDialogue(
+                            new SpriteBatch(),
+                            new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG)),
+                            Color.WHITE,
+                            arrayOfMessages));
 
             Game.systems.forEach(ECS_System::stop);
         }
     }
 
     /**
+     * If no Quiz-Dialogue is created, a new dialogue is created according to the event key. Pause
+     * all systems except DrawSystem
+     *
+     * @param question Various question configurations
+     * @param arrayOfMessages Content 'msg'(message), which is to be output on the screen, optional
+     *     the name of the button, as well as the label heading can be passed. [0] Content displayed
+     *     in the label; [1] Button name; [2]label heading
      */
     private static void generateQuizDialogue(QuizQuestion question, String... arrayOfMessages) {
         searchIndexOfResponsiveDialogInController(null);
 
         if (indexForDialogueInController == -1 && Game.controller != null && Game.systems != null) {
             Game.controller.add(
-                new ResponsiveDialogue(
-                    new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG)),
-                    Color.WHITE,
-                    question,
-                    arrayOfMessages));
+                    new ResponsiveDialogue(
+                            new SpriteBatch(),
+                            new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG)),
+                            Color.WHITE,
+                            question,
+                            arrayOfMessages));
 
             Game.systems.forEach(ECS_System::stop);
         }

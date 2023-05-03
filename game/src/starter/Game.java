@@ -34,8 +34,6 @@ import level.generator.postGeneration.WallGenerator;
 import level.generator.randomwalk.RandomWalkGenerator;
 import level.tools.LevelSize;
 import quizquestion.DummyQuizQuestionList;
-import quizquestion.QuizQuestion;
-import quizquestion.QuizQuestionContent;
 import tools.Constants;
 import tools.Point;
 
@@ -146,9 +144,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+            // Text Dialogue (output of information texts)
             UITools.showInfoText(Constants.DEFAULT_MESSAGE);
-        }
-        else if( Gdx.input.isKeyJustPressed(Input.Keys.F) ) {
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+            // Dialogue for quiz questions (display of quiz questions and the answer area in test
+            // mode)
             UITools.showQuizDialog(DummyQuizQuestionList.getRandomQuestion());
         }
     }
@@ -163,14 +163,14 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private void setCameraFocus() {
         if (getHero().isPresent()) {
             PositionComponent pc =
-                (PositionComponent)
-                    getHero()
-                        .get()
-                        .getComponent(PositionComponent.class)
-                        .orElseThrow(
-                            () ->
-                                new MissingComponentException(
-                                    "PositionComponent"));
+                    (PositionComponent)
+                            getHero()
+                                    .get()
+                                    .getComponent(PositionComponent.class)
+                                    .orElseThrow(
+                                            () ->
+                                                    new MissingComponentException(
+                                                            "PositionComponent"));
             camera.setFocusPoint(pc.getPosition());
 
         } else camera.setFocusPoint(new Point(0, 0));
@@ -182,10 +182,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private boolean isOnEndTile(Entity entity) {
         PositionComponent pc =
-            (PositionComponent)
-                entity.getComponent(PositionComponent.class)
-                    .orElseThrow(
-                        () -> new MissingComponentException("PositionComponent"));
+                (PositionComponent)
+                        entity.getComponent(PositionComponent.class)
+                                .orElseThrow(
+                                        () -> new MissingComponentException("PositionComponent"));
         Tile currentTile = currentLevel.getTileAt(pc.getPosition().toCoordinate());
         return currentTile.equals(currentLevel.getEndTile());
     }
@@ -193,10 +193,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private void placeOnLevelStart(Entity hero) {
         entities.add(hero);
         PositionComponent pc =
-            (PositionComponent)
-                hero.getComponent(PositionComponent.class)
-                    .orElseThrow(
-                        () -> new MissingComponentException("PositionComponent"));
+                (PositionComponent)
+                        hero.getComponent(PositionComponent.class)
+                                .orElseThrow(
+                                        () -> new MissingComponentException("PositionComponent"));
         pc.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
     }
 
