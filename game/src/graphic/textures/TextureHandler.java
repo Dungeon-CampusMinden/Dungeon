@@ -20,6 +20,12 @@ import java.util.stream.Stream;
 /**
  * A texture handler class for managing textures paths for further use.
  *
+ * <p>Searches for the resource root that has the longest path name string.
+ *
+ * <p>{@link TextureHandler#maxDepth}: We assume that the build directory structure looks like this:
+ * "Dungeon/<build dir>/resources/main/<...>". So we need to dive at least into the directories with
+ * a depth of 4.
+ *
  * <p>This class is designed as Singleton, because all asset paths should be read only once at the
  * beginning of the application.
  */
