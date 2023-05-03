@@ -19,14 +19,24 @@ public class TextureHandlerTest {
     }
 
     @Test
-    public void test_getInstance() throws IOException {
-        TextureHandler instance = TextureHandler.getInstance();
+    public void test_getInstance() {
+        TextureHandler instance = null;
+        try {
+            instance = TextureHandler.getInstance();
+        } catch (IOException e) {
+            Assert.fail(e.getMessage());
+        }
         Assert.assertNotNull(instance);
     }
 
     @Test
-    public void test_getTexturePaths_all() throws IOException {
-        TextureHandler instance = TextureHandler.getInstance();
+    public void test_getTexturePaths_all() {
+        TextureHandler instance = null;
+        try {
+            instance = TextureHandler.getInstance();
+        } catch (IOException e) {
+            Assert.fail(e.getMessage());
+        }
         Assert.assertNotNull(instance);
         List<String> paths = instance.getTexturePaths("");
         Assert.assertNotNull(paths);
@@ -37,8 +47,13 @@ public class TextureHandlerTest {
     }
 
     @Test
-    public void test_getTexturePaths_placeholder() throws IOException {
-        TextureHandler instance = TextureHandler.getInstance();
+    public void test_getTexturePaths_placeholder() {
+        TextureHandler instance = null;
+        try {
+            instance = TextureHandler.getInstance();
+        } catch (IOException e) {
+            Assert.fail(e.getMessage());
+        }
         Assert.assertNotNull(instance);
         List<String> paths = instance.getTexturePaths(TextureHandler.PLACEHOLDER_FILENAME);
         Assert.assertNotNull(paths);
