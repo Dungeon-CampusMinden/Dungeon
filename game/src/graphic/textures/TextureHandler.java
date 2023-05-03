@@ -29,15 +29,7 @@ public class TextureHandler {
     /** See also: {@link TextureHandler#getResourceRoot()} */
     private static final int maxDepth = 4;
 
-    private static final TextureHandler INSTANCE;
-
-    static {
-        try {
-            INSTANCE = new TextureHandler();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private static TextureHandler INSTANCE;
 
     private final Map<String, Set<FileHandle>> pathMap = new LinkedHashMap<>();
 
@@ -70,7 +62,10 @@ public class TextureHandler {
      *
      * @return an instance of this {@link TextureHandler}.
      */
-    public static TextureHandler getInstance() {
+    public static TextureHandler getInstance() throws IOException {
+        if (INSTANCE == null) {
+            INSTANCE = new TextureHandler();
+        }
         return INSTANCE;
     }
 

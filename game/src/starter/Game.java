@@ -20,6 +20,7 @@ import ecs.systems.*;
 import graphic.DungeonCamera;
 import graphic.Painter;
 import graphic.hud.PauseMenu;
+import graphic.textures.TextureHandler;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -58,6 +59,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private boolean doSetup = true;
     private static boolean paused = false;
+
+    /** A handler for managing asset paths */
+    private static TextureHandler handler;
 
     /** All entities that are currently active in the dungeon */
     private static final Set<Entity> entities = new HashSet<>();
@@ -104,6 +108,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /** Called once at the beginning of the game. */
     protected void setup() {
         doSetup = false;
+        try {
+            handler = TextureHandler.getInstance();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         controller = new ArrayList<>();
         setupCameras();
         painter = new Painter(batch, camera);
@@ -187,6 +196,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         pc.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
+    }
+
+    public static TextureHandler getHandler() {
+        return handler;
     }
 
     /** Toggle between pause and run */
