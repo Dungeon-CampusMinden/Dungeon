@@ -37,12 +37,12 @@ public final class Constants {
     public static final int DIALG_DIFFERENCE_MEASURE = 70;
     public static final String DEFAULT_HEADING = "Default heading";
     public static final String DEFAULT_MESSAGE = "Das Spiel ist pausiert.";
-    public static final String DEFAULT_BUTTON_MESSAGE = "OK";
+    public static final String DEFAULT_BUTTON_MESSAGE = "OK ";
     public static final String EMPTY_MESSAGE = "";
 
     public static final String QUIZ_MESSAGE_TASK = "Aufgabestellung";
 
-    public static final String QUIZ_MESSAGE_SOLUTION = "Loesung";
+    public static final String QUIZ_MESSAGE_SOLUTION = "Lösung";
 
     public static final String TEST_IMAGE_PATH_FOR_DIALOG = "image_quiz/ECS.png";
     /**

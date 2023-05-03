@@ -1,10 +1,10 @@
 package quizquestion;
 
-import graphic.hud.UITools;
-import tools.Constants;
-
-/** A class that askQuizQuestionWithUI provides methods for displaying quiz questions in a graphical user interface. */
-public  class QuizQuestionUI {
+/**
+ * A class that askQuizQuestionWithUI provides methods for displaying quiz questions in a graphical
+ * user interface.
+ */
+public class QuizQuestionUI {
 
     /**
      * Displays a quiz question in a graphical user interface, allowing the user to select or input
