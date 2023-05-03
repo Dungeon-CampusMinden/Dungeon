@@ -3,6 +3,7 @@ package graphic.textures;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Files;
 import com.badlogic.gdx.utils.GdxNativesLoader;
+import java.io.IOException;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -18,13 +19,13 @@ public class TextureHandlerTest {
     }
 
     @Test
-    public void test_getInstance() {
+    public void test_getInstance() throws IOException {
         TextureHandler instance = TextureHandler.getInstance();
         Assert.assertNotNull(instance);
     }
 
     @Test
-    public void test_getTexturePaths_all() {
+    public void test_getTexturePaths_all() throws IOException {
         TextureHandler instance = TextureHandler.getInstance();
         Assert.assertNotNull(instance);
         List<String> paths = instance.getTexturePaths("");
@@ -36,7 +37,7 @@ public class TextureHandlerTest {
     }
 
     @Test
-    public void test_getTexturePaths_placeholder() {
+    public void test_getTexturePaths_placeholder() throws IOException {
         TextureHandler instance = TextureHandler.getInstance();
         Assert.assertNotNull(instance);
         List<String> paths = instance.getTexturePaths(TextureHandler.PLACEHOLDER_FILENAME);
