@@ -1,5 +1,5 @@
 ---
-title: "Typensystem"
+title: "Typsystem"
 ---
 
 ## Überblick
