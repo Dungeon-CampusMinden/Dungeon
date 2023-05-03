@@ -3,7 +3,7 @@ package controller;
 import ecs.systems.System;
 import logging.CustomLogLevel;
 
-/** used to integrate ECS_Systems in PM-Dungeon game loop */
+/** used to integrate Systems in PM-Dungeon game loop */
 public class SystemController extends AbstractController<System> {
 
     public SystemController() {
