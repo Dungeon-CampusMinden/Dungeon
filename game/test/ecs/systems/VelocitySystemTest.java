@@ -3,20 +3,21 @@ package ecs.systems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
-import controller.SystemController;
-import ecs.components.AnimationComponent;
-import ecs.components.MissingComponentException;
-import ecs.components.PositionComponent;
-import ecs.components.VelocityComponent;
-import ecs.entities.Entity;
-import graphic.Animation;
+import trashcan.SystemController;
+import components.AnimationComponent;
+import components.MissingComponentException;
+import components.PositionComponent;
+import components.VelocityComponent;
+import entities.Entity;
+import component_tools.animation.Animation;
 import level.elements.ILevel;
 import level.elements.tile.Tile;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import starter.Game;
-import tools.Point;
+import systems.VelocitySystem;
+import component_tools.position.Point;
 
 public class VelocitySystemTest {
 

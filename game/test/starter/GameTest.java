@@ -6,9 +6,9 @@ import static org.junit.Assert.assertTrue;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import ecs.entities.Entity;
-import graphic.DungeonCamera;
-import graphic.Painter;
+import entities.Entity;
+import trashcan.DungeonCamera;
+import trashcan.Painter;
 import level.LevelAPI;
 import level.generator.randomwalk.RandomWalkGenerator;
 import org.junit.Before;
@@ -19,7 +19,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
-import tools.Constants;
+import component_tools.position.Constants;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Game.class, Gdx.class, Constants.class})

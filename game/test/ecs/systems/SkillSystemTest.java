@@ -2,15 +2,16 @@ package ecs.systems;
 
 import static org.junit.Assert.*;
 
-import controller.SystemController;
-import ecs.components.skill.ISkillFunction;
-import ecs.components.skill.Skill;
-import ecs.components.skill.SkillComponent;
-import ecs.entities.Entity;
+import trashcan.SystemController;
+import component_tools.skills.ISkillFunction;
+import component_tools.skills.Skill;
+import components.SkillComponent;
+import entities.Entity;
 import org.junit.Test;
 import org.mockito.Mockito;
 import starter.Game;
-import tools.Constants;
+import systems.SkillSystem;
+import component_tools.position.Constants;
 
 public class SkillSystemTest {
 

@@ -2,18 +2,19 @@ package ecs.systems;
 
 import static org.junit.Assert.assertThrows;
 
-import controller.SystemController;
-import ecs.components.AnimationComponent;
-import ecs.components.MissingComponentException;
-import ecs.components.PositionComponent;
-import ecs.entities.Entity;
-import graphic.Animation;
-import graphic.Painter;
+import trashcan.SystemController;
+import components.AnimationComponent;
+import components.MissingComponentException;
+import components.PositionComponent;
+import entities.Entity;
+import component_tools.animation.Animation;
+import trashcan.Painter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import starter.Game;
-import tools.Point;
+import systems.DrawSystem;
+import component_tools.position.Point;
 
 public class DrawSystemTest {
 

@@ -1,6 +1,6 @@
 package level.tools;
 
-import tools.Point;
+import component_tools.position.Point;
 
 /** Coordinate in the dungeon, based on array index. */
 public class Coordinate {

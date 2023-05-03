@@ -11,9 +11,9 @@ import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import graphic.Painter;
-import graphic.PainterConfig;
-import graphic.textures.TextureMap;
+import trashcan.Painter;
+import trashcan.PainterConfig;
+import component_tools.animation.textures.TextureMap;
 import level.elements.ILevel;
 import level.elements.TileLevel;
 import level.elements.tile.Tile;
@@ -29,7 +29,7 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import tools.Point;
+import component_tools.position.Point;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({TextureMap.class})

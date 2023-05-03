@@ -1,6 +1,6 @@
 package level.elements.tile;
 
-import ecs.entities.Entity;
+import entities.Entity;
 import level.elements.ILevel;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;

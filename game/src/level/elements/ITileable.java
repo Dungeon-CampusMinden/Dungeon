@@ -1,12 +1,12 @@
 package level.elements;
 
-import ecs.components.PositionComponent;
-import ecs.entities.Entity;
+import components.PositionComponent;
+import entities.Entity;
 import java.util.Random;
 import level.elements.tile.Tile;
 import level.tools.Coordinate;
 import level.tools.LevelElement;
-import tools.Point;
+import component_tools.position.Point;
 
 public interface ITileable extends IPathable {
     Random RANDOM = new Random();

@@ -2,11 +2,15 @@ package ecs.components;
 
 import static org.junit.Assert.*;
 
-import ecs.entities.Entity;
-import ecs.items.ItemData;
+import content.on_death.DropLoot;
+import components.InventoryComponent;
+import components.MissingComponentException;
+import components.PositionComponent;
+import entities.Entity;
+import component_tools.item.ItemData;
 import org.junit.Test;
 import starter.Game;
-import tools.Point;
+import component_tools.position.Point;
 
 public class DropLootTest {
     /** Checks the handling when the InventoryComponent is missing on the entity */

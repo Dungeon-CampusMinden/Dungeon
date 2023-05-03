@@ -2,16 +2,17 @@ package ecs.systems;
 
 import static org.junit.Assert.*;
 
-import controller.SystemController;
-import ecs.components.HitboxComponent;
-import ecs.components.PositionComponent;
+import trashcan.SystemController;
+import components.HitboxComponent;
+import components.PositionComponent;
 import ecs.components.SimpleCounter;
-import ecs.components.collision.ICollide;
-import ecs.entities.Entity;
+import component_tools.collide.ICollide;
+import entities.Entity;
 import level.elements.tile.Tile;
 import org.junit.Test;
 import starter.Game;
-import tools.Point;
+import systems.CollisionSystem;
+import component_tools.position.Point;
 
 public class CollisionSystemTest {
 

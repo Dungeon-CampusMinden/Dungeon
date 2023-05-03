@@ -2,19 +2,20 @@ package ecs.systems;
 
 import static org.junit.Assert.*;
 
-import controller.SystemController;
-import ecs.components.AnimationComponent;
-import ecs.components.HealthComponent;
-import ecs.components.IOnDeathFunction;
-import ecs.components.MissingComponentException;
-import ecs.components.stats.StatsComponent;
-import ecs.damage.Damage;
-import ecs.damage.DamageType;
-import ecs.entities.Entity;
-import graphic.Animation;
+import trashcan.SystemController;
+import components.AnimationComponent;
+import components.HealthComponent;
+import component_tools.onDeath.IOnDeathFunction;
+import components.MissingComponentException;
+import components.StatsComponent;
+import component_tools.damage.Damage;
+import component_tools.damage.DamageType;
+import entities.Entity;
+import component_tools.animation.Animation;
 import org.junit.Test;
 import org.mockito.Mockito;
 import starter.Game;
+import systems.HealthSystem;
 
 public class HealthSystemTest {
 

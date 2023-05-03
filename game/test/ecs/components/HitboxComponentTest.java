@@ -2,11 +2,14 @@ package ecs.components;
 
 import static org.junit.Assert.*;
 
-import ecs.components.collision.ICollide;
-import ecs.entities.Entity;
+import components.HitboxComponent;
+import components.MissingComponentException;
+import components.PositionComponent;
+import component_tools.collide.ICollide;
+import entities.Entity;
 import level.elements.tile.Tile;
 import org.junit.Test;
-import tools.Point;
+import component_tools.position.Point;
 
 public class HitboxComponentTest {
 

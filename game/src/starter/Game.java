@@ -1,26 +1,26 @@
 package starter;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
-import static logging.LoggerConfig.initBaseLogger;
+import static tooling.logging.LoggerConfig.initBaseLogger;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import configuration.Configuration;
-import configuration.KeyboardConfig;
-import controller.AbstractController;
-import controller.SystemController;
-import ecs.components.MissingComponentException;
-import ecs.components.PositionComponent;
-import ecs.entities.Entity;
-import ecs.entities.Hero;
+import tooling.configuration.Configuration;
+import tooling.configuration.KeyboardConfig;
+import trashcan.AbstractController;
+import trashcan.SystemController;
+import components.MissingComponentException;
+import components.PositionComponent;
+import entities.Entity;
+import content.entieties.Hero;
 import ecs.systems.*;
-import ecs.systems.System;
-import graphic.DungeonCamera;
-import graphic.Painter;
-import graphic.hud.PauseMenu;
+import systems.*;
+import trashcan.DungeonCamera;
+import trashcan.Painter;
+import hud.PauseMenu;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -32,8 +32,9 @@ import level.generator.IGenerator;
 import level.generator.postGeneration.WallGenerator;
 import level.generator.randomwalk.RandomWalkGenerator;
 import level.tools.LevelSize;
-import tools.Constants;
-import tools.Point;
+import systems.System;
+import component_tools.position.Constants;
+import component_tools.position.Point;
 
 /** The heart of the framework. From here all strings are pulled. */
 public class Game extends ScreenAdapter implements IOnLevelLoader {

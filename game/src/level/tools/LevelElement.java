@@ -1,6 +1,6 @@
 package level.tools;
 
-import tools.Constants;
+import component_tools.position.Constants;
 
 /**
  * Each type of field in a level can be represented by an integer value.

@@ -2,14 +2,15 @@ package ecs.systems;
 
 import static org.junit.Assert.assertEquals;
 
-import controller.SystemController;
-import ecs.components.ai.AIComponent;
-import ecs.components.ai.transition.ITransition;
-import ecs.entities.Entity;
+import trashcan.SystemController;
+import components.AIComponent;
+import component_tools.ai.ITransition;
+import entities.Entity;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import starter.Game;
+import systems.AISystem;
 
 public class AISystemTest {
 

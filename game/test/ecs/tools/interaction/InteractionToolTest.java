@@ -4,12 +4,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
-import ecs.components.Component;
-import ecs.components.InteractionComponent;
-import ecs.components.MissingComponentException;
-import ecs.components.PositionComponent;
-import ecs.entities.Entity;
+import components.Component;
+import components.InteractionComponent;
+import components.MissingComponentException;
+import components.PositionComponent;
+import entities.Entity;
 import java.util.Optional;
+
+import component_tools.interaction.InteractionTool;
 import level.elements.ILevel;
 import level.elements.TileLevel;
 import level.tools.DesignLabel;
@@ -18,7 +20,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import starter.Game;
 import testinghelper.SimpleCounter;
-import tools.Point;
+import component_tools.position.Point;
 
 public class InteractionToolTest {
 

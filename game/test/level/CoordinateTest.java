@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import level.tools.Coordinate;
 import org.junit.Before;
 import org.junit.Test;
-import tools.Point;
+import component_tools.position.Point;
 
 public class CoordinateTest {
 

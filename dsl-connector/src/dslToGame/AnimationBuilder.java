@@ -1,7 +1,7 @@
 package dslToGame;
 
-import graphic.Animation;
-import graphic.textures.TextureHandler;
+import component_tools.animation.Animation;
+import component_tools.animation.textures.TextureHandler;
 import semanticAnalysis.types.DSLTypeAdapter;
 
 public class AnimationBuilder {

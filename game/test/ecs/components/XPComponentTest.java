@@ -2,9 +2,9 @@ package ecs.components;
 
 import static org.junit.Assert.*;
 
-import controller.SystemController;
-import ecs.components.xp.XPComponent;
-import ecs.entities.Entity;
+import trashcan.SystemController;
+import components.XPComponent;
+import entities.Entity;
 import org.junit.Test;
 import starter.Game;
 

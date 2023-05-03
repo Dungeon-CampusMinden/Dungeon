@@ -1,6 +1,6 @@
 package quest;
 
-import controller.ScreenController;
+import trashcan.ScreenController;
 import dslToGame.QuestConfig;
 
 public class QuestFactory {

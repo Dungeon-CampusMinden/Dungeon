@@ -2,9 +2,11 @@ package ecs.entities;
 
 import static org.junit.Assert.*;
 
-import ecs.components.*;
-import ecs.items.ItemData;
-import ecs.items.ItemDataGenerator;
+import components.*;
+import content.entieties.Chest;
+import entities.Entity;
+import component_tools.item.ItemData;
+import content.items.ItemDataGenerator;
 import java.util.List;
 import java.util.Optional;
 import level.elements.TileLevel;
@@ -12,7 +14,7 @@ import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import org.junit.Test;
 import starter.Game;
-import tools.Point;
+import component_tools.position.Point;
 
 public class ChestTest {
 

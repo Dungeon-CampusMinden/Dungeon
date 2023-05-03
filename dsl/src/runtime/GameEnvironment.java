@@ -2,12 +2,12 @@ package runtime;
 
 import dslToGame.AnimationBuilder;
 import dslToGame.QuestConfig;
-import ecs.components.AnimationComponent;
-import ecs.components.HitboxComponent;
-import ecs.components.PositionComponent;
-import ecs.components.VelocityComponent;
-import ecs.components.ai.AIComponent;
-import ecs.entities.Entity;
+import components.AnimationComponent;
+import components.HitboxComponent;
+import components.PositionComponent;
+import components.VelocityComponent;
+import components.AIComponent;
+import entities.Entity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import runtime.nativeFunctions.NativePrint;

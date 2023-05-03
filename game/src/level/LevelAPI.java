@@ -1,8 +1,8 @@
 package level;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import graphic.Painter;
-import graphic.PainterConfig;
+import trashcan.Painter;
+import trashcan.PainterConfig;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;

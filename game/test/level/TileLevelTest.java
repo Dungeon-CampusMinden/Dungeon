@@ -17,7 +17,7 @@ import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import org.junit.Test;
-import tools.Point;
+import component_tools.position.Point;
 
 public class TileLevelTest {
 

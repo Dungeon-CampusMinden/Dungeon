@@ -1,7 +1,7 @@
 package dslToGame;
 
 import dslToGame.graph.Graph;
-import ecs.entities.Entity;
+import entities.Entity;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
 

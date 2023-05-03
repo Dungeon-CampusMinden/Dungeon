@@ -1,6 +1,6 @@
 package level.room;
 
-import ecs.entities.Entity;
+import entities.Entity;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import level.elements.TileLevel;

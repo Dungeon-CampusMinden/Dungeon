@@ -2,8 +2,9 @@ package ecs.components;
 
 import static org.junit.Assert.*;
 
-import ecs.components.skill.Skill;
-import ecs.entities.Entity;
+import components.PlayableComponent;
+import component_tools.skills.Skill;
+import entities.Entity;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

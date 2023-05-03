@@ -3,10 +3,12 @@ package ecs.components;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 
-import ecs.damage.Damage;
-import ecs.damage.DamageType;
-import ecs.entities.Entity;
-import graphic.Animation;
+import components.HealthComponent;
+import component_tools.onDeath.IOnDeathFunction;
+import component_tools.damage.Damage;
+import component_tools.damage.DamageType;
+import entities.Entity;
+import component_tools.animation.Animation;
 import org.junit.Test;
 import org.mockito.Mockito;
 import starter.Game;
