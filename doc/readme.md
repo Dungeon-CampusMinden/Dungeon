@@ -45,7 +45,7 @@ zwischen libGDX und Ihrer eigenen Implementierung. Es implementiert ein [Entity-
 Schatzkisten, etc.) des Spiels - `Component`: Components speichern die Datensätze der Entitäten (z.B. die
 Lebenspunkte) - `System`: Systeme beinhalten die eigentliche Logik und agieren auf den Components.
 
-Weiteres dazu erfahren Sie unter [ECS im Dungeon](ecs/ecs_basics.md).
+Weiteres dazu erfahren Sie unter [ECS im Dungeon](ecs/readme.md).
 
 Sie selbst nutzen und erweitern die `Component`s und `System`s der Vorgaben. Sie werden ebenfalls neue Entities,
 Components und Systeme konzipieren und implementieren. So erschaffen Sie z.B. Ihre eigenen Monster und fallengespickte
@@ -253,7 +253,7 @@ public class MyHero extends Entity {
 
 Wenn Sie das Spiel jetzt starten, sollten Sie ihren Helden sehen:
 
-![Animation](figs/animation.gif)
+![Animation](img/animation.gif)
 
 ### Held bewegen
 
@@ -310,7 +310,7 @@ public class MyHero extends Entity {
 
 Jetzt sollten Sie ihren Helden bewegen können:
 
-![Bewegen](figs/move.gif)
+![Bewegen](img/move.gif)
 
 ## Bestehenden Code analysieren
 
@@ -322,7 +322,7 @@ an.
 Ihnen ist sicherlich schon aufgefallen, dass ein neues Level geladen wird, wenn Sie die Leiter mit Ihrem Helden
 berühren:
 
-![Next-Level](figs/next-level.gif)
+![Next-Level](img/next-level.gif)
 
 Schauen wir einmal in die Methode `Game#frame`, wird dort die Methode `loadNextLevelIfEntityIsOnEndTile` aufgerufen.
 
@@ -393,7 +393,7 @@ Entitäten, die ebenfalls ein `HitboxComponent` haben, kollidieren.
 
 Hier finden Sie noch einige Links um Ihr Verständnis des Dungeons zu vertiefen:
 
--   [ECS Basics](ecs/ecs_basics.md)
+-   [ECS Basics](ecs/readme.md)
 -   [Entitäten, Components und Systeme selbst erstellen](ecs/create_own_content.md)
 -   [Übersicht der Systeme](ecs/systems/readme.md)
 -   [Übersicht der Components](ecs/components/readme.md)
