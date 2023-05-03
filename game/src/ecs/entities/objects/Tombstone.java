@@ -5,6 +5,7 @@ import ecs.components.AnimationComponent;
 import ecs.components.PositionComponent;
 import ecs.components.InteractionComponent;
 import ecs.entities.Entity;
+import ecs.entities.nps.Ghost;
 import graphic.Animation;
 
 
@@ -12,6 +13,7 @@ public class Tombstone extends Entity {
 
 
     private final String pathToTombstone = "objects/treasurechest/Object/Tombstone.png";
+    Ghost ghost = new Ghost();
 
     public Tombstone() {
         super();
@@ -27,6 +29,7 @@ public class Tombstone extends Entity {
 
     private void setupInteractionComponent() {
         new InteractionComponent(this, InteractionComponent.DEFAULT_RADIUS, true, (playerEntity) -> {
+
 
         });
     }
