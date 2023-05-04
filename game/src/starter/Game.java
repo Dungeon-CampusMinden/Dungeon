@@ -7,11 +7,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import configuration.Configuration;
 import configuration.KeyboardConfig;
 import controller.AbstractController;
 import controller.SystemController;
-import dslToGame.QuestConfig;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.components.mp.MultiplayerComponent;
@@ -27,13 +27,8 @@ import graphic.hud.menus.startmenu.StartMenu;
 import interpreter.DSLInterpreter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Logger;
 import java.util.*;
-
+import java.util.logging.Logger;
 import level.IOnLevelLoader;
 import level.LevelAPI;
 import level.elements.ILevel;
@@ -58,7 +53,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
      */
     protected SpriteBatch batch;
 
-    /** Contais all Controller of the Dungeon */
+    /** Contains all Controller of the Dungeon */
     protected List<AbstractController<?>> controller;
 
     public static DungeonCamera camera;
@@ -69,44 +64,34 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     /** Generates the level */
     protected IGenerator generator;
 
-    private boolean doFirstFrame = true;
-    static boolean paused = false;
+    private boolean doSetup = true;
+    private static boolean paused = false;
 
     /** All entities that are currently active in the dungeon */
-//    public static Set<Entity> entities = Collections.synchronizedSet(new HashSet<Entity>());
-    public static Set<Entity> entities = new HashSet<>();
+    private static final Set<Entity> entities = new HashSet<>();
     /** All entities to be removed from the dungeon in the next frame */
-    public static Set<Entity> entitiesToRemove = new HashSet<>();
-
-    public static Set<Entity> entitiesToAdd = new HashSet<>();
+    private static final Set<Entity> entitiesToRemove = new HashSet<>();
+    /** All entities to be added from the dungeon in the next frame */
+    private static final Set<Entity> entitiesToAdd = new HashSet<>();
 
     /** List of all Systems in the ECS */
     public static SystemController systems;
 
     public static ILevel currentLevel;
-    private static PauseMenu pauseMenu;
+    private static PauseMenu<Actor> pauseMenu;
     private static StartMenu startMenu;
-    private PositionComponent heroPositionComponent;
+    private static Entity hero;
     private Logger gameLogger;
-    public static Hero hero;
-
     private static MultiplayerAPI multiplayerAPI;
 
-    /** Called once at the beginning of the game. */
-    protected void setup() {
-        initBaseLogger();
-        gameLogger = Logger.getLogger(this.getClass().getName());
-        controller.clear();
-        systems = new SystemController();
-        controller.add(systems);
-        multiplayerAPI = new MultiplayerAPI(this);
-
-        setupMenus();
-        setupHero();
-        setupRandomLevel();
-        setupSystems();
-
-        showMenu(startMenu);
+    public static void main(String[] args) {
+        // start the game
+        try {
+            Configuration.loadAndGetConfiguration("dungeon_config.json", KeyboardConfig.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        DesktopLauncher.run(new Game());
     }
 
     /**
@@ -117,38 +102,313 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
      */
     @Override
     public void render(float delta) {
-            if (doFirstFrame) {
-                firstFrame();
+        if (doSetup) setup();
+        batch.setProjectionMatrix(camera.combined);
+        frame();
+        clearScreen();
+        levelAPI.update();
+        controller.forEach(AbstractController::update);
+        camera.update();
+    }
+
+    /** Called once at the beginning of the game. */
+    protected void setup() {
+        doSetup = false;
+        controller = new ArrayList<>();
+        setupCameras();
+        painter = new Painter(batch, camera);
+        generator = new RandomWalkGenerator();
+        initBaseLogger();
+        gameLogger = Logger.getLogger(this.getClass().getName());
+        systems = new SystemController();
+        controller.add(systems);
+        hero = new Hero();
+        multiplayerAPI = new MultiplayerAPI(this);
+        setupMenus();
+        setupRandomLevel();
+        createSystems();
+        showMenu(startMenu);
+    }
+
+    /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
+    protected void frame() {
+        setCameraFocus();
+        manageEntitiesSets();
+        getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P) && !startMenu.isVisible()) togglePause();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+            if (paused) togglePause();
+            if (!startMenu.isVisible()) {
+                startMenu.resetView();
+                showMenu(startMenu);
             }
-            batch.setProjectionMatrix(camera.combined);
-            if (runLoop()) {
-                frame();
-                if (runLoop()) {
-                    clearScreen();
-                    levelAPI.update();
-                    if (runLoop()) {
-                        controller.forEach(AbstractController::update);
-                        if (runLoop()) {
-                            camera.update();
-                        }
-                    }
-                }
-            }
+        }
     }
 
     @Override
     public void onLevelLoad() {
         currentLevel = levelAPI.getCurrentLevel();
-
         entities.clear();
-        if (hero != null) {
-            entities.add(hero);
-            heroPositionComponent.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
-        }
+        getHero().ifPresent(this::placeOnLevelStart);
+    }
 
-        // TODO: when calling this before currentLevel is set, the default ctor of PositionComponent
-        // triggers NullPointerException
-//        setupDSLInput();
+    private void manageEntitiesSets() {
+        synchronizePositionsFromMultiplayerSession();
+        entities.removeAll(entitiesToRemove);
+        entities.addAll(entitiesToAdd);
+        for (Entity entity : entitiesToRemove) {
+            gameLogger.info("Entity '" + entity.getClass().getSimpleName() + "' was deleted.");
+        }
+        for (Entity entity : entitiesToAdd) {
+            gameLogger.info("Entity '" + entity.getClass().getSimpleName() + "' was added.");
+        }
+        entitiesToRemove.clear();
+        entitiesToAdd.clear();
+    }
+
+    private void setCameraFocus() {
+        if (getHero().isPresent()) {
+            PositionComponent pc =
+                (PositionComponent)
+                    getHero()
+                        .get()
+                        .getComponent(PositionComponent.class)
+                        .orElseThrow(
+                            () ->
+                                new MissingComponentException(
+                                    "PositionComponent"));
+            camera.setFocusPoint(pc.getPosition());
+
+        } else camera.setFocusPoint(new Point(0, 0));
+    }
+
+    private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
+        if (isOnEndTile(hero)) levelAPI.loadLevel(LEVELSIZE);
+    }
+
+    private boolean isOnEndTile(Entity entity) {
+        PositionComponent pc =
+            (PositionComponent)
+                entity.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
+        Tile currentTile = currentLevel.getTileAt(pc.getPosition().toCoordinate());
+        return currentTile.equals(currentLevel.getEndTile());
+    }
+
+    private void placeOnLevelStart(Entity hero) {
+        entities.add(hero);
+        PositionComponent pc =
+            (PositionComponent)
+                hero.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
+        pc.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
+    }
+
+    /**
+     * Given entity will be added to the game in the next frame
+     *
+     * @param entity will be added to the game next frame
+     */
+    public static void addEntity(Entity entity) {
+        entitiesToAdd.add(entity);
+    }
+
+    /**
+     * Given entity will be removed from the game in the next frame
+     *
+     * @param entity will be removed from the game next frame
+     */
+    public static void removeEntity(Entity entity) {
+        entitiesToRemove.add(entity);
+    }
+
+    /**
+     * @return Set with all entities currently in game
+     */
+    public static Set<Entity> getEntities() {
+        return entities;
+    }
+
+    /**
+     * @return Set with all entities that will be added to the game next frame
+     */
+    public static Set<Entity> getEntitiesToAdd() {
+        return entitiesToAdd;
+    }
+
+    /**
+     * @return Set with all entities that will be removed from the game next frame
+     */
+    public static Set<Entity> getEntitiesToRemove() {
+        return entitiesToRemove;
+    }
+
+    /**
+     * @return the player character, can be null if not initialized
+     */
+    public static Optional<Entity> getHero() {
+        return Optional.ofNullable(hero);
+    }
+
+    /**
+     * set the reference of the playable character careful: old hero will not be removed from the
+     * game
+     *
+     * @param hero new reference of hero
+     */
+    public static void setHero(Entity hero) {
+        Game.hero = hero;
+    }
+
+    public void setSpriteBatch(SpriteBatch batch) {
+        this.batch = batch;
+    }
+
+    private void clearScreen() {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
+    }
+
+    private void setupCameras() {
+        camera = new DungeonCamera(null, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
+        camera.zoom = Constants.DEFAULT_ZOOM_FACTOR;
+
+        // See also:
+        // https://stackoverflow.com/questions/52011592/libgdx-set-ortho-camera
+    }
+
+    private void createSystems() {
+        new VelocitySystem();
+        new DrawSystem(painter);
+        new PlayerSystem();
+        new AISystem();
+        new CollisionSystem();
+        new HealthSystem();
+        new XPSystem();
+        new SkillSystem();
+        new ProjectileSystem();
+    }
+
+    private void setupRandomLevel() {
+        levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
+        levelAPI.loadLevel();
+    }
+
+    private void setupMenus() {
+        pauseMenu = new PauseMenu();
+        startMenu = new StartMenu();
+        if (!startMenu.addObserver(this)) {
+            throw new RuntimeException("Failed to register observer to start menu");
+        };
+
+        if (controller != null) {
+            controller.add(pauseMenu);
+            controller.add(startMenu);
+        }
+    }
+
+    private void showMenu(Menu menuToBeShown) {
+        if (menuToBeShown != null) {
+            stopSystems();
+            menuToBeShown.showMenu();
+        }
+    }
+
+    private void hideMenu(Menu menu) {
+        menu.hideMenu();
+        resumeSystems();
+    }
+
+    private void togglePause() {
+        paused = !paused;
+        if (paused) {
+            showMenu(pauseMenu);
+        }
+        else {
+            hideMenu(pauseMenu);
+        }
+    }
+
+    private void resumeSystems() {
+        if (systems != null) {
+            systems.forEach(ECS_System::toggleRun);
+        }
+    }
+
+    private void stopSystems() {
+        if (systems != null) {
+            systems.forEach(ECS_System::toggleRun);
+        }
+    }
+
+    public static void sendPosition(){
+        if (getHero().isPresent()) {
+            PositionComponent positionComponent =
+                (PositionComponent)
+                    getHero()
+                        .get()
+                        .getComponent(PositionComponent.class)
+                        .orElseThrow(
+                            () ->
+                                new MissingComponentException(
+                                    "PositionComponent"));
+            multiplayerAPI.updateOwnPosition(positionComponent.getPosition());
+        } else {
+            System.out.println("Hero position not sent. Hero not present/set.");
+        }
+    }
+
+    private void synchronizePositionsFromMultiplayerSession() {
+
+        if (multiplayerAPI.isConnectedToSession()) {
+            final HashMap<Integer, Point> heroPositionByPlayerIdExceptOwn =
+                multiplayerAPI.getHeroPositionByPlayerIdExceptOwn();
+
+            if (heroPositionByPlayerIdExceptOwn != null) {
+                PositionComponent positionComponentOwnHero =
+                    (PositionComponent)
+                        getHero()
+                            .get()
+                            .getComponent(PositionComponent.class)
+                            .orElseThrow(
+                                () ->
+                                    new MissingComponentException(
+                                        "PositionComponent"));
+
+                //Add new hero, if new player joined
+                heroPositionByPlayerIdExceptOwn.forEach((Integer playerId, Point position) -> {
+                    if(!entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
+                        .map(component -> (MultiplayerComponent)component)
+                        .anyMatch(component -> component.getPlayerId() == playerId)) {
+                        new HeroDummy(positionComponentOwnHero.getPosition(), playerId);
+                    }
+                });
+
+                // Remove entities not connected to multiplayer session anymore
+                entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
+                    .map(e -> (MultiplayerComponent) e)
+                    .forEach(mc -> {
+                        if(!heroPositionByPlayerIdExceptOwn.containsKey(mc.getPlayerId())){
+                            entitiesToRemove.add(mc.getEntity());
+                        }
+                    });
+
+                // Update all positions of all entities with a multiplayerComponent
+                for (Entity entity: entities) {
+                    if (entity.getComponent(MultiplayerComponent.class).isPresent()) {
+                        MultiplayerComponent multiplayerComponent =
+                            (MultiplayerComponent)entity.getComponent(MultiplayerComponent.class).orElseThrow();
+                        PositionComponent positionComponent =
+                            (PositionComponent) entity.getComponent(PositionComponent.class).orElseThrow();
+                        Point currentPositionAtMultiplayerSession =
+                            multiplayerAPI.getHeroPositionByPlayerId().get(multiplayerComponent.getPlayerId());
+                        positionComponent.setPosition(currentPositionAtMultiplayerSession);
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -200,232 +460,5 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         } else {
             // TODO: error handling like popup menu with error message
         }
-    }
-
-    public static void sendPosition(){
-        PositionComponent positionComponent =
-            (PositionComponent) hero
-                .getComponent(PositionComponent.class)
-                .orElseThrow();
-        multiplayerAPI.updateOwnPosition(positionComponent.getPosition());
-    }
-
-    private void synchronizePositionsFromMultiplayerSession() {
-
-        if (multiplayerAPI.isConnectedToSession()) {
-            final HashMap<Integer, Point> heroPositionByPlayerIdExceptOwn =
-                multiplayerAPI.getHeroPositionByPlayerIdExceptOwn();
-
-            if (heroPositionByPlayerIdExceptOwn != null) {
-                //Add new hero, if new player joined
-                heroPositionByPlayerIdExceptOwn.forEach((Integer playerId, Point position) -> {
-                    if(!entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
-                        .map(component -> (MultiplayerComponent)component)
-                        .anyMatch(component -> component.getPlayerId() == playerId)) {
-                            new HeroDummy(new Point(0,0), playerId);
-                        }
-                });
-
-                // Remove entities not connected to multiplayer session anymore
-                entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
-                    .map(e -> (MultiplayerComponent) e)
-                    .forEach(mc -> {
-                        if(!heroPositionByPlayerIdExceptOwn.containsKey(mc.getPlayerId())){
-                            entitiesToRemove.add(mc.getEntity());
-                        }
-                    });
-
-                // Update all positions of all entities with a multiplayerComponent
-                for (Entity entity: entities) {
-                    if (entity.getComponent(MultiplayerComponent.class).isPresent()) {
-                        MultiplayerComponent multiplayerComponent =
-                            (MultiplayerComponent)entity.getComponent(MultiplayerComponent.class).orElseThrow();
-                        PositionComponent positionComponent =
-                            (PositionComponent) entity.getComponent(PositionComponent.class).orElseThrow();
-                        positionComponent.setPosition(
-                            multiplayerAPI.getHeroPositionByPlayerId().get(multiplayerComponent.getPlayerId())
-                        );
-                    }
-                }
-            }
-        }
-    }
-
-    public void setSpriteBatch(SpriteBatch batch) {
-        this.batch = batch;
-    }
-
-    /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
-    protected void frame() {
-        if (hero != null && heroPositionComponent != null) {
-            camera.setFocusPoint(heroPositionComponent.getPosition());
-        }
-        synchronizePositionsFromMultiplayerSession();
-        entities.removeAll(entitiesToRemove);
-        entities.addAll(entitiesToAdd);
-        for (Entity entity : entitiesToRemove) {
-            gameLogger.info("Entity '" + entity.getClass().getSimpleName() + "' was deleted.");
-        }
-        entitiesToRemove.clear();
-        entitiesToAdd.clear();
-        if (isOnEndTile()) levelAPI.loadLevel(LEVELSIZE);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P) && !startMenu.isVisible()) togglePause();
-        if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
-            if (paused) togglePause();
-            if (!startMenu.isVisible()) {
-                startMenu.resetView();
-                showMenu(startMenu);
-            }
-        }
-    }
-
-    protected boolean runLoop() {
-        return true;
-    }
-
-    private void setupCameras() {
-        camera = new DungeonCamera(null, Constants.VIRTUAL_WIDTH, Constants.VIRTUAL_HEIGHT);
-        camera.zoom = Constants.DEFAULT_ZOOM_FACTOR;
-
-        // See also:
-        // https://stackoverflow.com/questions/52011592/libgdx-set-ortho-camera
-    }
-
-    private void setupRandomLevel() {
-        levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
-        levelAPI.loadLevel();
-    }
-
-    private void setupSystems() {
-        new VelocitySystem();
-        new DrawSystem(painter);
-        new PlayerSystem();
-        new AISystem();
-        new CollisionSystem();
-        new HealthSystem();
-        new XPSystem();
-        new SkillSystem();
-        new ProjectileSystem();
-    }
-
-    private void setupDSLInput() {
-        String program =
-            """
-    game_object monster {
-        position_component {
-        },
-        velocity_component {
-        x_velocity: 0.1,
-        y_velocity: 0.1,
-        move_right_animation:"monster/imp/runRight",
-        move_left_animation: "monster/imp/runLeft"
-        },
-        animation_component{
-            idle_left: "monster/imp/idleLeft",
-            idle_right: "monster/imp/idleRight",
-            current_animation: "monster/imp/idleLeft"
-        },
-        hitbox_component {
-        }
-    }
-
-    quest_config config {
-        entity: monster
-    }
-    """;
-        DSLInterpreter interpreter = new DSLInterpreter();
-        QuestConfig config = (QuestConfig) interpreter.getQuestConfig(program);
-        entities.add(config.entity());
-    }
-
-    private void setupHero() {
-        hero = new Hero(new Point(0, 0));
-        heroPositionComponent =
-            (PositionComponent)
-                hero.getComponent(PositionComponent.class)
-                    .orElseThrow(
-                        () -> new MissingComponentException("PositionComponent"));
-    }
-
-    private void setupMenus() {
-        pauseMenu = new PauseMenu();
-        startMenu = new StartMenu();
-        if (!startMenu.addObserver(this)) {
-            throw new RuntimeException("Failed to register observer to start menu");
-        };
-
-        if (controller != null) {
-            controller.add(pauseMenu);
-            controller.add(startMenu);
-        }
-    }
-
-    private void showMenu(Menu menuToBeShown) {
-        if (menuToBeShown != null) {
-            stopSystems();
-            menuToBeShown.showMenu();
-        }
-    }
-
-    private void hideMenu(Menu menu) {
-        menu.hideMenu();
-        resumeSystems();
-    }
-
-    private void togglePause() {
-        paused = !paused;
-        if (paused) {
-            showMenu(pauseMenu);
-        }
-        else {
-            hideMenu(pauseMenu);
-        }
-    }
-
-    private void clearScreen() {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
-    }
-
-    private void firstFrame() {
-        doFirstFrame = false;
-        controller = new ArrayList<>();
-        setupCameras();
-        painter = new Painter(batch, camera);
-//        generator = new RandomWalkGenerator();
-//        levelAPI = new LevelAPI(batch, painter, generator, this);
-        setup();
-    }
-
-    private void resumeSystems() {
-        if (systems != null) {
-            systems.forEach(ECS_System::toggleRun);
-        }
-    }
-
-    private void stopSystems() {
-        if (systems != null) {
-            systems.forEach(ECS_System::toggleRun);
-        }
-    }
-
-    private boolean isOnEndTile() {
-        if (hero != null && heroPositionComponent != null) {
-            Tile currentTile =
-                    currentLevel.getTileAt(heroPositionComponent.getPosition().toCoordinate());
-            return currentTile.equals(currentLevel.getEndTile());
-        }
-
-        return false;
-    }
-
-    public static void main(String[] args) {
-        // start the game
-        try {
-            Configuration.loadAndGetConfiguration("dungeon_config.json", KeyboardConfig.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        DesktopLauncher.run(new Game());
     }
 }

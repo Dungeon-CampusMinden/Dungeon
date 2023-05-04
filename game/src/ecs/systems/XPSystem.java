@@ -7,7 +7,7 @@ public class XPSystem extends ECS_System {
 
     @Override
     public void update() {
-        Game.entities.stream()
+        Game.getEntities().stream()
                 .flatMap(e -> e.getComponent(XPComponent.class).stream())
                 .forEach(
                         component -> {

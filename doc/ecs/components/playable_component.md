@@ -3,17 +3,13 @@ title: "Playable Component"
 ---
 
 ## Wofür
-- Wofür braucht es diese Comonent?
-- Was macht es? 
-
-## Aufbau
-
-- UML
-- Aufbau Erklären
+Dieses Component ist für den Spielercharakter vorgesehen. Es markiert eine Entität als die vom Spieler steuerbare Entität.
+Dieses Component sollte nur von genau einer Entität im Spiel implementiert werden, da die Codebasis aktuell nicht auf mehrere spielbare Charaktere ausgelegt ist.
+Es speichert alle Daten, die nur für den Spieler der Entität sind.
+Speichert die Skills, die im PlayerSystem über Skilltasten ausgelöst werden.
 
 ## Wie nutzt man es
-- Welche Prameter gibt es, was machen diese? 
+Das Component beinhaltet einfache Setter und Getter. Die genaue Verwendung entnimmt man der Javadoc.
 
 ## Testabdeckung
-- Wie ist die Testabdeckung?
-- Welche Methode/Funktionalitäten können nicht geteste werden, warum? 
+Alle Methoden sind zum Stand am 02.04.2023 getestet.

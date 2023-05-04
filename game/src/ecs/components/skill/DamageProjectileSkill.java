@@ -64,7 +64,7 @@ public abstract class DamageProjectileSkill implements ISkillFunction {
                                 .ifPresent(
                                         hc -> {
                                             ((HealthComponent) hc).receiveHit(projectileDamage);
-                                            Game.entitiesToRemove.add(projectile);
+                                            Game.removeEntity(projectile);
                                         });
                     }
                 };

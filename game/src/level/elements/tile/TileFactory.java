@@ -7,41 +7,36 @@ import level.tools.LevelElement;
 
 public class TileFactory {
 
-    public static Tile createTile(
+    private static Tile createTile(
             String texturePath,
             Coordinate coordinate,
             LevelElement elementType,
             DesignLabel designLabel,
             ILevel level) {
-        switch (elementType) {
-            case FLOOR -> {
-                FloorTile tile = new FloorTile(texturePath, coordinate, designLabel, level);
-                level.addFloorTile(tile);
-                return tile;
-            }
-            case WALL -> {
-                WallTile tile = new WallTile(texturePath, coordinate, designLabel, level);
-                level.addWallTile(tile);
-                return tile;
-            }
-            case HOLE -> {
-                HoleTile tile = new HoleTile(texturePath, coordinate, designLabel, level);
-                level.addHoleTile(tile);
-                return tile;
-            }
-            case DOOR -> {
-                DoorTile tile = new DoorTile(texturePath, coordinate, designLabel, level);
-                level.addDoorTile(tile);
-                return tile;
-            }
-            case EXIT -> {
-                ExitTile tile = new ExitTile(texturePath, coordinate, designLabel, level);
-                level.addExitTile(tile);
-                return tile;
-            }
-        }
-        SkipTile tile = new SkipTile(texturePath, coordinate, designLabel, level);
-        level.addSkipTile(tile);
-        return tile;
+        return switch (elementType) {
+            case FLOOR -> new FloorTile(texturePath, coordinate, designLabel, level);
+            case WALL -> new WallTile(texturePath, coordinate, designLabel, level);
+            case HOLE -> new HoleTile(texturePath, coordinate, designLabel, level);
+            case DOOR -> new DoorTile(texturePath, coordinate, designLabel, level);
+            case EXIT -> new ExitTile(texturePath, coordinate, designLabel, level);
+            case SKIP -> new SkipTile(texturePath, coordinate, designLabel, level);
+        };
+    }
+
+    /**
+     * creates a new Tile which can then be added to the level
+     *
+     * @param texturePath the path to the texture
+     * @param coordinate the position of the newly created Tile
+     * @param elementType the type of the new Tile
+     * @param designLabel the label for reasons
+     * @return the newly created Tile
+     */
+    public static Tile createTile(
+            String texturePath,
+            Coordinate coordinate,
+            LevelElement elementType,
+            DesignLabel designLabel) {
+        return createTile(texturePath, coordinate, elementType, designLabel, null);
     }
 }

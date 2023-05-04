@@ -2,36 +2,72 @@ package ecs.components;
 
 import ecs.entities.Entity;
 import java.util.logging.Logger;
-import level.tools.LevelElement;
 import logging.CustomLogLevel;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import starter.Game;
 import tools.Point;
 
-/** PositionComponent is a component that stores the x, y (as Point) position of an entity */
+/** A PositionComponent stores the associated entity's position in the level */
 @DSLType(name = "position_component")
 public class PositionComponent extends Component {
 
-    private /*@DSLTypeMember(name="position")*/ Point position;
     private final Logger positionCompLogger = Logger.getLogger(this.getClass().getName());
+    private /*@DSLTypeMember(name="position")*/ Point position;
 
     /**
+     * Creates a new PositionComponent at a given point.
+     *
+     * <p>Creates a new PositionComponent to store the associated entity's position in the level and
+     * add this component to the associated entity.
+     *
+     * <p>Sets the position of this entity to the given point.
+     *
      * @param entity associated entity
      * @param point position of the entity
      */
     public PositionComponent(@DSLContextMember(name = "entity") Entity entity, Point point) {
         super(entity);
+
         this.position = point;
     }
 
     /**
+     * Creates a new PositionComponent at a given point.
+     *
+     * <p>Creates a new PositionComponent to store the associated entity's position in the level and
+     * add this component to the associated entity.
+     *
+     * <p>Sets the position of this entity to a point with the given x and y positions.
+     *
+     * @param entity associated entity
+     * @param x x-position of the entity
+     * @param y y-position of the entity
+     */
+    public PositionComponent(@DSLContextMember(name = "entity") Entity entity, float x, float y) {
+        this(entity, new Point(x, y));
+    }
+
+    /**
+     * Creates a new PositionComponent at a random point.
+     *
+     * <p>Creates a new PositionComponent to store the associated entity's position in the level and
+     * add this component to the associated entity.
+     *
+     * <p>Sets the position of this entity on a random floor tile in the level. If no level is
+     * loaded, set the position to (0,0). Beware that (0,0) may not necessarily be a playable area
+     * within the level, it could be a wall or an "out of level" area.
+     *
      * @param entity associated entity
      */
     public PositionComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);
-        this.position =
-                Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint();
+
+        if (Game.currentLevel != null) {
+            position = Game.currentLevel.getRandomFloorTile().getCoordinateAsPoint();
+        } else {
+            position = new Point(0, 0);
+        }
     }
 
     /**

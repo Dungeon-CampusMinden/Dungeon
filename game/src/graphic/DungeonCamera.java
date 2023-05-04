@@ -16,8 +16,8 @@ public class DungeonCamera extends OrthographicCamera {
      *
      * @param follows the PositionComponent the camera should follow, <code>null</code> for default
      *     coordinates
-     * @param vw virtual width
-     * @param vh virtual height
+     * @param vw viewport width
+     * @param vh viewport height
      */
     public DungeonCamera(PositionComponent follows, float vw, float vh) {
         super(vw, vh);
@@ -67,8 +67,8 @@ public class DungeonCamera extends OrthographicCamera {
     }
 
     /**
-     * Checks if the point (x,y) is probably been seen on the screen. Otherwise, don't redender this
-     * point.
+     * Checks if point (x,y) is probably visible on screen. Points that are not visible should not
+     * be rendered.
      */
     public boolean isPointInFrustum(float x, float y) {
         final float OFFSET = 1f;

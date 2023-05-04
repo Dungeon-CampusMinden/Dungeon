@@ -22,18 +22,32 @@ public class Animation {
     /** How many frames since the last texture switching? */
     private int frameTimeCounter = 0;
 
+    protected boolean looping;
+
     /**
      * Creates an animation.
      *
      * @param animationFrames The list of textures that builds the animation. Must be in order.
      * @param frameTime How many frames to wait, before switching to the next texture?
+     * @param looping should the Animation continue to repeat ?
      */
-    public Animation(Collection<String> animationFrames, int frameTime) {
+    public Animation(Collection<String> animationFrames, int frameTime, boolean looping) {
         assert (animationFrames != null && !animationFrames.isEmpty());
         assert (frameTime > 0);
         this.animationFrames = new ArrayList<>(animationFrames);
         frames = animationFrames.size();
         this.frameTime = frameTime;
+        this.looping = looping;
+    }
+
+    /**
+     * Creates an animation. repeats forever
+     *
+     * @param animationFrames The list of textures that builds the animation. Must be in order.
+     * @param frameTime How many frames to wait, before switching to the next texture?
+     */
+    public Animation(Collection<String> animationFrames, int frameTime) {
+        this(animationFrames, frameTime, true);
     }
 
     /**
@@ -42,12 +56,22 @@ public class Animation {
      * @return The texture of the next animation step (draw this).
      */
     public String getNextAnimationTexturePath() {
+        if (isFinished()) {
+            return animationFrames.get(currentFrameIndex);
+        }
         String stringToReturn = animationFrames.get(currentFrameIndex);
         frameTimeCounter = (frameTimeCounter + 1) % frameTime;
         if (frameTimeCounter == 0) {
             currentFrameIndex = (currentFrameIndex + 1) % frames;
         }
         return stringToReturn;
+    }
+
+    /**
+     * @return true when last frame and is not looping, otherwise false
+     */
+    public boolean isFinished() {
+        return !looping && currentFrameIndex == frames - 1;
     }
 
     /**

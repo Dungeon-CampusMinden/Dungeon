@@ -17,7 +17,7 @@ public class VelocitySystem extends ECS_System {
 
     /** Updates the position of all entities based on their velocity */
     public void update() {
-        Game.entities.stream()
+        Game.getEntities().stream()
                 .flatMap(e -> e.getComponent(VelocityComponent.class).stream())
                 .map(vc -> buildDataObject((VelocityComponent) vc))
                 .forEach(this::updatePosition);
@@ -39,7 +39,7 @@ public class VelocitySystem extends ECS_System {
         // remove projectiles that hit the wall or other non-accessible
         // tiles
         else if (vsd.e.getComponent(ProjectileComponent.class).isPresent())
-            Game.entitiesToRemove.add(vsd.e);
+            Game.removeEntity(vsd.e);
 
         vsd.vc.setCurrentYVelocity(0);
         vsd.vc.setCurrentXVelocity(0);

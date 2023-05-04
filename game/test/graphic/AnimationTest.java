@@ -1,19 +1,13 @@
 package graphic;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Animation.class})
-class AnimationTest {
-    // Because of use of PowerMockRunner we need an empty constructor here
-    public AnimationTest() {}
+public class AnimationTest {
 
     @Test(expected = AssertionError.class)
     public void test_constructor_1() {
@@ -22,7 +16,7 @@ class AnimationTest {
 
     @Test(expected = AssertionError.class)
     public void test_constructor_2() {
-        new Animation(new ArrayList<>(), 10);
+        new Animation(List.of(), 10);
     }
 
     @Test(expected = AssertionError.class)
@@ -41,5 +35,55 @@ class AnimationTest {
                 assertEquals(String.valueOf(i % 3 + 1), animation.getNextAnimationTexturePath());
             }
         }
+    }
+
+    @Test
+    public void CheckAnimation_isFinished_OneMoreFrameAndNotLooping() {
+        List<String> testStrings = List.of("a", "b");
+        Animation ta = new Animation(testStrings, 1, false);
+        assertFalse("has still one Frame for the Animation to go", ta.isFinished());
+    }
+
+    @Test
+    public void CheckAnimation_isFinished_NoMoreFrameAndNotLooping() {
+        List<String> testStrings = List.of("a", "b");
+        Animation ta = new Animation(testStrings, 1, false);
+        ta.getNextAnimationTexturePath();
+        assertTrue("last Frame reached and should not loop", ta.isFinished());
+    }
+
+    @Test
+    public void CheckAnimation_isFinished_OneMoreFrameAndLooping() {
+        List<String> testStrings = List.of("a", "b");
+        Animation ta = new Animation(testStrings, 1, true);
+        assertFalse("has still one Frame for the Animation to go", ta.isFinished());
+    }
+
+    @Test
+    public void CheckAnimation_isFinished_NoMoreFrameAndLooping() {
+        List<String> testStrings = List.of("a", "b");
+        Animation ta = new Animation(testStrings, 1, true);
+        ta.getNextAnimationTexturePath();
+        assertFalse("last Frame reached and should loop", ta.isFinished());
+    }
+
+    @Test
+    public void CheckAnimation_getNextAnimationTexturePath_NonLoopingFrameTime1() {
+        List<String> testStrings = List.of("a", "b");
+        Animation ta = new Animation(testStrings, 1, false);
+        assertEquals(testStrings.get(0), ta.getNextAnimationTexturePath());
+        assertEquals(testStrings.get(1), ta.getNextAnimationTexturePath());
+        assertEquals(testStrings.get(1), ta.getNextAnimationTexturePath());
+    }
+
+    @Test
+    public void CheckAnimation_getNextAnimationTexturePath_NonLoopingFrameTime2() {
+        List<String> testStrings = List.of("a", "b");
+        Animation ta = new Animation(testStrings, 2, false);
+        assertEquals(testStrings.get(0), ta.getNextAnimationTexturePath());
+        assertEquals(testStrings.get(0), ta.getNextAnimationTexturePath());
+        assertEquals(testStrings.get(1), ta.getNextAnimationTexturePath());
+        assertEquals(testStrings.get(1), ta.getNextAnimationTexturePath());
+        assertEquals(testStrings.get(1), ta.getNextAnimationTexturePath());
     }
 }

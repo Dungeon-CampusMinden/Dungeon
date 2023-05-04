@@ -9,7 +9,6 @@ import ecs.components.InteractionComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
-import ecs.entities.Hero;
 import java.util.Optional;
 import level.elements.ILevel;
 import level.elements.TileLevel;
@@ -40,8 +39,8 @@ public class InteractionToolTest {
      * @param havingPositionComponent if the Hero should have the PositionComponent
      * @return the Mocked Hero
      */
-    private static Hero fullMockedHero(boolean havingPositionComponent) {
-        Hero mock = Mockito.mock(Hero.class);
+    private static Entity fullMockedHero(boolean havingPositionComponent) {
+        Entity mock = Mockito.mock(Entity.class);
         Optional<Component> pc;
         if (havingPositionComponent) {
             pc = Optional.of(new PositionComponent(mock, new Point(0, 0)));
@@ -55,10 +54,10 @@ public class InteractionToolTest {
 
     /** cleanup to reset static Attributes from Game used by the InteractionTool */
     private static void cleanup() {
-        Game.entities.clear();
-        Game.entitiesToAdd.clear();
-        Game.entitiesToRemove.clear();
-        Game.hero = null;
+        Game.getEntities().clear();
+        Game.getEntitiesToAdd().clear();
+        Game.getEntitiesToRemove().clear();
+        Game.setHero(null);
         Game.currentLevel = null;
     }
 
@@ -66,19 +65,21 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableHeroMissingPositionComponent() {
         cleanup();
-        Game.hero = fullMockedHero(false);
+        Game.setHero(fullMockedHero(false));
         Game.currentLevel = prepareLevel();
 
         MissingComponentException e =
                 assertThrows(
                         MissingComponentException.class,
-                        () -> InteractionTool.interactWithClosestInteractable(Game.hero));
+                        () ->
+                                InteractionTool.interactWithClosestInteractable(
+                                        Game.getHero().get()));
         assertTrue(
                 "Errormessage should contain information where the Exception was thrown.",
                 e.getMessage().contains(InteractionTool.class.getName()));
         assertTrue(
                 "Errormessage should contain information about which class did miss the Component.",
-                e.getMessage().contains(Hero.class.getName()));
+                e.getMessage().contains(Entity.class.getName()));
         assertTrue(
                 "Errormessage should contain information about which Component is missing.",
                 e.getMessage().contains(PositionComponent.class.getName()));
@@ -89,11 +90,11 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableNoEntities() {
         cleanup();
-        Game.hero = fullMockedHero(true);
+        Game.setHero(fullMockedHero(true));
         Game.currentLevel = prepareLevel();
-        Game.entities.addAll(Game.entitiesToAdd);
-        Game.entitiesToAdd.clear();
-        InteractionTool.interactWithClosestInteractable(Game.hero);
+        Game.getEntities().addAll(Game.getEntitiesToAdd());
+        Game.getEntitiesToAdd().clear();
+        InteractionTool.interactWithClosestInteractable(Game.getHero().get());
         cleanup();
     }
 
@@ -103,10 +104,10 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableNoInteractable() {
         cleanup();
-        Game.hero = fullMockedHero(true);
+        Game.setHero(fullMockedHero(true));
         Game.currentLevel = prepareLevel();
-        Game.entities.add(Game.hero);
-        InteractionTool.interactWithClosestInteractable(Game.hero);
+        Game.getEntities().add(Game.getHero().get());
+        InteractionTool.interactWithClosestInteractable(Game.getHero().get());
         cleanup();
     }
 
@@ -117,7 +118,7 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableOneInteractableOutOfRange() {
         cleanup();
-        Game.hero = fullMockedHero(true);
+        Game.setHero(fullMockedHero(true));
         Game.currentLevel = prepareLevel();
 
         Entity e = new Entity();
@@ -126,7 +127,7 @@ public class InteractionToolTest {
         SimpleCounter sc_e = new SimpleCounter();
         new InteractionComponent(e, 5f, false, (x) -> sc_e.inc());
 
-        InteractionTool.interactWithClosestInteractable(Game.hero);
+        InteractionTool.interactWithClosestInteractable(Game.getHero().get());
         assertEquals("No interaction should happen", 0, sc_e.getCount());
 
         cleanup();
@@ -139,7 +140,7 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableOneInteractableInRange() {
         cleanup();
-        Game.hero = fullMockedHero(true);
+        Game.setHero(fullMockedHero(true));
         Game.currentLevel = prepareLevel();
 
         Entity e = new Entity();
@@ -148,10 +149,10 @@ public class InteractionToolTest {
         SimpleCounter sc_e = new SimpleCounter();
         new InteractionComponent(e, 5f, false, (x) -> sc_e.inc());
 
-        Game.entities.addAll(Game.entitiesToAdd);
-        Game.entitiesToAdd.clear();
+        Game.getEntities().addAll(Game.getEntitiesToAdd());
+        Game.getEntitiesToAdd().clear();
 
-        InteractionTool.interactWithClosestInteractable(Game.hero);
+        InteractionTool.interactWithClosestInteractable(Game.getHero().get());
         assertEquals("One interaction should happen", 1, sc_e.getCount());
 
         cleanup();
@@ -161,7 +162,7 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableOneInteractableInRangeMissingPosition() {
         cleanup();
-        Game.hero = fullMockedHero(true);
+        Game.setHero(fullMockedHero(true));
         Game.currentLevel = prepareLevel();
 
         Entity e = new Entity();
@@ -169,13 +170,15 @@ public class InteractionToolTest {
         SimpleCounter sc_e = new SimpleCounter();
         new InteractionComponent(e, 5f, false, (x) -> sc_e.inc());
 
-        Game.entities.addAll(Game.entitiesToAdd);
-        Game.entitiesToAdd.clear();
+        Game.getEntities().addAll(Game.getEntitiesToAdd());
+        Game.getEntitiesToAdd().clear();
 
         MissingComponentException exception =
                 assertThrows(
                         MissingComponentException.class,
-                        () -> InteractionTool.interactWithClosestInteractable(Game.hero));
+                        () ->
+                                InteractionTool.interactWithClosestInteractable(
+                                        Game.getHero().get()));
         assertTrue(
                 "Errormessage should contain information where the Exception was thrown.",
                 exception.getMessage().contains(InteractionTool.class.getName()));
@@ -198,7 +201,7 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableClosestEntityFirst() {
         cleanup();
-        Game.hero = fullMockedHero(true);
+        Game.setHero(fullMockedHero(true));
         Game.currentLevel = prepareLevel();
         // distance 2
         Entity eClose = new Entity();
@@ -211,13 +214,13 @@ public class InteractionToolTest {
         Entity eFar = new Entity();
         new PositionComponent(eFar, new Point(3, 0));
 
-        Game.entities.addAll(Game.entitiesToAdd);
-        Game.entitiesToAdd.clear();
+        Game.getEntities().addAll(Game.getEntitiesToAdd());
+        Game.getEntitiesToAdd().clear();
 
         SimpleCounter sc_eFar = new SimpleCounter();
         new InteractionComponent(eFar, 5f, false, (x) -> sc_eFar.inc());
 
-        InteractionTool.interactWithClosestInteractable(Game.hero);
+        InteractionTool.interactWithClosestInteractable(Game.getHero().get());
         assertEquals("One interaction should happen", 1, sc_eClose.getCount());
         assertEquals("No interaction should happen", 0, sc_eFar.getCount());
 
@@ -231,7 +234,7 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableClosestEntityLast() {
         cleanup();
-        Game.hero = fullMockedHero(true);
+        Game.setHero(fullMockedHero(true));
         Game.currentLevel = prepareLevel();
 
         // distance 3
@@ -248,10 +251,10 @@ public class InteractionToolTest {
         SimpleCounter sc_eClose = new SimpleCounter();
         new InteractionComponent(eClose, 5f, false, (x) -> sc_eClose.inc());
 
-        Game.entities.addAll(Game.entitiesToAdd);
-        Game.entitiesToAdd.clear();
+        Game.getEntities().addAll(Game.getEntitiesToAdd());
+        Game.getEntitiesToAdd().clear();
 
-        InteractionTool.interactWithClosestInteractable(Game.hero);
+        InteractionTool.interactWithClosestInteractable(Game.getHero().get());
         assertEquals("One interaction should happen", 1, sc_eClose.getCount());
         assertEquals("No interaction should happen", 0, sc_eFar.getCount());
 

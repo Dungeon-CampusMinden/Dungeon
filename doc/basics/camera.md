@@ -1,5 +1,5 @@
 ---
-title: "Camera: "I can see you!"
+title: "Camera: I can see you!"
 ---
 
 
