@@ -108,6 +108,19 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /** Called once at the beginning of the game. */
     protected void setup() {
         doSetup = false;
+        /*
+         * THIS EXCEPTION HANDLING IS A TEMPORARY WORKAROUND !
+         *
+         * <p>The TextureHandler can throw an exception when it is first created. This exception
+         * (IOEception) must be handled somewhere. Normally we want to pass exceptions to the method
+         * caller. This approach is (atm) not possible in the libgdx render method because Java does
+         * not allow extending method signatures derived from a class. We should try to make clean
+         * code out of this workaround later.
+         *
+         * <p>Please see also discussions at:<br>
+         * - https://github.com/Programmiermethoden/Dungeon/pull/560<br>
+         * - https://github.com/Programmiermethoden/Dungeon/issues/587<br>
+         */
         try {
             handler = TextureHandler.getInstance();
         } catch (IOException e) {
