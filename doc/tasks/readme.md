@@ -111,14 +111,9 @@ regulären Ausdruck sein.
 
 ### Ersetzen
 
-Aus einer Reihe aus Elementen (kann auch nur eins sein) muss ein Element durch ein oder
-mehrere andere (vorgegebene) Elemente ersetzt werden. Hierdurch wird die Reihe aus Elementen
-sowie deren Anzahl verändert.
-
-### Kombinieren
-
-Aus einer Reihe aus Elementen müssen mehrere Elemente (oder alle) zu einem anderen Element
-zusammengefasst werden. Hierdurch wird die Reihe aus Elementen sowie deren Anzahl verändert.
+Aus einer Gesamtmenge aus $l$ Elementen (mit $0 < l$) muss eine Menge mit $m$ Elementen (mit $0 < n$) durch eine
+zweite Menge mit $m$ Elementen (mit $0 < m$) ersetzt werden.
+Hierdurch wird die Gesamtmenge der Elemente sowie die Anzahl der enthaltenen Elemente verändert.
 
 ### Objekte in der richtigen Reihenfolge auswählen
 
