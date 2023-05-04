@@ -24,7 +24,6 @@ import graphic.Painter;
 import graphic.hud.menus.*;
 import graphic.hud.menus.startmenu.IStartMenuObserver;
 import graphic.hud.menus.startmenu.StartMenu;
-import interpreter.DSLInterpreter;
 
 import java.io.IOException;
 import java.util.*;
@@ -79,7 +78,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
 
     public static ILevel currentLevel;
     private static PauseMenu<Actor> pauseMenu;
-    private static StartMenu startMenu;
+    private static StartMenu<Actor> startMenu;
     private static Entity hero;
     private Logger gameLogger;
     private static MultiplayerAPI multiplayerAPI;
@@ -297,11 +296,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     }
 
     private void setupMenus() {
-        pauseMenu = new PauseMenu();
-        startMenu = new StartMenu();
+        pauseMenu = new PauseMenu<>();
+        startMenu = new StartMenu<>();
         if (!startMenu.addObserver(this)) {
             throw new RuntimeException("Failed to register observer to start menu");
-        };
+        }
 
         if (controller != null) {
             controller.add(pauseMenu);
@@ -309,14 +308,14 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         }
     }
 
-    private void showMenu(Menu menuToBeShown) {
+    private void showMenu(Menu<Actor> menuToBeShown) {
         if (menuToBeShown != null) {
             stopSystems();
             menuToBeShown.showMenu();
         }
     }
 
-    private void hideMenu(Menu menu) {
+    private void hideMenu(Menu<? extends Actor> menu) {
         menu.hideMenu();
         resumeSystems();
     }
@@ -379,9 +378,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
 
                 //Add new hero, if new player joined
                 heroPositionByPlayerIdExceptOwn.forEach((Integer playerId, Point position) -> {
-                    if(!entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
+                    if(entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
                         .map(component -> (MultiplayerComponent)component)
-                        .anyMatch(component -> component.getPlayerId() == playerId)) {
+                        .noneMatch(component -> component.getPlayerId() == playerId)) {
                         new HeroDummy(positionComponentOwnHero.getPosition(), playerId);
                     }
                 });
@@ -448,6 +447,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
             sendPosition();
         } else {
             // TODO: error handling like popup menu with error message
+            System.out.println("Server responded unsuccessful start");
         }
     }
 
@@ -459,6 +459,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
             sendPosition();
         } else {
             // TODO: error handling like popup menu with error message
+            System.out.println("Cannot join multiplayer session");
         }
     }
 }
