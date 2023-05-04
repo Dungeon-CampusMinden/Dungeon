@@ -120,13 +120,13 @@ Hierdurch wird die Gesamtmenge der Elemente sowie die Anzahl der enthaltenen Ele
 Es muss in der richtigen Reihenfolge ein Element nach dem anderen aus einer Menge ausgewählt
 werden. Es müssen nicht alle Elemente von Anfang an bekannt sein.
 
-### Positionieren
+### Zuordnen
 
-Positionierung bezeichnet im Allgemeinen die Aufgabe, Elemente aus einer Menge (z.B.
-Antwortmöglichkeiten) zu Positionen (bspw. Array-Index, Reihe-Spalte Kombination einer
-Matrix) zuzuordnen. Hierbei muss nicht jedes Element aus der Menge der Antwortmöglichkeiten
-auch einer Position zugeordnet werden. Allerdings muss jede Postion mit einem Element aus
-der Menge der Antwortmöglichkeiten belegt sein.
+Zuordnen bezeichnet im Allgemeinen die Aufgabe, Elemente aus einer Menge $A$ (z.B.
+Antwortmöglichkeiten) die Elemente aus einer anderen Menge $B$ zuzuordnen (bspw. Array-Index,
+Reihe-Spalte Kombination einer Matrix). Hierbei muss nicht jedes Element aus $A$ der
+Antwortmöglichkeiten auch einem Element aus $B$ zugeordnet werden. Allerdings muss jedem Element aus $B$ ein
+Element aus $A$ zugeordnet werden.
 
 ## Spielmechaniken
 
