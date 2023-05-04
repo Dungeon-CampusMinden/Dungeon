@@ -12,7 +12,9 @@ import semanticAnalysis.types.DSLTypeMember;
 /**
  * The AnimationComponent associates an entity with its animations. It stores the current animation
  * and two idle animations, one for each direction (left/right). The current animation can be
- * overwritten by using the {@link #setCurrentAnimation} of this component.
+ * overwritten by using the {@link #setCurrentAnimation} of this component. The {@link
+ * ecs.systems.DrawSystem DrawSystem} uses the {@link #getCurrentAnimation()} method to draw the
+ * current animation to the screen.
  */
 @DSLType(name = "animation_component")
 public class AnimationComponent extends Component {
