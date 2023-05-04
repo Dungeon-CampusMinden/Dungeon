@@ -194,6 +194,6 @@ public class HealthComponent extends Component {
     }
 
     public boolean isDead() {
-        return this.currentHealthpoints <= 0;
+        return currentHealthpoints <= 0;
     }
 }
