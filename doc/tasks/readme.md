@@ -115,7 +115,7 @@ Aus einer Gesamtmenge aus $l$ Elementen (mit $0 < l$) muss eine Menge mit $m$ El
 zweite Menge mit $m$ Elementen (mit $0 < m$) ersetzt werden.
 Hierdurch wird die Gesamtmenge der Elemente sowie die Anzahl der enthaltenen Elemente verändert.
 
-### Objekte in der richtigen Reihenfolge auswählen
+### Elemente in der richtigen Reihenfolge auswählen
 
 Es muss in der richtigen Reihenfolge ein Element nach dem anderen aus einer Menge ausgewählt
 werden. Es müssen nicht alle Elemente von Anfang an bekannt sein.
