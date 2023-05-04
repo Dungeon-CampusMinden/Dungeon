@@ -11,7 +11,7 @@ geändert werden.
 
 ## Aufbau
 
-![UML Diagram](../img/animationComponent.png)
+![UML Diagram](img/animationComponent.png)
 
 ## Wie nutzt man es
 

@@ -12,7 +12,7 @@ Auch l√§sst sich via `IOnDeathFunction` bestimmen, was passiert, wenn die Entit√
 
 ### UML
 
-![UML Diagram](../img/healthComponent.png)
+![UML Diagram](img/healthComponent.png)
 
 ## Wie nutzt man es
 
