@@ -13,7 +13,8 @@ import semanticAnalysis.types.DSLType;
 
 /**
  * AIComponent is a component that stores the idle and combat behavior of AI controlled entities.
- * The {@link ecs.systems.AISystem AISystem} determines which behavior is used based on the set {@link ITransition TransitionAI}.
+ *
+ * <p>The {@link ecs.systems.AISystem AISystem} determines which behavior is used based on the set {@link ITransition TransitionAI}.
  * If the implicit constructor is used the entity will have a default behavior composed of a {@link RadiusWalk} as {@link IIdleAI IdleAI},
  * {@link RangeTransition} as {@link ITransition TransitionAI} and {@link CollideAI} as {@link IFightAI FightAI.
  */

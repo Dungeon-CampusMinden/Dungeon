@@ -34,7 +34,7 @@ Wenn eine Strategie nicht angegeben wurde also null dann wird nichts bei der jew
 #### Wofür
 Das Verhalten der Einzelnen Entitäten bei einer Kollision soll nicht durch unterschiedliche Hitboxen vererbung erstellt werden sollen sondern individuell angepasst werden.
 #### Aufbau
-Für die Kollision muss eine strategie hinterlegt werden diese ist im Interfact ICollide definiert. Diese verfügt über drei Parameter: die primäre Entität, die Entität mit der die Kollision passiert und die Richtung aus der die Kollision statt fand.
+Für die Kollision muss eine Strategie hinterlegt werden, diese ist im Interface `ICollide` definiert. Diese verfügt über drei Parameter: die primäre Entität, die Entität mit der die Kollision passiert und die Richtung aus der die Kollision statt fand.
 #### Nutzen
 Da die Kollision ein nicht fest vorgegebene Struktur hat kann unterschiedlichstes Verhalten einer Kollision erstellt werden. z.b. einen Effekt dem Spieler geben, dem Spieler schaden zufügen etc.
 
