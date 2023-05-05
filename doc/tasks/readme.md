@@ -115,18 +115,21 @@ Aus einer Gesamtmenge aus $l$ Elementen (mit $0 < l$) muss eine Menge mit $m$ El
 zweite Menge mit $m$ Elementen (mit $0 < m$) ersetzt werden.
 Hierdurch wird die Gesamtmenge der Elemente sowie die Anzahl der enthaltenen Elemente verändert.
 
-### Elemente in der richtigen Reihenfolge auswählen
-
-Es muss in der richtigen Reihenfolge ein Element nach dem anderen aus einer Menge ausgewählt
-werden. Es müssen nicht alle Elemente von Anfang an bekannt sein.
-
 ### Zuordnen
 
 Zuordnen bezeichnet im Allgemeinen die Aufgabe, Elemente aus einer Menge $A$ (z.B.
 Antwortmöglichkeiten) die Elemente aus einer anderen Menge $B$ zuzuordnen (bspw. Array-Index,
 Reihe-Spalte Kombination einer Matrix). Hierbei muss nicht jedes Element aus $A$ der
 Antwortmöglichkeiten auch einem Element aus $B$ zugeordnet werden. Allerdings muss jedem Element aus $B$ ein
-Element aus $A$ zugeordnet werden.
+Element aus $A$ zugeordnet werden. Die gesamte Menge $A$ der Antwortmöglichkeiten muss den Studierenden
+bekannt sein, bevor sie den ersten Zuordnungsschritt machen müssen.
+
+### Elemente in der richtigen Reihenfolge auswählen
+
+Es muss in der richtigen Reihenfolge ein Element nach dem anderen aus einer Menge $A$ ausgewählt
+werden.
+Den Studierenden müssen nicht alle Elemente aus $A$ bekannt sein, bevor sie das erste Element
+auswählen müssen.
 
 ## Spielmechaniken
 
