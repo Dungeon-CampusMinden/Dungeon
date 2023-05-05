@@ -63,12 +63,13 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
 
     @Override
     public void onConnected() {
-
+        // For now no action needed when connected
     }
 
     @Override
     public void onDisconnected() {
         clearSessionData();
+        multiplayer.onMultiplayerSessionLost();
     }
 
     /** */

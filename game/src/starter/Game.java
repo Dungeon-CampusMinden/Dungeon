@@ -361,7 +361,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
 
     private void synchronizePositionsFromMultiplayerSession() {
 
-        if (getHero().isPresent() && multiplayerAPI.isConnectedToSession()) {
+        if (multiplayerAPI.isConnectedToSession()) {
             final HashMap<Integer, Point> heroPositionByPlayerIdExceptOwn =
                 multiplayerAPI.getHeroPositionByPlayerIdExceptOwn();
 
@@ -395,6 +395,13 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
                             multiplayerAPI.getHeroPositionByPlayerId().get(multiplayerComponent.getPlayerId());
                         positionComponent.setPosition(currentPositionAtMultiplayerSession);
                     }
+                }
+            }
+        } else {
+            // Remove all entities that has been added due to multiplayer session
+            for (Entity entity: entities) {
+                if (entity.getComponent(MultiplayerComponent.class).isPresent()) {
+                    entitiesToRemove.add(entity);
                 }
             }
         }
@@ -451,5 +458,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
             // TODO: error handling like popup menu with error message
             System.out.println("Cannot join multiplayer session");
         }
+    }
+
+    @Override
+    public void onMultiplayerSessionLost() {
+        // TODO: Additionally show info message
+        showMenu(startMenu);
     }
 }
