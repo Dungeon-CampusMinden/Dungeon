@@ -136,7 +136,7 @@ public class HealthComponent extends Component {
      *
      * @param dieAnimation new dieAnimation
      */
-    public void setDieAnimation(Animation dieAnimation) {
+    public void setDeathAnimation(Animation dieAnimation) {
         this.dieAnimation = dieAnimation;
     }
 
@@ -182,7 +182,7 @@ public class HealthComponent extends Component {
     /**
      * @return Animation to be played when dying
      */
-    public Animation getDieAnimation() {
+    public Animation getDeathAnimation() {
         return dieAnimation;
     }
 
@@ -191,5 +191,9 @@ public class HealthComponent extends Component {
      */
     public Optional<Entity> getLastDamageCause() {
         return Optional.ofNullable(this.lastCause);
+    }
+
+    public boolean isDead() {
+        return currentHealthpoints <= 0;
     }
 }

@@ -105,8 +105,8 @@ public class HealthComponentTest {
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity);
         Animation animation = Mockito.mock(Animation.class);
-        hc.setDieAnimation(animation);
-        assertEquals(animation, hc.getDieAnimation());
+        hc.setDeathAnimation(animation);
+        assertEquals(animation, hc.getDeathAnimation());
     }
 
     @Test

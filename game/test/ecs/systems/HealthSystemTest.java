@@ -12,6 +12,7 @@ import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.entities.Entity;
 import graphic.Animation;
+import java.util.List;
 import org.junit.Test;
 import org.mockito.Mockito;
 import starter.Game;
@@ -26,7 +27,7 @@ public class HealthSystemTest {
         Game.getEntities().addAll(Game.getEntitiesToAdd());
         Game.getEntitiesToAdd().clear();
         IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
-        Animation dieAnimation = Mockito.mock(Animation.class);
+        Animation dieAnimation = new Animation(List.of("FRAME1"), 1, false);
         AnimationComponent ac = new AnimationComponent(entity);
         HealthComponent component = new HealthComponent(entity, 1, onDeath, null, dieAnimation);
         HealthSystem system = new HealthSystem();
