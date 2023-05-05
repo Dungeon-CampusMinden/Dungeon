@@ -34,6 +34,8 @@ public class MultiplayerServer extends Listener {
     private ILevel level;
 
     private HashMap<Integer, Point> heroPositionByClientId = new HashMap<>();
+    // Used to pretend initial position for joining clients
+    private Point initialHeroPosition = new Point(0, 0);
 
     public MultiplayerServer() {
         server.addListener(this);
@@ -57,15 +59,27 @@ public class MultiplayerServer extends Listener {
         if (object instanceof PingRequest) {
             final PingResponse pingResponse = new PingResponse();
             connection.sendTCP(pingResponse);
-        } else if (object instanceof InitializeServerRequest){
-            level = ((InitializeServerRequest) object).getLevel();
-            connection.sendTCP(new InitializeServerResponse(true));
+        } else if (object instanceof InitializeServerRequest initializeServerRequest){
+            level = initializeServerRequest.getLevel();
+            final Point initialHeroPosition = initializeServerRequest.getHeroInitialPosition();
+            if (initialHeroPosition != null) {
+                this.initialHeroPosition = initialHeroPosition;
+            }
+            heroPositionByClientId.put(connection.getID(), this.initialHeroPosition);
+            connection.sendTCP(new InitializeServerResponse(true, this.initialHeroPosition));
         } else if (object instanceof JoinSessionRequest) {
-            connection.sendTCP(new JoinSessionResponse(level, connection.getID(), heroPositionByClientId));
+            final int clientId = connection.getID();
+            heroPositionByClientId.put(clientId, this.initialHeroPosition);
+            JoinSessionResponse response =
+                new JoinSessionResponse(true, level, clientId, heroPositionByClientId);
+            connection.sendTCP(response);
+            // TODO: will not be needed after implementation of tick wise updating
+            server.sendToAllTCP(new HeroPositionsChangedEvent(heroPositionByClientId));
         } else if (object instanceof UpdateOwnPositionRequest positionRequest) {
             heroPositionByClientId.put(positionRequest.getClientId(), positionRequest.getHeroPosition());
             connection.sendTCP(new UpdateOwnPositionResponse());
 
+            // TODO: will not be needed after implementation of tick wise updating
             // For now: directly emit event to all clients, that position of one hero changed.
             // Later: Emit positions of all heroes tick wise, to avoid high network use.
             server.sendToAllTCP(new HeroPositionsChangedEvent(heroPositionByClientId));

@@ -13,6 +13,7 @@ import java.util.HashMap;
 public class JoinSessionResponseSerializer extends Serializer<JoinSessionResponse> {
     @Override
     public void write(Kryo kryo, Output output, JoinSessionResponse object) {
+        output.writeBoolean(object.getIsSucceed());
         kryo.writeObject(output, object.getLevel());
         kryo.writeObject(output, object.getClientId());
         kryo.writeObject(output, object.getHeroPositionByClientId());
@@ -20,9 +21,10 @@ public class JoinSessionResponseSerializer extends Serializer<JoinSessionRespons
 
     @Override
     public JoinSessionResponse read(Kryo kryo, Input input, Class<JoinSessionResponse> type) {
-        ILevel level = kryo.readObject(input, ILevel.class);
-        Integer playerId = kryo.readObject(input, Integer.class);
-        HashMap<Integer, Point> heroPositionByClientId = kryo.readObject(input, HashMap.class);
-        return new JoinSessionResponse(level, playerId, heroPositionByClientId);
+        final boolean isSucceed = input.readBoolean();
+        final ILevel level = kryo.readObject(input, ILevel.class);
+        final Integer clientId = kryo.readObject(input, Integer.class);
+        final HashMap<Integer, Point> heroPositionByClientId = kryo.readObject(input, HashMap.class);
+        return new JoinSessionResponse(isSucceed, level, clientId, heroPositionByClientId);
     }
 }

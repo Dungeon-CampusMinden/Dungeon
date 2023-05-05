@@ -1,5 +1,6 @@
 package mp;
 
+import com.badlogic.gdx.utils.Null;
 import level.elements.ILevel;
 import mp.client.IMultiplayerClientObserver;
 import mp.client.MultiplayerClient;
@@ -34,20 +35,33 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     }
 
     @Override
-    public void onInitializeServerResponseReceived(final boolean isSucceed, final int clientId) {
-        playerId = isSucceed ? clientId : 0;
+    public void onInitializeServerResponseReceived(final boolean isSucceed, final int clientId, final Point initialHeroPosition) {
+        if (heroPositionByPlayerId == null) {
+            heroPositionByPlayerId = new HashMap<>();
+        }
+
+        if (isSucceed) {
+            playerId = clientId;
+            heroPositionByPlayerId.put(clientId, initialHeroPosition);
+        } else {
+            playerId = 0;
+        }
         multiplayer.onMultiplayerSessionStarted(isSucceed);
     }
 
     @Override
     public void onJoinSessionResponseReceived(
+        final boolean isSucceed,
         final ILevel level,
         final int clientId,
         final HashMap<Integer, Point> heroPositionByClientId) {
-        requireNonNull(level);
-        requireNonNull(heroPositionByClientId);
-        playerId = level != null ? clientId : 0;
-        multiplayer.onMultiplayerSessionJoined(level);
+        playerId = 0;
+        if (isSucceed) {
+            requireNonNull(level);
+            heroPositionByPlayerId = requireNonNull(heroPositionByClientId);
+            playerId = clientId;
+        }
+        multiplayer.onMultiplayerSessionJoined(isSucceed, level);
     }
 
     @Override
@@ -73,7 +87,7 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     }
 
     /** */
-    public void startSession(final ILevel level) throws IOException {
+    public void startSession(final ILevel level, @Null final Point ownHeroInitialPosition) throws IOException {
         requireNonNull(level);
         // Check whether which random port is not already in use and listen to this on serverside
         // it's unlikely that no port is free but to not run into infinite loop, limit tries.
@@ -98,7 +112,11 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
         }
 
         multiplayerClient.connectToHost("127.0.0.1", serverPort);
-        multiplayerClient.send(new InitializeServerRequest(level));
+        if (ownHeroInitialPosition != null) {
+            multiplayerClient.send(new InitializeServerRequest(level, ownHeroInitialPosition));
+        } else {
+            multiplayerClient.send(new InitializeServerRequest(level));
+        }
     }
 
     /** */
@@ -139,6 +157,8 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     public boolean isConnectedToSession() {
         return playerId != 0;
     }
+
+    public int getOwnPlayerId() { return playerId; }
 
     private void clearSessionData() {
         playerId = 0;

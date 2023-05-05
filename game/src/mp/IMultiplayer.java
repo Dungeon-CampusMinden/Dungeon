@@ -1,9 +1,10 @@
 package mp;
 
 import level.elements.ILevel;
+import tools.Point;
 
 public interface IMultiplayer {
     void onMultiplayerSessionStarted(boolean isSucceed);
-    void onMultiplayerSessionJoined(ILevel level);
+    void onMultiplayerSessionJoined(boolean isSucceed, ILevel level);
     void onMultiplayerSessionLost();
 }

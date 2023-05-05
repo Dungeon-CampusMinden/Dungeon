@@ -362,12 +362,18 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     private void synchronizePositionsFromMultiplayerSession() {
 
         if (multiplayerAPI.isConnectedToSession()) {
-            final HashMap<Integer, Point> heroPositionByPlayerIdExceptOwn =
-                multiplayerAPI.getHeroPositionByPlayerIdExceptOwn();
+            final HashMap<Integer, Point> heroPositionByPlayerId =
+                multiplayerAPI.getHeroPositionByPlayerId();
 
-            if (heroPositionByPlayerIdExceptOwn != null) {
-                //Add new hero, if new player joined
-                heroPositionByPlayerIdExceptOwn.forEach((Integer playerId, Point position) -> {
+            if (heroPositionByPlayerId != null) {
+                // Add new hero, if new player joined
+                heroPositionByPlayerId.forEach((Integer playerId, Point position) -> {
+                    // do not add own hero
+                    boolean isOwnHero = playerId == multiplayerAPI.getOwnPlayerId();
+                    if (isOwnHero) {
+                        return;
+                    }
+
                     boolean isHeroNewJoined =
                         entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
                             .map(component -> (MultiplayerComponent)component)
@@ -380,13 +386,32 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
                 entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
                     .map(e -> (MultiplayerComponent) e)
                     .forEach(mc -> {
-                        if(!heroPositionByPlayerIdExceptOwn.containsKey(mc.getPlayerId()))
+                        boolean isOwnHero = mc.getPlayerId() == multiplayerAPI.getOwnPlayerId();
+                        if (isOwnHero) {
+                            return;
+                        }
+
+                        if(!heroPositionByPlayerId.containsKey(mc.getPlayerId()))
                             entitiesToRemove.add(mc.getEntity());
                     });
 
-                // Update all positions of all entities with a multiplayerComponent
+                // Update all positions of all heroes
                 for (Entity entity: entities) {
-                    if (entity.getComponent(MultiplayerComponent.class).isPresent()) {
+                    // TODO: add multiplayer component to Hero, too. So no distinction is needed
+                    if (entity == getHero().get()) {
+                        PositionComponent positionComponentOwnHero =
+                            (PositionComponent)
+                                getHero()
+                                    .get()
+                                    .getComponent(PositionComponent.class)
+                                    .orElseThrow(
+                                        () ->
+                                            new MissingComponentException(
+                                                "PositionComponent"));
+                        Point positionAtMultiplayerSession =
+                            multiplayerAPI.getHeroPositionByPlayerId().get(multiplayerAPI.getOwnPlayerId());
+                        positionComponentOwnHero.setPosition(positionAtMultiplayerSession);
+                    } else if (entity.getComponent(MultiplayerComponent.class).isPresent()) {
                         MultiplayerComponent multiplayerComponent =
                             (MultiplayerComponent)entity.getComponent(MultiplayerComponent.class).orElseThrow();
                         PositionComponent positionComponent =
@@ -417,8 +442,20 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     @Override
     public void onMultiPlayerHostModeChosen() {
         setupRandomLevel();
+        if (!getHero().isPresent()) {
+            hero = new Hero();
+        }
         try {
-            multiplayerAPI.startSession(currentLevel);
+            PositionComponent positionComponent =
+                (PositionComponent)
+                    getHero()
+                        .get()
+                        .getComponent(PositionComponent.class)
+                        .orElseThrow(
+                            () ->
+                                new MissingComponentException(
+                                    "PositionComponent"));
+            multiplayerAPI.startSession(currentLevel, positionComponent.getPosition());
         } catch (Exception e) {
             // TODO: Nicer error handling
             System.out.println("Multiplayer session failed to start.");
@@ -441,7 +478,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     public void onMultiplayerSessionStarted(final boolean isSucceed) {
         if (isSucceed) {
             hideMenu(startMenu);
-            sendPosition();
         } else {
             // TODO: error handling like popup menu with error message
             System.out.println("Server responded unsuccessful start");
@@ -449,11 +485,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     }
 
     @Override
-    public void onMultiplayerSessionJoined(final ILevel level) {
-        if (level != null) {
+    public void onMultiplayerSessionJoined(final boolean isSucceed, final ILevel level) {
+        if (isSucceed) {
             levelAPI.setLevel(level);
             hideMenu(startMenu);
-            sendPosition();
         } else {
             // TODO: error handling like popup menu with error message
             System.out.println("Cannot join multiplayer session");

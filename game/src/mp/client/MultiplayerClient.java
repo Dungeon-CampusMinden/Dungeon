@@ -50,14 +50,20 @@ public class MultiplayerClient extends Listener {
 
         if (object instanceof PingResponse pingResponse) {
             System.out.println("Ping response received. Time: " + pingResponse.getTime());
-        } else if (object instanceof InitializeServerResponse){
-            boolean isSucceed = ((InitializeServerResponse)object).isSucceed();
+        } else if (object instanceof InitializeServerResponse initializeServerResponse){
+            final boolean isSucceed = initializeServerResponse.getIsSucceed();
+            final Point initialHeroPosition = initializeServerResponse.getInitialHeroPosition();
             for (IMultiplayerClientObserver observer: observers) {
-                observer.onInitializeServerResponseReceived(isSucceed, connection.getID());
+                observer.onInitializeServerResponseReceived(isSucceed, connection.getID(), initialHeroPosition);
             }
         } else if (object instanceof JoinSessionResponse response) {
             for (IMultiplayerClientObserver observer: observers) {
-                observer.onJoinSessionResponseReceived(response.getLevel(), response.getClientId(), response.getHeroPositionByClientId());
+                observer.onJoinSessionResponseReceived(
+                    response.getIsSucceed(),
+                    response.getLevel(),
+                    response.getClientId(),
+                    response.getHeroPositionByClientId()
+                );
             }
         } else if (object instanceof HeroPositionsChangedEvent){
             HashMap<Integer, Point> heroPositionByClientId = ((HeroPositionsChangedEvent)object).getHeroPositionByClientId();
