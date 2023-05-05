@@ -9,6 +9,7 @@ import mp.packages.response.JoinSessionResponse;
 import mp.packages.response.PingResponse;
 import mp.packages.event.HeroPositionsChangedEvent;
 import mp.packages.response.UpdateOwnPositionResponse;
+import tools.Point;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -47,23 +48,21 @@ public class MultiplayerClient extends Listener {
     @Override
     public void received(Connection connection, Object object) {
 
-        if (object instanceof PingResponse) {
-            final PingResponse pingResponse = (PingResponse)object;
+        if (object instanceof PingResponse pingResponse) {
             System.out.println("Ping response received. Time: " + pingResponse.getTime());
         } else if (object instanceof InitializeServerResponse){
             boolean isSucceed = ((InitializeServerResponse)object).isSucceed();
             for (IMultiplayerClientObserver observer: observers) {
                 observer.onInitializeServerResponseReceived(isSucceed, connection.getID());
             }
-        } else if (object instanceof JoinSessionResponse) {
-            JoinSessionResponse response = (JoinSessionResponse)object;
+        } else if (object instanceof JoinSessionResponse response) {
             for (IMultiplayerClientObserver observer: observers) {
-                observer.onJoinSessionResponseReceived(response.getLevel(), response.getPlayerId(), response.getPlayerPositions());
+                observer.onJoinSessionResponseReceived(response.getLevel(), response.getClientId(), response.getHeroPositionByClientId());
             }
         } else if (object instanceof HeroPositionsChangedEvent){
-            HashMap playerPositions = ((HeroPositionsChangedEvent)object).getHeroPositionByClientId();
+            HashMap<Integer, Point> heroPositionByClientId = ((HeroPositionsChangedEvent)object).getHeroPositionByClientId();
             for (IMultiplayerClientObserver observer: observers){
-                observer.onHeroPositionsChangedEventReceived(playerPositions);
+                observer.onHeroPositionsChangedEventReceived(heroPositionByClientId);
             }
         } else if (object instanceof UpdateOwnPositionResponse) {
             for (IMultiplayerClientObserver observer: observers){
@@ -76,7 +75,7 @@ public class MultiplayerClient extends Listener {
         client.sendTCP(object);
     }
 
-    public boolean connectToHost(String address, Integer port) {
+    public boolean connectToHost(String address, int port) {
         try {
             client.connect(connectionTimeout, address, port);
             return true;

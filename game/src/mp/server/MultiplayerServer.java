@@ -33,7 +33,7 @@ public class MultiplayerServer extends Listener {
     private final Server server = new Server(writeBufferSize, objectBufferSize );
     private ILevel level;
 
-    private HashMap<Integer, Point> playerPositions = new HashMap<Integer, Point>();
+    private HashMap<Integer, Point> heroPositionByClientId = new HashMap<>();
 
     public MultiplayerServer() {
         server.addListener(this);
@@ -47,8 +47,8 @@ public class MultiplayerServer extends Listener {
 
     @Override
     public void disconnected(Connection connection) {
-        playerPositions.remove(connection.getID());
-        server.sendToAllTCP(new HeroPositionsChangedEvent(playerPositions));
+        heroPositionByClientId.remove(connection.getID());
+        server.sendToAllTCP(new HeroPositionsChangedEvent(heroPositionByClientId));
     }
 
     @Override
@@ -61,16 +61,14 @@ public class MultiplayerServer extends Listener {
             level = ((InitializeServerRequest) object).getLevel();
             connection.sendTCP(new InitializeServerResponse(true));
         } else if (object instanceof JoinSessionRequest) {
-            connection.sendTCP(new JoinSessionResponse(level, connection.getID(), playerPositions));
-        } else if (object instanceof UpdateOwnPositionRequest) {
-            UpdateOwnPositionRequest posReq = (UpdateOwnPositionRequest) object;
-            playerPositions.put(posReq.getClientId(), posReq.getHeroPosition());
+            connection.sendTCP(new JoinSessionResponse(level, connection.getID(), heroPositionByClientId));
+        } else if (object instanceof UpdateOwnPositionRequest positionRequest) {
+            heroPositionByClientId.put(positionRequest.getClientId(), positionRequest.getHeroPosition());
             connection.sendTCP(new UpdateOwnPositionResponse());
 
-            /** For now: directly emit event to all clients, that position of one hero changed.
-             * Later: Emit positions of all heros tickwise, to avoid high network use.
-             * */
-            server.sendToAllTCP(new HeroPositionsChangedEvent(playerPositions));
+            // For now: directly emit event to all clients, that position of one hero changed.
+            // Later: Emit positions of all heroes tick wise, to avoid high network use.
+            server.sendToAllTCP(new HeroPositionsChangedEvent(heroPositionByClientId));
         }
     }
 

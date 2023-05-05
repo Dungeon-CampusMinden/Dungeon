@@ -2,9 +2,9 @@ package mp.packages;
 
 public class Version implements Comparable<Version> {
 
-    private int major;
-    private int minor;
-    private int patch;
+    private final int major;
+    private final int minor;
+    private final int patch;
 
     public Version(int major, int minor, int patch) {
         this.major = major;

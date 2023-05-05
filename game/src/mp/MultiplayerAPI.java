@@ -75,17 +75,27 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     public void startSession(final ILevel level) throws IOException {
         requireNonNull(level);
         // Check whether which random port is not already in use and listen to this on serverside
-        boolean isRandomPortAlreadyInUse = false;
+        // it's unlikely that no port is free but to not run into infinite loop, limit tries.
+        int generatePortTriesMaxCount = 20;
+        int generatePortTriesCount = 0;
+        boolean isRandomPortAlreadyInUse = true;
         int serverPort;
         do {
             // Create random 5 digit port
             serverPort = ThreadLocalRandom.current().nextInt(10000, 65535 + 1);
             try {
                 multiplayerServer.startListening(serverPort);
+                isRandomPortAlreadyInUse = false;
             } catch (Exception e) {
-                isRandomPortAlreadyInUse = true;
+                generatePortTriesCount++;
             }
-        } while(isRandomPortAlreadyInUse);
+        } while((generatePortTriesCount < generatePortTriesMaxCount) && isRandomPortAlreadyInUse);
+
+
+        if (isRandomPortAlreadyInUse) {
+            throw new IOException("No available port on device found");
+        }
+
         multiplayerClient.connectToHost("127.0.0.1", serverPort);
         multiplayerClient.send(new InitializeServerRequest(level));
     }
@@ -97,10 +107,11 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     }
 
     /** */
-    public void joinSession(final String address, final Integer port) throws IOException {
+    public void joinSession(final String address, final int port) throws IOException {
         requireNonNull(address);
-        requireNonNull(port);
-        multiplayerClient.connectToHost(address, port);
+        if (!multiplayerClient.connectToHost(address, port)) {
+            throw new IOException("No host found - invalid address or port");
+        }
         multiplayerClient.send(new JoinSessionRequest());
     }
 

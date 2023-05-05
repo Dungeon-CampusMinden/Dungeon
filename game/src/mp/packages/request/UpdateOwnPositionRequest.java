@@ -5,8 +5,8 @@ import tools.Point;
 import static java.util.Objects.requireNonNull;
 
 public class UpdateOwnPositionRequest{
-    private int clientId;
-    private Point heroPosition;
+    private final int clientId;
+    private final Point heroPosition;
 
     public UpdateOwnPositionRequest(final int clientId, final Point heroPosition){
         requireNonNull(heroPosition);

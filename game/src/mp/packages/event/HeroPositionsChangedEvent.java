@@ -7,7 +7,7 @@ import java.util.HashMap;
 import static java.util.Objects.requireNonNull;
 
 public class HeroPositionsChangedEvent {
-    private HashMap<Integer, Point> heroPositionByClientId = new HashMap<Integer, Point>();
+    private final HashMap<Integer, Point> heroPositionByClientId;
 
     public HeroPositionsChangedEvent(final HashMap<Integer, Point> heroPositionByClientId){
         requireNonNull(heroPositionByClientId);

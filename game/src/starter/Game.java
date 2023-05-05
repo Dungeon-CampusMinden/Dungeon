@@ -361,7 +361,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
 
     private void synchronizePositionsFromMultiplayerSession() {
 
-        if (multiplayerAPI.isConnectedToSession()) {
+        if (getHero().isPresent() && multiplayerAPI.isConnectedToSession()) {
             final HashMap<Integer, Point> heroPositionByPlayerIdExceptOwn =
                 multiplayerAPI.getHeroPositionByPlayerIdExceptOwn();
 

@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Null;
@@ -31,9 +30,9 @@ public class StartMenu<T extends Actor> extends Menu<T> {
     private MenuType menuTypeCurrent;
     private final ScreenText textTitle;
     private final ScreenButton buttonNavigateBack;
-    private final GameModeMenu gameModeMenu;
-    private final MultiplayerStartOrJoinSessionMenu multiplayerModeMenu;
-    private final MultiplayerJoinSessionMenu multiplayerJoinSessionMenu;
+    private final GameModeMenu<Actor> gameModeMenu;
+    private final MultiplayerStartOrJoinSessionMenu<Actor> multiplayerModeMenu;
+    private final MultiplayerJoinSessionMenu<Actor> multiplayerJoinSessionMenu;
     private final ArrayList<IStartMenuObserver> observers = new ArrayList<>();
 
     public StartMenu() {
@@ -48,9 +47,9 @@ public class StartMenu<T extends Actor> extends Menu<T> {
      */
     public StartMenu(SpriteBatch batch, @Null Stage stage) {
         super(batch, stage);
-        gameModeMenu = new GameModeMenu(batch, this.stage);
-        multiplayerModeMenu = new MultiplayerStartOrJoinSessionMenu(batch, this.stage);
-        multiplayerJoinSessionMenu = new MultiplayerJoinSessionMenu(batch, this.stage);
+        gameModeMenu = new GameModeMenu<>(batch, this.stage);
+        multiplayerModeMenu = new MultiplayerStartOrJoinSessionMenu<>(batch, this.stage);
+        multiplayerJoinSessionMenu = new MultiplayerJoinSessionMenu<>(batch, this.stage);
 
         textTitle = new ScreenText(
             "PM-DUNGEON",
@@ -86,7 +85,7 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         gameModeMenu.getButtonSinglePlayer().addListener(new ClickListener() {
            @Override
            public void clicked(InputEvent event, float x, float y) {
-               observers.forEach((IStartMenuObserver observer) -> observer.onSinglePlayerModeChosen());
+               observers.forEach(IStartMenuObserver::onSinglePlayerModeChosen);
            }
         });
         gameModeMenu.getButtonMultiPlayer().addListener(new ClickListener() {
@@ -98,7 +97,7 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         multiplayerModeMenu.getButtonStartSession().addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                observers.forEach((IStartMenuObserver observer) -> observer.onMultiPlayerHostModeChosen());
+                observers.forEach(IStartMenuObserver::onMultiPlayerHostModeChosen);
             }
         });
         multiplayerModeMenu.getButtonJoinSession().addListener(new ClickListener() {
@@ -120,7 +119,7 @@ public class StartMenu<T extends Actor> extends Menu<T> {
                 String[] temp = multiplayerJoinSessionMenu.getInputHostIpPort().getText().split(":");
                 try (Socket socket = new Socket()) {
                     String address = temp[0];
-                    Integer port = Integer.parseInt(temp[1]);
+                    int port = Integer.parseInt(temp[1]);
                     socket.connect(new InetSocketAddress(address, port), 1000);
                     socket.close();
                     observers.forEach((IStartMenuObserver observer) -> observer.onMultiPlayerClientModeChosen(address, port));
@@ -169,15 +168,9 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         menuTypeCurrent = menuType;
 
         switch (menuType) {
-            case GameMode -> {
-                gameModeMenu.showMenu();
-            }
-            case MultiplayerStartOrJoinSession -> {
-                multiplayerModeMenu.showMenu();
-            }
-            case MultiplayerJoinSession -> {
-                multiplayerJoinSessionMenu.showMenu();
-            }
+            case GameMode -> gameModeMenu.showMenu();
+            case MultiplayerStartOrJoinSession -> multiplayerModeMenu.showMenu();
+            case MultiplayerJoinSession -> multiplayerJoinSessionMenu.showMenu();
             default -> throw new RuntimeException("Invalid menu type");
         }
 
@@ -187,12 +180,8 @@ public class StartMenu<T extends Actor> extends Menu<T> {
 
     private void navigateBack() {
         switch (menuTypeCurrent) {
-            case MultiplayerStartOrJoinSession -> {
-                setActiveMenu(MenuType.GameMode);
-            }
-            case MultiplayerJoinSession -> {
-                setActiveMenu(MenuType.MultiplayerStartOrJoinSession);
-            }
+            case MultiplayerStartOrJoinSession ->setActiveMenu(MenuType.GameMode);
+            case MultiplayerJoinSession -> setActiveMenu(MenuType.MultiplayerStartOrJoinSession);
         }
     }
 }
