@@ -366,32 +366,22 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
                 multiplayerAPI.getHeroPositionByPlayerIdExceptOwn();
 
             if (heroPositionByPlayerIdExceptOwn != null) {
-                PositionComponent positionComponentOwnHero =
-                    (PositionComponent)
-                        getHero()
-                            .get()
-                            .getComponent(PositionComponent.class)
-                            .orElseThrow(
-                                () ->
-                                    new MissingComponentException(
-                                        "PositionComponent"));
-
                 //Add new hero, if new player joined
                 heroPositionByPlayerIdExceptOwn.forEach((Integer playerId, Point position) -> {
-                    if(entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
-                        .map(component -> (MultiplayerComponent)component)
-                        .noneMatch(component -> component.getPlayerId() == playerId)) {
-                        new HeroDummy(positionComponentOwnHero.getPosition(), playerId);
-                    }
+                    boolean isHeroNewJoined =
+                        entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
+                            .map(component -> (MultiplayerComponent)component)
+                            .noneMatch(component -> component.getPlayerId() == playerId);
+                    if(isHeroNewJoined)
+                        new HeroDummy(position, playerId);
                 });
 
                 // Remove entities not connected to multiplayer session anymore
                 entities.stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
                     .map(e -> (MultiplayerComponent) e)
                     .forEach(mc -> {
-                        if(!heroPositionByPlayerIdExceptOwn.containsKey(mc.getPlayerId())){
+                        if(!heroPositionByPlayerIdExceptOwn.containsKey(mc.getPlayerId()))
                             entitiesToRemove.add(mc.getEntity());
-                        }
                     });
 
                 // Update all positions of all entities with a multiplayerComponent
