@@ -154,6 +154,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new BearTrap();
         currentLvl++;
         System.out.println("Current Level:" + currentLvl);
+
+        //Test
+        Hero hero1 = (Hero) Game.hero;
+        hero1.getXpCmp().addXP(hero1.getXpCmp().getXPToNextLevel());
+        System.out.println(hero1.getXpCmp().getCurrentLevel() +". level with " + hero1.getXpCmp().getCurrentXP()+" XP.");
     }
 
     /**Spawn ghost, there is a 10% chance it doesn't spawn**/

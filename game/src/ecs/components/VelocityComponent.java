@@ -15,6 +15,7 @@ public class VelocityComponent extends Component {
     private static List<String> missingTexture = List.of("animation/missingTexture.png");
     private float currentXVelocity;
     private float currentYVelocity;
+
     private @DSLTypeMember(name = "x_velocity") float xVelocity;
     private @DSLTypeMember(name = "y_velocity") float yVelocity;
 
