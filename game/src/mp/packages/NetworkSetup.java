@@ -9,6 +9,7 @@ import level.elements.tile.*;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
+import mp.GameState;
 import mp.packages.request.InitializeServerRequest;
 import mp.packages.request.JoinSessionRequest;
 import mp.packages.request.PingRequest;
@@ -16,7 +17,7 @@ import mp.packages.request.UpdateOwnPositionRequest;
 import mp.packages.response.InitializeServerResponse;
 import mp.packages.response.JoinSessionResponse;
 import mp.packages.response.PingResponse;
-import mp.packages.event.HeroPositionsChangedEvent;
+import mp.packages.event.GameStateUpdateEvent;
 import mp.packages.response.UpdateOwnPositionResponse;
 import mp.packages.serializer.*;
 import tools.Point;
@@ -56,7 +57,8 @@ public class NetworkSetup {
         kryo.register(LevelElement.class);
         kryo.register(UpdateOwnPositionRequest.class, new UpdateOwnPositionRequestSerializer());
         kryo.register(HashMap.class);
-        kryo.register(HeroPositionsChangedEvent.class, new HeroPositionsChangedEventSerializer());
+        kryo.register(GameStateUpdateEvent.class, new HeroPositionsChangedEventSerializer());
+        kryo.register(GameState.class, new GameStateSerializer());
         kryo.register(UpdateOwnPositionResponse.class);
     }
 }

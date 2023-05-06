@@ -7,7 +7,7 @@ import mp.packages.NetworkSetup;
 import mp.packages.response.InitializeServerResponse;
 import mp.packages.response.JoinSessionResponse;
 import mp.packages.response.PingResponse;
-import mp.packages.event.HeroPositionsChangedEvent;
+import mp.packages.event.GameStateUpdateEvent;
 import mp.packages.response.UpdateOwnPositionResponse;
 import tools.Point;
 
@@ -65,8 +65,9 @@ public class MultiplayerClient extends Listener {
                     response.getHeroPositionByClientId()
                 );
             }
-        } else if (object instanceof HeroPositionsChangedEvent){
-            HashMap<Integer, Point> heroPositionByClientId = ((HeroPositionsChangedEvent)object).getHeroPositionByClientId();
+        } else if (object instanceof GameStateUpdateEvent){
+            //TODO: Send whole gamestate instead of just the hashmap Heropositionsbyclientid
+            HashMap<Integer, Point> heroPositionByClientId = ((GameStateUpdateEvent)object).getGameState().getHeroPositionByClientId();
             for (IMultiplayerClientObserver observer: observers){
                 observer.onHeroPositionsChangedEventReceived(heroPositionByClientId);
             }

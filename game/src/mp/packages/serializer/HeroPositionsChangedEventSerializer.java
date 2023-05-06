@@ -4,19 +4,20 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import mp.packages.event.HeroPositionsChangedEvent;
+import mp.GameState;
+import mp.packages.event.GameStateUpdateEvent;
 
 import java.util.HashMap;
 
-public class HeroPositionsChangedEventSerializer extends Serializer<HeroPositionsChangedEvent> {
+public class HeroPositionsChangedEventSerializer extends Serializer<GameStateUpdateEvent> {
 
     @Override
-    public void write(Kryo kryo, Output output, HeroPositionsChangedEvent object) {
-        kryo.writeObject(output, object.getHeroPositionByClientId());
+    public void write(Kryo kryo, Output output, GameStateUpdateEvent object) {
+        kryo.writeObject(output, object.getGameState());
     }
 
     @Override
-    public HeroPositionsChangedEvent read(Kryo kryo, Input input, Class<HeroPositionsChangedEvent> type) {
-        return new HeroPositionsChangedEvent(kryo.readObject(input, HashMap.class));
+    public GameStateUpdateEvent read(Kryo kryo, Input input, Class<GameStateUpdateEvent> type) {
+        return new GameStateUpdateEvent(kryo.readObject(input, GameState.class));
     }
 }

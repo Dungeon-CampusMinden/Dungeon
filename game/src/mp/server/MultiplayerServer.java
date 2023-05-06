@@ -5,6 +5,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import level.elements.ILevel;
+import mp.GameState;
 import mp.packages.NetworkSetup;
 import mp.packages.request.InitializeServerRequest;
 import mp.packages.request.JoinSessionRequest;
@@ -13,12 +14,14 @@ import mp.packages.request.UpdateOwnPositionRequest;
 import mp.packages.response.InitializeServerResponse;
 import mp.packages.response.JoinSessionResponse;
 import mp.packages.response.PingResponse;
-import mp.packages.event.HeroPositionsChangedEvent;
+import mp.packages.event.GameStateUpdateEvent;
 import mp.packages.response.UpdateOwnPositionResponse;
 import tools.Point;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class MultiplayerServer extends Listener {
 
@@ -32,10 +35,13 @@ public class MultiplayerServer extends Listener {
     private static final Integer objectBufferSize = maxObjectSizeExpected;
     private final Server server = new Server(writeBufferSize, objectBufferSize );
     private ILevel level;
-
-    private HashMap<Integer, Point> heroPositionByClientId = new HashMap<>();
+    private GameState gameState = new GameState();
     // Used to pretend initial position for joining clients
     private Point initialHeroPosition = new Point(0, 0);
+
+    private static final int ticks = 128;
+    private static final long nanosPerTick = 1000000000 / ticks;
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     public MultiplayerServer() {
         server.addListener(this);
@@ -49,8 +55,7 @@ public class MultiplayerServer extends Listener {
 
     @Override
     public void disconnected(Connection connection) {
-        heroPositionByClientId.remove(connection.getID());
-        server.sendToAllTCP(new HeroPositionsChangedEvent(heroPositionByClientId));
+        gameState.getHeroPositionByClientId().remove(connection.getID());
     }
 
     @Override
@@ -65,24 +70,19 @@ public class MultiplayerServer extends Listener {
             if (initialHeroPosition != null) {
                 this.initialHeroPosition = initialHeroPosition;
             }
-            heroPositionByClientId.put(connection.getID(), this.initialHeroPosition);
+            GameState.getHeroPositionByClientId().put(connection.getID(), this.initialHeroPosition);
             connection.sendTCP(new InitializeServerResponse(true, this.initialHeroPosition));
         } else if (object instanceof JoinSessionRequest) {
             final int clientId = connection.getID();
-            heroPositionByClientId.put(clientId, this.initialHeroPosition);
+            GameState.getHeroPositionByClientId().put(clientId, this.initialHeroPosition);
             JoinSessionResponse response =
-                new JoinSessionResponse(true, level, clientId, heroPositionByClientId);
+                new JoinSessionResponse(true, level, clientId, GameState.getHeroPositionByClientId());
             connection.sendTCP(response);
-            // TODO: will not be needed after implementation of tick wise updating
-            server.sendToAllTCP(new HeroPositionsChangedEvent(heroPositionByClientId));
         } else if (object instanceof UpdateOwnPositionRequest positionRequest) {
-            heroPositionByClientId.put(positionRequest.getClientId(), positionRequest.getHeroPosition());
-            connection.sendTCP(new UpdateOwnPositionResponse());
+            GameState.getHeroPositionByClientId().put(positionRequest.getClientId(), positionRequest.getHeroPosition());
 
-            // TODO: will not be needed after implementation of tick wise updating
-            // For now: directly emit event to all clients, that position of one hero changed.
-            // Later: Emit positions of all heroes tick wise, to avoid high network use.
-            server.sendToAllTCP(new HeroPositionsChangedEvent(heroPositionByClientId));
+            //TODO: Look if in use, delete if not necessary
+            connection.sendTCP(new UpdateOwnPositionResponse());
         }
     }
 
@@ -94,6 +94,13 @@ public class MultiplayerServer extends Listener {
     public void startListening(@Null Integer port) throws IOException {
         server.bind(port != null ? port : DEFAULT_TCP_PORT);
         server.start();
+
+        scheduler.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                server.sendToAllTCP(new GameStateUpdateEvent(gameState));
+            }
+        }, 0, nanosPerTick, TimeUnit.NANOSECONDS );
     }
 
     /**
@@ -104,5 +111,6 @@ public class MultiplayerServer extends Listener {
             server.stop();
             server.close();
         }
+        scheduler.shutdown();
     }
 }
