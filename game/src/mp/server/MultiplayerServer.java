@@ -35,7 +35,7 @@ public class MultiplayerServer extends Listener {
     private static final Integer objectBufferSize = maxObjectSizeExpected;
     private final Server server = new Server(writeBufferSize, objectBufferSize );
     private ILevel level;
-    private GameState gameState = new GameState();
+    private final GameState gameState = new GameState();
     // Used to pretend initial position for joining clients
     private Point initialHeroPosition = new Point(0, 0);
 
@@ -70,17 +70,16 @@ public class MultiplayerServer extends Listener {
             if (initialHeroPosition != null) {
                 this.initialHeroPosition = initialHeroPosition;
             }
-            GameState.getHeroPositionByClientId().put(connection.getID(), this.initialHeroPosition);
+            gameState.getHeroPositionByClientId().put(connection.getID(), this.initialHeroPosition);
             connection.sendTCP(new InitializeServerResponse(true, this.initialHeroPosition));
         } else if (object instanceof JoinSessionRequest) {
             final int clientId = connection.getID();
-            GameState.getHeroPositionByClientId().put(clientId, this.initialHeroPosition);
+            gameState.getHeroPositionByClientId().put(clientId, this.initialHeroPosition);
             JoinSessionResponse response =
-                new JoinSessionResponse(true, level, clientId, GameState.getHeroPositionByClientId());
+                new JoinSessionResponse(true, level, clientId, gameState.getHeroPositionByClientId());
             connection.sendTCP(response);
         } else if (object instanceof UpdateOwnPositionRequest positionRequest) {
-            GameState.getHeroPositionByClientId().put(positionRequest.getClientId(), positionRequest.getHeroPosition());
-
+            gameState.getHeroPositionByClientId().put(positionRequest.getClientId(), positionRequest.getHeroPosition());
             //TODO: Look if in use, delete if not necessary
             connection.sendTCP(new UpdateOwnPositionResponse());
         }

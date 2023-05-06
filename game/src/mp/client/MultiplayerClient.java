@@ -3,6 +3,7 @@ package mp.client;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import mp.GameState;
 import mp.packages.NetworkSetup;
 import mp.packages.response.InitializeServerResponse;
 import mp.packages.response.JoinSessionResponse;
@@ -65,11 +66,11 @@ public class MultiplayerClient extends Listener {
                     response.getHeroPositionByClientId()
                 );
             }
-        } else if (object instanceof GameStateUpdateEvent){
+        } else if (object instanceof GameStateUpdateEvent gameStateUpdateEvent){
             //TODO: Send whole gamestate instead of just the hashmap Heropositionsbyclientid
-            HashMap<Integer, Point> heroPositionByClientId = ((GameStateUpdateEvent)object).getGameState().getHeroPositionByClientId();
-            for (IMultiplayerClientObserver observer: observers){
-                observer.onHeroPositionsChangedEventReceived(heroPositionByClientId);
+            final GameState gameState = gameStateUpdateEvent.getGameState();
+            for (IMultiplayerClientObserver observer: observers) {
+                observer.onGameStateUpdateEventReceived(gameState);
             }
         } else if (object instanceof UpdateOwnPositionResponse) {
             for (IMultiplayerClientObserver observer: observers){

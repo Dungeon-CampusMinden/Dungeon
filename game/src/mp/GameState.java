@@ -10,11 +10,11 @@ public class GameState {
     public GameState(){
     }
 
-    public GameState(HashMap<Integer, Point> heroPositionByClientId){
+    public GameState(final HashMap<Integer, Point> heroPositionByClientId){
         this.heroPositionByClientId = heroPositionByClientId;
     }
 
-    public static HashMap<Integer, Point> getHeroPositionByClientId(){
+    public HashMap<Integer, Point> getHeroPositionByClientId(){
         return heroPositionByClientId;
     }
     public void setHeroPositionByClientId(HashMap<Integer, Point> heroPositionByClientId){

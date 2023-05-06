@@ -1,6 +1,11 @@
 package mp;
 
 import com.badlogic.gdx.utils.Null;
+import ecs.components.MissingComponentException;
+import ecs.components.PositionComponent;
+import ecs.components.mp.MultiplayerComponent;
+import ecs.entities.Entity;
+import ecs.entities.HeroDummy;
 import level.elements.ILevel;
 import mp.client.IMultiplayerClientObserver;
 import mp.client.MultiplayerClient;
@@ -8,6 +13,7 @@ import mp.packages.request.InitializeServerRequest;
 import mp.packages.request.JoinSessionRequest;
 import mp.packages.request.UpdateOwnPositionRequest;
 import mp.server.MultiplayerServer;
+import starter.Game;
 import tools.Point;
 
 import java.io.IOException;
@@ -35,7 +41,10 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     }
 
     @Override
-    public void onInitializeServerResponseReceived(final boolean isSucceed, final int clientId, final Point initialHeroPosition) {
+    public void onInitializeServerResponseReceived(
+        final boolean isSucceed,
+        final int clientId,
+        final Point initialHeroPosition) {
         if (heroPositionByPlayerId == null) {
             heroPositionByPlayerId = new HashMap<>();
         }
@@ -70,9 +79,10 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     }
 
     @Override
-    public void onHeroPositionsChangedEventReceived(final HashMap<Integer, Point> heroPositionByClientId) {
-        requireNonNull(heroPositionByClientId);
-        this.heroPositionByPlayerId = heroPositionByClientId;
+    public void onGameStateUpdateEventReceived(final GameState gameState) {
+        requireNonNull(gameState);
+        this.heroPositionByPlayerId = requireNonNull(gameState.getHeroPositionByClientId());
+        synchronizeHeroPositions();
     }
 
     @Override
@@ -139,29 +149,77 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
         multiplayerClient.send(new UpdateOwnPositionRequest(playerId, newPosition));
     }
 
-    public HashMap<Integer, Point> getHeroPositionByPlayerId() {
-        return heroPositionByPlayerId;
-    }
-
-    /**  */
-    public HashMap<Integer, Point> getHeroPositionByPlayerIdExceptOwn() {
-        final HashMap<Integer, Point> heroPositionByPlayerIdExceptOwn = new HashMap<>();
-        heroPositionByPlayerId.forEach((Integer playerId, Point position) -> {
-            if (playerId != this.playerId) {
-                heroPositionByPlayerIdExceptOwn.put(playerId, position);
-            }
-        });
-        return heroPositionByPlayerIdExceptOwn;
-    }
-
     public boolean isConnectedToSession() {
         return playerId != 0;
     }
 
-    public int getOwnPlayerId() { return playerId; }
-
     private void clearSessionData() {
         playerId = 0;
         heroPositionByPlayerId.clear();
+    }
+
+    private void synchronizeHeroPositions() {
+
+        if (isConnectedToSession()) {
+            if (heroPositionByPlayerId != null) {
+                // Add new hero, if new player joined
+                heroPositionByPlayerId.forEach((Integer playerId, Point position) -> {
+                    // do not add own hero
+                    boolean isOwnHero = playerId == this.playerId;
+                    if (!isOwnHero) {
+                        boolean isHeroNewJoined =
+                            Game.getEntities().stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
+                                .map(component -> (MultiplayerComponent)component)
+                                .noneMatch(component -> component.getPlayerId() == playerId);
+                        if(isHeroNewJoined)
+                            new HeroDummy(position, playerId);
+                    }
+                });
+
+                // Remove entities not connected to multiplayer session anymore
+                Game.getEntities().stream().flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
+                    .map(e -> (MultiplayerComponent) e)
+                    .forEach(mc -> {
+                        boolean isOwnHero = mc.getPlayerId() == playerId;
+                        boolean isEntityRemoved = !heroPositionByPlayerId.containsKey(mc.getPlayerId());
+                        if (!isOwnHero && isEntityRemoved)
+                            Game.removeEntity(mc.getEntity());
+                    });
+
+                // Update all positions of all heroes
+                for (Entity entity: Game.getEntities()) {
+                    // TODO: add multiplayer component to Hero, too. So no distinction is needed
+                    if (entity == Game.getHero().get()) {
+                        PositionComponent positionComponentOwnHero =
+                            (PositionComponent)
+                                Game.getHero()
+                                    .get()
+                                    .getComponent(PositionComponent.class)
+                                    .orElseThrow(
+                                        () ->
+                                            new MissingComponentException(
+                                                "PositionComponent"));
+                        Point positionAtMultiplayerSession =
+                            heroPositionByPlayerId.get(playerId);
+                        positionComponentOwnHero.setPosition(positionAtMultiplayerSession);
+                    } else if (entity.getComponent(MultiplayerComponent.class).isPresent()) {
+                        MultiplayerComponent multiplayerComponent =
+                            (MultiplayerComponent)entity.getComponent(MultiplayerComponent.class).orElseThrow();
+                        PositionComponent positionComponent =
+                            (PositionComponent) entity.getComponent(PositionComponent.class).orElseThrow();
+                        Point currentPositionAtMultiplayerSession =
+                            heroPositionByPlayerId.get(multiplayerComponent.getPlayerId());
+                        positionComponent.setPosition(currentPositionAtMultiplayerSession);
+                    }
+                }
+            }
+        } else {
+            // Remove all entities that has been added due to multiplayer session
+            for (Entity entity: Game.getEntities()) {
+                if (entity.getComponent(MultiplayerComponent.class).isPresent()) {
+                    Game.removeEntity(entity);
+                }
+            }
+        }
     }
 }
