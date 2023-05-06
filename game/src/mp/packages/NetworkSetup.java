@@ -57,7 +57,7 @@ public class NetworkSetup {
         kryo.register(LevelElement.class);
         kryo.register(UpdateOwnPositionRequest.class, new UpdateOwnPositionRequestSerializer());
         kryo.register(HashMap.class);
-        kryo.register(GameStateUpdateEvent.class, new HeroPositionsChangedEventSerializer());
+        kryo.register(GameStateUpdateEvent.class, new GameStateUpdateEventSerializer());
         kryo.register(GameState.class, new GameStateSerializer());
         kryo.register(UpdateOwnPositionResponse.class);
     }

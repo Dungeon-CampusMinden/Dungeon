@@ -7,9 +7,7 @@ import com.esotericsoftware.kryo.io.Output;
 import mp.GameState;
 import mp.packages.event.GameStateUpdateEvent;
 
-import java.util.HashMap;
-
-public class HeroPositionsChangedEventSerializer extends Serializer<GameStateUpdateEvent> {
+public class GameStateUpdateEventSerializer extends Serializer<GameStateUpdateEvent> {
 
     @Override
     public void write(Kryo kryo, Output output, GameStateUpdateEvent object) {
