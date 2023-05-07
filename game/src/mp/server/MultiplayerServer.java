@@ -107,12 +107,12 @@ public class MultiplayerServer extends Listener {
      * Closes ports and stops the server.
      */
     public void stop() {
+        if (scheduler != null) {
+            scheduler.shutdown();
+        }
         if (server != null) {
             server.close();
             server.stop();
-        }
-        if (scheduler != null) {
-            scheduler.shutdown();
         }
     }
 }

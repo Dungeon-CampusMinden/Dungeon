@@ -35,14 +35,20 @@ public class MultiplayerClient extends Listener {
     @Override
     public void connected(Connection connection) {
         for (IMultiplayerClientObserver observer: observers) {
-            observer.onConnected(connection.getRemoteAddressTCP().getAddress());
+            if (connection.getRemoteAddressTCP() != null)
+                observer.onConnected(connection.getRemoteAddressTCP().getAddress());
+            else
+                observer.onConnected(null);
         }
     }
 
     @Override
     public void disconnected(Connection connection) {
         for (IMultiplayerClientObserver observer: observers) {
-            observer.onDisconnected(connection.getRemoteAddressTCP().getAddress());
+            if (connection.getRemoteAddressTCP() != null)
+                observer.onDisconnected(connection.getRemoteAddressTCP().getAddress());
+            else
+                observer.onDisconnected(null);
         }
     }
 

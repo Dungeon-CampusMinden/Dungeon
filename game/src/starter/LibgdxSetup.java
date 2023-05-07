@@ -32,5 +32,6 @@ public class LibgdxSetup extends com.badlogic.gdx.Game {
     public void dispose() {
         batch.dispose();
         hudBatch.dispose();
+        game.dispose();
     }
 }

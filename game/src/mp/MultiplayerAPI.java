@@ -23,9 +23,9 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     private final MultiplayerClient multiplayerClient;
     private final MultiplayerServer multiplayerServer;
     private final IMultiplayer multiplayer;
-    /** From server assigned unique client/player id. */
+    /* From server assigned unique client/player id. */
     private int playerId = 0;
-    /** Current state of hero positions, identified by client id. */
+    /* Current state of hero positions, identified by client/player id. */
     private HashMap<Integer, Point> heroPositionByPlayerId;
 
     public MultiplayerAPI(IMultiplayer multiplayer) {
@@ -81,12 +81,12 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     }
 
     @Override
-    public void onConnected(final InetAddress address) {
+    public void onConnected(@Null final InetAddress address) {
         // For now no action needed when connected
     }
 
     @Override
-    public void onDisconnected(final InetAddress address) {
+    public void onDisconnected(@Null final InetAddress address) {
 //        clearSessionData();
         multiplayer.onMultiplayerSessionLost();
     }
@@ -164,7 +164,7 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     }
 
     private void stopEndpoints() {
-        multiplayerServer.stop();
         multiplayerClient.disconnect();
+        multiplayerServer.stop();
     }
 }

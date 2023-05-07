@@ -425,4 +425,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         // TODO: Additionally show info message
         showMenu(startMenu);
     }
+
+    @Override
+    public void dispose() {
+        multiplayerAPI.stopSession();
+    }
 }
