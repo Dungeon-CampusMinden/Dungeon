@@ -41,7 +41,7 @@ public class MultiplayerServer extends Listener {
 
     private static final int ticks = 128;
     private static final long nanosPerTick = 1000000000 / ticks;
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService scheduler;
 
     public MultiplayerServer() {
         server.addListener(this);
@@ -94,6 +94,7 @@ public class MultiplayerServer extends Listener {
         server.bind(port != null ? port : DEFAULT_TCP_PORT);
         server.start();
 
+        scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -107,9 +108,11 @@ public class MultiplayerServer extends Listener {
      */
     public void stop() {
         if (server != null) {
-            server.stop();
             server.close();
+            server.stop();
         }
-        scheduler.shutdown();
+        if (scheduler != null) {
+            scheduler.shutdown();
+        }
     }
 }

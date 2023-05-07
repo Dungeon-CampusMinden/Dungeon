@@ -4,6 +4,7 @@ import level.elements.ILevel;
 import mp.GameState;
 import tools.Point;
 
+import java.net.InetAddress;
 import java.util.HashMap;
 
 public interface IMultiplayerClientObserver {
@@ -11,6 +12,6 @@ public interface IMultiplayerClientObserver {
     void onJoinSessionResponseReceived(boolean isSucceed, ILevel level, int clientId, HashMap<Integer, Point> heroPositionByClientId);
     void onGameStateUpdateEventReceived(GameState gameState);
     void onUpdateOwnPositionResponseReceived();
-    void onConnected();
-    void onDisconnected();
+    void onConnected(InetAddress address);
+    void onDisconnected(InetAddress address);
 }

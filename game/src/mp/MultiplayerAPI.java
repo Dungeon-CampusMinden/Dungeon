@@ -1,11 +1,6 @@
 package mp;
 
 import com.badlogic.gdx.utils.Null;
-import ecs.components.MissingComponentException;
-import ecs.components.PositionComponent;
-import ecs.components.mp.MultiplayerComponent;
-import ecs.entities.Entity;
-import ecs.entities.HeroDummy;
 import level.elements.ILevel;
 import mp.client.IMultiplayerClientObserver;
 import mp.client.MultiplayerClient;
@@ -13,10 +8,10 @@ import mp.packages.request.InitializeServerRequest;
 import mp.packages.request.JoinSessionRequest;
 import mp.packages.request.UpdateOwnPositionRequest;
 import mp.server.MultiplayerServer;
-import starter.Game;
 import tools.Point;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -86,19 +81,21 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     }
 
     @Override
-    public void onConnected() {
+    public void onConnected(final InetAddress address) {
         // For now no action needed when connected
     }
 
     @Override
-    public void onDisconnected() {
-        clearSessionData();
+    public void onDisconnected(final InetAddress address) {
+//        clearSessionData();
         multiplayer.onMultiplayerSessionLost();
     }
 
     /** */
     public void startSession(final ILevel level, @Null final Point ownHeroInitialPosition) throws IOException {
         requireNonNull(level);
+        clearSessionData();
+        stopEndpoints();
         // Check whether which random port is not already in use and listen to this on serverside
         // it's unlikely that no port is free but to not run into infinite loop, limit tries.
         int generatePortTriesMaxCount = 20;
@@ -132,7 +129,7 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     /** */
     public void stopSession() {
         clearSessionData();
-        multiplayerServer.stop();
+        stopEndpoints();
     }
 
     public HashMap<Integer, Point> getHeroPositionByPlayerId() {
@@ -144,6 +141,8 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     /** */
     public void joinSession(final String address, final int port) throws IOException {
         requireNonNull(address);
+        clearSessionData();
+        stopEndpoints();
         if (!multiplayerClient.connectToHost(address, port)) {
             throw new IOException("No host found - invalid address or port");
         }
@@ -162,5 +161,10 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     private void clearSessionData() {
         playerId = 0;
         heroPositionByPlayerId.clear();
+    }
+
+    private void stopEndpoints() {
+        multiplayerServer.stop();
+        multiplayerClient.disconnect();
     }
 }

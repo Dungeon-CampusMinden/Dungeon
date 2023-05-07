@@ -14,7 +14,6 @@ import tools.Point;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class MultiplayerClient extends Listener {
 
@@ -31,18 +30,19 @@ public class MultiplayerClient extends Listener {
     public MultiplayerClient() {
         client.addListener(this);
         NetworkSetup.register(client);
-        client.start();
     }
 
     @Override
     public void connected(Connection connection) {
-//        System.out.println("Connected to server!");
+        for (IMultiplayerClientObserver observer: observers) {
+            observer.onConnected(connection.getRemoteAddressTCP().getAddress());
+        }
     }
 
     @Override
     public void disconnected(Connection connection) {
         for (IMultiplayerClientObserver observer: observers) {
-            observer.onDisconnected();
+            observer.onDisconnected(connection.getRemoteAddressTCP().getAddress());
         }
     }
 
@@ -85,12 +85,18 @@ public class MultiplayerClient extends Listener {
 
     public boolean connectToHost(String address, int port) {
         try {
+            client.start();
             client.connect(connectionTimeout, address, port);
             return true;
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public void disconnect() {
+        client.close();
+        client.stop();
     }
 
     public void addObserver(IMultiplayerClientObserver observer) {
