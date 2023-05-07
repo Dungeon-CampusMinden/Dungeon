@@ -67,7 +67,6 @@ public class MultiplayerClient extends Listener {
                 );
             }
         } else if (object instanceof GameStateUpdateEvent gameStateUpdateEvent){
-            //TODO: Send whole gamestate instead of just the hashmap Heropositionsbyclientid
             final GameState gameState = gameStateUpdateEvent.getGameState();
             for (IMultiplayerClientObserver observer: observers) {
                 observer.onGameStateUpdateEventReceived(gameState);
