@@ -2,6 +2,7 @@ package ecs.items.newItems;
 
 import dslToGame.AnimationBuilder;
 import ecs.entities.Entity;
+import ecs.entities.Hero;
 import ecs.graphic.Animation;
 import ecs.items.IOnCollect;
 import ecs.items.ItemData;
@@ -17,7 +18,11 @@ public class BookOfRa implements IOnCollect {
    ItemType passive = ItemType.Passive;
     Animation worldAnim = AnimationBuilder.buildAnimation(world);
     Animation bookAnim = AnimationBuilder.buildAnimation(inv);
-    public BookOfRa(){
+
+    private Hero hero;
+
+    public BookOfRa(Hero hero){
+        this.hero = hero;
         Entity book = WorldItemBuilder.buildWorldItem(new ItemData(passive,worldAnim,bookAnim,name,description));
         onCollect(book, Game.getHero().get());
     }

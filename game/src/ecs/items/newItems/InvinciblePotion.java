@@ -10,6 +10,7 @@ import ecs.items.ItemType;
 import ecs.items.WorldItemBuilder;
 import starter.Game;
 
+import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -24,25 +25,29 @@ public class InvinciblePotion extends ItemData implements IOnUse {
     Animation worldAnim = AnimationBuilder.buildAnimation(world);
     Animation invAnim = AnimationBuilder.buildAnimation(inv);
 
-    public InvinciblePotion(){
+    private Hero hero;
+
+    public InvinciblePotion(Hero hero) {
+        this.hero = hero;
         WorldItemBuilder.buildWorldItem(new ItemData(active,worldAnim,invAnim,name,description));
-        onUse(Game.getHero().get() ,this);
+        onUse(hero,this);
     }
 
     public void onUse(Entity e, ItemData item){
 
         long startTime = System.currentTimeMillis();
         Timer timer = new Timer();
-        HealthComponent ofE = (HealthComponent) e.getComponent(HealthComponent.class).get();
-        int saveHealth = ofE.getCurrentHealthpoints();
-        ofE.setCurrentHealthpoints(10000);
+        int resetHealth = this.hero.getCurrentHealth();
+        this.hero.setHealth(100);
         System.out.println("imortal for 5 seconds");
         timer.schedule(new TimerTask() {
+
             public void run() {
-                ofE.setCurrentHealthpoints(saveHealth);
+               hero.setCurrentHealth(resetHealth);
+                System.out.println(hero.getCurrentHealth());
                 System.out.println("Not longer imortal");
             }
-        }, 5000);
+        }, 5*1000);
 
     }
 

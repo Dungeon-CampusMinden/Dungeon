@@ -29,6 +29,7 @@ public class Hero extends Entity implements IOnDeathFunction {
     private Skill firstSkill;
     private InventoryComponent inv;
 
+
     int currentHealth;
 
     /** Entity with Components */
@@ -73,6 +74,8 @@ public class Hero extends Entity implements IOnDeathFunction {
     }
 
 
+
+
     private void setupHitboxComponent() {
         new HitboxComponent(
                 this,
@@ -90,6 +93,8 @@ public class Hero extends Entity implements IOnDeathFunction {
     public void onDeath(Entity entity) {
         System.out.println("Hero dead");
     }
+
+    //======================================GETTER&SETTER=====================================================//
 
     public InventoryComponent getInv() {
         return inv;

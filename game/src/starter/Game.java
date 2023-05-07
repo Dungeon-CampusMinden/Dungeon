@@ -227,9 +227,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         int random = (int) (Math.random() * (0 - 100));
         if (random < 0) {
             new Bag();
-            //new Greatsword();
-            new BookOfRa();
-            new InvinciblePotion();
+            new Greatsword(playHero);
+            new BookOfRa(playHero);
+            new InvinciblePotion(playHero);
         }
     }
 

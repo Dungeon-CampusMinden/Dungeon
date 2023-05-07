@@ -1,8 +1,9 @@
 package ecs.items.newItems;
 
 import dslToGame.AnimationBuilder;
-import ecs.components.HitboxComponent;
+
 import ecs.entities.Entity;
+import ecs.entities.Hero;
 import ecs.graphic.Animation;
 import ecs.items.IOnCollect;
 import ecs.items.ItemData;
@@ -17,11 +18,9 @@ public class Greatsword implements IOnCollect {
     ItemType passive = ItemType.Passive;
     Animation worldAnim = AnimationBuilder.buildAnimation(world);
     Animation greatsAnim = AnimationBuilder.buildAnimation(greatsworld);
-    ItemData greats_word = new ItemData(passive,worldAnim,greatsAnim,name,description);
 
-    public Greatsword(){
-        new WorldItemBuilder();
-        WorldItemBuilder.buildWorldItem(greats_word);
+    public Greatsword(Hero hero){
+        WorldItemBuilder.buildWorldItem(new ItemData(passive,worldAnim,greatsAnim,name,description));
     }
 
 

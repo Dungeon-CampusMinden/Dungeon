@@ -15,7 +15,7 @@ public class Bag extends ItemData implements IOnCollect {
     private String world = "item/world/Bag";
     private String greatsworld = "item/world/Bag";
     private final String name = "Bag";
-    private final String description = "A Bag which is capable of carry 4 item of the same type";
+    private final String description = "A Bag which is capable of carrying 4 item of the same type";
     ItemType active = ItemType.Active;
     Animation worldAnim = AnimationBuilder.buildAnimation(world);
     Animation greatsAnim = AnimationBuilder.buildAnimation(greatsworld);
