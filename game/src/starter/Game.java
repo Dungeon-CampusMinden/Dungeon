@@ -423,6 +423,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     @Override
     public void onMultiplayerSessionLost() {
         // TODO: Additionally show info message
+        startMenu.resetView();
         showMenu(startMenu);
     }
 

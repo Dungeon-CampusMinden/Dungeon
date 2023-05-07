@@ -175,7 +175,6 @@ public class StartMenu<T extends Actor> extends Menu<T> {
         }
 
         buttonNavigateBack.setVisible(menuType != MenuType.GameMode);
-        this.update();
     }
 
     private void navigateBack() {
