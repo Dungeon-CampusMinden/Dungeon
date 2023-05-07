@@ -5,12 +5,18 @@ import ecs.items.ItemData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+
+import ecs.items.ItemType;
+import ecs.items.newItems.Bag;
 import logging.CustomLogLevel;
+import starter.Game;
 
 /** Allows an Entity to carry Items */
 public class InventoryComponent extends Component {
 
     private List<ItemData> inventory;
+
+    private List<ItemType> Baginventory;
     private int maxSize;
     private final Logger inventoryLogger = Logger.getLogger(this.getClass().getName());
 
@@ -22,6 +28,7 @@ public class InventoryComponent extends Component {
      */
     public InventoryComponent(Entity entity, int maxSize) {
         super(entity);
+
         inventory = new ArrayList<>(maxSize);
         this.maxSize = maxSize;
     }

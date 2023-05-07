@@ -27,11 +27,15 @@ public class Hero extends Entity implements IOnDeathFunction {
 
     private HealthComponent hp;
     private Skill firstSkill;
+    private InventoryComponent inv;
+
+    int currentHealth;
 
     /** Entity with Components */
     public Hero() {
         super();
         new PositionComponent(this);
+        inv = new InventoryComponent(this,12);
         setupVelocityComponent();
         setupAnimationComponent();
         setupHitboxComponent();
@@ -40,6 +44,7 @@ public class Hero extends Entity implements IOnDeathFunction {
         setupHealthComponent();
         pc.setSkillSlot1(firstSkill);
         this.hp.setCurrentHealthpoints(50); //Set to 50 for testing purposes
+        currentHealth = this.hp.getCurrentHealthpoints();
     }
 
     private void setupVelocityComponent() {
@@ -86,4 +91,19 @@ public class Hero extends Entity implements IOnDeathFunction {
         System.out.println("Hero dead");
     }
 
+    public InventoryComponent getInv() {
+        return inv;
+    }
+
+    public void setInv(InventoryComponent inv) {
+        this.inv = inv;
+    }
+
+    public int getCurrentHealth() {
+        return currentHealth;
+    }
+
+    public void setCurrentHealth(int currentHealth) {
+        this.currentHealth = currentHealth;
+    }
 }
