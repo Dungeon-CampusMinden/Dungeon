@@ -287,6 +287,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         new XPSystem();
         new SkillSystem();
         new ProjectileSystem();
+        new MultiplayerSynchronizationSystem(multiplayerAPI);
     }
 
     private void setupRandomLevel() {
