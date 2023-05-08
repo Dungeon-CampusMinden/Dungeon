@@ -28,6 +28,8 @@ import game.src.ecs.entities.DarkKnight;
 import game.src.ecs.entities.Imp;
 import game.src.ecs.entities.SummoningTrap;
 import game.src.ecs.entities.TeleportationTrap;
+import game.src.saving.GameData;
+import game.src.saving.Saves;
 import graphic.DungeonCamera;
 import graphic.Painter;
 import graphic.hud.GameOverMenu;
@@ -35,6 +37,7 @@ import graphic.hud.PauseMenu;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.Optional;
 import level.IOnLevelLoader;
 import level.LevelAPI;
 import level.elements.ILevel;
@@ -84,11 +87,14 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static SystemController systems;
 
     public static ILevel currentLevel;
+    private ILevel levelForCheck;
     private static PauseMenu<Actor> pauseMenu;
     private static GameOverMenu<Actor> gameOverMenu;
     private static Entity hero;
     private Logger gameLogger;
     private static int level = 0;
+
+    private static Saves saves = new Saves();
 
     public static void main(String[] args) {
         // start the game
@@ -102,6 +108,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             DesktopLauncher.run(new Game());
         } catch (Flag flag) {
             // Game end
+            return;
         }
 
     }
@@ -116,13 +123,25 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     @Override
     public void render(float delta) {
         if (doSetup)
-            setup();
+            prepareSetup();
         batch.setProjectionMatrix(camera.combined);
         frame();
         clearScreen();
         levelAPI.update();
         controller.forEach(AbstractController::update);
         camera.update();
+        updateLevel();
+    }
+
+    /** Checks for saves */
+    protected void prepareSetup() {
+        saves.load();
+        if (saves.getAutoSave() != null && saves.getAutoSave().isPresent()) {
+            setup(saves.getAutoSave().get());
+            //setup();
+        } else {
+            setup();
+        }
     }
 
     /** Called once at the beginning of the game. */
@@ -148,6 +167,30 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         createSystems();
     }
 
+    protected void setup(GameData gameData) {
+        HealthComponent health = (HealthComponent) gameData.hero().getComponent(HealthComponent.class).get();
+        ((Hero) gameData.hero()).setupComponents(health.getMaximalHealthpoints(), health.getCurrentHealthpoints());
+        level = gameData.level();
+        doSetup = false;
+        controller = new ArrayList<>();
+        setupCameras();
+        painter = new Painter(batch, camera);
+        generator = new RandomWalkGenerator();
+        levelAPI = new LevelAPI(batch, painter, generator, this);
+        initBaseLogger();
+        gameLogger = Logger.getLogger(this.getClass().getName());
+        systems = new SystemController();
+        controller.add(systems);
+        pauseMenu = new PauseMenu<>();
+        controller.add(pauseMenu);
+        gameOverMenu = new GameOverMenu(this);
+        controller.add(gameOverMenu);
+        hero = gameData.hero();
+        levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
+        levelAPI.loadLevel(LEVELSIZE);
+        createSystems();
+    }
+
     /**
      * Called at the beginning of each frame. Before the controllers call
      * <code>update</code>.
@@ -162,15 +205,19 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         if (Gdx.input.isKeyJustPressed(Input.Keys.K))
             ((HealthComponent) hero.getComponent(HealthComponent.class).get())
                     .receiveHit(new Damage(100, DamageType.PHYSICAL, hero));
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) throw new Flag();
     }
 
     @Override
     public void onLevelLoad() {
-        level++;
+        System.out.println(saves.getAutoSave());
         currentLevel = levelAPI.getCurrentLevel();
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
         levelSetup();
+        GameData data = new GameData(hero, level);
+        saves.setAutoSave(Optional.of(data));
+        saves.save();
     }
 
     private void manageEntitiesSets() {
@@ -201,7 +248,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
-        if (isOnEndTile(hero))
+        if (isOnEndTile(hero)) 
             levelAPI.loadLevel(LEVELSIZE);
     }
 
@@ -240,6 +287,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         if (systems != null) {
             systems.forEach(ECS_System::toggleRun);
         }
+        deleteAutoSave();
         gameOverMenu.showMenu();
     }
 
@@ -370,5 +418,20 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             addEntity(new SummoningTrap());
         else
             addEntity(new DamageTrap());
+    }
+
+    /** removes the save of the last level */
+    private static void deleteAutoSave() {
+        saves.setAutoSave(Optional.empty());
+        saves.deleteAutoSave();
+    }
+
+    private void updateLevel() {
+        if (levelForCheck == null)
+            levelForCheck = currentLevel;
+        if (!levelForCheck.equals(currentLevel)) {
+            level++;
+            levelForCheck = currentLevel;
+        }
     }
 }

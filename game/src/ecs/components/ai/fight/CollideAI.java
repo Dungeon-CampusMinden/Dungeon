@@ -10,7 +10,7 @@ public class CollideAI implements IFightAI {
     private final float rushRange;
     private final int delay = Constants.FRAME_RATE;
     private int timeSinceLastUpdate = delay;
-    private GraphPath<Tile> path;
+    private transient GraphPath<Tile> path;
 
     /**
      * Attacks the player by colliding if he is within the given range. Otherwise, it will move

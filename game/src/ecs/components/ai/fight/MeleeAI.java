@@ -12,7 +12,7 @@ public class MeleeAI implements IFightAI {
     private final int delay = Constants.FRAME_RATE;
     private int timeSinceLastUpdate = 0;
     private final Skill fightSkill;
-    private GraphPath<Tile> path;
+    private transient GraphPath<Tile> path;
 
     /**
      * Attacks the player if he is within the given range. Otherwise, it will move towards the

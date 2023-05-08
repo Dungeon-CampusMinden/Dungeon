@@ -13,8 +13,10 @@ import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import level.tools.LevelSize;
 
+import java.io.Serializable;
+
 /** Manages the level. */
-public class LevelAPI {
+public class LevelAPI implements Serializable {
     private final SpriteBatch batch;
     private final Painter painter;
     private final IOnLevelLoader onLevelLoader;

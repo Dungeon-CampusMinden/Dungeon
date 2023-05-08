@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import java.io.Serializable;
+
 /** A list of textures from an animation. */
-public class Animation {
+public class Animation implements Serializable {
 
     /** The set of textures that build the animation. */
     protected final List<String> animationFrames;

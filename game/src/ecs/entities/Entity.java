@@ -8,14 +8,17 @@ import semanticAnalysis.types.DSLContextPush;
 import semanticAnalysis.types.DSLType;
 import starter.Game;
 
+import java.io.Serializable;
+
+
 /** Entity is a unique identifier for an object in the game world */
 @DSLType(name = "game_object")
 @DSLContextPush(name = "entity")
-public class Entity {
+public class Entity implements Serializable {
     private static int nextId = 0;
     public final int id = nextId++;
     private HashMap<Class, Component> components;
-    private final Logger entityLogger;
+    private transient final Logger entityLogger;
 
     public Entity() {
         components = new HashMap<>();

@@ -2,7 +2,9 @@ package ecs.components.ai.fight;
 
 import ecs.entities.Entity;
 
-public interface IFightAI {
+import java.io.Serializable;
+
+public interface IFightAI extends Serializable {
 
     /**
      * Implements the combat behavior of an AI controlled entity

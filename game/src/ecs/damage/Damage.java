@@ -3,6 +3,8 @@ package ecs.damage;
 import com.badlogic.gdx.utils.Null;
 import ecs.entities.Entity;
 
+import java.io.Serializable;
+
 /**
  * Damage that can reduce the life points of an entity
  *
@@ -12,4 +14,4 @@ import ecs.entities.Entity;
  *     account resistances or vulnerabilities
  * @param cause Entity that caused the damage (e.g. the player) can be null
  */
-public record Damage(int damageAmount, DamageType damageType, @Null Entity cause) {}
+public record Damage(int damageAmount, DamageType damageType, @Null Entity cause) implements Serializable {}

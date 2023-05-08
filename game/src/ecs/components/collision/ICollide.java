@@ -3,7 +3,9 @@ package ecs.components.collision;
 import ecs.entities.Entity;
 import level.elements.tile.Tile;
 
-public interface ICollide {
+import java.io.Serializable;
+
+public interface ICollide extends Serializable {
     /**
      * Implements the Collision behavior of a Hitbox having entity
      *

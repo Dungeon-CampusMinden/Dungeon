@@ -9,7 +9,9 @@ import graphic.Animation;
 import starter.Game;
 import tools.Point;
 
-public abstract class DamageProjectileSkill implements ISkillFunction {
+import java.io.Serializable;
+
+public abstract class DamageProjectileSkill implements ISkillFunction, Serializable {
 
     private String pathToTexturesOfProjectile;
     private float projectileSpeed;

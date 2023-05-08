@@ -4,7 +4,9 @@ import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import tools.Point;
 
-public class FireballSkill extends DamageProjectileSkill {
+import java.io.Serializable;
+
+public class FireballSkill extends DamageProjectileSkill implements Serializable {
     public FireballSkill(ITargetSelection targetSelection) {
         super(
                 "skills/fireball/fireBall_Down/",

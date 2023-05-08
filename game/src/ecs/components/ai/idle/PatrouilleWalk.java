@@ -33,7 +33,7 @@ public class PatrouilleWalk implements IIdleAI {
     private final int pauseFrames;
     private final float radius;
     private final MODE mode;
-    private GraphPath<Tile> currentPath;
+    private transient GraphPath<Tile> currentPath;
     private boolean initialized = false;
     private boolean forward = true;
     private int frameCounter = -1;

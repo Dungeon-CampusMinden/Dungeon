@@ -6,7 +6,9 @@ import com.badlogic.gdx.math.Vector3;
 import starter.Game;
 import tools.Point;
 
-public class SkillTools {
+import java.io.Serializable;
+
+public class SkillTools implements Serializable {
 
     /**
      * calculates the last position in range regardless of aimed position

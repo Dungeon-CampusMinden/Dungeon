@@ -7,12 +7,14 @@ import ecs.damage.Damage;
 import graphic.Animation;
 import ecs.components.OnDeathFunctions.EndGame;
 
+import java.io.Serializable;
+
 /**
  * The Hero is the player character. It's entity in the ECS. This class helps to
  * setup the hero with
  * all its components and attributes .
  */
-public class Hero extends Entity {
+public class Hero extends Entity implements Serializable {
 
     private final int fireballCoolDown = 5;
     private final float xSpeed = 0.3f;
@@ -30,14 +32,19 @@ public class Hero extends Entity {
     /** Entity with Components */
     public Hero() {
         super();
+        setupComponents(maxHealth, maxHealth);
+        PlayableComponent pc = new PlayableComponent(this);
+        setupFireballSkill();
+        pc.setSkillSlot1(firstSkill);
+    }
+
+    /** Maybe this will let me load */
+    public void setupComponents(int maxHealth, int currentHealth) {
         new PositionComponent(this);
         setupVelocityComponent();
         setupAnimationComponent();
         setupHitboxComponent();
-        setupHealthComponent();
-        PlayableComponent pc = new PlayableComponent(this);
-        setupFireballSkill();
-        pc.setSkillSlot1(firstSkill);
+        setupHealthComponent(maxHealth, currentHealth);
     }
 
     private void setupVelocityComponent() {
@@ -53,8 +60,8 @@ public class Hero extends Entity {
     }
 
     private void setupFireballSkill() {
-        firstSkill = new Skill(
-                new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
+        firstSkill =  new Skill(
+               new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
     }
 
     private void setupHitboxComponent() {
@@ -64,10 +71,11 @@ public class Hero extends Entity {
                 (you, other, direction) -> System.out.println("heroCollisionLeave"));
     }
 
-    private void setupHealthComponent() {
+    private void setupHealthComponent(int maxHealth, int currentHealth) {
         Animation getHit = AnimationBuilder.buildAnimation(pathToGetHit);
         Animation die = AnimationBuilder.buildAnimation(pathToDie);
         IOnDeathFunction gameOver = new EndGame();
-        new HealthComponent(this, maxHealth, gameOver, getHit, die);
+        HealthComponent hc = new HealthComponent(this, maxHealth, gameOver, getHit, die);
+        hc.setCurrentHealthpoints(currentHealth);
     }
 }

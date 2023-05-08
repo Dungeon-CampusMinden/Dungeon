@@ -26,7 +26,7 @@ public class HealthComponent extends Component {
     private @DSLTypeMember(name = "on_death_function") IOnDeathFunction onDeath;
     private @DSLTypeMember(name = "get_hit_animation") Animation getHitAnimation;
     private @DSLTypeMember(name = "die_animation") Animation dieAnimation;
-    private final Logger healthLogger = Logger.getLogger(this.getClass().getName());
+    private transient final Logger healthLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * Creates a new HealthComponent

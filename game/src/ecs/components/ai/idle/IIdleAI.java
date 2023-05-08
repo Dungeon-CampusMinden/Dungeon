@@ -2,7 +2,9 @@ package ecs.components.ai.idle;
 
 import ecs.entities.Entity;
 
-public interface IIdleAI {
+import java.io.Serializable;
+
+public interface IIdleAI extends Serializable {
 
     /**
      * Implements the idle behavior of an AI controlled entity

@@ -3,10 +3,12 @@ package ecs.components;
 import ecs.entities.Entity;
 import java.util.logging.Logger;
 
+import java.io.Serializable;
+
 /*+
  *Component is a piece of data associated with an entity
  */
-public abstract class Component {
+public abstract class Component implements Serializable {
     protected Entity entity;
 
     /**

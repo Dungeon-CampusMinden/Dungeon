@@ -2,7 +2,9 @@ package ecs.components.skill;
 
 import tools.Point;
 
-public interface ITargetSelection {
+import java.io.Serializable;
+
+public interface ITargetSelection extends Serializable {
 
     Point selectTargetPoint();
 }
