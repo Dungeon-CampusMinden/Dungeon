@@ -129,7 +129,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             // Dialogue for quiz questions (display of quiz questions and the answer area in test
             // mode)
-            UITools.showQuizDialog(DummyQuizQuestionList.getRandomQuestion());
+            DummyQuizQuestionList.getRandomQuestion().askQuizQuestionWithUI();
         }
     }
 
