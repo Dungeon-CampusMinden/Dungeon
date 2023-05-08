@@ -7,11 +7,11 @@ import quizquestion.QuizQuestion;
 public final class TextDialog extends Dialog {
 
     /** button ID (used when control is pressed) */
-    private static final String btnID = "confirm exit";
+    private static final String BUTTON_ID = "confirm exit";
     /** Default message when no text is transferred */
-    private static final String defaultMsg = "No message was load.";
+    private static final String DEFAULT_MSG = "No message was load.";
     /** Default Button message */
-    private static final String defaultBtnMsg = "OK";
+    private static final String DEFAULT_BUTTON_MSG = "OK";
 
     /**
      * Constructor for Quiz Question
@@ -30,11 +30,11 @@ public final class TextDialog extends Dialog {
             String title) {
         super(title, skin);
         DialogDesign dialogDesign = new DialogDesign();
-        if (outputMsg.trim().isEmpty()) outputMsg = defaultMsg;
+        if (outputMsg.trim().isEmpty()) outputMsg = DEFAULT_MSG;
         dialogDesign.QuizQuestion(quizQuestion, skin, outputMsg);
         addActor(dialogDesign);
-        if (buttonMsg.trim().isEmpty()) buttonMsg = defaultBtnMsg;
-        button(buttonMsg, btnID);
+        if (buttonMsg.trim().isEmpty()) buttonMsg = DEFAULT_BUTTON_MSG;
+        button(buttonMsg, BUTTON_ID);
     }
 
     /**
@@ -48,11 +48,11 @@ public final class TextDialog extends Dialog {
     public TextDialog(Skin skin, String outputMsg, String buttonMsg, String title) {
         super(title, skin);
         DialogDesign dialogDesign = new DialogDesign();
-        if (outputMsg.trim().isEmpty()) outputMsg = defaultMsg;
+        if (outputMsg.trim().isEmpty()) outputMsg = DEFAULT_MSG;
         dialogDesign.TextDialog(skin, outputMsg);
         addActor(dialogDesign);
-        if (buttonMsg.trim().isEmpty()) buttonMsg = defaultBtnMsg;
-        button(buttonMsg, btnID);
+        if (buttonMsg.trim().isEmpty()) buttonMsg = DEFAULT_BUTTON_MSG;
+        button(buttonMsg, BUTTON_ID);
     }
 
     /**
@@ -62,7 +62,7 @@ public final class TextDialog extends Dialog {
      */
     @Override
     protected void result(final Object object) {
-        if (object.toString().equals(btnID)) {
+        if (object.toString().equals(BUTTON_ID)) {
             UITools.deleteDialogue(this);
         }
     }

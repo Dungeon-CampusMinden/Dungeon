@@ -10,13 +10,13 @@ import tools.Point;
 
 /** erzeugt Layout des Dialoges */
 public class DialogDesign extends Table {
+    private static final int DIFFERENCE_MEASURE = 150;
 
     public DialogDesign() {
         super();
         setFillParent(true);
     }
     /** Verschiebung des Dialoges auf Spielbildschirm */
-    private static final int differenceMeasure = 150;
 
     /**
      * Constructor that allows text to be palced and does the layout for the text.
@@ -27,8 +27,8 @@ public class DialogDesign extends Table {
     public void TextDialog(Skin skin, String outputMsg) {
         add(new Scroller(skin, new NotEditableText(outputMsg, skin)))
                 .size(
-                        Constants.WINDOW_WIDTH - differenceMeasure,
-                        Constants.WINDOW_HEIGHT - differenceMeasure * 2f);
+                        Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
+                        Constants.WINDOW_HEIGHT - DIFFERENCE_MEASURE * 2f);
     }
 
     /**
@@ -68,7 +68,7 @@ public class DialogDesign extends Table {
             case TEXT:
                 add(new Scroller(skin, new NotEditableText(outputMsg, skin)))
                         .size(
-                                Constants.WINDOW_WIDTH - differenceMeasure,
+                                Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
                                 Constants.WINDOW_HEIGHT / 5f);
                 break;
             case IMAGE:
@@ -79,13 +79,13 @@ public class DialogDesign extends Table {
                                         new Point(0, 0),
                                         1.1f)))
                         .size(
-                                Constants.WINDOW_WIDTH - differenceMeasure,
+                                Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
                                 Constants.WINDOW_HEIGHT / 5f);
                 break;
             case TEXT_AND_IMAGE:
                 add(new Scroller(skin, new NotEditableText(outputMsg, skin)))
                         .size(
-                                Constants.WINDOW_WIDTH - differenceMeasure,
+                                Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
                                 Constants.WINDOW_HEIGHT / 5f);
                 row();
                 add(new Label("", skin));
@@ -97,7 +97,7 @@ public class DialogDesign extends Table {
                                         new Point(0, 0),
                                         1.1f)))
                         .size(
-                                Constants.WINDOW_WIDTH - differenceMeasure,
+                                Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
                                 Constants.WINDOW_HEIGHT / 5f);
                 break;
             default:
@@ -124,7 +124,7 @@ public class DialogDesign extends Table {
 
                 add(scroller)
                         .size(
-                                Constants.WINDOW_WIDTH - differenceMeasure,
+                                Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
                                 Constants.WINDOW_HEIGHT / 7f);
 
                 break;
@@ -133,7 +133,7 @@ public class DialogDesign extends Table {
                 add(new Scroller(skin, btnGrp))
                         .align(Align.left)
                         .size(
-                                Constants.WINDOW_WIDTH - differenceMeasure,
+                                Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
                                 Constants.WINDOW_HEIGHT / 7f);
                 break;
             default:
