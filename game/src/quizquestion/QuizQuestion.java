@@ -1,4 +1,7 @@
 package quizquestion;
+
+import graphic.hud.UITools;
+
 /**
  * The QuizQuestion class represents a single quiz question, including the question itself, possible
  * answer choices, and the type of question.
@@ -10,11 +13,11 @@ package quizquestion;
 public record QuizQuestion(
         QuizQuestionContent question, QuizQuestionContent[] answers, QuizQuestionType type) {
     /**
-     * Asks the quiz question in a graphical user interface by calling the showQuizQuestion() method
-     * of the QuizQuestionUI class.
+     * Asks the quiz question in a graphical user interface by calling the showQuizDialog() method
+     * of the UITools class.
      */
-    public static void askQuizQuestionWithUI(QuizQuestion question) {
-        QuizQuestionUI.showQuizQuestion(question);
+    public void askQuizQuestionWithUI() {
+        UITools.showQuizDialog(this);
     }
 
     /**
