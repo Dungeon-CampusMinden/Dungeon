@@ -48,7 +48,7 @@ kann von dem tatsächlichen Verhalten der (noch nicht implementierten) Ausprägu
 abweichen.
 
 Entitätstypen schließen sich nicht automatisch gegenseitig aus. Eine Entität kann
-beispielsweise gleichzeitig mehrere Entitätstypen haben, bspw. "Questgeber" (zur Aktivierung
+gleichzeitig mehrere Entitätstypen haben, bspw. "Questgeber" (zur Aktivierung
 einer Aufgabe) und "Container" (um einen Questgegenstand anzunehmen). In solchen Fällen
 muss die Interaktion der einzelnen Komponenten durch die Taskbuilder-Methoden passend
 konfiguriert werden, um den Anforderungen durch den zu realisierenden Aufgabentyp gerecht
