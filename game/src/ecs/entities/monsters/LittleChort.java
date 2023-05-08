@@ -1,9 +1,7 @@
 package ecs.entities.monsters;
 
 import dslToGame.AnimationBuilder;
-import ecs.components.AnimationComponent;
-import ecs.components.PositionComponent;
-import ecs.components.VelocityComponent;
+import ecs.components.*;
 import ecs.components.ai.AIComponent;
 import ecs.components.ai.fight.CollideAI;
 import ecs.components.ai.idle.PatrouilleWalk;
@@ -17,6 +15,7 @@ public class LittleChort extends BasicMonster{
         setupVelocityComponent();
         setupAnimationComponent();
         setupAIComponent();
+        setupHitboxComponent();
     }
 
     @Override
@@ -33,6 +32,14 @@ public class LittleChort extends BasicMonster{
         new AnimationComponent(this, idleLeft, idleRight);
     }
 
+
+    public void setupHitboxComponent() {
+        new HitboxComponent(this, HitboxComponent.DEFAULT_COLLIDER, HitboxComponent.DEFAULT_COLLIDER);
+    }
+
+    public void setupHealthComponent() {
+
+    }
     @Override
     public void setupAIComponent() {
         float radius = 5.0f;

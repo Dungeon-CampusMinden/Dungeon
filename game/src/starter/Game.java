@@ -20,8 +20,6 @@ import ecs.entities.Teleportsystem;
 import ecs.entities.monsters.Chort;
 import ecs.entities.monsters.Goblin;
 import ecs.entities.monsters.LittleChort;
-import ecs.entities.nps.Ghost;
-import ecs.entities.objects.Tombstone;
 import ecs.systems.*;
 import graphic.DungeonCamera;
 import graphic.Painter;
@@ -96,8 +94,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static ILevel currentLevel;
     private static PauseMenu<Actor> pauseMenu;
     private static Entity hero;
-    private static Entity tombstone;
-    private static Entity ghost;
+
+
 
     private int currentDepth = 1;
     public Teleportsystem teleportsystem = new Teleportsystem();
@@ -148,8 +146,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         pauseMenu = new PauseMenu<>();
         controller.add(pauseMenu);
         hero = new Hero();
-        tombstone = new Tombstone();
-        ghost = new Ghost();
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel(LEVELSIZE);
         createSystems();
@@ -172,8 +168,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         currentLevel = levelAPI.getCurrentLevel();
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
-        placeOnLevelStart(ghost);
-        placeOnLevel(tombstone);
         teleportsystem.makePads();             // bei jeden neuen level aufrufen der Methode//
 
         // Erstellen und platzieren Sie eine zufällige Anzahl von Monstern basierend auf der aktuellen Tiefe

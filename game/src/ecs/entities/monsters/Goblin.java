@@ -2,6 +2,7 @@ package ecs.entities.monsters;
 
 import dslToGame.AnimationBuilder;
 import ecs.components.AnimationComponent;
+import ecs.components.HitboxComponent;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.components.ai.AIComponent;
@@ -20,7 +21,7 @@ public class Goblin extends BasicMonster {
         setupVelocityComponent();
         setupAnimationComponent();
         setupAIComponent();
-
+        setupHitboxComponent();
     }
 
     @Override
@@ -37,6 +38,9 @@ public class Goblin extends BasicMonster {
         new AnimationComponent(this, idleLeft, idleRight);
     }
 
+    public void setupHitboxComponent() {
+        new HitboxComponent(this, HitboxComponent.DEFAULT_COLLIDER, HitboxComponent.DEFAULT_COLLIDER);
+    }
     @Override
     public void setupAIComponent() {
         WanderingWalk wanderingWalk = new WanderingWalk(5.0f, 2, 2000);

@@ -3,6 +3,7 @@ package ecs.entities.monsters;
 
 import dslToGame.AnimationBuilder;
 import ecs.components.AnimationComponent;
+import ecs.components.HitboxComponent;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.components.ai.AIComponent;
@@ -19,6 +20,7 @@ public class Chort extends BasicMonster {
         setupVelocityComponent();
         setupAnimationComponent();
         setupAIComponent();
+        setupHitboxComponent();
     }
 
 
@@ -36,6 +38,9 @@ public class Chort extends BasicMonster {
         new AnimationComponent(this, idleLeft, idleRight);
     }
 
+    public void setupHitboxComponent() {
+        new HitboxComponent(this, HitboxComponent.DEFAULT_COLLIDER, HitboxComponent.DEFAULT_COLLIDER);
+    }
     @Override
     public void setupAIComponent() {
         float radius = 7.0f;
