@@ -544,6 +544,12 @@ Lückentext-Frage an
 
 ## Steuermechanismen
 
+### Level-Auswahl
+
+Aus einer Reihe von DSL-Dateien in einem definierten Verzeichnis werden die `level_config` Definitionen ausgelesen, sodass
+zur Laufzeit des Dungeons eine Aufgabe zur Bearbeitung ausgewählt werden kann.
+Auf die Level-Auswahl wird in [Level-Auswahl](../control_mechanisms/level_loading.md) (TODO) vertiefend eingegangen.
+
 ### Petri-Netz zur Aufgabenverschachtelung
 
 Mehrere Aufgaben können mithilfe eines Petri-Netzes in Beziehung zueinander
@@ -577,6 +583,16 @@ Die möglichen Beziehungen zwischen zwei Aufgaben $t_1$ und $t_2$ sind:
 
 ### Reporting
 
+Reporting fasst den Prozess der Erfassung, Bewertung und Speicherung einer Antwort auf eine Aufgabe zusammen.
+Welche Daten genau als Teil einer Antwort erfasst werden, unterscheidet sich basierend auf dem Aufgabentyp.
+Auf das Reporting wird in [Reporting](../control_mechanisms/reporting.md) (TODO) vertiefend eingegangen.
+
+### Zurücksetzen einer Aufgabe
+
+Den Studierenden sollte die Möglichkeit gegeben sein, eine Aufgabe auf den Anfangszustand zurückzusetzen, um mit der
+Bearbeitung erneut zu beginnen (um Fehlschritte nicht alle manuell rückgängig machen zu müssen). Hierfür werden alle
+mit der Aufgabe verknüpften Entitäten wieder an ihre Anfangsposition im Dungeon zurückgesetzt, der Inhalt von Containern
+wird auf den Anfangszustand zurückgesetzt, etc.
 
 ## Realisierung
 
