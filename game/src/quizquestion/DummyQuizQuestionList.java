@@ -5,6 +5,13 @@ import java.util.List;
 import java.util.Random;
 import tools.Constants;
 
+/**
+ * This class contains a Collection of simple QuizQuestion of each Type (Text, Image, Image + Text.
+ * It can be used for testinag as long as the quisquestions can not be loaded over the an dsl input
+ * Use {@code DummyQuizQuestionList.getRandomQuestion} to get a random Quizquestion.
+ *
+ * @see QuizQuestion
+ */
 public class DummyQuizQuestionList {
 
     private static List<QuizQuestion> questions =
@@ -198,14 +205,28 @@ public class DummyQuizQuestionList {
                 }
             };
 
-    public static QuizQuestion getQuestionById(int id) {
-        if (id < 0 || id >= questions.size()) {
-            throw new RuntimeException("Invalid question id");
-        }
-
-        return questions.get(id);
+    /**
+     * Returns the QuizQuestion at the specified index.
+     *
+     * @param index the index of the QuizQuestion to return
+     * @return the QuizQuestion at the specified index
+     * @apiNote Use this method when you want to retrieve a specific QuizQuestion from the list of
+     *     questions. This can be useful when testing a specific type of question or when you want
+     *     to reference a particular question in your code.
+     */
+    public static QuizQuestion getQuestionByIndex(int index) {
+        if (index < 0 || index >= questions.size())
+            throw new NullPointerException("Invalid question index");
+        return questions.get(index);
     }
 
+    /**
+     * Returns a random QuizQuestion from the list of questions.
+     *
+     * @return a random QuizQuestion
+     * @apiNote Use this method when you want to retrieve a QuizQuestion at random from the list of
+     *     questions.
+     */
     public static QuizQuestion getRandomQuestion() {
         Random rnd = new Random();
         return questions.get(rnd.nextInt(questions.size()));
