@@ -71,10 +71,6 @@ sind. Für obiges Beispiel sind folgende Komponenten erforderlich:
 - alternativ ein InteractionComponent im Item, falls das Item per dedizierter
   Spielendenaktion (bspw. Tastendruck) aufgehoben werden soll
 
-TODO: Frage für morgen: nochmal Unterscheidung zwischen optischer Ausprägung und
-funktionaler Ausprägung machen? Und wenn ja, wo (ist das dann einfach ein anderer
-Entitätstyp, oder eine andere Ausprägung)?
-
 ### Spielszenario
 
 Ein Spielszenario beschreibt, welche Spielmechaniken, welche Entitätstypen und auf welche
