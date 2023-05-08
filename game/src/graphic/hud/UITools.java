@@ -21,7 +21,7 @@ public class UITools {
      * Limits the length of the string to 40 characters, after which a line break occurs
      * automatically.
      */
-    private static final int maxRowLength = 40;
+    private static final int MAX_ROW_LENGTH = 40;
 
     /**
      * display the Text-content (Info Message) in the Dialog
@@ -70,7 +70,7 @@ public class UITools {
                 sumLength += word.length();
                 formatedMsg = formatedMsg.concat(word).concat(" ");
 
-                if (sumLength > maxRowLength) {
+                if (sumLength > MAX_ROW_LENGTH) {
                     formatedMsg += "\n";
                     sumLength = 0;
                 }

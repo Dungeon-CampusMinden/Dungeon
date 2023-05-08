@@ -15,7 +15,7 @@ import tools.Constants;
 public class ButtonGroup extends VerticalGroup {
 
     /** Maximum length of the content in one line */
-    private static final int maxRowLength = 40;
+    private static final int MAX_ROW_LENGTH = 40;
 
     /**
      * Cosntructor Fills the vertical button group with text boxes and text contents for it
@@ -78,7 +78,7 @@ public class ButtonGroup extends VerticalGroup {
                 sumLength += word.length();
                 formatedMsg = formatedMsg.concat(word).concat(" ");
 
-                if (sumLength > maxRowLength) {
+                if (sumLength > MAX_ROW_LENGTH) {
                     formatedMsg += "\n";
                     sumLength = 0;
                 }
