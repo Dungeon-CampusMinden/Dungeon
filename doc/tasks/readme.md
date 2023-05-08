@@ -170,20 +170,6 @@ auswählen müssen.
 - Der Spieler muss seine Antwort in das Eingabefeld schreiben.
 - Mit einem Bestätigungsbutton muss der Spieler seine Antworten einloggen.
 
-### Item(s) an NPC abgeben
-
-- Eine Menge an Items ist im Dungeon verteilt (dabei ist nicht relevant, wie und wo der
-  Spieler die Items findet und erhält)
-- Die Items können vom Spieler aufgesammelt werden
-- Bei Interaktion mit einem NPC kann der Spieler ein aufgesammeltes Item auswählen und an
-  den NPC abgeben
-  - Hierfür öffnet sich ein UI-Element, welches das Spielerinventar anzeigt und eine Auswahl
-    der Item(s) ermöglicht
-  - Hierbei werden Informationen über die Items angezeigt
-- Überprüfung der Korrektheit des abgegebenen Items
-- Der NPC reagiert in bestimmter Form auf den Fall, dass das falsche Item abgegeben wurde
-  und in anderer Form auf den Fall, dass das korrekte Item abgegeben wurde
-
 ### Item(s) in Container ablegen
 
 - Eine Menge an Items ist im Dungeon verteilt (dabei ist nicht relevant, wie und wo der
@@ -262,7 +248,6 @@ auswählen müssen.
   “Verzaubern” zur Verfügung stehen.
   - Der Aufbau dieses UI-Elements und die genaue Funktion der Bedienelemente ist nicht
     trivial und muss noch genau definiert werden.
-
 
 ## Spielszenarien
 
@@ -498,7 +483,6 @@ Umwege” für den Aufgabentyp eignet.
 | **GUI Button drücken**           | X                    | X                               | X                                    |                                                 |                                                                |                                                                  |                                                                            |                                                                |                                                                                             |                                            |                                                  |                                                      |                                                        |
 | **GUI Checkboxen anhaken**       | X                    | X                               | X                                    |                                                 |                                                                |                                                                  |                                                                            |                                                                |                                                                                             |                                            |                                                  |                                                      |                                                        |
 | **GUI Text eingeben**            | X                    | X                               | X                                    |                                                 |                                                                |                                                                  |                                                                            |                                                                |                                                                                             |                                            |                                                  |                                                      |                                                        |
-| **Item an NPC abgeben**          |                      |                                 |                                      |                                                 |                                                                |                                                                  |                                                                            |                                                                |                                                                                             |                                            |                                                  | X                                                    |                                                        |
 | **Item(s) in Container ablegen** |                      |                                 |                                      | X                                               |                                                                |                                                                  |                                                                            |                                                                |                                                                                             | X                                          |                                                  | X                                                    |                                                        |
 | **Item(s) aus Container nehmen** |                      |                                 |                                      | X                                               |                                                                |                                                                  |                                                                            |                                                                |                                                                                             |                                            | X                                                |                                                      |                                                        |
 | **Blöcke schieben**              |                      |                                 |                                      |                                                 | X                                                              |                                                                  |                                                                            |                                                                |                                                                                             |                                            |                                                  |                                                      |                                                        |
