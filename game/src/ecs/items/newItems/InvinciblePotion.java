@@ -33,22 +33,40 @@ public class InvinciblePotion extends ItemData implements IOnUse {
         onUse(hero,this);
     }
 
+    //TODO: Need to fix bug where this function gets called on every levelLoad
     public void onUse(Entity e, ItemData item){
+        HealthComponent hCp = null;
 
-        long startTime = System.currentTimeMillis();
-        Timer timer = new Timer();
-        int resetHealth = this.hero.getCurrentHealth();
-        this.hero.setHealth(100);
-        System.out.println("imortal for 5 seconds");
-        timer.schedule(new TimerTask() {
 
-            public void run() {
-               hero.setCurrentHealth(resetHealth);
-                System.out.println(hero.getCurrentHealth());
-                System.out.println("Not longer imortal");
-            }
-        }, 5*1000);
+        //Set invincible if HealthComponent is present
+        if(e.getComponent(HealthComponent.class).isPresent()){
+            hCp = (HealthComponent) e.getComponent(HealthComponent.class).get();
+        }
 
+        if(hCp != null){
+            hCp.setInvincible(true);
+            System.out.println("Invincible for 5 seconds");
+
+
+            //After 5 seconds, set invincible false
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask(){
+                    @Override
+                    public void run() {
+                        resetInvincible(e);
+                    }
+                }, (long) 5*1000);
+
+        }
+    }
+
+    public void resetInvincible(Entity e){
+        HealthComponent innerHCP;
+        if(e.getComponent(HealthComponent.class).isPresent()){
+            innerHCP = (HealthComponent) e.getComponent(HealthComponent.class).get();
+            innerHCP.setInvincible(false);
+        }
+        System.out.println("Not longer invincible");
     }
 
 }

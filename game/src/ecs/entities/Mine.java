@@ -2,6 +2,8 @@ package ecs.entities;
 
 import dslToGame.AnimationBuilder;
 import ecs.components.*;
+import ecs.damage.Damage;
+import ecs.damage.DamageType;
 import ecs.graphic.Animation;
 
 import java.util.ArrayList;
@@ -49,7 +51,7 @@ public class Mine extends Trap{
                 HealthComponent ofE = (HealthComponent) e.getComponent(HealthComponent.class).get();
 
                 System.out.println("HP before:"+ ofE.getCurrentHealthpoints());
-                ofE.setCurrentHealthpoints(ofE.getCurrentHealthpoints()-(int)this.getTrapDmg());
+                ofE.receiveHit(new Damage((int) getTrapDmg(), DamageType.PHYSICAL,this));
                 System.out.println("HP after:"+ ofE.getCurrentHealthpoints());
             }
         }

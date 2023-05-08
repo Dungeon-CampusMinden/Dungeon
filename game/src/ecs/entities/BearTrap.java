@@ -5,6 +5,8 @@ import ecs.components.AnimationComponent;
 import ecs.components.HealthComponent;
 import ecs.components.HitboxComponent;
 import ecs.components.PositionComponent;
+import ecs.damage.Damage;
+import ecs.damage.DamageType;
 import ecs.graphic.Animation;
 
 import java.util.ArrayList;
@@ -43,7 +45,7 @@ public class BearTrap extends Trap{
                 HealthComponent ofE = (HealthComponent) other.getComponent(HealthComponent.class).get();
 
                 System.out.println("HP before:"+ ofE.getCurrentHealthpoints());
-                ofE.setCurrentHealthpoints(ofE.getCurrentHealthpoints()-(int)this.getTrapDmg());
+                ofE.receiveHit(new Damage((int) this.getTrapDmg(), DamageType.PHYSICAL, this));
                 System.out.println("HP after:"+ ofE.getCurrentHealthpoints());
             }
         }

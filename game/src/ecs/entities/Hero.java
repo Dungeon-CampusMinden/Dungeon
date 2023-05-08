@@ -37,14 +37,21 @@ public class Hero extends Entity implements IOnDeathFunction {
         super();
         new PositionComponent(this);
         inv = new InventoryComponent(this,12);
+
+
         setupVelocityComponent();
         setupAnimationComponent();
         setupHitboxComponent();
+
         PlayableComponent pc = new PlayableComponent(this);
+
         setupFireballSkill();
         setupHealthComponent();
+
         pc.setSkillSlot1(firstSkill);
+
         this.hp.setCurrentHealthpoints(50); //Set to 50 for testing purposes
+
         currentHealth = this.hp.getCurrentHealthpoints();
     }
 
@@ -79,8 +86,8 @@ public class Hero extends Entity implements IOnDeathFunction {
     private void setupHitboxComponent() {
         new HitboxComponent(
                 this,
-                (you, other, direction) -> System.out.println("heroCollisionEnter"),
-                (you, other, direction) -> System.out.println("heroCollisionLeave"));
+                (you, other, direction) -> System.out.print(""),
+                (you, other, direction) -> System.out.print(""));
     }
 
     //TODO: Fix death animation
