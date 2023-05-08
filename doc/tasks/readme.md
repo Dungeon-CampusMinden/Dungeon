@@ -250,11 +250,27 @@ auswählen müssen.
 
 ## Spielszenarien
 
-### Liste an Entitäten (later)
+### Entitätstypen
 
-- Name
-  - ComponentA
-  - ComponentB
+- Questgeber
+- Container
+- Monster
+- Containermonster (Mimick)
+- Schalter (im Dungeon)
+- Bild (im Dungeon, zeigt bei Interaktion ein Diagram oder so an)?
+- "Schriftrolle" - Ein Item, welches einen Text anzeigt
+
+Notes zu NPC != Container:
+Vermutlich eine Frage der Sichtweise: Der NPC könnte ja durchaus ein eigenes Inventar haben,
+was ich als Spieler nicht einsehen darf (im Gegensatz zu einer Truhe).
+
+Wenn ich das akzeptiere und statt "ein oder mehrere Items" eben "n Items" formuliere mit n aus N ,
+dann fallen NPC und Container zusammen. Tatsächlich gibt es ja auch Container, die sich
+eher wie ein NPC verhalten, beispielsweise Mimicks (spezielle Truhen, die nicht einfach
+direkt aufgehen, sondern vorher kämpfen wollen und Dich als Spieler erstmal verfolgen nach
+Aktivierung). Und ob ich auf der Ebene Mechanik oder Szenario zw. "1" und ">1" unterscheiden
+muss und sich also zwei Klassen von "Containern" aufmachen, sehe ich im Moment auch
+noch nicht wirklich.
 
 ### NPC stellt Frage
 
