@@ -20,13 +20,18 @@ import starter.Game;
 
 /**
  * The Debugger is an auxiliary system designed to accelerate the creation and testing of specific
- * game scenarios. While not strictly an ECS_System in the traditional sense, it provides useful
- * functionalities that can aid in verifying the correct behavior of a game implementation. The
- * Debugger is integrated into the GameLoop as an ECS_System.
+ * game scenarios.
+ *
+ * <p>While not strictly an ECS_System in the traditional sense, it provides useful functionalities
+ * that can aid in verifying the correct behavior of a game implementation. The Debugger is
+ * integrated into the GameLoop as an ECS_System.
+ *
+ * <p>On default the debugger is deactivated and must first be activated, by pressing the
+ * corresponding key. œsee ECS_System œsee KeyboardConfig
  */
 public class Debugger extends ECS_System {
 
-    private static final Logger debugger_logger = Logger.getLogger(Debugger.class.getName());
+    private static final Logger DEBUGGER_LOGGER = Logger.getLogger(Debugger.class.getName());
 
     /**
      * Constructs a new Debugger instance, initially in an inactive state. To activate it, use the
@@ -35,7 +40,7 @@ public class Debugger extends ECS_System {
     public Debugger() {
         super();
         toggleRun();
-        debugger_logger.info("Create new Debugger");
+        DEBUGGER_LOGGER.info("Create new Debugger");
     }
 
     /**
@@ -69,20 +74,20 @@ public class Debugger extends ECS_System {
      * @param amount the length of the zoom change
      */
     public static void ZOOM_CAMERA(float amount) {
-        debugger_logger.log(CustomLogLevel.DEBUG, "Change Camera Zoom " + amount);
+        DEBUGGER_LOGGER.log(CustomLogLevel.DEBUG, "Change Camera Zoom " + amount);
         Game.camera.zoom = Math.max(0.1f, Game.camera.zoom + amount);
-        debugger_logger.log(CustomLogLevel.DEBUG, "Camera Zoom is now " + Game.camera.zoom);
+        DEBUGGER_LOGGER.log(CustomLogLevel.DEBUG, "Camera Zoom is now " + Game.camera.zoom);
     }
 
     /** Teleports the Hero to the current position of the cursor. */
     public static void TELEPORT_TO_CURSOR() {
-        debugger_logger.log(CustomLogLevel.DEBUG, "TELEPORT TO CURSOR");
+        DEBUGGER_LOGGER.log(CustomLogLevel.DEBUG, "TELEPORT TO CURSOR");
         TELEPORT(SkillTools.getCursorPositionAsPoint());
     }
 
     /** Teleports the Hero to the end of the level, on a neighboring accessible tile if possible. */
     public static void TELEPORT_TO_END() {
-        debugger_logger.info("TELEPORT TO END");
+        DEBUGGER_LOGGER.info("TELEPORT TO END");
         Coordinate endTile = Game.currentLevel.getEndTile().getCoordinate();
         Coordinate[] neighborTiles = {
             new Coordinate(endTile.x + 1, endTile.y),
@@ -101,13 +106,13 @@ public class Debugger extends ECS_System {
 
     /** Will teleport the Hero on the EndTile so the next level gets loaded */
     public static void LOAD_NEXT_LEVEL() {
-        debugger_logger.info("TELEPORT ON END");
+        DEBUGGER_LOGGER.info("TELEPORT ON END");
         TELEPORT(Game.currentLevel.getEndTile().getCoordinate().toPoint());
     }
 
     /** Teleports the hero to the start of the level. */
     public static void TELEPORT_TO_START() {
-        debugger_logger.info("TELEPORT TO START");
+        DEBUGGER_LOGGER.info("TELEPORT TO START");
         TELEPORT(Game.currentLevel.getStartTile().getCoordinate().toPoint());
     }
 
@@ -129,17 +134,17 @@ public class Debugger extends ECS_System {
                                                             "Hero is missing PositionComponent"));
 
             // Attempt to teleport to targetLocation
-            debugger_logger.log(
+            DEBUGGER_LOGGER.log(
                     CustomLogLevel.DEBUG,
                     "Trying to teleport to " + targetLocation.x + ":" + targetLocation.y);
             Tile t = Game.currentLevel.getTileAt(targetLocation.toCoordinate());
             if (t == null || !t.isAccessible()) {
-                debugger_logger.info("Cannot teleport to non-existing or non-accessible tile");
+                DEBUGGER_LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
                 return;
             }
 
             pc.setPosition(targetLocation);
-            debugger_logger.info("Teleport successful");
+            DEBUGGER_LOGGER.info("Teleport successful");
         }
     }
 
@@ -153,12 +158,12 @@ public class Debugger extends ECS_System {
             case MEDIUM -> Game.LEVELSIZE = LevelSize.LARGE;
             case LARGE -> Game.LEVELSIZE = LevelSize.SMALL;
         }
-        debugger_logger.info("LevelSize toggled to: " + Game.LEVELSIZE);
+        DEBUGGER_LOGGER.info("LevelSize toggled to: " + Game.LEVELSIZE);
     }
 
     /** Spawns a monster at the cursor's position. */
     public static void SPAWN_MONSTER_ON_CURSOR() {
-        debugger_logger.info("Spawn Monster on Cursor");
+        DEBUGGER_LOGGER.info("Spawn Monster on Cursor");
         SPAWN_MONSTER(SkillTools.getCursorPositionAsPoint());
     }
 
@@ -173,7 +178,7 @@ public class Debugger extends ECS_System {
         try {
             tile = Game.currentLevel.getTileAt(position.toCoordinate());
         } catch (NullPointerException ex) {
-            debugger_logger.info(ex.getMessage());
+            DEBUGGER_LOGGER.info(ex.getMessage());
         }
 
         // If the tile is accessible, spawn a monster at the position
@@ -204,10 +209,10 @@ public class Debugger extends ECS_System {
                             new SelfDefendTransition()));
 
             // Log that the monster was spawned
-            debugger_logger.info("Spawned monster at position " + position);
+            DEBUGGER_LOGGER.info("Spawned monster at position " + position);
         } else {
             // Log that the monster couldn't be spawned
-            debugger_logger.info("Cannot spawn monster at non-existent or non-accessible tile");
+            DEBUGGER_LOGGER.info("Cannot spawn monster at non-existent or non-accessible tile");
         }
     }
 }
