@@ -546,25 +546,22 @@ Lückentext-Frage an
 
 ### Petri-Netz zur Aufgabenverschachtelung
 
-TODO: erklärung "Aufgabe ist aktiv"
+Mehrere Aufgaben können mithilfe eines Petri-Netzes in Beziehung zueinander
+gesetzt werden. Eine Aufgabe kann folgende Zustände haben:
 
-
-Zustände der Aufgaben
 - **inaktiv**: die Aufgabe wird den Studierenden nicht angezeigt und die mit der Aufgabe verknüpften
   Entitäten zeigen in einer definierten Form an, dass die entsprechende Aufgabe noch nicht
   aktiviert wurde oder sind nicht interagierbar
 - **aktiv ohne Bearbeitung**: die Aufgabe wird den Studierenden im Questlog angezeigt, die verknüpften
-  Entitäten verhalten sich wie bei **inaktiv**
+  Entitäten verhalten sich wie bei **inaktiv**, alle Teilaufgaben der Aufgabe werden ebenfalls aktiviert
 - **aktiv mit Bearbeitung**: die Aufgabe wird den Studierenden im Questlog angezeigt, mit den verknüpften
   Entitäten kann interagiert werden, um eine Antwort auf die Aufgabe zu geben
 - **fertig bearbeitet**: Die Studierenden haben eine Antwort für eine Aufgabe abgegeben, hat Feedback darüber bekommen
   und die Aufgabe wird nicht mehr im Questlog angezeigt
 
-Mehrere Aufgaben können mithilfe eines Petri-Netzes in Beziehung zueinander
-gesetzt werden.
-
 Die möglichen Beziehungen zwischen zwei Aufgaben $t_1$ und $t_2$ sind:
-- $t_1$ hat die **erfordleriche Teilaufgabe** $t_2$: für $t_2$ muss eine Antwort abgegeben werden,
+
+- $t_1$ hat die **erforderliche Teilaufgabe** $t_2$: für $t_2$ muss eine Antwort abgegeben werden,
   bevor $t_1$ abgeschlossen werden kann; $t_1$ wird zuerst aktiviert und bleibt aktiv,
   während $t_2$ bearbeitet wird
 - $t_1$ hat die **optionale Teilaufgabe** $t_2$: Für $t_2$ muss nicht zwingend eine Antwort
@@ -572,8 +569,8 @@ Die möglichen Beziehungen zwischen zwei Aufgaben $t_1$ und $t_2$ sind:
   aber bspw. Bonus-Punkte geben
 - $t_1$ und $t_2$ bilden eine **Aufgabensequenz**: für $t_1$ muss eine Antwort abgegeben werden,
   bevor $t_2$ aktiv wird; $t_1$ ist vollständig abgeschlossen (und daher inaktiv), während
-  $t_2$ aktiv ist; die **gesamte Aufgabensequenz** gilt erst als abgeschlossen, wenn alle
-  Blätter (im Abhängigkeitsbaum; TODO) der Sequenz abgeschlossen sind
+  $t_2$ aktiv ist; die **gesamte Aufgabensequenz** gilt erst als abgeschlossen, wenn die letzte Aufgabe
+  der Sequenz abgeschlossen ist
 - $t_1$ hat eine **bedingte Folgeaufgabe** $t_2$: abhängig davon, ob die gegebene Antwort für $t_1$
   korrekt oder falsch (oder zu einem gewissen Prozentsatz korrekt) ist, muss $t_2$ bearbeitet
   werden
