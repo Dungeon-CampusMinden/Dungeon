@@ -47,6 +47,13 @@ Beispiele für Ausprägungen des “Container”-Entitätstyps sind:
 kann von dem tatsächlichen Verhalten der (noch nicht implementierten) Ausprägungen
 abweichen.
 
+Entitätstypen schließen sich nicht automatisch gegenseitig aus. Eine Entität kann
+beispielsweise gleichzeitig mehrere Entitätstypen haben, bspw. "Questgeber" (zur Aktivierung
+einer Aufgabe) und "Container" (um einen Questgegenstand anzunehmen). In solchen Fällen
+muss die Interaktion der einzelnen Komponenten durch die Taskbuilder-Methoden passend
+konfiguriert werden, um den Anforderungen durch den zu realisierenden Aufgabentyp gerecht
+zu werden.
+
 ### Spielmechanik
 
 Eine Spielmechanik beschreibt die Interaktion von verschiedenen Entitätstypen im Spiel.
@@ -130,6 +137,18 @@ Es muss in der richtigen Reihenfolge ein Element nach dem anderen aus einer Meng
 werden.
 Den Studierenden müssen nicht alle Elemente aus $A$ bekannt sein, bevor sie das erste Element
 auswählen müssen.
+
+## Konkrete Entitätstypen
+
+- Questgeber: Entität, über die eine Aufgabe aktiviert wird
+- Container: Entität, deren Inventar vom Spielcharakter manipuliert werden kann
+- Monster: Entität, welche den Spielcharakter (nach einem bestimmten Verhalten) verfolgt, angreift und besiegt werden kann
+- Schalter: Eine interaktive Entität, deren Zustand (an/aus) vom Spielcharakter manipuliert werden kann
+- Bild: Interaktive Entität im Dungeon, die bei Interaktion ein Bild anzeigt (bspw. ein UML-Diagram, Graph, etc.)
+- Item: Eine Entität, die entweder eine Position im Dungeon haben kann (also bspw. auf dem Boden liegt), oder in einem
+  Inventar gespeichert sein kann und zwischen diesen beiden Zuständen wechseln kann (das ist bewusst vereinfacht, ohne
+  auf die Feinheiten der Item=Entität Thematik einzugehen)
+- Schriftrolle: Ein Item, welches einen Text anzeigt
 
 ## Spielmechaniken
 
@@ -248,29 +267,8 @@ auswählen müssen.
   - Der Aufbau dieses UI-Elements und die genaue Funktion der Bedienelemente ist nicht
     trivial und muss noch genau definiert werden.
 
+
 ## Spielszenarien
-
-### Entitätstypen
-
-- Questgeber
-- Container
-- Monster
-- Containermonster (Mimick)
-- Schalter (im Dungeon)
-- Bild (im Dungeon, zeigt bei Interaktion ein Diagram oder so an)?
-- "Schriftrolle" - Ein Item, welches einen Text anzeigt
-
-Notes zu NPC != Container:
-Vermutlich eine Frage der Sichtweise: Der NPC könnte ja durchaus ein eigenes Inventar haben,
-was ich als Spieler nicht einsehen darf (im Gegensatz zu einer Truhe).
-
-Wenn ich das akzeptiere und statt "ein oder mehrere Items" eben "n Items" formuliere mit n aus N ,
-dann fallen NPC und Container zusammen. Tatsächlich gibt es ja auch Container, die sich
-eher wie ein NPC verhalten, beispielsweise Mimicks (spezielle Truhen, die nicht einfach
-direkt aufgehen, sondern vorher kämpfen wollen und Dich als Spieler erstmal verfolgen nach
-Aktivierung). Und ob ich auf der Ebene Mechanik oder Szenario zw. "1" und ">1" unterscheiden
-muss und sich also zwei Klassen von "Containern" aufmachen, sehe ich im Moment auch
-noch nicht wirklich.
 
 ### NPC stellt Frage
 
