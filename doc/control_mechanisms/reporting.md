@@ -2,4 +2,6 @@
 title: "Reporting"
 ---
 
-TODO.
+TODO:
+- Ablauf vom Reporting
+- nötige Datenstrukturen für Aufgabentypen definieren
