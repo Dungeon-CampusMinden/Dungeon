@@ -40,4 +40,4 @@ Da die Kollision ein nicht fest vorgegebene Struktur hat kann unterschiedlichste
 
 
 ## Testabdeckung
-100 % abdeckung bei beiden Möglich
+100% Abdeckung bei beiden möglich

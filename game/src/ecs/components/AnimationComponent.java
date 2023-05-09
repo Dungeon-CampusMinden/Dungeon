@@ -25,7 +25,9 @@ public class AnimationComponent extends Component {
     private final Logger animCompLogger = Logger.getLogger(this.getClass().getName());
 
     /**
-     * Create a new AnimationComponent object with separate idle Animations for each direction.
+     * Create a new AnimationComponent object
+     *
+     * <p>Create a new AnimationComponent with separate idle Animations for each direction.
      *
      * @param entity Entity to add this component to
      * @param idleLeft Idle-Animation faced left
@@ -39,7 +41,10 @@ public class AnimationComponent extends Component {
     }
 
     /**
-     * Create a new AnimationComponent object with same idle Animation for each direction.
+     * Create a new AnimationComponent object.
+     *
+     * <p>Create a new AnimationComponent object with the given animation as idle animation for both
+     * directions.
      *
      * @param entity Entity to add this component to
      * @param idle Idle-Animation
@@ -49,8 +54,9 @@ public class AnimationComponent extends Component {
     }
 
     /**
-     * Create a new AnimationComponent object with default Animations. The default Animations are
-     * composed of a single frame with the "missingTexture" texture.
+     * Create a new AnimationComponent object with default Animations.
+     *
+     * <p>The default Animations are composed of a single frame with the "missingTexture" texture.
      *
      * @param entity Entity to add this component to
      */
@@ -67,11 +73,12 @@ public class AnimationComponent extends Component {
     }
 
     /**
-     * Set the current animation displayed on the entity. The animation passed does not have to be
-     * one of the animations stored in this component, it can be any animation. If the animation
-     * passed is not displayed on the entity, there may be another point in the code where the
-     * animation is overwritten on the same tick. (e.g. in {@link ecs.systems.VelocitySystem
-     * VelocitySystem}).
+     * Set the current animation displayed on the entity.
+     *
+     * <p>The animation passed does not have to be one of the animations stored in this component,
+     * it can be any animation. If the animation passed is not displayed on the entity, there may be
+     * another point in the code where the animation is overwritten on the same tick. (e.g. in
+     * {@link ecs.systems.VelocitySystem VelocitySystem}).
      *
      * @param animation new current animation.
      */
@@ -87,7 +94,6 @@ public class AnimationComponent extends Component {
         }
         this.currentAnimation = animation;
     }
-
     /**
      * Get the current animation being displayed on entity.
      *
@@ -110,7 +116,6 @@ public class AnimationComponent extends Component {
                             + entity.getClass().getSimpleName()
                             + "'. This entity has currently no animation.");
         }
-
         return currentAnimation;
     }
 

@@ -48,8 +48,10 @@ public class HealthComponent extends Component {
     private final Logger healthLogger = Logger.getLogger(this.getClass().getName());
 
     /**
-     * Creates a new HealthComponent by explicitly setting maximal health points, onDeath function,
-     * a getHitAnimation and a dieAnimation.
+     * Creates a new HealthComponent
+     *
+     * <p>Create a new HealthComponent by explicitly setting maximal health points, onDeath
+     * function, a getHitAnimation and a dieAnimation.
      *
      * @param entity associated entity
      * @param maximalHitPoints maximum amount of hit-points, currentHitPoints can't be bigger than
@@ -74,9 +76,10 @@ public class HealthComponent extends Component {
     }
 
     /**
-     * Creates a HealthComponent with default values. The maximal health points are set to 1, the
-     * onDeath function is empty and the animations are set to an animation composed of the
-     * "missingTexture" texture.
+     * Creates a HealthComponent with default values.
+     *
+     * <p>The maximal health points are set to 1, the onDeath function is empty and the animations
+     * are set to an animation composed of the "missingTexture" texture.
      *
      * @param entity associated entity
      */
