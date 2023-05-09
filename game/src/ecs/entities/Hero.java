@@ -34,6 +34,7 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
 
     private SkillComponent sCp;
     private HealthComponent hp;
+
     private Skill firstSkill;
     private Skill secondSkill;
     private Skill thirdSkill;
@@ -41,11 +42,20 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
     private PlayableComponent pc;
     private XPComponent xpCmp;
 
+    private InventoryComponent inv;
 
-    /** Entity with Components */
+
+    int currentHealth;
+
+    /**
+     * Entity with Components
+     */
     public Hero() {
         super();
         new PositionComponent(this);
+        inv = new InventoryComponent(this, 12);
+
+
         setupVelocityComponent();
         setupSkillComponent();
         setupAnimationComponent();
@@ -57,10 +67,9 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
         pc.setSkillSlot1(firstSkill);
 
 
-
-
-
         this.hp.setCurrentHealthpoints(50); //Set to 50 for testing purposes
+
+        currentHealth = this.hp.getCurrentHealthpoints();
     }
 
     private void setupVelocityComponent() {
@@ -69,7 +78,7 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
         new VelocityComponent(this, xSpeed, ySpeed, moveLeft, moveRight);
     }
 
-    private void setupSkillComponent(){
+    private void setupSkillComponent() {
         sCp = new SkillComponent(this);
     }
 
@@ -81,50 +90,51 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
 
     private void setupFireballSkill() {
         firstSkill =
-                new Skill(
-                        new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
+            new Skill(
+                new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
     }
 
-    private void setupHealSkill(){
+    private void setupHealSkill() {
         secondSkill = new Skill(new HealSkill(), healSkillCoolDown);
         sCp.addSkill(secondSkill);
     }
 
-    private void setupEnrageSkill(){
+    private void setupEnrageSkill() {
         thirdSkill = new Skill(new EnrageSkill(), enrageCoolDown);
         sCp.addSkill(thirdSkill);
     }
 
-    /** Modifies the current health by passed amount **/
-    public void setHealth(int amount){
+    /**
+     * Modifies the current health by passed amount
+     **/
+    public void setHealth(int amount) {
         System.out.println("HP before: " + this.hp.getCurrentHealthpoints());
-        this.hp.setCurrentHealthpoints(this.hp.getCurrentHealthpoints()+amount);
+        this.hp.setCurrentHealthpoints(this.hp.getCurrentHealthpoints() + amount);
         System.out.println("HP after: " + this.hp.getCurrentHealthpoints());
     }
 
-
     private void setupHitboxComponent() {
         new HitboxComponent(
-                this,
-                (you, other, direction) -> System.out.println("heroCollisionEnter"),
-                (you, other, direction) -> System.out.println("heroCollisionLeave"));
+            this,
+            (you, other, direction) -> System.out.print(""),
+            (you, other, direction) -> System.out.print(""));
     }
 
-    public void setDmg(int dmg){
+    public void setDmg(int dmg) {
         this.dmg = dmg;
     }
 
-    public int getDmg(){
+    public int getDmg() {
         return dmg;
     }
 
     //TODO: Fix death animation
-    private void setupHealthComponent(){
+    private void setupHealthComponent() {
         Animation hit = AnimationBuilder.buildAnimation(onHit);
-        this.hp = new HealthComponent(this, 100, this::onDeath ,hit,hit);
+        this.hp = new HealthComponent(this, 100, this::onDeath, hit, hit);
     }
 
-    private void setupXpComponent(){
+    private void setupXpComponent() {
         xpCmp = new XPComponent(this, this);
     }
 
@@ -135,7 +145,6 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
     public void setXpCmp(XPComponent xpCmp) {
         this.xpCmp = xpCmp;
     }
-
 
 
     @Override
@@ -151,13 +160,29 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
     @Override
     public void onLevelUp(long nexLevel) {
         System.out.println("You leveled up to Level " + nexLevel);
-        if(nexLevel == 1){
+        if (nexLevel == 1) {
             setupHealSkill();
             pc.setSkillSlot2(secondSkill);
         }
-        if(nexLevel == 2){
+        if (nexLevel == 2) {
             setupEnrageSkill();
             pc.setSkillSlot3(thirdSkill);
         }
+    }
+
+    public InventoryComponent getInv() {
+        return inv;
+    }
+
+    public void setInv(InventoryComponent inv) {
+        this.inv = inv;
+    }
+
+    public int getCurrentHealth() {
+        return currentHealth;
+    }
+
+    public void setCurrentHealth(int currentHealth) {
+        this.currentHealth = currentHealth;
     }
 }
