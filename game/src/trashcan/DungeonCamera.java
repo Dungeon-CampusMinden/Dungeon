@@ -3,8 +3,8 @@ package trashcan;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import components.PositionComponent;
-import component_tools.position.Point;
+import api.components.PositionComponent;
+import content.utils.position.Point;
 
 /** Sauron's eye. */
 public class DungeonCamera extends OrthographicCamera {
@@ -21,6 +21,7 @@ public class DungeonCamera extends OrthographicCamera {
      */
     public DungeonCamera(PositionComponent follows, float vw, float vh) {
         super(vw, vh);
+        new OrthographicCamera(vw,vh);
         if (follows != null) {
             this.follows = follows;
         }

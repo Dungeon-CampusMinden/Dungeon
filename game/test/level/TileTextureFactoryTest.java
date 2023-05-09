@@ -2,10 +2,10 @@ package level;
 
 import static org.junit.Assert.assertEquals;
 
-import level.tools.Coordinate;
-import level.tools.DesignLabel;
-import level.tools.LevelElement;
-import level.tools.TileTextureFactory;
+import api.level.tools.Coordinate;
+import api.level.tools.DesignLabel;
+import api.level.tools.LevelElement;
+import api.level.tools.TileTextureFactory;
 import org.junit.Before;
 import org.junit.Test;
 

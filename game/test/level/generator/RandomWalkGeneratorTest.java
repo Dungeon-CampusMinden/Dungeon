@@ -2,8 +2,8 @@ package level.generator;
 
 import static org.junit.Assert.assertNotNull;
 
-import level.elements.ILevel;
-import level.generator.randomwalk.RandomWalkGenerator;
+import api.level.elements.ILevel;
+import api.level.generator.randomwalk.RandomWalkGenerator;
 import org.junit.Before;
 import org.junit.Test;
 

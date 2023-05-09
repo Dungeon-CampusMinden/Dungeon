@@ -2,12 +2,12 @@ package ecs.components;
 
 import static org.junit.Assert.*;
 
-import component_tools.skills.ISkillFunction;
-import component_tools.skills.Skill;
-import entities.Entity;
+import content.utils.skills.ISkillFunction;
+import content.utils.skills.Skill;
+import api.Entity;
 import org.junit.After;
 import org.junit.Test;
-import component_tools.position.Constants;
+import content.utils.position.Constants;
 
 public class SkillTest {
 

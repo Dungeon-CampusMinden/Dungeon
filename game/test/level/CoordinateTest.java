@@ -2,10 +2,10 @@ package level;
 
 import static org.junit.Assert.*;
 
-import level.tools.Coordinate;
+import api.level.tools.Coordinate;
 import org.junit.Before;
 import org.junit.Test;
-import component_tools.position.Point;
+import content.utils.position.Point;
 
 public class CoordinateTest {
 

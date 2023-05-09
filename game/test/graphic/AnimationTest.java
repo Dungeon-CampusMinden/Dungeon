@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import component_tools.animation.Animation;
+import content.utils.animation.Animation;
 import org.junit.Test;
 
 public class AnimationTest {

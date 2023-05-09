@@ -2,8 +2,8 @@ package quest;
 
 import trashcan.ScreenController;
 import dslToGame.QuestConfig;
-import level.elements.ILevel;
-import level.generator.IGenerator;
+import api.level.elements.ILevel;
+import api.level.generator.IGenerator;
 
 public abstract class Quest {
     protected QuestConfig questConfig;

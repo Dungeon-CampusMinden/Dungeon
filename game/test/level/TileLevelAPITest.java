@@ -9,19 +9,21 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import api.level.IOnLevelLoader;
+import api.LevelManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import trashcan.Painter;
+import api.utils.Painter;
 import trashcan.PainterConfig;
-import component_tools.animation.textures.TextureMap;
-import level.elements.ILevel;
-import level.elements.TileLevel;
-import level.elements.tile.Tile;
-import level.generator.IGenerator;
-import level.tools.Coordinate;
-import level.tools.DesignLabel;
-import level.tools.LevelElement;
-import level.tools.LevelSize;
+import content.utils.animation.textures.TextureMap;
+import api.level.elements.ILevel;
+import api.level.elements.TileLevel;
+import api.level.elements.tile.Tile;
+import api.level.generator.IGenerator;
+import api.level.tools.Coordinate;
+import api.level.tools.DesignLabel;
+import api.level.tools.LevelElement;
+import api.level.tools.LevelSize;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,13 +31,13 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import component_tools.position.Point;
+import content.utils.position.Point;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({TextureMap.class})
 public class TileLevelAPITest {
 
-    private LevelAPI api;
+    private LevelManager api;
     private IGenerator generator;
     private Texture texture;
     private TextureMap textureMap;
@@ -58,7 +60,7 @@ public class TileLevelAPITest {
         generator = Mockito.mock(IGenerator.class);
         onLevelLoader = Mockito.mock(IOnLevelLoader.class);
         level = Mockito.mock(TileLevel.class);
-        api = new LevelAPI(batch, painter, generator, onLevelLoader);
+        api = new LevelManager(batch, painter, generator, onLevelLoader);
     }
 
     @Test

@@ -7,7 +7,7 @@ import trashcan.SystemController;
 import org.junit.Before;
 import org.junit.Test;
 import starter.Game;
-import systems.System;
+import api.System;
 
 public class SystemTest {
 

@@ -4,13 +4,13 @@ import static org.junit.Assert.*;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxNativesLoader;
-import components.PositionComponent;
-import entities.Entity;
+import api.components.PositionComponent;
+import api.Entity;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import starter.Game;
-import component_tools.position.Constants;
-import component_tools.position.Point;
+import content.utils.position.Constants;
+import content.utils.position.Point;
 import trashcan.DungeonCamera;
 
 public class DungeonCameraTest {

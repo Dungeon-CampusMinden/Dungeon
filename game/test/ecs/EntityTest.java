@@ -2,8 +2,8 @@ package ecs;
 
 import static org.junit.Assert.*;
 
-import components.Component;
-import entities.Entity;
+import api.Component;
+import api.Entity;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

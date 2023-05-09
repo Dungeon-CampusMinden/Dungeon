@@ -2,9 +2,9 @@ package level;
 
 import static org.junit.Assert.*;
 
-import level.elements.tile.*;
-import level.tools.Coordinate;
-import level.tools.DesignLabel;
+import api.level.elements.tile.*;
+import api.level.tools.Coordinate;
+import api.level.tools.DesignLabel;
 import org.junit.Test;
 
 public class TileTest {

@@ -6,18 +6,18 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
-import level.elements.TileLevel;
-import level.elements.astar.TileConnection;
-import level.elements.tile.ExitTile;
-import level.elements.tile.FloorTile;
-import level.elements.tile.Tile;
-import level.elements.tile.TileFactory;
-import level.elements.tile.WallTile;
-import level.tools.Coordinate;
-import level.tools.DesignLabel;
-import level.tools.LevelElement;
+import api.level.elements.TileLevel;
+import api.level.elements.astar.TileConnection;
+import api.level.elements.tile.ExitTile;
+import api.level.elements.tile.FloorTile;
+import api.level.elements.tile.Tile;
+import api.level.elements.tile.TileFactory;
+import api.level.elements.tile.WallTile;
+import api.level.tools.Coordinate;
+import api.level.tools.DesignLabel;
+import api.level.tools.LevelElement;
 import org.junit.Test;
-import component_tools.position.Point;
+import content.utils.position.Point;
 
 public class TileLevelTest {
 

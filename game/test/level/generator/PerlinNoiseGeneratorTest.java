@@ -2,8 +2,8 @@ package level.generator;
 
 import static org.junit.Assert.assertNotNull;
 
-import level.elements.ILevel;
-import level.generator.perlinNoise.PerlinNoiseGenerator;
+import api.level.elements.ILevel;
+import api.level.generator.perlinNoise.PerlinNoiseGenerator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

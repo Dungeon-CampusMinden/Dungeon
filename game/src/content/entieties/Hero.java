@@ -1,14 +1,15 @@
 package content.entieties;
 
+import api.components.*;
 import components.*;
-import entities.Entity;
-import content.skills.FireballSkill;
-import component_tools.skills.Skill;
-import component_tools.skills.SkillTools;
+import api.Entity;
+import content.components.skills.FireballSkill;
+import content.utils.skills.Skill;
+import content.utils.skills.SkillTools;
 import dslToGame.AnimationBuilder;
 import ecs.components.*;
 import ecs.components.skill.*;
-import component_tools.animation.Animation;
+import content.utils.animation.Animation;
 
 /**
  * The Hero is the player character. It's entity in the ECS. This class helps to setup the hero with

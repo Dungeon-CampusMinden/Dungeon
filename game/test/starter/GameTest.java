@@ -6,11 +6,11 @@ import static org.junit.Assert.assertTrue;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import entities.Entity;
+import api.Entity;
 import trashcan.DungeonCamera;
-import trashcan.Painter;
-import level.LevelAPI;
-import level.generator.randomwalk.RandomWalkGenerator;
+import api.utils.Painter;
+import api.LevelManager;
+import api.level.generator.randomwalk.RandomWalkGenerator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +19,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
-import component_tools.position.Constants;
+import content.utils.position.Constants;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Game.class, Gdx.class, Constants.class})
@@ -47,9 +47,9 @@ class GameTest {
         PowerMockito.whenNew(SpriteBatch.class)
                 .withAnyArguments()
                 .thenReturn(Mockito.mock(SpriteBatch.class));
-        PowerMockito.whenNew(LevelAPI.class)
+        PowerMockito.whenNew(LevelManager.class)
                 .withAnyArguments()
-                .thenReturn(Mockito.mock(LevelAPI.class));
+                .thenReturn(Mockito.mock(LevelManager.class));
         PowerMockito.whenNew(DungeonCamera.class)
                 .withAnyArguments()
                 .thenReturn(Mockito.mock(DungeonCamera.class));

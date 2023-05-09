@@ -4,7 +4,7 @@ import dslToGame.graph.Edge;
 import dslToGame.graph.Graph;
 import dslToGame.graph.Node;
 import java.util.*;
-import level.levelgraph.LevelNode;
+import api.level.levelgraph.LevelNode;
 
 public class DotToLevelGraph {
 

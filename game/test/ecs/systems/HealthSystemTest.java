@@ -3,19 +3,19 @@ package ecs.systems;
 import static org.junit.Assert.*;
 
 import trashcan.SystemController;
-import components.AnimationComponent;
-import components.HealthComponent;
-import component_tools.onDeath.IOnDeathFunction;
-import components.MissingComponentException;
-import components.StatsComponent;
-import component_tools.damage.Damage;
-import component_tools.damage.DamageType;
-import entities.Entity;
-import component_tools.animation.Animation;
+import api.components.AnimationComponent;
+import api.components.HealthComponent;
+import content.utils.onDeath.IOnDeathFunction;
+import api.components.MissingComponentException;
+import api.components.StatsComponent;
+import content.utils.damage.Damage;
+import content.utils.damage.DamageType;
+import api.Entity;
+import content.utils.animation.Animation;
 import org.junit.Test;
 import org.mockito.Mockito;
 import starter.Game;
-import systems.HealthSystem;
+import api.systems.HealthSystem;
 
 public class HealthSystemTest {
 

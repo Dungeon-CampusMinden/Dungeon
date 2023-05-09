@@ -2,19 +2,21 @@ package ecs.entities;
 
 import static org.junit.Assert.*;
 
+import api.Component;
+import api.components.*;
 import components.*;
 import content.entieties.Chest;
-import entities.Entity;
-import component_tools.item.ItemData;
-import content.items.ItemDataGenerator;
+import api.Entity;
+import content.utils.item.ItemData;
+import content.components.items.ItemDataGenerator;
 import java.util.List;
 import java.util.Optional;
-import level.elements.TileLevel;
-import level.tools.DesignLabel;
-import level.tools.LevelElement;
+import api.level.elements.TileLevel;
+import api.level.tools.DesignLabel;
+import api.level.tools.LevelElement;
 import org.junit.Test;
 import starter.Game;
-import component_tools.position.Point;
+import content.utils.position.Point;
 
 public class ChestTest {
 

@@ -4,20 +4,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 import trashcan.SystemController;
-import components.AnimationComponent;
-import components.MissingComponentException;
-import components.PositionComponent;
-import components.VelocityComponent;
-import entities.Entity;
-import component_tools.animation.Animation;
-import level.elements.ILevel;
-import level.elements.tile.Tile;
+import api.components.AnimationComponent;
+import api.components.MissingComponentException;
+import api.components.PositionComponent;
+import api.components.VelocityComponent;
+import api.Entity;
+import content.utils.animation.Animation;
+import api.level.elements.ILevel;
+import api.level.elements.tile.Tile;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import starter.Game;
-import systems.VelocitySystem;
-import component_tools.position.Point;
+import api.systems.VelocitySystem;
+import content.utils.position.Point;
 
 public class VelocitySystemTest {
 

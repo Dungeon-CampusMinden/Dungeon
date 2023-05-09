@@ -1,40 +1,41 @@
 package starter;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
-import static tooling.logging.LoggerConfig.initBaseLogger;
+import static api.utils.logging.LoggerConfig.initBaseLogger;
 
+import api.systems.*;
+import api.System;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import tooling.configuration.Configuration;
-import tooling.configuration.KeyboardConfig;
+import api.utils.configuration.Configuration;
+import api.utils.configuration.KeyboardConfig;
 import trashcan.AbstractController;
 import trashcan.SystemController;
-import components.MissingComponentException;
-import components.PositionComponent;
-import entities.Entity;
+import api.components.MissingComponentException;
+import api.components.PositionComponent;
+import api.Entity;
 import content.entieties.Hero;
 import ecs.systems.*;
 import systems.*;
 import trashcan.DungeonCamera;
-import trashcan.Painter;
-import hud.PauseMenu;
+import api.utils.Painter;
+import api.hud.PauseMenu;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
-import level.IOnLevelLoader;
-import level.LevelAPI;
-import level.elements.ILevel;
-import level.elements.tile.Tile;
-import level.generator.IGenerator;
-import level.generator.postGeneration.WallGenerator;
-import level.generator.randomwalk.RandomWalkGenerator;
-import level.tools.LevelSize;
-import systems.System;
-import component_tools.position.Constants;
-import component_tools.position.Point;
+import api.level.IOnLevelLoader;
+import api.LevelManager;
+import api.level.elements.ILevel;
+import api.level.elements.tile.Tile;
+import api.level.generator.IGenerator;
+import api.level.generator.postGeneration.WallGenerator;
+import api.level.generator.randomwalk.RandomWalkGenerator;
+import api.level.tools.LevelSize;
+import content.utils.position.Constants;
+import content.utils.position.Point;
 
 /** The heart of the framework. From here all strings are pulled. */
 public class Game extends ScreenAdapter implements IOnLevelLoader {
@@ -54,7 +55,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /** Draws objects */
     protected Painter painter;
 
-    protected LevelAPI levelAPI;
+    protected LevelManager levelAPI;
     /** Generates the level */
     protected IGenerator generator;
 
@@ -110,7 +111,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         setupCameras();
         painter = new Painter(batch, camera);
         generator = new RandomWalkGenerator();
-        levelAPI = new LevelAPI(batch, painter, generator, this);
+        levelAPI = new LevelManager(batch, painter, generator, this);
         initBaseLogger();
         gameLogger = Logger.getLogger(this.getClass().getName());
         systems = new SystemController();
@@ -118,7 +119,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         pauseMenu = new PauseMenu<>();
         controller.add(pauseMenu);
         hero = new Hero();
-        levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
+        levelAPI = new LevelManager(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel(LEVELSIZE);
         createSystems();
     }
@@ -139,6 +140,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     private void manageEntitiesSets() {
+        entitiesToRemove.forEach(Entity::dropAllComponents);
         entities.removeAll(entitiesToRemove);
         entities.addAll(entitiesToAdd);
         for (Entity entity : entitiesToRemove) {
@@ -286,5 +288,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new XPSystem();
         new SkillSystem();
         new ProjectileSystem();
+    }
+
+    public static void updateEntity(Entity entity){
+        systems.forEach(s->s.test(entity));
     }
 }

@@ -1,16 +1,17 @@
 package content.entieties;
 
+import api.components.*;
 import components.*;
-import entities.Entity;
-import component_tools.item.ItemData;
-import content.items.ItemDataGenerator;
-import component_tools.animation.Animation;
+import api.Entity;
+import content.utils.item.ItemData;
+import content.components.items.ItemDataGenerator;
+import content.utils.animation.Animation;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
-import level.tools.LevelElement;
+import api.level.tools.LevelElement;
 import starter.Game;
-import component_tools.position.Point;
+import content.utils.position.Point;
 
 public class Chest extends Entity {
 

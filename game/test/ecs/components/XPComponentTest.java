@@ -3,8 +3,8 @@ package ecs.components;
 import static org.junit.Assert.*;
 
 import trashcan.SystemController;
-import components.XPComponent;
-import entities.Entity;
+import api.components.XPComponent;
+import api.Entity;
 import org.junit.Test;
 import starter.Game;
 

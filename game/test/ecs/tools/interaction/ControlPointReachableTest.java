@@ -2,19 +2,19 @@ package ecs.tools.interaction;
 
 import static org.junit.Assert.*;
 
-import components.InteractionComponent;
-import components.PositionComponent;
-import entities.Entity;
-import content.interaction.ControlPointReachable;
-import component_tools.interaction.IReachable;
-import component_tools.interaction.InteractionData;
-import level.elements.TileLevel;
-import level.tools.DesignLabel;
-import level.tools.LevelElement;
+import api.components.InteractionComponent;
+import api.components.PositionComponent;
+import api.Entity;
+import content.components.interaction.ControlPointReachable;
+import content.utils.interaction.IReachable;
+import content.utils.interaction.InteractionData;
+import api.level.elements.TileLevel;
+import api.level.tools.DesignLabel;
+import api.level.tools.LevelElement;
 import org.junit.Test;
 import starter.Game;
 import testinghelper.SimpleCounter;
-import component_tools.position.Point;
+import content.utils.position.Point;
 
 public class ControlPointReachableTest {
     private record PreparedEntityWithCounter(

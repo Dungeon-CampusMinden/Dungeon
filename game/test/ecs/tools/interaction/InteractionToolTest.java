@@ -4,23 +4,23 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
-import components.Component;
-import components.InteractionComponent;
-import components.MissingComponentException;
-import components.PositionComponent;
-import entities.Entity;
+import api.Component;
+import api.components.InteractionComponent;
+import api.components.MissingComponentException;
+import api.components.PositionComponent;
+import api.Entity;
 import java.util.Optional;
 
-import component_tools.interaction.InteractionTool;
-import level.elements.ILevel;
-import level.elements.TileLevel;
-import level.tools.DesignLabel;
-import level.tools.LevelElement;
+import content.utils.interaction.InteractionTool;
+import api.level.elements.ILevel;
+import api.level.elements.TileLevel;
+import api.level.tools.DesignLabel;
+import api.level.tools.LevelElement;
 import org.junit.Test;
 import org.mockito.Mockito;
 import starter.Game;
 import testinghelper.SimpleCounter;
-import component_tools.position.Point;
+import content.utils.position.Point;
 
 public class InteractionToolTest {
 

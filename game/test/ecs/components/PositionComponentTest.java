@@ -2,12 +2,12 @@ package ecs.components;
 
 import static org.junit.Assert.assertEquals;
 
-import components.PositionComponent;
-import entities.Entity;
+import api.components.PositionComponent;
+import api.Entity;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import component_tools.position.Point;
+import content.utils.position.Point;
 
 public class PositionComponentTest {
 

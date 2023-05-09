@@ -2,23 +2,23 @@ package ecs.items;
 
 import static org.junit.Assert.*;
 
-import tooling.configuration.ItemConfig;
-import components.AnimationComponent;
-import components.HitboxComponent;
-import components.InventoryComponent;
-import components.PositionComponent;
-import entities.Entity;
-import component_tools.animation.Animation;
+import api.utils.configuration.ItemConfig;
+import api.components.AnimationComponent;
+import api.components.HitboxComponent;
+import api.components.InventoryComponent;
+import api.components.PositionComponent;
+import api.Entity;
+import content.utils.animation.Animation;
 import java.util.List;
 
-import component_tools.item.IOnUse;
-import component_tools.item.ItemData;
-import component_tools.item.ItemType;
+import content.utils.item.IOnUse;
+import content.utils.item.ItemData;
+import content.utils.item.ItemType;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import starter.Game;
-import component_tools.position.Point;
+import content.utils.position.Point;
 
 public class ItemDataTest {
     @Before

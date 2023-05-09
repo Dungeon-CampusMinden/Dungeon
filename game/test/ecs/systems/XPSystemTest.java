@@ -3,13 +3,13 @@ package ecs.systems;
 import static org.junit.Assert.*;
 
 import trashcan.SystemController;
-import component_tools.xp.ILevelUp;
-import components.XPComponent;
-import entities.Entity;
+import content.utils.xp.ILevelUp;
+import api.components.XPComponent;
+import api.Entity;
 import org.junit.Test;
 import org.mockito.Mockito;
 import starter.Game;
-import systems.XPSystem;
+import api.systems.XPSystem;
 
 public class XPSystemTest {
 

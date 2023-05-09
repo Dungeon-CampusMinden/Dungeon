@@ -1,7 +1,8 @@
 package trashcan;
 
 import com.badlogic.gdx.graphics.Texture;
-import component_tools.animation.textures.TextureMap;
+import content.utils.animation.textures.TextureMap;
+import api.utils.Painter;
 
 /**
  * This class serves as a configuration class for the {@link Painter} class.

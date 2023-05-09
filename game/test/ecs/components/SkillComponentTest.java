@@ -2,9 +2,9 @@ package ecs.components;
 
 import static org.junit.Assert.*;
 
-import component_tools.skills.Skill;
-import components.SkillComponent;
-import entities.Entity;
+import content.utils.skills.Skill;
+import api.components.SkillComponent;
+import api.Entity;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

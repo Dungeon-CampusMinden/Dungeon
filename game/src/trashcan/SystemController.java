@@ -1,7 +1,7 @@
 package trashcan;
 
-import systems.System;
-import tooling.logging.CustomLogLevel;
+import api.System;
+import api.utils.logging.CustomLogLevel;
 
 /** used to integrate Systems in PM-Dungeon game loop */
 public class SystemController extends AbstractController<System> {

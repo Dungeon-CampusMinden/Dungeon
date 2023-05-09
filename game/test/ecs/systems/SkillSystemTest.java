@@ -3,15 +3,15 @@ package ecs.systems;
 import static org.junit.Assert.*;
 
 import trashcan.SystemController;
-import component_tools.skills.ISkillFunction;
-import component_tools.skills.Skill;
-import components.SkillComponent;
-import entities.Entity;
+import content.utils.skills.ISkillFunction;
+import content.utils.skills.Skill;
+import api.components.SkillComponent;
+import api.Entity;
 import org.junit.Test;
 import org.mockito.Mockito;
 import starter.Game;
-import systems.SkillSystem;
-import component_tools.position.Constants;
+import api.systems.SkillSystem;
+import content.utils.position.Constants;
 
 public class SkillSystemTest {
 
