@@ -1,39 +1,30 @@
-package ecs.components.skill;
+package game.src.ecs.components.skill;
 
 import dslToGame.AnimationBuilder;
 import ecs.components.*;
 import ecs.components.collision.ICollide;
+import ecs.components.skill.*;
 import ecs.damage.Damage;
 import ecs.entities.Entity;
 import graphic.Animation;
 import starter.Game;
 import tools.Point;
 
-public abstract class DamageProjectileSkill implements ISkillFunction {
+import ecs.components.skill.DamageProjectileSkill;
+import ecs.components.skill.ITargetSelection;
+import ecs.components.skill.SkillTools;
 
-    protected String pathToTexturesOfProjectile;
-    protected float projectileSpeed;
+public abstract class PiercingProjectileSkill extends DamageProjectileSkill {
 
-    protected float projectileRange;
-    protected Damage projectileDamage;
-    protected Point projectileHitboxSize;
-
-    protected ITargetSelection selectionFunction;
-
-    public DamageProjectileSkill(
-            String pathToTexturesOfProjectile,
-            float projectileSpeed,
-            Damage projectileDamage,
-            Point projectileHitboxSize,
-            ITargetSelection selectionFunction,
-            float projectileRange) {
-        this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
-        this.projectileDamage = projectileDamage;
-        this.projectileSpeed = projectileSpeed;
-        this.projectileRange = projectileRange;
-        this.projectileHitboxSize = projectileHitboxSize;
-        this.selectionFunction = selectionFunction;
-    }
+    public PiercingProjectileSkill(
+        String pathToTexturesOfProjectile,
+        float projectileSpeed,
+        Damage projectileDamage,
+        Point projectileHitboxSize,
+        ITargetSelection selectionFunction,
+        float projectileRange) {
+            super(pathToTexturesOfProjectile, projectileSpeed, projectileDamage, projectileHitboxSize, selectionFunction, projectileRange);
+        }
 
     @Override
     public void execute(Entity entity) {
@@ -64,7 +55,6 @@ public abstract class DamageProjectileSkill implements ISkillFunction {
                                 .ifPresent(
                                         hc -> {
                                             ((HealthComponent) hc).receiveHit(projectileDamage);
-                                            Game.removeEntity(projectile);
                                         });
                     }
                 };
@@ -72,4 +62,5 @@ public abstract class DamageProjectileSkill implements ISkillFunction {
         new HitboxComponent(
                 projectile, new Point(0.25f, 0.25f), projectileHitboxSize, collide, null);
     }
+
 }
