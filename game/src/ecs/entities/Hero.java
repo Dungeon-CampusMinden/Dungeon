@@ -143,6 +143,11 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
         System.out.println("Hero dead");
     }
 
+    /**
+     * LevelUp function that currently adds Skills if needed level is reached.
+     *
+     * @param nexLevel is the new level of the entity
+     */
     @Override
     public void onLevelUp(long nexLevel) {
         System.out.println("You leveled up to Level " + nexLevel);

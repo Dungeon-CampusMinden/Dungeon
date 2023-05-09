@@ -3,9 +3,10 @@ package ecs.components.skill;
 import ecs.components.HealthComponent;
 import ecs.entities.Entity;
 
+/**
+ * The HealSkill heals the hero by 15% on use
+ */
 public class HealSkill extends MagicSkill{
-
-    private float healedByPercentage = 0.15f;
 
     @Override
     public void execute(Entity entity) {
@@ -13,7 +14,8 @@ public class HealSkill extends MagicSkill{
             HealthComponent hCp = (HealthComponent) entity.getComponent(HealthComponent.class).get();
 
             int current = hCp.getCurrentHealthpoints();
-            int healedBy = ((int) (current*healedByPercentage));
+            float healedByPercentage = 0.15f;
+            int healedBy = ((int) (current* healedByPercentage));
             int newHP = ((int) (current+healedBy));
             System.out.println("Entity had: " + current + "HP and got healed by: " + healedBy + ".");
             hCp.setCurrentHealthpoints(newHP);

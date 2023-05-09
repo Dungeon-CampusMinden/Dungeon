@@ -57,6 +57,15 @@ public class EnrageSkill extends MagicSkill{
 
     }
 
+    /**
+     * Timer that sets every modified stat back to its original when run out.
+     *
+     * @param vCp - VelocityComponent
+     * @param ogX - Original X velocity
+     * @param ogY - Original Y velocity
+     * @param hero - The hero
+     * @param ogDmg - Original damage
+     */
     public void durationTimer(VelocityComponent vCp, float ogX, float ogY, Hero hero, int ogDmg){
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
