@@ -150,63 +150,112 @@ auswählen müssen.
 
 ## Spielmechaniken
 
-### GUI-Fenster anzeigen
+### Text über GUI-Dialog anzeigen
 
-### Text über GUI-Fenster anzeigen
-
-### Seiten im GUI-Fenster wechseln
+Das Spiel kann Text über ein GUI-Fenster anzeigen, um bspw. Hinweise an die Studierenden zu geben, oder Aufgabentexte
+zu stellen.
 
 ### Einen GUI-Button aktivieren
 
-- Es wird eine GUI bestehend aus einem Feld für den Aufgabentext (Text oder Bild) und
-  mehrere Buttons mit Antworten (Text oder Bild) angezeigt
-- Der Spieler muss auf den Button mit der Antwort klicken, die er abgeben möchte.
+In einem GUI-Dialog können beschriftete Buttons angezeigt werden, die von Studierenden aktiviert werden können, um
+bspw. eine Antwort auf eine Frage auszuwählen.
+
+### Seiten im GUI-Fenster wechseln
+
+Per GUI-Button (z.B. "Weiter", "Zurück") kann zwischen mehreren Seiten eines GUI-Dialogs gewechselt werden.
 
 ### GUI Checkboxen anhaken
 
-- Es wird eine GUI bestehend aus einem Feld für den Aufgabentext (Text oder Bild) und
-  mehrere Buttons mit Antworten (Text oder Bild) angezeigt
-- Der Spieler muss auf die Buttons mit der Antwort klicken, die er für richtig hält.
-- Mit einem Klick aktiviert er eine nicht aktive (nicht ausgewählte) Antwort oder
-  deaktiviert eine aktivierte Antwort.
-- Mit einem Bestätigungsbutton muss der Spieler seine Antworten einloggen.
+In einem GUI-Dialog können beschriftete Checkboxen angezeigt werden. Die Checkboxen können durch Anklicken
+aktiviert (falls inaktiv) und deaktiviert (falls bereits aktiv) werden.
 
 ### GUI Text eingeben
 
-- Es wird eine GUI bestehend aus einem Feld für den Aufgabentext (Text oder Bild) und einem
-  Feld zur Texteingabe angezeigt.
-- Der Spieler muss seine Antwort in das Eingabefeld schreiben.
-- Mit einem Bestätigungsbutton muss der Spieler seine Antworten einloggen.
+In einem GUI-Dialog kann eine Textfeld dargestellt werden, in das Studierende Text eingeben können.
 
-### Mit einem Questgeber interagieren
+### Aufgabe per Questgeber aktivieren
+
+Studierende können mit einem Questgeber interagieren, wodurch sie eine Aufgabe aktivieren.
+
+### Aufgabe per Questgeber abschließen
+
+Falls eine Aufgabe aktiv ist, können Studierende per Interaktion mit dem entsprechenden Questgeber die Aufgabe abschließen.
 
 ### Das Inventar eines Containers öffnen
 
+Per Interaktion kann das Inventar eines Containers geöffnet werden, sodass der Inhalt des Inventars einsehbar ist.
+Per GUI-Button kann das Inventar wieder geschlossen werden.
+
 ### Ein Item aus dem Inventar eines Containers in das Inventar des Spielcharakters transferieren
+
+Bei geöffnetem Container-Inventar kann ein Item aus dem Container-Inventar ausgewählt werden und in das Inventar
+des Spielcharakters transferiert werden. Per GUI-Button können auch alle Items aus dem Container-Inventar in das
+Inventar des Spielcharakters übertragen werden.
 
 ### Ein Item aus dem Inventar des Spielcharakters in das Inventar eines Containers transferieren
 
+Bei geöffnetem Spielcharakter-Inventar kann ein Item aus dem Spielcharakter-Inventar ausgewählt werden und in das Inventar
+eines Containers transferiert werden.
+
 ### Ein Item aufheben
 
-### Den Text einer Schriftrolle lesen
-
-### Eine Entität im Dungeon "inspizieren"
-
-### Ein Monster angreifen
-
-### Schaden von einem Monster zugefügt bekommen
-
-### Einen Block verschieben
-
-### Einen Schalter (im Dungeon) betätigen
-
-### Einen Crafting-Schritt durchführen
+Ein Item, welches auf dem Boden des Dungeons liegt, kann vom Spielcharakter aufgesammelt werden, indem der Spielcharakter
+mit der Hitbox des Items kollidiert.
 
 ### Informationen über ein Item ansehen
 
+Bei geöffnetem Inventar (unabhängig zu welcher Entität das Inventar gehört), können Informationen über ein
+Item innerhalb des Inventars angezeigt werden.
+
 ### Das Inventar des Spielcharakters öffnen
 
+Per Tastendruck kann das Inventar des Spielcharakters geöffnet und geschlossen werden.
+
 ### Ein Item auf den Boden fallen lassen
+
+Bei geöffnetem Inventar (unabhängig zu welcher Entität das Inventar gehört), kann ein ausgewähltes Item aus dem Inventar
+entfernt und auf den Boden gefallen lassen werden.
+
+### Eine Waffe aus dem Inventar ausrüsten
+
+Bei geöffnetem Spielcharakter-Inventar kann eine Waffe als aktive Waffe des Spielcharakters ausgerüstet werden.
+
+### Ein Item aus dem Inventar nutzen
+
+Bei geöffnetem Spielcharakter-Inventar kann ein Item genutzt werden (sofern es ein nutzbares Items ist), sodass ein
+"Nutzungseffekt" (bspw. Heilung der Gesundheit des Spielcharakters) eintritt, welcher sich für die Items unterscheiden kann.
+
+### Den Text einer Schriftrolle lesen
+
+Bei geöffnetem Inventar kann eine Schriftrolle aus dem Inventar ausgewählt und gelesen werden, wofür eine separater
+GUI-Dialog geöffnet wird, der den Text der Schriftrolle enthält.
+
+### Eine Entität im Dungeon "inspizieren"
+
+Entitäten im Dungeon können vom Spielcharakter inspiziert werden, wodurch sich ein GUI-Dialog öffnet, der Informationen
+über die inspizierte Entität anzeigt.
+
+### Ein Monster angreifen
+
+Der Spielcharakter kann mit einer ausgerüsteten Waffe ein Monster angreifen.
+
+### Schaden von einem Monster zugefügt bekommen
+
+Der Gesundheit des Spielcharakters kann durch ein Monster Schaden zugefügt werden.
+
+### Einen Block verschieben
+
+Per Interaktion kann der Spielcharakter einen Block im Dungeon in eine bestimmte Richtung verschieben.
+
+### Einen Schalter (im Dungeon) betätigen
+
+Per Interaktion kann der Spielcharakter den Zustand eines Schalters im Dungeon ändern.
+
+### Einen Crafting-Schritt durchführen
+
+Bei geöffnetem Inventar eines Craftingcontainers können Items aus dem Container-Inventar ausgewählt werden, auf die
+ein auswählbares Craftingrezept (also eine Transmutationsregel) angewandt wird, um die Menge der ausgewählten Items zu
+verändern. Nach der Auswahl der Items und des Craftingrezepts muss der Crafting-Schritt per GUI-Button bestätigt werden.
 
 ### Item(s) in Container ablegen
 
