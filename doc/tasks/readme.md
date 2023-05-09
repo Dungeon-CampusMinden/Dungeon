@@ -140,7 +140,13 @@ auswählen müssen.
 - Bild: Interaktive Entität im Dungeon, die bei Interaktion ein Bild anzeigt (bspw. ein UML-Diagram, Graph, etc.)
 - Container: Entität, deren Inventar vom Spielcharakter manipuliert werden kann
 - Monster: Entität, welche den Spielcharakter (nach einem bestimmten Verhalten) verfolgt, angreift und besiegt werden kann
-- Schalter: Eine interaktive Entität, deren Zustand (an/aus) vom Spielcharakter manipuliert werden kann
+- interaktives Bedienelement: Eine interaktive Entität, deren Zustand vom Spielcharakter manipuliert werden kann. Es sind vier
+  unterschiedliche Arten vorgesehen:
+  - Tastend: Das Bedienelement kann impulsartig betätigt werden, d.h. bei Interaktion wird einmalig eine Aktion ausgeführt
+  - Schaltend: Das Bedienelement kann zwischen zwei Zuständen getoggelt werden (an/aus)
+  - Zustandsmenge > 2: Das Bedienelement kann zwischen mehr als 2 fest definierten Zuständen umgeschaltet werden
+  - Kontinuierlich: Das Bedienelement verhält sich wie ein Schieberegler, bei dem ein Wert zwischen einer oberen und einer unteren
+    Grenze eingestellt werden kann
 - Item: Eine Entität, die entweder eine Position im Dungeon haben kann (also bspw. auf dem Boden liegt), oder in einem
   Inventar gespeichert sein kann und zwischen diesen beiden Zuständen wechseln kann (das ist bewusst vereinfacht, ohne
   auf die Feinheiten der Item=Entität Thematik einzugehen)
@@ -249,7 +255,8 @@ Per Interaktion kann der Spielcharakter einen Block im Dungeon in eine bestimmte
 
 ### Einen Schalter (im Dungeon) betätigen
 
-Per Interaktion kann der Spielcharakter den Zustand eines Schalters im Dungeon ändern.
+Per Interaktion kann der Spielcharakter den Zustand eines Schalters im Dungeon ändern. Welche Zustände es Schalter
+annehmen kann, hängt von der Art des Schalters ab.
 
 ### Einen Crafting-Schritt durchführen
 
