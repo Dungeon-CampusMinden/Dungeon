@@ -15,6 +15,7 @@ import ecs.components.OnDeathFunctions.EndGame;
 public class Hero extends Entity {
 
     private final int fireballCoolDown = 5;
+    private final int stabCoolDown = 1;
     private final float xSpeed = 0.3f;
     private final float ySpeed = 0.3f;
     private final int maxHealth = 100;
@@ -26,6 +27,7 @@ public class Hero extends Entity {
     private final String pathToGetHit = "knight/getHit";
     private final String pathToDie = "knight/die";
     private Skill firstSkill;
+    private Skill secondSkill;
 
     /** Entity with Components */
     public Hero() {
@@ -36,8 +38,9 @@ public class Hero extends Entity {
         setupHitboxComponent();
         setupHealthComponent();
         PlayableComponent pc = new PlayableComponent(this);
-        setupFireballSkill();
+        setupSkillComponent();
         pc.setSkillSlot1(firstSkill);
+        pc.setSkillSlot2(secondSkill);
     }
 
     private void setupVelocityComponent() {
@@ -57,6 +60,16 @@ public class Hero extends Entity {
                 new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
     }
 
+    private void setupStabSkill() {
+        secondSkill = new Skill(
+                new StabSkill(SkillTools::getCursorPositionAsPoint), stabCoolDown);
+    }
+
+    private void setupSkills() {
+        setupFireballSkill();
+        setupStabSkill();
+    }
+
     private void setupHitboxComponent() {
         new HitboxComponent(
                 this,
@@ -69,5 +82,12 @@ public class Hero extends Entity {
         Animation die = AnimationBuilder.buildAnimation(pathToDie);
         IOnDeathFunction gameOver = new EndGame();
         new HealthComponent(this, maxHealth, gameOver, getHit, die);
+    }
+
+    private void setupSkillComponent() {
+        SkillComponent sc = new SkillComponent(this);
+        setupSkills();
+        sc.addSkill(firstSkill);
+        sc.addSkill(secondSkill);
     }
 }
