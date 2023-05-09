@@ -4,14 +4,15 @@ import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import tools.Point;
 
-public class SwordSkill extends DamageProjectileSkill{
+public class SwordSkill extends MeleeSkill {
     public SwordSkill(ITargetSelection targetSelection) {
         super(
-            "weapon/weapon_regular_sword.png",
-            0.5f,
-            new Damage(1, DamageType.PHYSICAL, null),
+            "weapon",
+            0.1f,
+            new Damage(3, DamageType.PHYSICAL, null),
             new Point(10, 10),
+            0.7f,
             targetSelection,
-            0.3f);
+            0.1f);
     }
 }
