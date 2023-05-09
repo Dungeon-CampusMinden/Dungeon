@@ -35,7 +35,7 @@ public class DarkKnight extends Monster {
     private final int maxHealth = 100;
     private final float attackRange = 1f;
     private int level;
-    private int attackCooldown = 1;
+    private int attackCooldown = 2;
 
     private final String pathToIdleLeft = "monster/darkKnight/idleLeft";
     private final String pathToIdleRight = "monster/darkKnight/idleRight";
@@ -93,7 +93,7 @@ public class DarkKnight extends Monster {
         Point end = ((PositionComponent) Game.getHero().get().getComponent(PositionComponent.class).get())
                 .getPosition();
         attack = new Skill(
-                new FireballSkill(() -> SkillTools.calculateLastPositionInRange(start, end, attackRange)),
+                new StabSkill(() -> SkillTools.calculateLastPositionInRange(start, end, attackRange)),
                 attackCooldown);
         new SkillComponent(this).addSkill(attack);
     }

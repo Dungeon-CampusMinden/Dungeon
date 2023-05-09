@@ -17,6 +17,7 @@ import java.io.Serializable;
 public class Hero extends Entity implements Serializable {
 
     private final int fireballCoolDown = 5;
+    private final int stabCoolDown = 1;
     private final float xSpeed = 0.3f;
     private final float ySpeed = 0.3f;
     private final int maxHealth = 100;
@@ -28,6 +29,7 @@ public class Hero extends Entity implements Serializable {
     private final String pathToGetHit = "knight/getHit";
     private final String pathToDie = "knight/die";
     private Skill firstSkill;
+    private Skill secondSkill;
 
     /** Entity with Components */
     public Hero() {
@@ -45,6 +47,10 @@ public class Hero extends Entity implements Serializable {
         setupAnimationComponent();
         setupHitboxComponent();
         setupHealthComponent(maxHealth, currentHealth);
+        PlayableComponent pc = new PlayableComponent(this);
+        setupSkillComponent();
+        pc.setSkillSlot1(firstSkill);
+        pc.setSkillSlot2(secondSkill);
     }
 
     private void setupVelocityComponent() {
@@ -60,8 +66,18 @@ public class Hero extends Entity implements Serializable {
     }
 
     private void setupFireballSkill() {
-        firstSkill =  new Skill(
-               new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
+        firstSkill = new Skill(
+                new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
+    }
+
+    private void setupStabSkill() {
+        secondSkill = new Skill(
+                new StabSkill(SkillTools::getCursorPositionAsPoint), stabCoolDown);
+    }
+
+    private void setupSkills() {
+        setupFireballSkill();
+        setupStabSkill();
     }
 
     private void setupHitboxComponent() {
@@ -77,5 +93,12 @@ public class Hero extends Entity implements Serializable {
         IOnDeathFunction gameOver = new EndGame();
         HealthComponent hc = new HealthComponent(this, maxHealth, gameOver, getHit, die);
         hc.setCurrentHealthpoints(currentHealth);
+    }
+
+    private void setupSkillComponent() {
+        SkillComponent sc = new SkillComponent(this);
+        setupSkills();
+        sc.addSkill(firstSkill);
+        sc.addSkill(secondSkill);
     }
 }
