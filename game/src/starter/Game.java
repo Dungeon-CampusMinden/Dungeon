@@ -16,6 +16,9 @@ import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
+import ecs.entities.Mimic_Chest_Trap;
+import ecs.entities.SlowTrap;
+import ecs.components.VelocityComponent;
 import ecs.systems.*;
 import graphic.DungeonCamera;
 import graphic.Painter;
@@ -127,13 +130,32 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         manageEntitiesSets();
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
+
+        // TODO: remove this
+        //if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
+        //if (Gdx.input.isKeyJustPressed(Input.Keys.R)) levelAPI.loadLevel(LEVELSIZE);
+        //if (Gdx.input.isKeyJustPressed(Input.Keys.F)) Mimic_Chest_Trap.createNewMimicChest();
+        //if (Gdx.input.isKeyJustPressed(Input.Keys.T)) Chest.createNewChest();
+        //if (Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
+        //    Logger logger = Logger.getLogger("Health");
+        //    Game.getHero().stream()
+        //    .flatMap(e -> e.getComponent(HealthComponent.class).stream())
+        //    .map(HealthComponent.class::cast)
+        //    .forEach(healthComponent -> {
+        //        logger.info("Hero-Health:" + healthComponent.getCurrentHealthpoints());
+        //    });
+        //}
     }
 
     @Override
     public void onLevelLoad() {
         currentLevel = levelAPI.getCurrentLevel();
+        Mimic_Chest_Trap.createNewMimicChest();
+        SlowTrap.createSlowTrap();
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
+        //add 50 xp to the hero upon entering a level
+        Game.getHero().map(h -> (Hero) h).ifPresent(h -> h.addXP(50));
     }
 
     private void manageEntitiesSets() {
@@ -187,6 +209,15 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         pc.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
+
+        // Reset hero's velocity
+        Game.getHero().stream()
+        .flatMap(e -> e.getComponent(VelocityComponent.class).stream())
+        .map(VelocityComponent.class::cast)
+        .forEach(VelocityComponent -> {
+            VelocityComponent.setXVelocity(0.3f);
+            VelocityComponent.setYVelocity(0.3f);
+        });
     }
 
     /** Toggle between pause and run */
@@ -284,5 +315,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new XPSystem();
         new SkillSystem();
         new ProjectileSystem();
+        new ManaSystem();
     }
 }

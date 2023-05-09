@@ -73,6 +73,16 @@ public class HealthComponent extends Component {
      * @param damage Damage that should be inflicted
      */
     public void receiveHit(Damage damage) {
+        // TODO: Remove this
+        Logger logger = Logger.getLogger(this.getClass().getName());
+        logger.info(
+                "Entity '"
+                        + entity.getClass().getSimpleName()
+                        + "' received damage: "
+                        + damage.damageAmount()
+                        + " "
+                        + damage.damageType().toString());
+        // TODO: Remove this
         damageToGet.add(damage);
         this.lastCause = damage.cause() != null ? damage.cause() : this.lastCause;
     }

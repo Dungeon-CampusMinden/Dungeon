@@ -4,5 +4,6 @@ package ecs.damage;
 public enum DamageType {
     PHYSICAL,
     MAGIC,
-    FIRE
+    FIRE,
+    ICE
 }
