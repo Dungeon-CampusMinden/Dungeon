@@ -1,5 +1,6 @@
 package tools;
 
+import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -30,6 +31,21 @@ public final class Constants {
 
     /** Sets the LibGDX-window logo path. */
     public static final String LOGO_PATH = "logo/CatLogo_35x35.png";
+
+    /** Path to the game configuration directory. Used for saving configurations and save games. */
+    public static final String GAME_DIRECTORY;
+
+    /** Name of the game configuration directory. */
+    public static final String GAME_DIRECTORY_NAME = "pmdungeon";
+
+    static {
+        // Check if windows
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            GAME_DIRECTORY = System.getenv("APPDATA") + File.separator + GAME_DIRECTORY_NAME;
+        } else {
+            GAME_DIRECTORY = System.getProperty("user.home") + File.separator + GAME_DIRECTORY_NAME;
+        }
+    }
 
     /**
      * @param path the relative path to the resource

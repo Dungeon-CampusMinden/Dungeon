@@ -24,14 +24,13 @@ import level.elements.tile.Tile;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
 import starter.Game;
+import tools.Constants;
 
 public class SaveGame {
 
     private static final String FILE_VERSION = "0.0.1";
 
-    public static final String GAME_DIR_NAME = "PMDungeon";
-    public static final String PATH_GAME_DIR;
-    public static final String PATH_SAVE_DIR;
+    public static final String PATH_SAVE_DIR = Constants.GAME_DIRECTORY + File.separator + "saves";
 
     private static final JsonValue.PrettyPrintSettings PRETTY_PRINT_SETTINGS =
             new JsonValue.PrettyPrintSettings();
@@ -42,14 +41,6 @@ public class SaveGame {
         PRETTY_PRINT_SETTINGS.outputType = JsonWriter.OutputType.json;
         PRETTY_PRINT_SETTINGS.wrapNumericArrays = true;
         PRETTY_PRINT_SETTINGS.singleLineColumns = 0;
-
-        // Check if windows
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            PATH_GAME_DIR = System.getenv("APPDATA") + File.separator + GAME_DIR_NAME;
-        } else {
-            PATH_GAME_DIR = System.getProperty("user.home") + File.separator + GAME_DIR_NAME;
-        }
-        PATH_SAVE_DIR = PATH_GAME_DIR + File.separator + "saves";
     }
 
     /**
@@ -277,7 +268,7 @@ public class SaveGame {
     }
 
     private static void createGameDir() {
-        File dir = new File(PATH_GAME_DIR);
+        File dir = new File(Constants.GAME_DIRECTORY);
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
                 throw new RuntimeException("Could not create game directory!");
