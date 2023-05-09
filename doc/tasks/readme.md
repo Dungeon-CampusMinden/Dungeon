@@ -137,18 +137,26 @@ auswählen müssen.
 ## Konkrete Entitätstypen
 
 - Questgeber: Entität, über die eine Aufgabe aktiviert wird
+- Bild: Interaktive Entität im Dungeon, die bei Interaktion ein Bild anzeigt (bspw. ein UML-Diagram, Graph, etc.)
 - Container: Entität, deren Inventar vom Spielcharakter manipuliert werden kann
 - Monster: Entität, welche den Spielcharakter (nach einem bestimmten Verhalten) verfolgt, angreift und besiegt werden kann
 - Schalter: Eine interaktive Entität, deren Zustand (an/aus) vom Spielcharakter manipuliert werden kann
-- Bild: Interaktive Entität im Dungeon, die bei Interaktion ein Bild anzeigt (bspw. ein UML-Diagram, Graph, etc.)
 - Item: Eine Entität, die entweder eine Position im Dungeon haben kann (also bspw. auf dem Boden liegt), oder in einem
   Inventar gespeichert sein kann und zwischen diesen beiden Zuständen wechseln kann (das ist bewusst vereinfacht, ohne
   auf die Feinheiten der Item=Entität Thematik einzugehen)
 - Schriftrolle: Ein Item, welches einen Text anzeigt
+- Craftingcontainer: Ein Container, der zusätzlich die Möglichkeit bietet, die Menge der enthaltenen Items unter Verwendung von
+  Craftingrezepten zu transmutieren
 
 ## Spielmechaniken
 
-### Ein GUI-Button drücken
+### GUI-Fenster anzeigen
+
+### Text über GUI-Fenster anzeigen
+
+### Seiten im GUI-Fenster wechseln
+
+### Einen GUI-Button aktivieren
 
 - Es wird eine GUI bestehend aus einem Feld für den Aufgabentext (Text oder Bild) und
   mehrere Buttons mit Antworten (Text oder Bild) angezeigt
@@ -169,6 +177,36 @@ auswählen müssen.
   Feld zur Texteingabe angezeigt.
 - Der Spieler muss seine Antwort in das Eingabefeld schreiben.
 - Mit einem Bestätigungsbutton muss der Spieler seine Antworten einloggen.
+
+### Mit einem Questgeber interagieren
+
+### Das Inventar eines Containers öffnen
+
+### Ein Item aus dem Inventar eines Containers in das Inventar des Spielcharakters transferieren
+
+### Ein Item aus dem Inventar des Spielcharakters in das Inventar eines Containers transferieren
+
+### Ein Item aufheben
+
+### Den Text einer Schriftrolle lesen
+
+### Eine Entität im Dungeon "inspizieren"
+
+### Ein Monster angreifen
+
+### Schaden von einem Monster zugefügt bekommen
+
+### Einen Block verschieben
+
+### Einen Schalter (im Dungeon) betätigen
+
+### Einen Crafting-Schritt durchführen
+
+### Informationen über ein Item ansehen
+
+### Das Inventar des Spielcharakters öffnen
+
+### Ein Item auf den Boden fallen lassen
 
 ### Item(s) in Container ablegen
 
