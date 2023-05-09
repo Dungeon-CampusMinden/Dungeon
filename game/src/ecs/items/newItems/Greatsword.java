@@ -5,25 +5,48 @@ import dslToGame.AnimationBuilder;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
 import ecs.graphic.Animation;
-import ecs.items.IOnCollect;
-import ecs.items.ItemData;
-import ecs.items.ItemType;
-import ecs.items.WorldItemBuilder;
+import ecs.items.*;
+import starter.Game;
+import tools.Point;
 
-public class Greatsword implements IOnCollect {
-    private String world = "item/world/Greatsword";
-    private String greatsworld = "item/world/Greatsword";
-    private final String name = "Greats Word";
-    private final String description = "Increses the damage of the owner +20";
-    ItemType passive = ItemType.Passive;
-    Animation worldAnim = AnimationBuilder.buildAnimation(world);
-    Animation greatsAnim = AnimationBuilder.buildAnimation(greatsworld);
+public class Greatsword extends ItemData implements IOnCollect, IOnDrop {
 
-    public Greatsword(Hero hero){
-        WorldItemBuilder.buildWorldItem(new ItemData(passive,worldAnim,greatsAnim,name,description));
+    private final int dmg = 20;
+    private ItemData data;
+
+    public Greatsword(){
+        super(
+            ItemType.Passive,
+            AnimationBuilder.buildAnimation("item/world/Greatsword"),
+            AnimationBuilder.buildAnimation("item/world/Greatsword"),
+            "Greatsword",
+            "Increases the owners damage by 20"
+        );
+
+        WorldItemBuilder.buildWorldItem(this);
+        this.setOnCollect(this);
+        this.setOnDrop(this);
     }
 
+    @Override
+    public void onCollect(Entity WorldItemEntity, Entity whoCollides){
+        if(whoCollides instanceof Hero){
+            Game.removeEntity(WorldItemEntity);
+            Hero hero = (Hero) whoCollides;
+            int currentDmg = hero.getDmg();
+            hero.setDmg(currentDmg+dmg);
+            System.out.println(hero.getDmg());
 
-    public void onCollect(Entity WorldItemEntity, Entity whoCollides){}
+        }
+    }
 
+    @Override
+    public void onDrop(Entity user, ItemData which, Point position) {
+        if(user instanceof Hero){
+            Hero hero = (Hero) user;
+            int currentDmg = hero.getDmg();
+            hero.setDmg(currentDmg-dmg);
+            System.out.println();
+        }
+    }
 }

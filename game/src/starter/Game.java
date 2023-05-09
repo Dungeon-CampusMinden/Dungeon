@@ -14,6 +14,7 @@ import configuration.Configuration;
 import configuration.KeyboardConfig;
 import controller.AbstractController;
 import controller.SystemController;
+import ecs.components.InventoryComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
@@ -25,6 +26,7 @@ import ecs.entities.Monsters.Slime;
 import ecs.entities.*;
 import ecs.graphic.hud.*;
 import ecs.items.ItemData;
+import ecs.items.ItemType;
 import ecs.items.newItems.Bag;
 import ecs.items.newItems.BookOfRa;
 import ecs.items.newItems.Greatsword;
@@ -220,16 +222,17 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         if (random.nextInt(0, 100) > 10) friendlyGhost = new FriendlyGhost(playHero);
     }
 
+
     /**
      * Chance of Randomly spawn a Item
      */
     private void spawnItems() {
         int random = (int) (Math.random() * (0 - 100));
         if (random < 0) {
-            new Bag();
-            new Greatsword(playHero);
-            new BookOfRa(playHero);
-            new InvinciblePotion(playHero);
+            new Bag(ItemType.Active);
+            new Greatsword();
+            new BookOfRa();
+            new InvinciblePotion();
         }
     }
 

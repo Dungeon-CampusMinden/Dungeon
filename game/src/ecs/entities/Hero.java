@@ -26,6 +26,8 @@ public class Hero extends Entity implements IOnDeathFunction {
     private final String onHit = "knight/hit";
 
     private HealthComponent hp;
+
+    private int dmg = 5;
     private Skill firstSkill;
     private InventoryComponent inv;
 
@@ -81,7 +83,13 @@ public class Hero extends Entity implements IOnDeathFunction {
     }
 
 
+    public int getDmg() {
+        return dmg;
+    }
 
+    public void setDmg(int dmg) {
+        this.dmg = dmg;
+    }
 
     private void setupHitboxComponent() {
         new HitboxComponent(

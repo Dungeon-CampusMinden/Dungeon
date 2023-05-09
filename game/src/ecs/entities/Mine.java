@@ -49,9 +49,11 @@ public class Mine extends Trap{
         for(Entity e : inRange){
             if(e.getComponent(HealthComponent.class).isPresent()){
                 HealthComponent ofE = (HealthComponent) e.getComponent(HealthComponent.class).get();
+                int currentHp = ofE.getCurrentHealthpoints();
 
                 System.out.println("HP before:"+ ofE.getCurrentHealthpoints());
-                ofE.receiveHit(new Damage((int) getTrapDmg(), DamageType.PHYSICAL,this));
+                if(!ofE.isInvincible())ofE.setCurrentHealthpoints(currentHp-getTrapDmg());
+                //ofE.receiveHit(new Damage((int) getTrapDmg(), DamageType.PHYSICAL,this));
                 System.out.println("HP after:"+ ofE.getCurrentHealthpoints());
             }
         }

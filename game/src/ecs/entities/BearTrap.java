@@ -17,7 +17,7 @@ public class BearTrap extends Trap{
     ArrayList<Entity> inRange = new ArrayList<>();
 
     public BearTrap(){
-        super();
+        super(false, false, 2);
         new PositionComponent(this);
         setupAnimationComponent();
         setupHitboxComponent();
@@ -32,7 +32,7 @@ public class BearTrap extends Trap{
         new HitboxComponent(
             this,
             (you, other, direction) -> triggerAction(other),
-            (you, other, direction) -> System.out.println("Leaves Hitbox"));
+            (you, other, direction) -> System.out.print(""));
     }
 
     void triggerAction(Entity other) {
@@ -44,8 +44,10 @@ public class BearTrap extends Trap{
             if(other.getComponent(HealthComponent.class).isPresent()){
                 HealthComponent ofE = (HealthComponent) other.getComponent(HealthComponent.class).get();
 
+                int currentHp = ofE.getCurrentHealthpoints();
                 System.out.println("HP before:"+ ofE.getCurrentHealthpoints());
-                ofE.receiveHit(new Damage((int) this.getTrapDmg(), DamageType.PHYSICAL, this));
+                if(!ofE.isInvincible())ofE.setCurrentHealthpoints(currentHp-getTrapDmg());
+                //ofE.receiveHit(new Damage(this.getTrapDmg(), null, null));
                 System.out.println("HP after:"+ ofE.getCurrentHealthpoints());
             }
         }

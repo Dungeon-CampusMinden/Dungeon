@@ -1,34 +1,55 @@
 package ecs.items.newItems;
 
 import dslToGame.AnimationBuilder;
+import ecs.components.Component;
+import ecs.components.InventoryComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
 import ecs.graphic.Animation;
-import ecs.items.IOnCollect;
-import ecs.items.ItemData;
-import ecs.items.ItemType;
-import ecs.items.WorldItemBuilder;
+import ecs.items.*;
 import starter.Game;
+import tools.Point;
 
-public class BookOfRa implements IOnCollect {
-    private String world = "item/world/BookOfRa";
-    private String inv = "item/world/BookOfRa";
-    private final String name = "Book of Ra";
-     private final String description = "Gives the owner on every new level a bonus of 1-5% bonus EP";
-   ItemType passive = ItemType.Passive;
-    Animation worldAnim = AnimationBuilder.buildAnimation(world);
-    Animation bookAnim = AnimationBuilder.buildAnimation(inv);
+public class BookOfRa extends ItemData implements IOnCollect, IOnDrop {
+    InventoryComponent inv;
+    public BookOfRa(){
+        super(
+            ItemType.Passive,
+            AnimationBuilder.buildAnimation("item/world/BookOfRa"),
+            AnimationBuilder.buildAnimation("item/world/BookOfRa"),
+            "Book of Ra",
+            "Gives the owner a bonus EP of 1-5% every time he enters a new level"
+        );
 
-    private Hero hero;
+        Hero hero = null;
+        if(Game.getHero().isPresent()){
+            hero = (Hero) Game.getHero().get();
+        }
 
-    public BookOfRa(Hero hero){
-        this.hero = hero;
-        Entity book = WorldItemBuilder.buildWorldItem(new ItemData(passive,worldAnim,bookAnim,name,description));
-        onCollect(book, Game.getHero().get());
+        if(hero.getComponent(InventoryComponent.class).isPresent()){
+            inv = (hero.getInv());
+        }
+
+        WorldItemBuilder.buildWorldItem(this);
+
+        this.setOnCollect(this);
     }
 
     @Override
     public void onCollect(Entity WorldItemEntity, Entity whoCollides) {
+        for(ItemData item: inv.getItems()){
+            if(item instanceof  Bag bag){
+                if(bag.addItem(this)){
+                    Game.removeEntity(WorldItemEntity);
+                    System.out.println(this.getItemName() + "has been added to the Book Bag.");
+                }
+            }
+        }
+    }
 
+
+    @Override
+    public void onDrop(Entity user, ItemData which, Point position) {
+        //TODO
     }
 }

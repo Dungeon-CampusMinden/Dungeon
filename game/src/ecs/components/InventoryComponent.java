@@ -5,6 +5,7 @@ import ecs.items.ItemData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import ecs.items.ItemType;
 import ecs.items.newItems.Bag;
@@ -16,7 +17,6 @@ public class InventoryComponent extends Component {
 
     private List<ItemData> inventory;
 
-    private List<ItemType> Baginventory;
     private int maxSize;
     private final Logger inventoryLogger = Logger.getLogger(this.getClass().getName());
 
@@ -49,6 +49,7 @@ public class InventoryComponent extends Component {
                         + "' was added to the inventory of entity '"
                         + entity.getClass().getSimpleName()
                         + "'.");
+
         return inventory.add(itemData);
     }
 
