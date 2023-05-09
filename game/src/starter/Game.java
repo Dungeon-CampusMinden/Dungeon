@@ -17,6 +17,7 @@ import controller.SystemController;
 import ecs.components.InventoryComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
+import ecs.components.xp.XPComponent;
 import ecs.entities.Entity;
 import ecs.entities.FriendlyGhost;
 import ecs.entities.Hero;
@@ -211,6 +212,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new Mine();
         new BearTrap();
         currentLvl++;
+        bookCheck();
         System.out.println("Current Level:" + currentLvl);
     }
 
@@ -256,6 +258,28 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
 
         System.out.println("Amount of monsters: " + monster);
+    }
+
+    public void bookCheck(){
+        Hero worker = (Hero) hero;
+        InventoryComponent inv = worker.getInv();
+        BookOfRa books;
+
+        for(ItemData item: inv.getItems()){
+
+            //Check for book bags
+            if(item instanceof Bag){
+                for(ItemData book : ((Bag) item).getItems()){
+                    books = (BookOfRa) book;
+                    books.grantXP();
+                }
+            }
+
+            //Check for books
+            if(item instanceof BookOfRa){
+                ((BookOfRa) item).grantXP();
+            }
+        }
     }
 
 

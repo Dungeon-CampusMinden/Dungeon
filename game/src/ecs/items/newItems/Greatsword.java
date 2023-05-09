@@ -9,10 +9,13 @@ import ecs.items.*;
 import starter.Game;
 import tools.Point;
 
-public class Greatsword extends ItemData implements IOnCollect, IOnDrop {
+/**
+ * The greatsword adds 20 damage to the hero if collected.
+ *
+ */
+public class Greatsword extends ItemData implements IOnCollect {
 
     private final int dmg = 20;
-    private ItemData data;
 
     public Greatsword(){
         super(
@@ -25,9 +28,14 @@ public class Greatsword extends ItemData implements IOnCollect, IOnDrop {
 
         WorldItemBuilder.buildWorldItem(this);
         this.setOnCollect(this);
-        this.setOnDrop(this);
     }
 
+    /**
+     * Sets the current damage of the hero plus 20
+     *
+     * @param WorldItemEntity
+     * @param whoCollides
+     */
     @Override
     public void onCollect(Entity WorldItemEntity, Entity whoCollides){
         if(whoCollides instanceof Hero){
@@ -40,13 +48,4 @@ public class Greatsword extends ItemData implements IOnCollect, IOnDrop {
         }
     }
 
-    @Override
-    public void onDrop(Entity user, ItemData which, Point position) {
-        if(user instanceof Hero){
-            Hero hero = (Hero) user;
-            int currentDmg = hero.getDmg();
-            hero.setDmg(currentDmg-dmg);
-            System.out.println();
-        }
-    }
 }

@@ -6,6 +6,7 @@ import ecs.components.AnimationComponent;
 import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.components.skill.*;
+import ecs.components.xp.XPComponent;
 import ecs.graphic.Animation;
 
 /**
@@ -44,6 +45,7 @@ public class Hero extends Entity implements IOnDeathFunction {
         setupVelocityComponent();
         setupAnimationComponent();
         setupHitboxComponent();
+        setupXPComponent();
 
         PlayableComponent pc = new PlayableComponent(this);
 
@@ -80,6 +82,9 @@ public class Hero extends Entity implements IOnDeathFunction {
         System.out.println("HP before: " + this.hp.getCurrentHealthpoints());
         this.hp.setCurrentHealthpoints(this.hp.getCurrentHealthpoints()+amount);
         System.out.println("HP after: " + this.hp.getCurrentHealthpoints());
+    }
+    public void setupXPComponent(){
+        new XPComponent(this);
     }
 
 

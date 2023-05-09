@@ -11,7 +11,10 @@ import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 
-
+/**
+ *  The invincible Potion is an item that makes the hero immortal onCollect.
+ *
+ */
 public class InvinciblePotion extends ItemData implements IOnCollect {
 
     public InvinciblePotion() {
@@ -27,6 +30,9 @@ public class InvinciblePotion extends ItemData implements IOnCollect {
         this.setOnCollect(this);
     }
 
+    /**
+     *  Resets invincible to false
+     */
     public void resetInvincible(Entity e){
         HealthComponent innerHCP = (HealthComponent) e.getComponent(HealthComponent.class).get();
         innerHCP.setInvincible(false);
@@ -34,6 +40,12 @@ public class InvinciblePotion extends ItemData implements IOnCollect {
         System.out.println("Not longer invincible");
     }
 
+    /**
+     * Sets the hero invincible to true
+     *
+     * @param WorldItemEntity
+     * @param whoCollides
+     */
     @Override
     public void onCollect(Entity WorldItemEntity, Entity whoCollides) {
 
