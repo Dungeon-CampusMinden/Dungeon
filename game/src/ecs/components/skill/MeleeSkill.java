@@ -6,8 +6,11 @@ import ecs.components.collision.ICollide;
 import ecs.damage.Damage;
 import ecs.entities.Entity;
 import graphic.Animation;
+import level.elements.tile.Tile;
 import starter.Game;
 import tools.Point;
+
+import static starter.Game.currentLevel;
 
 public class MeleeSkill implements ISkillFunction {
 
@@ -92,12 +95,16 @@ public class MeleeSkill implements ISkillFunction {
         Point direction = Point.getUnitDirectionalVector(targetPositionComponent.getPosition(), entityPositionComponent.getPosition());
 
         Point newPosition = new Point(
+
+
             targetPositionComponent.getPosition().x + direction.x * knockbackDistance,
             targetPositionComponent.getPosition().y + direction.y * knockbackDistance
         );
 
-        // newPosition = adjustForCollision(newPosition); // Placeholder for collision adjustment.
+        Tile newTile = currentLevel.getTileAt(newPosition.toCoordinate());
+       if(newTile.isAccessible()){
+              targetPositionComponent.setPosition(newPosition);
+       }
 
-        targetPositionComponent.setPosition(newPosition);
     }
 }

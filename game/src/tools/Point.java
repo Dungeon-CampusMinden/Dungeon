@@ -1,6 +1,12 @@
 package tools;
 
+import ecs.components.MissingComponentException;
+import ecs.components.PositionComponent;
+import level.elements.ILevel;
+import level.elements.tile.Tile;
 import level.tools.Coordinate;
+import runtime.GameEnvironment;
+import starter.Game;
 
 /**
  * For easy handling of positions in the dungeon. <br>
@@ -68,4 +74,6 @@ public class Point {
         float yDiff = p1.y - p2.y;
         return (float) Math.sqrt(xDiff * xDiff + yDiff * yDiff);
     }
+
+
 }

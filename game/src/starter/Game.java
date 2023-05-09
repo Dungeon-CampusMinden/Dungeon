@@ -221,17 +221,19 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         private Entity createRandomMonster(int depth) {
             int monsterType = new Random().nextInt(3);
             Entity monster;
-
+            monsterType = 2;
             switch (monsterType) {
-                case 0:
+               /* case 0:
                     monster = new Chort(0.1f, 0.1f, 10);
                     if(currentDepth > 3) {
                         monster = new Chort(0.3f, 0.3f, 15);
                     }
                     break;
                 case 1:
-                    monster = new Goblin();
+                    //monster = new Goblin();
                     break;
+                    +/
+                */
                 case 2:
                     monster = new LittleChort();
                     break;
