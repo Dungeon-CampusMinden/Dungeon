@@ -243,11 +243,16 @@ Entitäten im Dungeon können vom Spielcharakter inspiziert werden, wodurch sich
 
 ### Ein Monster angreifen
 
-Der Spielcharakter kann mit einer ausgerüsteten Waffe ein Monster angreifen.
+Der Spielcharakter kann mit einer ausgerüsteten Waffe ein Monster angreifen und dessen Gesundheit Schaden zufügen.
 
 ### Schaden von einem Monster zugefügt bekommen
 
 Der Gesundheit des Spielcharakters kann durch ein Monster Schaden zugefügt werden.
+
+### Monster besiegen
+
+Wenn die Gesundheit eines Monsters auf 0 fällt, wird es besiegt und stirbt, wodurch es ggfs. Erfahrungspunkte und
+Items aus seinem Inventar (falls vorhanden) fallen lässt.
 
 ### Einen Block verschieben
 
