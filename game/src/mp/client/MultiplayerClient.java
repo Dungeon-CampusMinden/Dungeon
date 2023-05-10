@@ -3,7 +3,7 @@ package mp.client;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import mp.GameState;
+import mp.packages.GameState;
 import mp.packages.NetworkSetup;
 import mp.packages.response.InitializeServerResponse;
 import mp.packages.response.JoinSessionResponse;

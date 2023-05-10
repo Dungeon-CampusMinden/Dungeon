@@ -9,7 +9,6 @@ import level.elements.tile.*;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
-import mp.GameState;
 import mp.packages.request.InitializeServerRequest;
 import mp.packages.request.JoinSessionRequest;
 import mp.packages.request.PingRequest;

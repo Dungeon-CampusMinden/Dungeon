@@ -1,9 +1,6 @@
 package mp.packages.event;
 
-import mp.GameState;
-import tools.Point;
-
-import java.util.HashMap;
+import mp.packages.GameState;
 
 import static java.util.Objects.requireNonNull;
 

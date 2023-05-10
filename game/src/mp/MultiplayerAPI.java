@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.Null;
 import level.elements.ILevel;
 import mp.client.IMultiplayerClientObserver;
 import mp.client.MultiplayerClient;
+import mp.packages.GameState;
 import mp.packages.request.InitializeServerRequest;
 import mp.packages.request.JoinSessionRequest;
 import mp.packages.request.UpdateOwnPositionRequest;

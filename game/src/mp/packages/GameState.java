@@ -1,4 +1,4 @@
-package mp;
+package mp.packages;
 
 import tools.Point;
 

@@ -5,7 +5,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import level.elements.ILevel;
-import mp.GameState;
+import mp.packages.GameState;
 import mp.packages.NetworkSetup;
 import mp.packages.request.InitializeServerRequest;
 import mp.packages.request.JoinSessionRequest;

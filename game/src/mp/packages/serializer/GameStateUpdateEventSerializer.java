@@ -4,7 +4,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import mp.GameState;
+import mp.packages.GameState;
 import mp.packages.event.GameStateUpdateEvent;
 
 public class GameStateUpdateEventSerializer extends Serializer<GameStateUpdateEvent> {

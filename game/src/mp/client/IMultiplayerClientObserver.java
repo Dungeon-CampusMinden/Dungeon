@@ -1,7 +1,7 @@
 package mp.client;
 
 import level.elements.ILevel;
-import mp.GameState;
+import mp.packages.GameState;
 import tools.Point;
 
 import java.net.InetAddress;
