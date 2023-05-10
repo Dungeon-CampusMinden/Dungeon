@@ -80,5 +80,19 @@ public abstract class BasicMonster extends Entity {
      */
     public abstract void setupAIComponent();
 
+    /**
+     * Sets up the hitbox component of the monster entity.
+     * This method should be overridden by subclasses to provide specific implementation details.
+     */
+    public abstract void setupHitboxComponent();
+
+    /**
+     * Sets up the health component of the monster entity with the specified maximum health points.
+     * This method should be overridden by subclasses to provide specific implementation details.
+     *
+     * @param maxHealthPoints The maximum health points of the monster.
+     */
+    public abstract void setupHealthComponent(int maxHealthPoints);
+
 
 }

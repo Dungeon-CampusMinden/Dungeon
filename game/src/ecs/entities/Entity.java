@@ -1,6 +1,8 @@
 package ecs.entities;
 
 import ecs.components.Component;
+
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -11,7 +13,7 @@ import starter.Game;
 /** Entity is a unique identifier for an object in the game world */
 @DSLType(name = "game_object")
 @DSLContextPush(name = "entity")
-public class Entity {
+public class Entity implements Serializable {
     private static int nextId = 0;
     public final int id = nextId++;
     private HashMap<Class, Component> components;

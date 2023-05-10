@@ -25,6 +25,18 @@ public class MeleeSkill implements ISkillFunction {
     private float knockbackDistance;
 
 
+    /**
+     * Konstruiert ein neues MeleeSkill-Objekt mit dem angegebenen Projektil-Texturpfad, der Geschwindigkeit, dem Schaden, der Hitbox-Größe, dem Rückstoßabstand, der Ziel-Auswahl-Funktion und der Reichweite.
+     *
+     * @param pathToTexturesOfProjectile Der Pfad zu den Texturdateien für das Nahkampf-Angriffsprojektil.
+     * @param projectileSpeed            Die Geschwindigkeit des Nahkampf-Angriffsprojektils.
+     * @param projectileDamage           Der Schaden, der durch das Nahkampf-Angriffsprojektil verursacht wird.
+     * @param projectileHitboxSize       Die Hitbox-Größe des Nahkampf-Angriffsprojektils.
+     * @param knockbackDistance          Der Rückstoßabstand, der bei jeder Kollision mit dem Nahkampf-Angriffsprojektil angewendet wird.
+     * @param selectionFunction          Die Ziel-Auswahl-Funktion für das Nahkampf-Angriffsprojektil.
+     * @param projectileRange            Die Reichweite des Nahkampf-Angriffsprojektils.
+     */
+
     public MeleeSkill(
         String pathToTexturesOfProjectile,
         float projectileSpeed,
@@ -41,6 +53,12 @@ public class MeleeSkill implements ISkillFunction {
         this.selectionFunction = selectionFunction;
         this.knockbackDistance = knockbackDistance;
     }
+
+    /**
+     * Führt die Nahkampf-Angriffs-Fähigkeit aus, indem eine Projektil-Entität erstellt und Schaden sowie Rückstoß auf jede Kollision mit einer anderen Entität angewendet wird.
+     *
+     * @param entity Die Entität, die die Fähigkeit ausführt.
+     */
 
     @Override
     public void execute(Entity entity) {
@@ -82,6 +100,13 @@ public class MeleeSkill implements ISkillFunction {
             meleeAttack, new Point(0.25f, 0.25f), projectileHitboxSize, collide, null);
     }
 
+    /**
+     * Wendet Rückstoß auf die spezifizierte Ziel-Entität basierend auf der Entfernung und Richtung vom Ziel auf die Entität an.
+     *
+     * @param target            Die Entität, auf die Rückstoß angewendet wird.
+     * @param entity            Die Entität, die den Rückstoß verursacht.
+     * @param knockbackDistance Der Abstand, um den Rückstoß anzuwenden.
+     */
     public void applyKnockback(Entity target, Entity entity, float knockbackDistance) {
         PositionComponent targetPositionComponent =
             (PositionComponent) target.getComponent(PositionComponent.class)
@@ -96,15 +121,14 @@ public class MeleeSkill implements ISkillFunction {
 
         Point newPosition = new Point(
 
-
             targetPositionComponent.getPosition().x + direction.x * knockbackDistance,
             targetPositionComponent.getPosition().y + direction.y * knockbackDistance
         );
 
         Tile newTile = currentLevel.getTileAt(newPosition.toCoordinate());
-       if(newTile.isAccessible()){
-              targetPositionComponent.setPosition(newPosition);
-       }
+        if (newTile.isAccessible()) {
+            targetPositionComponent.setPosition(newPosition);
+        }
 
     }
 }

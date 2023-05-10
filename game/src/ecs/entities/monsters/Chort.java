@@ -2,25 +2,25 @@ package ecs.entities.monsters;
 
 
 import dslToGame.AnimationBuilder;
-import ecs.components.AnimationComponent;
-import ecs.components.HitboxComponent;
-import ecs.components.PositionComponent;
-import ecs.components.VelocityComponent;
+import ecs.components.*;
 import ecs.components.ai.AIComponent;
 import ecs.components.ai.fight.CollideAI;
 import ecs.components.ai.idle.PatrouilleWalk;
 import ecs.components.ai.transition.RangeTransition;
+import ecs.entities.Entity;
 import graphic.Animation;
+import starter.Game;
 
 public class Chort extends BasicMonster {
 
-    public Chort(float xSpeed, float ySpeed, int hp) {
-        super(xSpeed, ySpeed, hp, "monster/chort/idleLeft", "monster/chort/idleRight", "monster/chort/runLeft", "monster/chort/runRight");
+    public Chort() {
+        super(0.3f, 0.3f, 5, "monster/chort/idleLeft", "monster/chort/idleRight", "monster/chort/runLeft", "monster/chort/runRight");
         new PositionComponent(this);
         setupVelocityComponent();
         setupAnimationComponent();
         setupAIComponent();
         setupHitboxComponent();
+        setupHealthComponent((int) hp);
     }
 
 
@@ -38,9 +38,28 @@ public class Chort extends BasicMonster {
         new AnimationComponent(this, idleLeft, idleRight);
     }
 
+    @Override
     public void setupHitboxComponent() {
         new HitboxComponent(this, HitboxComponent.DEFAULT_COLLIDER, HitboxComponent.DEFAULT_COLLIDER);
     }
+
+    @Override
+    public void setupHealthComponent(int maxHealthPoints) {
+        IOnDeathFunction onDeathFunction = entity -> {
+            // Logik für das, was passieren soll, wenn das Monster stirbt
+            System.out.println("Das Monster ist gestorben!");
+        };
+
+        // Animationen für das Monster, wenn es Schaden erleidet oder stirbt
+        String pathToHitAnimation = "monster/chort/hitAnimation";
+        String pathToDieAnimation = "monster/chort/dieAnimation";
+        Animation hitAnimation = AnimationBuilder.buildAnimation(pathToHitAnimation);
+        Animation dieAnimation = AnimationBuilder.buildAnimation(pathToDieAnimation);
+
+        // Erstelle das HealthComponent für das Monster
+        new HealthComponent(this, maxHealthPoints, onDeathFunction, hitAnimation, dieAnimation);
+    }
+
     @Override
     public void setupAIComponent() {
         float radius = 7.0f;

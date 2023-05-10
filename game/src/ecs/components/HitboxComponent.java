@@ -12,7 +12,7 @@ import tools.Point;
 @DSLType(name = "hitbox_component")
 public class HitboxComponent extends Component {
     public static final Point DEFAULT_OFFSET = new Point(0.25f, 0.25f);
-    public static final Point DEFAULT_SIZE = new Point(0.5f, 0.5f);
+    public static final Point DEFAULT_SIZE = new Point(0.3f, 0.3f);
     public static final ICollide DEFAULT_COLLIDER = (a, b, c) -> System.out.println("");
     private /*@DSLTypeMember(name="offset")*/ Point offset;
     private /*@DSLTypeMember(name="size")*/ Point size;

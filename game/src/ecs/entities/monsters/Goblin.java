@@ -1,10 +1,7 @@
 package ecs.entities.monsters;
 
 import dslToGame.AnimationBuilder;
-import ecs.components.AnimationComponent;
-import ecs.components.HitboxComponent;
-import ecs.components.PositionComponent;
-import ecs.components.VelocityComponent;
+import ecs.components.*;
 import ecs.components.ai.AIComponent;
 import ecs.components.ai.fight.CollideAI;
 import ecs.components.ai.idle.WanderingWalk;
@@ -22,6 +19,7 @@ public class Goblin extends BasicMonster {
         setupAnimationComponent();
         setupAIComponent();
         setupHitboxComponent();
+        setupHealthComponent((int) hp);
     }
 
     @Override
@@ -38,9 +36,29 @@ public class Goblin extends BasicMonster {
         new AnimationComponent(this, idleLeft, idleRight);
     }
 
+    @Override
     public void setupHitboxComponent() {
         new HitboxComponent(this, HitboxComponent.DEFAULT_COLLIDER, HitboxComponent.DEFAULT_COLLIDER);
     }
+
+    @Override
+    public void setupHealthComponent(int maxHealthPoints) {
+        // Funktion, die aufgerufen wird, wenn das Monster stirbt
+        IOnDeathFunction onDeathFunction = entity -> {
+            // Logik für das, was passieren soll, wenn das Monster stirbt
+            System.out.println("Das Monster ist gestorben!");
+        };
+
+        // Animationen für das Monster, wenn es Schaden erleidet oder stirbt
+        String pathToHitAnimation = "monster/goblin/hitAnimation";
+        String pathToDieAnimation = "monster/goblin/idleLeft";
+        Animation hitAnimation = AnimationBuilder.buildAnimation(pathToHitAnimation);
+        Animation dieAnimation = AnimationBuilder.buildAnimation(pathToDieAnimation);
+
+        // Erstelle das HealthComponent für das Monster
+        new HealthComponent(this, maxHealthPoints, onDeathFunction, hitAnimation, dieAnimation);
+    }
+
     @Override
     public void setupAIComponent() {
         WanderingWalk wanderingWalk = new WanderingWalk(5.0f, 2, 2000);

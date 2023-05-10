@@ -33,11 +33,12 @@ public class LittleChort extends BasicMonster {
         new AnimationComponent(this, idleLeft, idleRight);
     }
 
-
+    @Override
     public void setupHitboxComponent() {
         new HitboxComponent(this, HitboxComponent.DEFAULT_COLLIDER, HitboxComponent.DEFAULT_COLLIDER);
     }
 
+    @Override
     public void setupHealthComponent(int maxHealthPoints) {
         // Maximale Gesundheitspunkte für das Monster
 
