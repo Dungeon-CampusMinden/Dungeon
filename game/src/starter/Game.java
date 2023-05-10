@@ -14,10 +14,7 @@ import controller.AbstractController;
 import controller.SystemController;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
-import ecs.entities.Entity;
-import ecs.entities.Hero;
-import ecs.entities.Mimic_Chest_Trap;
-import ecs.entities.SlowTrap;
+import ecs.entities.*;
 import ecs.components.VelocityComponent;
 import ecs.systems.*;
 import graphic.DungeonCamera;
@@ -73,6 +70,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static SystemController systems;
 
     public static ILevel currentLevel;
+    private static int levelCounter;
+    private static boolean dragonExists = false;
     private static PauseMenu<Actor> pauseMenu;
     private static Entity hero;
     private Logger gameLogger;
@@ -130,21 +129,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         manageEntitiesSets();
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
-
-        // TODO: remove this
-        //if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
-        //if (Gdx.input.isKeyJustPressed(Input.Keys.R)) levelAPI.loadLevel(LEVELSIZE);
-        //if (Gdx.input.isKeyJustPressed(Input.Keys.F)) Mimic_Chest_Trap.createNewMimicChest();
-        //if (Gdx.input.isKeyJustPressed(Input.Keys.T)) Chest.createNewChest();
-        //if (Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
-        //    Logger logger = Logger.getLogger("Health");
-        //    Game.getHero().stream()
-        //    .flatMap(e -> e.getComponent(HealthComponent.class).stream())
-        //    .map(HealthComponent.class::cast)
-        //    .forEach(healthComponent -> {
-        //        logger.info("Hero-Health:" + healthComponent.getCurrentHealthpoints());
-        //    });
-        //}
     }
 
     @Override
@@ -152,6 +136,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         currentLevel = levelAPI.getCurrentLevel();
         Mimic_Chest_Trap.createNewMimicChest();
         SlowTrap.createSlowTrap();
+        Slime.createNewSlime();
+        // creates a dragon every 10th lvl, and blocks the exit
+        if(++levelCounter % 10 == 0) {
+            DragonP1.createNewDragonP1();
+            dragonExists = true;
+        }
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
         //add 50 xp to the hero upon entering a level
@@ -188,7 +178,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
-        if (isOnEndTile(hero)) levelAPI.loadLevel(LEVELSIZE);
+        if (isOnEndTile(hero) && !dragonExists) levelAPI.loadLevel(LEVELSIZE);
     }
 
     private boolean isOnEndTile(Entity entity) {
@@ -316,5 +306,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new SkillSystem();
         new ProjectileSystem();
         new ManaSystem();
+    }
+
+    public static void setDragonExistsFalse () {
+        dragonExists = false;
     }
 }

@@ -3,6 +3,9 @@ package ecs.components.skill;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import ecs.components.MissingComponentException;
+import ecs.components.PositionComponent;
+import ecs.entities.Entity;
 import starter.Game;
 import tools.Point;
 
@@ -58,5 +61,20 @@ public class SkillTools {
         Vector3 mousePosition =
                 Game.camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
         return new Point(mousePosition.x, mousePosition.y);
+    }
+
+    /**
+     * gets the heros current position as Point
+     *
+     * @return heros position as Point
+     */
+    public static Point getHeroPositionAsPoint() {
+        Entity hero = Game.getHero().get();
+        PositionComponent positionComponent =
+            (PositionComponent)
+                hero.getComponent(PositionComponent.class)
+                    .orElseThrow(() -> new MissingComponentException("PositionComponent"));
+        System.out.println(positionComponent.getPosition());
+        return positionComponent.getPosition();
     }
 }
