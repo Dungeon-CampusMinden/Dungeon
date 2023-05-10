@@ -3,15 +3,16 @@ package starter;
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 import static logging.LoggerConfig.initBaseLogger;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import configuration.Configuration;
 import configuration.KeyboardConfig;
 import controller.AbstractController;
+import controller.ScreenController;
 import controller.SystemController;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
@@ -76,11 +77,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static SystemController systems;
 
     public static ILevel currentLevel;
-    private static PauseMenu<Actor> pauseMenu;
+    private static PauseMenu pauseMenu;
     private static Entity hero;
     private Logger gameLogger;
-
-    public static InputMultiplexer inputMultiplexer = new InputMultiplexer();
     public static void main(String[] args) {
         // start the game
         try {
@@ -138,12 +137,16 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         gameLogger = Logger.getLogger(this.getClass().getName());
         systems = new SystemController();
         controller.add(systems);
-        pauseMenu = new PauseMenu<>();
-        controller.add(pauseMenu);
+
         hero = new Hero();
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel(LEVELSIZE);
-        Gdx.input.setInputProcessor(inputMultiplexer);
+
+        // UI Things
+        ScreenController<Actor> ui = new ScreenController<>(new SpriteBatch());
+        controller.add(ui);
+        pauseMenu = new PauseMenu();
+        ui.add(pauseMenu);
         createSystems();
     }
 
