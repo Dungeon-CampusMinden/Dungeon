@@ -87,7 +87,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static SystemController systems;
 
     public static ILevel currentLevel;
-    private ILevel levelForCheck;
     private static PauseMenu<Actor> pauseMenu;
     private static GameOverMenu<Actor> gameOverMenu;
     private static Entity hero;
@@ -130,7 +129,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         levelAPI.update();
         controller.forEach(AbstractController::update);
         camera.update();
-        updateLevel();
     }
 
     /** Checks for saves */
@@ -210,14 +208,15 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     @Override
     public void onLevelLoad() {
-        System.out.println(saves.getAutoSave());
         currentLevel = levelAPI.getCurrentLevel();
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
         levelSetup();
+        level++;
         GameData data = new GameData(hero, level);
         saves.setAutoSave(Optional.of(data));
         saves.save();
+        System.out.println(level);
     }
 
     private void manageEntitiesSets() {
@@ -424,14 +423,5 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static void deleteAutoSave() {
         saves.setAutoSave(Optional.empty());
         saves.deleteAutoSave();
-    }
-
-    private void updateLevel() {
-        if (levelForCheck == null)
-            levelForCheck = currentLevel;
-        if (!levelForCheck.equals(currentLevel)) {
-            level++;
-            levelForCheck = currentLevel;
-        }
     }
 }

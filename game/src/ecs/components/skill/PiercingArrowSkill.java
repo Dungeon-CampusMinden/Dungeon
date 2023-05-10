@@ -8,7 +8,7 @@ public class PiercingArrowSkill extends PiercingProjectileSkill {
     
     public PiercingArrowSkill(ITargetSelection targetSelection) {
         super(
-                "skills/fireball/fireBall_Down/",
+                "skills/arrow/arrow_down",
                 0.5f,
                 new Damage(15, DamageType.PHYSICAL, null),
                 new Point(10, 10),

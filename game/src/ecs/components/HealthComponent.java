@@ -22,7 +22,7 @@ public class HealthComponent extends Component {
     private final List<Damage> damageToGet;
     private @DSLTypeMember(name = "maximal_health_points") int maximalHealthpoints;
     private int currentHealthpoints;
-    private @Null Entity lastCause = null;
+    private transient @Null Entity lastCause = null;
     private @DSLTypeMember(name = "on_death_function") IOnDeathFunction onDeath;
     private @DSLTypeMember(name = "get_hit_animation") Animation getHitAnimation;
     private @DSLTypeMember(name = "die_animation") Animation dieAnimation;

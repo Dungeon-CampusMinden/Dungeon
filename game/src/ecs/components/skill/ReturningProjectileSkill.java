@@ -54,6 +54,31 @@ public abstract class ReturningProjectileSkill extends DamageProjectileSkill {
                                                                         newReturn(entity, projectile);
                                                                         Game.removeEntity(projectile);
                                                                 });
+                                b.getComponent(VelocityComponent.class)
+                                                                .ifPresent(vlc -> {
+                                                                        ((VelocityComponent) vlc).setCurrentXVelocity(
+                                                                                        Point.getUnitDirectionalVector(
+                                                                                                        ((PositionComponent) b
+                                                                                                                        .getComponent(PositionComponent.class)
+                                                                                                                        .get())
+                                                                                                                        .getPosition(),
+                                                                                                        ((ProjectileComponent) projectile
+                                                                                                                        .getComponent(ProjectileComponent.class)
+                                                                                                                        .get())
+                                                                                                                        .getStartPosition()).x
+                                                                                                        * 2f);
+                                                                        ((VelocityComponent) vlc).setCurrentYVelocity(
+                                                                                        Point.getUnitDirectionalVector(
+                                                                                                        ((PositionComponent) b
+                                                                                                                        .getComponent(PositionComponent.class)
+                                                                                                                        .get())
+                                                                                                                        .getPosition(),
+                                                                                                        ((ProjectileComponent) projectile
+                                                                                                                        .getComponent(ProjectileComponent.class)
+                                                                                                                        .get())
+                                                                                                                        .getStartPosition()).y
+                                                                                                        * 2f);
+                                                                });
                         }
                 };
 
@@ -88,6 +113,31 @@ public abstract class ReturningProjectileSkill extends DamageProjectileSkill {
                                                                         ((HealthComponent) hc)
                                                                                         .receiveHit(projectileDamage);
                                                                         Game.removeEntity(projectile);
+                                                                });
+                                b.getComponent(VelocityComponent.class)
+                                                                .ifPresent(vlc -> {
+                                                                        ((VelocityComponent) vlc).setCurrentXVelocity(
+                                                                                        Point.getUnitDirectionalVector(
+                                                                                                        ((PositionComponent) b
+                                                                                                                        .getComponent(PositionComponent.class)
+                                                                                                                        .get())
+                                                                                                                        .getPosition(),
+                                                                                                        ((ProjectileComponent) projectile
+                                                                                                                        .getComponent(ProjectileComponent.class)
+                                                                                                                        .get())
+                                                                                                                        .getStartPosition()).x
+                                                                                                        * 2f);
+                                                                        ((VelocityComponent) vlc).setCurrentYVelocity(
+                                                                                        Point.getUnitDirectionalVector(
+                                                                                                        ((PositionComponent) b
+                                                                                                                        .getComponent(PositionComponent.class)
+                                                                                                                        .get())
+                                                                                                                        .getPosition(),
+                                                                                                        ((ProjectileComponent) projectile
+                                                                                                                        .getComponent(ProjectileComponent.class)
+                                                                                                                        .get())
+                                                                                                                        .getStartPosition()).y
+                                                                                                        * 2f);
                                                                 });
                         }
                 };

@@ -22,7 +22,7 @@ public abstract class ExplosiveProjectileSkill extends DamageProjectileSkill {
 
         public static final String DEFAULT_EXPLOSION_TEXTURES = "skills/explosion/default";
         public static final Damage DEFAULT_EXPLOSION_DAMAGE = new Damage(40, DamageType.FIRE, null);
-        public static final Point DEFAULT_EXPLOSION_SIZE = new Point(20, 20);
+        public static final Point DEFAULT_EXPLOSION_SIZE = new Point(15, 15);
 
         private String pathToTexturesOfExplosion;
         private Damage explosionDamage;
@@ -86,6 +86,31 @@ public abstract class ExplosiveProjectileSkill extends DamageProjectileSkill {
                                                                         newExplosion(projectile);
                                                                         Game.removeEntity(projectile);
                                                                 });
+                                b.getComponent(VelocityComponent.class)
+                                                .ifPresent(vlc -> {
+                                                        ((VelocityComponent) vlc).setCurrentXVelocity(
+                                                                        Point.getUnitDirectionalVector(
+                                                                                        ((PositionComponent) b
+                                                                                                        .getComponent(PositionComponent.class)
+                                                                                                        .get())
+                                                                                                        .getPosition(),
+                                                                                        ((ProjectileComponent) projectile
+                                                                                                        .getComponent(ProjectileComponent.class)
+                                                                                                        .get())
+                                                                                                        .getStartPosition()).x
+                                                                                        * 2f);
+                                                        ((VelocityComponent) vlc).setCurrentYVelocity(
+                                                                        Point.getUnitDirectionalVector(
+                                                                                        ((PositionComponent) b
+                                                                                                        .getComponent(PositionComponent.class)
+                                                                                                        .get())
+                                                                                                        .getPosition(),
+                                                                                        ((ProjectileComponent) projectile
+                                                                                                        .getComponent(ProjectileComponent.class)
+                                                                                                        .get())
+                                                                                                        .getStartPosition()).y
+                                                                                        * 2f);
+                                                });
                         }
                 };
 
@@ -116,6 +141,31 @@ public abstract class ExplosiveProjectileSkill extends DamageProjectileSkill {
                                                                         ((HealthComponent) hc)
                                                                                         .receiveHit(explosionDamage);
                                                                 });
+                                b.getComponent(VelocityComponent.class)
+                                                .ifPresent(vlc -> {
+                                                        ((VelocityComponent) vlc).setCurrentXVelocity(
+                                                                        Point.getUnitDirectionalVector(
+                                                                                        ((PositionComponent) b
+                                                                                                        .getComponent(PositionComponent.class)
+                                                                                                        .get())
+                                                                                                        .getPosition(),
+                                                                                        ((ProjectileComponent) explosion
+                                                                                                        .getComponent(ProjectileComponent.class)
+                                                                                                        .get())
+                                                                                                        .getStartPosition()).x
+                                                                                        * 2f);
+                                                        ((VelocityComponent) vlc).setCurrentYVelocity(
+                                                                        Point.getUnitDirectionalVector(
+                                                                                        ((PositionComponent) b
+                                                                                                        .getComponent(PositionComponent.class)
+                                                                                                        .get())
+                                                                                                        .getPosition(),
+                                                                                        ((ProjectileComponent) explosion
+                                                                                                        .getComponent(ProjectileComponent.class)
+                                                                                                        .get())
+                                                                                                        .getStartPosition()).y
+                                                                                        * 2f);
+                                                });
                         }
                 };
 

@@ -93,7 +93,7 @@ public class DarkKnight extends Monster {
         Point end = ((PositionComponent) Game.getHero().get().getComponent(PositionComponent.class).get())
                 .getPosition();
         attack = new Skill(
-                new StabSkill(() -> SkillTools.calculateLastPositionInRange(start, end, attackRange)),
+                new RubberballSkill(() -> SkillTools.calculateLastPositionInRange(start, end, attackRange)),
                 attackCooldown);
         new SkillComponent(this).addSkill(attack);
     }

@@ -8,7 +8,7 @@ public class ExplosivePebbleSkill extends ExplosiveProjectileSkill {
     
     public ExplosivePebbleSkill(ITargetSelection targetSelection) {
         super(
-                "skills/fireball/fireBall_Down/",
+                "skills/bomb/bomb_down",
                 0.5f,
                 new Damage(10, DamageType.PHYSICAL, null),
                 new Point(10, 10),

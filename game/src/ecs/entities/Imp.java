@@ -5,6 +5,7 @@ import ecs.components.*;
 import ecs.components.skill.*;
 import ecs.damage.Damage;
 import ecs.entities.Entity;
+import game.src.ecs.components.skill.PiercingArrowSkill;
 import graphic.Animation;
 import ecs.components.OnDeathFunctions.EndGame;
 import ecs.components.ai.AIComponent;
@@ -88,7 +89,7 @@ public class Imp extends Monster {
         Point start = ((PositionComponent) this.getComponent(PositionComponent.class).get()).getPosition();
         Point end = ((PositionComponent) Game.getHero().get().getComponent(PositionComponent.class).get()).getPosition();
         attack = new Skill(
-                new FireballSkill(() -> SkillTools.calculateLastPositionInRange(start, end, attackRange)),
+                new PiercingArrowSkill(() -> SkillTools.calculateLastPositionInRange(start, end, attackRange)),
                 attackCooldown);
         new SkillComponent(this).addSkill(attack);
     }

@@ -17,7 +17,7 @@ import java.io.Serializable;
  */
 public class Hero extends Entity implements Serializable {
 
-    private final int fireballCoolDown = 5;
+    private final int explosivePebbleCoolDown = 1;
     private final int stabCoolDown = 1;
     private final float xSpeed = 0.3f;
     private final float ySpeed = 0.3f;
@@ -36,9 +36,6 @@ public class Hero extends Entity implements Serializable {
     public Hero() {
         super();
         setupComponents(maxHealth, maxHealth);
-        PlayableComponent pc = new PlayableComponent(this);
-        setupFireballSkill();
-        pc.setSkillSlot1(firstSkill);
     }
 
     /** Maybe this will let me load */
@@ -68,7 +65,7 @@ public class Hero extends Entity implements Serializable {
 
     private void setupFireballSkill() {
         firstSkill = new Skill(
-                new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
+                new ExplosivePebbleSkill(SkillTools::getCursorPositionAsPoint), explosivePebbleCoolDown);
     }
 
     private void setupStabSkill() {
