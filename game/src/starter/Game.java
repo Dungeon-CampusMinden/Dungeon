@@ -5,6 +5,7 @@ import static logging.LoggerConfig.initBaseLogger;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -79,6 +80,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static Entity hero;
     private Logger gameLogger;
 
+    public static InputMultiplexer inputMultiplexer = new InputMultiplexer();
     public static void main(String[] args) {
         // start the game
         try {
@@ -141,6 +143,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         hero = new Hero();
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel(LEVELSIZE);
+        Gdx.input.setInputProcessor(inputMultiplexer);
         createSystems();
     }
 
