@@ -192,13 +192,13 @@ Falls eine Aufgabe aktiv ist, können Studierende per Interaktion mit dem entspr
 Per Interaktion kann das Inventar eines Containers geöffnet werden, sodass der Inhalt des Inventars einsehbar ist.
 Per GUI-Button kann das Inventar wieder geschlossen werden.
 
-### Ein Item aus dem Inventar eines Containers in das Inventar des Spielcharakters transferieren
+### Item aus Container-Inventar in Charakter-Inventar transferieren
 
 Bei geöffnetem Container-Inventar kann ein Item aus dem Container-Inventar ausgewählt werden und in das Inventar
 des Spielcharakters transferiert werden. Per GUI-Button können auch alle Items aus dem Container-Inventar in das
 Inventar des Spielcharakters übertragen werden.
 
-### Ein Item aus dem Inventar des Spielcharakters in das Inventar eines Containers transferieren
+### Item aus Charakter-Inventar in Container-Inventar transferieren
 
 Bei geöffnetem Spielcharakter-Inventar kann ein Item aus dem Spielcharakter-Inventar ausgewählt werden und in das Inventar
 eines Containers transferiert werden.
