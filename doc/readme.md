@@ -67,10 +67,10 @@ In diesem Abschnitt werden Ihnen die wichtigsten Klassen im Dungeon vorgestellt.
 *Anmerkung:* Das UML ist für bessere Lesbarkeit auf die wesentlichen Bestandteile gekürzt.
 
 Die in Grün gekennzeichnete Klasse `Game` ist die Basisklasse, von der alles ausgeht. Die Methode `Game#render` ist die
-Game-Loop. Das ECS wird durch die in weiß gekennzeichneten Klassen `Entity`, `Component` und `ECS_System` implementiert.
+Game-Loop. Das ECS wird durch die in weiß gekennzeichneten Klassen `Entity`, `Component` und `System` implementiert.
 Im weiteren Verlauf wird noch genauer hierauf eingegangen.
 
-Neu erzeugte Entitäten speichern sich automatisch im HashSet `entities` der `Game`-Klasse ab. `ECS_System`e speichern
+Neu erzeugte Entitäten speichern sich automatisch im HashSet `entities` der `Game`-Klasse ab. `System`e speichern
 sich automatisch im `SystemController` `systems` der `Game`-Klasse ab.
 
 Die Systeme iterieren über die in `Game` gespeicherten Entitäten und greifen über die Methode `Entity#getComponent` auf
@@ -137,12 +137,12 @@ zu genau einer Entität-Instanz.
 Jedes Component muss von der abstrakten Klasse `Component` abgeleitet werden. Schauen Sie sich auch die [bereits
 implementierten Components](ecs/components/readme.md) an.
 
-### ECS_System
+### System
 
 Systeme agieren auf den Components und ändern die Werte in diesen. Sie bestimmen also das Verhalten der Entitäten. Ein
 System kann auf mehrere Components agieren.
 
-Um ein eigenes System zu erstellen, muss von der abstrakten Klasse `ECS_System` abgeleitet werden. Schauen Sie sich auch
+Um ein eigenes System zu erstellen, muss von der abstrakten Klasse `System` abgeleitet werden. Schauen Sie sich auch
 die [bereits implementierten Systeme](ecs/systems/readme.md) an; hier finden Sie auch die Abhängigkeiten der Systeme zu
 bestimmten Components.
 

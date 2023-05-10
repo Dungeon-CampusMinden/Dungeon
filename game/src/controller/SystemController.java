@@ -1,17 +1,17 @@
 package controller;
 
-import ecs.systems.ECS_System;
+import ecs.systems.System;
 import logging.CustomLogLevel;
 
-/** used to integrate ECS_Systems in PM-Dungeon game loop */
-public class SystemController extends AbstractController<ECS_System> {
+/** used to integrate Systems in PM-Dungeon game loop */
+public class SystemController extends AbstractController<System> {
 
     public SystemController() {
         super();
     }
 
     @Override
-    public void process(ECS_System e) {
+    public void process(System e) {
         if (e.isRunning()) {
             e.systemLogger.log(
                     CustomLogLevel.TRACE,

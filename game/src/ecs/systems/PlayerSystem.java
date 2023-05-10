@@ -10,7 +10,7 @@ import ecs.tools.interaction.InteractionTool;
 import starter.Game;
 
 /** Used to control the player */
-public class PlayerSystem extends ECS_System {
+public class PlayerSystem extends System {
 
     private record KSData(Entity e, PlayableComponent pc, VelocityComponent vc) {}
 

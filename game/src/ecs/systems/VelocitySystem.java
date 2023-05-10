@@ -13,7 +13,7 @@ import starter.Game;
 import tools.Point;
 
 /** MovementSystem is a system that updates the position of entities */
-public class VelocitySystem extends ECS_System {
+public class VelocitySystem extends System {
 
     private record VSData(Entity e, VelocityComponent vc, PositionComponent pc) {}
 

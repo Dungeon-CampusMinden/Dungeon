@@ -17,6 +17,7 @@ import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
 import ecs.systems.*;
+import ecs.systems.System;
 import graphic.DungeonCamera;
 import graphic.Painter;
 import graphic.hud.PauseMenu;
@@ -219,7 +220,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static void togglePause() {
         paused = !paused;
         if (systems != null) {
-            systems.forEach(ECS_System::toggleRun);
+            systems.forEach(System::toggleRun);
         }
         if (pauseMenu != null) {
             if (paused) pauseMenu.showMenu();

@@ -8,9 +8,9 @@ import org.junit.Before;
 import org.junit.Test;
 import starter.Game;
 
-public class ECS_SystemTest {
+public class SystemTest {
 
-    private ECS_System testSystem;
+    private System testSystem;
     private int updates;
 
     @Before
@@ -18,7 +18,7 @@ public class ECS_SystemTest {
         updates = 0;
         Game.systems = new SystemController();
         testSystem =
-                new ECS_System() {
+                new System() {
                     @Override
                     public void update() {
                         updates++;
