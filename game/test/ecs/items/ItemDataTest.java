@@ -19,7 +19,7 @@ import tools.Point;
 public class ItemDataTest {
     @Before
     public void before() {
-        Game.getDelayedSet().clear();
+        Game.getDelayedEntitySet().clear();
     }
 
     @Test
@@ -61,7 +61,7 @@ public class ItemDataTest {
         ItemData itemData = new ItemData();
         Point point = new Point(0, 0);
         itemData.triggerDrop(null, point);
-        Game.getDelayedSet().update();
+        Game.getDelayedEntitySet().update();
         Entity e = Game.getEntities().iterator().next();
         PositionComponent pc =
                 (PositionComponent) e.getComponent(PositionComponent.class).orElseThrow();

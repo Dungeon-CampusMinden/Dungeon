@@ -231,7 +231,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
-     * @return Set with all entities currently in game
+     * @return Copy of the Set with all entities currently in game
      */
     public static Set<Entity> getEntities() {
         return entities.getSet();
@@ -240,7 +240,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /**
      * @return The {@link DelayedSet} to manage all the entities in the ecs
      */
-    public static DelayedSet getDelayedSet() {
+    public static DelayedSet getDelayedEntitySet() {
         return entities;
     }
 

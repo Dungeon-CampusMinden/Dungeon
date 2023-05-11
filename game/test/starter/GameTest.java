@@ -32,8 +32,8 @@ class GameTest {
 
     @Before
     public void setUp() throws Exception {
-        Game.getDelayedSet().removeAll(Game.getEntities());
-        Game.getDelayedSet().update();
+        Game.getDelayedEntitySet().removeAll(Game.getEntities());
+        Game.getDelayedEntitySet().update();
 
         game = Mockito.spy(Game.class);
         batch = Mockito.mock(SpriteBatch.class);
@@ -97,7 +97,7 @@ class GameTest {
         Entity e1 = Mockito.mock(Entity.class);
         Game.addEntity(e1);
         assertFalse(Game.getEntities().contains(e1));
-        Game.getDelayedSet().update();
+        Game.getDelayedEntitySet().update();
         assertTrue(Game.getEntities().contains(e1));
         assertEquals(1, Game.getEntities().size());
     }
@@ -106,9 +106,9 @@ class GameTest {
     public void removeEntity() {
         Entity e1 = Mockito.mock(Entity.class);
         Game.addEntity(e1);
-        Game.getDelayedSet().update();
+        Game.getDelayedEntitySet().update();
         Game.removeEntity(e1);
-        Game.getDelayedSet().update();
+        Game.getDelayedEntitySet().update();
         assertFalse(Game.getEntities().contains(e1));
         assertEquals(0, Game.getEntities().size());
     }
