@@ -71,11 +71,11 @@ und in das Inventar des Spielcharakters transferiert werden.
 Aus einer Spielmechanik kann abgeleitet werden, welche Komponenten an der Mechanik beteiligt
 sind. Für obiges Beispiel sind folgende Komponenten erforderlich:
 
-- `InventoryComponent` im Spielcharakter (zur Realisierung des Spielerinventars)
+- `InventoryComponent` im Spielcharakter (zur Realisierung des Inventars)
 - `CollisionComponent` im Spielcharakter und im Item, um ein Event auszulösen, sobald der
   Spielcharakter über das Item läuft
 - Alternativ ein `InteractionComponent` im Item, falls das Item per dedizierter
-  Spielendenaktion (bspw. Tastendruck) aufgehoben werden soll
+  Eingabeaktion (bspw. Tastendruck) aufgehoben werden soll
 
 ### Spielszenario
 
