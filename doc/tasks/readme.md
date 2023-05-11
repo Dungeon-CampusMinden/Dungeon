@@ -81,7 +81,9 @@ sind. Für obiges Beispiel sind folgende Komponenten erforderlich:
 
 Ein Spielszenario beschreibt, welche Spielmechaniken, welche Entitätstypen und auf welche
 Art diese in einem konkreten Dungeonlevel in Verbindung gebracht werden, um eine abstrakte
-Aufgabe zu realisieren. Ein Spielszenario beschreibt nicht, welche visuellen
+Aufgabe zu realisieren. Ein Spielszenario beschreibt nicht, welche visuellen Ausprägungen
+der Entitätstypen verwendet werden, bspw. ob der Questgeber einer Aufgabe wie ein "Zauberer"
+oder wie eine "Kriegerin" dargestellt wird.
 
 Beispiel: In einem Raum befindet sich ein NPC und verschiedene Schalter. Der NPC stellt dem
 Spieler eine Frage und sagt ihm, welcher Hebel für welche Antwort steht.
