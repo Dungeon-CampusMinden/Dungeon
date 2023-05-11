@@ -156,20 +156,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         getHero().ifPresent(this::placeOnLevelStart);
     }
 
-    /*  private void manageEntitiesSets() {
-        entities.update();
-        entities.uo(entitiesToRemove);
-        entities.addAll(entitiesToAdd);
-        for (Entity entity : entitiesToRemove) {
-            gameLogger.info("Entity '" + entity.getClass().getSimpleName() + "' was deleted.");
-        }
-        for (Entity entity : entitiesToAdd) {
-            gameLogger.info("Entity '" + entity.getClass().getSimpleName() + "' was added.");
-        }
-        entitiesToRemove.clear();
-        entitiesToAdd.clear();
-    }*/
-
     private void setCameraFocus() {
         if (getHero().isPresent()) {
             PositionComponent pc =
