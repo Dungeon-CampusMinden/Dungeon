@@ -24,8 +24,7 @@ public class HealthSystemTest {
         Game.getEntities().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
-        Game.getEntities().addAll(Game.getEntitiesToAdd());
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedSet().update();
         IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
         Animation dieAnimation = new Animation(List.of("FRAME1"), 1, false);
         AnimationComponent ac = new AnimationComponent(entity);
@@ -34,7 +33,8 @@ public class HealthSystemTest {
         component.setCurrentHealthpoints(0);
         system.update();
         assertEquals(dieAnimation, ac.getCurrentAnimation());
-        assertTrue(Game.getEntitiesToRemove().contains(entity));
+        Game.getDelayedSet().update();
+        assertFalse(Game.getEntities().contains(entity));
     }
 
     @Test
@@ -42,8 +42,7 @@ public class HealthSystemTest {
         Game.getEntities().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
-        Game.getEntities().addAll(Game.getEntitiesToAdd());
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedSet().update();
         IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
         Animation hitAnimation = Mockito.mock(Animation.class);
         AnimationComponent ac = new AnimationComponent(entity);
@@ -61,8 +60,7 @@ public class HealthSystemTest {
         Game.getEntities().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
-        Game.getEntities().addAll(Game.getEntitiesToAdd());
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedSet().update();
         IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
         Animation hitAnimation = Mockito.mock(Animation.class);
         AnimationComponent ac = new AnimationComponent(entity);
@@ -80,8 +78,7 @@ public class HealthSystemTest {
         Game.getEntities().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
-        Game.getEntities().addAll(Game.getEntitiesToAdd());
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedSet().update();
         IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
         Animation hitAnimation = Mockito.mock(Animation.class);
         AnimationComponent ac = new AnimationComponent(entity);
@@ -98,8 +95,7 @@ public class HealthSystemTest {
         Game.getEntities().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
-        Game.getEntities().addAll(Game.getEntitiesToAdd());
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedSet().update();
         HealthSystem system = new HealthSystem();
         system.update();
     }
@@ -109,8 +105,7 @@ public class HealthSystemTest {
         Game.getEntities().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
-        Game.getEntities().addAll(Game.getEntitiesToAdd());
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedSet().update();
         HealthComponent component = new HealthComponent(entity);
         HealthSystem system = new HealthSystem();
         assertThrows(MissingComponentException.class, () -> system.update());
@@ -121,8 +116,7 @@ public class HealthSystemTest {
         Game.getEntities().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
-        Game.getEntities().addAll(Game.getEntitiesToAdd());
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedSet().update();
         new AnimationComponent(entity);
         StatsComponent statsComponent = new StatsComponent(entity);
         statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, 2);
@@ -143,8 +137,7 @@ public class HealthSystemTest {
         Game.getEntities().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
-        Game.getEntities().addAll(Game.getEntitiesToAdd());
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedSet().update();
         new AnimationComponent(entity);
         StatsComponent statsComponent = new StatsComponent(entity);
         statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, -2);
@@ -165,8 +158,7 @@ public class HealthSystemTest {
         Game.getEntities().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
-        Game.getEntities().addAll(Game.getEntitiesToAdd());
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedSet().update();
         new AnimationComponent(entity);
         StatsComponent statsComponent = new StatsComponent(entity);
         statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, 0);
@@ -187,8 +179,7 @@ public class HealthSystemTest {
         Game.getEntities().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
-        Game.getEntities().addAll(Game.getEntitiesToAdd());
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedSet().update();
         new AnimationComponent(entity);
         StatsComponent statsComponent = new StatsComponent(entity);
         statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, 100);

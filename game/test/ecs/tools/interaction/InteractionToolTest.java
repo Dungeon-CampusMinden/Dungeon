@@ -54,9 +54,8 @@ public class InteractionToolTest {
 
     /** cleanup to reset static Attributes from Game used by the InteractionTool */
     private static void cleanup() {
-        Game.getEntities().clear();
-        Game.getEntitiesToAdd().clear();
-        Game.getEntitiesToRemove().clear();
+        Game.getDelayedSet().removeAll(Game.getEntities());
+        Game.getDelayedSet().update();
         Game.setHero(null);
         Game.currentLevel = null;
     }
@@ -92,8 +91,7 @@ public class InteractionToolTest {
         cleanup();
         Game.setHero(fullMockedHero(true));
         Game.currentLevel = prepareLevel();
-        Game.getEntities().addAll(Game.getEntitiesToAdd());
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedSet().update();
         InteractionTool.interactWithClosestInteractable(Game.getHero().get());
         cleanup();
     }
@@ -149,8 +147,7 @@ public class InteractionToolTest {
         SimpleCounter sc_e = new SimpleCounter();
         new InteractionComponent(e, 5f, false, (x) -> sc_e.inc());
 
-        Game.getEntities().addAll(Game.getEntitiesToAdd());
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedSet().update();
 
         InteractionTool.interactWithClosestInteractable(Game.getHero().get());
         assertEquals("One interaction should happen", 1, sc_e.getCount());
@@ -170,8 +167,7 @@ public class InteractionToolTest {
         SimpleCounter sc_e = new SimpleCounter();
         new InteractionComponent(e, 5f, false, (x) -> sc_e.inc());
 
-        Game.getEntities().addAll(Game.getEntitiesToAdd());
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedSet().update();
 
         MissingComponentException exception =
                 assertThrows(
@@ -214,8 +210,7 @@ public class InteractionToolTest {
         Entity eFar = new Entity();
         new PositionComponent(eFar, new Point(3, 0));
 
-        Game.getEntities().addAll(Game.getEntitiesToAdd());
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedSet().update();
 
         SimpleCounter sc_eFar = new SimpleCounter();
         new InteractionComponent(eFar, 5f, false, (x) -> sc_eFar.inc());
@@ -251,8 +246,7 @@ public class InteractionToolTest {
         SimpleCounter sc_eClose = new SimpleCounter();
         new InteractionComponent(eClose, 5f, false, (x) -> sc_eClose.inc());
 
-        Game.getEntities().addAll(Game.getEntitiesToAdd());
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedSet().update();
 
         InteractionTool.interactWithClosestInteractable(Game.getHero().get());
         assertEquals("One interaction should happen", 1, sc_eClose.getCount());

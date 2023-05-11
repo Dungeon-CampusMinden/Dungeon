@@ -1,7 +1,6 @@
 package starter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -33,9 +32,8 @@ class GameTest {
 
     @Before
     public void setUp() throws Exception {
-        Game.getEntities().clear();
-        Game.getEntitiesToAdd().clear();
-        Game.getEntitiesToRemove().clear();
+        Game.getDelayedSet().removeAll(Game.getEntities());
+        Game.getDelayedSet().update();
 
         game = Mockito.spy(Game.class);
         batch = Mockito.mock(SpriteBatch.class);
@@ -98,20 +96,21 @@ class GameTest {
     public void addEntity() {
         Entity e1 = Mockito.mock(Entity.class);
         Game.addEntity(e1);
-        assertTrue(Game.getEntitiesToAdd().contains(e1));
-        assertEquals(1, Game.getEntitiesToAdd().size());
-        Game.getEntities().clear();
-        Game.getEntitiesToAdd().clear();
+        assertFalse(Game.getEntities().contains(e1));
+        Game.getDelayedSet().update();
+        assertTrue(Game.getEntities().contains(e1));
+        assertEquals(1, Game.getEntities().size());
     }
 
     @Test
     public void removeEntity() {
         Entity e1 = Mockito.mock(Entity.class);
+        Game.addEntity(e1);
+        Game.getDelayedSet().update();
         Game.removeEntity(e1);
-        assertTrue(Game.getEntitiesToRemove().contains(e1));
-        assertEquals(1, Game.getEntitiesToRemove().size());
-        Game.getEntities().clear();
-        Game.getEntitiesToRemove().clear();
+        Game.getDelayedSet().update();
+        assertFalse(Game.getEntities().contains(e1));
+        assertEquals(0, Game.getEntities().size());
     }
 
     /*
