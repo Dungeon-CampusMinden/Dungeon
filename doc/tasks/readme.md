@@ -19,29 +19,33 @@ gebracht werden muss.
 
 ### Entitätstyp
 
-Ein Entitätstyp beschreibt eine definierte Zusammenstellung aus Komponenten die eine
-bestimmte Rolle in einer Spielmechanik einnehmen. Ein Beispiel für einen Entitätstyp wäre
+Ein Entitätstyp beschreibt eine definierte Zusammenstellung aus Komponenten, die eine
+bestimmte Rolle in einer Spielmechanik einnehmen. 
+
+Ein Beispiel für einen Entitätstyp wäre
 “Container”. Eine “Container”-Entität könnte folgende Komponenten enthalten:
 
-- AnimationComponent (zum Anzeigen einer Textur und zum Abspielen von Animationen, bspw. beim
+- `AnimationComponent` (zum Anzeigen einer Textur und zum Abspielen von Animationen, bspw. beim
   Öffnen des Containers)
-- InventoryComponent (zum Speichern von Items im Container)
-- InteractionComponent (um dem Spielcharacter die Möglichkeit der Interaktion mit dem
+- `InventoryComponent` (zum Speichern von Items im Container)
+- `InteractionComponent` (um dem Spielcharacter die Möglichkeit der Interaktion mit dem
   Container zu geben)
 
 Ein Entitätstyp definiert nicht die konkreten Werte in den enthaltenen Komponenten. Die
-konkreten Werte werden erst durch konkrete Ausprägungen der Entitätstypen definiert. Einige
+konkreten Werte werden erst durch konkrete Ausprägungen der Entitätstypen definiert. 
+
+Einige
 Beispiele für Ausprägungen des “Container”-Entitätstyps sind:
 
 - Briefkasten
-  - AnimationComponent speicher Briefkastentexturen
-  - InteractionComponent ruft ein Verhalten auf, welches nur das Transferieren eines Items
-    aus dem Spielerinventar in das InventoryComponent des Briefkastens zulässt
+  - `AnimationComponent` speichert Briefkastentexturen
+  - `InteractionComponent` ruft ein Verhalten auf, welches nur das Transferieren eines Items
+    aus dem Spielerinventar in das `InventoryComponent` des Briefkastens zulässt
 - Truhe
-  - AnimationCompnent speichert Truhentextur
-  - InteractionComponent überprüft eine externe Bedingung (z.B., ob die Korrekte
+  - `AnimationComponent` speichert Truhentextur
+  - `InteractionComponent` überprüft eine externe Bedingung (z.B. ob die korrekte
     Antwort auf eine Frage gegeben wurde) und transferiert bei Erfüllung der Bedingung alle
-    Items aus dem InventoryComponent in das Inventar des Spielercharakters
+    Items aus dem `InventoryComponent` in das Inventar des Spielercharakters
 
 **Note:** Das beschriebene Verhalten der Ausprägungen dient nur der Veranschaulichung und
 kann von dem tatsächlichen Verhalten der (noch nicht implementierten) Ausprägungen
@@ -59,16 +63,18 @@ zu werden.
 Eine Spielmechanik beschreibt die Interaktion von verschiedenen Entitätstypen im Spiel.
 Spielmechaniken beziehen sich ausschließlich auf die Interaktion von Spielelementen, die aus
 Game-Design Perspektive relevant sind (siehe [Steuermechanismen](#steuermechanismen) für
-alle anderen “Mechaniken”). Beispiel: ein Item, welches im Dungeon liegt, kann aufgehoben
+alle anderen “Mechaniken”). 
+
+Beispiel: ein Item, welches im Dungeon liegt, kann aufgehoben
 und in das Inventar des Spielcharakters transferiert werden.
 
 Aus einer Spielmechanik kann abgeleitet werden, welche Komponenten an der Mechanik beteiligt
 sind. Für obiges Beispiel sind folgende Komponenten erforderlich:
 
-- InventoryComponent im Spielcharakter (zur Realisierung des Spielerinventars)
-- CollisionComponent im Spielcharakter und im Item, um ein Event auszulösen, sobald der
+- `InventoryComponent` im Spielcharakter (zur Realisierung des Spielerinventars)
+- `CollisionComponent` im Spielcharakter und im Item, um ein Event auszulösen, sobald der
   Spielcharakter über das Item läuft
-- alternativ ein InteractionComponent im Item, falls das Item per dedizierter
+- Alternativ ein `InteractionComponent` im Item, falls das Item per dedizierter
   Spielendenaktion (bspw. Tastendruck) aufgehoben werden soll
 
 ### Spielszenario
@@ -114,18 +120,18 @@ regulären Ausdruck sein.
 
 ### Ersetzen
 
-Aus einer Gesamtmenge aus $l$ Elementen (mit $0 < l$) muss eine Menge mit $m$ Elementen (mit $0 < n$) durch eine
-zweite Menge mit $m$ Elementen (mit $0 < m$) ersetzt werden.
+Aus einer Gesamtmenge aus $l$ Elementen (mit $l > 0$) muss eine Menge mit $m$ Elementen (mit $m > 0$) durch eine
+zweite Menge mit $n$ Elementen (mit $n > 0$) ersetzt werden.
 Hierdurch wird die Gesamtmenge der Elemente sowie die Anzahl der enthaltenen Elemente verändert.
 
 ### Zuordnen
 
-Zuordnen bezeichnet im Allgemeinen die Aufgabe, Elemente aus einer Menge $A$ (z.B.
+Zuordnen bezeichnet im Allgemeinen die Aufgabe, Elementen aus einer Menge $A$ (z.B.
 Antwortmöglichkeiten) die Elemente aus einer anderen Menge $B$ zuzuordnen (bspw. Array-Index,
 Reihe-Spalte Kombination einer Matrix). Hierbei muss nicht jedes Element aus $A$ der
 Antwortmöglichkeiten auch einem Element aus $B$ zugeordnet werden. Allerdings muss jedem Element aus $B$ ein
 Element aus $A$ zugeordnet werden. Die gesamte Menge $A$ der Antwortmöglichkeiten muss den Studierenden
-bekannt sein, bevor sie den ersten Zuordnungsschritt machen müssen.
+bekannt sein, bevor sie den ersten Zuordnungsschritt machen können.
 
 ### Elemente in der richtigen Reihenfolge auswählen
 
@@ -140,7 +146,7 @@ auswählen müssen.
 - Bild: Interaktive Entität im Dungeon, die bei Interaktion ein Bild anzeigt (bspw. ein UML-Diagram, Graph, etc.)
 - Container: Entität, deren Inventar vom Spielcharakter manipuliert werden kann
 - Monster: Entität, welche den Spielcharakter (nach einem bestimmten Verhalten) verfolgt, angreift und besiegt werden kann
-- interaktives Bedienelement: Eine interaktive Entität, deren Zustand vom Spielcharakter manipuliert werden kann. Es sind vier
+- Interaktives Bedienelement: Eine interaktive Entität, deren Zustand vom Spielcharakter manipuliert werden kann. Es sind vier
   unterschiedliche Arten vorgesehen:
   - Tastend: Das Bedienelement kann impulsartig betätigt werden, d.h. bei Interaktion wird einmalig eine Aktion ausgeführt
   - Schaltend: Das Bedienelement kann zwischen zwei Zuständen getoggelt werden (an/aus)
