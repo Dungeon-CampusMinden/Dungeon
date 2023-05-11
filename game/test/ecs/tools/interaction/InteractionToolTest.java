@@ -54,8 +54,7 @@ public class InteractionToolTest {
 
     /** cleanup to reset static Attributes from Game used by the InteractionTool */
     private static void cleanup() {
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
-        Game.getDelayedEntitySet().update();
+        Game.getDelayedEntitySet().clear();
         Game.setHero(null);
         Game.currentLevel = null;
     }
