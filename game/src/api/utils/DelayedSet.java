@@ -55,7 +55,7 @@ public final class DelayedSet<T> {
     /**
      * Add the given to {@link #toAdd}.
      *
-     * <p>After the call of {@link #update}, * the objects inside this inner set will be added to
+     * <p>After the call of {@link #update}, the objects inside this inner set will be added to
      * {@link #current}
      *
      * @param t Object to add
