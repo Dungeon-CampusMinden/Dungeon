@@ -40,12 +40,12 @@ Beispiele für Ausprägungen des “Container”-Entitätstyps sind:
 - Briefkasten
   - `AnimationComponent` speichert Briefkastentexturen
   - `InteractionComponent` ruft ein Verhalten auf, welches nur das Transferieren eines Items
-    aus dem Spielerinventar in das `InventoryComponent` des Briefkastens zulässt
+    aus dem Spielcharakter-Inventar in das `InventoryComponent` des Briefkastens zulässt
 - Truhe
   - `AnimationComponent` speichert Truhentextur
   - `InteractionComponent` überprüft eine externe Bedingung (z.B. ob die korrekte
     Antwort auf eine Frage gegeben wurde) und transferiert bei Erfüllung der Bedingung alle
-    Items aus dem `InventoryComponent` in das Inventar des Spielercharakters
+    Items aus dem `InventoryComponent` in das Inventar des Spielcharakters
 
 **Note:** Das beschriebene Verhalten der Ausprägungen dient nur der Veranschaulichung und
 kann von dem tatsächlichen Verhalten der (noch nicht implementierten) Ausprägungen
@@ -86,7 +86,7 @@ der Entitätstypen verwendet werden, bspw. ob der Questgeber einer Aufgabe wie e
 oder wie eine "Kriegerin" dargestellt wird.
 
 Beispiel: In einem Raum befindet sich ein Questgeber und verschiedene Schalter. Der Questgeber
-stellt dem Spieler eine Frage und sagt ihm, welcher Hebel für welche Antwort steht.
+stellt dem Spielcharakter eine Frage und sagt ihm, welcher Hebel für welche Antwort steht.
 
 ### Steuermechanismen
 
@@ -304,17 +304,16 @@ Eine Bestrafung für eine falsch bearbeitete Aufgabe kann unterschiedlich ausseh
 
 ### Questgeber stellt Frage
 
-Im Level steht ein Questgeber, mit dem der Spieler reden kann. Im Gespräch stellt der Questgeber
-dem Spieler eine Frage, die er beantworten muss. Beantwortet der Spieler die Frage richtig,
-bekommt er eine Belohnung. Beantwortet der Spieler die Frage falsch, bekommt er keine
-Belohnung.
+Im Level steht ein Questgeber, mit dem der Spielcharakter reden kann. Im Gespräch stellt der Questgeber
+dem Spielcharakter eine Frage, die er beantworten muss. Beantwortet der Spielcharakter die Frage richtig,
+bekommt er eine Belohnung. Beantwortet der Spielcharakter die Frage falsch, bekommt er keine Belohnung.
 
 ### Monster greift mit Frage an
 
-Im Level läuft ein Monster herum. Wenn das Monster den Spieler sieht, läuft es in den
-Spieler hinein (bis zur Kollision). Bei Kollision stellt das Monster dem Spieler eine Frage.
-Beantwortet der Spieler die Frage richtig, stirbt das Monster. Beantwortet der Spieler die
-Frage falsch, bekommt er viel Schaden und das Monster rennt weg.
+Im Level läuft ein Monster herum. Wenn das Monster den Spielcharakter sieht, läuft es auf den
+Spielcharakter zu (bis zur Kollision). Bei Kollision stellt das Monster eine Frage.
+Wird die Frage richtig beantwortet, stirbt das Monster. Wird die
+Frage falsch beantwortet, wird die Gesundheit des Spielcharakters stark beschädigt und das Monster rennt weg.
 
 ### Container ist mit Frage verschlossen
 
@@ -340,87 +339,60 @@ Belohnung an den Spielcharakter ausgegeben.
 - Eine Menge verschiebbarer Blöcke stehen in einem Raum
 - Ein Questgeber stellt den Aufgabentext: “Bringe die Blöcke in die passende Reihenfolge nach
   folgender Vorgabe: (abhängig von der konkreten Aufgabenstellung)”
-- Der Spieler interagiert mit den verschiebbaren Blöcken und bringt sie in die geforderte
+- Der Spielcharakter interagiert mit den verschiebbaren Blöcken und bringt sie in die geforderte
   Reihenfolge
   - Hierbei müssen die Blöcke auf speziellen Feldern auf dem Boden platziert werden
-- Wenn der Spieler erneut mit dem Questgeber interagiert, öffnet sich ein UI-Element, in dem
+- Wenn der Spielcharakter erneut mit dem Questgeber interagiert, öffnet sich ein UI-Element, in dem
   entweder die Aufgabenstellung erneut angezeigt werden kann, oder die Konfiguration der
-  Blöcke auf den speziellen Felder als Antwort geloggt wird
-- Wenn die Konfiguration der Blöcke auf den speziellen Feldern korrekt ist, wird der Spieler
-  belohnt, die Belohnung könnte sein
-  - eine Textnachricht über UI: “Ja, gut gemacht!”
-  - ein Item, was vom Questgeber fallen gelassen wird
-- Wenn die Konfiguration der Blöcke falsch ist, wird der Spieler bestraft, die Bestrafung
-  könnte sein
-  - eine Textnachricht über UI: “Nein, das war leider falsch!”
-  - Monster spawnen, sodass der Spieler kämpfen muss
-- Falls der Spieler die falsche Antwort gegeben hat, kann durch Steuermechanismen
-  beeinflusst werden, ob er seine Antwort korrigieren kann und wie so eine korrigierte
-  Antwort in die Bewertung einfließt
+  Blöcke auf den speziellen Feldern als Antwort geloggt wird
+- Wenn die Konfiguration der Blöcke auf den speziellen Feldern korrekt ist, wird eine Belohnung erteilt
+- Wenn die Konfiguration der Blöcke falsch ist, wird eine Bestrafung erteilt
 
 ### Schalter müssen in der richtigen Reihenfolge betätigt werden
 
 - In einem Raum sind mehrere tastende Schalter platziert
 - Questgeber stellt den Aufgabentext: “Betätige die Schalter in der richtigen Reihenfolge nach
   folgender Vorgabe: *(abhängig von der konkreten Aufgabenstellung)*”
-- Spieler interagiert mit den verschiedenen Tastern
+- Der Spielcharakter interagiert mit den verschiedenen Tastern
 - Reihenfolge der Betätigungen wird geloggt
 - Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die Reihenfolge als Antwort abgegeben werden kann
-- Wenn die Reihenfolge der Betätigungen korrekt ist, wird der Spieler belohnt, die Belohnung
-  könnte sein
-  - eine Textnachricht über UI: “Ja, gut gemacht!”
-  - ein Item, was vom Questgeber fallen gelassen wird
-- Wenn die Reihenfolge der Betätigungen falsch ist, wird der Spieler bestraft, die
-  Bestrafung könnte sein
-  - eine Textnachricht über UI: “Nein, das war leider falsch!”
-  - Monster spawnen, sodass der Spieler kämpfen muss
-- Falls der Spieler die falsche Antwort gegeben hat, kann durch Steuermechanismen
-  beeinflusst werden, ob er seine Antwort korrigieren kann und wie so eine korrigierte
-  Antwort in die Bewertung einfließt
+- Wenn die Reihenfolge der Betätigungen korrekt ist, wird eine Belohnung erteilt
+- Wenn die Reihenfolge der Betätigungen falsch ist, wird eine Bestrafung erteilt
 
 ### Sammlung an Schalter müssen in die richtigen Zustände gebracht werden
 
 - In einem Raum sind mehrere Schalter mit Zustandsanzahl \> 2 platziert
 - Questgeber stellt den Aufgabentext: “Bringe die Schalter in die richtigen Zustände nach folgender
   Vorgabe: (abhängig von der konkreten Aufgabenstellung)”
-- Spieler interagiert mit den verschiedenen Schaltern
+- Der Spielcharakter interagiert mit den verschiedenen Schaltern
 - Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die Zustände aller Schalter als Antwort abgegeben werden können
-- Wenn die Zustände der Schalter korrekt ist, wird der Spieler belohnt, die Belohnung könnte
-  sein
-  - eine Textnachricht über UI: “Ja, gut gemacht!”
-  - ein Item, was vom Questgeber fallen gelassen wird
-- Wenn die Zustände der Schalter falsch ist, wird der Spieler bestraft, die Bestrafung
-  könnte sein
-  - eine Textnachricht über UI: “Nein, das war leider falsch!”
-  - Monster spawnen, sodass der Spieler kämpfen muss
-- Falls der Spieler die falsche Antwort gegeben hat, kann durch Steuermechanismen
-  beeinflusst werden, ob er seine Antwort korrigieren kann und wie so eine korrigierte
-  Antwort in die Bewertung einfließt
+- Wenn die Zustände der Schalter korrekt ist, wird eine Belohnung erteilt
+- Wenn die Zustände der Schalter falsch ist, wird eine Bestrafung erteilt
 
 ### Monster müssen in der richtigen Reihenfolge gehauen werden
 
 - In einem Raum laufen mehrere unterscheidbare Monster umher
 - Questgeber stellt den Aufgabentext: “Besiege die Monster in der richtigen Reihenfolge nach
   folgender Vorgabe: (abhängig von der konkreten Aufgabenstellung)”
-- Spieler kämpft gegen die Monster
+- Der Spielcharakter kämpft gegen die Monster
 - Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die Reihenfolge der besiegten Monster als Antwort geloggt werden kann
 - Wenn die Reihenfolge der besiegten Monster korrekt ist, wird eine Belohnung erteilt
-- Wenn die Reihenfolge der besiegten Monster falsch ist, wird der Spieler bestraft
+- Wenn die Reihenfolge der besiegten Monster falsch ist, wird eine Bestrafung erteilt
 
 ### Monsterarten in richtiges Verhältnis bringen
 
-Der Spieler kommt in einen Raum mit visuell verschiedenen Monstern. Der Questgeber erklärt den
-Spieler, die Aufgabe. Der Spieler muss die Monster so bekämpfen, dass das richtige
-Verhältnis zwischen den Arten erreicht ist.
+In einem Raum bewegen sich visuell verschiedene Monster. Per Questgeber wird eine Aufgabe
+aktiviert. Die Monster müssen so bekämpft werden, dass das richtige Verhältnis zwischen
+den visuell unterschiedlichen Monsterarten erreicht ist.
 
-Löst der Spieler die Aufgabe richtig, bekommt er eine Belohnung. Löst der Spieler die
-Aufgabe falsch, bekommt er keine Belohnung.
+Wird die Aufgabe richtig gelöst, wird eine Belohnung erteilt.
+Wird die Aufgabe falsch gelöst, wird eine Bestrafung erteilt.
 
 ### Items müssen in Container abgelegt werden
 
@@ -428,24 +400,24 @@ Aufgabe falsch, bekommt er keine Belohnung.
 - Im Dungeon (nicht nur im Container-Raum) sind Items versteckt
 - Questgeber stellt den Aufgabentext: “Finde und platziere Items in den richtigen Containern nach
   folgender Vorgabe: (abhängig von der konkreten Aufgabenstellung)”
-- Spieler sucht im Dungeon nach Items und legt sie in Containern ab
+- Spielende suchen im Dungeon nach Items und legen sie in Containern ab
 - Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die abgelegten Items in den Containern als Antwort geloggt werden können
-- Wenn die richtigen Items in den richtigen Containern platziert wurden, wird der Spieler belohnt
-- Wenn die falschen Items in den falschen Containern platziert wurden, wird der Spieler bestraft
+- Wenn die richtigen Items in den richtigen Containern platziert wurden, wird eine Belohnung erteilt
+- Wenn die falschen Items in den falschen Containern platziert wurden, wird eine Bestrafung erteilt
 
 ### Items müssen aus einem Container entfernt werden
 
 - In einem Raum steht ein Container, die eine Menge von Items speichert
 - Questgeber stellt den Aufgabentext: “Entferne Items in den aus dem Container nach folgender Vorgabe:
   (abhängig von der konkreten Aufgabenstellung)”
-- Spieler entfernt Items aus dem Container
+- Spielende entfernen Items aus dem Container
 - Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die entfernten Items als Antwort geloggt werden können
-- Wenn die richtigen Items entfernt wurden, wird der Spieler belohnt
-- Wenn die falschen Items entfernt wurden, wird der Spieler bestraft
+- Wenn die richtigen Items entfernt wurden, wird eine Belohnung erteilt
+- Wenn die falschen Items entfernt wurden, wird eine Bestrafung erteilt
 
 ### Schriftrollen in Container ablegen
 
@@ -453,14 +425,13 @@ Aufgabe falsch, bekommt er keine Belohnung.
 - Im Dungeon (nicht nur im Container-Raum) sind Schriftrollen versteckt
 - Questgeber stellt den Aufgabentext: “Finde und werfe Schriftrollen in den Container nach folgender
   Vorgabe: (abhängig von der konkreten Aufgabenstellung)”
-- Spieler sucht im Dungeon nach Schriftrollen und wirft sie in den Container
-  - Nachdem der Spieler die Items eingeworfen hat, können sie nicht mehr herausgenommen
-    werden
+- Spielende suchen im Dungeon nach Schriftrollen und legt sie im Container ab
+  - Nachdem die Schriftrollen abgelegt sind, können sie nicht mehr herausgenommen werden
 - Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die abgegebenen Items als Antwort geloggt werden können
-- Wenn die richtigen Schriftrollen abgegeben wurden, wird der Spieler belohnt
-- Wenn die falschen Schriftrollen abgegeben wurden, wird der Spieler bestraft
+- Wenn die richtigen Schriftrollen abgegeben wurden, wird eine Belohnung erteilt
+- Wenn die falschen Schriftrollen abgegeben wurden, wird eine Bestrafung erteilt
 
 ### Items müssen in Crafting-Container geworfen werden
 
@@ -468,11 +439,11 @@ Aufgabe falsch, bekommt er keine Belohnung.
 - Im Dungeon (nicht nur im Crafting-Container Raum) sind Items versteckt
 - Questgeber stellt den Aufgabentext: “Finde und werfe Items in den Zauberkessel nach folgender
   Vorgabe: (abhängig von der konkreten Aufgabenstellung)”
-- Spieler sucht im Dungeon nach Items und wirft sie in den Crafting-Container
+- Spielende suchen im Dungeon nach Items und legen sie im Crafting-Container ab
 - Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die abgegebenen Items als Antwort geloggt werden können
-- Wenn die richtigen Items abgegeben wurden, wird der Spieler belohnt und die abgegebenen
+- Wenn die richtigen Items abgegeben wurden, wird eine Belohnung erteilt und die abgegebenen
   Items werden zu einem neuen Item kombiniert
 - Je nach Aufgabenstellung könnte das neu erzeugte Item wieder eine “Zutat” für eine weitere
   Kombination sein
@@ -657,8 +628,8 @@ Mechaniken und Szenarien festzulegen.
   konkreten Items, bzw. Interaktionen die diese abstrakten Antworten im Dungeon abbilden
   muss eine Zuordnung bestehen (vgl. z.B. das Szenario [Blöcke müssen in richtige
   Reihenfolge geschoben
-  werden](#blöcke-müssen-in-die-richtige-reihenfolge-geschoben-werden); **damit der Spieler
-  die Aufgabe korrekt lösen kann, muss diese Aufgabe-zu-Dungeon Zuordnung klar und deutlich
+  werden](#blöcke-müssen-in-die-richtige-reihenfolge-geschoben-werden); **damit Studierende
+  die Aufgabe korrekt lösen können, muss diese Aufgabe-zu-Dungeon Zuordnung klar und deutlich
   angezeigt werden**, wie das genau aussieht und was dafür nötig ist, ist noch unklar
 - Der Aufgabentyp bestimmt die Art, auf die eine Aufgabe bewertet werden muss, das bestimmt
   auch die Art, in der der Dungeon die Antworten loggt und welche Datenstruktur dafür
@@ -676,7 +647,7 @@ Mechaniken und Szenarien festzulegen.
 - Räume
 - Truhen, “Briefkästen”, bzw. allgemein ein Spielobjekt mit Inventar
 - Questgeber-NPC
-- “Brief”, bzw. Item, auf dem etwas drauf steht, was der Spieler lesen kann
+- “Brief”, bzw. Item, auf dem etwas drauf steht, was Studierende lesen können
 - verschiebbare Spielelemente (“Klötze”, “Statuen”)
 - Monster
 - Türen (evtl. mit erkennbarer Kennzeichnung)
@@ -687,10 +658,10 @@ Mechaniken und Szenarien festzulegen.
   Freitexteingabe)
 - abstrakt: Item-Kombinator (bspw. “Zauberkessel”), der die Möglichkeit bietet, Items zu
   kombinieren
-- Dinge aus einem Inventar herausnehmen und in das Spielerinventar ablegen (bspw. aus einer
+- Dinge aus einem Inventar herausnehmen und in das Spielcharakter-Inventar ablegen (bspw. aus einer
   Truhe)
-- Dinge aus dem Spielerinventar in ein anderes Inventar ablegen (bspw. in eine Truhe)
-- Dinge aus dem Spielerinventar auf den Boden fallen lassen
+- Dinge aus dem Spielcharakter-Inventar in ein anderes Inventar ablegen (bspw. in eine Truhe)
+- Dinge aus dem Spielcharakter-Inventar auf den Boden fallen lassen
 - Zustand bzw. Inhalt eines Inventars auf “Korrektheit” (je nach Aufgabe definiert)
   überprüfen
 - Bodenaktivator durch bestimmten Itemtyp aktivieren
@@ -703,8 +674,8 @@ Mechaniken und Szenarien festzulegen.
 - Ein Item durch ein anderes (oder mehrere) ersetzen
 - Mehrere Items zu einem Item zusammenfassen
 - Durch eine (ggfs. gekennzeichnete) Tür gehen und somit einen anderen Raum betreten
-- Auf eine richtige “Antwort” reagieren und den Spieler belohnen
-- Auf eine falsche “Antwort” reagieren und den Spieler bestrafen
+- Auf eine richtige “Antwort” reagieren und eine Belohnung erteilen
+- Auf eine falsche “Antwort” reagieren und eine Bestrafung erteilen
 
 ### Steuermechanismen gesammelt
 
