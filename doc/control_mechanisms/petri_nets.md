@@ -41,12 +41,30 @@ Folgende Abhängigkeiten zwischen zwei Aufgaben $t_1$ und $t_2$ sind möglich:
 Für $t_2$ muss eine Antwort abgegeben werden, bevor $t_1$ abgeschlossen werden kann;
 $t_1$ wird zuerst aktiviert und bleibt aktiv, während $t_2$ bearbeitet wird.
 
+Kürzel: "subtask_mandatory"/"st_m"
+
+Eingabe:
+```
+task_dependency t {
+  t1 -> t2 [type="st_m"]
+}
+```
+
 **Optionale Teilaufgabe**
 
 ![Optionale Teilaufgabe](img/optional_subtask.png)
 
 Für $t_2$ muss nicht zwingend eine Antwort gegeben werden, bevor $t_1$ abgeschlossen werden kann.
 Eine gegebene Antwort für $t_2$ könnte aber bspw. Bonus-Punkte geben.
+
+Kürzel: "subtask_optional"/"st_o"
+
+Eingabe:
+```
+task_dependency t {
+  t1 -> t2 [type="st_o"]
+}
+```
 
 **Aufgabensequenz**
 
@@ -56,8 +74,24 @@ Für $t_1$ muss eine Antwort abgegeben werden, bevor $t_2$ aktiv wird. $t_1$ ist
 während $t_2$ aktiv ist. Die **gesamte Aufgabensequenz** gilt erst als abgeschlossen, wenn die letzte Aufgabe der Sequenz
 abgeschlossen ist.
 
+Kürzel: "sequence_mandatory"/"s_m"
+
+Eingabe:
+```
+task_dependency t {
+  t1 -> t2 [type="s_m"]
+}
+```
+
 Für eine Sequenz aus mehreren Aufgaben könnte dies so aussehen:
 ![Erforderliche Sequenz](img/mandatory_sequence_multi.png)
+
+Eingabe:
+```
+task_dependency t {
+  t1 -> t2 -> t3 [type="s_m"]
+}
+```
 
 **Bedingte Folgeaufgabe**
 
@@ -70,6 +104,16 @@ Im folgenden Beispiel muss $t_2$ bearbeitet werden, wenn $t_1$ falsch beantworte
 falls $t_1$ richtig beantwortet wird.
 
 ![Bedingte Folgeaufgabe](img/conditional.png)
+
+Kürzel: "conditional_false"/"c_f" und "conditional_correct"/"c_c"
+
+Eingabe:
+```
+task_dependency t {
+  t1 -> t2 [type="c_f"]
+  t1 -> t3 [type="c_c"]
+}
+```
 
 **Kombination der Beziehungen**
 

@@ -5,8 +5,8 @@ t1</panel_attributes><additional_attributes></additional_attributes></element><e
 bg=white
 fg=black
 t2</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>640</x><y>200</y><w>120</w><h>140</h></coordinates><panel_attributes>lt=&lt;-
-b_f</panel_attributes><additional_attributes>10;50;40;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>800</x><y>300</y><w>80</w><h>80</h></coordinates><panel_attributes>type=initial
+c_f</panel_attributes><additional_attributes>10;50;40;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>800</x><y>300</y><w>80</w><h>80</h></coordinates><panel_attributes>type=initial
 bg=white
 fg=black
 t3</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>740</x><y>200</y><w>140</w><h>140</h></coordinates><panel_attributes>lt=&lt;-
-b_r</panel_attributes><additional_attributes>50;50;10;10</additional_attributes></element></diagram>
+c_c</panel_attributes><additional_attributes>50;50;10;10</additional_attributes></element></diagram>
