@@ -290,6 +290,18 @@ bestätigt werden.
 
 ## Spielszenarien
 
+**Begriffsdefinition - Belohnung**
+
+Eine Belohnung für eine korrekt bearbeitete Aufgabe kann unterschiedlich aussehen, z.B.:
+- eine Textnachricht über UI: “Ja, gut gemacht!”
+- ein Item, was vom Questgeber fallen gelassen wird
+
+**Begriffsdefinition - Bestrafung**
+
+Eine Bestrafung für eine falsch bearbeitete Aufgabe kann unterschiedlich aussehen, z.B.:
+- eine Textnachricht über UI: “Nein, das war leider falsch!”
+- Monster spawnen, die bekämpft werden müssen
+
 ### Questgeber stellt Frage
 
 Im Level steht ein Questgeber, mit dem der Spieler reden kann. Im Gespräch stellt der Questgeber
@@ -398,17 +410,8 @@ Belohnung an den Spielcharakter ausgegeben.
 - Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die Reihenfolge der besiegten Monster als Antwort geloggt werden kann
-- Wenn die Reihenfolge der besiegten Monster korrekt ist, wird der Spieler belohnt, die
-  Belohnung könnte sein
-  - eine Textnachricht über UI: “Ja, gut gemacht!”
-  - ein Item, was vom Questgeber fallen gelassen wird
-- Wenn die Reihenfolge der besiegten Monster falsch ist, wird der Spieler bestraft, die
-  Bestrafung könnte sein
-  - eine Textnachricht über UI: “Nein, das war leider falsch!”
-  - mehr Monster spawnen, sodass der Spieler kämpfen muss
-- Falls der Spieler die falsche Antwort gegeben hat, kann durch Steuermechanismen
-  beeinflusst werden, ob er seine Antwort korrigieren kann und wie so eine korrigierte
-  Antwort in die Bewertung einfließt
+- Wenn die Reihenfolge der besiegten Monster korrekt ist, wird eine Belohnung erteilt
+- Wenn die Reihenfolge der besiegten Monster falsch ist, wird der Spieler bestraft
 
 ### Monsterarten in richtiges Verhältnis bringen
 
@@ -429,17 +432,8 @@ Aufgabe falsch, bekommt er keine Belohnung.
 - Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die abgelegten Items in den Containern als Antwort geloggt werden können
-- Wenn die richtigen Items in den richtigen Containern platziert wurden, wird der Spieler
-  belohnt, die Belohnung könnte sein
-  - eine Textnachricht über UI: “Ja, gut gemacht!”
-  - ein Item, was vom Questgeber fallen gelassen wird
-- Wenn die falschen Items in den falschen Containern platziert wurden, wird der Spieler
-  bestraft, die Bestrafung könnte sein
-  - eine Textnachricht über UI: “Nein, das war leider falsch!”
-  - mehr Monster spawnen, sodass der Spieler kämpfen muss
-- Falls der Spieler die falsche Antwort gegeben hat, kann durch Steuermechanismen
-  beeinflusst werden, ob er seine Antwort korrigieren kann und wie so eine korrigierte
-  Antwort in die Bewertung einfließt
+- Wenn die richtigen Items in den richtigen Containern platziert wurden, wird der Spieler belohnt
+- Wenn die falschen Items in den falschen Containern platziert wurden, wird der Spieler bestraft
 
 ### Items müssen aus einem Container entfernt werden
 
@@ -450,17 +444,8 @@ Aufgabe falsch, bekommt er keine Belohnung.
 - Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die entfernten Items als Antwort geloggt werden können
-- Wenn die richtigen Items entfernt wurden, wird der Spieler belohnt, die Belohnung könnte
-  sein
-  - eine Textnachricht über UI: “Ja, gut gemacht!”
-  - ein Item, was vom Questgeber fallen gelassen wird
-- Wenn die falschen Items entfernt wurden, wird der Spieler bestraft, die Bestrafung könnte
-  sein
-  - eine Textnachricht über UI: “Nein, das war leider falsch!”
-  - mehr Monster spawnen, sodass der Spieler kämpfen muss
-- Falls der Spieler die falsche Antwort gegeben hat, kann durch Steuermechanismen
-  beeinflusst werden, ob er seine Antwort korrigieren kann und wie so eine korrigierte
-  Antwort in die Bewertung einfließt
+- Wenn die richtigen Items entfernt wurden, wird der Spieler belohnt
+- Wenn die falschen Items entfernt wurden, wird der Spieler bestraft
 
 ### Schriftrollen in Container ablegen
 
@@ -474,17 +459,8 @@ Aufgabe falsch, bekommt er keine Belohnung.
 - Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die abgegebenen Items als Antwort geloggt werden können
-- Wenn die richtigen Schriftrollen abgegeben wurden, wird der Spieler belohnt, die Belohnung könnte
-  sein
-  - eine Textnachricht über UI: “Ja, gut gemacht!”
-  - ein Item, was vom Questgeber fallen gelassen wird
-- Wenn die falschen Schriftrollen abgegeben wurden, wird der Spieler bestraft, die Bestrafung könnte
-  sein
-  - eine Textnachricht über UI: “Nein, das war leider falsch!”
-  - mehr Monster spawnen, sodass der Spieler kämpfen muss
-- Falls der Spieler die falsche Antwort gegeben hat, kann durch Steuermechanismen
-  beeinflusst werden, ob er seine Antwort korrigieren kann und wie so eine korrigierte
-  Antwort in die Bewertung einfließt
+- Wenn die richtigen Schriftrollen abgegeben wurden, wird der Spieler belohnt
+- Wenn die falschen Schriftrollen abgegeben wurden, wird der Spieler bestraft
 
 ### Items müssen in Crafting-Container geworfen werden
 
@@ -497,9 +473,7 @@ Aufgabe falsch, bekommt er keine Belohnung.
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die abgegebenen Items als Antwort geloggt werden können
 - Wenn die richtigen Items abgegeben wurden, wird der Spieler belohnt und die abgegebenen
-  Items werden zu einem neuen Item kombiniert, die Belohnung könnte sein
-  - eine Textnachricht über UI: “Ja, gut gemacht!”
-  - ein Item, was vom Questgeber fallen gelassen wird
+  Items werden zu einem neuen Item kombiniert
 - Je nach Aufgabenstellung könnte das neu erzeugte Item wieder eine “Zutat” für eine weitere
   Kombination sein
 
