@@ -201,6 +201,8 @@ Studierende können mit einem Questgeber interagieren, wodurch sie eine Aufgabe 
 ### Aufgabe per Questgeber abschließen
 
 Falls eine Aufgabe aktiv ist, können Studierende per Interaktion mit dem entsprechenden Questgeber die Aufgabe abschließen.
+Diese Mechanik kann genutzt werden, falls zur Lösung einer Aufgabe die Zustände mehrerer Entitäten manipuliert
+werden müssen und eine finale dedizierte Aktion nötig ist, um die aktuelle Zustandskonfiguration als Lösung abzugeben.
 
 ### Ein Container-Inventar öffnen
 
