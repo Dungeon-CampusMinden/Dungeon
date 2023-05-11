@@ -3,6 +3,7 @@ package starter;
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 import static logging.LoggerConfig.initBaseLogger;
 
+import api.utils.DelayedSet;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
@@ -65,11 +66,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static TextureHandler handler;
 
     /** All entities that are currently active in the dungeon */
-    private static final Set<Entity> entities = new HashSet<>();
-    /** All entities to be removed from the dungeon in the next frame */
-    private static final Set<Entity> entitiesToRemove = new HashSet<>();
-    /** All entities to be added from the dungeon in the next frame */
-    private static final Set<Entity> entitiesToAdd = new HashSet<>();
+    private static final DelayedSet<Entity> entities = new DelayedSet<>();
 
     /** List of all Systems in the ECS */
     public static SystemController systems;
@@ -147,7 +144,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
     protected void frame() {
         setCameraFocus();
-        manageEntitiesSets();
+        entities.update();
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
     }
@@ -155,12 +152,13 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     @Override
     public void onLevelLoad() {
         currentLevel = levelAPI.getCurrentLevel();
-        entities.clear();
+        entities.removeAll(entities.getSet());
         getHero().ifPresent(this::placeOnLevelStart);
     }
 
-    private void manageEntitiesSets() {
-        entities.removeAll(entitiesToRemove);
+    /*  private void manageEntitiesSets() {
+        entities.update();
+        entities.uo(entitiesToRemove);
         entities.addAll(entitiesToAdd);
         for (Entity entity : entitiesToRemove) {
             gameLogger.info("Entity '" + entity.getClass().getSimpleName() + "' was deleted.");
@@ -170,7 +168,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
         entitiesToRemove.clear();
         entitiesToAdd.clear();
-    }
+    }*/
 
     private void setCameraFocus() {
         if (getHero().isPresent()) {
@@ -234,7 +232,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param entity will be added to the game next frame
      */
     public static void addEntity(Entity entity) {
-        entitiesToAdd.add(entity);
+        entities.add(entity);
     }
 
     /**
@@ -243,28 +241,21 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param entity will be removed from the game next frame
      */
     public static void removeEntity(Entity entity) {
-        entitiesToRemove.add(entity);
+        entities.remove(entity);
     }
 
     /**
      * @return Set with all entities currently in game
      */
     public static Set<Entity> getEntities() {
+        return entities.getSet();
+    }
+
+    /**
+     * @return The {@link DelayedSet} to manage all the entities in the ecs
+     */
+    public static DelayedSet getDelayedSet() {
         return entities;
-    }
-
-    /**
-     * @return Set with all entities that will be added to the game next frame
-     */
-    public static Set<Entity> getEntitiesToAdd() {
-        return entitiesToAdd;
-    }
-
-    /**
-     * @return Set with all entities that will be removed from the game next frame
-     */
-    public static Set<Entity> getEntitiesToRemove() {
-        return entitiesToRemove;
     }
 
     /**
