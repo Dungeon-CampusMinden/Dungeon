@@ -160,6 +160,8 @@ auswählen müssen.
 - Schriftrolle: Ein Item, welches einen Text anzeigt
 - Craftingcontainer: Ein Container, der zusätzlich die Möglichkeit bietet, die Menge der enthaltenen Items unter Verwendung von
   Craftingrezepten zu transmutieren
+- Block: Eine verschiebbare Entität, die entweder per dedizierter Interaktion oder durch Kollision mit der Hitbox des
+  Spielcharakters im Dungeon verschoben und gezogen werden kann
 
 ## Spielmechaniken
 
