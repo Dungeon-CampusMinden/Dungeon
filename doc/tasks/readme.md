@@ -577,8 +577,8 @@ wird auf den Anfangszustand zurückgesetzt, etc.
 ## Realisierung
 
 Die Tabellen unter [Zuordnung Aufgabentyp und
-Spielmechaniken](#zuordnung-aufgabentyp-und-spielmechaniken) und [Zuordnung Spielmechanik
-und Spielszenario](#zuordnung--spielmechanik-und-spielszenario) werden als
+Spielszenario](#zuordnung-aufgabentyp-und-spielszenario) und [Zuordnung Spielmechanik
+und Spielszenario](#zuordnung-spielmechanik-und-spielszenario) werden als
 Entscheidungsgrundlage verwendet, um die im Projekt zu realisierenden Aufgabentypen,
 Mechaniken und Szenarien festzulegen.
 
@@ -587,30 +587,28 @@ Mechaniken und Szenarien festzulegen.
 - [Single Choice](#single-choice)
 - [Multiple Choice](#multiple-choice)
 - [Lückentext](#lückentext)
-- [Positionieren](#positionieren)
+- [Zuordnen](#zuordnen)
 - [Ersetzen](#ersetzen)
-- [Kombinieren](#kombinieren)
 
 **Aufgabentypen, die im Projekt nicht realisiert werden**
 
-- [Objekte in der richtigen Reihenfolge
-  auswählen](#objekte-in-der-richtigen-reihenfolge-auswählen), da die anderen Aufgabentypen
-  ein breiteres Anwendungsfeld versprechen
+- [Elemente in der richtigen Reihenfogle auswählen](#elemente-in-der-richtigen-reihenfolge-auswählen),
+  da die anderen Aufgabentypen ein breiteres Anwendungsfeld versprechen
 
 ### Mechaniken
 
-- [GUI Button](#ein-gui-button-drücken), [GUI Checkbox](#gui-checkboxen-anhaken), [GUI Text
+- [GUI Button](#einen-gui-button-aktivieren), [GUI Checkbox](#gui-checkboxen-anhaken), [GUI Text
   eingeben](#gui-text-eingeben)
-- [Crafting](#crafting)
-- [Items in Container ablegen](#items-in-container-ablegen)
-- [Items aus Container nehmen](#items--aus-container-nehmen)
+- [Crafting](#einen-crafting-schritt-durchführen)
+- [Items in Container ablegen](#item-aus-charakter-inventar-in-container-inventar-transferieren)
+- [Items aus Container nehmen](#item-aus-container-inventar-in-charakter-inventar-transferieren)
 
 **Mechaniken, die im Projekt nicht realisiert werden**
 
-- [Kämpfen](#kämpfen) bleibt als Grundmechanik des Spiels erhalte, wird aber vorerst nicht
+- [Kämpfen](#ein-monster-angreifen) bleibt als Grundmechanik des Spiels erhalte, wird aber vorerst nicht
   als Aufgabenmechanik umgesetzt
-- [Blöcke schieben](#blöcke-schieben), da wahrscheinlich sehr komplex in der Umsetzung
-- [Schalter betätigen](#schalter-betätigen), da wahrscheinlich sehr komplex in der Umsetzung
+- [Blöcke schieben](#einen-block-verschieben), da wahrscheinlich sehr komplex in der Umsetzung
+- [Schalter betätigen](#einen-schalter-im-dungeon-betätigen), da wahrscheinlich sehr komplex in der Umsetzung
 
 ### Szenarien
 
