@@ -155,7 +155,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             DummyQuizQuestionList.getRandomQuestion().askQuizQuestionWithUI();
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ACTIVATE_DEACTIVATE.get())) {
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_KEY.get())) {
             debugger.toggleRun();
             gameLogger.info("Debugger ist now " + debugger.isRunning());
         }
