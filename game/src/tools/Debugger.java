@@ -10,7 +10,7 @@ import ecs.components.ai.idle.RadiusWalk;
 import ecs.components.ai.transition.SelfDefendTransition;
 import ecs.components.skill.SkillTools;
 import ecs.entities.Entity;
-import ecs.systems.ECS_System;
+import ecs.systems.System;
 import java.util.logging.Logger;
 import level.elements.tile.Tile;
 import level.tools.Coordinate;
@@ -27,9 +27,12 @@ import starter.Game;
  * integrated into the GameLoop as an ECS_System.
  *
  * <p>On default the debugger is deactivated and must first be activated, by pressing the
- * corresponding key. œsee ECS_System œsee KeyboardConfig
+ * corresponding key.
+ *
+ * @see System
+ * @see KeyboardConfig
  */
-public class Debugger extends ECS_System {
+public class Debugger extends System {
 
     private static final Logger DEBUGGER_LOGGER = Logger.getLogger(Debugger.class.getName());
 
