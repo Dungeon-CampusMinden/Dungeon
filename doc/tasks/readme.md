@@ -85,8 +85,8 @@ Aufgabe zu realisieren. Ein Spielszenario beschreibt nicht, welche visuellen Aus
 der Entitätstypen verwendet werden, bspw. ob der Questgeber einer Aufgabe wie ein "Zauberer"
 oder wie eine "Kriegerin" dargestellt wird.
 
-Beispiel: In einem Raum befindet sich ein NPC und verschiedene Schalter. Der NPC stellt dem
-Spieler eine Frage und sagt ihm, welcher Hebel für welche Antwort steht.
+Beispiel: In einem Raum befindet sich ein Questgeber und verschiedene Schalter. Der Questgeber
+stellt dem Spieler eine Frage und sagt ihm, welcher Hebel für welche Antwort steht.
 
 ### Steuermechanismen
 
@@ -235,7 +235,6 @@ mit der Hitbox des Items kollidiert.
 Bei geöffnetem Inventar (unabhängig zu welcher Entität das Inventar gehört), können Informationen über ein
 Item innerhalb des Inventars angezeigt werden.
 
-
 ### Ein Item auf den Boden fallen lassen
 
 Bei geöffnetem Inventar (unabhängig zu welcher Entität das Inventar gehört), kann ein ausgewähltes Item aus dem Inventar
@@ -291,9 +290,9 @@ bestätigt werden.
 
 ## Spielszenarien
 
-### NPC stellt Frage
+### Questgeber stellt Frage
 
-Im Level steht ein Questgeber, mit dem der Spieler reden kann. Im Gespräch stellt der NPC
+Im Level steht ein Questgeber, mit dem der Spieler reden kann. Im Gespräch stellt der Questgeber
 dem Spieler eine Frage, die er beantworten muss. Beantwortet der Spieler die Frage richtig,
 bekommt er eine Belohnung. Beantwortet der Spieler die Frage falsch, bekommt er keine
 Belohnung.
@@ -305,11 +304,12 @@ Spieler hinein (bis zur Kollision). Bei Kollision stellt das Monster dem Spieler
 Beantwortet der Spieler die Frage richtig, stirbt das Monster. Beantwortet der Spieler die
 Frage falsch, bekommt er viel Schaden und das Monster rennt weg.
 
-### Truhe ist mit Frage verschlossen
+### Container ist mit Frage verschlossen
 
-Im Level steht eine Schatzkiste herum. Wenn der Spieler die Schatzkiste öffnen will, stellt
-diese ihm eine Frage. Beantwortet der Spieler die Frage richtig, geht die Schatzkiste auf.
-Beantwortet der Spieler die Frage falsch, bleibt die Schatzkiste verschlossen.
+Im Level steht ein Container. Versucht der Spielcharakter die Schatzkiste zu öffnen, wird
+eine Frage per GUI-Dialog gestellt.
+Wird diese Frage korrekt beantwortet, kann der Container geöffnet werden.
+Wird die Frage falsch beantwortet, bleibt der Container geschlossen.
 
 ### Richtige Container auswählen
 
@@ -326,18 +326,18 @@ Belohnung an den Spielcharakter ausgegeben.
 ### Blöcke müssen in die richtige Reihenfolge geschoben werden
 
 - Eine Menge verschiebbarer Blöcke stehen in einem Raum
-- Ein NPC stellt den Aufgabentext: “Bringe die Blöcke in die passende Reihenfolge nach
+- Ein Questgeber stellt den Aufgabentext: “Bringe die Blöcke in die passende Reihenfolge nach
   folgender Vorgabe: (abhängig von der konkreten Aufgabenstellung)”
 - Der Spieler interagiert mit den verschiebbaren Blöcken und bringt sie in die geforderte
   Reihenfolge
   - Hierbei müssen die Blöcke auf speziellen Feldern auf dem Boden platziert werden
-- Wenn der Spieler erneut mit dem NPC interagiert, öffnet sich ein UI-Element, in dem
+- Wenn der Spieler erneut mit dem Questgeber interagiert, öffnet sich ein UI-Element, in dem
   entweder die Aufgabenstellung erneut angezeigt werden kann, oder die Konfiguration der
   Blöcke auf den speziellen Felder als Antwort geloggt wird
 - Wenn die Konfiguration der Blöcke auf den speziellen Feldern korrekt ist, wird der Spieler
   belohnt, die Belohnung könnte sein
   - eine Textnachricht über UI: “Ja, gut gemacht!”
-  - ein Item, was vom NPC fallen gelassen wird
+  - ein Item, was vom Questgeber fallen gelassen wird
 - Wenn die Konfiguration der Blöcke falsch ist, wird der Spieler bestraft, die Bestrafung
   könnte sein
   - eine Textnachricht über UI: “Nein, das war leider falsch!”
@@ -349,17 +349,17 @@ Belohnung an den Spielcharakter ausgegeben.
 ### Schalter müssen in der richtigen Reihenfolge betätigt werden
 
 - In einem Raum sind mehrere tastende Schalter platziert
-- NPC stellt den Aufgabentext: “Betätige die Schalter in der richtigen Reihenfolge nach
+- Questgeber stellt den Aufgabentext: “Betätige die Schalter in der richtigen Reihenfolge nach
   folgender Vorgabe: *(abhängig von der konkreten Aufgabenstellung)*”
 - Spieler interagiert mit den verschiedenen Tastern
 - Reihenfolge der Betätigungen wird geloggt
-- Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die
+- Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die Reihenfolge als Antwort abgegeben werden kann
 - Wenn die Reihenfolge der Betätigungen korrekt ist, wird der Spieler belohnt, die Belohnung
   könnte sein
   - eine Textnachricht über UI: “Ja, gut gemacht!”
-  - ein Item, was vom NPC fallen gelassen wird
+  - ein Item, was vom Questgeber fallen gelassen wird
 - Wenn die Reihenfolge der Betätigungen falsch ist, wird der Spieler bestraft, die
   Bestrafung könnte sein
   - eine Textnachricht über UI: “Nein, das war leider falsch!”
@@ -371,16 +371,16 @@ Belohnung an den Spielcharakter ausgegeben.
 ### Sammlung an Schalter müssen in die richtigen Zustände gebracht werden
 
 - In einem Raum sind mehrere Schalter mit Zustandsanzahl \> 2 platziert
-- NPC stellt den Aufgabentext: “Bringe die Schalter in die richtigen Zustände nach folgender
+- Questgeber stellt den Aufgabentext: “Bringe die Schalter in die richtigen Zustände nach folgender
   Vorgabe: (abhängig von der konkreten Aufgabenstellung)”
 - Spieler interagiert mit den verschiedenen Schaltern
-- Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die
+- Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die Zustände aller Schalter als Antwort abgegeben werden können
 - Wenn die Zustände der Schalter korrekt ist, wird der Spieler belohnt, die Belohnung könnte
   sein
   - eine Textnachricht über UI: “Ja, gut gemacht!”
-  - ein Item, was vom NPC fallen gelassen wird
+  - ein Item, was vom Questgeber fallen gelassen wird
 - Wenn die Zustände der Schalter falsch ist, wird der Spieler bestraft, die Bestrafung
   könnte sein
   - eine Textnachricht über UI: “Nein, das war leider falsch!”
@@ -392,16 +392,16 @@ Belohnung an den Spielcharakter ausgegeben.
 ### Monster müssen in der richtigen Reihenfolge gehauen werden
 
 - In einem Raum laufen mehrere unterscheidbare Monster umher
-- NPC stellt den Aufgabentext: “Besiege die Monster in der richtigen Reihenfolge nach
+- Questgeber stellt den Aufgabentext: “Besiege die Monster in der richtigen Reihenfolge nach
   folgender Vorgabe: (abhängig von der konkreten Aufgabenstellung)”
 - Spieler kämpft gegen die Monster
-- Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die
+- Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die Reihenfolge der besiegten Monster als Antwort geloggt werden kann
 - Wenn die Reihenfolge der besiegten Monster korrekt ist, wird der Spieler belohnt, die
   Belohnung könnte sein
   - eine Textnachricht über UI: “Ja, gut gemacht!”
-  - ein Item, was vom NPC fallen gelassen wird
+  - ein Item, was vom Questgeber fallen gelassen wird
 - Wenn die Reihenfolge der besiegten Monster falsch ist, wird der Spieler bestraft, die
   Bestrafung könnte sein
   - eine Textnachricht über UI: “Nein, das war leider falsch!”
@@ -410,30 +410,30 @@ Belohnung an den Spielcharakter ausgegeben.
   beeinflusst werden, ob er seine Antwort korrigieren kann und wie so eine korrigierte
   Antwort in die Bewertung einfließt
 
-### Verschiedene Monsterarten müssen so verprügelt werden, dass das richtige Verhältnis zwischen den Monsterarten entsteht
+### Monsterarten in richtiges Verhältnis bringen
 
-Der Spieler kommt in einen Raum mit verschiedenen Monstern. Der Questgeber erklärt den
+Der Spieler kommt in einen Raum mit visuell verschiedenen Monstern. Der Questgeber erklärt den
 Spieler, die Aufgabe. Der Spieler muss die Monster so bekämpfen, dass das richtige
 Verhältnis zwischen den Arten erreicht ist.
 
 Löst der Spieler die Aufgabe richtig, bekommt er eine Belohnung. Löst der Spieler die
 Aufgabe falsch, bekommt er keine Belohnung.
 
-### Items müssen in Truhen abgelegt werden
+### Items müssen in Container abgelegt werden
 
-- In einem Raum stehen mehrere unterscheidbare Truhen
-- Im Dungeon (nicht nur im Truhen-Raum) sind Items versteckt
-- NPC stellt den Aufgabentext: “Finde und platziere Items in den richtigen Truhen nach
+- In einem Raum stehen mehrere unterscheidbare Container
+- Im Dungeon (nicht nur im Container-Raum) sind Items versteckt
+- Questgeber stellt den Aufgabentext: “Finde und platziere Items in den richtigen Containern nach
   folgender Vorgabe: (abhängig von der konkreten Aufgabenstellung)”
-- Spieler sucht im Dungeon nach Items und legt sie in Truhen ab
-- Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die
+- Spieler sucht im Dungeon nach Items und legt sie in Containern ab
+- Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
-  die abgelegten Items in den Truhen als Antwort geloggt werden können
-- Wenn die richtigen Items in den richtigen Truhen platziert wurden, wird der Spieler
+  die abgelegten Items in den Containern als Antwort geloggt werden können
+- Wenn die richtigen Items in den richtigen Containern platziert wurden, wird der Spieler
   belohnt, die Belohnung könnte sein
   - eine Textnachricht über UI: “Ja, gut gemacht!”
-  - ein Item, was vom NPC fallen gelassen wird
-- Wenn die falschen Items in den falschen Truhen platziert wurden, wird der Spieler
+  - ein Item, was vom Questgeber fallen gelassen wird
+- Wenn die falschen Items in den falschen Containern platziert wurden, wird der Spieler
   bestraft, die Bestrafung könnte sein
   - eine Textnachricht über UI: “Nein, das war leider falsch!”
   - mehr Monster spawnen, sodass der Spieler kämpfen muss
@@ -441,19 +441,19 @@ Aufgabe falsch, bekommt er keine Belohnung.
   beeinflusst werden, ob er seine Antwort korrigieren kann und wie so eine korrigierte
   Antwort in die Bewertung einfließt
 
-### Items müssen aus einer Truhe entfernt werden
+### Items müssen aus einem Container entfernt werden
 
-- In einem Raum steht eine Truhe, die eine Menge von Items speichert
-- NPC stellt den Aufgabentext: “Entferne Items in den aus der Truhe nach folgender Vorgabe:
+- In einem Raum steht ein Container, die eine Menge von Items speichert
+- Questgeber stellt den Aufgabentext: “Entferne Items in den aus dem Container nach folgender Vorgabe:
   (abhängig von der konkreten Aufgabenstellung)”
-- Spieler entfernt Items aus der Truhe
-- Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die
+- Spieler entfernt Items aus dem Container
+- Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die entfernten Items als Antwort geloggt werden können
 - Wenn die richtigen Items entfernt wurden, wird der Spieler belohnt, die Belohnung könnte
   sein
   - eine Textnachricht über UI: “Ja, gut gemacht!”
-  - ein Item, was vom NPC fallen gelassen wird
+  - ein Item, was vom Questgeber fallen gelassen wird
 - Wenn die falschen Items entfernt wurden, wird der Spieler bestraft, die Bestrafung könnte
   sein
   - eine Textnachricht über UI: “Nein, das war leider falsch!”
@@ -462,23 +462,23 @@ Aufgabe falsch, bekommt er keine Belohnung.
   beeinflusst werden, ob er seine Antwort korrigieren kann und wie so eine korrigierte
   Antwort in die Bewertung einfließt
 
-### Items müssen in einen Briefkasten gepackt werden
+### Schriftrollen in Container ablegen
 
-- In einem Raum steht ein Briefkasten und ein NPC
-- Im Dungeon (nicht nur im Briefkasten-Raum) sind Items versteckt
-- NPC stellt den Aufgabentext: “Finde und werfe Items in den Briefkasten nach folgender
+- In einem Raum steht ein Container und ein Questgeber
+- Im Dungeon (nicht nur im Container-Raum) sind Schriftrollen versteckt
+- Questgeber stellt den Aufgabentext: “Finde und werfe Schriftrollen in den Container nach folgender
   Vorgabe: (abhängig von der konkreten Aufgabenstellung)”
-- Spieler sucht im Dungeon nach Items und wirft sie in den Briefkasten
+- Spieler sucht im Dungeon nach Schriftrollen und wirft sie in den Container
   - Nachdem der Spieler die Items eingeworfen hat, können sie nicht mehr herausgenommen
     werden
-- Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die
+- Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die abgegebenen Items als Antwort geloggt werden können
-- Wenn die richtigen Items abgegeben wurden, wird der Spieler belohnt, die Belohnung könnte
+- Wenn die richtigen Schriftrollen abgegeben wurden, wird der Spieler belohnt, die Belohnung könnte
   sein
   - eine Textnachricht über UI: “Ja, gut gemacht!”
-  - ein Item, was vom NPC fallen gelassen wird
-- Wenn die falschen Items abgegeben wurden, wird der Spieler bestraft, die Bestrafung könnte
+  - ein Item, was vom Questgeber fallen gelassen wird
+- Wenn die falschen Schriftrollen abgegeben wurden, wird der Spieler bestraft, die Bestrafung könnte
   sein
   - eine Textnachricht über UI: “Nein, das war leider falsch!”
   - mehr Monster spawnen, sodass der Spieler kämpfen muss
@@ -488,60 +488,60 @@ Aufgabe falsch, bekommt er keine Belohnung.
 
 ### Items müssen in Crafting-Container geworfen werden
 
-- In einem Raum steht ein Crafting-Container und ein NPC
+- In einem Raum steht ein Crafting-Container und ein Questgeber
 - Im Dungeon (nicht nur im Crafting-Container Raum) sind Items versteckt
-- NPC stellt den Aufgabentext: “Finde und werfe Items in den Zauberkessel nach folgender
+- Questgeber stellt den Aufgabentext: “Finde und werfe Items in den Zauberkessel nach folgender
   Vorgabe: (abhängig von der konkreten Aufgabenstellung)”
 - Spieler sucht im Dungeon nach Items und wirft sie in den Crafting-Container
-- Bei erneutem Interagieren mit NPC, öffnet sich ein UI-Element, in dem entweder die
+- Bei erneutem Interagieren mit Questgeber, öffnet sich ein UI-Element, in dem entweder die
   Aufgabenstellung erneut angezeigt werden kann, das Rätsel zurückgesetzt werden kann, oder
   die abgegebenen Items als Antwort geloggt werden können
 - Wenn die richtigen Items abgegeben wurden, wird der Spieler belohnt und die abgegebenen
   Items werden zu einem neuen Item kombiniert, die Belohnung könnte sein
   - eine Textnachricht über UI: “Ja, gut gemacht!”
-  - ein Item, was vom NPC fallen gelassen wird
+  - ein Item, was vom Questgeber fallen gelassen wird
 - Je nach Aufgabenstellung könnte das neu erzeugte Item wieder eine “Zutat” für eine weitere
   Kombination sein
 
 ## Zuordnung Aufgabentyp und Spielszenario
 
-|                                      | **NPC stellt Frage** | **Monster greift mit Frage an** | **Truhe ist mit Frage verschlossen** | **Richtige Container auswählen** | **Blöcke müssen in die richtige Reihenfolge geschoben werden** | **Schalter müssen in der richtigen Reihenfolge betätigt werden** | **Sammlung an Schaltern müssen in die richtigen Zustände gebracht werden** | **Monster müssen in der richtigen Reihenfolge gehauen werden** | **Verschiedene Monster müssen so verprügelt werden, dass das richtige Verhältnis entsteht** | **Items müssen in Truhen abgelegt werden** | **Items müssen aus einer Truhe entfernt werden** | **Items müssen in einen Briefkasten gepackt werden** | **Items müssen in Crafting-Container geworfen werden** |
-|--------------------------------------|----------------------|---------------------------------|--------------------------------------|----------------------------------|----------------------------------------------------------------|------------------------------------------------------------------|----------------------------------------------------------------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------|--------------------------------------------|--------------------------------------------------|------------------------------------------------------|--------------------------------------------------------|
-| **Single Choice**                    | X                    | X                               | X                                    | X                                |                                                                |                                                                  |                                                                            |                                                                |                                                                                             | X                                          | X                                                | X                                                    |                                                        |
-| **Multiple Choice**                  | X                    | X                               | X                                    | X                                |                                                                |                                                                  |                                                                            |                                                                |                                                                                             | X                                          | X                                                | X                                                    |                                                        |
-| **Lückentext**                       | X                    | X                               | X                                    |                                  |                                                                |                                                                  |                                                                            |                                                                |                                                                                             |                                            |                                                  |                                                      |                                                        |
-| **Ersetzen**                         |                      |                                 |                                      |                                  |                                                                |                                                                  |                                                                            |                                                                |                                                                                             |                                            |                                                  |                                                      | X                                                      |
-| **Objekte in Reihenfolge auswählen** |                      |                                 |                                      |                                  |                                                                | X                                                                |                                                                            | X                                                              | X                                                                                           | X                                          | X                                                | X                                                    |                                                        |
-| **Zuordnen**                         |                      |                                 |                                      | X                                | X                                                              | X                                                                | X                                                                          | X                                                              | X                                                                                           | X                                          | X                                                | X                                                    |                                                        |
+|                                      | **Questgeber stellt Frage** | **Monster greift mit Frage an** | **Container ist mit Frage verschlossen** | **Richtige Container auswählen** | **Blöcke müssen in die richtige Reihenfolge geschoben werden** | **Schalter müssen in der richtigen Reihenfolge betätigt werden** | **Sammlung an Schaltern müssen in die richtigen Zustände gebracht werden** | **Monster müssen in der richtigen Reihenfolge gehauen werden** | **Monsterarten ins Verhältnis bringen** | **Items müssen in Containern abgelegt werden** | **Items müssen aus einem Container entfernt werden** | **Schriftrollen in Container ablegen** | **Items müssen in Crafting-Container geworfen werden** |
+|--------------------------------------|-----------------------------|---------------------------------|------------------------------------------|----------------------------------|----------------------------------------------------------------|------------------------------------------------------------------|----------------------------------------------------------------------------|----------------------------------------------------------------|-----------------------------------------|------------------------------------------------|------------------------------------------------------|----------------------------------------|--------------------------------------------------------|
+| **Single Choice**                    | X                           | X                               | X                                        | X                                |                                                                |                                                                  |                                                                            |                                                                |                                         | X                                              | X                                                    | X                                      |                                                        |
+| **Multiple Choice**                  | X                           | X                               | X                                        | X                                |                                                                |                                                                  |                                                                            |                                                                |                                         | X                                              | X                                                    | X                                      |                                                        |
+| **Lückentext**                       | X                           | X                               | X                                        |                                  |                                                                |                                                                  |                                                                            |                                                                |                                         |                                                |                                                      |                                        |                                                        |
+| **Ersetzen**                         |                             |                                 |                                          |                                  |                                                                |                                                                  |                                                                            |                                                                |                                         |                                                |                                                      |                                        | X                                                      |
+| **Objekte in Reihenfolge auswählen** |                             |                                 |                                          |                                  |                                                                | X                                                                |                                                                            | X                                                              | X                                       | X                                              | X                                                    | X                                      |                                                        |
+| **Zuordnen**                         |                             |                                 |                                          | X                                | X                                                              | X                                                                | X                                                                          | X                                                              | X                                       | X                                              | X                                                    | X                                      |                                                        |
 
 ## Zuordnung Spielmechanik und Spielszenario
 
-|                                                                     | **NPC stellt Frage** | **Monster greift mit Frage an** | **Truhe ist mit Frage verschlossen** | **Mehrere Truhen aber nicht alle sind richtig** | **Blöcke müssen in die richtige Reihenfolge geschoben werden** | **Schalter müssen in der richtigen Reihenfolge betätigt werden** | **Sammlung an Schaltern müssen in die richtigen Zustände gebracht werden** | **Monster müssen in der richtigen Reihenfolge gehauen werden** | **Verschiedene Monster müssen so verprügelt werden, dass das richtige Verhältnis entsteht** | **Items müssen in Truhen abgelegt werden** | **Items müssen aus einer Truhe entfernt werden** | **Items müssen in einen Briefkasten gepackt werden** | **Items müssen in Crafting-Container geworfen werden** |
-|---------------------------------------------------------------------|----------------------|---------------------------------|--------------------------------------|-------------------------------------------------|----------------------------------------------------------------|------------------------------------------------------------------|----------------------------------------------------------------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------|--------------------------------------------|--------------------------------------------------|------------------------------------------------------|--------------------------------------------------------|
-| **Text über GUI-Dialog anzeigen**                                   | X                    | X                               | X                                    | X                                               | X                                                              | X                                                                | X                                                                          | X                                                              | X                                                                                           | X                                          | X                                                | X                                                    | X                                                      |
-| **Einen GUI-Button aktivieren**                                     | X                    | X                               | X                                    | X                                               |                                                                |                                                                  |                                                                            |                                                                |                                                                                             |                                            |                                                  |                                                      |                                                        |
-| **Seiten im GUI-Dialog wechseln**                                   | X                    | X                               | X                                    | X                                               | X                                                              | X                                                                | X                                                                          |                                                                |                                                                                             |                                            |                                                  |                                                      |                                                        |
-| **GUI Checkboxen anhaken**                                          | X                    | X                               | X                                    |                                                 |                                                                |                                                                  |                                                                            |                                                                |                                                                                             |                                            |                                                  |                                                      |                                                        |
-| **GUI Text eingeben**                                               | X                    | X                               | X                                    |                                                 |                                                                |                                                                  |                                                                            |                                                                | X                                                                                           |                                            |                                                  |                                                      |                                                        |
-| **Aufgabe per Questgeber aktivieren**                               | X                    | X                               | X                                    | X                                               | X                                                              | X                                                                | X                                                                          | X                                                              | X                                                                                           | X                                          | X                                                | X                                                    | X                                                      |
-| **Aufgabe per Questgeber abschließen**                              | X                    | X                               | X                                    | X                                               | X                                                              | X                                                                | X                                                                          | X                                                              | X                                                                                           | X                                          | X                                                | X                                                    | X                                                      |
-| **Ein Container-Inventar öffnen**                                   |                      |                                 | X                                    | X                                               |                                                                |                                                                  |                                                                            |                                                                |                                                                                             | X                                          | X                                                | X                                                    | X                                                      |
-| **Das Spielcharakter-Inventar öffnen**                              |                      |                                 |                                      |                                                 |                                                                |                                                                  |                                                                            |                                                                |                                                                                             | X                                          | X                                                | X                                                    | X                                                      |
-| **Item aus Container-Inventar in Charakter-Inventar transferieren** |                      |                                 | X                                    | X                                               |                                                                |                                                                  |                                                                            |                                                                |                                                                                             |                                            | X                                                |                                                      | X                                                      |
-| **Item aus Charakter-Inventar in Container-Inventar transferieren** |                      |                                 |                                      |                                                 |                                                                |                                                                  |                                                                            |                                                                |                                                                                             | X                                          |                                                  | X                                                    | X                                                      |
-| **Ein Item aufheben**                                               |                      |                                 |                                      |                                                 |                                                                |                                                                  |                                                                            |                                                                |                                                                                             | X                                          |                                                  | X                                                    | X                                                      |
-| **Informationen über ein Item ansehen**                             |                      |                                 |                                      | X                                               |                                                                |                                                                  |                                                                            |                                                                |                                                                                             | X                                          | X                                                | X                                                    | X                                                      |
-| **Ein Item auf den Boden fallen lassen**                            |                      |                                 |                                      |                                                 |                                                                |                                                                  |                                                                            |                                                                |                                                                                             |                                            |                                                  |                                                      |                                                        |
-| **Eine Waffe aus dem Inventar ausrüsten**                           |                      |                                 |                                      |                                                 |                                                                |                                                                  |                                                                            | X                                                              | X                                                                                           |                                            |                                                  |                                                      |                                                        |
-| **Ein Item aus dem Inventar nutzen**                                |                      |                                 |                                      |                                                 |                                                                |                                                                  |                                                                            |                                                                |                                                                                             |                                            |                                                  |                                                      |                                                        |
-| **Den Text einer Schriftrolle lesen**                               |                      |                                 |                                      |                                                 |                                                                |                                                                  |                                                                            |                                                                |                                                                                             |                                            |                                                  | X                                                    |                                                        |
-| **Eine Entität im Dungeon "inspizieren"**                           |                      |                                 |                                      |                                                 | X                                                              | X                                                                | X                                                                          |                                                                |                                                                                             |                                            |                                                  |                                                      |                                                        |
-| **Ein Monster angreifen**                                           |                      | X                               |                                      |                                                 |                                                                |                                                                  |                                                                            | X                                                              | X                                                                                           |                                            |                                                  |                                                      |                                                        |
-| **Schaden von einem Monster zugefügt bekommen**                     |                      | X                               |                                      |                                                 |                                                                |                                                                  |                                                                            | X                                                              | X                                                                                           |                                            |                                                  |                                                      |                                                        |
-| **Monster besiegen**                                                |                      | X                               |                                      |                                                 |                                                                |                                                                  |                                                                            | X                                                              | X                                                                                           |                                            |                                                  |                                                      |                                                        |
-| **Einen Block verschieben**                                         |                      |                                 |                                      |                                                 | X                                                              |                                                                  |                                                                            |                                                                |                                                                                             |                                            |                                                  |                                                      |                                                        |
-| **Einen Schalter (im Dungeon) betätigen**                           |                      |                                 |                                      |                                                 |                                                                | X                                                                | X                                                                          |                                                                |                                                                                             |                                            |                                                  |                                                      |                                                        |
-| **Einen Crafting-Schritt durchführen**                              |                      |                                 |                                      |                                                 |                                                                |                                                                  |                                                                            |                                                                |                                                                                             |                                            |                                                  |                                                      | X                                                      |
+|                                                                     | **Questgeber stellt Frage** | **Monster greift mit Frage an** | **Container ist mit Frage verschlossen** | **Richtige Container auswählen** | **Blöcke müssen in die richtige Reihenfolge geschoben werden** | **Schalter müssen in der richtigen Reihenfolge betätigt werden** | **Sammlung an Schaltern müssen in die richtigen Zustände gebracht werden** | **Monster müssen in der richtigen Reihenfolge gehauen werden** | **Monsterarten ins Verhältnis bringen** | **Items müssen in Containern abgelegt werden** | **Items müssen aus einem Container entfernt werden** | **Schriftrollen in Container ablegen** | **Items müssen in Crafting-Container geworfen werden** |
+|---------------------------------------------------------------------|-----------------------------|---------------------------------|------------------------------------------|----------------------------------|----------------------------------------------------------------|------------------------------------------------------------------|----------------------------------------------------------------------------|----------------------------------------------------------------|-----------------------------------------|------------------------------------------------|------------------------------------------------------|----------------------------------------|--------------------------------------------------------|
+| **Text über GUI-Dialog anzeigen**                                   | X                           | X                               | X                                        | X                                | X                                                              | X                                                                | X                                                                          | X                                                              | X                                       | X                                              | X                                                    | X                                      | X                                                      |
+| **Einen GUI-Button aktivieren**                                     | X                           | X                               | X                                        | X                                |                                                                |                                                                  |                                                                            |                                                                |                                         |                                                |                                                      |                                        |                                                        |
+| **Seiten im GUI-Dialog wechseln**                                   | X                           | X                               | X                                        | X                                | X                                                              | X                                                                | X                                                                          |                                                                |                                         |                                                |                                                      |                                        |                                                        |
+| **GUI Checkboxen anhaken**                                          | X                           | X                               | X                                        |                                  |                                                                |                                                                  |                                                                            |                                                                |                                         |                                                |                                                      |                                        |                                                        |
+| **GUI Text eingeben**                                               | X                           | X                               | X                                        |                                  |                                                                |                                                                  |                                                                            |                                                                | X                                       |                                                |                                                      |                                        |                                                        |
+| **Aufgabe per Questgeber aktivieren**                               | X                           | X                               | X                                        | X                                | X                                                              | X                                                                | X                                                                          | X                                                              | X                                       | X                                              | X                                                    | X                                      | X                                                      |
+| **Aufgabe per Questgeber abschließen**                              | X                           | X                               | X                                        | X                                | X                                                              | X                                                                | X                                                                          | X                                                              | X                                       | X                                              | X                                                    | X                                      | X                                                      |
+| **Ein Container-Inventar öffnen**                                   |                             |                                 | X                                        | X                                |                                                                |                                                                  |                                                                            |                                                                |                                         | X                                              | X                                                    | X                                      | X                                                      |
+| **Das Spielcharakter-Inventar öffnen**                              |                             |                                 |                                          |                                  |                                                                |                                                                  |                                                                            |                                                                |                                         | X                                              | X                                                    | X                                      | X                                                      |
+| **Item aus Container-Inventar in Charakter-Inventar transferieren** |                             |                                 | X                                        | X                                |                                                                |                                                                  |                                                                            |                                                                |                                         |                                                | X                                                    |                                        | X                                                      |
+| **Item aus Charakter-Inventar in Container-Inventar transferieren** |                             |                                 |                                          |                                  |                                                                |                                                                  |                                                                            |                                                                |                                         | X                                              |                                                      | X                                      | X                                                      |
+| **Ein Item aufheben**                                               |                             |                                 |                                          |                                  |                                                                |                                                                  |                                                                            |                                                                |                                         | X                                              |                                                      | X                                      | X                                                      |
+| **Informationen über ein Item ansehen**                             |                             |                                 |                                          | X                                |                                                                |                                                                  |                                                                            |                                                                |                                         | X                                              | X                                                    | X                                      | X                                                      |
+| **Ein Item auf den Boden fallen lassen**                            |                             |                                 |                                          |                                  |                                                                |                                                                  |                                                                            |                                                                |                                         |                                                |                                                      |                                        |                                                        |
+| **Eine Waffe aus dem Inventar ausrüsten**                           |                             |                                 |                                          |                                  |                                                                |                                                                  |                                                                            | X                                                              | X                                       |                                                |                                                      |                                        |                                                        |
+| **Ein Item aus dem Inventar nutzen**                                |                             |                                 |                                          |                                  |                                                                |                                                                  |                                                                            |                                                                |                                         |                                                |                                                      |                                        |                                                        |
+| **Den Text einer Schriftrolle lesen**                               |                             |                                 |                                          |                                  |                                                                |                                                                  |                                                                            |                                                                |                                         |                                                |                                                      | X                                      |                                                        |
+| **Eine Entität im Dungeon "inspizieren"**                           |                             |                                 |                                          |                                  | X                                                              | X                                                                | X                                                                          |                                                                |                                         |                                                |                                                      |                                        |                                                        |
+| **Ein Monster angreifen**                                           |                             | X                               |                                          |                                  |                                                                |                                                                  |                                                                            | X                                                              | X                                       |                                                |                                                      |                                        |                                                        |
+| **Schaden von einem Monster zugefügt bekommen**                     |                             | X                               |                                          |                                  |                                                                |                                                                  |                                                                            | X                                                              | X                                       |                                                |                                                      |                                        |                                                        |
+| **Monster besiegen**                                                |                             | X                               |                                          |                                  |                                                                |                                                                  |                                                                            | X                                                              | X                                       |                                                |                                                      |                                        |                                                        |
+| **Einen Block verschieben**                                         |                             |                                 |                                          |                                  | X                                                              |                                                                  |                                                                            |                                                                |                                         |                                                |                                                      |                                        |                                                        |
+| **Einen Schalter (im Dungeon) betätigen**                           |                             |                                 |                                          |                                  |                                                                | X                                                                | X                                                                          |                                                                |                                         |                                                |                                                      |                                        |                                                        |
+| **Einen Crafting-Schritt durchführen**                              |                             |                                 |                                          |                                  |                                                                |                                                                  |                                                                            |                                                                |                                         |                                                |                                                      |                                        | X                                                      |
 
 **Note**: Mechaniken, für die aktuell kein Szenario markiert ist, sind prinzipiell im Spielkontext sinnvoll und können für die
 Realisierung einer Aufgabe genutzt werden, es ist nur aktuell noch kein ausformuliertes Szenario für diese
@@ -669,15 +669,13 @@ Mechaniken und Szenarien festzulegen.
 
 ### Szenarien
 
-- [NPC stellt Frage](#npc-stellt-frage)
+- [Questgeber stellt Frage](#questgeber-stellt-frage)
 - [Monster greift mit Frage an](#monster-greift-mit-frage-an)
-- [Truhe ist mit Frage verschlossen](#truhe-ist-mit-frage-verschlossen)
-- [Mehrere Truhen aber nicht alle sind
-  richtig](#mehrere-truhen-aber-nicht-alle-sind-richtig)
+- [Container ist mit Frage verschlossen](#container-ist-mit-frage-verschlossen)
+- [Richtige Container auswählen](#richtige-container-auswählen)
 - [Crafting: Items in Crafting-Container
   reinwerfen](#items-müssen-in-crafting-container-geworfen-werden)
-- [Items müssen in Briefkasten gepackt
-  werden](#items-müssen-in-einen-briefkasten-gepackt-werden)
+- [Schriftrollen in Container ablegen](#schriftrollen-in-container-ablegen)
 
 ## Offene Punkte
 
