@@ -73,4 +73,14 @@ public class DelayedSetTest {
         assertTrue(set.getSet().contains(toAdd2));
         assertFalse(set.getSet().contains(toAdd3));
     }
+
+    @Test
+    public void clear() {
+        DelayedSet<String> set = new DelayedSet<>();
+        set.add("3");
+        set.update();
+        set.add("4");
+        set.clear();
+        assertTrue(set.getSet().isEmpty());
+    }
 }

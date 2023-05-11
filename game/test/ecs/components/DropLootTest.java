@@ -38,7 +38,7 @@ public class DropLootTest {
         Entity entity = new Entity();
         new PositionComponent(entity, new Point(1, 2));
         new InventoryComponent(entity, 10);
-        Game.getEntities().clear();
+        Game.getDelayedSet().clear();
         dropLoot.onDeath(entity);
         assertTrue(Game.getEntities().isEmpty());
     }
@@ -52,8 +52,7 @@ public class DropLootTest {
         new PositionComponent(entity, entityPosition);
         InventoryComponent inventoryComponent = new InventoryComponent(entity, 10);
         inventoryComponent.addItem(new ItemData());
-        Game.getDelayedSet().update();
-        Game.getEntities().clear();
+        Game.getDelayedSet().clear();
         dropLoot.onDeath(entity);
         Game.getDelayedSet().update();
         assertEquals(1, Game.getEntities().size());
@@ -82,8 +81,7 @@ public class DropLootTest {
         inventoryComponent.addItem(new ItemData());
         inventoryComponent.addItem(new ItemData());
 
-        Game.getDelayedSet().update();
-        Game.getEntities().clear();
+        Game.getDelayedSet().clear();
         dropLoot.onDeath(entity);
 
         Game.getDelayedSet().update();

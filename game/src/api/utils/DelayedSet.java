@@ -41,6 +41,9 @@ public final class DelayedSet<T> {
      *
      * <p>Add all objects from {@link #toAdd} to {@link #current}. Remove all objects from {@link
      * #toRemove} to {@link #current}. Clears {@link #toAdd} and {@link #toAdd}
+     *
+     * <p>Note: First all elements from {@link #toAdd} will be added and than all elements from
+     * {@link #toRemove} will be removed.
      */
     public void update() {
         current.addAll(toAdd);
@@ -52,6 +55,9 @@ public final class DelayedSet<T> {
     /**
      * Add the given to {@link #toAdd}.
      *
+     * <p>After the call of {@link #update}, * the objects inside this inner set will be added to
+     * {@link #current}
+     *
      * @param t Object to add
      */
     public void add(T t) {
@@ -60,6 +66,9 @@ public final class DelayedSet<T> {
 
     /**
      * Add all objects of the given collection to {@link #toAdd}.
+     *
+     * <p>After the call of {@link #update}, the objects inside this inner set will be added to
+     * {@link #current}
      *
      * @param collection contains all objects to add
      */
@@ -70,6 +79,9 @@ public final class DelayedSet<T> {
     /**
      * Add the given to {@link #toRemove}.
      *
+     * <p>After the call of {@link #update}, the objects inside this inner set will be removed from
+     * {@link #current}
+     *
      * @param t Object to remove
      */
     public void remove(T t) {
@@ -79,6 +91,9 @@ public final class DelayedSet<T> {
     /**
      * Add all objects of the given collection to {@link #toRemove}.
      *
+     * <p>After the call of {@link #update}, the objects inside this inner set will be removed from
+     * {@link #current}
+     *
      * @param collection contains all objects to remove
      */
     public void removeAll(Collection<T> collection) {
@@ -86,9 +101,16 @@ public final class DelayedSet<T> {
     }
 
     /**
-     * @return The Set with all currently active elements
+     * @return A copy of {@link #current} with all currently active elements
      */
     public Set<T> getSet() {
-        return current;
+        return new HashSet<>(current);
+    }
+
+    /** Clear all internal Sets. */
+    public void clear() {
+        toAdd.clear();
+        toRemove.clear();
+        current.clear();
     }
 }

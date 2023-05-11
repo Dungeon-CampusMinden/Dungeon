@@ -18,8 +18,7 @@ public class ChestTest {
 
     /** Helper cleans up class attributes used by Chest Initializes the Item#ITEM_REGISTER */
     private static void cleanup() {
-        Game.getDelayedSet().removeAll(Game.getEntities());
-        Game.getDelayedSet().update();
+        Game.getDelayedSet().clear();
     }
 
     /** checks the correct creation of the Chest */
@@ -77,8 +76,8 @@ public class ChestTest {
         List<ItemData> itemData = List.of(new ItemDataGenerator().generateItemData());
         Point position = new Point(0, 0);
         Chest c = new Chest(itemData, position);
+        Game.removeEntity(c);
         Game.getDelayedSet().update();
-        Game.getEntities().remove(c);
         assertEquals(0, Game.getEntities().size());
         c.getComponent(InteractionComponent.class)
                 .map(InteractionComponent.class::cast)

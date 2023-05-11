@@ -25,8 +25,7 @@ public class DrawSystemTest {
     @Before
     public void setup() {
         Game.systems = Mockito.mock(SystemController.class);
-        Game.getEntities().clear();
-        Game.getDelayedSet().update();
+        Game.getDelayedSet().clear();
         drawSystem = new DrawSystem(painter);
         entity = new Entity();
         new AnimationComponent(entity, animation);

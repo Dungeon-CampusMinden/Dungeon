@@ -152,7 +152,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     @Override
     public void onLevelLoad() {
         currentLevel = levelAPI.getCurrentLevel();
-        entities.removeAll(entities.getSet());
+        entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
     }
 

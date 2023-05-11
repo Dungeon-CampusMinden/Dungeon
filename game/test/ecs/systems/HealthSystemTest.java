@@ -21,7 +21,7 @@ public class HealthSystemTest {
 
     @Test
     public void updateEntityDies() {
-        Game.getEntities().clear();
+        Game.getDelayedSet().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
         Game.getDelayedSet().update();
@@ -39,7 +39,7 @@ public class HealthSystemTest {
 
     @Test
     public void updateEntityGetDamage() {
-        Game.getEntities().clear();
+        Game.getDelayedSet().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
         Game.getDelayedSet().update();
@@ -57,7 +57,7 @@ public class HealthSystemTest {
 
     @Test
     public void updateEntityGetNegativeDamage() {
-        Game.getEntities().clear();
+        Game.getDelayedSet().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
         Game.getDelayedSet().update();
@@ -75,7 +75,7 @@ public class HealthSystemTest {
 
     @Test
     public void updateEntityGetZeroDamage() {
-        Game.getEntities().clear();
+        Game.getDelayedSet().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
         Game.getDelayedSet().update();
@@ -92,7 +92,7 @@ public class HealthSystemTest {
 
     @Test
     public void updateWithoutHealthComponent() {
-        Game.getEntities().clear();
+        Game.getDelayedSet().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
         Game.getDelayedSet().update();
@@ -102,7 +102,7 @@ public class HealthSystemTest {
 
     @Test
     public void updateWithoutAnimationComponent() {
-        Game.getEntities().clear();
+        Game.getDelayedSet().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
         Game.getDelayedSet().update();
@@ -113,7 +113,7 @@ public class HealthSystemTest {
 
     @Test
     public void testDamageWithModifier() {
-        Game.getEntities().clear();
+        Game.getDelayedSet().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
         Game.getDelayedSet().update();
@@ -134,7 +134,7 @@ public class HealthSystemTest {
 
     @Test
     public void testDamageWithModifierNegative() {
-        Game.getEntities().clear();
+        Game.getDelayedSet().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
         Game.getDelayedSet().update();
@@ -155,7 +155,7 @@ public class HealthSystemTest {
 
     @Test
     public void testDamageWithModifierZero() {
-        Game.getEntities().clear();
+        Game.getDelayedSet().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
         Game.getDelayedSet().update();
@@ -176,7 +176,7 @@ public class HealthSystemTest {
 
     @Test
     public void testDamageWithModifierHuge() {
-        Game.getEntities().clear();
+        Game.getDelayedSet().clear();
         Game.systems = new SystemController();
         Entity entity = new Entity();
         Game.getDelayedSet().update();

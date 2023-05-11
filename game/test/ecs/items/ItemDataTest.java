@@ -19,8 +19,7 @@ import tools.Point;
 public class ItemDataTest {
     @Before
     public void before() {
-        Game.getDelayedSet().removeAll(Game.getEntities());
-        Game.getDelayedSet().update();
+        Game.getDelayedSet().clear();
     }
 
     @Test
