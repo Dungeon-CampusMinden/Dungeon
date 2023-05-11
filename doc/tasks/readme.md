@@ -288,8 +288,8 @@ Der Gesundheit des Spielcharakters kann durch ein Monster Schaden zugefügt werd
 
 ### Monster besiegen
 
-Wenn die Gesundheit eines Monsters auf 0 fällt, wird es besiegt und stirbt, wodurch es ggfs. Erfahrungspunkte und
-Items aus seinem Inventar (falls vorhanden) fallen lässt.
+Wenn die Gesundheit eines Monsters auf 0 fällt, wird es besiegt und stirbt, wodurch es ggfs. Items aus seinem Inventar
+(falls vorhanden) fallen lässt und der Spielcharakter Erfahrungspunkte erhält.
 
 ### Einen Block verschieben
 
