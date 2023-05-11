@@ -60,13 +60,13 @@ zu werden.
 
 ### Spielmechanik
 
-Eine Spielmechanik beschreibt die Interaktion von verschiedenen Entitätstypen im Spiel.
+Eine Spielmechanik beschreibt **eine Interaktionsart** von verschiedenen Entitätstypen im Spiel.
 Spielmechaniken beziehen sich ausschließlich auf die Interaktion von Spielelementen, die aus
 Game-Design Perspektive relevant sind (siehe [Steuermechanismen](#steuermechanismen) für
-alle anderen “Mechaniken”). 
+alle anderen “Mechaniken”).
 
-Beispiel: ein Item, welches im Dungeon liegt, kann aufgehoben
-und in das Inventar des Spielcharakters transferiert werden.
+Beispiel: ein Item, welches im Dungeon liegt, kann aufgehoben und in das Inventar des
+Spielcharakters transferiert werden.
 
 Aus einer Spielmechanik kann abgeleitet werden, welche Komponenten an der Mechanik beteiligt
 sind. Für obiges Beispiel sind folgende Komponenten erforderlich:
@@ -86,7 +86,24 @@ der Entitätstypen verwendet werden, bspw. ob der Questgeber einer Aufgabe wie e
 oder wie eine "Kriegerin" dargestellt wird.
 
 Beispiel: In einem Raum befindet sich ein Questgeber und verschiedene Schalter. Der Questgeber
-stellt dem Spielcharakter eine Frage und sagt ihm, welcher Hebel für welche Antwort steht.
+stellt dem Spielcharakter eine Frage und aktiviert die Aufgabe. Jeder Schalter kann inspiziert
+werden, um herauszufinden, für welche Antwort der jeweilige Schalter steht. Per Interaktion
+kann der Spielcharakter den Zustand eines Schalters manipulieren. Per Interaktion mit dem Questgeber
+können die konfigurierten Zustände der Schalter als Lösung abgegeben und die Aufgabe beendet werden.
+
+**Beteiligte Entitätstypen:**
+
+- Questgeber
+- Schalter
+
+**Beteiligte Spielmechaniken:**
+
+- Text über GUI-Dialog anzeigen
+- Seiten im GUI-Dialog wechseln
+- Aufgabe per Questgeber aktivieren
+- Aufgabe per Questgeber abschließen
+- Eine Entität im Dungeon "inspizieren"
+- Einen Schalter (im Dungeon) betätigen
 
 ### Steuermechanismen
 
