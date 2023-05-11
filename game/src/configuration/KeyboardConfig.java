@@ -23,7 +23,7 @@ public class KeyboardConfig {
     public static final ConfigKey<Integer> SECOND_SKILL =
             new ConfigKey<>(new String[] {"skill", "second"}, new ConfigIntValue(Input.Keys.R));
 
-    public static final ConfigKey<Integer> DEBUG_ACTIVATE_DEACTIVATE =
+    public static final ConfigKey<Integer> DEBUG_TOGGLE_KEY =
             new ConfigKey<>(new String[] {"debug", "activate"}, new ConfigIntValue(Input.Keys.B));
 
     public static final ConfigKey<Integer> DEBUG_ZOOM_IN =
