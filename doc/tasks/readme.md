@@ -156,8 +156,7 @@ auswählen müssen.
   - Kontinuierlich: Das Bedienelement verhält sich wie ein Schieberegler, bei dem ein Wert zwischen einer oberen und einer unteren
     Grenze eingestellt werden kann
 - Item: Eine Entität, die entweder eine Position im Dungeon haben kann (also bspw. auf dem Boden liegt), oder in einem
-  Inventar gespeichert sein kann und zwischen diesen beiden Zuständen wechseln kann (das ist bewusst vereinfacht, ohne
-  auf die Feinheiten der Item=Entität Thematik einzugehen)
+  Inventar gespeichert sein kann und zwischen diesen beiden Zuständen wechseln kann
 - Schriftrolle: Ein Item, welches einen Text anzeigt
 - Craftingcontainer: Ein Container, der zusätzlich die Möglichkeit bietet, die Menge der enthaltenen Items unter Verwendung von
   Craftingrezepten zu transmutieren
