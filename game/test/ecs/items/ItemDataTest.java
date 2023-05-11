@@ -19,7 +19,7 @@ import tools.Point;
 public class ItemDataTest {
     @Before
     public void before() {
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedEntitySet().clear();
     }
 
     @Test
@@ -59,11 +59,10 @@ public class ItemDataTest {
     public void onDropCheckEntity() {
 
         ItemData itemData = new ItemData();
-        assertEquals(0, Game.getEntitiesToAdd().size());
         Point point = new Point(0, 0);
         itemData.triggerDrop(null, point);
-        assertEquals(1, Game.getEntitiesToAdd().size());
-        Entity e = Game.getEntitiesToAdd().iterator().next();
+        Game.getDelayedEntitySet().update();
+        Entity e = Game.getEntities().iterator().next();
         PositionComponent pc =
                 (PositionComponent) e.getComponent(PositionComponent.class).orElseThrow();
         assertEquals(point.x, pc.getPosition().x, 0.001);

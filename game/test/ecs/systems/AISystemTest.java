@@ -20,9 +20,8 @@ public class AISystemTest {
     @Before
     public void setup() {
         Game.systems = Mockito.mock(SystemController.class);
-        Game.getEntities().clear();
-        Game.getEntitiesToAdd().clear();
-        Game.getEntitiesToRemove().clear();
+        Game.getDelayedEntitySet().removeAll(Game.getEntities());
+        Game.getDelayedEntitySet().update();
         system = new AISystem();
         entity = new Entity();
         AIComponent component = new AIComponent(entity);
@@ -39,8 +38,7 @@ public class AISystemTest {
 
     @Test
     public void update() {
-        Game.getEntities().addAll(Game.getEntitiesToAdd());
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedEntitySet().update();
         system.update();
         assertEquals(1, updateCounter);
     }

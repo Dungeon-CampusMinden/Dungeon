@@ -32,9 +32,8 @@ public class CollisionSystemTest {
      */
     private static void cleanUpEnvironment() {
         Game.systems = null;
-        Game.getEntities().clear();
-        Game.getEntitiesToAdd().clear();
-        Game.getEntitiesToRemove().clear();
+        Game.getDelayedEntitySet().removeAll(Game.getEntities());
+        Game.getDelayedEntitySet().update();
     }
 
     /** Creating a clean Systemcontroller to avoid interferences */
@@ -52,8 +51,7 @@ public class CollisionSystemTest {
     private static Entity prepareEntityWithPosition(Point point1) {
         Entity e1 = new Entity();
         new PositionComponent(e1, point1);
-        Game.getEntities().addAll(Game.getEntitiesToAdd());
-        Game.getEntitiesToAdd().clear();
+        Game.getDelayedEntitySet().update();
         return e1;
     }
 
