@@ -171,11 +171,12 @@ zu stellen.
 ### Einen GUI-Button aktivieren
 
 In einem GUI-Dialog können beschriftete Buttons angezeigt werden, die von Studierenden aktiviert werden können, um
-bspw. eine Antwort auf eine Frage auszuwählen.
+bspw. eine Antwort auf eine Frage auszuwählen. Für diese Aktion kann auch eine Tastatureingabe verwendet werden.
 
 ### Seiten im GUI-Fenster wechseln
 
-Per GUI-Button (z.B. "Weiter", "Zurück") kann zwischen mehreren Seiten eines GUI-Dialogs gewechselt werden.
+Per GUI-Button (z.B. "Weiter", "Zurück") kann zwischen mehreren Seiten eines GUI-Dialogs gewechselt werden. Für diese
+Aktionen können auch Tastatureingaben verwendet werden.
 
 ### GUI Checkboxen anhaken
 
@@ -197,13 +198,13 @@ Falls eine Aufgabe aktiv ist, können Studierende per Interaktion mit dem entspr
 ### Das Inventar eines Containers öffnen
 
 Per Interaktion kann das Inventar eines Containers geöffnet werden, sodass der Inhalt des Inventars einsehbar ist.
-Per GUI-Button kann das Inventar wieder geschlossen werden.
+Per GUI-Button oder Tastatureingabe kann das Inventar wieder geschlossen werden.
 
 ### Item aus Container-Inventar in Charakter-Inventar transferieren
 
 Bei geöffnetem Container-Inventar kann ein Item aus dem Container-Inventar ausgewählt werden und in das Inventar
-des Spielcharakters transferiert werden. Per GUI-Button können auch alle Items aus dem Container-Inventar in das
-Inventar des Spielcharakters übertragen werden.
+des Spielcharakters transferiert werden. Per GUI-Button oder Tastatureingabe können auch alle Items aus dem
+Container-Inventar in das Inventar des Spielcharakters übertragen werden.
 
 ### Item aus Charakter-Inventar in Container-Inventar transferieren
 
@@ -274,7 +275,8 @@ annehmen kann, hängt von der Art des Schalters ab.
 
 Bei geöffnetem Inventar eines Craftingcontainers können Items aus dem Container-Inventar ausgewählt werden, auf die
 ein auswählbares Craftingrezept (also eine Transmutationsregel) angewandt wird, um die Menge der ausgewählten Items zu
-verändern. Nach der Auswahl der Items und des Craftingrezepts muss der Crafting-Schritt per GUI-Button bestätigt werden.
+verändern. Nach der Auswahl der Items und des Craftingrezepts muss der Crafting-Schritt per GUI-Button oder Tastatureingabe
+bestätigt werden.
 
 ## Spielszenarien
 
