@@ -2,7 +2,6 @@ package content.utils.component_utils.interactionComponent;
 
 import api.Entity;
 import api.components.*;
-import api.ecs.components.*;
 import api.utils.Point;
 import api.utils.component_utils.MissingComponentException;
 import api.utils.component_utils.interactionComponent.IInteraction;

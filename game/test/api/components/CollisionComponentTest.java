@@ -8,6 +8,7 @@ import api.utils.Point;
 import api.utils.component_utils.MissingComponentException;
 import api.utils.component_utils.collisionComponent.ICollide;
 import org.junit.Test;
+import testing_utils.SimpleCounter;
 
 public class CollisionComponentTest {
 

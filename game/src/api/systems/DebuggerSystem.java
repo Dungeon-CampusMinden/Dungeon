@@ -5,7 +5,6 @@ import api.Game;
 import api.System;
 import api.components.*;
 import api.components.AIComponent;
-import api.ecs.components.*;
 import api.level.Tile;
 import api.level.utils.Coordinate;
 import api.level.utils.LevelSize;

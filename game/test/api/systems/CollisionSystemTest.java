@@ -6,12 +6,12 @@ import api.Entity;
 import api.Game;
 import api.components.CollideComponent;
 import api.components.PositionComponent;
-import api.components.SimpleCounter;
 import api.level.Tile;
 import api.utils.Point;
 import api.utils.component_utils.collisionComponent.ICollide;
 import api.utils.controller.SystemController;
 import org.junit.Test;
+import testing_utils.SimpleCounter;
 
 public class CollisionSystemTest {
 
