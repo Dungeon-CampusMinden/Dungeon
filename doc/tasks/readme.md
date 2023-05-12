@@ -268,6 +268,7 @@ entfernt und auf den Boden gefallen lassen werden.
 ### Eine Waffe aus dem Inventar ausrüsten
 
 Bei geöffnetem Spielcharakter-Inventar kann eine Waffe als aktive Waffe des Spielcharakters ausgerüstet werden.
+Eine ausgerüstete Waffe beeinflusst den Schaden und die Art eines ausgeführten Angriffs.
 
 ### Ein Item aus dem Inventar nutzen
 
@@ -286,11 +287,14 @@ Entitäten im Dungeon können vom Spielcharakter inspiziert werden, wodurch sich
 
 ### Ein Monster angreifen
 
-Der Spielcharakter kann mit einer ausgerüsteten Waffe ein Monster angreifen und dessen Gesundheit Schaden zufügen.
+Der Spielcharakter kann mit einer ausgerüsteten Waffe ein Monster angreifen. Zum Ausführen eines Angriffs muss eine
+Tastatureingabe erfolgen. Ein Angriff hat eine Hitbox, kollidiert diese Hitbox mit einem Monster, wird er Gesundheit
+des Monsters Schaden zugefügt.
 
 ### Schaden von einem Monster zugefügt bekommen
 
-Der Gesundheit des Spielcharakters kann durch ein Monster Schaden zugefügt werden.
+Monster greifen den Spielcharakter nach einem konfigurierbaren Verhalten an. Auch Angriffe von Monstern haben
+Hitboxen. Kollidieren diese Hitboxen mit dem Spielcharakter, wird der Gesundheit des Spielcharakters Schaden zugefügt.
 
 ### Monster besiegen
 
