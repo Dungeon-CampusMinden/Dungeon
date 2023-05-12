@@ -46,7 +46,7 @@ public class InteractionComponent extends Component {
      * @param e the Entity which interacts with the current
      */
     public static void DefaultInteraction(Entity e) {
-        System.out.println(e.id + " did use the DefaultInteraction");
+        System.out.println(e.id() + " did use the DefaultInteraction");
     }
 
     /**

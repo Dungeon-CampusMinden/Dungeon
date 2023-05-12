@@ -1,6 +1,7 @@
-package ecs.entities;
+package builder;
 
 import ecs.components.*;
+import ecs.entities.Entity;
 import ecs.items.ItemData;
 import ecs.items.ItemDataGenerator;
 import graphic.Animation;
@@ -11,7 +12,8 @@ import level.tools.LevelElement;
 import starter.Game;
 import tools.Point;
 
-public class Chest extends Entity {
+/** This class can be used to build an Entity that behaves like a chest. */
+public class ChestBuilder {
 
     public static final float defaultInteractionRadius = 1f;
     public static final List<String> DEFAULT_CLOSED_ANIMATION_FRAMES =
@@ -28,7 +30,7 @@ public class Chest extends Entity {
      *
      * @return a configured Chest
      */
-    public static Chest createNewChest() {
+    public static Entity createNewChest() {
         Random random = new Random();
         ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
 
@@ -36,7 +38,7 @@ public class Chest extends Entity {
                 IntStream.range(0, random.nextInt(1, 3))
                         .mapToObj(i -> itemDataGenerator.generateItemData())
                         .toList();
-        return new Chest(
+        return buildChest(
                 itemData,
                 Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint());
     }
@@ -47,19 +49,21 @@ public class Chest extends Entity {
      * @param itemData which the chest is supposed to drop
      * @param position the position where the chest is placed
      */
-    public Chest(List<ItemData> itemData, Point position) {
-        new PositionComponent(this, position);
-        InventoryComponent ic = new InventoryComponent(this, itemData.size());
+    public static Entity buildChest(List<ItemData> itemData, Point position) {
+        Entity chest = new Entity();
+        new PositionComponent(chest, position);
+        InventoryComponent ic = new InventoryComponent(chest, itemData.size());
         itemData.forEach(ic::addItem);
-        new InteractionComponent(this, defaultInteractionRadius, false, this::dropItems);
+        new InteractionComponent(chest, defaultInteractionRadius, false, (c) -> dropItems(chest));
         AnimationComponent ac =
                 new AnimationComponent(
-                        this,
+                        chest,
                         new Animation(DEFAULT_CLOSED_ANIMATION_FRAMES, 100, false),
                         new Animation(DEFAULT_OPENING_ANIMATION_FRAMES, 100, false));
+        return chest;
     }
 
-    private void dropItems(Entity entity) {
+    private static void dropItems(Entity entity) {
         InventoryComponent inventoryComponent =
                 entity.getComponent(InventoryComponent.class)
                         .map(InventoryComponent.class::cast)
@@ -115,7 +119,7 @@ public class Chest extends Entity {
         return new MissingComponentException(
                 Component
                         + " missing in "
-                        + Chest.class.getName()
+                        + ChestBuilder.class.getName()
                         + " in Entity "
                         + e.getClass().getName());
     }
