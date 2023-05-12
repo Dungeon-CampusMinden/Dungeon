@@ -28,4 +28,17 @@ public abstract class System {
     public void toggleRun() {
         run = !run;
     }
+
+    /** switch on a specific system */
+    public void allRun() {
+        if (!run) run = true;
+    }
+
+    /** Specifies which systems should not be stopped when the game is paused. */
+    public void notRunExceptSystems(String systemName) {
+        final String searchValue = this.getClass().getName();
+        if (!searchValue.contains(systemName)) {
+            run = false;
+        }
+    }
 }
