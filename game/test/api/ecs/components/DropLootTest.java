@@ -2,11 +2,15 @@ package api.ecs.components;
 
 import static org.junit.Assert.*;
 
-import api.ecs.entities.Entity;
-import api.ecs.items.ItemData;
+import api.Entity;
+import api.Game;
+import api.components.InventoryComponent;
+import api.components.PositionComponent;
 import api.utils.Point;
+import api.utils.component_utils.MissingComponentException;
+import api.utils.component_utils.itemComponent.ItemData;
+import content.utils.healthComponent.DropLoot;
 import org.junit.Test;
-import starter.Game;
 
 public class DropLootTest {
     /** Checks the handling when the InventoryComponent is missing on the entity */

@@ -3,11 +3,11 @@ package api.ecs.components;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
-import api.ecs.components.ai.AIComponent;
-import api.ecs.components.ai.fight.IFightAI;
-import api.ecs.components.ai.idle.IIdleAI;
-import api.ecs.components.ai.transition.ITransition;
-import api.ecs.entities.Entity;
+import api.Entity;
+import api.components.AIComponent;
+import api.utils.component_utils.aiComponent.IFightAI;
+import api.utils.component_utils.aiComponent.IIdleAI;
+import api.utils.component_utils.aiComponent.ITransition;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

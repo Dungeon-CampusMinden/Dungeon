@@ -2,19 +2,22 @@ package api.ecs.items;
 
 import static org.junit.Assert.*;
 
-import api.ecs.components.AnimationComponent;
-import api.ecs.components.HitboxComponent;
-import api.ecs.components.InventoryComponent;
-import api.ecs.components.PositionComponent;
-import api.ecs.entities.Entity;
-import api.graphic.Animation;
+import api.Entity;
+import api.Game;
+import api.components.CollideComponent;
+import api.components.DrawComponent;
+import api.components.InventoryComponent;
+import api.components.PositionComponent;
 import api.utils.Point;
+import api.utils.component_utils.animationComponent.Animation;
+import api.utils.component_utils.itemComponent.IOnUse;
+import api.utils.component_utils.itemComponent.ItemData;
+import api.utils.component_utils.itemComponent.ItemType;
 import content.configuration.ItemConfig;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import starter.Game;
 
 public class ItemDataTest {
     @Before
@@ -67,11 +70,11 @@ public class ItemDataTest {
                 (PositionComponent) e.getComponent(PositionComponent.class).orElseThrow();
         assertEquals(point.x, pc.getPosition().x, 0.001);
         assertEquals(point.y, pc.getPosition().y, 0.001);
-        AnimationComponent ac =
-                (AnimationComponent) e.getComponent(AnimationComponent.class).orElseThrow();
+        DrawComponent ac = (DrawComponent) e.getComponent(DrawComponent.class).orElseThrow();
         // assertEquals(ItemData.DEFAULT_WORLD_ANIMATION, ac.getCurrentAnimation());
 
-        HitboxComponent hc = (HitboxComponent) e.getComponent(HitboxComponent.class).orElseThrow();
+        CollideComponent hc =
+                (CollideComponent) e.getComponent(CollideComponent.class).orElseThrow();
     }
 
     // active

@@ -2,12 +2,13 @@ package starter;
 
 import static org.junit.Assert.*;
 
-import api.ecs.entities.Entity;
-import api.graphic.DungeonCamera;
-import api.graphic.Painter;
-import api.level.LevelAPI;
+import api.Entity;
+import api.Game;
+import api.LevelManager;
 import api.level.generator.randomwalk.RandomWalkGenerator;
 import api.utils.Constants;
+import api.utils.DungeonCamera;
+import api.utils.component_utils.animationComponent.Painter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -45,9 +46,9 @@ class GameTest {
         PowerMockito.whenNew(SpriteBatch.class)
                 .withAnyArguments()
                 .thenReturn(Mockito.mock(SpriteBatch.class));
-        PowerMockito.whenNew(LevelAPI.class)
+        PowerMockito.whenNew(LevelManager.class)
                 .withAnyArguments()
-                .thenReturn(Mockito.mock(LevelAPI.class));
+                .thenReturn(Mockito.mock(LevelManager.class));
         PowerMockito.whenNew(DungeonCamera.class)
                 .withAnyArguments()
                 .thenReturn(Mockito.mock(DungeonCamera.class));

@@ -1,8 +1,8 @@
 package dslToGame;
 
-import api.graphic.Animation;
+import api.Game;
+import api.utils.component_utils.animationComponent.Animation;
 import semanticAnalysis.types.DSLTypeAdapter;
-import starter.Game;
 
 public class AnimationBuilder {
     public static int frameTime = 5;

@@ -2,16 +2,17 @@ package api.ecs.systems;
 
 import static org.junit.Assert.*;
 
-import api.controller.SystemController;
-import api.ecs.components.HitboxComponent;
-import api.ecs.components.PositionComponent;
+import api.Entity;
+import api.Game;
+import api.components.CollideComponent;
+import api.components.PositionComponent;
 import api.ecs.components.SimpleCounter;
-import api.ecs.components.collision.ICollide;
-import api.ecs.entities.Entity;
-import api.level.elements.tile.Tile;
+import api.level.Tile;
+import api.systems.CollisionSystem;
 import api.utils.Point;
+import api.utils.component_utils.collisionComponent.ICollide;
+import api.utils.controller.SystemController;
 import org.junit.Test;
-import starter.Game;
 
 public class CollisionSystemTest {
 
@@ -68,13 +69,13 @@ public class CollisionSystemTest {
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         ICollide collider = (a, b, c) -> {};
-        HitboxComponent hb1 =
-                new HitboxComponent(e1, new Point(offset), new Point(size), collider, collider);
+        CollideComponent hb1 =
+                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(.5f, 0));
 
-        HitboxComponent hb2 =
-                new HitboxComponent(e2, new Point(offset), new Point(size), collider, collider);
+        CollideComponent hb2 =
+                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
         assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(hb1, hb2));
         assertEquals(DIRECTION_MESSAGE, Tile.Direction.E, cs.checkDirectionOfCollision(hb1, hb2));
@@ -97,13 +98,13 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
 
         ICollide collider = (a, b, c) -> {};
-        HitboxComponent hb1 =
-                new HitboxComponent(e1, new Point(offset), new Point(size), collider, collider);
+        CollideComponent hb1 =
+                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(1.5f, 0));
 
-        HitboxComponent hb2 =
-                new HitboxComponent(e2, new Point(offset), new Point(size), collider, collider);
+        CollideComponent hb2 =
+                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
         assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(hb1, hb2));
         assertEquals(DIRECTION_MESSAGE, Tile.Direction.E, cs.checkDirectionOfCollision(hb1, hb2));
@@ -124,12 +125,12 @@ public class CollisionSystemTest {
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         ICollide collider = (a, b, c) -> {};
-        HitboxComponent hb1 =
-                new HitboxComponent(e1, new Point(offset), new Point(size), collider, collider);
+        CollideComponent hb1 =
+                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(-.5f, 0));
-        HitboxComponent hb2 =
-                new HitboxComponent(e2, new Point(offset), new Point(size), collider, collider);
+        CollideComponent hb2 =
+                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
         assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(hb1, hb2));
         assertEquals(Tile.Direction.W, cs.checkDirectionOfCollision(hb1, hb2));
@@ -153,13 +154,13 @@ public class CollisionSystemTest {
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         ICollide collider = (a, b, c) -> {};
-        HitboxComponent hb1 =
-                new HitboxComponent(e1, new Point(offset), new Point(size), collider, collider);
+        CollideComponent hb1 =
+                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(-1.5f, 0));
 
-        HitboxComponent hb2 =
-                new HitboxComponent(e2, new Point(offset), new Point(size), collider, collider);
+        CollideComponent hb2 =
+                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
         assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(hb1, hb2));
         assertEquals(Tile.Direction.W, cs.checkDirectionOfCollision(hb1, hb2));
@@ -179,12 +180,12 @@ public class CollisionSystemTest {
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         ICollide collider = (a, b, c) -> {};
-        HitboxComponent hb1 =
-                new HitboxComponent(e1, new Point(offset), new Point(size), collider, collider);
+        CollideComponent hb1 =
+                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(0, .5f));
-        HitboxComponent hb2 =
-                new HitboxComponent(e2, new Point(offset), new Point(size), collider, collider);
+        CollideComponent hb2 =
+                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
         assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(hb1, hb2));
         assertEquals(Tile.Direction.S, cs.checkDirectionOfCollision(hb1, hb2));
@@ -205,12 +206,12 @@ public class CollisionSystemTest {
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         ICollide collider = (a, b, c) -> {};
-        HitboxComponent hb1 =
-                new HitboxComponent(e1, new Point(offset), new Point(size), collider, collider);
+        CollideComponent hb1 =
+                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(0, 1.5f));
-        HitboxComponent hb2 =
-                new HitboxComponent(e2, new Point(offset), new Point(size), collider, collider);
+        CollideComponent hb2 =
+                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
         assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(hb1, hb2));
         assertEquals(Tile.Direction.S, cs.checkDirectionOfCollision(hb1, hb2));
@@ -230,12 +231,12 @@ public class CollisionSystemTest {
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         ICollide collider = (a, b, c) -> {};
-        HitboxComponent hb1 =
-                new HitboxComponent(e1, new Point(offset), new Point(size), collider, collider);
+        CollideComponent hb1 =
+                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(0, -0.5f));
-        HitboxComponent hb2 =
-                new HitboxComponent(e2, new Point(offset), new Point(size), collider, collider);
+        CollideComponent hb2 =
+                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
         assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(hb1, hb2));
         assertEquals(Tile.Direction.N, cs.checkDirectionOfCollision(hb1, hb2));
@@ -256,12 +257,12 @@ public class CollisionSystemTest {
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         ICollide collider = (a, b, c) -> {};
-        HitboxComponent hb1 =
-                new HitboxComponent(e1, new Point(offset), new Point(size), collider, collider);
+        CollideComponent hb1 =
+                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(0, -1.5f));
-        HitboxComponent hb2 =
-                new HitboxComponent(e2, new Point(offset), new Point(size), collider, collider);
+        CollideComponent hb2 =
+                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
         assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(hb1, hb2));
         assertEquals(Tile.Direction.N, cs.checkDirectionOfCollision(hb1, hb2));
@@ -278,8 +279,8 @@ public class CollisionSystemTest {
         CollisionSystem cs = new CollisionSystem();
         Entity e1 = prepareEntityWithPosition(new Point(-.1f, -.1f));
         ICollide collider = (a, b, c) -> {};
-        HitboxComponent hb1 =
-                new HitboxComponent(
+        CollideComponent hb1 =
+                new CollideComponent(
                         e1,
                         new Point(new Point(0, 0)),
                         new Point(new Point(1.2f, 1.2f)),
@@ -287,8 +288,8 @@ public class CollisionSystemTest {
                         collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(0, 0f));
-        HitboxComponent hb2 =
-                new HitboxComponent(
+        CollideComponent hb2 =
+                new CollideComponent(
                         e2,
                         new Point(new Point(0, 0)),
                         new Point(new Point(1, 1)),
@@ -309,8 +310,8 @@ public class CollisionSystemTest {
         CollisionSystem cs = new CollisionSystem();
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         ICollide collider = (a, b, c) -> {};
-        HitboxComponent hb1 =
-                new HitboxComponent(
+        CollideComponent hb1 =
+                new CollideComponent(
                         e1,
                         new Point(new Point(0, 0)),
                         new Point(new Point(1, 1)),
@@ -318,8 +319,8 @@ public class CollisionSystemTest {
                         collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(-.1f, -.1f));
-        HitboxComponent hb2 =
-                new HitboxComponent(
+        CollideComponent hb2 =
+                new CollideComponent(
                         e2,
                         new Point(new Point(0, 0)),
                         new Point(new Point(1.2f, 1.2f)),
@@ -391,7 +392,7 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e1,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -411,7 +412,7 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e1,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -420,7 +421,7 @@ public class CollisionSystemTest {
         Entity e2 = prepareEntityWithPosition(new Point(1, 1));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e2,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -447,7 +448,7 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e1,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -456,7 +457,7 @@ public class CollisionSystemTest {
         Entity e2 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e2,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -465,7 +466,7 @@ public class CollisionSystemTest {
         Entity e3 = prepareEntityWithPosition(new Point(1, 2));
         SimpleCounter sc3OnEnter = new SimpleCounter();
         SimpleCounter sc3OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e3,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -495,7 +496,7 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e1,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -504,7 +505,7 @@ public class CollisionSystemTest {
         Entity e2 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e2,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -513,7 +514,7 @@ public class CollisionSystemTest {
         Entity e3 = prepareEntityWithPosition(new Point(1, 2));
         SimpleCounter sc3OnEnter = new SimpleCounter();
         SimpleCounter sc3OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e3,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -543,7 +544,7 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e1,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -552,7 +553,7 @@ public class CollisionSystemTest {
         Entity e2 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e2,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -561,7 +562,7 @@ public class CollisionSystemTest {
         Entity e3 = prepareEntityWithPosition(new Point(1, 2));
         SimpleCounter sc3OnEnter = new SimpleCounter();
         SimpleCounter sc3OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e3,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -594,7 +595,7 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e1,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -603,7 +604,7 @@ public class CollisionSystemTest {
         Entity e2 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e2,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -612,7 +613,7 @@ public class CollisionSystemTest {
         Entity e3 = prepareEntityWithPosition(new Point(1, 2));
         SimpleCounter sc3OnEnter = new SimpleCounter();
         SimpleCounter sc3OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e3,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -648,7 +649,7 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e1,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -657,7 +658,7 @@ public class CollisionSystemTest {
         Entity e2 = prepareEntityWithPosition(new Point(.7f, 0));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e2,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -666,7 +667,7 @@ public class CollisionSystemTest {
         Entity e3 = prepareEntityWithPosition(new Point(-.7f, 0));
         SimpleCounter sc3OnEnter = new SimpleCounter();
         SimpleCounter sc3OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e3,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -697,7 +698,7 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e1,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -706,7 +707,7 @@ public class CollisionSystemTest {
         Entity e2 = prepareEntityWithPosition(new Point(.7f, 0));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e2,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -715,7 +716,7 @@ public class CollisionSystemTest {
         Entity e3 = prepareEntityWithPosition(new Point(-.7f, 0));
         SimpleCounter sc3OnEnter = new SimpleCounter();
         SimpleCounter sc3OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e3,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -745,7 +746,7 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e1,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -754,7 +755,7 @@ public class CollisionSystemTest {
         Entity e2 = prepareEntityWithPosition(new Point(.7f, 0));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e2,
                 new Point(0, 0),
                 new Point(1, 1),
@@ -763,7 +764,7 @@ public class CollisionSystemTest {
         Entity e3 = prepareEntityWithPosition(new Point(-.7f, 0));
         SimpleCounter sc3OnEnter = new SimpleCounter();
         SimpleCounter sc3OnLeave = new SimpleCounter();
-        new HitboxComponent(
+        new CollideComponent(
                 e3,
                 new Point(0, 0),
                 new Point(1, 1),

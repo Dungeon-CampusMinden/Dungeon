@@ -1,22 +1,22 @@
 package content.entity;
 
-import api.ecs.components.*;
-import api.ecs.components.skill.FireballSkill;
-import api.ecs.components.skill.Skill;
-import api.ecs.components.skill.SkillComponent;
-import api.ecs.components.skill.SkillTools;
-import api.ecs.entities.Entity;
-import api.ecs.items.ItemData;
-import api.ecs.items.ItemDataGenerator;
-import api.graphic.Animation;
-import api.level.tools.LevelElement;
+import api.Entity;
+import api.Game;
+import api.components.*;
+import api.level.utils.LevelElement;
 import api.utils.Point;
-import content.component_utils.interaction.DropItemsInteraction;
+import api.utils.component_utils.animationComponent.Animation;
+import api.utils.component_utils.itemComponent.ItemData;
+import api.utils.component_utils.skillComponent.Skill;
+import content.component.SkillComponent;
+import content.utils.interactionComponent.DropItemsInteraction;
+import content.utils.itemComponent.ItemDataGenerator;
+import content.utils.skillComponent.FireballSkill;
+import content.utils.skillComponent.SkillTools;
 import dslToGame.AnimationBuilder;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
-import starter.Game;
 
 /**
  * A utility class for building entities in the game world. The {@link EntityFactory} class provides
@@ -26,8 +26,8 @@ public class EntityFactory {
 
     /**
      * Create a new Entity that can be used as a playable character. It will have a {@link
-     * PlayableComponent}. {@link PositionComponent}, {@link VelocityComponent} {@link
-     * AnimationComponent}, {@link SkillComponent}, {@link HitboxComponent}.
+     * PlayerComponent}. {@link PositionComponent}, {@link VelocityComponent} {@link DrawComponent},
+     * {@link SkillComponent}, {@link CollideComponent}.
      *
      * @return Created Entity
      */
@@ -47,12 +47,12 @@ public class EntityFactory {
         new VelocityComponent(hero, xSpeed, ySpeed, moveLeft, moveRight);
         Animation idleRight = AnimationBuilder.buildAnimation(pathToIdleRight);
         Animation idleLeft = AnimationBuilder.buildAnimation(pathToIdleLeft);
-        new AnimationComponent(hero, idleLeft, idleRight);
-        new HitboxComponent(
+        new DrawComponent(hero, idleLeft, idleRight);
+        new CollideComponent(
                 hero,
                 (you, other, direction) -> System.out.println("heroCollisionEnter"),
                 (you, other, direction) -> System.out.println("heroCollisionLeave"));
-        PlayableComponent pc = new PlayableComponent(hero);
+        PlayerComponent pc = new PlayerComponent(hero);
         Skill fireball =
                 new Skill(
                         new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
@@ -65,7 +65,7 @@ public class EntityFactory {
      * Create a new Entity that can be used as a chest.
      *
      * <p>It will have a {@link InteractionComponent}. {@link PositionComponent}, {@link
-     * AnimationComponent}, {@link HitboxComponent} and {@link InventoryComponent}. It will use the
+     * DrawComponent}, {@link CollideComponent} and {@link InventoryComponent}. It will use the
      * {@link DropItemsInteraction} on interaction.
      *
      * <p>{@link ItemDataGenerator} is used to generate random items
@@ -89,7 +89,7 @@ public class EntityFactory {
      * Create a new Entity that can be used as a chest.
      *
      * <p>It will have a {@link InteractionComponent}. {@link PositionComponent}, {@link
-     * AnimationComponent}, {@link HitboxComponent} and {@link InventoryComponent}. It will use the
+     * DrawComponent}, {@link CollideComponent} and {@link InventoryComponent}. It will use the
      * {@link DropItemsInteraction} on interaction.
      *
      * @param itemData The {@link ItemData} for the Items inside the chest.
@@ -113,7 +113,7 @@ public class EntityFactory {
         itemData.forEach(ic::addItem);
         new InteractionComponent(
                 chest, defaultInteractionRadius, false, new DropItemsInteraction());
-        new AnimationComponent(
+        new DrawComponent(
                 chest,
                 new Animation(DEFAULT_CLOSED_ANIMATION_FRAMES, 100, false),
                 new Animation(DEFAULT_OPENING_ANIMATION_FRAMES, 100, false));

@@ -9,18 +9,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import api.graphic.Painter;
-import api.graphic.PainterConfig;
-import api.graphic.textures.TextureMap;
+import api.LevelManager;
 import api.level.elements.ILevel;
-import api.level.elements.TileLevel;
-import api.level.elements.tile.Tile;
 import api.level.generator.IGenerator;
-import api.level.tools.Coordinate;
-import api.level.tools.DesignLabel;
-import api.level.tools.LevelElement;
-import api.level.tools.LevelSize;
+import api.level.utils.Coordinate;
+import api.level.utils.DesignLabel;
+import api.level.utils.LevelElement;
+import api.level.utils.LevelSize;
 import api.utils.Point;
+import api.utils.component_utils.animationComponent.Painter;
+import api.utils.component_utils.animationComponent.PainterConfig;
+import api.utils.component_utils.animationComponent.TextureMap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import org.junit.Before;
@@ -35,7 +34,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest({TextureMap.class})
 public class TileLevelAPITest {
 
-    private LevelAPI api;
+    private LevelManager api;
     private IGenerator generator;
     private Texture texture;
     private TextureMap textureMap;
@@ -58,7 +57,7 @@ public class TileLevelAPITest {
         generator = Mockito.mock(IGenerator.class);
         onLevelLoader = Mockito.mock(IOnLevelLoader.class);
         level = Mockito.mock(TileLevel.class);
-        api = new LevelAPI(batch, painter, generator, onLevelLoader);
+        api = new LevelManager(batch, painter, generator, onLevelLoader);
     }
 
     @Test

@@ -2,8 +2,9 @@ package api.ecs.components;
 
 import static org.junit.Assert.assertEquals;
 
-import api.ecs.entities.Entity;
-import api.graphic.Animation;
+import api.Entity;
+import api.components.DrawComponent;
+import api.utils.component_utils.animationComponent.Animation;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -12,11 +13,11 @@ public class AnimationComponentTest {
 
     private final Animation idleLeft = Mockito.mock(Animation.class);
     private final Animation idleRight = Mockito.mock(Animation.class);
-    private AnimationComponent animationComponent;
+    private DrawComponent animationComponent;
 
     @Before
     public void setup() {
-        animationComponent = new AnimationComponent(new Entity(), idleLeft, idleRight);
+        animationComponent = new DrawComponent(new Entity(), idleLeft, idleRight);
     }
 
     @Test

@@ -2,19 +2,20 @@ package api.ecs.components;
 
 import static org.junit.Assert.*;
 
-import api.ecs.components.skill.Skill;
-import api.ecs.entities.Entity;
+import api.Entity;
+import api.components.PlayerComponent;
+import api.utils.component_utils.skillComponent.Skill;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 public class PlayableComponentTest {
 
-    private PlayableComponent playableComponent;
+    private PlayerComponent playableComponent;
 
     @Before
     public void setup() {
-        playableComponent = new PlayableComponent(new Entity());
+        playableComponent = new PlayerComponent(new Entity());
     }
 
     @Test

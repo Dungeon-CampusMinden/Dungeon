@@ -1,9 +1,10 @@
 package api.level.elements.tile;
 
+import api.level.Tile;
 import api.level.elements.ILevel;
-import api.level.tools.Coordinate;
-import api.level.tools.DesignLabel;
-import api.level.tools.LevelElement;
+import api.level.utils.Coordinate;
+import api.level.utils.DesignLabel;
+import api.level.utils.LevelElement;
 
 public class TileFactory {
 

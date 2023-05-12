@@ -2,8 +2,9 @@ package api.ecs.components;
 
 import static org.junit.Assert.assertEquals;
 
-import api.ecs.entities.Entity;
-import api.graphic.Animation;
+import api.Entity;
+import api.components.VelocityComponent;
+import api.utils.component_utils.animationComponent.Animation;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

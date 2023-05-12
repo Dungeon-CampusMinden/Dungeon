@@ -3,20 +3,21 @@ package api.ecs.systems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
-import api.controller.SystemController;
-import api.ecs.components.AnimationComponent;
-import api.ecs.components.MissingComponentException;
-import api.ecs.components.PositionComponent;
-import api.ecs.components.VelocityComponent;
-import api.ecs.entities.Entity;
-import api.graphic.Animation;
+import api.Entity;
+import api.Game;
+import api.components.DrawComponent;
+import api.components.PositionComponent;
+import api.components.VelocityComponent;
+import api.level.Tile;
 import api.level.elements.ILevel;
-import api.level.elements.tile.Tile;
+import api.systems.VelocitySystem;
 import api.utils.Point;
+import api.utils.component_utils.MissingComponentException;
+import api.utils.component_utils.animationComponent.Animation;
+import api.utils.controller.SystemController;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import starter.Game;
 
 public class VelocitySystemTest {
 
@@ -36,7 +37,7 @@ public class VelocitySystemTest {
     private PositionComponent positionComponent;
     private VelocityComponent velocityComponent;
 
-    private AnimationComponent animationComponent;
+    private DrawComponent animationComponent;
     private Entity entity;
 
     @Before
@@ -53,7 +54,7 @@ public class VelocitySystemTest {
                 new VelocityComponent(entity, xVelocity, yVelocity, moveLeft, moveRight);
         positionComponent =
                 new PositionComponent(entity, new Point(startXPosition, startYPosition));
-        animationComponent = new AnimationComponent(entity, idleLeft, idleRight);
+        animationComponent = new DrawComponent(entity, idleLeft, idleRight);
         Game.getDelayedEntitySet().update();
     }
 
@@ -156,7 +157,7 @@ public class VelocitySystemTest {
     @Test
     public void updateWithoutAnimationComponent() {
         Mockito.when(tile.isAccessible()).thenReturn(true);
-        entity.removeComponent(AnimationComponent.class);
+        entity.removeComponent(DrawComponent.class);
         assertThrows(MissingComponentException.class, () -> velocitySystem.update());
     }
 }

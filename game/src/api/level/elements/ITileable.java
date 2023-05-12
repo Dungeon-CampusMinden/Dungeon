@@ -1,10 +1,10 @@
 package api.level.elements;
 
-import api.ecs.components.PositionComponent;
-import api.ecs.entities.Entity;
-import api.level.elements.tile.Tile;
-import api.level.tools.Coordinate;
-import api.level.tools.LevelElement;
+import api.Entity;
+import api.components.PositionComponent;
+import api.level.Tile;
+import api.level.utils.Coordinate;
+import api.level.utils.LevelElement;
 import api.utils.Point;
 import java.util.Random;
 

@@ -4,8 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import api.ecs.entities.Entity;
-import api.ecs.items.ItemData;
+import api.Entity;
+import api.components.InventoryComponent;
+import api.utils.component_utils.itemComponent.ItemData;
 import java.util.List;
 import org.junit.Test;
 

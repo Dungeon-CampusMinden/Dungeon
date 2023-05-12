@@ -1,6 +1,6 @@
 package quest;
 
-import api.controller.ScreenController;
+import api.utils.controller.ScreenController;
 import dslToGame.QuestConfig;
 
 public class QuestFactory {

@@ -3,7 +3,9 @@ package api.ecs.components;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import api.ecs.entities.Entity;
+import api.Entity;
+import api.components.InteractionComponent;
+import api.utils.component_utils.interactionComponent.IInteraction;
 import org.junit.Test;
 import org.mockito.Mockito;
 

@@ -2,18 +2,20 @@ package api.ecs.entities;
 
 import static org.junit.Assert.*;
 
-import api.ecs.components.*;
-import api.ecs.items.ItemData;
-import api.ecs.items.ItemDataGenerator;
-import api.level.elements.TileLevel;
-import api.level.tools.DesignLabel;
-import api.level.tools.LevelElement;
+import api.Component;
+import api.Entity;
+import api.Game;
+import api.components.*;
+import api.level.TileLevel;
+import api.level.utils.DesignLabel;
+import api.level.utils.LevelElement;
 import api.utils.Point;
+import api.utils.component_utils.itemComponent.ItemData;
 import content.entity.EntityFactory;
+import content.utils.itemComponent.ItemDataGenerator;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Test;
-import starter.Game;
 
 public class ChestTest {
 
@@ -33,7 +35,7 @@ public class ChestTest {
         assertEquals("Chest is added to Game", 1, Game.getEntities().size());
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
-                c.getComponent(AnimationComponent.class).isPresent());
+                c.getComponent(DrawComponent.class).isPresent());
         Optional<Component> inventoryComponent = c.getComponent(InventoryComponent.class);
         assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
         assertEquals(
@@ -90,8 +92,8 @@ public class ChestTest {
         assertTrue(
                 "droppedItem should have the HitboxComponent",
                 droppedItem
-                        .getComponent(HitboxComponent.class)
-                        .map(HitboxComponent.class::cast)
+                        .getComponent(CollideComponent.class)
+                        .map(CollideComponent.class::cast)
                         .isPresent());
 
         cleanup();
@@ -115,7 +117,7 @@ public class ChestTest {
         assertTrue("Chest is added to Game", Game.getEntities().contains(newChest));
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
-                newChest.getComponent(AnimationComponent.class).isPresent());
+                newChest.getComponent(DrawComponent.class).isPresent());
         Optional<Component> inventoryComponent = newChest.getComponent(InventoryComponent.class);
         assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
         assertTrue(

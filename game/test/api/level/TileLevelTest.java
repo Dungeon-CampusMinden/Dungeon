@@ -2,16 +2,14 @@ package api.level;
 
 import static org.junit.Assert.*;
 
-import api.level.elements.TileLevel;
 import api.level.elements.astar.TileConnection;
 import api.level.elements.tile.ExitTile;
 import api.level.elements.tile.FloorTile;
-import api.level.elements.tile.Tile;
 import api.level.elements.tile.TileFactory;
 import api.level.elements.tile.WallTile;
-import api.level.tools.Coordinate;
-import api.level.tools.DesignLabel;
-import api.level.tools.LevelElement;
+import api.level.utils.Coordinate;
+import api.level.utils.DesignLabel;
+import api.level.utils.LevelElement;
 import api.utils.Point;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import java.util.Arrays;

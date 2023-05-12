@@ -2,15 +2,16 @@ package api.graphic;
 
 import static org.junit.Assert.*;
 
-import api.ecs.components.PositionComponent;
-import api.ecs.entities.Entity;
+import api.Entity;
+import api.Game;
+import api.components.PositionComponent;
 import api.utils.Constants;
+import api.utils.DungeonCamera;
 import api.utils.Point;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxNativesLoader;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import starter.Game;
 
 public class DungeonCameraTest {
 

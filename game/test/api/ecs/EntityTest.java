@@ -2,12 +2,12 @@ package api.ecs;
 
 import static org.junit.Assert.*;
 
-import api.ecs.components.Component;
-import api.ecs.entities.Entity;
+import api.Component;
+import api.Entity;
+import api.Game;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import starter.Game;
 
 public class EntityTest {
 

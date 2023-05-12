@@ -2,10 +2,13 @@ package api.ecs.components;
 
 import static org.junit.Assert.*;
 
-import api.ecs.components.collision.ICollide;
-import api.ecs.entities.Entity;
-import api.level.elements.tile.Tile;
+import api.Entity;
+import api.components.CollideComponent;
+import api.components.PositionComponent;
+import api.level.Tile;
 import api.utils.Point;
+import api.utils.component_utils.MissingComponentException;
+import api.utils.component_utils.collisionComponent.ICollide;
 import org.junit.Test;
 
 public class HitboxComponentTest {
@@ -16,9 +19,9 @@ public class HitboxComponentTest {
     @Test
     public void onEnterNoMethod() {
         Entity e1 = new Entity();
-        HitboxComponent hb1 = new HitboxComponent(e1, null, null);
+        CollideComponent hb1 = new CollideComponent(e1, null, null);
         Entity e2 = new Entity();
-        HitboxComponent hb2 = new HitboxComponent(e2, null, null);
+        CollideComponent hb2 = new CollideComponent(e2, null, null);
         hb1.onEnter(hb2, Tile.Direction.N);
     }
 
@@ -30,12 +33,12 @@ public class HitboxComponentTest {
         SimpleCounter counterE1Leave = new SimpleCounter();
         SimpleCounter counterE2Enter = new SimpleCounter();
         SimpleCounter counterE2Leave = new SimpleCounter();
-        HitboxComponent hb1 =
-                new HitboxComponent(
+        CollideComponent hb1 =
+                new CollideComponent(
                         e1, (a, b, c) -> counterE1Enter.inc(), (a, b, c) -> counterE1Leave.inc());
         Entity e2 = new Entity();
-        HitboxComponent hb2 =
-                new HitboxComponent(
+        CollideComponent hb2 =
+                new CollideComponent(
                         e2, (a, b, c) -> counterE2Enter.inc(), (a, b, c) -> counterE2Leave.inc());
         hb1.onEnter(hb2, Tile.Direction.N);
         assertEquals("Der Counter von Entität 1 Enter soll ", 1, counterE1Enter.getCount());
@@ -48,9 +51,9 @@ public class HitboxComponentTest {
     @Test
     public void onLeaveNoMethod() {
         Entity e1 = new Entity();
-        HitboxComponent hb1 = new HitboxComponent(e1, null, null);
+        CollideComponent hb1 = new CollideComponent(e1, null, null);
         Entity e2 = new Entity();
-        HitboxComponent hb2 = new HitboxComponent(e2, null, null);
+        CollideComponent hb2 = new CollideComponent(e2, null, null);
         hb1.onLeave(hb2, Tile.Direction.N);
     }
 
@@ -62,12 +65,12 @@ public class HitboxComponentTest {
         SimpleCounter counterE1Leave = new SimpleCounter();
         SimpleCounter counterE2Enter = new SimpleCounter();
         SimpleCounter counterE2Leave = new SimpleCounter();
-        HitboxComponent hb1 =
-                new HitboxComponent(
+        CollideComponent hb1 =
+                new CollideComponent(
                         e1, (a, b, c) -> counterE1Enter.inc(), (a, b, c) -> counterE1Leave.inc());
         Entity e2 = new Entity();
-        HitboxComponent hb2 =
-                new HitboxComponent(
+        CollideComponent hb2 =
+                new CollideComponent(
                         e2, (a, b, c) -> counterE2Enter.inc(), (a, b, c) -> counterE2Leave.inc());
         hb1.onLeave(hb2, Tile.Direction.N);
         assertEquals("Der Counter von Entität 1 Enter soll ", 0, counterE1Enter.getCount());
@@ -80,9 +83,9 @@ public class HitboxComponentTest {
     public void setiCollideEnterNull() {
         Entity e1 = new Entity();
         SimpleCounter counterE1Enter = new SimpleCounter();
-        HitboxComponent hb1 = new HitboxComponent(e1, (a, b, c) -> counterE1Enter.inc(), null);
+        CollideComponent hb1 = new CollideComponent(e1, (a, b, c) -> counterE1Enter.inc(), null);
         Entity e2 = new Entity();
-        HitboxComponent hb2 = new HitboxComponent(e2, null, null);
+        CollideComponent hb2 = new CollideComponent(e2, null, null);
         hb1.setiCollideEnter(null);
         hb1.onEnter(hb2, Tile.Direction.N);
         assertEquals(
@@ -96,9 +99,9 @@ public class HitboxComponentTest {
         Entity e1 = new Entity();
         SimpleCounter counterE1Enter = new SimpleCounter();
         SimpleCounter newCounterE1Enter = new SimpleCounter();
-        HitboxComponent hb1 = new HitboxComponent(e1, (a, b, c) -> counterE1Enter.inc(), null);
+        CollideComponent hb1 = new CollideComponent(e1, (a, b, c) -> counterE1Enter.inc(), null);
         Entity e2 = new Entity();
-        HitboxComponent hb2 = new HitboxComponent(e2, null, null);
+        CollideComponent hb2 = new CollideComponent(e2, null, null);
         hb1.setiCollideEnter((a, b, c) -> newCounterE1Enter.inc());
         hb1.onEnter(hb2, Tile.Direction.N);
         assertEquals(
@@ -112,9 +115,9 @@ public class HitboxComponentTest {
     public void setiCollideLeaveNull() {
         Entity e1 = new Entity();
         SimpleCounter counterE1Enter = new SimpleCounter();
-        HitboxComponent hb1 = new HitboxComponent(e1, null, (a, b, c) -> counterE1Enter.inc());
+        CollideComponent hb1 = new CollideComponent(e1, null, (a, b, c) -> counterE1Enter.inc());
         Entity e2 = new Entity();
-        HitboxComponent hb2 = new HitboxComponent(e2, null, null);
+        CollideComponent hb2 = new CollideComponent(e2, null, null);
         hb1.setiCollideLeave(null);
         hb1.onLeave(hb2, Tile.Direction.N);
         assertEquals(
@@ -128,9 +131,9 @@ public class HitboxComponentTest {
         Entity e1 = new Entity();
         SimpleCounter counterE1Leave = new SimpleCounter();
         SimpleCounter newCounterE1Leave = new SimpleCounter();
-        HitboxComponent hb1 = new HitboxComponent(e1, null, (a, b, c) -> counterE1Leave.inc());
+        CollideComponent hb1 = new CollideComponent(e1, null, (a, b, c) -> counterE1Leave.inc());
         Entity e2 = new Entity();
-        HitboxComponent hb2 = new HitboxComponent(e2, null, null);
+        CollideComponent hb2 = new CollideComponent(e2, null, null);
         hb1.setiCollideLeave((a, b, c) -> newCounterE1Leave.inc());
         hb1.onLeave(hb2, Tile.Direction.N);
         assertEquals(
@@ -144,15 +147,15 @@ public class HitboxComponentTest {
     @Test
     public void getCenterMissingPositionComponent() {
         Entity e = new Entity();
-        HitboxComponent hb =
-                new HitboxComponent(
+        CollideComponent hb =
+                new CollideComponent(
                         e, new Point(0, 0), new Point(0, 0), (a, b, c) -> {}, (a, b, c) -> {});
         MissingComponentException missingComponentException =
                 assertThrows(MissingComponentException.class, hb::getCenter);
         assertTrue(
                 missingComponentException.getMessage().contains(PositionComponent.class.getName()));
         assertTrue(
-                missingComponentException.getMessage().contains(HitboxComponent.class.getName()));
+                missingComponentException.getMessage().contains(CollideComponent.class.getName()));
     }
     /*
        interesting Values could be
@@ -172,7 +175,7 @@ public class HitboxComponentTest {
         Point size = new Point(1, 1);
         ICollide iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
-        HitboxComponent hb = new HitboxComponent(e, offset, size, iCollide, iCollide);
+        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
 
         Point center = hb.getCenter();
         assertEquals(0.5f, center.x, DELTA);
@@ -188,7 +191,7 @@ public class HitboxComponentTest {
         Point size = new Point(1, 1);
         ICollide iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
-        HitboxComponent hb = new HitboxComponent(e, offset, size, iCollide, iCollide);
+        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
 
         Point center = hb.getCenter();
         assertEquals(1.5f, center.x, DELTA);
@@ -204,7 +207,7 @@ public class HitboxComponentTest {
         Point size = new Point(1, 1);
         ICollide iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
-        HitboxComponent hb = new HitboxComponent(e, offset, size, iCollide, iCollide);
+        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Point center = hb.getCenter();
 
         assertEquals(-.5f, center.x, DELTA);
@@ -220,7 +223,7 @@ public class HitboxComponentTest {
         Point size = new Point(1, 1);
         ICollide iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
-        HitboxComponent hb = new HitboxComponent(e, offset, size, iCollide, iCollide);
+        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Point center = hb.getCenter();
 
         assertEquals(1, center.x, DELTA);
@@ -236,7 +239,7 @@ public class HitboxComponentTest {
         Point size = new Point(1, 1);
         ICollide iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
-        HitboxComponent hb = new HitboxComponent(e, offset, size, iCollide, iCollide);
+        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Point center = hb.getCenter();
 
         assertEquals(0, center.x, DELTA);
@@ -252,7 +255,7 @@ public class HitboxComponentTest {
         Point size = new Point(2, 2);
         ICollide iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
-        HitboxComponent hb = new HitboxComponent(e, offset, size, iCollide, iCollide);
+        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Point center = hb.getCenter();
 
         assertEquals(.5, center.x, DELTA);
@@ -263,13 +266,13 @@ public class HitboxComponentTest {
     @Test
     public void getTopRightMissingPosition() {
         Entity e = new Entity();
-        HitboxComponent hb = new HitboxComponent(e);
+        CollideComponent hb = new CollideComponent(e);
         MissingComponentException missingComponentException =
                 assertThrows(MissingComponentException.class, hb::getTopRight);
         assertTrue(
                 missingComponentException.getMessage().contains(PositionComponent.class.getName()));
         assertTrue(
-                missingComponentException.getMessage().contains(HitboxComponent.class.getName()));
+                missingComponentException.getMessage().contains(CollideComponent.class.getName()));
     }
 
     /** Position and offset stay in origin (0,0) */
@@ -281,7 +284,7 @@ public class HitboxComponentTest {
         Point size = new Point(1, 1);
         ICollide iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
-        HitboxComponent hb = new HitboxComponent(e, offset, size, iCollide, iCollide);
+        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Point center = hb.getTopRight();
 
         assertEquals(1, center.x, DELTA);
@@ -297,7 +300,7 @@ public class HitboxComponentTest {
         Point size = new Point(2, 2);
         ICollide iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
-        HitboxComponent hb = new HitboxComponent(e, offset, size, iCollide, iCollide);
+        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Point center = hb.getTopRight();
 
         assertEquals(2, center.x, DELTA);
@@ -313,7 +316,7 @@ public class HitboxComponentTest {
         Point size = new Point(1, 1);
         ICollide iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
-        HitboxComponent hb = new HitboxComponent(e, offset, size, iCollide, iCollide);
+        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Point center = hb.getTopRight();
 
         assertEquals(3, center.x, DELTA);
@@ -329,7 +332,7 @@ public class HitboxComponentTest {
         Point size = new Point(1, 1);
         ICollide iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
-        HitboxComponent hb = new HitboxComponent(e, offset, size, iCollide, iCollide);
+        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Point center = hb.getTopRight();
 
         assertEquals(2, center.x, DELTA);
@@ -345,7 +348,7 @@ public class HitboxComponentTest {
         Point size = new Point(1, 1);
         ICollide iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
-        HitboxComponent hb = new HitboxComponent(e, offset, size, iCollide, iCollide);
+        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Point center = hb.getTopRight();
 
         assertEquals(6, center.x, DELTA);
@@ -361,7 +364,7 @@ public class HitboxComponentTest {
         Point size = new Point(3, 3);
         ICollide iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
-        HitboxComponent hb = new HitboxComponent(e, offset, size, iCollide, iCollide);
+        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Point center = hb.getTopRight();
 
         assertEquals(8, center.x, DELTA);
@@ -372,13 +375,13 @@ public class HitboxComponentTest {
     @Test
     public void getBottomLeftMissingPosition() {
         Entity e = new Entity();
-        HitboxComponent hb = new HitboxComponent(e);
+        CollideComponent hb = new CollideComponent(e);
         MissingComponentException missingComponentException =
                 assertThrows(MissingComponentException.class, hb::getCenter);
         assertTrue(
                 missingComponentException.getMessage().contains(PositionComponent.class.getName()));
         assertTrue(
-                missingComponentException.getMessage().contains(HitboxComponent.class.getName()));
+                missingComponentException.getMessage().contains(CollideComponent.class.getName()));
     }
 
     /** Position and offset stay in origin (0,0) */
@@ -390,7 +393,7 @@ public class HitboxComponentTest {
         Point size = new Point(1, 1);
         ICollide iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
-        HitboxComponent hb = new HitboxComponent(e, offset, size, iCollide, iCollide);
+        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Point center = hb.getBottomLeft();
 
         assertEquals(0, center.x, DELTA);
@@ -406,7 +409,7 @@ public class HitboxComponentTest {
         Point size = new Point(1, 1);
         ICollide iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
-        HitboxComponent hb = new HitboxComponent(e, offset, size, iCollide, iCollide);
+        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Point center = hb.getBottomLeft();
 
         assertEquals(2, center.x, DELTA);
@@ -422,7 +425,7 @@ public class HitboxComponentTest {
         Point size = new Point(1, 1);
         ICollide iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
-        HitboxComponent hb = new HitboxComponent(e, offset, size, iCollide, iCollide);
+        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Point center = hb.getBottomLeft();
 
         assertEquals(1, center.x, DELTA);
@@ -438,7 +441,7 @@ public class HitboxComponentTest {
         Point size = new Point(1, 1);
         ICollide iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
-        HitboxComponent hb = new HitboxComponent(e, offset, size, iCollide, iCollide);
+        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Point center = hb.getBottomLeft();
 
         assertEquals(5, center.x, DELTA);

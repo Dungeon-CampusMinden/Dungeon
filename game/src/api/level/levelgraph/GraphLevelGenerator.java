@@ -2,9 +2,9 @@ package api.level.levelgraph;
 
 import api.level.elements.ILevel;
 import api.level.generator.IGenerator;
-import api.level.tools.DesignLabel;
-import api.level.tools.LevelElement;
-import api.level.tools.LevelSize;
+import api.level.utils.DesignLabel;
+import api.level.utils.LevelElement;
+import api.level.utils.LevelSize;
 import dslToGame.ConvertedGraph;
 import dslToGame.DotToLevelGraph;
 import dslToGame.graph.Graph;

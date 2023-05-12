@@ -3,8 +3,8 @@ package api.level;
 import static org.junit.Assert.*;
 
 import api.level.elements.tile.*;
-import api.level.tools.Coordinate;
-import api.level.tools.DesignLabel;
+import api.level.utils.Coordinate;
+import api.level.utils.DesignLabel;
 import org.junit.Test;
 
 public class TileTest {

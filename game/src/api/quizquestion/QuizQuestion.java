@@ -1,6 +1,6 @@
 package api.quizquestion;
 
-import api.graphic.hud.UITools;
+import api.utils.hud.UITools;
 
 /**
  * The QuizQuestion class represents a single quiz question, including the question itself, possible

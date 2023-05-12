@@ -155,7 +155,7 @@ Zwar gibt es in den Vorlagen bereits einen Helden (den schauen wir uns am Ende d
 wird Ihnen hier erklärt, wie Sie Ihre erste eigene Entität in das Spiel implementieren.
 
 *Hinweis:* Wenn Sie mitprogrammieren wollen, kommentieren Sie in der
-Methode `starter.Game#setup()` die Zeile `hero = new Hero();` aus.
+Methode `api.Game#setup()` die Zeile `hero = new Hero();` aus.
 
 ### Held als Entität erstellen
 
@@ -203,7 +203,7 @@ public class MyHero extends Entity {
 *Hinweis:* Wenn Sie mal ein `Component` einer Entität abfragen wollen, nutzen Sie die Methode `Entity#getComponent` und
 übergeben Sie die `class` des gesuchten `Component`s. Beispiel: `hero.getComponent(PositionComponent.class);`
 
-Jetzt muss unser Held noch in das Spiel geladen werden. Dafür gehen wir in die Klasse `starter.Game` und fügen den
+Jetzt muss unser Held noch in das Spiel geladen werden. Dafür gehen wir in die Klasse `api.Game` und fügen den
 Helden an erster Stelle in `Game#setup` hinzu, indem Sie die bereits existierende Referenz `hero` initialisieren.
 
 ``` java

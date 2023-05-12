@@ -3,13 +3,15 @@ package api.ecs.components;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 
-import api.ecs.damage.Damage;
-import api.ecs.damage.DamageType;
-import api.ecs.entities.Entity;
-import api.graphic.Animation;
+import api.Entity;
+import api.Game;
+import api.utils.component_utils.animationComponent.Animation;
+import api.utils.component_utils.healthComponent.Damage;
+import api.utils.component_utils.healthComponent.DamageType;
+import api.utils.component_utils.healthComponent.IOnDeathFunction;
+import content.component.HealthComponent;
 import org.junit.Test;
 import org.mockito.Mockito;
-import starter.Game;
 
 public class HealthComponentTest {
 

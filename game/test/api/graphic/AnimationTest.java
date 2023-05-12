@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import api.utils.component_utils.animationComponent.Animation;
 import java.util.List;
 import org.junit.Test;
 

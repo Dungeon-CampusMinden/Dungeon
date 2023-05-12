@@ -2,14 +2,14 @@ package api.ecs.components;
 
 import static org.junit.Assert.*;
 
-import api.ecs.components.skill.Skill;
-import api.ecs.components.skill.SkillComponent;
-import api.ecs.entities.Entity;
+import api.Entity;
+import api.Game;
+import api.utils.component_utils.skillComponent.Skill;
+import content.component.SkillComponent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import starter.Game;
 
 public class SkillComponentTest {
 

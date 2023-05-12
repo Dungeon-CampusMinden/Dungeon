@@ -2,14 +2,15 @@ package api.level.room;
 
 import static api.level.elements.ILevel.RANDOM;
 
+import api.level.Room;
+import api.level.Tile;
 import api.level.elements.tile.DoorTile;
-import api.level.elements.tile.Tile;
 import api.level.levelgraph.DoorDirection;
 import api.level.levelgraph.LevelNode;
-import api.level.tools.Coordinate;
-import api.level.tools.DesignLabel;
-import api.level.tools.LevelElement;
-import api.level.tools.LevelSize;
+import api.level.utils.Coordinate;
+import api.level.utils.DesignLabel;
+import api.level.utils.LevelElement;
+import api.level.utils.LevelSize;
 import java.util.ArrayList;
 import java.util.Random;
 

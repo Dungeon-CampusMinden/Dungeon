@@ -3,10 +3,11 @@ package api.ecs.systems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import api.controller.SystemController;
+import api.Game;
+import api.System;
+import api.utils.controller.SystemController;
 import org.junit.Before;
 import org.junit.Test;
-import starter.Game;
 
 public class SystemTest {
 

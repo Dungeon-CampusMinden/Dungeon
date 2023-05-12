@@ -4,17 +4,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
-import api.ecs.components.InteractionComponent;
-import api.ecs.components.MissingComponentException;
-import api.ecs.components.PositionComponent;
-import api.ecs.entities.Entity;
+import api.Entity;
+import api.Game;
+import api.components.InteractionComponent;
+import api.components.PositionComponent;
+import api.level.TileLevel;
 import api.level.elements.ILevel;
-import api.level.elements.TileLevel;
-import api.level.tools.DesignLabel;
-import api.level.tools.LevelElement;
+import api.level.utils.DesignLabel;
+import api.level.utils.LevelElement;
 import api.utils.Point;
+import api.utils.component_utils.MissingComponentException;
+import content.utils.interactionComponent.InteractionTool;
 import org.junit.Test;
-import starter.Game;
 import testing_utils.SimpleCounter;
 
 public class InteractionToolTest {

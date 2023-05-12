@@ -1,12 +1,12 @@
 package api.level.generator.randomwalk;
 
+import api.level.TileLevel;
 import api.level.elements.ILevel;
-import api.level.elements.TileLevel;
 import api.level.generator.IGenerator;
-import api.level.tools.Coordinate;
-import api.level.tools.DesignLabel;
-import api.level.tools.LevelElement;
-import api.level.tools.LevelSize;
+import api.level.utils.Coordinate;
+import api.level.utils.DesignLabel;
+import api.level.utils.LevelElement;
+import api.level.utils.LevelSize;
 import java.util.Random;
 
 public class RandomWalkGenerator implements IGenerator {

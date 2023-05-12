@@ -2,11 +2,11 @@ package api.ecs.components;
 
 import static org.junit.Assert.*;
 
-import api.controller.SystemController;
-import api.ecs.components.xp.XPComponent;
-import api.ecs.entities.Entity;
+import api.Entity;
+import api.Game;
+import api.utils.controller.SystemController;
+import content.component.XPComponent;
 import org.junit.Test;
-import starter.Game;
 
 public class XPComponentTest {
 

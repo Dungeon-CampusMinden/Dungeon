@@ -1,11 +1,11 @@
 package api.level.generator.postGeneration;
 
+import api.level.TileLevel;
 import api.level.elements.ILevel;
-import api.level.elements.TileLevel;
 import api.level.generator.IGenerator;
-import api.level.tools.DesignLabel;
-import api.level.tools.LevelElement;
-import api.level.tools.LevelSize;
+import api.level.utils.DesignLabel;
+import api.level.utils.LevelElement;
+import api.level.utils.LevelSize;
 
 /**
  * Generator to generate Walls and Holes on a pre-generated level layout Works on every layout with

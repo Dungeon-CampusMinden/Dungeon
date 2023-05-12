@@ -1,8 +1,8 @@
 package quest;
 
-import api.controller.ScreenController;
 import api.level.elements.ILevel;
 import api.level.generator.IGenerator;
+import api.utils.controller.ScreenController;
 import dslToGame.QuestConfig;
 
 public abstract class Quest {

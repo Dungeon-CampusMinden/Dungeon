@@ -1,8 +1,9 @@
 package api.level.elements;
 
+import api.level.Tile;
 import api.level.elements.tile.*;
-import api.level.tools.LevelElement;
-import api.level.tools.TileTextureFactory;
+import api.level.utils.LevelElement;
+import api.level.utils.TileTextureFactory;
 import java.util.List;
 
 public interface ILevel extends ITileable {

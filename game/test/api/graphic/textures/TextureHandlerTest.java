@@ -1,5 +1,6 @@
 package api.graphic.textures;
 
+import api.utils.component_utils.animationComponent.TextureHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Files;
 import com.badlogic.gdx.utils.GdxNativesLoader;

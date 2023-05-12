@@ -1,6 +1,6 @@
 package api.utils;
 
-import api.level.tools.Coordinate;
+import api.level.utils.Coordinate;
 
 /**
  * For easy handling of positions in the dungeon. <br>

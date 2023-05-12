@@ -1,6 +1,6 @@
 package api.level.generator.perlinNoise;
 
-import api.level.tools.Coordinate;
+import api.level.utils.Coordinate;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;

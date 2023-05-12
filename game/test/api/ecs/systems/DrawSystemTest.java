@@ -2,18 +2,19 @@ package api.ecs.systems;
 
 import static org.junit.Assert.assertThrows;
 
-import api.controller.SystemController;
-import api.ecs.components.AnimationComponent;
-import api.ecs.components.MissingComponentException;
-import api.ecs.components.PositionComponent;
-import api.ecs.entities.Entity;
-import api.graphic.Animation;
-import api.graphic.Painter;
+import api.Entity;
+import api.Game;
+import api.components.DrawComponent;
+import api.components.PositionComponent;
+import api.systems.DrawSystem;
 import api.utils.Point;
+import api.utils.component_utils.MissingComponentException;
+import api.utils.component_utils.animationComponent.Animation;
+import api.utils.component_utils.animationComponent.Painter;
+import api.utils.controller.SystemController;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import starter.Game;
 
 public class DrawSystemTest {
 
@@ -28,7 +29,7 @@ public class DrawSystemTest {
         Game.getDelayedEntitySet().clear();
         drawSystem = new DrawSystem(painter);
         entity = new Entity();
-        new AnimationComponent(entity, animation);
+        new DrawComponent(entity, animation);
         new PositionComponent(entity, new Point(3, 3));
         Game.getDelayedEntitySet().update();
     }
@@ -50,7 +51,7 @@ public class DrawSystemTest {
 
     @Test
     public void updateWithoutAnimationComponent() {
-        entity.removeComponent(AnimationComponent.class);
+        entity.removeComponent(DrawComponent.class);
         Mockito.verifyNoMoreInteractions(painter);
         drawSystem.update();
     }

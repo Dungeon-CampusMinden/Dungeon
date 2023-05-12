@@ -2,15 +2,18 @@ package api.ecs.tools.interaction;
 
 import static org.junit.Assert.*;
 
-import api.ecs.components.InteractionComponent;
-import api.ecs.components.PositionComponent;
-import api.ecs.entities.Entity;
-import api.level.elements.TileLevel;
-import api.level.tools.DesignLabel;
-import api.level.tools.LevelElement;
+import api.Entity;
+import api.Game;
+import api.components.InteractionComponent;
+import api.components.PositionComponent;
+import api.level.TileLevel;
+import api.level.utils.DesignLabel;
+import api.level.utils.LevelElement;
 import api.utils.Point;
+import api.utils.component_utils.interactionComponent.IReachable;
+import api.utils.component_utils.interactionComponent.InteractionData;
+import content.utils.interactionComponent.ControlPointReachable;
 import org.junit.Test;
-import starter.Game;
 import testing_utils.SimpleCounter;
 
 public class ControlPointReachableTest {

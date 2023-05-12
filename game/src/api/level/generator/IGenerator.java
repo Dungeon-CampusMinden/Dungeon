@@ -1,9 +1,9 @@
 package api.level.generator;
 
 import api.level.elements.ILevel;
-import api.level.tools.DesignLabel;
-import api.level.tools.LevelElement;
-import api.level.tools.LevelSize;
+import api.level.utils.DesignLabel;
+import api.level.utils.LevelElement;
+import api.level.utils.LevelSize;
 
 public interface IGenerator {
     /**

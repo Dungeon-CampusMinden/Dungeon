@@ -2,13 +2,14 @@ package api.ecs.systems;
 
 import static org.junit.Assert.*;
 
-import api.controller.SystemController;
-import api.ecs.components.xp.ILevelUp;
-import api.ecs.components.xp.XPComponent;
-import api.ecs.entities.Entity;
+import api.Entity;
+import api.Game;
+import api.utils.component_utils.xpComponent.ILevelUp;
+import api.utils.controller.SystemController;
+import content.component.XPComponent;
+import content.systems.XPSystem;
 import org.junit.Test;
 import org.mockito.Mockito;
-import starter.Game;
 
 public class XPSystemTest {
 

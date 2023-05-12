@@ -1,7 +1,7 @@
 package api.level.elements;
 
+import api.level.Tile;
 import api.level.elements.astar.TileHeuristic;
-import api.level.elements.tile.Tile;
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
 import com.badlogic.gdx.ai.pfa.GraphPath;

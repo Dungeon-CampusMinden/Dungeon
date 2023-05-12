@@ -1,6 +1,6 @@
 package api.level.elements.astar;
 
-import api.level.elements.tile.Tile;
+import api.level.Tile;
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.math.Vector2;
 

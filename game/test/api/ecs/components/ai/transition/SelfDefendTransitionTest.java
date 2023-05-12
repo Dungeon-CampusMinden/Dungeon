@@ -2,9 +2,11 @@ package api.ecs.components.ai.transition;
 
 import static org.junit.Assert.*;
 
-import api.ecs.components.HealthComponent;
-import api.ecs.components.MissingComponentException;
-import api.ecs.entities.Entity;
+import api.Entity;
+import api.utils.component_utils.MissingComponentException;
+import api.utils.component_utils.aiComponent.ITransition;
+import content.component.HealthComponent;
+import content.utils.aiComponent.transition.SelfDefendTransition;
 import org.junit.Test;
 
 public class SelfDefendTransitionTest {
