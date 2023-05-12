@@ -5,7 +5,7 @@ import api.ecs.entities.Entity;
 import api.level.elements.tile.Tile;
 import api.level.tools.Coordinate;
 import api.level.tools.LevelElement;
-import api.tools.Point;
+import api.utils.Point;
 import java.util.Random;
 
 public interface ITileable extends IPathable {

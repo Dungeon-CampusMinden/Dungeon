@@ -1,6 +1,6 @@
 package semanticAnalysis.types;
 
-import api.tools.Point;
+import api.utils.Point;
 
 @DSLType
 public class ComponentWithExternalTypeMember {

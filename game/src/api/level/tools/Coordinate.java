@@ -1,6 +1,6 @@
 package api.level.tools;
 
-import api.tools.Point;
+import api.utils.Point;
 
 /** Coordinate in the dungeon, based on array index. */
 public class Coordinate {

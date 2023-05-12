@@ -2,7 +2,7 @@ package api.ecs.components;
 
 import api.ecs.entities.Entity;
 import api.ecs.items.ItemData;
-import api.logging.CustomLogLevel;
+import api.utils.logging.CustomLogLevel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;

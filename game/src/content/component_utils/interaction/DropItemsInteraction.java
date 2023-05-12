@@ -3,7 +3,7 @@ package content.component_utils.interaction;
 import api.ecs.components.*;
 import api.ecs.entities.Entity;
 import api.ecs.items.ItemData;
-import api.tools.Point;
+import api.utils.Point;
 import java.util.List;
 import java.util.stream.IntStream;
 

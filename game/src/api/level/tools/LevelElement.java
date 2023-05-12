@@ -1,6 +1,6 @@
 package api.level.tools;
 
-import api.tools.Constants;
+import api.utils.Constants;
 
 /**
  * Each type of field in a level can be represented by an integer value.

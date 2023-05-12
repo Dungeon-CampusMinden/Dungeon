@@ -5,7 +5,7 @@ import api.ecs.components.HitboxComponent;
 import api.ecs.components.ItemComponent;
 import api.ecs.components.PositionComponent;
 import api.ecs.entities.Entity;
-import api.tools.Point;
+import api.utils.Point;
 
 /** Class which creates all needed Components for a basic WorldItem */
 public class WorldItemBuilder {

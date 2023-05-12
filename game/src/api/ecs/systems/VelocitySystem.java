@@ -8,7 +8,7 @@ import api.ecs.components.VelocityComponent;
 import api.ecs.components.skill.ProjectileComponent;
 import api.ecs.entities.Entity;
 import api.graphic.Animation;
-import api.tools.Point;
+import api.utils.Point;
 import java.util.concurrent.atomic.AtomicBoolean;
 import starter.Game;
 

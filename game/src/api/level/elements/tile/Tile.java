@@ -7,7 +7,7 @@ import api.level.elements.astar.TileConnection;
 import api.level.tools.Coordinate;
 import api.level.tools.DesignLabel;
 import api.level.tools.LevelElement;
-import api.tools.Point;
+import api.utils.Point;
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.utils.Array;
 import java.util.ArrayList;

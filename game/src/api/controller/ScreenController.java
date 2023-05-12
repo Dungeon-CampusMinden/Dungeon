@@ -1,6 +1,6 @@
 package api.controller;
 
-import api.tools.Constants;
+import api.utils.Constants;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;

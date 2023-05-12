@@ -2,7 +2,7 @@ package api.graphic.hud;
 
 import api.quizquestion.QuizQuestion;
 import api.quizquestion.QuizQuestionContent;
-import api.tools.Constants;
+import api.utils.Constants;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
 import java.util.ArrayList;

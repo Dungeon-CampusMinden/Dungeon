@@ -7,7 +7,7 @@ import api.ecs.components.skill.ISkillFunction;
 import api.ecs.components.skill.Skill;
 import api.ecs.components.skill.SkillComponent;
 import api.ecs.entities.Entity;
-import api.tools.Constants;
+import api.utils.Constants;
 import org.junit.Test;
 import org.mockito.Mockito;
 import starter.Game;

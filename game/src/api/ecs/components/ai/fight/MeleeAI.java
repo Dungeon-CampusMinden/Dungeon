@@ -4,7 +4,7 @@ import api.ecs.components.ai.AITools;
 import api.ecs.components.skill.Skill;
 import api.ecs.entities.Entity;
 import api.level.elements.tile.Tile;
-import api.tools.Constants;
+import api.utils.Constants;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
 public class MeleeAI implements IFightAI {

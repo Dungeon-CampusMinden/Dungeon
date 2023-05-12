@@ -1,6 +1,6 @@
 package api.ecs.components;
 
-import api.logging.CustomLogLevel;
+import api.utils.logging.CustomLogLevel;
 import java.util.logging.Logger;
 
 public class MissingComponentException extends NullPointerException {

@@ -2,8 +2,8 @@ package api.graphic.hud;
 
 import api.quizquestion.QuizQuestion;
 import api.quizquestion.QuizQuestionContent;
-import api.tools.Constants;
-import api.tools.Point;
+import api.utils.Constants;
+import api.utils.Point;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;

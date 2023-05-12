@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import api.ecs.components.skill.ISkillFunction;
 import api.ecs.components.skill.Skill;
 import api.ecs.entities.Entity;
-import api.tools.Constants;
+import api.utils.Constants;
 import org.junit.After;
 import org.junit.Test;
 

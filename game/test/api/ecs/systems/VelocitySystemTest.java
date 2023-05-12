@@ -12,7 +12,7 @@ import api.ecs.entities.Entity;
 import api.graphic.Animation;
 import api.level.elements.ILevel;
 import api.level.elements.tile.Tile;
-import api.tools.Point;
+import api.utils.Point;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

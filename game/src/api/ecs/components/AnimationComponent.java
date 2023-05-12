@@ -4,7 +4,7 @@ import api.ecs.entities.Entity;
 import api.ecs.systems.DrawSystem;
 import api.ecs.systems.VelocitySystem;
 import api.graphic.Animation;
-import api.logging.CustomLogLevel;
+import api.utils.logging.CustomLogLevel;
 import java.util.List;
 import java.util.logging.Logger;
 import semanticAnalysis.types.DSLContextMember;

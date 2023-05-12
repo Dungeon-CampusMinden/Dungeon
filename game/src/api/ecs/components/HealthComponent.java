@@ -6,7 +6,7 @@ import api.ecs.entities.Entity;
 import api.ecs.systems.DrawSystem;
 import api.ecs.systems.HealthSystem;
 import api.graphic.Animation;
-import api.logging.CustomLogLevel;
+import api.utils.logging.CustomLogLevel;
 import com.badlogic.gdx.utils.Null;
 import java.util.ArrayList;
 import java.util.List;

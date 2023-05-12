@@ -3,7 +3,7 @@ package api.ecs.components.ai.fight;
 import api.ecs.components.ai.AITools;
 import api.ecs.entities.Entity;
 import api.level.elements.tile.Tile;
-import api.tools.Constants;
+import api.utils.Constants;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
 public class CollideAI implements IFightAI {

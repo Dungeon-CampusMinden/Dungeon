@@ -8,7 +8,7 @@ import api.ecs.entities.Entity;
 import api.level.elements.TileLevel;
 import api.level.tools.DesignLabel;
 import api.level.tools.LevelElement;
-import api.tools.Point;
+import api.utils.Point;
 import org.junit.Test;
 import starter.Game;
 import testing_utils.SimpleCounter;

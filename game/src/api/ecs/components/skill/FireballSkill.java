@@ -2,7 +2,7 @@ package api.ecs.components.skill;
 
 import api.ecs.damage.Damage;
 import api.ecs.damage.DamageType;
-import api.tools.Point;
+import api.utils.Point;
 
 public class FireballSkill extends DamageProjectileSkill {
     public FireballSkill(ITargetSelection targetSelection) {

@@ -1,6 +1,6 @@
 package api.graphic.hud;
 
-import api.tools.Point;
+import api.utils.Point;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 

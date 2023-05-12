@@ -3,7 +3,7 @@ package api.level;
 import static org.junit.Assert.*;
 
 import api.level.tools.Coordinate;
-import api.tools.Point;
+import api.utils.Point;
 import org.junit.Before;
 import org.junit.Test;
 

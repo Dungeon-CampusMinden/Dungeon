@@ -1,4 +1,4 @@
-package api.tools;
+package api.ecs.systems;
 
 import api.ecs.components.*;
 import api.ecs.components.ai.AIComponent;
@@ -7,11 +7,11 @@ import api.ecs.components.ai.idle.RadiusWalk;
 import api.ecs.components.ai.transition.SelfDefendTransition;
 import api.ecs.components.skill.SkillTools;
 import api.ecs.entities.Entity;
-import api.ecs.systems.System;
 import api.level.elements.tile.Tile;
 import api.level.tools.Coordinate;
 import api.level.tools.LevelSize;
-import api.logging.CustomLogLevel;
+import api.utils.Point;
+import api.utils.logging.CustomLogLevel;
 import com.badlogic.gdx.Gdx;
 import content.configuration.KeyboardConfig;
 import dslToGame.AnimationBuilder;

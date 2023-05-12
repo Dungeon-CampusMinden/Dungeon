@@ -7,7 +7,7 @@ import api.ecs.entities.Entity;
 import api.level.elements.ILevel;
 import api.level.elements.tile.Tile;
 import api.level.tools.Coordinate;
-import api.tools.Point;
+import api.utils.Point;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import java.util.*;
 import starter.Game;

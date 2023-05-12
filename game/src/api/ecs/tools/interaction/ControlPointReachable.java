@@ -1,7 +1,7 @@
 package api.ecs.tools.interaction;
 
 import api.level.tools.Coordinate;
-import api.tools.Point;
+import api.utils.Point;
 import starter.Game;
 
 public class ControlPointReachable implements IReachable {

@@ -1,7 +1,7 @@
 package api.graphic;
 
 import api.ecs.components.PositionComponent;
-import api.tools.Point;
+import api.utils.Point;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;

@@ -1,4 +1,4 @@
-package api.logging;
+package api.utils.logging;
 
 import java.io.File;
 import java.io.IOException;

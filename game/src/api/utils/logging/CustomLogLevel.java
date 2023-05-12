@@ -1,4 +1,4 @@
-package api.logging;
+package api.utils.logging;
 
 import java.util.logging.Level;
 

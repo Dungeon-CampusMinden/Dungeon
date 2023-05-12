@@ -1,7 +1,7 @@
 package api.controller;
 
 import api.ecs.systems.System;
-import api.logging.CustomLogLevel;
+import api.utils.logging.CustomLogLevel;
 
 /** used to integrate Systems in PM-Dungeon game loop */
 public class SystemController extends AbstractController<System> {

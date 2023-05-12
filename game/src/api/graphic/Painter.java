@@ -1,7 +1,7 @@
 package api.graphic;
 
 import api.graphic.textures.TextureMap;
-import api.tools.Point;
+import api.utils.Point;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 

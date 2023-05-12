@@ -2,7 +2,7 @@ package api.ecs.components;
 
 import api.ecs.entities.Entity;
 import api.ecs.items.ItemData;
-import api.tools.Point;
+import api.utils.Point;
 
 /** a simple implementation of dropping all items of an Entity when it is dying. */
 public class DropLoot implements IOnDeathFunction {

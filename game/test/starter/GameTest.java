@@ -7,7 +7,7 @@ import api.graphic.DungeonCamera;
 import api.graphic.Painter;
 import api.level.LevelAPI;
 import api.level.generator.randomwalk.RandomWalkGenerator;
-import api.tools.Constants;
+import api.utils.Constants;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;

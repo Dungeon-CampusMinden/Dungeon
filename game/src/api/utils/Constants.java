@@ -1,4 +1,4 @@
-package api.tools;
+package api.utils;
 
 import java.net.URISyntaxException;
 import java.net.URL;

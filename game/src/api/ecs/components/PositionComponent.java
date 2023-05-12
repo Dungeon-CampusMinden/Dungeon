@@ -1,8 +1,8 @@
 package api.ecs.components;
 
 import api.ecs.entities.Entity;
-import api.logging.CustomLogLevel;
-import api.tools.Point;
+import api.utils.Point;
+import api.utils.logging.CustomLogLevel;
 import java.util.logging.Logger;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;

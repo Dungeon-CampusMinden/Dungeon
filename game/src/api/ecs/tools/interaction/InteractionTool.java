@@ -4,7 +4,7 @@ import api.ecs.components.InteractionComponent;
 import api.ecs.components.MissingComponentException;
 import api.ecs.components.PositionComponent;
 import api.ecs.entities.Entity;
-import api.tools.Point;
+import api.utils.Point;
 import java.util.Optional;
 import starter.Game;
 

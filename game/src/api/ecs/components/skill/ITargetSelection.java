@@ -1,6 +1,6 @@
 package api.ecs.components.skill;
 
-import api.tools.Point;
+import api.utils.Point;
 
 public interface ITargetSelection {
 

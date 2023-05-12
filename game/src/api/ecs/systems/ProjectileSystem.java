@@ -5,7 +5,7 @@ import api.ecs.components.PositionComponent;
 import api.ecs.components.VelocityComponent;
 import api.ecs.components.skill.ProjectileComponent;
 import api.ecs.entities.Entity;
-import api.tools.Point;
+import api.utils.Point;
 import starter.Game;
 
 public class ProjectileSystem extends System {

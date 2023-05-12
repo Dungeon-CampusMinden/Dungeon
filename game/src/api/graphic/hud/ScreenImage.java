@@ -1,7 +1,7 @@
 package api.graphic.hud;
 
-import api.tools.Constants;
-import api.tools.Point;
+import api.utils.Constants;
+import api.utils.Point;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 

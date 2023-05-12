@@ -10,7 +10,7 @@ import api.ecs.items.ItemData;
 import api.ecs.items.ItemDataGenerator;
 import api.graphic.Animation;
 import api.level.tools.LevelElement;
-import api.tools.Point;
+import api.utils.Point;
 import content.component_utils.interaction.DropItemsInteraction;
 import dslToGame.AnimationBuilder;
 import java.util.List;

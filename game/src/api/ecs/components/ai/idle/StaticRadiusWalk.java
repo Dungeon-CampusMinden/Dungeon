@@ -4,8 +4,8 @@ import api.ecs.components.PositionComponent;
 import api.ecs.components.ai.AITools;
 import api.ecs.entities.Entity;
 import api.level.elements.tile.Tile;
-import api.tools.Constants;
-import api.tools.Point;
+import api.utils.Constants;
+import api.utils.Point;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
 public class StaticRadiusWalk implements IIdleAI {

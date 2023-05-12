@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import api.ecs.components.collision.ICollide;
 import api.ecs.entities.Entity;
 import api.level.elements.tile.Tile;
-import api.tools.Point;
+import api.utils.Point;
 import org.junit.Test;
 
 public class HitboxComponentTest {

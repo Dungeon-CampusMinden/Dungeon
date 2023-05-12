@@ -1,6 +1,6 @@
 package api.quizquestion;
 
-import api.tools.Constants;
+import api.utils.Constants;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;

@@ -2,7 +2,7 @@ package api.ecs.components.skill;
 
 import api.ecs.components.Component;
 import api.ecs.entities.Entity;
-import api.tools.Point;
+import api.utils.Point;
 
 public class ProjectileComponent extends Component {
 

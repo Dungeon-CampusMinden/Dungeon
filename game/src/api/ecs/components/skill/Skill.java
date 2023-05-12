@@ -1,7 +1,7 @@
 package api.ecs.components.skill;
 
 import api.ecs.entities.Entity;
-import api.tools.Constants;
+import api.utils.Constants;
 
 public class Skill {
 

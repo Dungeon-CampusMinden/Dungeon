@@ -1,6 +1,6 @@
 package starter;
 
-import static api.logging.LoggerConfig.initBaseLogger;
+import static api.utils.logging.LoggerConfig.initBaseLogger;
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
 import api.configuration.Configuration;
@@ -10,6 +10,7 @@ import api.ecs.components.MissingComponentException;
 import api.ecs.components.PositionComponent;
 import api.ecs.entities.Entity;
 import api.ecs.systems.*;
+import api.ecs.systems.Debugger;
 import api.graphic.DungeonCamera;
 import api.graphic.Painter;
 import api.graphic.hud.UITools;
@@ -23,10 +24,9 @@ import api.level.generator.postGeneration.WallGenerator;
 import api.level.generator.randomwalk.RandomWalkGenerator;
 import api.level.tools.LevelSize;
 import api.quizquestion.DummyQuizQuestionList;
-import api.tools.Constants;
-import api.tools.Debugger;
-import api.tools.Point;
+import api.utils.Constants;
 import api.utils.DelayedSet;
+import api.utils.Point;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;

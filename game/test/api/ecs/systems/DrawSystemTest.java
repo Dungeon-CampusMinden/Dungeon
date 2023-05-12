@@ -9,7 +9,7 @@ import api.ecs.components.PositionComponent;
 import api.ecs.entities.Entity;
 import api.graphic.Animation;
 import api.graphic.Painter;
-import api.tools.Point;
+import api.utils.Point;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

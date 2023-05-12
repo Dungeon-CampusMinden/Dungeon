@@ -2,7 +2,7 @@ package api.graphic.hud;
 
 import api.ecs.systems.System;
 import api.quizquestion.QuizQuestion;
-import api.tools.Constants;
+import api.utils.Constants;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;

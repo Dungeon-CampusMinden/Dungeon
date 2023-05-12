@@ -8,7 +8,7 @@ import api.ecs.components.InventoryComponent;
 import api.ecs.components.PositionComponent;
 import api.ecs.entities.Entity;
 import api.graphic.Animation;
-import api.tools.Point;
+import api.utils.Point;
 import content.configuration.ItemConfig;
 import java.util.List;
 import org.junit.Before;

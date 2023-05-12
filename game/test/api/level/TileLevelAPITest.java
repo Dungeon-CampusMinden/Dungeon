@@ -20,7 +20,7 @@ import api.level.tools.Coordinate;
 import api.level.tools.DesignLabel;
 import api.level.tools.LevelElement;
 import api.level.tools.LevelSize;
-import api.tools.Point;
+import api.utils.Point;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import org.junit.Before;

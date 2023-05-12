@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 
 import api.ecs.components.PositionComponent;
 import api.ecs.entities.Entity;
-import api.tools.Constants;
-import api.tools.Point;
+import api.utils.Constants;
+import api.utils.Point;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxNativesLoader;
 import org.junit.BeforeClass;

@@ -3,7 +3,7 @@ package api.ecs.components;
 import static org.junit.Assert.assertEquals;
 
 import api.ecs.entities.Entity;
-import api.tools.Point;
+import api.utils.Point;
 import org.junit.Before;
 import org.junit.Test;
 

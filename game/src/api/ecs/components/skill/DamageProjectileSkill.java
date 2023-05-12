@@ -5,7 +5,7 @@ import api.ecs.components.collision.ICollide;
 import api.ecs.damage.Damage;
 import api.ecs.entities.Entity;
 import api.graphic.Animation;
-import api.tools.Point;
+import api.utils.Point;
 import dslToGame.AnimationBuilder;
 import starter.Game;
 
