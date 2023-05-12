@@ -149,9 +149,15 @@ Hierdurch wird die Gesamtmenge der Elemente sowie die Anzahl der enthaltenen Ele
 
 Zuordnen bezeichnet im Allgemeinen die Aufgabe, Elementen aus einer Menge $A$ (z.B.
 Antwortmöglichkeiten) die Elemente aus einer anderen Menge $B$ zuzuordnen (bspw. Array-Index,
-Reihe-Spalte Kombination einer Matrix). Hierbei muss nicht jedes Element aus $A$ der
-Antwortmöglichkeiten auch einem Element aus $B$ zugeordnet werden. Allerdings muss jedem Element aus $B$ ein
-Element aus $A$ zugeordnet werden. Die gesamte Menge $A$ der Antwortmöglichkeiten muss den Studierenden
+Reihe-Spalte Kombination einer Matrix).
+Die Zuordnung muss dabei nach der Form einer partiellen Funktion $f: A \rightharpoonup B$ erfolgen.
+
+Das heißt:
+
+- Jeder Antwortmöglichkeit $a \in A$ kann maximal ein Element $b \in B$ zugeordnet werden.
+- Jedem Element $b \in B$ können $n$ Elemente $a \in A$ zugeordnet werden, wobei $0 \leq n \leq |A|$ ist
+
+Die gesamte Menge $A$ der Antwortmöglichkeiten muss den Studierenden
 bekannt sein, bevor sie den ersten Zuordnungsschritt machen können.
 
 ### Elemente in der richtigen Reihenfolge auswählen
