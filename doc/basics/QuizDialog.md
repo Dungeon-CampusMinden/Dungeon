@@ -1,15 +1,18 @@
-# GUI für Quizfragen
+---
+title: "GUI für Quizfragen"
+---
+
 Der Dialog für Quizfragen bietet dem User die Möglichkeit Fragen und Antwortmöglichkeiten in der GUI innerhalb des Spiels über den `Button F` anzeigen zu lassen. Dieser kann als Basis für weitere GUI-Elemente und Erweiterungen genutzt werden.
 Da die Inhalte später aus der DSL kommen werden, muss zwischen gewöhnlichem Text sowie Pfaden, die als Strings angegeben werden selektiert werden.
 Beim Aufruf des Quiz-Dialoges werden genauso wie beim Aufruf vom Text-Dialog alle Systeme bis auf `DrawSystem` pausiert. <br>
 Das UI wird in drei Bereiche gegliedert, den Fragebereich, Antwortbereich sowie den Bereich wo der Button zum verlassen des UI angezeigt wird.
 Im Fragebereich werden die Fragen als:
 `TEXT`: Darstellung einer Frage oder Antwortmöglichkeit als Text dar.<br>
-![DialogWindow](/img/Question_with_Txt.png)
+![DialogWindow](img/Question_with_Txt.png)
 `IMAGE`:  Darstellung einer Frage als Bild <br>
-![DialogWindow](/img/Question_with_Pic.png)
+![DialogWindow](img/Question_with_Pic.png)
 `TEXT_AND_IMAGE`: Darstellung einer Frage als Bild und Text<br>
-![DialogWindow](/img/Question_with_Txt_and_Pic.png)
+![DialogWindow](img/Question_with_Txt_and_Pic.png)
 
 Im Antwortbereich werden die Antwortmöglichkeiten als Single-Choice oder Multiple-Choice angezeigt, außerdem hat der User bei manchen Aufgabenstellungen, die per Zufall über die Funktion `getRandomQuestion()` der Klasse `DummyQuizQuestionList` generiert werden die Möglichkeit, die Antwort als Freetext (freie Texteingabe) anzugeben.<br>
 Die Antwortmöglichkeiten der Single Choice Fragen sollen mit einem Radiobutton dargestellt werden, womit nur eine Antwort aus der gesamten Auswahl gewählt werden kann. Einmaliges drücken wählt die Antwort aus, eine Neuauswahl hebt die alte Auswahl auf. <br>
