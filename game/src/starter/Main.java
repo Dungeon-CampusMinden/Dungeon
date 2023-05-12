@@ -6,13 +6,15 @@ import java.io.IOException;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // start the game
-        try {
-            Configuration.loadAndGetConfiguration("dungeon_config.json", KeyboardConfig.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        Game.LibgdxSetup.run(new Game());
+        Game.loadConfig("dungeon_config.json",KeyboardConfig.class);
+        Game.onLevelLoad(()->xyz);
+        Game.registerSystem(new MyStudiSystem());
+
+
+
+
+        Game.run(); //hier ist loop
     }
 }
