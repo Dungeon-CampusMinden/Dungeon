@@ -21,11 +21,7 @@ public class VelocityComponentTest {
     public void setup() {
         velocityComponent =
                 new VelocityComponent(
-                        Mockito.mock(Entity.class),
-                        xVelocityAtStart,
-                        yVelocityAtStart,
-                        moveLeft,
-                        moveRight);
+                        new Entity(), xVelocityAtStart, yVelocityAtStart, moveLeft, moveRight);
     }
 
     @Test

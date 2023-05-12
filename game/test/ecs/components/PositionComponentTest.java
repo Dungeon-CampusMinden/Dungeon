@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import ecs.entities.Entity;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import tools.Point;
 
 public class PositionComponentTest {
@@ -15,7 +14,7 @@ public class PositionComponentTest {
 
     @Before
     public void setup() {
-        positionComponent = new PositionComponent(Mockito.mock(Entity.class), position);
+        positionComponent = new PositionComponent(new Entity(), position);
     }
 
     @Test

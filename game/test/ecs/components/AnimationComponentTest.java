@@ -16,8 +16,7 @@ public class AnimationComponentTest {
 
     @Before
     public void setup() {
-        animationComponent =
-                new AnimationComponent(Mockito.mock(Entity.class), idleLeft, idleRight);
+        animationComponent = new AnimationComponent(new Entity(), idleLeft, idleRight);
     }
 
     @Test

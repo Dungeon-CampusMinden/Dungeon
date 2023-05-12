@@ -162,7 +162,7 @@ public class ItemData {
                             InventoryComponent invComp = (InventoryComponent) component;
                             invComp.removeItem(item);
                         });
-        System.out.printf("Item \"%s\" used by entity %d\n", item.getItemName(), e.id);
+        System.out.printf("Item \"%s\" used by entity %d\n", item.getItemName(), e.id());
     }
 
     private static void defaultDrop(Entity who, ItemData which, Point position) {

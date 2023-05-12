@@ -2,6 +2,7 @@ package ecs.entities;
 
 import static org.junit.Assert.*;
 
+import content.entity.EntityFactory;
 import ecs.components.*;
 import ecs.items.ItemData;
 import ecs.items.ItemDataGenerator;
@@ -27,7 +28,7 @@ public class ChestTest {
         cleanup();
         List<ItemData> itemData = List.of();
         Point position = new Point(0, 0);
-        Chest c = new Chest(itemData, position);
+        Entity c = EntityFactory.getChest(itemData, position);
         Game.getDelayedEntitySet().update();
         assertEquals("Chest is added to Game", 1, Game.getEntities().size());
         assertTrue(
@@ -56,8 +57,9 @@ public class ChestTest {
         cleanup();
         List<ItemData> itemData = List.of(new ItemDataGenerator().generateItemData());
         Point position = new Point(0, 0);
-        Chest c = new Chest(itemData, position);
+        Entity c = EntityFactory.getChest(itemData, position);
         Game.getDelayedEntitySet().update();
+
         assertEquals(1, Game.getEntities().size());
         c.getComponent(InteractionComponent.class)
                 .map(InteractionComponent.class::cast)
@@ -75,7 +77,7 @@ public class ChestTest {
         cleanup();
         List<ItemData> itemData = List.of(new ItemDataGenerator().generateItemData());
         Point position = new Point(0, 0);
-        Chest c = new Chest(itemData, position);
+        Entity c = EntityFactory.getChest(itemData, position);
         Game.removeEntity(c);
         Game.getDelayedEntitySet().update();
         assertEquals(0, Game.getEntities().size());
@@ -106,8 +108,10 @@ public class ChestTest {
                             }
                         },
                         DesignLabel.DEFAULT);
-        Chest newChest = Chest.createNewChest();
+
+        Entity newChest = EntityFactory.getChest();
         Game.getDelayedEntitySet().update();
+
         assertTrue("Chest is added to Game", Game.getEntities().contains(newChest));
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",

@@ -28,7 +28,7 @@ public class CollisionSystem extends System {
                 .flatMap(
                         a ->
                                 Game.getEntities().stream()
-                                        .filter(b -> a.getEntity().id < b.id)
+                                        .filter(b -> a.getEntity().id() < b.id())
                                         .flatMap(
                                                 b ->
                                                         b
@@ -44,7 +44,7 @@ public class CollisionSystem extends System {
     }
 
     private void onEnterLeaveCheck(CollisionData cdata) {
-        CollisionKey key = new CollisionKey(cdata.a.getEntity().id, cdata.b.getEntity().id);
+        CollisionKey key = new CollisionKey(cdata.a.getEntity().id(), cdata.b.getEntity().id());
 
         if (checkForCollision(cdata.a, cdata.b)) {
             if (!collisions.containsKey(key)) {

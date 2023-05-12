@@ -21,7 +21,7 @@ public class AIComponentTest {
 
     private final ITransition mockTransition = mock(ITransition.class);
 
-    private final Entity entity = Mockito.mock(Entity.class);
+    private final Entity entity = new Entity();
 
     @Before
     public void setup() {

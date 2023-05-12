@@ -1,65 +1,44 @@
-package ecs.entities;
+package content.component_utils.interaction;
 
 import ecs.components.*;
+import ecs.entities.Entity;
 import ecs.items.ItemData;
-import ecs.items.ItemDataGenerator;
-import graphic.Animation;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.IntStream;
-import level.tools.LevelElement;
-import starter.Game;
 import tools.Point;
 
-public class Chest extends Entity {
-
-    public static final float defaultInteractionRadius = 1f;
-    public static final List<String> DEFAULT_CLOSED_ANIMATION_FRAMES =
-            List.of("objects/treasurechest/chest_full_open_anim_f0.png");
-    public static final List<String> DEFAULT_OPENING_ANIMATION_FRAMES =
-            List.of(
-                    "objects/treasurechest/chest_full_open_anim_f0.png",
-                    "objects/treasurechest/chest_full_open_anim_f1.png",
-                    "objects/treasurechest/chest_full_open_anim_f2.png",
-                    "objects/treasurechest/chest_empty_open_anim_f2.png");
-
-    /**
-     * small Generator which uses the Item#ITEM_REGISTER
-     *
-     * @return a configured Chest
-     */
-    public static Chest createNewChest() {
-        Random random = new Random();
-        ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
-
-        List<ItemData> itemData =
-                IntStream.range(0, random.nextInt(1, 3))
-                        .mapToObj(i -> itemDataGenerator.generateItemData())
-                        .toList();
-        return new Chest(
-                itemData,
-                Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint());
-    }
+/**
+ * This class is a specific implementation of the {@link IInteraction} interface to use in the
+ * {@link InteractionComponent}.
+ *
+ * <p>The implementation will drop all the items inside the {@link InventoryComponent} of the
+ * associated entity on the floor.
+ *
+ * <p>This function can be used to implement the loot function for chests.
+ *
+ * <p>Note: The entity that will use this function needs an {@link InventoryComponent} and {@link
+ * PositionComponent}. An {@link AnimationComponent} is optional.
+ *
+ * <p>If an {@link AnimationComponent} is present, after the interaction, the {@link
+ * AnimationComponent#idleRight} animation will be set as the current animation.
+ */
+public class DropItemsInteraction implements IInteraction {
 
     /**
-     * Creates a new Chest which drops the given items on interaction
+     * Will drop all the items inside the {@link InventoryComponent} of the associated entity on the
+     * floor.
      *
-     * @param itemData which the chest is supposed to drop
-     * @param position the position where the chest is placed
+     * <p>This function can be used to implement the loot function for chests.
+     *
+     * <p>Note: The entity that will use this function needs an {@link InventoryComponent} and
+     * {@link PositionComponent}. An {@link AnimationComponent} is optional.
+     *
+     * <p>If an {@link AnimationComponent} is present, after the interaction, the {@link
+     * AnimationComponent#idleRight} animation will be set as the current animation.
+     *
+     * @param entity associated entity
      */
-    public Chest(List<ItemData> itemData, Point position) {
-        new PositionComponent(this, position);
-        InventoryComponent ic = new InventoryComponent(this, itemData.size());
-        itemData.forEach(ic::addItem);
-        new InteractionComponent(this, defaultInteractionRadius, false, this::dropItems);
-        AnimationComponent ac =
-                new AnimationComponent(
-                        this,
-                        new Animation(DEFAULT_CLOSED_ANIMATION_FRAMES, 100, false),
-                        new Animation(DEFAULT_OPENING_ANIMATION_FRAMES, 100, false));
-    }
-
-    private void dropItems(Entity entity) {
+    public void onInteraction(Entity entity) {
         InventoryComponent inventoryComponent =
                 entity.getComponent(InventoryComponent.class)
                         .map(InventoryComponent.class::cast)
@@ -115,7 +94,7 @@ public class Chest extends Entity {
         return new MissingComponentException(
                 Component
                         + " missing in "
-                        + Chest.class.getName()
+                        + DropItemsInteraction.class.getName()
                         + " in Entity "
                         + e.getClass().getName());
     }

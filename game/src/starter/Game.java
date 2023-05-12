@@ -10,12 +10,12 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import configuration.Configuration;
 import configuration.KeyboardConfig;
+import content.entity.EntityFactory;
 import controller.AbstractController;
 import controller.SystemController;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
-import ecs.entities.Hero;
 import ecs.systems.*;
 import graphic.DungeonCamera;
 import graphic.Painter;
@@ -134,7 +134,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         gameLogger = Logger.getLogger(this.getClass().getName());
         systems = new SystemController();
         controller.add(systems);
-        hero = new Hero();
+        hero = EntityFactory.getHero();
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel(LEVELSIZE);
         createSystems();
@@ -166,6 +166,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         currentLevel = levelAPI.getCurrentLevel();
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
+        EntityFactory.getChest();
     }
 
     private void setCameraFocus() {

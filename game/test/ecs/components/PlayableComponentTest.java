@@ -14,7 +14,7 @@ public class PlayableComponentTest {
 
     @Before
     public void setup() {
-        playableComponent = new PlayableComponent(Mockito.mock(Entity.class));
+        playableComponent = new PlayableComponent(new Entity());
     }
 
     @Test
