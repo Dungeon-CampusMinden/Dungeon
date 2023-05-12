@@ -10,8 +10,11 @@ import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
 
 /**
- * AnimationComponent is a component that stores the possible animations and the current animation
- * of an entity
+ * The AnimationComponent associates an entity with its animations. It stores the current animation
+ * and two idle animations, one for each direction (left/right). The current animation can be
+ * overwritten by using the {@link #setCurrentAnimation} of this component. The {@link
+ * ecs.systems.DrawSystem DrawSystem} uses the {@link #getCurrentAnimation()} method to draw the
+ * current animation to the screen.
  */
 @DSLType(name = "animation_component")
 public class AnimationComponent extends Component {
@@ -22,9 +25,13 @@ public class AnimationComponent extends Component {
     private final Logger animCompLogger = Logger.getLogger(this.getClass().getName());
 
     /**
-     * @param entity associated entity
-     * @param idleLeft Idleanimation faced left
-     * @param idleRight Idleanimation faced right
+     * Create a new AnimationComponent object
+     *
+     * <p>Create a new AnimationComponent with separate idle Animations for each direction.
+     *
+     * @param entity Entity to add this component to
+     * @param idleLeft Idle-Animation faced left
+     * @param idleRight Idle-Animation faced right
      */
     public AnimationComponent(Entity entity, Animation idleLeft, Animation idleRight) {
         super(entity);
@@ -34,15 +41,24 @@ public class AnimationComponent extends Component {
     }
 
     /**
-     * @param entity associated entity
-     * @param idle Idleanimation
+     * Create a new AnimationComponent object.
+     *
+     * <p>Create a new AnimationComponent object with the given animation as idle animation for both
+     * directions.
+     *
+     * @param entity Entity to add this component to
+     * @param idle Idle-Animation
      */
     public AnimationComponent(Entity entity, Animation idle) {
         this(entity, idle, idle);
     }
 
     /**
-     * @param entity associated entity
+     * Create a new AnimationComponent object with default Animations.
+     *
+     * <p>The default Animations are composed of a single frame with the "missingTexture" texture.
+     *
+     * @param entity Entity to add this component to
      */
     public AnimationComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);
@@ -57,7 +73,14 @@ public class AnimationComponent extends Component {
     }
 
     /**
-     * @param animation new current animation of the entity
+     * Set the current animation displayed on the entity.
+     *
+     * <p>The animation passed does not have to be one of the animations stored in this component,
+     * it can be any animation. If the animation passed is not displayed on the entity, there may be
+     * another point in the code where the animation is overwritten on the same tick. (e.g. in
+     * {@link ecs.systems.VelocitySystem VelocitySystem}).
+     *
+     * @param animation new current animation.
      */
     public void setCurrentAnimation(Animation animation) {
         if (animation.getAnimationFrames().size() > 0) {
@@ -71,8 +94,9 @@ public class AnimationComponent extends Component {
         }
         this.currentAnimation = animation;
     }
-
     /**
+     * Get the current animation being displayed on entity.
+     *
      * @return current animation of the entity
      */
     public Animation getCurrentAnimation() {
@@ -92,19 +116,22 @@ public class AnimationComponent extends Component {
                             + entity.getClass().getSimpleName()
                             + "'. This entity has currently no animation.");
         }
-
         return currentAnimation;
     }
 
     /**
-     * @return Idleanimation faced left
+     * Get idling animation that is used if the entity is facing left.
+     *
+     * @return Idle-Animation faced left
      */
     public Animation getIdleLeft() {
         return idleLeft;
     }
 
     /**
-     * @return Idleanimation faced right
+     * Get idle animation that is used if the entity is facing right.
+     *
+     * @return Animation faced right
      */
     public Animation getIdleRight() {
         return idleRight;

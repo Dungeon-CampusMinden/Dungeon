@@ -11,7 +11,7 @@ Abhandeln des Geschehens.
 ## Aufbau
 
 To-do: nach Besprechung von Umfang UMLs besprechen.
-![](../img/interaction.png)
+![](img/interactionComponent.png)
 
 Die Interaktionskomponente besitzt die grundlegenden Informationen wie und wann interagiert werden darf.
 Einmal gibt es den Radius welcher die maximale Entfernung angibt, in welcher eine Interaktion stattfinden darf.
@@ -31,7 +31,7 @@ triggerInteraction erlaubt es eine Interaktion jederzeit auszuführen und wenn d
 
 ## Testabdeckung
 
-Bis auf die `InteractionComponent#DefaultInteraction` sind für alle Methoden Tests vorhanden. 
+Bis auf die `InteractionComponent#DefaultInteraction` sind für alle Methoden Tests vorhanden.
 Die Defaultinteraktion ist ein ausgeben auf der Konsole und dadurch schwer zu testen bzw. ist das Testen sehr unschön.
 ```
     @Test

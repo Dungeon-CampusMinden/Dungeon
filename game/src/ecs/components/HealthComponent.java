@@ -14,11 +14,30 @@ import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
 
-/** The HealthComponent makes an entity vulnerable and killable */
+/**
+ * The HealthComponent adds health points and the ability to take damage and die to an entity.
+ *
+ * <p>It keeps track of the current health points and its maximum.
+ *
+ * <p>It also keeps track of the damage received via the {@link #receiveHit(Damage) receiveHit}
+ * method. The damage is stored in a list and can be retrieved via the {@link #getDamage(DamageType)
+ * getDamage} method. The damage is applied and cleared by the {@link ecs.systems.HealthSystem
+ * HealthSystem} every tick. To determine what the last cause of damage was, the {@link
+ * #getLastDamageCause()} method can be used.
+ *
+ * <p>The HealthComponent also provides the ability to set an onDeath function, which is called when
+ * the health points reach 0 or less. The onDeath function can be set via the {@link
+ * #setOnDeath(IOnDeathFunction) setOnDeath} method.
+ *
+ * <p>Finally, the HealthComponent provides the ability to set animations for the entity to be
+ * played when it is hit or dies. These animations can be set via the {@link
+ * #setGetHitAnimation(Animation) setGetHitAnimation} and {@link #setDieAnimation(Animation)
+ * setDieAnimation} methods and are played by the {@link ecs.systems.DrawSystem DrawSystem}
+ * automatically.
+ */
 @DSLType(name = "health_component")
 public class HealthComponent extends Component {
     private static final List<String> missingTexture = List.of("animation/missingTexture.png");
-
     private final List<Damage> damageToGet;
     private @DSLTypeMember(name = "maximal_health_points") int maximalHealthpoints;
     private int currentHealthpoints;
@@ -30,6 +49,9 @@ public class HealthComponent extends Component {
 
     /**
      * Creates a new HealthComponent
+     *
+     * <p>Create a new HealthComponent by explicitly setting maximal health points, onDeath
+     * function, a getHitAnimation and a dieAnimation.
      *
      * @param entity associated entity
      * @param maximalHitPoints maximum amount of hit-points, currentHitPoints can't be bigger than
@@ -54,7 +76,10 @@ public class HealthComponent extends Component {
     }
 
     /**
-     * Creates a HealthComponent with default values
+     * Creates a HealthComponent with default values.
+     *
+     * <p>The maximal health points are set to 1, the onDeath function is empty and the animations
+     * are set to an animation composed of the "missingTexture" texture.
      *
      * @param entity associated entity
      */
@@ -106,7 +131,10 @@ public class HealthComponent extends Component {
         return damageSum;
     }
 
-    /** Clear the damage list */
+    /**
+     * Clear the damage list. The damage list is used to determine the damage the entity should
+     * receive on next tick.
+     */
     public void clearDamage() {
         damageToGet.clear();
     }
