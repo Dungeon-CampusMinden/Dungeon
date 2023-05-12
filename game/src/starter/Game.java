@@ -5,13 +5,13 @@ import static logging.LoggerConfig.initBaseLogger;
 
 
 import api.utils.DelayedSet;
-import builder.EntityBuilder;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import configuration.Configuration;
 import configuration.KeyboardConfig;
+import content.entity.EntityFactory;
 import controller.AbstractController;
 import controller.SystemController;
 import ecs.components.MissingComponentException;
@@ -131,7 +131,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         gameLogger = Logger.getLogger(this.getClass().getName());
         systems = new SystemController();
         controller.add(systems);
-        hero = EntityBuilder.buildHero();
+        hero = EntityFactory.getHero();
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel(LEVELSIZE);
         createSystems();
@@ -158,6 +158,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         currentLevel = levelAPI.getCurrentLevel();
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
+        EntityFactory.getChest();
     }
 
     private void setCameraFocus() {
