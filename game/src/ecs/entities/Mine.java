@@ -2,6 +2,8 @@ package ecs.entities;
 
 import dslToGame.AnimationBuilder;
 import ecs.components.*;
+import ecs.damage.Damage;
+import ecs.damage.DamageType;
 import ecs.graphic.Animation;
 import java.util.ArrayList;
 
@@ -35,19 +37,15 @@ public class Mine extends Trap {
     }
 
     /**
-     * Iterate through inRange list and check if entitie has health component and deal damage if
+     * Iterate through inRange list and check if entity has health component and apply damage if
      * true
      */
     public void doDmg() {
         for (Entity e : inRange) {
             if (e.getComponent(HealthComponent.class).isPresent()) {
                 HealthComponent ofE = (HealthComponent) e.getComponent(HealthComponent.class).get();
-                int currentHp = ofE.getCurrentHealthpoints();
 
-                System.out.println("HP before:" + ofE.getCurrentHealthpoints());
-                if (!ofE.isInvincible()) ofE.setCurrentHealthpoints(currentHp - getTrapDmg());
-                // ofE.receiveHit(new Damage((int) getTrapDmg(), DamageType.PHYSICAL,this));
-                System.out.println("HP after:" + ofE.getCurrentHealthpoints());
+                ofE.receiveHit(new Damage((int) getTrapDmg(), DamageType.PHYSICAL, this));
             }
         }
     }

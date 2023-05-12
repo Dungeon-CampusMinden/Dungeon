@@ -76,7 +76,7 @@ public class HealthComponent extends Component {
      */
     public void receiveHit(Damage damage) {
         if (invincible) {
-            System.out.println("Invincible is wahr");
+            System.out.println("Invincible is true");
             return;
         }
 

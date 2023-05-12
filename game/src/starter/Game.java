@@ -49,7 +49,7 @@ import tools.Point;
 /** The heart of the framework. From here all strings are pulled. */
 public class Game extends ScreenAdapter implements IOnLevelLoader {
 
-    private final LevelSize LEVELSIZE = LevelSize.SMALL;
+    private LevelSize levelSize = LevelSize.SMALL;
 
     /**
      * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
@@ -145,7 +145,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         playHero = new Hero();
         hero = playHero;
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
-        levelAPI.loadLevel(LEVELSIZE);
+        levelAPI.loadLevel(levelSize);
         createSystems();
     }
 
@@ -155,23 +155,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         manageEntitiesSets();
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
-
-        /* (Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_OPEN.get())) {
-            openInventory()
-
-
-            Hero hero1 = (Hero) Game.hero;
-
-
-            for (ItemData x : hero1.getInv().getItems()) {
-                System.out.println(x.getItemName());
-            }
-
-
-
-
-        } */
-
     }
 
     @Override
@@ -202,6 +185,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private void loadGhost() {
         Random random = new Random();
         if (random.nextInt(0, 100) > 10) friendlyGhost = new FriendlyGhost(playHero);
+    }
+
+    private void setLevelSize(int currentLvl) {
+        if (currentLvl >= 5) levelSize = LevelSize.MEDIUM;
+        if (currentLvl >= 10) levelSize = LevelSize.LARGE;
     }
 
     /** Chance of Randomly spawn a Item */
@@ -287,7 +275,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
-        if (isOnEndTile(hero)) levelAPI.loadLevel(LEVELSIZE);
+        if (isOnEndTile(hero)) {
+            setLevelSize(currentLvl);
+            levelAPI.loadLevel(levelSize);
+        }
     }
 
     private boolean isOnEndTile(Entity entity) {

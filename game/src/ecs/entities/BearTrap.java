@@ -5,6 +5,8 @@ import ecs.components.AnimationComponent;
 import ecs.components.HealthComponent;
 import ecs.components.HitboxComponent;
 import ecs.components.PositionComponent;
+import ecs.damage.Damage;
+import ecs.damage.DamageType;
 import ecs.graphic.Animation;
 import java.util.ArrayList;
 
@@ -38,15 +40,16 @@ public class BearTrap extends Trap {
         if (other.getComponent(HealthComponent.class).isPresent()) this.setTriggered(true);
     }
 
+    /**
+     * Applies damage to entity
+     *
+     * @param other
+     */
     public void doDmg(Entity other) {
         if (other.getComponent(HealthComponent.class).isPresent()) {
             HealthComponent ofE = (HealthComponent) other.getComponent(HealthComponent.class).get();
 
-            int currentHp = ofE.getCurrentHealthpoints();
-            System.out.println("HP before:" + ofE.getCurrentHealthpoints());
-            if (!ofE.isInvincible()) ofE.setCurrentHealthpoints(currentHp - getTrapDmg());
-            // ofE.receiveHit(new Damage(this.getTrapDmg(), null, null));
-            System.out.println("HP after:" + ofE.getCurrentHealthpoints());
+            ofE.receiveHit(new Damage(this.getTrapDmg(), DamageType.PHYSICAL, this));
         }
     }
 }
