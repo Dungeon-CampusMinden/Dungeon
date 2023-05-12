@@ -58,8 +58,16 @@ public class DrawSystem extends System {
         return new DSData(e, ac, pc);
     }
 
+    /** DrawSystem cant be paused */
     @Override
     public void toggleRun() {
+        // DrawSystem cant pause
+        run = true;
+    }
+
+    /** DrawSystem cant be paused */
+    @Override
+    public void stop() {
         // DrawSystem cant pause
         run = true;
     }

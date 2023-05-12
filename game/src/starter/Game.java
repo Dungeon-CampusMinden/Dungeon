@@ -8,7 +8,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import configuration.Configuration;
 import configuration.KeyboardConfig;
 import controller.AbstractController;
@@ -18,10 +17,9 @@ import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
 import ecs.systems.*;
-import ecs.systems.System;
 import graphic.DungeonCamera;
 import graphic.Painter;
-import graphic.hud.PauseMenu;
+import graphic.hud.UITools;
 import graphic.textures.TextureHandler;
 import java.io.IOException;
 import java.util.*;
@@ -34,6 +32,7 @@ import level.generator.IGenerator;
 import level.generator.postGeneration.WallGenerator;
 import level.generator.randomwalk.RandomWalkGenerator;
 import level.tools.LevelSize;
+import quizquestion.DummyQuizQuestionList;
 import tools.Constants;
 import tools.Point;
 
@@ -49,7 +48,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     protected SpriteBatch batch;
 
     /** Contains all Controller of the Dungeon */
-    protected List<AbstractController<?>> controller;
+    public static List<AbstractController<?>> controller;
 
     public static DungeonCamera camera;
     /** Draws objects */
@@ -60,7 +59,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     protected IGenerator generator;
 
     private boolean doSetup = true;
-    private static boolean paused = false;
 
     /** A handler for managing asset paths */
     private static TextureHandler handler;
@@ -72,7 +70,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static SystemController systems;
 
     public static ILevel currentLevel;
-    private static PauseMenu<Actor> pauseMenu;
     private static Entity hero;
     private Logger gameLogger;
 
@@ -133,8 +130,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         gameLogger = Logger.getLogger(this.getClass().getName());
         systems = new SystemController();
         controller.add(systems);
-        pauseMenu = new PauseMenu<>();
-        controller.add(pauseMenu);
         hero = new Hero();
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel(LEVELSIZE);
@@ -146,7 +141,15 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         setCameraFocus();
         entities.update();
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+            // Text Dialogue (output of information texts)
+            UITools.showInfoText(Constants.DEFAULT_MESSAGE);
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+            // Dialogue for quiz questions (display of quiz questions and the answer area in test
+            // mode)
+            DummyQuizQuestionList.getRandomQuestion().askQuizQuestionWithUI();
+        }
     }
 
     @Override
@@ -198,18 +201,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     public static TextureHandler getHandler() {
         return handler;
-    }
-
-    /** Toggle between pause and run */
-    public static void togglePause() {
-        paused = !paused;
-        if (systems != null) {
-            systems.forEach(System::toggleRun);
-        }
-        if (pauseMenu != null) {
-            if (paused) pauseMenu.showMenu();
-            else pauseMenu.hideMenu();
-        }
     }
 
     /**

@@ -28,4 +28,13 @@ public abstract class System {
     public void toggleRun() {
         run = !run;
     }
+
+    /** Set this system on run */
+    public void run() {
+        run = true;
+    }
+    /** Set this system on pause */
+    public void stop() {
+        run = false;
+    }
 }
