@@ -117,7 +117,15 @@ task_dependency t {
 
 **Kombination der Beziehungen**
 
-Die vorgestellten Beziehungen können beliebig kombiniert werden:
+Die vorgestellten Beziehungen können beliebig kombiniert werden, wie in folgendem Beispiel:
 
-TODO.
+![Kombination von Aufgabenbeziehungen](img/combined.png)
+
+Es sei besonders auf die folgenden Beziehungen hingewiesen:
+
+- $t_1$ hat die Beziehung **erforderliche Teilaufgabe** zu $t_2$, wobei $t_2$ eine **Aufgabensequenz** mit $t_3$ bildet
+- $t_3$ hat zwei **erforderliche Teilaufgaben** $t_4$ und $t_5$
+
+Diese Beziehungen haben den Effekt, dass erst $t_2$, dann $t_4$ und $t_5$ (als Teilaufgaben von $t_3$) und anschließend
+$t_3$ bearbeitet werden müssen, bevor der linke Zweig unter $t_1$ als abgeschlossen gilt.
 
