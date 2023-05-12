@@ -11,7 +11,6 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import configuration.Configuration;
-import configuration.KeyboardConfig;
 import controller.AbstractController;
 import controller.SystemController;
 import ecs.components.MissingComponentException;
@@ -79,14 +78,19 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private Debugger debugger;
     private static Game game;
-    public static Game newGame(){
-            if(game!=null)
-                game=new Game();
-            return game;
+
+    /**
+     * Create a new Game instance if no instance currently exist.
+     *
+     * @return the (new) Game instance
+     */
+    public static Game newGame() {
+        if (game == null) game = new Game();
+        return game;
     }
 
-    private Game(){}
-
+    // for singleton
+    private Game() {}
 
     /**
      * Main game loop. Redraws the dungeon and calls the own implementation (beginFrame, endFrame
@@ -289,11 +293,17 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         debugger = new Debugger();
     }
 
-
-    public static void loadConfig(String path, Class klass) throws IOException {
-        Configuration.loadAndGetConfiguration(path,klass);
+    /**
+     * Load the configuration from the given path. If the configuration has already been loaded, the
+     * cached version will be used.
+     *
+     * @param pathAsString Path to the config-file as String
+     * @param klass Class where the ConfigKey field are located.
+     * @throws IOException If the file could not be read
+     */
+    public static void loadConfig(String pathAsString, Class klass) throws IOException {
+        Configuration.loadAndGetConfiguration(pathAsString, klass);
     }
-
 
     /** Starts the dungeon and needs a {@link Game}. */
     public static void run() {
