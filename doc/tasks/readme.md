@@ -32,7 +32,9 @@ Ein Beispiel für einen Entitätstyp wäre
   Container zu geben)
 
 Ein Entitätstyp definiert nicht die konkreten Werte in den enthaltenen Komponenten. Die
-konkreten Werte werden erst durch konkrete Ausprägungen der Entitätstypen definiert. 
+konkreten Werte werden erst durch konkrete Ausprägungen der Entitätstypen definiert.
+Die Ausprägung eines Entitätstypen umfasst alle Ausprägungen der im Entitätstypen enthaltenen
+Komponenten.
 
 Einige
 Beispiele für Ausprägungen des “Container”-Entitätstyps sind:
