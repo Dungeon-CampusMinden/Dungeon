@@ -8,9 +8,9 @@ Beim Aufruf des Quiz-Dialoges werden genauso wie beim Aufruf vom Text-Dialog all
 Das UI wird in drei Bereiche gegliedert, den Fragebereich, Antwortbereich sowie den Bereich wo der Button zum verlassen des UI angezeigt wird.
 Im Fragebereich werden die Fragen als:
 `TEXT`: Darstellung einer Frage oder Antwortmöglichkeit als Text dar.<br>
-![DialogWindow](img/Question_with_Txt.png)
+![DialogWindow](img/question_with_txt.png)
 `IMAGE`:  Darstellung einer Frage als Bild <br>
-![DialogWindow](img/Question_with_Pic.png)
+![DialogWindow](img/question_with_pic.png)
 `TEXT_AND_IMAGE`: Darstellung einer Frage als Bild und Text<br>
 ![DialogWindow](img/Question_with_Txt_and_Pic.png)
 

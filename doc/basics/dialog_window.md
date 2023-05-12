@@ -4,7 +4,7 @@ title: "Informations-Dialog für GUI"
 
 Zur Darstellung der Inhalte für das Spiel wird mithilfe der Widgets aus der `libgdx` und des `scene2d.ui`-Pakets ein Dialog erstellt. Der Dialog wurde dafür erstellt um Inhalte auf dem Spielbildschirm anzeigen zu können, sowie das Spiel und alle seine Systeme, ausgenommen von `DrawSystem` pausieren zu können. Mit dem Klick auf den Button „Ok“ kann das Spiel fortgesetzt werden indem alle Systeme wieder aktiviert werden.
 
-![DialogWindow](img/txt_Dialog.png)
+![DialogWindow](img/text_dialog.png)
 
 ## Wichtige Klassen die verwendet werden
 
@@ -122,7 +122,7 @@ In der Klasse `UITools` erfolgt die Erstellung des Dialogs welche die Skins aus 
 Bei dem 9-Patch handelt es sich um ein Bild, welches mit einem 3×3-Gitter in 9 Teile gesplittet wird, welche verwendet werden können, um ein skalierbares Bild zu erstellen.
 Durch die Einteilung des Gitters werden dadurch 4 Ecken, 4 Ränder und ein Mittelbild. Die Ecken bleiben dabei Konstant, die Ränder links und rechts werden vertikal gestreckt die Ränder oben und unten können horizontal gestreckt werden. In der mittleren Fläche lässt sich dann der gewünschte Inhalt Darstellen, der durch seine Größe das Element automatisch skaliert,.
 
-![DialogWindow](img/9_Patch.png)
+![DialogWindow](img/nine_patch.png)
 
 Um 9-Patches erstellen zu können, werden einige Editoren wie der ´NinePatchEditor´ oder der Scin Composer von libgdx vorgeschlagen. Hier wurde der ´Scin Composer´ verwendet um die im Spiel verwendeten Skins zu erstellen.
 
@@ -140,7 +140,7 @@ Nachteilig ist, das für jedes GUI-Element, was sich der Größe seines Inhaltes
 Eine bessere und Übersichtliche Methode bietet die Erstellung von Skins mithilfe des `Skin Composer` von Libgdx.
 Mit diesem Tool hat man die Möglichkeit eigene Prototypen für ein 2D-Layout zu erstellen und dabei die einzelnen Elemente des neuen Skin direkt testen zu können, bevor er in das eigentliche Spiel implementiert wird. Das Layout wird gespeichert und kann jederzeit beliebig verändert werden.
 
-![DialogWindow](img/scinComposer.png)
+![DialogWindow](img/skin_composer.png)
 
 Der `Skin Composer` bietet schon vordefinierte Elemente, die als Basis für die Erstellung der eigenen Elemente verwendet werden können. Um das aussehen der Widgets zu ändern benötigt man Bilder, sowie einen `Font` (Schriftart), mit der Texte und Überschriften in der jeweiligen GUI dargestellt werden können.
 
