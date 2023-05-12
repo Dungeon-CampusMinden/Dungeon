@@ -215,7 +215,7 @@ aktiviert (falls inaktiv) und deaktiviert (falls bereits aktiv) werden.
 
 ### GUI Text eingeben
 
-In einem GUI-Dialog kann eine Textfeld dargestellt werden, in das Studierende Text eingeben können.
+In einem GUI-Dialog kann ein Textfeld dargestellt werden, in das Studierende Text eingeben können.
 
 ### Aufgabe per Questgeber aktivieren
 
@@ -276,7 +276,7 @@ Bei geöffnetem Spielcharakter-Inventar kann ein Item genutzt werden (sofern es 
 
 ### Den Text einer Schriftrolle lesen
 
-Bei geöffnetem Inventar kann eine Schriftrolle aus dem Inventar ausgewählt und gelesen werden, wofür eine separater
+Bei geöffnetem Inventar kann eine Schriftrolle aus dem Inventar ausgewählt und gelesen werden, wofür ein separater
 GUI-Dialog geöffnet wird, der den Text der Schriftrolle enthält.
 
 ### Eine Entität im Dungeon "inspizieren"
