@@ -1,5 +1,5 @@
 ---
-title:"Petri Netze zur Aufgabenverschachtelung"
+title:"Konzept: Petri Netze zur Aufgabenverschachtelung"
 ---
 
 TODO:
@@ -11,12 +11,12 @@ TODO:
 ## Ziel
 
 Mithilfe von Petri-Netzen sollen die Beziehungen zwischen Aufgaben modelliert und gesteuert werden.
-Es soll möglich sein bedingte Folgeaufgaben und Teilaufgaben zu definieren. Diese Beziehungen haben einen Einfluss
+Es soll möglich sein, bedingte Folgeaufgaben und Teilaufgaben zu definieren. Diese Beziehungen haben einen Einfluss
 darauf, unter welchen Bedingungen bestimmte Aufgaben bearbeitet werden können.
 
-Die Aufgabenbeziehungen sollen von DSL-Nutzenden konfiguriert werden können. Hierfür wird die eingebettete dot-Syntax
+Die Aufgabenbeziehungen sollen per DSL-Eingabe konfigurierbar sein. Hierfür wird die eingebettete dot-Syntax
 verwendet, um die Abhängigkeiten in einem Graph darzustellen.
-
+Aus diesem Graph erzeugt der DSL-Interpreter ein Petri-Netz, welches zur Spiellaufzeit interpretiert wird.
 
 ## Aufgabenabhängigkeiten
 
