@@ -7,8 +7,9 @@ import api.utils.DelayedSet;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import configuration.Configuration;
 import configuration.KeyboardConfig;
 import controller.AbstractController;
 import controller.SystemController;
@@ -77,16 +78,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private Debugger debugger;
 
-    public static void main(String[] args) {
-        // start the game
-        try {
-            Configuration.loadAndGetConfiguration("dungeon_config.json", KeyboardConfig.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        DesktopLauncher.run(new Game());
-    }
-
     /**
      * Main game loop. Redraws the dungeon and calls the own implementation (beginFrame, endFrame
      * and onLevelLoad).
@@ -126,6 +117,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             throw new RuntimeException(e);
         }
         controller = new ArrayList<>();
+        batch = new SpriteBatch();
         setupCameras();
         painter = new Painter(batch, camera);
         generator = new RandomWalkGenerator();
@@ -261,10 +253,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         Game.hero = hero;
     }
 
-    public void setSpriteBatch(SpriteBatch batch) {
-        this.batch = batch;
-    }
-
     private void clearScreen() {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
@@ -289,5 +277,44 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new SkillSystem();
         new ProjectileSystem();
         debugger = new Debugger();
+    }
+
+    /** {@link com.badlogic.gdx.Game} class that delegates to the {@link Game}. Just some setup. */
+    public static class LibgdxSetup extends com.badlogic.gdx.Game {
+
+        private final Game game;
+
+        /**
+         * {@link com.badlogic.gdx.Game} class that delegates to the {@link Game}. Just some setup.
+         */
+        public LibgdxSetup(Game game) {
+            this.game = game;
+        }
+
+        @Override
+        public void create() {
+            setScreen(game);
+        }
+
+        /**
+         * Starts the dungeon and needs a {@link Game}.
+         *
+         * @param game the {@link Game} used to start the dungeon.
+         */
+        public static void run(Game game) {
+            Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+            config.setWindowSizeLimits(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT, 9999, 9999);
+            // The third and fourth parameters ("maxWidth" and "maxHeight") affect the resizing
+            // behavior
+            // of the window. If the window is enlarged or maximized, then it can assume these
+            // dimensions at maximum. If you have a larger screen resolution than 9999x9999 pixels,
+            // increase these parameters.
+            config.setForegroundFPS(Constants.FRAME_RATE);
+            config.setTitle(Constants.WINDOW_TITLE);
+            config.setWindowIcon(Constants.LOGO_PATH);
+            // config.disableAudio(true);
+            // uncomment this if you wish no audio
+            new Lwjgl3Application(new LibgdxSetup(game), config);
+        }
     }
 }
