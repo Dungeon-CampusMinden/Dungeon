@@ -129,3 +129,17 @@ Es sei besonders auf die folgenden Beziehungen hingewiesen:
 Diese Beziehungen haben den Effekt, dass erst $t_2$, dann $t_4$ und $t_5$ (als Teilaufgaben von $t_3$) und anschließend
 $t_3$ bearbeitet werden müssen, bevor der linke Zweig unter $t_1$ als abgeschlossen gilt.
 
+## Übersetzung des Abhängigkeitsgraphen in ein Petri-Netz
+
+Zur Übersetzung des Abhängigkeitsgraphen in ein Petri-Netz sind folgende Aspekte zu beachten:
+- Die Stellen des Netzes sollen zur Modellierung des Zustands der Aufgaben genutzt werden
+- Das Petri-Netz soll allein durch die Belegung der Stellen Transitionen ausführen
+
+Hieraus resultieren folgende Designentscheidungen:
+- Für jede Aufgabe existiert eine Stelle, die (falls markiert) angibt, ob die Aufgabe aktuell zur Bearbeitung
+  freigeschaltet ist
+- Für jede Aufgabe existiert eine Stelle, die (falls markiert) angibt, ob die Aufgabe abgeschlossen ist
+- Es muss eine Schnittstelle zum Dungeon / zur DSL vorgesehen werden, über die dem Petri-Netz mitgeteilt
+  werden kann, dass eine Aufgabe bearbeitet wurde. Diese Information wird nicht vom Petri-Netz selbst abgefragt,
+  sondern vom Dungeon / der DSL an das Petri-Netz übermittelt, da dieser Prozess eng mit dem konkreten Szenario
+  verknüpft ist, welches in der DSL definiert ist.
