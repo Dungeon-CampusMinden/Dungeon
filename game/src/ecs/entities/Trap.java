@@ -11,10 +11,11 @@ public abstract class Trap extends Entity{
     private boolean repeatable;
     private int trapDmg;
 
+    public Trap(int trapDmg){
+        this.trapDmg = trapDmg;
+    }
     public Trap(){
-        triggered = false;
-        repeatable = false;
-        trapDmg = 2;
+
     }
 
     public Trap(boolean triggered, boolean repeatable, int trapDmg){
@@ -27,7 +28,7 @@ public abstract class Trap extends Entity{
         this.trapDmg = trapDmg;
     }
 
-    public float getTrapDmg(){
+    public int getTrapDmg(){
         return this.trapDmg;
     }
 

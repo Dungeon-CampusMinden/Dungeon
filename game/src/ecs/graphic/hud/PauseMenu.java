@@ -31,7 +31,11 @@ public class PauseMenu<T extends Actor> extends ScreenController<T> {
                 (Constants.WINDOW_WIDTH) / 2f - screenText.getWidth(),
                 (Constants.WINDOW_HEIGHT) / 1.5f + screenText.getHeight(),
                 Align.center | Align.bottom);
+
+
+
         add((T) screenText);
+
         hideMenu();
     }
 

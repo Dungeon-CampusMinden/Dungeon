@@ -22,6 +22,8 @@ public class HealthComponent extends Component {
     private final List<Damage> damageToGet;
     private @DSLTypeMember(name = "maximal_health_points") int maximalHealthpoints;
     private int currentHealthpoints;
+
+    private boolean invincible = false;
     private @Null Entity lastCause = null;
     private @DSLTypeMember(name = "on_death_function") IOnDeathFunction onDeath;
     private @DSLTypeMember(name = "get_hit_animation") Animation getHitAnimation;
@@ -73,6 +75,11 @@ public class HealthComponent extends Component {
      * @param damage Damage that should be inflicted
      */
     public void receiveHit(Damage damage) {
+        if(invincible){
+            System.out.println("Invincible is wahr");
+            return;
+        }
+
         damageToGet.add(damage);
         this.lastCause = damage.cause() != null ? damage.cause() : this.lastCause;
     }
@@ -104,6 +111,15 @@ public class HealthComponent extends Component {
                         + damageSum);
 
         return damageSum;
+    }
+
+    public boolean isInvincible() {
+        return invincible;
+    }
+
+    public void setInvincible(boolean invincible) {
+        this.invincible = invincible;
+        System.out.println("Invincible set: " + invincible);
     }
 
     /** Clear the damage list */

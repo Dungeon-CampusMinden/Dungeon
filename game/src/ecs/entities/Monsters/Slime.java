@@ -61,7 +61,7 @@ public class Slime extends Monster {
     private void setupHitboxComponent() {
         new HitboxComponent(
             this,
-            (you, other, direction) -> System.out.println("monsterCollisionEnter"),
-            (you, other, direction) -> System.out.println("monsterCollisionLeave"));
+            (you, other, direction) -> System.out.print(""),
+            (you, other, direction) -> System.out.print(""));
     }
 }

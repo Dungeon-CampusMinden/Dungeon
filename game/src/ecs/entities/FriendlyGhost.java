@@ -79,8 +79,8 @@ public class FriendlyGhost extends Entity{
     private void setupHitboxComponent() {
         new HitboxComponent(
             this,
-            (you, other, direction) -> System.out.println("ghostCollisionEnter"),
-            (you, other, direction) -> System.out.println("ghostCollisionLeave"));
+            (you, other, direction) -> System.out.println(""),
+            (you, other, direction) -> System.out.println(""));
     }
 
     /** **/
