@@ -8,7 +8,7 @@ import api.components.PositionComponent;
 import api.components.VelocityComponent;
 import api.utils.Point;
 import api.utils.component_utils.MissingComponentException;
-import api.utils.component_utils.animationComponent.Animation;
+import api.utils.component_utils.drawComponent.Animation;
 import content.component.HealthComponent;
 import content.component.ProjectileComponent;
 import java.util.concurrent.atomic.AtomicBoolean;

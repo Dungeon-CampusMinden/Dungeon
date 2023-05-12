@@ -1,7 +1,7 @@
 package dslToGame;
 
 import api.Game;
-import api.utils.component_utils.animationComponent.Animation;
+import api.utils.component_utils.drawComponent.Animation;
 import semanticAnalysis.types.DSLTypeAdapter;
 
 public class AnimationBuilder {

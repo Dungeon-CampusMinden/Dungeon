@@ -6,9 +6,9 @@ import api.systems.AISystem;
 import api.utils.component_utils.aiComponent.IFightAI;
 import api.utils.component_utils.aiComponent.IIdleAI;
 import api.utils.component_utils.aiComponent.ITransition;
-import content.utils.aiComponent.fight.CollideAI;
-import content.utils.aiComponent.idle.RadiusWalk;
-import content.utils.aiComponent.transition.RangeTransition;
+import content.utils.component_utils.aiComponent.fight.CollideAI;
+import content.utils.component_utils.aiComponent.idle.RadiusWalk;
+import content.utils.component_utils.aiComponent.transition.RangeTransition;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 

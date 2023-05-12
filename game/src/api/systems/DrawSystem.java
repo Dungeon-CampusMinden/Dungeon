@@ -6,9 +6,9 @@ import api.System;
 import api.components.DrawComponent;
 import api.components.PositionComponent;
 import api.utils.component_utils.MissingComponentException;
-import api.utils.component_utils.animationComponent.Animation;
-import api.utils.component_utils.animationComponent.Painter;
-import api.utils.component_utils.animationComponent.PainterConfig;
+import api.utils.component_utils.drawComponent.Animation;
+import api.utils.component_utils.drawComponent.Painter;
+import api.utils.component_utils.drawComponent.PainterConfig;
 import java.util.HashMap;
 import java.util.Map;
 

@@ -15,10 +15,10 @@ import api.utils.logging.CustomLogLevel;
 import com.badlogic.gdx.Gdx;
 import content.component.HealthComponent;
 import content.configuration.KeyboardConfig;
-import content.utils.aiComponent.fight.CollideAI;
-import content.utils.aiComponent.idle.RadiusWalk;
-import content.utils.aiComponent.transition.SelfDefendTransition;
-import content.utils.skillComponent.SkillTools;
+import content.utils.component_utils.aiComponent.fight.CollideAI;
+import content.utils.component_utils.aiComponent.idle.RadiusWalk;
+import content.utils.component_utils.aiComponent.transition.SelfDefendTransition;
+import content.utils.component_utils.skillComponent.SkillTools;
 import dslToGame.AnimationBuilder;
 import java.util.logging.Logger;
 

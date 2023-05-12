@@ -3,7 +3,7 @@ package content.component;
 import api.Component;
 import api.Entity;
 import api.systems.DrawSystem;
-import api.utils.component_utils.animationComponent.Animation;
+import api.utils.component_utils.drawComponent.Animation;
 import api.utils.component_utils.healthComponent.Damage;
 import api.utils.component_utils.healthComponent.DamageType;
 import api.utils.component_utils.healthComponent.IOnDeathFunction;

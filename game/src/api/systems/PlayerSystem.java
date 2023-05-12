@@ -8,7 +8,7 @@ import api.components.VelocityComponent;
 import api.utils.component_utils.MissingComponentException;
 import com.badlogic.gdx.Gdx;
 import content.configuration.KeyboardConfig;
-import content.utils.interactionComponent.InteractionTool;
+import content.utils.component_utils.interactionComponent.InteractionTool;
 
 /** Used to control the player */
 public class PlayerSystem extends System {

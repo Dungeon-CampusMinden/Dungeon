@@ -8,7 +8,7 @@ import api.components.InventoryComponent;
 import api.components.ItemComponent;
 import api.components.PositionComponent;
 import api.utils.Point;
-import api.utils.component_utils.animationComponent.Animation;
+import api.utils.component_utils.drawComponent.Animation;
 import api.utils.component_utils.statsComponent.DamageModifier;
 import content.configuration.ItemConfig;
 import java.util.List;

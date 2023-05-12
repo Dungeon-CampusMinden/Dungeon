@@ -8,7 +8,7 @@ import api.LevelManager;
 import api.level.generator.randomwalk.RandomWalkGenerator;
 import api.utils.Constants;
 import api.utils.DungeonCamera;
-import api.utils.component_utils.animationComponent.Painter;
+import api.utils.component_utils.drawComponent.Painter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
