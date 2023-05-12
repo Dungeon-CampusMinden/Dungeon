@@ -2,7 +2,7 @@ package api.components;
 
 import api.Component;
 import api.Entity;
-import api.utils.component_utils.itemComponent.ItemData;
+import api.utils.componentUtils.itemComponent.ItemData;
 import api.utils.logging.CustomLogLevel;
 import java.util.ArrayList;
 import java.util.List;

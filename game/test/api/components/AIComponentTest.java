@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 import api.Entity;
-import api.utils.component_utils.aiComponent.IFightAI;
-import api.utils.component_utils.aiComponent.IIdleAI;
-import api.utils.component_utils.aiComponent.ITransition;
+import api.utils.componentUtils.aiComponent.IFightAI;
+import api.utils.componentUtils.aiComponent.IIdleAI;
+import api.utils.componentUtils.aiComponent.ITransition;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

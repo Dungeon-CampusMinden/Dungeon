@@ -2,7 +2,7 @@ package content.component;
 
 import api.Component;
 import api.Entity;
-import api.utils.component_utils.statsComponent.DamageModifier;
+import api.utils.componentUtils.statsComponent.DamageModifier;
 
 public class StatsComponent extends Component {
 

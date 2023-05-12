@@ -5,10 +5,10 @@ import static org.mockito.Mockito.times;
 
 import api.Entity;
 import api.Game;
-import api.utils.component_utils.drawComponent.Animation;
-import api.utils.component_utils.healthComponent.Damage;
-import api.utils.component_utils.healthComponent.DamageType;
-import api.utils.component_utils.healthComponent.IOnDeathFunction;
+import api.utils.componentUtils.drawComponent.Animation;
+import api.utils.componentUtils.healthComponent.Damage;
+import api.utils.componentUtils.healthComponent.DamageType;
+import api.utils.componentUtils.healthComponent.IOnDeathFunction;
 import content.component.HealthComponent;
 import org.junit.Test;
 import org.mockito.Mockito;

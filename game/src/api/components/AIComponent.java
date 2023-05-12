@@ -3,12 +3,12 @@ package api.components;
 import api.Component;
 import api.Entity;
 import api.systems.AISystem;
-import api.utils.component_utils.aiComponent.IFightAI;
-import api.utils.component_utils.aiComponent.IIdleAI;
-import api.utils.component_utils.aiComponent.ITransition;
-import content.utils.component_utils.aiComponent.fight.CollideAI;
-import content.utils.component_utils.aiComponent.idle.RadiusWalk;
-import content.utils.component_utils.aiComponent.transition.RangeTransition;
+import api.utils.componentUtils.aiComponent.IFightAI;
+import api.utils.componentUtils.aiComponent.IIdleAI;
+import api.utils.componentUtils.aiComponent.ITransition;
+import content.utils.componentUtils.aiComponent.fight.CollideAI;
+import content.utils.componentUtils.aiComponent.idle.RadiusWalk;
+import content.utils.componentUtils.aiComponent.transition.RangeTransition;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 

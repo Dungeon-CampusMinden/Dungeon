@@ -2,7 +2,7 @@ package api.components;
 
 import api.Component;
 import api.Entity;
-import api.utils.component_utils.skillComponent.Skill;
+import api.utils.componentUtils.skillComponent.Skill;
 import api.utils.logging.CustomLogLevel;
 import java.util.Optional;
 import java.util.logging.Logger;

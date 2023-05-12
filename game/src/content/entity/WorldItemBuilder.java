@@ -6,7 +6,7 @@ import api.components.DrawComponent;
 import api.components.ItemComponent;
 import api.components.PositionComponent;
 import api.utils.Point;
-import api.utils.component_utils.itemComponent.ItemData;
+import api.utils.componentUtils.itemComponent.ItemData;
 
 /** Class which creates all needed Components for a basic WorldItem */
 public class WorldItemBuilder {

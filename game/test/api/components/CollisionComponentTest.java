@@ -5,10 +5,10 @@ import static org.junit.Assert.*;
 import api.Entity;
 import api.level.Tile;
 import api.utils.Point;
-import api.utils.component_utils.MissingComponentException;
-import api.utils.component_utils.collisionComponent.ICollide;
+import api.utils.componentUtils.MissingComponentException;
+import api.utils.componentUtils.collisionComponent.ICollide;
 import org.junit.Test;
-import testing_utils.SimpleCounter;
+import testingUtils.SimpleCounter;
 
 public class CollisionComponentTest {
 

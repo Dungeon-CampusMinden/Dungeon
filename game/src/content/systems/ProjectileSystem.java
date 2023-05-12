@@ -6,7 +6,7 @@ import api.System;
 import api.components.PositionComponent;
 import api.components.VelocityComponent;
 import api.utils.Point;
-import api.utils.component_utils.MissingComponentException;
+import api.utils.componentUtils.MissingComponentException;
 import content.component.ProjectileComponent;
 
 public class ProjectileSystem extends System {

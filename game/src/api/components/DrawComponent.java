@@ -4,7 +4,7 @@ import api.Component;
 import api.Entity;
 import api.systems.DrawSystem;
 import api.systems.VelocitySystem;
-import api.utils.component_utils.drawComponent.Animation;
+import api.utils.componentUtils.drawComponent.Animation;
 import api.utils.logging.CustomLogLevel;
 import java.util.List;
 import java.util.logging.Logger;

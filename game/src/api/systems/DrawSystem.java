@@ -5,10 +5,10 @@ import api.Game;
 import api.System;
 import api.components.DrawComponent;
 import api.components.PositionComponent;
-import api.utils.component_utils.MissingComponentException;
-import api.utils.component_utils.drawComponent.Animation;
-import api.utils.component_utils.drawComponent.Painter;
-import api.utils.component_utils.drawComponent.PainterConfig;
+import api.utils.componentUtils.MissingComponentException;
+import api.utils.componentUtils.drawComponent.Animation;
+import api.utils.componentUtils.drawComponent.Painter;
+import api.utils.componentUtils.drawComponent.PainterConfig;
 import java.util.HashMap;
 import java.util.Map;
 

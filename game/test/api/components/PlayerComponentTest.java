@@ -3,7 +3,7 @@ package api.components;
 import static org.junit.Assert.*;
 
 import api.Entity;
-import api.utils.component_utils.skillComponent.Skill;
+import api.utils.componentUtils.skillComponent.Skill;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

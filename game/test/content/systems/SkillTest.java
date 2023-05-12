@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 
 import api.Entity;
 import api.utils.Constants;
-import api.utils.component_utils.skillComponent.ISkillFunction;
-import api.utils.component_utils.skillComponent.Skill;
+import api.utils.componentUtils.skillComponent.ISkillFunction;
+import api.utils.componentUtils.skillComponent.Skill;
 import org.junit.After;
 import org.junit.Test;
 

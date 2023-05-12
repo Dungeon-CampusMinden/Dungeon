@@ -2,7 +2,7 @@ package content.component;
 
 import api.Component;
 import api.Entity;
-import api.utils.component_utils.skillComponent.Skill;
+import api.utils.componentUtils.skillComponent.Skill;
 import java.util.HashSet;
 import java.util.Set;
 

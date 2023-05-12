@@ -5,7 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import api.Entity;
-import api.utils.component_utils.itemComponent.ItemData;
+import api.utils.componentUtils.itemComponent.ItemData;
 import java.util.List;
 import org.junit.Test;
 

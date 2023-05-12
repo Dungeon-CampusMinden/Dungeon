@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import api.Entity;
 import api.Game;
 import api.components.AIComponent;
-import api.utils.component_utils.aiComponent.ITransition;
+import api.utils.componentUtils.aiComponent.ITransition;
 import api.utils.controller.SystemController;
 import org.junit.Before;
 import org.junit.Test;

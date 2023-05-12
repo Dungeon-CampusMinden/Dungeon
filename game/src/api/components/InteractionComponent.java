@@ -2,7 +2,7 @@ package api.components;
 
 import api.Component;
 import api.Entity;
-import api.utils.component_utils.interactionComponent.IInteraction;
+import api.utils.componentUtils.interactionComponent.IInteraction;
 
 public class InteractionComponent extends Component {
     public static final int DEFAULT_RADIUS = 5;

@@ -8,10 +8,10 @@ import api.components.CollideComponent;
 import api.components.PositionComponent;
 import api.level.Tile;
 import api.utils.Point;
-import api.utils.component_utils.collisionComponent.ICollide;
+import api.utils.componentUtils.collisionComponent.ICollide;
 import api.utils.controller.SystemController;
 import org.junit.Test;
-import testing_utils.SimpleCounter;
+import testingUtils.SimpleCounter;
 
 public class CollisionSystemTest {
 

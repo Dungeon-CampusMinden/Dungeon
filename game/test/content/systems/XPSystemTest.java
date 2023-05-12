@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import api.Entity;
 import api.Game;
-import api.utils.component_utils.xpComponent.ILevelUp;
+import api.utils.componentUtils.xpComponent.ILevelUp;
 import api.utils.controller.SystemController;
 import content.component.XPComponent;
 import org.junit.Test;
