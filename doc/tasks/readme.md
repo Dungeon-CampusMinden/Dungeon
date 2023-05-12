@@ -177,8 +177,6 @@ auswählen müssen.
 - Schriftrolle: Ein Item, welches einen Text anzeigt
 - Craftingcontainer: Ein Container, der zusätzlich die Möglichkeit bietet, die Menge der enthaltenen Items unter Verwendung von
   Craftingrezepten zu transmutieren
-- Block: Eine verschiebbare Entität, die entweder per dedizierter Interaktion oder durch Kollision mit der Hitbox des
-  Spielcharakters im Dungeon verschoben und gezogen werden kann
 
 ## Spielmechaniken
 
@@ -291,9 +289,9 @@ Der Gesundheit des Spielcharakters kann durch ein Monster Schaden zugefügt werd
 Wenn die Gesundheit eines Monsters auf 0 fällt, wird es besiegt und stirbt, wodurch es ggfs. Items aus seinem Inventar
 (falls vorhanden) fallen lässt und der Spielcharakter Erfahrungspunkte erhält.
 
-### Einen Block verschieben
+### Eine Entität verschieben
 
-Per Interaktion kann der Spielcharakter einen Block im Dungeon in eine bestimmte Richtung verschieben.
+Per Interaktion kann der Spielcharakter eine Entität im Dungeon in eine bestimmte Richtung verschieben.
 
 ### Einen Schalter (im Dungeon) betätigen
 
