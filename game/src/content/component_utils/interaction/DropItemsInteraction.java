@@ -7,7 +7,37 @@ import java.util.List;
 import java.util.stream.IntStream;
 import tools.Point;
 
+/**
+ * This class is a specific implementation of the {@link IInteraction} interface to use in the
+ * {@link InteractionComponent}.
+ *
+ * <p>The implementation will drop all the items inside the {@link InventoryComponent} of the
+ * associated entity on the floor.
+ *
+ * <p>This function can be used to implement the loot function for chests.
+ *
+ * <p>Note: The entity that will use this function needs an {@link InventoryComponent} and {@link
+ * PositionComponent}. An {@link AnimationComponent} is optional.
+ *
+ * <p>If an {@link AnimationComponent} is present, after the interaction, the {@link
+ * AnimationComponent#idleRight} animation will be set as the current animation.
+ */
 public class DropItemsInteraction implements IInteraction {
+
+    /**
+     * Will drop all the items inside the {@link InventoryComponent} of the associated entity on the
+     * floor.
+     *
+     * <p>This function can be used to implement the loot function for chests.
+     *
+     * <p>Note: The entity that will use this function needs an {@link InventoryComponent} and
+     * {@link PositionComponent}. An {@link AnimationComponent} is optional.
+     *
+     * <p>If an {@link AnimationComponent} is present, after the interaction, the {@link
+     * AnimationComponent#idleRight} animation will be set as the current animation.
+     *
+     * @param entity associated entity
+     */
     public void onInteraction(Entity entity) {
         InventoryComponent inventoryComponent =
                 entity.getComponent(InventoryComponent.class)

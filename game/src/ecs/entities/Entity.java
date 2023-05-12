@@ -11,13 +11,18 @@ import starter.Game;
 /** Entity is a unique identifier for an object in the game world */
 @DSLType(name = "game_object")
 @DSLContextPush(name = "entity")
-public record Entity(HashMap<Class, Component> components, Logger entityLogger, int id) {
+public final class Entity {
     private static int nextId = 0;
+    private final int id;
+    private final HashMap<Class, Component> components;
+    private static final Logger LOGGER = Logger.getLogger(Entity.class.getName());
 
+    /** Create a new Entity and register it in {@link Game}. */
     public Entity() {
-        this(new HashMap<>(), Logger.getLogger(Entity.class.getName()), nextId++);
+        id = nextId++;
+        components = new HashMap<>();
         Game.addEntity(this);
-        entityLogger.info("The entity '" + this.getClass().getSimpleName() + "' was created.");
+        LOGGER.info("The entity '" + this.getClass().getSimpleName() + "' was created.");
     }
 
     /**
@@ -46,5 +51,12 @@ public record Entity(HashMap<Class, Component> components, Logger entityLogger, 
      */
     public Optional<Component> getComponent(Class klass) {
         return Optional.ofNullable(components.get(klass));
+    }
+
+    /**
+     * @return The id of this Entity
+     */
+    public int id() {
+        return id;
     }
 }
