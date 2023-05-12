@@ -6,16 +6,10 @@ import ecs.components.ai.AIComponent;
 import ecs.components.ai.fight.CollideAI;
 import ecs.components.ai.idle.RadiusWalk;
 import ecs.components.ai.transition.FriendlyTransition;
-import ecs.components.ai.transition.SelfDefendTransition;
-import ecs.entities.Entity;
 import ecs.entities.Monster;
 import ecs.graphic.Animation;
 
-/**
- * The Slime is an enemy monster which inherits from the Monster class.
- *
- */
-
+/** The Slime is an enemy monster which inherits from the Monster class. */
 public class Slime extends Monster {
 
     private final String pathToIdleLeft = "character/monster/slime/idleLeft";
@@ -28,30 +22,29 @@ public class Slime extends Monster {
     public int dmg = 1;
     private int maxHealthpoint = 8;
 
-
-
-    /** Entity with Components
+    /**
+     * Entity with Components
      *
      * @param lvlFactor - the factor by which damage and health is increased
-     * */
-    public Slime(int lvlFactor){
+     */
+    public Slime(int lvlFactor) {
         super();
         new PositionComponent(this);
-        new AIComponent(this,new CollideAI(3f),new RadiusWalk(2,8),new FriendlyTransition());
+        new AIComponent(this, new CollideAI(3f), new RadiusWalk(2, 8), new FriendlyTransition());
         setupVelocityComponent();
         setupAnimationComponent();
         setupHitboxComponent();
-        if(lvlFactor == 0) lvlFactor++;
+        if (lvlFactor == 0) lvlFactor++;
         this.dmg = this.dmg * lvlFactor;
         this.maxHealthpoint = this.maxHealthpoint * lvlFactor;
     }
-
 
     private void setupVelocityComponent() {
         Animation moveRight = AnimationBuilder.buildAnimation(pathToRunRight);
         Animation moveLeft = AnimationBuilder.buildAnimation(pathToRunLeft);
         new VelocityComponent(this, xSpeed, ySpeed, moveLeft, moveRight);
     }
+
     private void setupAnimationComponent() {
         Animation idleRight = AnimationBuilder.buildAnimation(pathToIdleRight);
         Animation idleLeft = AnimationBuilder.buildAnimation(pathToIdleLeft);
@@ -60,8 +53,8 @@ public class Slime extends Monster {
 
     private void setupHitboxComponent() {
         new HitboxComponent(
-            this,
-            (you, other, direction) -> System.out.print(""),
-            (you, other, direction) -> System.out.print(""));
+                this,
+                (you, other, direction) -> System.out.print(""),
+                (you, other, direction) -> System.out.print(""));
     }
 }

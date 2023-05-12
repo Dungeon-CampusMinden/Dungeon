@@ -6,7 +6,7 @@ import ecs.entities.Entity;
 import level.elements.tile.Tile;
 import tools.Constants;
 
-public class heroLastPosition implements IIdleAI{
+public class heroLastPosition implements IIdleAI {
 
     private GraphPath<Tile> path;
     private final int breakTime;

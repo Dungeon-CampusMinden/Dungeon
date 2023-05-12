@@ -24,5 +24,5 @@ public class KeyboardConfig {
             new ConfigKey<>(new String[] {"skill", "second"}, new ConfigIntValue(Input.Keys.NUM_2));
 
     public static final ConfigKey<Integer> THIRD_SKILL =
-        new ConfigKey<>(new String[] {"skill", "third"}, new ConfigIntValue(Input.Keys.NUM_3));
+            new ConfigKey<>(new String[] {"skill", "third"}, new ConfigIntValue(Input.Keys.NUM_3));
 }

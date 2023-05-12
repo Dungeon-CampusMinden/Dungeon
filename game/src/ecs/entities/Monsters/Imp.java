@@ -7,21 +7,12 @@ import ecs.components.PositionComponent;
 import ecs.components.VelocityComponent;
 import ecs.components.ai.AIComponent;
 import ecs.components.ai.fight.CollideAI;
-import ecs.components.ai.idle.RadiusWalk;
 import ecs.components.ai.idle.heroLastPosition;
 import ecs.components.ai.transition.FriendlyTransition;
-import ecs.components.ai.transition.SelfDefendTransition;
 import ecs.entities.Monster;
 import ecs.graphic.Animation;
 
-
-import java.util.Random;
-
-/**
- * The Imp is an enemy monster which inherits from the Monster class.
- *
- */
-
+/** The Imp is an enemy monster which inherits from the Monster class. */
 public class Imp extends Monster {
 
     private final String pathToIdleLeft = "character/monster/imp/idleLeft";
@@ -34,18 +25,19 @@ public class Imp extends Monster {
     private int dmg = 1;
     private int maxHealthpoint = 5;
 
-    /** Entity with Components
+    /**
+     * Entity with Components
      *
      * @param lvlFactor - the factor by which damage and health is increased
-     * */
-    public Imp(int lvlFactor){
+     */
+    public Imp(int lvlFactor) {
         super();
         new PositionComponent(this);
-        new AIComponent(this,new CollideAI(4f),new heroLastPosition(5),new FriendlyTransition());
+        new AIComponent(this, new CollideAI(4f), new heroLastPosition(5), new FriendlyTransition());
         setupVelocityComponent();
         setupAnimationComponent();
         setupHitboxComponent();
-        if(lvlFactor == 0) lvlFactor++;
+        if (lvlFactor == 0) lvlFactor++;
         this.dmg = this.dmg * lvlFactor;
         this.maxHealthpoint = this.maxHealthpoint * lvlFactor;
     }
@@ -55,6 +47,7 @@ public class Imp extends Monster {
         Animation moveLeft = AnimationBuilder.buildAnimation(pathToRunLeft);
         new VelocityComponent(this, xSpeed, ySpeed, moveLeft, moveRight);
     }
+
     private void setupAnimationComponent() {
         Animation idleRight = AnimationBuilder.buildAnimation(pathToIdleRight);
         Animation idleLeft = AnimationBuilder.buildAnimation(pathToIdleLeft);
@@ -63,9 +56,8 @@ public class Imp extends Monster {
 
     private void setupHitboxComponent() {
         new HitboxComponent(
-            this,
-            (you, other, direction) -> System.out.print(""),
-            (you, other, direction) -> System.out.print(""));
+                this,
+                (you, other, direction) -> System.out.print(""),
+                (you, other, direction) -> System.out.print(""));
     }
 }
-

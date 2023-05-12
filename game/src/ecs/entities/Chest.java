@@ -1,9 +1,9 @@
 package ecs.entities;
 
 import ecs.components.*;
+import ecs.graphic.Animation;
 import ecs.items.ItemData;
 import ecs.items.ItemDataGenerator;
-import ecs.graphic.Animation;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
