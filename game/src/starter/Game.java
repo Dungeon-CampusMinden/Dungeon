@@ -7,6 +7,8 @@ import api.utils.DelayedSet;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import configuration.Configuration;
 import configuration.KeyboardConfig;
@@ -76,16 +78,20 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private Logger gameLogger;
 
     private Debugger debugger;
+    private static Game game;
 
-    public static void main(String[] args) {
-        // start the game
-        try {
-            Configuration.loadAndGetConfiguration("dungeon_config.json", KeyboardConfig.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        DesktopLauncher.run(new Game());
+    /**
+     * Create a new Game instance if no instance currently exist.
+     *
+     * @return the (new) Game instance
+     */
+    public static Game newGame() {
+        if (game == null) game = new Game();
+        return game;
     }
+
+    // for singleton
+    private Game() {}
 
     /**
      * Main game loop. Redraws the dungeon and calls the own implementation (beginFrame, endFrame
@@ -111,7 +117,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
          * THIS EXCEPTION HANDLING IS A TEMPORARY WORKAROUND !
          *
          * <p>The TextureHandler can throw an exception when it is first created. This exception
-         * (IOEception) must be handled somewhere. Normally we want to pass exceptions to the method
+         * (IOException) must be handled somewhere. Normally we want to pass exceptions to the method
          * caller. This approach is (atm) not possible in the libgdx render method because Java does
          * not allow extending method signatures derived from a class. We should try to make clean
          * code out of this workaround later.
@@ -126,6 +132,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             throw new RuntimeException(e);
         }
         controller = new ArrayList<>();
+        batch = new SpriteBatch();
         setupCameras();
         painter = new Painter(batch, camera);
         generator = new RandomWalkGenerator();
@@ -262,10 +269,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         Game.hero = hero;
     }
 
-    public void setSpriteBatch(SpriteBatch batch) {
-        this.batch = batch;
-    }
-
     private void clearScreen() {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
@@ -290,5 +293,41 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new SkillSystem();
         new ProjectileSystem();
         debugger = new Debugger();
+    }
+
+    /**
+     * Load the configuration from the given path. If the configuration has already been loaded, the
+     * cached version will be used.
+     *
+     * @param pathAsString Path to the config-file as String
+     * @param klass Class where the ConfigKey field are located.
+     * @throws IOException If the file could not be read
+     */
+    public static void loadConfig(String pathAsString, Class klass) throws IOException {
+        Configuration.loadAndGetConfiguration(pathAsString, klass);
+    }
+
+    /** Starts the dungeon and needs a {@link Game}. */
+    public static void run() {
+        Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+        config.setWindowSizeLimits(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT, 9999, 9999);
+        // The third and fourth parameters ("maxWidth" and "maxHeight") affect the resizing
+        // behavior
+        // of the window. If the window is enlarged or maximized, then it can assume these
+        // dimensions at maximum. If you have a larger screen resolution than 9999x9999 pixels,
+        // increase these parameters.
+        config.setForegroundFPS(Constants.FRAME_RATE);
+        config.setTitle(Constants.WINDOW_TITLE);
+        config.setWindowIcon(Constants.LOGO_PATH);
+        // config.disableAudio(true);
+        // uncomment this if you wish no audio
+        new Lwjgl3Application(
+                new com.badlogic.gdx.Game() {
+                    @Override
+                    public void create() {
+                        setScreen(Game.newGame());
+                    }
+                },
+                config);
     }
 }
