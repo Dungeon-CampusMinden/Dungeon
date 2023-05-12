@@ -336,7 +336,7 @@ Frage falsch beantwortet, wird die Gesundheit des Spielcharakters stark beschäd
 
 ### Container ist mit Frage verschlossen
 
-Im Level steht ein Container. Versucht der Spielcharakter die Schatzkiste zu öffnen, wird
+Im Level steht ein Container. Versucht der Spielcharakter den Container zu öffnen, wird
 eine Frage per GUI-Dialog gestellt.
 Wird diese Frage korrekt beantwortet, kann der Container geöffnet werden.
 Wird die Frage falsch beantwortet, bleibt der Container geschlossen.
@@ -344,7 +344,7 @@ Wird die Frage falsch beantwortet, bleibt der Container geschlossen.
 ### Richtige Container auswählen
 
 Der Spielcharakter kommt in einen Raum. Per Questgeber kann eine Frage aktiviert werden. Die
-Antwortmöglichkeiten sind in Form von Schatzkisten im Raum verteilt.
+Antwortmöglichkeiten sind in Form von Containern im Raum verteilt.
 Der Spielcharakter kann die Container inspizieren, um herauszufinden, welcher Container welche Antwortmöglichkeit
 repräsentiert. Der Spielcharakter muss die Container, die den richtigen Antworten entsprechen, öffnen und ein Item aus
 den Container-Inventaren entfernen.
