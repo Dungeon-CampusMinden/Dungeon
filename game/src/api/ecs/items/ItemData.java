@@ -1,6 +1,5 @@
 package api.ecs.items;
 
-import api.configuration.ItemConfig;
 import api.ecs.components.AnimationComponent;
 import api.ecs.components.HitboxComponent;
 import api.ecs.components.InventoryComponent;
@@ -10,6 +9,7 @@ import api.ecs.components.stats.DamageModifier;
 import api.ecs.entities.Entity;
 import api.graphic.Animation;
 import api.tools.Point;
+import content.configuration.ItemConfig;
 import java.util.List;
 import starter.Game;
 

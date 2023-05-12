@@ -1,6 +1,5 @@
 package api.tools;
 
-import api.configuration.KeyboardConfig;
 import api.ecs.components.*;
 import api.ecs.components.ai.AIComponent;
 import api.ecs.components.ai.fight.CollideAI;
@@ -14,6 +13,7 @@ import api.level.tools.Coordinate;
 import api.level.tools.LevelSize;
 import api.logging.CustomLogLevel;
 import com.badlogic.gdx.Gdx;
+import content.configuration.KeyboardConfig;
 import dslToGame.AnimationBuilder;
 import java.util.logging.Logger;
 import starter.Game;

@@ -1,5 +1,7 @@
-package api.configuration;
+package content.configuration;
 
+import api.configuration.ConfigKey;
+import api.configuration.ConfigMap;
 import api.configuration.values.ConfigEnumValue;
 import api.configuration.values.ConfigStringValue;
 import api.ecs.items.ItemType;

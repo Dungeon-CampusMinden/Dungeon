@@ -1,6 +1,6 @@
 package starter;
 
-import api.configuration.KeyboardConfig;
+import content.configuration.KeyboardConfig;
 import java.io.IOException;
 
 public class Main {

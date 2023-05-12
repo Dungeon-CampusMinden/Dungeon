@@ -4,7 +4,6 @@ import static api.logging.LoggerConfig.initBaseLogger;
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
 import api.configuration.Configuration;
-import api.configuration.KeyboardConfig;
 import api.controller.AbstractController;
 import api.controller.SystemController;
 import api.ecs.components.MissingComponentException;
@@ -34,6 +33,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import content.configuration.KeyboardConfig;
 import content.entity.EntityFactory;
 import java.io.IOException;
 import java.util.*;

@@ -1,12 +1,12 @@
 package api.ecs.systems;
 
-import api.configuration.KeyboardConfig;
 import api.ecs.components.MissingComponentException;
 import api.ecs.components.PlayableComponent;
 import api.ecs.components.VelocityComponent;
 import api.ecs.entities.Entity;
 import api.ecs.tools.interaction.InteractionTool;
 import com.badlogic.gdx.Gdx;
+import content.configuration.KeyboardConfig;
 import starter.Game;
 
 /** Used to control the player */
