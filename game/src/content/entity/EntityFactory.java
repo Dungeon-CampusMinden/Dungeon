@@ -1,22 +1,22 @@
 package content.entity;
 
+import api.ecs.components.*;
+import api.ecs.components.skill.FireballSkill;
+import api.ecs.components.skill.Skill;
+import api.ecs.components.skill.SkillComponent;
+import api.ecs.components.skill.SkillTools;
+import api.ecs.entities.Entity;
+import api.ecs.items.ItemData;
+import api.ecs.items.ItemDataGenerator;
+import api.graphic.Animation;
+import api.level.tools.LevelElement;
+import api.tools.Point;
 import content.component_utils.interaction.DropItemsInteraction;
 import dslToGame.AnimationBuilder;
-import ecs.components.*;
-import ecs.components.skill.FireballSkill;
-import ecs.components.skill.Skill;
-import ecs.components.skill.SkillComponent;
-import ecs.components.skill.SkillTools;
-import ecs.entities.Entity;
-import ecs.items.ItemData;
-import ecs.items.ItemDataGenerator;
-import graphic.Animation;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
-import level.tools.LevelElement;
 import starter.Game;
-import tools.Point;
 
 /**
  * A utility class for building entities in the game world. The {@link EntityFactory} class provides

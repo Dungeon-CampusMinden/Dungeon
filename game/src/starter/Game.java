@@ -1,8 +1,32 @@
 package starter;
 
+import static api.logging.LoggerConfig.initBaseLogger;
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
-import static logging.LoggerConfig.initBaseLogger;
 
+import api.configuration.Configuration;
+import api.configuration.KeyboardConfig;
+import api.controller.AbstractController;
+import api.controller.SystemController;
+import api.ecs.components.MissingComponentException;
+import api.ecs.components.PositionComponent;
+import api.ecs.entities.Entity;
+import api.ecs.systems.*;
+import api.graphic.DungeonCamera;
+import api.graphic.Painter;
+import api.graphic.hud.UITools;
+import api.graphic.textures.TextureHandler;
+import api.level.IOnLevelLoader;
+import api.level.LevelAPI;
+import api.level.elements.ILevel;
+import api.level.elements.tile.Tile;
+import api.level.generator.IGenerator;
+import api.level.generator.postGeneration.WallGenerator;
+import api.level.generator.randomwalk.RandomWalkGenerator;
+import api.level.tools.LevelSize;
+import api.quizquestion.DummyQuizQuestionList;
+import api.tools.Constants;
+import api.tools.Debugger;
+import api.tools.Point;
 import api.utils.DelayedSet;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -10,34 +34,10 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import configuration.Configuration;
-import configuration.KeyboardConfig;
 import content.entity.EntityFactory;
-import controller.AbstractController;
-import controller.SystemController;
-import ecs.components.MissingComponentException;
-import ecs.components.PositionComponent;
-import ecs.entities.Entity;
-import ecs.systems.*;
-import graphic.DungeonCamera;
-import graphic.Painter;
-import graphic.hud.UITools;
-import graphic.textures.TextureHandler;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
-import level.IOnLevelLoader;
-import level.LevelAPI;
-import level.elements.ILevel;
-import level.elements.tile.Tile;
-import level.generator.IGenerator;
-import level.generator.postGeneration.WallGenerator;
-import level.generator.randomwalk.RandomWalkGenerator;
-import level.tools.LevelSize;
-import quizquestion.DummyQuizQuestionList;
-import tools.Constants;
-import tools.Debugger;
-import tools.Point;
 
 /** The heart of the framework. From here all strings are pulled. */
 public class Game extends ScreenAdapter implements IOnLevelLoader {

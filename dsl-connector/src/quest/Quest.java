@@ -1,9 +1,9 @@
 package quest;
 
-import controller.ScreenController;
+import api.controller.ScreenController;
+import api.level.elements.ILevel;
+import api.level.generator.IGenerator;
 import dslToGame.QuestConfig;
-import level.elements.ILevel;
-import level.generator.IGenerator;
 
 public abstract class Quest {
     protected QuestConfig questConfig;

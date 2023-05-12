@@ -1,11 +1,11 @@
 package content.component_utils.interaction;
 
-import ecs.components.*;
-import ecs.entities.Entity;
-import ecs.items.ItemData;
+import api.ecs.components.*;
+import api.ecs.entities.Entity;
+import api.ecs.items.ItemData;
+import api.tools.Point;
 import java.util.List;
 import java.util.stream.IntStream;
-import tools.Point;
 
 /**
  * This class is a specific implementation of the {@link IInteraction} interface to use in the

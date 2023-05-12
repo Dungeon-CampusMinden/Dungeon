@@ -2,14 +2,15 @@ package starter;
 
 import static org.junit.Assert.*;
 
+import api.ecs.entities.Entity;
+import api.graphic.DungeonCamera;
+import api.graphic.Painter;
+import api.level.LevelAPI;
+import api.level.generator.randomwalk.RandomWalkGenerator;
+import api.tools.Constants;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import ecs.entities.Entity;
-import graphic.DungeonCamera;
-import graphic.Painter;
-import level.LevelAPI;
-import level.generator.randomwalk.RandomWalkGenerator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +19,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
-import tools.Constants;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Game.class, Gdx.class, Constants.class})

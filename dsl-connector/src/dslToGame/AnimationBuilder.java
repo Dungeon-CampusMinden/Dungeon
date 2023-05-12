@@ -1,6 +1,6 @@
 package dslToGame;
 
-import graphic.Animation;
+import api.graphic.Animation;
 import semanticAnalysis.types.DSLTypeAdapter;
 import starter.Game;
 
