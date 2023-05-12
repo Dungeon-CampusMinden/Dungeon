@@ -5,12 +5,9 @@ import level.elements.ILevel;
 import mp.client.IMultiplayerClientObserver;
 import mp.client.MultiplayerClient;
 import mp.packages.GameState;
-import mp.packages.request.InitializeServerRequest;
-import mp.packages.request.JoinSessionRequest;
-import mp.packages.request.UpdateOwnPositionRequest;
+import mp.packages.request.*;
 import mp.server.MultiplayerServer;
 import tools.Point;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
@@ -38,21 +35,29 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     }
 
     @Override
-    public void onInitializeServerResponseReceived(
+    public void onInitServerResponseReceived(
         final boolean isSucceed,
-        final int clientId,
-        final Point initialHeroPosition) {
-        if (heroPositionByPlayerId == null) {
-            heroPositionByPlayerId = new HashMap<>();
-        }
+        final int clientId) {
 
         if (isSucceed) {
             playerId = clientId;
-            heroPositionByPlayerId.put(clientId, initialHeroPosition);
         } else {
             playerId = 0;
         }
         multiplayer.onMultiplayerSessionStarted(isSucceed);
+    }
+
+    @Override
+    public void onLoadMapResponseReceived(boolean isSucceed, ILevel level, HashMap<Integer, Point> heroPositionByClientId) {
+        if (!isSucceed) return;
+
+        this.heroPositionByPlayerId = heroPositionByClientId;
+        multiplayer.onMapLoad(level);
+    }
+
+    @Override
+    public void onChangeMapRequest() {
+        multiplayer.onChangeMapRequest();
     }
 
     @Override
@@ -78,7 +83,7 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     @Override
     public void onGameStateUpdateEventReceived(final GameState gameState) {
         requireNonNull(gameState);
-        this.heroPositionByPlayerId = requireNonNull(gameState.getHeroPositionByClientId());
+        heroPositionByPlayerId = requireNonNull(gameState.getHeroPositionByClientId());
     }
 
     @Override
@@ -120,11 +125,20 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
         }
 
         multiplayerClient.connectToHost("127.0.0.1", serverPort);
-        if (ownHeroInitialPosition != null) {
-            multiplayerClient.send(new InitializeServerRequest(level, ownHeroInitialPosition));
-        } else {
-            multiplayerClient.send(new InitializeServerRequest(level));
-        }
+        multiplayerClient.send(new InitServerRequest());
+//        if (ownHeroInitialPosition != null) {
+//            multiplayerClient.send(new LoadMapRequest(level, ownHeroInitialPosition));
+//        } else {
+//            multiplayerClient.send(new LoadMapRequest(level));
+//        }
+    }
+
+    public void changeLevel(final ILevel level, final Point ownHeroInitialPosition){
+        multiplayerClient.send(new LoadMapRequest(level, ownHeroInitialPosition));
+    }
+
+    public void requestNewLevel(){
+        multiplayerClient.send(new ChangeMapRequest());
     }
 
     /** */
@@ -158,6 +172,8 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
     public boolean isConnectedToSession() {
         return playerId != 0;
     }
+
+    public boolean isHost() { return playerId == 1; }
 
     private void clearSessionData() {
         playerId = 0;

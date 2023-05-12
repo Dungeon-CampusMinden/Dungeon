@@ -9,15 +9,10 @@ import level.elements.tile.*;
 import level.tools.Coordinate;
 import level.tools.DesignLabel;
 import level.tools.LevelElement;
-import mp.packages.request.InitializeServerRequest;
-import mp.packages.request.JoinSessionRequest;
-import mp.packages.request.PingRequest;
-import mp.packages.request.UpdateOwnPositionRequest;
-import mp.packages.response.InitializeServerResponse;
-import mp.packages.response.JoinSessionResponse;
-import mp.packages.response.PingResponse;
+import mp.packages.GameState;
+import mp.packages.request.*;
+import mp.packages.response.*;
 import mp.packages.event.GameStateUpdateEvent;
-import mp.packages.response.UpdateOwnPositionResponse;
 import mp.packages.serializer.*;
 import tools.Point;
 
@@ -34,8 +29,10 @@ public class NetworkSetup {
 
         kryo.register(PingRequest.class);
         kryo.register(PingResponse.class);
-        kryo.register(InitializeServerRequest.class, new InitializeServerRequestSerializer());
-        kryo.register(InitializeServerResponse.class, new InitializeServerResponseSerializer());
+        kryo.register(InitServerRequest.class);
+        kryo.register(InitServerResponse.class, new InitServerResponseSerializer());
+        kryo.register(LoadMapRequest.class, new LoadMapRequestSerializer());
+        kryo.register(LoadMapResponse.class, new LoadMapResponseSerializer());
         kryo.register(JoinSessionRequest.class);
         kryo.register(JoinSessionResponse.class, new JoinSessionResponseSerializer());
         kryo.register(ArrayList.class);
@@ -59,5 +56,7 @@ public class NetworkSetup {
         kryo.register(GameStateUpdateEvent.class, new GameStateUpdateEventSerializer());
         kryo.register(GameState.class, new GameStateSerializer());
         kryo.register(UpdateOwnPositionResponse.class);
+        kryo.register(ChangeMapRequest.class);
+        kryo.register(ChangeMapResponse.class);
     }
 }

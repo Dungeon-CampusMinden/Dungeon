@@ -4,16 +4,16 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import mp.packages.GameState;
+import level.elements.ILevel;
 import mp.packages.NetworkSetup;
-import mp.packages.response.InitializeServerResponse;
-import mp.packages.response.JoinSessionResponse;
-import mp.packages.response.PingResponse;
+import mp.packages.request.ChangeMapRequest;
+import mp.packages.response.*;
 import mp.packages.event.GameStateUpdateEvent;
-import mp.packages.response.UpdateOwnPositionResponse;
 import tools.Point;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MultiplayerClient extends Listener {
 
@@ -57,11 +57,21 @@ public class MultiplayerClient extends Listener {
 
         if (object instanceof PingResponse pingResponse) {
             System.out.println("Ping response received. Time: " + pingResponse.getTime());
-        } else if (object instanceof InitializeServerResponse initializeServerResponse){
+        } else if (object instanceof InitServerResponse initServerResponse){
+            final boolean isSucceed = initServerResponse.isSucceed();
+            for (IMultiplayerClientObserver observer: observers){
+                observer.onInitServerResponseReceived(isSucceed, connection.getID());
+            }
+        } else if (object instanceof LoadMapResponse initializeServerResponse) {
             final boolean isSucceed = initializeServerResponse.getIsSucceed();
-            final Point initialHeroPosition = initializeServerResponse.getInitialHeroPosition();
-            for (IMultiplayerClientObserver observer: observers) {
-                observer.onInitializeServerResponseReceived(isSucceed, connection.getID(), initialHeroPosition);
+            final ILevel level = initializeServerResponse.getLevel();
+            final HashMap<Integer, Point> heroPositionByClientId = initializeServerResponse.getHeroPositionByClientId();
+            for (IMultiplayerClientObserver observer : observers) {
+                observer.onLoadMapResponseReceived(isSucceed, level, heroPositionByClientId);
+            }
+        } else if (object instanceof ChangeMapResponse){
+            for (IMultiplayerClientObserver observer : observers){
+                observer.onChangeMapRequest();
             }
         } else if (object instanceof JoinSessionResponse response) {
             for (IMultiplayerClientObserver observer: observers) {

@@ -8,7 +8,9 @@ import java.net.InetAddress;
 import java.util.HashMap;
 
 public interface IMultiplayerClientObserver {
-    void onInitializeServerResponseReceived(boolean isSucceed, int clientId, Point initialHeroPosition);
+    void onInitServerResponseReceived(boolean isSucceed, int clientId);
+    void onLoadMapResponseReceived(boolean isSucceed, ILevel level, HashMap<Integer, Point> heroPositionByClientId);
+    void onChangeMapRequest();
     void onJoinSessionResponseReceived(boolean isSucceed, ILevel level, int clientId, HashMap<Integer, Point> heroPositionByClientId);
     void onGameStateUpdateEventReceived(GameState gameState);
     void onUpdateOwnPositionResponseReceived();

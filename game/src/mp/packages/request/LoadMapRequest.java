@@ -3,18 +3,16 @@ package mp.packages.request;
 import level.elements.ILevel;
 import tools.Point;
 
-import java.util.Optional;
-
-public class InitializeServerRequest {
+public class LoadMapRequest {
     private final ILevel level;
     private final Point heroInitialPosition;
 
-    public InitializeServerRequest(final ILevel currentLevel){
+    public LoadMapRequest(final ILevel currentLevel){
         this.level = currentLevel;
         this.heroInitialPosition = null;
     }
 
-    public InitializeServerRequest(final ILevel currentLevel, final Point heroInitialPosition){
+    public LoadMapRequest(final ILevel currentLevel, final Point heroInitialPosition){
         this.level = currentLevel;
         this.heroInitialPosition = heroInitialPosition;
     }

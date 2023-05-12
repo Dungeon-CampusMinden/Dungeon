@@ -5,12 +5,12 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import level.elements.ILevel;
-import mp.packages.request.InitializeServerRequest;
+import mp.packages.request.LoadMapRequest;
 import tools.Point;
 
-public class InitializeServerRequestSerializer extends Serializer<InitializeServerRequest> {
+public class LoadMapRequestSerializer extends Serializer<LoadMapRequest> {
     @Override
-    public void write(Kryo kryo, Output output, InitializeServerRequest object) {
+    public void write(Kryo kryo, Output output, LoadMapRequest object) {
         kryo.writeObject(output, object.getLevel());
         final Point initialHeroPosition = object.getHeroInitialPosition();
         if (initialHeroPosition != null) {
@@ -24,15 +24,15 @@ public class InitializeServerRequestSerializer extends Serializer<InitializeServ
     }
 
     @Override
-    public InitializeServerRequest read(Kryo kryo, Input input, Class<InitializeServerRequest> type) {
+    public LoadMapRequest read(Kryo kryo, Input input, Class<LoadMapRequest> type) {
         final ILevel level = kryo.readObject(input, ILevel.class);
 
         final boolean hasInitialHeroPosition = input.readBoolean();
         if (hasInitialHeroPosition) {
             final Point initialHeroPosition = kryo.readObject(input, Point.class);
-            return new InitializeServerRequest(level, initialHeroPosition);
+            return new LoadMapRequest(level, initialHeroPosition);
         }
 
-        return new InitializeServerRequest(level);
+        return new LoadMapRequest(level);
     }
 }

@@ -179,7 +179,28 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     }
 
     private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
-        if (isOnEndTile(hero)) levelAPI.loadLevel(LEVELSIZE);
+        if (!isOnEndTile(hero)) return;
+
+        if (!multiplayerAPI.isConnectedToSession()){
+            levelAPI.loadLevel(LEVELSIZE);
+        } else {
+            if(multiplayerAPI.isHost()){
+                levelAPI.loadLevel(LEVELSIZE);
+                PositionComponent pc =
+                (PositionComponent)
+                    getHero()
+                    .get()
+                    .getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () ->
+                        new MissingComponentException(
+                            "PositionComponent"));
+                multiplayerAPI.changeLevel(currentLevel,pc.getPosition());
+            } else {
+                //ask host to generate new map
+                multiplayerAPI.requestNewLevel();
+            }
+        }
     }
 
     private boolean isOnEndTile(Entity entity) {
@@ -289,8 +310,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     }
 
     private void setupRandomLevel() {
+        //TODO - Is a new LevelAPI always necessary?
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
-        levelAPI.loadLevel();
+        levelAPI.loadLevel(LevelSize.SMALL);
     }
 
     private void setupMenus() {
@@ -403,6 +425,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     public void onMultiplayerSessionStarted(final boolean isSucceed) {
         if (isSucceed) {
             hideMenu(startMenu);
+            multiplayerAPI.changeLevel(currentLevel, currentLevel.getStartTile().getCoordinate().toPoint());
         } else {
             // TODO: error handling like popup menu with error message
             System.out.println("Server responded unsuccessful start");
@@ -417,6 +440,28 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         } else {
             // TODO: error handling like popup menu with error message
             System.out.println("Cannot join multiplayer session");
+        }
+    }
+
+    @Override
+    public void onMapLoad(ILevel level) {
+        levelAPI.setLevel(level);
+    }
+
+    @Override
+    public void onChangeMapRequest() {
+        if(multiplayerAPI.isHost()) {
+            levelAPI.loadLevel(LEVELSIZE);
+            PositionComponent pc =
+                (PositionComponent)
+                    getHero()
+                        .get()
+                        .getComponent(PositionComponent.class)
+                        .orElseThrow(
+                            () ->
+                                new MissingComponentException(
+                                    "PositionComponent"));
+            multiplayerAPI.changeLevel(currentLevel, pc.getPosition());
         }
     }
 
