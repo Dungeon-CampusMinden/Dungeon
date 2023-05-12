@@ -4,12 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
-import ecs.components.Component;
 import ecs.components.InteractionComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
-import java.util.Optional;
 import level.elements.ILevel;
 import level.elements.TileLevel;
 import level.tools.DesignLabel;
@@ -40,12 +38,7 @@ public class InteractionToolTest {
      */
     private static Entity testHero(boolean havingPositionComponent) {
         Entity hero = new Entity();
-        Optional<Component> pc;
-        if (havingPositionComponent) {
-            pc = Optional.of(new PositionComponent(hero, new Point(0, 0)));
-        } else {
-            pc = Optional.empty();
-        }
+        if (havingPositionComponent) new PositionComponent(hero, new Point(0, 0));
         return hero;
     }
 
