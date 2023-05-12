@@ -16,7 +16,7 @@ repositories {
 
 ext {
     // we can not use the + operator here
-    gdxVersion = "1.10.1-SNAPSHOT"
+    gdxVersion = "1.11.0"
     aiVersion = "1.8.2"
     gsonVersion = "2.9.0"
 }
