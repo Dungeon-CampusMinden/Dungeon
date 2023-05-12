@@ -7,14 +7,14 @@ import tools.Constants;
 
 /**
  * This class contains a Collection of simple QuizQuestion of each Type (Text, Image, Image + Text.
- * It can be used for testinag as long as the quisquestions can not be loaded over the an dsl input
- * Use {@code DummyQuizQuestionList.getRandomQuestion} to get a random Quizquestion.
+ * It can be used for testing as long as the QuizQuestion can not be loaded over the dsl input Use
+ * {@code DummyQuizQuestionList.getRandomQuestion} to get a random QuizQuestion.
  *
  * @see QuizQuestion
  */
 public class DummyQuizQuestionList {
 
-    private static List<QuizQuestion> questions =
+    private static final List<QuizQuestion> questions =
             new ArrayList<>() {
                 {
                     // "Einfache" Testfrage für SingleChoice

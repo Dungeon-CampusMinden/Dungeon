@@ -7,7 +7,7 @@ package quizquestion;
  * @param type the QuizQuestionContentType representing the type of content, such as TEXT, IMAGE, or
  *     TEXT_AND_IMAGE
  * @param content a String representing the actual content, such as the text of a question or the
- *     path to an image file or a STring with text and a path to an image file.
+ *     path to an image file or a String with text and a path to an image file.
  */
 public record QuizQuestionContent(QuizQuestionContentType type, String content) {
     /**
@@ -20,6 +20,6 @@ public record QuizQuestionContent(QuizQuestionContentType type, String content) 
     public enum QuizQuestionContentType {
         TEXT,
         IMAGE,
-        TEXT_AND_IMAGE;
+        TEXT_AND_IMAGE
     }
 }

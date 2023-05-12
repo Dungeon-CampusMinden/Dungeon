@@ -124,8 +124,8 @@ public class ResponsiveDialogue<T extends Actor> extends ScreenController<T> {
      */
     private void formatDependingOnGameScreen(TextDialog dialog, Color msgColor) {
         dialog.setColor(msgColor);
-        dialog.setWidth(Constants.WINDOW_WIDTH - Constants.DIALG_DIFFERENCE_MEASURE);
-        dialog.setHeight(Constants.WINDOW_HEIGHT - Constants.DIALG_DIFFERENCE_MEASURE);
+        dialog.setWidth(Constants.WINDOW_WIDTH - Constants.DIALOG_DIFFERENCE_MEASURE);
+        dialog.setHeight(Constants.WINDOW_HEIGHT - Constants.DIALOG_DIFFERENCE_MEASURE);
         dialog.setPosition(
                 (Constants.WINDOW_WIDTH) / 2f,
                 (Constants.WINDOW_HEIGHT) / 2f,
