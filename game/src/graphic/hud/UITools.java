@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import ecs.systems.ECS_System;
+import ecs.systems.System;
 import quizquestion.QuizQuestion;
 import starter.Game;
 import tools.Constants;
@@ -63,19 +63,19 @@ public class UITools {
             infoMsg = infoMsg.replaceAll("\n", " ");
 
             String[] words = infoMsg.split(" ");
-            String formatedMsg = Constants.EMPTY_MESSAGE;
+            String formattedMsg = Constants.EMPTY_MESSAGE;
             int sumLength = 0;
 
             for (String word : words) {
                 sumLength += word.length();
-                formatedMsg = formatedMsg.concat(word).concat(" ");
+                formattedMsg = formattedMsg.concat(word).concat(" ");
 
                 if (sumLength > MAX_ROW_LENGTH) {
-                    formatedMsg += "\n";
+                    formattedMsg += "\n";
                     sumLength = 0;
                 }
             }
-            arrayOfMessages[0] = formatedMsg;
+            arrayOfMessages[0] = formattedMsg;
         }
     }
     /**
@@ -110,8 +110,8 @@ public class UITools {
     }
 
     /**
-     * After leaving the dialogue, it is removed from the stage, the game is unpaused by releasing
-     * all systems and deleting the dialogue Object.
+     * After leaving the dialogue, it is removed from the stage, the game will be continued by
+     * releasing all systems and deleting the dialogue Object.
      *
      * @param txtDialog Text dialogue, which is part of the ResponsiveDialogue and is also searched
      *     for in the controller.
@@ -124,7 +124,7 @@ public class UITools {
                     && Game.controller != null
                     && Game.systems != null) {
                 Game.controller.remove(indexForDialogueInController);
-                Game.systems.forEach(ECS_System::run);
+                Game.systems.forEach(System::stop);
             }
         }
     }
@@ -141,13 +141,13 @@ public class UITools {
 
         if (indexForDialogueInController == -1 && Game.controller != null && Game.systems != null) {
             Game.controller.add(
-                    new ResponsiveDialogue(
+                    new ResponsiveDialogue<>(
                             new SpriteBatch(),
                             new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG)),
                             Color.WHITE,
                             arrayOfMessages));
 
-            Game.systems.forEach(ECS_System::stop);
+            Game.systems.forEach(System::stop);
         }
     }
 
@@ -165,14 +165,14 @@ public class UITools {
 
         if (indexForDialogueInController == -1 && Game.controller != null && Game.systems != null) {
             Game.controller.add(
-                    new ResponsiveDialogue(
+                    new ResponsiveDialogue<>(
                             new SpriteBatch(),
                             new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG)),
                             Color.WHITE,
                             question,
                             arrayOfMessages));
 
-            Game.systems.forEach(ECS_System::stop);
+            Game.systems.forEach(System::stop);
         }
     }
 }

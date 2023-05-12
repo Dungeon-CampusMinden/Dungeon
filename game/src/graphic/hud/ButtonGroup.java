@@ -8,7 +8,7 @@ import quizquestion.QuizQuestionContent;
 import tools.Constants;
 
 /**
- * Buttons are added, a minimum and maximum number of ticked buttons are enforced. Thus (button,
+ * Buttons are added, a minimum and maximum number of ticked buttons are enforced. Thus, (button,
  * text button, check box, etc.) can be used synchronously as "radio buttons". The VerticalGroup is
  * used as the base class (Vertical representation of all button elements).
  */
@@ -18,16 +18,16 @@ public class ButtonGroup extends VerticalGroup {
     private static final int MAX_ROW_LENGTH = 40;
 
     /**
-     * Cosntructor Fills the vertical button group with text boxes and text contents for it
+     * Constructor Fills the vertical button group with text boxes and text contents for it
      *
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
      * @param quizQuestion Various question configurations
      */
     public ButtonGroup(Skin skin, QuizQuestion quizQuestion) {
         super();
-        final QuizQuestion.QuizQuestionType questioType = quizQuestion.type();
+        final QuizQuestion.QuizQuestionType questionType = quizQuestion.type();
         final QuizQuestionContent[] answers = quizQuestion.answers();
-        ArrayList<CheckBox> checkBoxes = new ArrayList<CheckBox>();
+        ArrayList<CheckBox> checkBoxes = new ArrayList<>();
         com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup btnGroup =
                 new com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup();
 
@@ -49,9 +49,9 @@ public class ButtonGroup extends VerticalGroup {
         btnGroup.uncheckAll();
         btnGroup.setMinCheckCount(0);
 
-        if (questioType == QuizQuestion.QuizQuestionType.MULTIPLE_CHOICE) {
+        if (questionType == QuizQuestion.QuizQuestionType.MULTIPLE_CHOICE) {
             btnGroup.setMaxCheckCount(answers.length);
-        } else if (questioType == QuizQuestion.QuizQuestionType.SINGLE_CHOICE) {
+        } else if (questionType == QuizQuestion.QuizQuestionType.SINGLE_CHOICE) {
             btnGroup.setMaxCheckCount(1);
         }
 
@@ -71,19 +71,19 @@ public class ButtonGroup extends VerticalGroup {
             infoMsg = infoMsg.replaceAll("\n", " ");
 
             String[] words = infoMsg.split(" ");
-            String formatedMsg = Constants.EMPTY_MESSAGE;
+            String formattedMsg = Constants.EMPTY_MESSAGE;
             int sumLength = 0;
 
             for (String word : words) {
                 sumLength += word.length();
-                formatedMsg = formatedMsg.concat(word).concat(" ");
+                formattedMsg = formattedMsg.concat(word).concat(" ");
 
                 if (sumLength > MAX_ROW_LENGTH) {
-                    formatedMsg += "\n";
+                    formattedMsg += "\n";
                     sumLength = 0;
                 }
             }
-            arrayOfMessages[0] = formatedMsg;
+            arrayOfMessages[0] = formattedMsg;
         }
     }
 }
