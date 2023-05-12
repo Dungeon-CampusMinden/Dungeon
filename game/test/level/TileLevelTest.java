@@ -252,11 +252,15 @@ public class TileLevelTest {
                 layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT, null);
             }
         }
-        layout[0][1] = new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null);
+        layout[0][1] = new WallTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null);
+        layout[0][2] = new ExitTile("", new Coordinate(2, 0), DesignLabel.DEFAULT, null);
         TileLevel tileLevel = new TileLevel(layout);
         tileLevel.setStartTile(layout[0][0]);
-        tileLevel.changeTileElementType(layout[0][2], LevelElement.EXIT);
-        /* How the level layout looks: (S=start, W=Wall,F=Floor,E=exit) SWE FFF FFF */
+
+        /* How the level layout looks: (S=start, W=Wall,F=Floor,E=exit)
+        SWE
+        FFF
+        FFF */
         // should take the shortest path
         GraphPath<Tile> path = tileLevel.findPath(tileLevel.getStartTile(), tileLevel.getEndTile());
         assertEquals(5, path.getCount());
