@@ -247,7 +247,7 @@ ausgewählt werden und in das Inventar eines Containers transferiert werden.
 ### Ein Item aufheben
 
 Ein Item, welches auf dem Boden des Dungeons liegt, kann vom Spielcharakter aufgesammelt werden, indem der Spielcharakter
-mit der Hitbox des Items kollidiert.
+mit der Hitbox des Items kollidiert und eine Tastatureingabe erfolgt.
 
 ### Informationen über ein Item ansehen
 
