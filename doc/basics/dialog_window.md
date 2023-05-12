@@ -144,7 +144,7 @@ Mit diesem Tool hat man die Möglichkeit eigene Prototypen für ein 2D-Layout zu
 
 Der `Skin Composer` bietet schon vordefinierte Elemente, die als Basis für die Erstellung der eigenen Elemente verwendet werden können. Um das aussehen der Widgets zu ändern benötigt man Bilder, sowie einen `Font` (Schriftart), mit der Texte und Überschriften in der jeweiligen GUI dargestellt werden können.
 
-![DialogWindow](/img/create_9Patch.png)
+![DialogWindow](img/create_nine_patch.png)
 
 Über die Option `Create 9-Patch` hat man die Möglichkeit ein Bild in das tool zu laden, das Padding als auch den Content bereich festzulegen und die Vorschau für Text, Bild, etc. zu testen um eine Vorstellung zu bekommen, wie das Element dargestellt wird.
 Dieser Editor kann JSON- oder Java-Dateien exportieren, die dann direkt im Spiel geladen werden können.
