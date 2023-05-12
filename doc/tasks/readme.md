@@ -65,7 +65,7 @@ Spielmechaniken beziehen sich ausschließlich auf die Interaktion von Spieleleme
 Game-Design Perspektive relevant sind (siehe [Steuermechanismen](#steuermechanismen) für
 alle anderen “Mechaniken”).
 
-Beispiel: ein Item, welches im Dungeon liegt, kann aufgehoben und in das Inventar des
+Beispiel: Ein Item, welches im Dungeon liegt, kann aufgehoben und in das Inventar des
 Spielcharakters transferiert werden.
 
 Aus einer Spielmechanik kann abgeleitet werden, welche Komponenten an der Mechanik beteiligt
