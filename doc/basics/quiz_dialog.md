@@ -12,7 +12,7 @@ Im Fragebereich werden die Fragen als:
 `IMAGE`:  Darstellung einer Frage als Bild <br>
 ![DialogWindow](img/question_with_pic.png)
 `TEXT_AND_IMAGE`: Darstellung einer Frage als Bild und Text<br>
-![DialogWindow](img/Question_with_Txt_and_Pic.png)
+![DialogWindow](img/question_with_txt_and_pic.png)
 
 Im Antwortbereich werden die Antwortmöglichkeiten als Single-Choice oder Multiple-Choice angezeigt, außerdem hat der User bei manchen Aufgabenstellungen, die per Zufall über die Funktion `getRandomQuestion()` der Klasse `DummyQuizQuestionList` generiert werden die Möglichkeit, die Antwort als Freetext (freie Texteingabe) anzugeben.<br>
 Die Antwortmöglichkeiten der Single Choice Fragen sollen mit einem Radiobutton dargestellt werden, womit nur eine Antwort aus der gesamten Auswahl gewählt werden kann. Einmaliges drücken wählt die Antwort aus, eine Neuauswahl hebt die alte Auswahl auf. <br>
