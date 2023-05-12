@@ -4,9 +4,9 @@ import ecs.components.ai.AITools;
 import ecs.entities.Entity;
 
 /**
- * Implements an AI that protects one or more specific entities if hero is in the given range
+ * Implements an AI that protects an entity if hero is in the given range
  *
- * <p>Entity will stay in fight mode once it entered it</p>
+ * <p>Entity will stay in fight mode once it entered it
  */
 public class ProtectOnApproach implements ITransition {
     private final float range;
@@ -18,7 +18,7 @@ public class ProtectOnApproach implements ITransition {
     /**
      * Constructor needs a range and the entity to protect.
      *
-     * @param range     - The range in which the entity should in fight mode
+     * @param range - The range in which the entity should in fight mode
      * @param toProtect - The entity which should be protected
      */
     public ProtectOnApproach(float range, Entity toProtect) {
@@ -26,12 +26,12 @@ public class ProtectOnApproach implements ITransition {
         this.toProtect = toProtect;
     }
 
-
     /**
-     * If entity isn't in fight mode yet, check if player is in range of the entity to protect
+     * If entity that protects isn't in fight mode yet, check if player is in range of the protected
+     * entity
      *
      * @param entity associated entity
-     * @return Boolean
+     * @return boolean
      */
     @Override
     public boolean isInFightMode(Entity entity) {

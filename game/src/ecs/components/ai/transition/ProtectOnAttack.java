@@ -4,26 +4,26 @@ import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PlayableComponent;
 import ecs.entities.Entity;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Lets AI protect an entity
  *
- * <p>Implements an AI that protects a specific entity with a HealthComponent if the hero afflicting damage to it.
- * Entity will stay in fight mode</p>
+ * <p>Implements an AI that protects a specific entity with a HealthComponent if the hero afflicting
+ * damage to it. Entity will stay in fight mode
  */
 public class ProtectOnAttack implements ITransition {
 
-    private boolean isInfight = false;
+    private boolean isInFight = false;
 
-    private final List<Entity> toProtect = new ArrayList<>();
+    private final Set<Entity> toProtect = new HashSet<>();
 
     /**
      * Constructor for one entity to protect
      *
-     * @param entity
+     * @param entity to protect
      */
     ProtectOnAttack(Entity entity) {
         if (entity.getComponent(HealthComponent.class).isEmpty()) {
@@ -31,20 +31,19 @@ public class ProtectOnAttack implements ITransition {
         }
 
         this.toProtect.add(entity);
-
     }
 
     /**
      * Constructor for a list of entities to protect
      *
-     * <p>Checks if HealthComponent isPresent and adds it to the list of entities to protect</p>
+     * <p>Checks if HealthComponent isPresent and adds it to the list of entities to protect
      *
      * @param entities - Entities that are protected
      */
-    ProtectOnAttack(List<Entity> entities) {
+    ProtectOnAttack(Collection<Entity> entities) {
         entities.stream()
-            .filter(e -> e.getComponent(HealthComponent.class).isPresent())
-            .forEach(this.toProtect::add);
+                .peek(e -> e.getComponent(HealthComponent.class).orElseThrow())
+                .forEach(this.toProtect::add);
     }
 
     /**
@@ -55,12 +54,17 @@ public class ProtectOnAttack implements ITransition {
      */
     @Override
     public boolean isInFightMode(Entity entity) {
-        if (isInfight) return true;
+        if (isInFight) return true;
 
-        isInfight = toProtect.stream()
-            .map(e -> (HealthComponent) e.getComponent(HealthComponent.class).get())
-            .anyMatch(e -> e.getLastDamageCause().map(t -> t.getComponent(PlayableComponent.class)).isPresent());
+        isInFight =
+                toProtect.stream()
+                        .map(e -> (HealthComponent) e.getComponent(HealthComponent.class).get())
+                        .anyMatch(
+                                e ->
+                                        e.getLastDamageCause()
+                                                .map(t -> t.getComponent(PlayableComponent.class))
+                                                .isPresent());
 
-        return isInfight;
+        return isInFight;
     }
 }
