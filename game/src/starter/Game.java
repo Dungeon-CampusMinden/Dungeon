@@ -3,7 +3,6 @@ package starter;
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 import static logging.LoggerConfig.initBaseLogger;
 
-
 import api.utils.DelayedSet;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;

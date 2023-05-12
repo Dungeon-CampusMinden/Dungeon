@@ -23,9 +23,7 @@ public class SkillComponentTest {
 
     @After
     public void cleanup() {
-        Game.getEntities().clear();
-        Game.getEntitiesToAdd().clear();
-        Game.getEntitiesToRemove().clear();
+        Game.getDelayedEntitySet().clear();
         Game.setHero(null);
         Game.currentLevel = null;
     }
