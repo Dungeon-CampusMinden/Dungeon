@@ -13,7 +13,7 @@ import api.utils.componentUtils.MissingComponentException;
 import api.utils.logging.CustomLogLevel;
 import com.badlogic.gdx.Gdx;
 import content.component.HealthComponent;
-import content.configuration.KeyboardConfig;
+import api.configuration.KeyboardConfig;
 import content.utils.componentUtils.aiComponent.fight.CollideAI;
 import content.utils.componentUtils.aiComponent.idle.RadiusWalk;
 import content.utils.componentUtils.aiComponent.transition.SelfDefendTransition;

@@ -10,7 +10,7 @@ import api.components.InventoryComponent;
 import api.components.PositionComponent;
 import api.utils.Point;
 import api.utils.componentUtils.drawComponent.Animation;
-import content.configuration.ItemConfig;
+import api.configuration.ItemConfig;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;

@@ -10,7 +10,7 @@ import api.components.PositionComponent;
 import api.utils.Point;
 import api.utils.componentUtils.drawComponent.Animation;
 import api.utils.componentUtils.statsComponent.DamageModifier;
-import content.configuration.ItemConfig;
+import api.configuration.ItemConfig;
 import java.util.List;
 
 /** A Class which contains the Information of a specific Item. */

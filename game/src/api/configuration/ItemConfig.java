@@ -1,4 +1,4 @@
-package content.configuration;
+package api.configuration;
 
 import api.configuration.ConfigKey;
 import api.configuration.ConfigMap;

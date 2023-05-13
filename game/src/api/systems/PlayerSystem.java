@@ -7,7 +7,7 @@ import api.components.PlayerComponent;
 import api.components.VelocityComponent;
 import api.utils.componentUtils.MissingComponentException;
 import com.badlogic.gdx.Gdx;
-import content.configuration.KeyboardConfig;
+import api.configuration.KeyboardConfig;
 import content.utils.componentUtils.interactionComponent.InteractionTool;
 
 /** Used to control the player */
