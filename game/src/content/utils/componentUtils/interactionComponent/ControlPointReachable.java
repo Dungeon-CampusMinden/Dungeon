@@ -3,8 +3,6 @@ package content.utils.componentUtils.interactionComponent;
 import api.Game;
 import api.level.utils.Coordinate;
 import api.utils.Point;
-import api.utils.componentUtils.interactionComponent.IReachable;
-import api.utils.componentUtils.interactionComponent.InteractionData;
 
 public class ControlPointReachable implements IReachable {
 

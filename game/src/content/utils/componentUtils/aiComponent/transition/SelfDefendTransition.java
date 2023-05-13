@@ -2,8 +2,8 @@ package content.utils.componentUtils.aiComponent.transition;
 
 import api.Entity;
 import api.utils.componentUtils.MissingComponentException;
-import api.utils.componentUtils.aiComponent.ITransition;
 import content.component.HealthComponent;
+import content.utils.componentUtils.aiComponent.ITransition;
 
 public class SelfDefendTransition implements ITransition {
     @Override

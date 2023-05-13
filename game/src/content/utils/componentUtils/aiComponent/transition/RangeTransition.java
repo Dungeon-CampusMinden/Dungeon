@@ -1,8 +1,8 @@
 package content.utils.componentUtils.aiComponent.transition;
 
 import api.Entity;
-import api.utils.componentUtils.aiComponent.ITransition;
 import content.utils.componentUtils.aiComponent.AITools;
+import content.utils.componentUtils.aiComponent.ITransition;
 
 public class RangeTransition implements ITransition {
 

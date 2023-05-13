@@ -3,9 +3,9 @@ package content.utils.componentUtils.aiComponent.fight;
 import api.Entity;
 import api.level.Tile;
 import api.utils.Constants;
-import api.utils.componentUtils.aiComponent.IFightAI;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import content.utils.componentUtils.aiComponent.AITools;
+import content.utils.componentUtils.aiComponent.IFightAI;
 
 public class CollideAI implements IFightAI {
     private final float rushRange;

@@ -1,12 +1,11 @@
 package content.utils.componentUtils.healthComponent;
 
 import api.Entity;
-import api.components.InventoryComponent;
 import api.components.PositionComponent;
 import api.utils.Point;
 import api.utils.componentUtils.MissingComponentException;
-import api.utils.componentUtils.healthComponent.IOnDeathFunction;
-import api.utils.componentUtils.itemComponent.ItemData;
+import content.component.InventoryComponent;
+import content.utils.componentUtils.itemComponent.ItemData;
 
 /** a simple implementation of dropping all items of an Entity when it is dying. */
 public class DropLoot implements IOnDeathFunction {

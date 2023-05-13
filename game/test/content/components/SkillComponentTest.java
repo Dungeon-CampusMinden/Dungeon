@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 
 import api.Entity;
 import api.Game;
-import api.utils.componentUtils.skillComponent.Skill;
 import content.component.SkillComponent;
+import content.utils.componentUtils.skillComponent.Skill;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

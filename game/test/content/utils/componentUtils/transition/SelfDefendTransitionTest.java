@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 
 import api.Entity;
 import api.utils.componentUtils.MissingComponentException;
-import api.utils.componentUtils.aiComponent.ITransition;
 import content.component.HealthComponent;
+import content.utils.componentUtils.aiComponent.ITransition;
 import content.utils.componentUtils.aiComponent.transition.SelfDefendTransition;
 import org.junit.Test;
 

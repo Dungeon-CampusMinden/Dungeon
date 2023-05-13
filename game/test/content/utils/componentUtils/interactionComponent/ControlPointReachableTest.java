@@ -4,14 +4,12 @@ import static org.junit.Assert.*;
 
 import api.Entity;
 import api.Game;
-import api.components.InteractionComponent;
 import api.components.PositionComponent;
 import api.level.TileLevel;
 import api.level.utils.DesignLabel;
 import api.level.utils.LevelElement;
 import api.utils.Point;
-import api.utils.componentUtils.interactionComponent.IReachable;
-import api.utils.componentUtils.interactionComponent.InteractionData;
+import content.component.InteractionComponent;
 import org.junit.Test;
 import testingUtils.SimpleCounter;
 

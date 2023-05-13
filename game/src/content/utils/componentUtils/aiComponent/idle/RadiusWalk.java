@@ -3,9 +3,9 @@ package content.utils.componentUtils.aiComponent.idle;
 import api.Entity;
 import api.level.Tile;
 import api.utils.Constants;
-import api.utils.componentUtils.aiComponent.IIdleAI;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import content.utils.componentUtils.aiComponent.AITools;
+import content.utils.componentUtils.aiComponent.IIdleAI;
 
 public class RadiusWalk implements IIdleAI {
     private final float radius;

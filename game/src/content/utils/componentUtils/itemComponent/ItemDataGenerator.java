@@ -1,8 +1,6 @@
 package content.utils.componentUtils.itemComponent;
 
 import api.utils.componentUtils.drawComponent.Animation;
-import api.utils.componentUtils.itemComponent.ItemData;
-import api.utils.componentUtils.itemComponent.ItemType;
 import java.util.List;
 import java.util.Random;
 

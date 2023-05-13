@@ -5,9 +5,9 @@ import api.components.PositionComponent;
 import api.level.Tile;
 import api.utils.Constants;
 import api.utils.Point;
-import api.utils.componentUtils.aiComponent.IIdleAI;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import content.utils.componentUtils.aiComponent.AITools;
+import content.utils.componentUtils.aiComponent.IIdleAI;
 
 public class StaticRadiusWalk implements IIdleAI {
     private final float radius;

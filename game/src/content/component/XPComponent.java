@@ -2,7 +2,7 @@ package content.component;
 
 import api.Component;
 import api.Entity;
-import api.utils.componentUtils.xpComponent.ILevelUp;
+import content.utils.componentUtils.xpComponent.ILevelUp;
 
 public class XPComponent extends Component {
 

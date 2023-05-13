@@ -1,9 +1,8 @@
 package content.utils.componentUtils.skillComponent;
 
 import api.utils.Point;
-import api.utils.componentUtils.healthComponent.Damage;
-import api.utils.componentUtils.healthComponent.DamageType;
-import api.utils.componentUtils.skillComponent.ITargetSelection;
+import content.utils.componentUtils.healthComponent.Damage;
+import content.utils.componentUtils.healthComponent.DamageType;
 
 public class FireballSkill extends DamageProjectileSkill {
     public FireballSkill(ITargetSelection targetSelection) {

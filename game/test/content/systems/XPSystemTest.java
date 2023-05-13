@@ -4,9 +4,9 @@ import static org.junit.Assert.*;
 
 import api.Entity;
 import api.Game;
-import api.utils.componentUtils.xpComponent.ILevelUp;
 import api.utils.controller.SystemController;
 import content.component.XPComponent;
+import content.utils.componentUtils.xpComponent.ILevelUp;
 import org.junit.Test;
 import org.mockito.Mockito;
 

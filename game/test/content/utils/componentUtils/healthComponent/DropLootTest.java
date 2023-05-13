@@ -4,11 +4,11 @@ import static org.junit.Assert.*;
 
 import api.Entity;
 import api.Game;
-import api.components.InventoryComponent;
 import api.components.PositionComponent;
 import api.utils.Point;
 import api.utils.componentUtils.MissingComponentException;
-import api.utils.componentUtils.itemComponent.ItemData;
+import content.component.InventoryComponent;
+import content.utils.componentUtils.itemComponent.ItemData;
 import org.junit.Test;
 
 public class DropLootTest {

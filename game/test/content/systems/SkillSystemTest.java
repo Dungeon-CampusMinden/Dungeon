@@ -5,10 +5,10 @@ import static org.junit.Assert.*;
 import api.Entity;
 import api.Game;
 import api.utils.Constants;
-import api.utils.componentUtils.skillComponent.ISkillFunction;
-import api.utils.componentUtils.skillComponent.Skill;
 import api.utils.controller.SystemController;
 import content.component.SkillComponent;
+import content.utils.componentUtils.skillComponent.ISkillFunction;
+import content.utils.componentUtils.skillComponent.Skill;
 import org.junit.Test;
 import org.mockito.Mockito;
 

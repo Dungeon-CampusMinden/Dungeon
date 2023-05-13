@@ -3,10 +3,10 @@ package content.utils.componentUtils.aiComponent.fight;
 import api.Entity;
 import api.level.Tile;
 import api.utils.Constants;
-import api.utils.componentUtils.aiComponent.IFightAI;
-import api.utils.componentUtils.skillComponent.Skill;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import content.utils.componentUtils.aiComponent.AITools;
+import content.utils.componentUtils.aiComponent.IFightAI;
+import content.utils.componentUtils.skillComponent.Skill;
 
 public class MeleeAI implements IFightAI {
     private final float attackRange;

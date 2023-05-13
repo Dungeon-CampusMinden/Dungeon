@@ -5,10 +5,10 @@ import api.Game;
 import api.System;
 import api.components.DrawComponent;
 import api.utils.componentUtils.MissingComponentException;
-import api.utils.componentUtils.healthComponent.DamageType;
 import content.component.HealthComponent;
 import content.component.StatsComponent;
 import content.component.XPComponent;
+import content.utils.componentUtils.healthComponent.DamageType;
 import java.util.stream.Stream;
 
 /**

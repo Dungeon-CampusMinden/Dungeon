@@ -4,8 +4,9 @@ import api.Entity;
 import api.components.*;
 import api.utils.Point;
 import api.utils.componentUtils.MissingComponentException;
-import api.utils.componentUtils.interactionComponent.IInteraction;
-import api.utils.componentUtils.itemComponent.ItemData;
+import content.component.InteractionComponent;
+import content.component.InventoryComponent;
+import content.utils.componentUtils.itemComponent.ItemData;
 import java.util.List;
 import java.util.stream.IntStream;
 

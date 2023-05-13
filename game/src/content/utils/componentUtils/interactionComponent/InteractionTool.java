@@ -2,12 +2,10 @@ package content.utils.componentUtils.interactionComponent;
 
 import api.Entity;
 import api.Game;
-import api.components.InteractionComponent;
 import api.components.PositionComponent;
 import api.utils.Point;
 import api.utils.componentUtils.MissingComponentException;
-import api.utils.componentUtils.interactionComponent.IReachable;
-import api.utils.componentUtils.interactionComponent.InteractionData;
+import content.component.InteractionComponent;
 import java.util.Optional;
 
 public class InteractionTool {

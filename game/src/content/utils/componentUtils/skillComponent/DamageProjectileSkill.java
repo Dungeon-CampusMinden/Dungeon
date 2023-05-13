@@ -5,13 +5,12 @@ import api.Game;
 import api.components.*;
 import api.utils.Point;
 import api.utils.componentUtils.MissingComponentException;
-import api.utils.componentUtils.collisionComponent.ICollide;
 import api.utils.componentUtils.drawComponent.Animation;
-import api.utils.componentUtils.healthComponent.Damage;
-import api.utils.componentUtils.skillComponent.ISkillFunction;
-import api.utils.componentUtils.skillComponent.ITargetSelection;
+import content.component.CollideComponent;
 import content.component.HealthComponent;
 import content.component.ProjectileComponent;
+import content.utils.componentUtils.collisionComponent.ICollide;
+import content.utils.componentUtils.healthComponent.Damage;
 import dslToGame.AnimationBuilder;
 
 public abstract class DamageProjectileSkill implements ISkillFunction {
