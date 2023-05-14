@@ -1,4 +1,4 @@
-package api.quizquestion;
+package quizquestion;
 
 import api.utils.hud.UITools;
 

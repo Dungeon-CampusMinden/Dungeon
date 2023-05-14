@@ -1,11 +1,11 @@
 package api.utils.hud;
 
-import api.quizquestion.QuizQuestion;
-import api.quizquestion.QuizQuestionContent;
 import api.utils.Constants;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
 import java.util.ArrayList;
+import quizquestion.QuizQuestion;
+import quizquestion.QuizQuestionContent;
 
 /**
  * Buttons are added, a minimum and maximum number of ticked buttons are enforced. Thus, (button,

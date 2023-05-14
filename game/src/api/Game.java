@@ -12,7 +12,6 @@ import api.level.generator.IGenerator;
 import api.level.generator.postGeneration.WallGenerator;
 import api.level.generator.randomwalk.RandomWalkGenerator;
 import api.level.utils.LevelSize;
-import api.quizquestion.DummyQuizQuestionList;
 import api.systems.*;
 import api.utils.Constants;
 import api.utils.DelayedSet;
@@ -30,13 +29,14 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import content.systems.PlayerSystem;
 import content.configuration.KeyboardConfig;
 import content.entity.EntityFactory;
 import content.systems.*;
+import content.systems.PlayerSystem;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
+import quizquestion.DummyQuizQuestionList;
 
 /** The heart of the framework. From here all strings are pulled. */
 public class Game extends ScreenAdapter implements IOnLevelLoader {

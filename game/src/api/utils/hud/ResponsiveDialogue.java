@@ -1,6 +1,5 @@
 package api.utils.hud;
 
-import api.quizquestion.QuizQuestion;
 import api.utils.Constants;
 import api.utils.controller.ScreenController;
 import com.badlogic.gdx.graphics.Color;
@@ -8,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Align;
+import quizquestion.QuizQuestion;
 
 /**
  * Creates a dialogue object, formats and passes the dialogue to the `ScreenController` so that the

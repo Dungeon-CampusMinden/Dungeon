@@ -1,7 +1,7 @@
 package api.utils.hud;
 
-import api.quizquestion.QuizQuestion;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import quizquestion.QuizQuestion;
 
 /** Contains Constructor, which immediately creates the dialogue including all its elements. */
 public final class TextDialog extends Dialog {

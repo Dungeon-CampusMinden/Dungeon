@@ -1,12 +1,15 @@
 package api.utils.hud;
 
-import api.quizquestion.QuizQuestion;
-import api.quizquestion.QuizQuestionContent;
+import static quizquestion.QuizQuestion.QuizQuestionType.MULTIPLE_CHOICE;
+import static quizquestion.QuizQuestion.QuizQuestionType.SINGLE_CHOICE;
+
 import api.utils.Constants;
 import api.utils.Point;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
+import quizquestion.QuizQuestion;
+import quizquestion.QuizQuestionContent;
 
 /** creates layout ot a dialog */
 public class DialogDesign extends Table {

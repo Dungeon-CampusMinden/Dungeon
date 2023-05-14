@@ -2,13 +2,13 @@ package api.utils.hud;
 
 import api.Game;
 import api.System;
-import api.quizquestion.QuizQuestion;
 import api.utils.Constants;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import quizquestion.QuizQuestion;
 
 /**
  * Formatting of the window or dialog and controls the creation of a dialogue object depending on an
