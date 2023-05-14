@@ -1,7 +1,7 @@
 package starter;
 
-import api.Game;
-import content.configuration.KeyboardConfig;
+import core.Game;
+import contrib.configuration.KeyboardConfig;
 import java.io.IOException;
 
 public class Main {

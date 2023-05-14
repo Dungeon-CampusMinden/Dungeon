@@ -1,6 +1,6 @@
 package dslToGame;
 
-import api.level.levelgraph.LevelNode;
+import core.level.levelgraph.LevelNode;
 import dslToGame.graph.Graph;
 import dslToGame.graph.Node;
 import java.util.HashMap;

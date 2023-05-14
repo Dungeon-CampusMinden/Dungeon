@@ -2,13 +2,13 @@ package starter;
 
 import static org.junit.Assert.*;
 
-import api.Entity;
-import api.Game;
-import api.LevelManager;
-import api.level.generator.randomwalk.RandomWalkGenerator;
-import api.utils.Constants;
-import api.utils.DungeonCamera;
-import api.utils.componentUtils.drawComponent.Painter;
+import core.Entity;
+import core.Game;
+import core.LevelManager;
+import core.level.generator.randomwalk.RandomWalkGenerator;
+import core.utils.Constants;
+import core.utils.DungeonCamera;
+import core.utils.componentUtils.drawComponent.Painter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
