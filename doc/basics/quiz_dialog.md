@@ -67,7 +67,7 @@ public class UITools {
     public static void showQuizDialog(QuizQuestion question) {
 
         if (question != null) {
-            String[] contentArray = {question.question().contrib()};
+            String[] contentArray = {question.question().content()};
             formatStringForDialogWindow(contentArray);
             setDialogIndexInController(-1);
             generateQuizDialogue(question, contentArray);
@@ -75,7 +75,7 @@ public class UITools {
     }
 }
 ```
-Der Inhalt der Frage wird aus `question.question().contrib()` ausgelesen und anschließend in der Funktion `formatStringForDialogWindow()` so formatiert, dass der Inhalt an eine Länge von 40 Zeichen mit Zeilenvorschub angepasst wird. Dies bewirkt, dass der Inhalt nicht horizontal gescrollt werden muss. `setDialogIndexInController ()` setzt einen Vermerk darauf, dass der Dilaog noch nicht im Controller (auch Stage) enthalten ist.<br>
+Der Inhalt der Frage wird aus `question.question().content()` ausgelesen und anschließend in der Funktion `formatStringForDialogWindow()` so formatiert, dass der Inhalt an eine Länge von 40 Zeichen mit Zeilenvorschub angepasst wird. Dies bewirkt, dass der Inhalt nicht horizontal gescrollt werden muss. `setDialogIndexInController ()` setzt einen Vermerk darauf, dass der Dilaog noch nicht im Controller (auch Stage) enthalten ist.<br>
 ### Wie wird ein Dialog erstellt?
 Die Funktion `generateQuizDialogue()` sucht zunächst ob ein Dialog im  Controller schon enthalten ist. Das passiert in der Funktion `searchIndexOfResponsiveDialogInController()`.
 ```java
