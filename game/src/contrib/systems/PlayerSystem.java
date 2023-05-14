@@ -1,14 +1,14 @@
 package contrib.systems;
 
+import com.badlogic.gdx.Gdx;
+import contrib.component.PlayerComponent;
+import contrib.configuration.KeyboardConfig;
+import contrib.utils.componentUtils.interactionComponent.InteractionTool;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.VelocityComponent;
 import core.utils.componentUtils.MissingComponentException;
-import com.badlogic.gdx.Gdx;
-import contrib.component.PlayerComponent;
-import contrib.configuration.KeyboardConfig;
-import contrib.utils.componentUtils.interactionComponent.InteractionTool;
 
 /** Used to control the player */
 public class PlayerSystem extends System {

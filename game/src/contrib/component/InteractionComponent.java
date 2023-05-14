@@ -1,8 +1,8 @@
 package contrib.component;
 
+import contrib.utils.componentUtils.interactionComponent.IInteraction;
 import core.Component;
 import core.Entity;
-import contrib.utils.componentUtils.interactionComponent.IInteraction;
 
 public class InteractionComponent extends Component {
     public static final int DEFAULT_RADIUS = 5;

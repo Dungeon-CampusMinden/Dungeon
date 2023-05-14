@@ -1,13 +1,13 @@
 package core.level.elements;
 
-import core.level.Tile;
-import core.level.elements.astar.TileHeuristic;
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.utils.Array;
+import core.level.Tile;
+import core.level.elements.astar.TileHeuristic;
 
 public interface IPathable extends IndexedGraph<Tile> {
 

@@ -2,11 +2,11 @@ package contrib.systems;
 
 import static org.junit.Assert.assertEquals;
 
+import contrib.component.AIComponent;
+import contrib.utils.componentUtils.aiComponent.ITransition;
 import core.Entity;
 import core.Game;
 import core.utils.controller.SystemController;
-import contrib.component.AIComponent;
-import contrib.utils.componentUtils.aiComponent.ITransition;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

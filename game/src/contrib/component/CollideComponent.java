@@ -1,5 +1,6 @@
 package contrib.component;
 
+import contrib.utils.componentUtils.collisionComponent.ICollide;
 import core.Component;
 import core.Entity;
 import core.components.PositionComponent;
@@ -7,7 +8,6 @@ import core.level.Tile;
 import core.utils.Point;
 import core.utils.componentUtils.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
-import contrib.utils.componentUtils.collisionComponent.ICollide;
 import java.util.logging.Logger;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;

@@ -1,10 +1,10 @@
 package core.utils.hud;
 
-import core.utils.Constants;
-import core.utils.Point;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
+import core.utils.Constants;
+import core.utils.Point;
 import quizquestion.QuizQuestion;
 import quizquestion.QuizQuestionContent;
 

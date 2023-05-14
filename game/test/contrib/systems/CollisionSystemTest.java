@@ -2,14 +2,14 @@ package contrib.systems;
 
 import static org.junit.Assert.*;
 
+import contrib.component.CollideComponent;
+import contrib.utils.componentUtils.collisionComponent.ICollide;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.utils.Point;
 import core.utils.controller.SystemController;
-import contrib.component.CollideComponent;
-import contrib.utils.componentUtils.collisionComponent.ICollide;
 import org.junit.Test;
 import testingUtils.SimpleCounter;
 

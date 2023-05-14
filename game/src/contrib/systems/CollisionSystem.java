@@ -1,9 +1,9 @@
 package contrib.systems;
 
+import contrib.component.CollideComponent;
 import core.Game;
 import core.System;
 import core.level.Tile;
-import contrib.component.CollideComponent;
 import java.util.HashMap;
 import java.util.Map;
 

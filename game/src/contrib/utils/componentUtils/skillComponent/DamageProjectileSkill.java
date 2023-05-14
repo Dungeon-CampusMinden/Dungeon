@@ -1,16 +1,16 @@
 package contrib.utils.componentUtils.skillComponent;
 
+import contrib.component.CollideComponent;
+import contrib.component.HealthComponent;
+import contrib.component.ProjectileComponent;
+import contrib.utils.componentUtils.collisionComponent.ICollide;
+import contrib.utils.componentUtils.healthComponent.Damage;
 import core.Entity;
 import core.Game;
 import core.components.*;
 import core.utils.Point;
 import core.utils.componentUtils.MissingComponentException;
 import core.utils.componentUtils.drawComponent.Animation;
-import contrib.component.CollideComponent;
-import contrib.component.HealthComponent;
-import contrib.component.ProjectileComponent;
-import contrib.utils.componentUtils.collisionComponent.ICollide;
-import contrib.utils.componentUtils.healthComponent.Damage;
 import dslToGame.AnimationBuilder;
 
 public abstract class DamageProjectileSkill implements ISkillFunction {

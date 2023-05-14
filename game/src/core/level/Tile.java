@@ -1,5 +1,7 @@
 package core.level;
 
+import com.badlogic.gdx.ai.pfa.Connection;
+import com.badlogic.gdx.utils.Array;
 import core.Entity;
 import core.level.elements.ILevel;
 import core.level.elements.astar.TileConnection;
@@ -7,8 +9,6 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import com.badlogic.gdx.ai.pfa.Connection;
-import com.badlogic.gdx.utils.Array;
 import java.util.ArrayList;
 import java.util.List;
 

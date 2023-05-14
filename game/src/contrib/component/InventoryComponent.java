@@ -1,9 +1,9 @@
 package contrib.component;
 
+import contrib.utils.componentUtils.itemComponent.ItemData;
 import core.Component;
 import core.Entity;
 import core.utils.logging.CustomLogLevel;
-import contrib.utils.componentUtils.itemComponent.ItemData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;

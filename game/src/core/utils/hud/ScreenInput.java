@@ -1,8 +1,8 @@
 package core.utils.hud;
 
-import core.utils.Point;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import core.utils.Point;
 
 /** Simple one line Text input field. */
 public class ScreenInput extends TextField {

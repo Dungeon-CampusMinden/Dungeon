@@ -1,14 +1,14 @@
 package contrib.systems;
 
+import contrib.component.HealthComponent;
+import contrib.component.StatsComponent;
+import contrib.component.XPComponent;
+import contrib.utils.componentUtils.healthComponent.DamageType;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.utils.componentUtils.MissingComponentException;
-import contrib.component.HealthComponent;
-import contrib.component.StatsComponent;
-import contrib.component.XPComponent;
-import contrib.utils.componentUtils.healthComponent.DamageType;
 import java.util.stream.Stream;
 
 /**

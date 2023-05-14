@@ -1,7 +1,7 @@
 package contrib.utils.componentUtils.healthComponent;
 
-import core.Entity;
 import com.badlogic.gdx.utils.Null;
+import core.Entity;
 
 /**
  * Damage that can reduce the life points of an entity

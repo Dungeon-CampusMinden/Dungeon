@@ -2,10 +2,10 @@ package contrib.systems;
 
 import static org.junit.Assert.*;
 
-import core.Entity;
-import core.utils.Constants;
 import contrib.utils.componentUtils.skillComponent.ISkillFunction;
 import contrib.utils.componentUtils.skillComponent.Skill;
+import core.Entity;
+import core.utils.Constants;
 import org.junit.After;
 import org.junit.Test;
 

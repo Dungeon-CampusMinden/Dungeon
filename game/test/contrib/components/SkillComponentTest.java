@@ -2,10 +2,10 @@ package contrib.components;
 
 import static org.junit.Assert.*;
 
-import core.Entity;
-import core.Game;
 import contrib.component.SkillComponent;
 import contrib.utils.componentUtils.skillComponent.Skill;
+import core.Entity;
+import core.Game;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

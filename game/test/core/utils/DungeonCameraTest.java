@@ -2,11 +2,11 @@ package core.utils;
 
 import static org.junit.Assert.*;
 
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.GdxNativesLoader;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.GdxNativesLoader;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

@@ -1,9 +1,9 @@
 package contrib.systems;
 
+import contrib.component.AIComponent;
 import core.Entity;
 import core.Game;
 import core.System;
-import contrib.component.AIComponent;
 
 /** Controls the AI */
 public class AISystem extends System {

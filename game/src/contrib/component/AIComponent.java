@@ -1,7 +1,5 @@
 package contrib.component;
 
-import core.Component;
-import core.Entity;
 import contrib.systems.AISystem;
 import contrib.utils.componentUtils.aiComponent.IFightAI;
 import contrib.utils.componentUtils.aiComponent.IIdleAI;
@@ -9,6 +7,8 @@ import contrib.utils.componentUtils.aiComponent.ITransition;
 import contrib.utils.componentUtils.aiComponent.fight.CollideAI;
 import contrib.utils.componentUtils.aiComponent.idle.RadiusWalk;
 import contrib.utils.componentUtils.aiComponent.transition.RangeTransition;
+import core.Component;
+import core.Entity;
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 

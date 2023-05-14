@@ -1,8 +1,8 @@
 package contrib.component;
 
+import contrib.utils.componentUtils.xpComponent.ILevelUp;
 import core.Component;
 import core.Entity;
-import contrib.utils.componentUtils.xpComponent.ILevelUp;
 
 public class XPComponent extends Component {
 

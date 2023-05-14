@@ -1,8 +1,18 @@
 package core;
 
-import static core.utils.logging.LoggerConfig.initBaseLogger;
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
+import static core.utils.logging.LoggerConfig.initBaseLogger;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import contrib.configuration.KeyboardConfig;
+import contrib.entity.EntityFactory;
+import contrib.systems.*;
+import contrib.systems.PlayerSystem;
 import core.components.PositionComponent;
 import core.configuration.Configuration;
 import core.level.IOnLevelLoader;
@@ -23,16 +33,6 @@ import core.utils.componentUtils.drawComponent.TextureHandler;
 import core.utils.controller.AbstractController;
 import core.utils.controller.SystemController;
 import core.utils.hud.UITools;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import contrib.configuration.KeyboardConfig;
-import contrib.entity.EntityFactory;
-import contrib.systems.*;
-import contrib.systems.PlayerSystem;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;

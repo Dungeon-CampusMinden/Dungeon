@@ -1,16 +1,16 @@
 package contrib.utils.componentUtils.itemComponent;
 
+import contrib.component.CollideComponent;
+import contrib.component.InventoryComponent;
+import contrib.component.ItemComponent;
+import contrib.configuration.ItemConfig;
+import contrib.utils.componentUtils.statsComponent.DamageModifier;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.componentUtils.drawComponent.Animation;
-import contrib.component.CollideComponent;
-import contrib.component.InventoryComponent;
-import contrib.component.ItemComponent;
-import contrib.configuration.ItemConfig;
-import contrib.utils.componentUtils.statsComponent.DamageModifier;
 import java.util.List;
 
 /** A Class which contains the Information of a specific Item. */

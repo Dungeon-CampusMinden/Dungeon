@@ -1,9 +1,9 @@
 package core.utils.hud;
 
-import core.utils.Constants;
-import core.utils.Point;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import core.utils.Constants;
+import core.utils.Point;
 
 /** This class is intended for the configuration of the image to be displayed. */
 public class ScreenImage extends Image {

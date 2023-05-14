@@ -1,8 +1,8 @@
 package contrib.systems;
 
+import contrib.component.SkillComponent;
 import core.Game;
 import core.System;
-import contrib.component.SkillComponent;
 
 public class SkillSystem extends System {
 

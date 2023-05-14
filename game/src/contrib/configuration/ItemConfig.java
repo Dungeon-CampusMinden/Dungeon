@@ -1,10 +1,10 @@
 package contrib.configuration;
 
+import contrib.utils.componentUtils.itemComponent.ItemType;
 import core.configuration.ConfigKey;
 import core.configuration.ConfigMap;
 import core.configuration.values.ConfigEnumValue;
 import core.configuration.values.ConfigStringValue;
-import contrib.utils.componentUtils.itemComponent.ItemType;
 
 /** The default ItemData values */
 @ConfigMap(path = {"item"})

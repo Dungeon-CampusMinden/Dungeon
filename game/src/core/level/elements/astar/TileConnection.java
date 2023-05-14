@@ -1,8 +1,8 @@
 package core.level.elements.astar;
 
-import core.level.Tile;
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.math.Vector2;
+import core.level.Tile;
 
 /**
  * Represents a connection between two tile

@@ -1,12 +1,12 @@
 package contrib.utils.componentUtils.interactionComponent;
 
+import contrib.component.InteractionComponent;
+import contrib.component.InventoryComponent;
+import contrib.utils.componentUtils.itemComponent.ItemData;
 import core.Entity;
 import core.components.*;
 import core.utils.Point;
 import core.utils.componentUtils.MissingComponentException;
-import contrib.component.InteractionComponent;
-import contrib.component.InventoryComponent;
-import contrib.utils.componentUtils.itemComponent.ItemData;
 import java.util.List;
 import java.util.stream.IntStream;
 

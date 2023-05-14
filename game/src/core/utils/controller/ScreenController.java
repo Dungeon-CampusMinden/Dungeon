@@ -1,12 +1,12 @@
 package core.utils.controller;
 
-import core.utils.Constants;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import core.utils.Constants;
 
 /** A class to manage <code>Actor</code> and <code>Removable<code>s.
  * <p>Provides methods for add, remove, update and reorder elements.</p>

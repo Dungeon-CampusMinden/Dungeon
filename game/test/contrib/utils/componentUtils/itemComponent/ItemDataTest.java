@@ -2,15 +2,15 @@ package contrib.utils.componentUtils.itemComponent;
 
 import static org.junit.Assert.*;
 
+import contrib.component.CollideComponent;
+import contrib.component.InventoryComponent;
+import contrib.configuration.ItemConfig;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.componentUtils.drawComponent.Animation;
-import contrib.component.CollideComponent;
-import contrib.component.InventoryComponent;
-import contrib.configuration.ItemConfig;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;

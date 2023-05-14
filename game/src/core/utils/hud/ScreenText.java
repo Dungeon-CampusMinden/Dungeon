@@ -1,8 +1,8 @@
 package core.utils.hud;
 
-import core.utils.Point;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import core.utils.Point;
 
 /** This class is intended for the configuration of the text to be displayed. */
 public class ScreenText extends Label {

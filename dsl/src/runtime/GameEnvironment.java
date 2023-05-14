@@ -1,11 +1,11 @@
 package runtime;
 
+import contrib.component.AIComponent;
+import contrib.component.CollideComponent;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import contrib.component.AIComponent;
-import contrib.component.CollideComponent;
 import dslToGame.AnimationBuilder;
 import dslToGame.QuestConfig;
 import java.util.ArrayList;

@@ -3,9 +3,9 @@ package contrib.components;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import core.Entity;
 import contrib.component.InteractionComponent;
 import contrib.utils.componentUtils.interactionComponent.IInteraction;
+import core.Entity;
 import org.junit.Test;
 import org.mockito.Mockito;
 

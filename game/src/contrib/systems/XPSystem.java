@@ -1,8 +1,8 @@
 package contrib.systems;
 
+import contrib.component.XPComponent;
 import core.Game;
 import core.System;
-import contrib.component.XPComponent;
 
 public class XPSystem extends System {
 

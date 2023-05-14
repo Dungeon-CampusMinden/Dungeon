@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import core.Entity;
 import contrib.component.InventoryComponent;
 import contrib.utils.componentUtils.itemComponent.ItemData;
+import core.Entity;
 import java.util.List;
 import org.junit.Test;
 

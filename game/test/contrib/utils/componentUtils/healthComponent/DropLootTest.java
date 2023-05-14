@@ -2,13 +2,13 @@ package contrib.utils.componentUtils.healthComponent;
 
 import static org.junit.Assert.*;
 
+import contrib.component.InventoryComponent;
+import contrib.utils.componentUtils.itemComponent.ItemData;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.componentUtils.MissingComponentException;
-import contrib.component.InventoryComponent;
-import contrib.utils.componentUtils.itemComponent.ItemData;
 import org.junit.Test;
 
 public class DropLootTest {

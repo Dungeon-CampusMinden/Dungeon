@@ -1,8 +1,8 @@
 package contrib.component;
 
+import contrib.utils.componentUtils.itemComponent.ItemData;
 import core.Component;
 import core.Entity;
-import contrib.utils.componentUtils.itemComponent.ItemData;
 
 /** Marks an Entity as an Item. */
 public class ItemComponent extends Component {

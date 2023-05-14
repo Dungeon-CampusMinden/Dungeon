@@ -1,8 +1,8 @@
 package contrib.component;
 
+import contrib.utils.componentUtils.statsComponent.DamageModifier;
 import core.Component;
 import core.Entity;
-import contrib.utils.componentUtils.statsComponent.DamageModifier;
 
 public class StatsComponent extends Component {
 

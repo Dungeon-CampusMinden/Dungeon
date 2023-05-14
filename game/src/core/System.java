@@ -4,7 +4,6 @@ import java.util.logging.Logger;
 
 /** Marks a Class as a System in the ECS */
 public abstract class System {
-
     protected boolean run;
     public Logger systemLogger = Logger.getLogger(this.getClass().getName());
 
@@ -32,6 +31,7 @@ public abstract class System {
     public void run() {
         run = true;
     }
+
     /** Set this system on pause */
     public void stop() {
         run = false;

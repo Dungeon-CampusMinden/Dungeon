@@ -1,12 +1,12 @@
 package contrib.entity;
 
+import contrib.component.CollideComponent;
+import contrib.component.ItemComponent;
+import contrib.utils.componentUtils.itemComponent.ItemData;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
-import contrib.component.CollideComponent;
-import contrib.component.ItemComponent;
-import contrib.utils.componentUtils.itemComponent.ItemData;
 
 /** Class which creates all needed Components for a basic WorldItem */
 public class WorldItemBuilder {

@@ -1,8 +1,8 @@
 package contrib.component;
 
+import contrib.utils.componentUtils.skillComponent.Skill;
 import core.Component;
 import core.Entity;
-import contrib.utils.componentUtils.skillComponent.Skill;
 import java.util.HashSet;
 import java.util.Set;
 

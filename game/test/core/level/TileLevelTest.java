@@ -2,6 +2,7 @@ package core.level;
 
 import static org.junit.Assert.*;
 
+import com.badlogic.gdx.ai.pfa.GraphPath;
 import core.level.elements.astar.TileConnection;
 import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.FloorTile;
@@ -11,7 +12,6 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;

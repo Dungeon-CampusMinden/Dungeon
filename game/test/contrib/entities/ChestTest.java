@@ -2,6 +2,12 @@ package contrib.entities;
 
 import static org.junit.Assert.*;
 
+import contrib.component.CollideComponent;
+import contrib.component.InteractionComponent;
+import contrib.component.InventoryComponent;
+import contrib.entity.EntityFactory;
+import contrib.utils.componentUtils.itemComponent.ItemData;
+import contrib.utils.componentUtils.itemComponent.ItemDataGenerator;
 import core.Component;
 import core.Entity;
 import core.Game;
@@ -10,12 +16,6 @@ import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import contrib.component.CollideComponent;
-import contrib.component.InteractionComponent;
-import contrib.component.InventoryComponent;
-import contrib.entity.EntityFactory;
-import contrib.utils.componentUtils.itemComponent.ItemData;
-import contrib.utils.componentUtils.itemComponent.ItemDataGenerator;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Test;

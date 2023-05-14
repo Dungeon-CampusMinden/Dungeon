@@ -1,15 +1,15 @@
 package contrib.component;
 
-import core.Component;
-import core.Entity;
-import core.systems.DrawSystem;
-import core.utils.componentUtils.drawComponent.Animation;
-import core.utils.logging.CustomLogLevel;
 import com.badlogic.gdx.utils.Null;
 import contrib.systems.HealthSystem;
 import contrib.utils.componentUtils.healthComponent.Damage;
 import contrib.utils.componentUtils.healthComponent.DamageType;
 import contrib.utils.componentUtils.healthComponent.IOnDeathFunction;
+import core.Component;
+import core.Entity;
+import core.systems.DrawSystem;
+import core.utils.componentUtils.drawComponent.Animation;
+import core.utils.logging.CustomLogLevel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

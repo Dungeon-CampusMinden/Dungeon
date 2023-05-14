@@ -1,9 +1,9 @@
 package core.utils;
 
-import core.components.PositionComponent;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import core.components.PositionComponent;
 
 /** Sauron's eye. */
 public class DungeonCamera extends OrthographicCamera {

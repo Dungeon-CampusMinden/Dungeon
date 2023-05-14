@@ -1,11 +1,11 @@
 package contrib.utils.componentUtils.aiComponent.fight;
 
-import core.Entity;
-import core.level.Tile;
-import core.utils.Constants;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.componentUtils.aiComponent.AITools;
 import contrib.utils.componentUtils.aiComponent.IFightAI;
+import core.Entity;
+import core.level.Tile;
+import core.utils.Constants;
 
 public class CollideAI implements IFightAI {
     private final float rushRange;

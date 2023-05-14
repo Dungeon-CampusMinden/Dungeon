@@ -2,11 +2,11 @@ package contrib.systems;
 
 import static org.junit.Assert.*;
 
+import contrib.component.XPComponent;
+import contrib.utils.componentUtils.xpComponent.ILevelUp;
 import core.Entity;
 import core.Game;
 import core.utils.controller.SystemController;
-import contrib.component.XPComponent;
-import contrib.utils.componentUtils.xpComponent.ILevelUp;
 import org.junit.Test;
 import org.mockito.Mockito;
 

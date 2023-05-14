@@ -2,17 +2,17 @@ package contrib.systems;
 
 import static org.junit.Assert.*;
 
+import contrib.component.HealthComponent;
+import contrib.component.StatsComponent;
+import contrib.utils.componentUtils.healthComponent.Damage;
+import contrib.utils.componentUtils.healthComponent.DamageType;
+import contrib.utils.componentUtils.healthComponent.IOnDeathFunction;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.utils.componentUtils.MissingComponentException;
 import core.utils.componentUtils.drawComponent.Animation;
 import core.utils.controller.SystemController;
-import contrib.component.HealthComponent;
-import contrib.component.StatsComponent;
-import contrib.utils.componentUtils.healthComponent.Damage;
-import contrib.utils.componentUtils.healthComponent.DamageType;
-import contrib.utils.componentUtils.healthComponent.IOnDeathFunction;
 import java.util.List;
 import org.junit.Test;
 import org.mockito.Mockito;

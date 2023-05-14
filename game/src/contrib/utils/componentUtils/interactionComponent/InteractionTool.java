@@ -1,11 +1,11 @@
 package contrib.utils.componentUtils.interactionComponent;
 
+import contrib.component.InteractionComponent;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.componentUtils.MissingComponentException;
-import contrib.component.InteractionComponent;
 import java.util.Optional;
 
 public class InteractionTool {

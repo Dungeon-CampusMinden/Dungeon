@@ -1,5 +1,6 @@
 package contrib.systems;
 
+import contrib.component.ProjectileComponent;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -7,7 +8,6 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
 import core.utils.componentUtils.MissingComponentException;
-import contrib.component.ProjectileComponent;
 
 public class ProjectileSystem extends System {
 

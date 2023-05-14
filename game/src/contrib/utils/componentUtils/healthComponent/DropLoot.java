@@ -1,11 +1,11 @@
 package contrib.utils.componentUtils.healthComponent;
 
+import contrib.component.InventoryComponent;
+import contrib.utils.componentUtils.itemComponent.ItemData;
 import core.Entity;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.componentUtils.MissingComponentException;
-import contrib.component.InventoryComponent;
-import contrib.utils.componentUtils.itemComponent.ItemData;
 
 /** a simple implementation of dropping all items of an Entity when it is dying. */
 public class DropLoot implements IOnDeathFunction {

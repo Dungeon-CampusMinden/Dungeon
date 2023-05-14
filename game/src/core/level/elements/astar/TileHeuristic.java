@@ -1,8 +1,8 @@
 package core.level.elements.astar;
 
-import core.level.Tile;
 import com.badlogic.gdx.ai.pfa.Heuristic;
 import com.badlogic.gdx.math.Vector2;
+import core.level.Tile;
 
 /**
  * @author Marti Stuwe

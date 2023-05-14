@@ -1,9 +1,9 @@
 package core.utils.componentUtils.drawComponent;
 
-import core.utils.DungeonCamera;
-import core.utils.Point;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import core.utils.DungeonCamera;
+import core.utils.Point;
 
 /** Uses LibGDX to draw sprites on the various <code>SpriteBatch</code>es. */
 public class Painter {

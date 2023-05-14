@@ -1,11 +1,5 @@
 package contrib.entity;
 
-import core.Entity;
-import core.Game;
-import core.components.*;
-import core.level.utils.LevelElement;
-import core.utils.Point;
-import core.utils.componentUtils.drawComponent.Animation;
 import contrib.component.*;
 import contrib.utils.componentUtils.interactionComponent.DropItemsInteraction;
 import contrib.utils.componentUtils.itemComponent.ItemData;
@@ -13,6 +7,12 @@ import contrib.utils.componentUtils.itemComponent.ItemDataGenerator;
 import contrib.utils.componentUtils.skillComponent.FireballSkill;
 import contrib.utils.componentUtils.skillComponent.Skill;
 import contrib.utils.componentUtils.skillComponent.SkillTools;
+import core.Entity;
+import core.Game;
+import core.components.*;
+import core.level.utils.LevelElement;
+import core.utils.Point;
+import core.utils.componentUtils.drawComponent.Animation;
 import dslToGame.AnimationBuilder;
 import java.util.List;
 import java.util.Random;

@@ -2,13 +2,13 @@ package contrib.systems;
 
 import static org.junit.Assert.*;
 
+import contrib.component.SkillComponent;
+import contrib.utils.componentUtils.skillComponent.ISkillFunction;
+import contrib.utils.componentUtils.skillComponent.Skill;
 import core.Entity;
 import core.Game;
 import core.utils.Constants;
 import core.utils.controller.SystemController;
-import contrib.component.SkillComponent;
-import contrib.utils.componentUtils.skillComponent.ISkillFunction;
-import contrib.utils.componentUtils.skillComponent.Skill;
 import org.junit.Test;
 import org.mockito.Mockito;
 
