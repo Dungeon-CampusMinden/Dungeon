@@ -30,7 +30,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import content.component.PlayerSystem;
+import content.systems.PlayerSystem;
 import content.configuration.KeyboardConfig;
 import content.entity.EntityFactory;
 import content.systems.*;

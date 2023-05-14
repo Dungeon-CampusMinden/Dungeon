@@ -1,4 +1,4 @@
-package content.component;
+package content.systems;
 
 import api.Entity;
 import api.Game;
@@ -6,6 +6,7 @@ import api.System;
 import api.components.VelocityComponent;
 import api.utils.componentUtils.MissingComponentException;
 import com.badlogic.gdx.Gdx;
+import content.component.PlayerComponent;
 import content.configuration.KeyboardConfig;
 import content.utils.componentUtils.interactionComponent.InteractionTool;
 
