@@ -136,7 +136,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         saves.load();
         if (saves.getAutoSave() != null && saves.getAutoSave().isPresent()) {
             setup(saves.getAutoSave().get());
-            //setup();
+            // setup();
         } else {
             setup();
         }
@@ -203,7 +203,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         if (Gdx.input.isKeyJustPressed(Input.Keys.K))
             ((HealthComponent) hero.getComponent(HealthComponent.class).get())
                     .receiveHit(new Damage(100, DamageType.PHYSICAL, hero));
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) throw new Flag();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
+            throw new Flag();
     }
 
     @Override
@@ -216,7 +217,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         GameData data = new GameData(hero, level);
         saves.setAutoSave(Optional.of(data));
         saves.save();
-        System.out.println(level);
+        gameLogger.info("Level: " + level);
     }
 
     private void manageEntitiesSets() {
@@ -247,7 +248,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
-        if (isOnEndTile(hero)) 
+        if (isOnEndTile(hero))
             levelAPI.loadLevel(LEVELSIZE);
     }
 

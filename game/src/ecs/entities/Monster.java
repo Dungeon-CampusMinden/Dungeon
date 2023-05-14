@@ -1,4 +1,4 @@
-package game.src.ecs.entities;
+package ecs.entities;
 
 import dslToGame.AnimationBuilder;
 import ecs.components.*;

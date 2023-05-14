@@ -1,4 +1,4 @@
-package game.src.ecs.components.skill;
+package ecs.components.skill;
 
 import ecs.components.skill.ITargetSelection;
 import ecs.damage.*;

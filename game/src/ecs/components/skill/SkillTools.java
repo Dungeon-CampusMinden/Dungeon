@@ -5,6 +5,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import starter.Game;
 import tools.Point;
+import ecs.components.*;
+import ecs.entities.*;
 
 import java.io.Serializable;
 
@@ -60,5 +62,40 @@ public class SkillTools implements Serializable {
         Vector3 mousePosition =
                 Game.camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
         return new Point(mousePosition.x, mousePosition.y);
+    }
+
+    /**
+     * Gives the enemy knockback
+     * 
+     * @param cause the cause of the knockback
+     * @param target the target of the knockback
+     * 
+     */
+    public static void knockBack(Entity cause, Entity target) {
+        target.getComponent(VelocityComponent.class)
+                .ifPresent(vlc -> {
+                        ((VelocityComponent) vlc).setCurrentXVelocity(
+                                Point.getUnitDirectionalVector(
+                                        ((PositionComponent) target
+                                                .getComponent(PositionComponent.class)
+                                                .get())
+                                                .getPosition(),
+                                        ((ProjectileComponent) cause
+                                                .getComponent(ProjectileComponent.class)
+                                                .get())
+                                                .getStartPosition()).x
+                                        * 2f);
+                        ((VelocityComponent) vlc).setCurrentYVelocity(
+                                Point.getUnitDirectionalVector(
+                                        ((PositionComponent) target
+                                                .getComponent(PositionComponent.class)
+                                                .get())
+                                                .getPosition(),
+                                        ((ProjectileComponent) cause
+                                                .getComponent(ProjectileComponent.class)
+                                                .get())
+                                                .getStartPosition()).y
+                                        * 2f);
+                });
     }
 }

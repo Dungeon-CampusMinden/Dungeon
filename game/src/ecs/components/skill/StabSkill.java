@@ -14,8 +14,7 @@ public class StabSkill extends DamageMeleeSkill {
                 0.5f,
                 new Damage(20, DamageType.PHYSICAL, null),
                 new Point(10, 10),
-                targetSelection
-            );
+                targetSelection);
     }
 
 }
