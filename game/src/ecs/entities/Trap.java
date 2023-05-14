@@ -3,7 +3,7 @@ package ecs.entities;
 import dslToGame.AnimationBuilder;
 import ecs.components.AnimationComponent;
 import ecs.entities.Entity;
-import game.src.ecs.components.Traps.ITrigger;
+import ecs.components.Traps.ITrigger;
 import graphic.Animation;
 
 /**

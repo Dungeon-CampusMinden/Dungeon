@@ -1,4 +1,4 @@
-package game.src.ecs.components.ai.idle;
+package ecs.components.ai.idle;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import ecs.components.MissingComponentException;

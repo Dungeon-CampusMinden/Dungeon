@@ -1,4 +1,4 @@
-package game.src.ecs.components.Traps;
+package ecs.components.Traps;
 
 import ecs.components.HealthComponent;
 import ecs.entities.Entity;

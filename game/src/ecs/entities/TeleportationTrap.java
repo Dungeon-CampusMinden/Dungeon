@@ -7,8 +7,8 @@ import ecs.components.IInteraction;
 import ecs.components.InteractionComponent;
 import ecs.components.PositionComponent;
 import ecs.entities.Entity;
-import game.src.ecs.components.Traps.ITrigger;
-import game.src.ecs.components.Traps.Teleportation;
+import ecs.components.Traps.ITrigger;
+import ecs.components.Traps.Teleportation;
 import graphic.Animation;
 import tools.Constants;
 

@@ -5,7 +5,7 @@ import ecs.components.*;
 import ecs.components.skill.*;
 import ecs.damage.Damage;
 import ecs.entities.Entity;
-import game.src.ecs.components.skill.PiercingArrowSkill;
+import ecs.components.skill.PiercingArrowSkill;
 import graphic.Animation;
 import ecs.components.OnDeathFunctions.EndGame;
 import ecs.components.ai.AIComponent;

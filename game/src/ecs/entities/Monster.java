@@ -11,7 +11,7 @@ import ecs.components.ai.transition.ITransition;
 import ecs.components.ai.transition.RangeTransition;
 import ecs.components.ai.transition.SelfDefendTransition;
 import ecs.entities.Entity;
-import game.src.ecs.components.ai.idle.CircleWalk;
+import ecs.components.ai.idle.CircleWalk;
 import starter.Game;
 import ecs.components.ai.idle.*;
 import java.lang.Math;

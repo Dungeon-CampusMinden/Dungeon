@@ -1,4 +1,4 @@
-package game.src.saving;
+package saving;
 
 import java.io.IOException;
 import java.nio.file.Files;

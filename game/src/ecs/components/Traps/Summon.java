@@ -1,9 +1,9 @@
-package game.src.ecs.components.Traps;
+package ecs.components.Traps;
 
 import ecs.entities.Entity;
-import game.src.ecs.entities.Chort;
-import game.src.ecs.entities.DarkKnight;
-import game.src.ecs.entities.Imp;
+import ecs.entities.Chort;
+import ecs.entities.DarkKnight;
+import ecs.entities.Imp;
 import starter.Game;
 
 import java.lang.reflect.*;

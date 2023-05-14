@@ -4,7 +4,7 @@ import dslToGame.AnimationBuilder;
 import ecs.components.*;
 import ecs.components.skill.*;
 import ecs.damage.Damage;
-import game.src.ecs.components.skill.ExplosivePebbleSkill;
+import ecs.components.skill.ExplosivePebbleSkill;
 import graphic.Animation;
 import ecs.components.OnDeathFunctions.EndGame;
 
