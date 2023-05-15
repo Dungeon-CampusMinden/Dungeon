@@ -31,6 +31,7 @@ public final class Entity {
      */
     public void addComponent(Component component) {
         components.put(component.getClass(), component);
+        Game.updateEntity(this);
     }
 
     /**
@@ -40,6 +41,13 @@ public final class Entity {
      */
     public void removeComponent(Class klass) {
         components.remove(klass);
+        Game.updateEntity(this);
+    }
+
+    /** Remove all components from this entity. */
+    public void dropAllComponents() {
+        components.clear();
+        Game.updateEntity(this);
     }
 
     /**

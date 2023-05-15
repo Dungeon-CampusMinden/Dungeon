@@ -27,10 +27,7 @@ import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.level.utils.LevelSize;
 import core.systems.*;
 import core.systems.PlayerSystem;
-import core.utils.Constants;
-import core.utils.DelayedSet;
-import core.utils.DungeonCamera;
-import core.utils.Point;
+import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.TextureHandler;
@@ -72,7 +69,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static TextureHandler handler;
 
     /** All entities that are currently active in the dungeon */
-    private static final DelayedSet<Entity> entities = new DelayedSet<>();
+    private static final DelayedSet<Entity> entities = new DelayedEntitySet();
 
     /** List of all Systems in the ECS */
     public static SystemController systems;
@@ -96,6 +93,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     // for singleton
     private Game() {}
+
+    public static void updateEntity(Entity entity) {
+        if (systems != null && getEntities().contains(entity))
+            systems.forEach(system -> system.accept(entity));
+    }
 
     /**
      * Main game loop. Redraws the dungeon and calls the own implementation (beginFrame, endFrame

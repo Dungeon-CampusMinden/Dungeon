@@ -30,11 +30,11 @@ import java.util.Set;
  * @see ConcurrentModificationException
  * @see HashSet
  */
-public final class DelayedSet<T> {
+public class DelayedSet<T> {
 
-    private final Set<T> current = new HashSet<>();
-    private final Set<T> toAdd = new HashSet<>();
-    private final Set<T> toRemove = new HashSet<>();
+    protected final Set<T> current = new HashSet<>();
+    protected final Set<T> toAdd = new HashSet<>();
+    protected final Set<T> toRemove = new HashSet<>();
 
     /**
      * Update the {@link #current} based on the elements in {@link #toAdd} and {@link #toRemove}.
