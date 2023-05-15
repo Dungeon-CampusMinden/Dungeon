@@ -16,6 +16,7 @@ public abstract class System implements Consumer<Entity> {
     public System() {
         Game.systems.add(this);
         entities = new DelayedSet<>();
+        Game.getEntities().forEach(this::accept);
         run = true;
     }
 

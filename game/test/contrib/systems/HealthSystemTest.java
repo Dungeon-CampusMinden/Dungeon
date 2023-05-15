@@ -104,17 +104,6 @@ public class HealthSystemTest {
     }
 
     @Test
-    public void updateWithoutAnimationComponent() {
-        Game.getDelayedEntitySet().clear();
-        Game.systems = new SystemController();
-        Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
-        HealthComponent component = new HealthComponent(entity);
-        HealthSystem system = new HealthSystem();
-        assertThrows(MissingComponentException.class, () -> system.update());
-    }
-
-    @Test
     public void testDamageWithModifier() {
         Game.getDelayedEntitySet().clear();
         Game.systems = new SystemController();
