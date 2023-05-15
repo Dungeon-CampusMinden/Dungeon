@@ -1,4 +1,4 @@
-package core.utils.hud;
+package core.hud;
 
 import static java.util.Objects.requireNonNull;
 

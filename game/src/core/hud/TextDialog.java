@@ -1,4 +1,4 @@
-package core.utils.hud;
+package core.hud;
 
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import quizquestion.QuizQuestion;

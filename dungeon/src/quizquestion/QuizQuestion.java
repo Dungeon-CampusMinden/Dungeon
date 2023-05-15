@@ -1,6 +1,6 @@
 package quizquestion;
 
-import core.utils.hud.UITools;
+import core.hud.UITools;
 
 /**
  * The QuizQuestion class represents a single quiz question, including the question itself, possible
