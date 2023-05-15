@@ -34,7 +34,7 @@ public class HealthSystemTest {
         HealthComponent component = new HealthComponent(entity, 1, onDeath, null, dieAnimation);
         HealthSystem system = new HealthSystem();
         component.setCurrentHealthpoints(0);
-        system.systemUpdate();
+        system.update();
         assertEquals(dieAnimation, ac.getCurrentAnimation());
         Game.getDelayedEntitySet().update();
         assertFalse(Game.getEntities().contains(entity));
@@ -53,7 +53,7 @@ public class HealthSystemTest {
         component.receiveHit(new Damage(5, DamageType.FIRE, null));
         component.receiveHit(new Damage(2, DamageType.FIRE, null));
         HealthSystem system = new HealthSystem();
-        system.systemUpdate();
+        system.update();
         assertEquals(3, component.getCurrentHealthpoints());
         assertEquals(hitAnimation, ac.getCurrentAnimation());
     }
@@ -71,7 +71,7 @@ public class HealthSystemTest {
         component.setCurrentHealthpoints(3);
         component.receiveHit(new Damage(-3, DamageType.FIRE, null));
         HealthSystem system = new HealthSystem();
-        system.systemUpdate();
+        system.update();
         assertEquals(6, component.getCurrentHealthpoints());
         assertNotEquals(hitAnimation, ac.getCurrentAnimation());
     }
@@ -88,7 +88,7 @@ public class HealthSystemTest {
         HealthComponent component = new HealthComponent(entity, 10, onDeath, hitAnimation, null);
         component.receiveHit(new Damage(0, DamageType.FIRE, null));
         HealthSystem system = new HealthSystem();
-        system.systemUpdate();
+        system.update();
         assertEquals(10, component.getCurrentHealthpoints());
         assertNotEquals(hitAnimation, ac.getCurrentAnimation());
     }
@@ -100,7 +100,7 @@ public class HealthSystemTest {
         Entity entity = new Entity();
         Game.getDelayedEntitySet().update();
         HealthSystem system = new HealthSystem();
-        system.systemUpdate();
+        system.update();
     }
 
     @Test
@@ -111,7 +111,7 @@ public class HealthSystemTest {
         Game.getDelayedEntitySet().update();
         HealthComponent component = new HealthComponent(entity);
         HealthSystem system = new HealthSystem();
-        assertThrows(MissingComponentException.class, () -> system.systemUpdate());
+        assertThrows(MissingComponentException.class, () -> system.update());
     }
 
     @Test
@@ -130,7 +130,7 @@ public class HealthSystemTest {
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
-        system.systemUpdate();
+        system.update();
 
         assertEquals(80, healthComponent.getCurrentHealthpoints()); // 100 - 10 * 2
     }
@@ -151,7 +151,7 @@ public class HealthSystemTest {
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
-        system.systemUpdate();
+        system.update();
 
         assertEquals(120, healthComponent.getCurrentHealthpoints()); // 100 - 10 * -2
     }
@@ -172,7 +172,7 @@ public class HealthSystemTest {
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
-        system.systemUpdate();
+        system.update();
 
         assertEquals(100, healthComponent.getCurrentHealthpoints()); // 100 - 10 * 0
     }
@@ -193,7 +193,7 @@ public class HealthSystemTest {
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
-        system.systemUpdate();
+        system.update();
 
         assertTrue(
                 "Entity should have 0 ore less health points.",

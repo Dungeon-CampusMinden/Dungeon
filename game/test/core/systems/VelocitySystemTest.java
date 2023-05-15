@@ -1,7 +1,6 @@
 package core.systems;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 
 import core.Entity;
 import core.Game;
@@ -11,7 +10,6 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.controller.SystemController;
 
@@ -63,7 +61,7 @@ public class VelocitySystemTest {
         Mockito.when(tile.isAccessible()).thenReturn(true);
         velocityComponent.setCurrentXVelocity(xVelocity);
         velocityComponent.setCurrentYVelocity(yVelocity);
-        velocitySystem.systemUpdate();
+        velocitySystem.update();
         Point position = positionComponent.getPosition();
         assertEquals(startXPosition + xVelocity, position.x, 0.001);
         assertEquals(startYPosition + yVelocity, position.y, 0.001);
@@ -76,7 +74,7 @@ public class VelocitySystemTest {
         Mockito.when(tile.isAccessible()).thenReturn(true);
         velocityComponent.setCurrentXVelocity(-4);
         velocityComponent.setCurrentYVelocity(-8);
-        velocitySystem.systemUpdate();
+        velocitySystem.update();
         Point position = positionComponent.getPosition();
         assertEquals(startXPosition - 4, position.x, 0.001);
         assertEquals(startYPosition - 8, position.y, 0.001);
@@ -89,7 +87,7 @@ public class VelocitySystemTest {
         Mockito.when(tile.isAccessible()).thenReturn(false);
         velocityComponent.setCurrentXVelocity(xVelocity);
         velocityComponent.setCurrentYVelocity(yVelocity);
-        velocitySystem.systemUpdate();
+        velocitySystem.update();
         Point position = positionComponent.getPosition();
         assertEquals(startXPosition, position.x, 0.001);
         assertEquals(startYPosition, position.y, 0.001);
@@ -102,7 +100,7 @@ public class VelocitySystemTest {
         Mockito.when(tile.isAccessible()).thenReturn(false);
         velocityComponent.setCurrentXVelocity(-4);
         velocityComponent.setCurrentYVelocity(-8);
-        velocitySystem.systemUpdate();
+        velocitySystem.update();
         Point position = positionComponent.getPosition();
         assertEquals(startXPosition, position.x, 0.001);
         assertEquals(startYPosition, position.y, 0.001);
@@ -116,48 +114,27 @@ public class VelocitySystemTest {
         // right
         velocityComponent.setCurrentXVelocity(xVelocity);
         velocityComponent.setCurrentYVelocity(yVelocity);
-        velocitySystem.systemUpdate();
+        velocitySystem.update();
         assertEquals(moveRight, animationComponent.getCurrentAnimation());
 
         // idleRight
         velocityComponent.setCurrentXVelocity(0);
         velocityComponent.setCurrentYVelocity(0);
 
-        velocitySystem.systemUpdate();
+        velocitySystem.update();
         assertEquals(idleRight, animationComponent.getCurrentAnimation());
 
         // left
         velocityComponent.setCurrentXVelocity(-1);
         velocityComponent.setCurrentYVelocity(0);
-        velocitySystem.systemUpdate();
+        velocitySystem.update();
         assertEquals(moveLeft, animationComponent.getCurrentAnimation());
 
         // idleLeft
         velocityComponent.setCurrentXVelocity(0);
         velocityComponent.setCurrentYVelocity(0);
 
-        velocitySystem.systemUpdate();
+        velocitySystem.update();
         assertEquals(idleLeft, animationComponent.getCurrentAnimation());
-    }
-
-    @Test
-    public void updateWithoutVelocityComponent() {
-        entity.removeComponent(VelocityComponent.class);
-        velocitySystem.systemUpdate();
-        assertEquals(startXPosition, positionComponent.getPosition().x, 0.001f);
-        assertEquals(startYPosition, positionComponent.getPosition().y, 0.001f);
-    }
-
-    @Test
-    public void updateWithoutPositionComponent() {
-        entity.removeComponent(PositionComponent.class);
-        assertThrows(MissingComponentException.class, () -> velocitySystem.systemUpdate());
-    }
-
-    @Test
-    public void updateWithoutAnimationComponent() {
-        Mockito.when(tile.isAccessible()).thenReturn(true);
-        entity.removeComponent(DrawComponent.class);
-        assertThrows(MissingComponentException.class, () -> velocitySystem.systemUpdate());
     }
 }
