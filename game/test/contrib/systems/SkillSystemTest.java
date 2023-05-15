@@ -39,7 +39,7 @@ public class SkillSystemTest {
         for (int i = 0; i < coolDownInSeconds * Constants.FRAME_RATE; i++) {
             assertTrue(testSkill.isOnCoolDown());
             assertTrue(testSkill2.isOnCoolDown());
-            system.update();
+            system.systemUpdate();
         }
 
         assertFalse(testSkill.isOnCoolDown());

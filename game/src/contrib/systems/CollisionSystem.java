@@ -26,7 +26,7 @@ public class CollisionSystem extends System {
     }
     /** checks if there is a collision between two entities based on their hitbox */
     @Override
-    public void update() {
+    public void systemUpdate() {
         getEntityStream()
                 .flatMap(
                         a ->

@@ -3,6 +3,8 @@ package core.utils;
 import core.Entity;
 import core.Game;
 
+import java.util.Set;
+
 /**
  * A {@link DelayedSet} specifically for the handling of {@link Entity}.
  *
@@ -28,16 +30,44 @@ public final class DelayedEntitySet extends DelayedSet<Entity> {
      * <p>After an Entity has been added to the active set, {@link Game#updateEntity} will be called
      * so the systems can check if they accept the entity.
      *
-     * <p>After an Entity has been deleted from the active set, {@link Entity#dropAllComponents}
+     * <p>Before an Entity will be removed from the active set, {@link Entity#dropAllComponents}
      * will be called.
      */
     @Override
     public void update() {
         current.addAll(toAdd);
         toAdd.forEach(entity -> Game.updateEntity(entity));
+        toRemove.forEach(entity -> entity.dropAllComponents());
         current.removeAll(toRemove);
+        toAdd.clear();
+        toRemove.clear();
+    }
+
+    /**
+     * Clear all internal Sets. But keep the given Entities if they are in active (in {@link
+     * #current)}
+     *
+     * <p>Before an Entity will be removed from the active set, {@link Entity#dropAllComponents}
+     * will be called.
+     *
+     * @see DelayedSet
+     * @param notClear Set with entities that shoult not be deletet, if the are in `current`.
+     */
+    public void clearExcept(final Set<Entity> notClear) {
+        toRemove.addAll(current);
+        toRemove.forEach(entity -> entity.dropAllComponents());
+        toRemove.removeAll(notClear);
+        toAdd.clear();
+        toRemove.clear();
+        current.clear();
+    }
+
+    public void clearExcept(Entity notClear) {
+        toRemove.addAll(current);
+        toRemove.remove(notClear);
         toRemove.forEach(entity -> entity.dropAllComponents());
         toAdd.clear();
         toRemove.clear();
+        current.clear();
     }
 }

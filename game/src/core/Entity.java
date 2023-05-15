@@ -1,5 +1,7 @@
 package core;
 
+import core.utils.logging.CustomLogLevel;
+
 import semanticAnalysis.types.DSLContextPush;
 import semanticAnalysis.types.DSLType;
 
@@ -31,6 +33,9 @@ public final class Entity {
      */
     public void addComponent(Component component) {
         components.put(component.getClass(), component);
+        LOGGER.log(
+                CustomLogLevel.INFO,
+                Component.class.getName() + " Components from " + this + " was added.");
         Game.updateEntity(this);
     }
 
@@ -41,12 +46,14 @@ public final class Entity {
      */
     public void removeComponent(Class klass) {
         components.remove(klass);
+        LOGGER.log(CustomLogLevel.INFO, klass.getName() + " from " + this + " was removed.");
         Game.updateEntity(this);
     }
 
     /** Remove all components from this entity. */
     public void dropAllComponents() {
         components.clear();
+        LOGGER.log(CustomLogLevel.INFO, "All Components from " + this + " were removed.");
         Game.updateEntity(this);
     }
 

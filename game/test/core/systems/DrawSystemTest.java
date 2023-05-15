@@ -46,13 +46,13 @@ public class DrawSystemTest {
     public void updateWithoutPositionComponent() {
         entity.removeComponent(PositionComponent.class);
         Mockito.verifyNoMoreInteractions(painter);
-        assertThrows(MissingComponentException.class, () -> drawSystem.update());
+        assertThrows(MissingComponentException.class, () -> drawSystem.systemUpdate());
     }
 
     @Test
     public void updateWithoutAnimationComponent() {
         entity.removeComponent(DrawComponent.class);
         Mockito.verifyNoMoreInteractions(painter);
-        drawSystem.update();
+        drawSystem.systemUpdate();
     }
 }

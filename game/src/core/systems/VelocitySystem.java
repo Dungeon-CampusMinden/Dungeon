@@ -35,7 +35,7 @@ public class VelocitySystem extends System {
         else removeEntity(entity);
     }
     /** Updates the position of all entities based on their velocity */
-    public void update() {
+    public void systemUpdate() {
         getEntityStream().map(this::buildDataObject).forEach(this::updatePosition);
     }
 

@@ -33,6 +33,7 @@ import core.utils.components.draw.Painter;
 import core.utils.components.draw.TextureHandler;
 import core.utils.controller.AbstractController;
 import core.utils.controller.SystemController;
+import core.utils.logging.CustomLogLevel;
 
 import quizquestion.DummyQuizQuestionList;
 
@@ -69,14 +70,15 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static TextureHandler handler;
 
     /** All entities that are currently active in the dungeon */
-    private static final DelayedSet<Entity> entities = new DelayedEntitySet();
+    private static final DelayedEntitySet entities = new DelayedEntitySet();
 
     /** List of all Systems in the ECS */
     public static SystemController systems;
 
     public static ILevel currentLevel;
     private static Entity hero;
-    private Logger gameLogger;
+    private static Logger LOGGER = Logger.getLogger("Game");
+    ;
 
     private DebuggerSystem debugger;
     private static Game game;
@@ -95,6 +97,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private Game() {}
 
     public static void updateEntity(Entity entity) {
+        LOGGER.log(CustomLogLevel.INFO, entity + "was updated in Game.");
         if (systems != null && getEntities().contains(entity))
             systems.forEach(system -> system.accept(entity));
     }
@@ -144,7 +147,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         generator = new RandomWalkGenerator();
         levelAPI = new LevelManager(batch, painter, generator, this);
         initBaseLogger();
-        gameLogger = Logger.getLogger(this.getClass().getName());
         systems = new SystemController();
         controller.add(systems);
         hero = EntityFactory.getHero();
@@ -157,8 +159,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
     protected void frame() {
-        setCameraFocus();
         entities.update();
+        setCameraFocus();
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
@@ -172,14 +174,14 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) UITools.showInfoText();
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_KEY.get())) {
             debugger.toggleRun();
-            gameLogger.info("Debugger ist now " + debugger.isRunning());
+            LOGGER.info("Debugger ist now " + debugger.isRunning());
         }
     }
 
     @Override
     public void onLevelLoad() {
         currentLevel = levelAPI.getCurrentLevel();
-        entities.clear();
+        entities.clearExcept(hero);
         getHero().ifPresent(this::placeOnLevelStart);
         EntityFactory.getChest();
     }
@@ -234,6 +236,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param entity will be added to the game next frame
      */
     public static void addEntity(Entity entity) {
+
+        LOGGER.log(CustomLogLevel.INFO, "Entity: " + entity + " will be added from the Game.");
         entities.add(entity);
     }
 
@@ -243,6 +247,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param entity will be removed from the game next frame
      */
     public static void removeEntity(Entity entity) {
+
+        LOGGER.log(CustomLogLevel.INFO, "Entity: " + entity + " will be removed from the Game.");
         entities.remove(entity);
     }
 

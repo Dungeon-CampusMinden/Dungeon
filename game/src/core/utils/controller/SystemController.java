@@ -13,7 +13,7 @@ public class SystemController extends AbstractController<System> {
     @Override
     public void process(System e) {
         if (e.isRunning()) {
-            e.systemLogger.log(
+            e.LOGGER.log(
                     CustomLogLevel.TRACE,
                     "System '" + e.getClass().getSimpleName() + "' is running.");
             e.update();

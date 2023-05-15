@@ -41,14 +41,14 @@ public class AISystemTest {
     @Test
     public void update() {
         Game.getDelayedEntitySet().update();
-        system.update();
+        system.systemUpdate();
         assertEquals(1, updateCounter);
     }
 
     @Test
     public void updateWithoutAIComponent() {
         entity.removeComponent(AIComponent.class);
-        system.update();
+        system.systemUpdate();
         assertEquals(0, updateCounter);
     }
 }

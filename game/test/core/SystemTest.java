@@ -20,7 +20,7 @@ public class SystemTest {
         testSystem =
                 new System() {
                     @Override
-                    public void update() {
+                    public void systemUpdate() {
                         updates++;
                     }
                 };

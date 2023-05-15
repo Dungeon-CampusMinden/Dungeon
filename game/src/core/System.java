@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 /** Marks a Class as a System in the ECS */
 public abstract class System implements Consumer<Entity> {
     protected boolean run;
-    private DelayedSet<Entity> entities;
-    public Logger systemLogger = Logger.getLogger(this.getClass().getName());
+    private final DelayedSet<Entity> entities;
+    public Logger LOGGER = Logger.getLogger(this.getClass().getName());
 
     public System() {
         Game.systems.add(this);
@@ -19,8 +19,14 @@ public abstract class System implements Consumer<Entity> {
         run = true;
     }
 
-    /** Gets called every Frame */
-    public abstract void update();
+    /** Update the entities Set of the System and executes the system functionality. */
+    public void update() {
+        entities.update();
+        systemUpdate();
+    }
+
+    /** Implements the functionality of the system. */
+    protected abstract void systemUpdate();
 
     /**
      * @return true if this system is running, false if it is in pause mode
@@ -46,7 +52,7 @@ public abstract class System implements Consumer<Entity> {
 
     /**
      * Use this Stream to iterate over all active entities for this system in the {@link
-     * #update()}-Method.
+     * #systemUpdate()}-Method.
      *
      * @return active entities that will be processed by the system as stream
      */
@@ -62,10 +68,11 @@ public abstract class System implements Consumer<Entity> {
      * @param entity Entity to add
      */
     protected void addEntity(Entity entity) {
-        if (entities.add(entity))
-            systemLogger.log(
-                    CustomLogLevel.INFO,
-                    "Entity " + entity + " will be added to the " + getClass().getName());
+        if (!entities.getSet().contains(entity))
+            if (entities.add(entity))
+                LOGGER.log(
+                        CustomLogLevel.INFO,
+                        "Entity " + entity + " will be added to the " + getClass().getName());
     }
 
     /**
@@ -76,10 +83,12 @@ public abstract class System implements Consumer<Entity> {
      * @param entity Entity to remove
      */
     protected void removeEntity(Entity entity) {
-        entities.remove(entity);
-        systemLogger.log(
-                CustomLogLevel.INFO,
-                "Entity " + entity + " will be removed from to the " + getClass().getName());
+        if (entities.getSet().contains(entity)) {
+            entities.remove(entity);
+            LOGGER.log(
+                    CustomLogLevel.INFO,
+                    "Entity " + entity + " will be removed from to the " + getClass().getName());
+        }
     }
 
     /**
@@ -90,7 +99,7 @@ public abstract class System implements Consumer<Entity> {
      * @param missingComponent the component that is missing
      */
     protected void logMissingComponent(Entity entity, Class missingComponent) {
-        systemLogger.log(
+        LOGGER.log(
                 CustomLogLevel.INFO,
                 "Entity: "
                         + entity

@@ -370,7 +370,7 @@ public class CollisionSystemTest {
     public void checkUpdateNoEntities() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        cs.update();
+        cs.systemUpdate();
         cleanUpEnvironment();
     }
 
@@ -380,7 +380,7 @@ public class CollisionSystemTest {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
         prepareEntityWithPosition(new Point(0, 0));
-        cs.update();
+        cs.systemUpdate();
         cleanUpEnvironment();
     }
 
@@ -400,7 +400,7 @@ public class CollisionSystemTest {
                 new Point(1, 1),
                 (a, b, c) -> sc1OnEnter.inc(),
                 (a, b, c) -> sc1OnLeave.inc());
-        cs.update();
+        cs.systemUpdate();
         assertEquals("No interaction begins for e1", 0, sc1OnEnter.getCount());
         assertEquals("No interaction ends for e1", 0, sc1OnLeave.getCount());
         cleanUpEnvironment();
@@ -429,7 +429,7 @@ public class CollisionSystemTest {
                 new Point(1, 1),
                 (a, b, c) -> sc2OnEnter.inc(),
                 (a, b, c) -> sc2OnLeave.inc());
-        cs.update();
+        cs.systemUpdate();
         assertEquals("No interaction begins for e1", 0, sc1OnEnter.getCount());
         assertEquals("No interaction ends for e1", 0, sc1OnLeave.getCount());
         assertEquals("No interaction begins for e2", 0, sc2OnEnter.getCount());
@@ -475,7 +475,7 @@ public class CollisionSystemTest {
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
-        cs.update();
+        cs.systemUpdate();
         assertEquals("Only one interaction begins for e1", 1, sc1OnEnter.getCount());
         assertEquals("No interaction ends for e1", 0, sc1OnLeave.getCount());
         assertEquals("Only one interaction begins for e2", 1, sc2OnEnter.getCount());
@@ -523,8 +523,8 @@ public class CollisionSystemTest {
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
-        cs.update();
-        cs.update();
+        cs.systemUpdate();
+        cs.systemUpdate();
         assertEquals("Only one interaction begins for e1", 1, sc1OnEnter.getCount());
         assertEquals("No interaction ends for e1", 0, sc1OnLeave.getCount());
         assertEquals("Only one interaction begins for e2", 1, sc2OnEnter.getCount());
@@ -571,11 +571,11 @@ public class CollisionSystemTest {
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
-        cs.update();
+        cs.systemUpdate();
         e1.getComponent(PositionComponent.class)
                 .map(PositionComponent.class::cast)
                 .ifPresent(x -> x.getPosition().x += 2);
-        cs.update();
+        cs.systemUpdate();
         assertEquals("Only one interaction begins for e1", 1, sc1OnEnter.getCount());
         assertEquals("One interaction ends for e1", 1, sc1OnLeave.getCount());
         assertEquals("Only one interaction begins for e2", 1, sc2OnEnter.getCount());
@@ -622,14 +622,14 @@ public class CollisionSystemTest {
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
-        cs.update();
+        cs.systemUpdate();
         e1.getComponent(PositionComponent.class)
                 .map(PositionComponent.class::cast)
                 .ifPresentOrElse(
                         x -> x.getPosition().x += 2,
                         () -> fail("PositionComponent not available and test not valid "));
-        cs.update();
-        cs.update();
+        cs.systemUpdate();
+        cs.systemUpdate();
         assertEquals("Only one interaction begins for e1", 1, sc1OnEnter.getCount());
         assertEquals("Only one interaction ends for e1", 1, sc1OnLeave.getCount());
         assertEquals("Only one interaction begins for e2", 1, sc2OnEnter.getCount());
@@ -676,8 +676,8 @@ public class CollisionSystemTest {
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
-        cs.update();
-        cs.update();
+        cs.systemUpdate();
+        cs.systemUpdate();
         assertEquals("Two interactions begin for e1", 2, sc1OnEnter.getCount());
         assertEquals("No interaction ends for e1", 0, sc1OnLeave.getCount());
         assertEquals("Only one interaction begins for e2", 1, sc2OnEnter.getCount());
@@ -725,12 +725,12 @@ public class CollisionSystemTest {
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
-        cs.update();
+        cs.systemUpdate();
         e1.getComponent(PositionComponent.class)
                 .map(PositionComponent.class::cast)
                 .ifPresentOrElse(
                         x -> x.getPosition().x += 1, () -> fail(MISSING_POSITION_COMPONENT));
-        cs.update();
+        cs.systemUpdate();
         assertEquals("Two interactions begin for e1", 2, sc1OnEnter.getCount());
         assertEquals("No interaction ends for e1", 1, sc1OnLeave.getCount());
         assertEquals("Only one interaction begins for e2", 1, sc2OnEnter.getCount());
@@ -773,13 +773,13 @@ public class CollisionSystemTest {
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
-        cs.update();
+        cs.systemUpdate();
         e1.getComponent(PositionComponent.class)
                 .map(PositionComponent.class::cast)
                 .ifPresentOrElse(
                         x -> x.getPosition().y += 2, () -> fail(MISSING_POSITION_COMPONENT));
 
-        cs.update();
+        cs.systemUpdate();
         assertEquals("Two interactions begin for e1", 2, sc1OnEnter.getCount());
         assertEquals("Two interactions end for e1", 2, sc1OnLeave.getCount());
         assertEquals("Only one interaction begins for e2", 1, sc2OnEnter.getCount());

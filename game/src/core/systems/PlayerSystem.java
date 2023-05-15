@@ -27,7 +27,7 @@ public class PlayerSystem extends System {
     }
 
     @Override
-    public void update() {
+    public void systemUpdate() {
         getEntityStream().map(this::buildDataObject).forEach(this::checkKeystroke);
     }
 
@@ -52,7 +52,7 @@ public class PlayerSystem extends System {
     }
 
     private PSData buildDataObject(Entity e) {
-        PlayerComponent pc = (PlayerComponent) e.getComponent(VelocityComponent.class).get();
+        PlayerComponent pc = (PlayerComponent) e.getComponent(PlayerComponent.class).get();
         VelocityComponent vc = (VelocityComponent) e.getComponent(VelocityComponent.class).get();
 
         return new PSData(e, pc, vc);
