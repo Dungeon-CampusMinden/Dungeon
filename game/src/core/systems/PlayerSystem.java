@@ -6,26 +6,32 @@ import contrib.configuration.KeyboardConfig;
 import contrib.utils.components.interaction.InteractionTool;
 
 import core.Entity;
-import core.Game;
 import core.System;
 import core.components.PlayerComponent;
 import core.components.VelocityComponent;
-import core.utils.components.MissingComponentException;
 
 /** Used to control the player */
 public class PlayerSystem extends System {
 
-    private record KSData(Entity e, PlayerComponent pc, VelocityComponent vc) {}
+    private record PSData(Entity e, PlayerComponent pc, VelocityComponent vc) {}
+
+    @Override
+    public void accept(Entity entity) {
+        if (entity.getComponent(PlayerComponent.class).isPresent())
+            if (entity.getComponent(VelocityComponent.class).isPresent()) addEntity(entity);
+            else {
+                logMissingComponent(entity, VelocityComponent.class);
+                removeEntity(entity);
+            }
+        else removeEntity(entity);
+    }
 
     @Override
     public void update() {
-        Game.getEntities().stream()
-                .flatMap(e -> e.getComponent(PlayerComponent.class).stream())
-                .map(pc -> buildDataObject((PlayerComponent) pc))
-                .forEach(this::checkKeystroke);
+        getEntityStream().map(this::buildDataObject).forEach(this::checkKeystroke);
     }
 
-    private void checkKeystroke(KSData ksd) {
+    private void checkKeystroke(PSData ksd) {
         if (Gdx.input.isKeyPressed(KeyboardConfig.MOVEMENT_UP.get()))
             ksd.vc.setCurrentYVelocity(1 * ksd.vc.getYVelocity());
         else if (Gdx.input.isKeyPressed(KeyboardConfig.MOVEMENT_DOWN.get()))
@@ -45,18 +51,10 @@ public class PlayerSystem extends System {
             ksd.pc.getSkillSlot2().ifPresent(skill -> skill.execute(ksd.e));
     }
 
-    private KSData buildDataObject(PlayerComponent pc) {
-        Entity e = pc.getEntity();
+    private PSData buildDataObject(Entity e) {
+        PlayerComponent pc = (PlayerComponent) e.getComponent(VelocityComponent.class).get();
+        VelocityComponent vc = (VelocityComponent) e.getComponent(VelocityComponent.class).get();
 
-        VelocityComponent vc =
-                (VelocityComponent)
-                        e.getComponent(VelocityComponent.class)
-                                .orElseThrow(PlayerSystem::missingVC);
-
-        return new KSData(e, pc, vc);
-    }
-
-    private static MissingComponentException missingVC() {
-        return new MissingComponentException("VelocityComponent");
+        return new PSData(e, pc, vc);
     }
 }
