@@ -2,18 +2,24 @@ package contrib.systems;
 
 import contrib.components.XPComponent;
 
-import core.Game;
+import core.Entity;
 import core.System;
 
 public class XPSystem extends System {
 
     @Override
+    public void accept(Entity entity) {
+        if (entity.getComponent(XPComponent.class).isPresent()) addEntity(entity);
+        else removeEntity(entity);
+    }
+
+    @Override
     public void update() {
-        Game.getEntities().stream()
-                .flatMap(e -> e.getComponent(XPComponent.class).stream())
+        getEntityStream()
                 .forEach(
-                        component -> {
-                            XPComponent comp = (XPComponent) component;
+                        entity -> {
+                            XPComponent comp =
+                                    (XPComponent) entity.getComponent(XPComponent.class).get();
                             long xpLeft;
                             while ((xpLeft = comp.getXPToNextLevel()) <= 0) {
                                 this.performLevelUp(comp, (int) xpLeft);
