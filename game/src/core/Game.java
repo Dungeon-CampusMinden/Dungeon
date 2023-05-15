@@ -149,9 +149,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         systems = new SystemController();
         controller.add(systems);
         hero = EntityFactory.getHero();
+        levelAPI =
+            new LevelManager(
+                batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
+        levelAPI.loadLevel(LEVELSIZE);
         multiplayerAPI = new MultiplayerAPI(this);
         setupMenus();
-        setupRandomLevel();
         createSystems();
         showMenu(startMenu);
     }
@@ -368,12 +371,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
                 config);
     }
 
-    private void setupRandomLevel() {
-        //TODO - Is a new LevelAPI always necessary?
-        levelAPI = new LevelManager(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
-        levelAPI.loadLevel(LevelSize.SMALL);
-    }
-
     private void setupMenus() {
         startMenu = new StartMenu<>();
         if (!startMenu.addObserver(this)) {
@@ -426,13 +423,13 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     @Override
     public void onSinglePlayerModeChosen() {
         // Nothing to do for now. Everything ready for single player but for now just refresh level
-        setupRandomLevel();
+        levelAPI.loadLevel(LEVELSIZE);
         hideMenu(startMenu);
     }
 
     @Override
     public void onMultiPlayerHostModeChosen() {
-        setupRandomLevel();
+        levelAPI.loadLevel(LEVELSIZE);
         if (!getHero().isPresent()) {
             hero = EntityFactory.getHero();
         }
