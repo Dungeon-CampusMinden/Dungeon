@@ -28,7 +28,7 @@ public class XPSystemTest {
 
         assertEquals(0, xpComponent.getCurrentXP());
         assertEquals(0, xpComponent.getCurrentLevel());
-        xpSystem.systemUpdate();
+        xpSystem.update();
         assertEquals(0, xpComponent.getCurrentXP());
         assertEquals(0, xpComponent.getCurrentLevel());
     }
@@ -47,7 +47,7 @@ public class XPSystemTest {
 
         /* Test */
         xpComponent.addXP(99); // First level is reached with 100 XP
-        xpSystem.systemUpdate();
+        xpSystem.update();
         assertEquals(0, xpComponent.getCurrentLevel());
     }
 
@@ -66,7 +66,8 @@ public class XPSystemTest {
 
         /* Test */
         xpComponent.addXP(100); // First level is reached with 100 XP
-        xpSystem.systemUpdate();
+
+        xpSystem.update();
         assertEquals(1, xpComponent.getCurrentLevel());
         assertEquals(0, xpComponent.getCurrentXP());
     }
@@ -86,7 +87,7 @@ public class XPSystemTest {
 
         /* Test */
         xpComponent.addXP(120); // First level is reached with 100 XP
-        xpSystem.systemUpdate();
+        xpSystem.update();
         assertEquals(1, xpComponent.getCurrentLevel());
         assertEquals(20, xpComponent.getCurrentXP());
     }
@@ -109,7 +110,7 @@ public class XPSystemTest {
 
         /* Test */
         xpComponent.addXP(201);
-        xpSystem.systemUpdate();
+        xpSystem.update();
         assertEquals(2, xpComponent.getCurrentLevel());
         assertEquals(0, xpComponent.getCurrentXP());
     }
@@ -132,7 +133,7 @@ public class XPSystemTest {
         /* Test */
         Game.getDelayedEntitySet().update();
         xpComponent.addXP(221);
-        xpSystem.systemUpdate();
+        xpSystem.update();
         assertEquals(2, xpComponent.getCurrentLevel());
         assertEquals(20, xpComponent.getCurrentXP());
     }
@@ -151,7 +152,7 @@ public class XPSystemTest {
 
         /* Test */
         xpComponent.addXP(-1);
-        xpSystem.systemUpdate();
+        xpSystem.update();
         assertEquals(0, xpComponent.getCurrentXP());
     }
 }
