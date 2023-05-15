@@ -48,7 +48,6 @@ public class BearTrap extends Trap {
     public void doDmg(Entity other) {
         if (other.getComponent(HealthComponent.class).isPresent()) {
             HealthComponent ofE = (HealthComponent) other.getComponent(HealthComponent.class).get();
-
             ofE.receiveHit(new Damage(this.getTrapDmg(), DamageType.PHYSICAL, this));
         }
     }

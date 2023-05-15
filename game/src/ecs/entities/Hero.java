@@ -1,5 +1,6 @@
 package ecs.entities;
 
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import dslToGame.AnimationBuilder;
 import ecs.components.*;
 import ecs.components.AnimationComponent;
@@ -9,6 +10,7 @@ import ecs.components.skill.*;
 import ecs.components.xp.ILevelUp;
 import ecs.components.xp.XPComponent;
 import ecs.graphic.Animation;
+import ecs.graphic.hud.GameOverHUD;
 
 /**
  * The Hero is the player character. It's entity in the ECS. This class helps to setup the hero with
@@ -29,7 +31,6 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
     private final String pathToIdleRight = "knight/idleRight";
     private final String pathToRunLeft = "knight/runLeft";
     private final String pathToRunRight = "knight/runRight";
-
     private final String onHit = "knight/hit";
 
     private SkillComponent sCp;
@@ -62,7 +63,7 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
         setupXpComponent();
         pc.setSkillSlot1(firstSkill);
 
-        this.hp.setCurrentHealthpoints(50); // Set to 50 for testing purposes
+        this.hp.setCurrentHealthpoints(12); // Set to 12 for testing Game Over
 
         currentHealth = this.hp.getCurrentHealthpoints();
     }
@@ -125,6 +126,7 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
     private void setupHealthComponent() {
         Animation hit = AnimationBuilder.buildAnimation(onHit);
         this.hp = new HealthComponent(this, 100, this::onDeath, hit, hit);
+
     }
 
     private void setupXpComponent() {

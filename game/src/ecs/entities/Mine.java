@@ -44,7 +44,6 @@ public class Mine extends Trap {
         for (Entity e : inRange) {
             if (e.getComponent(HealthComponent.class).isPresent()) {
                 HealthComponent ofE = (HealthComponent) e.getComponent(HealthComponent.class).get();
-
                 ofE.receiveHit(new Damage((int) getTrapDmg(), DamageType.PHYSICAL, this));
             }
         }
