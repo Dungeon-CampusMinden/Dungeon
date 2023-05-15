@@ -59,9 +59,10 @@ public class DelayedSet<T> {
      * {@link #current}
      *
      * @param t Object to add
+     * @return true if this set did not already contain the specified element
      */
-    public void add(T t) {
-        toAdd.add(t);
+    public boolean add(T t) {
+        return toAdd.add(t);
     }
 
     /**
@@ -71,9 +72,10 @@ public class DelayedSet<T> {
      * {@link #current}
      *
      * @param collection contains all objects to add
+     * @return true if this set changed as a result of the call
      */
-    public void addAll(Collection<T> collection) {
-        toAdd.addAll(collection);
+    public boolean addAll(Collection<T> collection) {
+        return toAdd.addAll(collection);
     }
 
     /**
@@ -83,9 +85,10 @@ public class DelayedSet<T> {
      * {@link #current}
      *
      * @param t Object to remove
+     * @return true if this set changed as a result of the call
      */
-    public void remove(T t) {
-        toRemove.add(t);
+    public boolean remove(T t) {
+        return toRemove.add(t);
     }
 
     /**
@@ -95,9 +98,10 @@ public class DelayedSet<T> {
      * {@link #current}
      *
      * @param collection contains all objects to remove
+     * @return true if this set changed as a result of the call
      */
-    public void removeAll(Collection<T> collection) {
-        toRemove.addAll(collection);
+    public boolean removeAll(Collection<T> collection) {
+        return toRemove.addAll(collection);
     }
 
     /**

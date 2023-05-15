@@ -1,11 +1,9 @@
 package core.systems;
 
 import core.Entity;
-import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
@@ -16,8 +14,8 @@ import java.util.Map;
 /** used to draw entities */
 public class DrawSystem extends System {
 
-    private Painter painter;
-    private Map<String, PainterConfig> configs;
+    private final Painter painter;
+    private final Map<String, PainterConfig> configs;
 
     private record DSData(Entity e, DrawComponent ac, PositionComponent pc) {}
 
@@ -30,12 +28,20 @@ public class DrawSystem extends System {
         configs = new HashMap<>();
     }
 
+    @Override
+    public void accept(Entity entity) {
+        if (entity.getComponent(DrawComponent.class).isPresent())
+            if (entity.getComponent(PositionComponent.class).isPresent()) addEntity(entity);
+            else {
+                logMissingComponent(entity, PositionComponent.class);
+                removeEntity(entity);
+            }
+        else removeEntity(entity);
+    }
+
     /** draw entities at their position */
     public void update() {
-        Game.getEntities().stream()
-                .flatMap(e -> e.getComponent(DrawComponent.class).stream())
-                .map(ac -> buildDataObject((DrawComponent) ac))
-                .forEach(this::draw);
+        getEntityStream().map(this::buildDataObject).forEach(this::draw);
     }
 
     private void draw(DSData dsd) {
@@ -50,14 +56,12 @@ public class DrawSystem extends System {
                 configs.get(currentAnimationTexture));
     }
 
-    private DSData buildDataObject(DrawComponent ac) {
-        Entity e = ac.getEntity();
+    private DSData buildDataObject(Entity e) {
 
-        PositionComponent pc =
-                (PositionComponent)
-                        e.getComponent(PositionComponent.class).orElseThrow(DrawSystem::missingPC);
+        DrawComponent dc = (DrawComponent) e.getComponent(DrawComponent.class).get();
+        PositionComponent pc = (PositionComponent) e.getComponent(PositionComponent.class).get();
 
-        return new DSData(e, ac, pc);
+        return new DSData(e, dc, pc);
     }
 
     /** DrawSystem cant be paused */
@@ -72,9 +76,5 @@ public class DrawSystem extends System {
     public void stop() {
         // DrawSystem cant pause
         run = true;
-    }
-
-    private static MissingComponentException missingPC() {
-        return new MissingComponentException("PositionComponent");
     }
 }
