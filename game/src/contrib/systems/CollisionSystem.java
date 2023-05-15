@@ -2,6 +2,7 @@ package contrib.systems;
 
 import contrib.components.CollideComponent;
 
+import core.Entity;
 import core.Game;
 import core.System;
 import core.level.Tile;
@@ -12,16 +13,21 @@ import java.util.Map;
 /** System to check for collisions between two entities */
 public class CollisionSystem extends System {
 
+    private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
+
     private record CollisionKey(int a, int b) {}
 
     protected record CollisionData(CollideComponent a, CollideComponent b) {}
 
-    private Map<CollisionKey, CollisionData> collisions = new HashMap<>();
-
+    @Override
+    public void accept(Entity entity) {
+        if (entity.getComponent(CollideComponent.class).isPresent()) addEntity(entity);
+        else removeEntity(entity);
+    }
     /** checks if there is a collision between two entities based on their hitbox */
     @Override
     public void update() {
-        Game.getEntities().stream()
+        getEntityStream()
                 .flatMap(
                         a ->
                                 a
@@ -68,7 +74,7 @@ public class CollisionSystem extends System {
      * Simple Direction inversion
      *
      * @param d to inverse
-     * @return the oposite direction
+     * @return the opposite direction
      */
     protected Tile.Direction inverse(Tile.Direction d) {
         return switch (d) {
