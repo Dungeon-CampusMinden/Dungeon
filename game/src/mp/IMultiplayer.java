@@ -1,7 +1,7 @@
 package mp;
 
-import level.elements.ILevel;
-import tools.Point;
+
+import core.level.elements.ILevel;
 
 public interface IMultiplayer {
     void onMultiplayerSessionStarted(boolean isSucceed);

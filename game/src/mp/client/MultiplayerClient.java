@@ -3,13 +3,12 @@ package mp.client;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import core.level.elements.ILevel;
+import core.utils.Point;
 import mp.packages.GameState;
-import level.elements.ILevel;
 import mp.packages.NetworkSetup;
-import mp.packages.request.ChangeMapRequest;
 import mp.packages.response.*;
 import mp.packages.event.GameStateUpdateEvent;
-import tools.Point;
 
 import java.io.*;
 import java.util.ArrayList;

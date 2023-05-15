@@ -4,8 +4,8 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import core.utils.Point;
 import mp.packages.request.UpdateOwnPositionRequest;
-import tools.Point;
 
 public class UpdateOwnPositionRequestSerializer extends Serializer<UpdateOwnPositionRequest> {
     @Override

@@ -11,7 +11,7 @@ Inventar.
 
 ## Aufbau
 
-![](../img/inventory.png)
+![](img/inventoryComponent.png)
 
 Die Inventarkomponente benutzt kein System da keine Aktualisierungen zur Laufzeit existiert. Der Aufbau ist simple gehalten und ist aktuell ein Itemanzahl-Prinzip und nicht ein Gewicht bzw. Volumensystem. Das heißt es ist egal, wie groß ein Item ist oder wie schwer es ist. Der Spieler kann also z.b. 10 Schwerter mit sich Tragen oder 10 Zettel.
 

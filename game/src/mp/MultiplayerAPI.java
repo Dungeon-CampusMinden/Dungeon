@@ -1,13 +1,13 @@
 package mp;
 
 import com.badlogic.gdx.utils.Null;
-import level.elements.ILevel;
+import core.level.elements.ILevel;
+import core.utils.Point;
 import mp.client.IMultiplayerClientObserver;
 import mp.client.MultiplayerClient;
 import mp.packages.GameState;
 import mp.packages.request.*;
 import mp.server.MultiplayerServer;
-import tools.Point;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;

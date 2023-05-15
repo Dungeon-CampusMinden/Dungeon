@@ -3,9 +3,9 @@
 ## About
 
 The Dungeon is a tool to gamify classroom content and integrate it into a 2D Rogue-Like role-playing game.
-It provides its own description language (the Dungeon Description Language) with which tasks and game content can be defined and loaded into the game. 
+It provides its own description language (the Dungeon Description Language) with which tasks and game content can be defined and loaded into the game.
 
-The Dungeon uses the [PM-Dungeon](https://github.com/Programmiermethoden/PM-Dungeon) as a framework for game development.  
+The Dungeon uses the [PM-Dungeon](https://github.com/Programmiermethoden/PM-Dungeon) as a framework for game development.
 
 ## Requirements
 

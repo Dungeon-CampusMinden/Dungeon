@@ -1,6 +1,7 @@
 package mp.packages.request;
 
-import tools.Point;
+
+import core.utils.Point;
 
 import static java.util.Objects.requireNonNull;
 

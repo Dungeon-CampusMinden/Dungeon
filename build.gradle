@@ -2,8 +2,8 @@ plugins {
     // we can not use ext variables here
     id "java"
     id "checkstyle"
-    id "com.github.spotbugs" version "5.0.+"
-    id "com.diffplug.spotless" version "6.5.+"
+    id "com.github.spotbugs" version "5.0.14"
+    id "com.diffplug.spotless" version "6.5.2"
     id 'antlr'
 }
 
@@ -16,9 +16,10 @@ repositories {
 
 ext {
     // we can not use the + operator here
-    gdxVersion = "1.10.1-SNAPSHOT"
+    gdxVersion = "1.11.0"
     aiVersion = "1.8.2"
     gsonVersion = "2.9.0"
+    checkstyleVersion = "10.11.0"
 }
 
 dependencies {
@@ -32,12 +33,12 @@ dependencies {
 
     // JUnit 4, Mockito and Powermock for testing:
     // https://mvnrepository.com/artifact/junit/junit
-    testImplementation "junit:junit:4.+"
+    testImplementation "junit:junit:4.13.2"
 
     // https://mvnrepository.com/artifact/org.powermock/powermock-module-junit4
-    testImplementation "org.powermock:powermock-module-junit4:2.+"
+    testImplementation "org.powermock:powermock-module-junit4:2.0.9"
     // https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito2
-    testImplementation "org.powermock:powermock-api-mockito2:2.+"
+    testImplementation "org.powermock:powermock-api-mockito2:2.0.9"
 
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
     implementation group: "com.google.code.gson", name: "gson", version: gsonVersion
@@ -51,13 +52,13 @@ dependencies {
 
 sourceCompatibility = 17
 [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
-sourceSets.main.java.srcDirs = ["game/src/", "dsl/src/", "dsl-connector/src", "$projectDir/build/generated-src/"]
+sourceSets.main.java.srcDirs = ["game/src/", "dsl/src/", "dungeon/src", "$projectDir/build/generated-src/"]
 sourceSets.main.resources.srcDirs = ["game/assets/"]
 sourceSets.test.resources.srcDirs = ["dsl/test_resources"]
-sourceSets.test.java.srcDirs = ["game/test/", "dsl/test/", "dsl-connector/test"]
+sourceSets.test.java.srcDirs = ["game/test/", "dsl/test/", "dungeon/test"]
 sourceSets.main.antlr.srcDirs = ["dsl/src/antlr"]
 
-project.ext.mainClassName = "starter.Game"
+project.ext.mainClassName = "starter.Main"
 project.ext.assetsDir = new File("game/assets")
 
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
@@ -96,7 +97,7 @@ test {
 }
 
 checkstyle {
-    toolVersion = "10.2"
+    toolVersion = checkstyleVersion
     configFile = file("checks.xml")
     showViolations = true
 }

@@ -4,9 +4,9 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import level.elements.ILevel;
+import core.level.elements.ILevel;
+import core.utils.Point;
 import mp.packages.request.LoadMapRequest;
-import tools.Point;
 
 public class LoadMapRequestSerializer extends Serializer<LoadMapRequest> {
     @Override

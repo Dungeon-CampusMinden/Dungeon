@@ -2,19 +2,19 @@ package mp.packages;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.EndPoint;
-import level.elements.ILevel;
-import level.elements.TileLevel;
-import level.elements.astar.TileHeuristic;
-import level.elements.tile.*;
-import level.tools.Coordinate;
-import level.tools.DesignLabel;
-import level.tools.LevelElement;
-import mp.packages.GameState;
+import core.level.Tile;
+import core.level.TileLevel;
+import core.level.elements.ILevel;
+import core.level.elements.astar.TileHeuristic;
+import core.level.elements.tile.*;
+import core.level.utils.Coordinate;
+import core.level.utils.DesignLabel;
+import core.level.utils.LevelElement;
+import core.utils.Point;
 import mp.packages.request.*;
 import mp.packages.response.*;
 import mp.packages.event.GameStateUpdateEvent;
 import mp.packages.serializer.*;
-import tools.Point;
 
 import java.util.ArrayList;
 import java.util.HashMap;

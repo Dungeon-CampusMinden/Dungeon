@@ -4,13 +4,13 @@ import com.badlogic.gdx.utils.Null;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
-import level.elements.ILevel;
+import core.level.elements.ILevel;
+import core.utils.Point;
 import mp.packages.GameState;
 import mp.packages.NetworkSetup;
+import mp.packages.event.GameStateUpdateEvent;
 import mp.packages.request.*;
 import mp.packages.response.*;
-import mp.packages.event.GameStateUpdateEvent;
-import tools.Point;
 
 import java.io.IOException;
 import java.util.concurrent.Executors;

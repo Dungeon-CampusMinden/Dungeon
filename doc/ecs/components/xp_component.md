@@ -8,7 +8,7 @@ title: "XP Component"
 
 ## Aufbau
 
-![UML](../img/xpComponent.png)
+![UML](img/xpComponent.png)
 
 - XPSystem prüft, ob ein LevelUp stattfinden muss (`getXPToNextLevel()` gibt `<= 0` zurück) und führt dieses durch
 - HealthSystem fügt XP hinzu, wenn ein gegner getötet/zerstört wird

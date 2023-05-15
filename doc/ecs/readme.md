@@ -29,12 +29,12 @@ Der Zustand einer Entität wird also über ihre Components bestimmt, und ihr Ver
 
 *Anmerkung:* Das UML ist für bessere Lesbarkeit auf die wesentlichen Bestandteile gekürzt.
 
-Die in Grün gekennzeichnete Klasse `Game` ist die Basisklasse, von der alles ausgeht. Die Methode `Game#render` ist die Game-Loop. Das ECS wird durch die in weiß gekennzeichneten Klassen `Entity`, `Component` und `ECS_System` implementiert.
+Die in Grün gekennzeichnete Klasse `Game` ist die Basisklasse, von der alles ausgeht. Die Methode `Game#render` ist die Game-Loop. Das ECS wird durch die in weiß gekennzeichneten Klassen `Entity`, `Component` und `System` implementiert.
 
 Die LevelAPI generiert, zeichnet und speichert das aktuelle [Level](../level/readme.md). Klassen, die rot gekennzeichnet sind, gehören dazu.
 
 Neu erzeugte Entitäten speichern sich automatisch im HashSet `entities` der `Game`-Klasse ab.
-`ECS_System`e speichern sich automatisch im `SystemController` `systems` der `Game`-Klasse ab.
+`System`e speichern sich automatisch im `SystemController` `systems` der `Game`-Klasse ab.
 
 Die Systeme iterieren über die in `Game` gespeicherten Entitäten und greifen über die Methode `Entity#getComponent` auf die für die jeweilige Funktionalität benötigten Components zu. Die orangefarbenen `System`s und `Controller` sind in dem UML-Diagramm Beispiele für die bereits bestehenden `System`s und `Controller`.
 
@@ -42,4 +42,4 @@ Die in Gelb hinterlegten Klassen stammen aus dem PM-Dungeon-Framework. Für ein 
 
 ## Integration des ECS in die Game-Loop
 
-Um die Systeme in die GameLoop zu integrieren, wird ein Objekt vom Typ `SystemController` genutzt. Er hält die Menge aller vorhandenen Systeme und ruft einmal pro Frame für jedes System die `update`-Methode. Die Registrierung der Systeme beim Controller wird über den Konstruktor der Klasse `ECS_System` erledigt - dadurch müssen abgeleitete Systeme dies nicht selbst machen.
+Um die Systeme in die GameLoop zu integrieren, wird ein Objekt vom Typ `SystemController` genutzt. Er hält die Menge aller vorhandenen Systeme und ruft einmal pro Frame für jedes System die `update`-Methode. Die Registrierung der Systeme beim Controller wird über den Konstruktor der Klasse `System` erledigt - dadurch müssen abgeleitete Systeme dies nicht selbst machen.

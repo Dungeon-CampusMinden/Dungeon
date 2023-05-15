@@ -1,16 +1,17 @@
 package starter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import ecs.entities.Entity;
-import graphic.DungeonCamera;
-import graphic.Painter;
-import level.LevelAPI;
-import level.generator.randomwalk.RandomWalkGenerator;
+import core.Entity;
+import core.Game;
+import core.LevelManager;
+import core.level.generator.randomwalk.RandomWalkGenerator;
+import core.utils.Constants;
+import core.utils.DungeonCamera;
+import core.utils.components.draw.Painter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,23 +20,21 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
-import tools.Constants;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Game.class, Gdx.class, Constants.class})
 class GameTest {
-    Game game;
-    SpriteBatch batch;
-    int someArbitraryValueGreater0forDelta = 7;
+    private Game game;
+    private SpriteBatch batch;
+    private int someArbitraryValueGreater0forDelta = 7;
 
     // Because of use of PowerMockRunner we need an empty constructor here
     public GameTest() {}
 
     @Before
     public void setUp() throws Exception {
-        Game.getEntities().clear();
-        Game.getEntitiesToAdd().clear();
-        Game.getEntitiesToRemove().clear();
+        Game.getDelayedEntitySet().removeAll(Game.getEntities());
+        Game.getDelayedEntitySet().update();
 
         game = Mockito.spy(Game.class);
         batch = Mockito.mock(SpriteBatch.class);
@@ -47,9 +46,9 @@ class GameTest {
         PowerMockito.whenNew(SpriteBatch.class)
                 .withAnyArguments()
                 .thenReturn(Mockito.mock(SpriteBatch.class));
-        PowerMockito.whenNew(LevelAPI.class)
+        PowerMockito.whenNew(LevelManager.class)
                 .withAnyArguments()
-                .thenReturn(Mockito.mock(LevelAPI.class));
+                .thenReturn(Mockito.mock(LevelManager.class));
         PowerMockito.whenNew(DungeonCamera.class)
                 .withAnyArguments()
                 .thenReturn(Mockito.mock(DungeonCamera.class));
@@ -96,22 +95,22 @@ class GameTest {
 
     @Test
     public void addEntity() {
-        Entity e1 = Mockito.mock(Entity.class);
+        Entity e1 = new Entity();
         Game.addEntity(e1);
-        assertTrue(Game.getEntitiesToAdd().contains(e1));
-        assertEquals(1, Game.getEntitiesToAdd().size());
-        Game.getEntities().clear();
-        Game.getEntitiesToAdd().clear();
+        assertFalse(Game.getEntities().contains(e1));
+        Game.getDelayedEntitySet().update();
+        assertTrue(Game.getEntities().contains(e1));
+        assertEquals(1, Game.getEntities().size());
     }
 
     @Test
     public void removeEntity() {
-        Entity e1 = Mockito.mock(Entity.class);
+        Entity e1 = new Entity();
+        Game.getDelayedEntitySet().update();
         Game.removeEntity(e1);
-        assertTrue(Game.getEntitiesToRemove().contains(e1));
-        assertEquals(1, Game.getEntitiesToRemove().size());
-        Game.getEntities().clear();
-        Game.getEntitiesToRemove().clear();
+        Game.getDelayedEntitySet().update();
+        assertFalse(Game.getEntities().contains(e1));
+        assertEquals(0, Game.getEntities().size());
     }
 
     /*
@@ -123,10 +122,10 @@ class GameTest {
 
     @Test
     public void setHero() {
-        Entity hero = Mockito.mock(Entity.class);
+        Entity hero = new Entity();
         Game.setHero(hero);
         assertEquals(hero, Game.getHero().get());
-        Entity hero2 = Mockito.mock(Entity.class);
+        Entity hero2 = new Entity();
         Game.setHero(hero2);
         assertEquals(hero2, Game.getHero().get());
     }

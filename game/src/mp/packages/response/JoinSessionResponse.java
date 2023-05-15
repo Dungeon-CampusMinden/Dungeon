@@ -1,7 +1,8 @@
 package mp.packages.response;
 
-import level.elements.ILevel;
-import tools.Point;
+
+import core.level.elements.ILevel;
+import core.utils.Point;
 
 import java.util.HashMap;
 

@@ -1,6 +1,7 @@
 package mp.packages;
 
-import tools.Point;
+
+import core.utils.Point;
 
 import java.util.HashMap;
 

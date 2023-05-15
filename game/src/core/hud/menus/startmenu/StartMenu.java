@@ -1,0 +1,187 @@
+package core.hud.menus.startmenu;
+
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Null;
+import core.hud.*;
+import core.hud.menus.Menu;
+import core.utils.Constants;
+import core.utils.Point;
+
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.ArrayList;
+
+public class StartMenu<T extends Actor> extends Menu<T> {
+
+    private enum MenuType {
+        GameMode,
+        MultiplayerStartOrJoinSession,
+        MultiplayerJoinSession
+    }
+
+    private MenuType menuTypeCurrent;
+    private final ScreenText textTitle;
+    private final ScreenButton buttonNavigateBack;
+    private final GameModeMenu<Actor> gameModeMenu;
+    private final MultiplayerStartOrJoinSessionMenu<Actor> multiplayerModeMenu;
+    private final MultiplayerJoinSessionMenu<Actor> multiplayerJoinSessionMenu;
+    private final ArrayList<IStartMenuObserver> observers = new ArrayList<>();
+
+    public StartMenu() {
+        this(new SpriteBatch(), null);
+    }
+
+    /**
+     * Creates a Screencontroller with a ScalingViewport which stretches the ScreenElements on
+     * resize
+     *
+     * @param batch the batch which should be used to draw with
+     */
+    public StartMenu(SpriteBatch batch, @Null Stage stage) {
+        super(batch, stage);
+        gameModeMenu = new GameModeMenu<>(batch, this.stage);
+        multiplayerModeMenu = new MultiplayerStartOrJoinSessionMenu<>(batch, this.stage);
+        multiplayerJoinSessionMenu = new MultiplayerJoinSessionMenu<>(batch, this.stage);
+
+        textTitle = new ScreenText(
+            "PM-DUNGEON",
+            new Point(0, 0),
+            6f,
+            new LabelStyleBuilder(FontBuilder.DEFAULT_FONT).setFontcolor(Color.RED).build()
+        );
+        textTitle.setFontScale(3);
+        textTitle.setPosition(
+            (Constants.WINDOW_WIDTH) / 2f - textTitle.getWidth(),
+            (Constants.WINDOW_HEIGHT) - (textTitle.getHeight() * 4f),
+            Align.center | Align.bottom);
+
+        buttonNavigateBack = new ScreenButton(
+            "<",
+            new Point(15, Constants.WINDOW_HEIGHT - 50),
+            new TextButtonListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    navigateBack();
+                }
+            }
+        );
+        buttonNavigateBack.getLabel().setFontScale(buttonTextLabelScale);
+        GlyphLayout glyphLayout = new GlyphLayout();
+        glyphLayout.setText(buttonNavigateBack.getStyle().font, buttonNavigateBack.getText());
+        float labelWidth = glyphLayout.width;
+        buttonNavigateBack.setSize(labelWidth * 3f, buttonNavigateBack.getStyle().font.getLineHeight() * 2f);
+
+        add((T) textTitle);
+        add((T)buttonNavigateBack);
+
+        gameModeMenu.getButtonSinglePlayer().addListener(new ClickListener() {
+           @Override
+           public void clicked(InputEvent event, float x, float y) {
+               observers.forEach(IStartMenuObserver::onSinglePlayerModeChosen);
+           }
+        });
+        gameModeMenu.getButtonMultiPlayer().addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                setActiveMenu(MenuType.MultiplayerStartOrJoinSession);
+            }
+        });
+        multiplayerModeMenu.getButtonStartSession().addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                observers.forEach(IStartMenuObserver::onMultiPlayerHostModeChosen);
+            }
+        });
+        multiplayerModeMenu.getButtonJoinSession().addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                setActiveMenu(MenuType.MultiplayerJoinSession);
+            }
+        });
+        multiplayerJoinSessionMenu.getInputHostIpPort().addListener(new InputListener() {
+            @Override
+            public boolean keyTyped(InputEvent event, char character) {
+                multiplayerJoinSessionMenu.getTextInvalidAddress().setVisible(false);
+                return true;
+            }
+        });
+        multiplayerJoinSessionMenu.getButtonJoin().addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                String[] temp = multiplayerJoinSessionMenu.getInputHostIpPort().getText().split(":");
+                try (Socket socket = new Socket()) {
+                    String address = temp[0];
+                    int port = Integer.parseInt(temp[1]);
+                    socket.connect(new InetSocketAddress(address, port), 1000);
+                    socket.close();
+                    observers.forEach((IStartMenuObserver observer) -> observer.onMultiPlayerClientModeChosen(address, port));
+                } catch (Exception e) {
+                    multiplayerJoinSessionMenu.getTextInvalidAddress().setVisible(true);
+                }
+            }
+        });
+
+        setActiveMenu(MenuType.GameMode);
+    }
+
+    @Override
+    public void showMenu() {
+        this.forEach((Actor s) -> s.setVisible(true));
+        if (menuTypeCurrent.equals(MenuType.GameMode)) {
+            buttonNavigateBack.setVisible(false);
+        }
+        isVisible = true;
+    }
+
+    @Override
+    public void hideMenu() {
+        super.hideMenu();
+        gameModeMenu.hideMenu();
+        multiplayerModeMenu.hideMenu();
+        multiplayerJoinSessionMenu.hideMenu();
+    }
+
+    public void resetView() {
+        setActiveMenu(MenuType.GameMode);
+    }
+
+    public boolean addObserver(IStartMenuObserver observer) {
+        return observers.add(observer);
+    }
+
+    public boolean removeObserver(IStartMenuObserver observer) {
+        return observers.remove(observer);
+    }
+
+    private void setActiveMenu(MenuType menuType) {
+        gameModeMenu.hideMenu();
+        multiplayerModeMenu.hideMenu();
+        multiplayerJoinSessionMenu.hideMenu();
+        menuTypeCurrent = menuType;
+
+        switch (menuType) {
+            case GameMode -> gameModeMenu.showMenu();
+            case MultiplayerStartOrJoinSession -> multiplayerModeMenu.showMenu();
+            case MultiplayerJoinSession -> multiplayerJoinSessionMenu.showMenu();
+            default -> throw new RuntimeException("Invalid menu type");
+        }
+
+        buttonNavigateBack.setVisible(menuType != MenuType.GameMode);
+    }
+
+    private void navigateBack() {
+        switch (menuTypeCurrent) {
+            case MultiplayerStartOrJoinSession ->setActiveMenu(MenuType.GameMode);
+            case MultiplayerJoinSession -> setActiveMenu(MenuType.MultiplayerStartOrJoinSession);
+        }
+    }
+}

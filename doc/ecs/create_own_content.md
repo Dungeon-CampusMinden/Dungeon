@@ -37,7 +37,7 @@ Um Components für die DSL verfügbar zu machen, siehe **TBD**
 
 ## System erstellen
 
-Um eigene Systeme zu implementieren, muss eine Spezialisierung von `ECS_System` erstellt werden.
+Um eigene Systeme zu implementieren, muss eine Spezialisierung von `System` erstellt werden.
 Systeme werden im package `ecs.systems` abgelegt und sollen den Namensschema `$WHAT_IS_THIS_$System`folgen.
 
 

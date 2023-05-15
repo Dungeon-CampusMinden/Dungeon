@@ -1,8 +1,8 @@
 package mp.client;
 
-import level.elements.ILevel;
+import core.level.elements.ILevel;
+import core.utils.Point;
 import mp.packages.GameState;
-import tools.Point;
 
 import java.net.InetAddress;
 import java.util.HashMap;

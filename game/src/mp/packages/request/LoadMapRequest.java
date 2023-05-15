@@ -1,7 +1,8 @@
 package mp.packages.request;
 
-import level.elements.ILevel;
-import tools.Point;
+
+import core.level.elements.ILevel;
+import core.utils.Point;
 
 public class LoadMapRequest {
     private final ILevel level;

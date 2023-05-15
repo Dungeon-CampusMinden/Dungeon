@@ -1,11 +1,13 @@
 package mp.packages.serializer;
 
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import level.elements.ILevel;
-import level.elements.tile.*;
+import core.level.Tile;
+import core.level.elements.ILevel;
+import core.level.elements.tile.FloorTile;
 
 import java.lang.reflect.Constructor;
 

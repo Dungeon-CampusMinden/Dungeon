@@ -1,13 +1,13 @@
 package runtime;
 
+import contrib.components.AIComponent;
+import contrib.components.CollideComponent;
+import core.Entity;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import dslToGame.AnimationBuilder;
 import dslToGame.QuestConfig;
-import ecs.components.AnimationComponent;
-import ecs.components.HitboxComponent;
-import ecs.components.PositionComponent;
-import ecs.components.VelocityComponent;
-import ecs.components.ai.AIComponent;
-import ecs.entities.Entity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import runtime.nativeFunctions.NativePrint;
@@ -121,12 +121,12 @@ public class GameEnvironment implements IEvironment {
         var positionComponentType =
                 typeBuilder.createTypeFromClass(Scope.NULL, PositionComponent.class);
         var animationComponentType =
-                typeBuilder.createTypeFromClass(Scope.NULL, AnimationComponent.class);
+                typeBuilder.createTypeFromClass(Scope.NULL, DrawComponent.class);
         var velocityComponentType =
                 typeBuilder.createTypeFromClass(Scope.NULL, VelocityComponent.class);
         var aiComponentType = typeBuilder.createTypeFromClass(Scope.NULL, AIComponent.class);
         var hitboxComponentType =
-                typeBuilder.createTypeFromClass(Scope.NULL, HitboxComponent.class);
+                typeBuilder.createTypeFromClass(Scope.NULL, CollideComponent.class);
         types.add(questConfigType);
         types.add(entityComponentType);
         types.add(positionComponentType);
