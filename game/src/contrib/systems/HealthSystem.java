@@ -9,7 +9,6 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
-import core.utils.components.MissingComponentException;
 
 import java.util.stream.Stream;
 
@@ -23,12 +22,22 @@ public class HealthSystem extends System {
     private record HSData(Entity e, HealthComponent hc, DrawComponent ac) {}
 
     @Override
+    public void accept(Entity entity) {
+        if (entity.getComponent(HealthComponent.class).isPresent())
+            if (entity.getComponent(DrawComponent.class).isPresent()) addEntity(entity);
+            else {
+                logMissingComponent(entity, DrawComponent.class);
+                removeEntity(entity);
+            }
+        else removeEntity(entity);
+    }
+
+    @Override
     public void update() {
-        Game.getEntities().stream()
+        getEntityStream()
                 // Consider only entities that have a HealthComponent
-                .flatMap(e -> e.getComponent(HealthComponent.class).stream())
                 // Form triples (e, hc, ac)
-                .map(hc -> buildDataObject((HealthComponent) hc))
+                .map(this::buildDataObject)
                 // Apply damage
                 .map(this::applyDamage)
                 // Filter all dead entities
@@ -46,12 +55,10 @@ public class HealthSystem extends System {
                 .forEach(this::removeDeadEntities);
     }
 
-    private HSData buildDataObject(HealthComponent hc) {
-        Entity e = hc.getEntity();
+    private HSData buildDataObject(Entity e) {
 
-        DrawComponent ac =
-                (DrawComponent)
-                        e.getComponent(DrawComponent.class).orElseThrow(HealthSystem::missingAC);
+        HealthComponent hc = (HealthComponent) e.getComponent(HealthComponent.class).get();
+        DrawComponent ac = (DrawComponent) e.getComponent(DrawComponent.class).get();
 
         return new HSData(e, hc, ac);
     }
@@ -64,13 +71,12 @@ public class HealthSystem extends System {
                             StatsComponent scomp = (StatsComponent) sc;
                             doDamageAndAnimation(hsd, calculateDamageWithMultipliers(scomp, hsd));
                         },
-                        () -> {
-                            doDamageAndAnimation(
-                                    hsd,
-                                    Stream.of(DamageType.values())
-                                            .mapToInt(hsd.hc::getDamage)
-                                            .sum());
-                        });
+                        () ->
+                                doDamageAndAnimation(
+                                        hsd,
+                                        Stream.of(DamageType.values())
+                                                .mapToInt(hsd.hc::getDamage)
+                                                .sum()));
         return hsd;
     }
 
@@ -122,9 +128,5 @@ public class HealthSystem extends System {
                                                         deadXPComponent.getLootXP());
                                             });
                         });
-    }
-
-    private static MissingComponentException missingAC() {
-        return new MissingComponentException("AnimationComponent");
     }
 }
