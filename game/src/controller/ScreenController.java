@@ -36,7 +36,7 @@ public class ScreenController<T extends Actor> extends AbstractController<T> {
     @Override
     public void update() {
         super.update();
-
+        stage.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
     }

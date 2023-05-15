@@ -3,7 +3,10 @@ package graphic.hud;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import quizquestion.QuizQuestion;
 
-/** Contains Constructor, which immediately creates the dialogue including all its elements. */
+/**
+ * Contains Constructor, which immediately creates the dialogue including all its elements.
+ * https://github.com/TomGrill/gdx-dialogs
+ */
 public final class TextDialog extends Dialog {
 
     /** button ID (used when control is pressed) */

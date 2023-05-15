@@ -38,6 +38,7 @@ public class ResponsiveDialogue<T extends Actor> extends ScreenController<T> {
             String... arrayOfMessages) {
         super(batch);
         TextDialog dialog = createQuizDialog(skin, question, arrayOfMessages);
+        dialog.setResizable(true);
         add((T) dialog);
         formatDependingOnGameScreen(dialog, msgColor);
     }

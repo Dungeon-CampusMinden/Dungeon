@@ -95,6 +95,37 @@ public class DummyQuizQuestionList {
                                     },
                                     QuizQuestion.QuizQuestionType.SINGLE_CHOICE));
 
+                    // Testfrage für Multiple Choice
+                    add(
+                            new QuizQuestion(
+                                    new QuizQuestionContent(
+                                            QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                            "Welche der hier genannten Komponenten sind \"atomare Komponenten\"?"),
+                                    new QuizQuestionContent[] {
+                                        new QuizQuestionContent(
+                                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                                "Buttons"),
+                                        new QuizQuestionContent(
+                                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                                "Frames"),
+                                        new QuizQuestionContent(
+                                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                                "Label"),
+                                        new QuizQuestionContent(
+                                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                                "Panels"),
+                                        new QuizQuestionContent(
+                                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                                "Groups"),
+                                        new QuizQuestionContent(
+                                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                                "EventListener"),
+                                        new QuizQuestionContent(
+                                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                                "Events"),
+                                    },
+                                    QuizQuestion.QuizQuestionType.MULTIPLE_CHOICE));
+
                     // Testfrage für Freitextfrage und lange Quizfragen mit bis zu 156 Buchstaben
                     add(
                             new QuizQuestion(

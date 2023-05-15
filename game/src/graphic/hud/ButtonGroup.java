@@ -37,6 +37,13 @@ public class ButtonGroup extends VerticalGroup {
                 formatStringForWindow(answerContent);
                 CheckBox newCheckBox = new CheckBox(answerContent[0], skin);
                 newCheckBox.align(Align.left);
+
+                if (questioType == QuizQuestion.QuizQuestionType.SINGLE_CHOICE) {
+                    newCheckBox.setStyle(skin.get("radio", CheckBox.CheckBoxStyle.class));
+                } else if (questioType == QuizQuestion.QuizQuestionType.MULTIPLE_CHOICE) {
+                    newCheckBox.setStyle(skin.get("default", CheckBox.CheckBoxStyle.class));
+                }
+
                 checkBoxes.add(newCheckBox);
             }
         }
@@ -56,8 +63,11 @@ public class ButtonGroup extends VerticalGroup {
         }
 
         btnGroup.setUncheckLast(true);
-        this.align(Align.left);
-        this.left();
+        left();
+        setRound(true);
+        space(7.0f);
+        pad(3.0f, 10.0f, 3.0f, 3.0f);
+        fill();
     }
     /**
      * Formatting of the text contents belonging to the respective checkboxes
@@ -78,7 +88,7 @@ public class ButtonGroup extends VerticalGroup {
                 sumLength += word.length();
                 formatedMsg = formatedMsg.concat(word).concat(" ");
 
-                if (sumLength > MAX_ROW_LENGTH) {
+                if (sumLength > MAX_ROW_LENGTH && (sumLength - MAX_ROW_LENGTH) > 5) {
                     formatedMsg += "\n";
                     sumLength = 0;
                 }
