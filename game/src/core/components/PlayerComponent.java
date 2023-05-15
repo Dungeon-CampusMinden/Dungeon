@@ -1,4 +1,4 @@
-package contrib.component;
+package core.components;
 
 import contrib.utils.componentUtils.skillComponent.Skill;
 import core.Component;

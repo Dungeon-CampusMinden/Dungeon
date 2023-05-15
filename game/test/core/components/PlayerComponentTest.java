@@ -1,8 +1,7 @@
-package contrib.components;
+package core.components;
 
 import static org.junit.Assert.*;
 
-import contrib.component.PlayerComponent;
 import contrib.utils.componentUtils.skillComponent.Skill;
 import core.Entity;
 import org.junit.Before;
