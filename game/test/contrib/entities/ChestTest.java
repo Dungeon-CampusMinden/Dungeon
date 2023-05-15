@@ -85,12 +85,10 @@ public class ChestTest {
         List<ItemData> itemData = List.of(new ItemDataGenerator().generateItemData());
         Point position = new Point(0, 0);
         Entity c = EntityFactory.getChest(itemData, position);
-        Game.removeEntity(c);
-        Game.getDelayedEntitySet().update();
-        assertEquals(0, Game.getEntities().size());
         c.getComponent(InteractionComponent.class)
                 .map(InteractionComponent.class::cast)
                 .ifPresent(InteractionComponent::triggerInteraction);
+        Game.removeEntity(c);
         Game.getDelayedEntitySet().update();
         assertEquals(1, Game.getEntities().size());
         Entity droppedItem = Game.getEntities().iterator().next();
