@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -24,21 +25,18 @@ import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 import core.utils.components.draw.TextureMap;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({TextureMap.class})
 public class TileLevelAPITest {
 
     private LevelManager api;
     private IGenerator generator;
     private Texture texture;
+    private MockedStatic<TextureMap> textureMapMockedStatic;
     private TextureMap textureMap;
     private Painter painter;
     private SpriteBatch batch;
@@ -50,8 +48,8 @@ public class TileLevelAPITest {
         batch = Mockito.mock(SpriteBatch.class);
 
         texture = Mockito.mock(Texture.class);
+        textureMapMockedStatic = mockStatic(TextureMap.class);
         textureMap = Mockito.mock(TextureMap.class);
-        PowerMockito.mockStatic(TextureMap.class);
         when(TextureMap.getInstance()).thenReturn(textureMap);
         when(textureMap.getTexture(anyString())).thenReturn(texture);
 
@@ -60,6 +58,11 @@ public class TileLevelAPITest {
         onLevelLoader = Mockito.mock(IOnLevelLoader.class);
         level = Mockito.mock(TileLevel.class);
         api = new LevelManager(batch, painter, generator, onLevelLoader);
+    }
+
+    @After
+    public void tearDown() {
+        textureMapMockedStatic.close();
     }
 
     @Test
