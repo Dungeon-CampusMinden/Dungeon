@@ -1,8 +1,10 @@
 package semanticAnalysis;
 
 import interpreter.DSLInterpreter;
-import java.util.List;
+
 import parser.AST.Node;
+
+import java.util.List;
 
 public interface ICallable {
     // TODO: refine signature

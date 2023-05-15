@@ -24,6 +24,7 @@ package semanticAnalysis;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 import parser.AST.*;
+
 import semanticAnalysis.types.BuiltInType;
 import semanticAnalysis.types.IType;
 // CHECKSTYLE:ON: AvoidStarImport

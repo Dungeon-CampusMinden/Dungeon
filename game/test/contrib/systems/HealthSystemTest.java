@@ -7,15 +7,18 @@ import contrib.components.StatsComponent;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.health.IOnDeathFunction;
+
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.controller.SystemController;
-import java.util.List;
+
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.util.List;
 
 public class HealthSystemTest {
 

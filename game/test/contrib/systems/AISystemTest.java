@@ -4,9 +4,11 @@ import static org.junit.Assert.assertEquals;
 
 import contrib.components.AIComponent;
 import contrib.utils.components.ai.ITransition;
+
 import core.Entity;
 import core.Game;
 import core.utils.controller.SystemController;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

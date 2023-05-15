@@ -3,6 +3,7 @@ package contrib.utils.components.interaction;
 import static org.junit.Assert.*;
 
 import contrib.components.InteractionComponent;
+
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -10,7 +11,9 @@ import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+
 import org.junit.Test;
+
 import testingUtils.SimpleCounter;
 
 public class ControlPointReachableTest {

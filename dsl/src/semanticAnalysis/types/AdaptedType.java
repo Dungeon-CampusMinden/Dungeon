@@ -1,7 +1,8 @@
 package semanticAnalysis.types;
 
-import java.lang.reflect.Method;
 import semanticAnalysis.IScope;
+
+import java.lang.reflect.Method;
 
 /** This is used to adapt a type, which only requires a single parameter for construction */
 public class AdaptedType implements IType {

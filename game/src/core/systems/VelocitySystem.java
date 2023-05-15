@@ -2,6 +2,7 @@ package core.systems;
 
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
+
 import core.Entity;
 import core.Game;
 import core.System;
@@ -11,6 +12,7 @@ import core.components.VelocityComponent;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /** MovementSystem is a system that updates the position of entities */

@@ -2,6 +2,7 @@ package dslToGame;
 
 import core.Game;
 import core.utils.components.draw.Animation;
+
 import semanticAnalysis.types.DSLTypeAdapter;
 
 public class AnimationBuilder {

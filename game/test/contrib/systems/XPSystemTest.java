@@ -4,9 +4,11 @@ import static org.junit.Assert.*;
 
 import contrib.components.XPComponent;
 import contrib.utils.components.xp.ILevelUp;
+
 import core.Entity;
 import core.Game;
 import core.utils.controller.SystemController;
+
 import org.junit.Test;
 import org.mockito.Mockito;
 

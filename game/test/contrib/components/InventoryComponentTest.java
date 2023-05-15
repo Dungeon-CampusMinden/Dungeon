@@ -5,9 +5,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import contrib.utils.components.item.ItemData;
+
 import core.Entity;
-import java.util.List;
+
 import org.junit.Test;
+
+import java.util.List;
 
 public class InventoryComponentTest {
     /** constructor should create the inventory with the given parameters. */

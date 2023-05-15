@@ -1,6 +1,7 @@
 package contrib.utils.components.ai;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
+
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -10,6 +11,7 @@ import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+
 import java.util.*;
 
 public class AITools {

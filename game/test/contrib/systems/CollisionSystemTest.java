@@ -4,13 +4,16 @@ import static org.junit.Assert.*;
 
 import contrib.components.CollideComponent;
 import contrib.utils.components.collision.ICollide;
+
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.utils.Point;
 import core.utils.controller.SystemController;
+
 import org.junit.Test;
+
 import testingUtils.SimpleCounter;
 
 public class CollisionSystemTest {

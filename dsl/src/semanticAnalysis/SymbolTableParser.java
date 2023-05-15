@@ -20,15 +20,17 @@
  */
 
 package semanticAnalysis;
-
-import java.util.Stack;
-// importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 import parser.AST.*;
 // CHECKSTYLE:ON: AvoidStarImport
+
 import runtime.IEvironment;
+
 import semanticAnalysis.types.AggregateType;
 import semanticAnalysis.types.TypeBinder;
+
+import java.util.Stack;
+// importing all required classes from symbolTable will be to verbose
 
 /** Creates a symbol table for an AST node for a DSL program */
 // we need to provide visitor methods for many node classes, so the method count and the class data

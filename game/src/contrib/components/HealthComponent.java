@@ -1,22 +1,26 @@
 package contrib.components;
 
 import com.badlogic.gdx.utils.Null;
+
 import contrib.systems.HealthSystem;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.health.IOnDeathFunction;
+
 import core.Component;
 import core.Entity;
 import core.systems.DrawSystem;
 import core.utils.components.draw.Animation;
 import core.utils.logging.CustomLogLevel;
+
+import semanticAnalysis.types.DSLContextMember;
+import semanticAnalysis.types.DSLType;
+import semanticAnalysis.types.DSLTypeMember;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
-import semanticAnalysis.types.DSLContextMember;
-import semanticAnalysis.types.DSLType;
-import semanticAnalysis.types.DSLTypeMember;
 
 /**
  * The HealthComponent adds health points and the ability to take damage and die to an entity.

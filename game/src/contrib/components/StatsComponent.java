@@ -1,6 +1,7 @@
 package contrib.components;
 
 import contrib.utils.components.stats.DamageModifier;
+
 import core.Component;
 import core.Entity;
 

@@ -3,7 +3,9 @@ package core.components;
 import static org.junit.Assert.*;
 
 import contrib.utils.components.skill.Skill;
+
 import core.Entity;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

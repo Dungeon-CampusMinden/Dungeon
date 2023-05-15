@@ -1,12 +1,13 @@
 package runtime;
 
+import semanticAnalysis.types.AggregateType;
+import semanticAnalysis.types.IType;
+import semanticAnalysis.types.TypeBuilder;
+
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import semanticAnalysis.types.AggregateType;
-import semanticAnalysis.types.IType;
-import semanticAnalysis.types.TypeBuilder;
 
 public class EncapsulatedObject extends Value implements IMemorySpace {
     private IMemorySpace parent;

@@ -1,15 +1,19 @@
 package runtime.nativeFunctions;
 
 import interpreter.DSLInterpreter;
-import java.util.List;
+
 import parser.AST.Node;
+
 import runtime.Value;
+
 import semanticAnalysis.ICallable;
 import semanticAnalysis.IScope;
 import semanticAnalysis.Scope;
 import semanticAnalysis.ScopedSymbol;
 import semanticAnalysis.Symbol;
 import semanticAnalysis.types.BuiltInType;
+
+import java.util.List;
 
 public class NativePrint extends ScopedSymbol implements ICallable {
     public static NativePrint func = new NativePrint(Scope.NULL);

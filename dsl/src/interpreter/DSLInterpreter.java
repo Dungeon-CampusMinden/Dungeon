@@ -2,22 +2,28 @@ package interpreter;
 
 import antlr.main.DungeonDSLLexer;
 import antlr.main.DungeonDSLParser;
+
 import interpreter.dot.Interpreter;
-import java.util.List;
-import java.util.Stack;
+
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 // importing all required classes from parser.AST will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
+
 import parser.AST.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import parser.DungeonASTConverter;
+
 import runtime.*;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
+
 import semanticAnalysis.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import semanticAnalysis.types.*;
+
+import java.util.List;
+import java.util.Stack;
 
 // TODO: specify EXACT semantics of value copying and setting
 

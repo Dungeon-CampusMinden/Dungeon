@@ -5,9 +5,11 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+
 import core.Game;
 import core.System;
 import core.utils.Constants;
+
 import quizquestion.QuizQuestion;
 
 /**

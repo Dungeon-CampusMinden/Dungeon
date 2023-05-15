@@ -1,9 +1,11 @@
 package core.components;
 
 import contrib.utils.components.skill.Skill;
+
 import core.Component;
 import core.Entity;
 import core.utils.logging.CustomLogLevel;
+
 import java.util.Optional;
 import java.util.logging.Logger;
 

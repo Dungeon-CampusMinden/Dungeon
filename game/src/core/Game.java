@@ -1,6 +1,7 @@
 package core;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
+
 import static core.utils.logging.LoggerConfig.initBaseLogger;
 
 import com.badlogic.gdx.Gdx;
@@ -9,9 +10,11 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
+
 import core.components.PositionComponent;
 import core.configuration.Configuration;
 import core.hud.UITools;
@@ -33,10 +36,12 @@ import core.utils.components.draw.Painter;
 import core.utils.components.draw.TextureHandler;
 import core.utils.controller.AbstractController;
 import core.utils.controller.SystemController;
+
+import quizquestion.DummyQuizQuestionList;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
-import quizquestion.DummyQuizQuestionList;
 
 /** The heart of the framework. From here all strings are pulled. */
 public class Game extends ScreenAdapter implements IOnLevelLoader {

@@ -4,11 +4,13 @@ import core.Component;
 import core.Entity;
 import core.utils.components.draw.Animation;
 import core.utils.logging.CustomLogLevel;
-import java.util.List;
-import java.util.logging.Logger;
+
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
+
+import java.util.List;
+import java.util.logging.Logger;
 
 /** VelocityComponent is a component that stores the x, y movement direction */
 @DSLType(name = "velocity_component")

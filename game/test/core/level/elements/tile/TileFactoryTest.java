@@ -6,6 +6,7 @@ import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+
 import org.junit.Test;
 
 public class TileFactoryTest {

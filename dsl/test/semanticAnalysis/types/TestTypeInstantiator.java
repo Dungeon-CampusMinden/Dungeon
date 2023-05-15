@@ -2,19 +2,26 @@ package semanticAnalysis.types;
 
 import dslToGame.QuestConfig;
 import dslToGame.graph.Graph;
+
 import helpers.Helpers;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import runtime.MemorySpace;
+
+import semanticAnalysis.Scope;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.junit.Assert;
-import org.junit.Test;
-import runtime.MemorySpace;
-import semanticAnalysis.Scope;
 
 public class TestTypeInstantiator {
     @Test
     public void testInstantiatorRecord()
-            throws NoSuchFieldException, InvocationTargetException, InstantiationException,
+            throws NoSuchFieldException,
+                    InvocationTargetException,
+                    InstantiationException,
                     IllegalAccessException {
         MemorySpace ms = new MemorySpace();
         HashMap<String, Object> setValues = new HashMap<>();
@@ -70,7 +77,9 @@ public class TestTypeInstantiator {
 
     @Test
     public void testInstantiatorClass()
-            throws NoSuchFieldException, InvocationTargetException, InstantiationException,
+            throws NoSuchFieldException,
+                    InvocationTargetException,
+                    InstantiationException,
                     IllegalAccessException {
         MemorySpace ms = new MemorySpace();
         HashMap<String, Object> setValues = new HashMap<>();

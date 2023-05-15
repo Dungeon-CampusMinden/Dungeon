@@ -1,6 +1,7 @@
 package contrib.systems;
 
 import contrib.components.AIComponent;
+
 import core.Entity;
 import core.Game;
 import core.System;

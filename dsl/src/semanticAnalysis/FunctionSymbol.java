@@ -1,9 +1,12 @@
 package semanticAnalysis;
 
 import interpreter.DSLInterpreter;
-import java.util.List;
+
 import parser.AST.Node;
+
 import semanticAnalysis.types.IType;
+
+import java.util.List;
 
 public class FunctionSymbol extends ScopedSymbol implements ICallable {
 

@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import core.Entity;
 import core.Game;
 import core.utils.controller.SystemController;
+
 import org.junit.Test;
 
 public class XPComponentTest {

@@ -2,6 +2,7 @@ package contrib.utils.components.ai.transition;
 
 import contrib.components.HealthComponent;
 import contrib.utils.components.ai.ITransition;
+
 import core.Entity;
 import core.utils.components.MissingComponentException;
 

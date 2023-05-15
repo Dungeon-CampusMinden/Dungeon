@@ -6,9 +6,11 @@ import static org.mockito.Mockito.times;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.health.IOnDeathFunction;
+
 import core.Entity;
 import core.Game;
 import core.utils.components.draw.Animation;
+
 import org.junit.Test;
 import org.mockito.Mockito;
 

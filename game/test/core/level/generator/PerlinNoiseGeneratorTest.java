@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotNull;
 
 import core.level.elements.ILevel;
 import core.level.generator.perlinNoise.PerlinNoiseGenerator;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

@@ -21,9 +21,10 @@
 
 package semanticAnalysis;
 
+import parser.AST.Node;
+
 import java.util.ArrayList;
 import java.util.HashMap;
-import parser.AST.Node;
 
 /** The results of semantic analysis done by SymbolTableParser */
 public class SymbolTable {

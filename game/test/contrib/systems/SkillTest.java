@@ -4,8 +4,10 @@ import static org.junit.Assert.*;
 
 import contrib.utils.components.skill.ISkillFunction;
 import contrib.utils.components.skill.Skill;
+
 import core.Entity;
 import core.utils.Constants;
+
 import org.junit.After;
 import org.junit.Test;
 

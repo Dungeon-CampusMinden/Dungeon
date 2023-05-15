@@ -1,8 +1,9 @@
 package runtime;
 
+import semanticAnalysis.types.IType;
+
 import java.util.Map;
 import java.util.Set;
-import semanticAnalysis.types.IType;
 
 public class AggregateValue extends Value {
     protected IMemorySpace ms;

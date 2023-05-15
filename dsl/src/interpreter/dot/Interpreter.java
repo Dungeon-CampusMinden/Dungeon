@@ -2,13 +2,15 @@ package interpreter.dot;
 
 import dslToGame.graph.Edge;
 import dslToGame.graph.Graph;
+// CHECKSTYLE:OFF: AvoidStarImport
+
+import parser.AST.*;
+// CHECKSTYLE:ON: AvoidStarImport
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
-// CHECKSTYLE:OFF: AvoidStarImport
-import parser.AST.*;
-// CHECKSTYLE:ON: AvoidStarImport
 
 public class Interpreter implements AstVisitor<dslToGame.graph.Node<String>> {
     // how to build graph?

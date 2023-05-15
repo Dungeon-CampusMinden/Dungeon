@@ -3,7 +3,9 @@ package interpreter.dot;
 import static org.junit.Assert.assertTrue;
 
 import helpers.Helpers;
+
 import org.junit.Test;
+
 import parser.AST.DotDefNode;
 
 public class TestDotInterpreter {

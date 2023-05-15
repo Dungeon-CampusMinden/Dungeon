@@ -5,9 +5,11 @@ import core.Entity;
 import core.Game;
 import core.utils.Point;
 import core.utils.logging.CustomLogLevel;
-import java.util.logging.Logger;
+
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
+
+import java.util.logging.Logger;
 
 /** A PositionComponent stores the associated entity's position in the level */
 @DSLType(name = "position_component")

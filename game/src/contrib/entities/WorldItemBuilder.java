@@ -3,6 +3,7 @@ package contrib.entities;
 import contrib.components.CollideComponent;
 import contrib.components.ItemComponent;
 import contrib.utils.components.item.ItemData;
+
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;

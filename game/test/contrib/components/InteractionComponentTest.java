@@ -4,7 +4,9 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import contrib.utils.components.interaction.IInteraction;
+
 import core.Entity;
+
 import org.junit.Test;
 import org.mockito.Mockito;
 
