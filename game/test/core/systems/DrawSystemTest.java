@@ -1,13 +1,10 @@
 package core.systems;
 
-import static org.junit.Assert.assertThrows;
-
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.Painter;
 import core.utils.controller.SystemController;
@@ -40,13 +37,6 @@ public class DrawSystemTest {
          * This method can not be tested because we can not mock the internal PainterConfig Object
          * in the DrawSystem. The PainterConfig needs libGDX setup
          */
-    }
-
-    @Test
-    public void updateWithoutPositionComponent() {
-        entity.removeComponent(PositionComponent.class);
-        Mockito.verifyNoMoreInteractions(painter);
-        assertThrows(MissingComponentException.class, () -> drawSystem.update());
     }
 
     @Test

@@ -40,7 +40,7 @@ public class VelocitySystemTest {
 
     @Before
     public void setup() {
-        Game.systems = Mockito.mock(SystemController.class);
+        Game.systems = new SystemController();
         Game.currentLevel = level;
         Mockito.when(level.getTileAt(Mockito.any())).thenReturn(tile);
         Game.getDelayedEntitySet().removeAll(Game.getEntities());

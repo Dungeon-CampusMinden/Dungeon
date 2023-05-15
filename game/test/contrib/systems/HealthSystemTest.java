@@ -11,7 +11,6 @@ import contrib.utils.components.health.IOnDeathFunction;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
-import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.controller.SystemController;
 
