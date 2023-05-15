@@ -10,7 +10,6 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -18,23 +17,35 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /** MovementSystem is a system that updates the position of entities */
 public class VelocitySystem extends System {
 
-    private record VSData(Entity e, VelocityComponent vc, PositionComponent pc) {}
+    private record VSData(Entity e, VelocityComponent vc, PositionComponent pc, DrawComponent dc) {}
 
+    @Override
+    public void accept(Entity entity) {
+        if (entity.getComponent(VelocityComponent.class).isPresent())
+            if (entity.getComponent(PositionComponent.class).isPresent())
+                if (entity.getComponent(DrawComponent.class).isPresent()) addEntity(entity);
+                else {
+                    logMissingComponent(entity, DrawComponent.class);
+                    removeEntity(entity);
+                }
+            else {
+                logMissingComponent(entity, PositionComponent.class);
+                removeEntity(entity);
+            }
+        else removeEntity(entity);
+    }
     /** Updates the position of all entities based on their velocity */
     public void update() {
-        Game.getEntities().stream()
-                .flatMap(e -> e.getComponent(VelocityComponent.class).stream())
-                .map(vc -> buildDataObject((VelocityComponent) vc))
-                .forEach(this::updatePosition);
+        getEntityStream().map(this::buildDataObject).forEach(this::updatePosition);
     }
 
-    private VSData updatePosition(VSData vsd) {
+    private void updatePosition(VSData vsd) {
         float newX = vsd.pc.getPosition().x + vsd.vc.getCurrentXVelocity();
         float newY = vsd.pc.getPosition().y + vsd.vc.getCurrentYVelocity();
         Point newPosition = new Point(newX, newY);
         if (Game.currentLevel.getTileAt(newPosition.toCoordinate()).isAccessible()) {
             vsd.pc.setPosition(newPosition);
-            movementAnimation(vsd.e);
+            movementAnimation(vsd);
         }
 
         // remove projectiles that hit the wall or other non-accessible
@@ -44,25 +55,23 @@ public class VelocitySystem extends System {
 
         vsd.vc.setCurrentYVelocity(0);
         vsd.vc.setCurrentXVelocity(0);
-
-        return vsd;
     }
 
-    private VSData buildDataObject(VelocityComponent vc) {
-        Entity e = vc.getEntity();
+    private VSData buildDataObject(Entity e) {
+        VelocityComponent vc = (VelocityComponent) e.getComponent(VelocityComponent.class).get();
 
-        PositionComponent pc =
-                (PositionComponent)
-                        e.getComponent(PositionComponent.class)
-                                .orElseThrow(VelocitySystem::missingPC);
+        PositionComponent pc = (PositionComponent) e.getComponent(PositionComponent.class).get();
 
-        return new VSData(e, vc, pc);
+        DrawComponent dc = (DrawComponent) e.getComponent(DrawComponent.class).get();
+
+        return new VSData(e, vc, pc, dc);
     }
 
-    private void movementAnimation(Entity entity) {
+    private void movementAnimation(VSData vsd) {
 
         AtomicBoolean isDead = new AtomicBoolean(false);
-        entity.getComponent(HealthComponent.class)
+        vsd.e
+                .getComponent(HealthComponent.class)
                 .ifPresent(
                         component -> {
                             HealthComponent healthComponent = (HealthComponent) component;
@@ -73,31 +82,17 @@ public class VelocitySystem extends System {
             return;
         }
 
-        DrawComponent ac =
-                (DrawComponent)
-                        entity.getComponent(DrawComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("AnimationComponent"));
         Animation newCurrentAnimation;
-        VelocityComponent vc =
-                (VelocityComponent)
-                        entity.getComponent(VelocityComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("VelocityComponent"));
-        float x = vc.getCurrentXVelocity();
-        if (x > 0) newCurrentAnimation = vc.getMoveRightAnimation();
-        else if (x < 0) newCurrentAnimation = vc.getMoveLeftAnimation();
+        float x = vsd.vc.getCurrentXVelocity();
+        if (x > 0) newCurrentAnimation = vsd.vc.getMoveRightAnimation();
+        else if (x < 0) newCurrentAnimation = vsd.vc.getMoveLeftAnimation();
         // idle
         else {
-            if (ac.getCurrentAnimation() == ac.getIdleLeft()
-                    || ac.getCurrentAnimation() == vc.getMoveLeftAnimation())
-                newCurrentAnimation = ac.getIdleLeft();
-            else newCurrentAnimation = ac.getIdleRight();
+            if (vsd.dc.getCurrentAnimation() == vsd.dc.getIdleLeft()
+                    || vsd.dc.getCurrentAnimation() == vsd.vc.getMoveLeftAnimation())
+                newCurrentAnimation = vsd.dc.getIdleLeft();
+            else newCurrentAnimation = vsd.dc.getIdleRight();
         }
-        ac.setCurrentAnimation(newCurrentAnimation);
-    }
-
-    private static MissingComponentException missingPC() {
-        return new MissingComponentException("PositionComponent");
+        vsd.dc.setCurrentAnimation(newCurrentAnimation);
     }
 }
