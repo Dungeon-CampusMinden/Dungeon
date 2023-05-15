@@ -20,6 +20,9 @@ public class SystemTest {
         testSystem =
                 new System() {
                     @Override
+                    public void accept(Entity entity) {}
+
+                    @Override
                     public void systemUpdate() {
                         updates++;
                     }
