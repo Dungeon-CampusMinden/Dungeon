@@ -4,21 +4,28 @@ import static org.junit.Assert.*;
 
 import dslToGame.QuestConfig;
 import dslToGame.graph.Graph;
+
 import helpers.Helpers;
+
 import interpreter.mockECS.*;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import parser.AST.Node;
+
+import runtime.*;
+
+import semanticAnalysis.Scope;
+import semanticAnalysis.Symbol;
+import semanticAnalysis.SymbolTableParser;
+import semanticAnalysis.types.*;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import org.junit.Assert;
-import org.junit.Test;
-import parser.AST.Node;
-import runtime.*;
-import semanticAnalysis.Scope;
-import semanticAnalysis.Symbol;
-import semanticAnalysis.SymbolTableParser;
-import semanticAnalysis.types.*;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */

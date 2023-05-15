@@ -1,6 +1,7 @@
 package contrib.components;
 
 import contrib.utils.components.xp.ILevelUp;
+
 import core.Component;
 import core.Entity;
 

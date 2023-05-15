@@ -1,6 +1,9 @@
 package semanticAnalysis.types;
 
 import dslToGame.graph.Graph;
+
+import semanticAnalysis.*;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -11,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import semanticAnalysis.*;
 
 public class TypeBuilder {
     private final HashMap<Class<?>, Method> typeAdapters;

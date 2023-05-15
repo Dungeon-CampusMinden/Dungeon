@@ -1,9 +1,11 @@
 package contrib.systems;
 
 import contrib.components.CollideComponent;
+
 import core.Game;
 import core.System;
 import core.level.Tile;
+
 import java.util.HashMap;
 import java.util.Map;
 

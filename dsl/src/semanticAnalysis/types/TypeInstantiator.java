@@ -2,13 +2,14 @@ package semanticAnalysis.types;
 
 import static semanticAnalysis.types.TypeBuilder.convertToDSLName;
 
+import runtime.IMemorySpace;
+import runtime.Value;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import runtime.IMemorySpace;
-import runtime.Value;
 
 // TODO: handle complex adapted types
 

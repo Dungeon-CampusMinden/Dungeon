@@ -1,10 +1,14 @@
 package semanticAnalysis;
 
 import helpers.Helpers;
+
 import org.junit.Assert;
 import org.junit.Test;
+
 import parser.AST.GameObjectDefinitionNode;
+
 import runtime.GameEnvironment;
+
 import semanticAnalysis.types.*;
 
 public class TestTypeBinder {

@@ -14,6 +14,7 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.controller.SystemController;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

@@ -1,6 +1,7 @@
 package contrib.utils.components.stats;
 
 import contrib.utils.components.health.DamageType;
+
 import java.util.HashMap;
 import java.util.Map;
 

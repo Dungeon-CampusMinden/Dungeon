@@ -21,10 +21,11 @@
 
 package semanticAnalysis;
 
+import semanticAnalysis.types.IType;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import semanticAnalysis.types.IType;
 
 public class ScopedSymbol extends Symbol implements IScope {
 

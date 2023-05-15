@@ -5,10 +5,12 @@ import core.level.generator.IGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+
 import dslToGame.ConvertedGraph;
 import dslToGame.DotToLevelGraph;
 import dslToGame.graph.Graph;
 import dslToGame.graph.Node;
+
 import java.util.HashMap;
 
 /**

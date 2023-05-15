@@ -1,6 +1,7 @@
 package core.level.generator.perlinNoise;
 
 import core.level.utils.Coordinate;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;

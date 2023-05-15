@@ -1,6 +1,7 @@
 package core;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
 import core.level.IOnLevelLoader;
 import core.level.Tile;
 import core.level.elements.ILevel;
@@ -10,6 +11,7 @@ import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;

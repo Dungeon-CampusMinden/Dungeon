@@ -6,6 +6,7 @@ import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+
 import java.util.Random;
 
 public interface ITileable extends IPathable {

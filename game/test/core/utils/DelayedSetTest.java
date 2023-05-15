@@ -3,9 +3,10 @@ package core.utils;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Test;
+
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.Test;
 
 public class DelayedSetTest {
 

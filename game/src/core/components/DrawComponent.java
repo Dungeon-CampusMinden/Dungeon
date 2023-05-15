@@ -6,11 +6,13 @@ import core.systems.DrawSystem;
 import core.systems.VelocitySystem;
 import core.utils.components.draw.Animation;
 import core.utils.logging.CustomLogLevel;
-import java.util.List;
-import java.util.logging.Logger;
+
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 import semanticAnalysis.types.DSLTypeMember;
+
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * The AnimationComponent associates an entity with its animations. It stores the current animation

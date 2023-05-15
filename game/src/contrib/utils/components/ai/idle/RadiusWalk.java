@@ -1,8 +1,10 @@
 package contrib.utils.components.ai.idle;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
+
 import contrib.utils.components.ai.AITools;
 import contrib.utils.components.ai.IIdleAI;
+
 import core.Entity;
 import core.level.Tile;
 import core.utils.Constants;

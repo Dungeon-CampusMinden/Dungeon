@@ -2,15 +2,17 @@ package runtime;
 
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
+
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+
 import dslToGame.AnimationBuilder;
 import dslToGame.QuestConfig;
-import java.util.ArrayList;
-import java.util.HashMap;
+
 import runtime.nativeFunctions.NativePrint;
+
 import semanticAnalysis.IScope;
 import semanticAnalysis.Scope;
 import semanticAnalysis.Symbol;
@@ -18,6 +20,9 @@ import semanticAnalysis.SymbolTable;
 import semanticAnalysis.types.BuiltInType;
 import semanticAnalysis.types.IType;
 import semanticAnalysis.types.TypeBuilder;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GameEnvironment implements IEvironment {
     // TODO: the type builder should also be part of some 'type factory' to

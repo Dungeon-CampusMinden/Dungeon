@@ -5,10 +5,12 @@ import static org.junit.Assert.*;
 import contrib.components.SkillComponent;
 import contrib.utils.components.skill.ISkillFunction;
 import contrib.utils.components.skill.Skill;
+
 import core.Entity;
 import core.Game;
 import core.utils.Constants;
 import core.utils.controller.SystemController;
+
 import org.junit.Test;
 import org.mockito.Mockito;
 

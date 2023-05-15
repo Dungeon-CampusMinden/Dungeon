@@ -3,12 +3,16 @@ package semanticAnalysis.types;
 import static org.junit.Assert.*;
 
 import dslToGame.graph.Graph;
+
 import interpreter.mockECS.ExternalType;
 import interpreter.mockECS.ExternalTypeBuilderMultiParam;
-import java.lang.reflect.InvocationTargetException;
+
 import org.junit.Test;
+
 import semanticAnalysis.Scope;
 import semanticAnalysis.Symbol;
+
+import java.lang.reflect.InvocationTargetException;
 
 public class TestTypeBuilder {
     @Test

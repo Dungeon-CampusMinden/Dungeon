@@ -3,10 +3,12 @@ package contrib.utils.components.interaction;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.utils.components.item.ItemData;
+
 import core.Entity;
 import core.components.*;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+
 import java.util.List;
 import java.util.stream.IntStream;
 

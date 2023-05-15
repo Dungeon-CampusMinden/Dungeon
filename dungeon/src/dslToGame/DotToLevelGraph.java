@@ -1,9 +1,11 @@
 package dslToGame;
 
 import core.level.levelgraph.LevelNode;
+
 import dslToGame.graph.Edge;
 import dslToGame.graph.Graph;
 import dslToGame.graph.Node;
+
 import java.util.*;
 
 public class DotToLevelGraph {

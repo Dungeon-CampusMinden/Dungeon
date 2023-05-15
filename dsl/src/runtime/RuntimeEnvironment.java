@@ -1,10 +1,11 @@
 package runtime;
 
-import java.util.HashMap;
 import semanticAnalysis.IScope;
 import semanticAnalysis.Symbol;
 import semanticAnalysis.SymbolTable;
 import semanticAnalysis.types.IType;
+
+import java.util.HashMap;
 
 // this extends the normal IEnvironment definition by storing prototypes
 // which are basically evaluated type definitions (of game objects)

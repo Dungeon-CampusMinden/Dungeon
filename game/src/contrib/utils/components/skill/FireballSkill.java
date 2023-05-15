@@ -2,6 +2,7 @@ package contrib.utils.components.skill;
 
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
+
 import core.utils.Point;
 
 public class FireballSkill extends DamageProjectileSkill {

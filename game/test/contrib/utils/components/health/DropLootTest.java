@@ -4,11 +4,13 @@ import static org.junit.Assert.*;
 
 import contrib.components.InventoryComponent;
 import contrib.utils.components.item.ItemData;
+
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+
 import org.junit.Test;
 
 public class DropLootTest {

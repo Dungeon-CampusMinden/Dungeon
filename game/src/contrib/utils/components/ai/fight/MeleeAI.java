@@ -1,9 +1,11 @@
 package contrib.utils.components.ai.fight;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
+
 import contrib.utils.components.ai.AITools;
 import contrib.utils.components.ai.IFightAI;
 import contrib.utils.components.skill.Skill;
+
 import core.Entity;
 import core.level.Tile;
 import core.utils.Constants;

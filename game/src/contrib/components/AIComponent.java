@@ -7,8 +7,10 @@ import contrib.utils.components.ai.ITransition;
 import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
+
 import core.Component;
 import core.Entity;
+
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
 

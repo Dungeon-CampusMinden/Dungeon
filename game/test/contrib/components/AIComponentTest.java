@@ -6,7 +6,9 @@ import static org.mockito.Mockito.*;
 import contrib.utils.components.ai.IFightAI;
 import contrib.utils.components.ai.IIdleAI;
 import contrib.utils.components.ai.ITransition;
+
 import core.Entity;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

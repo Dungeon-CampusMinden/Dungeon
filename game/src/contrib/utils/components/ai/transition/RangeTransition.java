@@ -2,6 +2,7 @@ package contrib.utils.components.ai.transition;
 
 import contrib.utils.components.ai.AITools;
 import contrib.utils.components.ai.ITransition;
+
 import core.Entity;
 
 public class RangeTransition implements ITransition {

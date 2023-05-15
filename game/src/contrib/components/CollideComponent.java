@@ -1,6 +1,7 @@
 package contrib.components;
 
 import contrib.utils.components.collision.ICollide;
+
 import core.Component;
 import core.Entity;
 import core.components.PositionComponent;
@@ -8,9 +9,11 @@ import core.level.Tile;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
-import java.util.logging.Logger;
+
 import semanticAnalysis.types.DSLContextMember;
 import semanticAnalysis.types.DSLType;
+
+import java.util.logging.Logger;
 
 @DSLType(name = "hitbox_component")
 public class CollideComponent extends Component {

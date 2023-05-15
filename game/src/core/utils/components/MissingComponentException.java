@@ -1,6 +1,7 @@
 package core.utils.components;
 
 import core.utils.logging.CustomLogLevel;
+
 import java.util.logging.Logger;
 
 public class MissingComponentException extends NullPointerException {

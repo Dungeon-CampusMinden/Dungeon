@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import core.Entity;
 import core.utils.Point;
+
 import org.junit.Before;
 import org.junit.Test;
 

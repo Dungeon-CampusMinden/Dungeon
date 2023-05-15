@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import contrib.components.InteractionComponent;
+
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -14,7 +15,9 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+
 import org.junit.Test;
+
 import testingUtils.SimpleCounter;
 
 public class InteractionToolTest {

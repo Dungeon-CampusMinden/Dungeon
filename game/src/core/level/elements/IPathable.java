@@ -6,6 +6,7 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.utils.Array;
+
 import core.level.Tile;
 import core.level.elements.astar.TileHeuristic;
 

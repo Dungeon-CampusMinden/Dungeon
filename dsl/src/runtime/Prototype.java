@@ -1,12 +1,13 @@
 package runtime;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import semanticAnalysis.Scope;
 import semanticAnalysis.Symbol;
 import semanticAnalysis.types.AggregateType;
 import semanticAnalysis.types.IType;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 // TODO: make this a subclass of AggregateType
 // TODO: add class description

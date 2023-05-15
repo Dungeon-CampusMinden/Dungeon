@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
 import core.LevelManager;
 import core.level.elements.ILevel;
 import core.level.generator.IGenerator;
@@ -22,6 +23,7 @@ import core.utils.Point;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 import core.utils.components.draw.TextureMap;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

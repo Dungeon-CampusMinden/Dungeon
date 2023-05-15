@@ -1,6 +1,7 @@
 package contrib.systems;
 
 import com.badlogic.gdx.Gdx;
+
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
@@ -9,6 +10,7 @@ import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
 import contrib.utils.components.skill.SkillTools;
+
 import core.Entity;
 import core.Game;
 import core.System;
@@ -19,7 +21,9 @@ import core.level.utils.LevelSize;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
+
 import dslToGame.AnimationBuilder;
+
 import java.util.logging.Logger;
 
 /**

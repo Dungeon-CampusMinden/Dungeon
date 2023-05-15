@@ -3,12 +3,15 @@ package contrib.components;
 import static org.junit.Assert.*;
 
 import contrib.utils.components.collision.ICollide;
+
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+
 import org.junit.Test;
+
 import testingUtils.SimpleCounter;
 
 public class CollisionComponentTest {

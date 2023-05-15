@@ -1,13 +1,18 @@
 package semanticAnalysis;
 
 import dslToGame.graph.Graph;
+
 import helpers.Helpers;
+
 import org.junit.Assert;
 import org.junit.Test;
+
 import parser.AST.GameObjectDefinitionNode;
 import parser.AST.Node;
+
 import runtime.GameEnvironment;
 import runtime.nativeFunctions.NativePrint;
+
 import semanticAnalysis.types.*;
 
 public class TestSymbolTableParser {
