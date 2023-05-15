@@ -3,10 +3,9 @@ package contrib.components;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
-import contrib.component.AIComponent;
-import contrib.utils.componentUtils.aiComponent.IFightAI;
-import contrib.utils.componentUtils.aiComponent.IIdleAI;
-import contrib.utils.componentUtils.aiComponent.ITransition;
+import contrib.utils.components.ai.IFightAI;
+import contrib.utils.components.ai.IIdleAI;
+import contrib.utils.components.ai.ITransition;
 import core.Entity;
 import org.junit.Before;
 import org.junit.Test;

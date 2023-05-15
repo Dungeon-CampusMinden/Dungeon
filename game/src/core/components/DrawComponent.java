@@ -4,7 +4,7 @@ import core.Component;
 import core.Entity;
 import core.systems.DrawSystem;
 import core.systems.VelocitySystem;
-import core.utils.componentUtils.drawComponent.Animation;
+import core.utils.components.draw.Animation;
 import core.utils.logging.CustomLogLevel;
 import java.util.List;
 import java.util.logging.Logger;

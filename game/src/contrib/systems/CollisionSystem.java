@@ -1,6 +1,6 @@
 package contrib.systems;
 
-import contrib.component.CollideComponent;
+import contrib.components.CollideComponent;
 import core.Game;
 import core.System;
 import core.level.Tile;

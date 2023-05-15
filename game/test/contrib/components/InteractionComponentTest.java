@@ -3,8 +3,7 @@ package contrib.components;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import contrib.component.InteractionComponent;
-import contrib.utils.componentUtils.interactionComponent.IInteraction;
+import contrib.utils.components.interaction.IInteraction;
 import core.Entity;
 import org.junit.Test;
 import org.mockito.Mockito;

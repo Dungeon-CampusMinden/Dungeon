@@ -1,13 +1,13 @@
 package contrib.systems;
 
-import contrib.component.ProjectileComponent;
+import contrib.components.ProjectileComponent;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
-import core.utils.componentUtils.MissingComponentException;
+import core.utils.components.MissingComponentException;
 
 public class ProjectileSystem extends System {
 

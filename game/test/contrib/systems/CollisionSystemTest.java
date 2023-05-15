@@ -2,8 +2,8 @@ package contrib.systems;
 
 import static org.junit.Assert.*;
 
-import contrib.component.CollideComponent;
-import contrib.utils.componentUtils.collisionComponent.ICollide;
+import contrib.components.CollideComponent;
+import contrib.utils.components.collision.ICollide;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;

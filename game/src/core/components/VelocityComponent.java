@@ -2,7 +2,7 @@ package core.components;
 
 import core.Component;
 import core.Entity;
-import core.utils.componentUtils.drawComponent.Animation;
+import core.utils.components.draw.Animation;
 import core.utils.logging.CustomLogLevel;
 import java.util.List;
 import java.util.logging.Logger;

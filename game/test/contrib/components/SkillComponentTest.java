@@ -2,8 +2,7 @@ package contrib.components;
 
 import static org.junit.Assert.*;
 
-import contrib.component.SkillComponent;
-import contrib.utils.componentUtils.skillComponent.Skill;
+import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
 import org.junit.After;

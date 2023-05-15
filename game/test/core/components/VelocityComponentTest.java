@@ -3,7 +3,7 @@ package core.components;
 import static org.junit.Assert.assertEquals;
 
 import core.Entity;
-import core.utils.componentUtils.drawComponent.Animation;
+import core.utils.components.draw.Animation;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

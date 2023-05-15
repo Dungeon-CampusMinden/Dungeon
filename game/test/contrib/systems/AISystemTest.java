@@ -2,8 +2,8 @@ package contrib.systems;
 
 import static org.junit.Assert.assertEquals;
 
-import contrib.component.AIComponent;
-import contrib.utils.componentUtils.aiComponent.ITransition;
+import contrib.components.AIComponent;
+import contrib.utils.components.ai.ITransition;
 import core.Entity;
 import core.Game;
 import core.utils.controller.SystemController;

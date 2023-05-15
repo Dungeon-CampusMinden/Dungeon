@@ -11,7 +11,7 @@ import core.LevelManager;
 import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.utils.Constants;
 import core.utils.DungeonCamera;
-import core.utils.componentUtils.drawComponent.Painter;
+import core.utils.components.draw.Painter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

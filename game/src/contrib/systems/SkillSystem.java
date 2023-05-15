@@ -1,6 +1,6 @@
 package contrib.systems;
 
-import contrib.component.SkillComponent;
+import contrib.components.SkillComponent;
 import core.Game;
 import core.System;
 

@@ -2,13 +2,12 @@ package contrib.components;
 
 import static org.junit.Assert.*;
 
-import contrib.component.CollideComponent;
-import contrib.utils.componentUtils.collisionComponent.ICollide;
+import contrib.utils.components.collision.ICollide;
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.utils.Point;
-import core.utils.componentUtils.MissingComponentException;
+import core.utils.components.MissingComponentException;
 import org.junit.Test;
 import testingUtils.SimpleCounter;
 

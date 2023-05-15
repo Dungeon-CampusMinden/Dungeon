@@ -3,13 +3,12 @@ package contrib.components;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 
-import contrib.component.HealthComponent;
-import contrib.utils.componentUtils.healthComponent.Damage;
-import contrib.utils.componentUtils.healthComponent.DamageType;
-import contrib.utils.componentUtils.healthComponent.IOnDeathFunction;
+import contrib.utils.components.health.Damage;
+import contrib.utils.components.health.DamageType;
+import contrib.utils.components.health.IOnDeathFunction;
 import core.Entity;
 import core.Game;
-import core.utils.componentUtils.drawComponent.Animation;
+import core.utils.components.draw.Animation;
 import org.junit.Test;
 import org.mockito.Mockito;
 

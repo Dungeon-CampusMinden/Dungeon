@@ -1,7 +1,7 @@
 package runtime;
 
-import contrib.component.AIComponent;
-import contrib.component.CollideComponent;
+import contrib.components.AIComponent;
+import contrib.components.CollideComponent;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;

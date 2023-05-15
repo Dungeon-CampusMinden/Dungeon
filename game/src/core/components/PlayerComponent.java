@@ -1,6 +1,6 @@
 package core.components;
 
-import contrib.utils.componentUtils.skillComponent.Skill;
+import contrib.utils.components.skill.Skill;
 import core.Component;
 import core.Entity;
 import core.utils.logging.CustomLogLevel;

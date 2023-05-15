@@ -2,7 +2,7 @@ package core.components;
 
 import static org.junit.Assert.*;
 
-import contrib.utils.componentUtils.skillComponent.Skill;
+import contrib.utils.components.skill.Skill;
 import core.Entity;
 import org.junit.Before;
 import org.junit.Test;

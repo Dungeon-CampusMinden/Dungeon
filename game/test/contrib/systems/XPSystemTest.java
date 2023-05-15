@@ -2,8 +2,8 @@ package contrib.systems;
 
 import static org.junit.Assert.*;
 
-import contrib.component.XPComponent;
-import contrib.utils.componentUtils.xpComponent.ILevelUp;
+import contrib.components.XPComponent;
+import contrib.utils.components.xp.ILevelUp;
 import core.Entity;
 import core.Game;
 import core.utils.controller.SystemController;

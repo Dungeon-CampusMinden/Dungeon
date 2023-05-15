@@ -1,6 +1,6 @@
 package contrib.systems;
 
-import contrib.component.XPComponent;
+import contrib.components.XPComponent;
 import core.Game;
 import core.System;
 
