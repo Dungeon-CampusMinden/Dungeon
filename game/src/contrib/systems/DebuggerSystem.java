@@ -226,4 +226,9 @@ public class DebuggerSystem extends System {
             DEBUGGER_LOGGER.info("Cannot spawn monster at non-existent or non-accessible tile");
         }
     }
+
+    @Override
+    public void accept(Entity entity) {
+
+    }
 }
