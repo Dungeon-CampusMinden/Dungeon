@@ -1,6 +1,7 @@
 package starter;
 
-import configuration.KeyboardConfig;
+import contrib.configuration.KeyboardConfig;
+import core.Game;
 import java.io.IOException;
 
 public class Main {

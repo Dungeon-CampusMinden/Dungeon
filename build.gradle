@@ -49,10 +49,10 @@ dependencies {
 
 sourceCompatibility = 17
 [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
-sourceSets.main.java.srcDirs = ["game/src/", "dsl/src/", "dsl-connector/src", "$projectDir/build/generated-src/"]
+sourceSets.main.java.srcDirs = ["game/src/", "dsl/src/", "dungeon/src", "$projectDir/build/generated-src/"]
 sourceSets.main.resources.srcDirs = ["game/assets/"]
 sourceSets.test.resources.srcDirs = ["dsl/test_resources"]
-sourceSets.test.java.srcDirs = ["game/test/", "dsl/test/", "dsl-connector/test"]
+sourceSets.test.java.srcDirs = ["game/test/", "dsl/test/", "dungeon/test"]
 sourceSets.main.antlr.srcDirs = ["dsl/src/antlr"]
 
 project.ext.mainClassName = "starter.Main"
