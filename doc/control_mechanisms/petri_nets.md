@@ -99,7 +99,7 @@ markiert).
 
 ### Optionale Teilaufgabe
 
-![Optionale Teilaufgabe](img/optional_subtask.png)
+![Optionale Teilaufgabe: Graph](img/optional_subtask.png)
 
 Für $t_2$ muss nicht zwingend eine Antwort gegeben werden, bevor $t_1$ abgeschlossen werden kann.
 Eine gegebene Antwort für $t_2$ könnte aber bspw. Bonus-Punkte geben.
@@ -112,6 +112,13 @@ task_dependency t {
   t1 -> t2 [type="st_o"]
 }
 ```
+
+Das Petri-Netz für die Abhängigkeit sieht wie folgt aus:
+
+![Optionale Teilaufgabe: Petri-Netz](img/optional_subtask_petri.png)
+
+Entscheidend ist, dass es die Fertigstellung von $t_2$ keine Auswirkung auf den Zustand von $t_1$ hat. Andersherum
+beendet die Fertigstellung von $t_1$ auch $t_2$, sodass anschließend keine Antwort mehr für $t_2$ abgegeben werden kann.
 
 ### Aufgabensequenz
 
