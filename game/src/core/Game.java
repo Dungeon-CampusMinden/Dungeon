@@ -70,7 +70,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static TextureHandler handler;
 
     /** All entities that are currently active in the dungeon */
-    private static final DelayedEntitySet entities = new DelayedEntitySet();
+    private static final DelayedSet<Entity> entities = new DelayedSet();
 
     /** List of all Systems in the ECS */
     public static SystemController systems;
@@ -159,6 +159,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
     protected void frame() {
+        entities.getToAddSet().forEach(entity -> Game.updateEntity(entity));
+        entities.getToRemoveSet().forEach(entity->systems.forEach(system -> system.removeEntity(entity)));
         entities.update();
         setCameraFocus();
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);

@@ -111,6 +111,14 @@ public class DelayedSet<T> {
         return new HashSet<>(current);
     }
 
+    public Set<T> getToAddSet(){
+        return new HashSet<>(toAdd);
+    }
+
+    public Set<T> getToRemoveSet(){
+        return new HashSet<>(toRemove);
+    }
+
     /** Clear all internal Sets. */
     public void clear() {
         toAdd.clear();
