@@ -122,32 +122,32 @@ beendet die Fertigstellung von $t_1$ auch $t_2$, sodass anschließend keine Antw
 
 ### Aufgabensequenz
 
-![Erforderliche Sequenz: Graph](img/mandatory_sequence.png)
+![Sequenz: Graph](img/sequence.png)
 
 Für $t_1$ muss eine Antwort abgegeben werden, bevor $t_2$ aktiv wird. $t_1$ ist vollständig abgeschlossen (und daher inaktiv),
 während $t_2$ aktiv ist. Die **gesamte Aufgabensequenz** gilt erst als abgeschlossen, wenn die letzte Aufgabe der Sequenz
 abgeschlossen ist.
 
-Kürzel: "sequence_mandatory"/"s_m"
+Kürzel: "sequence"/"s"
 
 Eingabe:
 ```
 task_dependency t {
-  t1 -> t2 [type="s_m"]
+  t1 -> t2 [type="s"]
 }
 ```
 
 Das Petri-Netz für die oben abgebildete Abhängigkeit sieht wie folgt aus:
 
-![Erforderliche Sequenz: Petri-Netz](img/mandatory_sequence_petri.png)
+![Sequenz: Petri-Netz](img/sequence_petri.png)
 
 Für eine Sequenz aus mehreren Aufgaben könnte dies so aussehen:
-![Erforderliche Sequenz aus mehr Aufgaben: Graph](img/mandatory_sequence_multi.png)
+![Sequenz aus mehr Aufgaben: Graph](img/sequence_multi.png)
 
 Eingabe:
 ```
 task_dependency t {
-  t1 -> t2 -> t3 [type="s_m"]
+  t1 -> t2 -> t3 [type="s"]
 }
 ```
 
