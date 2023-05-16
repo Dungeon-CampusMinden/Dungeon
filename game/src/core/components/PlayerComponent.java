@@ -1,5 +1,7 @@
 package core.components;
 
+import com.badlogic.gdx.utils.Null;
+
 import contrib.utils.components.skill.Skill;
 
 import core.Component;
@@ -10,9 +12,14 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
- * This component is for the player character entity only. It should only be implemented by one
- * entity and mark this entity as the player character. This component stores data that is only
- * relevant for the player character. The PlayerSystems acts on the PlayableComponent.
+ * Component that marks an entity as playable.
+ *
+ * <p>This component is used to mark an entity as playable by the player. It also contains skills
+ * that can be used by the player to interact with the game world. The skills are stored in two
+ * slots. The skills can be null if the entity does not have any skills.
+ *
+ * <p>This component is used by the {@link core.systems.PlayerSystem PlayerSystem} to determine if
+ * an entity is playable or not.
  */
 public class PlayerComponent extends Component {
 
@@ -23,25 +30,39 @@ public class PlayerComponent extends Component {
     private Skill skillSlot2;
 
     /**
-     * @param entity associated entity
-     * @param skillSlot1 skill that will be on the first skillslot
-     * @param skillSlot2 skill that will be on the second skillslot
+     * Creates a new PlayerComponent with specific skills.
+     *
+     * <p>This constructor can be used if the entity has skills. By default, the associated entity
+     * is playable.
+     *
+     * @param entity - the entity this component belongs to
+     * @param skillSlot1 - the first skill slot (can be null)
+     * @param skillSlot2 - the second skill slot (can be null)
      */
-    public PlayerComponent(Entity entity, Skill skillSlot1, Skill skillSlot2) {
+    public PlayerComponent(Entity entity, @Null Skill skillSlot1, @Null Skill skillSlot2) {
         super(entity);
         playable = true;
         this.skillSlot1 = skillSlot1;
         this.skillSlot2 = skillSlot2;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Creates a new PlayerComponent.
+     *
+     * <p>This constructor can be used if the entity does not have any skills. By default, the
+     * associated entity is playable.
+     *
+     * @param entity - the entity this component belongs to
+     */
     public PlayerComponent(Entity entity) {
         super(entity);
         playable = true;
     }
 
     /**
-     * @return the playable state
+     * Checks if the entity is playable or not
+     *
+     * @return true if the entity
      */
     public boolean isPlayable() {
         playableCompLogger.log(
@@ -54,35 +75,45 @@ public class PlayerComponent extends Component {
     }
 
     /**
-     * @param playable set the playabale state
+     * Sets the playable property.
+     *
+     * @param playable - true to play false to
      */
     public void setPlayable(boolean playable) {
         this.playable = playable;
     }
 
     /**
-     * @param skillSlot1 skill that will be on the first skillslot
+     * Sets the first skill slot
+     *
+     * @param skillSlot1 - the first skill slot
      */
     public void setSkillSlot1(Skill skillSlot1) {
         this.skillSlot1 = skillSlot1;
     }
 
     /**
-     * @param skillSlot2 skill that will be on the first skillslot
+     * Sets the second skill slot
+     *
+     * @param skillSlot2 - the second skill slot
      */
     public void setSkillSlot2(Skill skillSlot2) {
         this.skillSlot2 = skillSlot2;
     }
 
     /**
-     * @return skill on first skill slot
+     * Returns the first skill this slot participates in.
+     *
+     * @return An Optional of the first skill this slot participates in
      */
     public Optional<Skill> getSkillSlot1() {
         return Optional.ofNullable(skillSlot1);
     }
 
     /**
-     * @return skill on second skill slot
+     * Returns the second skill in this slot if there is one.
+     *
+     * @return An {@link Optional<Skill>} of the second skill
      */
     public Optional<Skill> getSkillSlot2() {
         return Optional.ofNullable(skillSlot2);
