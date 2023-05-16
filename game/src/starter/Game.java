@@ -86,6 +86,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     // new
     private static InventoryHUD<Actor> inventoryHUD;
+    private static GameOverHUD<Actor> gameOverHUD;
+
     private static boolean inventoryOpen = false;
 
     private static Entity hero;
@@ -137,9 +139,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         controller.add(systems);
 
         // new
+        gameOverHUD = new GameOverHUD<>();
+        controller.add(gameOverHUD);
         inventoryHUD = new InventoryHUD<>();
         controller.add(inventoryHUD);
-
         pauseMenu = new PauseMenu<>();
         controller.add(pauseMenu);
         playHero = new Hero();
@@ -155,6 +158,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         manageEntitiesSets();
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
+        if (Hero.isDead()){
+            openGameOver();
+        };
     }
 
     @Override
@@ -322,6 +328,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
     }
 
+    public static void openGameOver(){
+        systems.forEach(ECS_System::toggleRun);
+        gameOverHUD.showMenu();
+
+    }
     /**
      * Given entity will be added to the game in the next frame
      *

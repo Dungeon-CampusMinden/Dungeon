@@ -11,6 +11,10 @@ import ecs.components.xp.ILevelUp;
 import ecs.components.xp.XPComponent;
 import ecs.graphic.Animation;
 import ecs.graphic.hud.GameOverHUD;
+import ecs.graphic.hud.PauseMenu;
+import ecs.systems.ECS_System;
+
+import static starter.Game.systems;
 
 /**
  * The Hero is the player character. It's entity in the ECS. This class helps to setup the hero with
@@ -47,12 +51,14 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
 
     int currentHealth;
 
+
+    private static boolean dead = false;
+
     /** Entity with Components */
     public Hero() {
         super();
         new PositionComponent(this);
         inv = new InventoryComponent(this, 12);
-
         setupVelocityComponent();
         setupSkillComponent();
         setupAnimationComponent();
@@ -62,9 +68,7 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
         setupHealthComponent();
         setupXpComponent();
         pc.setSkillSlot1(firstSkill);
-
-        this.hp.setCurrentHealthpoints(12); // Set to 12 for testing Game Over
-
+        this.hp.setCurrentHealthpoints(5); // Set to 5 for testing Game Over
         currentHealth = this.hp.getCurrentHealthpoints();
     }
 
@@ -143,6 +147,7 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
 
     @Override
     public void onDeath(Entity entity) {
+        dead = true;
         System.out.println("Hero dead");
     }
 
@@ -178,5 +183,13 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
 
     public void setCurrentHealth(int currentHealth) {
         this.currentHealth = currentHealth;
+    }
+
+    public static boolean isDead() {
+        return dead;
+    }
+
+    public static void setDead(boolean dead) {
+        Hero.dead = dead;
     }
 }
