@@ -32,7 +32,7 @@ dependencies {
     implementation "com.badlogicgames.gdx:gdx-ai:$aiVersion"
 
     // JUnit 4
-    testImplementation "junit:junit:4.+"
+    testImplementation "junit:junit:4.13.2"
 
     // Mockito 5
     testImplementation "org.mockito:mockito-core:5.3.1"
