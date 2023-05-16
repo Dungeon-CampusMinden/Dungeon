@@ -161,7 +161,7 @@ muss entweder $t_2$ oder $t_3$ bearbeitet werden.
 Im folgenden Beispiel muss $t_2$ bearbeitet werden, wenn $t_1$ falsch beantwortet wird, und $t_3$ muss beantwortet werden,
 falls $t_1$ richtig beantwortet wird.
 
-![Bedingte Folgeaufgabe](img/conditional.png)
+![Bedingte Folgeaufgabe: Graph](img/conditional.png)
 
 Kürzel: "conditional_false"/"c_f" und "conditional_correct"/"c_c"
 
@@ -172,6 +172,9 @@ task_dependency t {
   t1 -> t3 [type="c_c"]
 }
 ```
+
+Das Petri-Netz für die oben abgebildete Abhängigkeit sieht wie folgt aus:
+![Bedingte Folgeaufgabe: Petri-Netz](img/conditional_petri.png)
 
 ### Kombination der Beziehungen
 
