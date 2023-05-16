@@ -112,6 +112,7 @@ public class InteractionToolTest {
         Game.currentLevel = prepareLevel();
 
         Entity e = new Entity();
+        Game.getDelayedEntitySet().update();
         new PositionComponent(e, new Point(10, 10));
 
         SimpleCounter sc_e = new SimpleCounter();

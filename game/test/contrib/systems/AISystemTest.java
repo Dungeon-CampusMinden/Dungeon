@@ -20,11 +20,12 @@ public class AISystemTest {
 
     @Before
     public void setup() {
-        Game.systems = new SystemController();
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
+        Game.getDelayedEntitySet().clear();
         Game.getDelayedEntitySet().update();
+        Game.systems = new SystemController();
         system = new AISystem();
         entity = new Entity();
+        Game.getDelayedEntitySet().update();
         AIComponent component = new AIComponent(entity);
         component.setTransitionAI(
                 new ITransition() {
@@ -39,7 +40,6 @@ public class AISystemTest {
 
     @Test
     public void update() {
-        Game.getDelayedEntitySet().update();
         system.update();
         assertEquals(1, updateCounter);
     }

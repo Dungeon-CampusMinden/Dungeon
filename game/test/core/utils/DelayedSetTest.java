@@ -82,6 +82,7 @@ public class DelayedSetTest {
         set.update();
         set.add("4");
         set.clear();
+        set.update();
         assertTrue(set.getSet().isEmpty());
     }
 }

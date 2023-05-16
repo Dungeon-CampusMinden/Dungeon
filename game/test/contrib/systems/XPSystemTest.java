@@ -18,10 +18,11 @@ public class XPSystemTest {
     @Test
     public void testStartingWithZero() {
         /* Prepare */
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
+        Game.getDelayedEntitySet().clear();
         Game.getDelayedEntitySet().update();
         Game.systems = new SystemController();
         Entity entity = new Entity();
+        Game.getDelayedEntitySet().update();
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
@@ -37,10 +38,11 @@ public class XPSystemTest {
     @Test
     public void testNoLevelUp() {
         /* Prepare */
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
+        Game.getDelayedEntitySet().clear();
         Game.getDelayedEntitySet().update();
         Game.systems = new SystemController();
         Entity entity = new Entity();
+        Game.getDelayedEntitySet().update();
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
@@ -55,10 +57,11 @@ public class XPSystemTest {
     @Test
     public void testLevelUpExact() {
         /* Prepare */
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
+        Game.getDelayedEntitySet().clear();
         Game.getDelayedEntitySet().update();
         Game.systems = new SystemController();
         Entity entity = new Entity();
+        Game.getDelayedEntitySet().update();
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
@@ -76,10 +79,11 @@ public class XPSystemTest {
     @Test
     public void testLevelUpOverflow() {
         /* Prepare */
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
+        Game.getDelayedEntitySet().clear();
         Game.getDelayedEntitySet().update();
         Game.systems = new SystemController();
         Entity entity = new Entity();
+        Game.getDelayedEntitySet().update();
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
@@ -99,10 +103,11 @@ public class XPSystemTest {
     @Test
     public void testLevelUpMultipleExact() {
         /* Prepare */
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
+        Game.getDelayedEntitySet().clear();
         Game.getDelayedEntitySet().update();
         Game.systems = new SystemController();
         Entity entity = new Entity();
+        Game.getDelayedEntitySet().update();
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
@@ -122,10 +127,11 @@ public class XPSystemTest {
     @Test
     public void testLevelUpMultipleOverflow() {
         /* Prepare */
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
+        Game.getDelayedEntitySet().clear();
         Game.getDelayedEntitySet().update();
         Game.systems = new SystemController();
         Entity entity = new Entity();
+        Game.getDelayedEntitySet().update();
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
@@ -142,10 +148,11 @@ public class XPSystemTest {
     @Test
     public void testNegativeXP() {
         /* Prepare */
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
+        Game.getDelayedEntitySet().clear();
         Game.getDelayedEntitySet().update();
         Game.systems = new SystemController();
         Entity entity = new Entity();
+        Game.getDelayedEntitySet().update();
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();

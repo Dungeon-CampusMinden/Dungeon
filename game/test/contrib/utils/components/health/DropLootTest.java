@@ -11,10 +11,17 @@ import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class DropLootTest {
     /** Checks the handling when the InventoryComponent is missing on the entity */
+    @Before
+    public void setup() {
+        Game.getDelayedEntitySet().clear();
+        Game.getDelayedEntitySet().update();
+    }
+
     @Test
     public void entityMissingInventoryComponent() {
         DropLoot dropLoot = new DropLoot();

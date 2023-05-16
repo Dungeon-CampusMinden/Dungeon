@@ -27,6 +27,7 @@ public class ChestTest {
     /** Helper cleans up class attributes used by Chest Initializes the Item#ITEM_REGISTER */
     private static void cleanup() {
         Game.getDelayedEntitySet().clear();
+        Game.getDelayedEntitySet().update();
     }
 
     /** checks the correct creation of the Chest */

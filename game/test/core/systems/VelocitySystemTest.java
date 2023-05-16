@@ -43,10 +43,9 @@ public class VelocitySystemTest {
         Game.systems = new SystemController();
         Game.currentLevel = level;
         Mockito.when(level.getTileAt(Mockito.any())).thenReturn(tile);
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
-        Game.getDelayedEntitySet().update();
+        Game.getDelayedEntitySet().clear();
         entity = new Entity();
-
+        Game.getDelayedEntitySet().update();
         velocitySystem = new VelocitySystem();
         velocityComponent =
                 new VelocityComponent(entity, xVelocity, yVelocity, moveLeft, moveRight);
