@@ -50,13 +50,6 @@ public final class Entity {
         Game.updateEntity(this);
     }
 
-    /** Remove all components from this entity. */
-    public void dropAllComponents() {
-        components.clear();
-        LOGGER.log(CustomLogLevel.INFO, "All Components from " + this + " were removed.");
-        Game.updateEntity(this);
-    }
-
     /**
      * Get the component
      *

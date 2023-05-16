@@ -111,18 +111,24 @@ public class DelayedSet<T> {
         return new HashSet<>(current);
     }
 
-    public Set<T> getToAddSet(){
+    public Set<T> getToAddSet() {
         return new HashSet<>(toAdd);
     }
 
-    public Set<T> getToRemoveSet(){
+    public Set<T> getToRemoveSet() {
         return new HashSet<>(toRemove);
     }
 
-    /** Clear all internal Sets. */
+    /**
+     * Add all Objects in {@link #current} to {@link #toRemove}
+     *
+     * <p>Will immediately clear {@link #toAdd}
+     *
+     * <p>After the call of {@link #update}, the objects inside {@link #toRemove} will be removed.
+     * So all Sets will be empty.
+     */
     public void clear() {
         toAdd.clear();
-        toRemove.clear();
-        current.clear();
+        toRemove.addAll(current);
     }
 }

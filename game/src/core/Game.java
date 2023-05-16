@@ -159,9 +159,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
     protected void frame() {
-        entities.getToAddSet().forEach(entity -> Game.updateEntity(entity));
-        entities.getToRemoveSet().forEach(entity->systems.forEach(system -> system.removeEntity(entity)));
-        entities.update();
+        updateEntities();
         setCameraFocus();
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
 
@@ -180,11 +178,21 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
     }
 
+    private void updateEntities() {
+        Set<Entity> toAdd = entities.getToAddSet();
+        entities.getToRemoveSet()
+                .forEach(entity -> systems.forEach(system -> system.removeEntity(entity)));
+        entities.update();
+        toAdd.forEach(entity -> Game.updateEntity(entity));
+    }
+
     @Override
     public void onLevelLoad() {
+        entities.clear();
+        updateEntities();
         currentLevel = levelAPI.getCurrentLevel();
-        entities.clearExcept(hero);
         getHero().ifPresent(this::placeOnLevelStart);
+        getHero().ifPresent(hero -> addEntity(hero));
         EntityFactory.getChest();
     }
 
@@ -238,7 +246,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param entity will be added to the game next frame
      */
     public static void addEntity(Entity entity) {
-
         LOGGER.log(CustomLogLevel.INFO, "Entity: " + entity + " will be added from the Game.");
         entities.add(entity);
     }
