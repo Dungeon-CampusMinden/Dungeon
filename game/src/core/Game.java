@@ -73,7 +73,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static final DelayedSet<Entity> entities = new DelayedSet();
 
     /** List of all Systems in the ECS */
-    public static SystemController systems;
+    public static SystemController systems = new SystemController();
 
     public static ILevel currentLevel;
     private static Entity hero;
@@ -96,10 +96,19 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     // for singleton
     private Game() {}
 
+    /**
+     * Will inform each system that the given entity has changes in its Component-Collection.
+     *
+     * <p>Will only do that, if the given Entity is active in the Game.
+     *
+     * @see DelayedSet
+     * @param entity
+     */
     public static void updateEntity(Entity entity) {
-        LOGGER.log(CustomLogLevel.INFO, entity + "was updated in Game.");
-        if (systems != null && getEntities().contains(entity))
+        if (getEntities().contains(entity)) {
+            LOGGER.info(entity + "was updated in Game.");
             systems.forEach(system -> system.accept(entity));
+        }
     }
 
     /**
@@ -147,7 +156,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         generator = new RandomWalkGenerator();
         levelAPI = new LevelManager(batch, painter, generator, this);
         initBaseLogger();
-        systems = new SystemController();
         controller.add(systems);
         hero = EntityFactory.getHero();
         levelAPI =
