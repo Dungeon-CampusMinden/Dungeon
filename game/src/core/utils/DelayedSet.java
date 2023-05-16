@@ -1,9 +1,6 @@
 package core.utils;
 
-import java.util.Collection;
-import java.util.ConcurrentModificationException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class allows managing a Collection inside the System-Loops.
@@ -62,6 +59,7 @@ public class DelayedSet<T> {
      * @return true if this set did not already contain the specified element
      */
     public boolean add(T t) {
+        if (current.contains(t)) return false;
         return toAdd.add(t);
     }
 
@@ -75,6 +73,7 @@ public class DelayedSet<T> {
      * @return true if this set changed as a result of the call
      */
     public boolean addAll(Collection<T> collection) {
+        if (current.containsAll(collection)) return false;
         return toAdd.addAll(collection);
     }
 
@@ -88,7 +87,8 @@ public class DelayedSet<T> {
      * @return true if this set changed as a result of the call
      */
     public boolean remove(T t) {
-        return toRemove.add(t);
+        if (current.contains(t) || toAdd.contains(t)) return toRemove.add(t);
+        else return false;
     }
 
     /**
@@ -101,6 +101,9 @@ public class DelayedSet<T> {
      * @return true if this set changed as a result of the call
      */
     public boolean removeAll(Collection<T> collection) {
+        if (Collections.disjoint(collection, current) && Collections.disjoint(collection, toAdd)) {
+            return false;
+        }
         return toRemove.addAll(collection);
     }
 
