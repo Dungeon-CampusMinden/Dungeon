@@ -70,15 +70,14 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static TextureHandler handler;
 
     /** All entities that are currently active in the dungeon */
-    private static final DelayedSet<Entity> entities = new DelayedSet();
+    private static final DelayedSet<Entity> entities = new DelayedSet<>();
 
     /** List of all Systems in the ECS */
     public static SystemController systems = new SystemController();
 
     public static ILevel currentLevel;
     private static Entity hero;
-    private static Logger LOGGER = Logger.getLogger("Game");
-    ;
+    private static final Logger LOGGER = Logger.getLogger("Game");
 
     private DebuggerSystem debugger;
     private static Game game;
@@ -102,7 +101,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      * <p>Will only do that, if the given Entity is active in the Game.
      *
      * @see DelayedSet
-     * @param entity
+     * @param entity Entity that has changes in its Component-Collection.
      */
     public static void updateEntity(Entity entity) {
         if (getEntities().contains(entity)) {
@@ -191,7 +190,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         entities.getToRemoveSet()
                 .forEach(entity -> systems.forEach(system -> system.removeEntity(entity)));
         entities.update();
-        toAdd.forEach(entity -> Game.updateEntity(entity));
+        toAdd.forEach(Game::updateEntity);
     }
 
     @Override
@@ -200,7 +199,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         updateEntities();
         currentLevel = levelAPI.getCurrentLevel();
         getHero().ifPresent(this::placeOnLevelStart);
-        getHero().ifPresent(hero -> addEntity(hero));
+        getHero().ifPresent(Game::addEntity);
         EntityFactory.getChest();
     }
 
@@ -279,7 +278,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /**
      * @return The {@link DelayedSet} to manage all the entities in the ecs
      */
-    public static DelayedSet getDelayedEntitySet() {
+    public static DelayedSet<Entity> getDelayedEntitySet() {
         return entities;
     }
 
@@ -334,7 +333,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param klass Class where the ConfigKey field are located.
      * @throws IOException If the file could not be read
      */
-    public static void loadConfig(String pathAsString, Class klass) throws IOException {
+    public static void loadConfig(String pathAsString, Class<?> klass) throws IOException {
         Configuration.loadAndGetConfiguration(pathAsString, klass);
     }
 
