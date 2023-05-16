@@ -32,11 +32,25 @@ Eine Aufgabe kann folgende Zustände haben:
 - **fertig bearbeitet**: Die Studierenden haben eine Antwort für eine Aufgabe abgegeben, hat Feedback darüber bekommen
   und die Aufgabe wird nicht mehr im Questlog angezeigt
 
-Folgende Abhängigkeiten zwischen zwei Aufgaben $t_1$ und $t_2$ sind möglich:
+### Aspekte bezüglich der Übersetzung des Abhängigkeitsgraphen in ein Petri-Netz
 
-**Erforderliche Teilaufgabe**
+Zur Übersetzung des Abhängigkeitsgraphen in ein Petri-Netz sind folgende Aspekte zu beachten:
+- Die Stellen des Netzes sollen zur Modellierung des Zustands der Aufgaben genutzt werden
+- Das Petri-Netz soll allein durch die Belegung der Stellen Transitionen ausführen
 
-![Erforderliche Teilaufgabe](img/mandatory_subtask.png)
+Hieraus resultieren folgende Designentscheidungen:
+- Für jede Aufgabe existiert eine Stelle, die (falls markiert) angibt, ob die Aufgabe aktuell zur Bearbeitung
+  freigeschaltet ist
+- Für jede Aufgabe existiert eine Stelle, die (falls markiert) angibt, ob die Aufgabe abgeschlossen ist
+- Es muss eine Schnittstelle zum Dungeon / zur DSL vorgesehen werden, über die dem Petri-Netz mitgeteilt
+  werden kann, dass eine Aufgabe bearbeitet wurde. Diese Information wird nicht vom Petri-Netz selbst abgefragt,
+  sondern vom Dungeon / der DSL an das Petri-Netz übermittelt, da dieser Prozess eng mit dem konkreten Szenario
+  verknüpft ist, welches in der DSL definiert ist.
+
+
+### Erforderliche Teilaufgabe
+
+![Erforderliche Teilaufgabe: Graph](img/mandatory_subtask.png)
 
 Für $t_2$ muss eine Antwort abgegeben werden, bevor $t_1$ abgeschlossen werden kann;
 $t_1$ wird zuerst aktiviert und bleibt aktiv, während $t_2$ bearbeitet wird.
@@ -50,7 +64,40 @@ task_dependency t {
 }
 ```
 
-**Optionale Teilaufgabe**
+Das erzeugte Petri-Netz für diese Beziehung sieht wie folgt aus:
+
+![Erforderliche Teilaufgabe: Petri-Netz](img/mandatory_subtask_petri.png)
+
+Die Transitionen, die von links und rechts in das Petri-Netz übergehen (z.B. "t1 aktivieren", "t2 abschließen"),
+sind die Schnittstellen zum Dungeon / zur DSL.
+
+Der Zustand einer Aufgabe (z.B. $t_1$) kann aus der Kombination der Stellen "t1 Bearb. aktiviert" und "t1 abgeschlossen"
+hergeleitet werden. In den Transitionen können Aktionen ausgeführt werden, wie z.B. eine Aufgabe im Questlog anzuzeigen,
+oder sie aus dem Questlog zu löschen. Der Zustand **aktiv ohne Bearbeitung** wird daher nicht explizit im Petri-Netz
+modelliert.
+
+Es folgt:
+
+- Stelle "t1 Bearb. aktiviert" und "t1 abgeschlossen" sind beide **nicht markiert** = Zustand **inaktiv**
+- Stelle "t1 Bearb. aktiviert" ist **markiert** und "t1 abgeschlossen" ist **nicht markiert** = Zustand **aktiv mit Bearbeitung**
+- Stelle "t1 Bearb. aktiviert" ist **nicht markiert** und "t1 abgeschlossen" ist **markiert** = Zustand **fertig bearbeitet**
+
+Eine Aufgabe kann mehrere erforderliche Teilaufgaben haben, wie im folgenden Graph dargestellt:
+
+![Mehrere erforderliche Teilaufgaben: Graph](img/multi_mandatory_subtask.png)
+
+Das entsprechende Petri-Netz sieht so aus:
+
+![Mehrere erforderliche Teilaufgaben: Petri-Netz](img/multi_mandatory_subtask_petri.png)
+
+Der grün markierte Bereich dient zur Behandlung von $t_2$, der blau markierte Bereich dient zur Behandlung von $t_3$.
+Weitere Teilaufgaben würden auf der gleichen Ebene mit der gleichen Petri-Netz-Struktur hinzugefügt werden.
+Der rot markierte Bereich dient zur Überprüfung, ob beide Teilaufgaben abgeschlossen sind, bevor die Bearbeitung von $t_1$
+freigeschaltet wird. Die Transition in diesem Bereich konsumiert jeweils ein Token von den Stellen "t2 abgeschlossen" und
+"t3 abgeschlossen", daher werden diese Stellen jeweils mit 2 Tokens markiert (wie an deren eingehenden Kanten durch "+2"
+markiert).
+
+### Optionale Teilaufgabe
 
 ![Optionale Teilaufgabe](img/optional_subtask.png)
 
@@ -66,7 +113,7 @@ task_dependency t {
 }
 ```
 
-**Aufgabensequenz**
+### Aufgabensequenz
 
 ![Erforderliche Sequenz](img/mandatory_sequence.png)
 
@@ -93,7 +140,7 @@ task_dependency t {
 }
 ```
 
-**Bedingte Folgeaufgabe**
+### Bedingte Folgeaufgabe
 
 Gegeben sei eine dritte Aufgabe $t_3$.
 
@@ -115,7 +162,7 @@ task_dependency t {
 }
 ```
 
-**Kombination der Beziehungen**
+### Kombination der Beziehungen
 
 Die vorgestellten Beziehungen können beliebig kombiniert werden, wie in folgendem Beispiel:
 
@@ -129,17 +176,3 @@ Es sei besonders auf die folgenden Beziehungen hingewiesen:
 Diese Beziehungen haben den Effekt, dass erst $t_2$, dann $t_4$ und $t_5$ (als Teilaufgaben von $t_3$) und anschließend
 $t_3$ bearbeitet werden müssen, bevor der linke Zweig unter $t_1$ als abgeschlossen gilt.
 
-## Übersetzung des Abhängigkeitsgraphen in ein Petri-Netz
-
-Zur Übersetzung des Abhängigkeitsgraphen in ein Petri-Netz sind folgende Aspekte zu beachten:
-- Die Stellen des Netzes sollen zur Modellierung des Zustands der Aufgaben genutzt werden
-- Das Petri-Netz soll allein durch die Belegung der Stellen Transitionen ausführen
-
-Hieraus resultieren folgende Designentscheidungen:
-- Für jede Aufgabe existiert eine Stelle, die (falls markiert) angibt, ob die Aufgabe aktuell zur Bearbeitung
-  freigeschaltet ist
-- Für jede Aufgabe existiert eine Stelle, die (falls markiert) angibt, ob die Aufgabe abgeschlossen ist
-- Es muss eine Schnittstelle zum Dungeon / zur DSL vorgesehen werden, über die dem Petri-Netz mitgeteilt
-  werden kann, dass eine Aufgabe bearbeitet wurde. Diese Information wird nicht vom Petri-Netz selbst abgefragt,
-  sondern vom Dungeon / der DSL an das Petri-Netz übermittelt, da dieser Prozess eng mit dem konkreten Szenario
-  verknüpft ist, welches in der DSL definiert ist.
