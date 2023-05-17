@@ -7,18 +7,26 @@ import contrib.utils.components.skill.Skill;
 import core.Entity;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.function.Consumer;
+import java.time.Instant;
 
 public class SkillTest {
 
     private static int value = 0;
-    private final int baseCoolDownInSeconds = 2;
+    private final int baseCoolDownInSeconds = 5;
 
     private Entity entity;
     private Skill skill;
     private Consumer<Entity> skillFunction = entity -> value++;
+
+    @Before
+    public void setup() {
+        entity = new Entity();
+        skill = new Skill(skillFunction, baseCoolDownInSeconds);
+    }
 
     @After
     public void cleanup() {
@@ -27,28 +35,25 @@ public class SkillTest {
 
     @Test
     public void execute() {
-        // setup
-        entity = new Entity();
-        skill = new Skill(skillFunction, baseCoolDownInSeconds);
 
         // test first execution
-        assertFalse(skill.canBeUsedAgain());
-        skill.execute(entity);
-        assertEquals(1, value);
-
-        // should not execute on cool down
         assertTrue(skill.canBeUsedAgain());
         skill.execute(entity);
         assertEquals(1, value);
 
+        // should not execute on cool down
+        assertFalse(skill.canBeUsedAgain());
+        skill.execute(entity);
+        assertEquals(1, value);
+
         // reduce cool down to 0
-        for (int i = 0; i < (baseCoolDownInSeconds * Constants.FRAME_RATE); i++) {
-            assertTrue(skill.canBeUsedAgain());
-            skill.reduceCoolDown();
+        Instant afterCoolDown = Instant.now().plusSeconds(baseCoolDownInSeconds);
+        while (Instant.now().isBefore(afterCoolDown)) {
+            assertFalse(skill.canBeUsedAgain());
         }
 
         // execution after cool down is over
-        assertFalse(skill.canBeUsedAgain());
+        assertTrue(skill.canBeUsedAgain());
         skill.execute(entity);
         assertEquals(2, value);
     }
