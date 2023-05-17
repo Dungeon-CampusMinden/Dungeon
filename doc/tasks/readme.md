@@ -132,6 +132,12 @@ Antwortmöglickeiten. Mehrere Antworten sind richtig. Es müssen alle richtigen 
 markiert werden. Es dürfen keine falschen Antworten markiert werden. Die Reihenfolge spielt
 keine Rolle.
 
+### Freitext
+
+Die Aufgabenstellung besteht aus einem Fragetext und einem Textfeld, in welches die Studierenden
+einen Antworttext frei eingeben können. Es gibt dabei keine Vorgabe, welche Form die freie Texteingabe
+haben muss.
+
 ### Lücken füllen
 
 Die Aufgabenstellung besteht aus einem Fragetext und mehreren Lücken, die gefüllt werden müssen.
@@ -651,6 +657,10 @@ Mechaniken und Szenarien festzulegen.
 
 - [Elemente in der richtigen Reihenfogle auswählen](#elemente-in-der-richtigen-reihenfolge-auswählen),
   da die anderen Aufgabentypen ein breiteres Anwendungsfeld versprechen
+- [Freitext](#freitext), die Texteingabe kann beliebig komplex ausfallen, was eine Interpretation der Eingabe
+  voraussetzt, welche über die einfache Auswertung per regulärem Ausdruck etc. hinausgeht. Eine derartige
+  Interpretation und Überprüfung zu automatisieren liegt außerhalb des Projektumfangs
+
 
 ### Mechaniken
 
