@@ -66,40 +66,6 @@ class GameTest {
     }
 
     @Test
-    public void test_render() {
-        /*
-        game.setSpriteBatch(batch);
-         Mockito.verify(game).setSpriteBatch(batch);
-         Mockito.verifyNoMoreInteractions(game, batch);
-
-         game.render(someArbitraryValueGreater0forDelta);
-         Mockito.verify(game).render(someArbitraryValueGreater0forDelta);
-         Mockito.verify(game).setup();
-         Mockito.verify(game).frame();
-         Mockito.verify(game, Mockito.times(4)).runLoop();
-         Mockito.verifyNoMoreInteractions(game);
-        */
-    }
-
-    @Test
-    public void test_render_paused() {
-        /*
-        game.setSpriteBatch(batch);
-        when(game.runLoop()).thenReturn(false);
-        Mockito.verify(game).setSpriteBatch(batch);
-        Mockito.verifyNoMoreInteractions(game, batch);
-
-        game.render(someArbitraryValueGreater0forDelta);
-        Mockito.verify(game).render(someArbitraryValueGreater0forDelta);
-        Mockito.verify(game).setup();
-        Mockito.verify(game, never()).frame();
-        when(game.runLoop()).thenReturn(true);
-        Mockito.verify(game, Mockito.times(1)).runLoop();
-        Mockito.verifyNoMoreInteractions(game);
-         */
-    }
-
-    @Test
     public void addEntity() {
         /*    Entity e1 = new Entity();
         Game.addEntity(e1);
@@ -119,18 +85,11 @@ class GameTest {
         assertEquals(0, Game.getEntities().size());*/
     }
 
-    /*
-    Cannot be tested at the moment, render test must be fixed first
-
-    @Test
-    public void test_getEntity(){}
-     */
-
     @Test
     public void setHero() {
         /* Entity hero = new Entity();
         Game.setHero(hero);
-        assertEquals(hero, Game.getHero().get());
+        assertEquals(hero, Game.getHero().orElseThrow());
         Entity hero2 = new Entity();
         Game.setHero(hero2);
         assertEquals(hero2, Game.getHero().get());*/
