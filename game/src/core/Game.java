@@ -159,6 +159,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         Game.hero = hero;
     }
 
+
     /**
      * Load the configuration from the given path. If the configuration has already been loaded, the
      * cached version will be used.
