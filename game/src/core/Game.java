@@ -40,6 +40,7 @@ import quizquestion.DummyQuizQuestionList;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /** The heart of the framework. From here all strings are pulled. */
 public class Game extends ScreenAdapter implements IOnLevelLoader {
@@ -184,12 +185,16 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public void onLevelLoad() {
         currentLevel = levelAPI.getCurrentLevel();
         // remove all existing and entities, inform the systems
-        systems.forEach(System::clearEntities);
-        entities.clear();
+        removeAllEntities();
         getHero().ifPresent(Game::addEntity);
         getHero().ifPresent(Game::informAboutChanges);
         EntityFactory.getChest();
         getHero().ifPresent(this::placeOnLevelStart);
+    }
+
+    public static void removeAllEntities() {
+        systems.forEach(System::clearEntities);
+        entities.clear();
     }
 
     private void setCameraFocus() {
@@ -259,10 +264,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
-     * @return Copy of the Set with all entities currently in game
+     * @return Set with all entities currently in game as stream
      */
-    public static Set<Entity> getEntities() {
-        return new HashSet<>(entities);
+    public static Stream<Entity> getEntities() {
+        return entities.stream();
     }
 
     /**

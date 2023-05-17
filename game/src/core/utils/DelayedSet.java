@@ -37,15 +37,16 @@ public class DelayedSet<T> {
     /**
      * Update the {@link #current} based on the elements in {@link #toAdd} and {@link #toRemove}.
      *
-     * <p>Remove all objects from {@link#toRemove} to {@link #current}. Clears {@link #toAdd} and
-     * {@link #toAdd} Add all objects from {@link #toAdd} to {@link #current}.
+     * <p>Add all objects from {@link #toAdd} to {@link #current} and remove all objects from
+     * {@link#toRemove} to {@link #current}. Clears {@link #toRemove} and {@link #toAdd} .
      *
-     * <p>Note: First all elements from {@link #toRemove} will be removed and then all elements from
-     * {@link #toAdd} will be added.
+     * <p>Note: First all elements from {@link #toAdd} will be added and then all elements from
+     * {@link #toRemove} will be removed.
      */
     public void update() {
-        current.removeAll(toRemove);
+
         current.addAll(toAdd);
+        current.removeAll(toRemove);
         toAdd.clear();
         toRemove.clear();
     }

@@ -26,8 +26,7 @@ public class ChestTest {
 
     /** Helper cleans up class attributes used by Chest Initializes the Item#ITEM_REGISTER */
     private static void cleanup() {
-        Game.getDelayedEntitySet().clear();
-        Game.getDelayedEntitySet().update();
+        Game.removeAllEntities();
     }
 
     /** checks the correct creation of the Chest */
@@ -37,8 +36,8 @@ public class ChestTest {
         List<ItemData> itemData = List.of();
         Point position = new Point(0, 0);
         Entity c = EntityFactory.getChest(itemData, position);
-        Game.getDelayedEntitySet().update();
-        assertEquals("Chest is added to Game", 1, Game.getEntities().size());
+
+        assertEquals("Chest is added to Game", 1, Game.getEntities().count());
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
                 c.getComponent(DrawComponent.class).isPresent());
@@ -66,15 +65,13 @@ public class ChestTest {
         List<ItemData> itemData = List.of(new ItemDataGenerator().generateItemData());
         Point position = new Point(0, 0);
         Entity c = EntityFactory.getChest(itemData, position);
-        Game.getDelayedEntitySet().update();
 
-        assertEquals(1, Game.getEntities().size());
+        assertEquals(1, Game.getEntities().count());
         c.getComponent(InteractionComponent.class)
                 .map(InteractionComponent.class::cast)
                 .get()
                 .triggerInteraction();
-        Game.getDelayedEntitySet().update();
-        assertEquals(2, Game.getEntities().size());
+        assertEquals(2, Game.getEntities().count());
 
         cleanup();
     }
@@ -90,8 +87,8 @@ public class ChestTest {
                 .map(InteractionComponent.class::cast)
                 .ifPresent(InteractionComponent::triggerInteraction);
         Game.removeEntity(c);
-        Game.getDelayedEntitySet().update();
-        assertEquals(1, Game.getEntities().size());
+
+        assertEquals(1, Game.getEntities().count());
         Entity droppedItem = Game.getEntities().iterator().next();
         assertTrue(
                 "droppedItem should have the HitboxComponent",
@@ -116,9 +113,8 @@ public class ChestTest {
                         DesignLabel.DEFAULT);
 
         Entity newChest = EntityFactory.getChest();
-        Game.getDelayedEntitySet().update();
 
-        assertTrue("Chest is added to Game", Game.getEntities().contains(newChest));
+        assertTrue("Chest is added to Game", Game.getEntities().anyMatch(e -> e == newChest));
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
                 newChest.getComponent(DrawComponent.class).isPresent());

@@ -14,7 +14,7 @@ public class XPComponentTest {
     @Test
     public void testStartXP() {
         /* Prepare */
-        Game.getEntities().clear();
+        Game.removeAllEntities();
         Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
@@ -28,7 +28,7 @@ public class XPComponentTest {
     @Test
     public void testAddXPSingle() {
         /* Prepare */
-        Game.getEntities().clear();
+        Game.removeAllEntities();
         Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
@@ -42,7 +42,7 @@ public class XPComponentTest {
     @Test
     public void testAddXPMultiple() {
         /* Prepare */
-        Game.getEntities().clear();
+        Game.removeAllEntities();
         Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
@@ -57,7 +57,7 @@ public class XPComponentTest {
     @Test
     public void testXPToNextLevelNonZero() {
         /* Prepare */
-        Game.getEntities().clear();
+        Game.removeAllEntities();
         Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
@@ -71,7 +71,7 @@ public class XPComponentTest {
     @Test
     public void testXPToNextLevelExact() {
         /* Prepare */
-        Game.getEntities().clear();
+        Game.removeAllEntities();
         Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
@@ -85,7 +85,7 @@ public class XPComponentTest {
     @Test
     public void testXPToNextLevelMore() {
         /* Prepare */
-        Game.getEntities().clear();
+        Game.removeAllEntities();
         Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);

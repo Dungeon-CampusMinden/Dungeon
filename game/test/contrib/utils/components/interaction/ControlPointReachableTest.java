@@ -76,7 +76,7 @@ public class ControlPointReachableTest {
 
     private void cleanup() {
         Game.currentLevel = null;
-        Game.getEntities().clear();
+        Game.removeAllEntities();
     }
 
     private void setup() {

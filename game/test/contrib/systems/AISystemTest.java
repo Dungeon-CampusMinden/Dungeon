@@ -7,7 +7,6 @@ import contrib.utils.components.ai.ITransition;
 
 import core.Entity;
 import core.Game;
-import core.utils.controller.SystemController;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,12 +19,10 @@ public class AISystemTest {
 
     @Before
     public void setup() {
-        Game.getDelayedEntitySet().clear();
-        Game.getDelayedEntitySet().update();
-        Game.systems = new SystemController();
+        Game.removeAllEntities();
+        Game.systems.clear();
         system = new AISystem();
         entity = new Entity();
-        Game.getDelayedEntitySet().update();
         AIComponent component = new AIComponent(entity);
         component.setTransitionAI(
                 new ITransition() {

@@ -22,7 +22,7 @@ import java.util.List;
 public class ItemDataTest {
     @Before
     public void before() {
-        Game.getDelayedEntitySet().clear();
+        Game.removeAllEntities();
     }
 
     @Test
@@ -64,7 +64,6 @@ public class ItemDataTest {
         ItemData itemData = new ItemData();
         Point point = new Point(0, 0);
         itemData.triggerDrop(null, point);
-        Game.getDelayedEntitySet().update();
         Entity e = Game.getEntities().iterator().next();
         PositionComponent pc =
                 (PositionComponent) e.getComponent(PositionComponent.class).orElseThrow();

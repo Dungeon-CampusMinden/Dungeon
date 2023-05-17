@@ -22,15 +22,12 @@ public class DrawSystemTest {
 
     @Before
     public void setup() {
-        Game.systems = Mockito.mock(SystemController.class);
-        Game.getDelayedEntitySet().clear();
-        Game.getDelayedEntitySet().update();
+        Game.removeAllEntities();
+        Game.systems = new SystemController();
         drawSystem = new DrawSystem(painter);
         entity = new Entity();
-        Game.getDelayedEntitySet().update();
         new DrawComponent(entity, animation);
         new PositionComponent(entity, new Point(3, 3));
-        Game.getDelayedEntitySet().update();
     }
 
     @Test
@@ -42,9 +39,10 @@ public class DrawSystemTest {
     }
 
     @Test
-    public void updateWithoutAnimationComponent() {
+    public void updateWithoutDrawComponent() {
         entity.removeComponent(DrawComponent.class);
         Mockito.verifyNoMoreInteractions(painter);
         drawSystem.update();
+        Game.removeAllEntities();
     }
 }

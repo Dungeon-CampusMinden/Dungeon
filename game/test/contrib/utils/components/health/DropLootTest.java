@@ -18,8 +18,7 @@ public class DropLootTest {
     /** Checks the handling when the InventoryComponent is missing on the entity */
     @Before
     public void setup() {
-        Game.getDelayedEntitySet().clear();
-        Game.getDelayedEntitySet().update();
+        Game.removeAllEntities();
     }
 
     @Test
@@ -50,9 +49,9 @@ public class DropLootTest {
         Entity entity = new Entity();
         new PositionComponent(entity, new Point(1, 2));
         new InventoryComponent(entity, 10);
-        Game.getDelayedEntitySet().clear();
         dropLoot.onDeath(entity);
-        assertTrue(Game.getEntities().isEmpty());
+        Game.removeEntity(entity);
+        assertEquals(0, Game.getEntities().count());
     }
 
     /** Checks the handling when the InventoryComponent has exactly one Item */
@@ -64,12 +63,11 @@ public class DropLootTest {
         new PositionComponent(entity, entityPosition);
         InventoryComponent inventoryComponent = new InventoryComponent(entity, 10);
         inventoryComponent.addItem(new ItemData());
-        Game.getDelayedEntitySet().clear();
+        Game.removeAllEntities();
         dropLoot.onDeath(entity);
-        Game.getDelayedEntitySet().update();
-        assertEquals(1, Game.getEntities().size());
+        assertEquals(1, Game.getEntities().count());
         assertTrue(
-                Game.getEntities().stream()
+                Game.getEntities()
                         .allMatch(
                                 x ->
                                         x.getComponent(PositionComponent.class)
@@ -93,13 +91,12 @@ public class DropLootTest {
         inventoryComponent.addItem(new ItemData());
         inventoryComponent.addItem(new ItemData());
 
-        Game.getDelayedEntitySet().clear();
+        Game.removeAllEntities();
         dropLoot.onDeath(entity);
 
-        Game.getDelayedEntitySet().update();
-        assertEquals(2, Game.getEntities().size());
+        assertEquals(2, Game.getEntities().count());
         assertTrue(
-                Game.getEntities().stream()
+                Game.getEntities()
                         .allMatch(
                                 x ->
                                         x.getComponent(PositionComponent.class)

@@ -18,11 +18,10 @@ public class SkillSystemTest {
 
     @Test
     public void update() {
-        Game.getEntities().clear();
+        Game.removeAllEntities();
         Game.systems = new SystemController();
         SkillSystem system = new SkillSystem();
         Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
         ISkillFunction skillFunction = Mockito.mock(ISkillFunction.class);
         int coolDownInSeconds = 2;
         Skill testSkill = new Skill(skillFunction, coolDownInSeconds);

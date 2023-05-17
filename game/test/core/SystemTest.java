@@ -20,7 +20,9 @@ public class SystemTest {
         testSystem =
                 new System() {
                     @Override
-                    public void accept(Entity entity) {}
+                    public boolean accept(Entity entity) {
+                        return true;
+                    }
 
                     @Override
                     public void systemUpdate() {

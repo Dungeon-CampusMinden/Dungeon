@@ -18,11 +18,9 @@ public class XPSystemTest {
     @Test
     public void testStartingWithZero() {
         /* Prepare */
-        Game.getDelayedEntitySet().clear();
-        Game.getDelayedEntitySet().update();
+        Game.removeAllEntities();
         Game.systems = new SystemController();
         Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
@@ -38,11 +36,10 @@ public class XPSystemTest {
     @Test
     public void testNoLevelUp() {
         /* Prepare */
-        Game.getDelayedEntitySet().clear();
-        Game.getDelayedEntitySet().update();
+        Game.removeAllEntities();
         Game.systems = new SystemController();
         Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
+
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
@@ -57,15 +54,13 @@ public class XPSystemTest {
     @Test
     public void testLevelUpExact() {
         /* Prepare */
-        Game.getDelayedEntitySet().clear();
-        Game.getDelayedEntitySet().update();
+        Game.removeAllEntities();
         Game.systems = new SystemController();
         Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
+
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
-        Game.getDelayedEntitySet().update();
 
         /* Test */
         xpComponent.addXP(100); // First level is reached with 100 XP
@@ -79,15 +74,13 @@ public class XPSystemTest {
     @Test
     public void testLevelUpOverflow() {
         /* Prepare */
-        Game.getDelayedEntitySet().clear();
-        Game.getDelayedEntitySet().update();
+        Game.removeAllEntities();
         Game.systems = new SystemController();
         Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
+
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
-        Game.getDelayedEntitySet().update();
 
         /* Test */
         xpComponent.addXP(120); // First level is reached with 100 XP
@@ -103,15 +96,13 @@ public class XPSystemTest {
     @Test
     public void testLevelUpMultipleExact() {
         /* Prepare */
-        Game.getDelayedEntitySet().clear();
-        Game.getDelayedEntitySet().update();
+        Game.removeAllEntities();
         Game.systems = new SystemController();
         Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
+
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
-        Game.getDelayedEntitySet().update();
 
         /* Test */
         xpComponent.addXP(201);
@@ -127,17 +118,16 @@ public class XPSystemTest {
     @Test
     public void testLevelUpMultipleOverflow() {
         /* Prepare */
-        Game.getDelayedEntitySet().clear();
-        Game.getDelayedEntitySet().update();
+        Game.removeAllEntities();
         Game.systems = new SystemController();
         Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
+
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
 
         /* Test */
-        Game.getDelayedEntitySet().update();
+
         xpComponent.addXP(221);
         xpSystem.update();
         assertEquals(2, xpComponent.getCurrentLevel());
@@ -148,11 +138,10 @@ public class XPSystemTest {
     @Test
     public void testNegativeXP() {
         /* Prepare */
-        Game.getDelayedEntitySet().clear();
-        Game.getDelayedEntitySet().update();
+        Game.removeAllEntities();
         Game.systems = new SystemController();
         Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
+
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();

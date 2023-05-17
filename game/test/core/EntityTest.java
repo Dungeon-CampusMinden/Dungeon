@@ -13,16 +13,15 @@ public class EntityTest {
 
     @Before
     public void setup() {
-        Game.getEntities().forEach(e -> Game.removeEntity(e));
-        Game.getDelayedEntitySet().update();
+        // Cleanup
+        Game.removeEntity(entity);
         entity = new Entity();
         entity.addComponent(testComponent);
     }
 
     @Test
     public void cTor() {
-        Game.getDelayedEntitySet().update();
-        assertTrue(Game.getEntities().contains(entity));
+        assertTrue(Game.getEntities().anyMatch(e -> e == entity));
     }
 
     @Test

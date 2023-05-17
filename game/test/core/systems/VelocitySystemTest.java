@@ -43,16 +43,14 @@ public class VelocitySystemTest {
         Game.systems = new SystemController();
         Game.currentLevel = level;
         Mockito.when(level.getTileAt(Mockito.any())).thenReturn(tile);
-        Game.getDelayedEntitySet().clear();
+        Game.removeEntity(entity);
         entity = new Entity();
-        Game.getDelayedEntitySet().update();
         velocitySystem = new VelocitySystem();
         velocityComponent =
                 new VelocityComponent(entity, xVelocity, yVelocity, moveLeft, moveRight);
         positionComponent =
                 new PositionComponent(entity, new Point(startXPosition, startYPosition));
         animationComponent = new DrawComponent(entity, idleLeft, idleRight);
-        Game.getDelayedEntitySet().update();
     }
 
     @Test
