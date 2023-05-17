@@ -1,5 +1,7 @@
 package core;
 
+import static junit.framework.TestCase.assertFalse;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -34,6 +36,78 @@ public class SystemTest {
     @Test
     public void cTor() {
         assertTrue(Game.systems.contains(testSystem));
+    }
+
+    @Test
+    public void cTor_existingEntities() {
+        new Entity();
+        System ts =
+                new System() {
+                    @Override
+                    protected void systemUpdate() {}
+
+                    @Override
+                    protected boolean accept(Entity entity) {
+                        return true;
+                    }
+                };
+        ts.update();
+        assertEquals(1, ts.getEntityStream().count());
+        Game.removeAllEntities();
+        Game.systems.clear();
+    }
+
+    @Test
+    public void add() {
+        testSystem =
+                new System() {
+                    @Override
+                    public boolean accept(Entity entity) {
+                        return false;
+                    }
+
+                    @Override
+                    public void systemUpdate() {
+                        updates++;
+                    }
+                };
+        Entity e = new Entity();
+        testSystem.addEntity(e);
+        testSystem.update();
+        assertFalse(testSystem.getEntityStream().anyMatch(en -> e == en));
+        Game.removeAllEntities();
+    }
+
+    @Test
+    public void add_notAccepted() {
+        Entity e = new Entity();
+        testSystem.addEntity(e);
+        testSystem.update();
+        assertTrue(testSystem.getEntityStream().anyMatch(en -> e == en));
+        Game.removeAllEntities();
+    }
+
+    @Test
+    public void remove() {
+        Entity e = new Entity();
+        testSystem.addEntity(e);
+        testSystem.update();
+        testSystem.removeEntity(e);
+        testSystem.update();
+        assertFalse(testSystem.getEntityStream().anyMatch(en -> e == en));
+        Game.removeAllEntities();
+    }
+
+    @Test
+    public void clearEntities() {
+        testSystem.addEntity(new Entity());
+        testSystem.addEntity(new Entity());
+        testSystem.addEntity(new Entity());
+        testSystem.update();
+        assertEquals(3, testSystem.getEntityStream().count());
+        testSystem.clearEntities();
+        assertEquals(0, testSystem.getEntityStream().count());
+        Game.removeAllEntities();
     }
 
     @Test
