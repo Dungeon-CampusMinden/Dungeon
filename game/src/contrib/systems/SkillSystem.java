@@ -7,9 +7,9 @@ import core.System;
 
 public class SkillSystem extends System {
     @Override
-    public void accept(Entity entity) {
-        if (entity.getComponent(SkillComponent.class).isPresent()) addEntity(entity);
-        else removeEntity(entity);
+    protected boolean accept(Entity entity) {
+        if (entity.getComponent(SkillComponent.class).isPresent()) return true;
+        return false;
     }
     /** reduces the cool down for all skills */
     @Override

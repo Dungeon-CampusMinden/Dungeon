@@ -20,9 +20,9 @@ public class CollisionSystem extends System {
     protected record CollisionData(CollideComponent a, CollideComponent b) {}
 
     @Override
-    public void accept(Entity entity) {
-        if (entity.getComponent(CollideComponent.class).isPresent()) addEntity(entity);
-        else removeEntity(entity);
+    protected boolean accept(Entity entity) {
+        if (entity.getComponent(CollideComponent.class).isPresent()) return true;
+        else return false;
     }
     /** checks if there is a collision between two entities based on their hitbox */
     @Override

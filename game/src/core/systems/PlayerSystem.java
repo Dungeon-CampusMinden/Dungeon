@@ -16,14 +16,11 @@ public class PlayerSystem extends System {
     private record PSData(Entity e, PlayerComponent pc, VelocityComponent vc) {}
 
     @Override
-    public void accept(Entity entity) {
+    protected boolean accept(Entity entity) {
         if (entity.getComponent(PlayerComponent.class).isPresent())
-            if (entity.getComponent(VelocityComponent.class).isPresent()) addEntity(entity);
-            else {
-                logMissingComponent(entity, VelocityComponent.class);
-                removeEntity(entity);
-            }
-        else removeEntity(entity);
+            if (entity.getComponent(VelocityComponent.class).isPresent()) return true;
+            else logMissingComponent(entity, VelocityComponent.class);
+        return false;
     }
 
     @Override

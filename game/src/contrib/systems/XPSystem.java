@@ -8,9 +8,9 @@ import core.System;
 public class XPSystem extends System {
 
     @Override
-    public void accept(Entity entity) {
-        if (entity.getComponent(XPComponent.class).isPresent()) addEntity(entity);
-        else removeEntity(entity);
+    protected boolean accept(Entity entity) {
+        if (entity.getComponent(XPComponent.class).isPresent()) return true;
+        return false;
     }
 
     @Override

@@ -228,5 +228,7 @@ public class DebuggerSystem extends System {
     }
 
     @Override
-    public void accept(Entity entity) {}
+    protected boolean accept(Entity entity) {
+        return false;
+    }
 }

@@ -9,9 +9,9 @@ import core.System;
 public class AISystem extends System {
 
     @Override
-    public void accept(Entity entity) {
-        if (entity.getComponent(AIComponent.class).isPresent()) addEntity(entity);
-        else removeEntity(entity);
+    protected boolean accept(Entity entity) {
+        if (entity.getComponent(AIComponent.class).isPresent()) return true;
+        else return false;
     }
 
     @Override

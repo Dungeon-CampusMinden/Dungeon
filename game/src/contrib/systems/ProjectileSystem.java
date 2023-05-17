@@ -16,19 +16,14 @@ public class ProjectileSystem extends System {
             Entity e, ProjectileComponent prc, PositionComponent pc, VelocityComponent vc) {}
 
     @Override
-    public void accept(Entity entity) {
+    protected boolean accept(Entity entity) {
         if (entity.getComponent(ProjectileComponent.class).isPresent())
             if (entity.getComponent(PositionComponent.class).isPresent())
-                if (entity.getComponent(VelocityComponent.class).isPresent()) addEntity(entity);
-                else {
-                    logMissingComponent(entity, VelocityComponent.class);
-                    removeEntity(entity);
-                }
-            else {
-                logMissingComponent(entity, PositionComponent.class);
-                removeEntity(entity);
-            }
-        else removeEntity(entity);
+                if (entity.getComponent(VelocityComponent.class).isPresent()) return true;
+                else logMissingComponent(entity, VelocityComponent.class);
+            else logMissingComponent(entity, PositionComponent.class);
+
+        return false;
     }
 
     /** sets the velocity and removes entities that reached their endpoint */

@@ -106,7 +106,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static void updateEntity(Entity entity) {
         if (getEntities().contains(entity)) {
             LOGGER.info(entity + "was updated in Game.");
-            systems.forEach(system -> system.accept(entity));
+            systems.forEach(system -> system.addEntity(entity));
         }
     }
 

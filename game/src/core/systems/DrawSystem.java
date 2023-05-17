@@ -29,14 +29,11 @@ public class DrawSystem extends System {
     }
 
     @Override
-    public void accept(Entity entity) {
+    protected boolean accept(Entity entity) {
         if (entity.getComponent(DrawComponent.class).isPresent())
-            if (entity.getComponent(PositionComponent.class).isPresent()) addEntity(entity);
-            else {
-                logMissingComponent(entity, PositionComponent.class);
-                removeEntity(entity);
-            }
-        else removeEntity(entity);
+            if (entity.getComponent(PositionComponent.class).isPresent()) return true;
+            else logMissingComponent(entity, PositionComponent.class);
+        return false;
     }
 
     /** draw entities at their position */

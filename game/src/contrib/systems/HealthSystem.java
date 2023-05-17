@@ -22,14 +22,12 @@ public class HealthSystem extends System {
     private record HSData(Entity e, HealthComponent hc, DrawComponent ac) {}
 
     @Override
-    public void accept(Entity entity) {
+    protected boolean accept(Entity entity) {
         if (entity.getComponent(HealthComponent.class).isPresent())
-            if (entity.getComponent(DrawComponent.class).isPresent()) addEntity(entity);
-            else {
-                logMissingComponent(entity, DrawComponent.class);
-                removeEntity(entity);
-            }
-        else removeEntity(entity);
+            if (entity.getComponent(DrawComponent.class).isPresent()) return true;
+            else logMissingComponent(entity, DrawComponent.class);
+
+        return false;
     }
 
     @Override

@@ -19,14 +19,14 @@ import java.util.stream.Stream;
  * <p>If an entity has all needed components for the system, the system will store the entity in its
  * {@link DelayedSet},
  *
- * <p>The {@link #update}-Method will first update the internal set and than will execute the
+ * <p>The {@link #update}-Method will first update the internal set and then will execute the
  * system-logic on each entity in the set.
  *
  * <p>The update-Method gets called every frame in the game loop from {@link Game}.
  *
  * <p>Systems are designed to be unique, so don't create two systems of the same type.
  */
-public abstract class System implements Consumer<Entity> {
+public abstract class System {
     protected boolean run;
     private final DelayedSet<Entity> entities;
     public Logger LOGGER = Logger.getLogger(this.getClass().getName());
@@ -34,7 +34,7 @@ public abstract class System implements Consumer<Entity> {
     public System() {
         Game.systems.add(this);
         entities = new DelayedSet<>();
-        Game.getEntities().forEach(this);
+        Game.getEntities().forEach(this::addEntity);
         run = true;
     }
 
@@ -50,22 +50,14 @@ public abstract class System implements Consumer<Entity> {
     /**
      * Check if the given entity has all components that are needed to get processed by this system.
      *
-     * <p>If the entity has all components, the entity will be added to the internal set of this
-     * system.
+     * <p>If an addition-component is missing, this system will create a log-entry with the
+     * information of the missing component.
      *
-     * <p>If the key-component is missing, this system will ignore the entity. The entity will be
-     * removed from the internal set, if it is present.
-     *
-     * <p>If an addition-component is missing, this system will ignore the entity and create a
-     * log-entry with the information of the missing component. The entity will be removed from the
-     * internal set, if it is present.
-     *
-     * @see Consumer
      * @see DelayedSet
      * @param entity the input argument
+     * @return true if the entity is accepted, false if not.
      */
-    @Override
-    public abstract void accept(Entity entity);
+    protected abstract boolean accept(Entity entity);
 
     /**
      * @return true if this system is running, false if it is in pause mode
@@ -120,17 +112,33 @@ public abstract class System implements Consumer<Entity> {
     }
 
     /**
-     * Add the given entity to the {@link DelayedSet} of entities that will be processed by the
+     * Check if the given entity has all components that are needed to get processed by this system.
+     *
+     * <p>If the entity has all components, the entity will be added to the internal set of this
      * system.
      *
+     * <p>If the key-component is missing, this system will ignore the entity. The entity will be
+     * removed from the internal set, if it is present.
+     *
+     * <p>If an addition-component is missing, this system will ignore the entity and create a
+     * log-entry with the information of the missing component. The entity will be removed from the
+     * internal set, if it is present.
+     *
+     * @see Consumer
      * @see DelayedSet
-     * @param entity Entity to add
+     * @param entity entity to add
+     * @return true if the entity is accepted, false if not.
      */
-    protected void addEntity(Entity entity) {
-        if (entities.add(entity))
-            LOGGER.log(
-                    CustomLogLevel.INFO,
-                    "Entity " + entity + " will be added to the " + getClass().getName());
+    public boolean addEntity(Entity entity) {
+        if (accept(entity)) {
+            if (entities.add(entity))
+                LOGGER.log(
+                        CustomLogLevel.INFO,
+                        "Entity " + entity + " will be added to the " + getClass().getName());
+            return true;
+        }
+        removeEntity(entity);
+        return false;
     }
 
     /**
@@ -140,7 +148,7 @@ public abstract class System implements Consumer<Entity> {
      * @see DelayedSet
      * @param entity Entity to remove
      */
-    protected void removeEntity(Entity entity) {
+    public void removeEntity(Entity entity) {
         if (entities.remove(entity))
             LOGGER.log(
                     CustomLogLevel.INFO,
