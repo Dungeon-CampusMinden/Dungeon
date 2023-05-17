@@ -170,13 +170,6 @@ Das heißt:
 Die gesamte Menge $A$ der Antwortmöglichkeiten muss den Studierenden
 bekannt sein, bevor sie den ersten Zuordnungsschritt machen können.
 
-### Elemente in der richtigen Reihenfolge auswählen
-
-Es muss in der richtigen Reihenfolge ein Element nach dem anderen aus einer Menge $A$ ausgewählt
-werden.
-Den Studierenden müssen nicht alle Elemente aus $A$ bekannt sein, bevor sie das erste Element
-auswählen müssen.
-
 ## Konkrete Entitätstypen
 
 - Questgeber: Entität, über die eine Aufgabe aktiviert wird
@@ -519,7 +512,6 @@ Wird die Aufgabe falsch gelöst, wird eine Bestrafung erteilt.
 | **Freitext**                         | X                           | X                               | X                                        |                                  |                                                                   |                                                                  |                                                                            |                                                                |                                         |                                                |                                                      |                                        | X                                                          |                                                        |
 | **Lücken füllen**                    |                             |                                 |                                          |                                  |                                                                   |                                                                  |                                                                            |                                                                |                                         |                                                |                                                      |                                        | X                                                          |                                                        |
 | **Ersetzen**                         |                             |                                 |                                          |                                  |                                                                   |                                                                  |                                                                            |                                                                |                                         |                                                |                                                      |                                        |                                                            | X                                                      |
-| **Objekte in Reihenfolge auswählen** |                             |                                 |                                          |                                  |                                                                   | X                                                                |                                                                            | X                                                              | X                                       | X                                              | X                                                    | X                                      |                                                            |                                                        |
 | **Zuordnen**                         |                             |                                 |                                          | X                                | X                                                                 | X                                                                | X                                                                          | X                                                              | X                                       | X                                              | X                                                    | X                                      |                                                            |                                                        |
 
 ## Zuordnung Spielmechanik und Spielszenario
@@ -658,8 +650,6 @@ Mechaniken und Szenarien festzulegen.
 
 **Aufgabentypen, die im Projekt nicht realisiert werden**
 
-- [Elemente in der richtigen Reihenfolge auswählen](#elemente-in-der-richtigen-reihenfolge-auswählen),
-  da die anderen Aufgabentypen ein breiteres Anwendungsfeld versprechen
 - [Freitext](#freitext), die Texteingabe kann beliebig komplex ausfallen, was eine Interpretation der Eingabe
   voraussetzt, welche über die einfache Auswertung per regulärem Ausdruck etc. hinausgeht. Eine derartige
   Interpretation und Überprüfung zu automatisieren liegt außerhalb des Projektumfangs
