@@ -72,7 +72,7 @@ public class SystemTest {
                     }
                 };
         Entity e = new Entity();
-        testSystem.addEntity(e);
+        testSystem.showEntity(e);
         testSystem.update();
         assertFalse(testSystem.getEntityStream().anyMatch(en -> e == en));
         Game.removeAllEntities();
@@ -81,7 +81,7 @@ public class SystemTest {
     @Test
     public void add_notAccepted() {
         Entity e = new Entity();
-        testSystem.addEntity(e);
+        testSystem.showEntity(e);
         testSystem.update();
         assertTrue(testSystem.getEntityStream().anyMatch(en -> e == en));
         Game.removeAllEntities();
@@ -90,7 +90,7 @@ public class SystemTest {
     @Test
     public void remove() {
         Entity e = new Entity();
-        testSystem.addEntity(e);
+        testSystem.showEntity(e);
         testSystem.update();
         testSystem.removeEntity(e);
         testSystem.update();
@@ -100,9 +100,9 @@ public class SystemTest {
 
     @Test
     public void clearEntities() {
-        testSystem.addEntity(new Entity());
-        testSystem.addEntity(new Entity());
-        testSystem.addEntity(new Entity());
+        testSystem.showEntity(new Entity());
+        testSystem.showEntity(new Entity());
+        testSystem.showEntity(new Entity());
         testSystem.update();
         assertEquals(3, testSystem.getEntityStream().count());
         testSystem.clearEntities();

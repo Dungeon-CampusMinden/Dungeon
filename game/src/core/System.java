@@ -1,7 +1,6 @@
 package core;
 
 import core.utils.DelayedSet;
-import core.utils.logging.CustomLogLevel;
 
 import java.util.function.Consumer;
 import java.util.logging.Logger;
@@ -34,7 +33,7 @@ public abstract class System {
     public System() {
         Game.systems.add(this);
         entities = new DelayedSet<>();
-        Game.getEntities().forEach(this::addEntity);
+        Game.getEntities().forEach(this::showEntity);
         run = true;
     }
 
@@ -62,12 +61,10 @@ public abstract class System {
      * @param entity entity to add
      * @return true if the entity is accepted, false if not.
      */
-    public boolean addEntity(Entity entity) {
+    public boolean showEntity(Entity entity) {
         if (accept(entity)) {
             if (entities.add(entity))
-                LOGGER.log(
-                        CustomLogLevel.INFO,
-                        "Entity " + entity + " will be added to the " + getClass().getName());
+                LOGGER.info("Entity " + entity + " will be added to the " + getClass().getName());
             return true;
         }
         removeEntity(entity);
@@ -83,8 +80,7 @@ public abstract class System {
      */
     public void removeEntity(Entity entity) {
         if (entities.remove(entity))
-            LOGGER.log(
-                    CustomLogLevel.INFO,
+            LOGGER.info(
                     "Entity " + entity + " will be removed from to the " + getClass().getName());
     }
 
@@ -178,8 +174,7 @@ public abstract class System {
      * @param missingComponent the component that is missing
      */
     protected void logMissingComponent(Entity entity, Class<? extends Component> missingComponent) {
-        LOGGER.log(
-                CustomLogLevel.INFO,
+        LOGGER.info(
                 "Entity: "
                         + entity
                         + " Not processed by the "

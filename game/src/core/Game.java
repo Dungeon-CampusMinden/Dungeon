@@ -104,7 +104,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     public static void informAboutChanges(Entity entity) {
         LOGGER.info(entity + "was updated in Game.");
-        systems.forEach(system -> system.addEntity(entity));
+        systems.forEach(system -> system.showEntity(entity));
     }
 
     /**
