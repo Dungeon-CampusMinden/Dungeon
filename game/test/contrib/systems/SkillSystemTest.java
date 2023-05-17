@@ -28,19 +28,19 @@ public class SkillSystemTest {
         sc.addSkill(testSkill);
         sc.addSkill(testSkill2);
 
-        assertFalse(testSkill.isOnCoolDown());
-        assertFalse(testSkill2.isOnCoolDown());
+        assertFalse(testSkill.canBeUsedAgain());
+        assertFalse(testSkill2.canBeUsedAgain());
         testSkill.execute(entity);
         testSkill2.execute(entity);
 
         system.showEntity(entity);
         for (int i = 0; i < coolDownInSeconds * Constants.FRAME_RATE; i++) {
-            assertTrue(testSkill.isOnCoolDown());
-            assertTrue(testSkill2.isOnCoolDown());
+            assertTrue(testSkill.canBeUsedAgain());
+            assertTrue(testSkill2.canBeUsedAgain());
             system.execute();
         }
 
-        assertFalse(testSkill.isOnCoolDown());
-        assertFalse(testSkill2.isOnCoolDown());
+        assertFalse(testSkill.canBeUsedAgain());
+        assertFalse(testSkill2.canBeUsedAgain());
     }
 }
