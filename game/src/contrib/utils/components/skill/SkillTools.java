@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector3;
 import core.Game;
 import core.utils.Point;
 
+/** SkillTools is a collection of helper methods used for skills. */
 public class SkillTools {
 
     /**
@@ -15,7 +16,7 @@ public class SkillTools {
      * @param startPoint position to start the calculation
      * @param aimPoint point to aim for
      * @param range range from start to
-     * @return last position in range if you follow the directon from startPoint to aimPoint
+     * @return last position in range if you follow the direction from startPoint to aimPoint
      */
     public static Point calculateLastPositionInRange(
             Point startPoint, Point aimPoint, float range) {

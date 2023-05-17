@@ -5,7 +5,7 @@ import contrib.utils.components.health.DamageType;
 
 import core.utils.Point;
 
-public class FireballSkill extends DamageProjectileSkill {
+public class FireballSkill extends DamageProjectile {
     public FireballSkill(ITargetSelection targetSelection) {
         super(
                 "skills/fireball/fireBall_Down/",

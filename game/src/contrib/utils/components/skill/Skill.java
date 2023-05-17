@@ -4,6 +4,19 @@ import core.Entity;
 
 import java.time.Instant;
 
+/**
+ * Skill implements the base functionality of every skill.
+ *
+ * <p>The base functionality consists of checking if the cool down expired, executing the specific
+ * functionality of the skill, saving the time when the skill was last used and (re)activate the
+ * cool down timer.
+ *
+ * <p>{@link #canBeUsedAgain()} checks if the time between the last use and now is enough to use the
+ * skill again.
+ *
+ * <p>The {@link #activateCoolDown}-Method adds the specified cool down time to the time the skill
+ * was last used. While the cool down is active, the skill can not be used again.
+ */
 public class Skill {
 
     private ISkillFunction skillFunction;
@@ -13,6 +26,7 @@ public class Skill {
 
     /**
      * @param skillFunction Function of this skill
+     * @param coolDownInSeconds
      */
     public Skill(ISkillFunction skillFunction, long coolDownInSeconds) {
         this.skillFunction = skillFunction;
@@ -20,7 +34,8 @@ public class Skill {
     }
 
     /**
-     * Executes the logic of the skill if it is not currently on cooldown.
+     * Execute the method of this skill, save the time the skill was last used and update when it
+     * can be used again
      *
      * <p>If the skill was used, the cooldown will be set.
      *
@@ -35,13 +50,18 @@ public class Skill {
     }
 
     /**
-     * @return true if cool down is not 0, else false
+     * check if the cool down has passed and the skill can be used again
+     *
+     * @return true if the specified time (coolDownInSeconds) has passed
      */
     private boolean canBeUsedAgain() {
         return Instant.now().isAfter(nextUsableAt) || Instant.now().equals(nextUsableAt);
     }
 
-    /** activate cool down */
+    /**
+     * adds coolDownInSeconds to the time the skill was last used and updates when this skill can be
+     * used again
+     */
     private void activateCoolDown() {
         nextUsableAt = lastUsed.plusSeconds(coolDownInSeconds);
     }

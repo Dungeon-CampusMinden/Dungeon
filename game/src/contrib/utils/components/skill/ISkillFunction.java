@@ -5,7 +5,7 @@ import core.Entity;
 public interface ISkillFunction {
 
     /**
-     * Implements the concrete skill of an entity
+     * Implements the specific functionality of a skill.
      *
      * @param entity which uses the skill
      */

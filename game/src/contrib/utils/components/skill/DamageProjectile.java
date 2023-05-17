@@ -15,7 +15,7 @@ import core.utils.components.draw.Animation;
 
 import dslToGame.AnimationBuilder;
 
-public abstract class DamageProjectileSkill implements ISkillFunction {
+public abstract class DamageProjectile implements ISkillFunction {
 
     private String pathToTexturesOfProjectile;
     private float projectileSpeed;
@@ -26,7 +26,7 @@ public abstract class DamageProjectileSkill implements ISkillFunction {
 
     private ITargetSelection selectionFunction;
 
-    public DamageProjectileSkill(
+    public DamageProjectile(
             String pathToTexturesOfProjectile,
             float projectileSpeed,
             Damage projectileDamage,
