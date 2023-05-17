@@ -654,21 +654,44 @@ Mechaniken und Szenarien festzulegen.
   voraussetzt, welche über die einfache Auswertung per regulärem Ausdruck etc. hinausgeht. Eine derartige
   Interpretation und Überprüfung zu automatisieren liegt außerhalb des Projektumfangs
 
-
 ### Mechaniken
 
-- [GUI Button](#einen-gui-button-aktivieren), [GUI Checkbox](#gui-checkboxen-anhaken), [GUI Text
-  eingeben](#gui-text-eingeben)
-- [Crafting](#einen-crafting-schritt-durchführen)
-- [Items in Container ablegen](#item-aus-charakter-inventar-in-container-inventar-transferieren)
-- [Items aus Container nehmen](#item-aus-container-inventar-in-charakter-inventar-transferieren)
+- [Text über GUI-Dialog anzeigen](#text-über-gui-dialog-anzeigen)
+- [Einen GUI-Button aktivieren](#einen-gui-button-aktivieren)
+- [Seiten im GUI-Dialog wechseln](#seiten-im-gui-dialog-wechseln)
+- [GUI Checkboxen anhaken](#gui-checkboxen-anhaken)
+- [GUI Text eingeben](#gui-text-eingeben)
+- [Aufgabe per Questgeber aktivieren](#aufgabe-per-questgeber-aktivieren)
+- [Aufgabe per Questgeber abschließen](#aufgabe-per-questgeber-abschließen)
+- [Ein Container-Inventar öffnen](#ein-container-inventar-öffnen)
+- [Das Spielcharakter-Inventar öffnen](#das-spielcharakter-inventar-öffnen)
+- [Item aus Container-Inventar in Charakter-Inventar transferieren](#item-aus-container-inventar-in-charakter-inventar-transferieren)
+- [Item aus Charakter-Inventar in Container-Inventar transferieren](#item-aus-charakter-inventar-in-container-inventar-transferieren)
+- [Ein Item aufheben](#ein-item-aufheben)
+- [Informationen über ein Item ansehen](#informationen-über-ein-item-ansehen)
+- [Ein Item auf den Boden fallen lassen](#ein-item-auf-den-boden-fallen-lassen)
+- [Ein Item aus dem Inventar nutzen](#ein-item-aus-dem-inventar-nutzen)
+- [Eine Schriftrolle beschriften](#eine-schriftrolle-beschriften)
+- [Den Text einer Schriftrolle lesen](#den-text-einer-schriftrolle-lesen)
+- [Eine Entität im Dungeon "inspizieren"](#eine-entität-im-dungeon-inspizieren)
+- [Einen Crafting-Schritt durchführen](#einen-crafting-schritt-durchführen)
+
+**Mechaniken, die mit Einschränkungen im Projekt realisiert werden**
+
+Alle Kampfmechaniken bleiben als Grundmechanik des Spiels erhalte, werden allerdings nicht als
+Möglichkeit, eine Aufgabe zu realisieren, umgesetzt.
+
+Dies betrifft die Mechaniken:
+
+- [Ein Monster angreifen](#ein-monster-angreifen)
+- [Monster besiegen](#monster-besiegen)
+- [Schaden von einem Monster zugefügt bekommen](#schaden-von-einem-monster-zugefügt-bekommen)
+- [Eine Waffe aus dem Inventar ausrüsten](#eine-waffe-aus-dem-inventar-ausrüsten)
 
 **Mechaniken, die im Projekt nicht realisiert werden**
 
-- [Kämpfen](#ein-monster-angreifen) bleibt als Grundmechanik des Spiels erhalte, wird aber vorerst nicht
-  als Aufgabenmechanik umgesetzt
-- [Entitäten schieben](#eine-entität-verschieben), da wahrscheinlich sehr komplex in der Umsetzung
-- [Schalter betätigen](#einen-schalter-im-dungeon-betätigen), da wahrscheinlich sehr komplex in der Umsetzung
+- [Einen Schalter (im Dungeon) betätigen](#einen-schalter-im-dungeon-betätigen), da wahrscheinlich sehr komplex in der Umsetzung
+- [Eine Entität verschieben](#eine-entität-verschieben), da wahrscheinlich sehr komplex in der Umsetzung
 
 ### Szenarien
 
