@@ -32,24 +32,14 @@ public class SkillTest {
         skill = new Skill(skillFunction, baseCoolDownInSeconds);
 
         // test first execution
-        assertFalse(skill.canBeUsedAgain());
-        skill.execute(entity);
-        assertEquals(1, value);
-
-        // should not execute on cool down
         assertTrue(skill.canBeUsedAgain());
         skill.execute(entity);
         assertEquals(1, value);
 
-        // reduce cool down to 0
-        for (int i = 0; i < (baseCoolDownInSeconds * Constants.FRAME_RATE); i++) {
-            assertTrue(skill.canBeUsedAgain());
-            skill.reduceCoolDown();
-        }
-
-        // execution after cool down is over
+        // should not execute on cool down
         assertFalse(skill.canBeUsedAgain());
         skill.execute(entity);
-        assertEquals(2, value);
+        assertEquals(1, value);
+
     }
 }

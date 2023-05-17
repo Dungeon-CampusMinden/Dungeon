@@ -36,7 +36,7 @@ public class Skill {
      * @return true if cool down is not 0, else false
      */
     public boolean canBeUsedAgain() {
-        return Instant.now().isAfter(nextUsableAt);
+        return Instant.now().isAfter(nextUsableAt) || Instant.now().equals(nextUsableAt);
     }
 
     /** activate cool down */
