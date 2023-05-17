@@ -12,7 +12,7 @@ import java.util.stream.Stream;
  * <p>This class implements three different HashSets to allow delayed manipulation of the base Set.
  *
  * <p>{@link #current} contains the current "active" object of the collection. Use this Set to
- * iterate over and work with. Use {@link #getSet()} to get this Set.
+ * iterate over and work with. Use {@link #getSetAsStream()} to get this Set as stream.
  *
  * <p>Use {@link #add} to add the given object to {@link #toAdd}. After the call of {@link #update},
  * the objects inside this inner set will be added to {@link #current}
@@ -37,8 +37,8 @@ public class DelayedSet<T> {
     /**
      * Update the {@link #current} based on the elements in {@link #toAdd} and {@link #toRemove}.
      *
-     * <p>Add all objects from {@link #toAdd} to {@link #current} and remove all objects from
-     * {@link#toRemove} to {@link #current}. Clears {@link #toRemove} and {@link #toAdd} .
+     * <p>Add all objects from {@link #toAdd} to {@link #current} and remove all objects from {@link
+     * #toRemove} to {@link #current}. Clears {@link #toRemove} and {@link #toAdd} .
      *
      * <p>Note: First all elements from {@link #toAdd} will be added and then all elements from
      * {@link #toRemove} will be removed.

@@ -67,7 +67,7 @@ public class VelocitySystemTest {
     }
 
     @Test
-    public void updateValidMoveWithNegativVelocity() {
+    public void updateValidMoveWithNegativeVelocity() {
         Mockito.when(tile.isAccessible()).thenReturn(true);
         velocityComponent.setCurrentXVelocity(-4);
         velocityComponent.setCurrentYVelocity(-8);
@@ -93,7 +93,7 @@ public class VelocitySystemTest {
     }
 
     @Test
-    public void updateUnValidMoveWithNegativVelocity() {
+    public void updateUnValidMoveWithNegativeVelocity() {
         Mockito.when(tile.isAccessible()).thenReturn(false);
         velocityComponent.setCurrentXVelocity(-4);
         velocityComponent.setCurrentYVelocity(-8);

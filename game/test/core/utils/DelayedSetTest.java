@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class DelayedSetTest {
@@ -17,10 +18,9 @@ public class DelayedSetTest {
         DelayedSet<String> set = new DelayedSet<>();
         String toAdd = "3";
         assertTrue(set.add(toAdd));
-        assertFalse(set.getSetAsStream().anyMatch(e -> e == toAdd));
+        assertFalse(set.getSetAsStream().anyMatch(e -> Objects.equals(e, toAdd)));
         set.update();
-        assertTrue(set.getSetAsStream().anyMatch(e -> e == toAdd));
-        ;
+        assertTrue(set.getSetAsStream().anyMatch(e -> Objects.equals(e, toAdd)));
     }
 
     @Test
@@ -44,13 +44,13 @@ public class DelayedSetTest {
         addSet.add(toAdd2);
         addSet.add(toAdd3);
         assertTrue(set.addAll(addSet));
-        assertFalse(set.getSetAsStream().anyMatch(e -> e == toAdd1));
-        assertFalse(set.getSetAsStream().anyMatch(e -> e == toAdd2));
-        assertFalse(set.getSetAsStream().anyMatch(e -> e == toAdd3));
+        assertFalse(set.getSetAsStream().anyMatch(e -> Objects.equals(e, toAdd1)));
+        assertFalse(set.getSetAsStream().anyMatch(e -> Objects.equals(e, toAdd2)));
+        assertFalse(set.getSetAsStream().anyMatch(e -> Objects.equals(e, toAdd3)));
         set.update();
-        assertTrue(set.getSetAsStream().anyMatch(e -> e == toAdd1));
-        assertTrue(set.getSetAsStream().anyMatch(e -> e == toAdd2));
-        assertTrue(set.getSetAsStream().anyMatch(e -> e == toAdd3));
+        assertTrue(set.getSetAsStream().anyMatch(e -> Objects.equals(e, toAdd1)));
+        assertTrue(set.getSetAsStream().anyMatch(e -> Objects.equals(e, toAdd2)));
+        assertTrue(set.getSetAsStream().anyMatch(e -> Objects.equals(e, toAdd3)));
     }
 
     @Test
@@ -92,9 +92,9 @@ public class DelayedSetTest {
         assertTrue(set.add(toAdd));
         set.update();
         assertTrue(set.remove(toAdd));
-        assertTrue(set.getSetAsStream().anyMatch(e -> e == toAdd));
+        assertTrue(set.getSetAsStream().anyMatch(e -> Objects.equals(e, toAdd)));
         set.update();
-        assertFalse(set.getSetAsStream().anyMatch(e -> e == toAdd));
+        assertFalse(set.getSetAsStream().anyMatch(e -> Objects.equals(e, toAdd)));
     }
 
     @Test
@@ -110,7 +110,7 @@ public class DelayedSetTest {
         assertTrue(set.add(toAdd));
         assertTrue(set.remove(toAdd));
         set.update();
-        assertFalse(set.getSetAsStream().anyMatch(e -> e == toAdd));
+        assertFalse(set.getSetAsStream().anyMatch(e -> Objects.equals(e, toAdd)));
     }
 
     @Test
@@ -127,13 +127,13 @@ public class DelayedSetTest {
         set.update();
         addSet.remove(toAdd2);
         assertTrue(set.removeAll(addSet));
-        assertTrue(set.getSetAsStream().anyMatch(e -> e == toAdd1));
-        assertTrue(set.getSetAsStream().anyMatch(e -> e == toAdd2));
-        assertTrue(set.getSetAsStream().anyMatch(e -> e == toAdd3));
+        assertTrue(set.getSetAsStream().anyMatch(e -> Objects.equals(e, toAdd1)));
+        assertTrue(set.getSetAsStream().anyMatch(e -> Objects.equals(e, toAdd2)));
+        assertTrue(set.getSetAsStream().anyMatch(e -> Objects.equals(e, toAdd3)));
         set.update();
-        assertFalse(set.getSetAsStream().anyMatch(e -> e == toAdd1));
-        assertTrue(set.getSetAsStream().anyMatch(e -> e == toAdd2));
-        assertFalse(set.getSetAsStream().anyMatch(e -> e == toAdd3));
+        assertFalse(set.getSetAsStream().anyMatch(e -> Objects.equals(e, toAdd1)));
+        assertTrue(set.getSetAsStream().anyMatch(e -> Objects.equals(e, toAdd2)));
+        assertFalse(set.getSetAsStream().anyMatch(e -> Objects.equals(e, toAdd3)));
     }
 
     @Test
