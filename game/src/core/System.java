@@ -27,9 +27,9 @@ import java.util.stream.Stream;
  * <p>Systems are designed to be unique, so don't create two systems of the same type.
  */
 public abstract class System {
-    protected boolean run;
     private final DelayedSet<Entity> entities;
     public Logger LOGGER = Logger.getLogger(this.getClass().getName());
+    protected boolean run;
 
     public System() {
         Game.systems.add(this);
@@ -42,73 +42,6 @@ public abstract class System {
     public void update() {
         entities.update();
         systemUpdate();
-    }
-
-    /** Implements the functionality of the system. */
-    protected abstract void systemUpdate();
-
-    /**
-     * Check if the given entity has all components that are needed to get processed by this system.
-     *
-     * <p>If an addition-component is missing, this system will create a log-entry with the
-     * information of the missing component.
-     *
-     * @see DelayedSet
-     * @param entity the input argument
-     * @return true if the entity is accepted, false if not.
-     */
-    protected abstract boolean accept(Entity entity);
-
-    /**
-     * @return true if this system is running, false if it is in pause mode
-     */
-    public boolean isRunning() {
-        return run;
-    }
-
-    /**
-     * Toggle this system between run and pause.
-     *
-     * <p>A paused system will not be updated.
-     *
-     * <p>A paused system can still accept, add and remove entities. The internal set will be
-     * updated, when the system will run.
-     *
-     * <p>A running system will be updated.
-     */
-    public void toggleRun() {
-        run = !run;
-    }
-
-    /**
-     * Set this system on run.
-     *
-     * <p>A running system will be updated.
-     */
-    public void run() {
-        run = true;
-    }
-
-    /**
-     * Set this system on pause
-     *
-     * <p>A paused system will not be updated.
-     *
-     * <p>A paused system can still accept, add and remove entities. The internal set will be
-     * updated, when the system will run.
-     */
-    public void stop() {
-        run = false;
-    }
-
-    /**
-     * Use this Stream to iterate over all active entities for this system in the {@link
-     * #systemUpdate()}-Method.
-     *
-     * @return active entities that will be processed by the system as stream
-     */
-    protected Stream<Entity> getEntityStream() {
-        return entities.getSet().stream();
     }
 
     /**
@@ -153,6 +86,88 @@ public abstract class System {
             LOGGER.log(
                     CustomLogLevel.INFO,
                     "Entity " + entity + " will be removed from to the " + getClass().getName());
+    }
+
+    /**
+     * Remove all entities immediately from this system.
+     *
+     * <p>Will clear each internal list of {@link DelayedSet}
+     *
+     * <p>Do not call this function inside {@link #systemUpdate()} or you risc a {@link
+     * java.util.ConcurrentModificationException}
+     *
+     * @see DelayedSet
+     * @see java.util.ConcurrentModificationException
+     */
+    public void clearEntities() {
+        entities.clear();
+    }
+
+    /**
+     * Toggle this system between run and pause.
+     *
+     * <p>A paused system will not be updated.
+     *
+     * <p>A paused system can still accept, add and remove entities. The internal set will be
+     * updated, when the system will run.
+     *
+     * <p>A running system will be updated.
+     */
+    public void toggleRun() {
+        run = !run;
+    }
+
+    /**
+     * Set this system on run.
+     *
+     * <p>A running system will be updated.
+     */
+    public void run() {
+        run = true;
+    }
+
+    /**
+     * Set this system on pause
+     *
+     * <p>A paused system will not be updated.
+     *
+     * <p>A paused system can still accept, add and remove entities. The internal set will be
+     * updated, when the system will run.
+     */
+    public void stop() {
+        run = false;
+    }
+
+    /**
+     * @return true if this system is running, false if it is in pause mode
+     */
+    public boolean isRunning() {
+        return run;
+    }
+
+    /** Implements the functionality of the system. */
+    protected abstract void systemUpdate();
+
+    /**
+     * Check if the given entity has all components that are needed to get processed by this system.
+     *
+     * <p>If an addition-component is missing, this system will create a log-entry with the
+     * information of the missing component.
+     *
+     * @see DelayedSet
+     * @param entity the input argument
+     * @return true if the entity is accepted, false if not.
+     */
+    protected abstract boolean accept(Entity entity);
+
+    /**
+     * Use this Stream to iterate over all active entities for this system in the {@link
+     * #systemUpdate()}-Method.
+     *
+     * @return active entities that will be processed by the system as stream
+     */
+    protected Stream<Entity> getEntityStream() {
+        return entities.getSetAsStream();
     }
 
     /**

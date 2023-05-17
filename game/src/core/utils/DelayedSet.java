@@ -1,6 +1,7 @@
 package core.utils;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * This class allows managing a Collection inside the System-Loops.
@@ -36,15 +37,15 @@ public class DelayedSet<T> {
     /**
      * Update the {@link #current} based on the elements in {@link #toAdd} and {@link #toRemove}.
      *
-     * <p>Add all objects from {@link #toAdd} to {@link #current}. Remove all objects from {@link
-     * #toRemove} to {@link #current}. Clears {@link #toAdd} and {@link #toAdd}
+     * <p>Remove all objects from {@link#toRemove} to {@link #current}. Clears {@link #toAdd} and
+     * {@link #toAdd} Add all objects from {@link #toAdd} to {@link #current}.
      *
-     * <p>Note: First all elements from {@link #toAdd} will be added and than all elements from
-     * {@link #toRemove} will be removed.
+     * <p>Note: First all elements from {@link #toRemove} will be removed and then all elements from
+     * {@link #toAdd} will be added.
      */
     public void update() {
-        current.addAll(toAdd);
         current.removeAll(toRemove);
+        current.addAll(toAdd);
         toAdd.clear();
         toRemove.clear();
     }
@@ -108,30 +109,20 @@ public class DelayedSet<T> {
     }
 
     /**
-     * @return A copy of {@link #current} with all currently active elements
+     * @return {@link #current} as stream
      */
-    public Set<T> getSet() {
-        return new HashSet<>(current);
-    }
-
-    public Set<T> getToAddSet() {
-        return new HashSet<>(toAdd);
-    }
-
-    public Set<T> getToRemoveSet() {
-        return new HashSet<>(toRemove);
+    public Stream<T> getSetAsStream() {
+        return current.stream();
     }
 
     /**
      * Add all Objects in {@link #current} to {@link #toRemove}
      *
-     * <p>Will immediately clear {@link #toAdd}
-     *
-     * <p>After the call of {@link #update}, the objects inside {@link #toRemove} will be removed.
-     * So all Sets will be empty.
+     * <p>Will immediately clear all internal sets.
      */
     public void clear() {
         toAdd.clear();
-        toRemove.addAll(current);
+        toRemove.clear();
+        current.clear();
     }
 }

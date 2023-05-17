@@ -70,7 +70,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static TextureHandler handler;
 
     /** All entities that are currently active in the dungeon */
-    private static final DelayedSet<Entity> entities = new DelayedSet<>();
+    private static final Set<Entity> entities = new HashSet<>();
 
     /** List of all Systems in the ECS */
     public static SystemController systems = new SystemController();
@@ -98,16 +98,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /**
      * Will inform each system that the given entity has changes in its Component-Collection.
      *
-     * <p>Will only do that, if the given Entity is active in the Game.
-     *
      * @see DelayedSet
      * @param entity Entity that has changes in its Component-Collection.
      */
-    public static void updateEntity(Entity entity) {
-        if (getEntities().contains(entity)) {
-            LOGGER.info(entity + "was updated in Game.");
-            systems.forEach(system -> system.addEntity(entity));
-        }
+    public static void informAboutChanges(Entity entity) {
+        LOGGER.info(entity + "was updated in Game.");
+        systems.forEach(system -> system.addEntity(entity));
     }
 
     /**
@@ -166,9 +162,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
     protected void frame() {
-        updateEntities();
-        setCameraFocus();
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
+        setCameraFocus();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             // Text Dialogue (output of information texts)
@@ -185,22 +180,16 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
     }
 
-    private void updateEntities() {
-        Set<Entity> toAdd = entities.getToAddSet();
-        entities.getToRemoveSet()
-                .forEach(entity -> systems.forEach(system -> system.removeEntity(entity)));
-        entities.update();
-        toAdd.forEach(Game::updateEntity);
-    }
-
     @Override
     public void onLevelLoad() {
-        entities.clear();
-        updateEntities();
         currentLevel = levelAPI.getCurrentLevel();
-        getHero().ifPresent(this::placeOnLevelStart);
+        // remove all existing and entities, inform the systems
+        systems.forEach(System::clearEntities);
+        entities.clear();
         getHero().ifPresent(Game::addEntity);
+        getHero().ifPresent(Game::informAboutChanges);
         EntityFactory.getChest();
+        getHero().ifPresent(this::placeOnLevelStart);
     }
 
     private void setCameraFocus() {
@@ -248,9 +237,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
-     * Given entity will be added to the game in the next frame
+     * Given entity will be added to the game.
      *
-     * @param entity will be added to the game next frame
+     * @param entity to add.
      */
     public static void addEntity(Entity entity) {
         LOGGER.log(CustomLogLevel.INFO, "Entity: " + entity + " will be added from the Game.");
@@ -258,28 +247,22 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
-     * Given entity will be removed from the game in the next frame
+     * Given entity will be removed.
      *
-     * @param entity will be removed from the game next frame
+     * @param entity to remove.
      */
     public static void removeEntity(Entity entity) {
 
         LOGGER.log(CustomLogLevel.INFO, "Entity: " + entity + " will be removed from the Game.");
         entities.remove(entity);
+        systems.forEach(system -> system.removeEntity(entity));
     }
 
     /**
      * @return Copy of the Set with all entities currently in game
      */
     public static Set<Entity> getEntities() {
-        return entities.getSet();
-    }
-
-    /**
-     * @return The {@link DelayedSet} to manage all the entities in the ecs
-     */
-    public static DelayedSet<Entity> getDelayedEntitySet() {
-        return entities;
+        return new HashSet<>(entities);
     }
 
     /**

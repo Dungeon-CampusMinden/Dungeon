@@ -36,7 +36,7 @@ public final class Entity {
         LOGGER.log(
                 CustomLogLevel.INFO,
                 Component.class.getName() + " Components from " + this + " was added.");
-        Game.updateEntity(this);
+        Game.informAboutChanges(this);
     }
 
     /**
@@ -47,7 +47,7 @@ public final class Entity {
     public void removeComponent(Class klass) {
         components.remove(klass);
         LOGGER.log(CustomLogLevel.INFO, klass.getName() + " from " + this + " was removed.");
-        Game.updateEntity(this);
+        Game.informAboutChanges(this);
     }
 
     /**
