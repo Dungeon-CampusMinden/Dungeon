@@ -146,6 +146,9 @@ eingegeben werden muss, es gibt keine Antwortmöglichkeiten zur Auswahl.
 Die Lücken werden durch eine "lückenhafte Struktur" im Dungeon repräsentiert, bspw. mehrere Container,
 in die ein Item eingesetzt werden muss.
 
+Note: Dieser Aufgabentyp wurde als Generalisierung von "Lückentext" eingeführt, sodass dieser Aufgabentyp
+nicht an die Realisierung in einem GUI-Dialog gebunden ist, sondern frei gamifiziert werden kann.
+
 ### Ersetzen
 
 Aus einer Gesamtmenge aus $l$ Elementen (mit $l > 0$) muss eine Menge mit $m$ Elementen (mit $m > 0$) durch eine
