@@ -184,7 +184,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     @Override
     public void onLevelLoad() {
         currentLevel = levelAPI.getCurrentLevel();
-        // remove all existing and entities, inform the systems
         removeAllEntities();
         getHero().ifPresent(Game::addEntity);
         getHero().ifPresent(Game::informAboutChanges);
@@ -192,6 +191,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         getHero().ifPresent(this::placeOnLevelStart);
     }
 
+    /**
+     * Will remove all entities from the game.
+     *
+     * <p>Will also remove all entities from each system.
+     */
     public static void removeAllEntities() {
         systems.forEach(System::clearEntities);
         entities.clear();
