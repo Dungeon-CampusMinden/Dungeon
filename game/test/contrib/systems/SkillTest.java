@@ -6,7 +6,6 @@ import contrib.utils.components.skill.ISkillFunction;
 import contrib.utils.components.skill.Skill;
 
 import core.Entity;
-import core.utils.Constants;
 
 import org.junit.After;
 import org.junit.Test;
@@ -40,6 +39,5 @@ public class SkillTest {
         assertFalse(skill.canBeUsedAgain());
         skill.execute(entity);
         assertEquals(1, value);
-
     }
 }
