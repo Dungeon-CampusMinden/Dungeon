@@ -80,7 +80,7 @@ class GameTest {
         /*        Entity e1 = new Entity();
         Game.getDelayedEntitySet().update();
         Game.removeEntity(e1);
-        Game.getDelayedEntitySet().update();
+        game.render(0);
         assertFalse(Game.getEntities().contains(e1));
         assertEquals(0, Game.getEntities().size());*/
     }
