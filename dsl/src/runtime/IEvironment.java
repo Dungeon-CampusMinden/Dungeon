@@ -1,9 +1,6 @@
 package runtime;
 
-import semanticAnalysis.FunctionSymbol;
-import semanticAnalysis.IScope;
-import semanticAnalysis.Symbol;
-import semanticAnalysis.SymbolTable;
+import semanticAnalysis.*;
 import semanticAnalysis.types.IType;
 
 // TODO: this is more of a semantic analysis kind of concept -> put it there
@@ -36,7 +33,7 @@ public interface IEvironment {
     /**
      * @param functionDefinitions FunctionSymbols to load into the environment
      */
-    default void loadFunctions(FunctionSymbol[] functionDefinitions) {}
+    default void loadFunctions(ScopedSymbol[] functionDefinitions) {}
 
     /**
      * @return symbol table of this environment

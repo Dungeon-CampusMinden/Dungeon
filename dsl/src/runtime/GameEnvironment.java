@@ -13,10 +13,7 @@ import dslToGame.QuestConfig;
 
 import runtime.nativeFunctions.NativePrint;
 
-import semanticAnalysis.IScope;
-import semanticAnalysis.Scope;
-import semanticAnalysis.Symbol;
-import semanticAnalysis.SymbolTable;
+import semanticAnalysis.*;
 import semanticAnalysis.types.BuiltInType;
 import semanticAnalysis.types.IType;
 import semanticAnalysis.types.TypeBuilder;
@@ -97,6 +94,20 @@ public class GameEnvironment implements IEvironment {
             }
             loadedTypes.put(type.getName(), type);
             this.globalScope.bind((Symbol) type);
+        }
+    }
+
+    @Override
+    public void loadFunctions(ScopedSymbol[] functions) {
+        for (var func : functions) {
+            if (!(func instanceof ICallable)) {
+                continue;
+            }
+            if (loadedFunctions.containsKey(func.getName())) {
+                continue;
+            }
+            loadedFunctions.put(func.getName(), func);
+            this.globalScope.bind(func);
         }
     }
 
