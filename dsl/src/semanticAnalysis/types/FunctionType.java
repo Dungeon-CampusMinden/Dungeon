@@ -4,6 +4,7 @@ import semanticAnalysis.Scope;
 import semanticAnalysis.Symbol;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class FunctionType extends Symbol implements IType {
     private final IType returnType;
@@ -30,6 +31,15 @@ public class FunctionType extends Symbol implements IType {
         } catch (ClassCastException ex) {
             return false;
         }
+    }
+
+    public FunctionType(IType returnType, IType... parameterTypes) {
+        super(
+                calculateTypeName(returnType, new ArrayList<>(List.of(parameterTypes))),
+                Scope.NULL,
+                null);
+        this.returnType = returnType;
+        this.parameterTypes = new ArrayList<>(List.of(parameterTypes));
     }
 
     public FunctionType(IType returnType, ArrayList<IType> parameterTypes) {
