@@ -330,4 +330,15 @@ public class TestSymbolTableParser {
         Assert.assertEquals(funcType1.hashCode(), funcType2.hashCode());
     }
 
+    @Test
+    public void funcTypeNativeFunction() {
+        var env = new GameEnvironment();
+
+        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        symbolTableParser.setup(env);
+
+        var symbolTableParserEnvironment = symbolTableParser.getEnvironment();
+        var nativePrintSymbol = symbolTableParserEnvironment.getGlobalScope().resolve("print");
+        Assert.assertTrue(nativePrintSymbol.getDataType() instanceof FunctionType);
+    }
 }
