@@ -9,14 +9,15 @@ import runtime.Value;
 import semanticAnalysis.ICallable;
 import semanticAnalysis.IScope;
 import semanticAnalysis.Scope;
-import semanticAnalysis.ScopedSymbol;
 import semanticAnalysis.Symbol;
 import semanticAnalysis.types.BuiltInType;
+import semanticAnalysis.types.FunctionType;
 
 import java.util.List;
 
 // TODO: set FunctionType as datatype for this
-public class NativePrint extends ScopedSymbol implements ICallable {
+// public class NativePrint extends ScopedSymbol implements ICallable {
+public class NativePrint extends NativeFunction {
     public static NativePrint func = new NativePrint(Scope.NULL);
 
     /**
@@ -25,7 +26,7 @@ public class NativePrint extends ScopedSymbol implements ICallable {
      * @param parentScope parent scope of this function
      */
     private NativePrint(IScope parentScope) {
-        super("print", parentScope, BuiltInType.intType);
+        super("print", parentScope, new FunctionType(BuiltInType.noType, BuiltInType.stringType));
 
         // bind parameters
         Symbol param = new Symbol("param", this, BuiltInType.stringType);
