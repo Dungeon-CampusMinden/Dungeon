@@ -341,4 +341,45 @@ public class TestSymbolTableParser {
         var nativePrintSymbol = symbolTableParserEnvironment.getGlobalScope().resolve("print");
         Assert.assertTrue(nativePrintSymbol.getDataType() instanceof FunctionType);
     }
+
+    @Test
+    public void removeFuncTypeRedundancy() {
+        String program = """
+        fn test_func_1(string param) -> int {
+
+        }
+        """;
+
+        var env = new TestEnvironment();
+
+        // load two dummy functions with the same semantic function type as the defined function in
+        // the dsl input and check, if they are all using the same FunctionType OBJECT after setup
+        // of the symbolTableParser
+        var dummyFunc1 =
+                new DummyNativeFunction(
+                        "dummyFunc1",
+                        new FunctionType(BuiltInType.intType, BuiltInType.stringType));
+        var dummyFunc2 =
+                new DummyNativeFunction(
+                        "dummyFunc2",
+                        new FunctionType(BuiltInType.intType, BuiltInType.stringType));
+
+        env.loadFunctions(new ScopedSymbol[] {dummyFunc1, dummyFunc2});
+
+        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        symbolTableParser.setup(env);
+
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        var symbolTableParserEnvironment = symbolTableParser.getEnvironment();
+
+        var dummyFunc1Sym = symbolTableParserEnvironment.getGlobalScope().resolve("dummyFunc1");
+        var dummyFunc2Sym = symbolTableParserEnvironment.getGlobalScope().resolve("dummyFunc2");
+        var testFunc1 = symbolTableParserEnvironment.getGlobalScope().resolve("test_func_1");
+        Assert.assertEquals(
+                dummyFunc1Sym.getDataType().hashCode(), dummyFunc2Sym.getDataType().hashCode());
+        Assert.assertEquals(
+                dummyFunc1Sym.getDataType().hashCode(), testFunc1.getDataType().hashCode());
+    }
 }
