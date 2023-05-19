@@ -3,6 +3,7 @@ package semanticAnalysis;
 import interpreter.DSLInterpreter;
 
 import parser.AST.Node;
+
 import semanticAnalysis.types.FunctionType;
 
 import java.util.List;

@@ -1,8 +1,9 @@
 package semanticAnalysis.types;
 
-import java.util.ArrayList;
 import semanticAnalysis.Scope;
 import semanticAnalysis.Symbol;
+
+import java.util.ArrayList;
 
 public class FunctionType extends Symbol implements IType {
     private final IType returnType;
