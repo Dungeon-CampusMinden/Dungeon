@@ -21,11 +21,7 @@
 
 package semanticAnalysis;
 
-import parser.AST.AstVisitor;
-import parser.AST.FuncCallNode;
-import parser.AST.Node;
-import parser.AST.ObjectDefNode;
-import parser.AST.PropertyDefNode;
+import parser.AST.*;
 
 public class FunctionCallResolver implements AstVisitor<Void> {
     SymbolTable symbolTable;
@@ -49,6 +45,12 @@ public class FunctionCallResolver implements AstVisitor<Void> {
 
     @Override
     public Void visit(Node node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(FuncDefNode node) {
         visitChildren(node);
         return null;
     }
