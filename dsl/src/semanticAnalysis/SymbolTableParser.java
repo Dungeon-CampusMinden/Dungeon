@@ -25,6 +25,7 @@ import parser.AST.*;
 // CHECKSTYLE:ON: AvoidStarImport
 
 import runtime.IEvironment;
+import runtime.nativeFunctions.NativeFunction;
 
 import semanticAnalysis.types.*;
 
@@ -98,6 +99,10 @@ public class SymbolTableParser implements AstVisitor<Void> {
         }
     }
 
+    public IEvironment getEnvironment() {
+        return this.environment;
+    }
+
     /**
      * Setup environment for semantic analysis (setup builtin types and native functions); use an
      * externally provided symbol table, which will be used and extended during semantic analysis
@@ -115,6 +120,22 @@ public class SymbolTableParser implements AstVisitor<Void> {
         this.scopeStack.push(environment.getGlobalScope());
         this.symbolTable = environment.getSymbolTable();
         this.environment = environment;
+
+        // ensure, that all FunctionTypes of the native functions are correctly bound
+        // in the symbolTable and remove redundancies
+        var globalScope = this.symbolTable.globalScope;
+        for (var func : environment.getFunctions()) {
+            if (func instanceof NativeFunction) {
+                var funcType = (FunctionType) func.getDataType();
+                var funcTypeSymbol = globalScope.resolve(funcType.getName());
+                if (funcTypeSymbol.equals(Symbol.NULL)) {
+                    globalScope.bind(funcType);
+                } else if (funcType.hashCode() != funcTypeSymbol.hashCode()) {
+                    // use the funcType already in symbolTable
+                    ((NativeFunction) func).overwriteFunctionType((FunctionType) funcTypeSymbol);
+                }
+            }
+        }
 
         this.setup = true;
     }
