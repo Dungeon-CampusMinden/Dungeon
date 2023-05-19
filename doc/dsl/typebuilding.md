@@ -140,7 +140,7 @@ Mit dem oben beschriebenen Mechanismus können DSL Datentypen aus Java-Klassen e
 
 Eine Java-Klasse, die mit `@DSLType` markiert wird, muss folgende Kriterien erfüllen:
 - sie muss über einen Default-Konstruktor ohne Parameter verfügen
-- falls sie über keinen Default-Konstruktor verfügt, muss sie über einen Konstruktor verfügen, dessen Parameter alle mit `@DSLContextMember` (siehe [Typinstanziierung](interpretation-laufzeit.md#typinstanziierung)) markiert sind
+- falls sie über keinen Default-Konstruktor verfügt, muss sie über einen Konstruktor verfügen, dessen Parameter alle mit `@DSLContextMember` (siehe [Typinstanziierung](interpretation_laufzeit.md#typinstanziierung)) markiert sind
 - die Datentypen aller Member, die mit `@DSLTypeMember` markiert sind, müssen entweder Datentypen sein, die mit `@DSLType` markiert oder adaptiert sind, oder sich auf die `BuiltIn`-Datentypen zurückführen lassen (siehe [Typsystem](typsystem.md))
 
 Falls diese Kriterien nicht erfüllt sind, kann der `TypeInstantiator` keine Instanzen der Klasse anlegen. Für weitere Details siehe [Typinstanziierung](interpreation-laufzeit.md#typinstanziierung).
@@ -184,7 +184,7 @@ hierzu [Einschränkungen Java-Klasse](#einschränkungen)).
 
 Eine mit `DSLType` markierte Klasse (z.B. `Entity`) kann mit `DSLContextPush` markiert werden.
 Hierdurch wird bei der Instanziierung einer `Entity`
-(vgl. [Typinstanziierung](interpretation-laufzeit.md#typinstanziierung)) die erstellte Instanz
+(vgl. [Typinstanziierung](interpretation_laufzeit.md#typinstanziierung)) die erstellte Instanz
 zum Kontext des `TypeBuilder`s hinzugefügt (als "Kontextmember").
 Der Name des hinzugefügten Kontextmembers muss über das `name`-Attribut der
 `DSLContextPush`-Annotation festgelegt werden. Über diesen Namen kann der `TypeBuilder` auf
