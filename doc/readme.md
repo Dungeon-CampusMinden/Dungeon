@@ -377,7 +377,7 @@ Feuerball-[Skill](ecs/skills/readme.md). Dieser wird in `Hero#setupFireballSkill
 
 In der Standardkonfiguration können Sie den Feuerball in Richtung Ihres Mauscursors mit der Taste R abfeuern.
 
-Zusätzlich besitzt der Held ein [`HitboxComponent`](ecs/components/hitbox_component.md). Damit kann er mit anderen
+Zusätzlich besitzt der Held ein [`HitboxComponent`](ecs/components/collision_component.md). Damit kann er mit anderen
 Entitäten, die ebenfalls ein `HitboxComponent` haben, kollidieren.
 
 ``` java
