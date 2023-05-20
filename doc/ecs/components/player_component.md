@@ -10,7 +10,7 @@ Die gespeicherten Skills (`skillSlot1`, `skillSlot2`) werden durch das [`PlayerS
 
 ## Aufbau
 
-![PlayerComponent](img/playerComponent.png)
+![PlayerComponent](img/player_component.png)
 
 ## Wie nutzt man es
 

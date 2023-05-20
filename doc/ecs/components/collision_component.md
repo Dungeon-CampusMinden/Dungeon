@@ -1,14 +1,14 @@
 ---
-title: "Hitbox Component"
+title: "Collision Component"
 ---
 
 ## Wofür
-Die Hitboxkomponente ist dafür da eine Entität zu kennzeichnen das sie mit anderen Entitäten die auch diese Komponente besitzen zusammenstoßen kann.
+Die Kollisionskomponente ist dafür da eine Entität zu kennzeichnen das sie mit anderen Entitäten die auch diese Komponente besitzen zusammenstoßen kann.
 Sowie das Verhalten welches die aktuelle Entität haben soll wenn es zu einer Kollision kommt.
 
 ## Aufbau
 
-![Hitbox component uml](img/hitboxComponent.png)
+![Collision component uml](img/collision_component.png)
 
 
 
