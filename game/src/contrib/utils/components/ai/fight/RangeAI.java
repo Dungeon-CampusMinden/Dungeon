@@ -13,13 +13,7 @@ import core.utils.components.MissingComponentException;
 
 import java.util.List;
 
-<<<<<<< HEAD:game/src/contrib/utils/components/ai/fight/RangeAI.java
-import static com.badlogic.gdx.math.MathUtils.random;
 import static contrib.utils.components.ai.AITools.getAccessibleTilesInRange;
-=======
-import static ecs.components.ai.AITools.getAccessibleTilesInRange;
->>>>>>> cb051f2 (rangeCombatAi finished):game/src/ecs/components/ai/fight/RangeAI.java
-
 
 public class RangeAI implements IFightAI {
 
