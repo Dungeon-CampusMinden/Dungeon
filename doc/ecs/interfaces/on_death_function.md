@@ -10,7 +10,7 @@ Entität die `onDeath` Funktion in diesem Interface auf.
 
 ## Aufbau
 
-!["IOnDeathFunction" Interface](img/onDeathFunction.png)
+!["IOnDeathFunction" Interface](img/on_death_function.png)
 
 ## Methoden
 
