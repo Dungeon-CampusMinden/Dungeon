@@ -61,10 +61,10 @@ public class Imp extends Monster {
                 (you, other, direction) -> System.out.print(""));
     }
 
-    private void doDmg(Entity other){
-        if(other.getComponent(HealthComponent.class).isPresent()){
+    private void doDmg(Entity other) {
+        if (other.getComponent(HealthComponent.class).isPresent()) {
             HealthComponent ofE = (HealthComponent) other.getComponent(HealthComponent.class).get();
-            ofE.receiveHit(new Damage(this.getDmg(), DamageType.PHYSICAL,this));
+            ofE.receiveHit(new Damage(this.getDmg(), DamageType.PHYSICAL, this));
         }
     }
 

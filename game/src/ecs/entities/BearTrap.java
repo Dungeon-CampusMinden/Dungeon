@@ -20,6 +20,7 @@ public class BearTrap extends Trap {
         new PositionComponent(this);
         setupAnimationComponent();
         setupHitboxComponent();
+        this.setTrapDmg(1);
     }
 
     private void setupAnimationComponent() {

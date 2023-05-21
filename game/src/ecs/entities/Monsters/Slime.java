@@ -9,7 +9,6 @@ import ecs.components.ai.transition.FriendlyTransition;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.entities.Entity;
-import ecs.entities.Hero;
 import ecs.entities.Monster;
 import ecs.graphic.Animation;
 
@@ -62,10 +61,10 @@ public class Slime extends Monster {
                 (you, other, direction) -> System.out.print(""));
     }
 
-    private void doDmg(Entity other){
-        if(other.getComponent(HealthComponent.class).isPresent()){
+    private void doDmg(Entity other) {
+        if (other.getComponent(HealthComponent.class).isPresent()) {
             HealthComponent ofE = (HealthComponent) other.getComponent(HealthComponent.class).get();
-            ofE.receiveHit(new Damage(this.getDmg(), DamageType.PHYSICAL,this));
+            ofE.receiveHit(new Damage(this.getDmg(), DamageType.PHYSICAL, this));
         }
     }
 
