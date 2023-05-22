@@ -5,4 +5,4 @@ t1</panel_attributes><additional_attributes></additional_attributes></element><e
 bg=white
 fg=black
 t2</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>720</x><y>200</y><w>100</w><h>140</h></coordinates><panel_attributes>lt=&lt;-
-st_e</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element></diagram>
+st_m</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element></diagram>
