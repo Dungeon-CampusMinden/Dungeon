@@ -43,6 +43,13 @@ Die **Scoring-Funktion** nimmt zwei Parameter entgegen: das Aufgabenobjekt (welc
 einen Fließkommawert zurück, der die Bewertung der Antwort repräsentiert: 1.0 = richtig, 0.0
 = falsch.
 
+Note: Der **Datentyp** der übergebenen Antwort (hier wird `string` verwendet) ist **noch
+nicht final festgelegt**. Prinzipiell können mit `string` alle Antworten abgebildet werden
+(da `int` und `float` in `string` konvertiert werden können), allerdings ist das für die
+Überprüfung von Zahlwerten nicht optimal. Es ist auch ein `answer`-Datentyp vorstellbar, der
+dieses Problem kapselt, wie das technisch genau funktionieren soll, ist allerdings noch
+unklar.
+
 ### Szenario-Definition
 
 Die **Szenario-Definition** ist dafür zuständig, die Verbindung zwischen der abstrakten
