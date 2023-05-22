@@ -38,7 +38,9 @@ public abstract class System {
         run = true;
     }
 
-    /** Implements the functionality of the system. */
+    /**
+     * Implements the functionality of the system.
+     */
     public abstract void execute();
 
     /**
@@ -76,7 +78,7 @@ public abstract class System {
     public void removeEntity(Entity entity) {
         if (entities.remove(entity))
             LOGGER.info(
-                    "Entity " + entity + " will be removed from to the " + getClass().getName());
+                "Entity " + entity + " will be removed from to the " + getClass().getName());
     }
 
     /**
@@ -143,9 +145,9 @@ public abstract class System {
      * <p>If an addition-component is missing, this system will create a log-entry with the
      * information of the missing component.
      *
-     * @see DelayedSet
      * @param entity the input argument
      * @return true if the entity is accepted, false if not.
+     * @see DelayedSet
      */
     protected abstract boolean accept(Entity entity);
 
@@ -163,17 +165,17 @@ public abstract class System {
      * Util function to log that the given entity will not be processed by the calling system,
      * because the given component is missing.
      *
-     * @param entity Entity that will not be processed
+     * @param entity           Entity that will not be processed
      * @param missingComponent the component that is missing
      */
     protected void logMissingComponent(Entity entity, Class<? extends Component> missingComponent) {
         LOGGER.info(
-                "Entity: "
-                        + entity
-                        + " Not processed by the "
-                        + getClass().getName()
-                        + " because the component "
-                        + missingComponent.getName()
-                        + " is missing ");
+            "Entity: "
+                + entity
+                + " Not processed by the "
+                + getClass().getName()
+                + " because the component "
+                + missingComponent.getName()
+                + " is missing ");
     }
 }
