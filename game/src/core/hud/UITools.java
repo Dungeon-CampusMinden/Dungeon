@@ -126,7 +126,7 @@ public class UITools {
                     && Game.controller != null
                     && Game.systems != null) {
                 Game.controller.remove(indexForDialogueInController);
-                Game.systems.values().stream().forEach(System::stop);
+                Game.systems.values().stream().forEach(System::run);
             }
         }
     }

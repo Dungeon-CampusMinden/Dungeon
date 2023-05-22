@@ -75,7 +75,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /** Draws objects */
     protected Painter painter;
 
-    protected LevelManager levelAPI;
+    protected LevelManager levelManager;
     /** Generates the level */
     protected IGenerator generator;
 
@@ -213,8 +213,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         batch.setProjectionMatrix(camera.combined);
         frame();
         clearScreen();
-        levelAPI.update();
-        controller.forEach(AbstractController::update);
+        levelManager.update();
+        updateSystems();
         camera.update();
     }
 
@@ -244,13 +244,13 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         setupCameras();
         painter = new Painter(batch, camera);
         generator = new RandomWalkGenerator();
-        levelAPI = new LevelManager(batch, painter, generator, this);
+        levelManager = new LevelManager(batch, painter, generator, this);
         initBaseLogger();
         hero = EntityFactory.getHero();
-        levelAPI =
+        levelManager =
                 new LevelManager(
                         batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
-        levelAPI.loadLevel(LEVELSIZE);
+        levelManager.loadLevel(LEVELSIZE);
         createSystems();
     }
 
@@ -258,8 +258,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     protected void frame() {
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         setCameraFocus();
-        updateSystems();
+        debugKeys();
+    }
 
+    /** Just for debugging, remove later. */
+    private void debugKeys() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             // Text Dialogue (output of information texts)
             UITools.showInfoText(Constants.DEFAULT_MESSAGE);
@@ -294,7 +297,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     @Override
     public void onLevelLoad() {
-        currentLevel = levelAPI.getCurrentLevel();
+        currentLevel = levelManager.getCurrentLevel();
         removeAllEntities();
         getHero().ifPresent(this::placeOnLevelStart);
         getHero().ifPresent(Game::addEntity);
@@ -318,7 +321,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
-        if (isOnEndTile(hero)) levelAPI.loadLevel(LEVELSIZE);
+        if (isOnEndTile(hero)) levelManager.loadLevel(LEVELSIZE);
     }
 
     private boolean isOnEndTile(Entity entity) {

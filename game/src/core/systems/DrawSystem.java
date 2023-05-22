@@ -64,13 +64,6 @@ public class DrawSystem extends System {
 
     /** DrawSystem cant be paused */
     @Override
-    public void toggleRun() {
-        // DrawSystem cant pause
-        run = true;
-    }
-
-    /** DrawSystem cant be paused */
-    @Override
     public void stop() {
         // DrawSystem cant pause
         run = true;
