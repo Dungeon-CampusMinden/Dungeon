@@ -29,7 +29,7 @@ import java.util.stream.Stream;
  */
 public abstract class System {
     private final Set<Entity> entities;
-    protected Logger LOGGER = Logger.getLogger(this.getClass().getName());
+    protected static Logger LOGGER = Logger.getLogger("System");
     protected boolean run;
 
     /**
