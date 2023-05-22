@@ -35,18 +35,22 @@ Eine Aufgabe kann folgende Zustände haben:
 ### Aspekte bezüglich der Übersetzung des Abhängigkeitsgraphen in ein Petri-Netz
 
 Zur Übersetzung des Abhängigkeitsgraphen in ein Petri-Netz sind folgende Aspekte zu beachten:
+
 - Die Stellen des Netzes sollen zur Modellierung des Zustands der Aufgaben genutzt werden
 - Das Petri-Netz soll allein durch die Belegung der Stellen Transitionen ausführen
 
 Hieraus resultieren folgende Designentscheidungen:
-- Für jede Aufgabe existiert eine Stelle, die (falls markiert) angibt, ob die Aufgabe aktuell zur Bearbeitung
+
+1. Für jede Aufgabe existiert eine Stelle, die (falls markiert) angibt, ob die Aufgabe aktuell zur Bearbeitung
   freigeschaltet ist
-- Für jede Aufgabe existiert eine Stelle, die (falls markiert) angibt, ob die Aufgabe abgeschlossen ist
-- Es muss eine Schnittstelle zum Dungeon / zur DSL vorgesehen werden, über die dem Petri-Netz mitgeteilt
+2. Für jede Aufgabe existiert eine Stelle, die (falls markiert) angibt, ob die Aufgabe abgeschlossen ist
+3. Es muss eine Schnittstelle zum Dungeon / zur DSL vorgesehen werden, über die dem Petri-Netz mitgeteilt
   werden kann, dass eine Aufgabe bearbeitet wurde. Diese Information wird nicht vom Petri-Netz selbst abgefragt,
   sondern vom Dungeon / der DSL an das Petri-Netz übermittelt, da dieser Prozess eng mit dem konkreten Szenario
   verknüpft ist, welches in der DSL definiert ist.
 
+Die Stellen die durch 1. und 2. definiert werden, sollen vom Dungeon genutzt werden können, um den Zustand der
+Aufgaben aus dem Petri-Netz auszulesen.
 
 ### Erforderliche Teilaufgabe
 
@@ -95,7 +99,8 @@ Weitere Teilaufgaben würden auf der gleichen Ebene mit der gleichen Petri-Netz-
 Der rot markierte Bereich dient zur Überprüfung, ob beide Teilaufgaben abgeschlossen sind, bevor die Bearbeitung von $t_1$
 freigeschaltet wird. Die Transition in diesem Bereich konsumiert jeweils ein Token von den Stellen "t2 abgeschlossen" und
 "t3 abgeschlossen", daher werden diese Stellen jeweils mit 2 Tokens markiert (wie an deren eingehenden Kanten durch "+2"
-markiert).
+markiert). Somit bleiben diese Stellen auch nach dem Schalten der Transition mit jeweils einem Token markiert, sodass
+der Dungeon weiterhin aus dem Petri-Netz ablesen kann, dass die Aufgaben abgeschlossen sind.
 
 ### Optionale Teilaufgabe
 
