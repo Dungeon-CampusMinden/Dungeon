@@ -22,11 +22,11 @@ public abstract class Component {
         entity.addComponent(this);
         Logger componentLogger = Logger.getLogger(this.getClass().getName());
         componentLogger.info(
-            "The component '"
-                + this.getClass().getName()
-                + "' was added to entity '"
-                + entity
-                + "'.");
+                "The component '"
+                        + this.getClass().getName()
+                        + "' was added to entity '"
+                        + entity
+                        + "'.");
     }
 
     /**

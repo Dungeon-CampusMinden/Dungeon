@@ -7,9 +7,7 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-/**
- * Entity is a unique identifier for an object in the game world
- */
+/** Entity is a unique identifier for an object in the game world */
 @DSLType(name = "game_object")
 @DSLContextPush(name = "entity")
 public final class Entity {
@@ -49,10 +47,10 @@ public final class Entity {
     public void addComponent(Component component) {
         components.put(component.getClass(), component);
         LOGGER.info(
-            component.getClass().getName()
-                + " Components from "
-                + this.toString()
-                + " was added.");
+                component.getClass().getName()
+                        + " Components from "
+                        + this.toString()
+                        + " was added.");
         Game.informAboutChanges(this);
     }
 
