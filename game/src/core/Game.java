@@ -335,6 +335,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         entities.applyToRemoveSet(
                 entity -> systems.values().forEach(system -> system.removeEntity(entity)));
         entities.update();
+
     }
 
     /**
