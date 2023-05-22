@@ -47,7 +47,7 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /** The heart of the framework. From here all strings are pulled. */
-public class Game extends ScreenAdapter implements IOnLevelLoader {
+public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /** All entities that are currently active in the dungeon */
     private static final DelayedSet<Entity> entities = new DelayedSet<>();
@@ -56,11 +56,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /** Currently used level-size configuration for generating new level */
     public static LevelSize LEVELSIZE = LevelSize.SMALL;
     /** Contains all Controller of the Dungeon */
-    public static List<AbstractController<?>> controller;
+    public static final List<AbstractController<?>> controller = new ArrayList<>();
 
     public static DungeonCamera camera;
     /** Set of all Systems in the ECS */
-    public static Map<Class<? extends System>, System> systems = new HashMap<>();
+    public static final Map<Class<? extends System>, System> systems = new HashMap<>();
 
     public static ILevel currentLevel;
     /** A handler for managing asset paths */
@@ -87,7 +87,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private Game() {}
 
     /**
-     * Create a new Game instance if no instance currently exist.
+     * Create a new Game instance if no instance currently exists.
      *
      * @return the (new) Game instance
      */
@@ -97,10 +97,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
-     * At the next frame each system will be informed that the given entity has changes in its
-     * Component-Collection.
+     * In the next frame, each system will be informed that the given entity has changes in its
+     * Component Collection.
      *
-     * @param entity Entity that has changes in its Component-Collection.
+     * @param entity the entity that has changes in its Component Collection
      */
     public static void informAboutChanges(Entity entity) {
         LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
@@ -108,24 +108,27 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
-     * Will remove all entities from the game immediately.
+     * Remove all entities from the game immediately.
      *
-     * <p>Will also remove all entities from each system.
+     * <p>This will also remove all entities from each system.
      */
-    public static void removeAllEntities() {
+    private void removeAllEntities() {
         LOGGER.info("All entities will be removed from the game.");
         systems.values().forEach(System::clearEntities);
         entities.clear();
     }
 
+    /**
+     * @return The {@link TextureHandler}
+     */
     public static TextureHandler getHandler() {
         return handler;
     }
 
     /**
-     * Given entity will be added to the game at the next frame.
+     * The given entity will be added to the game on the next frame.
      *
-     * @param entity to add.
+     * @param entity the entity to add
      * @see DelayedSet
      */
     public static void addEntity(Entity entity) {
@@ -134,9 +137,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
-     * Given entity will be removed from the game at the next frame.
+     * The given entity will be removed from the game on the next frame.
      *
-     * @param entity to remove.
+     * @param entity the entity to remove
      * @see DelayedSet
      */
     public static void removeEntity(Entity entity) {
@@ -145,7 +148,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
-     * @return Set with all entities currently in game as stream
+     * Use this stream if you want to iterate over all currently active entities.
+     *
+     * @return a stream of all entities currently in the game
      */
     public static Stream<Entity> getEntitiesStream() {
         return entities.currentStream();
@@ -153,16 +158,17 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /**
      * @return the player character, can be null if not initialized
+     * @see Optional
      */
     public static Optional<Entity> getHero() {
         return Optional.ofNullable(hero);
     }
-
     /**
-     * set the reference of the playable character careful: old hero will not be removed from the
-     * game
+     * Set the reference of the playable character.
      *
-     * @param hero new reference of hero
+     * <p>Be careful: the old hero will not be removed from the game.
+     *
+     * @param hero the new reference of the hero
      */
     public static void setHero(Entity hero) {
         Game.hero = hero;
@@ -172,15 +178,15 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      * Load the configuration from the given path. If the configuration has already been loaded, the
      * cached version will be used.
      *
-     * @param pathAsString Path to the config-file as String
-     * @param klass Class where the ConfigKey field are located.
-     * @throws IOException If the file could not be read
+     * @param pathAsString the path to the config file as a string
+     * @param klass the class where the ConfigKey fields are located
+     * @throws IOException if the file could not be read
      */
     public static void loadConfig(String pathAsString, Class<?> klass) throws IOException {
         Configuration.loadAndGetConfiguration(pathAsString, klass);
     }
 
-    /** Starts the dungeon and needs a {@link Game}. */
+    /** Starts the dungeon and requires a {@link Game}. */
     public static void run() {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setWindowSizeLimits(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT, 9999, 9999);
@@ -207,17 +213,17 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /**
      * Add a {@link System} to the game.
      *
-     * <p>If a System was added to the game the {@link System#execute}-Method will be called every
+     * <p>If a System is added to the game, the {@link System#execute} method will be called every
      * frame.
      *
-     * <p>Additionally the system will be informed about all new, changed and removed entities via
-     * {@link System#showEntity} or {@link System#removeEntity}
+     * <p>Additionally, the system will be informed about all new, changed, and removed entities via
+     * {@link System#showEntity} or {@link System#removeEntity}.
      *
-     * <p>The game can only store ony system-type each.
+     * <p>The game can only store one system of each system type.
      *
-     * @param system The System to add
-     * @return in this optional the previous existing system of the given system-class is stored, if
-     *     one exist.
+     * @param system the System to add
+     * @return an optional that contains the previous existing system of the given system class, if
+     *     one exists
      * @see System
      * @see Optional
      */
@@ -231,17 +237,19 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /**
      * Remove the stored system of the given class from the game.
      *
-     * @param system class of the system to remove.
+     * @param system the class of the system to remove
      */
     public static void removeSystem(Class<? extends System> system) {
         systems.remove(system);
     }
 
     /**
-     * Main game loop. Redraws the dungeon and calls the own implementation (beginFrame, endFrame
-     * and onLevelLoad).
+     * Main game loop.
      *
-     * @param delta Time since last loop.
+     * <p>Redraws the dungeon, updates the entity sets, and triggers the execution of the systems.
+     * Will call {@link #frame}.
+     *
+     * @param delta the time since the last loop
      */
     @Override
     public void render(float delta) {
@@ -258,7 +266,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         camera.update();
     }
 
-    /** Called once at the beginning of the game. */
+    /**
+     * Called once at the beginning of the game.
+     *
+     * <p>Will perform some setup.
+     */
     protected void setup() {
         doSetup = false;
         /*
@@ -279,7 +291,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        controller = new ArrayList<>();
         batch = new SpriteBatch();
         setupCameras();
         painter = new Painter(batch, camera);
@@ -294,7 +305,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         createSystems();
     }
 
-    /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
+    /**
+     * Called at the beginning of each frame, before the entities are updated and the systems are
+     * executed.
+     *
+     * <p>This is the place to add basic logic that isn't part of any system.
+     */
     protected void frame() {
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         debugKeys();
@@ -316,7 +332,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
     }
 
-    /** Will update the entity-sets of each system and {@link Game#entities}. */
+    /** Will update the entity sets of each system and {@link Game#entities}. */
     private void updateSystems() {
         Function<System, System> showEntity =
                 s -> {
@@ -330,15 +346,20 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         entities.update();
     }
 
+    /**
+     * Sets {@link #currentLevel} to the new level and removes all entities.
+     *
+     * <p>Will re-add the hero if he exists.
+     */
     @Override
     public void onLevelLoad() {
         currentLevel = levelManager.getCurrentLevel();
         removeAllEntities();
         getHero().ifPresent(this::placeOnLevelStart);
         getHero().ifPresent(Game::addEntity);
-        EntityFactory.getChest();
     }
 
+    /** Set the focus of the camera on the hero, if he exists otherwise focus on Pont (0,0) */
     private void setCameraFocus() {
         if (getHero().isPresent()) {
             PositionComponent pc =
@@ -355,10 +376,21 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         } else camera.setFocusPoint(new Point(0, 0));
     }
 
+    /**
+     * If the given entity is on the end-tile, load the new level
+     *
+     * @param hero entity to check for, normally this is the hero
+     */
     private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
         if (isOnEndTile(hero)) levelManager.loadLevel(LEVELSIZE);
     }
 
+    /**
+     * Check if the given en entity is on the end-tile
+     *
+     * @param entity entity to check for
+     * @return true if the entity is on the end-tile, false if not
+     */
     private boolean isOnEndTile(Entity entity) {
         PositionComponent pc =
                 (PositionComponent)
@@ -369,6 +401,13 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         return currentTile.equals(currentLevel.getEndTile());
     }
 
+    /**
+     * Set the position of the given entity to the position of the level-start.
+     *
+     * <p>A {@link PositionComponent} is needed.
+     *
+     * @param hero entity to set on the start of the level, normaly this is the hero.
+     */
     private void placeOnLevelStart(Entity hero) {
         entities.add(hero);
         PositionComponent pc =
@@ -379,11 +418,17 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         pc.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
     }
 
+    /**
+     * Clear the screen. Removes all.
+     *
+     * <p>Needs to be called before redraw something.
+     */
     private void clearScreen() {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
     }
 
+    /** Create a new Camera and set the default values. */
     private void setupCameras() {
         camera = new DungeonCamera(null, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
         camera.zoom = Constants.DEFAULT_ZOOM_FACTOR;
@@ -392,6 +437,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         // https://stackoverflow.com/questions/52011592/libgdx-set-ortho-camera
     }
 
+    /** Create the systems. */
     private void createSystems() {
         new VelocitySystem();
         new DrawSystem(painter);
