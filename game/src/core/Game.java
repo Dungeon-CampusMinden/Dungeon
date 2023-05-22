@@ -72,13 +72,11 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
      * batch.
      */
-    protected SpriteBatch batch;
+    private SpriteBatch batch;
     /** Draws objects */
-    protected Painter painter;
+    private Painter painter;
 
-    protected LevelManager levelManager;
-    /** Generates the level */
-    protected IGenerator generator;
+    private LevelManager levelManager;
 
     private boolean doSetup = true;
     private DebuggerSystem debugger;
@@ -271,7 +269,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * <p>Will perform some setup.
      */
-    protected void setup() {
+    private void setup() {
         doSetup = false;
         /*
          * THIS EXCEPTION HANDLING IS A TEMPORARY WORKAROUND !
@@ -294,7 +292,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         batch = new SpriteBatch();
         setupCameras();
         painter = new Painter(batch, camera);
-        generator = new RandomWalkGenerator();
+        IGenerator generator = new RandomWalkGenerator();
         levelManager = new LevelManager(batch, painter, generator, this);
         initBaseLogger();
         hero = EntityFactory.getHero();
@@ -311,7 +309,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * <p>This is the place to add basic logic that isn't part of any system.
      */
-    protected void frame() {
+    private void frame() {
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         debugKeys();
     }
@@ -406,7 +404,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * <p>A {@link PositionComponent} is needed.
      *
-     * @param hero entity to set on the start of the level, normaly this is the hero.
+     * @param hero entity to set on the start of the level, normally this is the hero.
      */
     private void placeOnLevelStart(Entity hero) {
         entities.add(hero);
