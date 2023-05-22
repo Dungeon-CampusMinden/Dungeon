@@ -14,7 +14,7 @@ public class FunctionType extends Symbol implements IType {
         return returnType;
     }
 
-    public ArrayList<IType> getParameterTypes() {
+    public List<IType> getParameterTypes() {
         return parameterTypes;
     }
 
