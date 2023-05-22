@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import ecs.components.Component;
 import ecs.entities.Entity;
+import logging.CustomLogLevel;
 
 public class QuestComponent extends Component {
 
@@ -13,8 +14,24 @@ public class QuestComponent extends Component {
     private ArrayList<Optional<Quest>> questLog = new ArrayList<>();
     private Quest pinnedQuest;
 
+    /**
+     * Creates a new QuestComponent
+     * 
+     * @param entity the entity that owns this QuestComponent
+     */
     public QuestComponent(Entity entity) {
         super(entity);
+    }
+
+    /**
+     * Creates a new QuestComponent with the given quests
+     * 
+     * @param entity   entity that owns this QuestComponent
+     * @param questLog Already populated QuestLog
+     */
+    public QuestComponent(Entity entity, ArrayList<Optional<Quest>> questLog) {
+        this(entity);
+        this.questLog = questLog;
     }
 
     /**
@@ -33,7 +50,7 @@ public class QuestComponent extends Component {
      * @param quest
      */
     public void pinQuest(Quest quest) {
-        if (!questLog.contains(quest)) {
+        if (!questLog.contains(Optional.ofNullable(quest))) {
             addQuest(quest);
         }
         pinnedQuest = quest;
@@ -62,7 +79,7 @@ public class QuestComponent extends Component {
     }
 
     /**
-     * 
+     * Updates unfinished quests and removes finished quests
      */
     public void update() {
         questLog.stream()
@@ -70,6 +87,13 @@ public class QuestComponent extends Component {
                 .flatMap(o -> o.stream())
                 // updates all quests
                 .forEach(q -> q.update());
+        questLogger.log(CustomLogLevel.DEBUG,
+                "Quests updated for " + entity.getClass().getSimpleName());
+        removeQuest();
+        questLogger.log(CustomLogLevel.DEBUG, "Quests removed for " + entity.getClass().getSimpleName());
+    }
+
+    private void removeQuest() {
         // Removes all empty slots and finished quests
         int i = 0;
         while (i < questLog.size()) {
@@ -79,6 +103,8 @@ public class QuestComponent extends Component {
             }
             if (questLog.get(i).get().getTask().isCompleted()) {
                 questLog.remove(i);
+                if (questLog.get(i).get().equals(pinnedQuest))
+                    pinnedQuest = latestQuest().get();
                 continue;
             }
             i++;
