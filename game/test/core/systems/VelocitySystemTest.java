@@ -11,7 +11,6 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.utils.Point;
 import core.utils.components.draw.Animation;
-import core.utils.controller.SystemController;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +39,6 @@ public class VelocitySystemTest {
 
     @Before
     public void setup() {
-        Game.systems = new SystemController();
         Game.currentLevel = level;
         Mockito.when(level.getTileAt(Mockito.any())).thenReturn(tile);
         Game.removeEntity(entity);
@@ -58,7 +56,7 @@ public class VelocitySystemTest {
         Mockito.when(tile.isAccessible()).thenReturn(true);
         velocityComponent.setCurrentXVelocity(xVelocity);
         velocityComponent.setCurrentYVelocity(yVelocity);
-        velocitySystem.update();
+        velocitySystem.execute();
         Point position = positionComponent.getPosition();
         assertEquals(startXPosition + xVelocity, position.x, 0.001);
         assertEquals(startYPosition + yVelocity, position.y, 0.001);
@@ -71,7 +69,7 @@ public class VelocitySystemTest {
         Mockito.when(tile.isAccessible()).thenReturn(true);
         velocityComponent.setCurrentXVelocity(-4);
         velocityComponent.setCurrentYVelocity(-8);
-        velocitySystem.update();
+        velocitySystem.execute();
         Point position = positionComponent.getPosition();
         assertEquals(startXPosition - 4, position.x, 0.001);
         assertEquals(startYPosition - 8, position.y, 0.001);
@@ -84,7 +82,7 @@ public class VelocitySystemTest {
         Mockito.when(tile.isAccessible()).thenReturn(false);
         velocityComponent.setCurrentXVelocity(xVelocity);
         velocityComponent.setCurrentYVelocity(yVelocity);
-        velocitySystem.update();
+        velocitySystem.execute();
         Point position = positionComponent.getPosition();
         assertEquals(startXPosition, position.x, 0.001);
         assertEquals(startYPosition, position.y, 0.001);
@@ -97,7 +95,7 @@ public class VelocitySystemTest {
         Mockito.when(tile.isAccessible()).thenReturn(false);
         velocityComponent.setCurrentXVelocity(-4);
         velocityComponent.setCurrentYVelocity(-8);
-        velocitySystem.update();
+        velocitySystem.execute();
         Point position = positionComponent.getPosition();
         assertEquals(startXPosition, position.x, 0.001);
         assertEquals(startYPosition, position.y, 0.001);
@@ -111,27 +109,27 @@ public class VelocitySystemTest {
         // right
         velocityComponent.setCurrentXVelocity(xVelocity);
         velocityComponent.setCurrentYVelocity(yVelocity);
-        velocitySystem.update();
+        velocitySystem.execute();
         assertEquals(moveRight, animationComponent.getCurrentAnimation());
 
         // idleRight
         velocityComponent.setCurrentXVelocity(0);
         velocityComponent.setCurrentYVelocity(0);
 
-        velocitySystem.update();
+        velocitySystem.execute();
         assertEquals(idleRight, animationComponent.getCurrentAnimation());
 
         // left
         velocityComponent.setCurrentXVelocity(-1);
         velocityComponent.setCurrentYVelocity(0);
-        velocitySystem.update();
+        velocitySystem.execute();
         assertEquals(moveLeft, animationComponent.getCurrentAnimation());
 
         // idleLeft
         velocityComponent.setCurrentXVelocity(0);
         velocityComponent.setCurrentYVelocity(0);
 
-        velocitySystem.update();
+        velocitySystem.execute();
         assertEquals(idleLeft, animationComponent.getCurrentAnimation());
     }
 }

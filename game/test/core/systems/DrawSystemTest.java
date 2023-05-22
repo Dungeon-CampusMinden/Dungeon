@@ -7,7 +7,6 @@ import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.Painter;
-import core.utils.controller.SystemController;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +22,6 @@ public class DrawSystemTest {
     @Before
     public void setup() {
         Game.removeAllEntities();
-        Game.systems = new SystemController();
         drawSystem = new DrawSystem(painter);
         entity = new Entity();
         new DrawComponent(entity, animation);
@@ -42,7 +40,7 @@ public class DrawSystemTest {
     public void updateWithoutDrawComponent() {
         entity.removeComponent(DrawComponent.class);
         Mockito.verifyNoMoreInteractions(painter);
-        drawSystem.update();
+        drawSystem.execute();
         Game.removeAllEntities();
     }
 }

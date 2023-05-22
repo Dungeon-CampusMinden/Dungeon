@@ -64,7 +64,7 @@ public class ItemDataTest {
         ItemData itemData = new ItemData();
         Point point = new Point(0, 0);
         itemData.triggerDrop(null, point);
-        Entity e = Game.getEntities().iterator().next();
+        Entity e = Game.getEntitiesStream().iterator().next();
         PositionComponent pc =
                 (PositionComponent) e.getComponent(PositionComponent.class).orElseThrow();
         assertEquals(point.x, pc.getPosition().x, 0.001);

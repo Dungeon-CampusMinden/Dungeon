@@ -46,9 +46,7 @@ public abstract class System {
         run = true;
     }
 
-    /**
-     * Implements the functionality of the system.
-     */
+    /** Implements the functionality of the system. */
     public abstract void execute();
 
     /**
@@ -92,7 +90,7 @@ public abstract class System {
     public final void removeEntity(Entity entity) {
         if (entities.remove(entity))
             LOGGER.info(
-                "Entity " + entity + " will be removed from to the " + getClass().getName());
+                    "Entity " + entity + " will be removed from to the " + getClass().getName());
     }
 
     /**
@@ -178,18 +176,18 @@ public abstract class System {
      * Utility function to log that the given entity will not be processed by the calling system
      * because the given component is missing.
      *
-     * @param entity           the entity that will not be processed
+     * @param entity the entity that will not be processed
      * @param missingComponent the missing component
      */
     protected final void logMissingComponent(
-        Entity entity, Class<? extends Component> missingComponent) {
+            Entity entity, Class<? extends Component> missingComponent) {
         LOGGER.info(
-            "Entity: "
-                + entity
-                + " Not processed by the "
-                + getClass().getName()
-                + " because the component "
-                + missingComponent.getName()
-                + " is missing ");
+                "Entity: "
+                        + entity
+                        + " Not processed by the "
+                        + getClass().getName()
+                        + " because the component "
+                        + missingComponent.getName()
+                        + " is missing ");
     }
 }

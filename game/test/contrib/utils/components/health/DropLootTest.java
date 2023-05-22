@@ -51,7 +51,7 @@ public class DropLootTest {
         new InventoryComponent(entity, 10);
         dropLoot.onDeath(entity);
         Game.removeEntity(entity);
-        assertEquals(0, Game.getEntities().count());
+        assertEquals(0, Game.getEntitiesStream().count());
     }
 
     /** Checks the handling when the InventoryComponent has exactly one Item */
@@ -65,9 +65,9 @@ public class DropLootTest {
         inventoryComponent.addItem(new ItemData());
         Game.removeAllEntities();
         dropLoot.onDeath(entity);
-        assertEquals(1, Game.getEntities().count());
+        assertEquals(1, Game.getEntitiesStream().count());
         assertTrue(
-                Game.getEntities()
+                Game.getEntitiesStream()
                         .allMatch(
                                 x ->
                                         x.getComponent(PositionComponent.class)
@@ -94,9 +94,9 @@ public class DropLootTest {
         Game.removeAllEntities();
         dropLoot.onDeath(entity);
 
-        assertEquals(2, Game.getEntities().count());
+        assertEquals(2, Game.getEntitiesStream().count());
         assertTrue(
-                Game.getEntities()
+                Game.getEntitiesStream()
                         .allMatch(
                                 x ->
                                         x.getComponent(PositionComponent.class)

@@ -21,7 +21,7 @@ public class EntityTest {
 
     @Test
     public void cTor() {
-        assertTrue(Game.getEntities().anyMatch(e -> e == entity));
+        assertTrue(Game.getEntitiesStream().anyMatch(e -> e == entity));
     }
 
     @Test

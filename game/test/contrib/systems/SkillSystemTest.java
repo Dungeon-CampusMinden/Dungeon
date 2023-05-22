@@ -9,7 +9,6 @@ import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
 import core.utils.Constants;
-import core.utils.controller.SystemController;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -19,7 +18,6 @@ public class SkillSystemTest {
     @Test
     public void update() {
         Game.removeAllEntities();
-        Game.systems = new SystemController();
         SkillSystem system = new SkillSystem();
         Entity entity = new Entity();
         ISkillFunction skillFunction = Mockito.mock(ISkillFunction.class);
@@ -38,7 +36,7 @@ public class SkillSystemTest {
         for (int i = 0; i < coolDownInSeconds * Constants.FRAME_RATE; i++) {
             assertTrue(testSkill.isOnCoolDown());
             assertTrue(testSkill2.isOnCoolDown());
-            system.update();
+            system.execute();
         }
 
         assertFalse(testSkill.isOnCoolDown());

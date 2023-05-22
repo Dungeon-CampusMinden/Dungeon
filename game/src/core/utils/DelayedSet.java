@@ -84,8 +84,8 @@ public final class DelayedSet<T> {
     /**
      * Add the given object to {@link #toRemove}.
      *
-     * <p>After calling {@link #update}, the objects inside this inner set will be removed from {@link
-     * #current}.
+     * <p>After calling {@link #update}, the objects inside this inner set will be removed from
+     * {@link #current}.
      *
      * @param t Object to remove
      */
@@ -96,8 +96,8 @@ public final class DelayedSet<T> {
     /**
      * Add all objects of the given collection to {@link #toRemove}.
      *
-     * <p>After calling {@link #update}, the objects inside this inner set will be removed from {@link
-     * #current}.
+     * <p>After calling {@link #update}, the objects inside this inner set will be removed from
+     * {@link #current}.
      *
      * @param collection Contains all objects to remove
      */

@@ -5,38 +5,9 @@ import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import core.utils.controller.SystemController;
-
-import org.junit.Before;
 import org.junit.Test;
 
 public class SystemTest {
-
-    private System testSystem;
-    private int updates;
-
-    @Before
-    public void setup() {
-        updates = 0;
-        Game.systems = new SystemController();
-        testSystem =
-                new System() {
-                    @Override
-                    public boolean accept(Entity entity) {
-                        return true;
-                    }
-
-                    @Override
-                    public void systemUpdate() {
-                        updates++;
-                    }
-                };
-    }
-
-    @Test
-    public void cTor() {
-        assertTrue(Game.systems.contains(testSystem));
-    }
 
     @Test
     public void cTor_existingEntities() {
@@ -44,14 +15,14 @@ public class SystemTest {
         System ts =
                 new System() {
                     @Override
-                    protected void systemUpdate() {}
+                    public void execute() {}
 
                     @Override
                     protected boolean accept(Entity entity) {
                         return true;
                     }
                 };
-        ts.update();
+        ts.execute();
         assertEquals(1, ts.getEntityStream().count());
         Game.removeAllEntities();
         Game.systems.clear();
@@ -59,67 +30,82 @@ public class SystemTest {
 
     @Test
     public void add() {
-        testSystem =
+        System ts =
                 new System() {
                     @Override
-                    public boolean accept(Entity entity) {
-                        return false;
-                    }
+                    public void execute() {}
 
                     @Override
-                    public void systemUpdate() {
-                        updates++;
+                    protected boolean accept(Entity entity) {
+                        return false;
                     }
                 };
         Entity e = new Entity();
-        testSystem.showEntity(e);
-        testSystem.update();
-        assertFalse(testSystem.getEntityStream().anyMatch(en -> e == en));
+        ts.showEntity(e);
+        ts.execute();
+        assertFalse(ts.getEntityStream().anyMatch(en -> e == en));
         Game.removeAllEntities();
     }
 
     @Test
     public void add_notAccepted() {
         Entity e = new Entity();
-        testSystem.showEntity(e);
-        testSystem.update();
-        assertTrue(testSystem.getEntityStream().anyMatch(en -> e == en));
+        System ts =
+                new System() {
+                    @Override
+                    public void execute() {}
+
+                    @Override
+                    protected boolean accept(Entity entity) {
+                        return true;
+                    }
+                };
+        ts.showEntity(e);
+        ts.execute();
+        assertTrue(ts.getEntityStream().anyMatch(en -> e == en));
         Game.removeAllEntities();
     }
 
     @Test
     public void remove() {
+        System ts =
+                new System() {
+                    @Override
+                    public void execute() {}
+
+                    @Override
+                    protected boolean accept(Entity entity) {
+                        return true;
+                    }
+                };
         Entity e = new Entity();
-        testSystem.showEntity(e);
-        testSystem.update();
-        testSystem.removeEntity(e);
-        testSystem.update();
-        assertFalse(testSystem.getEntityStream().anyMatch(en -> e == en));
+        ts.showEntity(e);
+        ts.execute();
+        ts.removeEntity(e);
+        ts.execute();
+        assertFalse(ts.getEntityStream().anyMatch(en -> e == en));
         Game.removeAllEntities();
     }
 
     @Test
     public void clearEntities() {
-        testSystem.showEntity(new Entity());
-        testSystem.showEntity(new Entity());
-        testSystem.showEntity(new Entity());
-        testSystem.update();
-        assertEquals(3, testSystem.getEntityStream().count());
-        testSystem.clearEntities();
-        assertEquals(0, testSystem.getEntityStream().count());
-        Game.removeAllEntities();
-    }
+        System ts =
+                new System() {
+                    @Override
+                    public void execute() {}
 
-    @Test
-    public void pause() {
-        assertEquals(0, updates);
-        Game.systems.update();
-        assertEquals(1, updates);
-        testSystem.toggleRun();
-        Game.systems.update();
-        assertEquals(1, updates);
-        testSystem.toggleRun();
-        Game.systems.update();
-        assertEquals(2, updates);
+                    @Override
+                    protected boolean accept(Entity entity) {
+                        return true;
+                    }
+                };
+        ts.showEntity(new Entity());
+        ts.showEntity(new Entity());
+        ts.showEntity(new Entity());
+        ts.execute();
+        assertEquals(3, ts.getEntityStream().count());
+        ts.clearEntities();
+        assertEquals(0, ts.getEntityStream().count());
+        Game.removeAllEntities();
     }
 }

@@ -37,14 +37,14 @@ public class AISystemTest {
 
     @Test
     public void update() {
-        system.update();
+        system.execute();
         assertEquals(1, updateCounter);
     }
 
     @Test
     public void updateWithoutAIComponent() {
         entity.removeComponent(AIComponent.class);
-        system.update();
+        system.execute();
         assertEquals(0, updateCounter);
     }
 }

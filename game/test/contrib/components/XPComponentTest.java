@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import core.Entity;
 import core.Game;
-import core.utils.controller.SystemController;
 
 import org.junit.Test;
 
@@ -15,7 +14,6 @@ public class XPComponentTest {
     public void testStartXP() {
         /* Prepare */
         Game.removeAllEntities();
-        Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 
@@ -29,7 +27,6 @@ public class XPComponentTest {
     public void testAddXPSingle() {
         /* Prepare */
         Game.removeAllEntities();
-        Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 
@@ -43,7 +40,6 @@ public class XPComponentTest {
     public void testAddXPMultiple() {
         /* Prepare */
         Game.removeAllEntities();
-        Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 
@@ -58,7 +54,6 @@ public class XPComponentTest {
     public void testXPToNextLevelNonZero() {
         /* Prepare */
         Game.removeAllEntities();
-        Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 
@@ -72,7 +67,6 @@ public class XPComponentTest {
     public void testXPToNextLevelExact() {
         /* Prepare */
         Game.removeAllEntities();
-        Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 
@@ -86,7 +80,6 @@ public class XPComponentTest {
     public void testXPToNextLevelMore() {
         /* Prepare */
         Game.removeAllEntities();
-        Game.systems = new SystemController();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 

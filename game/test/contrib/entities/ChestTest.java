@@ -37,7 +37,7 @@ public class ChestTest {
         Point position = new Point(0, 0);
         Entity c = EntityFactory.getChest(itemData, position);
 
-        assertEquals("Chest is added to Game", 1, Game.getEntities().count());
+        assertEquals("Chest is added to Game", 1, Game.getEntitiesStream().count());
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
                 c.getComponent(DrawComponent.class).isPresent());
@@ -66,12 +66,12 @@ public class ChestTest {
         Point position = new Point(0, 0);
         Entity c = EntityFactory.getChest(itemData, position);
 
-        assertEquals(1, Game.getEntities().count());
+        assertEquals(1, Game.getEntitiesStream().count());
         c.getComponent(InteractionComponent.class)
                 .map(InteractionComponent.class::cast)
                 .get()
                 .triggerInteraction();
-        assertEquals(2, Game.getEntities().count());
+        assertEquals(2, Game.getEntitiesStream().count());
 
         cleanup();
     }
@@ -88,8 +88,8 @@ public class ChestTest {
                 .ifPresent(InteractionComponent::triggerInteraction);
         Game.removeEntity(c);
 
-        assertEquals(1, Game.getEntities().count());
-        Entity droppedItem = Game.getEntities().iterator().next();
+        assertEquals(1, Game.getEntitiesStream().count());
+        Entity droppedItem = Game.getEntitiesStream().iterator().next();
         assertTrue(
                 "droppedItem should have the HitboxComponent",
                 droppedItem
@@ -114,7 +114,7 @@ public class ChestTest {
 
         Entity newChest = EntityFactory.getChest();
 
-        assertTrue("Chest is added to Game", Game.getEntities().anyMatch(e -> e == newChest));
+        assertTrue("Chest is added to Game", Game.getEntitiesStream().anyMatch(e -> e == newChest));
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
                 newChest.getComponent(DrawComponent.class).isPresent());
