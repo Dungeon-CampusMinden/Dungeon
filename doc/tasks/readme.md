@@ -167,8 +167,9 @@ Das heißt:
 - Jeder Antwortmöglichkeit $a \in A$ kann maximal ein Element $b \in B$ zugeordnet werden.
 - Jedem Element $b \in B$ können $n$ Elemente $a \in A$ zugeordnet werden, wobei $0 \leq n \leq |A|$ ist
 
-Die gesamte Menge $A$ der Antwortmöglichkeiten muss den Studierenden
-bekannt sein, bevor sie den ersten Zuordnungsschritt machen können.
+Die gesamte Mengen $A$ und $B$ müssen den Studierenden
+bekannt sein, bevor sie den ersten Zuordnungsschritt machen können. 
+Es kann Aufgaben geben, wo Studierende selbst Teile der Menge $A$ definieren können.
 
 ## Konkrete Entitätstypen
 
