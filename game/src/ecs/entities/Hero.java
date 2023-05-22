@@ -7,6 +7,7 @@ import ecs.damage.Damage;
 import ecs.components.skill.ExplosivePebbleSkill;
 import graphic.Animation;
 import ecs.components.OnDeathFunctions.EndGame;
+import ecs.components.quests.QuestComponent;
 
 import java.io.Serializable;
 
@@ -49,6 +50,7 @@ public class Hero extends Entity implements Serializable {
         setupSkillComponent();
         pc.setSkillSlot1(firstSkill);
         pc.setSkillSlot2(secondSkill);
+        setupQuestComponent();
     }
 
     private void setupVelocityComponent() {
@@ -98,5 +100,9 @@ public class Hero extends Entity implements Serializable {
         setupSkills();
         sc.addSkill(firstSkill);
         sc.addSkill(secondSkill);
+    }
+
+    private void setupQuestComponent() {
+        new QuestComponent(this);
     }
 }

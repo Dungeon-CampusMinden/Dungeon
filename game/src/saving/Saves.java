@@ -8,14 +8,15 @@ import java.util.Optional;
 
 public class Saves {
 
+    @SuppressWarnings("unchecked")
     private Optional<GameData>[] saves = (Optional<GameData>[]) new Optional<?>[8];
     private Optional<GameData> autoSave;
 
     public boolean save() {
         try {
-            for (int i = 0; i < saves.length; i++) { 
+            for (int i = 0; i < saves.length; i++) {
                 if (saves[i] != null)
-                    GameData.save(saves[i].get(),"saves/" + 1 + i + ".txt");
+                    GameData.save(saves[i].get(), "saves/" + 1 + i + ".txt");
             }
             GameData.save(autoSave.get(), "saves/autosave.txt");
         } catch (IOException e) {

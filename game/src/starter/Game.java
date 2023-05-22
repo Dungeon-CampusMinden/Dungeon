@@ -13,9 +13,9 @@ import configuration.KeyboardConfig;
 import controller.AbstractController;
 import controller.SystemController;
 import ecs.components.HealthComponent;
-import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
+import ecs.components.quests.QuestComponent;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.entities.Entity;
@@ -26,6 +26,7 @@ import ecs.entities.Chort;
 import ecs.entities.DamageTrap;
 import ecs.entities.DarkKnight;
 import ecs.entities.Imp;
+import ecs.entities.QuestButton;
 import ecs.entities.SummoningTrap;
 import ecs.entities.TeleportationTrap;
 import saving.GameData;
@@ -205,6 +206,13 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
                     .receiveHit(new Damage(100, DamageType.PHYSICAL, hero));
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
             throw new Flag();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+            System.out.println("Questlog:");
+            ((QuestComponent) hero.getComponent(QuestComponent.class).get())
+                    .getQuestLog().stream()
+                    .map(o -> o.get())
+                    .forEach(System.out::println);
+        }
     }
 
     @Override
@@ -375,6 +383,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new XPSystem();
         new SkillSystem();
         new ProjectileSystem();
+        new QuestSystem();
     }
 
     /** returns current level of the dungeon */
@@ -396,6 +405,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             if (i % 5 == 0)
                 spawnTraps();
         }
+        addEntity(new QuestButton());
+        System.out.println("here");
     }
 
     // Monster spawn mechanics

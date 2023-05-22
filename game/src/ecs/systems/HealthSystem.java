@@ -11,13 +11,15 @@ import java.util.stream.Stream;
 import starter.Game;
 
 /**
- * The HealthSystem offsets the damage to be done to all entities with the HealthComponent. Triggers
+ * The HealthSystem offsets the damage to be done to all entities with the
+ * HealthComponent. Triggers
  * the death of an entity when the health-points have fallen below 0.
  */
 public class HealthSystem extends ECS_System {
 
     // private record to hold all data during streaming
-    private record HSData(Entity e, HealthComponent hc, AnimationComponent ac) {}
+    private record HSData(Entity e, HealthComponent hc, AnimationComponent ac) {
+    }
 
     @Override
     public void update() {
@@ -37,10 +39,8 @@ public class HealthSystem extends ECS_System {
     private HSData buildDataObject(HealthComponent hc) {
         Entity e = hc.getEntity();
 
-        AnimationComponent ac =
-                (AnimationComponent)
-                        e.getComponent(AnimationComponent.class)
-                                .orElseThrow(HealthSystem::missingAC);
+        AnimationComponent ac = (AnimationComponent) e.getComponent(AnimationComponent.class)
+                .orElseThrow(HealthSystem::missingAC);
 
         return new HSData(e, hc, ac);
     }
@@ -67,15 +67,14 @@ public class HealthSystem extends ECS_System {
      * Calculates damage with multipliers of the StatsComponent.
      *
      * @param statsComponent The StatsComponent of the entity.
-     * @param hsd The HealthSystemData object.
+     * @param hsd            The HealthSystemData object.
      */
     private int calculateDamageWithMultipliers(StatsComponent statsComponent, HSData hsd) {
         return Stream.of(DamageType.values())
                 .mapToInt(
-                        dt ->
-                                Math.round(
-                                        statsComponent.getDamageModifiers().getMultiplier(dt)
-                                                * hsd.hc.getDamage(dt)))
+                        dt -> Math.round(
+                                statsComponent.getDamageModifiers().getMultiplier(dt)
+                                        * hsd.hc.getDamage(dt)))
                 .sum();
     }
 
@@ -93,7 +92,8 @@ public class HealthSystem extends ECS_System {
         // Entity appears to be dead, so let's clean up the mess
         hsd.hc.triggerOnDeath();
         hsd.ac.setCurrentAnimation(hsd.hc.getDieAnimation());
-        // TODO: Before removing the entity, check if the animation is finished (Issue #246)
+        // TODO: Before removing the entity, check if the animation is finished (Issue
+        // #246)
         Game.removeEntity(hsd.hc.getEntity());
 
         // Add XP
