@@ -6,8 +6,8 @@ title: "Reporting-Konzept"
 
 Das Ziel dieses Dokuments ist es, die Konzepte zum **Reporting** zentral zu sammeln.
 
-**Reporting** bezeichnet den Prozess des Erfassens, Bewertens und Speicherns einer Antwort auf
-eine Frage im Dungeon-Kontext.
+**Reporting** bezeichnet den Prozess des Erfassens, Bewertens und Speicherns einer Antwort
+auf eine Frage im Dungeon-Kontext.
 
 ## Beteiligte Komponenten
 
@@ -27,8 +27,8 @@ single_choice_task my_task {
 
 ### Scoring-Funktion
 
-Die **Scoring-Funktion** implementiert die Art, wie eine Aufgabe bewertet wird.
-Eine beispielhafte DSL-Implementierung könnte so aussehen:
+Die **Scoring-Funktion** implementiert die Art, wie eine Aufgabe bewertet wird. Eine
+beispielhafte DSL-Implementierung könnte so aussehen:
 
 ```
 fn score(single_choice_task t, string a) -> float {
@@ -38,18 +38,19 @@ fn score(single_choice_task t, string a) -> float {
     return 0.0;
 }
 ```
-
-Die **Scoring-Funktion** nimmt zwei Parameter entgegen: das Aufgabenobjekt (welches die **Task-Definition**
-repräsentiert), und die gegebene Antwort (hier als `string`).
-Sie gibt einen Fließkommawert zurück, der die Bewertung der Antwort repräsentiert: 1.0 = richtig, 0.0 = falsch.
+Die **Scoring-Funktion** nimmt zwei Parameter entgegen: das Aufgabenobjekt (welches die
+**Task-Definition** repräsentiert), und die gegebene Antwort (hier als `string`). Sie gibt
+einen Fließkommawert zurück, der die Bewertung der Antwort repräsentiert: 1.0 = richtig, 0.0
+= falsch.
 
 ### Szenario-Definition
 
-Die **Szenario-Definition** ist dafür zuständig, die Verbindung zwischen der abstrakten Aufgaben-Definition und
-der konkreten Umsetzung im Dungeon herzustellen. Hierzu zählt auch Verknüpfung von Event-Handler-Funktionen
-mit Events im Kontext von Entitäten, um auf bestimmte Ereignisse im Dungeon zu reagieren.
-Da die "Abgabe" einer Aufgabe im Dungeon-Kontext durch viele szenario-abhängige Ereignisse abgebildet werden kann,
-muss auch der Aufruf der **Scoring-Funktion** und weiterer Reporting-Logik in die Szenario-Definition
+Die **Szenario-Definition** ist dafür zuständig, die Verbindung zwischen der abstrakten
+Aufgaben-Definition und der konkreten Umsetzung im Dungeon herzustellen. Hierzu zählt auch
+Verknüpfung von Event-Handler-Funktionen mit Events im Kontext von Entitäten, um auf
+bestimmte Ereignisse im Dungeon zu reagieren. Da die “Abgabe” einer Aufgabe im
+Dungeon-Kontext durch viele szenario-abhängige Ereignisse abgebildet werden kann, muss auch
+der Aufruf der **Scoring-Funktion** und weiterer Reporting-Logik in die Szenario-Definition
 integriert werden.
 
 ```
@@ -70,15 +71,16 @@ fn report(task t, string a) -> float {
 }
 ```
 
-Im obigen Listing werden zwei Funktionen definiert. die `handler_function` ist eine Event-Handler-Funktion,
-die als Callback-Funktion für ein Ereignis im Kontext einer Entität (z.B. ein Kollisionsereignis) verknüpft
-werden kann.
-Die `report`-Funktion wird als Teil der Standard-Bibliothek oder als native Funktion des DSL-
-Interpreters umgesetzt, ruft die **Scoring-Funktion** des `task`-Objekts auf und speichert
-das Ergebnis per `log`-Funktion (welche ebenfalls als native Funktion implementiert wird).
+Im obigen Listing werden zwei Funktionen definiert. die `handler_function` ist eine
+Event-Handler-Funktion, die als Callback-Funktion für ein Ereignis im Kontext einer Entität
+(z.B. ein Kollisionsereignis) verknüpft werden kann. Die `report`-Funktion wird als Teil der
+Standard-Bibliothek oder als native Funktion des DSL- Interpreters umgesetzt, ruft die
+**Scoring-Funktion** des `task`-Objekts auf und speichert das Ergebnis per `log`-Funktion
+(welche ebenfalls als native Funktion implementiert wird).
 
-Die obige Implementierung setzt voraus, dass die Entität, die der Handler-Funktion übergeben wird,
-zwei Referenzen enthält:
+Die obige Implementierung setzt voraus, dass die Entität, die der Handler-Funktion übergeben
+wird, zwei Referenzen enthält:
 
-1. Eine Referenz auf die Aufgabendefinition, an deren konkreter Umsetzung die Entität beteiligt ist
-2. Eine Referenz auf die Antwortmöglichkeit, welche durch die Entität repräsentiert wird
+1.  Eine Referenz auf die Aufgabendefinition, an deren konkreter Umsetzung die Entität
+    beteiligt ist
+2.  Eine Referenz auf die Antwortmöglichkeit, welche durch die Entität repräsentiert wird
