@@ -1,7 +1,6 @@
 package contrib.systems;
 
 import contrib.components.CollideComponent;
-
 import core.Game;
 import core.System;
 import core.level.Tile;
@@ -9,14 +8,12 @@ import core.level.Tile;
 import java.util.HashMap;
 import java.util.Map;
 
-/** System to check for collisions between two entities */
+/**
+ * System to check for collisions between two entities
+ */
 public class CollisionSystem extends System {
 
     private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
-
-    private record CollisionKey(int a, int b) {}
-
-    protected record CollisionData(CollideComponent a, CollideComponent b) {}
 
     public CollisionSystem() {
         super(CollideComponent.class);
@@ -25,25 +22,25 @@ public class CollisionSystem extends System {
     @Override
     public void execute() {
         getEntityStream()
-                .flatMap(
-                        a ->
-                                a
-                                        .getComponent(CollideComponent.class)
-                                        .map(CollideComponent.class::cast)
-                                        .stream())
-                .flatMap(
-                        a ->
-                                Game.getEntitiesStream()
-                                        .filter(b -> a.getEntity().id() < b.id())
-                                        .flatMap(
-                                                b ->
-                                                        b
-                                                                .getComponent(
-                                                                        CollideComponent.class)
-                                                                .map(CollideComponent.class::cast)
-                                                                .stream())
-                                        .map(b -> buildData(a, b)))
-                .forEach(this::onEnterLeaveCheck);
+            .flatMap(
+                a ->
+                    a
+                        .getComponent(CollideComponent.class)
+                        .map(CollideComponent.class::cast)
+                        .stream())
+            .flatMap(
+                a ->
+                    Game.getEntitiesStream()
+                        .filter(b -> a.getEntity().id() < b.id())
+                        .flatMap(
+                            b ->
+                                b
+                                    .getComponent(
+                                        CollideComponent.class)
+                                    .map(CollideComponent.class::cast)
+                                    .stream())
+                        .map(b -> buildData(a, b)))
+            .forEach(this::onEnterLeaveCheck);
     }
 
     private CollisionData buildData(CollideComponent a, CollideComponent b) {
@@ -91,9 +88,9 @@ public class CollisionSystem extends System {
      */
     protected boolean checkForCollision(CollideComponent hitbox1, CollideComponent hitbox2) {
         return hitbox1.getBottomLeft().x < hitbox2.getTopRight().x
-                && hitbox1.getTopRight().x > hitbox2.getBottomLeft().x
-                && hitbox1.getBottomLeft().y < hitbox2.getTopRight().y
-                && hitbox1.getTopRight().y > hitbox2.getBottomLeft().y;
+            && hitbox1.getTopRight().x > hitbox2.getBottomLeft().x
+            && hitbox1.getBottomLeft().y < hitbox2.getTopRight().y
+            && hitbox1.getTopRight().y > hitbox2.getBottomLeft().y;
     }
 
     /**
@@ -104,7 +101,7 @@ public class CollisionSystem extends System {
      * @return Tile direction for where hitbox 2 is compared to hitbox 1
      */
     protected Tile.Direction checkDirectionOfCollision(
-            CollideComponent hitbox1, CollideComponent hitbox2) {
+        CollideComponent hitbox1, CollideComponent hitbox2) {
         float y = hitbox2.getCenter().y - hitbox1.getCenter().y;
         float x = hitbox2.getCenter().x - hitbox1.getCenter().x;
         float rads = (float) Math.atan2(y, x);
@@ -120,5 +117,11 @@ public class CollisionSystem extends System {
         } else {
             return Tile.Direction.W;
         }
+    }
+
+    private record CollisionKey(int a, int b) {
+    }
+
+    protected record CollisionData(CollideComponent a, CollideComponent b) {
     }
 }

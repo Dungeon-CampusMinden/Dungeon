@@ -14,13 +14,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-/** used to draw entities */
+/**
+ * used to draw entities
+ */
 public class DrawSystem extends System {
 
     private final Painter painter;
     private final Map<String, PainterConfig> configs;
-
-    private record DSData(Entity e, DrawComponent ac, PositionComponent pc) {}
 
     /**
      * @param painter PM-Dungeon painter to draw
@@ -37,7 +37,9 @@ public class DrawSystem extends System {
         return set;
     }
 
-    /** draw entities at their position */
+    /**
+     * draw entities at their position
+     */
     @Override
     public void execute() {
         getEntityStream().map(this::buildDataObject).forEach(this::draw);
@@ -50,9 +52,9 @@ public class DrawSystem extends System {
             configs.put(currentAnimationTexture, new PainterConfig(currentAnimationTexture));
         }
         painter.draw(
-                dsd.pc.getPosition(),
-                currentAnimationTexture,
-                configs.get(currentAnimationTexture));
+            dsd.pc.getPosition(),
+            currentAnimationTexture,
+            configs.get(currentAnimationTexture));
     }
 
     private DSData buildDataObject(Entity e) {
@@ -63,10 +65,15 @@ public class DrawSystem extends System {
         return new DSData(e, dc, pc);
     }
 
-    /** DrawSystem cant be paused */
+    /**
+     * DrawSystem cant be paused
+     */
     @Override
     public void stop() {
         // DrawSystem cant pause
         run = true;
+    }
+
+    private record DSData(Entity e, DrawComponent ac, PositionComponent pc) {
     }
 }

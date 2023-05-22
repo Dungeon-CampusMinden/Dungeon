@@ -75,10 +75,10 @@ public final class Entity {
     public void addComponent(Component component) {
         components.put(component.getClass(), component);
         LOGGER.info(
-                component.getClass().getName()
-                        + " Components from "
-                        + this.toString()
-                        + " was added.");
+            component.getClass().getName()
+                + " Components from "
+                + this.toString()
+                + " was added.");
         Game.informAboutChanges(this);
     }
 
@@ -117,6 +117,7 @@ public final class Entity {
     public boolean isPresent(Class<? extends Component> klass) {
         return components.containsKey(klass);
     }
+
     /**
      * @return The id of this entity
      */
