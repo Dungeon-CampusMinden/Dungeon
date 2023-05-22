@@ -12,7 +12,7 @@ import java.util.stream.Stream;
  * <p>This class implements three different HashSets to allow delayed manipulation of the base Set.
  *
  * <p>{@link #current} contains the current "active" object of the collection. Use this Set to
- * iterate over and work with. Use {@link #getSetAsStream()} to get this Set as stream.
+ * iterate over and work with. Use {@link #currentStream()} to get this Set as stream.
  *
  * <p>Use {@link #add} to add the given object to {@link #toAdd}. After the call of {@link #update},
  * the objects inside this inner set will be added to {@link #current}
@@ -58,11 +58,9 @@ public class DelayedSet<T> {
      * {@link #current}
      *
      * @param t Object to add
-     * @return true if this set did not already contain the specified element
      */
-    public boolean add(T t) {
-        if (current.contains(t)) return false;
-        return toAdd.add(t);
+    public void add(T t) {
+        toAdd.add(t);
     }
 
     /**
@@ -72,11 +70,9 @@ public class DelayedSet<T> {
      * {@link #current}
      *
      * @param collection contains all objects to add
-     * @return true if this set changed as a result of the call
      */
-    public boolean addAll(Collection<T> collection) {
-        if (current.containsAll(collection)) return false;
-        return toAdd.addAll(collection);
+    public void addAll(Collection<T> collection) {
+        toAdd.addAll(collection);
     }
 
     /**
@@ -86,11 +82,9 @@ public class DelayedSet<T> {
      * {@link #current}
      *
      * @param t Object to remove
-     * @return true if this set changed as a result of the call
      */
-    public boolean remove(T t) {
-        if (current.contains(t) || toAdd.contains(t)) return toRemove.add(t);
-        else return false;
+    public void remove(T t) {
+        toRemove.add(t);
     }
 
     /**
@@ -100,19 +94,15 @@ public class DelayedSet<T> {
      * {@link #current}
      *
      * @param collection contains all objects to remove
-     * @return true if this set changed as a result of the call
      */
-    public boolean removeAll(Collection<T> collection) {
-        if (Collections.disjoint(collection, current) && Collections.disjoint(collection, toAdd)) {
-            return false;
-        }
-        return toRemove.addAll(collection);
+    public void removeAll(Collection<T> collection) {
+        toRemove.addAll(collection);
     }
 
     /**
      * @return {@link #current} as stream
      */
-    public Stream<T> getSetAsStream() {
+    public Stream<T> currentStream() {
         return current.stream();
     }
 
@@ -125,5 +115,19 @@ public class DelayedSet<T> {
         toAdd.clear();
         toRemove.clear();
         current.clear();
+    }
+
+    /**
+     * @return {@link #toAdd} as stream
+     */
+    public Stream<T> toAddStream() {
+        return toAdd.stream();
+    }
+
+    /**
+     * @return {@link #toRemove} as stream
+     */
+    public Stream<T> toRemoveStream() {
+        return toRemove.stream();
     }
 }

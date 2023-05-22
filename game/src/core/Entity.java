@@ -31,7 +31,8 @@ public final class Entity {
      */
     public void addComponent(Component component) {
         components.put(component.getClass(), component);
-        LOGGER.info(Component.class.getName() + " Components from " + this + " was added.");
+        LOGGER.info(
+                Component.class.getName() + " Components from " + this.toString() + " was added.");
         Game.informAboutChanges(this);
     }
 
@@ -42,7 +43,7 @@ public final class Entity {
      */
     public void removeComponent(Class klass) {
         components.remove(klass);
-        LOGGER.info(klass.getName() + " from " + this + " was removed.");
+        LOGGER.info(klass.getName() + " from " + this.toString() + " was removed.");
         Game.informAboutChanges(this);
     }
 
@@ -61,5 +62,10 @@ public final class Entity {
      */
     public int id() {
         return id;
+    }
+
+    @Override
+    public String toString() {
+        return "" + id;
     }
 }

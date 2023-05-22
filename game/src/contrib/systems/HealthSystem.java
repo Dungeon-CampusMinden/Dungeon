@@ -31,7 +31,7 @@ public class HealthSystem extends System {
     }
 
     @Override
-    public void systemUpdate() {
+    public void execute() {
         getEntityStream()
                 // Consider only entities that have a HealthComponent
                 // Form triples (e, hc, ac)

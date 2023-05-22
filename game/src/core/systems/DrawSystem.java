@@ -37,7 +37,8 @@ public class DrawSystem extends System {
     }
 
     /** draw entities at their position */
-    public void systemUpdate() {
+    @Override
+    public void execute() {
         getEntityStream().map(this::buildDataObject).forEach(this::draw);
     }
 

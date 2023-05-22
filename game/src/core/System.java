@@ -2,7 +2,8 @@ package core;
 
 import core.utils.DelayedSet;
 
-import java.util.function.Consumer;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -16,32 +17,29 @@ import java.util.stream.Stream;
  * #accept}-Method checks, if the entity has the needed components for the system.
  *
  * <p>If an entity has all needed components for the system, the system will store the entity in its
- * {@link DelayedSet},
+ * local set,
  *
- * <p>The {@link #update}-Method will first update the internal set and then will execute the
- * system-logic on each entity in the set.
+ * <p>The {@link #execute}-Method will execute the system-logic on each entity in the set.
  *
  * <p>The update-Method gets called every frame in the game loop from {@link Game}.
  *
  * <p>Systems are designed to be unique, so don't create two systems of the same type.
  */
 public abstract class System {
-    private final DelayedSet<Entity> entities;
+    private final Set<Entity> entities;
     public Logger LOGGER = Logger.getLogger(this.getClass().getName());
     protected boolean run;
 
     public System() {
-        Game.systems.add(this);
-        entities = new DelayedSet<>();
+        LOGGER.info("A new " + this.getClass().getName() + " was created");
+        Game.addSystem(this);
+        entities = new HashSet<>();
         Game.getEntities().forEach(this::showEntity);
         run = true;
     }
 
-    /** Update the entities-set of the system and executes the system functionality. */
-    public void update() {
-        entities.update();
-        systemUpdate();
-    }
+    /** Implements the functionality of the system. */
+    public abstract void execute();
 
     /**
      * Check if the given entity has all components that are needed to get processed by this system.
@@ -56,8 +54,6 @@ public abstract class System {
      * log-entry with the information of the missing component. The entity will be removed from the
      * internal set, if it is present.
      *
-     * @see Consumer
-     * @see DelayedSet
      * @param entity entity to add
      * @return true if the entity is accepted, false if not.
      */
@@ -72,10 +68,9 @@ public abstract class System {
     }
 
     /**
-     * Remove the given entity to the {@link DelayedSet} of entities that will no longer be
-     * processed by the system.
+     * Remove the given entity of the local set so that it will no longer be processed by the
+     * system.
      *
-     * @see DelayedSet
      * @param entity Entity to remove
      */
     public void removeEntity(Entity entity) {
@@ -87,51 +82,52 @@ public abstract class System {
     /**
      * Remove all entities immediately from this system.
      *
-     * <p>Will clear each internal list of {@link DelayedSet}
-     *
-     * <p>Do not call this function inside {@link #systemUpdate()} or you risc a {@link
+     * <p>Do not call this function inside {@link #execute} or you risc a {@link
      * java.util.ConcurrentModificationException}
      *
-     * @see DelayedSet
      * @see java.util.ConcurrentModificationException
      */
     public void clearEntities() {
+        LOGGER.info("All entities from " + this.getClass().getName() + " were removed");
         entities.clear();
     }
 
     /**
      * Toggle this system between run and pause.
      *
-     * <p>A paused system will not be updated.
+     * <p>A paused system will not be executed.
      *
      * <p>A paused system can still accept, add and remove entities. The internal set will be
-     * updated, when the system will run.
+     * executed, when the system will run.
      *
-     * <p>A running system will be updated.
+     * <p>A running system will be executed.
      */
     public void toggleRun() {
-        run = !run;
+        if (run) stop();
+        else run();
     }
 
     /**
      * Set this system on run.
      *
-     * <p>A running system will be updated.
+     * <p>A running system will be executed.
      */
     public void run() {
         run = true;
+        LOGGER.info(this.getClass().getName() + " will run");
     }
 
     /**
      * Set this system on pause
      *
-     * <p>A paused system will not be updated.
+     * <p>A paused system will not be executed.
      *
      * <p>A paused system can still accept, add and remove entities. The internal set will be
-     * updated, when the system will run.
+     * executed, when the system will run.
      */
     public void stop() {
         run = false;
+        LOGGER.info(this.getClass().getName() + " was paused");
     }
 
     /**
@@ -140,9 +136,6 @@ public abstract class System {
     public boolean isRunning() {
         return run;
     }
-
-    /** Implements the functionality of the system. */
-    protected abstract void systemUpdate();
 
     /**
      * Check if the given entity has all components that are needed to get processed by this system.
@@ -158,12 +151,12 @@ public abstract class System {
 
     /**
      * Use this Stream to iterate over all active entities for this system in the {@link
-     * #systemUpdate()}-Method.
+     * #execute}-Method.
      *
      * @return active entities that will be processed by the system as stream
      */
     protected Stream<Entity> getEntityStream() {
-        return entities.getSetAsStream();
+        return entities.stream();
     }
 
     /**

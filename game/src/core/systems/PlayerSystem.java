@@ -24,7 +24,7 @@ public class PlayerSystem extends System {
     }
 
     @Override
-    public void systemUpdate() {
+    public void execute() {
         getEntityStream().map(this::buildDataObject).forEach(this::checkKeystroke);
     }
 

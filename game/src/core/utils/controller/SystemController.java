@@ -16,7 +16,7 @@ public class SystemController extends AbstractController<System> {
             e.LOGGER.log(
                     CustomLogLevel.TRACE,
                     "System '" + e.getClass().getSimpleName() + "' is running.");
-            e.update();
+            e.execute();
         }
     }
 }

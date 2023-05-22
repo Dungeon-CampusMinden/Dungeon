@@ -15,7 +15,7 @@ public class AISystem extends System {
     }
 
     @Override
-    public void systemUpdate() {
+    public void execute() {
         getEntityStream()
                 .forEach(
                         entity ->

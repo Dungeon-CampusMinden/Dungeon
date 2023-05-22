@@ -14,7 +14,7 @@ public class XPSystem extends System {
     }
 
     @Override
-    public void systemUpdate() {
+    public void execute() {
         getEntityStream()
                 .forEach(
                         entity -> {

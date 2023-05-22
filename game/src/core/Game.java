@@ -36,13 +36,12 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.TextureHandler;
 import core.utils.controller.AbstractController;
-import core.utils.controller.SystemController;
-import core.utils.logging.CustomLogLevel;
 
 import quizquestion.DummyQuizQuestionList;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -50,7 +49,7 @@ import java.util.stream.Stream;
 public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /** All entities that are currently active in the dungeon */
-    private static final Set<Entity> entities = new HashSet<>();
+    private static final DelayedSet<Entity> entities = new DelayedSet<>();
 
     private static final Logger LOGGER = Logger.getLogger("Game");
     /** Currently used level-size configuration for generating new level */
@@ -59,8 +58,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static List<AbstractController<?>> controller;
 
     public static DungeonCamera camera;
-    /** List of all Systems in the ECS */
-    public static SystemController systems = new SystemController();
+    /** Set of all Systems in the ECS */
+    public static Map<Class, System> systems = new HashMap<>();
 
     public static ILevel currentLevel;
     /** A handler for managing asset paths */
@@ -104,7 +103,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     public static void informAboutChanges(Entity entity) {
         LOGGER.info(entity + "was updated in Game.");
-        systems.forEach(system -> system.showEntity(entity));
+        entities.add(entity);
     }
 
     /**
@@ -113,7 +112,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      * <p>Will also remove all entities from each system.
      */
     public static void removeAllEntities() {
-        systems.forEach(System::clearEntities);
+        LOGGER.info("All entities will be removed from the game.");
+        systems.values().stream().forEach(System::clearEntities);
         entities.clear();
     }
 
@@ -127,7 +127,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param entity to add.
      */
     public static void addEntity(Entity entity) {
-        LOGGER.log(CustomLogLevel.INFO, "Entity: " + entity + " will be added from the Game.");
+        LOGGER.info("Entity: " + entity + " will be added from the Game.");
         entities.add(entity);
     }
 
@@ -137,17 +137,15 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param entity to remove.
      */
     public static void removeEntity(Entity entity) {
-
-        LOGGER.log(CustomLogLevel.INFO, "Entity: " + entity + " will be removed from the Game.");
+        LOGGER.info("Entity: " + entity + " will be removed from the Game.");
         entities.remove(entity);
-        systems.forEach(system -> system.removeEntity(entity));
     }
 
     /**
      * @return Set with all entities currently in game as stream
      */
     public static Stream<Entity> getEntities() {
-        return entities.stream();
+        return entities.currentStream();
     }
 
     /**
@@ -248,7 +246,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         generator = new RandomWalkGenerator();
         levelAPI = new LevelManager(batch, painter, generator, this);
         initBaseLogger();
-        controller.add(systems);
         hero = EntityFactory.getHero();
         levelAPI =
                 new LevelManager(
@@ -261,6 +258,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     protected void frame() {
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         setCameraFocus();
+        updateSystems();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             // Text Dialogue (output of information texts)
@@ -277,14 +275,30 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
     }
 
+    private static void updateSystems() {
+        Function<System, System> showEntity =
+                s -> {
+                    entities.toAddStream().forEach(e -> s.showEntity(e));
+                    return s;
+                };
+        Function<System, System> removeEntity =
+                s -> {
+                    entities.toRemoveStream().forEach(e -> s.removeEntity(e));
+                    return s;
+                };
+
+        systems.values().stream().map(showEntity).map(removeEntity).forEach(System::execute);
+
+        entities.update();
+    }
+
     @Override
     public void onLevelLoad() {
         currentLevel = levelAPI.getCurrentLevel();
         removeAllEntities();
-        getHero().ifPresent(Game::addEntity);
-        getHero().ifPresent(Game::informAboutChanges);
-        EntityFactory.getChest();
         getHero().ifPresent(this::placeOnLevelStart);
+        getHero().ifPresent(Game::addEntity);
+        EntityFactory.getChest();
     }
 
     private void setCameraFocus() {
@@ -340,16 +354,49 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         // https://stackoverflow.com/questions/52011592/libgdx-set-ortho-camera
     }
 
+    /**
+     * Add a {@link System} to the game.
+     *
+     * <p>If an System was added to the game the {@link System#execute}-Method will be called every
+     * frame.
+     *
+     * <p>Additionaly the system will be informed about all new, changed and removed entities via
+     * {@link System#showEntity} or {@link System#removeEntity}
+     *
+     * <p>The game can only store ony system-type each.
+     *
+     * @param system The System to add
+     * @return in this optional the previous exsisting system of the given system-class is stored,
+     *     if one exist.
+     * @see System
+     * @see Optional
+     */
+    public static Optional<System> addSystem(System system) {
+        LOGGER.info("A new " + system.getClass().getName() + " was added to the game");
+        System currentSystem = systems.get(system.getClass());
+        systems.put(system.getClass(), system);
+        return Optional.ofNullable(currentSystem);
+    }
+
+    /**
+     * Remove the stored system of the given class from the game.
+     *
+     * @param system class of the system to remove.
+     */
+    public static void removeSystem(Class system) {
+        systems.remove(system);
+    }
+
     private void createSystems() {
         new VelocitySystem();
         new DrawSystem(painter);
         new PlayerSystem();
-        new AISystem();
+        /* new AISystem();
         new CollisionSystem();
         new HealthSystem();
         new XPSystem();
         new SkillSystem();
         new ProjectileSystem();
-        debugger = new DebuggerSystem();
+        debugger = new DebuggerSystem(); */
     }
 }

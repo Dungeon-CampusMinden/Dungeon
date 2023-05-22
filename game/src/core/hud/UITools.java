@@ -126,7 +126,7 @@ public class UITools {
                     && Game.controller != null
                     && Game.systems != null) {
                 Game.controller.remove(indexForDialogueInController);
-                Game.systems.forEach(System::stop);
+                Game.systems.values().stream().forEach(System::stop);
             }
         }
     }
@@ -149,7 +149,7 @@ public class UITools {
                             Color.WHITE,
                             arrayOfMessages));
 
-            Game.systems.forEach(System::stop);
+            Game.systems.values().stream().forEach(System::stop);
         }
     }
 
@@ -174,7 +174,7 @@ public class UITools {
                             question,
                             arrayOfMessages));
 
-            Game.systems.forEach(System::stop);
+            Game.systems.values().stream().forEach(System::stop);
         }
     }
 }

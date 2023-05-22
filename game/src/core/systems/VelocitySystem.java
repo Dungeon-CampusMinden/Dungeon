@@ -29,7 +29,8 @@ public class VelocitySystem extends System {
         return false;
     }
     /** Updates the position of all entities based on their velocity */
-    public void systemUpdate() {
+    @Override
+    public void execute() {
         getEntityStream().map(this::buildDataObject).forEach(this::updatePosition);
     }
 

@@ -13,7 +13,7 @@ public class SkillSystem extends System {
     }
     /** reduces the cool down for all skills */
     @Override
-    public void systemUpdate() {
+    public void execute() {
         getEntityStream()
                 .forEach(
                         entity ->

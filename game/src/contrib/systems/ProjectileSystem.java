@@ -28,7 +28,7 @@ public class ProjectileSystem extends System {
 
     /** sets the velocity and removes entities that reached their endpoint */
     @Override
-    public void systemUpdate() {
+    public void execute() {
         getEntityStream()
                 // Consider only entities that have a ProjectileComponent
                 .map(this::buildDataObject)
