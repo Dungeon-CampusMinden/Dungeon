@@ -13,15 +13,30 @@ import java.util.logging.Logger;
 public final class Entity {
     private static int nextId = 0;
     private final int id;
-    private final HashMap<Class, Component> components;
+
+    private final String name;
+    private final HashMap<Class<? extends Component>, Component> components;
     private static final Logger LOGGER = Logger.getLogger(Entity.class.getName());
 
-    /** Create a new Entity and register it in {@link Game}. */
-    public Entity() {
+    /**
+     * Create a new Entity and register it in {@link Game}.
+     *
+     * @param name name of the entity, use it for better logging and debugging
+     */
+    public Entity(String name) {
         id = nextId++;
         components = new HashMap<>();
+        this.name = name;
         Game.addEntity(this);
-        LOGGER.info("The entity '" + this.getClass().getSimpleName() + "' was created.");
+        LOGGER.info("The entity '" + name + "' was created.");
+    }
+    /**
+     * Create a new Entity and register it in {@link Game}.
+     *
+     * <p>The name of the entity, will be the id.
+     */
+    public Entity() {
+        this("" + nextId);
     }
 
     /**
@@ -32,7 +47,10 @@ public final class Entity {
     public void addComponent(Component component) {
         components.put(component.getClass(), component);
         LOGGER.info(
-                Component.class.getName() + " Components from " + this.toString() + " was added.");
+                component.getClass().getName()
+                        + " Components from "
+                        + this.toString()
+                        + " was added.");
         Game.informAboutChanges(this);
     }
 
@@ -41,9 +59,9 @@ public final class Entity {
      *
      * @param klass Class of the component
      */
-    public void removeComponent(Class klass) {
+    public void removeComponent(Class<? extends Component> klass) {
         components.remove(klass);
-        LOGGER.info(klass.getName() + " from " + this.toString() + " was removed.");
+        LOGGER.info(klass.getName() + " from " + name + " was removed.");
         Game.informAboutChanges(this);
     }
 
@@ -53,7 +71,7 @@ public final class Entity {
      * @param klass Class of the component
      * @return Optional that can contain the requested component
      */
-    public Optional<Component> getComponent(Class klass) {
+    public Optional<Component> getComponent(Class<? extends Component> klass) {
         return Optional.ofNullable(components.get(klass));
     }
 
@@ -66,6 +84,6 @@ public final class Entity {
 
     @Override
     public String toString() {
-        return "" + id;
+        return name;
     }
 }

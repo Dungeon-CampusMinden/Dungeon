@@ -23,9 +23,9 @@ public abstract class Component {
         Logger componentLogger = Logger.getLogger(this.getClass().getName());
         componentLogger.info(
                 "The component '"
-                        + this.getClass().getSimpleName()
+                        + this.getClass().getName()
                         + "' was added to entity '"
-                        + entity.getClass().getSimpleName()
+                        + entity
                         + "'.");
     }
 

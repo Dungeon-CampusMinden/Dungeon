@@ -43,7 +43,7 @@ public class EntityFactory {
         final String pathToRunLeft = "knight/runLeft";
         final String pathToRunRight = "knight/runRight";
 
-        Entity hero = new Entity();
+        Entity hero = new Entity("hero");
         new PositionComponent(hero);
         Animation moveRight = AnimationBuilder.buildAnimation(pathToRunRight);
         Animation moveLeft = AnimationBuilder.buildAnimation(pathToRunLeft);
@@ -110,7 +110,7 @@ public class EntityFactory {
                         "objects/treasurechest/chest_full_open_anim_f2.png",
                         "objects/treasurechest/chest_empty_open_anim_f2.png");
 
-        Entity chest = new Entity();
+        Entity chest = new Entity("chest");
         new PositionComponent(chest, position);
         InventoryComponent ic = new InventoryComponent(chest, itemData.size());
         itemData.forEach(ic::addItem);

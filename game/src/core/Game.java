@@ -102,7 +102,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      * @see DelayedSet
      */
     public static void informAboutChanges(Entity entity) {
-        LOGGER.info(entity + "was updated in Game.");
+        LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
         entities.add(entity);
     }
 
@@ -127,7 +127,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param entity to add.
      */
     public static void addEntity(Entity entity) {
-        LOGGER.info("Entity: " + entity + " will be added from the Game.");
+        LOGGER.info("Entity: " + entity + " will be added to the Game.");
         entities.add(entity);
     }
 
@@ -215,6 +215,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         clearScreen();
         levelManager.update();
         updateSystems();
+        controller.forEach(AbstractController::update);
+        setCameraFocus();
         camera.update();
     }
 
@@ -257,7 +259,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
     protected void frame() {
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
-        setCameraFocus();
         debugKeys();
     }
 
@@ -271,7 +272,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             // mode)
             DummyQuizQuestionList.getRandomQuestion().askQuizQuestionWithUI();
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) UITools.showInfoText();
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_KEY.get())) {
             debugger.toggleRun();
             LOGGER.info("Debugger ist now " + debugger.isRunning());
@@ -394,12 +394,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new VelocitySystem();
         new DrawSystem(painter);
         new PlayerSystem();
-        /* new AISystem();
+        new AISystem();
         new CollisionSystem();
         new HealthSystem();
         new XPSystem();
         new SkillSystem();
         new ProjectileSystem();
-        debugger = new DebuggerSystem(); */
+        debugger = new DebuggerSystem();
     }
 }

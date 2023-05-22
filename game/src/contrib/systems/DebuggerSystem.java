@@ -194,7 +194,7 @@ public class DebuggerSystem extends System {
 
         // If the tile is accessible, spawn a monster at the position
         if (tile != null && tile.isAccessible()) {
-            Entity monster = new Entity();
+            Entity monster = new Entity("Debug Monster");
 
             // Add components to the monster entity
             monster.addComponent(new PositionComponent(monster, position));
