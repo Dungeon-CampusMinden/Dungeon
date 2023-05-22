@@ -39,7 +39,7 @@ public class LevelUpQuest extends Quest {
         int total = Game.getLevel() + 5 + (int) (Math.random() * 15);
         ITask task = new ITask() {
 
-            private static final int TOTAL = total;
+            private final int TOTAL = total;
 
             @Override
             public void advance() {
@@ -73,7 +73,7 @@ public class LevelUpQuest extends Quest {
             total = rnd;
         ITask task = new ITask() {
 
-            private static final long TOTAL = total;
+            private final long TOTAL = total;
             private XPComponent xpc = (XPComponent) questHolder.getComponent(XPComponent.class).get();
 
             @Override

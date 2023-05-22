@@ -73,6 +73,7 @@ public class QuestComponent extends Component {
      *         otherwise returns Optional of the last added quest
      */
     public Optional<Quest> latestQuest() {
+        questLogger.log(CustomLogLevel.DEBUG, "Questlog is empty: " + questLog.isEmpty());
         if (questLog.isEmpty())
             return Optional.empty();
         return questLog.get(0);
@@ -97,14 +98,17 @@ public class QuestComponent extends Component {
         // Removes all empty slots and finished quests
         int i = 0;
         while (i < questLog.size()) {
+            if (questLog.isEmpty())
+                break;
             if (!questLog.get(i).isPresent()) {
                 questLog.remove(i);
                 continue;
             }
             if (questLog.get(i).get().getTask().isCompleted()) {
-                questLog.remove(i);
-                if (questLog.get(i).get().equals(pinnedQuest))
+                if (questLog.get(i).get().equals(pinnedQuest) && !questLog.get(i).get().equals(pinnedQuest))
                     pinnedQuest = latestQuest().get();
+                questLog.remove(i);
+                i++;
                 continue;
             }
             i++;

@@ -29,6 +29,13 @@ public class KillQuest extends Quest {
         this.questHolder = questHolder;
     }
 
+    /**
+     * Builds a KillQuest from scratch
+     * 
+     * @param klass       Class of the entity that shall be killed
+     * @param questHolder entity that owns the quest
+     * @return new Instance of KillQuest
+     */
     public static KillQuest buildKillQuest(Class klass, Entity questHolder) {
         String name = "Slaughterer of " + klass.getSimpleName() + "s";
         int total = 1 + (Game.getLevel() >>> 1)
@@ -47,7 +54,7 @@ public class KillQuest extends Quest {
             public void advance() {
                 count += Game.getEntities().stream()
                         // Consider only entities that extend the given class
-                        .filter(e -> e.getClass().isAssignableFrom(klass))
+                        .filter(e -> klass.isAssignableFrom(e.getClass()))
                         // Consider only entities that have a HealthComponent
                         .flatMap(e -> e.getComponent(HealthComponent.class).stream())
                         // Form triples (e, hc, ac)
@@ -72,6 +79,9 @@ public class KillQuest extends Quest {
                 return count >= TOTAL;
             }
 
+            /**
+             * @return the current progress
+             */
             @Override
             public String completion() {
                 return count + " / " + TOTAL;

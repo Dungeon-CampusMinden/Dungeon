@@ -26,6 +26,7 @@ import ecs.entities.Chort;
 import ecs.entities.DamageTrap;
 import ecs.entities.DarkKnight;
 import ecs.entities.Imp;
+import ecs.entities.Monster;
 import ecs.entities.QuestButton;
 import ecs.entities.SummoningTrap;
 import ecs.entities.TeleportationTrap;
@@ -134,6 +135,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /** Checks for saves */
     protected void prepareSetup() {
+        System.out.println(Monster.class.isAssignableFrom(DarkKnight.class));
         saves.load();
         if (saves.getAutoSave() != null && saves.getAutoSave().isPresent()) {
             setup(saves.getAutoSave().get());
@@ -406,7 +408,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
                 spawnTraps();
         }
         addEntity(new QuestButton());
-        System.out.println("here");
     }
 
     // Monster spawn mechanics
