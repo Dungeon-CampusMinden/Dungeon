@@ -88,6 +88,6 @@ Standard-Bibliothek oder als native Funktion des DSL- Interpreters umgesetzt, ru
 Die obige Implementierung setzt voraus, dass die Entität, die der Handler-Funktion übergeben
 wird, zwei Referenzen enthält:
 
-1.  Eine Referenz auf die Aufgabendefinition, an deren konkreter Umsetzung die Entität
+1.  Eine Referenz auf die **Aufgabendefinition**, an deren konkreter Umsetzung die Entität
     beteiligt ist
-2.  Eine Referenz auf die Antwortmöglichkeit, welche durch die Entität repräsentiert wird
+2.  Eine Referenz auf die **Antwortmöglichkeit**, welche durch die Entität repräsentiert wird
