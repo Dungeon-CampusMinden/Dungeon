@@ -117,7 +117,7 @@ public final class DelayedSet<T> {
      *
      * @param function Function to execute on each entity in the {@link #toAdd} set.
      */
-    public void applyToAddSet(Consumer<T> function) {
+    public void foreachEntityInAddSet(Consumer<T> function) {
         toAdd.forEach(function);
     }
 
@@ -126,7 +126,7 @@ public final class DelayedSet<T> {
      *
      * @param function Function to execute on each entity in the {@link #toRemove} set.
      */
-    public void applyToRemoveSet(Consumer<T> function) {
+    public void foreachEntityInRemoveSet(Consumer<T> function) {
         toRemove.forEach(function);
     }
 
