@@ -135,7 +135,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /** Checks for saves */
     protected void prepareSetup() {
-        System.out.println(Monster.class.isAssignableFrom(DarkKnight.class));
         saves.load();
         if (saves.getAutoSave() != null && saves.getAutoSave().isPresent()) {
             setup(saves.getAutoSave().get());
