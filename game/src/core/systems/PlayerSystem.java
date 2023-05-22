@@ -1,8 +1,10 @@
 package core.systems;
 
 import com.badlogic.gdx.Gdx;
+
 import contrib.configuration.KeyboardConfig;
 import contrib.utils.components.interaction.InteractionTool;
+
 import core.Component;
 import core.Entity;
 import core.System;
@@ -12,9 +14,7 @@ import core.components.VelocityComponent;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Used to control the player
- */
+/** Used to control the player */
 public class PlayerSystem extends System {
 
     public PlayerSystem() {
@@ -45,7 +45,7 @@ public class PlayerSystem extends System {
         if (Gdx.input.isKeyPressed(KeyboardConfig.INTERACT_WORLD.get()))
             InteractionTool.interactWithClosestInteractable(ksd.e);
 
-            // check skills
+        // check skills
         else if (Gdx.input.isKeyPressed(KeyboardConfig.FIRST_SKILL.get()))
             ksd.pc.getSkillSlot1().ifPresent(skill -> skill.execute(ksd.e));
         else if (Gdx.input.isKeyPressed(KeyboardConfig.SECOND_SKILL.get()))
@@ -59,6 +59,5 @@ public class PlayerSystem extends System {
         return new PSData(e, pc, vc);
     }
 
-    private record PSData(Entity e, PlayerComponent pc, VelocityComponent vc) {
-    }
+    private record PSData(Entity e, PlayerComponent pc, VelocityComponent vc) {}
 }

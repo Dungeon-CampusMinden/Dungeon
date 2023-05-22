@@ -40,10 +40,11 @@ public abstract class System {
      * <p>For each already existing entity in the game, check if the entity is accepted by {@link
      * #accept} and add it to the local set if so.
      *
-     * @param keyComponent          The Class of the key-component for the system. Each entity without this component will be ignored.
-     * @param additionalCommponents Additional needed Component-Classes. Entities with the key component but without all additional components will not be processed by this system.
+     * @param keyComponent The Class of the key-component for the system. Each entity without this
+     *     component will be ignored.
+     * @param additionalCommponents Additional needed Component-Classes. Entities with the key
+     *     component but without all additional components will not be processed by this system.
      */
-
     public System(Class keyComponent, Set<Class<? extends Component>> additionalCommponents) {
         LOGGER.info("A new " + this.getClass().getName() + " was created");
         Game.addSystem(this);
@@ -60,15 +61,14 @@ public abstract class System {
      * <p>For each already existing entity in the game, check if the entity is accepted by {@link
      * #accept} and add it to the local set if so.
      *
-     * @param keyComponent The Class of the key-component for the system. Each entity without this component will be ignored.
+     * @param keyComponent The Class of the key-component for the system. Each entity without this
+     *     component will be ignored.
      */
     public System(Class keyComponent) {
         this(keyComponent, new HashSet<Class<? extends Component>>());
     }
 
-    /**
-     * Implements the functionality of the system.
-     */
+    /** Implements the functionality of the system. */
     public abstract void execute();
 
     /**
@@ -211,11 +211,11 @@ public abstract class System {
      */
     private void logMissingComponent(Entity entity) {
         String info =
-            "Entity: "
-                + entity
-                + " Not processed by the "
-                + getClass().getName()
-                + " because followin Components are missing: ";
+                "Entity: "
+                        + entity
+                        + " Not processed by the "
+                        + getClass().getName()
+                        + " because followin Components are missing: ";
 
         for (Class klass : additionComponents) {
             if (!entity.isPresent(klass)) info += klass.getName();

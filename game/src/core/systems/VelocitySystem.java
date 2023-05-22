@@ -2,6 +2,7 @@ package core.systems;
 
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
+
 import core.Component;
 import core.Entity;
 import core.Game;
@@ -16,9 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * MovementSystem is a system that updates the position of entities
- */
+/** MovementSystem is a system that updates the position of entities */
 public class VelocitySystem extends System {
 
     public VelocitySystem() {
@@ -32,9 +31,7 @@ public class VelocitySystem extends System {
         return set;
     }
 
-    /**
-     * Updates the position of all entities based on their velocity
-     */
+    /** Updates the position of all entities based on their velocity */
     @Override
     public void execute() {
         getEntityStream().map(this::buildDataObject).forEach(this::updatePosition);
@@ -72,12 +69,12 @@ public class VelocitySystem extends System {
 
         AtomicBoolean isDead = new AtomicBoolean(false);
         vsd.e
-            .getComponent(HealthComponent.class)
-            .ifPresent(
-                component -> {
-                    HealthComponent healthComponent = (HealthComponent) component;
-                    isDead.set(healthComponent.isDead());
-                });
+                .getComponent(HealthComponent.class)
+                .ifPresent(
+                        component -> {
+                            HealthComponent healthComponent = (HealthComponent) component;
+                            isDead.set(healthComponent.isDead());
+                        });
 
         if (isDead.get()) {
             return;
@@ -87,16 +84,15 @@ public class VelocitySystem extends System {
         float x = vsd.vc.getCurrentXVelocity();
         if (x > 0) newCurrentAnimation = vsd.vc.getMoveRightAnimation();
         else if (x < 0) newCurrentAnimation = vsd.vc.getMoveLeftAnimation();
-            // idle
+        // idle
         else {
             if (vsd.dc.getCurrentAnimation() == vsd.dc.getIdleLeft()
-                || vsd.dc.getCurrentAnimation() == vsd.vc.getMoveLeftAnimation())
+                    || vsd.dc.getCurrentAnimation() == vsd.vc.getMoveLeftAnimation())
                 newCurrentAnimation = vsd.dc.getIdleLeft();
             else newCurrentAnimation = vsd.dc.getIdleRight();
         }
         vsd.dc.setCurrentAnimation(newCurrentAnimation);
     }
 
-    private record VSData(Entity e, VelocityComponent vc, PositionComponent pc, DrawComponent dc) {
-    }
+    private record VSData(Entity e, VelocityComponent vc, PositionComponent pc, DrawComponent dc) {}
 }

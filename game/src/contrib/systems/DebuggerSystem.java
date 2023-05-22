@@ -1,6 +1,7 @@
 package contrib.systems;
 
 import com.badlogic.gdx.Gdx;
+
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
@@ -9,6 +10,7 @@ import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
 import contrib.utils.components.skill.SkillTools;
+
 import core.Entity;
 import core.Game;
 import core.System;
@@ -21,6 +23,7 @@ import core.level.utils.LevelSize;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
+
 import dslToGame.AnimationBuilder;
 
 import java.util.logging.Logger;
@@ -64,17 +67,13 @@ public class DebuggerSystem extends System {
         DEBUGGER_LOGGER.log(CustomLogLevel.DEBUG, "Camera Zoom is now " + Game.camera.zoom);
     }
 
-    /**
-     * Teleports the Hero to the current position of the cursor.
-     */
+    /** Teleports the Hero to the current position of the cursor. */
     public static void TELEPORT_TO_CURSOR() {
         DEBUGGER_LOGGER.log(CustomLogLevel.DEBUG, "TELEPORT TO CURSOR");
         TELEPORT(SkillTools.getCursorPositionAsPoint());
     }
 
-    /**
-     * Teleports the Hero to the end of the level, on a neighboring accessible tile if possible.
-     */
+    /** Teleports the Hero to the end of the level, on a neighboring accessible tile if possible. */
     public static void TELEPORT_TO_END() {
         DEBUGGER_LOGGER.info("TELEPORT TO END");
         Coordinate endTile = Game.currentLevel.getEndTile().getCoordinate();
@@ -93,17 +92,13 @@ public class DebuggerSystem extends System {
         }
     }
 
-    /**
-     * Will teleport the Hero on the EndTile so the next level gets loaded
-     */
+    /** Will teleport the Hero on the EndTile so the next level gets loaded */
     public static void LOAD_NEXT_LEVEL() {
         DEBUGGER_LOGGER.info("TELEPORT ON END");
         TELEPORT(Game.currentLevel.getEndTile().getCoordinate().toPoint());
     }
 
-    /**
-     * Teleports the hero to the start of the level.
-     */
+    /** Teleports the hero to the start of the level. */
     public static void TELEPORT_TO_START() {
         DEBUGGER_LOGGER.info("TELEPORT TO START");
         TELEPORT(Game.currentLevel.getStartTile().getCoordinate().toPoint());
@@ -117,19 +112,19 @@ public class DebuggerSystem extends System {
     public static void TELEPORT(Point targetLocation) {
         if (Game.getHero().isPresent()) {
             PositionComponent pc =
-                (PositionComponent)
-                    Game.getHero()
-                        .get()
-                        .getComponent(PositionComponent.class)
-                        .orElseThrow(
-                            () ->
-                                new MissingComponentException(
-                                    "Hero is missing PositionComponent"));
+                    (PositionComponent)
+                            Game.getHero()
+                                    .get()
+                                    .getComponent(PositionComponent.class)
+                                    .orElseThrow(
+                                            () ->
+                                                    new MissingComponentException(
+                                                            "Hero is missing PositionComponent"));
 
             // Attempt to teleport to targetLocation
             DEBUGGER_LOGGER.log(
-                CustomLogLevel.DEBUG,
-                "Trying to teleport to " + targetLocation.x + ":" + targetLocation.y);
+                    CustomLogLevel.DEBUG,
+                    "Trying to teleport to " + targetLocation.x + ":" + targetLocation.y);
             Tile t = Game.currentLevel.getTileAt(targetLocation.toCoordinate());
             if (t == null || !t.isAccessible()) {
                 DEBUGGER_LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
@@ -154,9 +149,7 @@ public class DebuggerSystem extends System {
         DEBUGGER_LOGGER.info("LevelSize toggled to: " + Game.LEVELSIZE);
     }
 
-    /**
-     * Spawns a monster at the cursor's position.
-     */
+    /** Spawns a monster at the cursor's position. */
     public static void SPAWN_MONSTER_ON_CURSOR() {
         DEBUGGER_LOGGER.info("Spawn Monster on Cursor");
         SPAWN_MONSTER(SkillTools.getCursorPositionAsPoint());
@@ -183,25 +176,25 @@ public class DebuggerSystem extends System {
             // Add components to the monster entity
             monster.addComponent(new PositionComponent(monster, position));
             monster.addComponent(
-                new DrawComponent(
-                    monster,
-                    AnimationBuilder.buildAnimation("character/monster/chort/idleLeft/"),
-                    AnimationBuilder.buildAnimation("character/monster/chort/idleRight/")));
+                    new DrawComponent(
+                            monster,
+                            AnimationBuilder.buildAnimation("character/monster/chort/idleLeft/"),
+                            AnimationBuilder.buildAnimation("character/monster/chort/idleRight/")));
             monster.addComponent(
-                new VelocityComponent(
-                    monster,
-                    0.1f,
-                    0.1f,
-                    AnimationBuilder.buildAnimation("character/monster/chort/runLeft/"),
-                    AnimationBuilder.buildAnimation("character/monster/chort/runRight/")));
+                    new VelocityComponent(
+                            monster,
+                            0.1f,
+                            0.1f,
+                            AnimationBuilder.buildAnimation("character/monster/chort/runLeft/"),
+                            AnimationBuilder.buildAnimation("character/monster/chort/runRight/")));
             monster.addComponent(new HealthComponent(monster));
             monster.addComponent(new CollideComponent(monster));
             monster.addComponent(
-                new AIComponent(
-                    monster,
-                    new CollideAI(1),
-                    new RadiusWalk(5, 1),
-                    new SelfDefendTransition()));
+                    new AIComponent(
+                            monster,
+                            new CollideAI(1),
+                            new RadiusWalk(5, 1),
+                            new SelfDefendTransition()));
 
             // Log that the monster was spawned
             DEBUGGER_LOGGER.info("Spawned monster at position " + position);

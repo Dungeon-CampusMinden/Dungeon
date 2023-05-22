@@ -1,6 +1,7 @@
 package contrib.systems;
 
 import contrib.components.ProjectileComponent;
+
 import core.Component;
 import core.Entity;
 import core.Game;
@@ -25,30 +26,28 @@ public class ProjectileSystem extends System {
         return set;
     }
 
-    /**
-     * sets the velocity and removes entities that reached their endpoint
-     */
+    /** sets the velocity and removes entities that reached their endpoint */
     @Override
     public void execute() {
         getEntityStream()
-            // Consider only entities that have a ProjectileComponent
-            .map(this::buildDataObject)
-            .map(this::setVelocity)
-            // Filter all entities that have reached their endpoint
-            .filter(
-                psd ->
-                    hasReachedEndpoint(
-                        psd.prc.getStartPosition(),
-                        psd.prc.getGoalLocation(),
-                        psd.pc.getPosition()))
-            // Remove all entities who reached their endpoint
-            .forEach(this::removeEntitiesOnEndpoint);
+                // Consider only entities that have a ProjectileComponent
+                .map(this::buildDataObject)
+                .map(this::setVelocity)
+                // Filter all entities that have reached their endpoint
+                .filter(
+                        psd ->
+                                hasReachedEndpoint(
+                                        psd.prc.getStartPosition(),
+                                        psd.prc.getGoalLocation(),
+                                        psd.pc.getPosition()))
+                // Remove all entities who reached their endpoint
+                .forEach(this::removeEntitiesOnEndpoint);
     }
 
     private PSData buildDataObject(Entity e) {
 
         ProjectileComponent prc =
-            (ProjectileComponent) e.getComponent(ProjectileComponent.class).get();
+                (ProjectileComponent) e.getComponent(ProjectileComponent.class).get();
 
         PositionComponent pc = (PositionComponent) e.getComponent(PositionComponent.class).get();
         VelocityComponent vc = (VelocityComponent) e.getComponent(VelocityComponent.class).get();
@@ -70,8 +69,8 @@ public class ProjectileSystem extends System {
     /**
      * checks if the endpoint is reached
      *
-     * @param start   position to start the calculation
-     * @param end     point to check if projectile has reached its goal
+     * @param start position to start the calculation
+     * @param end point to check if projectile has reached its goal
      * @param current current position
      * @return true if the endpoint was reached or passed, else false
      */
@@ -91,6 +90,5 @@ public class ProjectileSystem extends System {
 
     // private record to hold all data during streaming
     private record PSData(
-        Entity e, ProjectileComponent prc, PositionComponent pc, VelocityComponent vc) {
-    }
+            Entity e, ProjectileComponent prc, PositionComponent pc, VelocityComponent vc) {}
 }

@@ -1,6 +1,7 @@
 package contrib.systems;
 
 import contrib.components.XPComponent;
+
 import core.System;
 
 public class XPSystem extends System {
@@ -12,15 +13,15 @@ public class XPSystem extends System {
     @Override
     public void execute() {
         getEntityStream()
-            .forEach(
-                entity -> {
-                    XPComponent comp =
-                        (XPComponent) entity.getComponent(XPComponent.class).get();
-                    long xpLeft;
-                    while ((xpLeft = comp.getXPToNextLevel()) <= 0) {
-                        this.performLevelUp(comp, (int) xpLeft);
-                    }
-                });
+                .forEach(
+                        entity -> {
+                            XPComponent comp =
+                                    (XPComponent) entity.getComponent(XPComponent.class).get();
+                            long xpLeft;
+                            while ((xpLeft = comp.getXPToNextLevel()) <= 0) {
+                                this.performLevelUp(comp, (int) xpLeft);
+                            }
+                        });
     }
 
     /**
@@ -28,7 +29,7 @@ public class XPSystem extends System {
      * current XP is greater than the needed amount for the level up the remaining xp are added to
      * the current XP.
      *
-     * @param comp   XPComponent of entity
+     * @param comp XPComponent of entity
      * @param xpLeft XP left to level up (can be negative if greater the needed amount)
      */
     private void performLevelUp(XPComponent comp, int xpLeft) {
