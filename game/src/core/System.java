@@ -30,8 +30,8 @@ import java.util.stream.Stream;
 public abstract class System {
     protected static Logger LOGGER = Logger.getLogger("System");
     private final Set<Entity> entities;
-    private final Class keyComponent;
-    private final Set<Class<? extends Component>> additionComponents;
+    private final Class<? extends Component> keyComponent;
+    private final Set<Class<? extends Component>> additionalComponents;
     protected boolean run;
 
     /**
@@ -42,14 +42,16 @@ public abstract class System {
      *
      * @param keyComponent The Class of the key-component for the system. Each entity without this
      *     component will be ignored.
-     * @param additionalCommponents Additional needed Component-Classes. Entities with the key
+     * @param additionalComponents Additional needed Component-Classes. Entities with the key
      *     component but without all additional components will not be processed by this system.
      */
-    public System(Class keyComponent, Set<Class<? extends Component>> additionalCommponents) {
+    public System(
+            Class<? extends Component> keyComponent,
+            Set<Class<? extends Component>> additionalComponents) {
         LOGGER.info("A new " + this.getClass().getName() + " was created");
         Game.addSystem(this);
         this.keyComponent = keyComponent;
-        this.additionComponents = additionalCommponents;
+        this.additionalComponents = additionalComponents;
         entities = new HashSet<>();
         Game.getEntitiesStream().forEach(this::showEntity);
         run = true;
@@ -64,8 +66,8 @@ public abstract class System {
      * @param keyComponent The Class of the key-component for the system. Each entity without this
      *     component will be ignored.
      */
-    public System(Class keyComponent) {
-        this(keyComponent, new HashSet<Class<? extends Component>>());
+    public System(Class<? extends Component> keyComponent) {
+        this(keyComponent, new HashSet<>());
     }
 
     /** Implements the functionality of the system. */
@@ -183,7 +185,7 @@ public abstract class System {
      */
     private boolean accept(Entity entity) {
         if (entity.isPresent(keyComponent)) {
-            for (Class klass : additionComponents)
+            for (Class<? extends Component> klass : additionalComponents)
                 if (!entity.isPresent(klass)) {
                     logMissingComponent(entity);
                     return false;
@@ -210,16 +212,17 @@ public abstract class System {
      * @param entity the entity that will not be processed
      */
     private void logMissingComponent(Entity entity) {
-        String info =
-                "Entity: "
-                        + entity
-                        + " Not processed by the "
-                        + getClass().getName()
-                        + " because followin Components are missing: ";
+        StringBuilder info =
+                new StringBuilder(
+                        "Entity: "
+                                + entity
+                                + " Not processed by the "
+                                + getClass().getName()
+                                + " because following Components are missing: ");
 
-        for (Class klass : additionComponents) {
-            if (!entity.isPresent(klass)) info += klass.getName();
+        for (Class<? extends Component> klass : additionalComponents) {
+            if (!entity.isPresent(klass)) info.append(klass.getName());
         }
-        LOGGER.info(info);
+        LOGGER.info(info.toString());
     }
 }
