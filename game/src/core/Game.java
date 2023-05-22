@@ -330,10 +330,10 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /** Will update the entity sets of each system and {@link Game#entities}. */
     private void updateSystems() {
-        entities.applyToAddSet(
-                entity -> systems.values().forEach(system -> system.showEntity(entity)));
-        entities.applyToRemoveSet(
-                entity -> systems.values().forEach(system -> system.removeEntity(entity)));
+        for (System system : systems.values()) {
+            entities.applyToAddSet(system::showEntity);
+            entities.applyToRemoveSet(system::removeEntity);
+        }
         entities.update();
     }
 
