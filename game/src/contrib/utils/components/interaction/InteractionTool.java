@@ -27,7 +27,7 @@ public class InteractionTool {
                         entity.getComponent(PositionComponent.class)
                                 .orElseThrow(() -> MissingPCFromEntity(Entity.class.getName()));
         Optional<InteractionData> data =
-                Game.getEntities()
+                Game.getEntitiesStream()
                         .flatMap(
                                 x ->
                                         x

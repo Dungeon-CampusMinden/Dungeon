@@ -41,6 +41,7 @@ import quizquestion.DummyQuizQuestionList;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -59,7 +60,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     public static DungeonCamera camera;
     /** Set of all Systems in the ECS */
-    public static Map<Class, System> systems = new HashMap<>();
+    public static Map<Class<? extends System>, System> systems = new HashMap<>();
 
     public static ILevel currentLevel;
     /** A handler for managing asset paths */
@@ -96,10 +97,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
-     * Will inform each system that the given entity has changes in its Component-Collection.
+     * At the next frame each system will be informed that the given entity has changes in its
+     * Component-Collection.
      *
      * @param entity Entity that has changes in its Component-Collection.
-     * @see DelayedSet
      */
     public static void informAboutChanges(Entity entity) {
         LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
@@ -107,13 +108,13 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
-     * Will remove all entities from the game.
+     * Will remove all entities from the game immediately.
      *
      * <p>Will also remove all entities from each system.
      */
     public static void removeAllEntities() {
         LOGGER.info("All entities will be removed from the game.");
-        systems.values().stream().forEach(System::clearEntities);
+        systems.values().forEach(System::clearEntities);
         entities.clear();
     }
 
@@ -122,9 +123,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
-     * Given entity will be added to the game.
+     * Given entity will be added to the game at the next frame.
      *
      * @param entity to add.
+     * @see DelayedSet
      */
     public static void addEntity(Entity entity) {
         LOGGER.info("Entity: " + entity + " will be added to the Game.");
@@ -132,9 +134,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
-     * Given entity will be removed.
+     * Given entity will be removed from the game at the next frame.
      *
      * @param entity to remove.
+     * @see DelayedSet
      */
     public static void removeEntity(Entity entity) {
         LOGGER.info("Entity: " + entity + " will be removed from the Game.");
@@ -144,7 +147,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /**
      * @return Set with all entities currently in game as stream
      */
-    public static Stream<Entity> getEntities() {
+    public static Stream<Entity> getEntitiesStream() {
         return entities.currentStream();
     }
 
@@ -215,6 +218,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         clearScreen();
         levelManager.update();
         updateSystems();
+        systems.values().forEach(System::execute);
+        // screen controller
         controller.forEach(AbstractController::update);
         setCameraFocus();
         camera.update();
@@ -278,19 +283,16 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
     }
 
-    private static void updateSystems() {
+    /** Will update the entity-sets of each system and {@link Game#entities}. */
+    private void updateSystems() {
         Function<System, System> showEntity =
                 s -> {
-                    entities.toAddStream().forEach(e -> s.showEntity(e));
+                    entities.toAddStream().forEach(s::showEntity);
                     return s;
                 };
-        Function<System, System> removeEntity =
-                s -> {
-                    entities.toRemoveStream().forEach(e -> s.removeEntity(e));
-                    return s;
-                };
+        Consumer<System> removeEntity = s -> entities.toRemoveStream().forEach(s::removeEntity);
 
-        systems.values().stream().map(showEntity).map(removeEntity).forEach(System::execute);
+        systems.values().stream().map(showEntity).forEach(removeEntity);
 
         entities.update();
     }
@@ -360,17 +362,17 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /**
      * Add a {@link System} to the game.
      *
-     * <p>If an System was added to the game the {@link System#execute}-Method will be called every
+     * <p>If a System was added to the game the {@link System#execute}-Method will be called every
      * frame.
      *
-     * <p>Additionaly the system will be informed about all new, changed and removed entities via
+     * <p>Additionally the system will be informed about all new, changed and removed entities via
      * {@link System#showEntity} or {@link System#removeEntity}
      *
      * <p>The game can only store ony system-type each.
      *
      * @param system The System to add
-     * @return in this optional the previous exsisting system of the given system-class is stored,
-     *     if one exist.
+     * @return in this optional the previous existing system of the given system-class is stored, if
+     *     one exist.
      * @see System
      * @see Optional
      */
@@ -386,7 +388,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * @param system class of the system to remove.
      */
-    public static void removeSystem(Class system) {
+    public static void removeSystem(Class<? extends System> system) {
         systems.remove(system);
     }
 

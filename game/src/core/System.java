@@ -34,7 +34,7 @@ public abstract class System {
         LOGGER.info("A new " + this.getClass().getName() + " was created");
         Game.addSystem(this);
         entities = new HashSet<>();
-        Game.getEntities().forEach(this::showEntity);
+        Game.getEntitiesStream().forEach(this::showEntity);
         run = true;
     }
 
