@@ -20,11 +20,6 @@ public class EntityTest {
     }
 
     @Test
-    public void cTor() {
-        assertTrue(Game.getEntitiesStream().anyMatch(e -> e == entity));
-    }
-
-    @Test
     public void addComponent() {
         assertEquals(testComponent, entity.getComponent(testComponent.getClass()).get());
     }

@@ -75,6 +75,8 @@ public class CollisionSystemTest {
         CollideComponent hb2 =
                 new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
+        cs.showEntity(e1);
+        cs.showEntity(e2);
         assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(hb1, hb2));
         assertEquals(DIRECTION_MESSAGE, Tile.Direction.E, cs.checkDirectionOfCollision(hb1, hb2));
         cleanUpEnvironment();
@@ -104,6 +106,8 @@ public class CollisionSystemTest {
         CollideComponent hb2 =
                 new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
+        cs.showEntity(e1);
+        cs.showEntity(e2);
         assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(hb1, hb2));
         assertEquals(DIRECTION_MESSAGE, Tile.Direction.E, cs.checkDirectionOfCollision(hb1, hb2));
         cleanUpEnvironment();
@@ -130,6 +134,8 @@ public class CollisionSystemTest {
         CollideComponent hb2 =
                 new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
+        cs.showEntity(e1);
+        cs.showEntity(e2);
         assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(hb1, hb2));
         assertEquals(Tile.Direction.W, cs.checkDirectionOfCollision(hb1, hb2));
         cleanUpEnvironment();
@@ -160,6 +166,8 @@ public class CollisionSystemTest {
         CollideComponent hb2 =
                 new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
+        cs.showEntity(e1);
+        cs.showEntity(e2);
         assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(hb1, hb2));
         assertEquals(Tile.Direction.W, cs.checkDirectionOfCollision(hb1, hb2));
         cleanUpEnvironment();
@@ -185,6 +193,8 @@ public class CollisionSystemTest {
         CollideComponent hb2 =
                 new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
+        cs.showEntity(e1);
+        cs.showEntity(e2);
         assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(hb1, hb2));
         assertEquals(Tile.Direction.S, cs.checkDirectionOfCollision(hb1, hb2));
         cleanUpEnvironment();
@@ -211,6 +221,8 @@ public class CollisionSystemTest {
         CollideComponent hb2 =
                 new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
+        cs.showEntity(e1);
+        cs.showEntity(e2);
         assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(hb1, hb2));
         assertEquals(Tile.Direction.S, cs.checkDirectionOfCollision(hb1, hb2));
         cleanUpEnvironment();
@@ -236,6 +248,8 @@ public class CollisionSystemTest {
         CollideComponent hb2 =
                 new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
+        cs.showEntity(e1);
+        cs.showEntity(e2);
         assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(hb1, hb2));
         assertEquals(Tile.Direction.N, cs.checkDirectionOfCollision(hb1, hb2));
         cleanUpEnvironment();
@@ -262,6 +276,8 @@ public class CollisionSystemTest {
         CollideComponent hb2 =
                 new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
+        cs.showEntity(e1);
+        cs.showEntity(e2);
         assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(hb1, hb2));
         assertEquals(Tile.Direction.N, cs.checkDirectionOfCollision(hb1, hb2));
         cleanUpEnvironment();
@@ -294,6 +310,8 @@ public class CollisionSystemTest {
                         collider,
                         collider);
 
+        cs.showEntity(e1);
+        cs.showEntity(e2);
         assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(hb1, hb2));
         cleanUpEnvironment();
     }
@@ -325,6 +343,8 @@ public class CollisionSystemTest {
                         collider,
                         collider);
 
+        cs.showEntity(e1);
+        cs.showEntity(e2);
         assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(hb1, hb2));
         cleanUpEnvironment();
     }
@@ -471,6 +491,10 @@ public class CollisionSystemTest {
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
+        cs.showEntity(e1);
+        cs.showEntity(e2);
+        cs.showEntity(e3);
+
         cs.execute();
         assertEquals("Only one interaction begins for e1", 1, sc1OnEnter.getCount());
         assertEquals("No interaction ends for e1", 0, sc1OnLeave.getCount());
@@ -566,6 +590,9 @@ public class CollisionSystemTest {
                 new Point(1, 1),
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
+        cs.showEntity(e1);
+        cs.showEntity(e2);
+        cs.showEntity(e3);
 
         cs.execute();
         e1.getComponent(PositionComponent.class)
@@ -618,6 +645,9 @@ public class CollisionSystemTest {
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
+        cs.showEntity(e1);
+        cs.showEntity(e2);
+        cs.showEntity(e3);
         cs.execute();
         e1.getComponent(PositionComponent.class)
                 .map(PositionComponent.class::cast)
@@ -672,6 +702,9 @@ public class CollisionSystemTest {
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
+        cs.showEntity(e1);
+        cs.showEntity(e2);
+        cs.showEntity(e3);
         cs.execute();
         cs.execute();
         assertEquals("Two interactions begin for e1", 2, sc1OnEnter.getCount());
@@ -721,6 +754,9 @@ public class CollisionSystemTest {
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
+        cs.showEntity(e1);
+        cs.showEntity(e2);
+        cs.showEntity(e3);
         cs.execute();
         e1.getComponent(PositionComponent.class)
                 .map(PositionComponent.class::cast)
@@ -769,6 +805,9 @@ public class CollisionSystemTest {
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
+        cs.showEntity(e1);
+        cs.showEntity(e2);
+        cs.showEntity(e3);
         cs.execute();
         e1.getComponent(PositionComponent.class)
                 .map(PositionComponent.class::cast)

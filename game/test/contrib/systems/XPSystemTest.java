@@ -23,7 +23,7 @@ public class XPSystemTest {
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
-
+        xpSystem.showEntity(entity);
         assertEquals(0, xpComponent.getCurrentXP());
         assertEquals(0, xpComponent.getCurrentLevel());
         xpSystem.execute();
@@ -41,7 +41,7 @@ public class XPSystemTest {
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
-
+        xpSystem.showEntity(entity);
         /* Test */
         xpComponent.addXP(99); // First level is reached with 100 XP
         xpSystem.execute();
@@ -58,7 +58,7 @@ public class XPSystemTest {
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
-
+        xpSystem.showEntity(entity);
         /* Test */
         xpComponent.addXP(100); // First level is reached with 100 XP
 
@@ -77,7 +77,7 @@ public class XPSystemTest {
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
-
+        xpSystem.showEntity(entity);
         /* Test */
         xpComponent.addXP(120); // First level is reached with 100 XP
         xpSystem.execute();
@@ -98,9 +98,11 @@ public class XPSystemTest {
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
-
+        xpSystem.showEntity(entity);
         /* Test */
         xpComponent.addXP(201);
+        xpSystem.showEntity(entity);
+
         xpSystem.execute();
         assertEquals(2, xpComponent.getCurrentLevel());
         assertEquals(0, xpComponent.getCurrentXP());
@@ -119,7 +121,7 @@ public class XPSystemTest {
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
-
+        xpSystem.showEntity(entity);
         /* Test */
 
         xpComponent.addXP(221);
@@ -138,7 +140,7 @@ public class XPSystemTest {
         ILevelUp levelUp = Mockito.mock(ILevelUp.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
-
+        xpSystem.showEntity(entity);
         /* Test */
         xpComponent.addXP(-1);
         xpSystem.execute();

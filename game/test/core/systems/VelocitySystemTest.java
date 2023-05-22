@@ -49,6 +49,7 @@ public class VelocitySystemTest {
         positionComponent =
                 new PositionComponent(entity, new Point(startXPosition, startYPosition));
         animationComponent = new DrawComponent(entity, idleLeft, idleRight);
+        velocitySystem.showEntity(entity);
     }
 
     @Test

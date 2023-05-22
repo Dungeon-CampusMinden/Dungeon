@@ -10,25 +10,6 @@ import org.junit.Test;
 public class SystemTest {
 
     @Test
-    public void cTor_existingEntities() {
-        new Entity();
-        System ts =
-                new System() {
-                    @Override
-                    public void execute() {}
-
-                    @Override
-                    protected boolean accept(Entity entity) {
-                        return true;
-                    }
-                };
-        ts.execute();
-        assertEquals(1, ts.getEntityStream().count());
-        Game.removeAllEntities();
-        Game.systems.clear();
-    }
-
-    @Test
     public void add() {
         System ts =
                 new System() {

@@ -33,6 +33,7 @@ public class SkillSystemTest {
         testSkill.execute(entity);
         testSkill2.execute(entity);
 
+        system.showEntity(entity);
         for (int i = 0; i < coolDownInSeconds * Constants.FRAME_RATE; i++) {
             assertTrue(testSkill.isOnCoolDown());
             assertTrue(testSkill2.isOnCoolDown());

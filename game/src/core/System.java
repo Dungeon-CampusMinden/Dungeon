@@ -168,7 +168,7 @@ public abstract class System {
      *
      * @return a stream of active entities that will be processed by the system
      */
-    protected final Stream<Entity> getEntityStream() {
+    public final Stream<Entity> getEntityStream() {
         return entities.stream();
     }
 
