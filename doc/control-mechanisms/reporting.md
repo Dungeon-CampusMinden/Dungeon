@@ -1,5 +1,5 @@
 ---
-title: "Reporting Konzept"
+title: "Reporting-Konzept"
 ---
 
 ## Ziel
