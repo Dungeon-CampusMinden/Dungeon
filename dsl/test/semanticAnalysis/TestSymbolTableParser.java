@@ -75,7 +75,7 @@ public class TestSymbolTableParser {
 
         // setup
         var ast = Helpers.getASTFromString(program);
-        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
 
         TypeBuilder tb = new TypeBuilder();
         var testComponentType = tb.createTypeFromClass(Scope.NULL, TestComponent.class);
@@ -337,7 +337,7 @@ public class TestSymbolTableParser {
     public void funcTypeNativeFunction() {
         var env = new GameEnvironment();
 
-        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
 
         var symbolTableParserEnvironment = symbolTableParser.getEnvironment();
@@ -370,7 +370,7 @@ public class TestSymbolTableParser {
         var funcsToLoad = new ScopedSymbol[] {dummyFunc1, dummyFunc2};
         env.loadFunctions(List.of(funcsToLoad));
 
-        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
 
         var ast = Helpers.getASTFromString(program);

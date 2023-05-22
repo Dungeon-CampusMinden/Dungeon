@@ -37,7 +37,7 @@ public class TestTypeBinder {
             """;
 
         var ast = Helpers.getASTFromString(program);
-        var symTableParser = new SymbolTableParser();
+        var symTableParser = new SemanticAnalyzer();
 
         var env = new GameEnvironment();
         var types = new IType[] {testCompType};
@@ -80,7 +80,7 @@ public class TestTypeBinder {
         """;
 
         var ast = Helpers.getASTFromString(program);
-        var symTableParser = new SymbolTableParser();
+        var symTableParser = new SemanticAnalyzer();
 
         var env = new GameEnvironment();
         var types = new IType[] {testCompType};
@@ -118,7 +118,7 @@ public class TestTypeBinder {
             """;
 
         var ast = Helpers.getASTFromString(program);
-        var symTableParser = new SymbolTableParser();
+        var symTableParser = new SemanticAnalyzer();
 
         var env = new GameEnvironment();
 

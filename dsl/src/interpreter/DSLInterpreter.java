@@ -215,7 +215,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         DungeonASTConverter astConverter = new DungeonASTConverter();
         var programAST = astConverter.walk(programParseTree);
 
-        SymbolTableParser symTableParser = new SymbolTableParser();
+        SemanticAnalyzer symTableParser = new SemanticAnalyzer();
         var environment = new GameEnvironment();
         symTableParser.setup(environment);
         var result = symTableParser.walk(programAST);

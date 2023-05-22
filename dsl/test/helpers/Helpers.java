@@ -13,8 +13,8 @@ import runtime.GameEnvironment;
 import runtime.MemorySpace;
 import runtime.Value;
 
+import semanticAnalysis.SemanticAnalyzer;
 import semanticAnalysis.Symbol;
-import semanticAnalysis.SymbolTableParser;
 import semanticAnalysis.types.IType;
 
 import java.io.File;
@@ -85,29 +85,29 @@ public class Helpers {
     }
 
     /**
-     * Performs semantic analysis for given AST and returns the {@link
-     * semanticAnalysis.SymbolTableParser.Result} output from the SymbolTableParser
+     * Performs semantic analysis for given AST and returns the {@link SemanticAnalyzer.Result}
+     * output from the SymbolTableParser
      *
      * @param ast the AST to create the symbol table for
-     * @return the {@link semanticAnalysis.SymbolTableParser.Result} of the semantic analysis
+     * @return the {@link SemanticAnalyzer.Result} of the semantic analysis
      */
-    public static SymbolTableParser.Result getSymtableForAST(parser.AST.Node ast) {
-        SymbolTableParser symbolTableParser = new SymbolTableParser();
+    public static SemanticAnalyzer.Result getSymtableForAST(parser.AST.Node ast) {
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(new GameEnvironment());
         return symbolTableParser.walk(ast);
     }
 
     /**
      * Performs semantic analysis for given AST with loaded types and returns the {@link
-     * semanticAnalysis.SymbolTableParser.Result} output from the SymbolTableParser
+     * SemanticAnalyzer.Result} output from the SymbolTableParser
      *
      * @param ast the AST to create the symbol table for
      * @param types the types to load into the environment before doing semantic analysis
-     * @return the {@link semanticAnalysis.SymbolTableParser.Result} of the semantic analysis
+     * @return the {@link SemanticAnalyzer.Result} of the semantic analysis
      */
-    public static SymbolTableParser.Result getSymtableForASTWithLoadedTypes(
+    public static SemanticAnalyzer.Result getSymtableForASTWithLoadedTypes(
             parser.AST.Node ast, IType[] types) {
-        var symTableParser = new SymbolTableParser();
+        var symTableParser = new SemanticAnalyzer();
         var env = new GameEnvironment();
         var typesToLoad = types;
         env.loadTypes(List.of(typesToLoad));

@@ -17,7 +17,7 @@ import parser.AST.Node;
 import runtime.*;
 
 import semanticAnalysis.Scope;
-import semanticAnalysis.SymbolTableParser;
+import semanticAnalysis.SemanticAnalyzer;
 import semanticAnalysis.types.*;
 
 import java.io.ByteArrayOutputStream;
@@ -174,7 +174,7 @@ public class TestDSLInterpreter {
         var typesToLoad = new IType[] {testCompType, otherCompType};
         env.loadTypes(List.of(typesToLoad));
 
-        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
         var ast = Helpers.getASTFromString(program);
         symbolTableParser.walk(ast);
@@ -240,7 +240,7 @@ public class TestDSLInterpreter {
         var typesToLoad = new IType[] {entityType, testCompType, otherCompType};
         env.loadTypes(List.of(typesToLoad));
 
-        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
         var ast = Helpers.getASTFromString(program);
         symbolTableParser.walk(ast);
@@ -314,7 +314,7 @@ public class TestDSLInterpreter {
         var typesToLoad = new IType[] {entityType, compType};
         env.loadTypes(List.of(typesToLoad));
 
-        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
         var ast = Helpers.getASTFromString(program);
         symbolTableParser.walk(ast);
@@ -378,7 +378,7 @@ public class TestDSLInterpreter {
                 };
         env.loadTypes(List.of(typesToLoad));
 
-        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
         var ast = Helpers.getASTFromString(program);
         symbolTableParser.walk(ast);

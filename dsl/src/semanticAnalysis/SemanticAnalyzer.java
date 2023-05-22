@@ -39,7 +39,7 @@ import java.util.Stack;
 // abstraction coupling
 // will be high naturally
 @SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
-public class SymbolTableParser implements AstVisitor<Void> {
+public class SemanticAnalyzer implements AstVisitor<Void> {
     private SymbolTable symbolTable;
     private IEvironment environment;
     Stack<IScope> scopeStack = new Stack<>();
