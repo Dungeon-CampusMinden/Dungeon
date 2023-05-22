@@ -62,16 +62,20 @@ public abstract class System {
      * set, it will be removed.
      *
      * @param entity the entity to add
-     * @return true if the entity is accepted, false if not.
      */
-    public boolean showEntity(Entity entity) {
-        if (accept(entity)) {
-            if (entities.add(entity))
-                LOGGER.info("Entity " + entity + " will be added to the " + getClass().getName());
-            return true;
-        }
-        removeEntity(entity);
-        return false;
+    public final void showEntity(Entity entity) {
+        if (accept(entity)) addEntity(entity);
+        else removeEntity(entity);
+    }
+
+    /**
+     * Add the given entity from the local set so that it will be processed by the system.
+     *
+     * @param entity the entity to remove
+     */
+    private void addEntity(Entity entity) {
+        if (entities.add(entity))
+            LOGGER.info("Entity " + entity + "will be added to the" + getClass().getName());
     }
 
     /**
@@ -83,7 +87,7 @@ public abstract class System {
      *
      * @param entity the entity to remove
      */
-    public void removeEntity(Entity entity) {
+    public final void removeEntity(Entity entity) {
         if (entities.remove(entity))
             LOGGER.info(
                     "Entity " + entity + " will be removed from to the " + getClass().getName());
@@ -97,7 +101,7 @@ public abstract class System {
      *
      * @see java.util.ConcurrentModificationException
      */
-    public void clearEntities() {
+    public final void clearEntities() {
         LOGGER.info("All entities from " + this.getClass().getName() + " were removed");
         entities.clear();
     }
@@ -143,7 +147,7 @@ public abstract class System {
     /**
      * @return true if this system is running, false if it is in paused mode
      */
-    public boolean isRunning() {
+    public final boolean isRunning() {
         return run;
     }
 
@@ -164,7 +168,7 @@ public abstract class System {
      *
      * @return a stream of active entities that will be processed by the system
      */
-    protected Stream<Entity> getEntityStream() {
+    protected final Stream<Entity> getEntityStream() {
         return entities.stream();
     }
 
@@ -175,7 +179,8 @@ public abstract class System {
      * @param entity the entity that will not be processed
      * @param missingComponent the missing component
      */
-    protected void logMissingComponent(Entity entity, Class<? extends Component> missingComponent) {
+    protected final void logMissingComponent(
+            Entity entity, Class<? extends Component> missingComponent) {
         LOGGER.info(
                 "Entity: "
                         + entity
