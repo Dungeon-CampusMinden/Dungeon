@@ -81,7 +81,7 @@ fn report(task t, string a) -> float {
 Im obigen Listing werden zwei Funktionen definiert. die `handler_function` ist eine
 Event-Handler-Funktion, die als Callback-Funktion für ein Ereignis im Kontext einer Entität
 (z.B. ein Kollisionsereignis) verknüpft werden kann. Die `report`-Funktion wird als Teil der
-Standard-Bibliothek oder als native Funktion des DSL- Interpreters umgesetzt, ruft die
+Standard-Bibliothek oder als native Funktion des DSL-Interpreters umgesetzt, ruft die
 **Scoring-Funktion** des `task`-Objekts auf und speichert das Ergebnis per `log`-Funktion
 (welche ebenfalls als native Funktion implementiert wird).
 
@@ -90,4 +90,9 @@ wird, zwei Referenzen enthält:
 
 1.  Eine Referenz auf die **Aufgabendefinition**, an deren konkreter Umsetzung die Entität
     beteiligt ist
-2.  Eine Referenz auf die **Antwortmöglichkeit**, welche durch die Entität repräsentiert wird
+2.  Eine Referenz auf die **Antwortmöglichkeit**, welche durch die Entität repräsentiert
+    wird
+
+Note: Um diese Referenzen zu halten, könnte ein `TaskReferenceComponent` (o.ä.) genutzt
+werden, welches sowohl eine Referenz auf ein `Task`-Objekt und eine Referenz auf ein
+`Answer`-Objekt hält.
