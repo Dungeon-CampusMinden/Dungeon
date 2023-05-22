@@ -13,66 +13,61 @@ import java.io.Serializable;
 
 public abstract class DamageProjectileSkill implements ISkillFunction, Serializable {
 
-    protected String pathToTexturesOfProjectile;
-    protected float projectileSpeed;
+        protected String pathToTexturesOfProjectile;
+        protected float projectileSpeed;
 
-    protected float projectileRange;
-    protected Damage projectileDamage;
-    protected Point projectileHitboxSize;
+        protected float projectileRange;
+        protected Damage projectileDamage;
+        protected Point projectileHitboxSize;
 
-    protected ITargetSelection selectionFunction;
+        protected ITargetSelection selectionFunction;
 
-    public DamageProjectileSkill(
-            String pathToTexturesOfProjectile,
-            float projectileSpeed,
-            Damage projectileDamage,
-            Point projectileHitboxSize,
-            ITargetSelection selectionFunction,
-            float projectileRange) {
-        this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
-        this.projectileDamage = projectileDamage;
-        this.projectileSpeed = projectileSpeed;
-        this.projectileRange = projectileRange;
-        this.projectileHitboxSize = projectileHitboxSize;
-        this.selectionFunction = selectionFunction;
-    }
+        public DamageProjectileSkill(
+                        String pathToTexturesOfProjectile,
+                        float projectileSpeed,
+                        Damage projectileDamage,
+                        Point projectileHitboxSize,
+                        ITargetSelection selectionFunction,
+                        float projectileRange) {
+                this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
+                this.projectileDamage = projectileDamage;
+                this.projectileSpeed = projectileSpeed;
+                this.projectileRange = projectileRange;
+                this.projectileHitboxSize = projectileHitboxSize;
+                this.selectionFunction = selectionFunction;
+        }
 
-    @Override
-    public void execute(Entity entity) {
-        Entity projectile = new Entity();
-        PositionComponent epc =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
+        @Override
+        public void execute(Entity entity) {
+                Entity projectile = new Entity();
+                PositionComponent epc = (PositionComponent) entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
-        new PositionComponent(projectile, epc.getPosition());
+                                                () -> new MissingComponentException("PositionComponent"));
+                new PositionComponent(projectile, epc.getPosition());
 
-        Animation animation = AnimationBuilder.buildAnimation(pathToTexturesOfProjectile);
-        new AnimationComponent(projectile, animation);
+                Animation animation = AnimationBuilder.buildAnimation(pathToTexturesOfProjectile);
+                new AnimationComponent(projectile, animation);
 
-        Point aimedOn = selectionFunction.selectTargetPoint();
-        Point targetPoint =
-                SkillTools.calculateLastPositionInRange(
-                        epc.getPosition(), aimedOn, projectileRange);
-        Point velocity =
-                SkillTools.calculateVelocity(epc.getPosition(), targetPoint, projectileSpeed);
-        VelocityComponent vc =
-                new VelocityComponent(projectile, velocity.x, velocity.y, animation, animation);
-        new ProjectileComponent(projectile, epc.getPosition(), targetPoint);
-        ICollide collide =
-                (a, b, from) -> {
-                    if (b != entity) {
-                        b.getComponent(HealthComponent.class)
-                                .ifPresent(
-                                        hc -> {
-                                            ((HealthComponent) hc).receiveHit(projectileDamage);
-                                            Game.removeEntity(projectile);
-                                        });
-                        SkillTools.knockBack(a, b);
-                    }
+                Point aimedOn = selectionFunction.selectTargetPoint();
+                Point targetPoint = SkillTools.calculateLastPositionInRange(
+                                epc.getPosition(), aimedOn, projectileRange);
+                Point velocity = SkillTools.calculateVelocity(epc.getPosition(), targetPoint, projectileSpeed);
+                VelocityComponent vc = new VelocityComponent(projectile, velocity.x, velocity.y, animation, animation);
+                new ProjectileComponent(projectile, epc.getPosition(), targetPoint);
+                ICollide collide = (a, b, from) -> {
+                        if (b != entity) {
+                                b.getComponent(HealthComponent.class)
+                                                .ifPresent(
+                                                                hc -> {
+                                                                        ((HealthComponent) hc)
+                                                                                        .receiveHit(projectileDamage);
+                                                                        Game.removeEntity(projectile);
+                                                                });
+                                SkillTools.knockBack(a, b);
+                        }
                 };
 
-        new HitboxComponent(
-                projectile, new Point(0.25f, 0.25f), projectileHitboxSize, collide, null);
-    }
+                new HitboxComponent(
+                                projectile, new Point(0.25f, 0.25f), projectileHitboxSize, collide, null);
+        }
 }

@@ -13,7 +13,8 @@ import graphic.Animation;
 import tools.Constants;
 
 /**
- * The TeleportationTrap is a "trap" or more like slight nuisance. It's entity in the ECS. This class helps to
+ * The TeleportationTrap is a "trap" or more like slight nuisance. It's entity
+ * in the ECS. This class helps to
  * setup teleportationtraps with all its components and attributes .
  */
 public class TeleportationTrap extends Trap {
@@ -48,7 +49,8 @@ public class TeleportationTrap extends Trap {
 
     @Override
     public void trigger(Entity entity) {
-        if (!active) return;
+        if (!active)
+            return;
         Animation triggered = AnimationBuilder.buildAnimation(pathToTriggered);
         ((AnimationComponent) this.getComponent(AnimationComponent.class).get()).setCurrentAnimation(triggered);
         trigger.trigger(entity);

@@ -67,12 +67,12 @@ public class Hero extends Entity implements Serializable {
 
     private void setupFireballSkill() {
         firstSkill = new Skill(
-                new ExplosivePebbleSkill(SkillTools::getCursorPositionAsPoint), explosivePebbleCoolDown);
+                new ExplosivePebbleSkill(SkillTools::getCursorPositionAsPoint, this), explosivePebbleCoolDown);
     }
 
     private void setupStabSkill() {
         secondSkill = new Skill(
-                new StabSkill(SkillTools::getCursorPositionAsPoint), stabCoolDown);
+                new StabSkill(SkillTools::getCursorPositionAsPoint, this), stabCoolDown);
     }
 
     private void setupSkills() {

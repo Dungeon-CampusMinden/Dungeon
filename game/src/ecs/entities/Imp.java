@@ -87,9 +87,10 @@ public class Imp extends Monster {
 
     private void setupSkillComponent() {
         Point start = ((PositionComponent) this.getComponent(PositionComponent.class).get()).getPosition();
-        Point end = ((PositionComponent) Game.getHero().get().getComponent(PositionComponent.class).get()).getPosition();
+        Point end = ((PositionComponent) Game.getHero().get().getComponent(PositionComponent.class).get())
+                .getPosition();
         attack = new Skill(
-                new PiercingArrowSkill(() -> SkillTools.calculateLastPositionInRange(start, end, attackRange)),
+                new PiercingArrowSkill(() -> SkillTools.calculateLastPositionInRange(start, end, attackRange), this),
                 attackCooldown);
         new SkillComponent(this).addSkill(attack);
     }

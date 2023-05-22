@@ -1,14 +1,12 @@
 package ecs.components.skill;
 
-import ecs.components.skill.ITargetSelection;
-import ecs.components.skill.ReturningProjectileSkill;
 import ecs.damage.*;
+import ecs.entities.Entity;
 import tools.Point;
-
 
 public class RubberballSkill extends ReturningProjectileSkill {
 
-    public RubberballSkill(ITargetSelection targetSelection) {
+    public RubberballSkill(ITargetSelection targetSelection, Entity entity) {
         super(
                 "skills/rubberball/rubberBall_Down/",
                 0.5f,
@@ -17,5 +15,5 @@ public class RubberballSkill extends ReturningProjectileSkill {
                 targetSelection,
                 5f);
     }
-    
+
 }
