@@ -3,6 +3,8 @@ package runtime;
 import semanticAnalysis.*;
 import semanticAnalysis.types.IType;
 
+import java.util.List;
+
 // TODO: this is more of a semantic analysis kind of concept -> put it there
 // TODO: add getTypeBuilder
 public interface IEvironment {
@@ -28,12 +30,12 @@ public interface IEvironment {
     /**
      * @param types AggregateTypes to load into the environment
      */
-    default void loadTypes(IType[] types) {}
+    default void loadTypes(List<IType> types) {}
 
     /**
      * @param functionDefinitions FunctionSymbols to load into the environment
      */
-    default void loadFunctions(ScopedSymbol[] functionDefinitions) {}
+    default void loadFunctions(List<ScopedSymbol> functionDefinitions) {}
 
     /**
      * @return symbol table of this environment

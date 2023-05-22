@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 
 public class Helpers {
 
@@ -108,7 +109,8 @@ public class Helpers {
             parser.AST.Node ast, IType[] types) {
         var symTableParser = new SymbolTableParser();
         var env = new GameEnvironment();
-        env.loadTypes(types);
+        var typesToLoad = types;
+        env.loadTypes(List.of(typesToLoad));
         symTableParser.setup(env);
         return symTableParser.walk(ast);
     }

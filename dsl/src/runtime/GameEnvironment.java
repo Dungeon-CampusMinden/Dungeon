@@ -20,6 +20,7 @@ import semanticAnalysis.types.TypeBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class GameEnvironment implements IEvironment {
     // TODO: the type builder should also be part of some 'type factory' to
@@ -84,7 +85,7 @@ public class GameEnvironment implements IEvironment {
     }
 
     @Override
-    public void loadTypes(IType[] types) {
+    public void loadTypes(List<IType> types) {
         for (IType type : types) {
             if (!(type instanceof IType)) {
                 continue;
@@ -98,7 +99,7 @@ public class GameEnvironment implements IEvironment {
     }
 
     @Override
-    public void loadFunctions(ScopedSymbol[] functions) {
+    public void loadFunctions(List<ScopedSymbol> functions) {
         for (var func : functions) {
             if (!(func instanceof ICallable)) {
                 continue;

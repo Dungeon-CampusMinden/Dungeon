@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
@@ -170,7 +171,8 @@ public class TestDSLInterpreter {
         var otherCompType = tb.createTypeFromClass(new Scope(), OtherComponent.class);
 
         var env = new GameEnvironment();
-        env.loadTypes(new IType[] {testCompType, otherCompType});
+        var typesToLoad = new IType[] {testCompType, otherCompType};
+        env.loadTypes(List.of(typesToLoad));
 
         SymbolTableParser symbolTableParser = new SymbolTableParser();
         symbolTableParser.setup(env);
@@ -235,7 +237,8 @@ public class TestDSLInterpreter {
         var otherCompType = tb.createTypeFromClass(new Scope(), TestComponent2.class);
 
         var env = new TestEnvironment();
-        env.loadTypes(new IType[] {entityType, testCompType, otherCompType});
+        var typesToLoad = new IType[] {entityType, testCompType, otherCompType};
+        env.loadTypes(List.of(typesToLoad));
 
         SymbolTableParser symbolTableParser = new SymbolTableParser();
         symbolTableParser.setup(env);
@@ -308,7 +311,8 @@ public class TestDSLInterpreter {
         var compType = tb.createTypeFromClass(new Scope(), ComponentWithExternalTypeMember.class);
 
         var env = new TestEnvironment();
-        env.loadTypes(new IType[] {entityType, compType});
+        var typesToLoad = new IType[] {entityType, compType};
+        env.loadTypes(List.of(typesToLoad));
 
         SymbolTableParser symbolTableParser = new SymbolTableParser();
         symbolTableParser.setup(env);
@@ -367,10 +371,12 @@ public class TestDSLInterpreter {
         var externalComponentType =
                 env.getTypeBuilder()
                         .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
-        env.loadTypes(
+
+        var typesToLoad =
                 new semanticAnalysis.types.IType[] {
                     entityType, testCompType, externalComponentType
-                });
+                };
+        env.loadTypes(List.of(typesToLoad));
 
         SymbolTableParser symbolTableParser = new SymbolTableParser();
         symbolTableParser.setup(env);
