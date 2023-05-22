@@ -75,7 +75,7 @@ public abstract class System {
      */
     private void addEntity(Entity entity) {
         if (entities.add(entity))
-            LOGGER.info("Entity " + entity + "will be added to the" + getClass().getName());
+            LOGGER.info("Entity " + entity + "will be added to " + getClass().getName());
     }
 
     /**
@@ -90,7 +90,7 @@ public abstract class System {
     public final void removeEntity(Entity entity) {
         if (entities.remove(entity))
             LOGGER.info(
-                    "Entity " + entity + " will be removed from to the " + getClass().getName());
+                    "Entity " + entity + " will be removed from " + getClass().getName());
     }
 
     /**
@@ -128,7 +128,7 @@ public abstract class System {
      */
     public void run() {
         run = true;
-        LOGGER.info(this.getClass().getName() + " will run");
+        LOGGER.info(this.getClass().getName() + " is running");
     }
 
     /**
@@ -141,7 +141,7 @@ public abstract class System {
      */
     public void stop() {
         run = false;
-        LOGGER.info(this.getClass().getName() + " was paused");
+        LOGGER.info(this.getClass().getName() + " is paused");
     }
 
     /**

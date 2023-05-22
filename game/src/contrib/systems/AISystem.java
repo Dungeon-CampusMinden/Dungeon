@@ -10,8 +10,7 @@ public class AISystem extends System {
 
     @Override
     protected boolean accept(Entity entity) {
-        if (entity.getComponent(AIComponent.class).isPresent()) return true;
-        else return false;
+        return entity.getComponent(AIComponent.class).isPresent();
     }
 
     @Override

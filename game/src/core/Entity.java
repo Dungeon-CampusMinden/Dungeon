@@ -58,7 +58,7 @@ public final class Entity {
      * <p>The name of the entity will be its id
      */
     public Entity() {
-        this("" + nextId);
+        this("_" + nextId);
     }
 
     /**

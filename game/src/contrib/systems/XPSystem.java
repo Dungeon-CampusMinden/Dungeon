@@ -9,8 +9,7 @@ public class XPSystem extends System {
 
     @Override
     protected boolean accept(Entity entity) {
-        if (entity.getComponent(XPComponent.class).isPresent()) return true;
-        return false;
+        return entity.getComponent(XPComponent.class).isPresent();
     }
 
     @Override

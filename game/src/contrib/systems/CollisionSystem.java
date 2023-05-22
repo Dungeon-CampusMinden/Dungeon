@@ -21,8 +21,7 @@ public class CollisionSystem extends System {
 
     @Override
     protected boolean accept(Entity entity) {
-        if (entity.getComponent(CollideComponent.class).isPresent()) return true;
-        else return false;
+        return entity.getComponent(CollideComponent.class).isPresent();
     }
     /** checks if there is a collision between two entities based on their hitbox */
     @Override
