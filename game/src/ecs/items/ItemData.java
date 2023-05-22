@@ -9,12 +9,15 @@ import ecs.components.PositionComponent;
 import ecs.components.stats.DamageModifier;
 import ecs.entities.Entity;
 import graphic.Animation;
+
+import java.util.ArrayList;
 import java.util.List;
 import starter.Game;
 import tools.Point;
 
 /** A Class which contains the Information of a specific Item. */
 public class ItemData {
+    private List<ItemData> inventory;
     private ItemType itemType;
     private Animation inventoryTexture;
     private Animation worldTexture;
@@ -61,6 +64,10 @@ public class ItemData {
         this.setOnDrop(onDrop);
         this.setOnUse(onUse);
         this.damageModifier = damageModifier;
+
+        if(this.itemType.equals(ItemType.Bag)){
+            this.inventory = new ArrayList<>(3);
+        }
     }
 
     /**
@@ -160,9 +167,20 @@ public class ItemData {
                 .ifPresent(
                         component -> {
                             InventoryComponent invComp = (InventoryComponent) component;
-                            invComp.removeItem(item);
+                            if(item.itemType.equals(ItemType.Bag)){
+                                if(item.getInventory().size() > 0){
+                                    System.out.printf("Item \"%s\" used by entity %d\n", item.getInventory().get(0).getItemName(), e.id);
+                                    item.getInventory().remove(0);
+                                }
+                                else{
+                                    System.out.println("Bag is empty");
+                                }
+                            }
+                            else{
+                                invComp.removeItem(item);
+                                System.out.printf("Item \"%s\" used by entity %d\n", item.getItemName(), e.id);
+                            }
                         });
-        System.out.printf("Item \"%s\" used by entity %d\n", item.getItemName(), e.id);
     }
 
     private static void defaultDrop(Entity who, ItemData which, Point position) {
@@ -221,5 +239,9 @@ public class ItemData {
 
     public void setOnUse(IOnUse onUse) {
         this.onUse = onUse;
+    }
+
+    public List<ItemData> getInventory(){
+        return this.inventory;
     }
 }

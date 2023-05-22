@@ -49,6 +49,7 @@ public class Hero extends Entity implements Serializable {
         setupSkillComponent();
         pc.setSkillSlot1(firstSkill);
         pc.setSkillSlot2(secondSkill);
+        new InventoryComponent(this, 2);
     }
 
     private void setupVelocityComponent() {
