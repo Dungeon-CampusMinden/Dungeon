@@ -244,7 +244,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * <p>This will also remove all entities from each system.
      */
-    private void removeAllEntities() {
+    public static void removeAllEntities() {
         LOGGER.info("All entities will be removed from the game.");
         systems.values().forEach(System::clearEntities);
         entities.clear();
@@ -266,7 +266,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         clearScreen();
         levelManager.update();
         updateSystems();
-        systems.values().forEach(System::execute);
+        systems.values().stream().filter(system -> system.isRunning()).forEach(System::execute);
         // screen controller
         controller.forEach(AbstractController::update);
         setCameraFocus();
