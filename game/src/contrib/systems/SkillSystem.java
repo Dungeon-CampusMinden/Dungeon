@@ -5,18 +5,21 @@ import contrib.components.SkillComponent;
 import core.Entity;
 import core.System;
 
+import java.util.function.Consumer;
+
 public class SkillSystem extends System {
-    @Override
-    protected boolean accept(Entity entity) {
-        return entity.getComponent(SkillComponent.class).isPresent();
+    public SkillSystem() {
+        super(SkillComponent.class);
     }
+
     /** reduces the cool down for all skills */
     @Override
     public void execute() {
-        getEntityStream()
-                .forEach(
-                        entity ->
-                                ((SkillComponent) entity.getComponent(SkillComponent.class).get())
-                                        .reduceAllCoolDowns());
+        getEntityStream().forEach(reduceAllCoolDowns);
     }
+    // Oder wenigstens Refactoring:
+
+    // und irgendwo als in der jeweiligen Systemklasse:
+    private static final Consumer<Entity> reduceAllCoolDowns =
+            e -> ((SkillComponent) e.getComponent(SkillComponent.class).get()).reduceAllCoolDowns();
 }

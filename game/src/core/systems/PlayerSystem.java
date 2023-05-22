@@ -5,23 +5,29 @@ import com.badlogic.gdx.Gdx;
 import contrib.configuration.KeyboardConfig;
 import contrib.utils.components.interaction.InteractionTool;
 
+import core.Component;
 import core.Entity;
 import core.System;
 import core.components.PlayerComponent;
 import core.components.VelocityComponent;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /** Used to control the player */
 public class PlayerSystem extends System {
 
-    private record PSData(Entity e, PlayerComponent pc, VelocityComponent vc) {}
-
-    @Override
-    protected boolean accept(Entity entity) {
-        if (entity.getComponent(PlayerComponent.class).isPresent())
-            if (entity.getComponent(VelocityComponent.class).isPresent()) return true;
-            else logMissingComponent(entity, VelocityComponent.class);
-        return false;
+    public PlayerSystem() {
+        super(PlayerComponent.class, getSet());
     }
+
+    private static Set<Class<? extends Component>> getSet() {
+        Set<Class<? extends Component>> set = new HashSet<>();
+        set.add(VelocityComponent.class);
+        return set;
+    }
+
+    private record PSData(Entity e, PlayerComponent pc, VelocityComponent vc) {}
 
     @Override
     public void execute() {

@@ -2,6 +2,7 @@ package contrib.systems;
 
 import contrib.components.ProjectileComponent;
 
+import core.Component;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -9,21 +10,24 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class ProjectileSystem extends System {
 
     // private record to hold all data during streaming
     private record PSData(
             Entity e, ProjectileComponent prc, PositionComponent pc, VelocityComponent vc) {}
 
-    @Override
-    protected boolean accept(Entity entity) {
-        if (entity.getComponent(ProjectileComponent.class).isPresent())
-            if (entity.getComponent(PositionComponent.class).isPresent())
-                if (entity.getComponent(VelocityComponent.class).isPresent()) return true;
-                else logMissingComponent(entity, VelocityComponent.class);
-            else logMissingComponent(entity, PositionComponent.class);
+    public ProjectileSystem() {
+        super(ProjectileComponent.class, getSet());
+    }
 
-        return false;
+    private static Set<Class<? extends Component>> getSet() {
+        Set<Class<? extends Component>> set = new HashSet<>();
+        set.add(PositionComponent.class);
+        set.add(VelocityComponent.class);
+        return set;
     }
 
     /** sets the velocity and removes entities that reached their endpoint */

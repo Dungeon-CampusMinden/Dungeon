@@ -109,6 +109,15 @@ public final class Entity {
     }
 
     /**
+     * Check if the entity has a component of the given class
+     *
+     * @param klass class of the component to check for
+     * @return true if the component is present in the entity, false if not
+     */
+    public boolean isPresent(Class<? extends Component> klass) {
+        return components.containsKey(klass);
+    }
+    /**
      * @return The id of this entity
      */
     public int id() {

@@ -49,7 +49,7 @@ public class DebuggerSystem extends System {
      * togglePause method.
      */
     public DebuggerSystem() {
-        super();
+        super(null);
         toggleRun();
         DEBUGGER_LOGGER.info("Create new Debugger");
     }
@@ -225,10 +225,5 @@ public class DebuggerSystem extends System {
             // Log that the monster couldn't be spawned
             DEBUGGER_LOGGER.info("Cannot spawn monster at non-existent or non-accessible tile");
         }
-    }
-
-    @Override
-    protected boolean accept(Entity entity) {
-        return false;
     }
 }

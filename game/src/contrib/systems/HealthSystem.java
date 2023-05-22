@@ -5,11 +5,14 @@ import contrib.components.StatsComponent;
 import contrib.components.XPComponent;
 import contrib.utils.components.health.DamageType;
 
+import core.Component;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -21,13 +24,14 @@ public class HealthSystem extends System {
     // private record to hold all data during streaming
     private record HSData(Entity e, HealthComponent hc, DrawComponent ac) {}
 
-    @Override
-    protected boolean accept(Entity entity) {
-        if (entity.getComponent(HealthComponent.class).isPresent())
-            if (entity.getComponent(DrawComponent.class).isPresent()) return true;
-            else logMissingComponent(entity, DrawComponent.class);
+    public HealthSystem() {
+        super(HealthComponent.class, getSet());
+    }
 
-        return false;
+    private static Set<Class<? extends Component>> getSet() {
+        Set<Class<? extends Component>> set = new HashSet<>();
+        set.add(DrawComponent.class);
+        return set;
     }
 
     @Override

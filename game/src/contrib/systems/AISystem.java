@@ -5,20 +5,20 @@ import contrib.components.AIComponent;
 import core.Entity;
 import core.System;
 
+import java.util.function.Consumer;
+
 /** Controls the AI */
 public class AISystem extends System {
 
-    @Override
-    protected boolean accept(Entity entity) {
-        return entity.getComponent(AIComponent.class).isPresent();
+    public AISystem() {
+        super(AIComponent.class);
     }
 
     @Override
     public void execute() {
-        getEntityStream()
-                .forEach(
-                        entity ->
-                                ((AIComponent) entity.getComponent(AIComponent.class).get())
-                                        .execute());
+        getEntityStream().forEach(executeAI);
     }
+
+    private static final Consumer<Entity> executeAI =
+            entity -> ((AIComponent) entity.getComponent(AIComponent.class).get()).execute();
 }

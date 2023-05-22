@@ -2,14 +2,12 @@ package contrib.systems;
 
 import contrib.components.XPComponent;
 
-import core.Entity;
 import core.System;
 
 public class XPSystem extends System {
 
-    @Override
-    protected boolean accept(Entity entity) {
-        return entity.getComponent(XPComponent.class).isPresent();
+    public XPSystem() {
+        super(XPComponent.class);
     }
 
     @Override

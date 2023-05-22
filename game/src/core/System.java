@@ -32,18 +32,27 @@ public abstract class System {
     private final Set<Entity> entities;
     protected boolean run;
 
+    private final Class keyComponent;
+    private final Set<Class<? extends Component>> additionComponents;
+
     /**
      * Create a new system and add it to the game. {@link Game#addSystem}
      *
      * <p>For each already existing entity in the game, check if the entity is accepted by {@link
      * #accept} and add it to the local set if so.
      */
-    public System() {
+    public System(Class keyComponent, Set<Class<? extends Component>> otherComponents) {
         LOGGER.info("A new " + this.getClass().getName() + " was created");
         Game.addSystem(this);
+        this.keyComponent = keyComponent;
+        this.additionComponents = otherComponents;
         entities = new HashSet<>();
         Game.getEntitiesStream().forEach(this::showEntity);
         run = true;
+    }
+
+    public System(Class keyComponent) {
+        this(keyComponent, new HashSet<Class<? extends Component>>());
     }
 
     /** Implements the functionality of the system. */
@@ -89,8 +98,7 @@ public abstract class System {
      */
     public final void removeEntity(Entity entity) {
         if (entities.remove(entity))
-            LOGGER.info(
-                    "Entity " + entity + " will be removed from " + getClass().getName());
+            LOGGER.info("Entity " + entity + " will be removed from " + getClass().getName());
     }
 
     /**
@@ -160,7 +168,17 @@ public abstract class System {
      * @param entity the entity to check
      * @return true if the entity is accepted, false if not.
      */
-    protected abstract boolean accept(Entity entity);
+    private boolean accept(Entity entity) {
+        if (entity.isPresent(keyComponent)) {
+            for (Class klass : additionComponents)
+                if (!entity.isPresent(klass)) {
+                    logMissingComponent(entity);
+                    return false;
+                }
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Use this Stream to iterate over all active entities for this system in the {@link #execute}
@@ -174,20 +192,21 @@ public abstract class System {
 
     /**
      * Utility function to log that the given entity will not be processed by the calling system
-     * because the given component is missing.
+     * because the additional component is missing.
      *
      * @param entity the entity that will not be processed
-     * @param missingComponent the missing component
      */
-    protected final void logMissingComponent(
-            Entity entity, Class<? extends Component> missingComponent) {
-        LOGGER.info(
+    private void logMissingComponent(Entity entity) {
+        String info =
                 "Entity: "
                         + entity
                         + " Not processed by the "
                         + getClass().getName()
-                        + " because the component "
-                        + missingComponent.getName()
-                        + " is missing ");
+                        + " because followin Components are missing: ";
+
+        for (Class klass : additionComponents) {
+            if (!entity.isPresent(klass)) info += klass.getName();
+        }
+        LOGGER.info(info);
     }
 }

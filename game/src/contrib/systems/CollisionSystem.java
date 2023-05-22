@@ -2,7 +2,6 @@ package contrib.systems;
 
 import contrib.components.CollideComponent;
 
-import core.Entity;
 import core.Game;
 import core.System;
 import core.level.Tile;
@@ -19,11 +18,10 @@ public class CollisionSystem extends System {
 
     protected record CollisionData(CollideComponent a, CollideComponent b) {}
 
-    @Override
-    protected boolean accept(Entity entity) {
-        return entity.getComponent(CollideComponent.class).isPresent();
+    public CollisionSystem() {
+        super(CollideComponent.class);
     }
-    /** checks if there is a collision between two entities based on their hitbox */
+
     @Override
     public void execute() {
         getEntityStream()
