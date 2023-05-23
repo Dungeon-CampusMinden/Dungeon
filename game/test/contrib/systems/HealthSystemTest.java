@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import contrib.components.HealthComponent;
 import contrib.components.StatsComponent;
+import contrib.utils.components.draw.AdditionAnimations;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.health.IOnDeathFunction;
@@ -11,40 +12,38 @@ import contrib.utils.components.health.IOnDeathFunction;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
-import core.utils.components.draw.Animation;
 
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
+import java.io.IOException;
 
 public class HealthSystemTest {
+    private static final String ANIMATION_PATH = "character/knight";
 
     @Test
-    public void updateEntityDies() {
+    public void updateEntityDies() throws IOException {
         Game.removeAllEntities();
         Entity entity = new Entity();
         IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
-        Animation dieAnimation = new Animation(List.of("FRAME1"), 1, false);
-        DrawComponent ac = new DrawComponent(entity);
-        HealthComponent component = new HealthComponent(entity, 1, onDeath, null, dieAnimation);
+        DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
+        HealthComponent component = new HealthComponent(entity, 1, onDeath);
         HealthSystem system = new HealthSystem();
         component.setCurrentHealthpoints(0);
         system.showEntity(entity);
 
         system.execute();
-        assertEquals(dieAnimation, ac.getCurrentAnimation());
+        assertTrue(ac.isCurrentAnimation(AdditionAnimations.DIE));
         assertFalse(Game.getEntitiesStream().anyMatch(e -> e == entity));
     }
 
     @Test
-    public void updateEntityGetDamage() {
+    public void updateEntityGetDamage() throws IOException {
         Game.removeAllEntities();
         Entity entity = new Entity();
         IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
-        Animation hitAnimation = Mockito.mock(Animation.class);
-        DrawComponent ac = new DrawComponent(entity);
-        HealthComponent component = new HealthComponent(entity, 10, onDeath, hitAnimation, null);
+        DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
+        HealthComponent component = new HealthComponent(entity, 10, onDeath);
         component.receiveHit(new Damage(5, DamageType.FIRE, null));
         component.receiveHit(new Damage(2, DamageType.FIRE, null));
         HealthSystem system = new HealthSystem();
@@ -52,40 +51,38 @@ public class HealthSystemTest {
 
         system.execute();
         assertEquals(3, component.getCurrentHealthpoints());
-        assertEquals(hitAnimation, ac.getCurrentAnimation());
+        assertTrue(ac.isCurrentAnimation(AdditionAnimations.HIT));
     }
 
     @Test
-    public void updateEntityGetNegativeDamage() {
+    public void updateEntityGetNegativeDamage() throws IOException {
         Game.removeAllEntities();
         Entity entity = new Entity();
         IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
-        Animation hitAnimation = Mockito.mock(Animation.class);
-        DrawComponent ac = new DrawComponent(entity);
-        HealthComponent component = new HealthComponent(entity, 10, onDeath, hitAnimation, null);
+        DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
+        HealthComponent component = new HealthComponent(entity, 10, onDeath);
         component.setCurrentHealthpoints(3);
         component.receiveHit(new Damage(-3, DamageType.FIRE, null));
         HealthSystem system = new HealthSystem();
         system.showEntity(entity);
         system.execute();
         assertEquals(6, component.getCurrentHealthpoints());
-        assertNotEquals(hitAnimation, ac.getCurrentAnimation());
+        assertFalse(ac.isCurrentAnimation(AdditionAnimations.HIT));
     }
 
     @Test
-    public void updateEntityGetZeroDamage() {
+    public void updateEntityGetZeroDamage() throws IOException {
         Game.removeAllEntities();
         Entity entity = new Entity();
         IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
-        Animation hitAnimation = Mockito.mock(Animation.class);
-        DrawComponent ac = new DrawComponent(entity);
-        HealthComponent component = new HealthComponent(entity, 10, onDeath, hitAnimation, null);
+        DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
+        HealthComponent component = new HealthComponent(entity, 10, onDeath);
         component.receiveHit(new Damage(0, DamageType.FIRE, null));
         HealthSystem system = new HealthSystem();
         system.showEntity(entity);
         system.execute();
         assertEquals(10, component.getCurrentHealthpoints());
-        assertNotEquals(hitAnimation, ac.getCurrentAnimation());
+        assertFalse(ac.isCurrentAnimation(AdditionAnimations.HIT));
     }
 
     @Test
@@ -96,10 +93,10 @@ public class HealthSystemTest {
     }
 
     @Test
-    public void testDamageWithModifier() {
+    public void testDamageWithModifier() throws IOException {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        new DrawComponent(entity);
+        new DrawComponent(entity, ANIMATION_PATH);
         StatsComponent statsComponent = new StatsComponent(entity);
         statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, 2);
 
@@ -117,10 +114,10 @@ public class HealthSystemTest {
     }
 
     @Test
-    public void testDamageWithModifierNegative() {
+    public void testDamageWithModifierNegative() throws IOException {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        new DrawComponent(entity);
+        new DrawComponent(entity, ANIMATION_PATH);
         StatsComponent statsComponent = new StatsComponent(entity);
         statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, -2);
 
@@ -138,10 +135,10 @@ public class HealthSystemTest {
     }
 
     @Test
-    public void testDamageWithModifierZero() {
+    public void testDamageWithModifierZero() throws IOException {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        new DrawComponent(entity);
+        new DrawComponent(entity, ANIMATION_PATH);
         StatsComponent statsComponent = new StatsComponent(entity);
         statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, 0);
 
@@ -159,10 +156,10 @@ public class HealthSystemTest {
     }
 
     @Test
-    public void testDamageWithModifierHuge() {
+    public void testDamageWithModifierHuge() throws IOException {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        new DrawComponent(entity);
+        new DrawComponent(entity, ANIMATION_PATH);
         StatsComponent statsComponent = new StatsComponent(entity);
         statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, 100);
 
