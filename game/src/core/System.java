@@ -49,7 +49,6 @@ public abstract class System {
             Class<? extends Component> keyComponent,
             Set<Class<? extends Component>> additionalComponents) {
         LOGGER.info("A new " + this.getClass().getName() + " was created");
-        Game.addSystem(this);
         this.keyComponent = keyComponent;
         this.additionalComponents = additionalComponents;
         entities = new HashSet<>();
