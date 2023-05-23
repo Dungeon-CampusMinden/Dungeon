@@ -82,9 +82,9 @@ public abstract class System {
      * <p>If the key component is missing, this system will ignore the entity. If the entity is
      * present in the internal set, it will be removed.
      *
-     * <p>If an addition component is missing, this system will ignore the entity and create a log
-     * entry with information about the missing component. If the entity is present in the internal
-     * set, it will be removed.
+     * <p>If one ore more additionaly component are missing, this system will ignore the entity and
+     * create a log entry with information about the missing components. If the entity is present in
+     * the internal set, it will be removed.
      *
      * @param entity the entity to add
      */
@@ -178,8 +178,8 @@ public abstract class System {
     /**
      * Check if the given entity has all the components needed to be processed by this system.
      *
-     * <p>If an addition component is missing, this system will create a log entry with information
-     * about the missing component.
+     * <p>If one or more additionaly components are missing, this system will create a log entry
+     * with information about the missing components.
      *
      * @param entity the entity to check
      * @return true if the entity is accepted, false if not.
