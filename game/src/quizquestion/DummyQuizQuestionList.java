@@ -3,7 +3,6 @@ package quizquestion;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import tools.Constants;
 
 /**
  * This class contains a Collection of simple QuizQuestion of each Type (Text, Image, Image + Text.
@@ -18,7 +17,7 @@ public class DummyQuizQuestionList {
             new ArrayList<>() {
                 {
                     // "Einfache" Testfrage für SingleChoice
-                    add(
+                    /*add(
                             new QuizQuestion(
                                     new QuizQuestionContent(
                                             QuizQuestionContent.QuizQuestionContentType.TEXT,
@@ -231,6 +230,30 @@ public class DummyQuizQuestionList {
                                         new QuizQuestionContent(
                                                 QuizQuestionContent.QuizQuestionContentType.TEXT,
                                                 "Sie benachrichtigt den ersten Thread in der Warteliste auf einem Objekt"),
+                                    },
+                                    QuizQuestion.QuizQuestionType.SINGLE_CHOICE));*/
+                    add(
+                            new QuizQuestion(
+                                    new QuizQuestionContent(
+                                            QuizQuestionContent.QuizQuestionContentType
+                                                    .TEXT_AND_IMAGE,
+                                            "Was ist \"Game Loop\"in LibGDX und was image_quiz/MyTest_QQQPicture.ong macht diese???"),
+                                    new QuizQuestionContent[] {
+                                        new QuizQuestionContent(
+                                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                                "Launcher ruft abwechselnd die Methoden update und render auf."),
+                                        new QuizQuestionContent(
+                                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                                "Durch Vererbung erzeugte Objekte werden über eine Game-Loop verwaltet."),
+                                        new QuizQuestionContent(
+                                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                                "ECS ist ein Software Architektur Pattern, das vor allem in der Spieleprogrammierung Anwendung findet."),
+                                        new QuizQuestionContent(
+                                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                                "ECS folgt der Komposition ueber Vererbung -Prinzip."),
+                                        new QuizQuestionContent(
+                                                QuizQuestionContent.QuizQuestionContentType.TEXT,
+                                                "Alle ECS funktionieren mit einer Engine (Haupteinheit), bei der Entitäten und Systeme registriert werden.")
                                     },
                                     QuizQuestion.QuizQuestionType.SINGLE_CHOICE));
                 }

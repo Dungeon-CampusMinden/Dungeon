@@ -44,7 +44,11 @@ public final class Constants {
 
     public static final String QUIZ_MESSAGE_SOLUTION = "Lösung";
 
-    public static final String TEST_IMAGE_PATH_FOR_DIALOG = "image_quiz/ECS.png";
+    // public static final String DEFAULT_IMAGE_PATH_FOR_DIALOG = "image_quiz/MyTest_Picture.png";
+    public static final String PICTURE_NOT_FOUND_OR_SPACE_KEY_ERROR =
+            "image_quiz/Path_or_space_error.png";
+
+    // public static final String SPACE_KEY_ERROR = "image_quiz/Pic_Error_Msg.png";
     /**
      * @param path the relative path to the resource
      * @return the absolute path of the internal resource
