@@ -205,8 +205,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         currentLevel = levelAPI.getCurrentLevel();
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
-        levelSetup();
         level++;
+        levelSetup();
         GameData data = new GameData(hero, level);
         saves.setAutoSave(Optional.of(data));
         saves.save();

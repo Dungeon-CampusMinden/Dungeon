@@ -35,15 +35,13 @@ public class BossAI implements IFightAI {
     @Override
     public void fight(Entity entity) {
         currentBreak++;
-        if (currentBreak < BREAK_TIME) {
+        if (currentBreak < BREAK_TIME || !AITools.playerInRange(entity, range)) {
             return; // END
         }
         // Is not on break
+        currentBreak = 0;
         if (getHealthRatio(entity) > 0.5) {
-            if (AITools.playerInRange(entity, range)) {
-                currentBreak = 0;
-                new DarkKnight(Game.getLevel());
-            }
+            new DarkKnight(Game.getLevel());
             FIRST_SKILL.execute(entity);
             return; // END
         }
@@ -52,19 +50,16 @@ public class BossAI implements IFightAI {
             setAggressive(entity);
             aggressive = true;
         }
-        if (AITools.playerInRange(entity, range)) {
-            currentBreak = 0;
-            new DarkKnight(Game.getLevel()).getComponent(PositionComponent.class)
-                    .ifPresent(
-                            (x) -> {
-                                PositionComponent h = (PositionComponent) x;
-                                h.setPosition(AITools.getRandomAccessibleTileCoordinateInRange(
-                                        entityPosition(Game.getHero().get()), 2).toPoint());
-                            });
-            path = AITools.calculatePathToHero(entity);
-            AITools.move(entity, path);
-            SECOND_SKILL.execute(entity);
-        }
+        new DarkKnight(Game.getLevel()).getComponent(PositionComponent.class)
+                .ifPresent(
+                        (x) -> {
+                            PositionComponent h = (PositionComponent) x;
+                            h.setPosition(AITools.getRandomAccessibleTileCoordinateInRange(
+                                    entityPosition(Game.getHero().get()), 2).toPoint());
+                        });
+        path = AITools.calculatePathToHero(entity);
+        AITools.move(entity, path);
+        SECOND_SKILL.execute(entity);
         // END
     }
 
