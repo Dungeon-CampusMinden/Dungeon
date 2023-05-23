@@ -6,40 +6,39 @@ import java.util.stream.Collectors;
 
 /**
  * An Animation is what you see when a {@link core.Entity} is drawn on the screen.
- * <p>An Animation is basically just a list of different Image files.</p>
- * <p>Animations are stored inside the {@link core.components.DrawComponent}.</p>
- * <p>An Animation is split into different frames. Each frame is one picture (usually also one image file).</p>
- * <p>The {@link core.components.DrawComponent} will automatically create Animations on creation based on the given path, so normally you don't have to create your own instances.</p>
- * <p>An Animation can have different configurations. Use {@link #setAnimationFrames} to set the time between two frames. Use {@link #setLoop} to define if the Animation stops at the last frame or should loop (starts from the beginning, this is the default setting).</p>
+ *
+ * <p>An Animation is basically just a list of different Image files.
+ *
+ * <p>Animations are stored inside the {@link core.components.DrawComponent}.
+ *
+ * <p>An Animation is split into different frames. Each frame is one picture (usually also one image
+ * file).
+ *
+ * <p>The {@link core.components.DrawComponent} will automatically create Animations on creation
+ * based on the given path, so normally you don't have to create your own instances.
+ *
+ * <p>An Animation can have different configurations. Use {@link #setAnimationFrames} to set the
+ * time between two frames. Use {@link #setLoop} to define if the Animation stops at the last frame
+ * or should loop (starts from the beginning, this is the default setting).
  *
  * @see core.components.DrawComponent
  * @see IAnimationPathEnum
  */
 public final class Animation {
 
-    /**
-     * The set of textures that build the animation.
-     */
+    /** The set of textures that build the animation. */
     private final List<String> animationFrames;
 
-    /**
-     * The count of textures for the animation.
-     */
+    /** The count of textures for the animation. */
     private final int frames;
 
-    /**
-     * Number of frames between switching to the next animation?
-     */
+    /** Number of frames between switching to the next animation? */
     private int frameTime;
 
-    /**
-     * Index of the NEXT texture that will be returned.
-     */
+    /** Index of the NEXT texture that will be returned. */
     private int currentFrameIndex = 0;
 
-    /**
-     * How many frames since the last texture switching?
-     */
+    /** How many frames since the last texture switching? */
     private int frameTimeCounter = 0;
 
     private boolean looping;
@@ -48,8 +47,8 @@ public final class Animation {
      * Creates an animation.
      *
      * @param animationFrames The list of textures that builds the animation. Must be in order.
-     * @param frameTime       How many frames to wait, before switching to the next texture?
-     * @param looping         should the Animation continue to repeat ?
+     * @param frameTime How many frames to wait, before switching to the next texture?
+     * @param looping should the Animation continue to repeat ?
      */
     public Animation(Collection<String> animationFrames, int frameTime, boolean looping) {
         assert (animationFrames != null && !animationFrames.isEmpty());
@@ -64,7 +63,7 @@ public final class Animation {
      * Creates an animation. repeats forever
      *
      * @param animationFrames The list of textures that builds the animation. Must be in order.
-     * @param frameTime       How many frames to wait, before switching to the next texture?
+     * @param frameTime How many frames to wait, before switching to the next texture?
      */
     public Animation(Collection<String> animationFrames, int frameTime) {
         this(animationFrames, frameTime, true);
@@ -73,17 +72,17 @@ public final class Animation {
     /**
      * Create an animation from the files in the given path.
      *
-     * @param subDir    Path to the subdirectory where the animation frames are stored
+     * @param subDir Path to the subdirectory where the animation frames are stored
      * @param frameTime Time between two animation frames
-     * @param looping   Should the animation loop or stop at the last frame?
+     * @param looping Should the animation loop or stop at the last frame?
      * @return The created Animation instance
      */
     public static Animation of(File subDir, int frameTime, boolean looping) {
         Set<String> fileNames =
-            Arrays.stream(subDir.listFiles())
-                .filter(File::isFile)
-                .map(File::getPath)
-                .collect(Collectors.toSet());
+                Arrays.stream(subDir.listFiles())
+                        .filter(File::isFile)
+                        .map(File::getPath)
+                        .collect(Collectors.toSet());
         return new Animation(fileNames, frameTime, looping);
     }
 
@@ -138,8 +137,11 @@ public final class Animation {
 
     /**
      * Set if the Animation should stop at the end or start again if the last frame was played.
-     * <p>If loop is set to false, this animation will stop at the last frame.</p>
-     * <p>If loop is set to true, after the last frame is played, the animation will restart at the first frame in the list.</p>
+     *
+     * <p>If loop is set to false, this animation will stop at the last frame.
+     *
+     * <p>If loop is set to true, after the last frame is played, the animation will restart at the
+     * first frame in the list.
      *
      * @param loop true if you want to loop, false if not
      */

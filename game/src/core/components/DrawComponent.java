@@ -52,13 +52,14 @@ public class DrawComponent extends Component {
     /**
      * Create a new DrawComponent.
      *
-     * <p>Will read in all subdirectories of the given path and use each file in the subdirectory
-     * to create an animation. So each subdirectory should contain only the files for one animation.
+     * <p>Will read in all subdirectories of the given path and use each file in the subdirectory to
+     * create an animation. So each subdirectory should contain only the files for one animation.
      *
      * <p>Will set the current animation to idle left
      *
      * @param entity associated entity
-     * @param path   Path (as a string) to the directory in the assets folder where the subdirectories containing the animation files are stored. Example: "character/knight".
+     * @param path Path (as a string) to the directory in the assets folder where the subdirectories
+     *     containing the animation files are stored. Example: "character/knight".
      * @throws IOException if the given path does not exist
      * @see Animation
      */
@@ -72,16 +73,16 @@ public class DrawComponent extends Component {
             throw new FileNotFoundException("Path " + path + " not found.");
         }
         animationMap =
-            Arrays.stream(directory.listFiles())
-                .filter(File::isDirectory)
-                .collect(
-                    Collectors.toMap(
-                        File::getName,
-                        subDir ->
-                            Animation.of(
-                                subDir,
-                                DEFAULT_FRAME_TIME,
-                                DEFAULT_IS_LOOP)));
+                Arrays.stream(directory.listFiles())
+                        .filter(File::isDirectory)
+                        .collect(
+                                Collectors.toMap(
+                                        File::getName,
+                                        subDir ->
+                                                Animation.of(
+                                                        subDir,
+                                                        DEFAULT_FRAME_TIME,
+                                                        DEFAULT_IS_LOOP)));
 
         // set current animation
         currentAnimation = animationMap.get(CoreAnimationPathEnum.IDLE_LEFT);
@@ -102,12 +103,20 @@ public class DrawComponent extends Component {
      * <p>If the animation passed is not displayed on the entity, there may be another point in the
      * code where the animation is overwritten on the same tick (e.g., in {@link VelocitySystem}).
      *
+     * <p>If the given animation is not stored in this component, a warning is logged.
+     *
      * @param animationName Path of the new current animation (this is the name of the directory).
      * @see IAnimationPathEnum
      */
     public void setCurrentAnimation(IAnimationPathEnum animationName) {
         Animation animation = animationMap.get(animationName.toString());
         if (animation != null) this.currentAnimation = animation;
+        else
+            LOGGER.warning(
+                    "Animation "
+                            + animationName.toString()
+                            + " can not be set, because the given Animation could not be found for "
+                            + entity.toString());
     }
 
     /**
