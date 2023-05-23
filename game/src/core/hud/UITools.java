@@ -17,6 +17,7 @@ import quizquestion.QuizQuestion;
  * event.
  */
 public class UITools {
+    public static final Skin DEFAULT_SKIN = new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG));
     /** index of the dialogue in the controller. */
     private static int indexForDialogueInController;
     /**
@@ -176,5 +177,57 @@ public class UITools {
 
             Game.systems.values().stream().forEach(System::stop);
         }
+    }
+
+    public static Dialog generateNewTextDialog(
+            String content, String buttonText, String windowText) {
+        // content = betterFormatStringForDialogWindow(content); //  for same String style
+
+        return createTextDialog(DEFAULT_SKIN, content, buttonText, windowText);
+    }
+
+    /**
+     * created dialog for displaying the text-message
+     *
+     * @param skin Resources that can be used by UI widgets
+     * @param content text which should be shown in the body of the dialog
+     * @param buttonText text which should be shown in the button for closing the TextDialog
+     * @param windowText text which should be shown as the name for the TextDialog
+     */
+    private static TextDialog createTextDialog(
+            Skin skin, String content, String buttonText, String windowText) {
+        TextDialog textDialog = new TextDialog(skin, content, buttonText, windowText);
+
+        textDialog.setPosition(200, 200);
+        textDialog.setWidth(500); // bug with width
+        textDialog.setHeight(500); // bug with default height
+        return textDialog;
+    }
+
+    /**
+     * String formatting for content of the 'msg'(message) to be output on the screen
+     *
+     * @param content string which should be formatted
+     */
+    private static String betterFormatStringForDialogWindow(String content) {
+        if (content != null) {
+            String infoMsg = content;
+
+            String[] words = infoMsg.split("[\\n\\r\\s]");
+            String formattedMsg = Constants.EMPTY_MESSAGE;
+            int sumLength = 0;
+
+            for (String word : words) {
+                sumLength += word.length();
+                formattedMsg = formattedMsg.concat(word).concat(" ");
+
+                if (sumLength > MAX_ROW_LENGTH) {
+                    formattedMsg += "\n";
+                    sumLength = 0;
+                }
+            }
+            content = formattedMsg;
+        }
+        return content;
     }
 }
