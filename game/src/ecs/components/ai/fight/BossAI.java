@@ -35,14 +35,16 @@ public class BossAI implements IFightAI {
     @Override
     public void fight(Entity entity) {
         currentBreak++;
-        if (currentBreak < BREAK_TIME || !AITools.playerInRange(entity, range)) {
+        if (currentBreak < BREAK_TIME) {
             return; // END
         }
         // Is not on break
         currentBreak = 0;
         if (getHealthRatio(entity) > 0.5) {
-            new DarkKnight(Game.getLevel());
             FIRST_SKILL.execute(entity);
+            if (AITools.playerInRange(entity, range)) {
+                new DarkKnight(Game.getLevel());
+            }
             return; // END
         }
         // above half health
@@ -50,13 +52,14 @@ public class BossAI implements IFightAI {
             setAggressive(entity);
             aggressive = true;
         }
-        new DarkKnight(Game.getLevel()).getComponent(PositionComponent.class)
-                .ifPresent(
-                        (x) -> {
-                            PositionComponent h = (PositionComponent) x;
-                            h.setPosition(AITools.getRandomAccessibleTileCoordinateInRange(
-                                    entityPosition(Game.getHero().get()), 2).toPoint());
-                        });
+        if (AITools.playerInRange(entity, range))
+            new DarkKnight(Game.getLevel()).getComponent(PositionComponent.class)
+                    .ifPresent(
+                            (x) -> {
+                                PositionComponent h = (PositionComponent) x;
+                                h.setPosition(AITools.getRandomAccessibleTileCoordinateInRange(
+                                        entityPosition(Game.getHero().get()), 2).toPoint());
+                            });
         path = AITools.calculatePathToHero(entity);
         AITools.move(entity, path);
         SECOND_SKILL.execute(entity);

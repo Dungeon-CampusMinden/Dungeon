@@ -46,6 +46,7 @@ public class SkillComponent extends Component {
 
     /** reduces the cool down of each skill by 1 frame */
     public void reduceAllCoolDowns() {
-        for (Skill skill : skillSet) skill.reduceCoolDown();
+        for (Skill skill : skillSet)
+            skill.reduceCoolDown();
     }
 }

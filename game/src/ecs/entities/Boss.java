@@ -12,6 +12,7 @@ import ecs.components.ai.transition.RangeTransition;
 import ecs.components.skill.FireballSkill;
 import ecs.components.skill.ITargetSelection;
 import ecs.components.skill.Skill;
+import ecs.components.skill.SkillComponent;
 import ecs.components.skill.StabSkill;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
@@ -26,7 +27,7 @@ public class Boss extends Monster {
     private final int maxHealth = 200;
     private final float attackRange = 4f;
     private int level;
-    private int attackCooldown = 4;
+    private int attackCooldown = 2;
 
     private final String pathToIdleLeft = "monster/Boss/idleLeft";
     private final String pathToIdleRight = "monster/Boss/idleRight";
@@ -91,10 +92,15 @@ public class Boss extends Monster {
                 return entityPosition();
             }
         });
+        SkillComponent sc = new SkillComponent(this);
+        Skill skill1 = new Skill(s1, attackCooldown);
+        Skill skill2 = new Skill(s2, attackCooldown);
+        sc.addSkill(skill1);
+        sc.addSkill(skill2);
         AIComponent a = new AIComponent(this);
         a.setIdleAI(new BossWalk());
         a.setTransitionAI(new RangeTransition(7f));
-        a.setFightAI(new BossAI(new Skill(s1, attackCooldown), new Skill(s2, attackCooldown), attackRange));
+        a.setFightAI(new BossAI(skill1, skill2, attackRange));
 
     }
 
