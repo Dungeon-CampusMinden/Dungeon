@@ -17,7 +17,7 @@ package core.utils.components.draw;
  *
  * @see core.components.DrawComponent
  */
-public interface IAnimationPathEnum {
+public interface IPath {
     /**
      * Make sure that your enum values are strings so the {@link core.components.DrawComponent} can
      * use them to read in directories.

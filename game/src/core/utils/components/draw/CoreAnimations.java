@@ -3,7 +3,7 @@ package core.utils.components.draw;
 /**
  * This enum stores the default paths to the animations used by the systems inside the core package.
  */
-public enum CoreAnimationPathEnum implements IAnimationPathEnum {
+public enum CoreAnimations implements IPath {
     IDLE_LEFT("idleLeft"),
     IDLE_RIGHT("idleRight"),
     RUN_LEFT("runLeft"),
@@ -11,7 +11,7 @@ public enum CoreAnimationPathEnum implements IAnimationPathEnum {
 
     private final String value;
 
-    CoreAnimationPathEnum(String value) {
+    CoreAnimations(String value) {
         this.value = value;
     }
 }

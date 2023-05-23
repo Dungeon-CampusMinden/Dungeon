@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * or should loop (starts from the beginning, this is the default setting).
  *
  * @see core.components.DrawComponent
- * @see IAnimationPathEnum
+ * @see IPath
  */
 public final class Animation {
     private static final int DEFAULT_FRAME_TIME = 3;

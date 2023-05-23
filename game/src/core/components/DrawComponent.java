@@ -4,8 +4,8 @@ import core.Component;
 import core.Entity;
 import core.systems.VelocitySystem;
 import core.utils.components.draw.Animation;
-import core.utils.components.draw.CoreAnimationPathEnum;
-import core.utils.components.draw.IAnimationPathEnum;
+import core.utils.components.draw.CoreAnimations;
+import core.utils.components.draw.IPath;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,14 +34,13 @@ import java.util.stream.Collectors;
  * <p>Use {@link #hasAnimation} to check if the component has the desired animation.
  *
  * <p>If you want to add your own Animations, create a subdirectory for the animation and add the
- * path to an enum that implements the {@link IAnimationPathEnum} interface.
+ * path to an enum that implements the {@link IPath} interface.
  *
- * <p>Note: each entity needs at least a {@link
- * core.utils.components.draw.CoreAnimationPathEnum#IDLE_LEFT} and {@link
- * core.utils.components.draw.CoreAnimationPathEnum#IDLE_RIGHT} Animation
+ * <p>Note: each entity needs at least a {@link CoreAnimations#IDLE_LEFT} and {@link
+ * CoreAnimations#IDLE_RIGHT} Animation
  *
  * @see Animation
- * @see IAnimationPathEnum
+ * @see IPath
  */
 public class DrawComponent extends Component {
     private final Map<String, Animation> animationMap;
@@ -79,7 +78,7 @@ public class DrawComponent extends Component {
                         .collect(Collectors.toMap(File::getName, Animation::of));
 
         // set current animation
-        setCurrentAnimation(CoreAnimationPathEnum.IDLE_LEFT);
+        setCurrentAnimation(CoreAnimations.IDLE_LEFT);
     }
 
     /**
@@ -100,9 +99,9 @@ public class DrawComponent extends Component {
      * <p>If the given animation is not stored in this component, a warning is logged.
      *
      * @param animationName Path of the new current animation (this is the name of the directory).
-     * @see IAnimationPathEnum
+     * @see IPath
      */
-    public void setCurrentAnimation(IAnimationPathEnum animationName) {
+    public void setCurrentAnimation(IPath animationName) {
         Animation animation = animationMap.get(animationName.toString());
         if (animation != null) this.currentAnimation = animation;
         else
@@ -121,7 +120,7 @@ public class DrawComponent extends Component {
      * @param path Path of the Animation
      * @return The animation or null
      */
-    public Optional<Animation> getAnimation(IAnimationPathEnum path) {
+    public Optional<Animation> getAnimation(IPath path) {
         return Optional.ofNullable(animationMap.get(path.toString()));
     }
 
@@ -131,7 +130,7 @@ public class DrawComponent extends Component {
      * @param path Path of the animation to look for
      * @return true if the animation exists in this component, false if not
      */
-    public boolean hasAnimation(IAnimationPathEnum path) {
+    public boolean hasAnimation(IPath path) {
         return animationMap.containsKey(path.toString());
     }
 }
