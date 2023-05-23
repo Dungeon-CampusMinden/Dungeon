@@ -4,6 +4,7 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
+import ecs.components.VelocityComponent;
 import ecs.components.ai.AITools;
 import ecs.components.skill.Skill;
 import ecs.entities.DarkKnight;
@@ -16,9 +17,10 @@ import tools.Point;
 public class BossAI implements IFightAI{
     private final int breakTime = 2 * Constants.FRAME_RATE;
     private int currentBreak = 0;
-    private Skill firstSkill;
-    private Skill secondSkill;
+    private final Skill firstSkill;
+    private final Skill secondSkill;
     private GraphPath<Tile> path;
+    private boolean aggressive;
 
     public BossAI(Skill fistSkill, Skill secondSkill){
         if (Game.getHero().isEmpty()) {
@@ -38,9 +40,12 @@ public class BossAI implements IFightAI{
                 }
             }
             firstSkill.execute(entity);
-            currentBreak++;
         }
         else {
+            if(!aggressive){
+                setAggressiv(entity);
+                aggressive = true;
+            }
             if (AITools.playerInRange(entity, 4)) {
                 if (currentBreak >= breakTime) {
                     currentBreak = 0;
@@ -57,11 +62,11 @@ public class BossAI implements IFightAI{
                 AITools.move(entity, path);
                 secondSkill.execute(entity);
             }
-            currentBreak++;
         }
+        currentBreak++;
     }
 
-    public float getHealth(Entity entity){
+    private float getHealth(Entity entity){
         float[] health = new float[1];
         entity.
                 getComponent(HealthComponent.class)
@@ -72,6 +77,17 @@ public class BossAI implements IFightAI{
                         }
                     );
         return health[0];
+    }
+
+    private void setAggressiv(Entity entity){
+        entity.
+            getComponent(VelocityComponent.class)
+            .ifPresent(
+                (x) -> {
+                    VelocityComponent v = (VelocityComponent) x;
+                    v.setXVelocity(v.getXVelocity() * 2);
+                    v.setYVelocity(v.getYVelocity() * 2);
+                });
     }
 
     private Point entityPosition(Entity entity) {
