@@ -255,7 +255,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         clearScreen();
         levelManager.update();
         updateSystems();
-        systems.values().stream().filter(system -> system.isRunning()).forEach(System::execute);
+        systems.values().stream().filter(System::isRunning).forEach(System::execute);
         // screen controller
         controller.forEach(AbstractController::update);
         setCameraFocus();
