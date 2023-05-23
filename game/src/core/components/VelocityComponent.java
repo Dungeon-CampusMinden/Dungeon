@@ -2,49 +2,34 @@ package core.components;
 
 import core.Component;
 import core.Entity;
-import core.utils.components.draw.Animation;
 import core.utils.logging.CustomLogLevel;
-
 import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;
-
-import java.util.List;
 import java.util.logging.Logger;
 
-/** VelocityComponent is a component that stores the x, y movement direction */
+/**
+ * VelocityComponent is a component that stores the x, y movement direction
+ */
 @DSLType(name = "velocity_component")
 public class VelocityComponent extends Component {
-    private static List<String> missingTexture = List.of("animation/missingTexture.png");
+    private final Logger velocityCompLogger = Logger.getLogger(this.getClass().getName());
     private float currentXVelocity;
     private float currentYVelocity;
     private @DSLTypeMember(name = "x_velocity") float xVelocity;
     private @DSLTypeMember(name = "y_velocity") float yVelocity;
 
-    private @DSLTypeMember(name = "move_right_animation") Animation moveRightAnimation;
-    private @DSLTypeMember(name = "move_left_animation") Animation moveLeftAnimation;
-    private final Logger velocityCompLogger = Logger.getLogger(this.getClass().getName());
-
     /**
-     * @param entity associated entity
+     * @param entity    associated entity
      * @param xVelocity Speed with which the entity moves on the x-axis
      * @param yVelocity Speed with which the entity moves on the y-axis
-     * @param moveLeftAnimation Animation that plays when the entity moves to the left
-     * @param moveRightAnimation Animation that plays when the entity moves to the right
      */
-    public VelocityComponent(
-            Entity entity,
-            float xVelocity,
-            float yVelocity,
-            Animation moveLeftAnimation,
-            Animation moveRightAnimation) {
+    public VelocityComponent(Entity entity, float xVelocity, float yVelocity) {
         super(entity);
         this.currentXVelocity = 0;
         this.currentYVelocity = 0;
         this.xVelocity = xVelocity;
         this.yVelocity = yVelocity;
-        this.moveLeftAnimation = moveLeftAnimation;
-        this.moveRightAnimation = moveRightAnimation;
     }
 
     /**
@@ -56,8 +41,6 @@ public class VelocityComponent extends Component {
         this.currentYVelocity = 0;
         this.xVelocity = 0;
         this.yVelocity = 0;
-        this.moveLeftAnimation = new Animation(missingTexture, 100);
-        this.moveRightAnimation = new Animation(missingTexture, 100);
     }
 
     /**
@@ -93,11 +76,11 @@ public class VelocityComponent extends Component {
      */
     public float getXVelocity() {
         velocityCompLogger.log(
-                CustomLogLevel.DEBUG,
-                "Fetching x-velocity for entity '"
-                        + entity.getClass().getSimpleName()
-                        + "': "
-                        + xVelocity);
+            CustomLogLevel.DEBUG,
+            "Fetching x-velocity for entity '"
+                + entity.getClass().getSimpleName()
+                + "': "
+                + xVelocity);
         return xVelocity;
     }
 
@@ -115,13 +98,14 @@ public class VelocityComponent extends Component {
      */
     public float getYVelocity() {
         velocityCompLogger.log(
-                CustomLogLevel.DEBUG,
-                "Fetching y-velocity for entity '"
-                        + entity.getClass().getSimpleName()
-                        + "': "
-                        + yVelocity);
+            CustomLogLevel.DEBUG,
+            "Fetching y-velocity for entity '"
+                + entity.getClass().getSimpleName()
+                + "': "
+                + yVelocity);
         return yVelocity;
     }
+
     /**
      * Set speed with which the entity moves on the y-axis
      *
@@ -129,19 +113,5 @@ public class VelocityComponent extends Component {
      */
     public void setYVelocity(float yVelocity) {
         this.yVelocity = yVelocity;
-    }
-
-    /**
-     * @return Animation that plays when the entity moves to the right
-     */
-    public Animation getMoveRightAnimation() {
-        return moveRightAnimation;
-    }
-
-    /**
-     * @return Animation that plays when the entity moves to the left
-     */
-    public Animation getMoveLeftAnimation() {
-        return moveLeftAnimation;
     }
 }
