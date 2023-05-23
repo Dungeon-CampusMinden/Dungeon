@@ -2,6 +2,7 @@ package contrib.systems;
 
 import contrib.components.XPComponent;
 
+import core.Entity;
 import core.System;
 
 public class XPSystem extends System {
@@ -12,16 +13,15 @@ public class XPSystem extends System {
 
     @Override
     public void execute() {
-        getEntityStream()
-                .forEach(
-                        entity -> {
-                            XPComponent comp =
-                                    (XPComponent) entity.getComponent(XPComponent.class).get();
-                            long xpLeft;
-                            while ((xpLeft = comp.getXPToNextLevel()) <= 0) {
-                                this.performLevelUp(comp, (int) xpLeft);
-                            }
-                        });
+        getEntityStream().forEach(this::checkForLevelUP);
+    }
+
+    private void checkForLevelUP(Entity entity) {
+        XPComponent comp = (XPComponent) entity.getComponent(XPComponent.class).get();
+        long xpLeft;
+        while ((xpLeft = comp.getXPToNextLevel()) <= 0) {
+            this.performLevelUp(comp, (int) xpLeft);
+        }
     }
 
     /**
