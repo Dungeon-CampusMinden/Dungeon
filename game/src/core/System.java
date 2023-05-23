@@ -47,13 +47,15 @@ public abstract class System {
      */
     public System(
             Class<? extends Component> keyComponent,
-            Set<Class<? extends Component>> additionalComponents) {
-        LOGGER.info("A new " + this.getClass().getName() + " was created");
+            Class<? extends Component>... additionalComponents) {
         this.keyComponent = keyComponent;
-        this.additionalComponents = additionalComponents;
+        if (additionalComponents != null) this.additionalComponents = Set.of(additionalComponents);
+        else this.additionalComponents = new HashSet<>();
         entities = new HashSet<>();
+        Game.addSystem(this);
         Game.getEntitiesStream().forEach(this::showEntity);
         run = true;
+        LOGGER.info("A new " + this.getClass().getName() + " was created");
     }
 
     /**
@@ -66,7 +68,7 @@ public abstract class System {
      *     component will be ignored.
      */
     public System(Class<? extends Component> keyComponent) {
-        this(keyComponent, new HashSet<>());
+        this(keyComponent, null);
     }
 
     /** Implements the functionality of the system. */
@@ -124,8 +126,8 @@ public abstract class System {
      * @see java.util.ConcurrentModificationException
      */
     public final void clearEntities() {
-        LOGGER.info("All entities from " + this.getClass().getName() + " were removed");
         entities.clear();
+        LOGGER.info("All entities from " + this.getClass().getName() + " were removed");
     }
 
     /**
@@ -210,7 +212,7 @@ public abstract class System {
      *
      * @param entity the entity that will not be processed
      */
-    private void logMissingComponent(Entity entity) {
+    protected void logMissingComponent(Entity entity) {
         StringBuilder info =
                 new StringBuilder(
                         "Entity: "

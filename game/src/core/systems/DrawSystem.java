@@ -1,6 +1,5 @@
 package core.systems;
 
-import core.Component;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
@@ -10,9 +9,7 @@ import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /** used to draw entities */
 public class DrawSystem extends System {
@@ -24,15 +21,9 @@ public class DrawSystem extends System {
      * @param painter PM-Dungeon painter to draw
      */
     public DrawSystem(Painter painter) {
-        super(DrawComponent.class, getSet());
+        super(DrawComponent.class, PositionComponent.class);
         this.painter = painter;
         configs = new HashMap<>();
-    }
-
-    private static Set<Class<? extends Component>> getSet() {
-        Set<Class<? extends Component>> set = new HashSet<>();
-        set.add(PositionComponent.class);
-        return set;
     }
 
     /** draw entities at their position */

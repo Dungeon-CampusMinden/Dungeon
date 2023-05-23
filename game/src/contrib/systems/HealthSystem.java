@@ -5,14 +5,11 @@ import contrib.components.StatsComponent;
 import contrib.components.XPComponent;
 import contrib.utils.components.health.DamageType;
 
-import core.Component;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -22,13 +19,7 @@ import java.util.stream.Stream;
 public class HealthSystem extends System {
 
     public HealthSystem() {
-        super(HealthComponent.class, getSet());
-    }
-
-    private static Set<Class<? extends Component>> getSet() {
-        Set<Class<? extends Component>> set = new HashSet<>();
-        set.add(DrawComponent.class);
-        return set;
+        super(HealthComponent.class, DrawComponent.class);
     }
 
     @Override

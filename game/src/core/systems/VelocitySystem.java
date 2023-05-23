@@ -3,7 +3,6 @@ package core.systems;
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
 
-import core.Component;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -13,22 +12,13 @@ import core.components.VelocityComponent;
 import core.utils.Point;
 import core.utils.components.draw.Animation;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /** MovementSystem is a system that updates the position of entities */
 public class VelocitySystem extends System {
 
     public VelocitySystem() {
-        super(VelocityComponent.class, getSet());
-    }
-
-    private static Set<Class<? extends Component>> getSet() {
-        Set<Class<? extends Component>> set = new HashSet<>();
-        set.add(PositionComponent.class);
-        set.add(DrawComponent.class);
-        return set;
+        super(VelocityComponent.class, PositionComponent.class, DrawComponent.class);
     }
 
     /** Updates the position of all entities based on their velocity */

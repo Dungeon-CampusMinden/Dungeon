@@ -2,7 +2,6 @@ package contrib.systems;
 
 import contrib.components.ProjectileComponent;
 
-import core.Component;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -10,20 +9,10 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class ProjectileSystem extends System {
 
     public ProjectileSystem() {
-        super(ProjectileComponent.class, getSet());
-    }
-
-    private static Set<Class<? extends Component>> getSet() {
-        Set<Class<? extends Component>> set = new HashSet<>();
-        set.add(PositionComponent.class);
-        set.add(VelocityComponent.class);
-        return set;
+        super(ProjectileComponent.class, PositionComponent.class, VelocityComponent.class);
     }
 
     /** sets the velocity and removes entities that reached their endpoint */
