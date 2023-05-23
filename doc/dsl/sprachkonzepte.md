@@ -76,7 +76,7 @@ beteiligt sind.
 
 ## Propertydefinition
 
-### Ausdrücke
+## Ausdrücke
 
 ## Entitätsdefinition
 
