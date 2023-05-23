@@ -184,7 +184,7 @@ public abstract class System {
      * @param entity the entity to check
      * @return true if the entity is accepted, false if not.
      */
-    private boolean accept(Entity entity) {
+    protected boolean accept(Entity entity) {
         if (entity.isPresent(keyComponent)) {
             for (Class<? extends Component> klass : additionalComponents)
                 if (!entity.isPresent(klass)) {
