@@ -14,89 +14,82 @@ import starter.Game;
 import tools.Constants;
 import tools.Point;
 
-public class BossAI implements IFightAI{
-    private final int breakTime = 2 * Constants.FRAME_RATE;
+public class BossAI implements IFightAI {
+    private final int BREAK_TIME = 2 * Constants.FRAME_RATE;
     private int currentBreak = 0;
-    private final Skill firstSkill;
-    private final Skill secondSkill;
+    private final Skill FIRST_SKILL;
+    private final Skill SECOND_SKILL;
     private GraphPath<Tile> path;
     private boolean aggressive;
+    private float range;
 
-    public BossAI(Skill fistSkill, Skill secondSkill){
+    public BossAI(Skill fistSkill, Skill secondSkill, float range) {
         if (Game.getHero().isEmpty()) {
             throw new Error("There must be a Hero in the Game!");
         }
-        this.firstSkill = fistSkill;
-        this.secondSkill = secondSkill;
+        this.FIRST_SKILL = fistSkill;
+        this.SECOND_SKILL = secondSkill;
+        this.range = range;
     }
 
     @Override
     public void fight(Entity entity) {
-        if(getHealth(entity) > 0.5) {
-            if (AITools.playerInRange(entity, 4)) {
-                if (currentBreak >= breakTime) {
-                    currentBreak = 0;
-                    new DarkKnight(Game.getLevel());
-                }
-            }
-            firstSkill.execute(entity);
+        currentBreak++;
+        if (currentBreak < BREAK_TIME) {
+            return; // END
         }
-        else {
-            if(!aggressive){
-                setAggressive(entity);
-                aggressive = true;
+        // Is not on break
+        if (getHealthRatio(entity) > 0.5) {
+            if (AITools.playerInRange(entity, range)) {
+                currentBreak = 0;
+                new DarkKnight(Game.getLevel());
             }
-            if (AITools.playerInRange(entity, 4)) {
-                if (currentBreak >= breakTime) {
-                    currentBreak = 0;
-                    new DarkKnight(Game.getLevel()).
-                        getComponent(PositionComponent.class)
-                        .ifPresent(
+            FIRST_SKILL.execute(entity);
+            return; // END
+        }
+        // above half health
+        if (!aggressive) {
+            setAggressive(entity);
+            aggressive = true;
+        }
+        if (AITools.playerInRange(entity, range)) {
+            currentBreak = 0;
+            new DarkKnight(Game.getLevel()).getComponent(PositionComponent.class)
+                    .ifPresent(
                             (x) -> {
                                 PositionComponent h = (PositionComponent) x;
-                                h.setPosition(AITools.getRandomAccessibleTileCoordinateInRange(entityPosition(Game.getHero().get()),2).toPoint());
-                            }
-                        );
-                }
-                path = AITools.calculatePathToHero(entity);
-                AITools.move(entity, path);
-                secondSkill.execute(entity);
-            }
+                                h.setPosition(AITools.getRandomAccessibleTileCoordinateInRange(
+                                        entityPosition(Game.getHero().get()), 2).toPoint());
+                            });
+            path = AITools.calculatePathToHero(entity);
+            AITools.move(entity, path);
+            SECOND_SKILL.execute(entity);
         }
-        currentBreak++;
+        // END
     }
 
-    private float getHealth(Entity entity){
-        float[] health = new float[1];
-        entity.
-                getComponent(HealthComponent.class)
-                    .ifPresent(
+    private float getHealthRatio(Entity entity) {
+        if (!entity.getComponent(HealthComponent.class).isPresent())
+            return 0f;
+        HealthComponent hc = (HealthComponent) entity.getComponent(HealthComponent.class).get();
+        return (float) hc.getCurrentHealthpoints() / (float) hc.getMaximalHealthpoints();
+    }
+
+    private void setAggressive(Entity entity) {
+        entity.getComponent(VelocityComponent.class)
+                .ifPresent(
                         (x) -> {
-                            HealthComponent h = (HealthComponent) x;
-                            health[0] = (float)h.getCurrentHealthpoints()/(float)h.getMaximalHealthpoints();
-                        }
-                    );
-        return health[0];
-    }
-
-    private void setAggressive(Entity entity){
-        entity.
-            getComponent(VelocityComponent.class)
-            .ifPresent(
-                (x) -> {
-                    VelocityComponent v = (VelocityComponent) x;
-                    v.setXVelocity(v.getXVelocity() * 2);
-                    v.setYVelocity(v.getYVelocity() * 2);
-                });
+                            VelocityComponent v = (VelocityComponent) x;
+                            v.setXVelocity(v.getXVelocity() * 2);
+                            v.setYVelocity(v.getYVelocity() * 2);
+                        });
     }
 
     private Point entityPosition(Entity entity) {
-        return ((PositionComponent)
-            entity.getComponent(PositionComponent.class)
+        return ((PositionComponent) entity.getComponent(PositionComponent.class)
                 .orElseThrow(
-                    () ->
-                        new MissingComponentException(
-                            "PositionComponent")))
-            .getPosition();
+                        () -> new MissingComponentException(
+                                "PositionComponent")))
+                .getPosition();
     }
 }

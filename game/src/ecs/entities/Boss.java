@@ -24,9 +24,9 @@ public class Boss extends Monster {
     private final float xSpeed = 0.2f;
     private final float ySpeed = 0.2f;
     private final int maxHealth = 200;
-    private final float attackRange = 0.5f;
+    private final float attackRange = 4f;
     private int level;
-    private int attackCooldown = 1;
+    private int attackCooldown = 4;
 
     private final String pathToIdleLeft = "monster/Boss/idleLeft";
     private final String pathToIdleRight = "monster/Boss/idleRight";
@@ -94,19 +94,19 @@ public class Boss extends Monster {
         AIComponent a = new AIComponent(this);
         a.setIdleAI(new BossWalk());
         a.setTransitionAI(new RangeTransition(7f));
-        a.setFightAI(new BossAI(new Skill(s1, 4), new Skill(s2, 4)));
+        a.setFightAI(new BossAI(new Skill(s1, attackCooldown), new Skill(s2, attackCooldown), attackRange));
 
     }
 
     private Point entityPosition() {
-        if (Game.getHero().isPresent()) {
-            return ((PositionComponent) Game.getHero().get().getComponent(PositionComponent.class)
-                    .orElseThrow(
-                            () -> new MissingComponentException(
-                                    "PositionComponent")))
-                    .getPosition();
-        }
-        return null;
+        if (!Game.getHero().isPresent())
+            return null;
+        return ((PositionComponent) Game.getHero().get().getComponent(PositionComponent.class)
+                .orElseThrow(
+                        () -> new MissingComponentException(
+                                "PositionComponent")))
+                .getPosition();
+
     }
 
     private void attack(Entity entity) {
