@@ -50,7 +50,6 @@ public final class DelayedSet<T> {
      * {@link #toRemove} will be removed.
      */
     public void update() {
-
         current.addAll(toAdd);
         current.removeAll(toRemove);
         toAdd.clear();
