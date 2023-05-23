@@ -96,23 +96,18 @@ public class QuestComponent extends Component {
 
     private void removeQuest() {
         // Removes all empty slots and finished quests
-        int i = 0;
-        while (i < questLog.size()) {
-            if (questLog.isEmpty())
-                break;
-            if (questLog.get(i) == null) {
-                questLog.remove(i);
-                continue;
-            }
-            if (questLog.get(i).getTask().isCompleted()) {
-                if (pinnedQuest != null && questLog.get(i).equals(pinnedQuest) && !questLog.get(i).equals(pinnedQuest))
-                    pinnedQuest = latestQuest().get();
-                questLog.remove(i);
-                i++;
-                continue;
-            }
-            i++;
-        }
+        if (questLog.isEmpty())
+            return;
+        questLog.stream()
+                // Consider only null and finished quests
+                .filter(q -> q == null || q.getTask().isCompleted())
+                // remove quests
+                .forEach(questLog::remove);
+        if (questLog.contains(pinnedQuest))
+            return;
+        if (questLog.isEmpty())
+            pinnedQuest = null;
+        pinnedQuest = questLog.get(0);
     }
 
     public ArrayList<Quest> getQuestLog() {
