@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -63,20 +64,19 @@ public class DrawComponent extends Component {
      */
     public DrawComponent(Entity entity, String path) throws IOException {
         super(entity);
-
         // fetch available animations
         ClassLoader classLoader = getClass().getClassLoader();
-        File directory = new File(classLoader.getResource(path).getFile());
+        File directory = new File(Objects.requireNonNull(classLoader.getResource(path)).getFile());
         if (!directory.exists() || !directory.isDirectory()) {
             throw new FileNotFoundException("Path " + path + " not found.");
         }
         animationMap =
-                Arrays.stream(directory.listFiles())
+                Arrays.stream(Objects.requireNonNull(directory.listFiles()))
                         .filter(File::isDirectory)
-                        .collect(Collectors.toMap(File::getName, subDir -> Animation.of(subDir)));
+                        .collect(Collectors.toMap(File::getName, Animation::of));
 
         // set current animation
-        currentAnimation = animationMap.get(CoreAnimationPathEnum.IDLE_LEFT);
+        setCurrentAnimation(CoreAnimationPathEnum.IDLE_LEFT);
     }
 
     /**
@@ -105,7 +105,7 @@ public class DrawComponent extends Component {
         else
             LOGGER.warning(
                     "Animation "
-                            + animationName.toString()
+                            + animationName
                             + " can not be set, because the given Animation could not be found for "
                             + entity.toString());
     }
