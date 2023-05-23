@@ -168,8 +168,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     protected void setup(GameData gameData) {
-        HealthComponent health = (HealthComponent) gameData.hero().getComponent(HealthComponent.class).get();
-        ((Hero) gameData.hero()).setupComponents(health.getMaximalHealthpoints(), health.getCurrentHealthpoints());
         level = gameData.level();
         doSetup = false;
         controller = new ArrayList<>();
@@ -211,7 +209,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             System.out.println("Questlog:");
             ((QuestComponent) hero.getComponent(QuestComponent.class).get())
                     .getQuestLog().stream()
-                    .map(o -> o.get())
+                    .filter(q -> q != null)
                     .forEach(System.out::println);
         }
     }

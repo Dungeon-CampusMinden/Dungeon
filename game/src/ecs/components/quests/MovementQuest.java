@@ -72,6 +72,20 @@ public class MovementQuest extends Quest {
                 return distance + " / " + TOTAL;
             }
 
+            /**
+             * Called when the game loads
+             * 
+             * @param entity The questHolder entity
+             */
+            @Override
+            public void load(Entity entity) {
+                if (entity == null)
+                    throw new NullPointerException("Quest holding entity must not be null");
+                if (entity.getComponent(PositionComponent.class) == null)
+                    throw new MissingComponentException("PositionComponent");
+                pc = (PositionComponent) entity.getComponent(PositionComponent.class).get();
+            }
+
         };
         IReward reward = RewardBuilder.buildRandomReward();
         String description = "Walk " + total + " tiles to " + reward.toString() + ".";

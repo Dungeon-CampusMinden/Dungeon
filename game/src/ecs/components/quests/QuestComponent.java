@@ -11,7 +11,7 @@ import logging.CustomLogLevel;
 public class QuestComponent extends Component {
 
     private transient final Logger questLogger = Logger.getLogger(this.getClass().getName());
-    private ArrayList<Optional<Quest>> questLog = new ArrayList<>();
+    private ArrayList<Quest> questLog = new ArrayList<>();
     private Quest pinnedQuest;
 
     /**
@@ -29,7 +29,7 @@ public class QuestComponent extends Component {
      * @param entity   entity that owns this QuestComponent
      * @param questLog Already populated QuestLog
      */
-    public QuestComponent(Entity entity, ArrayList<Optional<Quest>> questLog) {
+    public QuestComponent(Entity entity, ArrayList<Quest> questLog) {
         this(entity);
         this.questLog = questLog;
     }
@@ -39,7 +39,7 @@ public class QuestComponent extends Component {
      * @param quest adds quest to the questlog
      */
     public void addQuest(Quest quest) {
-        questLog.add(0, Optional.ofNullable(quest));
+        questLog.add(0, quest);
         questLogger.info("New quest " + quest.getName() + " added to questLog");
     }
 
@@ -50,7 +50,7 @@ public class QuestComponent extends Component {
      * @param quest
      */
     public void pinQuest(Quest quest) {
-        if (!questLog.contains(Optional.ofNullable(quest))) {
+        if (!questLog.contains(quest)) {
             addQuest(quest);
         }
         pinnedQuest = quest;
@@ -76,7 +76,7 @@ public class QuestComponent extends Component {
         questLogger.log(CustomLogLevel.DEBUG, "Questlog is empty: " + questLog.isEmpty());
         if (questLog.isEmpty())
             return Optional.empty();
-        return questLog.get(0);
+        return Optional.ofNullable(questLog.get(0));
     }
 
     /**
@@ -85,7 +85,7 @@ public class QuestComponent extends Component {
     public void update() {
         questLog.stream()
                 // considers only non-null values
-                .flatMap(o -> o.stream())
+                .filter(q -> q != null)
                 // updates all quests
                 .forEach(q -> q.update());
         questLogger.log(CustomLogLevel.DEBUG,
@@ -100,12 +100,12 @@ public class QuestComponent extends Component {
         while (i < questLog.size()) {
             if (questLog.isEmpty())
                 break;
-            if (!questLog.get(i).isPresent()) {
+            if (questLog.get(i) == null) {
                 questLog.remove(i);
                 continue;
             }
-            if (questLog.get(i).get().getTask().isCompleted()) {
-                if (questLog.get(i).get().equals(pinnedQuest) && !questLog.get(i).get().equals(pinnedQuest))
+            if (questLog.get(i).getTask().isCompleted()) {
+                if (pinnedQuest != null && questLog.get(i).equals(pinnedQuest) && !questLog.get(i).equals(pinnedQuest))
                     pinnedQuest = latestQuest().get();
                 questLog.remove(i);
                 i++;
@@ -115,7 +115,7 @@ public class QuestComponent extends Component {
         }
     }
 
-    public ArrayList<Optional<Quest>> getQuestLog() {
+    public ArrayList<Quest> getQuestLog() {
         return questLog;
     }
 

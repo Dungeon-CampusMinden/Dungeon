@@ -7,9 +7,12 @@ import ecs.damage.Damage;
 import ecs.components.skill.ExplosivePebbleSkill;
 import graphic.Animation;
 import ecs.components.OnDeathFunctions.EndGame;
+import ecs.components.quests.Quest;
 import ecs.components.quests.QuestComponent;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * The Hero is the player character. It's entity in the ECS. This class helps to
@@ -36,11 +39,11 @@ public class Hero extends Entity implements Serializable {
     /** Entity with Components */
     public Hero() {
         super();
-        setupComponents(maxHealth, maxHealth);
+        setupComponents(maxHealth, maxHealth, new ArrayList<>());
     }
 
     /** Maybe this will let me load */
-    public void setupComponents(int maxHealth, int currentHealth) {
+    public void setupComponents(int maxHealth, int currentHealth, ArrayList<Quest> questLog) {
         new PositionComponent(this);
         setupVelocityComponent();
         setupAnimationComponent();
@@ -50,7 +53,7 @@ public class Hero extends Entity implements Serializable {
         setupSkillComponent();
         pc.setSkillSlot1(firstSkill);
         pc.setSkillSlot2(secondSkill);
-        setupQuestComponent();
+        setupQuestComponent(questLog);
     }
 
     private void setupVelocityComponent() {
@@ -102,7 +105,7 @@ public class Hero extends Entity implements Serializable {
         sc.addSkill(secondSkill);
     }
 
-    private void setupQuestComponent() {
-        new QuestComponent(this);
+    private void setupQuestComponent(ArrayList<Quest> questLog) {
+        new QuestComponent(this, questLog);
     }
 }

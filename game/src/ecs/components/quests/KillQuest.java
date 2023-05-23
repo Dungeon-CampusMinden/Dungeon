@@ -87,6 +87,16 @@ public class KillQuest extends Quest {
                 return count + " / " + TOTAL;
             }
 
+            /**
+             * Called when the game loads
+             * 
+             * @param entity The questHolder entity
+             */
+            @Override
+            public void load(Entity entity) {
+                // Shouldn't be necessary
+            }
+
         };
         IReward reward = RewardBuilder.buildRandomReward();
         String description = "Kill " + total + " " + klass.getSimpleName() + "s to " + reward.toString() + ".";

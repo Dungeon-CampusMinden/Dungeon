@@ -1,5 +1,6 @@
 package ecs.components.quests;
 
+import ecs.components.MissingComponentException;
 import ecs.components.xp.XPComponent;
 import ecs.entities.Entity;
 import starter.Game;
@@ -56,6 +57,16 @@ public class LevelUpQuest extends Quest {
                 return Game.getLevel() + " / " + TOTAL;
             }
 
+            /**
+             * Called when the game loads
+             * 
+             * @param entity The questHolder entity
+             */
+            @Override
+            public void load(Entity entity) {
+                // Don't need to do anything
+            }
+
         };
         IReward reward = RewardBuilder.buildRandomReward();
         String description = "Reach Dungeonlevel " + total + " to " + reward.toString() + ".";
@@ -101,6 +112,20 @@ public class LevelUpQuest extends Quest {
                 if (xpc == null)
                     return "0 / " + TOTAL;
                 return xpc.getCurrentLevel() + " / " + TOTAL;
+            }
+
+            /**
+             * Called when the game loads
+             * 
+             * @param entity The questHolder entity
+             */
+            @Override
+            public void load(Entity entity) {
+                if (entity == null)
+                    throw new NullPointerException("Quest holding entity must not be null");
+                if (!entity.getComponent(XPComponent.class).isPresent())
+                    throw new MissingComponentException("XPComponent");
+                xpc = (XPComponent) entity.getComponent(XPComponent.class).get();
             }
 
         };
