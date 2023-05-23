@@ -2,17 +2,22 @@ package contrib.systems;
 
 import contrib.components.SkillComponent;
 
-import core.Game;
+import core.Entity;
 import core.System;
 
+import java.util.function.Consumer;
+
 public class SkillSystem extends System {
+    private static final Consumer<Entity> reduceAllCoolDowns =
+            e -> ((SkillComponent) e.getComponent(SkillComponent.class).get()).reduceAllCoolDowns();
+
+    public SkillSystem() {
+        super(SkillComponent.class);
+    }
 
     /** reduces the cool down for all skills */
     @Override
-    public void update() {
-        Game.getEntities().stream()
-                // Consider only entities that have a SkillComponent
-                .flatMap(e -> e.getComponent(SkillComponent.class).stream())
-                .forEach(sc -> ((SkillComponent) sc).reduceAllCoolDowns());
+    public void execute() {
+        getEntityStream().forEach(reduceAllCoolDowns);
     }
 }

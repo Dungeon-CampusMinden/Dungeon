@@ -1,16 +1,12 @@
 package core.systems;
 
-import static org.junit.Assert.assertThrows;
-
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.Painter;
-import core.utils.controller.SystemController;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,13 +21,11 @@ public class DrawSystemTest {
 
     @Before
     public void setup() {
-        Game.systems = Mockito.mock(SystemController.class);
-        Game.getDelayedEntitySet().clear();
+        Game.removeAllEntities();
         drawSystem = new DrawSystem(painter);
         entity = new Entity();
         new DrawComponent(entity, animation);
         new PositionComponent(entity, new Point(3, 3));
-        Game.getDelayedEntitySet().update();
     }
 
     @Test
@@ -43,16 +37,10 @@ public class DrawSystemTest {
     }
 
     @Test
-    public void updateWithoutPositionComponent() {
-        entity.removeComponent(PositionComponent.class);
-        Mockito.verifyNoMoreInteractions(painter);
-        assertThrows(MissingComponentException.class, () -> drawSystem.update());
-    }
-
-    @Test
-    public void updateWithoutAnimationComponent() {
+    public void updateWithoutDrawComponent() {
         entity.removeComponent(DrawComponent.class);
         Mockito.verifyNoMoreInteractions(painter);
-        drawSystem.update();
+        drawSystem.execute();
+        Game.removeAllEntities();
     }
 }

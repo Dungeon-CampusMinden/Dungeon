@@ -14,7 +14,9 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.System;
-import core.components.*;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelSize;
@@ -49,34 +51,9 @@ public class DebuggerSystem extends System {
      * togglePause method.
      */
     public DebuggerSystem() {
-        super();
+        super(null);
         toggleRun();
         DEBUGGER_LOGGER.info("Create new Debugger");
-    }
-
-    /**
-     * Checks for key input corresponding to Debugger functionalities, and executes the relevant
-     * function if detected.
-     */
-    @Override
-    public void update() {
-        // DEBUGGER
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_OUT.get()))
-            DebuggerSystem.ZOOM_CAMERA(-0.2f);
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_IN.get()))
-            DebuggerSystem.ZOOM_CAMERA(0.2f);
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_CURSOR.get()))
-            DebuggerSystem.TELEPORT_TO_CURSOR();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_END.get()))
-            DebuggerSystem.TELEPORT_TO_END();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_START.get()))
-            DebuggerSystem.TELEPORT_TO_START();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_ON_END.get()))
-            DebuggerSystem.LOAD_NEXT_LEVEL();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_LEVELSIZE.get()))
-            DebuggerSystem.TOGGLE_LEVEL_SIZE();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.get()))
-            DebuggerSystem.SPAWN_MONSTER_ON_CURSOR();
     }
 
     /**
@@ -194,7 +171,7 @@ public class DebuggerSystem extends System {
 
         // If the tile is accessible, spawn a monster at the position
         if (tile != null && tile.isAccessible()) {
-            Entity monster = new Entity();
+            Entity monster = new Entity("Debug Monster");
 
             // Add components to the monster entity
             monster.addComponent(new PositionComponent(monster, position));
@@ -225,5 +202,29 @@ public class DebuggerSystem extends System {
             // Log that the monster couldn't be spawned
             DEBUGGER_LOGGER.info("Cannot spawn monster at non-existent or non-accessible tile");
         }
+    }
+
+    /**
+     * Checks for key input corresponding to Debugger functionalities, and executes the relevant
+     * function if detected.
+     */
+    @Override
+    public void execute() {
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_OUT.get()))
+            DebuggerSystem.ZOOM_CAMERA(-0.2f);
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_IN.get()))
+            DebuggerSystem.ZOOM_CAMERA(0.2f);
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_CURSOR.get()))
+            DebuggerSystem.TELEPORT_TO_CURSOR();
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_END.get()))
+            DebuggerSystem.TELEPORT_TO_END();
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_START.get()))
+            DebuggerSystem.TELEPORT_TO_START();
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_ON_END.get()))
+            DebuggerSystem.LOAD_NEXT_LEVEL();
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_LEVELSIZE.get()))
+            DebuggerSystem.TOGGLE_LEVEL_SIZE();
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.get()))
+            DebuggerSystem.SPAWN_MONSTER_ON_CURSOR();
     }
 }

@@ -25,8 +25,9 @@ import core.level.generator.IGenerator;
 import core.level.generator.postGeneration.WallGenerator;
 import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.level.utils.LevelSize;
-import core.systems.*;
+import core.systems.DrawSystem;
 import core.systems.PlayerSystem;
+import core.systems.VelocitySystem;
 import core.utils.Constants;
 import core.utils.DelayedSet;
 import core.utils.DungeonCamera;
@@ -35,57 +36,53 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.TextureHandler;
 import core.utils.controller.AbstractController;
-import core.utils.controller.SystemController;
 
 import quizquestion.DummyQuizQuestionList;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /** The heart of the framework. From here all strings are pulled. */
-public class Game extends ScreenAdapter implements IOnLevelLoader {
+public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
+    /** Contains all Controller of the Dungeon */
+    public static final List<AbstractController<?>> controller = new ArrayList<>();
+    /** Set of all Systems in the ECS */
+    public static final Map<Class<? extends System>, System> systems = new HashMap<>();
+    /** All entities that are currently active in the dungeon */
+    private static final DelayedSet<Entity> entities = new DelayedSet<>();
+
+    private static final Logger LOGGER = Logger.getLogger("Game");
     /** Currently used level-size configuration for generating new level */
     public static LevelSize LEVELSIZE = LevelSize.SMALL;
 
+    public static DungeonCamera camera;
+    public static ILevel currentLevel;
+    /** A handler for managing asset paths */
+    private static TextureHandler handler;
+
+    private static Entity hero;
+    private static Game game;
     /**
      * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
      * batch.
      */
-    protected SpriteBatch batch;
-
-    /** Contains all Controller of the Dungeon */
-    public static List<AbstractController<?>> controller;
-
-    public static DungeonCamera camera;
+    private SpriteBatch batch;
     /** Draws objects */
-    protected Painter painter;
+    private Painter painter;
 
-    protected LevelManager levelAPI;
-    /** Generates the level */
-    protected IGenerator generator;
+    private LevelManager levelManager;
 
     private boolean doSetup = true;
-
-    /** A handler for managing asset paths */
-    private static TextureHandler handler;
-
-    /** All entities that are currently active in the dungeon */
-    private static final DelayedSet<Entity> entities = new DelayedSet<>();
-
-    /** List of all Systems in the ECS */
-    public static SystemController systems;
-
-    public static ILevel currentLevel;
-    private static Entity hero;
-    private Logger gameLogger;
-
     private DebuggerSystem debugger;
-    private static Game game;
+
+    // for singleton
+    private Game() {}
 
     /**
-     * Create a new Game instance if no instance currently exist.
+     * Create a new Game instance if no instance currently exists.
      *
      * @return the (new) Game instance
      */
@@ -94,226 +91,87 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         return game;
     }
 
-    // for singleton
-    private Game() {}
+    /**
+     * In the next frame, each system will be informed that the given entity has changes in its
+     * Component Collection.
+     *
+     * @param entity the entity that has changes in its Component Collection
+     */
+    public static void informAboutChanges(Entity entity) {
+        entities.add(entity);
+        LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
+    }
 
     /**
-     * Main game loop. Redraws the dungeon and calls the own implementation (beginFrame, endFrame
-     * and onLevelLoad).
-     *
-     * @param delta Time since last loop.
+     * @return The {@link TextureHandler}
      */
-    @Override
-    public void render(float delta) {
-        if (doSetup) setup();
-        batch.setProjectionMatrix(camera.combined);
-        frame();
-        clearScreen();
-        levelAPI.update();
-        controller.forEach(AbstractController::update);
-        camera.update();
-    }
-
-    /** Called once at the beginning of the game. */
-    protected void setup() {
-        doSetup = false;
-        /*
-         * THIS EXCEPTION HANDLING IS A TEMPORARY WORKAROUND !
-         *
-         * <p>The TextureHandler can throw an exception when it is first created. This exception
-         * (IOException) must be handled somewhere. Normally we want to pass exceptions to the method
-         * caller. This approach is (atm) not possible in the libgdx render method because Java does
-         * not allow extending method signatures derived from a class. We should try to make clean
-         * code out of this workaround later.
-         *
-         * <p>Please see also discussions at:<br>
-         * - https://github.com/Programmiermethoden/Dungeon/pull/560<br>
-         * - https://github.com/Programmiermethoden/Dungeon/issues/587<br>
-         */
-        try {
-            handler = TextureHandler.getInstance();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        controller = new ArrayList<>();
-        batch = new SpriteBatch();
-        setupCameras();
-        painter = new Painter(batch, camera);
-        generator = new RandomWalkGenerator();
-        levelAPI = new LevelManager(batch, painter, generator, this);
-        initBaseLogger();
-        gameLogger = Logger.getLogger(this.getClass().getName());
-        systems = new SystemController();
-        controller.add(systems);
-        hero = EntityFactory.getHero();
-        levelAPI =
-                new LevelManager(
-                        batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
-        levelAPI.loadLevel(LEVELSIZE);
-        createSystems();
-    }
-
-    /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
-    protected void frame() {
-        setCameraFocus();
-        entities.update();
-        getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
-            // Text Dialogue (output of information texts)
-            UITools.showInfoText(Constants.DEFAULT_MESSAGE);
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
-            // Dialogue for quiz questions (display of quiz questions and the answer area in test
-            // mode)
-            DummyQuizQuestionList.getRandomQuestion().askQuizQuestionWithUI();
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) UITools.showInfoText();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_KEY.get())) {
-            debugger.toggleRun();
-            gameLogger.info("Debugger ist now " + debugger.isRunning());
-        }
-    }
-
-    @Override
-    public void onLevelLoad() {
-        currentLevel = levelAPI.getCurrentLevel();
-        entities.clear();
-        getHero().ifPresent(this::placeOnLevelStart);
-        EntityFactory.getChest();
-    }
-
-    private void setCameraFocus() {
-        if (getHero().isPresent()) {
-            PositionComponent pc =
-                    (PositionComponent)
-                            getHero()
-                                    .get()
-                                    .getComponent(PositionComponent.class)
-                                    .orElseThrow(
-                                            () ->
-                                                    new MissingComponentException(
-                                                            "PositionComponent"));
-            camera.setFocusPoint(pc.getPosition());
-
-        } else camera.setFocusPoint(new Point(0, 0));
-    }
-
-    private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
-        if (isOnEndTile(hero)) levelAPI.loadLevel(LEVELSIZE);
-    }
-
-    private boolean isOnEndTile(Entity entity) {
-        PositionComponent pc =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
-        Tile currentTile = currentLevel.getTileAt(pc.getPosition().toCoordinate());
-        return currentTile.equals(currentLevel.getEndTile());
-    }
-
-    private void placeOnLevelStart(Entity hero) {
-        entities.add(hero);
-        PositionComponent pc =
-                (PositionComponent)
-                        hero.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
-        pc.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
-    }
-
     public static TextureHandler getHandler() {
         return handler;
     }
 
     /**
-     * Given entity will be added to the game in the next frame
+     * The given entity will be added to the game on the next frame.
      *
-     * @param entity will be added to the game next frame
+     * @param entity the entity to add
+     * @see DelayedSet
      */
     public static void addEntity(Entity entity) {
         entities.add(entity);
+        LOGGER.info("Entity: " + entity + " will be added to the Game.");
     }
 
     /**
-     * Given entity will be removed from the game in the next frame
+     * The given entity will be removed from the game on the next frame.
      *
-     * @param entity will be removed from the game next frame
+     * @param entity the entity to remove
+     * @see DelayedSet
      */
     public static void removeEntity(Entity entity) {
         entities.remove(entity);
+        LOGGER.info("Entity: " + entity + " will be removed from the Game.");
     }
 
     /**
-     * @return Copy of the Set with all entities currently in game
+     * Use this stream if you want to iterate over all currently active entities.
+     *
+     * @return a stream of all entities currently in the game
      */
-    public static Set<Entity> getEntities() {
-        return entities.getSet();
-    }
-
-    /**
-     * @return The {@link DelayedSet} to manage all the entities in the ecs
-     */
-    public static DelayedSet getDelayedEntitySet() {
-        return entities;
+    public static Stream<Entity> getEntitiesStream() {
+        return entities.stream();
     }
 
     /**
      * @return the player character, can be null if not initialized
+     * @see Optional
      */
     public static Optional<Entity> getHero() {
         return Optional.ofNullable(hero);
     }
 
     /**
-     * set the reference of the playable character careful: old hero will not be removed from the
-     * game
+     * Set the reference of the playable character.
      *
-     * @param hero new reference of hero
+     * <p>Be careful: the old hero will not be removed from the game.
+     *
+     * @param hero the new reference of the hero
      */
     public static void setHero(Entity hero) {
         Game.hero = hero;
-    }
-
-    private void clearScreen() {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
-    }
-
-    private void setupCameras() {
-        camera = new DungeonCamera(null, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
-        camera.zoom = Constants.DEFAULT_ZOOM_FACTOR;
-
-        // See also:
-        // https://stackoverflow.com/questions/52011592/libgdx-set-ortho-camera
-    }
-
-    private void createSystems() {
-        new VelocitySystem();
-        new DrawSystem(painter);
-        new PlayerSystem();
-        new AISystem();
-        new CollisionSystem();
-        new HealthSystem();
-        new XPSystem();
-        new SkillSystem();
-        new ProjectileSystem();
-        debugger = new DebuggerSystem();
     }
 
     /**
      * Load the configuration from the given path. If the configuration has already been loaded, the
      * cached version will be used.
      *
-     * @param pathAsString Path to the config-file as String
-     * @param klass Class where the ConfigKey field are located.
-     * @throws IOException If the file could not be read
+     * @param pathAsString the path to the config file as a string
+     * @param klass the class where the ConfigKey fields are located
+     * @throws IOException if the file could not be read
      */
-    public static void loadConfig(String pathAsString, Class klass) throws IOException {
+    public static void loadConfig(String pathAsString, Class<?> klass) throws IOException {
         Configuration.loadAndGetConfiguration(pathAsString, klass);
     }
 
-    /** Starts the dungeon and needs a {@link Game}. */
+    /** Starts the dungeon and requires a {@link Game}. */
     public static void run() {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setWindowSizeLimits(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT, 9999, 9999);
@@ -335,5 +193,252 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
                     }
                 },
                 config);
+    }
+
+    /**
+     * Add a {@link System} to the game.
+     *
+     * <p>If a System is added to the game, the {@link System#execute} method will be called every
+     * frame.
+     *
+     * <p>Additionally, the system will be informed about all new, changed, and removed entities via
+     * {@link System#showEntity} or {@link System#removeEntity}.
+     *
+     * <p>The game can only store one system of each system type.
+     *
+     * @param system the System to add
+     * @return an optional that contains the previous existing system of the given system class, if
+     *     one exists
+     * @see System
+     * @see Optional
+     */
+    public static Optional<System> addSystem(System system) {
+        System currentSystem = systems.get(system.getClass());
+        systems.put(system.getClass(), system);
+        LOGGER.info("A new " + system.getClass().getName() + " was added to the game");
+        return Optional.ofNullable(currentSystem);
+    }
+
+    /**
+     * Remove the stored system of the given class from the game.
+     *
+     * @param system the class of the system to remove
+     */
+    public static void removeSystem(Class<? extends System> system) {
+        systems.remove(system);
+    }
+
+    /**
+     * Remove all entities from the game immediately.
+     *
+     * <p>This will also remove all entities from each system.
+     */
+    public static void removeAllEntities() {
+        systems.values().forEach(System::clearEntities);
+        entities.clear();
+        LOGGER.info("All entities will be removed from the game.");
+    }
+
+    /**
+     * Main game loop.
+     *
+     * <p>Redraws the dungeon, updates the entity sets, and triggers the execution of the systems.
+     * Will call {@link #frame}.
+     *
+     * @param delta the time since the last loop
+     */
+    @Override
+    public void render(float delta) {
+        if (doSetup) setup();
+        batch.setProjectionMatrix(camera.combined);
+        frame();
+        clearScreen();
+        levelManager.update();
+        updateSystems();
+        systems.values().stream().filter(System::isRunning).forEach(System::execute);
+        // screen controller
+        controller.forEach(AbstractController::update);
+        setCameraFocus();
+        camera.update();
+    }
+
+    /**
+     * Called once at the beginning of the game.
+     *
+     * <p>Will perform some setup.
+     */
+    private void setup() {
+        doSetup = false;
+        /*
+         * THIS EXCEPTION HANDLING IS A TEMPORARY WORKAROUND !
+         *
+         * <p>The TextureHandler can throw an exception when it is first created. This exception
+         * (IOException) must be handled somewhere. Normally we want to pass exceptions to the method
+         * caller. This approach is (atm) not possible in the libgdx render method because Java does
+         * not allow extending method signatures derived from a class. We should try to make clean
+         * code out of this workaround later.
+         *
+         * <p>Please see also discussions at:<br>
+         * - https://github.com/Programmiermethoden/Dungeon/pull/560<br>
+         * - https://github.com/Programmiermethoden/Dungeon/issues/587<br>
+         */
+        try {
+            handler = TextureHandler.getInstance();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        batch = new SpriteBatch();
+        setupCameras();
+        painter = new Painter(batch, camera);
+        IGenerator generator = new RandomWalkGenerator();
+        levelManager = new LevelManager(batch, painter, generator, this);
+        initBaseLogger();
+        hero = EntityFactory.getHero();
+        levelManager =
+                new LevelManager(
+                        batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
+        levelManager.loadLevel(LEVELSIZE);
+        createSystems();
+    }
+
+    /**
+     * Called at the beginning of each frame, before the entities are updated and the systems are
+     * executed.
+     *
+     * <p>This is the place to add basic logic that isn't part of any system.
+     */
+    private void frame() {
+        getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
+        debugKeys();
+    }
+
+    /** Just for debugging, remove later. */
+    private void debugKeys() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+            // Text Dialogue (output of information texts)
+            UITools.showInfoText(Constants.DEFAULT_MESSAGE);
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+            // Dialogue for quiz questions (display of quiz questions and the answer area in test
+            // mode)
+            DummyQuizQuestionList.getRandomQuestion().askQuizQuestionWithUI();
+        }
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_KEY.get())) {
+            debugger.toggleRun();
+            LOGGER.info("Debugger ist now " + debugger.isRunning());
+        }
+    }
+
+    /** Will update the entity sets of each system and {@link Game#entities}. */
+    private void updateSystems() {
+        for (System system : systems.values()) {
+            entities.foreachEntityInAddSet(system::showEntity);
+            entities.foreachEntityInRemoveSet(system::removeEntity);
+        }
+        entities.update();
+    }
+
+    /**
+     * Sets {@link #currentLevel} to the new level and removes all entities.
+     *
+     * <p>Will re-add the hero if he exists.
+     */
+    @Override
+    public void onLevelLoad() {
+        currentLevel = levelManager.getCurrentLevel();
+        removeAllEntities();
+        getHero().ifPresent(this::placeOnLevelStart);
+        getHero().ifPresent(Game::addEntity);
+    }
+
+    /** Set the focus of the camera on the hero, if he exists otherwise focus on Pont (0,0) */
+    private void setCameraFocus() {
+        if (getHero().isPresent()) {
+            PositionComponent pc =
+                    (PositionComponent)
+                            getHero()
+                                    .get()
+                                    .getComponent(PositionComponent.class)
+                                    .orElseThrow(
+                                            () ->
+                                                    new MissingComponentException(
+                                                            "PositionComponent"));
+            camera.setFocusPoint(pc.getPosition());
+
+        } else camera.setFocusPoint(new Point(0, 0));
+    }
+
+    /**
+     * If the given entity is on the end-tile, load the new level
+     *
+     * @param hero entity to check for, normally this is the hero
+     */
+    private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
+        if (isOnEndTile(hero)) levelManager.loadLevel(LEVELSIZE);
+    }
+
+    /**
+     * Check if the given en entity is on the end-tile
+     *
+     * @param entity entity to check for
+     * @return true if the entity is on the end-tile, false if not
+     */
+    private boolean isOnEndTile(Entity entity) {
+        PositionComponent pc =
+                (PositionComponent)
+                        entity.getComponent(PositionComponent.class)
+                                .orElseThrow(
+                                        () -> new MissingComponentException("PositionComponent"));
+        Tile currentTile = currentLevel.getTileAt(pc.getPosition().toCoordinate());
+        return currentTile.equals(currentLevel.getEndTile());
+    }
+
+    /**
+     * Set the position of the given entity to the position of the level-start.
+     *
+     * <p>A {@link PositionComponent} is needed.
+     *
+     * @param hero entity to set on the start of the level, normally this is the hero.
+     */
+    private void placeOnLevelStart(Entity hero) {
+        entities.add(hero);
+        PositionComponent pc =
+                (PositionComponent)
+                        hero.getComponent(PositionComponent.class)
+                                .orElseThrow(
+                                        () -> new MissingComponentException("PositionComponent"));
+        pc.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
+    }
+
+    /**
+     * Clear the screen. Removes all.
+     *
+     * <p>Needs to be called before redraw something.
+     */
+    private void clearScreen() {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
+    }
+
+    /** Create a new Camera and set the default values. */
+    private void setupCameras() {
+        camera = new DungeonCamera(null, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
+        camera.zoom = Constants.DEFAULT_ZOOM_FACTOR;
+
+        // See also:
+        // https://stackoverflow.com/questions/52011592/libgdx-set-ortho-camera
+    }
+
+    /** Create the systems. */
+    private void createSystems() {
+        new VelocitySystem();
+        new DrawSystem(painter);
+        new PlayerSystem();
+        new AISystem();
+        new CollisionSystem();
+        new HealthSystem();
+        new XPSystem();
+        new SkillSystem();
+        new ProjectileSystem();
+        debugger = new DebuggerSystem();
     }
 }

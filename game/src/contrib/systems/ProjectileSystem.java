@@ -8,21 +8,19 @@ import core.System;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 
 public class ProjectileSystem extends System {
 
-    // private record to hold all data during streaming
-    private record PSData(
-            Entity e, ProjectileComponent prc, PositionComponent pc, VelocityComponent vc) {}
+    public ProjectileSystem() {
+        super(ProjectileComponent.class, PositionComponent.class, VelocityComponent.class);
+    }
 
     /** sets the velocity and removes entities that reached their endpoint */
     @Override
-    public void update() {
-        Game.getEntities().stream()
+    public void execute() {
+        getEntityStream()
                 // Consider only entities that have a ProjectileComponent
-                .flatMap(e -> e.getComponent(ProjectileComponent.class).stream())
-                .map(prc -> buildDataObject((ProjectileComponent) prc))
+                .map(this::buildDataObject)
                 .map(this::setVelocity)
                 // Filter all entities that have reached their endpoint
                 .filter(
@@ -35,17 +33,13 @@ public class ProjectileSystem extends System {
                 .forEach(this::removeEntitiesOnEndpoint);
     }
 
-    private PSData buildDataObject(ProjectileComponent prc) {
-        Entity e = prc.getEntity();
+    private PSData buildDataObject(Entity e) {
 
-        PositionComponent pc =
-                (PositionComponent)
-                        e.getComponent(PositionComponent.class)
-                                .orElseThrow(ProjectileSystem::missingAC);
-        VelocityComponent vc =
-                (VelocityComponent)
-                        e.getComponent(VelocityComponent.class)
-                                .orElseThrow(ProjectileSystem::missingAC);
+        ProjectileComponent prc =
+                (ProjectileComponent) e.getComponent(ProjectileComponent.class).get();
+
+        PositionComponent pc = (PositionComponent) e.getComponent(PositionComponent.class).get();
+        VelocityComponent vc = (VelocityComponent) e.getComponent(VelocityComponent.class).get();
 
         return new PSData(e, prc, pc, vc);
     }
@@ -78,16 +72,12 @@ public class ProjectileSystem extends System {
         dy = start.y - end.y;
         double totalDistance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distanceToStart > totalDistance) {
-            // The point has reached or passed the endpoint
-            return true;
-        } else {
-            // The point has not yet reached the endpoint
-            return false;
-        }
+        // The point has reached or passed the endpoint
+        // The point has not yet reached the endpoint
+        return distanceToStart > totalDistance;
     }
 
-    private static MissingComponentException missingAC() {
-        return new MissingComponentException("AnimationComponent");
-    }
+    // private record to hold all data during streaming
+    private record PSData(
+            Entity e, ProjectileComponent prc, PositionComponent pc, VelocityComponent vc) {}
 }

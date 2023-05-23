@@ -9,7 +9,6 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
-import core.utils.components.MissingComponentException;
 
 import java.util.stream.Stream;
 
@@ -19,16 +18,16 @@ import java.util.stream.Stream;
  */
 public class HealthSystem extends System {
 
-    // private record to hold all data during streaming
-    private record HSData(Entity e, HealthComponent hc, DrawComponent ac) {}
+    public HealthSystem() {
+        super(HealthComponent.class, DrawComponent.class);
+    }
 
     @Override
-    public void update() {
-        Game.getEntities().stream()
+    public void execute() {
+        getEntityStream()
                 // Consider only entities that have a HealthComponent
-                .flatMap(e -> e.getComponent(HealthComponent.class).stream())
                 // Form triples (e, hc, ac)
-                .map(hc -> buildDataObject((HealthComponent) hc))
+                .map(this::buildDataObject)
                 // Apply damage
                 .map(this::applyDamage)
                 // Filter all dead entities
@@ -46,12 +45,10 @@ public class HealthSystem extends System {
                 .forEach(this::removeDeadEntities);
     }
 
-    private HSData buildDataObject(HealthComponent hc) {
-        Entity e = hc.getEntity();
+    private HSData buildDataObject(Entity e) {
 
-        DrawComponent ac =
-                (DrawComponent)
-                        e.getComponent(DrawComponent.class).orElseThrow(HealthSystem::missingAC);
+        HealthComponent hc = (HealthComponent) e.getComponent(HealthComponent.class).get();
+        DrawComponent ac = (DrawComponent) e.getComponent(DrawComponent.class).get();
 
         return new HSData(e, hc, ac);
     }
@@ -64,13 +61,12 @@ public class HealthSystem extends System {
                             StatsComponent scomp = (StatsComponent) sc;
                             doDamageAndAnimation(hsd, calculateDamageWithMultipliers(scomp, hsd));
                         },
-                        () -> {
-                            doDamageAndAnimation(
-                                    hsd,
-                                    Stream.of(DamageType.values())
-                                            .mapToInt(hsd.hc::getDamage)
-                                            .sum());
-                        });
+                        () ->
+                                doDamageAndAnimation(
+                                        hsd,
+                                        Stream.of(DamageType.values())
+                                                .mapToInt(hsd.hc::getDamage)
+                                                .sum()));
         return hsd;
     }
 
@@ -124,7 +120,6 @@ public class HealthSystem extends System {
                         });
     }
 
-    private static MissingComponentException missingAC() {
-        return new MissingComponentException("AnimationComponent");
-    }
+    // private record to hold all data during streaming
+    private record HSData(Entity e, HealthComponent hc, DrawComponent ac) {}
 }

@@ -2,23 +2,26 @@ package contrib.systems;
 
 import contrib.components.XPComponent;
 
-import core.Game;
+import core.Entity;
 import core.System;
 
 public class XPSystem extends System {
 
+    public XPSystem() {
+        super(XPComponent.class);
+    }
+
     @Override
-    public void update() {
-        Game.getEntities().stream()
-                .flatMap(e -> e.getComponent(XPComponent.class).stream())
-                .forEach(
-                        component -> {
-                            XPComponent comp = (XPComponent) component;
-                            long xpLeft;
-                            while ((xpLeft = comp.getXPToNextLevel()) <= 0) {
-                                this.performLevelUp(comp, (int) xpLeft);
-                            }
-                        });
+    public void execute() {
+        getEntityStream().forEach(this::checkForLevelUP);
+    }
+
+    private void checkForLevelUP(Entity entity) {
+        XPComponent comp = (XPComponent) entity.getComponent(XPComponent.class).get();
+        long xpLeft;
+        while ((xpLeft = comp.getXPToNextLevel()) <= 0) {
+            this.performLevelUp(comp, (int) xpLeft);
+        }
     }
 
     /**

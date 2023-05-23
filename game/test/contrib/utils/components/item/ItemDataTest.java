@@ -2,15 +2,11 @@ package contrib.utils.components.item;
 
 import static org.junit.Assert.*;
 
-import contrib.components.CollideComponent;
 import contrib.components.InventoryComponent;
 import contrib.configuration.ItemConfig;
 
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
-import core.components.PositionComponent;
-import core.utils.Point;
 import core.utils.components.draw.Animation;
 
 import org.junit.Before;
@@ -22,7 +18,7 @@ import java.util.List;
 public class ItemDataTest {
     @Before
     public void before() {
-        Game.getDelayedEntitySet().clear();
+        Game.removeAllEntities();
     }
 
     @Test
@@ -58,25 +54,27 @@ public class ItemDataTest {
         assertEquals(item_description, itemData.getDescription());
     }
 
-    @Test
-    public void onDropCheckEntity() {
+    // <p> Since we cant update the {@link Game#entities} from outside the gameloop, this is
+    // testcase cant be tested.</p>
 
-        ItemData itemData = new ItemData();
-        Point point = new Point(0, 0);
-        itemData.triggerDrop(null, point);
-        Game.getDelayedEntitySet().update();
-        Entity e = Game.getEntities().iterator().next();
-        PositionComponent pc =
-                (PositionComponent) e.getComponent(PositionComponent.class).orElseThrow();
-        assertEquals(point.x, pc.getPosition().x, 0.001);
-        assertEquals(point.y, pc.getPosition().y, 0.001);
-        DrawComponent ac = (DrawComponent) e.getComponent(DrawComponent.class).orElseThrow();
-        // assertEquals(ItemData.DEFAULT_WORLD_ANIMATION, ac.getCurrentAnimation());
+    /*    @Test
+        public void onDropCheckEntity() {
 
-        CollideComponent hc =
-                (CollideComponent) e.getComponent(CollideComponent.class).orElseThrow();
-    }
+            ItemData itemData = new ItemData();
+            Point point = new Point(0, 0);
+            itemData.triggerDrop(null, point);
+            Entity e = Game.getEntitiesStream().iterator().next();
+            PositionComponent pc =
+                    (PositionComponent) e.getComponent(PositionComponent.class).orElseThrow();
+            assertEquals(point.x, pc.getPosition().x, 0.001);
+            assertEquals(point.y, pc.getPosition().y, 0.001);
+            DrawComponent ac = (DrawComponent) e.getComponent(DrawComponent.class).orElseThrow();
+            // assertEquals(ItemData.DEFAULT_WORLD_ANIMATION, ac.getCurrentAnimation());
 
+            CollideComponent hc =
+                    (CollideComponent) e.getComponent(CollideComponent.class).orElseThrow();
+        }
+    */
     // active
     /** Tests if set callback is called. */
     @Test
