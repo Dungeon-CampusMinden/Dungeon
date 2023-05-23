@@ -79,7 +79,7 @@ public final class Animation {
      */
     public static Animation of(File subDir) {
         Set<String> fileNames =
-                Arrays.stream(subDir.listFiles())
+                Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
                         .filter(File::isFile)
                         .map(File::getPath)
                         .collect(Collectors.toSet());
