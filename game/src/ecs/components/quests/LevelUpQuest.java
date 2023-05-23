@@ -25,6 +25,12 @@ public class LevelUpQuest extends Quest {
         this.questHolder = questHolder;
     }
 
+    /**
+     * Builds a new level up quest
+     * 
+     * @param questHolder entity that owns the quest
+     * @return new Instance of LevelUpQuest
+     */
     public static LevelUpQuest buildLevelUpQuest(Entity questHolder) {
         return LevelUpQuest.dungeonLevelQuest(questHolder);
         // !We just don't have xp yet
