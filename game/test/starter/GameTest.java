@@ -1,97 +1,86 @@
 package starter;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Files;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxNativesLoader;
 
+import core.Entity;
 import core.Game;
-import core.utils.Constants;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Game.class, Gdx.class, Constants.class})
-class GameTest {
-
-    private Game game;
-    private SpriteBatch batch;
-    private int someArbitraryValueGreater0forDelta = 7;
-
-    // Because of use of PowerMockRunner we need an empty constructor here
-    public GameTest() {}
+public class GameTest {
+    Game game;
+    MockedStatic<SpriteBatch> spriteBatchMockedStatic;
 
     @Before
-    public void setup() throws Exception {
-        /*
-        game = Mockito.spy(Game.class);
-        batch = Mockito.mock(SpriteBatch.class);
-        Whitebox.setInternalState(Gdx.class, "gl", Mockito.mock(GL20.class));
-        PowerMockito.whenNew(Painter.class)
-            .withAnyArguments()
-            .thenReturn(Mockito.mock(Painter.class));
-        PowerMockito.whenNew(SpriteBatch.class)
-            .withAnyArguments()
-            .thenReturn(Mockito.mock(SpriteBatch.class));
-        PowerMockito.whenNew(LevelManager.class)
-            .withAnyArguments()
-            .thenReturn(Mockito.mock(LevelManager.class));
-        PowerMockito.whenNew(DungeonCamera.class)
-            .withAnyArguments()
-            .thenReturn(Mockito.mock(DungeonCamera.class));
-        PowerMockito.whenNew(RandomWalkGenerator.class)
-            .withAnyArguments()
-            .thenReturn(Mockito.mock(RandomWalkGenerator.class));
+    public void setUp() {
+        GdxNativesLoader.load();
+        Gdx.app = mock(Application.class);
+        Gdx.graphics = mock(Graphics.class);
+        Gdx.input = mock(Input.class);
+        Gdx.files = new Lwjgl3Files();
+        Gdx.gl = mock(GL20.class);
+        Gdx.gl20 = mock(GL20.class);
 
-        PowerMockito.mockStatic(Constants.class, invocation -> "abc");
-        */
+        // We need a static mock from the SpriteBatch,
+        // because our Game class, etc. instantiates a few SpriteBatch instances
+        spriteBatchMockedStatic = mockStatic(SpriteBatch.class);
+        spriteBatchMockedStatic
+                .when(SpriteBatch::createDefaultShader)
+                .thenReturn(mock(ShaderProgram.class));
+
+        game = Game.newGame();
+        // libgdx main loop logic triggers:
+        game.render(0);
     }
 
     @After
-    public void cleanup() throws Exception {
-        // Game.getDelayedEntitySet().removeAll(Game.getEntities());
-        // Game.getDelayedEntitySet().update();
+    public void tearDown() {
+        // Every static mock must be closed before a new test runs
+        spriteBatchMockedStatic.close();
     }
 
     @Test
     public void addEntity() {
-        /*    Entity e1 = new Entity();
-        Game.addEntity(e1);
-        assertFalse(Game.getEntities().contains(e1));
-        Game.getDelayedEntitySet().update();
-        assertTrue(Game.getEntities().contains(e1));
-        assertEquals(1, Game.getEntities().size());*/
+        Entity e1 = new Entity();
+        game.render(0);
+        assertEquals(
+                1, Game.getEntitiesStream().filter(x -> x.equals(e1)).limit(2).toList().size());
     }
 
     @Test
     public void removeEntity() {
-        /*        Entity e1 = new Entity();
-        Game.getDelayedEntitySet().update();
+        Entity e1 = new Entity();
+        game.render(0);
+        assertEquals(
+                1, Game.getEntitiesStream().filter(x -> x.equals(e1)).limit(2).toList().size());
         Game.removeEntity(e1);
         game.render(0);
-        assertFalse(Game.getEntities().contains(e1));
-        assertEquals(0, Game.getEntities().size());*/
+        assertEquals(
+                0, Game.getEntitiesStream().filter(x -> x.equals(e1)).limit(2).toList().size());
     }
 
     @Test
     public void setHero() {
-        /* Entity hero = new Entity();
+        Entity hero = new Entity();
         Game.setHero(hero);
         assertEquals(hero, Game.getHero().orElseThrow());
         Entity hero2 = new Entity();
         Game.setHero(hero2);
-        assertEquals(hero2, Game.getHero().get());*/
+        assertEquals(hero2, Game.getHero().orElseThrow());
     }
 }
