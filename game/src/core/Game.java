@@ -2,6 +2,7 @@ package core;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
+import static core.utils.Constants.DEFAULT_MESSAGE;
 import static core.utils.logging.LoggerConfig.initBaseLogger;
 
 import com.badlogic.gdx.Gdx;
@@ -16,6 +17,7 @@ import contrib.entities.EntityFactory;
 import contrib.systems.*;
 
 import core.components.PositionComponent;
+import core.components.UIComponent;
 import core.configuration.Configuration;
 import core.hud.UITools;
 import core.level.IOnLevelLoader;
@@ -27,6 +29,7 @@ import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.level.utils.LevelSize;
 import core.systems.CameraSystem;
 import core.systems.DrawSystem;
+import core.systems.HudSystem;
 import core.systems.PlayerSystem;
 import core.systems.VelocitySystem;
 import core.utils.Constants;
@@ -71,6 +74,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private boolean doSetup = true;
     private DebuggerSystem debugger;
+    private Entity pauseMenue;
 
     // for singleton
     private Game() {}
@@ -283,7 +287,13 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private void debugKeys() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             // Text Dialogue (output of information texts)
-            UITools.showInfoText(Constants.DEFAULT_MESSAGE);
+            // UITools.showInfoText(DEFAULT_MESSAGE);
+            pauseMenue
+                    .getComponent(UIComponent.class)
+                    .map(UIComponent.class::cast)
+                    .get()
+                    .getDialog()
+                    .setVisible(true);
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             // Dialogue for quiz questions (display of quiz questions and the answer area in test
             // mode)
@@ -387,6 +397,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         new HealthSystem();
         new XPSystem();
         new ProjectileSystem();
+        new HudSystem(batch);
         debugger = new DebuggerSystem();
     }
 }
