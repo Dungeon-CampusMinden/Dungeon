@@ -88,8 +88,8 @@ public class Bag extends Item {
         if (!e.getComponent(InventoryComponent.class).isPresent())
             return;
         InventoryComponent ic = (InventoryComponent) e.getComponent(InventoryComponent.class).get();
-        if (item.getItemType().equals(ItemType.Bag))
-            return;
+        if (!item.getItemType().equals(ItemType.Bag))
+            System.out.println(item.getItemType());
         if (item.getInventory().size() < 1) {
             System.out.println("Bag is empty");
             return;
