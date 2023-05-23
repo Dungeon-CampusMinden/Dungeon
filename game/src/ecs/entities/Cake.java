@@ -13,14 +13,15 @@ import java.util.List;
 public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
     private ItemComponent itemComponent;
 
-    public Cake(){
+    public Cake() {
         super();
         setupItemComponent();
         setupHitBoxComponent();
         setupPositionComponent();
         setupAnimationComponent();
     }
-    public Cake(ItemData itemData, Point point){
+
+    public Cake(ItemData itemData, Point point) {
         super();
         this.itemComponent = new ItemComponent(this, itemData);
         new PositionComponent(this, point);
@@ -42,19 +43,20 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
     @Override
     public void setupHitBoxComponent() {
         new HitboxComponent(
-            this,
-            (you, other, direction) -> onCollect(this, other),
-            (you, other, direction) -> {});
+                this,
+                (you, other, direction) -> onCollect(this, other),
+                (you, other, direction) -> {
+                });
     }
 
     @Override
     public void setupItemComponent() {
         ItemData itemData = new ItemData(
-            ItemConfig.FOOD_TYPE.get(),
-            new Animation(List.of(ItemConfig.KUCHEN_TEXTURE.get()), 1),
-            new Animation(List.of(ItemConfig.KUCHEN_TEXTURE.get()), 1),
-            ItemConfig.KUCHEN_NAME.get(),
-            ItemConfig.KUCHEN_DESCRIPTION.get());
+                ItemConfig.FOOD_TYPE.get(),
+                new Animation(List.of(ItemConfig.KUCHEN_TEXTURE.get()), 1),
+                new Animation(List.of(ItemConfig.KUCHEN_TEXTURE.get()), 1),
+                ItemConfig.KUCHEN_NAME.get(),
+                ItemConfig.KUCHEN_DESCRIPTION.get());
 
         itemData.setOnCollect(this::onCollect);
         itemData.setOnUse(this::onUse);
@@ -65,79 +67,61 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
 
     @Override
     public void onCollect(Entity WorldItemEntity, Entity whoCollides) {
-        Game.getHero()
-            .ifPresent(
-                hero -> {
-                    if (whoCollides.equals(hero)) {
-                        hero.getComponent(InventoryComponent.class)
-                            .ifPresent(
-                                (x) -> {
-                                    if (((InventoryComponent) x)
-                                        .addItem(
-                                            WorldItemEntity
-                                                .getComponent(
-                                                    ItemComponent
-                                                        .class)
-                                                .map(
-                                                    ItemComponent
-                                                        .class
-                                                        ::cast)
-                                                .get()
-                                                .getItemData()))
-                                        Game.removeEntity(WorldItemEntity);
-                                });
-                    }
-                });
+        if (!Game.getHero().isPresent())
+            return;
+        if (!whoCollides.equals(Game.getHero().get()))
+            return;
+        if (!whoCollides.getComponent(InventoryComponent.class).isPresent())
+            return;
+        InventoryComponent ic = (InventoryComponent) whoCollides.getComponent(InventoryComponent.class).get();
+        if (ic.addItem(
+                WorldItemEntity.getComponent(ItemComponent.class)
+                        .map(ItemComponent.class::cast)
+                        .get()
+                        .getItemData()))
+            Game.removeEntity(WorldItemEntity);
     }
 
     @Override
     public void onUse(Entity e, ItemData item) {
-        Boolean[] isRemoved = {null};
-        e.getComponent(InventoryComponent.class)
-            .ifPresent(
-                component -> {
-                    InventoryComponent invComp = (InventoryComponent) component;
-                    List<ItemData> itemData = invComp.getItems();
-                    for (ItemData inventoryItem : itemData) {
-                        if(inventoryItem.getItemType().equals(ItemType.Bag)){
-                            for(int bagItemIndex = 0; bagItemIndex < inventoryItem.getInventory().size(); bagItemIndex++){
-                                if(inventoryItem.getInventory().get(bagItemIndex).equals(item)){
-                                    inventoryItem.getInventory().remove(item);
-                                    isRemoved[0] = true;
-                                    break;
-                                }
-                            }
-                        }
-                        else{
-                            if(inventoryItem.equals(item)){
-                                invComp.removeItem(item);
-                                isRemoved[0] = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-            );
-
-        if(isRemoved[0]) {
-            e.getComponent(HealthComponent.class)
-                .ifPresent(
-                    (component) -> {
-                        HealthComponent healthComponent = ((HealthComponent) component);
-                        healthComponent.setMaximalHealthpoints(healthComponent.getMaximalHealthpoints());
-                    }
-                );
+        if (!e.getComponent(InventoryComponent.class).isPresent())
+            return;
+        InventoryComponent ic = (InventoryComponent) e.getComponent(InventoryComponent.class).get();
+        List<ItemData> itemData = ic.getItems();
+        for (ItemData id : itemData) {
+            if (!id.getItemType().equals(ItemType.Bag)) {
+                if (!id.equals(item))
+                    continue;
+                ic.removeItem(item);
+                heal(e);
+                break;
+            }
+            for (int bagIndex = 0; bagIndex < id.getInventory().size(); bagIndex++) {
+                if (!id.getInventory().get(bagIndex).equals(item))
+                    continue;
+                id.getInventory().remove(item);
+                heal(e);
+                break;
+            }
         }
     }
 
     @Override
     public void onDrop(Entity user, ItemData which, Point position) {
         Game.addEntity(new Cake(which, position));
+        if (!user.getComponent(InventoryComponent.class).isPresent())
+            return;
         user.getComponent(InventoryComponent.class)
-            .ifPresent(
-                component -> {
-                    InventoryComponent invComp = (InventoryComponent) component;
-                    invComp.removeItem(which);
-                });
+                .map(InventoryComponent.class::cast)
+                .get()
+                .removeItem(which);
     }
+
+    private void heal(Entity entity) {
+        if (!entity.getComponent(HealthComponent.class).isPresent())
+            return;
+        HealthComponent hc = (HealthComponent) entity.getComponent(HealthComponent.class).get();
+        hc.setCurrentHealthpoints(hc.getMaximalHealthpoints());
+    }
+
 }

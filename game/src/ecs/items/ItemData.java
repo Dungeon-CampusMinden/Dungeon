@@ -170,23 +170,21 @@ public class ItemData implements Serializable {
      * @param item Item that is used
      */
     private static void defaultUseCallback(Entity e, ItemData item) {
-        e.getComponent(InventoryComponent.class)
-                .ifPresent(
-                        component -> {
-                            InventoryComponent invComp = (InventoryComponent) component;
-                            if (item.itemType.equals(ItemType.Bag)) {
-                                if (item.getInventory().size() > 0) {
-                                    System.out.printf("Item \"%s\" used by entity %d\n",
-                                            item.getInventory().get(0).getItemName(), e.id);
-                                    item.getInventory().remove(0);
-                                } else {
-                                    System.out.println("Bag is empty");
-                                }
-                            } else {
-                                invComp.removeItem(item);
-                                System.out.printf("Item \"%s\" used by entity %d\n", item.getItemName(), e.id);
-                            }
-                        });
+        if (!e.getComponent(InventoryComponent.class).isPresent())
+            return;
+        InventoryComponent ic = (InventoryComponent) e.getComponent(InventoryComponent.class).get();
+        if (!item.getItemType().equals(ItemType.Bag)) {
+            ic.removeItem(item);
+            System.out.printf("Item \"%s\" used by entity %d\n", item.getItemName(), e.id);
+            return;
+        }
+        if (item.getInventory().size() < 1) {
+            System.out.println("Bag is empty");
+            return;
+        }
+        System.out.printf("Item \"%s\" used by entity %d\n", item.getInventory().get(0).getItemName(), e.id);
+        item.getInventory().remove(0);
+
     }
 
     private static void defaultDrop(Entity who, ItemData which, Point position) {
@@ -198,26 +196,19 @@ public class ItemData implements Serializable {
     }
 
     private static void defaultCollect(Entity worldItem, Entity whoCollected) {
-        Game.getHero()
-                .ifPresent(
-                        hero -> {
-                            if (whoCollected.equals(hero)) {
-                                hero.getComponent(InventoryComponent.class)
-                                        .ifPresent(
-                                                (x) -> {
-                                                    if (((InventoryComponent) x)
-                                                            .addItem(
-                                                                    worldItem
-                                                                            .getComponent(
-                                                                                    ItemComponent.class)
-                                                                            .map(
-                                                                                    ItemComponent.class::cast)
-                                                                            .get()
-                                                                            .getItemData()))
-                                                        Game.removeEntity(worldItem);
-                                                });
-                            }
-                        });
+        if (!Game.getHero().isPresent())
+            return;
+        if (!whoCollected.equals(Game.getHero().get()))
+            return;
+        if (!whoCollected.getComponent(InventoryComponent.class).isPresent())
+            return;
+        InventoryComponent ic = (InventoryComponent) whoCollected.getComponent(InventoryComponent.class).get();
+        if (ic.addItem(
+                worldItem.getComponent(ItemComponent.class)
+                        .map(ItemComponent.class::cast)
+                        .get()
+                        .getItemData()))
+            Game.removeEntity(worldItem);
     }
 
     public IOnCollect getOnCollect() {

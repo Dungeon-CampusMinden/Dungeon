@@ -8,11 +8,12 @@ import tools.Point;
 
 public abstract class Item extends Entity implements IOnCollect, IOnUse, IOnDrop {
 
-    public Item(){
+    public Item() {
         super();
     }
 
     public abstract void setupAnimationComponent();
+
     public abstract void setupPositionComponent();
 
     public abstract void setupHitBoxComponent();

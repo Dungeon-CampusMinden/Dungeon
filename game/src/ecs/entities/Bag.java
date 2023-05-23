@@ -11,10 +11,10 @@ import tools.Point;
 
 import java.util.List;
 
-public class Bag extends Item{
+public class Bag extends Item {
     private ItemComponent itemComponent;
 
-    public Bag(){
+    public Bag() {
         super();
         setupItemComponent();
         setupHitBoxComponent();
@@ -22,7 +22,7 @@ public class Bag extends Item{
         setupAnimationComponent();
     }
 
-    public Bag(ItemData itemData, Point point){
+    public Bag(ItemData itemData, Point point) {
         super();
         this.itemComponent = new ItemComponent(this, itemData);
         new PositionComponent(this, point);
@@ -44,19 +44,20 @@ public class Bag extends Item{
     @Override
     public void setupHitBoxComponent() {
         new HitboxComponent(
-            this,
-            (you, other, direction) -> onCollect(this,other),
-            (you, other, direction) -> {});
+                this,
+                (you, other, direction) -> onCollect(this, other),
+                (you, other, direction) -> {
+                });
     }
 
     @Override
     public void setupItemComponent() {
         ItemData itemData = new ItemData(
-            ItemConfig.BAG_TYPE.get(),
-            new Animation(List.of(ItemConfig.BAG_TEXTURE.get()), 1),
-            new Animation(List.of(ItemConfig.BAG_TEXTURE.get()), 1),
-            ItemConfig.BAG_NAME.get(),
-            ItemConfig.BAG_DESCRIPTION.get());
+                ItemConfig.BAG_TYPE.get(),
+                new Animation(List.of(ItemConfig.BAG_TEXTURE.get()), 1),
+                new Animation(List.of(ItemConfig.BAG_TEXTURE.get()), 1),
+                ItemConfig.BAG_NAME.get(),
+                ItemConfig.BAG_DESCRIPTION.get());
 
         itemData.setOnCollect(this::onCollect);
         itemData.setOnUse(this::onUse);
@@ -66,59 +67,44 @@ public class Bag extends Item{
     }
 
     @Override
-    public void onCollect(Entity WorldItemEntity, Entity whoCollides) {
-        Game.getHero()
-            .ifPresent(
-                hero -> {
-                    if (whoCollides.equals(hero)) {
-                        hero.getComponent(InventoryComponent.class)
-                            .ifPresent(
-                                (x) -> {
-                                    if (((InventoryComponent) x)
-                                        .addItem(
-                                            WorldItemEntity
-                                                .getComponent(
-                                                    ItemComponent
-                                                        .class)
-                                                .map(
-                                                    ItemComponent
-                                                        .class
-                                                        ::cast)
-                                                .get()
-                                                .getItemData()))
-                                        Game.removeEntity(WorldItemEntity);
-                                });
-                    }
-                });
+    public void onCollect(Entity worldItemEntity, Entity whoCollides) {
+        if (!Game.getHero().isPresent())
+            return;
+        if (!whoCollides.equals(Game.getHero().get()))
+            return;
+        if (!whoCollides.getComponent(InventoryComponent.class).isPresent())
+            return;
+        InventoryComponent ic = (InventoryComponent) whoCollides.getComponent(InventoryComponent.class).get();
+        if (ic.addItem(
+                worldItemEntity.getComponent(ItemComponent.class)
+                        .map(ItemComponent.class::cast)
+                        .get()
+                        .getItemData()))
+            Game.removeEntity(worldItemEntity);
     }
 
     @Override
     public void onUse(Entity e, ItemData item) {
-        Boolean[] hasInventory = {null};
-        e.getComponent(InventoryComponent.class)
-            .ifPresent(
-                component -> {
-                    InventoryComponent invComp = (InventoryComponent) component;
-                    if(item.getItemType().equals(ItemType.Bag)){
-                        if(item.getInventory().size() > 0){
-                            item.getInventory().get(0).triggerUse(e);
-                        }
-                        else{
-                            System.out.println("Bag is empty");
-                        }
-                    }
-                }
-            );
+        if (!e.getComponent(InventoryComponent.class).isPresent())
+            return;
+        InventoryComponent ic = (InventoryComponent) e.getComponent(InventoryComponent.class).get();
+        if (item.getItemType().equals(ItemType.Bag))
+            return;
+        if (item.getInventory().size() < 1) {
+            System.out.println("Bag is empty");
+            return;
+        }
+        item.getInventory().get(0).triggerUse(e);
     }
 
     @Override
     public void onDrop(Entity user, ItemData which, Point position) {
         Game.addEntity(new Bag(which, position));
         user.getComponent(InventoryComponent.class)
-            .ifPresent(
-                component -> {
-                    InventoryComponent invComp = (InventoryComponent) component;
-                    invComp.removeItem(which);
-                });
+                .ifPresent(
+                        component -> {
+                            InventoryComponent invComp = (InventoryComponent) component;
+                            invComp.removeItem(which);
+                        });
     }
 }

@@ -13,7 +13,7 @@ import java.util.List;
 public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
     private ItemComponent itemComponent;
 
-    public SpeedPotion(){
+    public SpeedPotion() {
         super();
         setupItemComponent();
         setupHitBoxComponent();
@@ -21,7 +21,7 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
         setupAnimationComponent();
     }
 
-    public SpeedPotion(ItemData itemData, Point point){
+    public SpeedPotion(ItemData itemData, Point point) {
         super();
         this.itemComponent = new ItemComponent(this, itemData);
         new PositionComponent(this, point);
@@ -42,19 +42,20 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
     @Override
     public void setupHitBoxComponent() {
         new HitboxComponent(
-            this,
-            (you, other, direction) -> onCollect(this, other),
-            (you, other, direction) -> {});
+                this,
+                (you, other, direction) -> onCollect(this, other),
+                (you, other, direction) -> {
+                });
     }
 
     @Override
     public void setupItemComponent() {
         ItemData itemData = new ItemData(
-            ItemConfig.POTION_TYPE.get(),
-            new Animation(List.of(ItemConfig.SPEED_TEXTURE.get()), 1),
-            new Animation(List.of(ItemConfig.SPEED_TEXTURE.get()), 1),
-            ItemConfig.SPEED_NAME.get(),
-            ItemConfig.SPEED_DESCRIPTION.get());
+                ItemConfig.POTION_TYPE.get(),
+                new Animation(List.of(ItemConfig.SPEED_TEXTURE.get()), 1),
+                new Animation(List.of(ItemConfig.SPEED_TEXTURE.get()), 1),
+                ItemConfig.SPEED_NAME.get(),
+                ItemConfig.SPEED_DESCRIPTION.get());
 
         itemData.setOnCollect(this::onCollect);
         itemData.setOnUse(this::onUse);
@@ -65,69 +66,42 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
 
     @Override
     public void onCollect(Entity WorldItemEntity, Entity whoCollides) {
-        Game.getHero()
-            .ifPresent(
-                hero -> {
-                    if (whoCollides.equals(hero)) {
-                        hero.getComponent(InventoryComponent.class)
-                            .ifPresent(
-                                (x) -> {
-                                    if (((InventoryComponent) x)
-                                        .addItem(
-                                            WorldItemEntity
-                                                .getComponent(
-                                                    ItemComponent
-                                                        .class)
-                                                .map(
-                                                    ItemComponent
-                                                        .class
-                                                        ::cast)
-                                                .get()
-                                                .getItemData()))
-                                        Game.removeEntity(WorldItemEntity);
-                                });
-                    }
-                });
+        if (!Game.getHero().isPresent())
+            return;
+        if (!whoCollides.equals(Game.getHero().get()))
+            return;
+        if (!whoCollides.getComponent(InventoryComponent.class).isPresent())
+            return;
+        InventoryComponent ic = (InventoryComponent) whoCollides.getComponent(InventoryComponent.class).get();
+        if (ic.addItem(
+                WorldItemEntity.getComponent(ItemComponent.class)
+                        .map(ItemComponent.class::cast)
+                        .get()
+                        .getItemData()))
+            Game.removeEntity(WorldItemEntity);
     }
 
     @Override
     public void onUse(Entity e, ItemData item) {
-        Boolean[] isRemoved = {null};
-        e.getComponent(InventoryComponent.class)
-            .ifPresent(
-                component -> {
-                    InventoryComponent invComp = (InventoryComponent) component;
-                    List<ItemData> itemData = invComp.getItems();
-                    for (ItemData inventoryItem : itemData) {
-                        if(inventoryItem.getItemType().equals(ItemType.Bag)){
-                            for(int bagItemIndex = 0; bagItemIndex < inventoryItem.getInventory().size(); bagItemIndex++){
-                                if(inventoryItem.getInventory().get(bagItemIndex).equals(item)){
-                                    inventoryItem.getInventory().remove(item);
-                                    isRemoved[0] = true;
-                                    break;
-                                }
-                            }
-                        }
-                        else{
-                            if(inventoryItem.equals(item)){
-                                invComp.removeItem(item);
-                                isRemoved[0] = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-            );
-
-        if(isRemoved[0]) {
-            e.getComponent(VelocityComponent.class)
-                .ifPresent(
-                    (component) -> {
-                        VelocityComponent v = (VelocityComponent) component;
-                        v.setXVelocity(v.getXVelocity()*2f);
-                        v.setYVelocity(v.getYVelocity()*2f);
-                    }
-                );
+        if (!e.getComponent(InventoryComponent.class).isPresent())
+            return;
+        InventoryComponent ic = (InventoryComponent) e.getComponent(InventoryComponent.class).get();
+        List<ItemData> itemData = ic.getItems();
+        for (ItemData id : itemData) {
+            if (!id.getItemType().equals(ItemType.Bag)) {
+                if (!id.equals(item))
+                    continue;
+                ic.removeItem(item);
+                speedUp(e);
+                break;
+            }
+            for (int bagIndex = 0; bagIndex < id.getInventory().size(); bagIndex++) {
+                if (!id.getInventory().get(bagIndex).equals(item))
+                    continue;
+                id.getInventory().remove(item);
+                speedUp(e);
+                break;
+            }
         }
     }
 
@@ -135,10 +109,19 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
     public void onDrop(Entity user, ItemData which, Point position) {
         Game.addEntity(new SpeedPotion(which, position));
         user.getComponent(InventoryComponent.class)
-            .ifPresent(
-                component -> {
-                    InventoryComponent invComp = (InventoryComponent) component;
-                    invComp.removeItem(which);
-                });
+                .ifPresent(
+                        component -> {
+                            InventoryComponent invComp = (InventoryComponent) component;
+                            invComp.removeItem(which);
+                        });
     }
+
+    private void speedUp(Entity entity) {
+        if (!entity.getComponent(VelocityComponent.class).isPresent())
+            return;
+        VelocityComponent vc = (VelocityComponent) entity.getComponent(VelocityComponent.class).get();
+        vc.setXVelocity(vc.getXVelocity() * 2);
+        vc.setYVelocity(vc.getYVelocity() * 2);
+    }
+
 }
