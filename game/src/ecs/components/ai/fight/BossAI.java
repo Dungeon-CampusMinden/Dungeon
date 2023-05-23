@@ -43,7 +43,7 @@ public class BossAI implements IFightAI{
         }
         else {
             if(!aggressive){
-                setAggressiv(entity);
+                setAggressive(entity);
                 aggressive = true;
             }
             if (AITools.playerInRange(entity, 4)) {
@@ -79,7 +79,7 @@ public class BossAI implements IFightAI{
         return health[0];
     }
 
-    private void setAggressiv(Entity entity){
+    private void setAggressive(Entity entity){
         entity.
             getComponent(VelocityComponent.class)
             .ifPresent(
