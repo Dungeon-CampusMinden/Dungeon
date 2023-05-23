@@ -2,143 +2,130 @@ package core.components;
 
 import core.Component;
 import core.Entity;
-import core.systems.DrawSystem;
 import core.systems.VelocitySystem;
 import core.utils.components.draw.Animation;
-import core.utils.logging.CustomLogLevel;
+import core.utils.components.draw.CoreAnimationPathEnum;
+import core.utils.components.draw.IAnimationPathEnum;
 
-import semanticanalysis.types.DSLContextMember;
-import semanticanalysis.types.DSLType;
-import semanticanalysis.types.DSLTypeMember;
-
-import java.util.List;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
- * The AnimationComponent associates an entity with its animations. It stores the current animation
- * and two idle animations, one for each direction (left/right). The current animation can be
- * overwritten by using the {@link #setCurrentAnimation} of this component. The {@link DrawSystem
- * DrawSystem} uses the {@link #getCurrentAnimation()} method to draw the current animation to the
- * screen.
+ * The DrawComponent stores all {@link Animation}s for an entity.
+ *
+ * <p>At creation, the component will read in each subdirectory in the given path and create an
+ * animation for each subdirectory.
+ *
+ * <p>Each Animation will be created with default settings. If you want to change these settings,
+ * use the methods from {@link Animation}.
+ *
+ * <p>Use {@link #setCurrentAnimation} to set the current Animation.
+ *
+ * <p>Use {@link #getCurrentAnimation} to get the current active animation or use {@link
+ * #getAnimation} to get a specific animation.
+ *
+ * <p>Use {@link #hasAnimation} to check if the component has the desired animation.
+ *
+ * <p>If you want to add your own Animations, create a subdirectory for the animation and add the
+ * path to an enum that implements the {@link IAnimationPathEnum} interface.
+ *
+ * <p>Note: each entity needs at least a {@link
+ * core.utils.components.draw.CoreAnimationPathEnum#IDLE_LEFT} and {@link
+ * core.utils.components.draw.CoreAnimationPathEnum#IDLE_RIGHT} Animation
+ *
+ * @see Animation
+ * @see IAnimationPathEnum
  */
-@DSLType(name = "animation_component")
 public class DrawComponent extends Component {
-    private static List<String> missingTexture = List.of("animation/missingTexture.png");
-    private @DSLTypeMember(name = "idle_left") Animation idleLeft;
-    private @DSLTypeMember(name = "idle_right") Animation idleRight;
-    private @DSLTypeMember(name = "current_animation") Animation currentAnimation;
-    private final Logger animCompLogger = Logger.getLogger(this.getClass().getName());
+    private final int DEFAULT_FRAME_TIME = 3;
+    private final boolean DEFAULT_IS_LOOP = true;
+    private final Map<String, Animation> animationMap;
+    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+    private Animation currentAnimation;
 
     /**
-     * Create a new AnimationComponent object
+     * Create a new DrawComponent.
      *
-     * <p>Create a new AnimationComponent with separate idle Animations for each direction.
+     * <p>Will read in all subdirectories of the given path and use each file in the subdirectory
+     * to create an animation. So each subdirectory should contain only the files for one animation.
      *
-     * @param entity Entity to add this component to
-     * @param idleLeft Idle-Animation faced left
-     * @param idleRight Idle-Animation faced right
+     * <p>Will set the current animation to idle left
+     *
+     * @param entity associated entity
+     * @param path   Path (as a String) to the directory in which the subdirectories with the
+     *               animation files are stored. For example, "character/knight".
+     * @throws IOException if the given path does not exist
+     * @see Animation
      */
-    public DrawComponent(Entity entity, Animation idleLeft, Animation idleRight) {
+    public DrawComponent(Entity entity, String path) throws IOException {
         super(entity);
-        this.idleRight = idleRight;
-        this.idleLeft = idleLeft;
-        this.currentAnimation = idleLeft;
+        ClassLoader classLoader = getClass().getClassLoader();
+        File directory = new File(classLoader.getResource(path).getFile());
+        if (!directory.exists() || !directory.isDirectory()) {
+            throw new FileNotFoundException("Path " + path + " not found.");
+        }
+        animationMap =
+            Arrays.stream(directory.listFiles())
+                .filter(File::isDirectory)
+                .collect(
+                    Collectors.toMap(
+                        File::getName,
+                        subDir ->
+                            Animation.of(
+                                subDir,
+                                DEFAULT_FRAME_TIME,
+                                DEFAULT_IS_LOOP)));
+        currentAnimation = animationMap.get(CoreAnimationPathEnum.IDLE_LEFT);
     }
 
     /**
-     * Create a new AnimationComponent object.
+     * Get the current animation being displayed on the entity.
      *
-     * <p>Create a new AnimationComponent object with the given animation as idle animation for both
-     * directions.
-     *
-     * @param entity Entity to add this component to
-     * @param idle Idle-Animation
+     * @return the current animation of the entity
      */
-    public DrawComponent(Entity entity, Animation idle) {
-        this(entity, idle, idle);
-    }
-
-    /**
-     * Create a new AnimationComponent object with default Animations.
-     *
-     * <p>The default Animations are composed of a single frame with the "missingTexture" texture.
-     *
-     * @param entity Entity to add this component to
-     */
-    public DrawComponent(@DSLContextMember(name = "entity") Entity entity) {
-        super(entity);
-        this.idleLeft = new Animation(missingTexture, 100);
-        this.idleRight = new Animation(missingTexture, 100);
-        this.currentAnimation = new Animation(missingTexture, 100);
-        animCompLogger.log(
-                CustomLogLevel.ERROR,
-                "The AnimationComponent for entity '"
-                        + entity.getClass().getName()
-                        + "' was created with default textures!");
+    public Animation getCurrentAnimation() {
+        return currentAnimation;
     }
 
     /**
      * Set the current animation displayed on the entity.
      *
-     * <p>The animation passed does not have to be one of the animations stored in this component,
-     * it can be any animation. If the animation passed is not displayed on the entity, there may be
-     * another point in the code where the animation is overwritten on the same tick. (e.g. in
-     * {@link VelocitySystem VelocitySystem}).
+     * <p>If the animation passed is not displayed on the entity, there may be another point in the
+     * code where the animation is overwritten on the same tick (e.g., in {@link VelocitySystem}).
      *
-     * @param animation new current animation.
+     * @param animationName Path of the new current animation (this is the name of the directory).
+     * @see IAnimationPathEnum
      */
-    public void setCurrentAnimation(Animation animation) {
-        if (animation.getAnimationFrames().size() > 0) {
-            if (animation.getAnimationFrames().get(0).equals(missingTexture.get(0))) {
-                animCompLogger.log(
-                        CustomLogLevel.ERROR,
-                        "The Animation for entity '"
-                                + entity.getClass().getName()
-                                + "' was set to the default missing textures.");
-            }
-        }
-        this.currentAnimation = animation;
-    }
-    /**
-     * Get the current animation being displayed on entity.
-     *
-     * @return current animation of the entity
-     */
-    public Animation getCurrentAnimation() {
-        if (currentAnimation.getAnimationFrames().size() > 0) {
-            animCompLogger.log(
-                    CustomLogLevel.DEBUG,
-                    this.getClass().getSimpleName()
-                            + " fetching animation for entity '"
-                            + entity.getClass().getSimpleName()
-                            + "'. First path: "
-                            + currentAnimation.getAnimationFrames().get(0));
-        } else {
-            animCompLogger.log(
-                    CustomLogLevel.DEBUG,
-                    this.getClass().getSimpleName()
-                            + " fetching animation for entity '"
-                            + entity.getClass().getSimpleName()
-                            + "'. This entity has currently no animation.");
-        }
-        return currentAnimation;
+    public void setCurrentAnimation(IAnimationPathEnum animationName) {
+        Animation animation = animationMap.get(animationName.toString());
+        if (animation != null) this.currentAnimation = animation;
     }
 
     /**
-     * Get idling animation that is used if the entity is facing left.
+     * Get the Animation at the given path.
      *
-     * @return Idle-Animation faced left
+     * <p>Can be null if the component does not store an animation with this path.
+     *
+     * @param path Path of the Animation
+     * @return The animation or null
      */
-    public Animation getIdleLeft() {
-        return idleLeft;
+    public Optional<Animation> getAnimation(IAnimationPathEnum path) {
+        return Optional.ofNullable(animationMap.get(path.toString()));
     }
 
     /**
-     * Get idle animation that is used if the entity is facing right.
+     * Check if the component stores an animation with the given path.
      *
-     * @return Animation faced right
+     * @param path Path of the animation to look for
+     * @return true if the animation exists in this component, false if not
      */
-    public Animation getIdleRight() {
-        return idleRight;
+    public boolean hasAnimation(IAnimationPathEnum path) {
+        return animationMap.containsKey(path.toString());
     }
 }
