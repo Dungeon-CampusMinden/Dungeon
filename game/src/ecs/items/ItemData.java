@@ -10,13 +10,14 @@ import ecs.components.stats.DamageModifier;
 import ecs.entities.Entity;
 import graphic.Animation;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import starter.Game;
 import tools.Point;
 
 /** A Class which contains the Information of a specific Item. */
-public class ItemData {
+public class ItemData implements Serializable {
     private List<ItemData> inventory;
     private ItemType itemType;
     private Animation inventoryTexture;
@@ -65,13 +66,14 @@ public class ItemData {
         this.setOnUse(onUse);
         this.damageModifier = damageModifier;
 
-        if(this.itemType.equals(ItemType.Bag)){
+        if (this.itemType.equals(ItemType.Bag)) {
             this.inventory = new ArrayList<>(3);
         }
     }
 
     /**
-     * creates a new item data object. With a basic handling of collecting and dropping
+     * creates a new item data object. With a basic handling of collecting and
+     * dropping
      *
      * @param itemType
      * @param inventoryTexture
@@ -107,13 +109,15 @@ public class ItemData {
     }
 
     /**
-     * what should happen when an Entity interacts with the Item while it is lying in the World.
+     * what should happen when an Entity interacts with the Item while it is lying
+     * in the World.
      *
      * @param worldItemEntity
      * @param whoTriesCollects
      */
     public void triggerCollect(Entity worldItemEntity, Entity whoTriesCollects) {
-        if (getOnCollect() != null) getOnCollect().onCollect(worldItemEntity, whoTriesCollects);
+        if (getOnCollect() != null)
+            getOnCollect().onCollect(worldItemEntity, whoTriesCollects);
     }
 
     /**
@@ -122,7 +126,8 @@ public class ItemData {
      * @param position the location of the drop
      */
     public void triggerDrop(Entity e, Point position) {
-        if (getOnDrop() != null) getOnDrop().onDrop(e, this, position);
+        if (getOnDrop() != null)
+            getOnDrop().onDrop(e, this, position);
     }
 
     /**
@@ -131,7 +136,8 @@ public class ItemData {
      * @param entity Entity that uses the item
      */
     public void triggerUse(Entity entity) {
-        if (getOnUse() == null) return;
+        if (getOnUse() == null)
+            return;
         getOnUse().onUse(entity, this);
     }
 
@@ -156,10 +162,11 @@ public class ItemData {
     }
 
     /**
-     * Default callback for item use. Prints a message to the console and removes the item from the
+     * Default callback for item use. Prints a message to the console and removes
+     * the item from the
      * inventory.
      *
-     * @param e Entity that uses the item
+     * @param e    Entity that uses the item
      * @param item Item that is used
      */
     private static void defaultUseCallback(Entity e, ItemData item) {
@@ -167,16 +174,15 @@ public class ItemData {
                 .ifPresent(
                         component -> {
                             InventoryComponent invComp = (InventoryComponent) component;
-                            if(item.itemType.equals(ItemType.Bag)){
-                                if(item.getInventory().size() > 0){
-                                    System.out.printf("Item \"%s\" used by entity %d\n", item.getInventory().get(0).getItemName(), e.id);
+                            if (item.itemType.equals(ItemType.Bag)) {
+                                if (item.getInventory().size() > 0) {
+                                    System.out.printf("Item \"%s\" used by entity %d\n",
+                                            item.getInventory().get(0).getItemName(), e.id);
                                     item.getInventory().remove(0);
-                                }
-                                else{
+                                } else {
                                     System.out.println("Bag is empty");
                                 }
-                            }
-                            else{
+                            } else {
                                 invComp.removeItem(item);
                                 System.out.printf("Item \"%s\" used by entity %d\n", item.getItemName(), e.id);
                             }
@@ -203,12 +209,9 @@ public class ItemData {
                                                             .addItem(
                                                                     worldItem
                                                                             .getComponent(
-                                                                                    ItemComponent
-                                                                                            .class)
+                                                                                    ItemComponent.class)
                                                                             .map(
-                                                                                    ItemComponent
-                                                                                                    .class
-                                                                                            ::cast)
+                                                                                    ItemComponent.class::cast)
                                                                             .get()
                                                                             .getItemData()))
                                                         Game.removeEntity(worldItem);
@@ -241,7 +244,7 @@ public class ItemData {
         this.onUse = onUse;
     }
 
-    public List<ItemData> getInventory(){
+    public List<ItemData> getInventory() {
         return this.inventory;
     }
 }
