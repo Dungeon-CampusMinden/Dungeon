@@ -188,7 +188,8 @@ public abstract class System {
         if (entity.isPresent(keyComponent)) {
             for (Class<? extends Component> klass : additionalComponents)
                 if (!entity.isPresent(klass)) {
-                    logMissingComponent(entity);  // will log also other missing components, so we can stop here
+                    logMissingComponent(
+                            entity); // will log also other missing components, so we can stop here
                     return false;
                 }
             return true;
