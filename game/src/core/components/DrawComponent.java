@@ -10,10 +10,7 @@ import core.utils.components.draw.IPath;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -65,20 +62,34 @@ public class DrawComponent extends Component {
         super(entity);
         // fetch available animations
         ClassLoader classLoader = getClass().getClassLoader();
-        File directory =
-                new File(
-                        Objects.requireNonNull(classLoader.getResource(File.pathSeparator + path))
-                                .getFile());
+        File directory = new File(classLoader.getResource(path).getFile());
         if (!directory.exists() || !directory.isDirectory()) {
             throw new FileNotFoundException("Path " + path + " not found.");
         }
         animationMap =
-                Arrays.stream(Objects.requireNonNull(directory.listFiles()))
+                Arrays.stream(directory.listFiles())
                         .filter(File::isDirectory)
                         .collect(Collectors.toMap(File::getName, Animation::of));
-
-        // set current animation
         setCurrentAnimation(CoreAnimations.IDLE_LEFT);
+    }
+
+    /**
+     * Create a new DrawComponent with a specific animation.
+     *
+     * <p>The given animation will be used as idle-left and idle-right animation
+     *
+     * <p>This constructor is for special case only. Use {@link DrawComponent(Entity, String)} if
+     * possible.
+     *
+     * @param entity associated entity
+     * @param idle Animation to use as idle-left and idle-right animation.
+     */
+    public DrawComponent(Entity entity, Animation idle) {
+        super(entity);
+        animationMap = new HashMap<>();
+        animationMap.put(CoreAnimations.IDLE_LEFT.getPathString(), idle);
+        animationMap.put(CoreAnimations.IDLE_RIGHT.getPathString(), idle);
+        currentAnimation = idle;
     }
 
     /**
@@ -102,7 +113,7 @@ public class DrawComponent extends Component {
      * @see IPath
      */
     public void setCurrentAnimation(IPath animationName) {
-        Animation animation = animationMap.get(animationName.toString());
+        Animation animation = animationMap.get(animationName.getPathString());
         if (animation != null) this.currentAnimation = animation;
         else
             LOGGER.warning(
@@ -121,7 +132,7 @@ public class DrawComponent extends Component {
      * @return The animation or null
      */
     public Optional<Animation> getAnimation(IPath path) {
-        return Optional.ofNullable(animationMap.get(path.toString()));
+        return Optional.ofNullable(animationMap.get(path.getPathString()));
     }
 
     /**
@@ -131,6 +142,22 @@ public class DrawComponent extends Component {
      * @return true if the animation exists in this component, false if not
      */
     public boolean hasAnimation(IPath path) {
-        return animationMap.containsKey(path.toString());
+        return animationMap.containsKey(path.getPathString());
+    }
+
+    /**
+     * Check if the animation at the given path is the current-animation
+     *
+     * <p>Will log a warning if no animation is stored for the given path.
+     *
+     * @param path Path to the animation to check
+     * @return true if the current-animation equals the animation at the given path, false if not or
+     *     no animation for the given oath is stored in this component.
+     */
+    public boolean isCurrentAnimation(IPath path) {
+        Optional<Animation> animation = getAnimation(path);
+        if (animation.isPresent()) return animation.get() == currentAnimation;
+        LOGGER.warning("Animation " + path + " is not stored inside " + entity.toString());
+        return false;
     }
 }

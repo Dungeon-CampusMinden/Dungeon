@@ -9,8 +9,6 @@ import contrib.utils.components.health.IOnDeathFunction;
 
 import core.Component;
 import core.Entity;
-import core.systems.DrawSystem;
-import core.utils.components.draw.Animation;
 import core.utils.logging.CustomLogLevel;
 
 import semanticanalysis.types.DSLContextMember;
@@ -36,22 +34,14 @@ import java.util.logging.Logger;
  * <p>The HealthComponent also provides the ability to set an onDeath function, which is called when
  * the health points reach 0 or less. The onDeath function can be set via the {@link
  * #setOnDeath(IOnDeathFunction) setOnDeath} method.
- *
- * <p>Finally, the HealthComponent provides the ability to set animations for the entity to be
- * played when it is hit or dies. These animations can be set via the {@link
- * #setGetHitAnimation(Animation) setGetHitAnimation} and {@link #setDieAnimation(Animation)
- * setDieAnimation} methods and are played by the {@link DrawSystem DrawSystem} automatically.
  */
 @DSLType(name = "health_component")
 public class HealthComponent extends Component {
-    private static final List<String> missingTexture = List.of("animation/missingTexture.png");
     private final List<Damage> damageToGet;
     private @DSLTypeMember(name = "maximal_health_points") int maximalHealthpoints;
     private int currentHealthpoints;
     private @Null Entity lastCause = null;
     private @DSLTypeMember(name = "on_death_function") IOnDeathFunction onDeath;
-    private @DSLTypeMember(name = "get_hit_animation") Animation getHitAnimation;
-    private @DSLTypeMember(name = "die_animation") Animation dieAnimation;
     private final Logger healthLogger = Logger.getLogger(this.getClass().getName());
 
     /**
@@ -64,21 +54,12 @@ public class HealthComponent extends Component {
      * @param maximalHitPoints maximum amount of hit-points, currentHitPoints can't be bigger than
      *     that
      * @param onDeath Function that gets called, when this entity dies
-     * @param getHitAnimation Animation to be played as the entity was hit
-     * @param dieAnimation Animation to be played as the entity dies
      */
-    public HealthComponent(
-            Entity entity,
-            int maximalHitPoints,
-            IOnDeathFunction onDeath,
-            Animation getHitAnimation,
-            Animation dieAnimation) {
+    public HealthComponent(Entity entity, int maximalHitPoints, IOnDeathFunction onDeath) {
         super(entity);
         this.maximalHealthpoints = maximalHitPoints;
         this.currentHealthpoints = maximalHitPoints;
         this.onDeath = onDeath;
-        this.getHitAnimation = getHitAnimation;
-        this.dieAnimation = dieAnimation;
         damageToGet = new ArrayList<>();
     }
 
@@ -91,12 +72,7 @@ public class HealthComponent extends Component {
      * @param entity associated entity
      */
     public HealthComponent(@DSLContextMember(name = "entity") Entity entity) {
-        this(
-                entity,
-                1,
-                entity2 -> {},
-                new Animation(missingTexture, 100),
-                new Animation(missingTexture, 100));
+        this(entity, 1, entity2 -> {});
     }
 
     /**
@@ -167,24 +143,6 @@ public class HealthComponent extends Component {
     }
 
     /**
-     * Set the animation to be played when the entity dies
-     *
-     * @param dieAnimation new dieAnimation
-     */
-    public void setDeathAnimation(Animation dieAnimation) {
-        this.dieAnimation = dieAnimation;
-    }
-
-    /**
-     * Set the animation to be played when the entity is hit
-     *
-     * @param isHitAnimation new isHitAnimation
-     */
-    public void setGetHitAnimation(Animation isHitAnimation) {
-        this.getHitAnimation = isHitAnimation;
-    }
-
-    /**
      * Set a new function to be called when dying.
      *
      * @param onDeath new onDeath function
@@ -205,20 +163,6 @@ public class HealthComponent extends Component {
      */
     public int getMaximalHealthpoints() {
         return maximalHealthpoints;
-    }
-
-    /**
-     * @return Animation to be played as the entity was hit
-     */
-    public Animation getGetHitAnimation() {
-        return getHitAnimation;
-    }
-
-    /**
-     * @return Animation to be played when dying
-     */
-    public Animation getDeathAnimation() {
-        return dieAnimation;
     }
 
     /**

@@ -14,4 +14,9 @@ public enum CoreAnimations implements IPath {
     CoreAnimations(String value) {
         this.value = value;
     }
+
+    @Override
+    public String getPathString() {
+        return value;
+    }
 }

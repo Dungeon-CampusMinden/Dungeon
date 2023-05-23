@@ -11,9 +11,9 @@ import core.Game;
 import core.components.*;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Animation;
 
-import dslToGame.AnimationBuilder;
+import java.io.IOException;
+import java.util.logging.Logger;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -24,7 +24,7 @@ import java.util.function.Supplier;
  * entity as a parameter.
  */
 public abstract class DamageProjectile implements Consumer<Entity> {
-
+    private static final Logger LOGGER = Logger.getLogger(DamageProjectile.class.getName());
     private String pathToTexturesOfProjectile;
     private float projectileSpeed;
 
@@ -81,8 +81,15 @@ public abstract class DamageProjectile implements Consumer<Entity> {
                                         () -> new MissingComponentException("PositionComponent"));
         new PositionComponent(projectile, epc.getPosition());
 
-        Animation animation = AnimationBuilder.buildAnimation(pathToTexturesOfProjectile);
-        new DrawComponent(projectile, animation);
+        try {
+            new DrawComponent(projectile, pathToTexturesOfProjectile);
+        } catch (IOException e) {
+            LOGGER.warning(
+                    "The DrawComponent for the projectile "
+                            + entity.toString()
+                            + " cant be created. "
+                            + e.getMessage());
+        }
 
         // Get the target point based on the selection function and projectile range
         Point aimedOn = selectionFunction.get();
@@ -95,8 +102,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
                 SkillTools.calculateVelocity(epc.getPosition(), targetPoint, projectileSpeed);
 
         // Add the VelocityComponent to the projectile
-        VelocityComponent vc =
-                new VelocityComponent(projectile, velocity.x, velocity.y, animation, animation);
+            VelocityComponent vc = new VelocityComponent(projectile, velocity.x, velocity.y);
 
         // Add the ProjectileComponent with the initial and target positions to the projectile
         new ProjectileComponent(projectile, epc.getPosition(), targetPoint);

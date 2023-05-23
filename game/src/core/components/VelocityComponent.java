@@ -8,9 +8,7 @@ import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;
 import java.util.logging.Logger;
 
-/**
- * VelocityComponent is a component that stores the x, y movement direction
- */
+/** VelocityComponent is a component that stores the x, y movement direction */
 @DSLType(name = "velocity_component")
 public class VelocityComponent extends Component {
     private final Logger velocityCompLogger = Logger.getLogger(this.getClass().getName());
@@ -20,7 +18,7 @@ public class VelocityComponent extends Component {
     private @DSLTypeMember(name = "y_velocity") float yVelocity;
 
     /**
-     * @param entity    associated entity
+     * @param entity associated entity
      * @param xVelocity Speed with which the entity moves on the x-axis
      * @param yVelocity Speed with which the entity moves on the y-axis
      */
@@ -76,11 +74,11 @@ public class VelocityComponent extends Component {
      */
     public float getXVelocity() {
         velocityCompLogger.log(
-            CustomLogLevel.DEBUG,
-            "Fetching x-velocity for entity '"
-                + entity.getClass().getSimpleName()
-                + "': "
-                + xVelocity);
+                CustomLogLevel.DEBUG,
+                "Fetching x-velocity for entity '"
+                        + entity.getClass().getSimpleName()
+                        + "': "
+                        + xVelocity);
         return xVelocity;
     }
 
@@ -98,11 +96,11 @@ public class VelocityComponent extends Component {
      */
     public float getYVelocity() {
         velocityCompLogger.log(
-            CustomLogLevel.DEBUG,
-            "Fetching y-velocity for entity '"
-                + entity.getClass().getSimpleName()
-                + "': "
-                + yVelocity);
+                CustomLogLevel.DEBUG,
+                "Fetching y-velocity for entity '"
+                        + entity.getClass().getSimpleName()
+                        + "': "
+                        + yVelocity);
         return yVelocity;
     }
 

@@ -8,6 +8,7 @@ import core.Entity;
 import core.components.*;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.components.draw.CoreAnimations;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -25,7 +26,8 @@ import java.util.stream.IntStream;
  * PositionComponent}. An {@link DrawComponent} is optional.
  *
  * <p>If an {@link DrawComponent} is present, after the interaction, the {@link
- * DrawComponent#idleRight} animation will be set as the current animation.
+ * core.utils.components.draw.CoreAnimations#IDLE_RIGHT} animation will be set as the current
+ * animation.
  */
 public class DropItemsInteraction implements IInteraction {
 
@@ -39,7 +41,8 @@ public class DropItemsInteraction implements IInteraction {
      * {@link PositionComponent}. An {@link DrawComponent} is optional.
      *
      * <p>If an {@link DrawComponent} is present, after the interaction, the {@link
-     * DrawComponent#idleRight} animation will be set as the current animation.
+     * core.utils.components.draw.CoreAnimations#IDLE_RIGHT} animation will be set as the current
+     * animation.
      *
      * @param entity associated entity
      */
@@ -69,9 +72,10 @@ public class DropItemsInteraction implements IInteraction {
                                                 entity,
                                                 calculateDropPosition(
                                                         positionComponent, index / count)));
+
         entity.getComponent(DrawComponent.class)
                 .map(DrawComponent.class::cast)
-                .ifPresent(x -> x.setCurrentAnimation(x.getIdleRight()));
+                .ifPresent(x -> x.setCurrentAnimation(CoreAnimations.IDLE_RIGHT));
     }
 
     /**

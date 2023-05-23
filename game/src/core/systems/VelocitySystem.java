@@ -2,6 +2,7 @@ package core.systems;
 
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
+
 import core.Entity;
 import core.Game;
 import core.System;
@@ -13,18 +14,14 @@ import core.utils.components.draw.CoreAnimations;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * MovementSystem is a system that updates the position of entities
- */
+/** MovementSystem is a system that updates the position of entities */
 public class VelocitySystem extends System {
 
     public VelocitySystem() {
         super(VelocityComponent.class, PositionComponent.class, DrawComponent.class);
     }
 
-    /**
-     * Updates the position of all entities based on their velocity
-     */
+    /** Updates the position of all entities based on their velocity */
     @Override
     public void execute() {
         getEntityStream().map(this::buildDataObject).forEach(this::updatePosition);
@@ -62,12 +59,12 @@ public class VelocitySystem extends System {
 
         AtomicBoolean isDead = new AtomicBoolean(false);
         vsd.e
-            .getComponent(HealthComponent.class)
-            .ifPresent(
-                component -> {
-                    HealthComponent healthComponent = (HealthComponent) component;
-                    isDead.set(healthComponent.isDead());
-                });
+                .getComponent(HealthComponent.class)
+                .ifPresent(
+                        component -> {
+                            HealthComponent healthComponent = (HealthComponent) component;
+                            isDead.set(healthComponent.isDead());
+                        });
 
         if (isDead.get()) {
             return;
@@ -76,18 +73,15 @@ public class VelocitySystem extends System {
         float x = vsd.vc.getCurrentXVelocity();
         if (x > 0) vsd.dc.setCurrentAnimation(CoreAnimations.RUN_RIGHT);
         else if (x < 0) vsd.dc.setCurrentAnimation(CoreAnimations.RUN_LEFT);
-            // idle
+        // idle
         else {
             // each drawcomponent has an idle animation, so no check is needed
-            if (vsd.dc.getCurrentAnimation() == vsd.dc.getAnimation(CoreAnimations.IDLE_LEFT).get()
-                || (vsd.dc.hasAnimation(CoreAnimations.RUN_LEFT)
-                && vsd.dc.getCurrentAnimation()
-                == vsd.dc.getAnimation(CoreAnimations.RUN_LEFT).get()))
+            if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_LEFT)
+                    || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_LEFT))
                 vsd.dc.setCurrentAnimation(CoreAnimations.IDLE_LEFT);
             else vsd.dc.setCurrentAnimation(CoreAnimations.IDLE_RIGHT);
         }
     }
 
-    private record VSData(Entity e, VelocityComponent vc, PositionComponent pc, DrawComponent dc) {
-    }
+    private record VSData(Entity e, VelocityComponent vc, PositionComponent pc, DrawComponent dc) {}
 }

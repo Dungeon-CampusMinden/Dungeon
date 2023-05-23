@@ -348,6 +348,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         removeAllEntities();
         getHero().ifPresent(this::placeOnLevelStart);
         getHero().ifPresent(Game::addEntity);
+        EntityFactory.getChest();
     }
 
     /** Set the focus of the camera on the hero, if he exists otherwise focus on Pont (0,0) */

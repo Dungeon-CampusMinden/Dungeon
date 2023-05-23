@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * @see IPath
  */
 public final class Animation {
-    private static final int DEFAULT_FRAME_TIME = 3;
+    private static final int DEFAULT_FRAME_TIME = 5;
     private static final boolean DEFAULT_IS_LOOP = true;
 
     /** The set of textures that build the animation. */
@@ -78,11 +78,11 @@ public final class Animation {
      * @return The created Animation instance
      */
     public static Animation of(File subDir) {
-        Set<String> fileNames =
+        List<String> fileNames =
                 Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
                         .filter(File::isFile)
                         .map(File::getPath)
-                        .collect(Collectors.toSet());
+                        .collect(Collectors.toList());
         return new Animation(fileNames, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP);
     }
 
