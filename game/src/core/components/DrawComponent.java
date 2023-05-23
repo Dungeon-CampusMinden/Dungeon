@@ -66,7 +66,10 @@ public class DrawComponent extends Component {
         super(entity);
         // fetch available animations
         ClassLoader classLoader = getClass().getClassLoader();
-        File directory = new File(Objects.requireNonNull(classLoader.getResource(path)).getFile());
+        File directory =
+                new File(
+                        Objects.requireNonNull(classLoader.getResource(File.pathSeparator + path))
+                                .getFile());
         if (!directory.exists() || !directory.isDirectory()) {
             throw new FileNotFoundException("Path " + path + " not found.");
         }
