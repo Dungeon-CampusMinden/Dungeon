@@ -20,7 +20,7 @@ import level.LevelAPI;
 import starter.Game;
 import tools.Point;
 
-public class Boss extends Monster{
+public class Boss extends Monster {
     private final float xSpeed = 0.2f;
     private final float ySpeed = 0.2f;
     private final int maxHealth = 200;
@@ -61,9 +61,9 @@ public class Boss extends Monster{
 
     private void setupHitboxComponent() {
         new HitboxComponent(
-            this,
-            (you, other, direction) -> attack(other),
-            (you, other, direction) -> System.out.println("monsterCollisionLeave"));
+                this,
+                (you, other, direction) -> attack(other),
+                (you, other, direction) -> System.out.println("monsterCollisionLeave"));
     }
 
     private void setupHealthComponent() {
@@ -75,10 +75,6 @@ public class Boss extends Monster{
             }
         };
         new HealthComponent(this, maxHealth, iOnDeathFunction, getHit, die);
-    }
-
-    private IFightAI setupFightStrategy() {
-        return new CollideAI(3);
     }
 
     private void setupAIComponent() {
@@ -103,14 +99,12 @@ public class Boss extends Monster{
     }
 
     private Point entityPosition() {
-        if(Game.getHero().isPresent()){
-            return ((PositionComponent)
-                Game.getHero().get().getComponent(PositionComponent.class)
+        if (Game.getHero().isPresent()) {
+            return ((PositionComponent) Game.getHero().get().getComponent(PositionComponent.class)
                     .orElseThrow(
-                        () ->
-                            new MissingComponentException(
-                                "PositionComponent")))
-                .getPosition();
+                            () -> new MissingComponentException(
+                                    "PositionComponent")))
+                    .getPosition();
         }
         return null;
     }

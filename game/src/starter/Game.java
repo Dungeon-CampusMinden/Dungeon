@@ -211,7 +211,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         saves.setAutoSave(Optional.of(data));
         saves.save();
         gameLogger.info("Level: " + level);
-        new Boss(Game.getLevel());
     }
 
     private void manageEntitiesSets() {
@@ -383,13 +382,16 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     // spawns both monsters and taps accordingly to the size of the floor
     private void levelSetup() {
-        for (int i = 0; i < (level * currentLevel.getFloorTiles().size()) / 100; i++) {
-            spawnMonster();
-        }
-        for (int i = 0; i < level; i++) {
-            if (i % 5 == 0)
-                spawnTraps();
-        }
+        if (level % 10 != 0 || level == 0) {
+            for (int i = 0; i < (level * currentLevel.getFloorTiles().size()) / 100; i++) {
+                spawnMonster();
+            }
+            for (int i = 0; i < level; i++) {
+                if (i % 5 == 0)
+                    spawnTraps();
+            }
+        } else
+            addEntity(new Boss(Game.getLevel()));
     }
 
     // Monster spawn mechanics
