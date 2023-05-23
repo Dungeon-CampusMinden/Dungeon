@@ -8,7 +8,6 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
-import dslToGame.AnimationBuilder;
 import dslToGame.QuestConfig;
 
 import runtime.nativefunctions.NativePrint;
@@ -53,7 +52,7 @@ public class GameEnvironment implements IEvironment {
     }
 
     protected static void registerDefaultTypeAdapters() {
-        typeBuilder.registerTypeAdapter(AnimationBuilder.class, Scope.NULL);
+        // typeBuilder.registerTypeAdapter(AnimationBuilder.class, Scope.NULL);
     }
 
     protected void bindBuiltIns() {

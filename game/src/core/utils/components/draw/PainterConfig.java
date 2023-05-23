@@ -2,11 +2,7 @@ package core.utils.components.draw;
 
 import com.badlogic.gdx.graphics.Texture;
 
-/**
- * This class serves as a configuration class for the {@link Painter} class.
- *
- * <p>Each {@link Painter#draw(PainterConfig)} call needs an instance of this class.
- */
+/** This class serves as a configuration class for the {@link Painter} class. */
 public class PainterConfig {
     float xOffset;
     float yOffset;
