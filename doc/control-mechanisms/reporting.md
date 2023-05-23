@@ -19,9 +19,9 @@ Beispiel:
 
 ```
 single_choice_task my_task {
-  answers: ["a", "b", "c"],  // die Antwortmöglichkeiten
-  correct_answer: answers.0, // die korrekte Antwortmöglichkeit
-  fn_score: score            // die Scoring-Funktion/Bewertungsfunktion
+  answers: ["a", "b", "c"],   // die Antwortmöglichkeiten
+  correct_answer: answers[0], // die korrekte Antwortmöglichkeit
+  fn_score: score             // die Scoring-Funktion/Bewertungsfunktion
 }
 ```
 
