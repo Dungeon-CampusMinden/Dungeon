@@ -210,7 +210,6 @@ public class DebuggerSystem extends System {
      */
     @Override
     public void execute() {
-        // DEBUGGER
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_OUT.get()))
             DebuggerSystem.ZOOM_CAMERA(-0.2f);
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_IN.get()))
