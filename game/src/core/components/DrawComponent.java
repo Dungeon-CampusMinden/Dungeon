@@ -43,8 +43,6 @@ import java.util.stream.Collectors;
  * @see IAnimationPathEnum
  */
 public class DrawComponent extends Component {
-    private final int DEFAULT_FRAME_TIME = 3;
-    private final boolean DEFAULT_IS_LOOP = true;
     private final Map<String, Animation> animationMap;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private Animation currentAnimation;
@@ -75,14 +73,7 @@ public class DrawComponent extends Component {
         animationMap =
                 Arrays.stream(directory.listFiles())
                         .filter(File::isDirectory)
-                        .collect(
-                                Collectors.toMap(
-                                        File::getName,
-                                        subDir ->
-                                                Animation.of(
-                                                        subDir,
-                                                        DEFAULT_FRAME_TIME,
-                                                        DEFAULT_IS_LOOP)));
+                        .collect(Collectors.toMap(File::getName, subDir -> Animation.of(subDir)));
 
         // set current animation
         currentAnimation = animationMap.get(CoreAnimationPathEnum.IDLE_LEFT);

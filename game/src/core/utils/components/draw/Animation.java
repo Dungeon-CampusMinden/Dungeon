@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * <p>The {@link core.components.DrawComponent} will automatically create Animations on creation
  * based on the given path, so normally you don't have to create your own instances.
  *
- * <p>An Animation can have different configurations. Use {@link #setAnimationFrames} to set the
+ * <p>An Animation can have different configurations. Use {@link #setTimeBetweenFrames} to set the
  * time between two frames. Use {@link #setLoop} to define if the Animation stops at the last frame
  * or should loop (starts from the beginning, this is the default setting).
  *
@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
  * @see IAnimationPathEnum
  */
 public final class Animation {
+    private static final int DEFAULT_FRAME_TIME = 3;
+    private static final boolean DEFAULT_IS_LOOP = true;
 
     /** The set of textures that build the animation. */
     private final List<String> animationFrames;
@@ -33,7 +35,7 @@ public final class Animation {
     private final int frames;
 
     /** Number of frames between switching to the next animation? */
-    private int frameTime;
+    private int timeBetweenFrames;
 
     /** Index of the NEXT texture that will be returned. */
     private int currentFrameIndex = 0;
@@ -55,7 +57,7 @@ public final class Animation {
         assert (frameTime > 0);
         this.animationFrames = new ArrayList<>(animationFrames);
         frames = animationFrames.size();
-        this.frameTime = frameTime;
+        this.timeBetweenFrames = frameTime;
         this.looping = looping;
     }
 
@@ -70,20 +72,18 @@ public final class Animation {
     }
 
     /**
-     * Create an animation from the files in the given path.
+     * Create an animation from the files in the given path and the default configuration.
      *
      * @param subDir Path to the subdirectory where the animation frames are stored
-     * @param frameTime Time between two animation frames
-     * @param looping Should the animation loop or stop at the last frame?
      * @return The created Animation instance
      */
-    public static Animation of(File subDir, int frameTime, boolean looping) {
+    public static Animation of(File subDir) {
         Set<String> fileNames =
                 Arrays.stream(subDir.listFiles())
                         .filter(File::isFile)
                         .map(File::getPath)
                         .collect(Collectors.toSet());
-        return new Animation(fileNames, frameTime, looping);
+        return new Animation(fileNames, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP);
     }
 
     /**
@@ -96,7 +96,7 @@ public final class Animation {
             return animationFrames.get(currentFrameIndex);
         }
         String stringToReturn = animationFrames.get(currentFrameIndex);
-        frameTimeCounter = (frameTimeCounter + 1) % frameTime;
+        frameTimeCounter = (frameTimeCounter + 1) % timeBetweenFrames;
         if (frameTimeCounter == 0) {
             currentFrameIndex = (currentFrameIndex + 1) % frames;
         }
@@ -129,10 +129,10 @@ public final class Animation {
     /**
      * Set the time (in frames) between two animation frames.
      *
-     * @param frameTime Time before switching to the next animation frame.
+     * @param timeBetweenFrames Time before switching to the next animation frame.
      */
-    public void setAnimationFrames(int frameTime) {
-        this.frameTime = frameTime;
+    public void setTimeBetweenFrames(int timeBetweenFrames) {
+        this.timeBetweenFrames = timeBetweenFrames;
     }
 
     /**
