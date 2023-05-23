@@ -31,6 +31,9 @@ public class Skill implements Serializable {
             skillFunction.execute(entity);
             activateCoolDown();
         }
+        else {
+            reduceCoolDown();
+        }
     }
 
     /**
