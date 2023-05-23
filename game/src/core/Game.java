@@ -98,8 +98,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param entity the entity that has changes in its Component Collection
      */
     public static void informAboutChanges(Entity entity) {
-        LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
         entities.add(entity);
+        LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
     }
 
     /**
@@ -116,8 +116,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @see DelayedSet
      */
     public static void addEntity(Entity entity) {
-        LOGGER.info("Entity: " + entity + " will be added to the Game.");
         entities.add(entity);
+        LOGGER.info("Entity: " + entity + " will be added to the Game.");
     }
 
     /**
@@ -127,8 +127,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @see DelayedSet
      */
     public static void removeEntity(Entity entity) {
-        LOGGER.info("Entity: " + entity + " will be removed from the Game.");
         entities.remove(entity);
+        LOGGER.info("Entity: " + entity + " will be removed from the Game.");
     }
 
     /**
@@ -213,9 +213,9 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @see Optional
      */
     public static Optional<System> addSystem(System system) {
-        LOGGER.info("A new " + system.getClass().getName() + " was added to the game");
         System currentSystem = systems.get(system.getClass());
         systems.put(system.getClass(), system);
+        LOGGER.info("A new " + system.getClass().getName() + " was added to the game");
         return Optional.ofNullable(currentSystem);
     }
 
@@ -234,9 +234,9 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * <p>This will also remove all entities from each system.
      */
     public static void removeAllEntities() {
-        LOGGER.info("All entities will be removed from the game.");
         systems.values().forEach(System::clearEntities);
         entities.clear();
+        LOGGER.info("All entities will be removed from the game.");
     }
 
     /**

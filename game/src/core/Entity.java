@@ -74,12 +74,12 @@ public final class Entity {
      */
     public void addComponent(Component component) {
         components.put(component.getClass(), component);
+        Game.informAboutChanges(this);
         LOGGER.info(
                 component.getClass().getName()
                         + " Components from "
                         + this.toString()
                         + " was added.");
-        Game.informAboutChanges(this);
     }
 
     /**
@@ -92,8 +92,8 @@ public final class Entity {
      */
     public void removeComponent(Class<? extends Component> klass) {
         if (components.remove(klass) != null) {
-            LOGGER.info(klass.getName() + " from " + name + " was removed.");
             Game.informAboutChanges(this);
+            LOGGER.info(klass.getName() + " from " + name + " was removed.");
         }
     }
 
