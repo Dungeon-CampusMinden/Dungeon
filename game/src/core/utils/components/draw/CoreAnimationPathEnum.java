@@ -8,6 +8,7 @@ public enum CoreAnimationPathEnum implements IAnimationPathEnum {
     IDLE_RIGHT("/idleRIgth"),
     RUN_LEFT("/runLeft"),
     RUN_RIGHT("/runRight");
+
     private final String value;
 
     CoreAnimationPathEnum(String value) {
