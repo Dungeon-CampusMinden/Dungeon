@@ -31,10 +31,16 @@ import java.util.stream.Collectors;
  * <p>Use {@link #hasAnimation} to check if the component has the desired animation.
  *
  * <p>If you want to add your own Animations, create a subdirectory for the animation and add the
- * path to an enum that implements the {@link IPath} interface.
+ * path to an enum that implements the {@link IPath} interface. So if you want to add a jump
+ * animation to the hero, just create a new directory "jump" in the assert-directory of your hero
+ * (for example character/hero) and then add a new Enum-Value JUMP("jump") to {@link
+ * contrib.utils.components.draw.AdditionAnimations}
+ *
+ * <p>Animations will be searched in the default asset directory. Normally this is "game/assets",
+ * but you can change it in the gradle.build file, if you like.
  *
  * <p>Note: each entity needs at least a {@link CoreAnimations#IDLE_LEFT} and {@link
- * CoreAnimations#IDLE_RIGHT} Animation
+ * CoreAnimations#IDLE_RIGHT} Animation.
  *
  * @see Animation
  * @see IPath

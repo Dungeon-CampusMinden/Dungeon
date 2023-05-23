@@ -14,9 +14,34 @@ import core.utils.components.draw.CoreAnimations;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/** MovementSystem is a system that updates the position of entities */
+/**
+ * The VelocitySystem controls the movement of the entities in the game.
+ *
+ * <p>Entities with the {@link VelocityComponent}, {@link PositionComponent}, and {@link
+ * DrawComponent} will be processed by this system.
+ *
+ * <p>The system will take the {@link VelocityComponent#getCurrentXVelocity()} and {@link
+ * VelocityComponent#getCurrentYVelocity()} and calculate the new position of the entity based on
+ * their current position stored in the {@link PositionComponent}. If the new position is a valid
+ * position, which means the tile they would stand on is accessible, the new position will be set.
+ *
+ * <p>This system will also set the current animation to {@link CoreAnimations#RUN_LEFT} or {@link
+ * CoreAnimations#RUN_RIGHT} if the position is valid.
+ *
+ * <p>If the new position is not valid, the {@link CoreAnimations#IDLE_LEFT} or {@link
+ * CoreAnimations#IDLE_RIGHT} animations will be set as the new current animation.
+ *
+ * <p>At the end, the {@link VelocityComponent#setCurrentXVelocity(float)} and {@link
+ * VelocityComponent#setYVelocity(float)} will be set to 0.
+ *
+ * @see VelocityComponent
+ * @see DrawComponent
+ * @see PositionComponent
+ * @see core.level.elements.ILevel
+ */
 public class VelocitySystem extends System {
 
+    /** Create a new VelocitySystem */
     public VelocitySystem() {
         super(VelocityComponent.class, PositionComponent.class, DrawComponent.class);
     }
