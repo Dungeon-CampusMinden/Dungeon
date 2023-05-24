@@ -1,0 +1,166 @@
+---
+title: "Daten für Aufgabendefinitionen"
+---
+
+## Aufgabendefinition
+
+Im Aufgabenkonzept werden [Aufgabentypen](../tasks/readme.md#aufgabentypen) definiert.
+Welche Daten zur Definition einer Aufgabe nötig sind, ist vom Aufgabentyp abhängig.
+Ziel dieses Dokuments ist, die erforderlichen Datenstrukturen für alle Aufgabentypen
+zu definieren.
+
+## Aufgabentyp "Single Choice"
+
+```
+single_choice_task task {
+  description: "Bitte wähle die richtige Antwort aus!"
+  answers: ["a", "b", "c"],
+  correct_answer_index: 0,
+  fn_score: score
+}
+```
+
+
+## Aufgabentyp "Multiple Choice"
+
+```
+multiple_choice_task task {
+  description: "Bitte wähle die richtigen Antworten aus!"
+  answers: ["a", "b", "c", "d"],
+  correct_answer_indices: [0, 2],
+  fn_score: score
+}
+```
+
+## Aufgabentyp "Ersetzen"
+
+```
+replacement_task t {
+  description: "Bitte führe Ersetzungen durch!"
+  elements: [elem1, elem2, elem3, ...],
+  rules: graph {
+    // Definition der Element-Mengen
+    n1[elements=[elements[0], elements[1], elements[2], order_relevant=true/false]
+    n2[elements=[elements[3], elements[4]]]
+    n3[elements=[elements[5]]]
+    n4[elements=[elements[6]]]
+
+    // Definition der Ersetzungs-Regeln
+    n1 -> n2 [name=ersetzung1]
+    n2 -> n3 [name=ersetzung2]
+    n2 -> n4 [name=ersetzung3]
+  },
+  answer_sequence: [rules.ersetzung1, rules.ersetzung2],
+  fn_score: score
+}
+```
+
+Frage: Brauchen wir überhaupt die Startmenge? Kann der Interpreter die nicht automatisch ausrechnen?
+
+## Aufgabentyp "Zuordnen"
+
+```
+mapping_task t {
+  description: "Bitte ordne Elemente einander zu!"
+  elements_A: [elem1, elem2, elem3],
+  elements_B: [elem4, elem5, elem6],
+  rules: graph {
+    // Definition der Elemente-Mengen
+    n1[elements=[elements_A[0]]
+    n2[elements=[elements_A[1]]
+    n3[elements=[elements_A[2]]
+    n4[elements=[elements_B[0]]
+    n5[elements=[elements_B[2]]
+
+    // Definition Zuordnung
+    n1 -> n4
+    n2 -> n4
+    n3 -> n5
+  },
+  fn_score: score
+}
+```
+
+### Zuordnung: Alternative Notation
+
+Als alternative Notation zur Definition der Zuordnung ist folgende Notation vorstellbar:
+
+```
+...
+  rules: graph {
+    // Definition Zuordnung
+    elements_A[0] -> elements_B[0]
+    elements_A[1] -> elements_B[0]
+    elements_A[2] -> elements_B[2]
+  },
+...
+```
+
+Dies würde allerdings die Erweiterung der eingebetteten Dot-Syntax erfordern, sodass beliebige
+Ausdrücke als Knoten in Kantendefinitionen verwendet werden können.
+
+## Aufgabentyp "Lücken füllen"
+
+```
+gap_task task {
+  description: "Bitte fülle die Lücken!"
+  gaps: ["gap1", "gap2", "gap3", "gap4"],
+  elements: [elem1, elem2, elem3, elem4],
+  rules: graph {
+    // Definition der Elemente-Mengen
+    n1[elements=[gaps[0]]
+    n2[elements=[gaps[1]]
+    n3[elements=[gaps[2]]
+
+    n4[elements=[elements[0]]
+    n5[elements=[elements[1]]
+    n6[elements=[elements[2]]
+    n7[elements=[elements[3]]
+
+    // Definition Zuordnung
+    n4 -> n1
+    n5 -> n2
+    n6 -> n2
+    n7 -> n3
+  },
+  fn_score: score
+}
+```
+
+```
+gap_task task {
+  description: "Bitte fülle die Lücken!"
+  gaps_amount: 4, // erzeugt implizit ein Lücken-array mit 4 Elementen
+  elements: [elem1, elem2, elem3, elem4],
+  rules: graph {
+    // Definition der Elemente-Mengen
+    n1[elements=[gaps[0]]
+    n2[elements=[gaps[1]]
+    n3[elements=[gaps[2]]
+
+    n4[elements=[elements[0]]
+    n5[elements=[elements[1]]
+    n6[elements=[elements[2]]
+    n7[elements=[elements[3]]
+
+    // Definition Zuordnung
+    n4 -> n1
+    n5 -> n2
+    n6 -> n2
+    n7 -> n3
+  },
+  fn_score: score
+}
+```
+
+Alternative Notation (vgl. [Zuordnen](#zuordnung-alternative-notation)):
+
+```
+rules: graph {
+  // Definition Zuordnung
+  elements[0] -> gaps[0]
+  elements[1] -> gaps[1]
+  elements[2] -> gaps[1]
+  elements[3] -> gaps[2]
+},
+```
