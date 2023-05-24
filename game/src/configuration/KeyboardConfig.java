@@ -14,6 +14,9 @@ public class KeyboardConfig {
             new ConfigKey<>(new String[] {"movement", "left"}, new ConfigIntValue(Input.Keys.A));
     public static final ConfigKey<Integer> MOVEMENT_RIGHT =
             new ConfigKey<>(new String[] {"movement", "right"}, new ConfigIntValue(Input.Keys.D));
+
+    public static final ConfigKey<Integer> INVENTORY =
+        new ConfigKey<>(new String[] {"inventory", "inventory"}, new ConfigIntValue(Input.Keys.I));
     public static final ConfigKey<Integer> INVENTORY_FIRST =
             new ConfigKey<>(new String[] {"inventory", "first"}, new ConfigIntValue(Input.Keys.NUM_1));
 

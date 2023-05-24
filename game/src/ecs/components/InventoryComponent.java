@@ -1,5 +1,7 @@
 package ecs.components;
 
+import com.badlogic.gdx.Gdx;
+import configuration.KeyboardConfig;
 import ecs.components.ai.AITools;
 import ecs.entities.Entity;
 import ecs.items.ItemData;
@@ -16,6 +18,7 @@ import tools.Point;
 public class InventoryComponent extends Component {
     private List<ItemData> inventory;
     private int maxSize;
+    private boolean isOpen;
     private transient final Logger inventoryLogger = Logger.getLogger(this.getClass().getName());
 
     /**
@@ -80,11 +83,19 @@ public class InventoryComponent extends Component {
      * @return
      */
     public boolean useItem(int inventoryNumber) {
-        if (inventory.size() <= inventoryNumber)
-            return false;
-        ItemData itemData = inventory.get(inventoryNumber);
-        itemData.triggerUse(entity);
-        return true;
+        if(this.isOpen) {
+            this.isOpen = false;
+            if (inventory.size() <= inventoryNumber)
+                return false;
+            ItemData itemData = inventory.get(inventoryNumber);
+            itemData.triggerUse(entity);
+            return true;
+        }
+        return false;
+    }
+
+    public void setOpen(){
+        this.isOpen = true;
     }
 
     /**
@@ -93,8 +104,11 @@ public class InventoryComponent extends Component {
     public void removeFirstItem() {
         if (inventory.size() <= 0)
             return;
-        ItemData itemData = inventory.get(0);
-        itemData.triggerDrop(entity, AITools.getRandomAccessibleTileCoordinateInRange(position(entity), 2f).toPoint());
+        if(this.isOpen) {
+            this.isOpen = false;
+            ItemData itemData = inventory.get(0);
+            itemData.triggerDrop(entity, AITools.getRandomAccessibleTileCoordinateInRange(position(entity), 2f).toPoint());
+        }
     }
 
     private Point position(Entity entity) {

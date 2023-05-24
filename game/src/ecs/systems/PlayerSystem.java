@@ -33,7 +33,10 @@ public class PlayerSystem extends ECS_System {
         else if (Gdx.input.isKeyPressed(KeyboardConfig.MOVEMENT_LEFT.get()))
             ksd.vc.setCurrentXVelocity(-1 * ksd.vc.getXVelocity());
 
-        if (Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_FIRST.get())){
+        if(Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY.get())){
+            ksd.in.setOpen();
+        }
+        else if (Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_FIRST.get())){
             ksd.in.useItem(0);
         }
         else if(Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_SECOND.get())){
