@@ -21,6 +21,12 @@ import level.LevelAPI;
 import starter.Game;
 import tools.Point;
 
+/**
+ * The Boss is the final boss. It's entity is in the ECS. This class helps to setup the
+ * boss with all its components and attributes .
+ * It extends the Monster class. The Boss is a Monster.
+ */
+
 public class Boss extends Monster {
     private final float xSpeed = 0.2f;
     private final float ySpeed = 0.2f;
@@ -36,7 +42,13 @@ public class Boss extends Monster {
     private final String pathToGetHit = "monster/Boss/getHit";
     private final String pathToDie = "monster/Boss/die";
 
-    /** Entity with Components */
+    /**
+     * Creates a Boss with all its components and attributes.
+     * @param level The level of the Boss.
+     *              The level determines the Boss's attributes.
+     *              The higher the level, the stronger the Boss.
+     *              The level also determines the Boss's AI.
+     */
     public Boss(int level) {
         super(level);
         this.level = level;

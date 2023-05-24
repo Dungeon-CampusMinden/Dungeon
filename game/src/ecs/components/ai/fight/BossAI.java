@@ -13,7 +13,11 @@ import level.elements.tile.Tile;
 import starter.Game;
 import tools.Constants;
 import tools.Point;
-
+/**
+ * The BossAO is an AI for the Boss monsters. It's entity in the ECS. This
+ * class helps to setup a Boss monsters with all its components and attributes.
+ * It extends the IfightAI interface.
+ */
 public class BossAI implements IFightAI {
     private final int BREAK_TIME = 2 * Constants.FRAME_RATE;
     private int currentBreak = 0;
@@ -23,6 +27,12 @@ public class BossAI implements IFightAI {
     private boolean aggressive;
     private float range;
 
+    /**
+     * Constructor for the BossAI.
+     * @param firstSkill the first skill of the boss
+     * @param secondSkill the second skill of the boss
+     * @param range the range of the boss
+     */
     public BossAI(Skill fistSkill, Skill secondSkill, float range) {
         if (Game.getHero().isEmpty()) {
             throw new Error("There must be a Hero in the Game!");

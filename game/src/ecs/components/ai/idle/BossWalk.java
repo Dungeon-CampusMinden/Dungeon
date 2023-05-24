@@ -8,6 +8,17 @@ import ecs.entities.Entity;
 import level.elements.tile.Tile;
 import tools.Point;
 
+/**
+ * The BossWalk is a class which implements the IIdleAI interface.
+ * It is used to make the Boss walk around in the level.
+ * It has a path, which is calculated by the AITools class.
+ * It has a currentBreak, which is used to make the Boss wait for a certain amount of time.
+ * It has a BREAK_TIME, which is the time the Boss waits.
+ * It has a aggressive, which is used to check if the Boss is aggressive.
+ * It has a range, which is the range the Boss can see the Hero.
+ * It has a entity, which is the Boss.
+ */
+
 public class BossWalk implements IIdleAI {
     private GraphPath<Tile> path;
     private static final float MAX_RADIUS = 10f;
