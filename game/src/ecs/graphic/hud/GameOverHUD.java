@@ -4,19 +4,23 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Align;
 import controller.ScreenController;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import starter.Game;
 import tools.Constants;
 import tools.Point;
 
 public class GameOverHUD<T extends Actor> extends ScreenController<T> {
 
+    Logger loggerHud = Logger.getLogger(getClass().getName());
+
     /** Creates a new PauseMenu with a new Spritebatch */
     public GameOverHUD() {
         this(new SpriteBatch());
     }
+
     /**
      * Creates a Screencontroller with a ScalingViewport which stretches the ScreenElements on
      * resize
@@ -48,7 +52,7 @@ public class GameOverHUD<T extends Actor> extends ScreenController<T> {
                             public void clicked(InputEvent event, float x, float y) {
                                 // Neues level laden
                                 Game.restartGame();
-                                System.out.println("Restart");
+                                loggerHud.log(Level.SEVERE, "New Game Started");
                                 hideMenu();
                             }
                         },
@@ -57,7 +61,7 @@ public class GameOverHUD<T extends Actor> extends ScreenController<T> {
                                 .setOverFontColor(Color.RED)
                                 .build());
         newGame.setPosition(
-                (Constants.WINDOW_WIDTH) / 2f - newGame.getWidth()+20,
+                (Constants.WINDOW_WIDTH) / 2f - newGame.getWidth() + 20,
                 (Constants.WINDOW_HEIGHT) / 2f + newGame.getHeight(),
                 Align.center | Align.bottom);
 
@@ -69,7 +73,7 @@ public class GameOverHUD<T extends Actor> extends ScreenController<T> {
                             @Override
                             public void clicked(InputEvent event, float x, float y) {
                                 System.exit(0);
-                                System.out.println("System Exit");
+                                loggerHud.log(Level.SEVERE, "Closed Game");
                             }
                         },
                         new TextButtonStyleBuilder(FontBuilder.DEFAULT_FONT)
@@ -78,7 +82,7 @@ public class GameOverHUD<T extends Actor> extends ScreenController<T> {
                                 .build());
         quit.setScale(3);
         quit.setPosition(
-                (Constants.WINDOW_WIDTH) / 2f + quit.getWidth()+20,
+                (Constants.WINDOW_WIDTH) / 2f + quit.getWidth() + 20,
                 (Constants.WINDOW_HEIGHT) / 2f + quit.getHeight(),
                 Align.center | Align.bottom);
 
@@ -91,8 +95,10 @@ public class GameOverHUD<T extends Actor> extends ScreenController<T> {
 
     /** shows the Game Over screen */
     public void showMenu() {
+        loggerHud.info("Open Game Over HUD");
         this.forEach((Actor s) -> s.setVisible(true));
     }
+
     /** hide the Game Over screen */
     public void hideMenu() {
         this.forEach((Actor s) -> s.setVisible(false));

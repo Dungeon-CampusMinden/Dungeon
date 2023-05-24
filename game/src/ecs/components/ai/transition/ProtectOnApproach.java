@@ -18,7 +18,7 @@ public class ProtectOnApproach implements ITransition {
     /**
      * Constructor needs a range and the entity to protect.
      *
-     * @param range     - The range in which the entity should in fight mode
+     * @param range - The range in which the entity should in fight mode
      * @param toProtect - The entity which should be protected
      */
     public ProtectOnApproach(float range, Entity toProtect) {

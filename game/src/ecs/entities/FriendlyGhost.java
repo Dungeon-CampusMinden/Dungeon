@@ -11,6 +11,7 @@ import ecs.components.ai.idle.RadiusWalk;
 import ecs.components.ai.transition.FriendlyTransition;
 import ecs.graphic.Animation;
 import java.util.Random;
+import java.util.logging.Logger;
 
 /**
  * A friendly ghost npc is a friendly npc that has certain chance to spawn.
@@ -31,6 +32,7 @@ public class FriendlyGhost extends Entity {
 
     private Hero hero;
 
+    Logger ghostLogger = Logger.getLogger(getClass().getName());
     private final String pathToIdleLeft = "monster/ghost/idelLeft";
     private final String pathToIdleRight = "monster/ghost/idelRight";
     private final String pathToRunLeft = "monster/ghost/runLeft";
@@ -73,13 +75,10 @@ public class FriendlyGhost extends Entity {
     }
 
     private void setupHitboxComponent() {
-        new HitboxComponent(
-                this,
-                (you, other, direction) -> System.out.println(""),
-                (you, other, direction) -> System.out.println(""));
+        new HitboxComponent(this, null, null);
     }
 
-    /** * */
+    /** */
     private void setupFriendlyIdleAiComponent() {
         new AIComponent(this, new CollideAI(5f), new RadiusWalk(5, 2), new FriendlyTransition());
     }
@@ -99,11 +98,11 @@ public class FriendlyGhost extends Entity {
         if (rng > 15) {
             new AIComponent(this);
             this.follow = true;
-            System.out.println("GHOST SPAWN");
+            ghostLogger.info("GHOST SPAWN");
         } else {
             setupFriendlyIdleAiComponent();
             this.follow = false;
-            System.out.println("GHOST IDLE");
+            ghostLogger.info("GHOST IDLE");
         }
     }
 }

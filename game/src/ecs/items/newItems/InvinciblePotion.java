@@ -4,7 +4,10 @@ import dslToGame.AnimationBuilder;
 import ecs.components.HealthComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
-import ecs.items.*;
+import ecs.items.IOnCollect;
+import ecs.items.ItemData;
+import ecs.items.ItemType;
+import ecs.items.WorldItemBuilder;
 import java.util.Timer;
 import java.util.TimerTask;
 import starter.Game;
@@ -28,8 +31,7 @@ public class InvinciblePotion extends ItemData implements IOnCollect {
     public void resetInvincible(Entity e) {
         HealthComponent innerHCP = (HealthComponent) e.getComponent(HealthComponent.class).get();
         innerHCP.setInvincible(false);
-        System.out.println("Test");
-        System.out.println("Not longer invincible");
+        itemLogger.info("Not longer invincible");
     }
 
     /**
@@ -44,7 +46,6 @@ public class InvinciblePotion extends ItemData implements IOnCollect {
         if (whoCollides instanceof Hero) {
             Game.removeEntity(WorldItemEntity);
             HealthComponent hCp = null;
-            System.out.println("Test");
 
             // Set invincible if HealthComponent is present
             if (whoCollides.getComponent(HealthComponent.class).isPresent()) {
@@ -53,7 +54,7 @@ public class InvinciblePotion extends ItemData implements IOnCollect {
 
             if (hCp != null) {
                 hCp.setInvincible(true);
-                System.out.println("Invincible for 5 seconds");
+                itemLogger.info("Invincible for 5 seconds");
 
                 // After 5 seconds, set invincible false
                 Timer timer = new Timer();

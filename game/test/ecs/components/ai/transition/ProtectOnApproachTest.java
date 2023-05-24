@@ -1,5 +1,7 @@
 package ecs.components.ai.transition;
 
+import static org.junit.Assert.assertTrue;
+
 import ecs.components.PositionComponent;
 import ecs.components.ai.AIComponent;
 import ecs.components.ai.fight.CollideAI;
@@ -10,8 +12,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import starter.Game;
 import tools.Point;
-
-import static org.junit.Assert.assertTrue;
 
 public class ProtectOnApproachTest {
     private Entity entity;
@@ -26,11 +26,11 @@ public class ProtectOnApproachTest {
 
         // Add AI Component
         AIComponent protectedAI =
-            new AIComponent(
-                protectedEntity,
-                new CollideAI(0.2f),
-                new RadiusWalk(0, 50),
-                new RangeTransition(2));
+                new AIComponent(
+                        protectedEntity,
+                        new CollideAI(0.2f),
+                        new RadiusWalk(0, 50),
+                        new RangeTransition(2));
 
         protectedEntity.addComponent(protectedAI);
 
@@ -44,11 +44,11 @@ public class ProtectOnApproachTest {
 
         // Add AI Component
         entityAI =
-            new AIComponent(
-                entity,
-                new CollideAI(0.2f),
-                new RadiusWalk(0, 50),
-                new ProtectOnApproach(2f, protectedEntity));
+                new AIComponent(
+                        entity,
+                        new CollideAI(0.2f),
+                        new RadiusWalk(0, 50),
+                        new ProtectOnApproach(2f, protectedEntity));
         entity.addComponent(entityAI);
 
         // Add Position Component
@@ -60,8 +60,7 @@ public class ProtectOnApproachTest {
         hero = Game.getHero().orElse(new Entity());
     }
 
-
-    //Ignore because no solution to create hero during tests at the moment
+    // Ignore because no solution to create hero during tests at the moment
     @Test
     @Ignore
     public void testHeroInRange() {

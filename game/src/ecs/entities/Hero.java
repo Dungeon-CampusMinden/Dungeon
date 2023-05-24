@@ -2,13 +2,11 @@ package ecs.entities;
 
 import dslToGame.AnimationBuilder;
 import ecs.components.*;
-import ecs.components.AnimationComponent;
-import ecs.components.PositionComponent;
-import ecs.components.VelocityComponent;
 import ecs.components.skill.*;
 import ecs.components.xp.ILevelUp;
 import ecs.components.xp.XPComponent;
 import ecs.graphic.Animation;
+import java.util.logging.Logger;
 import starter.Game;
 
 /**
@@ -45,6 +43,8 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
     private InventoryComponent inv;
 
     int currentHealth;
+
+    Logger heroLogger = Logger.getLogger(getClass().getName());
 
     private static boolean dead = false;
 
@@ -100,16 +100,13 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
 
     /** Modifies the current health by passed amount */
     public void setHealth(int amount) {
-        System.out.println("HP before: " + this.hp.getCurrentHealthpoints());
+        heroLogger.info("HP before: " + this.hp.getCurrentHealthpoints());
         this.hp.setCurrentHealthpoints(this.hp.getCurrentHealthpoints() + amount);
-        System.out.println("HP after: " + this.hp.getCurrentHealthpoints());
+        heroLogger.info("HP after: " + this.hp.getCurrentHealthpoints());
     }
 
     private void setupHitboxComponent() {
-        new HitboxComponent(
-                this,
-                (you, other, direction) -> System.out.print(""),
-                (you, other, direction) -> System.out.print(""));
+        new HitboxComponent(this, null, null);
     }
 
     public void setDmg(int dmg) {
@@ -155,7 +152,7 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
      */
     @Override
     public void onLevelUp(long nexLevel) {
-        System.out.println("You leveled up to Level " + nexLevel);
+        heroLogger.info("You leveled up to Level " + nexLevel);
         if (nexLevel == 1) {
             setupHealSkill();
             pc.setSkillSlot2(secondSkill);

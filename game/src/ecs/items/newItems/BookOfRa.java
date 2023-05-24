@@ -5,7 +5,10 @@ import ecs.components.InventoryComponent;
 import ecs.components.xp.XPComponent;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
-import ecs.items.*;
+import ecs.items.IOnCollect;
+import ecs.items.ItemData;
+import ecs.items.ItemType;
+import ecs.items.WorldItemBuilder;
 import java.util.Random;
 import starter.Game;
 
@@ -49,7 +52,7 @@ public class BookOfRa extends ItemData implements IOnCollect {
                 if (item instanceof Bag bag) {
                     if (bag.addItem(this)) {
                         Game.removeEntity(WorldItemEntity);
-                        System.out.println(this.getItemName() + " has been added to the Book Bag.");
+                        itemLogger.info(this.getItemName() + " has been added to the Book Bag.");
                         return;
                     }
                 }
@@ -57,16 +60,15 @@ public class BookOfRa extends ItemData implements IOnCollect {
 
             if (inv.addItem(this)) {
                 Game.removeEntity(WorldItemEntity);
-                System.out.println(this.getItemName() + " has been added to the Inventory");
+                itemLogger.info(this.getItemName() + " has been added to the Inventory");
             } else {
-                System.out.println("No space for item in inventory.");
+                itemLogger.info("No space for item in inventory.");
             }
         }
     }
 
     /** Rewarding function that grants the hero xp. Is called in onLevelLoad() */
     public void grantXP() {
-        System.out.println("Book Test");
         XPComponent xp = null;
 
         if (hero.getComponent(XPComponent.class).isPresent()) {
@@ -76,7 +78,7 @@ public class BookOfRa extends ItemData implements IOnCollect {
         Random random = new Random();
         int randomXP = (int) ((xp.getXPToNextLevel() * random.nextInt(1, 5)) / 100);
         xp.addXP(randomXP);
-        System.out.println("XP missing to level up: " + xp.getXPToNextLevel());
-        System.out.println("Granted " + randomXP + " by the Book of Ra.");
+        itemLogger.info("XP missing to level up: " + xp.getXPToNextLevel());
+        itemLogger.info("Granted " + randomXP + " by the Book of Ra.");
     }
 }

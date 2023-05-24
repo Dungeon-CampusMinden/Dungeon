@@ -76,7 +76,7 @@ public class HealthComponent extends Component {
      */
     public void receiveHit(Damage damage) {
         if (invincible) {
-            System.out.println("Invincible is true");
+            healthLogger.info("Invincible is true");
             return;
         }
 
@@ -119,7 +119,7 @@ public class HealthComponent extends Component {
 
     public void setInvincible(boolean invincible) {
         this.invincible = invincible;
-        System.out.println("Invincible set: " + invincible);
+        healthLogger.info("Invincible set: " + invincible);
     }
 
     /** Clear the damage list */

@@ -55,10 +55,7 @@ public class Slime extends Monster {
     }
 
     private void setupHitboxComponent() {
-        new HitboxComponent(
-                this,
-                (you, other, direction) -> doDmg(other),
-                (you, other, direction) -> System.out.print(""));
+        new HitboxComponent(this, (you, other, direction) -> doDmg(other), null);
     }
 
     private void doDmg(Entity other) {

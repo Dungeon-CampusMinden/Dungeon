@@ -3,7 +3,10 @@ package ecs.items.newItems;
 import dslToGame.AnimationBuilder;
 import ecs.entities.Entity;
 import ecs.entities.Hero;
-import ecs.items.*;
+import ecs.items.IOnCollect;
+import ecs.items.ItemData;
+import ecs.items.ItemType;
+import ecs.items.WorldItemBuilder;
 import starter.Game;
 
 /** The greatsword adds 20 damage to the hero if collected. */
@@ -36,7 +39,7 @@ public class Greatsword extends ItemData implements IOnCollect {
             Hero hero = (Hero) whoCollides;
             int currentDmg = hero.getDmg();
             hero.setDmg(currentDmg + dmg);
-            System.out.println(hero.getDmg());
+            itemLogger.info("New damage: " + hero.getDmg());
         }
     }
 }

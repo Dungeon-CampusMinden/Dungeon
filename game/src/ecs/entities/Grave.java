@@ -5,6 +5,7 @@ import ecs.components.AnimationComponent;
 import ecs.components.HitboxComponent;
 import ecs.components.PositionComponent;
 import ecs.graphic.Animation;
+import java.util.logging.Logger;
 
 /**
  * A grave is spawned by a FriendlyGhost
@@ -19,6 +20,8 @@ public class Grave extends Entity {
     private final FriendlyGhost ghost;
 
     public boolean found = false;
+
+    Logger graveLogger = Logger.getLogger(getClass().getName());
 
     /**
      * Constructor
@@ -42,7 +45,7 @@ public class Grave extends Entity {
         new HitboxComponent(
                 this,
                 (you, other, direction) -> setfound(other),
-                (you, other, direction) -> System.out.println("graveCollisionLeave"));
+                (you, other, direction) -> graveLogger.info("graveCollisionLeave"));
     }
 
     /** If hero with a following ghost collides wit grave the hero gets rewarded by the ghost* */
@@ -51,6 +54,6 @@ public class Grave extends Entity {
             ghost.reward();
             found = true;
         }
-        System.out.println("FOUND");
+        graveLogger.info("FOUND");
     }
 }

@@ -16,15 +16,14 @@ import ecs.components.InventoryComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.entities.*;
-import ecs.entities.Entity;
-import ecs.entities.FriendlyGhost;
-import ecs.entities.Hero;
 import ecs.entities.Monsters.Demon;
 import ecs.entities.Monsters.Imp;
 import ecs.entities.Monsters.Slime;
 import ecs.graphic.DungeonCamera;
 import ecs.graphic.Painter;
-import ecs.graphic.hud.*;
+import ecs.graphic.hud.GameOverHUD;
+import ecs.graphic.hud.InventoryHUD;
+import ecs.graphic.hud.PauseMenu;
 import ecs.items.ItemData;
 import ecs.items.ItemType;
 import ecs.items.newItems.Bag;
@@ -173,16 +172,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new BearTrap();
         currentLvl++;
         bookCheck();
-        System.out.println("Current Level:" + currentLvl);
 
         // Test
         Hero hero1 = (Hero) Game.hero;
         hero1.getXpCmp().addXP(hero1.getXpCmp().getXPToNextLevel());
-        System.out.println(
-                hero1.getXpCmp().getCurrentLevel()
-                        + ". level with "
-                        + hero1.getXpCmp().getCurrentXP()
-                        + " XP.");
+        gameLogger.info("Current Level: " + currentLvl);
     }
 
     /** Spawn ghost, there is a 10% chance it doesn't spawn */
@@ -230,8 +224,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
             monster++;
         }
-
-        System.out.println("Amount of monsters: " + monster);
+        gameLogger.info("Amount of monsters spawned in this level: " + monster);
     }
 
     public void bookCheck() {
