@@ -20,9 +20,7 @@ import tools.Point;
 
 /** A Class which contains the Information of a specific Item.
  *  It is used to create an ItemEntity which is used in the game.
- *  It is used to create an ItemComponent which is used in the Inventory.
- *  It is used to create an ItemConfig which is used to save the Item.
- *  It is used to create an ItemData which is used to load the Item.
+ *  This class is makes a difference between the ItemType Bag and the other ones.
  */
 public class ItemData implements Serializable {
     private transient final Logger itemLogger = Logger.getLogger(this.getClass().getName());
@@ -53,6 +51,8 @@ public class ItemData implements Serializable {
      * @param onDrop
      * @param onUse
      * @param damageModifier
+     *
+     * IF ItemType.Bag is used this class creates a List with 3 spaces, to save items init.
      */
     public ItemData(
             ItemType itemType,
@@ -178,7 +178,7 @@ public class ItemData implements Serializable {
      * the item from the
      * inventory.
      *
-     * @param e    Entity that uses the item
+     * @param e Entity that uses the item
      * @param item Item that is used
      */
     private static void defaultUseCallback(Entity e, ItemData item) {
@@ -200,6 +200,12 @@ public class ItemData implements Serializable {
 
     }
 
+    /**
+     * This methode is used to drop an item.
+     * @param who the entity, that drops the item
+     * @param which item that is dropped
+     * @param position where the item will be dropped
+     */
     private static void defaultDrop(Entity who, ItemData which, Point position) {
         which.itemLogger.info(who + " dropped " + which + "defaultDrop");
         Entity droppedItem = new Entity();
@@ -209,6 +215,11 @@ public class ItemData implements Serializable {
         component.setiCollideEnter((a, b, direction) -> which.triggerCollect(a, b));
     }
 
+    /**
+     * This methode is used to collect the item
+     * @param worldItem is the item, that will be collected
+     * @param whoCollected that collects the item
+     */
     private static void defaultCollect(Entity worldItem, Entity whoCollected) {
         if (!Game.getHero().isPresent())
             return;

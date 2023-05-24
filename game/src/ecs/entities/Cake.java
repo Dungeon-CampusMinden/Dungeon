@@ -48,18 +48,18 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
     }
 
     @Override
-    public void setupAnimationComponent() {
+    protected void setupAnimationComponent() {
         Animation idle = AnimationBuilder.buildAnimation(ItemConfig.KUCHEN_TEXTURE.get());
         new AnimationComponent(this, idle);
     }
 
     @Override
-    public void setupPositionComponent() {
+    protected void setupPositionComponent() {
         new PositionComponent(this);
     }
 
     @Override
-    public void setupHitBoxComponent() {
+    protected void setupHitBoxComponent() {
         new HitboxComponent(
                 this,
                 (you, other, direction) -> onCollect(this, other),
@@ -68,7 +68,7 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
     }
 
     @Override
-    public void setupItemComponent() {
+    protected void setupItemComponent() {
         ItemData itemData = new ItemData(
                 ItemConfig.FOOD_TYPE.get(),
                 new Animation(List.of(ItemConfig.KUCHEN_TEXTURE.get()), 1),
@@ -83,6 +83,11 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
         this.itemComponent = new ItemComponent(this, itemData);
     }
 
+    /**
+     * This methode is used to collect the item
+     * @param WorldItemEntity is the item, that will be collected
+     * @param whoCollides that collects the item
+     */
     @Override
     public void onCollect(Entity WorldItemEntity, Entity whoCollides) {
         cakeLogger.info(WorldItemEntity.toString() + " collected by " + whoCollides.toString());
@@ -101,6 +106,14 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
             Game.removeEntity(WorldItemEntity);
     }
 
+    /**
+     * Uses the item and removes
+     * the item from the
+     * inventory.
+     *
+     * @param e Entity that uses the item
+     * @param item Item that is used
+     */
     @Override
     public void onUse(Entity e, ItemData item) {
         cakeLogger.info(e.toString() + " used " + item.getItemName());
@@ -126,6 +139,12 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
         }
     }
 
+    /**
+     * This methode is used to drop an item.
+     * @param user the entity, that drops the item
+     * @param which item that is dropped
+     * @param position where the item will be dropped
+     */
     @Override
     public void onDrop(Entity user, ItemData which, Point position) {
         cakeLogger.info(user.toString() + " dropped " + which.getItemName() + " at " + position.toString());
@@ -138,6 +157,10 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
                 .removeItem(which);
     }
 
+    /**
+     * This Methode is executing the ability of the item
+     * @param entity
+     */
     private void heal(Entity entity) {
         cakeLogger.info(entity.toString() + " healed by " + itemComponent.getItemData().getItemName());
         if (!entity.getComponent(HealthComponent.class).isPresent())

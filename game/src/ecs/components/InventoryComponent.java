@@ -21,8 +21,8 @@ public class InventoryComponent extends Component {
     /**
      * creates a new InventoryComponent
      *
-     * @param entity  the Entity where this Component should be added to
-     * @param maxSize the maximal size of the inventory
+     * @param entity the Entity where this Component should be added to
+     * @param maxSize the maximal size of the inventory. Can not be bigger than 9
      */
     public InventoryComponent(Entity entity, int maxSize) {
         super(entity);
@@ -36,7 +36,7 @@ public class InventoryComponent extends Component {
     /**
      * Adding an Element to the Inventory does not allow adding more items than the
      * size of the
-     * Inventory.
+     * Inventory. But if there is an empty Bag, or a bag of the same type, the item will be added there.
      *
      * @param itemData the item which should be added
      * @return true if the item was added, otherwise false
@@ -74,6 +74,11 @@ public class InventoryComponent extends Component {
                         + "'.");
     }
 
+    /**
+     * Uses the Item on the
+     * @param inventoryNumber position.
+     * @return
+     */
     public boolean useItem(int inventoryNumber) {
         if (inventory.size() <= inventoryNumber)
             return false;
@@ -82,6 +87,9 @@ public class InventoryComponent extends Component {
         return true;
     }
 
+    /**
+     * Removes the first Item of the inventory.
+     */
     public void removeFirstItem() {
         if (inventory.size() <= 0)
             return;
