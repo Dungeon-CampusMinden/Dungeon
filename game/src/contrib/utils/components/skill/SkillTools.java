@@ -11,11 +11,12 @@ import core.utils.Point;
 public class SkillTools {
 
     /**
-     * calculates the last position in range regardless of aimed position
+     * A skill has a range in which it is effective. This is a calculation of the last position in
+     * range of the skill.
      *
      * @param startPoint position to start the calculation
-     * @param aimPoint point to aim for
-     * @param range range from start to
+     * @param aimPoint target Point
+     * @param range range from startPoint
      * @return last position in range if you follow the direction from startPoint to aimPoint
      */
     public static Point calculateLastPositionInRange(
@@ -37,6 +38,15 @@ public class SkillTools {
         return new Point(startPoint.x + scv.x, startPoint.y + scv.y);
     }
 
+    /**
+     * Calculates the velocity vector to move from the start point to the goal point with the given
+     * speed.
+     *
+     * @param start the starting point
+     * @param goal the goal point
+     * @param speed the speed of movement
+     * @return the velocity vector as a Point object
+     */
     public static Point calculateVelocity(Point start, Point goal, float speed) {
         float x1 = start.x;
         float y1 = start.y;
@@ -52,7 +62,7 @@ public class SkillTools {
     }
 
     /**
-     * gets the current cursor position as Point
+     * Gets the current cursor position as Point. The cursor is used to aim.
      *
      * @return mouse cursor position as Point
      */

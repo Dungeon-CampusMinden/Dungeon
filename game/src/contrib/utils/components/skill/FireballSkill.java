@@ -7,6 +7,12 @@ import core.utils.Point;
 
 import java.util.function.Supplier;
 
+/**
+ * FireballSkill is a subclass of DamageProjectile.
+ *
+ * <p>The FireballSkill class extends the functionality of DamageProjectile to implement the
+ * specific behavior of the fireball skill.
+ */
 public class FireballSkill extends DamageProjectile {
     public FireballSkill(Supplier<Point> targetSelection) {
         super(

@@ -26,8 +26,9 @@ public class Skill {
     private Instant nextUsableAt = Instant.now();
 
     /**
-     * @param skillFunction Function of this skill
-     * @param coolDownInSeconds
+     * @param skillFunction functionality of the skill
+     * @param coolDownInSeconds the time that needs to pass between use of the skill and the next
+     *     possible use of the skill
      */
     public Skill(Consumer<Entity> skillFunction, long coolDownInSeconds) {
         this.skillFunction = skillFunction;
