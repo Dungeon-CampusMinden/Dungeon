@@ -10,7 +10,13 @@ import starter.Game;
 import tools.Point;
 
 import java.util.List;
-
+/**
+ * The MonsterPotion is a Potion that can be used to kill monster.
+ * It extends the Item class. The MonsterPotion is an Item.
+ * It implements the IOnUse, IOnCollect and IOnDrop interfaces.
+ * The MonsterPotion can be used, collected and dropped.
+ * The MonsterPotion is an entity in the ECS.
+ */
 public class MonsterPotion extends Item {
     private ItemComponent itemComponent;
 
@@ -22,6 +28,11 @@ public class MonsterPotion extends Item {
         setupAnimationComponent();
     }
 
+    /**
+     * This constructor creates a MonsterPotion with the given itemData and point.
+     * @param itemData The itemData of the MonsterPotion.
+     * @param point The point of the MonsterPotion on the map.
+     */
     public MonsterPotion(ItemData itemData, Point point) {
         super();
         this.itemComponent = new ItemComponent(this, itemData);

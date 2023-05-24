@@ -16,7 +16,12 @@ import java.util.List;
 import starter.Game;
 import tools.Point;
 
-/** A Class which contains the Information of a specific Item. */
+/** A Class which contains the Information of a specific Item.
+ *  It is used to create an ItemEntity which is used in the game.
+ *  It is used to create an ItemComponent which is used in the Inventory.
+ *  It is used to create an ItemConfig which is used to save the Item.
+ *  It is used to create an ItemData which is used to load the Item.
+ */
 public class ItemData implements Serializable {
     private List<ItemData> inventory;
     private ItemType itemType;

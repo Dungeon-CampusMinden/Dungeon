@@ -1,5 +1,12 @@
 package ecs.entities;
-
+/**
+ * The Bag is a entity in the ECS. This class helps to setup bags with all its
+ * components and attributes .
+ * It is a abstract class, so it can be extended by other items.
+ * It has the onUse, onDrop and onCollect methods, which are called when the item is used, dropped or collected.
+ * It implements the IOnUse, IOnCollect and IOnDrop interfaces.
+ * The Bag can be used, collected and dropped.
+ */
 import configuration.ItemConfig;
 import dslToGame.AnimationBuilder;
 import ecs.components.*;
@@ -22,6 +29,11 @@ public class Bag extends Item {
         setupAnimationComponent();
     }
 
+    /**
+     * This constructor creates a Bag with the given itemData and point.
+     * @param itemData The itemData of the Bag.
+     * @param point The point of the Bag.
+     */
     public Bag(ItemData itemData, Point point) {
         super();
         this.itemComponent = new ItemComponent(this, itemData);

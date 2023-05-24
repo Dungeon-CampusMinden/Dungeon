@@ -9,7 +9,15 @@ import starter.Game;
 import tools.Point;
 
 import java.util.List;
-
+/**
+ * This class is a subclass of Item and implements IOnUse, IOnDrop, IOnCollect.
+ * The Cake give the player health when on use.
+ * It is used to create a Cake item.
+ * The Cake is an entity in the ECS.
+ * The Cake can be used, collected and dropped.
+ * The Cake is an Item.
+ * The Cake has an ItemComponent, a PositionComponent, a HitboxComponent and an AnimationComponent.
+ */
 public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
     private ItemComponent itemComponent;
 
@@ -21,6 +29,11 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
         setupAnimationComponent();
     }
 
+    /**
+     * This constructor creates a Cake with the given itemData and point.
+     * @param itemData The itemData of the Cake.
+     * @param point The point of the Cake.
+     */
     public Cake(ItemData itemData, Point point) {
         super();
         this.itemComponent = new ItemComponent(this, itemData);

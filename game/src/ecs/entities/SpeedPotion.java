@@ -9,7 +9,13 @@ import starter.Game;
 import tools.Point;
 
 import java.util.List;
-
+/**
+ * This class is a subclass of Item and implements IOnUse, IOnDrop, IOnCollect.
+ * It is used to create a SpeedPotion item.
+ * The SpeedPotion can be used, collected and dropped.
+ * The SpeedPotion is an entity in the ECS.
+ * The SpeedPotion increases the speed of the player on use.
+ */
 public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
     private ItemComponent itemComponent;
 
@@ -21,6 +27,11 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
         setupAnimationComponent();
     }
 
+    /**
+     * This constructor creates a SpeedPotion with the given itemData and point.
+     * @param itemData The itemData of the SpeedPotion.
+     * @param point The point of the SpeedPotion on the map.
+     */
     public SpeedPotion(ItemData itemData, Point point) {
         super();
         this.itemComponent = new ItemComponent(this, itemData);
