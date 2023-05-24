@@ -1,6 +1,6 @@
 package runtime;
 
-import semanticAnalysis.types.IType;
+import semanticanalysis.types.IType;
 
 import java.util.Map;
 import java.util.Set;

@@ -4,8 +4,8 @@ import core.Entity;
 
 import dslToGame.graph.Graph;
 
-import semanticAnalysis.types.DSLType;
-import semanticAnalysis.types.DSLTypeMember;
+import semanticanalysis.types.DSLType;
+import semanticanalysis.types.DSLTypeMember;
 
 // TODO: add more fields (entry-point for interpreter, QuestType, etc.)
 @DSLType

@@ -2,8 +2,8 @@ package runtime;
 
 import dslToGame.graph.Graph;
 
-import semanticAnalysis.types.BuiltInType;
-import semanticAnalysis.types.IType;
+import semanticanalysis.types.BuiltInType;
+import semanticanalysis.types.IType;
 
 // TODO: should this be able to be undefined?
 
@@ -74,7 +74,7 @@ public class Value implements IClonable {
      *
      * @param dataType The datatype of this value
      * @param internalValue The actual value stored in this value //* @param symbolIdx The index of
-     *     the {@link semanticAnalysis.Symbol} this Value corresponds to
+     *     the {@link semanticanalysis.Symbol} this Value corresponds to
      */
     public Value(IType dataType, Object internalValue) {
         this.value = internalValue;
@@ -89,7 +89,7 @@ public class Value implements IClonable {
      *
      * @param dataType The datatype of this value
      * @param internalValue The actual value stored in this value //* @param symbolIdx The index of
-     *     the {@link semanticAnalysis.Symbol} this Value corresponds to
+     *     the {@link semanticanalysis.Symbol} this Value corresponds to
      */
     public Value(IType dataType, Object internalValue, boolean isMutable) {
         this.value = internalValue;

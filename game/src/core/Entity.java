@@ -1,7 +1,7 @@
 package core;
 
-import semanticAnalysis.types.DSLContextPush;
-import semanticAnalysis.types.DSLType;
+import semanticanalysis.types.DSLContextPush;
+import semanticanalysis.types.DSLType;
 
 import java.util.HashMap;
 import java.util.Optional;

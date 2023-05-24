@@ -10,8 +10,8 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
 
-import semanticAnalysis.types.DSLContextMember;
-import semanticAnalysis.types.DSLType;
+import semanticanalysis.types.DSLContextMember;
+import semanticanalysis.types.DSLType;
 
 import java.util.logging.Logger;
 

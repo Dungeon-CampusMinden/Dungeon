@@ -1,9 +1,9 @@
 package runtime;
 
-import semanticAnalysis.IScope;
-import semanticAnalysis.Symbol;
-import semanticAnalysis.SymbolTable;
-import semanticAnalysis.types.IType;
+import semanticanalysis.IScope;
+import semanticanalysis.Symbol;
+import semanticanalysis.SymbolTable;
+import semanticanalysis.types.IType;
 
 import java.util.HashMap;
 
