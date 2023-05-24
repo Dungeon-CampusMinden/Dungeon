@@ -35,7 +35,7 @@ public class RewardBuilder {
      * @return new instance of IReward
      */
     public static IReward buildHealReward() {
-        IReward reward = new IReward() {
+        return new IReward() {
 
             @Override
             public void reward(Entity entity) {
@@ -51,7 +51,6 @@ public class RewardBuilder {
             }
 
         };
-        return reward;
     }
 
     /**
@@ -61,7 +60,7 @@ public class RewardBuilder {
      * @return new instance of IReward
      */
     public static IReward buildIncreaseMaxHealthReward() {
-        IReward reward = new IReward() {
+        return new IReward() {
 
             @Override
             public void reward(Entity entity) {
@@ -77,12 +76,40 @@ public class RewardBuilder {
             }
 
         };
-        return reward;
     }
 
     // TODO: Implement items
     public static IReward buildItemReward() {
         throw new UnsupportedOperationException("The method buildItemReward is not yet implemented");
+    }
+
+    /**
+     * Builds a new reward that will double the quest holders Healthpoints and fully
+     * heal the quest holder
+     * 
+     * @return new Instance of IReward
+     */
+    public static IReward buildBossReward() {
+        return new IReward() {
+
+            @Override
+            public void reward(Entity entity) {
+                if (entity.getComponent(HealthComponent.class).isPresent()) {
+                    HealthComponent health = ((HealthComponent) entity.getComponent(HealthComponent.class).get());
+                    health.setMaximalHealthpoints(health.getMaximalHealthpoints() * 2);
+                }
+                if (entity.getComponent(HealthComponent.class).isPresent()) {
+                    HealthComponent health = ((HealthComponent) entity.getComponent(HealthComponent.class).get());
+                    health.setCurrentHealthpoints(health.getMaximalHealthpoints());
+                }
+            }
+
+            @Override
+            public String toString() {
+                return "get 100% more health points and get fully healed";
+            }
+
+        };
     }
 
 }
