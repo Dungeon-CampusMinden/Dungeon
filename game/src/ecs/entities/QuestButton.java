@@ -47,6 +47,8 @@ public class QuestButton extends Entity {
                 if (first) {
                     quest = QuestBuilder.buildRandomQuest(Game.getHero().get());
                     System.out.println(quest.getName() + ":\n" + quest.getDescription());
+                    Game.questMenu
+                            .display(quest.getName() + ":\n" + quest.getDescription(), 3);
                     first = !first;
                 } else if (enabled && held >= HOLD) {
                     if (Game.getHero().get().getComponent(QuestComponent.class).isPresent()) {
@@ -55,7 +57,9 @@ public class QuestButton extends Entity {
                     }
                     animation.setCurrentAnimation(AnimationBuilder.buildAnimation(pathToTriggered));
                     enabled = !enabled;
-                    System.out.println(quest.getName() + "Was added to your Questlog. Press M to see your Questlog.");
+                    Game.questMenu
+                            .display(quest.getName() + ":\nWas added to your Questlog.\nPress M to see your Questlog.",
+                                    3);
                 }
             }
 

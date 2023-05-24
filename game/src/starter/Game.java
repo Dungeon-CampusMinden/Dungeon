@@ -36,6 +36,9 @@ import graphic.DungeonCamera;
 import graphic.Painter;
 import graphic.hud.GameOverMenu;
 import graphic.hud.PauseMenu;
+import graphic.hud.QuestLogMenu;
+import graphic.hud.QuestMenu;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -97,6 +100,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private static Saves saves = new Saves();
 
+    public static QuestMenu<Actor> questMenu;
+    public static QuestLogMenu<Actor> questLogMenu;
+    public static int questDisplayTime = 0;
+    private static boolean inQuestLog = false;
+
     public static void main(String[] args) {
         // start the game
         try {
@@ -131,6 +139,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         levelAPI.update();
         controller.forEach(AbstractController::update);
         camera.update();
+        if (questDisplayTime > 0)
+            questDisplayTime--;
+        else if (questMenu != null)
+            questMenu.hideMenu();
     }
 
     /** Checks for saves */
@@ -157,6 +169,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         gameLogger = Logger.getLogger(this.getClass().getName());
         systems = new SystemController();
         controller.add(systems);
+        questMenu = new QuestMenu();
+        controller.add(questMenu);
+        questLogMenu = new QuestLogMenu();
+        controller.add(questLogMenu);
         pauseMenu = new PauseMenu<>();
         controller.add(pauseMenu);
         gameOverMenu = new GameOverMenu(this);
@@ -179,6 +195,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         gameLogger = Logger.getLogger(this.getClass().getName());
         systems = new SystemController();
         controller.add(systems);
+        questMenu = new QuestMenu();
+        controller.add(questMenu);
+        questLogMenu = new QuestLogMenu();
+        controller.add(questLogMenu);
         pauseMenu = new PauseMenu<>();
         controller.add(pauseMenu);
         gameOverMenu = new GameOverMenu(this);
@@ -206,11 +226,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
             throw new Flag();
         if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
-            System.out.println("Questlog:");
-            ((QuestComponent) hero.getComponent(QuestComponent.class).get())
-                    .getQuestLog().stream()
-                    .filter(q -> q != null)
-                    .forEach(System.out::println);
+            toggleQuestLog();
         }
     }
 
@@ -286,6 +302,31 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
                 pauseMenu.showMenu();
             else
                 pauseMenu.hideMenu();
+        }
+    }
+
+    /** Toggle between questLog and run */
+    public static void toggleQuestLog() {
+        inQuestLog = !inQuestLog;
+        if (systems != null) {
+            systems.forEach(ECS_System::toggleRun);
+        }
+        if (questLogMenu != null && hero != null) {
+            if (inQuestLog) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("QuestLog:\n");
+                ((QuestComponent) hero.getComponent(QuestComponent.class).get())
+                        .getQuestLog().stream()
+                        .filter(q -> q != null)
+                        .forEach(q -> sb.append(q).append('\n'));
+                int questAmount = (int) ((QuestComponent) hero
+                        .getComponent(QuestComponent.class).get())
+                        .getQuestLog().stream()
+                        .filter(q -> q != null)
+                        .count();
+                questLogMenu.display(sb.toString(), questAmount);
+            } else
+                questLogMenu.hideMenu();
         }
     }
 

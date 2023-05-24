@@ -3,6 +3,7 @@ package ecs.components.quests;
 import java.io.Serializable;
 
 import ecs.entities.Entity;
+import starter.Game;
 
 /**
  * Quests
@@ -61,7 +62,7 @@ public abstract class Quest implements Serializable {
         task.advance();
         if (task.isCompleted()) {
             reward.reward(questHolder);
-            System.out.println("Quest " + getName() + " completed :" + getDescription());
+            Game.questMenu.display("Quest " + getName() + " completed :" + getDescription(), 3);
         }
     }
 
