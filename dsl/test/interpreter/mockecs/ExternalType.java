@@ -1,4 +1,4 @@
-package interpreter.mockECS;
+package interpreter.mockecs;
 
 public class ExternalType {
     public int member1;

@@ -1,4 +1,4 @@
-package interpreter.mockECS;
+package interpreter.mockecs;
 
 import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;

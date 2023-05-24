@@ -7,7 +7,7 @@ import dslToGame.graph.Graph;
 
 import helpers.Helpers;
 
-import interpreter.mockECS.*;
+import interpreter.mockecs.*;
 
 import org.junit.Assert;
 import org.junit.Test;

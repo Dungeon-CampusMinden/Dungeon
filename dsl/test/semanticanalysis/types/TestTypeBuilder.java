@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 
 import dslToGame.graph.Graph;
 
-import interpreter.mockECS.ExternalType;
-import interpreter.mockECS.ExternalTypeBuilderMultiParam;
+import interpreter.mockecs.ExternalType;
+import interpreter.mockecs.ExternalTypeBuilderMultiParam;
 
 import org.junit.Test;
 
