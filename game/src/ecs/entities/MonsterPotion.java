@@ -158,7 +158,7 @@ public class MonsterPotion extends Item {
 
     /**
      * This Methode is executing the ability of the item
-     * @param entity
+     * @param
      */
     private void slaughter() {
         monsterPotionLogger.info("MonsterPotion used");
