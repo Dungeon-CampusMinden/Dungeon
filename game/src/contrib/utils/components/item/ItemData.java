@@ -14,6 +14,7 @@ import core.utils.Point;
 import core.utils.components.draw.Animation;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * A Class which contains the Information of a specific Item.
@@ -36,7 +37,7 @@ public class ItemData {
     private String itemName;
     private String description;
 
-    private IOnCollect onCollect;
+    private BiConsumer<Entity, Entity> onCollect;
     private IOnDrop onDrop;
     // active
     private IOnUse onUse;
@@ -63,7 +64,7 @@ public class ItemData {
             Animation worldTexture,
             String itemName,
             String description,
-            IOnCollect onCollect,
+            BiConsumer<Entity, Entity> onCollect,
             IOnDrop onDrop,
             IOnUse onUse,
             DamageModifier damageModifier) {
@@ -122,7 +123,7 @@ public class ItemData {
      * @param whoTriesCollects Entity that tries to collect item
      */
     public void triggerCollect(Entity worldItemEntity, Entity whoTriesCollects) {
-        if (getOnCollect() != null) getOnCollect().onCollect(worldItemEntity, whoTriesCollects);
+        if (getOnCollect() != null) getOnCollect().accept(worldItemEntity, whoTriesCollects);
     }
 
     /**
@@ -252,7 +253,7 @@ public class ItemData {
     /**
      * @return The callback function to collect the item.
      */
-    public IOnCollect getOnCollect() {
+    public BiConsumer<Entity, Entity> getOnCollect() {
         return onCollect;
     }
 
@@ -261,7 +262,7 @@ public class ItemData {
      *
      * @param onCollect New collect callback.
      */
-    public void setOnCollect(IOnCollect onCollect) {
+    public void setOnCollect(BiConsumer<Entity, Entity> onCollect) {
         this.onCollect = onCollect;
     }
 
