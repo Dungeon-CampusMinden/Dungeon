@@ -1,7 +1,9 @@
 package contrib.entities;
 
 import contrib.components.*;
+import contrib.configuration.KeyboardConfig;
 import contrib.utils.components.interaction.DropItemsInteraction;
+import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.item.ItemData;
 import contrib.utils.components.item.ItemDataGenerator;
 import contrib.utils.components.skill.FireballSkill;
@@ -59,7 +61,44 @@ public class EntityFactory {
         Skill fireball =
                 new Skill(
                         new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
-        pc.setSkillSlot1(fireball);
+
+        // hero movement
+        pc.registerFunction(
+                KeyboardConfig.MOVEMENT_UP.get(),
+                entity -> {
+                    VelocityComponent vc =
+                            (VelocityComponent) entity.getComponent(VelocityComponent.class).get();
+                    vc.setCurrentYVelocity(1 * vc.getYVelocity());
+                });
+        pc.registerFunction(
+                KeyboardConfig.MOVEMENT_DOWN.get(),
+                entity -> {
+                    VelocityComponent vc =
+                            (VelocityComponent) entity.getComponent(VelocityComponent.class).get();
+                    vc.setCurrentYVelocity(-1 * vc.getYVelocity());
+                });
+        pc.registerFunction(
+                KeyboardConfig.MOVEMENT_RIGHT.get(),
+                entity -> {
+                    VelocityComponent vc =
+                            (VelocityComponent) entity.getComponent(VelocityComponent.class).get();
+                    vc.setCurrentXVelocity(1 * vc.getXVelocity());
+                });
+        pc.registerFunction(
+                KeyboardConfig.MOVEMENT_LEFT.get(),
+                entity -> {
+                    VelocityComponent vc =
+                            (VelocityComponent) entity.getComponent(VelocityComponent.class).get();
+                    vc.setCurrentXVelocity(-1 * vc.getXVelocity());
+                });
+
+        pc.registerFunction(
+                KeyboardConfig.INTERACT_WORLD.get(),
+                InteractionTool::interactWithClosestInteractable);
+
+        // skills
+        pc.registerFunction(KeyboardConfig.FIRST_SKILL.get(), fireball::execute);
+
         return hero;
     }
 

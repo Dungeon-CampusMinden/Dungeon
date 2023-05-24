@@ -2,16 +2,16 @@ package core.components;
 
 import static org.junit.Assert.*;
 
-import contrib.utils.components.skill.Skill;
-
 import core.Entity;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+
+import java.util.function.Consumer;
 
 public class PlayerComponentTest {
 
+    private static int counter = 0;
     private PlayerComponent playableComponent;
 
     @Before
@@ -20,29 +20,27 @@ public class PlayerComponentTest {
     }
 
     @Test
-    public void isPlayable() {
-        assertTrue(playableComponent.isPlayable());
-        playableComponent.setPlayable(false);
-        assertFalse(playableComponent.isPlayable());
+    public void addFunction() {
+        Consumer<Entity> function =
+                new Consumer<Entity>() {
+                    @Override
+                    public void accept(Entity entity) {}
+                };
+        assertTrue(playableComponent.registerFunction(1, function).isEmpty());
     }
 
-    @Test
-    public void setSkillSlot1() {
-        Skill s = Mockito.mock(Skill.class);
-        playableComponent.setSkillSlot1(s);
-        assertEquals(s, playableComponent.getSkillSlot1().get());
-        Skill s2 = Mockito.mock(Skill.class);
-        playableComponent.setSkillSlot1(s2);
-        assertEquals(s2, playableComponent.getSkillSlot1().get());
-    }
-
-    @Test
-    public void setSkillSlot2() {
-        Skill s = Mockito.mock(Skill.class);
-        playableComponent.setSkillSlot2(s);
-        assertEquals(s, playableComponent.getSkillSlot2().get());
-        Skill s2 = Mockito.mock(Skill.class);
-        playableComponent.setSkillSlot2(s2);
-        assertEquals(s2, playableComponent.getSkillSlot2().get());
+    public void addFunction_exisitng() {
+        Consumer<Entity> function =
+                new Consumer<Entity>() {
+                    @Override
+                    public void accept(Entity entity) {}
+                };
+        Consumer<Entity> newfunction =
+                new Consumer<Entity>() {
+                    @Override
+                    public void accept(Entity entity) {}
+                };
+        playableComponent.registerFunction(1, function).get();
+        assertEquals(function, playableComponent.registerFunction(1, newfunction).get());
     }
 }
