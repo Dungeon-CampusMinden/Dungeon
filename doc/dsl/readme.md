@@ -64,6 +64,20 @@ versteckt sind und erst vom Spielenden gefunden werden müssen. Die Beantwortung
 erfolgt durch das Übergeben der Schriftrolle mit der korrekten Antwort an den Zauberer-NPC.
 Dieser gibt anschließend Feedback über die Korrektheit der Antwort.
 
+Note: Die Notation zur Festlegung der richtigen Antwortmöglichkeit ist noch nicht final
+definiert.
+
+Alternative Notationen könnten so aussehen:
+
+1.  `correct_answer: 0`: Der Datentyp für `correct_answer` wäre in diesem Fall `int`,
+    DSL-Nutzende sind selbst dafür verantwortlich, den Zugriff auf das Array mit diesem
+    Index durchzuführen (bspw. in der [Scoring-Funktion](#scoring-funktion).
+2.  `correct_answer: [0]`: Der Datentyp für `correct_answer` wäre “`index`”, intern könnte
+    der DSL-Interpreter den Zugriff auf das `answers`-Array durchführen, sodass beim Zugriff
+    `my_task.correct_answer` das durch den Index referenzierte Elemente aus dem
+    `answers`-Array zurückgegeben wird. Das ist allerdings eine semantische
+    Sonderbehandlung, die potenziell zu Verwirrung führen kann.
+
 ## Quickstart Guide und User-Dokumentation
 
 Der [Quickstart Guide](quickstart.md) gibt Hinweise für die Erstellung der ersten Aufgaben
