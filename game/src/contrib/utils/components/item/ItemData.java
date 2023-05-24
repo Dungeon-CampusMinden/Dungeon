@@ -40,7 +40,7 @@ public class ItemData {
     private BiConsumer<Entity, Entity> onCollect;
     private IOnDrop onDrop;
     // active
-    private IOnUse onUse;
+    private BiConsumer<Entity, ItemData> onUse;
 
     // passive
     private DamageModifier damageModifier;
@@ -66,7 +66,7 @@ public class ItemData {
             String description,
             BiConsumer<Entity, Entity> onCollect,
             IOnDrop onDrop,
-            IOnUse onUse,
+            BiConsumer<Entity, ItemData> onUse,
             DamageModifier damageModifier) {
         this.itemType = itemType;
         this.inventoryTexture = inventoryTexture;
@@ -142,7 +142,7 @@ public class ItemData {
      */
     public void triggerUse(Entity entity) {
         if (getOnUse() == null) return;
-        getOnUse().onUse(entity, this);
+        getOnUse().accept(entity, this);
     }
 
     /**
@@ -285,7 +285,7 @@ public class ItemData {
     /**
      * @return The callback function to use the item.
      */
-    public IOnUse getOnUse() {
+    public BiConsumer<Entity, ItemData> getOnUse() {
         return onUse;
     }
 
@@ -294,7 +294,7 @@ public class ItemData {
      *
      * @param onUse New use callback.
      */
-    public void setOnUse(IOnUse onUse) {
+    public void setOnUse(BiConsumer<Entity, ItemData> onUse) {
         this.onUse = onUse;
     }
 }
