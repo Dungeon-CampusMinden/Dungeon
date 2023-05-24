@@ -3,6 +3,7 @@ package contrib.components;
 import static org.junit.Assert.*;
 
 import contrib.utils.components.TriConsumer;
+
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.Tile;

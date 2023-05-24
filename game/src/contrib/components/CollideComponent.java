@@ -1,6 +1,7 @@
 package contrib.components;
 
 import contrib.utils.components.TriConsumer;
+
 import core.Component;
 import core.Entity;
 import core.components.PositionComponent;
@@ -18,7 +19,8 @@ import java.util.logging.Logger;
 public class CollideComponent extends Component {
     public static final Point DEFAULT_OFFSET = new Point(0.25f, 0.25f);
     public static final Point DEFAULT_SIZE = new Point(0.5f, 0.5f);
-    public static final TriConsumer<Entity, Entity, Tile.Direction> DEFAULT_COLLIDER = (a, b, c) -> System.out.println("Collide");
+    public static final TriConsumer<Entity, Entity, Tile.Direction> DEFAULT_COLLIDER =
+            (a, b, c) -> System.out.println("Collide");
     private /*@DSLTypeMember(name="offset")*/ Point offset;
     private /*@DSLTypeMember(name="size")*/ Point size;
     private TriConsumer<Entity, Entity, Tile.Direction> iCollideEnter;
@@ -54,7 +56,10 @@ public class CollideComponent extends Component {
      * @param iCollideEnter behaviour if a collision started
      * @param iCollideLeave behaviour if a collision stopped
      */
-    public CollideComponent(Entity entity, TriConsumer<Entity, Entity, Tile.Direction> iCollideEnter, TriConsumer<Entity, Entity, Tile.Direction> iCollideLeave) {
+    public CollideComponent(
+            Entity entity,
+            TriConsumer<Entity, Entity, Tile.Direction> iCollideEnter,
+            TriConsumer<Entity, Entity, Tile.Direction> iCollideLeave) {
         this(entity, DEFAULT_OFFSET, DEFAULT_SIZE, iCollideEnter, iCollideLeave);
     }
 

@@ -4,6 +4,7 @@ import contrib.components.CollideComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
 import contrib.configuration.ItemConfig;
+import contrib.utils.components.TriConsumer;
 import contrib.utils.components.stats.DamageModifier;
 
 import core.Entity;
@@ -38,7 +39,7 @@ public class ItemData {
     private String description;
 
     private BiConsumer<Entity, Entity> onCollect;
-    private IOnDrop onDrop;
+    private TriConsumer<Entity, ItemData, Point> onDrop;
     // active
     private BiConsumer<Entity, ItemData> onUse;
 
@@ -65,7 +66,7 @@ public class ItemData {
             String itemName,
             String description,
             BiConsumer<Entity, Entity> onCollect,
-            IOnDrop onDrop,
+            TriConsumer<Entity, ItemData, Point> onDrop,
             BiConsumer<Entity, ItemData> onUse,
             DamageModifier damageModifier) {
         this.itemType = itemType;
@@ -132,7 +133,7 @@ public class ItemData {
      * @param position the location of the drop
      */
     public void triggerDrop(Entity e, Point position) {
-        if (getOnDrop() != null) getOnDrop().onDrop(e, this, position);
+        if (getOnDrop() != null) getOnDrop().accept(e, this, position);
     }
 
     /**
@@ -269,7 +270,7 @@ public class ItemData {
     /**
      * @return The callback function to drop the item.
      */
-    public IOnDrop getOnDrop() {
+    public TriConsumer<Entity, ItemData, Point> getOnDrop() {
         return onDrop;
     }
 
@@ -278,7 +279,7 @@ public class ItemData {
      *
      * @param onDrop New drop callback.
      */
-    public void setOnDrop(IOnDrop onDrop) {
+    public void setOnDrop(TriConsumer<Entity, ItemData, Point> onDrop) {
         this.onDrop = onDrop;
     }
 
