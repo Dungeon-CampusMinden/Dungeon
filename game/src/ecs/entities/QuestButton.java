@@ -8,6 +8,7 @@ import ecs.components.HitboxComponent;
 import ecs.components.IInteraction;
 import ecs.components.InteractionComponent;
 import ecs.components.PositionComponent;
+import ecs.components.quests.KillQuest;
 import ecs.components.quests.Quest;
 import ecs.components.quests.QuestBuilder;
 import ecs.components.quests.QuestComponent;
@@ -40,7 +41,8 @@ public class QuestButton extends Entity {
     }
 
     /**
-     * InteractionComponent to show the Quest, to accept the Quest or to remove the Quest.
+     * InteractionComponent to show the Quest, to accept the Quest or to remove the
+     * Quest.
      */
     private void setupInteractionComponent() {
         new InteractionComponent(this, 1, true, new IInteraction() {
@@ -66,10 +68,13 @@ public class QuestButton extends Entity {
                     animation.setCurrentAnimation(AnimationBuilder.buildAnimation(pathToTriggered));
                     enabled = !enabled;
                     Game.questMenu
-                        .display(quest.getName() + ":\nWas added to your Questlog.\nPress M to see your Questlog.",
-                            3);
-                } else if (!first && enabled && (held >= HOLD) && Gdx.input.isKeyPressed(KeyboardConfig.INTERACT_WORLD_X.get())){
+                            .display(quest.getName() + ":\nWas added to your Questlog.\nPress M to see your Questlog.",
+                                    3);
+                } else if (!first && enabled && (held >= HOLD)
+                        && Gdx.input.isKeyPressed(KeyboardConfig.INTERACT_WORLD_X.get())) {
                     enabled = !enabled;
+                    if (quest.getName().equals("Dungeon Master"))
+                        KillQuest.bossQuestExists = false;
                 }
             }
         });
