@@ -1,7 +1,6 @@
 package contrib.components;
 
 import contrib.systems.AISystem;
-import contrib.utils.components.ai.IIdleAI;
 import contrib.utils.components.ai.ITransition;
 import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.idle.RadiusWalk;
@@ -27,7 +26,7 @@ public class AIComponent extends Component {
 
     public static String name = "AIComponent";
     private /*@DSLTypeMember(name="fight_ai)*/ Consumer<Entity> fightAI;
-    private /*@DSLTypeMember(name="idle_ai)*/ IIdleAI idleAI;
+    private /*@DSLTypeMember(name="idle_ai)*/ Consumer<Entity> idleAI;
     private /*@DSLTypeMember(name="transition_ai)*/ ITransition transitionAI;
 
     /**
@@ -39,7 +38,10 @@ public class AIComponent extends Component {
      * @param transition Determines when to fight
      */
     public AIComponent(
-            Entity entity, Consumer<Entity> fightAI, IIdleAI idleAI, ITransition transition) {
+            Entity entity,
+            Consumer<Entity> fightAI,
+            Consumer<Entity> idleAI,
+            ITransition transition) {
         super(entity);
         this.fightAI = fightAI;
         this.idleAI = idleAI;
@@ -62,7 +64,7 @@ public class AIComponent extends Component {
     /** Excecute the ai behavior */
     public void execute() {
         if (transitionAI.isInFightMode(entity)) fightAI.accept(entity);
-        else idleAI.idle(entity);
+        else idleAI.accept(entity);
     }
 
     /**
@@ -79,7 +81,7 @@ public class AIComponent extends Component {
      *
      * @param ai new idle ai
      */
-    public void setIdleAI(IIdleAI ai) {
+    public void setIdleAI(Consumer<Entity> ai) {
         this.idleAI = ai;
     }
 
@@ -97,7 +99,7 @@ public class AIComponent extends Component {
      *
      * @return IIdleAI object representing the idle AI
      */
-    public IIdleAI getIdleAI() {
+    public Consumer<Entity> getIdleAI() {
         return idleAI;
     }
 
