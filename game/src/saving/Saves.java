@@ -58,6 +58,9 @@ public class Saves {
         ((Hero) gameData.hero()).setupComponents(health.getMaximalHealthpoints(), health.getCurrentHealthpoints(),
                 quest.getQuestLog());
         InventoryComponent ic = (InventoryComponent) gameData.hero().getComponent(InventoryComponent.class).get();
+        inventory.getItems().stream()
+                .filter(i -> i != null)
+                .forEach(ic::addItem);
         quest.getQuestLog().stream()
                 .map(q -> q.getTask())
                 // Get the ITask of the Quest
