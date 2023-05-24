@@ -110,6 +110,17 @@ mapping_task t {
 }
 ```
 
+Member:
+
+- `description`: Die textuelle Aufgabenbeschreibung
+- `elements_A`: Liste der Elemente, die in Menge $A$ (vgl. [Zuordnen](../tasks/readme.md#zuordnen)) enthalten sind
+- `elements_B`: Liste der Elemente, die in Menge $B$ enthalten sind
+- `rules`: Die Definition der Zuordnung, als `graph` notiert
+  - Definition der Element-Mengen: definiert, welche Elemente aus `elements_A` und `elements_B` eine Menge bilden,
+    die einer anderen Menge zugeordnet werden kann; als Knoten im `graph` notiert
+  - Definition der Zuordnung; als Kanten im `graph` notiert
+- `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
+
 ### Zuordnung: Alternative Notation
 
 Als alternative Notation zur Definition der Zuordnung ist folgende Notation vorstellbar:
@@ -129,32 +140,6 @@ Dies würde allerdings die Erweiterung der eingebetteten Dot-Syntax erfordern, s
 Ausdrücke als Knoten in Kantendefinitionen verwendet werden können.
 
 ## Aufgabentyp "Lücken füllen"
-
-```
-gap_task task {
-  description: "Bitte fülle die Lücken!"
-  gaps: ["gap1", "gap2", "gap3", "gap4"],
-  elements: [elem1, elem2, elem3, elem4],
-  rules: graph {
-    // Definition der Elemente-Mengen
-    n1[elements=[gaps[0]]
-    n2[elements=[gaps[1]]
-    n3[elements=[gaps[2]]
-
-    n4[elements=[elements[0]]
-    n5[elements=[elements[1]]
-    n6[elements=[elements[2]]
-    n7[elements=[elements[3]]
-
-    // Definition Zuordnung
-    n4 -> n1
-    n5 -> n2
-    n6 -> n2
-    n7 -> n3
-  },
-  fn_score: score
-}
-```
 
 ```
 gap_task task {
@@ -182,6 +167,18 @@ gap_task task {
 }
 ```
 
+Member:
+
+- `description`: Die textuelle Aufgabenbeschreibung
+- `gaps_amount`: Anzahl der Lücken, die gefüllt werden müssen; hierdurch wird intern ein `gaps`-Array erzeugt,
+  welches die Lücken repräsentiert
+- `elements`: Liste der Elemente, welche in die Lücken eingesetzt werden müssen
+- `rules`: Die Definition der Zuordnung, als `graph` notiert
+    - Definition der Element-Mengen: definiert, welche Elemente aus `gaps` und `elements` eine Menge bilden, die einer anderen
+      Menge zugeordnet werden kann; als Knoten im `graph` notiert
+    - Definition der Zuordnung; als Kanten im `graph` notiert
+- `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
+-
 Alternative Notation (vgl. [Zuordnen](#zuordnung-alternative-notation)):
 
 ```
