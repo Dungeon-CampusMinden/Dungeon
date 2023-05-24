@@ -1,6 +1,6 @@
 package runtime;
 
-import semanticAnalysis.types.IType;
+import semanticanalysis.types.IType;
 
 public class FuncCallValue extends Value {
     int functionSymbolIdx;

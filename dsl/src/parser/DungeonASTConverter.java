@@ -11,7 +11,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 
-import parser.AST.*;
+import parser.ast.*;
 // CHECKSTYLE:ON: AvoidStarImport
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ import java.util.Stack;
 @SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
 public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
-    Stack<parser.AST.Node> astStack;
+    Stack<parser.ast.Node> astStack;
 
     /** Constructor */
     public DungeonASTConverter() {
@@ -45,7 +45,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
      * @param parseTree The ParseTree to walk
      * @return Root Node of the AST.
      */
-    public parser.AST.Node walk(ParseTree parseTree) {
+    public parser.ast.Node walk(ParseTree parseTree) {
         astStack = new Stack<>();
         ParseTreeWalker.DEFAULT.walk(this, parseTree);
         return astStack.peek();

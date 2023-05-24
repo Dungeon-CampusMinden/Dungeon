@@ -1,8 +1,8 @@
 package interpreter.mockECS;
 
-import semanticAnalysis.types.DSLContextMember;
-import semanticAnalysis.types.DSLType;
-import semanticAnalysis.types.DSLTypeMember;
+import semanticanalysis.types.DSLContextMember;
+import semanticanalysis.types.DSLType;
+import semanticanalysis.types.DSLTypeMember;
 
 @DSLType
 public class TestComponent2 {

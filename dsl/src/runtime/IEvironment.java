@@ -1,7 +1,7 @@
 package runtime;
 
-import semanticAnalysis.*;
-import semanticAnalysis.types.IType;
+import semanticanalysis.*;
+import semanticanalysis.types.IType;
 
 import java.util.List;
 

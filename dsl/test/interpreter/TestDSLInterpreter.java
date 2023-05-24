@@ -12,13 +12,13 @@ import interpreter.mockECS.*;
 import org.junit.Assert;
 import org.junit.Test;
 
-import parser.AST.Node;
+import parser.ast.Node;
 
 import runtime.*;
 
-import semanticAnalysis.Scope;
-import semanticAnalysis.SemanticAnalyzer;
-import semanticAnalysis.types.*;
+import semanticanalysis.Scope;
+import semanticanalysis.SemanticAnalyzer;
+import semanticanalysis.types.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -373,7 +373,7 @@ public class TestDSLInterpreter {
                         .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
 
         var typesToLoad =
-                new semanticAnalysis.types.IType[] {
+                new semanticanalysis.types.IType[] {
                     entityType, testCompType, externalComponentType
                 };
         env.loadTypes(List.of(typesToLoad));

@@ -6,7 +6,7 @@ import helpers.Helpers;
 
 import org.junit.Test;
 
-import parser.AST.DotDefNode;
+import parser.ast.DotDefNode;
 
 public class TestDotInterpreter {
 

@@ -3,7 +3,7 @@ package dslToGame;
 import core.Game;
 import core.utils.components.draw.Animation;
 
-import semanticAnalysis.types.DSLTypeAdapter;
+import semanticanalysis.types.DSLTypeAdapter;
 
 public class AnimationBuilder {
     public static int frameTime = 5;

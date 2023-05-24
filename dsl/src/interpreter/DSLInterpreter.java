@@ -10,7 +10,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 // importing all required classes from parser.AST will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 
-import parser.AST.*;
+import parser.ast.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import parser.DungeonASTConverter;
 
@@ -18,9 +18,9 @@ import runtime.*;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 
-import semanticAnalysis.*;
+import semanticanalysis.*;
 // CHECKSTYLE:ON: AvoidStarImport
-import semanticAnalysis.types.*;
+import semanticanalysis.types.*;
 
 import java.util.List;
 import java.util.Stack;

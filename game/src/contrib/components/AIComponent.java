@@ -11,8 +11,8 @@ import contrib.utils.components.ai.transition.RangeTransition;
 import core.Component;
 import core.Entity;
 
-import semanticAnalysis.types.DSLContextMember;
-import semanticAnalysis.types.DSLType;
+import semanticanalysis.types.DSLContextMember;
+import semanticanalysis.types.DSLType;
 
 /**
  * AIComponent is a component that stores the idle and combat behavior of AI controlled entities.

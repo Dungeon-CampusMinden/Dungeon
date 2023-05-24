@@ -1,7 +1,7 @@
 package interpreter.mockECS;
 
-import semanticAnalysis.types.DSLType;
-import semanticAnalysis.types.DSLTypeMember;
+import semanticanalysis.types.DSLType;
+import semanticanalysis.types.DSLTypeMember;
 
 @DSLType
 public class TestComponentWithExternalType {

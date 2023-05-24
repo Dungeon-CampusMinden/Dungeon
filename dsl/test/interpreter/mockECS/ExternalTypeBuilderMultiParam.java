@@ -1,7 +1,7 @@
 package interpreter.mockECS;
 
-import semanticAnalysis.types.DSLTypeAdapter;
-import semanticAnalysis.types.DSLTypeMember;
+import semanticanalysis.types.DSLTypeAdapter;
+import semanticanalysis.types.DSLTypeMember;
 
 public class ExternalTypeBuilderMultiParam {
     @DSLTypeAdapter(t = ExternalType.class)

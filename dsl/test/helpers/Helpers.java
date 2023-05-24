@@ -13,9 +13,9 @@ import runtime.GameEnvironment;
 import runtime.MemorySpace;
 import runtime.Value;
 
-import semanticAnalysis.SemanticAnalyzer;
-import semanticAnalysis.Symbol;
-import semanticAnalysis.types.IType;
+import semanticanalysis.SemanticAnalyzer;
+import semanticanalysis.Symbol;
+import semanticanalysis.types.IType;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,12 +46,12 @@ public class Helpers {
     }
 
     /**
-     * Converts a {@link DungeonDSLParser.ProgramContext} to a {@link parser.AST.Node}
+     * Converts a {@link DungeonDSLParser.ProgramContext} to a {@link parser.ast.Node}
      *
      * @param parseTree the parser tree to convert
      * @return the AST for the parse tree
      */
-    public static parser.AST.Node convertToAST(DungeonDSLParser.ProgramContext parseTree) {
+    public static parser.ast.Node convertToAST(DungeonDSLParser.ProgramContext parseTree) {
         DungeonASTConverter converter = new DungeonASTConverter();
         return converter.walk(parseTree);
     }
@@ -62,7 +62,7 @@ public class Helpers {
      * @param program the program to generate an AST for
      * @return the AST
      */
-    public static parser.AST.Node getASTFromString(String program) {
+    public static parser.ast.Node getASTFromString(String program) {
         var parseTree = getParseTree(program);
         return convertToAST(parseTree);
     }
@@ -75,7 +75,7 @@ public class Helpers {
      * @throws URISyntaxException on invalid URI syntax
      * @throws IOException if the file does not exist
      */
-    public static parser.AST.Node getASTFromResourceFile(URL fileResourceURL)
+    public static parser.ast.Node getASTFromResourceFile(URL fileResourceURL)
             throws URISyntaxException, IOException {
         var file = new File(fileResourceURL.toURI());
         var stream = CharStreams.fromFileName(file.getAbsolutePath());
@@ -91,7 +91,7 @@ public class Helpers {
      * @param ast the AST to create the symbol table for
      * @return the {@link SemanticAnalyzer.Result} of the semantic analysis
      */
-    public static SemanticAnalyzer.Result getSymtableForAST(parser.AST.Node ast) {
+    public static SemanticAnalyzer.Result getSymtableForAST(parser.ast.Node ast) {
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(new GameEnvironment());
         return symbolTableParser.walk(ast);
@@ -106,7 +106,7 @@ public class Helpers {
      * @return the {@link SemanticAnalyzer.Result} of the semantic analysis
      */
     public static SemanticAnalyzer.Result getSymtableForASTWithLoadedTypes(
-            parser.AST.Node ast, IType[] types) {
+        parser.ast.Node ast, IType[] types) {
         var symTableParser = new SemanticAnalyzer();
         var env = new GameEnvironment();
         var typesToLoad = types;

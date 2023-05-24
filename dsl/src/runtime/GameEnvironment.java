@@ -11,12 +11,12 @@ import core.components.VelocityComponent;
 import dslToGame.AnimationBuilder;
 import dslToGame.QuestConfig;
 
-import runtime.nativeFunctions.NativePrint;
+import runtime.nativefunctions.NativePrint;
 
-import semanticAnalysis.*;
-import semanticAnalysis.types.BuiltInType;
-import semanticAnalysis.types.IType;
-import semanticAnalysis.types.TypeBuilder;
+import semanticanalysis.*;
+import semanticanalysis.types.BuiltInType;
+import semanticanalysis.types.IType;
+import semanticanalysis.types.TypeBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;

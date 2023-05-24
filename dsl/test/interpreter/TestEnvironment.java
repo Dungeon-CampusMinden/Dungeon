@@ -2,9 +2,9 @@ package interpreter;
 
 import runtime.GameEnvironment;
 
-import semanticAnalysis.Scope;
-import semanticAnalysis.Symbol;
-import semanticAnalysis.types.IType;
+import semanticanalysis.Scope;
+import semanticanalysis.Symbol;
+import semanticanalysis.types.IType;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class TestEnvironment extends GameEnvironment {
                 this.getTypeBuilder()
                         .createTypeFromClass(
                                 Scope.NULL, TestDSLInterpreter.CustomQuestConfig.class);
-        var typesToLoad = new semanticAnalysis.types.IType[] {questConfigType};
+        var typesToLoad = new semanticanalysis.types.IType[] {questConfigType};
         loadTypes(List.of(typesToLoad));
 
         for (Symbol func : NATIVE_FUNCTIONS) {

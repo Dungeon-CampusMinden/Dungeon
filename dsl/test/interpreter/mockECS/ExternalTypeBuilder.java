@@ -1,6 +1,6 @@
 package interpreter.mockECS;
 
-import semanticAnalysis.types.DSLTypeAdapter;
+import semanticanalysis.types.DSLTypeAdapter;
 
 public class ExternalTypeBuilder {
     @DSLTypeAdapter(t = ExternalType.class)

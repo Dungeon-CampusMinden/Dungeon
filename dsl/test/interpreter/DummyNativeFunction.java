@@ -1,12 +1,12 @@
 package interpreter;
 
-import parser.AST.Node;
+import parser.ast.Node;
 
-import runtime.nativeFunctions.NativeFunction;
+import runtime.nativefunctions.NativeFunction;
 
-import semanticAnalysis.ICallable;
-import semanticAnalysis.Scope;
-import semanticAnalysis.types.FunctionType;
+import semanticanalysis.ICallable;
+import semanticanalysis.Scope;
+import semanticanalysis.types.FunctionType;
 
 import java.util.List;
 

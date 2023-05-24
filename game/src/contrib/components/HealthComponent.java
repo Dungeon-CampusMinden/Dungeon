@@ -13,9 +13,9 @@ import core.systems.DrawSystem;
 import core.utils.components.draw.Animation;
 import core.utils.logging.CustomLogLevel;
 
-import semanticAnalysis.types.DSLContextMember;
-import semanticAnalysis.types.DSLType;
-import semanticAnalysis.types.DSLTypeMember;
+import semanticanalysis.types.DSLContextMember;
+import semanticanalysis.types.DSLType;
+import semanticanalysis.types.DSLTypeMember;
 
 import java.util.ArrayList;
 import java.util.List;
