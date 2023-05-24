@@ -39,6 +39,17 @@ public class QuestBuilder {
     }
 
     /**
+     * Builds a new quest where the Boss has to be killed
+     *
+     * @param entity the entity to have this quest
+     * @return new instance of KillQuest
+     */
+    public static KillQuest buildBossKillQuest(Entity entity) {
+        QB_LOGGER.info("Building new KillQuest for Bosses");
+        return KillQuest.buildBossKillQuest(entity);
+    }
+
+    /**
      * Builds a new quest where the player has to move
      *
      * @param entity the entity to have this quest
@@ -68,7 +79,7 @@ public class QuestBuilder {
      * @return new instance of Quest
      */
     public static Quest buildRandomQuest(Entity entity) {
-        final int METHOD_COUNT = 2;
+        final int METHOD_COUNT = 4;
         int key = (int) (Math.random() * METHOD_COUNT);
         switch (key) {
 
@@ -79,6 +90,9 @@ public class QuestBuilder {
                 return buildLevelUpQuest(entity);
 
             case 3:
+                return buildBossKillQuest(entity);
+
+            case 4:
                 return buildCollectQuest();
 
             default:

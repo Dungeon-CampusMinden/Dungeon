@@ -1,27 +1,43 @@
 package ecs.components.quests;
 
+import java.lang.reflect.Constructor;
 import java.util.logging.Logger;
 
 import ecs.components.HealthComponent;
+import ecs.components.MissingComponentException;
+import ecs.components.PositionComponent;
+import ecs.entities.Cake;
 import ecs.entities.Entity;
+import ecs.entities.Item;
+import ecs.entities.MonsterPotion;
+import ecs.entities.SpeedPotion;
 
 /**
  * Creates new instances of IReward
  */
 public class RewardBuilder {
+
     private static final Logger RB_LOGGER = Logger.getLogger(RewardBuilder.class.getSimpleName());
+
+    private static final Class[] ITEMS = {
+            Cake.class,
+            MonsterPotion.class,
+            SpeedPotion.class
+    };
+
     /**
      * Chooses a random reward and builds a new instance
      *
      * @return new instance of IReward
      */
     public static IReward buildRandomReward() {
-        final int METHOD_COUNT = 2;
+        final int METHOD_COUNT = 3;
         int key = (int) (Math.random() * METHOD_COUNT);
         switch (key) {
 
             case 1:
                 return buildIncreaseMaxHealthReward();
+
             case 2:
                 return buildItemReward();
 
@@ -81,9 +97,37 @@ public class RewardBuilder {
         };
     }
 
-    // TODO: Implement items
+    /**
+     * Builds a new IReward that will grant the hero an item
+     * 
+     * @return returns a new instance of IReward
+     */
     public static IReward buildItemReward() {
-        throw new UnsupportedOperationException("The method buildItemReward is not yet implemented");
+        int rnd = (int) (Math.random() * ITEMS.length);
+        return new IReward() {
+
+            @Override
+            public void reward(Entity entity) {
+                if (!entity.getComponent(PositionComponent.class).isPresent())
+                    throw new MissingComponentException("PositionComponent");
+                PositionComponent pc = (PositionComponent) entity.getComponent(PositionComponent.class).get();
+                try {
+                    Constructor constructor = ITEMS[rnd].getConstructor();
+                    Item item = (Item) constructor.newInstance();
+                    item.getComponent(PositionComponent.class).map(PositionComponent.class::cast).get()
+                            .setPosition(pc.getPosition());
+                } catch (Exception e) {
+                    RB_LOGGER.warning(e.getLocalizedMessage());
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public String toString() {
+                return "get a " + ITEMS[rnd].getSimpleName();
+            }
+
+        };
     }
 
     /**
