@@ -20,9 +20,11 @@ public class Skill {
     }
 
     /**
-     * Execute the method of this skill
+     * Executes the logic of the skill if it is not currently on cooldown.
      *
-     * @param entity entity which uses the skill
+     * <p>If the skill was used, the cooldown will be set.
+     *
+     * @param entity entity which uses this skill
      */
     public void execute(Entity entity) {
         if (canBeUsedAgain()) {
@@ -35,12 +37,12 @@ public class Skill {
     /**
      * @return true if cool down is not 0, else false
      */
-    public boolean canBeUsedAgain() {
+    private boolean canBeUsedAgain() {
         return Instant.now().isAfter(nextUsableAt) || Instant.now().equals(nextUsableAt);
     }
 
     /** activate cool down */
-    public void activateCoolDown() {
+    private void activateCoolDown() {
         nextUsableAt = lastUsed.plusSeconds(coolDownInSeconds);
     }
 }

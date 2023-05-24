@@ -35,7 +35,7 @@ public class EntityFactory {
      * @return Created Entity
      */
     public static Entity getHero() {
-        final int fireballCoolDown = 5;
+        final int fireballCoolDown = 2;
         final float xSpeed = 0.3f;
         final float ySpeed = 0.3f;
         final String pathToIdleLeft = "knight/idleLeft";

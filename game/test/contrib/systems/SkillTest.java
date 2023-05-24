@@ -31,12 +31,10 @@ public class SkillTest {
         skill = new Skill(skillFunction, baseCoolDownInSeconds);
 
         // test first execution
-        assertTrue(skill.canBeUsedAgain());
         skill.execute(entity);
         assertEquals(1, value);
 
         // should not execute on cool down
-        assertFalse(skill.canBeUsedAgain());
         skill.execute(entity);
         assertEquals(1, value);
     }
