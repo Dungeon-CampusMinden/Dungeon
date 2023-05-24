@@ -443,7 +443,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     // spawns both monsters and taps accordingly to the size of the floor
     private void levelSetup() {
-        addEntity(new Boss(level));
         spawnItems();
         for (int i = 0; i < (level * currentLevel.getFloorTiles().size()) / 100; i++) {
             spawnMonster();
@@ -457,13 +456,15 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     // Monster spawn mechanics
     private void spawnMonster() {
-        int random = (int) (Math.random() * 3);
-        if (random == 0)
+        int random = (int) (Math.random() * 11);
+        if (random < 3)
             addEntity(new Imp(level));
-        else if (random == 1)
+        else if (random < 6)
             addEntity(new Chort(level));
-        else
+        else if(random < 9)
             addEntity(new DarkKnight(level));
+        else
+            addEntity(new Boss(level));
     }
 
     // Trap spawn mechanics
