@@ -1,7 +1,6 @@
 package contrib.components;
 
 import contrib.systems.AISystem;
-import contrib.utils.components.ai.ITransition;
 import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
@@ -13,13 +12,14 @@ import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * AIComponent is a component that stores the idle and combat behavior of AI controlled entities.
  *
- * <p>The {@link AISystem AISystem} determines which behavior is used based on the set {@link ITransition TransitionAI}.
- * If the implicit constructor is used the entity will have a default behavior composed of a {@link RadiusWalk} as {@link IIdleAI IdleAI},
- * {@link RangeTransition} as {@link ITransition TransitionAI} and {@link CollideAI} as {@link IFightAI FightAI.
+ * <p>The {@link AISystem AISystem} determines which behavior is used. If the implicit constructor
+ * is used the entity will have a default behavior composed of a {@link RadiusWalk}, {@link
+ * RangeTransition} and {@link CollideAI}.
  */
 @DSLType(name = "ai_component")
 public class AIComponent extends Component {
@@ -27,7 +27,7 @@ public class AIComponent extends Component {
     public static String name = "AIComponent";
     private /*@DSLTypeMember(name="fight_ai)*/ Consumer<Entity> fightAI;
     private /*@DSLTypeMember(name="idle_ai)*/ Consumer<Entity> idleAI;
-    private /*@DSLTypeMember(name="transition_ai)*/ ITransition transitionAI;
+    private /*@DSLTypeMember(name="transition_ai)*/ Function<Entity, Boolean> transitionAI;
 
     /**
      * Create AIComponent with the given behavior.
@@ -41,7 +41,7 @@ public class AIComponent extends Component {
             Entity entity,
             Consumer<Entity> fightAI,
             Consumer<Entity> idleAI,
-            ITransition transition) {
+            Function<Entity, Boolean> transition) {
         super(entity);
         this.fightAI = fightAI;
         this.idleAI = idleAI;
@@ -63,7 +63,7 @@ public class AIComponent extends Component {
 
     /** Excecute the ai behavior */
     public void execute() {
-        if (transitionAI.isInFightMode(entity)) fightAI.accept(entity);
+        if (transitionAI.apply(entity)) fightAI.accept(entity);
         else idleAI.accept(entity);
     }
 
@@ -90,7 +90,7 @@ public class AIComponent extends Component {
      *
      * @param ai new transition ai
      */
-    public void setTransitionAI(ITransition ai) {
+    public void setTransitionAI(Function<Entity, Boolean> ai) {
         this.transitionAI = ai;
     }
 
@@ -108,7 +108,7 @@ public class AIComponent extends Component {
      *
      * @return ITransition object representing the transition AI
      */
-    public ITransition getTransitionAI() {
+    public Function<Entity, Boolean> getTransitionAI() {
         return transitionAI;
     }
 

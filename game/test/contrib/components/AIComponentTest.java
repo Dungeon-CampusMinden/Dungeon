@@ -3,8 +3,6 @@ package contrib.components;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
-import contrib.utils.components.ai.ITransition;
-
 import core.Entity;
 
 import org.junit.Before;
@@ -12,6 +10,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class AIComponentTest {
 
@@ -20,7 +19,7 @@ public class AIComponentTest {
 
     private final Consumer<Entity> mockIdleAI = mock(Consumer.class);
 
-    private final ITransition mockTransition = mock(ITransition.class);
+    private final Function<Entity, Boolean> mockTransition = mock(Function.class);
 
     private final Entity entity = new Entity();
 
@@ -31,7 +30,7 @@ public class AIComponentTest {
 
     @Test
     public void executeFight() {
-        when(mockTransition.isInFightMode(entity)).thenReturn(true);
+        when(mockTransition.apply(entity)).thenReturn(true);
         aiComponent.execute();
         verify(mockFightAI, times(1)).accept(entity);
         verify(mockIdleAI, never()).accept(entity);
@@ -39,7 +38,7 @@ public class AIComponentTest {
 
     @Test
     public void executeIdle() {
-        when(mockTransition.isInFightMode(entity)).thenReturn(false);
+        when(mockTransition.apply(entity)).thenReturn(false);
         aiComponent.execute();
         verify(mockFightAI, never()).accept(entity);
         verify(mockIdleAI, times(1)).accept(entity);
@@ -61,7 +60,7 @@ public class AIComponentTest {
 
     @Test
     public void setTransitionAI() {
-        ITransition newAI = Mockito.mock(ITransition.class);
+        Function<Entity, Boolean> newAI = Mockito.mock(Function.class);
         aiComponent.setTransitionAI(newAI);
         assertEquals(newAI, aiComponent.getTransitionAI());
     }
