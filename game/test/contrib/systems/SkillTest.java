@@ -2,13 +2,14 @@ package contrib.systems;
 
 import static org.junit.Assert.*;
 
-import contrib.utils.components.skill.ISkillFunction;
 import contrib.utils.components.skill.Skill;
 
 import core.Entity;
 
 import org.junit.After;
 import org.junit.Test;
+
+import java.util.function.Consumer;
 
 public class SkillTest {
 
@@ -17,7 +18,7 @@ public class SkillTest {
 
     private Entity entity;
     private Skill skill;
-    private ISkillFunction skillFunction = entity -> value++;
+    private Consumer<Entity> skillFunction = entity -> value++;
 
     @After
     public void cleanup() {
