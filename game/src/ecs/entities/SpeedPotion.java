@@ -19,6 +19,9 @@ import java.util.List;
 public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
     private ItemComponent itemComponent;
 
+    /**
+     * This constructor creates a SpeedPotion.
+     */
     public SpeedPotion() {
         super();
         setupItemComponent();
@@ -40,18 +43,18 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
         setupAnimationComponent();
     }
 
-    public void setupAnimationComponent() {
+    protected void setupAnimationComponent() {
         Animation idle = AnimationBuilder.buildAnimation(ItemConfig.SPEED_TEXTURE.get());
         new AnimationComponent(this, idle);
     }
 
     @Override
-    public void setupPositionComponent() {
+    protected void setupPositionComponent() {
         new PositionComponent(this);
     }
 
     @Override
-    public void setupHitBoxComponent() {
+    protected void setupHitBoxComponent() {
         new HitboxComponent(
                 this,
                 (you, other, direction) -> onCollect(this, other),
@@ -60,7 +63,7 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
     }
 
     @Override
-    public void setupItemComponent() {
+    protected void setupItemComponent() {
         ItemData itemData = new ItemData(
                 ItemConfig.POTION_TYPE.get(),
                 new Animation(List.of(ItemConfig.SPEED_TEXTURE.get()), 1),
@@ -75,6 +78,11 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
         this.itemComponent = new ItemComponent(this, itemData);
     }
 
+    /**
+     * This methode is used to collect the item
+     * @param WorldItemEntity is the item, that will be collected
+     * @param whoCollides that collects the item
+     */
     @Override
     public void onCollect(Entity WorldItemEntity, Entity whoCollides) {
         if (!Game.getHero().isPresent())
@@ -92,6 +100,14 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
             Game.removeEntity(WorldItemEntity);
     }
 
+    /**
+     * Uses the item and removes
+     * the item from the
+     * inventory.
+     *
+     * @param e Entity that uses the item
+     * @param item Item that is used
+     */
     @Override
     public void onUse(Entity e, ItemData item) {
         if (!e.getComponent(InventoryComponent.class).isPresent())
@@ -116,6 +132,12 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
         }
     }
 
+    /**
+     * This methode is used to drop an item.
+     * @param user the entity, that drops the item
+     * @param which item that is dropped
+     * @param position where the item will be dropped
+     */
     @Override
     public void onDrop(Entity user, ItemData which, Point position) {
         Game.addEntity(new SpeedPotion(which, position));
@@ -127,6 +149,10 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
                         });
     }
 
+    /**
+     * This Methode is executing the ability of the item
+     * @param entity
+     */
     private void speedUp(Entity entity) {
         if (!entity.getComponent(VelocityComponent.class).isPresent())
             return;

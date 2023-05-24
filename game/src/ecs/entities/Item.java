@@ -17,13 +17,13 @@ public abstract class Item extends Entity implements IOnCollect, IOnUse, IOnDrop
         super();
     }
 
-    public abstract void setupAnimationComponent();
+    protected abstract void setupAnimationComponent();
 
-    public abstract void setupPositionComponent();
+    protected abstract void setupPositionComponent();
 
-    public abstract void setupHitBoxComponent();
+    protected abstract void setupHitBoxComponent();
 
-    public abstract void setupItemComponent();
+    protected abstract void setupItemComponent();
 
     public abstract void onCollect(Entity WorldItemEntity, Entity whoCollides);
 
