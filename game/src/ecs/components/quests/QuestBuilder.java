@@ -6,11 +6,13 @@ import ecs.entities.Entity;
 import ecs.entities.Imp;
 import ecs.entities.Monster;
 
+import java.util.logging.Logger;
+
 /**
  * Creates new Quests instead of the Quests
  */
 public class QuestBuilder {
-
+    private static transient final Logger questLogger = Logger.getLogger(QuestBuilder.class.getName());
     private static final Class[] KILLABLES = {
             Monster.class,
             Imp.class,
@@ -25,7 +27,7 @@ public class QuestBuilder {
 
     /**
      * Builds a new quest where monsters have to be killed
-     * 
+     *
      * @param entity the entity to have this quest
      * @return new instance of KillQuest
      */
@@ -35,7 +37,7 @@ public class QuestBuilder {
 
     /**
      * Builds a new quest where the player has to move
-     * 
+     *
      * @param entity the entity to have this quest
      * @return new instance of MovementQuest
      */
@@ -46,7 +48,7 @@ public class QuestBuilder {
     /**
      * Builds a new quest where the player has to LevelUp
      * for now only the dungeon depth later maybe the actual level of the player
-     * 
+     *
      * @param entity the entity to have this quest
      * @return new instance of LevelUpQuest
      */
@@ -56,7 +58,7 @@ public class QuestBuilder {
 
     /**
      * Builds a random Quest
-     * 
+     *
      * @param entity entity to have this quest
      * @return new instance of Quest
      */
@@ -66,12 +68,15 @@ public class QuestBuilder {
         switch (key) {
 
             case 1:
+                questLogger.info("KillQuest was build");
                 return buildKillQuest(entity);
 
             case 2:
+                questLogger.info("LevelQuest was build");
                 return buildLevelUpQuest(entity);
 
             case 3:
+                questLogger.info("CollectQuest was build");
                 return buildCollectQuest();
 
             default:

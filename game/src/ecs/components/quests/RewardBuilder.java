@@ -3,14 +3,16 @@ package ecs.components.quests;
 import ecs.components.HealthComponent;
 import ecs.entities.Entity;
 
+import java.util.logging.Logger;
+
 /**
  * Creates new instances of IReward
  */
 public class RewardBuilder {
-
+    private static transient final Logger rewardLogger = Logger.getLogger(RewardBuilder.class.getName());
     /**
      * Chooses a random reward and builds a new instance
-     * 
+     *
      * @return new instance of IReward
      */
     public static IReward buildRandomReward() {
@@ -19,9 +21,10 @@ public class RewardBuilder {
         switch (key) {
 
             case 1:
+                rewardLogger.info("You earned the MaxHealthReward");
                 return buildIncreaseMaxHealthReward();
-
             case 2:
+                rewardLogger.info("You earned the buildItemReward");
                 return buildItemReward();
 
             default:
@@ -31,7 +34,7 @@ public class RewardBuilder {
 
     /**
      * Builds a new instance of IReward that will heal the player to maximum health
-     * 
+     *
      * @return new instance of IReward
      */
     public static IReward buildHealReward() {
@@ -56,7 +59,7 @@ public class RewardBuilder {
     /**
      * Builds a new instance of IReward that will increase the player's maximum
      * healthpoints by one percent
-     * 
+     *
      * @return new instance of IReward
      */
     public static IReward buildIncreaseMaxHealthReward() {
@@ -86,7 +89,7 @@ public class RewardBuilder {
     /**
      * Builds a new reward that will double the quest holders Healthpoints and fully
      * heal the quest holder
-     * 
+     *
      * @return new Instance of IReward
      */
     public static IReward buildBossReward() {

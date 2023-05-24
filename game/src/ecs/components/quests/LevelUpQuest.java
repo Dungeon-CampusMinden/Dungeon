@@ -5,12 +5,14 @@ import ecs.components.xp.XPComponent;
 import ecs.entities.Entity;
 import starter.Game;
 
-public class LevelUpQuest extends Quest {
+import java.util.logging.Logger;
 
+public class LevelUpQuest extends Quest {
+    private transient final Logger levelUpLogger = Logger.getLogger(this.getClass().getName());
     /**
      * This constructor is private so that we can only access it by using the
      * buildLevelUpQuest method
-     * 
+     *
      * @param name        name of the Quest
      * @param description short description of the task and the reward
      * @param task        task to be completed
@@ -23,11 +25,12 @@ public class LevelUpQuest extends Quest {
         this.task = task;
         this.reward = reward;
         this.questHolder = questHolder;
+        levelUpLogger.info(this.name + "was created");
     }
 
     /**
      * Builds a new level up quest
-     * 
+     *
      * @param questHolder entity that owns the quest
      * @return new Instance of LevelUpQuest
      */
@@ -65,7 +68,7 @@ public class LevelUpQuest extends Quest {
 
             /**
              * Called when the game loads
-             * 
+             *
              * @param entity The questHolder entity
              */
             @Override
@@ -122,7 +125,7 @@ public class LevelUpQuest extends Quest {
 
             /**
              * Called when the game loads
-             * 
+             *
              * @param entity The questHolder entity
              */
             @Override

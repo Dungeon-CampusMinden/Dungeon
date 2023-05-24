@@ -5,12 +5,14 @@ import ecs.components.PositionComponent;
 import ecs.entities.Entity;
 import starter.Game;
 
-public class MovementQuest extends Quest {
+import java.util.logging.Logger;
 
+public class MovementQuest extends Quest {
+    private transient final Logger movementLogger = Logger.getLogger(this.getClass().getName());
     /**
      * This constructor is private so that we can only access it by using the
      * buildKillQuest method
-     * 
+     *
      * @param name        name of the Quest
      * @param description short description of the task and the reward
      * @param task        task to be completed
@@ -23,11 +25,12 @@ public class MovementQuest extends Quest {
         this.task = task;
         this.reward = reward;
         this.questHolder = questHolder;
+        movementLogger.info(this.name + "was created");
     }
 
     /**
      * Builds a new MovementQuest from scratch
-     * 
+     *
      * @param questHolder Entity that owns the quest
      * @return new Instance of MovementQuest
      */
@@ -74,7 +77,7 @@ public class MovementQuest extends Quest {
 
             /**
              * Called when the game loads
-             * 
+             *
              * @param entity The questHolder entity
              */
             @Override
