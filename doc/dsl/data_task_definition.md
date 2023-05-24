@@ -20,6 +20,10 @@ single_choice_task task {
 }
 ```
 
+- `description`: Die Aufgabenbeschreibung
+- `answers`: Die Liste der Antwortmöglichkeiten, aus denen ein Element ausgewählt werden muss
+- `correct_answer_index`: Der Index aus `answers`, er die korrekte Antwort angibt
+- `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
 
 ## Aufgabentyp "Multiple Choice"
 
