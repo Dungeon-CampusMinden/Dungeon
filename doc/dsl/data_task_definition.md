@@ -5,11 +5,11 @@ title: "Daten für Aufgabendefinitionen"
 ## Aufgabendefinition
 
 Im Aufgabenkonzept werden [Aufgabentypen](../tasks/readme.md#aufgabentypen) definiert.
-Welche Daten zur Definition einer Aufgabe nötig sind, ist vom Aufgabentyp abhängig.
-Ziel dieses Dokuments ist, die erforderlichen Datenstrukturen für alle Aufgabentypen
-zu definieren.
+Welche Daten zur Definition einer Aufgabe nötig sind, ist vom Aufgabentyp abhängig. Ziel
+dieses Dokuments ist, die erforderlichen Datenstrukturen für alle Aufgabentypen zu
+definieren.
 
-## Aufgabentyp "Single Choice"
+## Aufgabentyp “Single Choice”
 
 ```
 single_choice_task task {
@@ -23,11 +23,12 @@ single_choice_task task {
 Member:
 
 - `description`: Die textuelle Aufgabenbeschreibung
-- `answers`: Die Liste der Antwortmöglichkeiten, aus denen ein Element ausgewählt werden muss
+- `answers`: Die Liste der Antwortmöglichkeiten, aus denen ein Element ausgewählt werden
+  muss
 - `correct_answer_index`: Der Index aus `answers`, er die korrekte Antwort angibt
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
 
-## Aufgabentyp "Multiple Choice"
+## Aufgabentyp “Multiple Choice”
 
 ```
 multiple_choice_task task {
@@ -41,11 +42,12 @@ multiple_choice_task task {
 Member:
 
 - `description`: Die textuelle Aufgabenbeschreibung
-- `answers`: Die Liste der Antwortmöglichkeiten, aus denen mehrere Elemente ausgewählt werden müssen
-- `correct_answer_indices`: Die Indizes aus `answers`, welche die korrekten Antworten angeben
+- `answers`: Die Liste der Antwortmöglichkeiten, aus denen mehrere Elemente ausgewählt
+  werden müssen
+- `correct_answer_indices`: Die Indizes aus `answers`, welche die korrekten Antworten
+  angeben
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
 
-## Aufgabentyp "Ersetzen"
 
 ```
 replacement_task t {
@@ -73,20 +75,22 @@ replacement_task t {
 Member:
 
 - `description`: Die textuelle Aufgabenbeschreibung
-- `elements`: Eine Liste, die alle Elemente, welche an der Ersetzungsaufgabe beteiligt sind, enthält.
+- `elements`: Eine Liste, die alle Elemente, welche an der Ersetzungsaufgabe beteiligt sind,
+  enthält.
 - `initial_element_set`: Eine Liste, welche die initiale Menge der Aufgabenelemente angibt.
 - `rules`: Die Definition der Ersetzungsregeln, als `graph` notiert
-  - Definition der Element-Mengen: definiert, welche Elemente aus `elements` eine Menge bilden, welche durch Anwendung
-    einer Ersetzungsregel durch eine andere Menge ersetzt werden kann; als Knoten im `graph` notiert; optional kann
-    angegeben werden, ob die Reihenfolge der Elemente relevant ist
-  - Definition der Ersetzungsregeln: Definition, welche Element-Mengen durch welche anderen Element-Mengen ersetzt werden
-    dürfen; das `name`-Attribut kann genutzt werden, um über das `graph`-Objekt auf die Regel zuzugreifen; als Kanten im
-    `graph` notiert
-- `answer_sequence`: Liste der Ersetzungsregeln aus `rules`, die der Reihe nach ausgeführt werden müssen
-- `answer_configuration`: Liste der Elemente, welche nach Fertigstellung der Aufgabe vorhanden sein müssen
+  - Definition der Element-Mengen: definiert, welche Elemente aus `elements` eine Menge
+    bilden, welche durch Anwendung einer Ersetzungsregel durch eine andere Menge ersetzt
+    werden kann; als Knoten im `graph` notiert; optional kann angegeben werden, ob die
+    Reihenfolge der Elemente relevant ist
+  - Definition der Ersetzungsregeln: Definition, welche Element-Mengen durch welche anderen
+    Element-Mengen ersetzt werden dürfen; das `name`-Attribut kann genutzt werden, um über
+    das `graph`-Objekt auf die Regel zuzugreifen; als Kanten im `graph` notiert
+- `answer_sequence`: Liste der Ersetzungsregeln aus `rules`, die der Reihe nach ausgeführt
+  werden müssen
+- `answer_configuration`: Liste der Elemente, welche nach Fertigstellung der Aufgabe
+  vorhanden sein müssen
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
-
-## Aufgabentyp "Zuordnen"
 
 ```
 mapping_task t {
@@ -113,11 +117,13 @@ mapping_task t {
 Member:
 
 - `description`: Die textuelle Aufgabenbeschreibung
-- `elements_A`: Liste der Elemente, die in Menge $A$ (vgl. [Zuordnen](../tasks/readme.md#zuordnen)) enthalten sind
+- `elements_A`: Liste der Elemente, die in Menge $A$ (vgl.
+  [Zuordnen](../tasks/readme.md#zuordnen)) enthalten sind
 - `elements_B`: Liste der Elemente, die in Menge $B$ enthalten sind
 - `rules`: Die Definition der Zuordnung, als `graph` notiert
-  - Definition der Element-Mengen: definiert, welche Elemente aus `elements_A` und `elements_B` eine Menge bilden,
-    die einer anderen Menge zugeordnet werden kann; als Knoten im `graph` notiert
+  - Definition der Element-Mengen: definiert, welche Elemente aus `elements_A` und
+    `elements_B` eine Menge bilden, die einer anderen Menge zugeordnet werden kann; als
+    Knoten im `graph` notiert
   - Definition der Zuordnung; als Kanten im `graph` notiert
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
 
@@ -136,10 +142,10 @@ Als alternative Notation zur Definition der Zuordnung ist folgende Notation vors
 ...
 ```
 
-Dies würde allerdings die Erweiterung der eingebetteten Dot-Syntax erfordern, sodass beliebige
-Ausdrücke als Knoten in Kantendefinitionen verwendet werden können.
+Dies würde allerdings die Erweiterung der eingebetteten Dot-Syntax erfordern, sodass
+beliebige Ausdrücke als Knoten in Kantendefinitionen verwendet werden können.
 
-## Aufgabentyp "Lücken füllen"
+## Aufgabentyp “Lücken füllen”
 
 ```
 gap_task task {
@@ -170,16 +176,18 @@ gap_task task {
 Member:
 
 - `description`: Die textuelle Aufgabenbeschreibung
-- `gaps_amount`: Anzahl der Lücken, die gefüllt werden müssen; hierdurch wird intern ein `gaps`-Array erzeugt,
-  welches die Lücken repräsentiert
+- `gaps_amount`: Anzahl der Lücken, die gefüllt werden müssen; hierdurch wird intern ein
+  `gaps`-Array erzeugt, welches die Lücken repräsentiert
 - `elements`: Liste der Elemente, welche in die Lücken eingesetzt werden müssen
 - `rules`: Die Definition der Zuordnung, als `graph` notiert
-    - Definition der Element-Mengen: definiert, welche Elemente aus `gaps` und `elements` eine Menge bilden, die einer anderen
-      Menge zugeordnet werden kann; als Knoten im `graph` notiert
-    - Definition der Zuordnung; als Kanten im `graph` notiert
+  - Definition der Element-Mengen: definiert, welche Elemente aus `gaps` und `elements` eine
+    Menge bilden, die einer anderen Menge zugeordnet werden kann; als Knoten im `graph`
+    notiert
+  - Definition der Zuordnung; als Kanten im `graph` notiert
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
--
-Alternative Notation (vgl. [Zuordnen](#zuordnung-alternative-notation)):
+
+
+### Lücken füllen: Alternative Notation (vgl.[Zuordnen: alternative Notation](#zuordnung-alternative-notation))
 
 ```
 rules: graph {
