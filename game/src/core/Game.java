@@ -74,7 +74,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private boolean doSetup = true;
     private DebuggerSystem debugger;
-    private Entity pauseMenue;
+    private Entity pauseMenu;
 
     // for singleton
     private Game() {}
@@ -288,7 +288,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             // Text Dialogue (output of information texts)
             // UITools.showInfoText(DEFAULT_MESSAGE);
-            pauseMenue
+            pauseMenu
                     .getComponent(UIComponent.class)
                     .map(UIComponent.class::cast)
                     .get()
@@ -397,7 +397,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         new HealthSystem();
         new XPSystem();
         new ProjectileSystem();
-        new HudSystem(batch);
+        new HudSystem(new SpriteBatch());
         debugger = new DebuggerSystem();
     }
 }
