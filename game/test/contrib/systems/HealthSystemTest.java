@@ -6,7 +6,6 @@ import contrib.components.HealthComponent;
 import contrib.components.StatsComponent;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
-import contrib.utils.components.health.IOnDeathFunction;
 
 import core.Entity;
 import core.Game;
@@ -17,6 +16,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class HealthSystemTest {
 
@@ -24,7 +24,7 @@ public class HealthSystemTest {
     public void updateEntityDies() {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
+        Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
         Animation dieAnimation = new Animation(List.of("FRAME1"), 1, false);
         DrawComponent ac = new DrawComponent(entity);
         HealthComponent component = new HealthComponent(entity, 1, onDeath, null, dieAnimation);
@@ -41,7 +41,7 @@ public class HealthSystemTest {
     public void updateEntityGetDamage() {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
+        Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
         Animation hitAnimation = Mockito.mock(Animation.class);
         DrawComponent ac = new DrawComponent(entity);
         HealthComponent component = new HealthComponent(entity, 10, onDeath, hitAnimation, null);
@@ -59,7 +59,7 @@ public class HealthSystemTest {
     public void updateEntityGetNegativeDamage() {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
+        Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
         Animation hitAnimation = Mockito.mock(Animation.class);
         DrawComponent ac = new DrawComponent(entity);
         HealthComponent component = new HealthComponent(entity, 10, onDeath, hitAnimation, null);
@@ -76,7 +76,7 @@ public class HealthSystemTest {
     public void updateEntityGetZeroDamage() {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
+        Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
         Animation hitAnimation = Mockito.mock(Animation.class);
         DrawComponent ac = new DrawComponent(entity);
         HealthComponent component = new HealthComponent(entity, 10, onDeath, hitAnimation, null);

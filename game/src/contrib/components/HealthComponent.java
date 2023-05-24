@@ -5,7 +5,6 @@ import com.badlogic.gdx.utils.Null;
 import contrib.systems.HealthSystem;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
-import contrib.utils.components.health.IOnDeathFunction;
 
 import core.Component;
 import core.Entity;
@@ -20,6 +19,7 @@ import semanticanalysis.types.DSLTypeMember;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
@@ -49,7 +49,7 @@ public class HealthComponent extends Component {
     private @DSLTypeMember(name = "maximal_health_points") int maximalHealthpoints;
     private int currentHealthpoints;
     private @Null Entity lastCause = null;
-    private @DSLTypeMember(name = "on_death_function") IOnDeathFunction onDeath;
+    private @DSLTypeMember(name = "on_death_function") Consumer<Entity> onDeath;
     private @DSLTypeMember(name = "get_hit_animation") Animation getHitAnimation;
     private @DSLTypeMember(name = "die_animation") Animation dieAnimation;
     private final Logger healthLogger = Logger.getLogger(this.getClass().getName());
@@ -70,7 +70,7 @@ public class HealthComponent extends Component {
     public HealthComponent(
             Entity entity,
             int maximalHitPoints,
-            IOnDeathFunction onDeath,
+            Consumer<Entity> onDeath,
             Animation getHitAnimation,
             Animation dieAnimation) {
         super(entity);
@@ -111,7 +111,7 @@ public class HealthComponent extends Component {
 
     /** Triggers the onDeath Function */
     public void triggerOnDeath() {
-        onDeath.onDeath(entity);
+        onDeath.accept(entity);
     }
 
     /**
@@ -189,7 +189,7 @@ public class HealthComponent extends Component {
      *
      * @param onDeath new onDeath function
      */
-    public void setOnDeath(IOnDeathFunction onDeath) {
+    public void setOnDeath(Consumer<Entity> onDeath) {
         this.onDeath = onDeath;
     }
 

@@ -8,8 +8,10 @@ import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
+import java.util.function.Consumer;
+
 /** a simple implementation of dropping all items of an Entity when it is dying. */
-public class DropLoot implements IOnDeathFunction {
+public class DropLoot implements Consumer<Entity> {
     private record DLData(Entity e, Components dlc, ItemData i) {}
 
     private record Components(InventoryComponent ic, PositionComponent pc) {}
@@ -20,7 +22,7 @@ public class DropLoot implements IOnDeathFunction {
      * @param entity Entity that has died
      */
     @Override
-    public void onDeath(Entity entity) {
+    public void accept(Entity entity) {
         Components dlc = prepareComponent(entity);
         dlc.ic.getItems().stream().map(x -> new DLData(entity, dlc, x)).forEach(this::dropItem);
     }
