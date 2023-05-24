@@ -3,7 +3,6 @@ package contrib.components;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
-import contrib.utils.components.ai.IFightAI;
 import contrib.utils.components.ai.IIdleAI;
 import contrib.utils.components.ai.ITransition;
 
@@ -13,10 +12,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.function.Consumer;
+
 public class AIComponentTest {
 
     private AIComponent aiComponent;
-    private final IFightAI mockFightAI = mock(IFightAI.class);
+    private final Consumer<Entity> mockFightAI = mock(Consumer.class);
 
     private final IIdleAI mockIdleAI = mock(IIdleAI.class);
 
@@ -33,7 +34,7 @@ public class AIComponentTest {
     public void executeFight() {
         when(mockTransition.isInFightMode(entity)).thenReturn(true);
         aiComponent.execute();
-        verify(mockFightAI, times(1)).fight(entity);
+        verify(mockFightAI, times(1)).accept(entity);
         verify(mockIdleAI, never()).idle(entity);
     }
 
@@ -41,13 +42,13 @@ public class AIComponentTest {
     public void executeIdle() {
         when(mockTransition.isInFightMode(entity)).thenReturn(false);
         aiComponent.execute();
-        verify(mockFightAI, never()).fight(entity);
+        verify(mockFightAI, never()).accept(entity);
         verify(mockIdleAI, times(1)).idle(entity);
     }
 
     @Test
     public void setFightAI() {
-        IFightAI newAI = Mockito.mock(IFightAI.class);
+        Consumer<Entity> newAI = Mockito.mock(Consumer.class);
         aiComponent.setFightAI(newAI);
         assertEquals(newAI, aiComponent.getFightAI());
     }

@@ -1,7 +1,6 @@
 package contrib.components;
 
 import contrib.systems.AISystem;
-import contrib.utils.components.ai.IFightAI;
 import contrib.utils.components.ai.IIdleAI;
 import contrib.utils.components.ai.ITransition;
 import contrib.utils.components.ai.fight.CollideAI;
@@ -14,6 +13,8 @@ import core.Entity;
 import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
 
+import java.util.function.Consumer;
+
 /**
  * AIComponent is a component that stores the idle and combat behavior of AI controlled entities.
  *
@@ -25,7 +26,7 @@ import semanticanalysis.types.DSLType;
 public class AIComponent extends Component {
 
     public static String name = "AIComponent";
-    private /*@DSLTypeMember(name="fight_ai)*/ IFightAI fightAI;
+    private /*@DSLTypeMember(name="fight_ai)*/ Consumer<Entity> fightAI;
     private /*@DSLTypeMember(name="idle_ai)*/ IIdleAI idleAI;
     private /*@DSLTypeMember(name="transition_ai)*/ ITransition transitionAI;
 
@@ -37,7 +38,8 @@ public class AIComponent extends Component {
      * @param idleAI idle behavior
      * @param transition Determines when to fight
      */
-    public AIComponent(Entity entity, IFightAI fightAI, IIdleAI idleAI, ITransition transition) {
+    public AIComponent(
+            Entity entity, Consumer<Entity> fightAI, IIdleAI idleAI, ITransition transition) {
         super(entity);
         this.fightAI = fightAI;
         this.idleAI = idleAI;
@@ -59,7 +61,7 @@ public class AIComponent extends Component {
 
     /** Excecute the ai behavior */
     public void execute() {
-        if (transitionAI.isInFightMode(entity)) fightAI.fight(entity);
+        if (transitionAI.isInFightMode(entity)) fightAI.accept(entity);
         else idleAI.idle(entity);
     }
 
@@ -68,7 +70,7 @@ public class AIComponent extends Component {
      *
      * @param ai new fight ai
      */
-    public void setFightAI(IFightAI ai) {
+    public void setFightAI(Consumer<Entity> ai) {
         this.fightAI = ai;
     }
 
@@ -113,7 +115,7 @@ public class AIComponent extends Component {
      *
      * @return IFigthAI object representing the fight AI
      */
-    public IFightAI getFightAI() {
+    public Consumer<Entity> getFightAI() {
         return fightAI;
     }
 }
