@@ -34,6 +34,10 @@ public class BossAI implements IFightAI {
 
     @Override
     public void fight(Entity entity) {
+        if (aggressive) {
+            path = AITools.calculatePathToHero(entity);
+            AITools.move(entity, path);
+        }
         currentBreak++;
         if (currentBreak < BREAK_TIME) {
             return; // END
@@ -60,8 +64,6 @@ public class BossAI implements IFightAI {
                                 h.setPosition(AITools.getRandomAccessibleTileCoordinateInRange(
                                         entityPosition(Game.getHero().get()), 2).toPoint());
                             });
-        path = AITools.calculatePathToHero(entity);
-        AITools.move(entity, path);
         SECOND_SKILL.execute(entity);
         // END
     }
