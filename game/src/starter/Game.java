@@ -57,6 +57,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     protected SpriteBatch batch;
 
+    private static Game game;
+
     /** Contains all Controller of the Dungeon */
     protected List<AbstractController<?>> controller;
 
@@ -86,13 +88,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     // new
     private static InventoryHUD<Actor> inventoryHUD;
+    private static GameOverHUD<Actor> gameOverHUD;
     private static boolean inventoryOpen = false;
-
     private static Entity hero;
     private static Hero playHero;
     private Logger gameLogger;
-
-    private int currentLvl;
+    private static int currentLvl;
 
     private FriendlyGhost friendlyGhost;
 
@@ -103,7 +104,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        DesktopLauncher.run(new Game());
+        DesktopLauncher.run(game = new Game());
     }
 
     /**
@@ -135,13 +136,14 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         gameLogger = Logger.getLogger(this.getClass().getName());
         systems = new SystemController();
         controller.add(systems);
-
-        // new
         inventoryHUD = new InventoryHUD<>();
         controller.add(inventoryHUD);
-
         pauseMenu = new PauseMenu<>();
         controller.add(pauseMenu);
+
+        // new
+        gameOverHUD = new GameOverHUD<>();
+        controller.add(gameOverHUD);
         playHero = new Hero();
         hero = playHero;
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
@@ -155,6 +157,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         manageEntitiesSets();
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) togglePause();
+        if (Hero.isDead()) {}
+        ;
     }
 
     @Override
@@ -194,11 +198,18 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /** Chance of Randomly spawn a Item */
     private void spawnItems() {
-        int random = (int) (Math.random() * (0 - 100));
-        if (random < 0) {
+        int random = (int) (Math.random() * (100));
+        if (random >= 0 && random <= 25) {
             new Bag(ItemType.Active);
+        }
+        if (random >= 25 && random <= 50) {
             new Greatsword();
+        }
+        if (random >= 50 && random <= 85) {
             new BookOfRa();
+        }
+        if (random >= 85 && random <= 90) {
+            new Bag(ItemType.Active);
             new InvinciblePotion();
         }
     }
@@ -320,6 +331,26 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             if (inventoryOpen) inventoryHUD.showMenu();
             else inventoryHUD.hideMenu();
         }
+    }
+
+    /**
+     * Returns the GameOverMenuObject
+     *
+     * @return GameOverMenuObject
+     */
+    public static GameOverHUD getGameOverMenu() {
+        return gameOverHUD;
+    }
+
+    /**
+     * Restarts the game
+     *
+     * <p>Used for the "Restart"-Function of the GameOverMenu. Creates a new level and resets all
+     * important parameters.
+     */
+    public static void restartGame() {
+        currentLvl = 0;
+        game.setup();
     }
 
     /**

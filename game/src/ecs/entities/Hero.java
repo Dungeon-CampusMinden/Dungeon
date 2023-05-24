@@ -9,6 +9,7 @@ import ecs.components.skill.*;
 import ecs.components.xp.ILevelUp;
 import ecs.components.xp.XPComponent;
 import ecs.graphic.Animation;
+import starter.Game;
 
 /**
  * The Hero is the player character. It's entity in the ECS. This class helps to setup the hero with
@@ -29,7 +30,6 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
     private final String pathToIdleRight = "knight/idleRight";
     private final String pathToRunLeft = "knight/runLeft";
     private final String pathToRunRight = "knight/runRight";
-
     private final String onHit = "knight/hit";
 
     private SkillComponent sCp;
@@ -46,12 +46,13 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
 
     int currentHealth;
 
+    private static boolean dead = false;
+
     /** Entity with Components */
     public Hero() {
         super();
         new PositionComponent(this);
         inv = new InventoryComponent(this, 12);
-
         setupVelocityComponent();
         setupSkillComponent();
         setupAnimationComponent();
@@ -61,9 +62,7 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
         setupHealthComponent();
         setupXpComponent();
         pc.setSkillSlot1(firstSkill);
-
-        this.hp.setCurrentHealthpoints(50); // Set to 50 for testing purposes
-
+        this.hp.setCurrentHealthpoints(2); // Set to 2 for testing Game Over
         currentHealth = this.hp.getCurrentHealthpoints();
     }
 
@@ -140,8 +139,13 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
     }
 
     @Override
+    /**
+     * onDeath function which execute if the given Entity has no HP left
+     *
+     * @param entity on Death of the given entity
+     */
     public void onDeath(Entity entity) {
-        System.out.println("Hero dead");
+        Game.getGameOverMenu().showMenu();
     }
 
     /**
@@ -176,5 +180,13 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
 
     public void setCurrentHealth(int currentHealth) {
         this.currentHealth = currentHealth;
+    }
+
+    public static boolean isDead() {
+        return dead;
+    }
+
+    public static void setDead(boolean dead) {
+        Hero.dead = dead;
     }
 }

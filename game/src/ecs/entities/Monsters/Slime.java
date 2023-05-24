@@ -6,6 +6,9 @@ import ecs.components.ai.AIComponent;
 import ecs.components.ai.fight.CollideAI;
 import ecs.components.ai.idle.RadiusWalk;
 import ecs.components.ai.transition.FriendlyTransition;
+import ecs.damage.Damage;
+import ecs.damage.DamageType;
+import ecs.entities.Entity;
 import ecs.entities.Monster;
 import ecs.graphic.Animation;
 
@@ -54,7 +57,18 @@ public class Slime extends Monster {
     private void setupHitboxComponent() {
         new HitboxComponent(
                 this,
-                (you, other, direction) -> System.out.print(""),
+                (you, other, direction) -> doDmg(other),
                 (you, other, direction) -> System.out.print(""));
+    }
+
+    private void doDmg(Entity other) {
+        if (other.getComponent(HealthComponent.class).isPresent()) {
+            HealthComponent ofE = (HealthComponent) other.getComponent(HealthComponent.class).get();
+            ofE.receiveHit(new Damage(this.getDmg(), DamageType.PHYSICAL, this));
+        }
+    }
+
+    public int getDmg() {
+        return dmg;
     }
 }

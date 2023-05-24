@@ -8,6 +8,8 @@ import ecs.components.*;
  */
 public class Monster extends Entity {
 
+    private Hero hero;
+
     /** Entity with Components */
     public Monster() {
         super();
