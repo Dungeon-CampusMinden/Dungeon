@@ -20,7 +20,9 @@ single_choice_task task {
 }
 ```
 
-- `description`: Die Aufgabenbeschreibung
+Member:
+
+- `description`: Die textuelle Aufgabenbeschreibung
 - `answers`: Die Liste der Antwortmöglichkeiten, aus denen ein Element ausgewählt werden muss
 - `correct_answer_index`: Der Index aus `answers`, er die korrekte Antwort angibt
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
@@ -36,12 +38,20 @@ multiple_choice_task task {
 }
 ```
 
+Member:
+
+- `description`: Die textuelle Aufgabenbeschreibung
+- `answers`: Die Liste der Antwortmöglichkeiten, aus denen mehrere Elemente ausgewählt werden müssen
+- `correct_answer_indices`: Die Indizes aus `answers`, welche die korrekten Antworten angeben
+- `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
+
 ## Aufgabentyp "Ersetzen"
 
 ```
 replacement_task t {
   description: "Bitte führe Ersetzungen durch!"
   elements: [elem1, elem2, elem3, ...],
+  initial_element_set: [elements[2], elements[4], ...]
   rules: graph {
     // Definition der Element-Mengen
     n1[elements=[elements[0], elements[1], elements[2], order_relevant=true/false]
@@ -55,11 +65,26 @@ replacement_task t {
     n2 -> n4 [name=ersetzung3]
   },
   answer_sequence: [rules.ersetzung1, rules.ersetzung2],
+  answer_configuration: [elements[0], elements[3], elements[2]],
   fn_score: score
 }
 ```
 
-Frage: Brauchen wir überhaupt die Startmenge? Kann der Interpreter die nicht automatisch ausrechnen?
+Member:
+
+- `description`: Die textuelle Aufgabenbeschreibung
+- `elements`: Eine Liste, die alle Elemente, welche an der Ersetzungsaufgabe beteiligt sind, enthält.
+- `initial_element_set`: Eine Liste, welche die initiale Menge der Aufgabenelemente angibt.
+- `rules`: Die Definition der Ersetzungsregeln, als `graph` notiert
+  - Definition der Element-Mengen: definiert, welche Elemente aus `elements` eine Menge bilden, welche durch Anwendung
+    einer Ersetzungsregel durch eine andere Menge ersetzt werden kann; als Knoten im `graph` notiert; optional kann
+    angegeben werden, ob die Reihenfolge der Elemente relevant ist
+  - Definition der Ersetzungsregeln: Definition, welche Element-Mengen durch welche anderen Element-Mengen ersetzt werden
+    dürfen; das `name`-Attribut kann genutzt werden, um über das `graph`-Objekt auf die Regel zuzugreifen; als Kanten im
+    `graph` notiert
+- `answer_sequence`: Liste der Ersetzungsregeln aus `rules`, die der Reihe nach ausgeführt werden müssen
+- `answer_configuration`: Liste der Elemente, welche nach Fertigstellung der Aufgabe vorhanden sein müssen
+- `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
 
 ## Aufgabentyp "Zuordnen"
 
