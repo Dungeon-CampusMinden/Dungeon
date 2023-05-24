@@ -224,7 +224,7 @@ Member:
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
 
 
-### Lücken füllen: Alternative Notation (vgl.[Zuordnen: alternative Notation](#zuordnung-alternative-notation))
+### Lücken füllen: Alternative Notation (vgl. [Zuordnen: alternative Notation](#zuordnung-alternative-notation))
 
 ```
 rules: graph {
@@ -237,3 +237,6 @@ rules: graph {
 ```
 
 TODO: linke Seite von Tupel wird zu Regex, rechte Seite bleibt
+
+Für Freitext könnte das auch genutzt werden -> also entweder auch Regex oder LLM-Aufruf
+als native Funktion einbauen -> Ticket:Later
