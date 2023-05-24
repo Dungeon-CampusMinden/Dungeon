@@ -10,6 +10,8 @@ import starter.Game;
 import tools.Point;
 
 import java.util.List;
+import java.util.logging.Logger;
+
 /**
  * The MonsterPotion is a Potion that can be used to kill monster.
  * It extends the Item class. The MonsterPotion is an Item.
@@ -19,6 +21,8 @@ import java.util.List;
  */
 public class MonsterPotion extends Item {
     private ItemComponent itemComponent;
+    private transient final Logger monsterPotionLogger = Logger.getLogger(this.getClass().getName());
+
 
     public MonsterPotion() {
         super();
@@ -26,6 +30,7 @@ public class MonsterPotion extends Item {
         setupHitBoxComponent();
         setupPositionComponent();
         setupAnimationComponent();
+        monsterPotionLogger.info("MonsterPotion created");
     }
 
     /**
@@ -39,6 +44,7 @@ public class MonsterPotion extends Item {
         new PositionComponent(this, point);
         setupHitBoxComponent();
         setupAnimationComponent();
+        this.monsterPotionLogger.info(itemData.getItemName() + " created at " + point.toString());
     }
 
     public void setupAnimationComponent() {
@@ -78,6 +84,7 @@ public class MonsterPotion extends Item {
 
     @Override
     public void onCollect(Entity WorldItemEntity, Entity whoCollides) {
+        monsterPotionLogger.info(WorldItemEntity.toString() + " collected by " + whoCollides.toString());
         if (!Game.getHero().isPresent())
             return;
         if (!whoCollides.equals(Game.getHero().get()))
@@ -95,6 +102,7 @@ public class MonsterPotion extends Item {
 
     @Override
     public void onUse(Entity e, ItemData item) {
+        monsterPotionLogger.info(e.toString() + " used " + item.getItemName());
         if (!e.getComponent(InventoryComponent.class).isPresent())
             return;
         InventoryComponent ic = (InventoryComponent) e.getComponent(InventoryComponent.class).get();
@@ -119,6 +127,7 @@ public class MonsterPotion extends Item {
 
     @Override
     public void onDrop(Entity user, ItemData which, Point position) {
+        monsterPotionLogger.info(user.toString() + " dropped " + which.getItemName() + " at " + position.toString());
         Game.addEntity(new MonsterPotion(which, position));
         user.getComponent(InventoryComponent.class)
                 .ifPresent(
@@ -129,6 +138,7 @@ public class MonsterPotion extends Item {
     }
 
     private void slaughter() {
+        monsterPotionLogger.info("MonsterPotion used");
         Game.getEntities().stream()
                 // Consider only monsters
                 .filter(e -> Monster.class.isAssignableFrom(e.getClass()))

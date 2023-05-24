@@ -13,6 +13,8 @@ import graphic.Animation;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+
 import starter.Game;
 import tools.Point;
 
@@ -23,6 +25,7 @@ import tools.Point;
  *  It is used to create an ItemData which is used to load the Item.
  */
 public class ItemData implements Serializable {
+    private transient final Logger itemLogger = Logger.getLogger(this.getClass().getName());
     private List<ItemData> inventory;
     private ItemType itemType;
     private Animation inventoryTexture;
@@ -74,6 +77,7 @@ public class ItemData implements Serializable {
         if (this.itemType.equals(ItemType.Bag)) {
             this.inventory = new ArrayList<>(3);
         }
+        this.itemLogger.info("ItemData created");
     }
 
     /**
@@ -121,6 +125,7 @@ public class ItemData implements Serializable {
      * @param whoTriesCollects
      */
     public void triggerCollect(Entity worldItemEntity, Entity whoTriesCollects) {
+        itemLogger.info(worldItemEntity + " was collected by " + whoTriesCollects + "triggerCollect");
         if (getOnCollect() != null)
             getOnCollect().onCollect(worldItemEntity, whoTriesCollects);
     }
@@ -131,6 +136,7 @@ public class ItemData implements Serializable {
      * @param position the location of the drop
      */
     public void triggerDrop(Entity e, Point position) {
+        itemLogger.info(e + " was dropped at " + position + "triggerDrop");
         if (getOnDrop() != null)
             getOnDrop().onDrop(e, this, position);
     }
@@ -141,6 +147,7 @@ public class ItemData implements Serializable {
      * @param entity Entity that uses the item
      */
     public void triggerUse(Entity entity) {
+        itemLogger.info(entity + " used " + this + "triggerUse");
         if (getOnUse() == null)
             return;
         getOnUse().onUse(entity, this);
@@ -175,6 +182,7 @@ public class ItemData implements Serializable {
      * @param item Item that is used
      */
     private static void defaultUseCallback(Entity e, ItemData item) {
+        item.itemLogger.info(e + " used " + item + "defaultUseCallback");
         if (!e.getComponent(InventoryComponent.class).isPresent())
             return;
         InventoryComponent ic = (InventoryComponent) e.getComponent(InventoryComponent.class).get();
@@ -193,6 +201,7 @@ public class ItemData implements Serializable {
     }
 
     private static void defaultDrop(Entity who, ItemData which, Point position) {
+        which.itemLogger.info(who + " dropped " + which + "defaultDrop");
         Entity droppedItem = new Entity();
         new PositionComponent(droppedItem, position);
         new AnimationComponent(droppedItem, which.getWorldTexture());

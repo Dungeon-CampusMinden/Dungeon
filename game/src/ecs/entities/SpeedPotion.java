@@ -9,6 +9,8 @@ import starter.Game;
 import tools.Point;
 
 import java.util.List;
+import java.util.logging.Logger;
+
 /**
  * This class is a subclass of Item and implements IOnUse, IOnDrop, IOnCollect.
  * It is used to create a SpeedPotion item.
@@ -18,6 +20,8 @@ import java.util.List;
  */
 public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
     private ItemComponent itemComponent;
+    private transient final Logger speedPotionLogger = Logger.getLogger(this.getClass().getName());
+
 
     public SpeedPotion() {
         super();
@@ -25,6 +29,7 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
         setupHitBoxComponent();
         setupPositionComponent();
         setupAnimationComponent();
+        speedPotionLogger.info("SpeedPotion created");
     }
 
     /**
@@ -38,6 +43,7 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
         new PositionComponent(this, point);
         setupHitBoxComponent();
         setupAnimationComponent();
+        this.speedPotionLogger.info(itemData.getItemName() + " created at " + point.toString());
     }
 
     public void setupAnimationComponent() {
@@ -77,6 +83,7 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
 
     @Override
     public void onCollect(Entity WorldItemEntity, Entity whoCollides) {
+        speedPotionLogger.info(WorldItemEntity.toString() + " collected by " + whoCollides.toString());
         if (!Game.getHero().isPresent())
             return;
         if (!whoCollides.equals(Game.getHero().get()))
@@ -94,6 +101,7 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
 
     @Override
     public void onUse(Entity e, ItemData item) {
+        speedPotionLogger.info(e.toString() + " used " + item.getItemName());
         if (!e.getComponent(InventoryComponent.class).isPresent())
             return;
         InventoryComponent ic = (InventoryComponent) e.getComponent(InventoryComponent.class).get();
@@ -118,6 +126,7 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
 
     @Override
     public void onDrop(Entity user, ItemData which, Point position) {
+        speedPotionLogger.info(user.toString() + " dropped " + which.getItemName() + " at " + position.toString());
         Game.addEntity(new SpeedPotion(which, position));
         user.getComponent(InventoryComponent.class)
                 .ifPresent(
@@ -128,6 +137,7 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
     }
 
     private void speedUp(Entity entity) {
+        speedPotionLogger.info(entity.toString() + " speeded up by " + itemComponent.getItemData().getItemName());
         if (!entity.getComponent(VelocityComponent.class).isPresent())
             return;
         VelocityComponent vc = (VelocityComponent) entity.getComponent(VelocityComponent.class).get();

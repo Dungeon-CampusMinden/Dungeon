@@ -9,6 +9,8 @@ import starter.Game;
 import tools.Point;
 
 import java.util.List;
+import java.util.logging.Logger;
+
 /**
  * This class is a subclass of Item and implements IOnUse, IOnDrop, IOnCollect.
  * The Cake give the player health when on use.
@@ -20,6 +22,7 @@ import java.util.List;
  */
 public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
     private ItemComponent itemComponent;
+    private transient final Logger cakeLogger = Logger.getLogger(this.getClass().getName());
 
     public Cake() {
         super();
@@ -27,6 +30,7 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
         setupHitBoxComponent();
         setupPositionComponent();
         setupAnimationComponent();
+        cakeLogger.info("Cake created");
     }
 
     /**
@@ -40,6 +44,7 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
         new PositionComponent(this, point);
         setupHitBoxComponent();
         setupAnimationComponent();
+        this.cakeLogger.info(itemData.getItemName() + " created at " + point.toString());
     }
 
     @Override
@@ -80,6 +85,7 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
 
     @Override
     public void onCollect(Entity WorldItemEntity, Entity whoCollides) {
+        cakeLogger.info(WorldItemEntity.toString() + " collected by " + whoCollides.toString());
         if (!Game.getHero().isPresent())
             return;
         if (!whoCollides.equals(Game.getHero().get()))
@@ -97,6 +103,7 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
 
     @Override
     public void onUse(Entity e, ItemData item) {
+        cakeLogger.info(e.toString() + " used " + item.getItemName());
         if (!e.getComponent(InventoryComponent.class).isPresent())
             return;
         InventoryComponent ic = (InventoryComponent) e.getComponent(InventoryComponent.class).get();
@@ -121,6 +128,7 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
 
     @Override
     public void onDrop(Entity user, ItemData which, Point position) {
+        cakeLogger.info(user.toString() + " dropped " + which.getItemName() + " at " + position.toString());
         Game.addEntity(new Cake(which, position));
         if (!user.getComponent(InventoryComponent.class).isPresent())
             return;
@@ -131,6 +139,7 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
     }
 
     private void heal(Entity entity) {
+        cakeLogger.info(entity.toString() + " healed by " + itemComponent.getItemData().getItemName());
         if (!entity.getComponent(HealthComponent.class).isPresent())
             return;
         HealthComponent hc = (HealthComponent) entity.getComponent(HealthComponent.class).get();

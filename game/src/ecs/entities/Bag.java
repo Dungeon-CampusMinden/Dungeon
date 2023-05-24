@@ -17,9 +17,11 @@ import starter.Game;
 import tools.Point;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 public class Bag extends Item {
     private ItemComponent itemComponent;
+    private transient final Logger bagLogger = Logger.getLogger(this.getClass().getName());
 
     public Bag() {
         super();
@@ -27,6 +29,7 @@ public class Bag extends Item {
         setupHitBoxComponent();
         setupPositionComponent();
         setupAnimationComponent();
+        bagLogger.info("Bag created");
     }
 
     /**
@@ -40,6 +43,7 @@ public class Bag extends Item {
         new PositionComponent(this, point);
         setupHitBoxComponent();
         setupAnimationComponent();
+        bagLogger.info(itemData.getItemName() + " created at " + point.toString());
     }
 
     @Override
@@ -80,6 +84,7 @@ public class Bag extends Item {
 
     @Override
     public void onCollect(Entity worldItemEntity, Entity whoCollides) {
+        bagLogger.info(worldItemEntity.toString() + " collected by " + whoCollides.toString());
         if (!Game.getHero().isPresent())
             return;
         if (!whoCollides.equals(Game.getHero().get()))
@@ -97,6 +102,7 @@ public class Bag extends Item {
 
     @Override
     public void onUse(Entity e, ItemData item) {
+        bagLogger.info(e.toString() + " used " + item.getItemName());
         if (!e.getComponent(InventoryComponent.class).isPresent())
             return;
         InventoryComponent ic = (InventoryComponent) e.getComponent(InventoryComponent.class).get();
@@ -111,6 +117,7 @@ public class Bag extends Item {
 
     @Override
     public void onDrop(Entity user, ItemData which, Point position) {
+        bagLogger.info(user.toString() + " dropped " + which.getItemName() + " at " + position.toString());
         Game.addEntity(new Bag(which, position));
         user.getComponent(InventoryComponent.class)
                 .ifPresent(
