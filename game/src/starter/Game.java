@@ -211,6 +211,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         saves.setAutoSave(Optional.of(data));
         saves.save();
         gameLogger.info("Level: " + level);
+        new MonsterPotion();
+        new Cake();
+        new SpeedPotion();
+        new Bag();
     }
 
     private void manageEntitiesSets() {

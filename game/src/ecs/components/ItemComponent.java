@@ -3,6 +3,8 @@ package ecs.components;
 import ecs.entities.Entity;
 import ecs.items.ItemData;
 
+import java.util.logging.Logger;
+
 /** Marks an Entity as an Item. */
 public class ItemComponent extends Component {
     private ItemData itemData;

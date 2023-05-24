@@ -9,12 +9,22 @@ import ecs.components.PositionComponent;
 import ecs.components.stats.DamageModifier;
 import ecs.entities.Entity;
 import graphic.Animation;
+
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+
 import starter.Game;
 import tools.Point;
 
-/** A Class which contains the Information of a specific Item. */
-public class ItemData {
+/** A Class which contains the Information of a specific Item.
+ *  It is used to create an ItemEntity which is used in the game.
+ *  This class is makes a difference between the ItemType Bag and the other ones.
+ */
+public class ItemData implements Serializable {
+    private transient final Logger itemLogger = Logger.getLogger(this.getClass().getName());
+    private List<ItemData> inventory;
     private ItemType itemType;
     private Animation inventoryTexture;
     private Animation worldTexture;
@@ -41,6 +51,8 @@ public class ItemData {
      * @param onDrop
      * @param onUse
      * @param damageModifier
+     *
+     * IF ItemType.Bag is used this class creates a List with 3 spaces, to save items init.
      */
     public ItemData(
             ItemType itemType,
@@ -61,10 +73,16 @@ public class ItemData {
         this.setOnDrop(onDrop);
         this.setOnUse(onUse);
         this.damageModifier = damageModifier;
+
+        if (this.itemType.equals(ItemType.Bag)) {
+            this.inventory = new ArrayList<>(3);
+        }
+        this.itemLogger.info("ItemData created");
     }
 
     /**
-     * creates a new item data object. With a basic handling of collecting and dropping
+     * creates a new item data object. With a basic handling of collecting and
+     * dropping
      *
      * @param itemType
      * @param inventoryTexture
@@ -100,13 +118,16 @@ public class ItemData {
     }
 
     /**
-     * what should happen when an Entity interacts with the Item while it is lying in the World.
+     * what should happen when an Entity interacts with the Item while it is lying
+     * in the World.
      *
      * @param worldItemEntity
      * @param whoTriesCollects
      */
     public void triggerCollect(Entity worldItemEntity, Entity whoTriesCollects) {
-        if (getOnCollect() != null) getOnCollect().onCollect(worldItemEntity, whoTriesCollects);
+        itemLogger.info(worldItemEntity + " was collected by " + whoTriesCollects + "triggerCollect");
+        if (getOnCollect() != null)
+            getOnCollect().onCollect(worldItemEntity, whoTriesCollects);
     }
 
     /**
@@ -115,7 +136,9 @@ public class ItemData {
      * @param position the location of the drop
      */
     public void triggerDrop(Entity e, Point position) {
-        if (getOnDrop() != null) getOnDrop().onDrop(e, this, position);
+        itemLogger.info(e + " was dropped at " + position + "triggerDrop");
+        if (getOnDrop() != null)
+            getOnDrop().onDrop(e, this, position);
     }
 
     /**
@@ -124,7 +147,9 @@ public class ItemData {
      * @param entity Entity that uses the item
      */
     public void triggerUse(Entity entity) {
-        if (getOnUse() == null) return;
+        itemLogger.info(entity + " used " + this + "triggerUse");
+        if (getOnUse() == null)
+            return;
         getOnUse().onUse(entity, this);
     }
 
@@ -149,23 +174,40 @@ public class ItemData {
     }
 
     /**
-     * Default callback for item use. Prints a message to the console and removes the item from the
+     * Default callback for item use. Prints a message to the console and removes
+     * the item from the
      * inventory.
      *
      * @param e Entity that uses the item
      * @param item Item that is used
      */
     private static void defaultUseCallback(Entity e, ItemData item) {
-        e.getComponent(InventoryComponent.class)
-                .ifPresent(
-                        component -> {
-                            InventoryComponent invComp = (InventoryComponent) component;
-                            invComp.removeItem(item);
-                        });
-        System.out.printf("Item \"%s\" used by entity %d\n", item.getItemName(), e.id);
+        item.itemLogger.info(e + " used " + item + "defaultUseCallback");
+        if (!e.getComponent(InventoryComponent.class).isPresent())
+            return;
+        InventoryComponent ic = (InventoryComponent) e.getComponent(InventoryComponent.class).get();
+        if (!item.getItemType().equals(ItemType.Bag)) {
+            ic.removeItem(item);
+            System.out.printf("Item \"%s\" used by entity %d\n", item.getItemName(), e.id);
+            return;
+        }
+        if (item.getInventory().size() < 1) {
+            System.out.println("Bag is empty");
+            return;
+        }
+        System.out.printf("Item \"%s\" used by entity %d\n", item.getInventory().get(0).getItemName(), e.id);
+        item.getInventory().remove(0);
+
     }
 
+    /**
+     * This methode is used to drop an item.
+     * @param who the entity, that drops the item
+     * @param which item that is dropped
+     * @param position where the item will be dropped
+     */
     private static void defaultDrop(Entity who, ItemData which, Point position) {
+        which.itemLogger.info(who + " dropped " + which + "defaultDrop");
         Entity droppedItem = new Entity();
         new PositionComponent(droppedItem, position);
         new AnimationComponent(droppedItem, which.getWorldTexture());
@@ -173,30 +215,25 @@ public class ItemData {
         component.setiCollideEnter((a, b, direction) -> which.triggerCollect(a, b));
     }
 
+    /**
+     * This methode is used to collect the item
+     * @param worldItem is the item, that will be collected
+     * @param whoCollected that collects the item
+     */
     private static void defaultCollect(Entity worldItem, Entity whoCollected) {
-        Game.getHero()
-                .ifPresent(
-                        hero -> {
-                            if (whoCollected.equals(hero)) {
-                                hero.getComponent(InventoryComponent.class)
-                                        .ifPresent(
-                                                (x) -> {
-                                                    if (((InventoryComponent) x)
-                                                            .addItem(
-                                                                    worldItem
-                                                                            .getComponent(
-                                                                                    ItemComponent
-                                                                                            .class)
-                                                                            .map(
-                                                                                    ItemComponent
-                                                                                                    .class
-                                                                                            ::cast)
-                                                                            .get()
-                                                                            .getItemData()))
-                                                        Game.removeEntity(worldItem);
-                                                });
-                            }
-                        });
+        if (!Game.getHero().isPresent())
+            return;
+        if (!whoCollected.equals(Game.getHero().get()))
+            return;
+        if (!whoCollected.getComponent(InventoryComponent.class).isPresent())
+            return;
+        InventoryComponent ic = (InventoryComponent) whoCollected.getComponent(InventoryComponent.class).get();
+        if (ic.addItem(
+                worldItem.getComponent(ItemComponent.class)
+                        .map(ItemComponent.class::cast)
+                        .get()
+                        .getItemData()))
+            Game.removeEntity(worldItem);
     }
 
     public IOnCollect getOnCollect() {
@@ -221,5 +258,9 @@ public class ItemData {
 
     public void setOnUse(IOnUse onUse) {
         this.onUse = onUse;
+    }
+
+    public List<ItemData> getInventory() {
+        return this.inventory;
     }
 }
