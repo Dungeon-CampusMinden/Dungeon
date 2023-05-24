@@ -3,12 +3,13 @@ package contrib.utils.components.skill;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
-import contrib.utils.components.collision.ICollide;
+import contrib.utils.components.TriConsumer;
 import contrib.utils.components.health.Damage;
 
 import core.Entity;
 import core.Game;
 import core.components.*;
+import core.level.Tile;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
@@ -102,7 +103,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         new ProjectileComponent(projectile, epc.getPosition(), targetPoint);
 
         // Create a collision handler for the projectile
-        ICollide collide =
+        TriConsumer<Entity, Entity, Tile.Direction> collide =
                 (a, b, from) -> {
                     if (b != entity) {
                         b.getComponent(HealthComponent.class)

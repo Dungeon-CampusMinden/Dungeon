@@ -1,7 +1,6 @@
 package contrib.components;
 
-import contrib.utils.components.collision.ICollide;
-
+import contrib.utils.components.TriConsumer;
 import core.Component;
 import core.Entity;
 import core.components.PositionComponent;
@@ -19,11 +18,11 @@ import java.util.logging.Logger;
 public class CollideComponent extends Component {
     public static final Point DEFAULT_OFFSET = new Point(0.25f, 0.25f);
     public static final Point DEFAULT_SIZE = new Point(0.5f, 0.5f);
-    public static final ICollide DEFAULT_COLLIDER = (a, b, c) -> System.out.println("Collide");
+    public static final TriConsumer<Entity, Entity, Tile.Direction> DEFAULT_COLLIDER = (a, b, c) -> System.out.println("Collide");
     private /*@DSLTypeMember(name="offset")*/ Point offset;
     private /*@DSLTypeMember(name="size")*/ Point size;
-    private ICollide iCollideEnter;
-    private ICollide iCollideLeave;
+    private TriConsumer<Entity, Entity, Tile.Direction> iCollideEnter;
+    private TriConsumer<Entity, Entity, Tile.Direction> iCollideLeave;
     private final Logger hitboxLogger = Logger.getLogger(this.getClass().getName());
 
     /**
@@ -39,8 +38,8 @@ public class CollideComponent extends Component {
             Entity entity,
             Point offset,
             Point size,
-            ICollide iCollideEnter,
-            ICollide iCollideLeave) {
+            TriConsumer<Entity, Entity, Tile.Direction> iCollideEnter,
+            TriConsumer<Entity, Entity, Tile.Direction> iCollideLeave) {
         super(entity);
         this.offset = offset;
         this.size = size;
@@ -55,7 +54,7 @@ public class CollideComponent extends Component {
      * @param iCollideEnter behaviour if a collision started
      * @param iCollideLeave behaviour if a collision stopped
      */
-    public CollideComponent(Entity entity, ICollide iCollideEnter, ICollide iCollideLeave) {
+    public CollideComponent(Entity entity, TriConsumer<Entity, Entity, Tile.Direction> iCollideEnter, TriConsumer<Entity, Entity, Tile.Direction> iCollideLeave) {
         this(entity, DEFAULT_OFFSET, DEFAULT_SIZE, iCollideEnter, iCollideLeave);
     }
 
@@ -74,7 +73,7 @@ public class CollideComponent extends Component {
      * @param direction direction in which the collision happens
      */
     public void onEnter(CollideComponent other, Tile.Direction direction) {
-        if (iCollideEnter != null) iCollideEnter.onCollision(this.entity, other.entity, direction);
+        if (iCollideEnter != null) iCollideEnter.accept(this.entity, other.entity, direction);
     }
 
     /**
@@ -91,7 +90,7 @@ public class CollideComponent extends Component {
                             + "' and '"
                             + other.getClass().getSimpleName()
                             + "'.");
-            iCollideLeave.onCollision(this.entity, other.entity, direction);
+            iCollideLeave.accept(this.entity, other.entity, direction);
         }
     }
 
@@ -140,14 +139,14 @@ public class CollideComponent extends Component {
     /**
      * @param iCollideEnter new collideMethod of the associated entity
      */
-    public void setiCollideEnter(ICollide iCollideEnter) {
+    public void setiCollideEnter(TriConsumer<Entity, Entity, Tile.Direction> iCollideEnter) {
         this.iCollideEnter = iCollideEnter;
     }
 
     /**
      * @param iCollideLeave new collideMethod of the associated entity
      */
-    public void setiCollideLeave(ICollide iCollideLeave) {
+    public void setiCollideLeave(TriConsumer<Entity, Entity, Tile.Direction> iCollideLeave) {
         this.iCollideLeave = iCollideLeave;
     }
 
