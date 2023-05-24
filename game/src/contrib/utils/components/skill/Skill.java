@@ -1,31 +1,35 @@
 package contrib.utils.components.skill;
 
 import core.Entity;
-import core.utils.Constants;
+
+import java.time.Instant;
 
 public class Skill {
 
     private ISkillFunction skillFunction;
-    private int coolDownInFrames;
-    private int currentCoolDownInFrames;
+    private long coolDownInSeconds;
+    private Instant lastUsed;
+    private Instant nextUsableAt = Instant.now();
 
     /**
      * @param skillFunction Function of this skill
      */
-    public Skill(ISkillFunction skillFunction, float coolDownInSeconds) {
+    public Skill(ISkillFunction skillFunction, long coolDownInSeconds) {
         this.skillFunction = skillFunction;
-        this.coolDownInFrames = (int) (coolDownInSeconds * Constants.FRAME_RATE);
-        this.currentCoolDownInFrames = 0;
+        this.coolDownInSeconds = coolDownInSeconds;
     }
 
     /**
-     * Execute the method of this skill
+     * Executes the logic of the skill if it is not currently on cooldown.
      *
-     * @param entity entity which uses the skill
+     * <p>If the skill was used, the cooldown will be set.
+     *
+     * @param entity entity which uses this skill
      */
     public void execute(Entity entity) {
-        if (!isOnCoolDown()) {
+        if (canBeUsedAgain()) {
             skillFunction.execute(entity);
+            lastUsed = Instant.now();
             activateCoolDown();
         }
     }
@@ -33,17 +37,12 @@ public class Skill {
     /**
      * @return true if cool down is not 0, else false
      */
-    public boolean isOnCoolDown() {
-        return currentCoolDownInFrames > 0;
+    private boolean canBeUsedAgain() {
+        return Instant.now().isAfter(nextUsableAt) || Instant.now().equals(nextUsableAt);
     }
 
     /** activate cool down */
-    public void activateCoolDown() {
-        currentCoolDownInFrames = coolDownInFrames;
-    }
-
-    /** reduces the current cool down by frame */
-    public void reduceCoolDown() {
-        currentCoolDownInFrames = Math.max(0, --currentCoolDownInFrames);
+    private void activateCoolDown() {
+        nextUsableAt = lastUsed.plusSeconds(coolDownInSeconds);
     }
 }

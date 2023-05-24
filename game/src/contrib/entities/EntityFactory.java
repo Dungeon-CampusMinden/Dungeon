@@ -30,12 +30,12 @@ public class EntityFactory {
     /**
      * Create a new Entity that can be used as a playable character. It will have a {@link
      * PlayerComponent}. {@link PositionComponent}, {@link VelocityComponent} {@link DrawComponent},
-     * {@link SkillComponent}, {@link CollideComponent}.
+     * {@link CollideComponent}.
      *
      * @return Created Entity
      */
     public static Entity getHero() {
-        final int fireballCoolDown = 5;
+        final int fireballCoolDown = 2;
         final float xSpeed = 0.3f;
         final float ySpeed = 0.3f;
         final String pathToIdleLeft = "knight/idleLeft";
@@ -60,7 +60,6 @@ public class EntityFactory {
                 new Skill(
                         new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
         pc.setSkillSlot1(fireball);
-        new SkillComponent(hero).addSkill(fireball);
         return hero;
     }
 
