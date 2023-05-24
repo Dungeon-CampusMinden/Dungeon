@@ -22,7 +22,6 @@ import java.util.function.Supplier;
  * DamageProjectile is an abstract class that represents a projectile capable of dealing damage to
  * entities. The DamageProjectile class implements the Consumer interface, allowing it to accept an
  * entity as a parameter.
- *
  */
 public abstract class DamageProjectile implements Consumer<Entity> {
 
@@ -36,9 +35,9 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     private Supplier<Point> selectionFunction;
 
     /**
-     * The DamageProjectile constructor sets the path to the textures of the projectile, the speed of the projectile,
-     * the damage to be dealt, the size of the projectile's hitbox, the target selection function,
-     * and the range of the projectile.
+     * The DamageProjectile constructor sets the path to the textures of the projectile, the speed
+     * of the projectile, the damage to be dealt, the size of the projectile's hitbox, the target
+     * selection function, and the range of the projectile.
      *
      * <p>for specific implementation, see {@link contrib.utils.components.skill.FireballSkill}
      *

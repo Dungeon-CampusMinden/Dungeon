@@ -26,7 +26,7 @@ public class ProjectileSystem extends System {
         super(ProjectileComponent.class, PositionComponent.class, VelocityComponent.class);
     }
 
-    /** Sets the velocity and removes entities that have reached their endpoints.*/
+    /** Sets the velocity and removes entities that have reached their endpoints. */
     @Override
     public void execute() {
         getEntityStream()
