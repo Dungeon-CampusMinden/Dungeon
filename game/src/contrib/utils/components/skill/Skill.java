@@ -3,6 +3,7 @@ package contrib.utils.components.skill;
 import core.Entity;
 
 import java.time.Instant;
+import java.util.function.Consumer;
 
 /**
  * Skill implements the base functionality of every skill.
@@ -19,7 +20,7 @@ import java.time.Instant;
  */
 public class Skill {
 
-    private ISkillFunction skillFunction;
+    private Consumer<Entity> skillFunction;
     private long coolDownInSeconds;
     private Instant lastUsed;
     private Instant nextUsableAt = Instant.now();
@@ -28,7 +29,7 @@ public class Skill {
      * @param skillFunction Function of this skill
      * @param coolDownInSeconds
      */
-    public Skill(ISkillFunction skillFunction, long coolDownInSeconds) {
+    public Skill(Consumer<Entity> skillFunction, long coolDownInSeconds) {
         this.skillFunction = skillFunction;
         this.coolDownInSeconds = coolDownInSeconds;
     }
@@ -43,7 +44,7 @@ public class Skill {
      */
     public void execute(Entity entity) {
         if (canBeUsedAgain()) {
-            skillFunction.execute(entity);
+            skillFunction.accept(entity);
             lastUsed = Instant.now();
             activateCoolDown();
         }

@@ -15,7 +15,9 @@ import core.utils.components.draw.Animation;
 
 import dslToGame.AnimationBuilder;
 
-public abstract class DamageProjectile implements ISkillFunction {
+import java.util.function.Consumer;
+
+public abstract class DamageProjectile implements Consumer<Entity> {
 
     private String pathToTexturesOfProjectile;
     private float projectileSpeed;
@@ -42,7 +44,7 @@ public abstract class DamageProjectile implements ISkillFunction {
     }
 
     @Override
-    public void execute(Entity entity) {
+    public void accept(Entity entity) {
         Entity projectile = new Entity("Projectile");
         PositionComponent epc =
                 (PositionComponent)
