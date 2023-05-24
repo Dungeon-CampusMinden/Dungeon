@@ -45,7 +45,7 @@ public class PlayerSystem extends ECS_System {
         else if(Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_THIRD.get())){
             ksd.in.useItem(2);
         }
-        else if(Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_FIFTH.get())){
+        else if(Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_FOURTH.get())){
             ksd.in.useItem(3);
         }
         else if(Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_FIFTH.get())){
