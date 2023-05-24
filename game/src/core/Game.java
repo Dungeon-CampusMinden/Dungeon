@@ -437,7 +437,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         new CollisionSystem();
         new HealthSystem();
         new XPSystem();
-        new SkillSystem();
         new ProjectileSystem();
         debugger = new DebuggerSystem();
     }
