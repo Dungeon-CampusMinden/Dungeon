@@ -6,16 +6,21 @@ import java.nio.file.Paths;
 import java.lang.ClassNotFoundException;
 import java.util.Optional;
 
+import ecs.components.HealthComponent;
+import ecs.components.quests.QuestComponent;
+import ecs.entities.Hero;
+
 public class Saves {
 
+    @SuppressWarnings("unchecked")
     private Optional<GameData>[] saves = (Optional<GameData>[]) new Optional<?>[8];
     private Optional<GameData> autoSave;
 
     public boolean save() {
         try {
-            for (int i = 0; i < saves.length; i++) { 
+            for (int i = 0; i < saves.length; i++) {
                 if (saves[i] != null)
-                    GameData.save(saves[i].get(),"saves/" + 1 + i + ".txt");
+                    GameData.save(saves[i].get(), "saves/" + 1 + i + ".txt");
             }
             GameData.save(autoSave.get(), "saves/autosave.txt");
         } catch (IOException e) {
@@ -28,16 +33,31 @@ public class Saves {
         for (int i = 0; i < saves.length; i++) {
             try {
                 saves[i] = GameData.load("saves" + 1 + i + ".txt");
+                setupHero(saves[i].get());
             } catch (IOException | ClassNotFoundException e) {
-                // TODO: handle exception
+                System.out.println(e.getLocalizedMessage());
+                e.printStackTrace();
             }
         }
         try {
             autoSave = GameData.load("saves/autosave.txt");
+            setupHero(autoSave.get());
         } catch (IOException | ClassNotFoundException e) {
             System.out.println(e.getLocalizedMessage());
             e.printStackTrace();
         }
+    }
+
+    private void setupHero(GameData gameData) {
+        HealthComponent health = (HealthComponent) gameData.hero().getComponent(HealthComponent.class).get();
+        QuestComponent quest = (QuestComponent) gameData.hero().getComponent(QuestComponent.class).get();
+        ((Hero) gameData.hero()).setupComponents(health.getMaximalHealthpoints(), health.getCurrentHealthpoints(),
+                quest.getQuestLog());
+        quest.getQuestLog().stream()
+                .map(q -> q.getTask())
+                // Get the ITask of the Quest
+                .forEach(t -> t.load(gameData.hero()));
+        // Load the ITask so it uses the new components
     }
 
     public Optional<GameData> getAutoSave() {

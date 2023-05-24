@@ -14,7 +14,7 @@ import graphic.Animation;
 import tools.Constants;
 import java.lang.Math;
 
- /**
+/**
  * The SummoningTrap is a Trap. It's entity in the ECS. This class helps to
  * setup summoningtraps with all its components and attributes .
  */
@@ -36,9 +36,12 @@ public class SummoningTrap extends Trap {
         setupHitboxComponent();
         Class klass;
         int r = (int) (Math.random() * 3);
-        if (r == 0) klass = Summon.IMP;
-        else if (r == 1) klass = Summon.CHORT;
-        else klass = Summon.DARKKNIGHT;
+        if (r == 0)
+            klass = Summon.IMP;
+        else if (r == 1)
+            klass = Summon.CHORT;
+        else
+            klass = Summon.DARKKNIGHT;
         trigger = new Summon(klass);
     }
 
@@ -64,7 +67,8 @@ public class SummoningTrap extends Trap {
 
     @Override
     public void trigger(Entity entity) {
-        if (!active) return;
+        if (!active)
+            return;
         Animation triggered = AnimationBuilder.buildAnimation(pathToTriggered);
         ((AnimationComponent) this.getComponent(AnimationComponent.class).get()).setCurrentAnimation(triggered);
         trigger.trigger(entity);

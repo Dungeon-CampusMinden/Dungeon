@@ -17,7 +17,6 @@ import graphic.hud.TextButtonStyleBuilder;
 import starter.Game;
 import tools.Constants;
 import tools.Point;
-import ecs.tools.Flags.Flag;
 
 public class GameOverMenu<T extends Actor> extends ScreenController<T> {
     private Game game;

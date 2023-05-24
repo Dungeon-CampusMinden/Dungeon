@@ -13,7 +13,6 @@ import ecs.components.Traps.Teleportation;
 import graphic.Animation;
 import tools.Constants;
 
-
 /**
  * The DamageTrap is a Trap. It's entity in the ECS. This class helps to
  * setup damagetraps with all its components and attributes .
@@ -50,7 +49,8 @@ public class DamageTrap extends Trap {
 
     @Override
     public void trigger(Entity entity) {
-        if (!active) return;
+        if (!active)
+            return;
         Animation triggered = AnimationBuilder.buildAnimation(pathToTriggered);
         ((AnimationComponent) this.getComponent(AnimationComponent.class).get()).setCurrentAnimation(triggered);
         trigger.trigger(entity);

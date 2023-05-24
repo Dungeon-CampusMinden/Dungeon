@@ -10,7 +10,6 @@ import starter.Game;
 
 import java.io.Serializable;
 
-
 /** Entity is a unique identifier for an object in the game world */
 @DSLType(name = "game_object")
 @DSLContextPush(name = "entity")

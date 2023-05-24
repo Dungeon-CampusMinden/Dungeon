@@ -66,6 +66,8 @@ public class PlayerSystem extends ECS_System {
 
         if (Gdx.input.isKeyPressed(KeyboardConfig.INTERACT_WORLD.get()))
             InteractionTool.interactWithClosestInteractable(ksd.e);
+        else if (Gdx.input.isKeyPressed(KeyboardConfig.INTERACT_WORLD_X.get()))
+            InteractionTool.interactWithClosestInteractable(ksd.e);
 
         // check skills
         else if (Gdx.input.isKeyPressed(KeyboardConfig.FIRST_SKILL.get()))

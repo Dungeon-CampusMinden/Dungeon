@@ -13,20 +13,32 @@ import configuration.KeyboardConfig;
 import controller.AbstractController;
 import controller.SystemController;
 import ecs.components.HealthComponent;
-import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
+import ecs.components.quests.QuestComponent;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
-import ecs.entities.*;
+import ecs.entities.Entity;
+import ecs.entities.Hero;
 import ecs.systems.*;
 import ecs.tools.Flags.Flag;
+import ecs.entities.Chort;
+import ecs.entities.DamageTrap;
+import ecs.entities.DarkKnight;
+import ecs.entities.Imp;
+import ecs.entities.Monster;
+import ecs.entities.QuestButton;
+import ecs.entities.SummoningTrap;
+import ecs.entities.TeleportationTrap;
 import saving.GameData;
 import saving.Saves;
 import graphic.DungeonCamera;
 import graphic.Painter;
 import graphic.hud.GameOverMenu;
 import graphic.hud.PauseMenu;
+import graphic.hud.QuestLogMenu;
+import graphic.hud.QuestMenu;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -88,6 +100,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private static Saves saves = new Saves();
 
+    public static QuestMenu<Actor> questMenu;
+    public static QuestLogMenu<Actor> questLogMenu;
+    public static int questDisplayTime = 0;
+    private static boolean inQuestLog = false;
+
     public static void main(String[] args) {
         // start the game
         try {
@@ -122,6 +139,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         levelAPI.update();
         controller.forEach(AbstractController::update);
         camera.update();
+        if (questDisplayTime > 0)
+            questDisplayTime--;
+        else if (questMenu != null)
+            questMenu.hideMenu();
     }
 
     /** Checks for saves */
@@ -148,6 +169,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         gameLogger = Logger.getLogger(this.getClass().getName());
         systems = new SystemController();
         controller.add(systems);
+        questMenu = new QuestMenu();
+        controller.add(questMenu);
+        questLogMenu = new QuestLogMenu();
+        controller.add(questLogMenu);
         pauseMenu = new PauseMenu<>();
         controller.add(pauseMenu);
         gameOverMenu = new GameOverMenu(this);
@@ -159,8 +184,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     protected void setup(GameData gameData) {
-        HealthComponent health = (HealthComponent) gameData.hero().getComponent(HealthComponent.class).get();
-        ((Hero) gameData.hero()).setupComponents(health.getMaximalHealthpoints(), health.getCurrentHealthpoints());
         level = gameData.level();
         doSetup = false;
         controller = new ArrayList<>();
@@ -172,6 +195,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         gameLogger = Logger.getLogger(this.getClass().getName());
         systems = new SystemController();
         controller.add(systems);
+        questMenu = new QuestMenu();
+        controller.add(questMenu);
+        questLogMenu = new QuestLogMenu();
+        controller.add(questLogMenu);
         pauseMenu = new PauseMenu<>();
         controller.add(pauseMenu);
         gameOverMenu = new GameOverMenu(this);
@@ -198,6 +225,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
                     .receiveHit(new Damage(100, DamageType.PHYSICAL, hero));
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
             throw new Flag();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+            toggleQuestLog();
+        }
     }
 
     @Override
@@ -205,16 +235,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         currentLevel = levelAPI.getCurrentLevel();
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
-        level++;
         levelSetup();
+        level++;
         GameData data = new GameData(hero, level);
         saves.setAutoSave(Optional.of(data));
         saves.save();
         gameLogger.info("Level: " + level);
-        new MonsterPotion();
-        new Cake();
-        new SpeedPotion();
-        new Bag();
     }
 
     private void manageEntitiesSets() {
@@ -276,6 +302,31 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
                 pauseMenu.showMenu();
             else
                 pauseMenu.hideMenu();
+        }
+    }
+
+    /** Toggle between questLog and run */
+    public static void toggleQuestLog() {
+        inQuestLog = !inQuestLog;
+        if (systems != null) {
+            systems.forEach(ECS_System::toggleRun);
+        }
+        if (questLogMenu != null && hero != null) {
+            if (inQuestLog) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("QuestLog:\n");
+                ((QuestComponent) hero.getComponent(QuestComponent.class).get())
+                        .getQuestLog().stream()
+                        .filter(q -> q != null)
+                        .forEach(q -> sb.append(q).append('\n'));
+                int questAmount = (int) ((QuestComponent) hero
+                        .getComponent(QuestComponent.class).get())
+                        .getQuestLog().stream()
+                        .filter(q -> q != null)
+                        .count();
+                questLogMenu.display(sb.toString(), questAmount);
+            } else
+                questLogMenu.hideMenu();
         }
     }
 
@@ -372,6 +423,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new XPSystem();
         new SkillSystem();
         new ProjectileSystem();
+        new QuestSystem();
     }
 
     /** returns current level of the dungeon */
@@ -386,16 +438,14 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     // spawns both monsters and taps accordingly to the size of the floor
     private void levelSetup() {
-        if (level % 10 != 0 || level == 0) {
-            for (int i = 0; i < (level * currentLevel.getFloorTiles().size()) / 100; i++) {
-                spawnMonster();
-            }
-            for (int i = 0; i < level; i++) {
-                if (i % 5 == 0)
-                    spawnTraps();
-            }
-        } else
-            addEntity(new Boss(Game.getLevel()));
+        for (int i = 0; i < (level * currentLevel.getFloorTiles().size()) / 100; i++) {
+            spawnMonster();
+        }
+        for (int i = 0; i < level; i++) {
+            if (i % 5 == 0)
+                spawnTraps();
+        }
+        addEntity(new QuestButton());
     }
 
     // Monster spawn mechanics
