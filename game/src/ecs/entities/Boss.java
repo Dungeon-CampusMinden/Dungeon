@@ -22,7 +22,7 @@ import starter.Game;
 import tools.Point;
 
 /**
- * The Boss is the final boss. It's entity is in the ECS. This class helps to setup the
+ * The Boss is the final boss. It is entity is in the ECS. This class helps to setup the
  * boss with all its components and attributes .
  * It extends the Monster class. The Boss is a Monster.
  */
@@ -90,6 +90,9 @@ public class Boss extends Monster {
         new HealthComponent(this, maxHealth, iOnDeathFunction, getHit, die);
     }
 
+    /**
+     * to set up the two Sills, the BossWalk, the transition range and the BossAI.
+     */
     private void setupAIComponent() {
         FireballSkill s1 = new FireballSkill(new ITargetSelection() {
             @Override

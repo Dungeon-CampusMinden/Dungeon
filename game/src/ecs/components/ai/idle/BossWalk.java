@@ -14,9 +14,9 @@ import tools.Point;
  * It has a path, which is calculated by the AITools class.
  * It has a currentBreak, which is used to make the Boss wait for a certain amount of time.
  * It has a BREAK_TIME, which is the time the Boss waits.
- * It has a aggressive, which is used to check if the Boss is aggressive.
+ * It has an aggressive, which is used to check if the Boss is aggressive.
  * It has a range, which is the range the Boss can see the Hero.
- * It has a entity, which is the Boss.
+ * It has an entity, which is the Boss.
  */
 
 public class BossWalk implements IIdleAI {
@@ -24,6 +24,10 @@ public class BossWalk implements IIdleAI {
     private static final float MAX_RADIUS = 10f;
     private static final float MIN_RADIUS = 5f;
 
+    /**
+     * The Boss is in 2 of 99 times walking. The Boss is walking to a random Point (with a distance of 5 to 10 tiles).
+     * @param entity associated entity
+     */
     @Override
     public void idle(Entity entity) {
         if (path == null || AITools.pathFinishedOrLeft(entity, path)) {
@@ -45,6 +49,11 @@ public class BossWalk implements IIdleAI {
         AITools.move(entity, path);
     }
 
+    /**
+     * To get the position of the Boss.
+     * @param entity
+     * @return
+     */
     public Point entityPosition(Entity entity) {
         return ((PositionComponent) entity.getComponent(PositionComponent.class)
                 .orElseThrow(

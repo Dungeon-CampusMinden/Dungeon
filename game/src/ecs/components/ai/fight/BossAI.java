@@ -14,9 +14,9 @@ import starter.Game;
 import tools.Constants;
 import tools.Point;
 /**
- * The BossAO is an AI for the Boss monsters. It's entity in the ECS. This
- * class helps to setup a Boss monsters with all its components and attributes.
- * It extends the IfightAI interface.
+ * The BossAI is an AI for the Boss monsters. It's entity in the ECS. This
+ * class helps to set up a Boss monsters with all its components and attributes.
+ * It extends the IFightAI interface.
  */
 public class BossAI implements IFightAI {
     private final int BREAK_TIME = 2 * Constants.FRAME_RATE;
@@ -33,15 +33,21 @@ public class BossAI implements IFightAI {
      * @param secondSkill the second skill of the boss
      * @param range the range of the boss
      */
-    public BossAI(Skill fistSkill, Skill secondSkill, float range) {
+    public BossAI(Skill firstSkill, Skill secondSkill, float range) {
         if (Game.getHero().isEmpty()) {
             throw new Error("There must be a Hero in the Game!");
         }
-        this.FIRST_SKILL = fistSkill;
+        this.FIRST_SKILL = firstSkill;
         this.SECOND_SKILL = secondSkill;
         this.range = range;
     }
 
+    /**
+     * This methode is used to fight. If he Boss health >= 50%, the Boss attacks the Player with the FIRST_SKILL.
+     * If the player is in range, the Boss spawns monsters with a random Position.
+     * When the health drops unter 50%, the Boss attacks with the SECOND_SKILL, doubles his speed and runs to the player.
+     * @param entity associated entity
+     */
     @Override
     public void fight(Entity entity) {
         if (aggressive) {
@@ -54,7 +60,7 @@ public class BossAI implements IFightAI {
         }
         // Is not on break
         currentBreak = 0;
-        if (getHealthRatio(entity) > 0.5) {
+        if (getHealthRatio(entity) >= 0.5) {
             FIRST_SKILL.execute(entity);
             if (AITools.playerInRange(entity, range)) {
                 new DarkKnight(Game.getLevel());
@@ -85,6 +91,10 @@ public class BossAI implements IFightAI {
         return (float) hc.getCurrentHealthpoints() / (float) hc.getMaximalHealthpoints();
     }
 
+    /**
+     * Makes the Boss aggressive by double his speed.
+     * @param entity
+     */
     private void setAggressive(Entity entity) {
         entity.getComponent(VelocityComponent.class)
                 .ifPresent(
@@ -95,6 +105,11 @@ public class BossAI implements IFightAI {
                         });
     }
 
+    /**
+     * Gets the position of the Boss.
+     * @param entity
+     * @return
+     */
     private Point entityPosition(Entity entity) {
         return ((PositionComponent) entity.getComponent(PositionComponent.class)
                 .orElseThrow(
