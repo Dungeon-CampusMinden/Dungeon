@@ -13,6 +13,9 @@ import level.elements.tile.Tile;
 import starter.Game;
 import tools.Constants;
 import tools.Point;
+
+import java.util.logging.Logger;
+
 /**
  * The BossAI is an AI for the Boss monsters. It's entity in the ECS. This
  * class helps to set up a Boss monsters with all its components and attributes.
@@ -26,7 +29,7 @@ public class BossAI implements IFightAI {
     private GraphPath<Tile> path;
     private boolean aggressive;
     private float range;
-
+    private transient final Logger bossAILogger = Logger.getLogger(this.getClass().getName());
     /**
      * Constructor for the BossAI.
      * @param firstSkill the first skill of the boss
@@ -40,6 +43,7 @@ public class BossAI implements IFightAI {
         this.FIRST_SKILL = firstSkill;
         this.SECOND_SKILL = secondSkill;
         this.range = range;
+        bossAILogger.info("BossAI created" + "first skill: " + firstSkill + "second skill: " + secondSkill + "range: " + range);
     }
 
     /**
@@ -50,7 +54,9 @@ public class BossAI implements IFightAI {
      */
     @Override
     public void fight(Entity entity) {
+        bossAILogger.info("fighting");
         if (aggressive) {
+            bossAILogger.info("Boss AI is aggressive");
             path = AITools.calculatePathToHero(entity);
             AITools.move(entity, path);
         }
@@ -59,6 +65,7 @@ public class BossAI implements IFightAI {
             return; // END
         }
         // Is not on break
+        bossAILogger.info("Boss AI is not on break");
         currentBreak = 0;
         if (getHealthRatio(entity) >= 0.5) {
             FIRST_SKILL.execute(entity);
@@ -69,10 +76,12 @@ public class BossAI implements IFightAI {
         }
         // above half health
         if (!aggressive) {
+            bossAILogger.info("Boss AI is not aggressive");
             setAggressive(entity);
             aggressive = true;
         }
         if (AITools.playerInRange(entity, range))
+            bossAILogger.info("Boss AI is in range");
             new DarkKnight(Game.getLevel()).getComponent(PositionComponent.class)
                     .ifPresent(
                             (x) -> {
@@ -85,6 +94,7 @@ public class BossAI implements IFightAI {
     }
 
     private float getHealthRatio(Entity entity) {
+        bossAILogger.info("getting health ratio");
         if (!entity.getComponent(HealthComponent.class).isPresent())
             return 0f;
         HealthComponent hc = (HealthComponent) entity.getComponent(HealthComponent.class).get();
@@ -96,6 +106,7 @@ public class BossAI implements IFightAI {
      * @param entity
      */
     private void setAggressive(Entity entity) {
+        bossAILogger.info("setting BossAI to aggressive");
         entity.getComponent(VelocityComponent.class)
                 .ifPresent(
                         (x) -> {
@@ -111,6 +122,7 @@ public class BossAI implements IFightAI {
      * @return
      */
     private Point entityPosition(Entity entity) {
+        bossAILogger.info("getting entity position");
         return ((PositionComponent) entity.getComponent(PositionComponent.class)
                 .orElseThrow(
                         () -> new MissingComponentException(

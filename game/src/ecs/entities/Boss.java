@@ -21,6 +21,8 @@ import level.LevelAPI;
 import starter.Game;
 import tools.Point;
 
+import java.util.logging.Logger;
+
 /**
  * The Boss is the final boss. It is entity is in the ECS. This class helps to setup the
  * boss with all its components and attributes .
@@ -28,6 +30,7 @@ import tools.Point;
  */
 
 public class Boss extends Monster {
+    private transient final Logger bossLogger = Logger.getLogger(this.getClass().getName());
     private final float xSpeed = 0.2f;
     private final float ySpeed = 0.2f;
     private final int maxHealth = 200;
@@ -58,6 +61,7 @@ public class Boss extends Monster {
         setupHitboxComponent();
         setupHealthComponent();
         setupAIComponent();
+        bossLogger.info("Boss des Levels:" + level + " created");
     }
 
     private void setupVelocityComponent() {
@@ -120,6 +124,7 @@ public class Boss extends Monster {
     }
 
     private Point entityPosition() {
+        bossLogger.info("Boss position requested");
         if (!Game.getHero().isPresent())
             return null;
         return ((PositionComponent) Game.getHero().get().getComponent(PositionComponent.class)
@@ -131,6 +136,7 @@ public class Boss extends Monster {
     }
 
     private void attack(Entity entity) {
+        bossLogger.info(entity + " attacked");
         Damage damage = new Damage(calcDamage(), DamageType.PHYSICAL, this);
         if (entity.getComponent(HealthComponent.class).isPresent()) {
             ((HealthComponent) entity.getComponent(HealthComponent.class).get()).receiveHit(damage);

@@ -4,9 +4,12 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.components.ai.AITools;
+import ecs.entities.Boss;
 import ecs.entities.Entity;
 import level.elements.tile.Tile;
 import tools.Point;
+
+import java.util.logging.Logger;
 
 /**
  * The BossWalk is a class which implements the IIdleAI interface.
@@ -23,15 +26,22 @@ public class BossWalk implements IIdleAI {
     private GraphPath<Tile> path;
     private static final float MAX_RADIUS = 10f;
     private static final float MIN_RADIUS = 5f;
+    private transient final Logger bossWalkLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * The Boss is in 2 of 99 times walking. The Boss is walking to a random Point (with a distance of 5 to 10 tiles).
      * @param entity associated entity
      */
+
+    public BossWalk(){
+        bossWalkLogger.info("BossWalk created");
+    }
     @Override
     public void idle(Entity entity) {
+        bossWalkLogger.info("BossWalk idle");
         if (path == null || AITools.pathFinishedOrLeft(entity, path)) {
             // is not on path
+            bossWalkLogger.info("BossWalk idle: path is null or path is finished or left");
             int random = (int) (Math.random() * 100);
             if (random > 97) {// 3% chance
                 Point entityPoint = entityPosition(entity);
@@ -47,6 +57,7 @@ public class BossWalk implements IIdleAI {
         }
         // is on path
         AITools.move(entity, path);
+        bossWalkLogger.info("BossWalk idle: path is not , Boss on path");
     }
 
     /**
@@ -55,6 +66,7 @@ public class BossWalk implements IIdleAI {
      * @return
      */
     public Point entityPosition(Entity entity) {
+        bossWalkLogger.info("BossWalk entityPosition");
         return ((PositionComponent) entity.getComponent(PositionComponent.class)
                 .orElseThrow(
                         () -> new MissingComponentException(
