@@ -49,14 +49,14 @@ public class QuestLogMenu<T extends Actor> extends ScreenController<T> {
         screenText = new ScreenText(
                 text,
                 new Point(0, 0),
-                2,
+                1,
                 new LabelStyleBuilder(FontBuilder.DEFAULT_FONT)
                         .setFontcolor(Color.GREEN)
                         .build());
-        screenText.setFontScale(2);
+        screenText.setFontScale(1);
         screenText.setPosition(
                 ((Constants.WINDOW_WIDTH) / 2f),
-                (Constants.WINDOW_HEIGHT) * 7f / 10f - 100 * questAmount,
+                (Constants.WINDOW_HEIGHT) * 7f / 10f - 50 * questAmount,
                 Align.center | Align.bottom);
         add((T) screenText);
         LOGGER.info("Questlog displayed");
