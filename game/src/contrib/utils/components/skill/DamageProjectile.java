@@ -16,6 +16,7 @@ import core.utils.components.draw.Animation;
 import dslToGame.AnimationBuilder;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public abstract class DamageProjectile implements Consumer<Entity> {
 
@@ -26,14 +27,14 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     private Damage projectileDamage;
     private Point projectileHitboxSize;
 
-    private ITargetSelection selectionFunction;
+    private Supplier<Point> selectionFunction;
 
     public DamageProjectile(
             String pathToTexturesOfProjectile,
             float projectileSpeed,
             Damage projectileDamage,
             Point projectileHitboxSize,
-            ITargetSelection selectionFunction,
+            Supplier<Point> selectionFunction,
             float projectileRange) {
         this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
         this.projectileDamage = projectileDamage;
@@ -56,7 +57,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         Animation animation = AnimationBuilder.buildAnimation(pathToTexturesOfProjectile);
         new DrawComponent(projectile, animation);
 
-        Point aimedOn = selectionFunction.selectTargetPoint();
+        Point aimedOn = selectionFunction.get();
         Point targetPoint =
                 SkillTools.calculateLastPositionInRange(
                         epc.getPosition(), aimedOn, projectileRange);

@@ -5,8 +5,10 @@ import contrib.utils.components.health.DamageType;
 
 import core.utils.Point;
 
+import java.util.function.Supplier;
+
 public class FireballSkill extends DamageProjectile {
-    public FireballSkill(ITargetSelection targetSelection) {
+    public FireballSkill(Supplier<Point> targetSelection) {
         super(
                 "skills/fireball/fireBall_Down/",
                 0.5f,
