@@ -22,12 +22,17 @@ import ecs.entities.Entity;
 import ecs.entities.Hero;
 import ecs.systems.*;
 import ecs.tools.Flags.Flag;
+import ecs.entities.Bag;
+import ecs.entities.Boss;
+import ecs.entities.Cake;
 import ecs.entities.Chort;
 import ecs.entities.DamageTrap;
 import ecs.entities.DarkKnight;
 import ecs.entities.Imp;
 import ecs.entities.Monster;
+import ecs.entities.MonsterPotion;
 import ecs.entities.QuestButton;
+import ecs.entities.SpeedPotion;
 import ecs.entities.SummoningTrap;
 import ecs.entities.TeleportationTrap;
 import saving.GameData;
@@ -438,6 +443,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     // spawns both monsters and taps accordingly to the size of the floor
     private void levelSetup() {
+        addEntity(new Boss(level));
+        spawnItems();
         for (int i = 0; i < (level * currentLevel.getFloorTiles().size()) / 100; i++) {
             spawnMonster();
         }
@@ -468,6 +475,14 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             addEntity(new SummoningTrap());
         else
             addEntity(new DamageTrap());
+    }
+
+    // Item spawn mechanics
+    private void spawnItems() {
+        addEntity(new Bag());
+        addEntity(new Cake());
+        addEntity(new SpeedPotion());
+        addEntity(new MonsterPotion());
     }
 
     /** removes the save of the last level */

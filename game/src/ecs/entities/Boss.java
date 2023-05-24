@@ -24,7 +24,8 @@ import tools.Point;
 import java.util.logging.Logger;
 
 /**
- * The Boss is the final boss. It is entity is in the ECS. This class helps to setup the
+ * The Boss is the final boss. It is entity is in the ECS. This class helps to
+ * setup the
  * boss with all its components and attributes .
  * It extends the Monster class. The Boss is a Monster.
  */
@@ -47,6 +48,7 @@ public class Boss extends Monster {
 
     /**
      * Creates a Boss with all its components and attributes.
+     * 
      * @param level The level of the Boss.
      *              The level determines the Boss's attributes.
      *              The higher the level, the stronger the Boss.
@@ -103,14 +105,16 @@ public class Boss extends Monster {
             public Point selectTargetPoint() {
                 return entityPosition();
             }
-        });
+        },
+                this);
 
         StabSkill s2 = new StabSkill(new ITargetSelection() {
             @Override
             public Point selectTargetPoint() {
                 return entityPosition();
             }
-        });
+        },
+                this);
         SkillComponent sc = new SkillComponent(this);
         Skill skill1 = new Skill(s1, attackCooldown);
         Skill skill2 = new Skill(s2, attackCooldown);

@@ -7,6 +7,7 @@ import java.lang.ClassNotFoundException;
 import java.util.Optional;
 
 import ecs.components.HealthComponent;
+import ecs.components.InventoryComponent;
 import ecs.components.quests.QuestComponent;
 import ecs.entities.Hero;
 
@@ -51,8 +52,12 @@ public class Saves {
     private void setupHero(GameData gameData) {
         HealthComponent health = (HealthComponent) gameData.hero().getComponent(HealthComponent.class).get();
         QuestComponent quest = (QuestComponent) gameData.hero().getComponent(QuestComponent.class).get();
+
+        InventoryComponent inventory = (InventoryComponent) gameData.hero().getComponent(InventoryComponent.class)
+                .get();
         ((Hero) gameData.hero()).setupComponents(health.getMaximalHealthpoints(), health.getCurrentHealthpoints(),
                 quest.getQuestLog());
+        InventoryComponent ic = (InventoryComponent) gameData.hero().getComponent(InventoryComponent.class).get();
         quest.getQuestLog().stream()
                 .map(q -> q.getTask())
                 // Get the ITask of the Quest
