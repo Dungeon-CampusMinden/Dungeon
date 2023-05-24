@@ -16,7 +16,7 @@ public class QuestComponent extends Component {
 
     /**
      * Creates a new QuestComponent
-     * 
+     *
      * @param entity the entity that owns this QuestComponent
      */
     public QuestComponent(Entity entity) {
@@ -25,7 +25,7 @@ public class QuestComponent extends Component {
 
     /**
      * Creates a new QuestComponent with the given quests
-     * 
+     *
      * @param entity   entity that owns this QuestComponent
      * @param questLog Already populated QuestLog
      */
@@ -35,7 +35,7 @@ public class QuestComponent extends Component {
     }
 
     /**
-     * 
+     *
      * @param quest adds quest to the questlog
      */
     public void addQuest(Quest quest) {
@@ -46,7 +46,7 @@ public class QuestComponent extends Component {
     /**
      * If the quest is already part of the questLog then the quest will be pinned
      * otherwise the quest will be added to the questlog and then pinned
-     * 
+     *
      * @param quest
      */
     public void pinQuest(Quest quest) {
@@ -58,7 +58,7 @@ public class QuestComponent extends Component {
     }
 
     /**
-     * 
+     *
      * @return returns Optional of the pinned field
      */
     public Optional<Quest> pinnedQuest() {
@@ -66,7 +66,7 @@ public class QuestComponent extends Component {
     }
 
     /**
-     * 
+     *
      * @return returns Optional of null if the questlog is empty
      *         or if the latest quest is null
      *         <p>
@@ -94,6 +94,9 @@ public class QuestComponent extends Component {
         questLogger.log(CustomLogLevel.DEBUG, "Quests removed for " + entity.getClass().getSimpleName());
     }
 
+    /**
+     * Remove Quest (removes all empty slots and finished quests).
+     */
     private void removeQuest() {
         // Removes all empty slots and finished quests
         if (questLog.isEmpty())
