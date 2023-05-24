@@ -1,15 +1,15 @@
 package ecs.components.quests;
 
+import java.util.logging.Logger;
+
 import ecs.components.HealthComponent;
 import ecs.entities.Entity;
-
-import java.util.logging.Logger;
 
 /**
  * Creates new instances of IReward
  */
 public class RewardBuilder {
-    private static transient final Logger rewardLogger = Logger.getLogger(RewardBuilder.class.getName());
+    private static final Logger RB_LOGGER = Logger.getLogger(RewardBuilder.class.getSimpleName());
     /**
      * Chooses a random reward and builds a new instance
      *
@@ -21,10 +21,8 @@ public class RewardBuilder {
         switch (key) {
 
             case 1:
-                rewardLogger.info("You earned the MaxHealthReward");
                 return buildIncreaseMaxHealthReward();
             case 2:
-                rewardLogger.info("You earned the buildItemReward");
                 return buildItemReward();
 
             default:
@@ -38,6 +36,7 @@ public class RewardBuilder {
      * @return new instance of IReward
      */
     public static IReward buildHealReward() {
+        RB_LOGGER.info("Building new IReward (healing)");
         return new IReward() {
 
             @Override
@@ -63,6 +62,7 @@ public class RewardBuilder {
      * @return new instance of IReward
      */
     public static IReward buildIncreaseMaxHealthReward() {
+        RB_LOGGER.info("Building new IReward (health increase healing)");
         return new IReward() {
 
             @Override
@@ -93,6 +93,7 @@ public class RewardBuilder {
      * @return new Instance of IReward
      */
     public static IReward buildBossReward() {
+        RB_LOGGER.info("Building new IReward (health increase and healing)");
         return new IReward() {
 
             @Override

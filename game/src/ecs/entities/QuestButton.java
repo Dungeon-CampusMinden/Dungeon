@@ -54,6 +54,8 @@ public class QuestButton extends Entity {
                 if (first && Gdx.input.isKeyPressed(KeyboardConfig.INTERACT_WORLD.get())) {
                     quest = QuestBuilder.buildRandomQuest(Game.getHero().get());
                     System.out.println(quest.getName() + ":\n" + quest.getDescription());
+                    Game.questMenu
+                            .display(quest.getName() + ":\n" + quest.getDescription(), 3);
                     first = !first;
                     held = 0;
                 } else if (enabled && held >= HOLD && Gdx.input.isKeyPressed(KeyboardConfig.INTERACT_WORLD.get())) {
@@ -63,7 +65,9 @@ public class QuestButton extends Entity {
                     }
                     animation.setCurrentAnimation(AnimationBuilder.buildAnimation(pathToTriggered));
                     enabled = !enabled;
-                    System.out.println(quest.getName() + "Was added to your Questlog. Press M to see your Questlog.");
+                    Game.questMenu
+                        .display(quest.getName() + ":\nWas added to your Questlog.\nPress M to see your Questlog.",
+                            3);
                 } else if (!first && enabled && (held >= HOLD) && Gdx.input.isKeyPressed(KeyboardConfig.INTERACT_WORLD_X.get())){
                     enabled = !enabled;
                 }
