@@ -46,6 +46,7 @@ public class HudSystem extends System {
 
     @Override
     public void execute() {
+        // temporärer Fix damit die stage aktualisiert wird
         getEntityStream()
                 .forEach(
                         x -> {
@@ -60,6 +61,7 @@ public class HudSystem extends System {
                                 d.setVisible(false);
                             }
                         });
+
         if (getEntityStream()
                 .anyMatch(
                         x ->
