@@ -9,12 +9,10 @@ import ecs.entities.Entity;
  * Creates new instances of IReward
  */
 public class RewardBuilder {
-
     private static final Logger RB_LOGGER = Logger.getLogger(RewardBuilder.class.getSimpleName());
-
     /**
      * Chooses a random reward and builds a new instance
-     * 
+     *
      * @return new instance of IReward
      */
     public static IReward buildRandomReward() {
@@ -24,7 +22,6 @@ public class RewardBuilder {
 
             case 1:
                 return buildIncreaseMaxHealthReward();
-
             case 2:
                 return buildItemReward();
 
@@ -35,7 +32,7 @@ public class RewardBuilder {
 
     /**
      * Builds a new instance of IReward that will heal the player to maximum health
-     * 
+     *
      * @return new instance of IReward
      */
     public static IReward buildHealReward() {
@@ -61,7 +58,7 @@ public class RewardBuilder {
     /**
      * Builds a new instance of IReward that will increase the player's maximum
      * healthpoints by one percent
-     * 
+     *
      * @return new instance of IReward
      */
     public static IReward buildIncreaseMaxHealthReward() {
@@ -92,7 +89,7 @@ public class RewardBuilder {
     /**
      * Builds a new reward that will double the quest holders Healthpoints and fully
      * heal the quest holder
-     * 
+     *
      * @return new Instance of IReward
      */
     public static IReward buildBossReward() {

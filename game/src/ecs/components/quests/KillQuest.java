@@ -6,15 +6,18 @@ import ecs.components.MissingComponentException;
 import ecs.entities.Entity;
 import starter.Game;
 
+import java.util.logging.Logger;
+
 /**
  * Class for all Quests that involve killing monsters
  */
 public class KillQuest extends Quest {
+    private transient final Logger killLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * This constructor is private so that we can only access it by using the
      * buildKillQuest method
-     * 
+     *
      * @param name        name of the Quest
      * @param description short description of the task and the reward
      * @param task        task to be completed
@@ -27,11 +30,12 @@ public class KillQuest extends Quest {
         this.task = task;
         this.reward = reward;
         this.questHolder = questHolder;
+        killLogger.info(this.name + "was created");
     }
 
     /**
      * Builds a KillQuest from scratch
-     * 
+     *
      * @param klass       Class of the entity that shall be killed
      * @param questHolder entity that owns the quest
      * @return new Instance of KillQuest
@@ -89,7 +93,7 @@ public class KillQuest extends Quest {
 
             /**
              * Called when the game loads
-             * 
+             *
              * @param entity The questHolder entity
              */
             @Override

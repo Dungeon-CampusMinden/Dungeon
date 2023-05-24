@@ -12,7 +12,6 @@ import ecs.entities.Monster;
  * Creates new Quests instead of the Quests
  */
 public class QuestBuilder {
-
     private static final Logger QB_LOGGER = Logger.getLogger(QuestBuilder.class.getSimpleName());
 
     private static final Class[] KILLABLES = {
@@ -30,7 +29,7 @@ public class QuestBuilder {
 
     /**
      * Builds a new quest where monsters have to be killed
-     * 
+     *
      * @param entity the entity to have this quest
      * @return new instance of KillQuest
      */
@@ -41,7 +40,7 @@ public class QuestBuilder {
 
     /**
      * Builds a new quest where the player has to move
-     * 
+     *
      * @param entity the entity to have this quest
      * @return new instance of MovementQuest
      */
@@ -53,7 +52,7 @@ public class QuestBuilder {
     /**
      * Builds a new quest where the player has to LevelUp
      * for now only the dungeon depth later maybe the actual level of the player
-     * 
+     *
      * @param entity the entity to have this quest
      * @return new instance of LevelUpQuest
      */
@@ -64,7 +63,7 @@ public class QuestBuilder {
 
     /**
      * Builds a random Quest
-     * 
+     *
      * @param entity entity to have this quest
      * @return new instance of Quest
      */
