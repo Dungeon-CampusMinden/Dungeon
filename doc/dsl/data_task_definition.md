@@ -33,8 +33,8 @@ Member:
 ```
 multiple_choice_task task {
   description: "Bitte wähle die richtigen Antworten aus!"
-  answers: ["a", "b", "c", "d"],
-  correct_answer_indices: [0, 2],
+  answers: ["a", "b", "c", "d", "keine"?],
+  correct_answer_indices: [0, 2], // TODO: kann auch leer sein? Wie damit umgehen?
   fn_score: score
 }
 ```
@@ -52,25 +52,42 @@ Member:
 ```
 replacement_task t {
   description: "Bitte führe Ersetzungen durch!"
-  elements: [elem1, elem2, elem3, ...],
+  // elements: ["h", elem2, elem3, ...], // evtl. nicht nötig, kann aus n1 - n5 berechnet werden
   initial_element_set: [elements[2], elements[4], ...]
-  rules: graph {
+
+  rules: graph { // TODO: das ist nicht mehr dot
     // Definition der Element-Mengen
+    // SYNTAX?
     n1[elements=[elements[0], elements[1], elements[2], order_relevant=true/false]
     n2[elements=[elements[3], elements[4]]]
     n3[elements=[elements[5]]]
     n4[elements=[elements[6]]]
 
+    // Wunschsyntax für Mengendefinition:
+    n4: ("h", elem7) // reihenfolge relevant
+    n4: {elem6, elem7} // reihenfolge nicht relevant
+
+    n5: {verwirrungselement1, verwirrungselement2}
+
     // Definition der Ersetzungs-Regeln
     n1 -> n2 [name=ersetzung1]
     n2 -> n3 [name=ersetzung2]
     n2 -> n4 [name=ersetzung3]
+
+    // alternative syntax
+    ersetzung1: n1 -> n2;
   },
-  answer_sequence: [rules.ersetzung1, rules.ersetzung2],
-  answer_configuration: [elements[0], elements[3], elements[2]],
+  answer_sequence: [rules.ersetzung1, rules.ersetzung2], // Reihenfolge könnte auch egal sein, alternativen zulassen
+  answer_configuration: [elements[0], elements[3], elements[2]], // hier auch Alternativen zulassen
   fn_score: score
 }
 ```
+
+TODO: Überprüfung, ob Elemente, die beide "h" heißen, auch beide aufs gleiche Objekt verweisen
+TODO: Mengendefinition als `elements`-Feld angeben, `rules` nur für Ersetzungsregeln nutzen
+
+TODO: Aus den Ersetzungsregeln könnte ein Baum erstellt werden, daraus kann theoretisch eine initiale Menge ausgerechnet
+werden -> erstmal selbst definieren, FALLS ZEIT können wir das noch testen -> Ticket: later
 
 Member:
 
@@ -91,6 +108,8 @@ Member:
 - `answer_configuration`: Liste der Elemente, welche nach Fertigstellung der Aufgabe
   vorhanden sein müssen
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
+
+
 
 ```
 mapping_task t {
@@ -138,12 +157,30 @@ Als alternative Notation zur Definition der Zuordnung ist folgende Notation vors
     elements_A[0] -> elements_B[0]
     elements_A[1] -> elements_B[0]
     elements_A[2] -> elements_B[2]
+
+    // Alternativ: Menge von Tupeln definieren
+
+    ("a", "b")
+    ("x", "y")
+    ("z", "y")
+
+    ("c", _)
+    (_, "w")
+    // falls doch schon mal verwendet: Warning ausgeben
   },
 ...
 ```
 
 Dies würde allerdings die Erweiterung der eingebetteten Dot-Syntax erfordern, sodass
 beliebige Ausdrücke als Knoten in Kantendefinitionen verwendet werden können.
+
+TODO:
+- evtl. keine Mengen A und B angeben, sondern direkt Elemente aus Tupel auslesen
+- wie Verwirrungselemente einbauen?
+  - Tupel mit nur einem Element erlauben? (a,_) (_,a) -> ist wahrscheinlich die einfachste Form
+  - leeres Element erfordert dann gesondertes Token
+  - diese Tupel haben dann eine Sonderrolle -> semantische Sonderbehandlung
+  - einfach noch eine Menge zusätzlicher Elemente angeben, die dann einfach noch in Mengen integriert werden?
 
 ## Aufgabentyp “Lücken füllen”
 
@@ -198,3 +235,5 @@ rules: graph {
   elements[3] -> gaps[2]
 },
 ```
+
+TODO: linke Seite von Tupel wird zu Regex, rechte Seite bleibt
