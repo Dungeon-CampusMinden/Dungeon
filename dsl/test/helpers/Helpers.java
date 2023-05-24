@@ -106,7 +106,7 @@ public class Helpers {
      * @return the {@link SemanticAnalyzer.Result} of the semantic analysis
      */
     public static SemanticAnalyzer.Result getSymtableForASTWithLoadedTypes(
-        parser.ast.Node ast, IType[] types) {
+            parser.ast.Node ast, IType[] types) {
         var symTableParser = new SemanticAnalyzer();
         var env = new GameEnvironment();
         var typesToLoad = types;

@@ -10,9 +10,9 @@ import org.antlr.v4.runtime.CommonTokenStream;
 // importing all required classes from parser.AST will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 
+import parser.DungeonASTConverter;
 import parser.ast.*;
 // CHECKSTYLE:ON: AvoidStarImport
-import parser.DungeonASTConverter;
 
 import runtime.*;
 // importing all required classes from symbolTable will be to verbose
