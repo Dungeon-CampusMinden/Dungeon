@@ -22,7 +22,7 @@ import java.util.logging.Logger;
  * It extends the IFightAI interface.
  */
 public class BossAI implements IFightAI {
-    private final int BREAK_TIME = 2 * Constants.FRAME_RATE;
+    private final int BREAK_TIME = 4 * Constants.FRAME_RATE;
     private int currentBreak = 0;
     private final Skill FIRST_SKILL;
     private final Skill SECOND_SKILL;
@@ -60,17 +60,15 @@ public class BossAI implements IFightAI {
             path = AITools.calculatePathToHero(entity);
             AITools.move(entity, path);
         }
-        currentBreak++;
-        if (currentBreak < BREAK_TIME) {
-            return; // END
-        }
-        // Is not on break
-        bossAILogger.info("Boss AI is not on break");
-        currentBreak = 0;
+
         if (getHealthRatio(entity) >= 0.5) {
             FIRST_SKILL.execute(entity);
             if (AITools.playerInRange(entity, range)) {
-                new DarkKnight(Game.getLevel());
+                if (currentBreak > BREAK_TIME) {
+                    new DarkKnight(Game.getLevel());
+                    currentBreak = 0;
+                }
+                currentBreak++;
             }
             return; // END
         }
@@ -82,13 +80,17 @@ public class BossAI implements IFightAI {
         }
         if (AITools.playerInRange(entity, range))
             bossAILogger.info("Boss AI is in range");
-            new DarkKnight(Game.getLevel()).getComponent(PositionComponent.class)
+            if (currentBreak > BREAK_TIME) {
+                new DarkKnight(Game.getLevel()).getComponent(PositionComponent.class)
                     .ifPresent(
-                            (x) -> {
-                                PositionComponent h = (PositionComponent) x;
-                                h.setPosition(AITools.getRandomAccessibleTileCoordinateInRange(
-                                        entityPosition(Game.getHero().get()), 2).toPoint());
-                            });
+                        (x) -> {
+                            PositionComponent h = (PositionComponent) x;
+                            h.setPosition(AITools.getRandomAccessibleTileCoordinateInRange(
+                                entityPosition(Game.getHero().get()), 2).toPoint());
+                        });
+                currentBreak = 0;
+            }
+            currentBreak++;
         SECOND_SKILL.execute(entity);
         // END
     }
