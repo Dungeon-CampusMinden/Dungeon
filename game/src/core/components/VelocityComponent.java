@@ -3,9 +3,11 @@ package core.components;
 import core.Component;
 import core.Entity;
 import core.utils.logging.CustomLogLevel;
+
 import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;
+
 import java.util.logging.Logger;
 
 /**

@@ -13,10 +13,9 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
 import java.io.IOException;
-import java.util.logging.Logger;
-
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 /**
  * DamageProjectile is an abstract class that represents a projectile capable of dealing damage to
@@ -102,7 +101,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
                 SkillTools.calculateVelocity(epc.getPosition(), targetPoint, projectileSpeed);
 
         // Add the VelocityComponent to the projectile
-            VelocityComponent vc = new VelocityComponent(projectile, velocity.x, velocity.y);
+        VelocityComponent vc = new VelocityComponent(projectile, velocity.x, velocity.y);
 
         // Add the ProjectileComponent with the initial and target positions to the projectile
         new ProjectileComponent(projectile, epc.getPosition(), targetPoint);
