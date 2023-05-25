@@ -1,5 +1,7 @@
 package core.components;
 
+import contrib.utils.components.draw.AdditionalAnimations;
+
 import core.Component;
 import core.Entity;
 import core.systems.VelocitySystem;
@@ -34,7 +36,7 @@ import java.util.stream.Collectors;
  * path to an enum that implements the {@link IPath} interface. So if you want to add a jump
  * animation to the hero, just create a new directory "jump" in the assert-directory of your hero
  * (for example character/hero) and then add a new Enum-Value JUMP("jump") to {@link
- * contrib.utils.components.draw.AdditionAnimations}
+ * AdditionalAnimations}
  *
  * <p>Animations will be searched in the default asset directory. Normally this is "game/assets",
  * but you can change it in the gradle.build file, if you like.

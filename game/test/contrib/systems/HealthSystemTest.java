@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import contrib.components.HealthComponent;
 import contrib.components.StatsComponent;
-import contrib.utils.components.draw.AdditionAnimations;
+import contrib.utils.components.draw.AdditionalAnimations;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.health.IOnDeathFunction;
@@ -33,7 +33,7 @@ public class HealthSystemTest {
         system.showEntity(entity);
 
         system.execute();
-        assertTrue(ac.isCurrentAnimation(AdditionAnimations.DIE));
+        assertTrue(ac.isCurrentAnimation(AdditionalAnimations.DIE));
         assertFalse(Game.getEntitiesStream().anyMatch(e -> e == entity));
     }
 
@@ -51,7 +51,7 @@ public class HealthSystemTest {
 
         system.execute();
         assertEquals(3, component.getCurrentHealthpoints());
-        assertTrue(ac.isCurrentAnimation(AdditionAnimations.HIT));
+        assertTrue(ac.isCurrentAnimation(AdditionalAnimations.HIT));
     }
 
     @Test
@@ -67,7 +67,7 @@ public class HealthSystemTest {
         system.showEntity(entity);
         system.execute();
         assertEquals(6, component.getCurrentHealthpoints());
-        assertFalse(ac.isCurrentAnimation(AdditionAnimations.HIT));
+        assertFalse(ac.isCurrentAnimation(AdditionalAnimations.HIT));
     }
 
     @Test
@@ -82,7 +82,7 @@ public class HealthSystemTest {
         system.showEntity(entity);
         system.execute();
         assertEquals(10, component.getCurrentHealthpoints());
-        assertFalse(ac.isCurrentAnimation(AdditionAnimations.HIT));
+        assertFalse(ac.isCurrentAnimation(AdditionalAnimations.HIT));
     }
 
     @Test
