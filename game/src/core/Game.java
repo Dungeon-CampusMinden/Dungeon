@@ -264,7 +264,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         IGenerator generator = new RandomWalkGenerator();
         levelManager = new LevelManager(batch, painter, generator, this);
         initBaseLogger();
-        hero = EntityFactory.getHero();
         levelManager =
                 new LevelManager(
                         batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
@@ -319,7 +318,13 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         removeAllEntities();
         getHero().ifPresent(this::placeOnLevelStart);
         getHero().ifPresent(Game::addEntity);
-        EntityFactory.getChest();
+        try {
+            EntityFactory.getChest();
+        } catch (IOException e) {
+            // will be moved to MAIN in https://github.com/Programmiermethoden/Dungeon/pull/688
+            LOGGER.warning("Could not create new Chest: " + e.getMessage());
+            throw new RuntimeException();
+        }
     }
 
     /** Set the focus of the camera on the hero, if he exists otherwise focus on Pont (0,0) */

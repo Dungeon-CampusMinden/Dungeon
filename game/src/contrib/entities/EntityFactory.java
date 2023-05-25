@@ -37,7 +37,7 @@ public class EntityFactory {
      *
      * @return Created Entity
      */
-    public static Entity getHero() {
+    public static Entity getHero() throws IOException {
         final int fireballCoolDown = 2;
         final float xSpeed = 0.3f;
         final float ySpeed = 0.3f;
@@ -45,11 +45,7 @@ public class EntityFactory {
         Entity hero = new Entity("hero");
         new PositionComponent(hero);
         new VelocityComponent(hero, xSpeed, ySpeed);
-        try {
-            new DrawComponent(hero, "character/knight");
-        } catch (IOException e) {
-            LOGGER.warning("The DrawComponent for the hero cant be created. " + e.getMessage());
-        }
+        new DrawComponent(hero, "character/knight");
         new CollideComponent(
                 hero,
                 (you, other, direction) -> System.out.println("heroCollisionEnter"),
@@ -110,7 +106,7 @@ public class EntityFactory {
      *
      * @return Created Entity
      */
-    public static Entity getChest() {
+    public static Entity getChest() throws IOException {
         Random random = new Random();
         ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
 
@@ -134,7 +130,7 @@ public class EntityFactory {
      * @param position The position of the chest.
      * @return Created Entity
      */
-    public static Entity getChest(List<ItemData> itemData, Point position) {
+    public static Entity getChest(List<ItemData> itemData, Point position) throws IOException {
         final float defaultInteractionRadius = 1f;
         Entity chest = new Entity("chest");
         new PositionComponent(chest, position);
@@ -142,13 +138,8 @@ public class EntityFactory {
         itemData.forEach(ic::addItem);
         new InteractionComponent(
                 chest, defaultInteractionRadius, false, new DropItemsInteraction());
-        try {
-            DrawComponent dc = new DrawComponent(chest, "objects/treasurechest");
-            dc.getAnimation(CoreAnimations.IDLE_RIGHT).ifPresent(a -> a.setLoop(false));
-        } catch (IOException e) {
-            LOGGER.warning(
-                    "The DrawComponent for the treasurechest cant be created. " + e.getMessage());
-        }
+        DrawComponent dc = new DrawComponent(chest, "objects/treasurechest");
+        dc.getAnimation(CoreAnimations.IDLE_RIGHT).ifPresent(a -> a.setLoop(false));
 
         return chest;
     }

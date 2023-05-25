@@ -16,6 +16,7 @@ import core.utils.Point;
 
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,11 +29,12 @@ public class ChestTest {
 
     /** checks the correct creation of the Chest */
     @Test
-    public void checkCreation() {
+    public void checkCreation() throws IOException {
         cleanup();
         List<ItemData> itemData = List.of();
         Point position = new Point(0, 0);
-        Entity c = EntityFactory.getChest(itemData, position);
+        Entity c = null;
+        c = EntityFactory.getChest(itemData, position);
 
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
@@ -107,7 +109,7 @@ public class ChestTest {
     }*/
 
     @Test
-    public void checkGeneratorMethod() {
+    public void checkGeneratorMethod() throws IOException {
         cleanup();
         Game.currentLevel =
                 new TileLevel(

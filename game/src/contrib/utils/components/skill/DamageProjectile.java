@@ -88,6 +88,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
                             + entity.toString()
                             + " cant be created. "
                             + e.getMessage());
+            throw new RuntimeException();
         }
 
         // Get the target point based on the selection function and projectile range
