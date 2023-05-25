@@ -99,6 +99,16 @@ Member:
   vorhanden sein müssen; alternative Lösungen anzugeben ist möglich
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
 
+Note: Für die Definition der Element-Mengen in `elements` muss sichergestellt werden, dass
+sich zwei gleiche Werte intern während der Interpretation auf das gleiche Element beziehen.
+Für die Definition von `initial_element_set` muss jeder Wert als einzelne Entität übersetzt werden,
+wobei sichergestellt werden muss, dass die in `initial_element_set` enthaltenen Werte auch in den
+Element-Mengen definiert sind. Anschließend muss sichergestellt werden, dass jede der Entitäten,
+die für den gleichen Wert aus `initial_element_set` erzeugt wurden, auch an die Stelle des
+dem Wert entsprechenden Element aus den Element-Mengen eingesetzt werden kann. Siehe hierzu
+folgendes Diagram:
+
+Diagram: TODO.
 
 ## Aufgabentyp "Zuordnen"
 
