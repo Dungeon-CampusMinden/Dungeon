@@ -1,5 +1,7 @@
 package core.systems;
 
+import static junit.framework.TestCase.assertTrue;
+
 import static org.junit.Assert.assertEquals;
 
 import core.Entity;
@@ -10,21 +12,18 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.utils.Point;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.CoreAnimations;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+
 public class VelocitySystemTest {
 
     private VelocitySystem velocitySystem;
     private final ILevel level = Mockito.mock(ILevel.class);
-    private final Animation moveRight = Mockito.mock(Animation.class);
-    private final Animation moveLeft = Mockito.mock(Animation.class);
-
-    private final Animation idleRight = Mockito.mock(Animation.class);
-    private final Animation idleLeft = Mockito.mock(Animation.class);
     private final Tile tile = Mockito.mock(Tile.class);
 
     private final float xVelocity = 1f;
@@ -38,17 +37,16 @@ public class VelocitySystemTest {
     private Entity entity;
 
     @Before
-    public void setup() {
+    public void setup() throws IOException {
         Game.currentLevel = level;
         Mockito.when(level.getTileAt(Mockito.any())).thenReturn(tile);
         Game.removeEntity(entity);
         entity = new Entity();
         velocitySystem = new VelocitySystem();
-        velocityComponent =
-                new VelocityComponent(entity, xVelocity, yVelocity, moveLeft, moveRight);
+        velocityComponent = new VelocityComponent(entity, xVelocity, yVelocity);
         positionComponent =
                 new PositionComponent(entity, new Point(startXPosition, startYPosition));
-        animationComponent = new DrawComponent(entity, idleLeft, idleRight);
+        animationComponent = new DrawComponent(entity, "character/knight");
         velocitySystem.showEntity(entity);
     }
 
@@ -111,26 +109,26 @@ public class VelocitySystemTest {
         velocityComponent.setCurrentXVelocity(xVelocity);
         velocityComponent.setCurrentYVelocity(yVelocity);
         velocitySystem.execute();
-        assertEquals(moveRight, animationComponent.getCurrentAnimation());
+        assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.RUN_RIGHT));
 
         // idleRight
         velocityComponent.setCurrentXVelocity(0);
         velocityComponent.setCurrentYVelocity(0);
 
         velocitySystem.execute();
-        assertEquals(idleRight, animationComponent.getCurrentAnimation());
+        assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.IDLE_RIGHT));
 
         // left
         velocityComponent.setCurrentXVelocity(-1);
         velocityComponent.setCurrentYVelocity(0);
         velocitySystem.execute();
-        assertEquals(moveLeft, animationComponent.getCurrentAnimation());
+        assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.RUN_LEFT));
 
         // idleLeft
         velocityComponent.setCurrentXVelocity(0);
         velocityComponent.setCurrentYVelocity(0);
 
         velocitySystem.execute();
-        assertEquals(idleLeft, animationComponent.getCurrentAnimation());
+        assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.IDLE_LEFT));
     }
 }

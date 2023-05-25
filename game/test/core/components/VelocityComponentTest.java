@@ -3,16 +3,11 @@ package core.components;
 import static org.junit.Assert.assertEquals;
 
 import core.Entity;
-import core.utils.components.draw.Animation;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class VelocityComponentTest {
-
-    private final Animation moveLeft = Mockito.mock(Animation.class);
-    private final Animation moveRight = Mockito.mock(Animation.class);
 
     private final float xVelocityAtStart = 3f;
     private final float yVelocityAtStart = 3f;
@@ -20,9 +15,7 @@ public class VelocityComponentTest {
 
     @Before
     public void setup() {
-        velocityComponent =
-                new VelocityComponent(
-                        new Entity(), xVelocityAtStart, yVelocityAtStart, moveLeft, moveRight);
+        velocityComponent = new VelocityComponent(new Entity(), xVelocityAtStart, yVelocityAtStart);
     }
 
     @Test
@@ -49,11 +42,5 @@ public class VelocityComponentTest {
         assertEquals(yVelocityAtStart, velocityComponent.getYVelocity(), 0.001);
         velocityComponent.setYVelocity(6.0f);
         assertEquals(6.0f, velocityComponent.getYVelocity(), 0.001);
-    }
-
-    @Test
-    public void getAnimation() {
-        assertEquals(moveLeft, velocityComponent.getMoveLeftAnimation());
-        assertEquals(moveRight, velocityComponent.getMoveRightAnimation());
     }
 }

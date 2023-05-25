@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 public class FireballSkill extends DamageProjectile {
     public FireballSkill(Supplier<Point> targetSelection) {
         super(
-                "skills/fireball/fireBall_Down/",
+                "skills/fireball",
                 0.5f,
                 new Damage(1, DamageType.FIRE, null),
                 new Point(1, 1),

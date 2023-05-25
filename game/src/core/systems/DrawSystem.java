@@ -11,14 +11,33 @@ import core.utils.components.draw.PainterConfig;
 import java.util.HashMap;
 import java.util.Map;
 
-/** used to draw entities */
+/**
+ * This system draws the entities on the screen.
+ *
+ * <p>Each entity with a {@link DrawComponent} and a {@link PositionComponent} will be drawn on the
+ * screen.
+ *
+ * <p>The system will get the current animation from the {@link DrawComponent} and will get the next
+ * animation frame from the {@link Animation}, and then draw it on the current position stored in
+ * the {@link PositionComponent}.
+ *
+ * <p>This system will not set the current animation. This must be done by other systems.
+ *
+ * <p>The DrawSystem can't be paused.
+ *
+ * @see DrawComponent
+ * @see Animation
+ */
 public class DrawSystem extends System {
 
     private final Painter painter;
     private final Map<String, PainterConfig> configs;
 
     /**
-     * @param painter PM-Dungeon painter to draw
+     * Create a new DrawSystem to draw entities.
+     *
+     * @param painter The Painter to use for drawing.
+     * @see Painter
      */
     public DrawSystem(Painter painter) {
         super(DrawComponent.class, PositionComponent.class);
@@ -26,7 +45,12 @@ public class DrawSystem extends System {
         configs = new HashMap<>();
     }
 
-    /** draw entities at their position */
+    /**
+     * Will draw entities at their position with their current animation.
+     *
+     * @see DrawComponent
+     * @see Animation
+     */
     @Override
     public void execute() {
         getEntityStream().map(this::buildDataObject).forEach(this::draw);

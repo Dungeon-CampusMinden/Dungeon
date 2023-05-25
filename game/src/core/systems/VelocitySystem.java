@@ -10,13 +10,38 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.CoreAnimations;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/** MovementSystem is a system that updates the position of entities */
+/**
+ * The VelocitySystem controls the movement of the entities in the game.
+ *
+ * <p>Entities with the {@link VelocityComponent}, {@link PositionComponent}, and {@link
+ * DrawComponent} will be processed by this system.
+ *
+ * <p>The system will take the {@link VelocityComponent#getCurrentXVelocity()} and {@link
+ * VelocityComponent#getCurrentYVelocity()} and calculate the new position of the entity based on
+ * their current position stored in the {@link PositionComponent}. If the new position is a valid
+ * position, which means the tile they would stand on is accessible, the new position will be set.
+ *
+ * <p>This system will also set the current animation to {@link CoreAnimations#RUN_LEFT} or {@link
+ * CoreAnimations#RUN_RIGHT} if the position is valid.
+ *
+ * <p>If the new position is not valid, the {@link CoreAnimations#IDLE_LEFT} or {@link
+ * CoreAnimations#IDLE_RIGHT} animations will be set as the new current animation.
+ *
+ * <p>At the end, the {@link VelocityComponent#setCurrentXVelocity(float)} and {@link
+ * VelocityComponent#setYVelocity(float)} will be set to 0.
+ *
+ * @see VelocityComponent
+ * @see DrawComponent
+ * @see PositionComponent
+ * @see core.level.elements.ILevel
+ */
 public class VelocitySystem extends System {
 
+    /** Create a new VelocitySystem */
     public VelocitySystem() {
         super(VelocityComponent.class, PositionComponent.class, DrawComponent.class);
     }
@@ -70,18 +95,17 @@ public class VelocitySystem extends System {
             return;
         }
 
-        Animation newCurrentAnimation;
         float x = vsd.vc.getCurrentXVelocity();
-        if (x > 0) newCurrentAnimation = vsd.vc.getMoveRightAnimation();
-        else if (x < 0) newCurrentAnimation = vsd.vc.getMoveLeftAnimation();
+        if (x > 0) vsd.dc.setCurrentAnimation(CoreAnimations.RUN_RIGHT);
+        else if (x < 0) vsd.dc.setCurrentAnimation(CoreAnimations.RUN_LEFT);
         // idle
         else {
-            if (vsd.dc.getCurrentAnimation() == vsd.dc.getIdleLeft()
-                    || vsd.dc.getCurrentAnimation() == vsd.vc.getMoveLeftAnimation())
-                newCurrentAnimation = vsd.dc.getIdleLeft();
-            else newCurrentAnimation = vsd.dc.getIdleRight();
+            // each drawcomponent has an idle animation, so no check is needed
+            if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_LEFT)
+                    || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_LEFT))
+                vsd.dc.setCurrentAnimation(CoreAnimations.IDLE_LEFT);
+            else vsd.dc.setCurrentAnimation(CoreAnimations.IDLE_RIGHT);
         }
-        vsd.dc.setCurrentAnimation(newCurrentAnimation);
     }
 
     private record VSData(Entity e, VelocityComponent vc, PositionComponent pc, DrawComponent dc) {}

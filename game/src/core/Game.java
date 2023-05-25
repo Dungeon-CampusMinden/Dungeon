@@ -34,7 +34,6 @@ import core.utils.DungeonCamera;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
-import core.utils.components.draw.TextureHandler;
 import core.utils.controller.AbstractController;
 
 import quizquestion.DummyQuizQuestionList;
@@ -60,9 +59,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
     public static DungeonCamera camera;
     public static ILevel currentLevel;
-    /** A handler for managing asset paths */
-    private static TextureHandler handler;
-
     private static Entity hero;
     private static Game game;
     /**
@@ -100,13 +96,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     public static void informAboutChanges(Entity entity) {
         entities.add(entity);
         LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
-    }
-
-    /**
-     * @return The {@link TextureHandler}
-     */
-    public static TextureHandler getHandler() {
-        return handler;
     }
 
     /**
@@ -269,31 +258,12 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     private void setup() {
         doSetup = false;
-        /*
-         * THIS EXCEPTION HANDLING IS A TEMPORARY WORKAROUND !
-         *
-         * <p>The TextureHandler can throw an exception when it is first created. This exception
-         * (IOException) must be handled somewhere. Normally we want to pass exceptions to the method
-         * caller. This approach is (atm) not possible in the libgdx render method because Java does
-         * not allow extending method signatures derived from a class. We should try to make clean
-         * code out of this workaround later.
-         *
-         * <p>Please see also discussions at:<br>
-         * - https://github.com/Programmiermethoden/Dungeon/pull/560<br>
-         * - https://github.com/Programmiermethoden/Dungeon/issues/587<br>
-         */
-        try {
-            handler = TextureHandler.getInstance();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         batch = new SpriteBatch();
         setupCameras();
         painter = new Painter(batch, camera);
         IGenerator generator = new RandomWalkGenerator();
         levelManager = new LevelManager(batch, painter, generator, this);
         initBaseLogger();
-        hero = EntityFactory.getHero();
         levelManager =
                 new LevelManager(
                         batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
@@ -348,6 +318,13 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         removeAllEntities();
         getHero().ifPresent(this::placeOnLevelStart);
         getHero().ifPresent(Game::addEntity);
+        try {
+            EntityFactory.getChest();
+        } catch (IOException e) {
+            // will be moved to MAIN in https://github.com/Programmiermethoden/Dungeon/pull/688
+            LOGGER.warning("Could not create new Chest: " + e.getMessage());
+            throw new RuntimeException();
+        }
     }
 
     /** Set the focus of the camera on the hero, if he exists otherwise focus on Pont (0,0) */

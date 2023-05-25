@@ -15,12 +15,12 @@ import core.Game;
 import core.components.*;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.CoreAnimations;
 
-import dslToGame.AnimationBuilder;
-
+import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 /**
@@ -28,6 +28,7 @@ import java.util.stream.IntStream;
  * static methods to construct various types of entities with different components.
  */
 public class EntityFactory {
+    private static final Logger LOGGER = Logger.getLogger(EntityFactory.class.getName());
 
     /**
      * Create a new Entity that can be used as a playable character. It will have a {@link
@@ -36,23 +37,15 @@ public class EntityFactory {
      *
      * @return Created Entity
      */
-    public static Entity getHero() {
+    public static Entity getHero() throws IOException {
         final int fireballCoolDown = 2;
         final float xSpeed = 0.3f;
         final float ySpeed = 0.3f;
-        final String pathToIdleLeft = "knight/idleLeft";
-        final String pathToIdleRight = "knight/idleRight";
-        final String pathToRunLeft = "knight/runLeft";
-        final String pathToRunRight = "knight/runRight";
 
         Entity hero = new Entity("hero");
         new PositionComponent(hero);
-        Animation moveRight = AnimationBuilder.buildAnimation(pathToRunRight);
-        Animation moveLeft = AnimationBuilder.buildAnimation(pathToRunLeft);
-        new VelocityComponent(hero, xSpeed, ySpeed, moveLeft, moveRight);
-        Animation idleRight = AnimationBuilder.buildAnimation(pathToIdleRight);
-        Animation idleLeft = AnimationBuilder.buildAnimation(pathToIdleLeft);
-        new DrawComponent(hero, idleLeft, idleRight);
+        new VelocityComponent(hero, xSpeed, ySpeed);
+        new DrawComponent(hero, "character/knight");
         new CollideComponent(
                 hero,
                 (you, other, direction) -> System.out.println("heroCollisionEnter"),
@@ -113,7 +106,7 @@ public class EntityFactory {
      *
      * @return Created Entity
      */
-    public static Entity getChest() {
+    public static Entity getChest() throws IOException {
         Random random = new Random();
         ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
 
@@ -137,27 +130,17 @@ public class EntityFactory {
      * @param position The position of the chest.
      * @return Created Entity
      */
-    public static Entity getChest(List<ItemData> itemData, Point position) {
+    public static Entity getChest(List<ItemData> itemData, Point position) throws IOException {
         final float defaultInteractionRadius = 1f;
-        final List<String> DEFAULT_CLOSED_ANIMATION_FRAMES =
-                List.of("objects/treasurechest/chest_full_open_anim_f0.png");
-        final List<String> DEFAULT_OPENING_ANIMATION_FRAMES =
-                List.of(
-                        "objects/treasurechest/chest_full_open_anim_f0.png",
-                        "objects/treasurechest/chest_full_open_anim_f1.png",
-                        "objects/treasurechest/chest_full_open_anim_f2.png",
-                        "objects/treasurechest/chest_empty_open_anim_f2.png");
-
         Entity chest = new Entity("chest");
         new PositionComponent(chest, position);
         InventoryComponent ic = new InventoryComponent(chest, itemData.size());
         itemData.forEach(ic::addItem);
         new InteractionComponent(
                 chest, defaultInteractionRadius, false, new DropItemsInteraction());
-        new DrawComponent(
-                chest,
-                new Animation(DEFAULT_CLOSED_ANIMATION_FRAMES, 100, false),
-                new Animation(DEFAULT_OPENING_ANIMATION_FRAMES, 100, false));
+        DrawComponent dc = new DrawComponent(chest, "objects/treasurechest");
+        dc.getAnimation(CoreAnimations.IDLE_RIGHT).ifPresent(a -> a.setLoop(false));
+
         return chest;
     }
 }
