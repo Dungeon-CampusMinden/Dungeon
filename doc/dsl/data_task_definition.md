@@ -33,8 +33,8 @@ Member:
 ```
 multiple_choice_task task {
   description: "Bitte wähle die richtigen Antworten aus!"
-  answers: ["a", "b", "c", "d", "keine"?],
-  correct_answer_indices: [0, 2], // TODO: kann auch leer sein? Wie damit umgehen?
+  answers: ["a", "b", "c", "d"],
+  correct_answer_indices: [0, 2], // kann auch leer bleiben
   fn_score: score
 }
 ```
@@ -45,7 +45,8 @@ Member:
 - `answers`: Die Liste der Antwortmöglichkeiten, aus denen mehrere Elemente ausgewählt
   werden müssen
 - `correct_answer_indices`: Die Indizes aus `answers`, welche die korrekten Antworten
-  angeben
+  angeben; falls `correct_answer_indices` nicht explizit definiert wird (also ein leeres
+  Array bleibt), gilt keine der Antwortmöglichkeiten in `answers` als korrekt
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
 
 ## Aufgabentyp "Ersetzen"
