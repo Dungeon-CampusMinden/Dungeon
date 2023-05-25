@@ -72,18 +72,30 @@ public final class Animation {
     }
 
     /**
+     * Create an animation from the files in the given path and the given configuration.
+     *
+     * @param subDir Path to the subdirectory where the animation frames are stored
+     * @param frameTime How many frames to wait, before switching to the next texture?
+     * @param loop should the Animation continue to repeat ?
+     * @return The created Animation instance
+     */
+    public static Animation of(File subDir, int frameTime, boolean loop) {
+        List<String> fileNames =
+                Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
+                        .filter(File::isFile)
+                        .map(File::getPath)
+                        .collect(Collectors.toList());
+        return new Animation(fileNames, frameTime, loop);
+    }
+
+    /**
      * Create an animation from the files in the given path and the default configuration.
      *
      * @param subDir Path to the subdirectory where the animation frames are stored
      * @return The created Animation instance
      */
     public static Animation of(File subDir) {
-        List<String> fileNames =
-                Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
-                        .filter(File::isFile)
-                        .map(File::getPath)
-                        .collect(Collectors.toList());
-        return new Animation(fileNames, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP);
+        return Animation.of(subDir, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP);
     }
 
     /**
