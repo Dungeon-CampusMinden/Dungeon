@@ -74,6 +74,9 @@ public final class Animation {
     /**
      * Create an animation from the files in the given path and the given configuration.
      *
+     * <p>Will sort the the textures in lexicographic order. This is the order in which the
+     * animations will be shown.
+     *
      * @param subDir Path to the subdirectory where the animation frames are stored
      * @param frameTime How many frames to wait, before switching to the next texture?
      * @param loop should the Animation continue to repeat ?
@@ -85,11 +88,18 @@ public final class Animation {
                         .filter(File::isFile)
                         .map(File::getPath)
                         .collect(Collectors.toList());
+
+        // sort the files in lexicographic order (like the most os)
+        // animations will be played in order
+        Collections.sort(fileNames);
         return new Animation(fileNames, frameTime, loop);
     }
 
     /**
      * Create an animation from the files in the given path and the default configuration.
+     *
+     * <p>Will sort the the textures in lexicographic order. This is the order in which the
+     * animations will be shown.
      *
      * @param subDir Path to the subdirectory where the animation frames are stored
      * @return The created Animation instance
