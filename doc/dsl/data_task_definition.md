@@ -54,33 +54,22 @@ Member:
 ```
 replacement_task t {
   description: "Bitte führe Ersetzungen durch!"
-  // elements: ["h", elem2, elem3, ...], // evtl. nicht nötig, kann aus n1 - n5 berechnet werden
-  initial_element_set: [elements[2], elements[4], ...]
-
-  rules: graph { // TODO: das ist nicht mehr dot
-    // Definition der Element-Mengen
-    // SYNTAX?
-    n1[elements=[elements[0], elements[1], elements[2], order_relevant=true/false]
-    n2[elements=[elements[3], elements[4]]]
-    n3[elements=[elements[5]]]
-    n4[elements=[elements[6]]]
-
-    // Wunschsyntax für Mengendefinition:
-    n4: ("h", elem7) // reihenfolge relevant
-    n4: {elem6, elem7} // reihenfolge nicht relevant
-
-    n5: {verwirrungselement1, verwirrungselement2}
-
-    // Definition der Ersetzungs-Regeln
-    n1 -> n2 [name=ersetzung1]
-    n2 -> n3 [name=ersetzung2]
-    n2 -> n4 [name=ersetzung3]
-
-    // alternative syntax
-    ersetzung1: n1 -> n2;
+  initial_element_set: ["elem1", "elem2", "elem6"]
+  elements: {
+    n1: ("elem1", "elem2),
+    n2: {"elem1", "elem3"},
+    n3: {"elem4"},
+    n4: {"elem5"},
+    n5: {"elem1", "elem2", "elem6"},
+    n6: {"verwirrungselement"}
   },
-  answer_sequence: [rules.ersetzung1, rules.ersetzung2], // Reihenfolge könnte auch egal sein, alternativen zulassen
-  answer_configuration: [elements[0], elements[3], elements[2]], // hier auch Alternativen zulassen
+  rules: {
+    r1: n1 -> n3,
+    r2: n2 -> n4,
+    r3: n5 -> n3
+  },
+  answer_sequence: [rules.r3], // Reihenfolge könnte auch egal sein, alternativen zulassen
+  answer_configuration: ["elem4"], // hier auch Alternativen zulassen
   fn_score: score
 }
 ```
