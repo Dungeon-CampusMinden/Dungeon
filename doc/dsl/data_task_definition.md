@@ -48,6 +48,7 @@ Member:
   angeben
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
 
+## Aufgabentyp "Ersetzen"
 
 ```
 replacement_task t {
@@ -110,6 +111,7 @@ Member:
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
 
 
+## Aufgabentyp "Zuordnen"
 
 ```
 mapping_task t {
