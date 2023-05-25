@@ -72,7 +72,7 @@ public class HealthComponent extends Component {
      * @param entity associated entity
      */
     public HealthComponent(@DSLContextMember(name = "entity") Entity entity) {
-        this(entity, 1, entity2 -> {});
+        this(entity, 1, onDeath -> {});
     }
 
     /**
