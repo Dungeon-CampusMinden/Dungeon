@@ -74,9 +74,6 @@ replacement_task t {
 }
 ```
 
-TODO: Überprüfung, ob Elemente, die beide "h" heißen, auch beide aufs gleiche Objekt verweisen
-TODO: Mengendefinition als `elements`-Feld angeben, `rules` nur für Ersetzungsregeln nutzen
-
 TODO: Aus den Ersetzungsregeln könnte ein Baum erstellt werden, daraus kann theoretisch eine initiale Menge ausgerechnet
 werden -> erstmal selbst definieren, FALLS ZEIT können wir das noch testen -> Ticket: later
 
@@ -108,7 +105,7 @@ die für den gleichen Wert aus `initial_element_set` erzeugt wurden, auch an die
 dem Wert entsprechenden Element aus den Element-Mengen eingesetzt werden kann. Siehe hierzu
 folgendes Diagram:
 
-Diagram: TODO.
+![Ersetzungsaufgabe Entitäten](img/replacement_task_entities.png)
 
 ## Aufgabentyp "Zuordnen"
 
