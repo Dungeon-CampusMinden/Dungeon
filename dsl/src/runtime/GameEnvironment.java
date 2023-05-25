@@ -51,8 +51,8 @@ public class GameEnvironment implements IEvironment {
     }
 
     protected static void registerDefaultTypeAdapters() {
-        // temporaly disabled: see https://github.com/Programmiermethoden/Dungeon/pull/687 for more
-        // information
+        /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
+         * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
         // typeBuilder.registerTypeAdapter(AnimationBuilder.class, Scope.NULL);
     }
 
@@ -138,8 +138,8 @@ public class GameEnvironment implements IEvironment {
         var entityComponentType = typeBuilder.createTypeFromClass(Scope.NULL, Entity.class);
         var positionComponentType =
                 typeBuilder.createTypeFromClass(Scope.NULL, PositionComponent.class);
-        // temporaly disabled: see https://github.com/Programmiermethoden/Dungeon/pull/687 for more
-        // information
+        /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
+         * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
         // var animationComponentType =
         //      typeBuilder.createTypeFromClass(Scope.NULL, DrawComponent.class);
         var velocityComponentType =
@@ -150,8 +150,8 @@ public class GameEnvironment implements IEvironment {
         types.add(questConfigType);
         types.add(entityComponentType);
         types.add(positionComponentType);
-        // temporaly disabled: see https://github.com/Programmiermethoden/Dungeon/pull/687 for more
-        // information
+        /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
+         * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
         // types.add(animationComponentType);
         types.add(velocityComponentType);
         types.add(aiComponentType);
