@@ -4,7 +4,6 @@ import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 
 import core.Entity;
-import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
@@ -137,8 +136,8 @@ public class GameEnvironment implements IEvironment {
         var entityComponentType = typeBuilder.createTypeFromClass(Scope.NULL, Entity.class);
         var positionComponentType =
                 typeBuilder.createTypeFromClass(Scope.NULL, PositionComponent.class);
-        var animationComponentType =
-                typeBuilder.createTypeFromClass(Scope.NULL, DrawComponent.class);
+        // var animationComponentType =
+        //      typeBuilder.createTypeFromClass(Scope.NULL, DrawComponent.class);
         var velocityComponentType =
                 typeBuilder.createTypeFromClass(Scope.NULL, VelocityComponent.class);
         var aiComponentType = typeBuilder.createTypeFromClass(Scope.NULL, AIComponent.class);
@@ -147,7 +146,7 @@ public class GameEnvironment implements IEvironment {
         types.add(questConfigType);
         types.add(entityComponentType);
         types.add(positionComponentType);
-        types.add(animationComponentType);
+        // types.add(animationComponentType);
         types.add(velocityComponentType);
         types.add(aiComponentType);
         types.add(hitboxComponentType);
