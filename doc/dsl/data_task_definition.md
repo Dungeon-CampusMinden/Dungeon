@@ -86,18 +86,17 @@ Member:
 - `elements`: Eine Liste, die alle Elemente, welche an der Ersetzungsaufgabe beteiligt sind,
   enthält.
 - `initial_element_set`: Eine Liste, welche die initiale Menge der Aufgabenelemente angibt.
-- `rules`: Die Definition der Ersetzungsregeln, als `graph` notiert
-  - Definition der Element-Mengen: definiert, welche Elemente aus `elements` eine Menge
-    bilden, welche durch Anwendung einer Ersetzungsregel durch eine andere Menge ersetzt
-    werden kann; als Knoten im `graph` notiert; optional kann angegeben werden, ob die
-    Reihenfolge der Elemente relevant ist
-  - Definition der Ersetzungsregeln: Definition, welche Element-Mengen durch welche anderen
-    Element-Mengen ersetzt werden dürfen; das `name`-Attribut kann genutzt werden, um über
-    das `graph`-Objekt auf die Regel zuzugreifen; als Kanten im `graph` notiert
+- `elements`: Definition der Element-Mengen: definiert, welche Elemente Mengen
+  bilden, die durch Anwendung einer Ersetzungsregel durch eine andere Menge ersetzt
+  werden können; runde Klammern `(` `)` geben an, dass die Element-Reihenfolge **relevant** ist,
+  geschweifte Klammern `{` `}` geben an, dass die Element-Reihenfolge **irrelevant** ist
+- `rules`: Definition der Ersetzungsregeln: Definition, welche Element-Mengen durch welche anderen
+  Element-Mengen ersetzt werden dürfen; `n1 -> n2` bedeutet, dass die Menge `n1` durch `n2` ersetzt,
+  werden kann, allerdings nicht andersherum
 - `answer_sequence`: Liste der Ersetzungsregeln aus `rules`, die der Reihe nach ausgeführt
-  werden müssen
+  werden müssen; alternative Lösungen anzugeben ist möglich
 - `answer_configuration`: Liste der Elemente, welche nach Fertigstellung der Aufgabe
-  vorhanden sein müssen
+  vorhanden sein müssen; alternative Lösungen anzugeben ist möglich
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
 
 
