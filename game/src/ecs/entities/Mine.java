@@ -5,19 +5,15 @@ import ecs.components.*;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.graphic.Animation;
-
 import java.util.ArrayList;
 
-/**
- * An ap-mine that deals damage to all entities within it's hitbox that have a healthcomponent
- *
- */
-public class Mine extends Trap{
+/** An ap-mine that deals damage to all entities within it's hitbox that have a healthcomponent */
+public class Mine extends Trap {
 
     private final String idle = "character/monster/apmine";
     ArrayList<Entity> inRange = new ArrayList<>();
 
-    public Mine(){
+    public Mine() {
         super();
         new PositionComponent(this);
         setupAnimationComponent();
@@ -25,40 +21,33 @@ public class Mine extends Trap{
         this.setTrapDmg(1);
     }
 
-
     /**
-     * If entities enters hitbox add it to the entites inRange list, then check if the trap was already triggered and call doDmg if not
-     * Set triggered to true afterwards
-     *
+     * If entities enters hitbox add it to the entites inRange list, then check if the trap was
+     * already triggered and call doDmg if not Set triggered to true afterwards
      */
     void triggerAction(Entity other) {
         this.inRange.add(other);
-        if(!this.isTriggered()) doDmg();
-        if(other.getComponent(HealthComponent.class).isPresent()) this.setTriggered(true);
+        if (!this.isTriggered()) doDmg();
+        if (other.getComponent(HealthComponent.class).isPresent()) this.setTriggered(true);
     }
 
-    /** Deletes entitie from inRange list**/
-    public void deleteFromHitbox(Entity other){
+    /** Deletes entitie from inRange list* */
+    public void deleteFromHitbox(Entity other) {
         this.inRange.remove(other);
     }
 
     /**
-     *  Iterate through inRange list and check if entitie has health component and deal damage if true
+     * Iterate through inRange list and check if entity has health component and apply damage if
+     * true
      */
-    public void doDmg(){
-        for(Entity e : inRange){
-            if(e.getComponent(HealthComponent.class).isPresent()){
+    public void doDmg() {
+        for (Entity e : inRange) {
+            if (e.getComponent(HealthComponent.class).isPresent()) {
                 HealthComponent ofE = (HealthComponent) e.getComponent(HealthComponent.class).get();
-                int currentHp = ofE.getCurrentHealthpoints();
-
-                System.out.println("HP before:"+ ofE.getCurrentHealthpoints());
-                if(!ofE.isInvincible())ofE.setCurrentHealthpoints(currentHp-getTrapDmg());
-                //ofE.receiveHit(new Damage((int) getTrapDmg(), DamageType.PHYSICAL,this));
-                System.out.println("HP after:"+ ofE.getCurrentHealthpoints());
+                ofE.receiveHit(new Damage((int) getTrapDmg(), DamageType.PHYSICAL, this));
             }
         }
     }
-
 
     private void setupAnimationComponent() {
         Animation idleRight = AnimationBuilder.buildAnimation(idle);
@@ -67,10 +56,8 @@ public class Mine extends Trap{
 
     private void setupHitboxComponent() {
         new HitboxComponent(
-            this,
-            (you, other, direction) -> triggerAction(other),
-            (you, other, direction) -> deleteFromHitbox(other));
+                this,
+                (you, other, direction) -> triggerAction(other),
+                (you, other, direction) -> deleteFromHitbox(other));
     }
-
-
 }

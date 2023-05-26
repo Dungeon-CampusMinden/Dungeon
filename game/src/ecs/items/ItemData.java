@@ -1,15 +1,12 @@
 package ecs.items;
 
 import configuration.ItemConfig;
-import ecs.components.AnimationComponent;
-import ecs.components.HitboxComponent;
-import ecs.components.InventoryComponent;
-import ecs.components.ItemComponent;
-import ecs.components.PositionComponent;
+import ecs.components.*;
 import ecs.components.stats.DamageModifier;
 import ecs.entities.Entity;
 import ecs.graphic.Animation;
 import java.util.List;
+import java.util.logging.Logger;
 import starter.Game;
 import tools.Point;
 
@@ -28,6 +25,8 @@ public class ItemData {
 
     // passive
     private DamageModifier damageModifier;
+
+    public Logger itemLogger = Logger.getLogger(getClass().getName());
 
     /**
      * creates a new item data object.

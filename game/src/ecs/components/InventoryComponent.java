@@ -5,12 +5,7 @@ import ecs.items.ItemData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
-
-import ecs.items.ItemType;
-import ecs.items.newItems.Bag;
 import logging.CustomLogLevel;
-import starter.Game;
 
 /** Allows an Entity to carry Items */
 public class InventoryComponent extends Component {

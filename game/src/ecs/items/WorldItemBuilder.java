@@ -2,8 +2,6 @@ package ecs.items;
 
 import ecs.components.*;
 import ecs.entities.Entity;
-import ecs.items.newItems.Bag;
-import tools.Point;
 
 /** Class which creates all needed Components for a basic WorldItem */
 public class WorldItemBuilder {
@@ -26,5 +24,4 @@ public class WorldItemBuilder {
                 });
         return droppedItem;
     }
-
 }

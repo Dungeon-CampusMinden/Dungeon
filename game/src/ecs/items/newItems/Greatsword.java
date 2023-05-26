@@ -1,30 +1,26 @@
 package ecs.items.newItems;
 
 import dslToGame.AnimationBuilder;
-
 import ecs.entities.Entity;
 import ecs.entities.Hero;
-import ecs.graphic.Animation;
-import ecs.items.*;
+import ecs.items.IOnCollect;
+import ecs.items.ItemData;
+import ecs.items.ItemType;
+import ecs.items.WorldItemBuilder;
 import starter.Game;
-import tools.Point;
 
-/**
- * The greatsword adds 20 damage to the hero if collected.
- *
- */
+/** The greatsword adds 20 damage to the hero if collected. */
 public class Greatsword extends ItemData implements IOnCollect {
 
     private final int dmg = 20;
 
-    public Greatsword(){
+    public Greatsword() {
         super(
-            ItemType.Passive,
-            AnimationBuilder.buildAnimation("item/world/Greatsword"),
-            AnimationBuilder.buildAnimation("item/world/Greatsword"),
-            "Greatsword",
-            "Increases the owners damage by 20"
-        );
+                ItemType.Passive,
+                AnimationBuilder.buildAnimation("item/world/Greatsword"),
+                AnimationBuilder.buildAnimation("item/world/Greatsword"),
+                "Greatsword",
+                "Increases the owners damage by 20");
 
         WorldItemBuilder.buildWorldItem(this);
         this.setOnCollect(this);
@@ -37,15 +33,13 @@ public class Greatsword extends ItemData implements IOnCollect {
      * @param whoCollides
      */
     @Override
-    public void onCollect(Entity WorldItemEntity, Entity whoCollides){
-        if(whoCollides instanceof Hero){
+    public void onCollect(Entity WorldItemEntity, Entity whoCollides) {
+        if (whoCollides instanceof Hero) {
             Game.removeEntity(WorldItemEntity);
             Hero hero = (Hero) whoCollides;
             int currentDmg = hero.getDmg();
-            hero.setDmg(currentDmg+dmg);
-            System.out.println(hero.getDmg());
-
+            hero.setDmg(currentDmg + dmg);
+            itemLogger.info("New damage: " + hero.getDmg());
         }
     }
-
 }

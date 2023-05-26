@@ -97,5 +97,4 @@ public class PlayableComponent extends Component {
     public Optional<Skill> getSkillSlot3() {
         return Optional.ofNullable(skillSlot3);
     }
-
 }

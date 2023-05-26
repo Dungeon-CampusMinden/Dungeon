@@ -2,13 +2,12 @@ package ecs.entities;
 
 import dslToGame.AnimationBuilder;
 import ecs.components.*;
-import ecs.components.AnimationComponent;
-import ecs.components.PositionComponent;
-import ecs.components.VelocityComponent;
 import ecs.components.skill.*;
 import ecs.components.xp.ILevelUp;
 import ecs.components.xp.XPComponent;
 import ecs.graphic.Animation;
+import java.util.logging.Logger;
+import starter.Game;
 
 /**
  * The Hero is the player character. It's entity in the ECS. This class helps to setup the hero with
@@ -29,7 +28,6 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
     private final String pathToIdleRight = "knight/idleRight";
     private final String pathToRunLeft = "knight/runLeft";
     private final String pathToRunRight = "knight/runRight";
-
     private final String onHit = "knight/hit";
 
     private SkillComponent sCp;
@@ -44,18 +42,17 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
 
     private InventoryComponent inv;
 
-
     int currentHealth;
 
-    /**
-     * Entity with Components
-     */
+    Logger heroLogger = Logger.getLogger(getClass().getName());
+
+    private static boolean dead = false;
+
+    /** Entity with Components */
     public Hero() {
         super();
         new PositionComponent(this);
         inv = new InventoryComponent(this, 12);
-
-
         setupVelocityComponent();
         setupSkillComponent();
         setupAnimationComponent();
@@ -65,10 +62,7 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
         setupHealthComponent();
         setupXpComponent();
         pc.setSkillSlot1(firstSkill);
-
-
-        this.hp.setCurrentHealthpoints(50); //Set to 50 for testing purposes
-
+        this.hp.setCurrentHealthpoints(2); // Set to 2 for testing Game Over
         currentHealth = this.hp.getCurrentHealthpoints();
     }
 
@@ -90,8 +84,8 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
 
     private void setupFireballSkill() {
         firstSkill =
-            new Skill(
-                new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
+                new Skill(
+                        new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
     }
 
     private void setupHealSkill() {
@@ -104,20 +98,15 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
         sCp.addSkill(thirdSkill);
     }
 
-    /**
-     * Modifies the current health by passed amount
-     **/
+    /** Modifies the current health by passed amount */
     public void setHealth(int amount) {
-        System.out.println("HP before: " + this.hp.getCurrentHealthpoints());
+        heroLogger.info("HP before: " + this.hp.getCurrentHealthpoints());
         this.hp.setCurrentHealthpoints(this.hp.getCurrentHealthpoints() + amount);
-        System.out.println("HP after: " + this.hp.getCurrentHealthpoints());
+        heroLogger.info("HP after: " + this.hp.getCurrentHealthpoints());
     }
 
     private void setupHitboxComponent() {
-        new HitboxComponent(
-            this,
-            (you, other, direction) -> System.out.print(""),
-            (you, other, direction) -> System.out.print(""));
+        new HitboxComponent(this, null, null);
     }
 
     public void setDmg(int dmg) {
@@ -128,7 +117,7 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
         return dmg;
     }
 
-    //TODO: Fix death animation
+    // TODO: Fix death animation
     private void setupHealthComponent() {
         Animation hit = AnimationBuilder.buildAnimation(onHit);
         this.hp = new HealthComponent(this, 100, this::onDeath, hit, hit);
@@ -146,10 +135,14 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
         this.xpCmp = xpCmp;
     }
 
-
     @Override
+    /**
+     * onDeath function which execute if the given Entity has no HP left
+     *
+     * @param entity on Death of the given entity
+     */
     public void onDeath(Entity entity) {
-        System.out.println("Hero dead");
+        Game.getGameOverMenu().showMenu();
     }
 
     /**
@@ -159,7 +152,7 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
      */
     @Override
     public void onLevelUp(long nexLevel) {
-        System.out.println("You leveled up to Level " + nexLevel);
+        heroLogger.info("You leveled up to Level " + nexLevel);
         if (nexLevel == 1) {
             setupHealSkill();
             pc.setSkillSlot2(secondSkill);
@@ -184,5 +177,13 @@ public class Hero extends Entity implements IOnDeathFunction, ILevelUp {
 
     public void setCurrentHealth(int currentHealth) {
         this.currentHealth = currentHealth;
+    }
+
+    public static boolean isDead() {
+        return dead;
+    }
+
+    public static void setDead(boolean dead) {
+        Hero.dead = dead;
     }
 }
