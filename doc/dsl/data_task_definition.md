@@ -77,16 +77,14 @@ replacement_task t {
 Member:
 
 - `description`: Die textuelle Aufgabenbeschreibung
-- `elements`: Eine Liste, die alle Elemente, welche an der Ersetzungsaufgabe beteiligt sind,
-  enthält.
 - `initial_element_set`: Eine Liste, welche die initiale Menge der Aufgabenelemente angibt.
-- `elements`: Definition der Element-Mengen: definiert, welche Elemente Mengen
-  bilden, die durch Anwendung einer Ersetzungsregel durch eine andere Menge ersetzt
-  werden können; runde Klammern `(` `)` geben an, dass die Element-Reihenfolge **relevant** ist,
-  geschweifte Klammern `{` `}` geben an, dass die Element-Reihenfolge **irrelevant** ist
-- `rules`: Definition der Ersetzungsregeln: Definition, welche Element-Mengen durch welche anderen
-  Element-Mengen ersetzt werden dürfen; `n1 -> n2` bedeutet, dass die Menge `n1` durch `n2` ersetzt,
-  werden kann, allerdings nicht andersherum
+- `elements`: Definition der Element-Mengen: definiert, welche Elemente Mengen bilden, die
+  durch Anwendung einer Ersetzungsregel durch eine andere Menge ersetzt werden können; runde
+  Klammern `(` `)` geben an, dass die Element-Reihenfolge **relevant** ist, geschweifte
+  Klammern `{` `}` geben an, dass die Element-Reihenfolge **irrelevant** ist
+- `rules`: Definition der Ersetzungsregeln: Definition, welche Element-Mengen durch welche
+  anderen Element-Mengen ersetzt werden dürfen; `n1 -> n2` bedeutet, dass die Menge `n1`
+  durch `n2` ersetzt, werden kann, allerdings nicht andersherum
 - `answer_sequence`: Liste der Ersetzungsregeln aus `rules`, die der Reihe nach ausgeführt
   werden müssen; alternative Lösungen anzugeben ist möglich
 - `answer_configuration`: Liste der Elemente, welche nach Fertigstellung der Aufgabe
@@ -95,12 +93,12 @@ Member:
 
 Note: Für die Definition der Element-Mengen in `elements` muss sichergestellt werden, dass
 sich zwei gleiche Werte intern während der Interpretation auf das gleiche Element beziehen.
-Für die Definition von `initial_element_set` muss jeder Wert als einzelne Entität übersetzt werden,
-wobei sichergestellt werden muss, dass die in `initial_element_set` enthaltenen Werte auch in den
-Element-Mengen definiert sind. Anschließend muss sichergestellt werden, dass jede der Entitäten,
-die für den gleichen Wert aus `initial_element_set` erzeugt wurden, auch an die Stelle des
-dem Wert entsprechenden Element aus den Element-Mengen eingesetzt werden kann. Siehe hierzu
-folgendes Diagram:
+Für die Definition von `initial_element_set` muss jeder Wert als einzelne Entität übersetzt
+werden, wobei sichergestellt werden muss, dass die in `initial_element_set` enthaltenen
+Werte auch in den Element-Mengen definiert sind. Anschließend muss sichergestellt werden,
+dass jede der Entitäten, die für den gleichen Wert aus `initial_element_set` erzeugt wurden,
+auch an die Stelle des dem Wert entsprechenden Element aus den Element-Mengen eingesetzt
+werden kann. Siehe hierzu folgendes Diagram:
 
 ![Ersetzungsaufgabe Entitäten](img/replacement_task_entities.png)
 
@@ -130,10 +128,10 @@ Member:
 - `description`: Die textuelle Aufgabenbeschreibung
 - `mapping`: Definition der geforderten Zuordnung als Menge von Tupeln aus Termen (links)
   und Definitionen (rechts) (analog zur ILIAS-Terminologie)
-  - Aus den Tupeln wird die gesamte Menge der Definitionen und Terme berechnet, falls zusätzliche
-    Elemente, die an keiner Zuordnung beteiligt sind, hinzugefügt werden sollen, kann die
-    über die Definition eines Tupels mit einer leeren Seite erfolgen: `("c", _)` fügt der
-    Menge der Terme das Element `"c"` hinzu
+  - Aus den Tupeln wird die gesamte Menge der Definitionen und Terme berechnet, falls
+    zusätzliche Elemente, die an keiner Zuordnung beteiligt sind, hinzugefügt werden sollen,
+    kann die über die Definition eines Tupels mit einer leeren Seite erfolgen: `("c", _)`
+    fügt der Menge der Terme das Element `"c"` hinzu
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
 
 ## Aufgabentyp “Lücken füllen”
@@ -155,7 +153,8 @@ gap_task task {
 Member:
 
 - `description`: Die textuelle Aufgabenbeschreibung
-- `gaps`: Die Definition der Lücken, ähnlich der Definition der Zuordnungen in [Zuordnen](#aufgabentyp-zuordnen),
+- `gaps`: Die Definition der Lücken, ähnlich der Definition der Zuordnungen in
+  [Zuordnen](#aufgabentyp-zuordnen),
   - linke Seite: Regulärer Ausdruck, der zur Überprüfung einer Antwort genutzt wird
-  - rechte Seite: "Name" der Lücke
+  - rechte Seite: “Name” der Lücke
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
