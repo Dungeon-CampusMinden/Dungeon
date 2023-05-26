@@ -141,24 +141,12 @@ Member:
 ```
 gap_task task {
   description: "Bitte fülle die Lücken!"
-  gaps_amount: 4, // erzeugt implizit ein Lücken-array mit 4 Elementen
-  elements: [elem1, elem2, elem3, elem4],
-  rules: graph {
-    // Definition der Elemente-Mengen
-    n1[elements=[gaps[0]]
-    n2[elements=[gaps[1]]
-    n3[elements=[gaps[2]]
-
-    n4[elements=[elements[0]]
-    n5[elements=[elements[1]]
-    n6[elements=[elements[2]]
-    n7[elements=[elements[3]]
-
-    // Definition Zuordnung
-    n4 -> n1
-    n5 -> n2
-    n6 -> n2
-    n7 -> n3
+  gaps: {
+    // Definition der Lücken
+    ("regexp1", "gapname1"),
+    ("regexp2", "gapname2"),
+    ("regexp3", "gapname3"),
+    ("regexp4", "gapname4")
   },
   fn_score: score
 }
