@@ -74,9 +74,6 @@ replacement_task t {
 }
 ```
 
-TODO: Aus den Ersetzungsregeln könnte ein Baum erstellt werden, daraus kann theoretisch eine initiale Menge ausgerechnet
-werden -> erstmal selbst definieren, FALLS ZEIT können wir das noch testen -> Ticket: later
-
 Member:
 
 - `description`: Die textuelle Aufgabenbeschreibung
