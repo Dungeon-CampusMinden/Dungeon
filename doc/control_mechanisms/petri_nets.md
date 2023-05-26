@@ -42,8 +42,8 @@ Hieraus resultieren folgende Designentscheidungen:
 
 1.  Für jede Aufgabe existiert eine Stelle, die (falls markiert) angibt, ob die Aufgabe
     aktuell zur Bearbeitung freigeschaltet ist
-2.  Für jede Aufgabe existiert eine Stelle, die (falls markiert) angibt, ob die Aufgabe
-    abgeschlossen ist
+2.  Für jede Aufgabe existiert eine Ausgangstransition, über die das Dungeon-System
+    abfragen kann, ob eine Aufgabe abgeschlossen ist
 3.  Es muss eine Schnittstelle zum Dungeon / zur DSL vorgesehen werden, über die dem
     Petri-Netz mitgeteilt werden kann, dass eine Aufgabe bearbeitet wurde. Diese Information
     wird nicht vom Petri-Netz selbst abgefragt, sondern vom Dungeon / der DSL an das
