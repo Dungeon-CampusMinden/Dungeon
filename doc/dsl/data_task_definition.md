@@ -136,14 +136,6 @@ Member:
     Menge der Terme das Element `"c"` hinzu
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
 
-TODO:
-- evtl. keine Mengen A und B angeben, sondern direkt Elemente aus Tupel auslesen
-- wie Verwirrungselemente einbauen?
-  - Tupel mit nur einem Element erlauben? (a,_) (_,a) -> ist wahrscheinlich die einfachste Form
-  - leeres Element erfordert dann gesondertes Token
-  - diese Tupel haben dann eine Sonderrolle -> semantische Sonderbehandlung
-  - einfach noch eine Menge zusätzlicher Elemente angeben, die dann einfach noch in Mengen integriert werden?
-
 ## Aufgabentyp “Lücken füllen”
 
 ```
