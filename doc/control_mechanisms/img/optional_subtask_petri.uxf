@@ -32,7 +32,7 @@ fg=black
 </panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>580</x><y>640</y><w>80</w><h>80</h></coordinates><panel_attributes>type=initial
 bg=white
 fg=black
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>360</x><y>660</y><w>240</w><h>60</h></coordinates><panel_attributes>t2 abgeschlossen
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>360</x><y>620</y><w>240</w><h>60</h></coordinates><panel_attributes>t2 abgeschlossen
 style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>960</x><y>400</y><w>80</w><h>80</h></coordinates><panel_attributes>type=initial
 bg=white
 fg=black
@@ -51,7 +51,13 @@ layer=2</panel_attributes><additional_attributes></additional_attributes></eleme
 </panel_attributes><additional_attributes>10;40;20;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1020</x><y>640</y><w>80</w><h>80</h></coordinates><panel_attributes>type=initial
 bg=white
 fg=black
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>1100</x><y>660</y><w>240</w><h>60</h></coordinates><panel_attributes>t1 abgeschlossen
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>1100</x><y>620</y><w>240</w><h>60</h></coordinates><panel_attributes>t1 abgeschlossen
 style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1040</x><y>560</y><w>60</w><h>120</h></coordinates><panel_attributes>lt=&lt;-
 </panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>620</x><y>560</y><w>460</w><h>120</h></coordinates><panel_attributes>lt=&lt;-
-</panel_attributes><additional_attributes>10;40;10;20;210;20;210;10</additional_attributes></element></diagram>
+</panel_attributes><additional_attributes>10;40;10;20;210;20;210;10</additional_attributes></element><element><id>Relation</id><coordinates><x>480</x><y>660</y><w>140</w><h>60</h></coordinates><panel_attributes>lt=-&gt;
+layer=-1</panel_attributes><additional_attributes>50;10;10;10</additional_attributes></element><element><id>UMLSyncBarVertical</id><coordinates><x>480</x><y>660</y><w>40</w><h>40</h></coordinates><panel_attributes>template=txt
+title=titletext
+bg=red</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1080</x><y>660</y><w>140</w><h>60</h></coordinates><panel_attributes>lt=-&gt;
+layer=-1</panel_attributes><additional_attributes>10;10;50;10</additional_attributes></element><element><id>UMLSyncBarVertical</id><coordinates><x>1160</x><y>660</y><w>40</w><h>40</h></coordinates><panel_attributes>template=txt
+title=titletext
+bg=red</panel_attributes><additional_attributes></additional_attributes></element></diagram>
