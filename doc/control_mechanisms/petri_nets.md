@@ -74,7 +74,11 @@ Das erzeugte Petri-Netz für diese Beziehung sieht wie folgt aus:
 ![Erforderliche Teilaufgabe: Petri-Netz](img/mandatory_subtask_petri.png)
 
 Die Transitionen, die von links und rechts in das Petri-Netz übergehen (z.B. “t1
-aktivieren”, “t2 abschließen”), sind die Schnittstellen zum Dungeon / zur DSL.
+aktivieren”, “t2 abschließen”), sind die Schnittstellen zum Dungeon / zur DSL, die dem
+Petri-Netz mitteilen, dass eine Aufgabe aktiviert wurde.
+
+Die Transitionen, die aus dem Petri-Netz herausgehen, sind die Schnittstellen über die der
+Dungeon / die DSL abfragt, ob eine Aufgabe abgeschlossen ist.
 
 Der Zustand einer Aufgabe (z.B. $t_1$) kann aus der Kombination der Stellen “t1 Bearb.
 aktiviert” und “t1 abgeschlossen” hergeleitet werden. In den Transitionen können Aktionen
@@ -104,11 +108,7 @@ Der grün markierte Bereich dient zur Behandlung von $t_2$, der blau markierte B
 zur Behandlung von $t_3$. Weitere Teilaufgaben würden auf der gleichen Ebene mit der
 gleichen Petri-Netz-Struktur hinzugefügt werden. Der rot markierte Bereich dient zur
 Überprüfung, ob beide Teilaufgaben abgeschlossen sind, bevor die Bearbeitung von $t_1$
-freigeschaltet wird. Die Transition in diesem Bereich konsumiert jeweils ein Token von den
-Stellen “t2 abgeschlossen” und “t3 abgeschlossen”, daher werden diese Stellen jeweils mit 2
-Tokens markiert (wie an deren eingehenden Kanten durch “+2” markiert). Somit bleiben diese
-Stellen auch nach dem Schalten der Transition mit jeweils einem Token markiert, sodass der
-Dungeon weiterhin aus dem Petri-Netz ablesen kann, dass die Aufgaben abgeschlossen sind.
+freigeschaltet wird.
 
 ### Optionale Teilaufgabe
 
