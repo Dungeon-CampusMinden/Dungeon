@@ -124,13 +124,11 @@ die mit Entitäten verknüpft wurden (siehe dazu [Funktionsaufrufe](#funktionsau
 
 ## `Value` und `IMemorySpace`
 
-![UML: Value Klasse](img/value_uml.png){width="50%"}
-![UML: IMemorySpace](img/imemoryspace_uml.png){width="50%"}
-![UML: Objektdiagramm Velocity Component AggregateValue](img/aggregate_value_objects.png){width="50%"}
 Die `Value`-Klasse wird verwendet um alle Werte und Objekte zu verwalten, die vom
 `DSLInterpreter` während der Interpretation erzeugt und referenziert werden. Im Folgenden
 Diagram sind die wichtigsten Methoden und Eigenschaften der `Value`-Klasse dargestellt.
 
+![UML: Value Klasse](img/value_uml.png){width="50%"}
 
 Im Wesentlichen stellt ein Value eine Kombination aus einem “Wert”, dem `value` Object, und
 einem Datentyp, dem `type` dar. `isMutable` dient dazu, das Setzen des internen Werts zu
@@ -145,6 +143,7 @@ können, wird das `IMemorySpace`-Interface verwendet. Die Assoziation einer `Val
 in einem `IMemorySpace` mit einem Namen wird als “Binden” (engl.: binding) bezeichnet. Im
 Folgenden sind die wichtigsten Methoden des `IMemorySpace`-Interface abgebildet:
 
+![UML: IMemorySpace](img/imemoryspace_uml.png){width="50%"}
 
 Ein `IMemorySpace` bietet die Möglichkeit, mittels `bindValue()` ein `Value`-Objekt mit
 einem Namen zu assoziieren. Die `resolve()`-Methode wird genutzt, um einen Namen in dem
@@ -155,6 +154,7 @@ Ein `AggregateValue` hat einen `MemorySpace`, indem seine Member gespeichert wer
 beispielsweise der Komponentenprototyp von `velocity_component` aus obigem
 [Beispiel](#interpretation) instanziiert, sieht der erzeugte `AggregateValue` wie folgt aus:
 
+![UML: Objektdiagramm Velocity Component AggregateValue](img/aggregate_value_objects.png){width="50%"}
 
 In der `AggregateValue`-Instanz sind neben den konfigurierten Defaultwerten aus dem
 `Prototype` auch `Value`-Instanzen für alle anderen Member des `AggregateType` enthalten,
@@ -258,11 +258,20 @@ TODO:
 **EncapsulatedObject**
 
 Ab der Instanziierung von `game_object`-Definitionen als `Entity`, sind die eigentlichen
+Werte in der Instanz der Java-Klasse und nicht mehr nur in einem MemorySpace im
+`DSLInterpreter` enthalten. Um die redundante Datenhaltung zu vermeiden, wird mit
+`EncapsulatedObject` eine Abstraktionsschicht um das Java-Objekt gelegt, welche
+`IMemorySpace` implementiert. Das Auflösen von Membern wird über Reflection-Zugriffe
+implementiert. Hierfür muss ein Remapping von den Membernamen des DSL-Typen auf die
+originalen Namen der Java-Klassen Member durchgeführt werden. Ein `EncapsulatedObject` kann
+wie ein `IMemorySpace` in einem `AggregateValue` als Speicher für dessen `Value`-Objekte
+genutzt werden.
+
 TODO:
 - Sequenzdiagram für die Erstellung von `EncapuslatedObject`s
 - Dokumentation, welche Relevanz das in der
-    [Funktionsschnittstelle - Issue #97](https://github.com/Programmiermethoden/Dungeon/issues/97) hat
-    und wie das umgesetzt wird
+  [Funktionsschnittstelle - Issue #97](https://github.com/Programmiermethoden/Dungeon/issues/97) hat
+  und wie das umgesetzt wird
     - Notizen dazu: Das ist insbesondere mit Hinblick auf die Schnittstelle zwischen Dungeon und DSL
       entstanden, da wir irgendwann mal vor der Herausforderung stehen, Event-Handler
       Methoden, die in der DSL definiert sind, vom Dungeon aufzurufen
@@ -276,15 +285,6 @@ TODO:
       Objekt hintersteht -> über den DSL-Typ, den es für das "nackte" Java-Objekt gibt,
       ist bekannt, auf welche Member eines `Encapsulated`-Objekts zugegriffen werden
       kann
-Werte in der Instanz der Java-Klasse und nicht mehr nur in einem MemorySpace im
-`DSLInterpreter` enthalten. Um die redundante Datenhaltung zu vermeiden, wird mit
-`EncapsulatedObject` eine Abstraktionsschicht um das Java-Objekt gelegt, welche
-`IMemorySpace` implementiert. Das Auflösen von Membern wird über Reflection-Zugriffe
-implementiert. Hierfür muss ein Remapping von den Membernamen des DSL-Typen auf die
-originalen Namen der Java-Klassen Member durchgeführt werden. Ein `EncapsulatedObject` kann
-wie ein `IMemorySpace` in einem `AggregateValue` als Speicher für dessen `Value`-Objekte
-genutzt werden.
-
 
 ## Funktionsaufrufe
 
