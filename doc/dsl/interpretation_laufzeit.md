@@ -20,7 +20,7 @@ Zuerst lädt der `DSLInterpreter` die Symbol- und Typinformationen aus der über
 in ein `RuntimeEnvironment`.
 Anschließend wird ein globaler `MemorySpace` erzeugt, welcher das Laufzeit-Äquivalent zu einem `Scope` darstellt.
 In diesem globalen `MemorySpace` werden globale Definitonen von Funktionen und Objekten (bspw. von `quest_config`)
-als `Value` gebunden (für weiter Informationen siehe [Value und MemorySpace](#value-und-imemoryspace--)).
+als `Value` gebunden (für weiter Informationen siehe [Value und MemorySpace](#value-und-imemoryspace)).
 
 ### Interpretation
 
