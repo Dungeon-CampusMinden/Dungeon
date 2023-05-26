@@ -155,14 +155,9 @@ gap_task task {
 Member:
 
 - `description`: Die textuelle Aufgabenbeschreibung
-- `gaps_amount`: Anzahl der Lücken, die gefüllt werden müssen; hierdurch wird intern ein
-  `gaps`-Array erzeugt, welches die Lücken repräsentiert
-- `elements`: Liste der Elemente, welche in die Lücken eingesetzt werden müssen
-- `rules`: Die Definition der Zuordnung, als `graph` notiert
-  - Definition der Element-Mengen: definiert, welche Elemente aus `gaps` und `elements` eine
-    Menge bilden, die einer anderen Menge zugeordnet werden kann; als Knoten im `graph`
-    notiert
-  - Definition der Zuordnung; als Kanten im `graph` notiert
+- `gaps`: Die Definition der Lücken, ähnlich der Definition der Zuordnungen in [Zuordnen](#aufgabentyp-zuordnen),
+  - linke Seite: Regulärer Ausdruck, der zur Überprüfung einer Antwort genutzt wird
+  - rechte Seite: "Name" der Lücke
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
 
 
