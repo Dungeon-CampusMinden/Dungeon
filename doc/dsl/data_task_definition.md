@@ -109,20 +109,17 @@ folgendes Diagram:
 ```
 mapping_task t {
   description: "Bitte ordne Elemente einander zu!"
-  elements_A: [elem1, elem2, elem3],
-  elements_B: [elem4, elem5, elem6],
-  rules: graph {
-    // Definition der Elemente-Mengen
-    n1[elements=[elements_A[0]]
-    n2[elements=[elements_A[1]]
-    n3[elements=[elements_A[2]]
-    n4[elements=[elements_B[0]]
-    n5[elements=[elements_B[2]]
+  mapping: {
+    // Definition Zuordnung - (<term>, <definition>)
+    ("a", "b")
+    ("x", "y")
+    ("z", "y")
 
-    // Definition Zuordnung
-    n1 -> n4
-    n2 -> n4
-    n3 -> n5
+    // Hinzufügen von zusätzlichem Term
+    ("c", _)
+
+    // Hinzufügen von zusätzlicher Definition
+    (_, "w")
   },
   fn_score: score
 }
