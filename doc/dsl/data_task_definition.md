@@ -128,14 +128,6 @@ mapping_task t {
 Member:
 
 - `description`: Die textuelle Aufgabenbeschreibung
-- `elements_A`: Liste der Elemente, die in Menge $A$ (vgl.
-  [Zuordnen](../tasks/readme.md#zuordnen)) enthalten sind
-- `elements_B`: Liste der Elemente, die in Menge $B$ enthalten sind
-- `rules`: Die Definition der Zuordnung, als `graph` notiert
-  - Definition der Element-Mengen: definiert, welche Elemente aus `elements_A` und
-    `elements_B` eine Menge bilden, die einer anderen Menge zugeordnet werden kann; als
-    Knoten im `graph` notiert
-  - Definition der Zuordnung; als Kanten im `graph` notiert
 - `mapping`: Definition der geforderten Zuordnung als Menge von Tupeln aus Termen (links)
   und Definitionen (rechts) (analog zur ILIAS-Terminologie)
   - Aus den Tupeln wird die gesamte Menge der Definitionen und Terme berechnet, falls zusätzliche
