@@ -373,7 +373,9 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param hero entity to check for, normally this is the hero
      */
     private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
-        if (isOnEndTile(hero)) levelManager.loadLevel(LEVELSIZE);
+        if (isOnEndTile(hero)) {
+            levelManager.loadLevel(LEVELSIZE);
+        }
     }
 
     /**
