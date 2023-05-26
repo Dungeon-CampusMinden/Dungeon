@@ -136,6 +136,12 @@ Member:
     `elements_B` eine Menge bilden, die einer anderen Menge zugeordnet werden kann; als
     Knoten im `graph` notiert
   - Definition der Zuordnung; als Kanten im `graph` notiert
+- `mapping`: Definition der geforderten Zuordnung als Menge von Tupeln aus Termen (links)
+  und Definitionen (rechts) (analog zur ILIAS-Terminologie)
+  - Aus den Tupeln wird die gesamte Menge der Definitionen und Terme berechnet, falls zusätzliche
+    Elemente, die an keiner Zuordnung beteiligt sind, hinzugefügt werden sollen, kann die
+    über die Definition eines Tupels mit einer leeren Seite erfolgen: `("c", _)` fügt der
+    Menge der Terme das Element `"c"` hinzu
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
 
 ### Zuordnung: Alternative Notation
