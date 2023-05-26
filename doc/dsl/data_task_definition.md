@@ -111,12 +111,12 @@ mapping_task t {
   description: "Bitte ordne Elemente einander zu!"
   mapping: {
     // Definition Zuordnung - (<term>, <definition>)
-    ("a", "b")
-    ("x", "y")
-    ("z", "y")
+    ("a", "b"),
+    ("x", "y"),
+    ("z", "y"),
 
     // Hinzufügen von zusätzlichem Term
-    ("c", _)
+    ("c", _),
 
     // Hinzufügen von zusätzlicher Definition
     (_, "w")
