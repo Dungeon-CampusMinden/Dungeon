@@ -136,34 +136,6 @@ Member:
     Menge der Terme das Element `"c"` hinzu
 - `fn_score`: Die [Scoring-Funktion](../control_mechanisms/reporting.md#scoring-funktion)
 
-### Zuordnung: Alternative Notation
-
-Als alternative Notation zur Definition der Zuordnung ist folgende Notation vorstellbar:
-
-```
-...
-  rules: graph {
-    // Definition Zuordnung
-    elements_A[0] -> elements_B[0]
-    elements_A[1] -> elements_B[0]
-    elements_A[2] -> elements_B[2]
-
-    // Alternativ: Menge von Tupeln definieren
-
-    ("a", "b")
-    ("x", "y")
-    ("z", "y")
-
-    ("c", _)
-    (_, "w")
-    // falls doch schon mal verwendet: Warning ausgeben
-  },
-...
-```
-
-Dies würde allerdings die Erweiterung der eingebetteten Dot-Syntax erfordern, sodass
-beliebige Ausdrücke als Knoten in Kantendefinitionen verwendet werden können.
-
 TODO:
 - evtl. keine Mengen A und B angeben, sondern direkt Elemente aus Tupel auslesen
 - wie Verwirrungselemente einbauen?
