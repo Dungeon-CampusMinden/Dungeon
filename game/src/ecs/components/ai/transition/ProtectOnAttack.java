@@ -4,6 +4,7 @@ import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PlayableComponent;
 import ecs.entities.Entity;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,7 +26,7 @@ public class ProtectOnAttack implements ITransition {
      *
      * @param entity to protect
      */
-    ProtectOnAttack(Entity entity) {
+    public ProtectOnAttack(Entity entity) {
         if (entity.getComponent(HealthComponent.class).isEmpty()) {
             throw (new MissingComponentException("HealthComponent"));
         }
@@ -40,10 +41,10 @@ public class ProtectOnAttack implements ITransition {
      *
      * @param entities - Entities that are protected
      */
-    ProtectOnAttack(Collection<Entity> entities) {
+    public ProtectOnAttack(Collection<Entity> entities) {
         entities.stream()
-                .peek(e -> e.getComponent(HealthComponent.class).orElseThrow())
-                .forEach(this.toProtect::add);
+            .peek(e -> e.getComponent(HealthComponent.class).orElseThrow())
+            .forEach(this.toProtect::add);
     }
 
     /**
@@ -57,13 +58,13 @@ public class ProtectOnAttack implements ITransition {
         if (isInFight) return true;
 
         isInFight =
-                toProtect.stream()
-                        .map(e -> (HealthComponent) e.getComponent(HealthComponent.class).get())
-                        .anyMatch(
-                                e ->
-                                        e.getLastDamageCause()
-                                                .map(t -> t.getComponent(PlayableComponent.class))
-                                                .isPresent());
+            toProtect.stream()
+                .map(e -> (HealthComponent) e.getComponent(HealthComponent.class).get())
+                .anyMatch(
+                    e ->
+                        e.getLastDamageCause()
+                            .map(t -> t.getComponent(PlayableComponent.class))
+                            .isPresent());
 
         return isInFight;
     }
