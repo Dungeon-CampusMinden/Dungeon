@@ -194,9 +194,9 @@ public class UITools {
      * @param buttonText text which should be shown in the button for closing the TextDialog
      * @param windowText text which should be shown as the name for the TextDialog
      */
-    private static TextDialog createTextDialog(
+    private static Dialog createTextDialog(
             Skin skin, String content, String buttonText, String windowText) {
-        TextDialog textDialog = new TextDialog(skin, content, buttonText, windowText);
+        Dialog textDialog = DialogFactory.createTextDialog(skin, content, buttonText, windowText);
 
         textDialog.setPosition(200, 200);
         textDialog.setWidth(500); // bug with width

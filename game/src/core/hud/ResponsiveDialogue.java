@@ -3,6 +3,7 @@ package core.hud;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Align;
 
@@ -39,7 +40,7 @@ public class ResponsiveDialogue<T extends Actor> extends ScreenController<T> {
             QuizQuestion question,
             String... arrayOfMessages) {
         super(batch);
-        TextDialog dialog = createQuizDialog(skin, question, arrayOfMessages);
+        Dialog dialog = createQuizDialog(skin, question, arrayOfMessages);
         add((T) dialog);
         formatDependingOnGameScreen(dialog, msgColor);
     }
@@ -59,7 +60,7 @@ public class ResponsiveDialogue<T extends Actor> extends ScreenController<T> {
     public ResponsiveDialogue(
             SpriteBatch batch, Skin skin, Color msgColor, String... arrayOfMessages) {
         super(batch);
-        TextDialog dialog = createTextDialog(skin, arrayOfMessages);
+        Dialog dialog = createTextDialog(skin, arrayOfMessages);
         add((T) dialog);
         formatDependingOnGameScreen(dialog, msgColor);
     }
@@ -73,11 +74,10 @@ public class ResponsiveDialogue<T extends Actor> extends ScreenController<T> {
      *     the name of the button, as well as the label heading can be passed. [0] Content displayed
      *     in the label; [1] Button name; [2]label heading
      */
-    private TextDialog createQuizDialog(
-            Skin skin, QuizQuestion question, String... arrayOfMessages) {
+    private Dialog createQuizDialog(Skin skin, QuizQuestion question, String... arrayOfMessages) {
         String[] formatIdentifier = new String[3];
         setupMessagesForIdentifier(formatIdentifier, arrayOfMessages);
-        return new TextDialog(
+        return DialogFactory.createQuizDialog(
                 skin, question, formatIdentifier[0], formatIdentifier[1], formatIdentifier[2]);
     }
 
@@ -89,10 +89,11 @@ public class ResponsiveDialogue<T extends Actor> extends ScreenController<T> {
      *     the name of the button, as well as the label heading can be passed. [0] Content displayed
      *     in the label; [1] Button name; [2]label heading
      */
-    private TextDialog createTextDialog(Skin skin, String... arrayOfMessages) {
+    private Dialog createTextDialog(Skin skin, String... arrayOfMessages) {
         String[] formatIdentifier = new String[3];
         setupMessagesForIdentifier(formatIdentifier, arrayOfMessages);
-        return new TextDialog(skin, formatIdentifier[0], formatIdentifier[1], formatIdentifier[2]);
+        return DialogFactory.createTextDialog(
+                skin, formatIdentifier[0], formatIdentifier[1], formatIdentifier[2]);
     }
 
     /**
@@ -124,7 +125,7 @@ public class ResponsiveDialogue<T extends Actor> extends ScreenController<T> {
      * @param dialog with info field and button to cancel play pause
      * @param msgColor Text colour
      */
-    private void formatDependingOnGameScreen(TextDialog dialog, Color msgColor) {
+    private void formatDependingOnGameScreen(Dialog dialog, Color msgColor) {
         dialog.setColor(msgColor);
         dialog.setWidth(Constants.WINDOW_WIDTH - Constants.DIALOG_DIFFERENCE_MEASURE);
         dialog.setHeight(Constants.WINDOW_HEIGHT - Constants.DIALOG_DIFFERENCE_MEASURE);

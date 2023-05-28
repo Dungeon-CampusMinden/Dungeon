@@ -2,7 +2,6 @@ package core;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
-import static core.utils.Constants.DEFAULT_MESSAGE;
 import static core.utils.logging.LoggerConfig.initBaseLogger;
 
 import com.badlogic.gdx.Gdx;
@@ -19,7 +18,6 @@ import contrib.systems.*;
 import core.components.PositionComponent;
 import core.components.UIComponent;
 import core.configuration.Configuration;
-import core.hud.UITools;
 import core.level.IOnLevelLoader;
 import core.level.Tile;
 import core.level.elements.ILevel;
