@@ -1,11 +1,12 @@
 package core.hud;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
 
 import core.utils.Constants;
-import core.utils.Point;
 
 import quizquestion.QuizQuestion;
 import quizquestion.QuizQuestionContent;
@@ -19,6 +20,17 @@ public class DialogDesign extends Table {
         setFillParent(true);
     }
 
+    public static ScrollPane createScrollPane(Skin skin, Actor labelContent) {
+        ScrollPane scrollPane = new ScrollPane(labelContent, skin);
+        scrollPane.setFadeScrollBars(false);
+        scrollPane.setScrollbarsVisible(true);
+        return scrollPane;
+    }
+
+    public static TextArea createEditableText(Skin skin) {
+        return new TextArea("Click here...", skin);
+    }
+
     /**
      * Constructor that allows text to be placed and does the layout for the text.
      *
@@ -26,7 +38,7 @@ public class DialogDesign extends Table {
      * @param outputMsg Content displayed in the scrollable label
      */
     public void TextDialog(Skin skin, String outputMsg) {
-        add(new Scroller(skin, new NotEditableText(outputMsg, skin)))
+        add(createScrollPane(skin, new Label(outputMsg, skin)))
                 .size(
                         Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
                         Constants.WINDOW_HEIGHT - DIFFERENCE_MEASURE * 2f);
@@ -66,31 +78,25 @@ public class DialogDesign extends Table {
             Skin skin,
             String outputMsg) {
         switch (questionContentType) {
-            case TEXT -> add(new Scroller(skin, new NotEditableText(outputMsg, skin)))
+            case TEXT -> add(createScrollPane(skin, new Label(outputMsg, skin)))
                     .size(
                             Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
                             Constants.WINDOW_HEIGHT / 5f);
-            case IMAGE -> add(new Scroller(
-                            skin,
-                            new ScreenImage(
-                                    Constants.TEST_IMAGE_PATH_FOR_DIALOG, new Point(0, 0), 1.1f)))
+            case IMAGE -> add(createScrollPane(
+                            skin, new Image(new Texture(Constants.TEST_IMAGE_PATH_FOR_DIALOG))))
                     .size(
                             Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
                             Constants.WINDOW_HEIGHT / 5f);
             case TEXT_AND_IMAGE -> {
-                add(new Scroller(skin, new NotEditableText(outputMsg, skin)))
+                add(createScrollPane(skin, new Label(outputMsg, skin)))
                         .size(
                                 Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
                                 Constants.WINDOW_HEIGHT / 5f);
                 row();
                 add(new Label("", skin));
                 row();
-                add(new Scroller(
-                                skin,
-                                new ScreenImage(
-                                        Constants.TEST_IMAGE_PATH_FOR_DIALOG,
-                                        new Point(0, 0),
-                                        1.1f)))
+                add(createScrollPane(
+                                skin, new Image(new Texture(Constants.TEST_IMAGE_PATH_FOR_DIALOG))))
                         .size(
                                 Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
                                 Constants.WINDOW_HEIGHT / 5f);
@@ -110,7 +116,12 @@ public class DialogDesign extends Table {
         switch (quizQuestion.type()) {
             case FREETEXT -> {
                 Table scrollTable = new Table();
-                scrollTable.add(new EditableText(skin)).minHeight(800).expandX().fillX().colspan(1);
+                scrollTable
+                        .add(createEditableText(skin))
+                        .minHeight(800)
+                        .expandX()
+                        .fillX()
+                        .colspan(1);
                 ScrollPane scroller = new ScrollPane(scrollTable, skin);
                 scroller.setFadeScrollBars(false);
                 scroller.setScrollbarsVisible(true);
@@ -121,7 +132,7 @@ public class DialogDesign extends Table {
             }
             case MULTIPLE_CHOICE, SINGLE_CHOICE -> {
                 ButtonGroup btnGrp = new ButtonGroup(skin, quizQuestion);
-                add(new Scroller(skin, btnGrp))
+                add(createScrollPane(skin, btnGrp))
                         .align(Align.left)
                         .size(
                                 Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
