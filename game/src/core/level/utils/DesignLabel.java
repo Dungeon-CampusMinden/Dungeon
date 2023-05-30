@@ -9,7 +9,7 @@ import java.util.Random;
  * @author Andre Matutat
  */
 public enum DesignLabel {
-   DEFAULT,
+    DEFAULT,
     FIRE,
     FOREST,
     ICE,
