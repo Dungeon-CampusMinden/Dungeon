@@ -18,18 +18,23 @@ die Interpretation. Der Interpretation ist die Phase der semantischen Analyse vo
 welche sämtliche semantischen Informationen (Typinformationen, Scopes, Symboltabellen, etc.)
 in einer `IEnvironment`-Instanz sammelt.
 
-**NOTE**: Die hier abgebildete Pipeline (insbesondere die "Interpretation"-Phase) stellt noch
-nicht dar, wie Funktionsaufrufe (z.B. als Handler für Events aus der Dungeon-Laufzeit) und
-Laufzeit-Petri-Netze behandelt werden.
+**NOTE**: Die hier abgebildete Pipeline (insbesondere die “Interpretation”-Phase) stellt
+noch nicht dar, wie Funktionsaufrufe (z.B. als Handler für Events aus der Dungeon-Laufzeit)
+und Laufzeit-Petri-Netze behandelt werden.
 
 ### Laufzeitinitialisierung
 
 Zuerst lädt der `DSLInterpreter` die Symbol- und Typinformationen aus der übergebenen
 `IEnvironment`-Instanz in ein `RuntimeEnvironment`. Anschließend wird ein globaler
-`MemorySpace` erzeugt, welcher das **Laufzeit-Äquivalent** zu einem `Scope` darstellt. In diesem
-globalen `MemorySpace` werden globale Definitionen von Funktionen und Objekten (bspw. von
-`quest_config`) als `Value` gebunden (für weiter Informationen siehe [Value und
+`MemorySpace` erzeugt, welcher das **Laufzeit-Äquivalent** zu einem `Scope` darstellt. In
+diesem globalen `MemorySpace` werden globale Definitionen von Funktionen und Objekten (bspw.
+von `quest_config`) als `Value` gebunden (für weiter Informationen siehe [Value und
 MemorySpace](#value-und-imemoryspace)).
+
+`IEnvironment` bildet statische semantische Informationen ab (z.B. “welche Member hat ein
+Datentyp”), während ein `RuntimeEnvironment` dafür zuständig ist, konkreten Instanzen von
+Datentypen und die Werte, welche in den Membern enthalten sind, zu speichern. Diese
+Informationen ändern sich dynamisch während der Programmlaufzeit.
 
 ### Interpretation
 
