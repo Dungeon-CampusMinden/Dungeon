@@ -134,6 +134,14 @@ Entscheidend ist, dass es die Fertigstellung von $t_2$ keine Auswirkung auf den 
 $t_1$ hat. Andersherum beendet die Fertigstellung von $t_1$ auch $t_2$, sodass anschließend
 keine Antwort mehr für $t_2$ abgegeben werden kann.
 
+Beim Abschließen einer optionalen Teilaufgabe werden zwei Fälle unterschieden:
+
+1.  Die Aufgabe $t_2$ wurde durch die aktive Bearbeitung durch die Studierenden
+    abgeschlossen (markiert durch den grünen Kasten)
+2.  Die Aufgabe $t_2$ wurde nicht durch dir aktive Bearbeitung durch die Studierenden
+    abgeschlossen, sondern durch das Abschließen von $t_1$ (markiert durch den blauen
+    Kasten)
+
 ### Aufgabensequenz
 
 ![Sequenz: Graph](img/sequence.png)
