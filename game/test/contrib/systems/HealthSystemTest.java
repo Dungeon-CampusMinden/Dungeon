@@ -15,9 +15,8 @@ import core.components.DrawComponent;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
-import java.util.function.Consumer;
 import java.io.IOException;
+import java.util.function.Consumer;
 
 public class HealthSystemTest {
     private static final String ANIMATION_PATH = "character/knight";

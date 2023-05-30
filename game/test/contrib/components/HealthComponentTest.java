@@ -97,7 +97,7 @@ public class HealthComponentTest {
         Game.removeAllEntities();
         Entity entity = new Entity();
         Consumer<Entity> onDeathFunction = Mockito.mock(Consumer.class);
-        HealthComponent hc = new HealthComponent(entity, 10, onDeathFunction, null, null);
+        HealthComponent hc = new HealthComponent(entity, 10, onDeathFunction);
         hc.triggerOnDeath();
         Mockito.verify(onDeathFunction, times(1)).accept(entity);
     }

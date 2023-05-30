@@ -55,10 +55,7 @@ public class HealthComponent extends Component {
      *     that
      * @param onDeath Function that gets called, when this entity dies
      */
-    public HealthComponent(
-            Entity entity,
-            int maximalHitPoints,
-            Consumer<Entity> onDeath,) {
+    public HealthComponent(Entity entity, int maximalHitPoints, Consumer<Entity> onDeath) {
         super(entity);
         this.maximalHealthpoints = maximalHitPoints;
         this.currentHealthpoints = maximalHitPoints;
