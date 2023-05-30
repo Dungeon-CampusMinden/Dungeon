@@ -14,14 +14,16 @@ werden, sind im folgenden Diagram dargestellt:
 ![UML: Interpretatiospipeline](img/interpretation_pipeline.png){width="50%"}
 
 Die Interpretations-Pipeline ist in zwei Phasen aufgeteilt, die Laufzeitinitialisierung und
-die Interpretation.
+die Interpretation. Der Interpretation ist die Phase der semantischen Analyse vorgelagert,
+welche sämtliche semantischen Informationen (Typinformationen, Scopes, Symboltabellen, etc.)
+in einer `IEnvironment`-Instanz sammelt.
 
 ### Laufzeitinitialisierung
 
 Zuerst lädt der `DSLInterpreter` die Symbol- und Typinformationen aus der übergebenen
 `IEnvironment`-Instanz in ein `RuntimeEnvironment`. Anschließend wird ein globaler
-`MemorySpace` erzeugt, welcher das Laufzeit-Äquivalent zu einem `Scope` darstellt. In diesem
-globalen `MemorySpace` werden globale Definitonen von Funktionen und Objekten (bspw. von
+`MemorySpace` erzeugt, welcher das **Laufzeit-Äquivalent** zu einem `Scope` darstellt. In diesem
+globalen `MemorySpace` werden globale Definitionen von Funktionen und Objekten (bspw. von
 `quest_config`) als `Value` gebunden (für weiter Informationen siehe [Value und
 MemorySpace](#value-und-imemoryspace)).
 
