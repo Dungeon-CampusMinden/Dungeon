@@ -1,7 +1,5 @@
 package quizquestion;
 
-import core.utils.Constants;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -109,8 +107,7 @@ public class DummyQuizQuestionList {
                     add(
                             new QuizQuestion(
                                     new QuizQuestionContent(
-                                            QuizQuestionContent.QuizQuestionContentType.IMAGE,
-                                            Constants.EMPTY_MESSAGE),
+                                            QuizQuestionContent.QuizQuestionContentType.IMAGE, ""),
                                     new QuizQuestionContent[] {},
                                     QuizQuestion.QuizQuestionType.FREETEXT));
                     // Testfrage mit Bild als Fragestellung und einer Antwort als SINGLE_CHOICE

@@ -18,6 +18,7 @@ import contrib.systems.*;
 import core.components.PositionComponent;
 import core.components.UIComponent;
 import core.configuration.Configuration;
+import core.hud.UITools;
 import core.level.IOnLevelLoader;
 import core.level.Tile;
 import core.level.elements.ILevel;
@@ -295,7 +296,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             // Dialogue for quiz questions (display of quiz questions and the answer area in test
             // mode)
-            DummyQuizQuestionList.getRandomQuestion().askQuizQuestionWithUI();
+            UITools.showQuizDialog(DummyQuizQuestionList.getRandomQuestion());
         }
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_KEY.get())) {
             debugger.toggleRun();

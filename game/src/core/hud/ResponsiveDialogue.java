@@ -10,40 +10,13 @@ import com.badlogic.gdx.utils.Align;
 import core.utils.Constants;
 import core.utils.controller.ScreenController;
 
-import quizquestion.QuizQuestion;
-
 /**
  * Creates a dialogue object, formats and passes the dialogue to the `ScreenController` so that the
  * dialogue can be displayed on the screen. For better structuring and separation of the different
  * dialogue contents
  */
+@Deprecated
 public class ResponsiveDialogue<T extends Actor> extends ScreenController<T> {
-
-    /**
-     * Creates a new ResponsiveDialogue (for questions and answers), exclusively for the handling of
-     * quiz questions,with a new Spritebatch. Differentiation from the previous constructor in that
-     * the parameter "batch" appears. batch required to be able to display the dialogue on the
-     * screen.
-     *
-     * @param batch to display the textures
-     * @param skin Resources that can be used by UI widgets
-     * @param msgColor colour of the text
-     * @param question Various question configurations
-     * @param arrayOfMessages Content 'msg'(message), which is to be output on the screen, optional
-     *     the name of the button, as well as the label heading can be passed. [0] Content displayed
-     *     in the label; [1] Button name; [2]label heading
-     */
-    public ResponsiveDialogue(
-            SpriteBatch batch,
-            Skin skin,
-            Color msgColor,
-            QuizQuestion question,
-            String... arrayOfMessages) {
-        super(batch);
-        Dialog dialog = createQuizDialog(skin, question, arrayOfMessages);
-        add((T) dialog);
-        formatDependingOnGameScreen(dialog, msgColor);
-    }
 
     /**
      * Creates a new ResponsiveDialogue (for text information),with a new Spritebatch.
@@ -61,24 +34,8 @@ public class ResponsiveDialogue<T extends Actor> extends ScreenController<T> {
             SpriteBatch batch, Skin skin, Color msgColor, String... arrayOfMessages) {
         super(batch);
         Dialog dialog = createTextDialog(skin, arrayOfMessages);
-        add((T) dialog);
+        // add(dialog);
         formatDependingOnGameScreen(dialog, msgColor);
-    }
-
-    /**
-     * created dialogue for displaying the quiz questions
-     *
-     * @param skin Resources that can be used by UI widgets
-     * @param question Various question configurations
-     * @param arrayOfMessages Content 'msg'(message), which is to be output on the screen, optional
-     *     the name of the button, as well as the label heading can be passed. [0] Content displayed
-     *     in the label; [1] Button name; [2]label heading
-     */
-    private Dialog createQuizDialog(Skin skin, QuizQuestion question, String... arrayOfMessages) {
-        String[] formatIdentifier = new String[3];
-        setupMessagesForIdentifier(formatIdentifier, arrayOfMessages);
-        return DialogFactory.createQuizDialog(
-                skin, question, formatIdentifier[0], formatIdentifier[1], formatIdentifier[2]);
     }
 
     /**

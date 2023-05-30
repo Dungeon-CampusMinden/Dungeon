@@ -30,7 +30,7 @@ public final class TextDialog extends Dialog {
     @Override
     protected void result(final Object object) {
         if (object.toString().equals(BUTTON_ID)) {
-            UITools.deleteDialogue(this);
+            // do nothing ...
         }
     }
 }

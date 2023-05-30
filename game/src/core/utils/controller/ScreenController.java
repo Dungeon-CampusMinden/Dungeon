@@ -14,6 +14,7 @@ import core.utils.Constants;
  *
  * @param <T> A libGDX <code>Actor</code> that has also the removable property.
  */
+@Deprecated
 public class ScreenController<T extends Actor> extends AbstractController<T> {
     protected Stage stage;
 

@@ -11,6 +11,8 @@ import core.utils.Constants;
 import quizquestion.QuizQuestion;
 import quizquestion.QuizQuestionContent;
 
+import java.util.Arrays;
+
 /** creates layout ot a dialog */
 public class DialogDesign extends Table {
     private static final int DIFFERENCE_MEASURE = 150;
@@ -131,7 +133,8 @@ public class DialogDesign extends Table {
                                 Constants.WINDOW_HEIGHT / 7f);
             }
             case MULTIPLE_CHOICE, SINGLE_CHOICE -> {
-                ButtonGroup btnGrp = new ButtonGroup(skin, quizQuestion);
+                VerticalGroup btnGrp = createAnswerButtons(skin, quizQuestion);
+
                 add(createScrollPane(skin, btnGrp))
                         .align(Align.left)
                         .size(
@@ -140,5 +143,46 @@ public class DialogDesign extends Table {
             }
             default -> {}
         }
+    }
+
+    /**
+     * Constructor Fills the vertical button group with text boxes and text contents for it
+     *
+     * @param skin Skin for the dialogue (resources that can be used by UI widgets)
+     * @param quizQuestion Various question configurations
+     */
+    public static VerticalGroup createAnswerButtons(Skin skin, QuizQuestion quizQuestion) {
+        VerticalGroup answerButtons = new VerticalGroup();
+
+        ButtonGroup<CheckBox> btnGroup = new ButtonGroup<>();
+
+        Arrays.stream(quizQuestion.answers())
+                .filter(
+                        answer ->
+                                answer.type() != QuizQuestionContent.QuizQuestionContentType.IMAGE)
+                .map(
+                        answer ->
+                                new CheckBox(
+                                        QuizQuestionFormatted.formatStringForDialogWindow(
+                                                answer.content()),
+                                        skin))
+                .forEach(
+                        checkBox -> {
+                            btnGroup.add(checkBox);
+                            answerButtons.addActor(checkBox);
+                        });
+
+        btnGroup.uncheckAll();
+        btnGroup.setMinCheckCount(0);
+
+        switch (quizQuestion.type()) {
+            case MULTIPLE_CHOICE -> btnGroup.setMaxCheckCount(quizQuestion.answers().length);
+            case SINGLE_CHOICE -> btnGroup.setMaxCheckCount(1);
+        }
+
+        answerButtons.align(Align.left);
+        answerButtons.left();
+
+        return answerButtons;
     }
 }
