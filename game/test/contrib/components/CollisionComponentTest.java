@@ -2,7 +2,7 @@ package contrib.components;
 
 import static org.junit.Assert.*;
 
-import contrib.utils.components.TriConsumer;
+import core.utils.TriConsumer;
 
 import core.Entity;
 import core.components.PositionComponent;
@@ -89,7 +89,7 @@ public class CollisionComponentTest {
         CollideComponent hb1 = new CollideComponent(e1, (a, b, c) -> counterE1Enter.inc(), null);
         Entity e2 = new Entity();
         CollideComponent hb2 = new CollideComponent(e2, null, null);
-        hb1.setiCollideEnter(null);
+        hb1.setCollideEnter(null);
         hb1.onEnter(hb2, Tile.Direction.N);
         assertEquals(
                 "Die alte Collide darf nicht mehr aufgerufen werden ",
@@ -105,7 +105,7 @@ public class CollisionComponentTest {
         CollideComponent hb1 = new CollideComponent(e1, (a, b, c) -> counterE1Enter.inc(), null);
         Entity e2 = new Entity();
         CollideComponent hb2 = new CollideComponent(e2, null, null);
-        hb1.setiCollideEnter((a, b, c) -> newCounterE1Enter.inc());
+        hb1.setCollideEnter((a, b, c) -> newCounterE1Enter.inc());
         hb1.onEnter(hb2, Tile.Direction.N);
         assertEquals(
                 "Die alte Collide darf nicht mehr aufgerufen werden ",
@@ -121,7 +121,7 @@ public class CollisionComponentTest {
         CollideComponent hb1 = new CollideComponent(e1, null, (a, b, c) -> counterE1Enter.inc());
         Entity e2 = new Entity();
         CollideComponent hb2 = new CollideComponent(e2, null, null);
-        hb1.setiCollideLeave(null);
+        hb1.setCollideLeave(null);
         hb1.onLeave(hb2, Tile.Direction.N);
         assertEquals(
                 "Die alte Collide darf nicht mehr aufgerufen werden ",
@@ -137,7 +137,7 @@ public class CollisionComponentTest {
         CollideComponent hb1 = new CollideComponent(e1, null, (a, b, c) -> counterE1Leave.inc());
         Entity e2 = new Entity();
         CollideComponent hb2 = new CollideComponent(e2, null, null);
-        hb1.setiCollideLeave((a, b, c) -> newCounterE1Leave.inc());
+        hb1.setCollideLeave((a, b, c) -> newCounterE1Leave.inc());
         hb1.onLeave(hb2, Tile.Direction.N);
         assertEquals(
                 "Die alte Collide darf nicht mehr aufgerufen werden ",

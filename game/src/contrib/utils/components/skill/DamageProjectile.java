@@ -3,7 +3,7 @@ package contrib.utils.components.skill;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
-import contrib.utils.components.TriConsumer;
+import core.utils.TriConsumer;
 import contrib.utils.components.health.Damage;
 
 import core.Entity;

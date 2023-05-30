@@ -1,4 +1,4 @@
-package contrib.utils.components;
+package core.utils;
 
 @FunctionalInterface
 public interface TriConsumer<T, U, R> {

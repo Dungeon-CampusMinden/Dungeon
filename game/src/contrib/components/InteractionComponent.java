@@ -13,7 +13,7 @@ public class InteractionComponent extends Component {
     private Consumer<Entity> onInteraction;
 
     /**
-     * complex ctor which allows the attribuhtes to be configured
+     * complex ctor which allows the attributes to be configured
      *
      * @param entity the entity to link to
      * @param radius the radius in which an interaction can happen

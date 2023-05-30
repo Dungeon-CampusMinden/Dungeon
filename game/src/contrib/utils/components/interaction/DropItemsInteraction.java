@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 /**
- * This class is a specific implementation of the {@link IInteraction} interface to use in the
+ * This class is a specific implementation of the {@link Consumer<Entity>} interface to use in the
  * {@link InteractionComponent}.
  *
  * <p>The implementation will drop all the items inside the {@link InventoryComponent} of the

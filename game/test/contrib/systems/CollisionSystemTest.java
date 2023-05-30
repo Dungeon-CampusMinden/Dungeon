@@ -3,7 +3,7 @@ package contrib.systems;
 import static org.junit.Assert.*;
 
 import contrib.components.CollideComponent;
-import contrib.utils.components.TriConsumer;
+import core.utils.TriConsumer;
 
 import core.Entity;
 import core.Game;

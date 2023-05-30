@@ -35,11 +35,11 @@ import java.util.logging.Logger;
  *
  * <p>The HealthComponent also provides the ability to set an onDeath function, which is called when
  * the health points reach 0 or less. The onDeath function can be set via the {@link
- * #setOnDeath(IOnDeathFunction) setOnDeath} method.
+ * #setOnDeath(Consumer<Entity>) setOnDeath} method.
  *
  * <p>Finally, the HealthComponent provides the ability to set animations for the entity to be
  * played when it is hit or dies. These animations can be set via the {@link
- * #setGetHitAnimation(Animation) setGetHitAnimation} and {@link #setDieAnimation(Animation)
+ * #setGetHitAnimation(Animation) setGetHitAnimation} and {@link #setDeathAnimation(Animation)
  * setDieAnimation} methods and are played by the {@link DrawSystem DrawSystem} automatically.
  */
 @DSLType(name = "health_component")

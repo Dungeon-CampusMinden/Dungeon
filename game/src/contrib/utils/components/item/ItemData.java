@@ -4,7 +4,7 @@ import contrib.components.CollideComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
 import contrib.configuration.ItemConfig;
-import contrib.utils.components.TriConsumer;
+import core.utils.TriConsumer;
 import contrib.utils.components.stats.DamageModifier;
 
 import core.Entity;
@@ -25,9 +25,7 @@ import java.util.function.BiConsumer;
  * a {@link #description}.
  *
  * <p>It holds the method references for collecting ({@link #onCollect}), dropping ({@link #onDrop})
- * and using ({@link #onUse}) items as functional Interfaces. These can be either set at
- * construction or afterward with {@link #setOnCollect(IOnCollect)}, {@link #setOnDrop(IOnDrop)} and
- * {@link #setOnUse(IOnUse)}.
+ * and using ({@link #onUse}) items as functional Interfaces.
  *
  * <p>Lastly it holds a {@link #damageModifier}
  */
@@ -210,7 +208,7 @@ public class ItemData {
         new PositionComponent(droppedItem, position);
         new DrawComponent(droppedItem, which.getWorldTexture());
         CollideComponent component = new CollideComponent(droppedItem);
-        component.setiCollideEnter((a, b, direction) -> which.triggerCollect(a, b));
+        component.setCollideEnter((a, b, direction) -> which.triggerCollect(a, b));
     }
 
     /**
