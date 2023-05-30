@@ -18,9 +18,16 @@ die Interpretation. Der Interpretation ist die Phase der semantischen Analyse vo
 welche sämtliche semantischen Informationen (Typinformationen, Scopes, Symboltabellen, etc.)
 in einer `IEnvironment`-Instanz sammelt.
 
-**NOTE**: Die hier abgebildete Pipeline (insbesondere die “Interpretation”-Phase) stellt
-noch nicht dar, wie Funktionsaufrufe (z.B. als Handler für Events aus der Dungeon-Laufzeit)
-und Laufzeit-Petri-Netze behandelt werden.
+**NOTE**: Die Evaluierung der `quest_config`-Definition ist die **einzige** Art der
+Interpretation, die der `DSLInterperter` standardmäßig durchführt. Es ist aktuell kein
+**eigenständiger** DSL-Loop oder ähnliches vorgesehen, der parallel bzw. mit dem Gameloop
+des Dungeons mitläuft und kontinuierlich Teile des DSL-Programms ausführt. Die weitere
+Tätigkeit des `DSLInterpreter`s beschränkt sich auf die Interpretation der Event-Handler
+DSL-Funktionen, die mit Entitäten verknüpft wurden (siehe dazu
+[Funktionsaufrufe](#funktionsaufrufe)). Wie sich dies mit Laufzeit-Petri-Netzen ändert, ist
+noch nicht abschließend geklärt. Die hier abgebildete Pipeline (insbesondere die
+“Interpretation”-Phase) stellt noch nicht dar, wie Funktionsaufrufe (z.B. als Handler für
+Events aus der Dungeon-Laufzeit) und Laufzeit-Petri-Netze behandelt werden.
 
 ### Laufzeitinitialisierung
 
