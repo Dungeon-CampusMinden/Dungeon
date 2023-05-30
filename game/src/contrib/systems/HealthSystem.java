@@ -3,6 +3,7 @@ package contrib.systems;
 import contrib.components.HealthComponent;
 import contrib.components.StatsComponent;
 import contrib.components.XPComponent;
+import contrib.utils.components.draw.AdditionalAnimations;
 import contrib.utils.components.health.DamageType;
 
 import core.Entity;
@@ -34,10 +35,13 @@ public class HealthSystem extends System {
                 .filter(hsd -> hsd.hc.isDead())
                 .filter(
                         hsd -> {
-                            if (hsd.hc.getDeathAnimation() == null
-                                    || hsd.hc.getDeathAnimation().isLooping()) return true;
-                            if (!hsd.ac.getCurrentAnimation().equals(hsd.hc.getDeathAnimation())) {
-                                hsd.ac.setCurrentAnimation(hsd.hc.getDeathAnimation());
+                            if (!hsd.ac.hasAnimation(AdditionalAnimations.DIE)
+                                    || hsd.ac
+                                            .getAnimation(AdditionalAnimations.DIE)
+                                            .get()
+                                            .isLooping()) return true;
+                            if (!hsd.ac.isCurrentAnimation(AdditionalAnimations.DIE)) {
+                                hsd.ac.setCurrentAnimation(AdditionalAnimations.DIE);
                             }
                             return hsd.ac.getCurrentAnimation().isFinished();
                         })
@@ -89,7 +93,7 @@ public class HealthSystem extends System {
     private void doDamageAndAnimation(HSData hsd, int dmgAmount) {
         if (dmgAmount > 0) {
             // we have some damage - let's show a little dance
-            hsd.ac.setCurrentAnimation(hsd.hc.getGetHitAnimation());
+            hsd.ac.setCurrentAnimation(AdditionalAnimations.HIT);
         }
         // reset all damage objects in health component and apply damage
         hsd.hc.clearDamage();
@@ -99,7 +103,7 @@ public class HealthSystem extends System {
     private void removeDeadEntities(HSData hsd) {
         // Entity appears to be dead, so let's clean up the mess
         hsd.hc.triggerOnDeath();
-        hsd.ac.setCurrentAnimation(hsd.hc.getDeathAnimation());
+        hsd.ac.setCurrentAnimation(AdditionalAnimations.DIE);
         Game.removeEntity(hsd.hc.getEntity());
 
         // Add XP

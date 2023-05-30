@@ -1,0 +1,37 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>14</zoom_level><element><id>Text</id><coordinates><x>154</x><y>294</y><w>434</w><h>448</h></coordinates><panel_attributes>replacement_task t {
+  description: "Bitte führe Ersetzungen durch!"
+  initial_element_set: ["elem1", "elem1", "elem3"]
+  elements: {
+    n1: ("elem1", "elem2),
+    n2: {"elem1", "elem3"},
+    n3: {"elem3"},
+  },
+  rules: {
+    r1: n1 -&gt; n3,
+    r2: n2 -&gt; n3
+  },
+  answer_sequence: [rules.r3],
+  answer_configuration: ["elem4"],
+  fn_score: score
+}
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>826</x><y>490</y><w>224</w><h>70</h></coordinates><panel_attributes>**_elem1: AnswerElement_**
+--
+value = "elem1"</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>574</x><y>490</y><w>224</w><h>70</h></coordinates><panel_attributes>**_elem2: AnswerElement_**
+--
+value = "elem2"</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1078</x><y>490</y><w>224</w><h>70</h></coordinates><panel_attributes>**_elem3: AnswerElement_**
+--
+value = "elem3"</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>742</x><y>308</y><w>140</w><h>70</h></coordinates><panel_attributes>**_n1: ElementSet_**
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>994</x><y>308</y><w>140</w><h>70</h></coordinates><panel_attributes>**_n2: ElementSet_**
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1162</x><y>308</y><w>140</w><h>70</h></coordinates><panel_attributes>**_n3: ElementSet_**
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>798</x><y>364</y><w>126</w><h>154</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;50;70;50;70;90</additional_attributes></element><element><id>Relation</id><coordinates><x>1050</x><y>364</y><w>126</w><h>154</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;50;70;50;70;90</additional_attributes></element><element><id>Relation</id><coordinates><x>1218</x><y>364</y><w>42</w><h>154</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;90</additional_attributes></element><element><id>Relation</id><coordinates><x>714</x><y>364</y><w>126</w><h>154</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>70;10;70;50;10;50;10;90</additional_attributes></element><element><id>Relation</id><coordinates><x>966</x><y>364</y><w>126</w><h>154</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>70;10;70;50;10;50;10;90</additional_attributes></element><element><id>Relation</id><coordinates><x>840</x><y>546</y><w>126</w><h>112</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>70;10;70;30;10;30;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>784</x><y>630</y><w>140</w><h>70</h></coordinates><panel_attributes>**_e1: Entity_**
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>952</x><y>630</y><w>140</w><h>70</h></coordinates><panel_attributes>**_e2: Entity_**
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1120</x><y>630</y><w>140</w><h>70</h></coordinates><panel_attributes>**_e3: Entity_**
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>924</x><y>546</y><w>126</w><h>112</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>10;10;10;30;70;30;70;60</additional_attributes></element><element><id>Relation</id><coordinates><x>1176</x><y>546</y><w>42</w><h>112</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>574</x><y>602</y><w>728</w><h>126</h></coordinates><panel_attributes>lt=.
+layer=-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>574</x><y>602</y><w>168</w><h>42</h></coordinates><panel_attributes>Initial element set
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element></diagram>

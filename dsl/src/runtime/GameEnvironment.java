@@ -4,11 +4,9 @@ import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 
 import core.Entity;
-import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
-import dslToGame.AnimationBuilder;
 import dslToGame.QuestConfig;
 
 import runtime.nativefunctions.NativePrint;
@@ -53,7 +51,9 @@ public class GameEnvironment implements IEvironment {
     }
 
     protected static void registerDefaultTypeAdapters() {
-        typeBuilder.registerTypeAdapter(AnimationBuilder.class, Scope.NULL);
+        /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
+         * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
+        // typeBuilder.registerTypeAdapter(AnimationBuilder.class, Scope.NULL);
     }
 
     protected void bindBuiltIns() {
@@ -138,8 +138,10 @@ public class GameEnvironment implements IEvironment {
         var entityComponentType = typeBuilder.createTypeFromClass(Scope.NULL, Entity.class);
         var positionComponentType =
                 typeBuilder.createTypeFromClass(Scope.NULL, PositionComponent.class);
-        var animationComponentType =
-                typeBuilder.createTypeFromClass(Scope.NULL, DrawComponent.class);
+        /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
+         * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
+        // var animationComponentType =
+        //      typeBuilder.createTypeFromClass(Scope.NULL, DrawComponent.class);
         var velocityComponentType =
                 typeBuilder.createTypeFromClass(Scope.NULL, VelocityComponent.class);
         var aiComponentType = typeBuilder.createTypeFromClass(Scope.NULL, AIComponent.class);
@@ -148,7 +150,9 @@ public class GameEnvironment implements IEvironment {
         types.add(questConfigType);
         types.add(entityComponentType);
         types.add(positionComponentType);
-        types.add(animationComponentType);
+        /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
+         * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
+        // types.add(animationComponentType);
         types.add(velocityComponentType);
         types.add(aiComponentType);
         types.add(hitboxComponentType);
