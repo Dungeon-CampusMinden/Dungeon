@@ -18,6 +18,10 @@ die Interpretation. Der Interpretation ist die Phase der semantischen Analyse vo
 welche sämtliche semantischen Informationen (Typinformationen, Scopes, Symboltabellen, etc.)
 in einer `IEnvironment`-Instanz sammelt.
 
+**NOTE**: Die hier abgebildete Pipeline (insbesondere die "Interpretation"-Phase) stellt noch
+nicht dar, wie Funktionsaufrufe (z.B. als Handler für Events aus der Dungeon-Laufzeit) und
+Laufzeit-Petri-Netze behandelt werden.
+
 ### Laufzeitinitialisierung
 
 Zuerst lädt der `DSLInterpreter` die Symbol- und Typinformationen aus der übergebenen
