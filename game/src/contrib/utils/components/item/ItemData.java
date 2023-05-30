@@ -4,7 +4,6 @@ import contrib.components.CollideComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
 import contrib.configuration.ItemConfig;
-import core.utils.TriConsumer;
 import contrib.utils.components.stats.DamageModifier;
 
 import core.Entity;
@@ -12,6 +11,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
+import core.utils.TriConsumer;
 import core.utils.components.draw.Animation;
 
 import java.util.List;

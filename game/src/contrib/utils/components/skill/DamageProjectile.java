@@ -3,7 +3,6 @@ package contrib.utils.components.skill;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
-import core.utils.TriConsumer;
 import contrib.utils.components.health.Damage;
 
 import core.Entity;
@@ -11,6 +10,7 @@ import core.Game;
 import core.components.*;
 import core.level.Tile;
 import core.utils.Point;
+import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 

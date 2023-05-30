@@ -2,12 +2,11 @@ package contrib.components;
 
 import static org.junit.Assert.*;
 
-import core.utils.TriConsumer;
-
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.utils.Point;
+import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 
 import org.junit.Test;

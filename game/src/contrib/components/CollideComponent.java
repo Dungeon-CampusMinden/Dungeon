@@ -1,12 +1,11 @@
 package contrib.components;
 
-import core.utils.TriConsumer;
-
 import core.Component;
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.utils.Point;
+import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
 
