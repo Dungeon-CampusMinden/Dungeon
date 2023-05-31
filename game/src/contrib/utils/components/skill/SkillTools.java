@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
-import core.Game;
+import core.systems.CameraSystem;
 import core.utils.Point;
 
 /** SkillTools is a collection of helper methods used for skills. */
@@ -68,7 +68,7 @@ public class SkillTools {
      */
     public static Point getCursorPositionAsPoint() {
         Vector3 mousePosition =
-                Game.camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+                CameraSystem.CAMERA.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
         return new Point(mousePosition.x, mousePosition.y);
     }
 }

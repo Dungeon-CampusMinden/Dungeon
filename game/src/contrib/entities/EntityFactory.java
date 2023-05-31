@@ -43,6 +43,7 @@ public class EntityFactory {
         final float ySpeed = 0.3f;
 
         Entity hero = new Entity("hero");
+        new CameraComponent(hero);
         new PositionComponent(hero);
         new VelocityComponent(hero, xSpeed, ySpeed);
         new DrawComponent(hero, "character/knight");

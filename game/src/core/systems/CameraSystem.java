@@ -23,7 +23,7 @@ public class CameraSystem extends System {
 
     @Override
     public void execute() {
-        if (getEntityStream().count() == 0) focus();
+        if (getEntityStream().findAny().isEmpty()) focus();
         else getEntityStream().forEach(this::focus);
         CAMERA.update();
     }
@@ -42,7 +42,7 @@ public class CameraSystem extends System {
     }
 
     private void focus(Point point) {
-        CAMERA.position.set(point.x, point.x, 0);
+        CAMERA.position.set(point.x, point.y, 0);
     }
 
     /**

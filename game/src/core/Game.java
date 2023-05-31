@@ -25,13 +25,12 @@ import core.level.generator.IGenerator;
 import core.level.generator.postGeneration.WallGenerator;
 import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.level.utils.LevelSize;
+import core.systems.CameraSystem;
 import core.systems.DrawSystem;
 import core.systems.PlayerSystem;
 import core.systems.VelocitySystem;
 import core.utils.Constants;
 import core.utils.DelayedSet;
-import core.utils.DungeonCamera;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 import core.utils.controller.AbstractController;
@@ -57,7 +56,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     /** Currently used level-size configuration for generating new level */
     public static LevelSize LEVELSIZE = LevelSize.SMALL;
 
-    public static DungeonCamera camera;
     public static ILevel currentLevel;
     private static Entity hero;
     private static Game game;
@@ -239,7 +237,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     @Override
     public void render(float delta) {
         if (doSetup) setup();
-        batch.setProjectionMatrix(camera.combined);
+        batch.setProjectionMatrix(CameraSystem.CAMERA.combined);
         frame();
         clearScreen();
         levelManager.update();
@@ -247,8 +245,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         systems.values().stream().filter(System::isRunning).forEach(System::execute);
         // screen controller
         controller.forEach(AbstractController::update);
-        setCameraFocus();
-        camera.update();
+        CameraSystem.CAMERA.update();
     }
 
     /**
@@ -258,9 +255,9 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     private void setup() {
         doSetup = false;
+        CameraSystem.CAMERA.zoom = Constants.DEFAULT_ZOOM_FACTOR;
         batch = new SpriteBatch();
-        setupCameras();
-        painter = new Painter(batch, camera);
+        painter = new Painter(batch);
         IGenerator generator = new RandomWalkGenerator();
         levelManager = new LevelManager(batch, painter, generator, this);
         initBaseLogger();
@@ -327,23 +324,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         }
     }
 
-    /** Set the focus of the camera on the hero, if he exists otherwise focus on Pont (0,0) */
-    private void setCameraFocus() {
-        if (getHero().isPresent()) {
-            PositionComponent pc =
-                    (PositionComponent)
-                            getHero()
-                                    .get()
-                                    .getComponent(PositionComponent.class)
-                                    .orElseThrow(
-                                            () ->
-                                                    new MissingComponentException(
-                                                            "PositionComponent"));
-            camera.setFocusPoint(pc.getPosition());
-
-        } else camera.setFocusPoint(new Point(0, 0));
-    }
-
     /**
      * If the given entity is on the end-tile, load the new level
      *
@@ -396,17 +376,9 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    /** Create a new Camera and set the default values. */
-    private void setupCameras() {
-        camera = new DungeonCamera(null, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
-        camera.zoom = Constants.DEFAULT_ZOOM_FACTOR;
-
-        // See also:
-        // https://stackoverflow.com/questions/52011592/libgdx-set-ortho-camera
-    }
-
     /** Create the systems. */
     private void createSystems() {
+        new CameraSystem();
         new VelocitySystem();
         new DrawSystem(painter);
         new PlayerSystem();
