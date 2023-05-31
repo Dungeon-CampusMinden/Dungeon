@@ -285,25 +285,6 @@ originalen Namen der Java-Klassen Member durchgeführt werden. Ein `Encapsulated
 wie ein `IMemorySpace` in einem `AggregateValue` als Speicher für dessen `Value`-Objekte
 genutzt werden.
 
-TODO:
-- Sequenzdiagram für die Erstellung von `EncapuslatedObject`s
-- Dokumentation, welche Relevanz das in der
-  [Funktionsschnittstelle - Issue #97](https://github.com/Programmiermethoden/Dungeon/issues/97) hat
-  und wie das umgesetzt wird
-    - Notizen dazu: Das ist insbesondere mit Hinblick auf die Schnittstelle zwischen Dungeon und DSL
-      entstanden, da wir irgendwann mal vor der Herausforderung stehen, Event-Handler
-      Methoden, die in der DSL definiert sind, vom Dungeon aufzurufen
-    - Die Idee für diesen Fall ist, dass (bevor die eigentliche Interpretation
-      der Funktion beginnt) das "nackte" Java-Objekt, das vom Dungeon übergeben wird,
-      in eine `EncapsulatedObject` verpackt wird, was sich nach außen wie ein
-      `IMemorySpace` verhält
-    - Dabei wird der DSL-Datentyp, der die nackte Java-Klasse repräsentiert mit dem
-      `EncapsulatedObject`  zusammen als AggregateValue gespeichert
-    - Damit muss der `DSLInterpreter` gar nicht wissen, was da eigentlich für ein
-      Objekt hintersteht -> über den DSL-Typ, den es für das "nackte" Java-Objekt gibt,
-      ist bekannt, auf welche Member eines `Encapsulated`-Objekts zugegriffen werden
-      kann
-
 ## Funktionsaufrufe
 
 TODO (sobald Implementierung dafür auch steht)
