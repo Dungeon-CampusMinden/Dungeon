@@ -1,44 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <diagram program="umlet" version="15.1">
-  <zoom_level>20</zoom_level>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>780</x>
-      <y>720</y>
-      <w>780</w>
-      <h>240</h>
-    </coordinates>
-    <panel_attributes>ItemComponent
---
-- itemData: ItemData
---
-+ ItemComponent(entity: Entity)
-+ ItemComponent(entity: Entity, itemData: Itemdata)
-+ getItemData(): ItemData
-+ setItemData(itemData: ItemData): void</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>960</x>
-      <y>560</y>
-      <w>240</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>Component</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>1060</x>
-      <y>600</y>
-      <w>60</w>
-      <h>160</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
-  </element>
+  <zoom_level>10</zoom_level>
 </diagram>
