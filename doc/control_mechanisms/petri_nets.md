@@ -228,3 +228,7 @@ Es gelten folgende Beziehungen:
 Die Beziehungen **2.** und **3.** haben den Effekt, dass erst $t_2$, dann $t_4$ und $t_5$
 (als Teilaufgaben von $t_3$) und anschließend $t_3$ bearbeitet werden müssen, bevor der
 linke Zweig unter $t_1$ als abgeschlossen gilt.
+
+Das entsprechende Petri-Netz sieht wie folgt aus:
+
+![Petri-Netz für kombinierte Beziehungen](img/combined_petri.png)
