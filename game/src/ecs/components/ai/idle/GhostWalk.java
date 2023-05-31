@@ -9,14 +9,23 @@ import level.elements.tile.Tile;
 import starter.Game;
 import tools.Point;
 
+/**
+ * This GhostWalk is used to let the Npc walk randomly.
+ *
+ * The NpcWalk is a walk, that randomly decide between follow the Player, walk random or despawn.
+ */
 public class GhostWalk implements IIdleAI {
 
     private int randomPath = -1;
     private GraphPath<Tile> path;
 
-    /**The ghost randomly changes its path.
-     * He follows the player,randomly walks through the map or despawns*/
-
+    /**
+     * The Methode randomly changes the path of the Entity.
+     *
+     * The follows the player, randomly walks through the map or despawns.
+     *
+     * @param entity is the Entity, which is walking.
+     */
     @Override
     public void idle(Entity entity) {
         if(randomPath == -1){
