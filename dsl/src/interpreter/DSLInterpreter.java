@@ -10,17 +10,17 @@ import org.antlr.v4.runtime.CommonTokenStream;
 // importing all required classes from parser.AST will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 
-import parser.AST.*;
-// CHECKSTYLE:ON: AvoidStarImport
 import parser.DungeonASTConverter;
+import parser.ast.*;
+// CHECKSTYLE:ON: AvoidStarImport
 
 import runtime.*;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 
-import semanticAnalysis.*;
+import semanticanalysis.*;
 // CHECKSTYLE:ON: AvoidStarImport
-import semanticAnalysis.types.*;
+import semanticanalysis.types.*;
 
 import java.util.List;
 import java.util.Stack;
@@ -215,7 +215,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         DungeonASTConverter astConverter = new DungeonASTConverter();
         var programAST = astConverter.walk(programParseTree);
 
-        SymbolTableParser symTableParser = new SymbolTableParser();
+        SemanticAnalyzer symTableParser = new SemanticAnalyzer();
         var environment = new GameEnvironment();
         symTableParser.setup(environment);
         var result = symTableParser.walk(programAST);

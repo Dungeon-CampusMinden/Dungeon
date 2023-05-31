@@ -4,7 +4,7 @@ import dslToGame.graph.Edge;
 import dslToGame.graph.Graph;
 // CHECKSTYLE:OFF: AvoidStarImport
 
-import parser.AST.*;
+import parser.ast.*;
 // CHECKSTYLE:ON: AvoidStarImport
 
 import java.util.ArrayList;

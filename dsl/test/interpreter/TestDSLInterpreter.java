@@ -7,25 +7,25 @@ import dslToGame.graph.Graph;
 
 import helpers.Helpers;
 
-import interpreter.mockECS.*;
+import interpreter.mockecs.*;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import parser.AST.Node;
+import parser.ast.Node;
 
 import runtime.*;
 
-import semanticAnalysis.Scope;
-import semanticAnalysis.Symbol;
-import semanticAnalysis.SymbolTableParser;
-import semanticAnalysis.types.*;
+import semanticanalysis.Scope;
+import semanticanalysis.SemanticAnalyzer;
+import semanticanalysis.types.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
@@ -171,9 +171,10 @@ public class TestDSLInterpreter {
         var otherCompType = tb.createTypeFromClass(new Scope(), OtherComponent.class);
 
         var env = new GameEnvironment();
-        env.loadTypes(new IType[] {testCompType, otherCompType});
+        var typesToLoad = new IType[] {testCompType, otherCompType};
+        env.loadTypes(List.of(typesToLoad));
 
-        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
         var ast = Helpers.getASTFromString(program);
         symbolTableParser.walk(ast);
@@ -210,31 +211,6 @@ public class TestDSLInterpreter {
     @DSLType(name = "quest_config")
     public record CustomQuestConfig(@DSLTypeMember Entity entity) {}
 
-    class TestEnvironment extends GameEnvironment {
-        public TestEnvironment() {
-            super();
-        }
-
-        @Override
-        protected void bindBuiltIns() {
-            for (IType type : BUILT_IN_TYPES) {
-                // load custom QuestConfig
-                if (!type.getName().equals("quest_config")
-                        && !type.getName().equals("game_object")) {
-                    globalScope.bind((Symbol) type);
-                }
-            }
-
-            var questConfigType =
-                    this.getTypeBuilder().createTypeFromClass(Scope.NULL, CustomQuestConfig.class);
-            loadTypes(new semanticAnalysis.types.IType[] {questConfigType});
-
-            for (Symbol func : NATIVE_FUNCTIONS) {
-                globalScope.bind(func);
-            }
-        }
-    }
-
     @Test
     public void aggregateTypeInstancing() {
         String program =
@@ -261,9 +237,10 @@ public class TestDSLInterpreter {
         var otherCompType = tb.createTypeFromClass(new Scope(), TestComponent2.class);
 
         var env = new TestEnvironment();
-        env.loadTypes(new IType[] {entityType, testCompType, otherCompType});
+        var typesToLoad = new IType[] {entityType, testCompType, otherCompType};
+        env.loadTypes(List.of(typesToLoad));
 
-        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
         var ast = Helpers.getASTFromString(program);
         symbolTableParser.walk(ast);
@@ -334,9 +311,10 @@ public class TestDSLInterpreter {
         var compType = tb.createTypeFromClass(new Scope(), ComponentWithExternalTypeMember.class);
 
         var env = new TestEnvironment();
-        env.loadTypes(new IType[] {entityType, compType});
+        var typesToLoad = new IType[] {entityType, compType};
+        env.loadTypes(List.of(typesToLoad));
 
-        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
         var ast = Helpers.getASTFromString(program);
         symbolTableParser.walk(ast);
@@ -393,12 +371,14 @@ public class TestDSLInterpreter {
         var externalComponentType =
                 env.getTypeBuilder()
                         .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
-        env.loadTypes(
-                new semanticAnalysis.types.IType[] {
-                    entityType, testCompType, externalComponentType
-                });
 
-        SymbolTableParser symbolTableParser = new SymbolTableParser();
+        var typesToLoad =
+                new semanticanalysis.types.IType[] {
+                    entityType, testCompType, externalComponentType
+                };
+        env.loadTypes(List.of(typesToLoad));
+
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
         var ast = Helpers.getASTFromString(program);
         symbolTableParser.walk(ast);

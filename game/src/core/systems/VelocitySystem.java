@@ -10,31 +10,55 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.CoreAnimations;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/** MovementSystem is a system that updates the position of entities */
+/**
+ * The VelocitySystem controls the movement of the entities in the game.
+ *
+ * <p>Entities with the {@link VelocityComponent}, {@link PositionComponent}, and {@link
+ * DrawComponent} will be processed by this system.
+ *
+ * <p>The system will take the {@link VelocityComponent#getCurrentXVelocity()} and {@link
+ * VelocityComponent#getCurrentYVelocity()} and calculate the new position of the entity based on
+ * their current position stored in the {@link PositionComponent}. If the new position is a valid
+ * position, which means the tile they would stand on is accessible, the new position will be set.
+ *
+ * <p>This system will also set the current animation to {@link CoreAnimations#RUN_LEFT} or {@link
+ * CoreAnimations#RUN_RIGHT} if the position is valid.
+ *
+ * <p>If the new position is not valid, the {@link CoreAnimations#IDLE_LEFT} or {@link
+ * CoreAnimations#IDLE_RIGHT} animations will be set as the new current animation.
+ *
+ * <p>At the end, the {@link VelocityComponent#setCurrentXVelocity(float)} and {@link
+ * VelocityComponent#setYVelocity(float)} will be set to 0.
+ *
+ * @see VelocityComponent
+ * @see DrawComponent
+ * @see PositionComponent
+ * @see core.level.elements.ILevel
+ */
 public class VelocitySystem extends System {
 
-    private record VSData(Entity e, VelocityComponent vc, PositionComponent pc) {}
-
-    /** Updates the position of all entities based on their velocity */
-    public void update() {
-        Game.getEntities().stream()
-                .flatMap(e -> e.getComponent(VelocityComponent.class).stream())
-                .map(vc -> buildDataObject((VelocityComponent) vc))
-                .forEach(this::updatePosition);
+    /** Create a new VelocitySystem */
+    public VelocitySystem() {
+        super(VelocityComponent.class, PositionComponent.class, DrawComponent.class);
     }
 
-    private VSData updatePosition(VSData vsd) {
+    /** Updates the position of all entities based on their velocity */
+    @Override
+    public void execute() {
+        getEntityStream().map(this::buildDataObject).forEach(this::updatePosition);
+    }
+
+    private void updatePosition(VSData vsd) {
         float newX = vsd.pc.getPosition().x + vsd.vc.getCurrentXVelocity();
         float newY = vsd.pc.getPosition().y + vsd.vc.getCurrentYVelocity();
         Point newPosition = new Point(newX, newY);
         if (Game.currentLevel.getTileAt(newPosition.toCoordinate()).isAccessible()) {
             vsd.pc.setPosition(newPosition);
-            movementAnimation(vsd.e);
+            movementAnimation(vsd);
         }
 
         // remove projectiles that hit the wall or other non-accessible
@@ -44,25 +68,23 @@ public class VelocitySystem extends System {
 
         vsd.vc.setCurrentYVelocity(0);
         vsd.vc.setCurrentXVelocity(0);
-
-        return vsd;
     }
 
-    private VSData buildDataObject(VelocityComponent vc) {
-        Entity e = vc.getEntity();
+    private VSData buildDataObject(Entity e) {
+        VelocityComponent vc = (VelocityComponent) e.getComponent(VelocityComponent.class).get();
 
-        PositionComponent pc =
-                (PositionComponent)
-                        e.getComponent(PositionComponent.class)
-                                .orElseThrow(VelocitySystem::missingPC);
+        PositionComponent pc = (PositionComponent) e.getComponent(PositionComponent.class).get();
 
-        return new VSData(e, vc, pc);
+        DrawComponent dc = (DrawComponent) e.getComponent(DrawComponent.class).get();
+
+        return new VSData(e, vc, pc, dc);
     }
 
-    private void movementAnimation(Entity entity) {
+    private void movementAnimation(VSData vsd) {
 
         AtomicBoolean isDead = new AtomicBoolean(false);
-        entity.getComponent(HealthComponent.class)
+        vsd.e
+                .getComponent(HealthComponent.class)
                 .ifPresent(
                         component -> {
                             HealthComponent healthComponent = (HealthComponent) component;
@@ -73,31 +95,18 @@ public class VelocitySystem extends System {
             return;
         }
 
-        DrawComponent ac =
-                (DrawComponent)
-                        entity.getComponent(DrawComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("AnimationComponent"));
-        Animation newCurrentAnimation;
-        VelocityComponent vc =
-                (VelocityComponent)
-                        entity.getComponent(VelocityComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("VelocityComponent"));
-        float x = vc.getCurrentXVelocity();
-        if (x > 0) newCurrentAnimation = vc.getMoveRightAnimation();
-        else if (x < 0) newCurrentAnimation = vc.getMoveLeftAnimation();
+        float x = vsd.vc.getCurrentXVelocity();
+        if (x > 0) vsd.dc.setCurrentAnimation(CoreAnimations.RUN_RIGHT);
+        else if (x < 0) vsd.dc.setCurrentAnimation(CoreAnimations.RUN_LEFT);
         // idle
         else {
-            if (ac.getCurrentAnimation() == ac.getIdleLeft()
-                    || ac.getCurrentAnimation() == vc.getMoveLeftAnimation())
-                newCurrentAnimation = ac.getIdleLeft();
-            else newCurrentAnimation = ac.getIdleRight();
+            // each drawcomponent has an idle animation, so no check is needed
+            if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_LEFT)
+                    || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_LEFT))
+                vsd.dc.setCurrentAnimation(CoreAnimations.IDLE_LEFT);
+            else vsd.dc.setCurrentAnimation(CoreAnimations.IDLE_RIGHT);
         }
-        ac.setCurrentAnimation(newCurrentAnimation);
     }
 
-    private static MissingComponentException missingPC() {
-        return new MissingComponentException("PositionComponent");
-    }
+    private record VSData(Entity e, VelocityComponent vc, PositionComponent pc, DrawComponent dc) {}
 }

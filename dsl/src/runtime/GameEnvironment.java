@@ -4,25 +4,21 @@ import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 
 import core.Entity;
-import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
-import dslToGame.AnimationBuilder;
 import dslToGame.QuestConfig;
 
-import runtime.nativeFunctions.NativePrint;
+import runtime.nativefunctions.NativePrint;
 
-import semanticAnalysis.IScope;
-import semanticAnalysis.Scope;
-import semanticAnalysis.Symbol;
-import semanticAnalysis.SymbolTable;
-import semanticAnalysis.types.BuiltInType;
-import semanticAnalysis.types.IType;
-import semanticAnalysis.types.TypeBuilder;
+import semanticanalysis.*;
+import semanticanalysis.types.BuiltInType;
+import semanticanalysis.types.IType;
+import semanticanalysis.types.TypeBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class GameEnvironment implements IEvironment {
     // TODO: the type builder should also be part of some 'type factory' to
@@ -55,7 +51,9 @@ public class GameEnvironment implements IEvironment {
     }
 
     protected static void registerDefaultTypeAdapters() {
-        typeBuilder.registerTypeAdapter(AnimationBuilder.class, Scope.NULL);
+        /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
+         * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
+        // typeBuilder.registerTypeAdapter(AnimationBuilder.class, Scope.NULL);
     }
 
     protected void bindBuiltIns() {
@@ -87,7 +85,7 @@ public class GameEnvironment implements IEvironment {
     }
 
     @Override
-    public void loadTypes(IType[] types) {
+    public void loadTypes(List<IType> types) {
         for (IType type : types) {
             if (!(type instanceof IType)) {
                 continue;
@@ -97,6 +95,20 @@ public class GameEnvironment implements IEvironment {
             }
             loadedTypes.put(type.getName(), type);
             this.globalScope.bind((Symbol) type);
+        }
+    }
+
+    @Override
+    public void loadFunctions(List<ScopedSymbol> functions) {
+        for (var func : functions) {
+            if (!(func instanceof ICallable)) {
+                continue;
+            }
+            if (loadedFunctions.containsKey(func.getName())) {
+                continue;
+            }
+            loadedFunctions.put(func.getName(), func);
+            this.globalScope.bind(func);
         }
     }
 
@@ -113,6 +125,7 @@ public class GameEnvironment implements IEvironment {
     private static ArrayList<IType> buildBuiltInTypes() {
         ArrayList<IType> types = new ArrayList<>();
 
+        types.add(BuiltInType.noType);
         types.add(BuiltInType.intType);
         types.add(BuiltInType.floatType);
         types.add(BuiltInType.stringType);
@@ -125,8 +138,10 @@ public class GameEnvironment implements IEvironment {
         var entityComponentType = typeBuilder.createTypeFromClass(Scope.NULL, Entity.class);
         var positionComponentType =
                 typeBuilder.createTypeFromClass(Scope.NULL, PositionComponent.class);
-        var animationComponentType =
-                typeBuilder.createTypeFromClass(Scope.NULL, DrawComponent.class);
+        /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
+         * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
+        // var animationComponentType =
+        //      typeBuilder.createTypeFromClass(Scope.NULL, DrawComponent.class);
         var velocityComponentType =
                 typeBuilder.createTypeFromClass(Scope.NULL, VelocityComponent.class);
         var aiComponentType = typeBuilder.createTypeFromClass(Scope.NULL, AIComponent.class);
@@ -135,7 +150,9 @@ public class GameEnvironment implements IEvironment {
         types.add(questConfigType);
         types.add(entityComponentType);
         types.add(positionComponentType);
-        types.add(animationComponentType);
+        /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
+         * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
+        // types.add(animationComponentType);
         types.add(velocityComponentType);
         types.add(aiComponentType);
         types.add(hitboxComponentType);

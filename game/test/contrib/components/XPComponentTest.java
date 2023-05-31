@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import core.Entity;
 import core.Game;
-import core.utils.controller.SystemController;
 
 import org.junit.Test;
 
@@ -14,8 +13,7 @@ public class XPComponentTest {
     @Test
     public void testStartXP() {
         /* Prepare */
-        Game.getEntities().clear();
-        Game.systems = new SystemController();
+        Game.removeAllEntities();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 
@@ -28,8 +26,7 @@ public class XPComponentTest {
     @Test
     public void testAddXPSingle() {
         /* Prepare */
-        Game.getEntities().clear();
-        Game.systems = new SystemController();
+        Game.removeAllEntities();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 
@@ -42,8 +39,7 @@ public class XPComponentTest {
     @Test
     public void testAddXPMultiple() {
         /* Prepare */
-        Game.getEntities().clear();
-        Game.systems = new SystemController();
+        Game.removeAllEntities();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 
@@ -57,8 +53,7 @@ public class XPComponentTest {
     @Test
     public void testXPToNextLevelNonZero() {
         /* Prepare */
-        Game.getEntities().clear();
-        Game.systems = new SystemController();
+        Game.removeAllEntities();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 
@@ -71,8 +66,7 @@ public class XPComponentTest {
     @Test
     public void testXPToNextLevelExact() {
         /* Prepare */
-        Game.getEntities().clear();
-        Game.systems = new SystemController();
+        Game.removeAllEntities();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 
@@ -85,8 +79,7 @@ public class XPComponentTest {
     @Test
     public void testXPToNextLevelMore() {
         /* Prepare */
-        Game.getEntities().clear();
-        Game.systems = new SystemController();
+        Game.removeAllEntities();
         Entity entity = new Entity();
         XPComponent xpComponent = new XPComponent(entity, null);
 

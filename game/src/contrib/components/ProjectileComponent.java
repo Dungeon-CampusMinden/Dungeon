@@ -4,6 +4,12 @@ import core.Component;
 import core.Entity;
 import core.utils.Point;
 
+/**
+ * ProjectileComponent saves the start position and goal location of a projectile.
+ *
+ * <p>The {@link #getGoalLocation()} method retrieves the goal position of the projectile. The
+ * {@link #getStartPosition()} method retrieves the start position of the projectile.
+ */
 public class ProjectileComponent extends Component {
 
     private Point goalLocation;

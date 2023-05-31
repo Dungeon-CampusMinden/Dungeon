@@ -1,0 +1,27 @@
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>310</x><y>180</y><w>360</w><h>220</h></coordinates><panel_attributes>PlayerComponent
+--
+- playableCompLogger: Logger {read-only}
+- playable: boolean
+- skillSlot1: Skill
+- skillSlot2: Skill
+--
++ PlayerComponent(entity: Entity)
++ PlayerComponent(entity: Entity, skill1: Skill, skill2: Skill)
++ isPlayable(): boolean
++ getSkillSlot1(): Optional&lt;Skill&gt;
++ getSkillSlot2(): Optional&lt;Skill&gt;
++ setPlayable(playable: boolean): void
++ setSkillSlot1(skillSlot1: Skill): void
++ setSkillSlot2(skillSlot2: Skill): void
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>410</x><y>120</y><w>30</w><h>80</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>370</x><y>100</y><w>100</w><h>30</h></coordinates><panel_attributes>/Component/
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>150</x><y>100</y><w>100</w><h>30</h></coordinates><panel_attributes>System</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>190</x><y>120</y><w>30</w><h>80</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>150</x><y>180</y><w>100</w><h>30</h></coordinates><panel_attributes>PlayerSystem</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>240</x><y>190</y><w>90</w><h>30</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>70;10;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>730</x><y>180</y><w>360</w><h>160</h></coordinates><panel_attributes>Skill
+--
+- skillFunction: ISkillFunction
+- coolDownInFrames: int
+- currentCoolDownInFrames: int
+--
++ Skill(skillFunction: ISkillFunction, coolDownInSeconds: float)
++ execute(entity: Entity): void
++ isOnCoolDown(): boolean
++ activateCoolDown(): void
++ reduceCoolDown(): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>660</x><y>220</y><w>90</w><h>30</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>70;10;10;10</additional_attributes></element></diagram>

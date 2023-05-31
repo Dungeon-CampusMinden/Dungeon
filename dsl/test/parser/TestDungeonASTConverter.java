@@ -8,7 +8,7 @@ import helpers.Helpers;
 import org.junit.Test;
 // CHECKSTYLE:OFF: AvoidStarImport
 
-import parser.AST.*;
+import parser.ast.*;
 // CHECKSTYLE:ON: AvoidStarImport
 
 public class TestDungeonASTConverter {

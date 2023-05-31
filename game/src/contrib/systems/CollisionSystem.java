@@ -12,16 +12,15 @@ import java.util.Map;
 /** System to check for collisions between two entities */
 public class CollisionSystem extends System {
 
-    private record CollisionKey(int a, int b) {}
+    private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
 
-    protected record CollisionData(CollideComponent a, CollideComponent b) {}
+    public CollisionSystem() {
+        super(CollideComponent.class);
+    }
 
-    private Map<CollisionKey, CollisionData> collisions = new HashMap<>();
-
-    /** checks if there is a collision between two entities based on their hitbox */
     @Override
-    public void update() {
-        Game.getEntities().stream()
+    public void execute() {
+        getEntityStream()
                 .flatMap(
                         a ->
                                 a
@@ -30,7 +29,7 @@ public class CollisionSystem extends System {
                                         .stream())
                 .flatMap(
                         a ->
-                                Game.getEntities().stream()
+                                Game.getEntitiesStream()
                                         .filter(b -> a.getEntity().id() < b.id())
                                         .flatMap(
                                                 b ->
@@ -68,7 +67,7 @@ public class CollisionSystem extends System {
      * Simple Direction inversion
      *
      * @param d to inverse
-     * @return the oposite direction
+     * @return the opposite direction
      */
     protected Tile.Direction inverse(Tile.Direction d) {
         return switch (d) {
@@ -118,4 +117,8 @@ public class CollisionSystem extends System {
             return Tile.Direction.W;
         }
     }
+
+    private record CollisionKey(int a, int b) {}
+
+    protected record CollisionData(CollideComponent a, CollideComponent b) {}
 }

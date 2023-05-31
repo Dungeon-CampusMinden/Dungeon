@@ -1,8 +1,8 @@
 package runtime;
 
-import semanticAnalysis.types.AggregateType;
-import semanticAnalysis.types.IType;
-import semanticAnalysis.types.TypeBuilder;
+import semanticanalysis.types.AggregateType;
+import semanticanalysis.types.IType;
+import semanticanalysis.types.TypeBuilder;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;

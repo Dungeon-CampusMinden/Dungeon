@@ -1,90 +1,80 @@
 package core.components;
 
-import contrib.utils.components.skill.Skill;
+import com.badlogic.gdx.Gdx;
 
 import core.Component;
 import core.Entity;
-import core.utils.logging.CustomLogLevel;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
- * This component is for the player character entity only. It should only be implemented by one
- * entity and mark this entity as the player character. This component stores data that is only
- * relevant for the player character. The PlayerSystems acts on the PlayableComponent.
+ * Component that marks an entity as playable.
+ *
+ * <p>This component is used to mark an entity as playable by the player.
+ *
+ * <p>It also contains a map of keys/buttons (Map-Key-Value) and functions (Map-Value). The {@link
+ * core.systems.PlayerSystem} will trigger {@link #execute}. This method will check each entry in
+ * the map and check if the given key is pressed. If so, the function registered to this key will be
+ * executed.
+ *
+ * <p>Use {@link #registerFunction} to add a new function for a button press, for example, add
+ * movement controls.
+ *
+ * <p>In the dungeon, keys/buttons are represented by an integer value.
  */
 public class PlayerComponent extends Component {
 
-    private boolean playable;
-    private final Logger playableCompLogger = Logger.getLogger(this.getClass().getName());
-
-    private Skill skillSlot1;
-    private Skill skillSlot2;
+    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+    private Map<Integer, Consumer<Entity>> functions;
 
     /**
-     * @param entity associated entity
-     * @param skillSlot1 skill that will be on the first skillslot
-     * @param skillSlot2 skill that will be on the second skillslot
+     * Creates a new PlayerComponent.
+     *
+     * @param entity - the entity this component belongs to
      */
-    public PlayerComponent(Entity entity, Skill skillSlot1, Skill skillSlot2) {
-        super(entity);
-        playable = true;
-        this.skillSlot1 = skillSlot1;
-        this.skillSlot2 = skillSlot2;
-    }
-
-    /** {@inheritDoc} */
     public PlayerComponent(Entity entity) {
         super(entity);
-        playable = true;
+        functions = new HashMap<>();
     }
 
     /**
-     * @return the playable state
+     * Add a new function to this component.
+     *
+     * <p>If a function is already registered on this key, the old function will be replaced.
+     *
+     * @param key The key-value on which the function should be executed
+     * @param function Function to execute if the key is pressed
+     * @return Optional<Consumer<Entity>> The old function, if one was existing. Can be null.
+     * @see com.badlogic.gdx.Gdx#input
      */
-    public boolean isPlayable() {
-        playableCompLogger.log(
-                CustomLogLevel.DEBUG,
-                "Checking if entity '"
-                        + entity.getClass().getSimpleName()
-                        + "' is playable: "
-                        + playable);
-        return playable;
+    public Optional<Consumer<Entity>> registerFunction(int key, Consumer<Entity> function) {
+        Optional<Consumer<Entity>> oldFunction = Optional.ofNullable(functions.get(key));
+        functions.put(key, function);
+        return oldFunction;
     }
 
     /**
-     * @param playable set the playabale state
+     * Remove the registered function on the given key.
+     *
+     * @param key Value of the key.
      */
-    public void setPlayable(boolean playable) {
-        this.playable = playable;
+    public void removeFunction(int key) {
+        functions.remove(key);
     }
 
     /**
-     * @param skillSlot1 skill that will be on the first skillslot
+     * Will check each entry in the function map, and if the key is just pressed, the function will
+     * be executed.
      */
-    public void setSkillSlot1(Skill skillSlot1) {
-        this.skillSlot1 = skillSlot1;
+    public void execute() {
+        functions.forEach((k, f) -> execute(k, f));
     }
 
-    /**
-     * @param skillSlot2 skill that will be on the first skillslot
-     */
-    public void setSkillSlot2(Skill skillSlot2) {
-        this.skillSlot2 = skillSlot2;
-    }
-
-    /**
-     * @return skill on first skill slot
-     */
-    public Optional<Skill> getSkillSlot1() {
-        return Optional.ofNullable(skillSlot1);
-    }
-
-    /**
-     * @return skill on second skill slot
-     */
-    public Optional<Skill> getSkillSlot2() {
-        return Optional.ofNullable(skillSlot2);
+    private void execute(Integer key, Consumer<Entity> function) {
+        if (Gdx.input.isKeyPressed(key)) function.accept(entity);
     }
 }

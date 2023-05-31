@@ -46,8 +46,7 @@ public class DungeonCameraTest {
                 camera.position); // Because it follows the positionComponent
 
         // Cleanup
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
-        Game.getDelayedEntitySet().update();
+        Game.removeEntity(entity);
     }
 
     @Test
@@ -69,10 +68,6 @@ public class DungeonCameraTest {
                 "Camera position should change after update",
                 new Vector3(15, 23, 0),
                 camera.position);
-
-        // Cleanup
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
-        Game.getDelayedEntitySet().update();
     }
 
     @Test
@@ -98,8 +93,7 @@ public class DungeonCameraTest {
                 camera.position);
 
         // Cleanup
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
-        Game.getDelayedEntitySet().update();
+        Game.removeEntity(entity);
     }
 
     @Test
@@ -121,8 +115,7 @@ public class DungeonCameraTest {
         assertNull("Camera should not follow anything", camera.getFollowedObject());
 
         // Cleanup
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
-        Game.getDelayedEntitySet().update();
+        Game.removeEntity(entity);
     }
 
     @Test
@@ -138,8 +131,7 @@ public class DungeonCameraTest {
         assertSame("Camera should follow entity.", positionComponent, camera.getFollowedObject());
 
         // Cleanup
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
-        Game.getDelayedEntitySet().update();
+        Game.removeEntity(entity);
     }
 
     @Test
@@ -150,10 +142,6 @@ public class DungeonCameraTest {
 
         // Testing
         assertNull("Camera should not follow anything", camera.getFollowedObject());
-
-        // Cleanup
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
-        Game.getDelayedEntitySet().update();
     }
 
     @Test
@@ -178,8 +166,7 @@ public class DungeonCameraTest {
         assertNull("Camera should not follow anything", camera.getFollowedObject());
 
         // Cleanup
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
-        Game.getDelayedEntitySet().update();
+        Game.removeEntity(entity);
     }
 
     @Test
@@ -198,10 +185,6 @@ public class DungeonCameraTest {
                 new Vector3(15, 23, 0),
                 camera.position);
         assertNull("Camera should not follow anything", camera.getFollowedObject());
-
-        // Cleanup
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
-        Game.getDelayedEntitySet().update();
     }
 
     @Test
@@ -224,9 +207,5 @@ public class DungeonCameraTest {
                 camera.isPointInFrustum(
                         camera.position.x + Constants.VIEWPORT_WIDTH / 2 + 1,
                         camera.position.y + Constants.VIEWPORT_HEIGHT / 2 + 1));
-
-        // Cleanup
-        Game.getDelayedEntitySet().removeAll(Game.getEntities());
-        Game.getDelayedEntitySet().update();
     }
 }

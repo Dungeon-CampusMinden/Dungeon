@@ -8,21 +8,30 @@ import core.System;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 
+/**
+ * The ProjectileSystem class represents a system responsible for managing {@link
+ * ProjectileComponent}s in the game. It checks if projectiles have reached their endpoints and
+ * removes entities that have reached their endpoints.
+ *
+ * <p>Note that the velocity of the projectile is not managed in this system, that is done by the
+ * {@link core.systems.VelocitySystem}.
+ *
+ * <p>The components required for this system are {@link ProjectileComponent}, {@link
+ * PositionComponent}, and {@link VelocityComponent}.
+ */
 public class ProjectileSystem extends System {
 
-    // private record to hold all data during streaming
-    private record PSData(
-            Entity e, ProjectileComponent prc, PositionComponent pc, VelocityComponent vc) {}
+    public ProjectileSystem() {
+        super(ProjectileComponent.class, PositionComponent.class, VelocityComponent.class);
+    }
 
-    /** sets the velocity and removes entities that reached their endpoint */
+    /** Sets the velocity and removes entities that have reached their endpoints. */
     @Override
-    public void update() {
-        Game.getEntities().stream()
+    public void execute() {
+        getEntityStream()
                 // Consider only entities that have a ProjectileComponent
-                .flatMap(e -> e.getComponent(ProjectileComponent.class).stream())
-                .map(prc -> buildDataObject((ProjectileComponent) prc))
+                .map(this::buildDataObject)
                 .map(this::setVelocity)
                 // Filter all entities that have reached their endpoint
                 .filter(
@@ -35,17 +44,13 @@ public class ProjectileSystem extends System {
                 .forEach(this::removeEntitiesOnEndpoint);
     }
 
-    private PSData buildDataObject(ProjectileComponent prc) {
-        Entity e = prc.getEntity();
+    private PSData buildDataObject(Entity e) {
 
-        PositionComponent pc =
-                (PositionComponent)
-                        e.getComponent(PositionComponent.class)
-                                .orElseThrow(ProjectileSystem::missingAC);
-        VelocityComponent vc =
-                (VelocityComponent)
-                        e.getComponent(VelocityComponent.class)
-                                .orElseThrow(ProjectileSystem::missingAC);
+        ProjectileComponent prc =
+                (ProjectileComponent) e.getComponent(ProjectileComponent.class).get();
+
+        PositionComponent pc = (PositionComponent) e.getComponent(PositionComponent.class).get();
+        VelocityComponent vc = (VelocityComponent) e.getComponent(VelocityComponent.class).get();
 
         return new PSData(e, prc, pc, vc);
     }
@@ -62,14 +67,17 @@ public class ProjectileSystem extends System {
     }
 
     /**
-     * checks if the endpoint is reached
+     * Check if the projectile has reached its endpoint or is out of range.
+     *
+     * <p>A Projectile can be out of range, if it "skips" the endpoint, it has already reached the
+     * endpoint and can be removed.
      *
      * @param start position to start the calculation
      * @param end point to check if projectile has reached its goal
      * @param current current position
      * @return true if the endpoint was reached or passed, else false
      */
-    public boolean hasReachedEndpoint(Point start, Point end, Point current) {
+    private boolean hasReachedEndpoint(Point start, Point end, Point current) {
         float dx = start.x - current.x;
         float dy = start.y - current.y;
         double distanceToStart = Math.sqrt(dx * dx + dy * dy);
@@ -78,16 +86,10 @@ public class ProjectileSystem extends System {
         dy = start.y - end.y;
         double totalDistance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distanceToStart > totalDistance) {
-            // The point has reached or passed the endpoint
-            return true;
-        } else {
-            // The point has not yet reached the endpoint
-            return false;
-        }
+        return distanceToStart > totalDistance;
     }
 
-    private static MissingComponentException missingAC() {
-        return new MissingComponentException("AnimationComponent");
-    }
+    // private record to hold all data during streaming
+    private record PSData(
+            Entity e, ProjectileComponent prc, PositionComponent pc, VelocityComponent vc) {}
 }
