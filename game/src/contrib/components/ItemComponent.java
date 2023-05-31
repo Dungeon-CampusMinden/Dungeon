@@ -5,14 +5,18 @@ import contrib.utils.components.item.ItemData;
 import core.Component;
 import core.Entity;
 
-/** Marks an Entity as an Item. */
+/**
+ * A class that marks an entity as an Item and controls its {@link ItemData}
+ *
+ * <p> It contains the {@link #itemData}, which contains all info about the Item.
+ */
 public class ItemComponent extends Component {
     private ItemData itemData;
 
     /**
      * Create a new component and add it to the associated entity
      *
-     * @param entity associated entity
+     * @param entity entity that will be marked as an Item
      */
     public ItemComponent(Entity entity) {
         super(entity);
@@ -21,7 +25,7 @@ public class ItemComponent extends Component {
     /**
      * Creates a new ItemComponent and adds it to the associated entity
      *
-     * @param entity associated entity
+     * @param entity entity that will be marked as an Item
      * @param itemData data of the item for the component
      */
     public ItemComponent(Entity entity, ItemData itemData) {
