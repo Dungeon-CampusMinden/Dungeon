@@ -193,6 +193,10 @@ task_dependency t {
 Das Petri-Netz für die oben beschriebene Abhängigkeit sieht wie folgt aus: ![Bedingte
 Folgeaufgabe: Petri-Netz](img/conditional_petri.png)
 
+Die Stelle mit der ausgehenden Transition “t2 oder t3 abgeschlossen” (am unteren Bildrand)
+dient dazu, die Information, dass **eine** der alternativen Folgeaufgaben bearbeitet wurde,
+in einer Stelle zu vereinigen.
+
 ### Kombination der Beziehungen
 
 Die vorgestellten Beziehungen können beliebig kombiniert werden, wie in folgender
