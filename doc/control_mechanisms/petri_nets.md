@@ -216,10 +216,10 @@ task_dependency t {
 
 Es gelten folgende Beziehungen:
 
-1. $t_1$ hat die **erforderlichen Teilaufgaben** $t_2$ und $t_6$
-2. $t_2$ bildet eine **Aufgabensequenz** mit $t_3$
-3. $t_3$ hat zwei **erforderliche Teilaufgaben** $t_4$ und $t_5$
-4. $t_6$ hat die **bedingten Folgeaufgaben** $t_7$ und $t_8$
+1.  $t_1$ hat die **erforderlichen Teilaufgaben** $t_2$ und $t_6$
+2.  $t_2$ bildet eine **Aufgabensequenz** mit $t_3$
+3.  $t_3$ hat zwei **erforderliche Teilaufgaben** $t_4$ und $t_5$
+4.  $t_6$ hat die **bedingten Folgeaufgaben** $t_7$ und $t_8$
 
 Die Beziehungen **2.** und **3.** haben den Effekt, dass erst $t_2$, dann $t_4$ und $t_5$
 (als Teilaufgaben von $t_3$) und anschließend $t_3$ bearbeitet werden müssen, bevor der
