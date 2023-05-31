@@ -55,14 +55,12 @@ um den Zustand der Aufgaben aus dem Petri-Netz auszulesen.
 
 ### Erforderliche Teilaufgabe
 
-![Erforderliche Teilaufgabe: Graph](img/mandatory_subtask.png)
-
 Für $t_2$ muss eine Antwort abgegeben werden, bevor $t_1$ abgeschlossen werden kann; $t_1$
 wird zuerst aktiviert und bleibt aktiv, während $t_2$ bearbeitet wird.
 
 Kürzel: “subtask_mandatory”/“st_m”
 
-Eingabe:
+DSL-Eingabe:
 ```
 task_dependency t {
   t1 -> t2 [type="st_m"]
@@ -95,10 +93,15 @@ Es folgt:
 - Stelle “t1 Bearb. aktiviert” ist **nicht markiert** und “t1 abgeschlossen” ist
   **markiert** = Zustand **fertig bearbeitet**
 
-Eine Aufgabe kann mehrere erforderliche Teilaufgaben haben, wie im folgenden Graph
-dargestellt:
+Eine Aufgabe kann mehrere erforderliche Teilaufgaben haben, z.B. können wie
+in folgender DSL-Eingabe $t_2$ **und** $t_3$ von $t_1$ abhängig sein:
 
-![Mehrere erforderliche Teilaufgaben: Graph](img/multi_mandatory_subtask.png)
+```
+task_dependency t {
+  t1 -> t2 [type="st_m"]
+  t1 -> t3 [type="st_m"]
+}
+```
 
 Das entsprechende Petri-Netz sieht so aus:
 
@@ -112,14 +115,12 @@ freigeschaltet wird.
 
 ### Optionale Teilaufgabe
 
-![Optionale Teilaufgabe: Graph](img/optional_subtask.png)
-
 Für $t_2$ muss nicht zwingend eine Antwort gegeben werden, bevor $t_1$ abgeschlossen werden
 kann. Eine gegebene Antwort für $t_2$ könnte aber bspw. Bonus-Punkte geben.
 
 Kürzel: “subtask_optional”/“st_o”
 
-Eingabe:
+DSL-Eingabe:
 ```
 task_dependency t {
   t1 -> t2 [type="st_o"]
@@ -144,29 +145,25 @@ Beim Abschließen einer optionalen Teilaufgabe werden zwei Fälle unterschieden:
 
 ### Aufgabensequenz
 
-![Sequenz: Graph](img/sequence.png)
-
 Für $t_1$ muss eine Antwort abgegeben werden, bevor $t_2$ aktiv wird. $t_1$ ist vollständig
 abgeschlossen (und daher inaktiv), während $t_2$ aktiv ist. Die **gesamte Aufgabensequenz**
 gilt erst als abgeschlossen, wenn die letzte Aufgabe der Sequenz abgeschlossen ist.
 
 Kürzel: “sequence”/“s”
 
-Eingabe:
+DSL-Eingabe:
 ```
 task_dependency t {
   t1 -> t2 [type="s"]
 }
 ```
 
-Das Petri-Netz für die oben abgebildete Abhängigkeit sieht wie folgt aus:
+Das Petri-Netz für die oben beschriebene Abhängigkeit sieht wie folgt aus:
 
 ![Sequenz: Petri-Netz](img/sequence_petri.png)
 
-Für eine Sequenz aus mehreren Aufgaben könnte dies so aussehen: ![Sequenz aus mehr Aufgaben:
-Graph](img/sequence_multi.png)
+Für eine Sequenz aus mehreren Aufgaben könnte die DSL-Eingabe so aussehen:
 
-Eingabe:
 ```
 task_dependency t {
   t1 -> t2 -> t3 [type="s"]
@@ -183,11 +180,9 @@ gewissen Prozentsatz korrekt) ist, muss entweder $t_2$ oder $t_3$ bearbeitet wer
 Im folgenden Beispiel muss $t_2$ bearbeitet werden, wenn $t_1$ falsch beantwortet wird, und
 $t_3$ muss beantwortet werden, falls $t_1$ richtig beantwortet wird.
 
-![Bedingte Folgeaufgabe: Graph](img/conditional.png)
-
 Kürzel: “conditional_false”/“c_f” und “conditional_correct”/“c_c”
 
-Eingabe:
+DSL-Eingabe:
 ```
 task_dependency t {
   t1 -> t2 [type="c_f"]
@@ -195,14 +190,14 @@ task_dependency t {
 }
 ```
 
-Das Petri-Netz für die oben abgebildete Abhängigkeit sieht wie folgt aus: ![Bedingte
+Das Petri-Netz für die oben beschriebene Abhängigkeit sieht wie folgt aus: ![Bedingte
 Folgeaufgabe: Petri-Netz](img/conditional_petri.png)
 
 ### Kombination der Beziehungen
 
-Die vorgestellten Beziehungen können beliebig kombiniert werden, wie in folgendem Beispiel:
+Die vorgestellten Beziehungen können beliebig kombiniert werden, wie in folgender
+beispielhaften DSl-Eingabe:
 
-![Kombination von Aufgabenbeziehungen](img/combined.png)
 
 Es sei besonders auf die folgenden Beziehungen hingewiesen:
 
