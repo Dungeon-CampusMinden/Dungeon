@@ -12,6 +12,18 @@ import core.components.PositionComponent;
 import core.utils.Constants;
 import core.utils.Point;
 
+/**
+ * The CameraSystem sets the focus point of the game. It is responsible for what is visible on
+ * screen.
+ *
+ * <p>The camera will follow an entity with a {@link CameraComponent}. If there is no entity with a
+ * {@link CameraComponent}, the start tile of the current level will be in focus.
+ *
+ * <p>In {@link #isPointInFrustum(float, float)} also checks if points are visible on screen and
+ * should be rendered.
+ *
+ * @see CameraComponent
+ */
 public class CameraSystem extends System {
 
     public static final OrthographicCamera CAMERA =
