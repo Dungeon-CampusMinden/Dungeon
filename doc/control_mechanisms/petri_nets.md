@@ -198,13 +198,29 @@ Folgeaufgabe: Petri-Netz](img/conditional_petri.png)
 Die vorgestellten Beziehungen können beliebig kombiniert werden, wie in folgender
 beispielhaften DSl-Eingabe:
 
+```
+task_dependency t {
+  t1 -> t2 [type="st_m"]
 
-Es sei besonders auf die folgenden Beziehungen hingewiesen:
+  // linker Zweig unter t1
+  t2 -> t3 [type="s_m"]
+  t3 -> t4 [type="st_m"]
+  t3 -> t5 [type="st_m"]
 
-- $t_1$ hat die Beziehung **erforderliche Teilaufgabe** zu $t_2$, wobei $t_2$ eine
-  **Aufgabensequenz** mit $t_3$ bildet
-- $t_3$ hat zwei **erforderliche Teilaufgaben** $t_4$ und $t_5$
+  // rechter Zweig unter t1
+  t1 -> t6 [type="st_m"]
+  t1 -> t7 [type="c_f"]
+  t1 -> t8 [type="c_c"]
+}
+```
 
-Diese Beziehungen haben den Effekt, dass erst $t_2$, dann $t_4$ und $t_5$ (als Teilaufgaben
-von $t_3$) und anschließend $t_3$ bearbeitet werden müssen, bevor der linke Zweig unter
-$t_1$ als abgeschlossen gilt.
+Es gelten folgende Beziehungen:
+
+1. $t_1$ hat die **erforderlichen Teilaufgaben** $t_2$ und $t_6$
+2. $t_2$ bildet eine **Aufgabensequenz** mit $t_3$
+3. $t_3$ hat zwei **erforderliche Teilaufgaben** $t_4$ und $t_5$
+4. $t_6$ hat die **bedingten Folgeaufgaben** $t_7$ und $t_8$
+
+Die Beziehungen **2.** und **3.** haben den Effekt, dass erst $t_2$, dann $t_4$ und $t_5$
+(als Teilaufgaben von $t_3$) und anschließend $t_3$ bearbeitet werden müssen, bevor der
+linke Zweig unter $t_1$ als abgeschlossen gilt.
