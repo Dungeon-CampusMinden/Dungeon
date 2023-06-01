@@ -19,15 +19,17 @@ welche sämtliche semantischen Informationen (Typinformationen, Scopes, Symbolta
 in einer `IEnvironment`-Instanz sammelt.
 
 **NOTE**: Die Evaluierung der `quest_config`-Definition ist die **einzige** Art der
-Interpretation, die der `DSLInterperter` standardmäßig durchführt. Es ist aktuell kein
-**eigenständiger** DSL-Loop oder ähnliches vorgesehen, der parallel bzw. mit dem Gameloop
+Interpretation, die der `DSLInterperter` standardmäßig durchführt. Der Interpreter für
+Laufzeit-Petri-Netze wird hier konzeptionell getrennt vom `DSLInterpreter` betrachtet. Es
+ist aktuell kein **eigenständiger** DSL-Loop vorgesehen, der parallel bzw. mit dem Gameloop
 des Dungeons mitläuft und kontinuierlich Teile des DSL-Programms ausführt. Die weitere
 Tätigkeit des `DSLInterpreter`s beschränkt sich auf die Interpretation der Event-Handler
 DSL-Funktionen, die mit Entitäten verknüpft wurden (siehe dazu
-[Funktionsaufrufe](#funktionsaufrufe)). Wie sich dies mit Laufzeit-Petri-Netzen ändert, ist
-noch nicht abschließend geklärt. Die hier abgebildete Pipeline (insbesondere die
+[Funktionsaufrufe](#funktionsaufrufe)). Die hier abgebildete Pipeline (insbesondere die
 “Interpretation”-Phase) stellt noch nicht dar, wie Funktionsaufrufe (z.B. als Handler für
-Events aus der Dungeon-Laufzeit) und Laufzeit-Petri-Netze behandelt werden.
+Events aus der Dungeon-Laufzeit) und Laufzeit-Petri-Netze behandelt werden. Es ist noch
+nicht abschließend geklärt, wie die Laufzeit-Petri-Netze interpretiert werden und wie die
+Interaktion des `DSLInterpreter`s mit diesem Petri-Netz-Interpreter aussieht.
 
 ### Laufzeitinitialisierung
 
