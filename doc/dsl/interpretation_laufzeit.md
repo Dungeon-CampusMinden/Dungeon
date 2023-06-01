@@ -329,9 +329,4 @@ public Object call(DSLInterpreter interpreter, List<Node> parameters) {
 
 Das Sequenzdiagramm der Methode `executeUserDefinedFunction` ist unten dargestellt:
 
-TODO; Ablauf:
-- Auslesen von Root-AST-Knoten der Funktionsdefinition
-- Erstellen von neuem Funktions-MemorySpace
-- Pushen von Parametern in MemorySpace
-- Pushen von Return-`Value` in MemorySpace (TODO)
-- Traversierung über Statement AST-Knoten
+Note: kommt mit [Issue #705](https://github.com/Programmiermethoden/Dungeon/issues/705).
