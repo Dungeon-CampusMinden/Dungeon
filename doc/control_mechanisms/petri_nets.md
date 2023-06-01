@@ -55,6 +55,8 @@ um den Zustand der Aufgaben aus dem Petri-Netz auszulesen.
 
 ### Erforderliche Teilaufgabe
 
+Gegeben seien zwei (Teil-) Aufgaben $t_1$ und $t_2$.
+
 Für $t_2$ muss eine Antwort abgegeben werden, bevor $t_1$ abgeschlossen werden kann; $t_1$
 wird zuerst aktiviert und bleibt aktiv, während $t_2$ bearbeitet wird.
 
@@ -115,6 +117,8 @@ freigeschaltet wird.
 
 ### Optionale Teilaufgabe
 
+Gegeben seien zwei (Teil-) Aufgaben $t_1$ und $t_2$.
+
 Für $t_2$ muss nicht zwingend eine Antwort gegeben werden, bevor $t_1$ abgeschlossen werden
 kann. Eine gegebene Antwort für $t_2$ könnte aber bspw. Bonus-Punkte geben.
 
@@ -145,6 +149,8 @@ Beim Abschließen einer optionalen Teilaufgabe werden zwei Fälle unterschieden:
 
 ### Aufgabensequenz
 
+Gegeben seien zwei (Teil-) Aufgaben $t_1$ und $t_2$.
+
 Für $t_1$ muss eine Antwort abgegeben werden, bevor $t_2$ aktiv wird. $t_1$ ist vollständig
 abgeschlossen (und daher inaktiv), während $t_2$ aktiv ist. Die **gesamte Aufgabensequenz**
 gilt erst als abgeschlossen, wenn die letzte Aufgabe der Sequenz abgeschlossen ist.
@@ -172,7 +178,7 @@ task_dependency t {
 
 ### Bedingte Folgeaufgabe
 
-Gegeben sei eine dritte Aufgabe $t_3$.
+Gegeben seien drei (Teil-) Aufgaben $t_1$, $t_2$ und $t_3$.
 
 Abhängig davon, ob die gegebene Antwort für $t_1$ korrekt oder falsch (oder zu einem
 gewissen Prozentsatz korrekt) ist, muss entweder $t_2$ oder $t_3$ bearbeitet werden.
