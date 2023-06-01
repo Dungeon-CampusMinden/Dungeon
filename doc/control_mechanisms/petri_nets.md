@@ -50,7 +50,7 @@ Hieraus resultieren folgende Designentscheidungen:
     Petri-Netz übermittelt, da dieser Prozess eng mit dem konkreten Szenario verknüpft ist,
     welches in der DSL definiert ist.
 
-Die Stellen die durch 1. und 2. definiert werden, sollen vom Dungeon genutzt werden können,
+Die Stellen, die durch 1. und 2. definiert werden, sollen vom Dungeon genutzt werden können,
 um den Zustand der Aufgaben aus dem Petri-Netz auszulesen.
 
 ### Erforderliche Teilaufgabe
