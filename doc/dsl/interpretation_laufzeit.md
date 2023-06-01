@@ -176,13 +176,13 @@ folgenden Kapitel erläutert.
 
 Der Begriff “Typinstanziierung” beschreibt zwei Prozesse:
 
-1. Die Erstellung einer neuen `AggregateValue`-Instanz für einen DSL-Datentyp. In diesem
-   Fall “lebt” die Instanz allein im DSL-Kontext, in der Regel in einem `IMemorySpace`.
-   Dieser Fall wird vom `DSLInterpreter` realisiert.
-2. Die Erstellung einer neuen Instanz einer Java-Klasse, aus der per `DSLType`-Annotation
-   ein DSL-Datentyp erstellt wurde (siehe [Typebuilding](typebuilding.md).
-   So erstellte Instanzen existieren nicht nur im DSL-Kontext, sondern werden auch im
-   Dungeon-Framework weiter verwendet. Dieser Fall wird vom `TypeInstantiator` realisiert.
+1.  Die Erstellung einer neuen `AggregateValue`-Instanz für einen DSL-Datentyp. In diesem
+    Fall “lebt” die Instanz allein im DSL-Kontext, in der Regel in einem `IMemorySpace`.
+    Dieser Fall wird vom `DSLInterpreter` realisiert.
+2.  Die Erstellung einer neuen Instanz einer Java-Klasse, aus der per `DSLType`-Annotation
+    ein DSL-Datentyp erstellt wurde (siehe [Typebuilding](typebuilding.md). So erstellte
+    Instanzen existieren nicht nur im DSL-Kontext, sondern werden auch im Dungeon-Framework
+    weiter verwendet. Dieser Fall wird vom `TypeInstantiator` realisiert.
 
 ### Instanziierung von `Prototype`/`AggregateType` als `AggregateValue`
 
