@@ -131,15 +131,6 @@ Dungeon-Framework zurück. Die `QuestConfig`-Instanz enthält alle Informationen
 Dungeon-Framework, um ein Dungeonlevel mit spezifizierten Entitäten (als
 `game_object`-Definition) zu erzeugen.
 
-**Wann und wie interpretiert der Interpreter?**
-
-Die Evaluierung der `quest_config`-Definition ist die **einzige** Art der Interpretation,
-die der `DSLInterperter` standardmäßig durchführt. Es ist aktuell kein **eigenständiger**
-DSL-Loop oder ähnliches vorgesehen, der parallel bzw. mit dem Gameloop des Dungeons mitläuft
-und kontinuierlich Teile des DSL-Programms ausführt. Die weitere Tätigkeit des
-`DSLInterpreter`s beschränkt sich auf die Interpretation der Event-Handler DSL-Funktionen,
-die mit Entitäten verknüpft wurden (siehe dazu [Funktionsaufrufe](#funktionsaufrufe)).
-
 ## `Value` und `IMemorySpace`
 
 Die `Value`-Klasse wird verwendet um alle Werte und Objekte zu verwalten, die vom
