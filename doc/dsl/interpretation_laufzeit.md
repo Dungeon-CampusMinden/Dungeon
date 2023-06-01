@@ -261,7 +261,8 @@ wird nicht direkt der interne Wert der `Value`-Instanz in die Klasseninstanz üb
 Zwischenschritt wird die [Builder-Methode](typebuilding.md#1-nur-ein-parameter-nötig) für
 den Typadapter aufgerufen. Das so erstellte Objekt wird in die Klasseninstanz übertragen.
 
-NOTE: Hier scheint in `TypeBuilder:150` noch was konzeptionell nicht ganz zu stimmen.
+NOTE: Hier scheint in `TypeInstantiator:150` noch was konzeptionell nicht ganz zu stimmen
+(Fix kommt mit [PR #272](https://github.com/Programmiermethoden/Dungeon/pull/272))
 
 TODO:
 - Instanziierung von AggregateTypeAdapter (kommt mit [PR #272](https://github.com/Programmiermethoden/Dungeon/pull/272))
