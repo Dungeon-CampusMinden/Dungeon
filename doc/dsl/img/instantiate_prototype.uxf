@@ -1,0 +1,37 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>15</zoom_level><element><id>UMLClass</id><coordinates><x>555</x><y>270</y><w>180</w><h>45</h></coordinates><panel_attributes>DSLInterpreter</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>990</x><y>375</y><w>210</w><h>45</h></coordinates><panel_attributes>AggregateValue</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1080</x><y>405</y><w>45</w><h>420</h></coordinates><panel_attributes>lt=.
+layer=-1</panel_attributes><additional_attributes>10;10;10;260</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>1080</x><y>795</y><w>30</w><h>60</h></coordinates><panel_attributes>fg=BLACK
+bg=WHITE
+layer=2</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1080</x><y>840</y><w>45</w><h>150</h></coordinates><panel_attributes>lt=.
+layer=-1</panel_attributes><additional_attributes>10;80;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>630</x><y>300</y><w>45</w><h>75</h></coordinates><panel_attributes>lt=.
+layer=-1</panel_attributes><additional_attributes>10;10;10;30</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>630</x><y>345</y><w>30</w><h>585</h></coordinates><panel_attributes>fg=BLACK
+layer=-1
+bg=WHITE</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>630</x><y>915</y><w>45</w><h>75</h></coordinates><panel_attributes>lt=.
+layer=-1</panel_attributes><additional_attributes>10;10;10;30</additional_attributes></element><element><id>UMLFrame</id><coordinates><x>555</x><y>435</y><w>570</w><h>450</h></coordinates><panel_attributes>loop: each member of Prototype
+layer=0</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>480</x><y>330</y><w>180</w><h>60</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+Prototype</panel_attributes><additional_attributes>100;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>645</x><y>345</y><w>375</w><h>60</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+create</panel_attributes><additional_attributes>230;20;10;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>945</x><y>570</y><w>90</w><h>45</h></coordinates><panel_attributes>Value
+layer=3</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>645</x><y>540</y><w>330</w><h>75</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+layer=3
+Defaultwert aus
+Prototype kopieren</panel_attributes><additional_attributes>200;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>975</x><y>600</y><w>45</w><h>120</h></coordinates><panel_attributes>lt=.
+layer=3</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLFrame</id><coordinates><x>570</x><y>480</y><w>495</w><h>300</h></coordinates><panel_attributes>alt
+halign=left
+layer=0
+--
+[Prototyp hat Defaultwert für Member]
+
+
+
+
+-.
+[else]
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>645</x><y>795</y><w>465</w><h>75</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+layer=3
+Value mit 
+Membernamen binden</panel_attributes><additional_attributes>290;20;10;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>945</x><y>690</y><w>90</w><h>45</h></coordinates><panel_attributes>Value
+layer=3</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>975</x><y>720</y><w>45</w><h>270</h></coordinates><panel_attributes>lt=.
+layer=3</panel_attributes><additional_attributes>10;10;10;160</additional_attributes></element><element><id>Relation</id><coordinates><x>645</x><y>660</y><w>330</w><h>75</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+layer=3
+Defaultwert für
+Datentyp erzeugen</panel_attributes><additional_attributes>200;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>450</x><y>885</y><w>210</w><h>60</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+    AggregateValue</panel_attributes><additional_attributes>10;20;120;20</additional_attributes></element></diagram>

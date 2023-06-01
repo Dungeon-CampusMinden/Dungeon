@@ -1,0 +1,33 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>770</x><y>380</y><w>260</w><h>70</h></coordinates><panel_attributes>**_my_obj: Prototype_**
+--
+HashMap&lt;String, Value&gt; defaultValues</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>610</x><y>520</y><w>240</w><h>70</h></coordinates><panel_attributes>**_velocity_component: Prototype_**
+--
+HashMap&lt;String, Value&gt; defaultValues</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>950</x><y>520</y><w>240</w><h>70</h></coordinates><panel_attributes>**_animation_component: Prototype_**
+--
+HashMap&lt;String, Value&gt; defaultValues</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>720</x><y>440</y><w>200</w><h>100</h></coordinates><panel_attributes>lt=&lt;&lt;-
+default
+Value</panel_attributes><additional_attributes>180;10;180;50;10;50;10;80</additional_attributes></element><element><id>Relation</id><coordinates><x>890</x><y>440</y><w>200</w><h>100</h></coordinates><panel_attributes>lt=&lt;&lt;-
+default
+Value</panel_attributes><additional_attributes>10;10;10;50;180;50;180;80</additional_attributes></element><element><id>UMLClass</id><coordinates><x>310</x><y>650</y><w>240</w><h>70</h></coordinates><panel_attributes>**_velocity_component: AggregateType_**
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1240</x><y>650</y><w>240</w><h>70</h></coordinates><panel_attributes>**_animation_component: AggregateType_**
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>420</x><y>540</y><w>210</w><h>130</h></coordinates><panel_attributes>lt=&lt;&lt;-
+internalType</panel_attributes><additional_attributes>190;20;10;20;10;110</additional_attributes></element><element><id>Relation</id><coordinates><x>1180</x><y>540</y><w>200</w><h>130</h></coordinates><panel_attributes>lt=&lt;&lt;-
+internalType</panel_attributes><additional_attributes>10;20;180;20;180;110</additional_attributes></element><element><id>UMLClass</id><coordinates><x>580</x><y>650</y><w>140</w><h>70</h></coordinates><panel_attributes>**_x_velocity: Value_**
+--
+value=2.0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>740</x><y>650</y><w>140</w><h>70</h></coordinates><panel_attributes>**_y_velocity: Value_**
+--
+value=3.0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>920</x><y>650</y><w>140</w><h>70</h></coordinates><panel_attributes>**_idle_left: Value_**
+--
+value="path/to/frames"</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1080</x><y>650</y><w>140</w><h>70</h></coordinates><panel_attributes>**_idle_right: Value_**
+--
+value="path/to/frames"</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>640</x><y>580</y><w>110</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;-
+default
+Value</panel_attributes><additional_attributes>90;10;90;40;10;40;10;70</additional_attributes></element><element><id>Relation</id><coordinates><x>720</x><y>580</y><w>110</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;-
+default
+Value</panel_attributes><additional_attributes>10;10;10;40;90;40;90;70</additional_attributes></element><element><id>Relation</id><coordinates><x>980</x><y>580</y><w>110</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;-
+default
+Value</panel_attributes><additional_attributes>90;10;90;40;10;40;10;70</additional_attributes></element><element><id>Relation</id><coordinates><x>1060</x><y>580</y><w>110</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;-
+default
+Value</panel_attributes><additional_attributes>10;10;10;40;90;40;90;70</additional_attributes></element></diagram>

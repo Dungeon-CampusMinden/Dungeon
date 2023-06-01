@@ -1,0 +1,24 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>13</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>767</x><y>390</y><w>338</w><h>65</h></coordinates><panel_attributes>**_velocity_component: AggregateValue_**
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>416</x><y>520</y><w>312</w><h>65</h></coordinates><panel_attributes>**_velocity_component: AggregateType_**
+--</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>819</x><y>520</y><w>234</w><h>65</h></coordinates><panel_attributes>**_ms: IMemorySpace_**
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>559</x><y>403</y><w>234</w><h>143</h></coordinates><panel_attributes>lt=&lt;&lt;-
+dataType</panel_attributes><additional_attributes>160;20;10;20;10;90</additional_attributes></element><element><id>Relation</id><coordinates><x>923</x><y>442</y><w>65</w><h>104</h></coordinates><panel_attributes>lt=&lt;&lt;-
+has</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>507</x><y>715</y><w>156</w><h>91</h></coordinates><panel_attributes>**_x_velocity: Value_**
+--
+value = 2.0
+type = BuiltIn.float</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1209</x><y>715</y><w>156</w><h>91</h></coordinates><panel_attributes>**_y_velocity: Value_**
+--
+value = 3.0
+type = BuiltIn.float</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>572</x><y>572</y><w>390</w><h>169</h></coordinates><panel_attributes>lt=&lt;&lt;-
+</panel_attributes><additional_attributes>280;10;280;80;10;80;10;110</additional_attributes></element><element><id>Relation</id><coordinates><x>923</x><y>572</y><w>390</w><h>169</h></coordinates><panel_attributes>lt=&lt;&lt;-
+</panel_attributes><additional_attributes>10;10;10;80;280;80;280;110</additional_attributes></element><element><id>UMLClass</id><coordinates><x>949</x><y>715</y><w>234</w><h>91</h></coordinates><panel_attributes>**_move_right_animation: Value_**
+--
+value = ""
+type = BuiltIn.string</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>689</x><y>715</y><w>234</w><h>91</h></coordinates><panel_attributes>**_move_left_animation: Value_**
+--
+value = ""
+type = BuiltIn.string</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>923</x><y>572</y><w>169</w><h>169</h></coordinates><panel_attributes>lt=&lt;&lt;-
+</panel_attributes><additional_attributes>10;10;10;80;110;80;110;110</additional_attributes></element><element><id>Relation</id><coordinates><x>793</x><y>572</y><w>169</w><h>169</h></coordinates><panel_attributes>lt=&lt;&lt;-
+</panel_attributes><additional_attributes>110;10;110;80;10;80;10;110</additional_attributes></element></diagram>

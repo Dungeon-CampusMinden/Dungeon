@@ -476,6 +476,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
 
         // visit function AST
+        // TODO: this could just be retrieved from the FunctionSymbol..
         var funcAstNode = this.symbolTable().getCreationAstNode(symbol);
         funcAstNode.accept(this);
 
