@@ -31,6 +31,13 @@ Events aus der Dungeon-Laufzeit) und Laufzeit-Petri-Netze behandelt werden. Es i
 nicht abschließend geklärt, wie die Laufzeit-Petri-Netze interpretiert werden und wie die
 Interaktion des `DSLInterpreter`s mit diesem Petri-Netz-Interpreter aussieht.
 
+Issues hierzu:
+
+- [Funktionsschnittstelle - PR
+\#97](https://github.com/Programmiermethoden/Dungeon/issues/97)
+- [Konzept zur Interpretation von Petri-Netzen zur Laufzeit - PR
+\#707](https://github.com/Programmiermethoden/Dungeon/issues/707)
+
 ### Laufzeitinitialisierung
 
 Zuerst lädt der `DSLInterpreter` die Symbol- und Typinformationen aus der übergebenen
@@ -313,8 +320,9 @@ public Object call(DSLInterpreter interperter, List<Node> parameters) {
 
 ### Per DSL definierte Funktionen
 
-Note: Die Doku hierzu wird in [Issue #345](https://github.com/Programmiermethoden/Dungeon/issues/345)
-ausgebaut und aktualisiert.
+Note: Die Doku hierzu wird in [Issue
+\#345](https://github.com/Programmiermethoden/Dungeon/issues/345) ausgebaut und
+aktualisiert.
 
 Per DSL definierte Funktionen (‘user-defined functions’) werden als `FunctionSymbol`
 repräsentiert. Die semantische Analyse speichert den AST-Wurzelknoten der
@@ -330,4 +338,4 @@ public Object call(DSLInterpreter interpreter, List<Node> parameters) {
 
 Das Sequenzdiagramm der Methode `executeUserDefinedFunction` ist unten dargestellt:
 
-Note: kommt mit [Issue #705](https://github.com/Programmiermethoden/Dungeon/issues/705).
+Note: kommt mit [Issue \#705](https://github.com/Programmiermethoden/Dungeon/issues/705).
