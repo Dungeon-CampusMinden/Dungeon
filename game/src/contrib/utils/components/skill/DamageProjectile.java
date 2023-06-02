@@ -115,8 +115,12 @@ public abstract class DamageProjectile implements Consumer<Entity> {
                                 .ifPresent(
                                         hc -> {
                                             // Apply the projectile damage to the collided entity
-                                            ((HealthComponent) hc).receiveHit(projectileDamage);
-
+                                            ((HealthComponent) hc)
+                                                    .receiveHit(
+                                                            new Damage(
+                                                                    projectileDamage.damageAmount(),
+                                                                    projectileDamage.damageType(),
+                                                                    entity));
                                             // Remove the projectile entity from the game
                                             Game.removeEntity(projectile);
                                         });
