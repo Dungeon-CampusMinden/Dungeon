@@ -17,6 +17,7 @@ import contrib.systems.*;
 
 import core.components.PositionComponent;
 import core.configuration.Configuration;
+import core.hud.Inventory.InventoryGUI;
 import core.hud.UITools;
 import core.level.IOnLevelLoader;
 import core.level.Tile;
@@ -269,6 +270,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
                         batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelManager.loadLevel(LEVELSIZE);
         createSystems();
+        controller.add(InventoryGUI.getInstance());
+        InventoryGUI.getInstance().closeInventory();
     }
 
     /**
