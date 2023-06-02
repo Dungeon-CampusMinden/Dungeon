@@ -17,6 +17,7 @@ import contrib.systems.*;
 
 import core.components.PositionComponent;
 import core.configuration.Configuration;
+import core.hud.HeroUI;
 import core.hud.UITools;
 import core.level.IOnLevelLoader;
 import core.level.Tile;
@@ -269,6 +270,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
                         batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelManager.loadLevel(LEVELSIZE);
         createSystems();
+        controller.add(HeroUI.getHeroUI());
     }
 
     /**
@@ -280,6 +282,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private void frame() {
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         debugKeys();
+        HeroUI.getHeroUI().updateUI(HeroUI.getHeroUI().buildDataObject());
     }
 
     /** Just for debugging, remove later. */
@@ -318,6 +321,12 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         removeAllEntities();
         getHero().ifPresent(this::placeOnLevelStart);
         getHero().ifPresent(Game::addEntity);
+        try {
+            // TODO: remove this after testing
+            EntityFactory.createTestEnemy();
+        } catch (IOException e) {
+            LOGGER.warning("Could not create new TestEnemy: " + e.getMessage());
+        }
         try {
             EntityFactory.getChest();
         } catch (IOException e) {
