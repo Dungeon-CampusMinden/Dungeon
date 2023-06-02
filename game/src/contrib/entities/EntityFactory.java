@@ -2,6 +2,9 @@ package contrib.entities;
 
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
+import contrib.utils.components.ai.fight.RangeAI;
+import contrib.utils.components.ai.idle.RadiusWalk;
+import contrib.utils.components.ai.transition.RangeTransition;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.item.ItemData;
@@ -44,6 +47,10 @@ public class EntityFactory {
 
         Entity hero = new Entity("hero");
         new PositionComponent(hero);
+        HealthComponent hc = new HealthComponent(hero);
+        hc.setMaximalHealthpoints(10);
+        hc.setCurrentHealthpoints(10);
+        new XPComponent(hero);
         new VelocityComponent(hero, xSpeed, ySpeed);
         new DrawComponent(hero, "character/knight");
         new CollideComponent(
@@ -142,5 +149,21 @@ public class EntityFactory {
         dc.getAnimation(CoreAnimations.IDLE_RIGHT).ifPresent(a -> a.setLoop(false));
 
         return chest;
+    }
+
+    public static void createTestEnemy() throws IOException {
+        // TODO: remove this after testing
+        Entity imp = new Entity();
+        new PositionComponent(imp);
+        new HealthComponent(imp);
+        new DrawComponent(imp, "character/monster/imp");
+        new VelocityComponent(imp);
+        new XPComponent(imp, null, 10);
+        new CollideComponent(imp);
+        new AIComponent(
+                imp,
+                new RangeAI(3, 1, new Skill(new FireballSkill(SkillTools::getHeroPosition), 2)),
+                new RadiusWalk(1, 1),
+                new RangeTransition(3));
     }
 }
