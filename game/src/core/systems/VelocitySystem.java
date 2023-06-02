@@ -55,9 +55,23 @@ public class VelocitySystem extends System {
     private void updatePosition(VSData vsd) {
         float newX = vsd.pc.getPosition().x + vsd.vc.getCurrentXVelocity();
         float newY = vsd.pc.getPosition().y + vsd.vc.getCurrentYVelocity();
+        ProjectileComponent projectileComponent =
+                (ProjectileComponent) vsd.e.getComponent(ProjectileComponent.class).orElse(null);
         Point newPosition = new Point(newX, newY);
         if (Game.currentLevel.getTileAt(newPosition.toCoordinate()).isAccessible()) {
             vsd.pc.setPosition(newPosition);
+            movementAnimation(vsd);
+        } else if (Game.currentLevel
+                        .getTileAt(new Point(newX, vsd.pc.getPosition().y).toCoordinate())
+                        .isAccessible()
+                && projectileComponent == null) {
+            vsd.pc.setPosition(new Point(newX, vsd.pc.getPosition().y));
+            movementAnimation(vsd);
+        } else if (Game.currentLevel
+                        .getTileAt(new Point(vsd.pc.getPosition().x, newY).toCoordinate())
+                        .isAccessible()
+                && projectileComponent == null) {
+            vsd.pc.setPosition(new Point(vsd.pc.getPosition().x, newY));
             movementAnimation(vsd);
         }
 

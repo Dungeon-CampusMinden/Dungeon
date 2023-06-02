@@ -2,6 +2,8 @@ package core.components;
 
 import com.badlogic.gdx.Gdx;
 
+import contrib.configuration.KeyboardConfig;
+
 import core.Component;
 import core.Entity;
 
@@ -29,7 +31,7 @@ import java.util.logging.Logger;
 public class PlayerComponent extends Component {
 
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
-    private Map<Integer, Consumer<Entity>> functions;
+    private final Map<Integer, Consumer<Entity>> functions;
 
     /**
      * Creates a new PlayerComponent.
@@ -71,10 +73,16 @@ public class PlayerComponent extends Component {
      * be executed.
      */
     public void execute() {
-        functions.forEach((k, f) -> execute(k, f));
+        functions.forEach(this::execute);
     }
 
     private void execute(Integer key, Consumer<Entity> function) {
-        if (Gdx.input.isKeyPressed(key)) function.accept(entity);
+        if (key == KeyboardConfig.INVENTORY_OPEN.get() && Gdx.input.isKeyJustPressed(key))
+            function.accept(entity);
+        else if (key == KeyboardConfig.INTERACT_WORLD.get() && Gdx.input.isKeyJustPressed(key))
+            function.accept(entity);
+        else if (!(key == KeyboardConfig.INVENTORY_OPEN.get()
+                        || key == KeyboardConfig.INTERACT_WORLD.get())
+                && Gdx.input.isKeyPressed(key)) function.accept(entity);
     }
 }
