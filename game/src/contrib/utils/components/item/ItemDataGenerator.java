@@ -9,27 +9,27 @@ import java.util.Random;
 public class ItemDataGenerator {
     private static final List<String> missingTexture = List.of("animation/missingTexture.png");
 
-    private List<ItemData> templates =
+    private final List<ItemData> templates =
             List.of(
                     new ItemData(
                             ItemType.Basic,
-                            new Animation(missingTexture, 1),
-                            new Animation(missingTexture, 1),
+                            new Animation(List.of("animation/bronzeBow.png"), 1),
+                            new Animation(List.of("animation/bronzeBow.png"), 1),
                             "Buch",
                             "Ein sehr lehrreiches Buch."),
                     new ItemData(
                             ItemType.Basic,
-                            new Animation(missingTexture, 1),
-                            new Animation(missingTexture, 1),
+                            new Animation(List.of("animation/bag_small.png"), 1),
+                            new Animation(List.of("animation/bag_small.png"), 1),
                             "Tuch",
                             "Ein sauberes Tuch.."),
                     new ItemData(
-                            ItemType.Basic,
-                            new Animation(missingTexture, 1),
-                            new Animation(missingTexture, 1),
+                            ItemType.Active,
+                            new Animation(List.of("animation/blueBook.png"), 1),
+                            new Animation(List.of("animation/blueBook.png"), 1),
                             "Namensschild",
                             "Ein Namensschild wo der Name nicht mehr lesbar ist.."));
-    private Random rand = new Random();
+    private final Random rand = new Random();
 
     /**
      * @return a new randomItemData
