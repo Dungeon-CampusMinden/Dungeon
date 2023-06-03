@@ -5,6 +5,7 @@ import ecs.components.*;
 import ecs.components.skill.*;
 import ecs.damage.Damage;
 import ecs.components.skill.ExplosivePebbleSkill;
+import ecs.components.stats.StatsComponent;
 import graphic.Animation;
 import ecs.components.OnDeathFunctions.EndGame;
 import ecs.components.quests.Quest;
@@ -58,6 +59,7 @@ public class Hero extends Entity implements Serializable {
         setupQuestComponent(questLog);
         new InventoryComponent(this, 2);
         setupManaComponent(maxMana, currentMana);
+        setupStatsComponent();
     }
 
     private void setupVelocityComponent() {
@@ -115,5 +117,9 @@ public class Hero extends Entity implements Serializable {
 
     private void setupManaComponent(int maxMana, int currentMana) {
         new ManaComponent(this, maxMana, currentMana);
+    }
+
+    private void setupStatsComponent() {
+        new StatsComponent(this);
     }
 }
