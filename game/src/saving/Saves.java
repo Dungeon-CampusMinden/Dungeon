@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import ecs.components.HealthComponent;
 import ecs.components.InventoryComponent;
+import ecs.components.ManaComponent;
 import ecs.components.quests.QuestComponent;
 import ecs.entities.Hero;
 
@@ -51,12 +52,13 @@ public class Saves {
 
     private void setupHero(GameData gameData) {
         HealthComponent health = (HealthComponent) gameData.hero().getComponent(HealthComponent.class).get();
+        ManaComponent mana = (ManaComponent) gameData.hero().getComponent(ManaComponent.class).get();
         QuestComponent quest = (QuestComponent) gameData.hero().getComponent(QuestComponent.class).get();
 
         InventoryComponent inventory = (InventoryComponent) gameData.hero().getComponent(InventoryComponent.class)
                 .get();
         ((Hero) gameData.hero()).setupComponents(health.getMaximalHealthpoints(), health.getCurrentHealthpoints(),
-                quest.getQuestLog());
+                quest.getQuestLog(), mana.getMaxMana(), mana.getCurrentMana());
         InventoryComponent ic = (InventoryComponent) gameData.hero().getComponent(InventoryComponent.class).get();
         inventory.getItems().stream()
                 .filter(i -> i != null)

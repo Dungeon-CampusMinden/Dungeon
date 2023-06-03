@@ -26,6 +26,7 @@ public class Hero extends Entity implements Serializable {
     private final float xSpeed = 0.3f;
     private final float ySpeed = 0.3f;
     private final int maxHealth = 100;
+    private final int maxMana = 100;
 
     private final String pathToIdleLeft = "knight/idleLeft";
     private final String pathToIdleRight = "knight/idleRight";
@@ -39,11 +40,12 @@ public class Hero extends Entity implements Serializable {
     /** Entity with Components */
     public Hero() {
         super();
-        setupComponents(maxHealth, maxHealth, new ArrayList<>());
+        setupComponents(maxHealth, maxHealth, new ArrayList<>(), maxMana, maxMana);
     }
 
     /** Maybe this will let me load */
-    public void setupComponents(int maxHealth, int currentHealth, ArrayList<Quest> questLog) {
+    public void setupComponents(int maxHealth, int currentHealth, ArrayList<Quest> questLog, int maxMana,
+            int currentMana) {
         new PositionComponent(this);
         setupVelocityComponent();
         setupAnimationComponent();
@@ -55,6 +57,7 @@ public class Hero extends Entity implements Serializable {
         pc.setSkillSlot2(secondSkill);
         setupQuestComponent(questLog);
         new InventoryComponent(this, 2);
+        setupManaComponent(maxMana, currentMana);
     }
 
     private void setupVelocityComponent() {
@@ -108,5 +111,9 @@ public class Hero extends Entity implements Serializable {
 
     private void setupQuestComponent(ArrayList<Quest> questLog) {
         new QuestComponent(this, questLog);
+    }
+
+    private void setupManaComponent(int maxMana, int currentMana) {
+        new ManaComponent(this, maxMana, currentMana);
     }
 }
