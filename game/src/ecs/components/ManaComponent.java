@@ -6,7 +6,7 @@ import ecs.entities.Entity;
 
 public class ManaComponent extends Component {
 
-    private int currentMana, maxMana;
+    private int currentMana, maxMana, regenerationRatePerSecond = 1;
     private transient final Logger manaLogger = Logger.getLogger(this.getClass().getName());
 
     /**
@@ -40,6 +40,15 @@ public class ManaComponent extends Component {
         this.maxMana = maxMana;
         this.currentMana = currentMana > maxMana ? maxMana : currentMana;
         manaLogger.info("New ManaComponent created:: maxMana = " + maxMana + ", currentMana = " + currentMana);
+    }
+
+    /**
+     * Increments the current mana by {@code 1} every {@code} 1000 /
+     * regenerationRatePerSecond {@code} milliseconds
+     */
+    public void regenerate() {
+        currentMana += currentMana < maxMana && System.currentTimeMillis() % (1000 / regenerationRatePerSecond) == 0 ? 1
+                : 0;
     }
 
     /**
@@ -78,12 +87,20 @@ public class ManaComponent extends Component {
         this.currentMana = maxMana > currentMana ? currentMana : maxMana;
     }
 
+    public void setRegenerationRatePerSecond(int regenerationRatePerSecond) {
+        this.regenerationRatePerSecond = regenerationRatePerSecond > 0 ? regenerationRatePerSecond : 1;
+    }
+
     public int getCurrentMana() {
         return currentMana;
     }
 
     public int getMaxMana() {
         return maxMana;
+    }
+
+    public int getRegenerationRatePerSecond() {
+        return regenerationRatePerSecond;
     }
 
 }
