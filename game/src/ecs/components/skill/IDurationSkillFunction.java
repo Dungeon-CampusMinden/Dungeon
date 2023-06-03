@@ -14,4 +14,10 @@ public interface IDurationSkillFunction extends ISkillFunction {
      */
     public boolean isActive();
 
+    /**
+     * Activate the skill
+     * 
+     */
+    public void activateDuration();
+
 }

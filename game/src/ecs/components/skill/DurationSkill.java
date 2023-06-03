@@ -1,28 +1,23 @@
 package ecs.components.skill;
 
 import ecs.entities.Entity;
-import tools.Constants;
 
 public class DurationSkill extends Skill {
 
-    private float durationInFrames, currentDurationInFrames = 0.0f;
+    private IDurationSkillFunction function;
 
     /**
      * Creates a new DurationSkill
      * 
-     * @implNote Obviously {@code IDurationSkillFunction} should be used instead of
-     *           {@code ISkillFunction}
-     * 
      * @param skillFunction     The function of the DurationSkill
      * @param coolDownInSeconds the number of seconds to wait before the skill can
      *                          be used again
-     * @param durationInSeconds the number of seconds the skill is active
      * 
      * @see IDurationSkillFunction
      */
-    public DurationSkill(ISkillFunction skillFunction, float coolDownInSeconds, float durationInSeconds) {
+    public DurationSkill(IDurationSkillFunction skillFunction, float coolDownInSeconds) {
         super(skillFunction, coolDownInSeconds);
-        this.durationInFrames = durationInSeconds * Constants.FRAME_RATE;
+        function = skillFunction;
     }
 
     /**
@@ -35,7 +30,7 @@ public class DurationSkill extends Skill {
     @Override
     public void execute(Entity entity) {
         if (!isOnCoolDown()) {
-            getSkillFunction().execute(entity);
+            function.execute(entity);
             activateCoolDown();
         }
     }
@@ -48,20 +43,7 @@ public class DurationSkill extends Skill {
      *         {@code 0}
      */
     public boolean isActive() {
-        return currentDurationInFrames > 0;
-    }
-
-    /**
-     * Modified method to also activate the duration of the skill
-     * <p/>
-     * {@inheritDoc}
-     * 
-     * @see Skill#activateCoolDown()
-     */
-    @Override
-    public void activateCoolDown() {
-        super.activateCoolDown();
-        currentDurationInFrames = durationInFrames;
+        return function.isActive();
     }
 
     /**
@@ -74,7 +56,7 @@ public class DurationSkill extends Skill {
     @Override
     public void reduceCoolDown() {
         if (isActive())
-            currentDurationInFrames--;
+            function.reduceDuration();
         else
             super.reduceCoolDown();
     }

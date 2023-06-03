@@ -49,8 +49,4 @@ public class Skill implements Serializable {
     public void reduceCoolDown() {
         currentCoolDownInFrames = Math.max(0, --currentCoolDownInFrames);
     }
-
-    protected ISkillFunction getSkillFunction() {
-        return skillFunction;
-    }
 }
