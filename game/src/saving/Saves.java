@@ -22,7 +22,7 @@ public class Saves {
         try {
             for (int i = 0; i < saves.length; i++) {
                 if (saves[i] != null)
-                    GameData.save(saves[i].get(), "saves/" + 1 + i + ".txt");
+                    GameData.save(saves[i].get(), "saves/" + (int) (1 + i) + ".txt");
             }
             GameData.save(autoSave.get(), "saves/autosave.txt");
         } catch (IOException e) {

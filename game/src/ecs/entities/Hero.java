@@ -4,7 +4,6 @@ import dslToGame.AnimationBuilder;
 import ecs.components.*;
 import ecs.components.skill.*;
 import ecs.damage.Damage;
-import ecs.components.skill.ExplosivePebbleSkill;
 import ecs.components.stats.StatsComponent;
 import graphic.Animation;
 import ecs.components.OnDeathFunctions.EndGame;
@@ -48,6 +47,8 @@ public class Hero extends Entity implements Serializable {
     public void setupComponents(int maxHealth, int currentHealth, ArrayList<Quest> questLog, int maxMana,
             int currentMana) {
         new PositionComponent(this);
+        setupManaComponent(maxMana, currentMana);
+        setupStatsComponent();
         setupVelocityComponent();
         setupAnimationComponent();
         setupHitboxComponent();
@@ -58,8 +59,6 @@ public class Hero extends Entity implements Serializable {
         pc.setSkillSlot2(secondSkill);
         setupQuestComponent(questLog);
         new InventoryComponent(this, 2);
-        setupManaComponent(maxMana, currentMana);
-        setupStatsComponent();
     }
 
     private void setupVelocityComponent() {
@@ -75,8 +74,10 @@ public class Hero extends Entity implements Serializable {
     }
 
     private void setupFireballSkill() {
-        firstSkill = new Skill(
-                new ExplosivePebbleSkill(SkillTools::getCursorPositionAsPoint, this), explosivePebbleCoolDown);
+        // firstSkill = new Skill(
+        // new ExplosivePebbleSkill(SkillTools::getCursorPositionAsPoint, this),
+        // explosivePebbleCoolDown);
+        firstSkill = new DurationSkill(new Rage(10, 4, this), 10);
     }
 
     private void setupStabSkill() {
