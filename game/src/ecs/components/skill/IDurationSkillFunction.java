@@ -3,7 +3,7 @@ package ecs.components.skill;
 public interface IDurationSkillFunction extends ISkillFunction {
 
     /**
-     * This one for sure is to be used to reduce the duration
+     * This is to be used to reduce the duration
      */
     public void reduceDuration();
 
