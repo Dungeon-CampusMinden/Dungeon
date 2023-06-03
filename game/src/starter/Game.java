@@ -16,6 +16,7 @@ import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.components.quests.QuestComponent;
+import ecs.components.xp.XPComponent;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.entities.Entity;
@@ -246,6 +247,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         saves.setAutoSave(Optional.of(data));
         saves.save();
         gameLogger.info("Level: " + level);
+        gameLogger.info("PlayerLevel: " + Long.toString(((Entity) hero).getComponent(XPComponent.class).isPresent()
+                ? ((Entity) hero).getComponent(XPComponent.class).map(XPComponent.class::cast).get().getCurrentLevel()
+                : 0));
     }
 
     private void manageEntitiesSets() {
@@ -461,7 +465,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             addEntity(new Imp(level));
         else if (random < 6)
             addEntity(new Chort(level));
-        else if(random < 9)
+        else if (random < 9)
             addEntity(new DarkKnight(level));
         else
             addEntity(new Boss(level));

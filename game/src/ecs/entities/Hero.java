@@ -5,6 +5,8 @@ import ecs.components.*;
 import ecs.components.skill.*;
 import ecs.damage.Damage;
 import ecs.components.stats.StatsComponent;
+import ecs.components.xp.ILevelUp;
+import ecs.components.xp.XPComponent;
 import graphic.Animation;
 import ecs.components.OnDeathFunctions.EndGame;
 import ecs.components.quests.Quest;
@@ -41,6 +43,7 @@ public class Hero extends Entity implements Serializable {
     public Hero() {
         super();
         setupStatsComponent();
+        setupXPComponent();
         setupComponents(maxHealth, maxHealth, new ArrayList<>(), maxMana, maxMana);
     }
 
@@ -122,5 +125,21 @@ public class Hero extends Entity implements Serializable {
 
     private void setupStatsComponent() {
         new StatsComponent(this);
+    }
+
+    private void setupXPComponent() {
+        new XPComponent(this, new ILevelUp() {
+
+            @Override
+            public void onLevelUp(long nexLevel) {
+                HealthComponent health = (HealthComponent) getComponent(HealthComponent.class).get();
+                health.setMaximalHealthpoints((int) (health.getMaximalHealthpoints() * 1.1f));
+                health.setCurrentHealthpoints(health.getMaximalHealthpoints());
+                ManaComponent mana = (ManaComponent) getComponent(ManaComponent.class).get();
+                mana.setMaxMana((int) (maxMana * 1.05f));
+                mana.setRegenerationRatePerSecond((int) (mana.getRegenerationRatePerSecond() * 1.1f));
+            }
+
+        });
     }
 }
