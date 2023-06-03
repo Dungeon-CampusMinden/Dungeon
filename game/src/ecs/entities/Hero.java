@@ -40,6 +40,7 @@ public class Hero extends Entity implements Serializable {
     /** Entity with Components */
     public Hero() {
         super();
+        setupStatsComponent();
         setupComponents(maxHealth, maxHealth, new ArrayList<>(), maxMana, maxMana);
     }
 
@@ -48,7 +49,6 @@ public class Hero extends Entity implements Serializable {
             int currentMana) {
         new PositionComponent(this);
         setupManaComponent(maxMana, currentMana);
-        setupStatsComponent();
         setupVelocityComponent();
         setupAnimationComponent();
         setupHitboxComponent();
