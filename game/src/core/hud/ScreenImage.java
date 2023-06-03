@@ -1,7 +1,9 @@
 package core.hud;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 
 import core.utils.Constants;
 import core.utils.Point;
@@ -22,5 +24,14 @@ public class ScreenImage extends Image {
 
         if (scale > 0) this.setScale(scale);
         else this.setScale(1 / Constants.DEFAULT_ZOOM_FACTOR);
+    }
+
+    /**
+     * Changes the Texture of the Image
+     *
+     * @param newTexturePath the Path to the new Texture
+     */
+    public void setTexture(String newTexturePath) {
+        this.setDrawable(new SpriteDrawable(new Sprite(new Texture(newTexturePath))));
     }
 }
