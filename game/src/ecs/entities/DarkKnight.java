@@ -3,6 +3,8 @@ package ecs.entities;
 import dslToGame.AnimationBuilder;
 import ecs.components.*;
 import ecs.components.skill.*;
+import ecs.components.xp.ILevelUp;
+import ecs.components.xp.XPComponent;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.entities.Entity;
@@ -57,6 +59,7 @@ public class DarkKnight extends Monster {
         setupHitboxComponent();
         setupHealthComponent();
         setupAIComponent();
+        setupXPComponent();
     }
 
     private void setupVelocityComponent() {
@@ -117,6 +120,19 @@ public class DarkKnight extends Monster {
 
     private int calcDamage() {
         return 5 + (int) Math.sqrt(10 * level);
+    }
+
+    private void setupXPComponent() {
+        new XPComponent(this, new ILevelUp() {
+
+            @Override
+            public void onLevelUp(long nexLevel) {
+                HealthComponent health = (HealthComponent) getComponent(HealthComponent.class).get();
+                health.setMaximalHealthpoints((int) (health.getMaximalHealthpoints() * 1.01f));
+                health.setCurrentHealthpoints(health.getMaximalHealthpoints());
+            }
+
+        }, 40 * level);
     }
 
 }

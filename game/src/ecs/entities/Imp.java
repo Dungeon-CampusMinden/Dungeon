@@ -6,6 +6,8 @@ import ecs.components.skill.*;
 import ecs.damage.Damage;
 import ecs.entities.Entity;
 import ecs.components.skill.PiercingArrowSkill;
+import ecs.components.xp.ILevelUp;
+import ecs.components.xp.XPComponent;
 import graphic.Animation;
 import ecs.components.OnDeathFunctions.EndGame;
 import ecs.components.ai.AIComponent;
@@ -53,6 +55,7 @@ public class Imp extends Monster {
         setupHitboxComponent();
         setupHealthComponent();
         setupAIComponent();
+        setupXPComponent();
     }
 
     private void setupVelocityComponent() {
@@ -106,6 +109,19 @@ public class Imp extends Monster {
 
     private int calcDamage() {
         return 3 + (int) Math.sqrt(3 * level);
+    }
+
+    private void setupXPComponent() {
+        new XPComponent(this, new ILevelUp() {
+
+            @Override
+            public void onLevelUp(long nexLevel) {
+                HealthComponent health = (HealthComponent) getComponent(HealthComponent.class).get();
+                health.setMaximalHealthpoints((int) (health.getMaximalHealthpoints() * 1.01f));
+                health.setCurrentHealthpoints(health.getMaximalHealthpoints());
+            }
+
+        }, 10 * level);
     }
 
 }
