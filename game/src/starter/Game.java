@@ -68,7 +68,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     protected LevelAPI levelAPI;
     /** Generates the level */
     protected IGenerator generator;
-
     private boolean doSetup = true;
     private static boolean paused = false;
 
@@ -84,8 +83,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     public static ILevel currentLevel;
     private static PauseMenu<Actor> pauseMenu;
-
-    // new
     private static InventoryHUD<Actor> inventoryHUD;
     private static GameOverHUD<Actor> gameOverHUD;
     private static boolean inventoryOpen = false;
@@ -93,7 +90,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     private static Hero playHero;
     private Logger gameLogger;
     private static int currentLvl;
-
     private FriendlyGhost friendlyGhost;
 
     public static void main(String[] args) {
@@ -125,6 +121,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /** Called once at the beginning of the game. */
     protected void setup() {
+        readFromFile();
         doSetup = false;
         controller = new ArrayList<>();
         setupCameras();
@@ -139,8 +136,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         controller.add(inventoryHUD);
         pauseMenu = new PauseMenu<>();
         controller.add(pauseMenu);
-
-        // new
         gameOverHUD = new GameOverHUD<>();
         controller.add(gameOverHUD);
         playHero = new Hero();
@@ -162,6 +157,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     @Override
     public void onLevelLoad() {
+        Hero hero1 = (Hero) Game.hero;
+        writeInFile(hero1.getCurrentHealth());
         currentLevel = levelAPI.getCurrentLevel();
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
@@ -172,9 +169,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new BearTrap();
         currentLvl++;
         bookCheck();
-
-        // Test
-        Hero hero1 = (Hero) Game.hero;
         hero1.getXpCmp().addXP(hero1.getXpCmp().getXPToNextLevel());
         gameLogger.info("Current Level: " + currentLvl);
     }
@@ -206,6 +200,16 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             new Bag(ItemType.Active);
             new InvinciblePotion();
         }
+    }
+    private static void readFromFile(){
+        if (currentLvl!= 1){
+        SerializableGame serializableGame1 = SerializableGame.readObject("serialGame");
+        currentLvl = serializableGame1.getCurrentlevel();
+        }
+    }
+    private static void writeInFile(int healthPoints){
+       SerializableGame serializableGame= new SerializableGame(healthPoints,currentLvl);
+       SerializableGame.writeObject(serializableGame,"serialGame");
     }
 
     /** Spawns monster in relation to current level progress */
@@ -343,6 +347,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     public static void restartGame() {
         currentLvl = 0;
+        writeInFile(2);
         game.setup();
     }
 
