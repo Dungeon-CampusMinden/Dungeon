@@ -51,10 +51,11 @@ public final class Constants {
     public static final String TEST_IMAGE_PATH_FOR_DIALOG = "image_quiz/dummy.png";
 
     public static final Skin inventoryUI =
-            new Skin(Gdx.files.internal("skin/uiskin.json"), new TextureAtlas("skin/uiskin.atlas"));
+            new Skin(
+                    Gdx.files.internal("skin/InventorySkin/inventorySkin.json"),
+                    new TextureAtlas("skin/InventorySkin/inventorySkin.atlas"));
 
-    public static final Skin descriptionLabelUI =
-            new Skin(Gdx.files.internal("skin/uiskin.json"), new TextureAtlas("skin/uiskin.atlas"));
+    public static final String INVENTORYSLOT_PATH = "skin/InventorySkin/inventorySlot.png";
 
     /**
      * @param path the relative path to the resource

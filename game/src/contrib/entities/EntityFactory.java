@@ -1,7 +1,5 @@
 package contrib.entities;
 
-import com.badlogic.gdx.scenes.scene2d.Actor;
-
 import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
@@ -102,14 +100,7 @@ public class EntityFactory {
 
         pc.registerFunction(
                 KeyboardConfig.INVENTORY_OPEN.get(),
-                entity -> {
-                    InventoryGUI<Actor> inventoryGUI = InventoryGUI.getInstance();
-                    if (inventoryGUI.isOpen()) {
-                        inventoryGUI.closeInventory();
-                    } else {
-                        inventoryGUI.openInventory();
-                    }
-                });
+                entity -> InventoryGUI.getInstance().toggleInventory());
 
         new InventoryComponent(hero, 40);
 

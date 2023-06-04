@@ -2,11 +2,8 @@ package core.hud.Inventory;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Window;
 
-public class InventoryDescription extends Window {
-
-    private final Label description;
+public class InventoryDescription extends Label {
 
     /**
      * Creates a new InventoryDescription Window with the given Skin
@@ -15,9 +12,6 @@ public class InventoryDescription extends Window {
      */
     public InventoryDescription(Skin skin) {
         super("", skin);
-        description = new Label("", skin);
-        this.add(description);
-        this.padLeft(5).padRight(5);
         this.pack();
         this.setVisible(false);
     }
@@ -50,7 +44,7 @@ public class InventoryDescription extends Window {
         }
         String descriptionText = slot.getInventoryItem().getItem().getItemName();
         descriptionText += "\n" + slot.getInventoryItem().getItem().getDescription();
-        description.setText(descriptionText);
+        this.setText(descriptionText);
         this.pack();
     }
 }

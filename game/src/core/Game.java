@@ -271,7 +271,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         levelManager.loadLevel(LEVELSIZE);
         createSystems();
         controller.add(InventoryGUI.getInstance());
-        InventoryGUI.getInstance().closeInventory();
     }
 
     /**

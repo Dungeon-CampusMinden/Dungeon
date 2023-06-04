@@ -58,10 +58,10 @@ public class InventorySlotSource extends DragAndDrop.Source {
 
         if (target == null) {
             // if the item is dropped outside the inventory, drop it on the ground
-            if (itemActor.getX() < inv.getX() - 40
-                    || itemActor.getX() > inv.getX() + inv.getWidth() - 20
-                    || itemActor.getY() < inv.getY() - 40
-                    || itemActor.getY() > inv.getY() + inv.getHeight() - 20) {
+            if (itemActor.getX() < inv.getX()
+                    || itemActor.getX() > inv.getX() + inv.getWidth()
+                    || itemActor.getY() < inv.getY()
+                    || itemActor.getY() > inv.getY() + inv.getHeight()) {
                 PositionComponent positionComponent =
                         (PositionComponent)
                                 Game.getHero()

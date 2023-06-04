@@ -19,8 +19,8 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
     private static final InventoryGUI<Actor> instance = new InventoryGUI<>(new SpriteBatch());
     private final Window inventory;
     private final DragAndDrop dragAndDrop;
-    private boolean isOpen = false;
-    private final int INVENTORYSLOTS_IN_A_ROW = 6;
+    private boolean isOpen = true;
+    private final int INVENTORYSLOTS_IN_A_ROW = 10;
 
     /**
      * Creates an inventory GUI as big as the inventory component of the hero
@@ -34,6 +34,7 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
         inventory.setResizable(false);
         add((T) inventory);
         initInventorySlots();
+        closeInventory();
     }
 
     /** Creates all inventory slots and adds them to the inventorySlots list */
@@ -50,7 +51,7 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
         }
         int inventorySize = inventoryComponent.getMaxSize();
 
-        InventoryDescription description = new InventoryDescription(Constants.descriptionLabelUI);
+        InventoryDescription description = new InventoryDescription(Constants.inventoryUI);
 
         for (int i = 1; i < inventorySize + 1; i++) {
             InventorySlot slot = new InventorySlot();
@@ -119,16 +120,20 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
         }
     }
 
-    /** Opens the inventory */
-    public void openInventory() {
+    /** Toggles the visibility of the inventory */
+    public void toggleInventory() {
+        if (isOpen) closeInventory();
+        else openInventory();
+    }
+
+    private void openInventory() {
         updateInventory();
         inventory.setVisible(true);
         isOpen = true;
         // print();
     }
 
-    /** Closes the inventory */
-    public void closeInventory() {
+    private void closeInventory() {
         inventory.setVisible(false);
         isOpen = false;
     }
@@ -140,15 +145,6 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
      */
     public static InventoryGUI<Actor> getInstance() {
         return instance;
-    }
-
-    /**
-     * Returns if the inventory is open
-     *
-     * @return if the inventory is open
-     */
-    public boolean isOpen() {
-        return isOpen;
     }
 
     /**

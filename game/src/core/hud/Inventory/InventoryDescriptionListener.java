@@ -95,12 +95,12 @@ public class InventoryDescriptionListener extends InputListener {
         }
         // does it fit on top ?
         else if (position.y + description.getHeight() + defaultOffSet.x < Constants.WINDOW_HEIGHT) {
-            offSet.x = defaultOffSet.x;
+            offSet.x = Constants.WINDOW_WIDTH - position.x - description.getWidth();
             offSet.y = defaultOffSet.y;
         }
         // put it below
         else {
-            offSet.x = defaultOffSet.x;
+            offSet.x = Constants.WINDOW_WIDTH - position.x - description.getWidth();
             offSet.y = -description.getHeight();
         }
     }
