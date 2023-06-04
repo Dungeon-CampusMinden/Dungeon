@@ -62,6 +62,7 @@ public class Swiftness implements IDurationSkillFunction {
         if (entity.getComponent(ManaComponent.class).map(ManaComponent.class::cast).get().spendMana(manaCost)) {
             velocity.setXVelocity(originalXSpeed * xSpeedMultiplier);
             velocity.setYVelocity(originalYSpeed * ySpeedMultiplier);
+            activateDuration();
         }
     }
 

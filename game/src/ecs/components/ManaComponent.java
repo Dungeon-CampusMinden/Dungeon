@@ -47,8 +47,7 @@ public class ManaComponent extends Component {
      * regenerationRatePerSecond {@code} milliseconds
      */
     public void regenerate() {
-        currentMana += currentMana < maxMana && System.currentTimeMillis() % (1000 / regenerationRatePerSecond) == 0 ? 1
-                : 0;
+        currentMana += currentMana < maxMana && System.currentTimeMillis() % 1000 < 50 ? regenerationRatePerSecond : 0;
     }
 
     /**

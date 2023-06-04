@@ -56,8 +56,10 @@ public class Rage implements IDurationSkillFunction {
     public void execute(Entity entity) {
         if (!entity.getComponent(ManaComponent.class).isPresent())
             throw new MissingComponentException("ManaComponent");
-        if (entity.getComponent(ManaComponent.class).map(ManaComponent.class::cast).get().spendMana(manaCost))
+        if (entity.getComponent(ManaComponent.class).map(ManaComponent.class::cast).get().spendMana(manaCost)) {
             stats.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, originalDamageMultiplier * damageMultiplier);
+            activateDuration();
+        }
     }
 
     /**

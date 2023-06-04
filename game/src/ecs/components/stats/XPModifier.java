@@ -1,4 +1,6 @@
 package ecs.components.stats;
 
-public record XPModifier(float xpMultiplier) {
+import java.io.Serializable;
+
+public record XPModifier(float xpMultiplier) implements Serializable {
 }

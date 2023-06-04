@@ -1,6 +1,8 @@
 package ecs.components.xp;
 
-public interface ILevelUp {
+import java.io.Serializable;
+
+public interface ILevelUp extends Serializable {
 
     /**
      * Implements the LevelUp behavior of a XPComponent having entity

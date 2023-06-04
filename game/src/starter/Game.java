@@ -433,6 +433,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new SkillSystem();
         new ProjectileSystem();
         new QuestSystem();
+        new ManaSystem();
     }
 
     /** returns current level of the dungeon */
