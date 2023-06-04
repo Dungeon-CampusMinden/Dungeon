@@ -33,6 +33,10 @@ public class InventorySlotSource extends DragAndDrop.Source {
         if (actor == null) {
             return null;
         }
+        // Removes description from slot
+        // this is used because dragStart somehow gets called before touchDragged
+        ((InventoryDescriptionListener) inventorySlot.getListeners().get(1))
+                .touchDragged(new InputEvent(), 0, 0, 0);
 
         payload.setDragActor(actor);
         // add the drag actor to the stage

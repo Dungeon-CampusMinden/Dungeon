@@ -1,14 +1,16 @@
 package core.hud.Inventory;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+
+import core.utils.Constants;
 
 public class InventorySlot extends Stack {
 
     /** Creates an InventorySlot */
     public InventorySlot() {
-        this.add(new Image(new Texture("animation/inventorySlot.png")));
+        // this.add(new Image(new Texture("animation/inventorySlot.png")));
+        this.add(new Image(Constants.inventoryUI, "round-white"));
         this.addListener(new InventorySlotClickListener(this));
     }
 

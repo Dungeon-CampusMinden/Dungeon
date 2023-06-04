@@ -20,7 +20,7 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
     private final Window inventory;
     private final DragAndDrop dragAndDrop;
     private boolean isOpen = false;
-    private final int INVENTORYSLOTS_IN_A_ROW = 5;
+    private final int INVENTORYSLOTS_IN_A_ROW = 6;
 
     /**
      * Creates an inventory GUI as big as the inventory component of the hero
@@ -45,16 +45,21 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
                                 .getComponent(InventoryComponent.class)
                                 .orElse(null);
         if (inventoryComponent == null) {
-            throw new NullPointerException("InventoryComponent is null");
+            this.remove((T) inventory);
+            return;
         }
         int inventorySize = inventoryComponent.getMaxSize();
+
+        InventoryDescription description = new InventoryDescription(Constants.descriptionLabelUI);
 
         for (int i = 1; i < inventorySize + 1; i++) {
             InventorySlot slot = new InventorySlot();
             inventory.add(slot).pad(3);
+            slot.addListener(new InventoryDescriptionListener(description));
             if (i % INVENTORYSLOTS_IN_A_ROW == 0) inventory.row();
             dragAndDrop.addTarget(new InventorySlotTarget(slot, dragAndDrop));
         }
+        inventory.getParent().addActor(description);
         inventory.pack();
         inventory.setPosition(
                 Constants.WINDOW_WIDTH / 2f - inventory.getWidth() / 2f,

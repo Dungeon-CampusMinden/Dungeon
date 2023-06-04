@@ -52,6 +52,10 @@ public final class Constants {
 
     public static final Skin inventoryUI =
             new Skin(Gdx.files.internal("skin/uiskin.json"), new TextureAtlas("skin/uiskin.atlas"));
+
+    public static final Skin descriptionLabelUI =
+            new Skin(Gdx.files.internal("skin/uiskin.json"), new TextureAtlas("skin/uiskin.atlas"));
+
     /**
      * @param path the relative path to the resource
      * @return the absolute path of the internal resource
