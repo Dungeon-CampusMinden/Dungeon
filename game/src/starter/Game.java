@@ -203,7 +203,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
-     * The Information will be loaded from the File
+     * The Information will be loaded from the File.
      */
     public static void readFromFile(){
         if (currentLvl!= 1){
@@ -214,7 +214,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /**
      * The File will get new information
-     * @param healthPoints value will be saved in healthpoints
+     * @param healthPoints value will be saved in healthpoints Attribute.
      */
     public static void writeInFile(int healthPoints){
        SerializableGame serializableGame = new SerializableGame(healthPoints,currentLvl);

@@ -65,7 +65,7 @@ public class SerializableGame implements Serializable {
     }
     /**
      * Getter
-     * @return the value of the Current level.
+     * @return the value of the Current level .
      */
     public int getCurrentlevel() {
         return currentlevel;
