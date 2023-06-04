@@ -39,15 +39,17 @@ public class Rage implements IDurationSkillFunction {
      * <p/>
      * The Rage skill increases the Physical damage the wielder deals
      * <p/>
-     * The standard {@code manaCost} is {@code 10}
+     * The standard duration is {@code 10} seconds
+     * <p/>
+     * The standard multiplier is {@code 2.0f}
+     * <p/>
+     * The standard manaCost is {@code 10}
      * 
-     * @param durationIneconds time how long the skill lasts in seconds
-     * @param damageMultiplier multiplier to increase the physical damage
-     * @param entity           the entity that owns this Skill
+     * @param entity the entity that owns this Skill
      * 
      */
-    public Rage(float durationIneconds, float damageMultiplier, Entity entity) {
-        this(durationIneconds, damageMultiplier, entity, 10);
+    public Rage(Entity entity) {
+        this(10, 2.0f, entity, 10);
     }
 
     @Override

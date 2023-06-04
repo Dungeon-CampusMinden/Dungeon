@@ -38,14 +38,16 @@ public class Wisdom implements IDurationSkillFunction {
      * <p/>
      * The Wisdom skill increases the XP wielder earns
      * <p/>
-     * The standard {@code manaCost} is {@code 100}
+     * The standard duration is {@code 60} seconds
+     * <p/>
+     * The standard multiplier is {@code 3.0f}
+     * <p/>
+     * The standard manaCost is {@code 100}
      * 
-     * @param durationIneconds the duration in seconds
-     * @param xpMultiplier     the xp multiplier
-     * @param entity           the entity that owns this skill
+     * @param entity the entity that owns this skill
      */
-    public Wisdom(float durationIneconds, float xpMultiplier, Entity entity) {
-        this(durationIneconds, xpMultiplier, entity, 100);
+    public Wisdom(Entity entity) {
+        this(60, 3.0f, entity, 100);
     }
 
     @Override

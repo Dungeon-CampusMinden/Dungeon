@@ -43,15 +43,16 @@ public class Swiftness implements IDurationSkillFunction {
      * <p/>
      * The Wisdom skill increases the XP wielder earns
      * <p/>
-     * The standard {@code manaCost} is {@code 20}
+     * The standard duration is {@code 30} seconds
+     * <p/>
+     * The standard speed multiplier is {@code 2.0f}
+     * <p/>
+     * The standard manaCost is {@code 20}
      * 
-     * @param durationIneconds the duration in seconds
-     * @param xSpeedMultiplier the speed multiplier on the x axis
-     * @param ySpeedMultiplier the speed multiplier on the y axis
-     * @param entity           the entity that owns this skill
+     * @param entity the entity that owns this skill
      */
-    public Swiftness(float durationIneconds, float xSpeedMultiplier, float ySpeedMultiplier, Entity entity) {
-        this(durationIneconds, xSpeedMultiplier, ySpeedMultiplier, entity, 20);
+    public Swiftness(Entity entity) {
+        this(30, 2.0f, 2.0f, entity, 20);
     }
 
     @Override
