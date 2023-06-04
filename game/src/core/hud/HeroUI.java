@@ -1,6 +1,7 @@
 package core.hud;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -121,9 +122,25 @@ public class HeroUI<T extends Actor> extends ScreenController<T> {
                                 (float) Constants.WINDOW_WIDTH / 2,
                                 (float) Constants.WINDOW_HEIGHT / 2),
                         1,
-                        new LabelStyleBuilder(font).build());
+                        new LabelStyleBuilder(font).setFontcolor(Color.GREEN).build());
         xpPopup.addAction(Actions.sequence(Actions.moveBy(0, 50, 1), Actions.removeActor()));
         this.add((T) xpPopup);
+    }
+
+    /**
+     * Creates a popup on the screen with how much hp the hero lost
+     *
+     * @param damageAmount the amount of HP to display
+     */
+    public void createDamagePopup(int damageAmount) {
+        ScreenText hpPopup =
+                new ScreenText(
+                        "-" + damageAmount + " HP",
+                        new Point(Constants.WINDOW_WIDTH - 55, 30),
+                        1,
+                        new LabelStyleBuilder(font).setFontcolor(Color.RED).build());
+        hpPopup.addAction(Actions.sequence(Actions.moveBy(0, 50, 1), Actions.removeActor()));
+        this.add((T) hpPopup);
     }
 
     private void setup() {
@@ -134,7 +151,12 @@ public class HeroUI<T extends Actor> extends ScreenController<T> {
         parameter.size = 21;
         font = generator.generateFont(parameter);
 
-        level = new ScreenText("Level: ", new Point(3, 35), 1, new LabelStyleBuilder(font).build());
+        level =
+                new ScreenText(
+                        "Level: ",
+                        new Point(3, 35),
+                        1,
+                        new LabelStyleBuilder(font).setFontcolor(Color.GREEN).build());
         this.add((T) level);
 
         xpBar = new ScreenImage("hud/xpBar/xpBar_1.png", new Point(0, 5), 1.9f);

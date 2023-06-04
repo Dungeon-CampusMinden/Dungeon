@@ -121,8 +121,10 @@ public class HealthSystem extends System {
                                                 XPComponent killerXPComponent = (XPComponent) c;
                                                 long lootXP = deadXPComponent.getLootXP();
                                                 killerXPComponent.addXP(lootXP);
-                                                // don't call if hero died
-                                                if (!hsd.e.equals(Game.getHero().get()))
+                                                // only call if the hero is the killer
+                                                if (killerXPComponent
+                                                        .getEntity()
+                                                        .equals(Game.getHero().orElseThrow()))
                                                     HeroUI.getHeroUI().createXPPopup(lootXP);
                                             });
                         });
