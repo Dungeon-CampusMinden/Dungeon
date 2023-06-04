@@ -122,7 +122,7 @@ public class DarkKnight extends Monster {
     }
 
     private int calcDamage() {
-        return 5 + (int) Math.sqrt(10 * level);
+        return 5 + (int) Math.sqrt(10 * xPComponent.getCurrentLevel());
     }
 
     private void setupDamageComponent() {

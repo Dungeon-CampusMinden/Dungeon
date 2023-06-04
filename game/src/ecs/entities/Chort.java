@@ -105,7 +105,7 @@ public class Chort extends Monster {
     }
 
     private int calcDamage() {
-        return 2 + (int) Math.sqrt(4 * level);
+        return 2 + (int) Math.sqrt(4 * xPComponent.getCurrentLevel());
     }
 
     private void setupDamageComponent() {

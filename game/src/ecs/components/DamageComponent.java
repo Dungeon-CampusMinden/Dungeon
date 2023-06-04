@@ -2,6 +2,10 @@ package ecs.components;
 
 import ecs.entities.Entity;
 
+/**
+ * The entire purpose of this class is that skills deal damage depending on the
+ * entity that uses it.
+ */
 public class DamageComponent extends Component {
 
     private int damage;

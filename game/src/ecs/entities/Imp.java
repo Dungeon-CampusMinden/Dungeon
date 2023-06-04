@@ -111,7 +111,7 @@ public class Imp extends Monster {
     }
 
     private int calcDamage() {
-        return 3 + (int) Math.sqrt(3 * level);
+        return 3 + (int) Math.sqrt(3 * xpComponent.getCurrentLevel());
     }
 
     private void setupDamageComponent() {
