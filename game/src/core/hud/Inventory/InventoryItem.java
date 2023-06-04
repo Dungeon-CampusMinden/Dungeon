@@ -16,7 +16,6 @@ public class InventoryItem extends Image {
      */
     public InventoryItem(String texturePath, ItemData item) {
         super(new Texture(texturePath));
-        this.setDebug(true);
         this.item = item;
     }
 

@@ -31,7 +31,6 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
         super(batch);
         dragAndDrop = new DragAndDrop();
         inventory = new Window("", Constants.inventoryUI);
-        inventory.setDebug(true);
         inventory.setResizable(false);
         add((T) inventory);
         initInventorySlots();
@@ -57,6 +56,9 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
             dragAndDrop.addTarget(new InventorySlotTarget(slot, dragAndDrop));
         }
         inventory.pack();
+        inventory.setPosition(
+                Constants.WINDOW_WIDTH / 2f - inventory.getWidth() / 2f,
+                Constants.WINDOW_HEIGHT / 2f - inventory.getHeight() / 2f);
     }
 
     /** Updates the inventory based on the heros inventory component */
@@ -67,7 +69,7 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
                                 .orElseThrow()
                                 .getComponent(InventoryComponent.class)
                                 .orElse(null);
-        if (inventoryComponent == null || inventoryComponent.getItems().isEmpty()) {
+        if (inventoryComponent == null) {
             return;
         }
         List<ItemData> items = inventoryComponent.getItems();
@@ -117,7 +119,7 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
         updateInventory();
         inventory.setVisible(true);
         isOpen = true;
-        //print();
+        // print();
     }
 
     /** Closes the inventory */

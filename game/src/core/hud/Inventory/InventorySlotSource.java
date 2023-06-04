@@ -2,7 +2,11 @@ package core.hud.Inventory;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+
+import core.Game;
+import core.components.PositionComponent;
 
 public class InventorySlotSource extends DragAndDrop.Source {
     private final InventorySlot inventorySlot;
@@ -31,6 +35,7 @@ public class InventorySlotSource extends DragAndDrop.Source {
         }
 
         payload.setDragActor(actor);
+        // add the drag actor to the stage
         InventoryGUI.getInstance().getInventoryWindow().getParent().addActor(actor);
         dragAndDrop.setDragActorPosition(actor.getWidth() / 2, -actor.getHeight() / 2);
         return payload;
@@ -44,8 +49,32 @@ public class InventorySlotSource extends DragAndDrop.Source {
             int pointer,
             DragAndDrop.Payload payload,
             DragAndDrop.Target target) {
+        Window inv = InventoryGUI.getInstance().getInventoryWindow();
+        InventoryItem itemActor = (InventoryItem) payload.getDragActor();
+
         if (target == null) {
-            inventorySlot.add(payload.getDragActor());
+            // if the item is dropped outside the inventory, drop it on the ground
+            if (itemActor.getX() < inv.getX() - 40
+                    || itemActor.getX() > inv.getX() + inv.getWidth() - 20
+                    || itemActor.getY() < inv.getY() - 40
+                    || itemActor.getY() > inv.getY() + inv.getHeight() - 20) {
+                PositionComponent positionComponent =
+                        (PositionComponent)
+                                Game.getHero()
+                                        .orElseThrow()
+                                        .getComponent(PositionComponent.class)
+                                        .orElseThrow();
+                itemActor
+                        .getItem()
+                        .getOnDrop()
+                        .onDrop(
+                                Game.getHero().orElseThrow(),
+                                itemActor.getItem(),
+                                positionComponent.getPosition());
+                itemActor.remove();
+            } else {
+                inventorySlot.add(payload.getDragActor());
+            }
         }
     }
 

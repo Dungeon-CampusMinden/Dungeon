@@ -9,6 +9,7 @@ public class InventorySlot extends Stack {
     /** Creates an InventorySlot */
     public InventorySlot() {
         this.add(new Image(new Texture("animation/inventorySlot.png")));
+        this.addListener(new InventorySlotClickListener(this));
     }
 
     /**
@@ -20,9 +21,9 @@ public class InventorySlot extends Stack {
         if (item != null) this.add(item);
     }
 
+    /** Removes the inventory item from the inventory slot */
     public void removeInventoryItem() {
-        if (hasInventoryItem())
-            this.removeActor(this.getInventoryItem());
+        if (hasInventoryItem()) this.removeActor(this.getInventoryItem());
     }
 
     /**
@@ -37,6 +38,11 @@ public class InventorySlot extends Stack {
         return (InventoryItem) this.getChild(1);
     }
 
+    /**
+     * Returns true if the inventory slot has an inventory item
+     *
+     * @return true if the inventory slot has an inventory item
+     */
     public boolean hasInventoryItem() {
         return this.getChildren().size > 1;
     }
