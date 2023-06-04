@@ -43,7 +43,7 @@ public class SerializableGame implements Serializable {
             oos.close();
             logger.severe("The file has been successfully created");
         }catch (IOException ex){
-            logger.severe("The file cannot be read");
+            logger.severe("The file cannot be created");
         }
     }
     /**
@@ -56,7 +56,7 @@ public class SerializableGame implements Serializable {
         try (FileInputStream fis = new FileInputStream(filename); ObjectInputStream ois = new ObjectInputStream(fis)){
             dataStorage = (SerializableGame) ois.readObject();
             ois.close();
-            logger.severe("File has been created.");
+            logger.severe("File has been read.");
         }
         catch (Exception ex){
             logger.severe("File cannot be read.");

@@ -201,14 +201,23 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             new InvinciblePotion();
         }
     }
-    private static void readFromFile(){
+
+    /**
+     * The Information will be loaded from the File
+     */
+    public static void readFromFile(){
         if (currentLvl!= 1){
         SerializableGame serializableGame1 = SerializableGame.readObject("serialGame");
         currentLvl = serializableGame1.getCurrentlevel();
         }
     }
-    private static void writeInFile(int healthPoints){
-       SerializableGame serializableGame= new SerializableGame(healthPoints,currentLvl);
+
+    /**
+     * The File will get new information
+     * @param healthPoints value will be saved in healthpoints
+     */
+    public static void writeInFile(int healthPoints){
+       SerializableGame serializableGame = new SerializableGame(healthPoints,currentLvl);
        SerializableGame.writeObject(serializableGame,"serialGame");
     }
 
