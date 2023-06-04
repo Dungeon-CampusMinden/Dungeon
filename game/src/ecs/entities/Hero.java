@@ -36,12 +36,15 @@ public class Hero extends Entity implements Serializable {
     private final String pathToRunRight = "knight/runRight";
     private final String pathToGetHit = "knight/getHit";
     private final String pathToDie = "knight/die";
+
     private Skill firstSkill;
     private Skill secondSkill;
     private Skill thirdSkill;
     private Skill fourthSkill;
     private Skill fifthSkill;
     private Skill sixthSkill;
+
+    private XPComponent xPComponent;
 
     /** Entity with Components */
     public Hero() {
@@ -67,6 +70,7 @@ public class Hero extends Entity implements Serializable {
         pc.setSkillSlot3(thirdSkill);
         setupQuestComponent(questLog);
         new InventoryComponent(this, 2);
+        setupDamageComponent();
     }
 
     private void setupVelocityComponent() {
@@ -137,7 +141,7 @@ public class Hero extends Entity implements Serializable {
     }
 
     private void setupXPComponent() {
-        new XPComponent(this, new ILevelUp() {
+        xPComponent = new XPComponent(this, new ILevelUp() {
 
             @Override
             public void onLevelUp(long nexLevel) {
@@ -147,8 +151,18 @@ public class Hero extends Entity implements Serializable {
                 ManaComponent mana = (ManaComponent) getComponent(ManaComponent.class).get();
                 mana.setMaxMana((int) (maxMana * 1.05f));
                 mana.setRegenerationRatePerSecond((int) (mana.getRegenerationRatePerSecond() * 1.1f));
+                ((DamageComponent) getComponent(DamageComponent.class).get()).setDamage(calcDamage());
             }
 
         });
+    }
+
+    private int calcDamage() {
+        return (int) (Math.log10(xPComponent.getCurrentLevel())) * (int) (Math.sqrt(xPComponent.getCurrentLevel())) + 10
+                + (int) xPComponent.getCurrentLevel();
+    }
+
+    public void setupDamageComponent() {
+        new DamageComponent(this, calcDamage());
     }
 }

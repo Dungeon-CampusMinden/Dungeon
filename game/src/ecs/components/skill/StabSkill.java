@@ -1,7 +1,5 @@
 package ecs.components.skill;
 
-import ecs.components.skill.DamageMeleeSkill;
-import ecs.components.skill.ITargetSelection;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.entities.Entity;

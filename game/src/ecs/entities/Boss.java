@@ -48,6 +48,8 @@ public class Boss extends Monster {
     private final String pathToGetHit = "monster/Boss/getHit";
     private final String pathToDie = "monster/Boss/die";
 
+    private XPComponent xPComponent;
+
     /**
      * Creates a Boss with all its components and attributes.
      * 
@@ -66,6 +68,7 @@ public class Boss extends Monster {
         setupHealthComponent();
         setupAIComponent();
         setupXPComponent();
+        setupDamageComponent();
         bossLogger.info("Boss des Levels:" + level + " created");
     }
 
@@ -151,19 +154,30 @@ public class Boss extends Monster {
     }
 
     private int calcDamage() {
-        return 2 + (int) Math.sqrt(4 * level);
+        return 2 + (int) Math.sqrt(4 * xPComponent.getCurrentLevel());
+    }
+
+    private void setupDamageComponent() {
+        new DamageComponent(this, calcDamage());
     }
 
     private void setupXPComponent() {
-        new XPComponent(this, new ILevelUp() {
+        xPComponent = new XPComponent(this, new ILevelUp() {
 
             @Override
             public void onLevelUp(long nexLevel) {
                 HealthComponent health = (HealthComponent) getComponent(HealthComponent.class).get();
                 health.setMaximalHealthpoints((int) (health.getMaximalHealthpoints() * 1.01f));
                 health.setCurrentHealthpoints(health.getMaximalHealthpoints());
+                xPComponent.setLootXP(50 * (int) nexLevel);
+                ((DamageComponent) getComponent(DamageComponent.class).get()).setDamage(calcDamage());
             }
 
-        }, 50 * level);
+        }, 5 * level);
+        xPComponent.setCurrentLevel(level / 10);
+        ((HealthComponent) getComponent(HealthComponent.class).get())
+                .setMaximalHealthpoints(maxHealth * (int) Math.pow(1.01f, xPComponent.getCurrentLevel()));
+        ((HealthComponent) getComponent(HealthComponent.class).get())
+                .setCurrentHealthpoints(maxHealth * (int) Math.pow(1.01f, xPComponent.getCurrentLevel()));
     }
 }

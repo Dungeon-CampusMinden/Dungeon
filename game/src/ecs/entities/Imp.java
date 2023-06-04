@@ -43,6 +43,8 @@ public class Imp extends Monster {
     private final String pathToGetHit = "monster/imp/getHit";
     private final String pathToDie = "monster/imp/die";
 
+    private XPComponent xpComponent;
+
     private Skill attack;
 
     /** Entity with Components */
@@ -56,6 +58,7 @@ public class Imp extends Monster {
         setupHealthComponent();
         setupAIComponent();
         setupXPComponent();
+        setupDamageComponent();
     }
 
     private void setupVelocityComponent() {
@@ -111,17 +114,28 @@ public class Imp extends Monster {
         return 3 + (int) Math.sqrt(3 * level);
     }
 
+    private void setupDamageComponent() {
+        new DamageComponent(this, calcDamage());
+    }
+
     private void setupXPComponent() {
-        new XPComponent(this, new ILevelUp() {
+        xpComponent = new XPComponent(this, new ILevelUp() {
 
             @Override
             public void onLevelUp(long nexLevel) {
                 HealthComponent health = (HealthComponent) getComponent(HealthComponent.class).get();
                 health.setMaximalHealthpoints((int) (health.getMaximalHealthpoints() * 1.01f));
                 health.setCurrentHealthpoints(health.getMaximalHealthpoints());
+                xpComponent.setLootXP(10 * nexLevel);
+                ((DamageComponent) getComponent(DamageComponent.class).get()).setDamage(calcDamage());
             }
 
         }, 10 * level);
+        xpComponent.setCurrentLevel(level);
+        ((HealthComponent) getComponent(HealthComponent.class).get())
+                .setMaximalHealthpoints(maxHealth * (int) Math.pow(1.01f, xpComponent.getCurrentLevel()));
+        ((HealthComponent) getComponent(HealthComponent.class).get())
+                .setCurrentHealthpoints(maxHealth * (int) Math.pow(1.01f, xpComponent.getCurrentLevel()));
     }
 
 }

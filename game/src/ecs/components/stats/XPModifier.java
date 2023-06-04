@@ -1,4 +1,4 @@
 package ecs.components.stats;
 
-public record XPModifier(int xpMultiplier) {
+public record XPModifier(float xpMultiplier) {
 }
