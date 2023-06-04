@@ -31,7 +31,8 @@ public class DurationSkill extends Skill {
     public void execute(Entity entity) {
         if (!isOnCoolDown()) {
             function.execute(entity);
-            activateCoolDown();
+            if (function.isActive())
+                activateCoolDown();
         }
     }
 

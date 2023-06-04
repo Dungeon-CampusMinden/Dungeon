@@ -68,6 +68,8 @@ public class Hero extends Entity implements Serializable {
         pc.setSkillSlot1(firstSkill);
         pc.setSkillSlot2(secondSkill);
         pc.setSkillSlot3(thirdSkill);
+        pc.setSkillSlot4(fourthSkill);
+        pc.setSkillSlot5(fifthSkill);
         setupQuestComponent(questLog);
         new InventoryComponent(this, 2);
         setupDamageComponent();
@@ -96,13 +98,23 @@ public class Hero extends Entity implements Serializable {
     }
 
     private void setupRageSkill() {
-        thirdSkill = new DurationSkill(new Rage(5, 2, this), 10);
+        thirdSkill = new DurationSkill(new Rage(this), 10);
+    }
+
+    private void setupWisdomSkill() {
+        fourthSkill = new DurationSkill(new Wisdom(this), 180);
+    }
+
+    private void setupSwiftnessSkill() {
+        fifthSkill = new DurationSkill(new Swiftness(this), 20);
     }
 
     private void setupSkills() {
         setupExplosiveSkill();
         setupStabSkill();
         setupRageSkill();
+        setupWisdomSkill();
+        setupSwiftnessSkill();
     }
 
     private void setupHitboxComponent() {
@@ -126,6 +138,8 @@ public class Hero extends Entity implements Serializable {
         sc.addSkill(firstSkill);
         sc.addSkill(secondSkill);
         sc.addSkill(thirdSkill);
+        sc.addSkill(fourthSkill);
+        sc.addSkill(fifthSkill);
     }
 
     private void setupQuestComponent(ArrayList<Quest> questLog) {
