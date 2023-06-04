@@ -121,6 +121,7 @@ public class Hero extends Entity implements Serializable {
         setupSkills();
         sc.addSkill(firstSkill);
         sc.addSkill(secondSkill);
+        sc.addSkill(thirdSkill);
     }
 
     private void setupQuestComponent(ArrayList<Quest> questLog) {
