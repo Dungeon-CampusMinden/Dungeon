@@ -38,6 +38,10 @@ public class Hero extends Entity implements Serializable {
     private final String pathToDie = "knight/die";
     private Skill firstSkill;
     private Skill secondSkill;
+    private Skill thirdSkill;
+    private Skill fourthSkill;
+    private Skill fifthSkill;
+    private Skill sixthSkill;
 
     /** Entity with Components */
     public Hero() {
@@ -60,6 +64,7 @@ public class Hero extends Entity implements Serializable {
         setupSkillComponent();
         pc.setSkillSlot1(firstSkill);
         pc.setSkillSlot2(secondSkill);
+        pc.setSkillSlot3(thirdSkill);
         setupQuestComponent(questLog);
         new InventoryComponent(this, 2);
     }
@@ -76,11 +81,9 @@ public class Hero extends Entity implements Serializable {
         new AnimationComponent(this, idleLeft, idleRight);
     }
 
-    private void setupFireballSkill() {
-        // firstSkill = new Skill(
-        // new ExplosivePebbleSkill(SkillTools::getCursorPositionAsPoint, this),
-        // explosivePebbleCoolDown);
-        firstSkill = new DurationSkill(new Rage(10, 4, this), 10);
+    private void setupExplosiveSkill() {
+        firstSkill = new Skill(
+                new ExplosivePebbleSkill(SkillTools::getCursorPositionAsPoint, this), explosivePebbleCoolDown);
     }
 
     private void setupStabSkill() {
@@ -88,9 +91,14 @@ public class Hero extends Entity implements Serializable {
                 new StabSkill(SkillTools::getCursorPositionAsPoint, this), stabCoolDown);
     }
 
+    private void setupRageSkill() {
+        thirdSkill = new DurationSkill(new Rage(5, 2, this), 10);
+    }
+
     private void setupSkills() {
-        setupFireballSkill();
+        setupExplosiveSkill();
         setupStabSkill();
+        setupRageSkill();
     }
 
     private void setupHitboxComponent() {
