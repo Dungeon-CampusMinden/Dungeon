@@ -64,14 +64,16 @@ public class UITools {
      * @param buttonText text which should be shown in the button for closing the TextDialog
      * @param windowText text which should be shown as the name for the TextDialog
      */
-    public static Dialog generateNewTextDialog(
+    public static Entity generateNewTextDialog(
             String content, String buttonText, String windowText) {
+        Entity e = new Entity();
         Dialog textDialog =
                 DialogFactory.createTextDialog(DEFAULT_SKIN, content, buttonText, windowText);
+        new UIComponent(e, textDialog, true);
 
         textDialog.setPosition(200, 200);
         textDialog.setWidth(500); // bug with width
         textDialog.setHeight(500); // bug with default height
-        return textDialog;
+        return e;
     }
 }
