@@ -3,7 +3,6 @@ package starter;
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
-
 import core.Game;
 
 import java.io.IOException;
@@ -15,7 +14,13 @@ public class Main {
         Game.loadConfig("dungeon_config.json", KeyboardConfig.class);
         Game.frameRate(60);
         Game.disableAudio(true);
-        Game.userOnLevelLoad(EntityFactory::getChest);
+        Game.userOnLevelLoad(() -> {
+            try {
+                EntityFactory.getChest();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         // or use the static attributes
         Game.WINDOW_TITLE = "My Dungeon";
@@ -26,7 +31,6 @@ public class Main {
         Game.addSystem(new HealthSystem());
         // implicit
         new XPSystem();
-        new SkillSystem();
         new ProjectileSystem();
 
         // build and start game
