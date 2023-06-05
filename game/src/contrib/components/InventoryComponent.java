@@ -10,16 +10,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-/** This Component marks an {@link Entity} as having an inventory
+/**
+ * This Component marks an {@link Entity} as having an inventory
  *
- * <p>It keeps track of the currently carried items in the list {@link #inventory} and the size of the
- * inventory in {@link #maxSize}. Carried items can be retrieved by using {@link #getItems() getItems}.
- * List elements can be added via {@link #addItem(ItemData) addItem} and removed via
+ * <p>It keeps track of the currently carried items in the list {@link #inventory} and the size of
+ * the inventory in {@link #maxSize}. Carried items can be retrieved by using {@link #getItems()
+ * getItems}. List elements can be added via {@link #addItem(ItemData) addItem} and removed via
  * {@link #removeItem(ItemData) removeItem}.
  *
- * <p>The number of filled slots can be retrieved via {@link #filledSlots() filledSlots}
- * and the number of empty slots via {@link #emptySlots() emptySlots}. The maximum inventory size
- * can also be retrieved via {@link #getMaxSize() getMaxSize}.
+ * <p>The number of filled slots can be retrieved via {@link #filledSlots() filledSlots} and the
+ * number of empty slots via {@link #emptySlots() emptySlots}. The maximum inventory size can also
+ * be retrieved via {@link #getMaxSize() getMaxSize}.
  */
 public class InventoryComponent extends Component {
 
