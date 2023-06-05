@@ -2,7 +2,6 @@ package core.systems;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
@@ -58,23 +57,22 @@ public class HudSystem extends System {
                                             .getDialog();
                             if (!stage.getActors().contains(d, true)) {
                                 stage.addActor(d);
-                                d.setVisible(false);
                             }
                         });
-        stage.getActors()
-                .select(
-                        x ->
-                                getEntityStream()
-                                        .anyMatch(
-                                                y ->
-                                                        y
-                                                                .getComponent(UIComponent.class)
-                                                                .map(UIComponent.class::cast)
-                                                                .stream()
-                                                                .noneMatch(
-                                                                        z -> z.getDialog() == x)))
-                .forEach(Actor::remove);
-
+        /*stage.getActors()
+                        .select(
+                                x ->
+                                        getEntityStream()
+                                                .anyMatch(
+                                                        y ->
+                                                                y
+                                                                        .getComponent(UIComponent.class)
+                                                                        .map(UIComponent.class::cast)
+                                                                        .stream()
+                                                                        .noneMatch(
+                                                                                z -> z.getDialog() == x)))
+                        .forEach(Actor::remove);
+        */
         if (getEntityStream()
                 .anyMatch(
                         x ->

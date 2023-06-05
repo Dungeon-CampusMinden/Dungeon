@@ -11,7 +11,6 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
@@ -74,7 +73,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private boolean doSetup = true;
     private DebuggerSystem debugger;
-    private Entity pauseMenu;
 
     // for singleton
     private Game() {}
@@ -288,15 +286,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             // Text Dialogue (output of information texts)
             // UITools.showInfoText(DEFAULT_MESSAGE);
-            newPauseMenu()
-                    .ifPresent(
-                            x -> {
-                                x.getComponent(UIComponent.class)
-                                    .map(UIComponent.class::cast)
-                                    .ifPresent(
-                                        y -> y.getDialog().setVisible(true));
-                                addEntity(x);
-                            });
+
+            newPauseMenu();
 
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             // Dialogue for quiz questions (display of quiz questions and the answer area in test
@@ -309,11 +300,13 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         }
     }
 
-    private Optional<Entity> newPauseMenu() {
-        return Optional.of(
-                Objects.requireNonNullElseGet(
-                        pauseMenu,
-                        () -> pauseMenu = UITools.generateNewTextDialog("Pause", "a", "b")));
+    private Entity newPauseMenu() {
+        Entity entity = UITools.generateNewTextDialog("Pause", "Continue", "Pausemenu");
+        entity.getComponent(UIComponent.class)
+                .map(UIComponent.class::cast)
+                .ifPresent(y -> y.getDialog().setVisible(true));
+
+        return entity;
     }
 
     /** Will update the entity sets of each system and {@link Game#entities}. */

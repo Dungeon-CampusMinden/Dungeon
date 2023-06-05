@@ -12,24 +12,28 @@ import quizquestion.QuizQuestion;
 import quizquestion.QuizQuestionContent;
 
 import java.util.Arrays;
+import java.util.Optional;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
 
 /** creates layout ot a dialog */
 public class DialogDesign extends Table {
     private static final int DIFFERENCE_MEASURE = 150;
+    public static final String PATTERN_IMAGE_FINDER = "(\\w+[\\\\|/])*\\w+.(?>png|bmp|tiff|jpeg)";
 
     public DialogDesign() {
         super();
         setFillParent(true);
     }
 
-    public static ScrollPane createScrollPane(Skin skin, Actor labelContent) {
+    private static ScrollPane createScrollPane(Skin skin, Actor labelContent) {
         ScrollPane scrollPane = new ScrollPane(labelContent, skin);
         scrollPane.setFadeScrollBars(false);
         scrollPane.setScrollbarsVisible(true);
         return scrollPane;
     }
 
-    public static TextArea createEditableText(Skin skin) {
+    private static TextArea createEditableText(Skin skin) {
         return new TextArea("Click here...", skin);
     }
 
@@ -79,16 +83,18 @@ public class DialogDesign extends Table {
             QuizQuestionContent.QuizQuestionContentType questionContentType,
             Skin skin,
             String outputMsg) {
+
         switch (questionContentType) {
             case TEXT -> add(createScrollPane(skin, new Label(outputMsg, skin)))
                     .size(
                             Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
                             Constants.WINDOW_HEIGHT / 5f);
             case IMAGE -> add(createScrollPane(
-                            skin, new Image(new Texture(Constants.TEST_IMAGE_PATH_FOR_DIALOG))))
+                            skin, new Image(new Texture(ImagePathExtractor(outputMsg)))))
                     .size(
                             Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
                             Constants.WINDOW_HEIGHT / 5f);
+
             case TEXT_AND_IMAGE -> {
                 add(createScrollPane(skin, new Label(outputMsg, skin)))
                         .size(
@@ -97,8 +103,7 @@ public class DialogDesign extends Table {
                 row();
                 add(new Label("", skin));
                 row();
-                add(createScrollPane(
-                                skin, new Image(new Texture(Constants.TEST_IMAGE_PATH_FOR_DIALOG))))
+                add(createScrollPane(skin, new Image(new Texture(ImagePathExtractor(outputMsg)))))
                         .size(
                                 Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
                                 Constants.WINDOW_HEIGHT / 5f);
@@ -151,7 +156,7 @@ public class DialogDesign extends Table {
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
      * @param quizQuestion Various question configurations
      */
-    public static VerticalGroup createAnswerButtons(Skin skin, QuizQuestion quizQuestion) {
+    private static VerticalGroup createAnswerButtons(Skin skin, QuizQuestion quizQuestion) {
         VerticalGroup answerButtons = new VerticalGroup();
 
         ButtonGroup<CheckBox> btnGroup = new ButtonGroup<>();
@@ -184,5 +189,11 @@ public class DialogDesign extends Table {
         answerButtons.left();
 
         return answerButtons;
+    }
+
+    private String ImagePathExtractor(String quizqustion) {
+        Optional<MatchResult> first =
+                Pattern.compile(PATTERN_IMAGE_FINDER).matcher(quizqustion).results().findFirst();
+        return first.get().group();
     }
 }

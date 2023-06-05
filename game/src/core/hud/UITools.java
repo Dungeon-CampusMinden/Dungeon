@@ -7,10 +7,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Align;
 
 import core.Entity;
+import core.Game;
 import core.components.UIComponent;
 import core.utils.Constants;
 
 import quizquestion.QuizQuestion;
+
+import java.util.Objects;
+import java.util.function.BiFunction;
 
 /**
  * Formatting of the window or dialog and controls the creation of a dialogue object depending on an
@@ -43,7 +47,12 @@ public class UITools {
         Entity e = new Entity();
         Dialog dialog =
                 DialogFactory.createQuizDialog(
-                        DEFAULT_SKIN, question, questionMsg, buttonMsg, dialogTitle);
+                        DEFAULT_SKIN,
+                        question,
+                        questionMsg,
+                        buttonMsg,
+                        dialogTitle,
+                        getResultHandler(e, buttonMsg));
         new UIComponent(e, dialog, true);
         // setting default Color
         dialog.setColor(Color.WHITE);
@@ -68,12 +77,28 @@ public class UITools {
             String content, String buttonText, String windowText) {
         Entity e = new Entity();
         Dialog textDialog =
-                DialogFactory.createTextDialog(DEFAULT_SKIN, content, buttonText, windowText);
+                DialogFactory.createTextDialog(
+                        DEFAULT_SKIN,
+                        content,
+                        buttonText,
+                        windowText,
+                        getResultHandler(e, buttonText));
         new UIComponent(e, textDialog, true);
 
         textDialog.setPosition(200, 200);
         textDialog.setWidth(500); // bug with width
         textDialog.setHeight(500); // bug with default height
         return e;
+    }
+
+    private static BiFunction<TextDialog, String, Boolean> getResultHandler(
+            final Entity entity, final String closeButtonMsg) {
+        return (d, id) -> {
+            if (Objects.equals(id, closeButtonMsg)) {
+                Game.removeEntity(entity);
+                return true;
+            }
+            return false;
+        };
     }
 }

@@ -3,15 +3,13 @@ package core.hud;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
-import java.util.function.BiPredicate;
+import java.util.function.BiFunction;
 
 /** Contains Constructor, which immediately creates the dialogue including all its elements. */
 public final class TextDialog extends Dialog {
 
-    /**
-     * Handler for Button presses
-     */
-    private final BiPredicate<TextDialog, String> resultHandler;
+    /** Handler for Button presses */
+    private final BiFunction<TextDialog, String, Boolean> resultHandler;
 
     /**
      * Constructor for Quiz Question
@@ -20,7 +18,8 @@ public final class TextDialog extends Dialog {
      * @param title Title of the dialog
      * @param resultHandler controls the button presses
      */
-    public TextDialog(String title, Skin skin, BiPredicate<TextDialog,String> resultHandler) {
+    public TextDialog(
+            String title, Skin skin, BiFunction<TextDialog, String, Boolean> resultHandler) {
         super(title, skin);
         this.resultHandler = resultHandler;
     }
@@ -32,6 +31,6 @@ public final class TextDialog extends Dialog {
      */
     @Override
     protected void result(final Object object) {
-        if (!resultHandler.test(this, object.toString())) cancel();
+        if (!resultHandler.apply(this, object.toString())) cancel();
     }
 }
