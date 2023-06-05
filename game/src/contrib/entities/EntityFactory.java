@@ -47,9 +47,7 @@ public class EntityFactory {
 
         Entity hero = new Entity("hero");
         new PositionComponent(hero);
-        HealthComponent hc = new HealthComponent(hero);
-        hc.setMaximalHealthpoints(10);
-        hc.setCurrentHealthpoints(10);
+        new HealthComponent(hero, 10);
         new XPComponent(hero);
         new VelocityComponent(hero, xSpeed, ySpeed);
         new DrawComponent(hero, "character/knight");
@@ -151,8 +149,20 @@ public class EntityFactory {
         return chest;
     }
 
-    public static void createTestEnemy() throws IOException {
-        // TODO: remove this after testing
+    /**
+     * Create a new monster.
+     *
+     * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link DrawComponent},
+     * {@link VelocityComponent}, {@link XPComponent}, {@link CollideComponent}, {@link
+     * AIComponent}.
+     *
+     * <p>{@link RangeAI} is used to attack the hero if he is in range. {@link RadiusWalk} is used
+     * to walk around in a radius. {@link RangeTransition} is used to transition between the two
+     * states.
+     *
+     * @return Created Entity
+     */
+    public static Entity getMonster() throws IOException {
         Entity imp = new Entity();
         new PositionComponent(imp);
         new HealthComponent(imp);
@@ -165,5 +175,6 @@ public class EntityFactory {
                 new RangeAI(3, 1, new Skill(new FireballSkill(SkillTools::getHeroPosition), 2)),
                 new RadiusWalk(1, 1),
                 new RangeTransition(3));
+        return imp;
     }
 }

@@ -323,7 +323,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         getHero().ifPresent(Game::addEntity);
         try {
             // TODO: remove this after testing
-            EntityFactory.createTestEnemy();
+            EntityFactory.getMonster();
         } catch (IOException e) {
             LOGGER.warning("Could not create new TestEnemy: " + e.getMessage());
         }
