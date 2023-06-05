@@ -228,7 +228,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         // "K" the Suicide Button (You'll probably want to press it)
         if (Gdx.input.isKeyJustPressed(Input.Keys.K))
             ((HealthComponent) hero.getComponent(HealthComponent.class).get())
-                    .receiveHit(new Damage(100, DamageType.PHYSICAL, hero));
+                    .receiveHit(new Damage(100 * ((HealthComponent) hero.getComponent(HealthComponent.class).get())
+                            .getMaximalHealthpoints(), DamageType.PHYSICAL, hero));
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
             throw new Flag();
         if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {

@@ -21,7 +21,7 @@ import java.util.Optional;
  * setup the hero with
  * all its components and attributes .
  */
-public class Hero extends Entity implements Serializable {
+public class Hero extends Entity {
 
     private final int explosivePebbleCoolDown = 1;
     private final int stabCoolDown = 1;
@@ -70,6 +70,7 @@ public class Hero extends Entity implements Serializable {
         pc.setSkillSlot3(thirdSkill);
         pc.setSkillSlot4(fourthSkill);
         pc.setSkillSlot5(fifthSkill);
+        pc.setSkillSlot6(sixthSkill);
         setupQuestComponent(questLog);
         new InventoryComponent(this, 2);
         setupDamageComponent();
@@ -109,12 +110,17 @@ public class Hero extends Entity implements Serializable {
         fifthSkill = new DurationSkill(new Swiftness(this), 20);
     }
 
+    private void setupBlinkSkill() {
+        sixthSkill = new Skill(new Blink(SkillTools::getCursorPositionAsPoint, 2, 5), 2);
+    }
+
     private void setupSkills() {
         setupExplosiveSkill();
         setupStabSkill();
         setupRageSkill();
         setupWisdomSkill();
         setupSwiftnessSkill();
+        setupBlinkSkill();
     }
 
     private void setupHitboxComponent() {
@@ -140,6 +146,7 @@ public class Hero extends Entity implements Serializable {
         sc.addSkill(thirdSkill);
         sc.addSkill(fourthSkill);
         sc.addSkill(fifthSkill);
+        sc.addSkill(sixthSkill);
     }
 
     private void setupQuestComponent(ArrayList<Quest> questLog) {
@@ -163,7 +170,7 @@ public class Hero extends Entity implements Serializable {
                 health.setMaximalHealthpoints((int) (health.getMaximalHealthpoints() * 1.1f));
                 health.setCurrentHealthpoints(health.getMaximalHealthpoints());
                 ManaComponent mana = (ManaComponent) getComponent(ManaComponent.class).get();
-                mana.setMaxMana((int) (maxMana * 1.05f));
+                mana.setMaxMana((int) Math.ceil(maxMana * 1.05f));
                 mana.setRegenerationRatePerSecond((int) (mana.getRegenerationRatePerSecond() * 1.1f));
                 ((DamageComponent) getComponent(DamageComponent.class).get()).setDamage(calcDamage());
             }
