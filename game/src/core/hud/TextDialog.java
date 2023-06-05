@@ -1,25 +1,28 @@
 package core.hud;
 
-import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+
+import java.util.function.BiPredicate;
 
 /** Contains Constructor, which immediately creates the dialogue including all its elements. */
 public final class TextDialog extends Dialog {
 
-    /** button ID (used when control is pressed) */
-    private static final String BUTTON_ID = "confirm exit";
-    /** Default message when no text is transferred */
-    private static final String DEFAULT_MSG = "No message was load.";
-    /** Default Button message */
-    private static final String DEFAULT_BUTTON_MSG = "OK";
+    /**
+     * Handler for Button presses
+     */
+    private final BiPredicate<TextDialog, String> resultHandler;
 
     /**
      * Constructor for Quiz Question
      *
      * @param skin Skin for the dialog (resources that can be used by UI widgets)
      * @param title Title of the dialog
+     * @param resultHandler controls the button presses
      */
-    TextDialog(String title, Skin skin) {
+    public TextDialog(String title, Skin skin, BiPredicate<TextDialog,String> resultHandler) {
         super(title, skin);
+        this.resultHandler = resultHandler;
     }
 
     /**
@@ -29,8 +32,6 @@ public final class TextDialog extends Dialog {
      */
     @Override
     protected void result(final Object object) {
-        if (object.toString().equals(BUTTON_ID)) {
-            // do nothing ...
-        }
+        if (!resultHandler.test(this, object.toString())) cancel();
     }
 }

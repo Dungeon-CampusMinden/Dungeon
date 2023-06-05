@@ -5,6 +5,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import quizquestion.QuizQuestion;
 
+import java.util.Objects;
+import java.util.function.BiPredicate;
+
 public class DialogFactory {
     /** button ID (used when control is pressed) */
     private static final String BUTTON_ID = "confirm exit";
@@ -28,25 +31,28 @@ public class DialogFactory {
             String outputMsg,
             String buttonMsg,
             String title) {
-        Dialog textDialog = new TextDialog(title, skin);
-        DialogDesign dialogDesign = new DialogDesign();
+        if (buttonMsg.trim().isEmpty()) buttonMsg = DEFAULT_BUTTON_MSG;
         if (outputMsg.trim().isEmpty()) outputMsg = DEFAULT_MSG;
+        Dialog textDialog = new TextDialog(title, skin, getResultHandler(buttonMsg));
+        DialogDesign dialogDesign = new DialogDesign();
         dialogDesign.QuizQuestion(quizQuestion, skin, outputMsg);
         textDialog.addActor(dialogDesign);
-        if (buttonMsg.trim().isEmpty()) buttonMsg = DEFAULT_BUTTON_MSG;
         textDialog.button(buttonMsg, BUTTON_ID);
         return textDialog;
     }
 
+    private static BiPredicate<TextDialog, String> getResultHandler(final String closeButtonMsg) {
+        return (d, id) -> Objects.equals(id, closeButtonMsg);
+    }
+
     public static Dialog createTextDialog(
             Skin skin, String outputMsg, String buttonMsg, String title) {
-        Dialog textDialog = new TextDialog(title, skin);
-
-        DialogDesign dialogDesign = new DialogDesign();
         if (outputMsg.trim().isEmpty()) outputMsg = DEFAULT_MSG;
+        if (buttonMsg.trim().isEmpty()) buttonMsg = DEFAULT_BUTTON_MSG;
+        Dialog textDialog = new TextDialog(title, skin, getResultHandler(buttonMsg));
+        DialogDesign dialogDesign = new DialogDesign();
         dialogDesign.TextDialog(skin, outputMsg);
         textDialog.addActor(dialogDesign);
-        if (buttonMsg.trim().isEmpty()) buttonMsg = DEFAULT_BUTTON_MSG;
         textDialog.button(buttonMsg, BUTTON_ID);
         return textDialog;
     }
