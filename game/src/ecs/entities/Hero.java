@@ -45,6 +45,7 @@ public class Hero extends Entity {
     private Skill sixthSkill;
 
     private XPComponent xPComponent;
+    private PlayableComponent pc;
 
     /** Entity with Components */
     public Hero() {
@@ -64,14 +65,10 @@ public class Hero extends Entity {
         setupAnimationComponent();
         setupHitboxComponent();
         setupHealthComponent(maxHealth, currentHealth);
-        PlayableComponent pc = new PlayableComponent(this);
+        pc = new PlayableComponent(this);
         setupSkillComponent();
         pc.setSkillSlot1(firstSkill);
         pc.setSkillSlot2(secondSkill);
-        pc.setSkillSlot3(thirdSkill);
-        pc.setSkillSlot4(fourthSkill);
-        pc.setSkillSlot5(fifthSkill);
-        pc.setSkillSlot6(sixthSkill);
         setupQuestComponent(questLog);
         new InventoryComponent(this, 2);
     }
@@ -166,6 +163,26 @@ public class Hero extends Entity {
 
             @Override
             public void onLevelUp(long nexLevel) {
+                switch ((int) nexLevel) {
+                    case 5:
+                        pc.setSkillSlot6(sixthSkill);
+                        break;
+
+                    case 10:
+                        pc.setSkillSlot5(fifthSkill);
+                        break;
+
+                    case 15:
+                        pc.setSkillSlot3(thirdSkill);
+                        break;
+
+                    case 20:
+                        pc.setSkillSlot4(fourthSkill);
+                        break;
+
+                    default:
+                        break;
+                }
                 HealthComponent health = (HealthComponent) getComponent(HealthComponent.class).get();
                 health.setMaximalHealthpoints((int) (health.getMaximalHealthpoints() * 1.1f));
                 health.setCurrentHealthpoints(health.getMaximalHealthpoints());
