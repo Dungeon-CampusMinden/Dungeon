@@ -57,6 +57,7 @@ public class Hero extends Entity {
     /** Maybe this will let me load */
     public void setupComponents(int maxHealth, int currentHealth, ArrayList<Quest> questLog, int maxMana,
             int currentMana) {
+        setupDamageComponent();
         new PositionComponent(this);
         setupManaComponent(maxMana, currentMana);
         setupVelocityComponent();
@@ -73,7 +74,6 @@ public class Hero extends Entity {
         pc.setSkillSlot6(sixthSkill);
         setupQuestComponent(questLog);
         new InventoryComponent(this, 2);
-        setupDamageComponent();
     }
 
     private void setupVelocityComponent() {

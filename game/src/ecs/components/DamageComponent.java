@@ -3,6 +3,7 @@ package ecs.components;
 import java.util.logging.Logger;
 
 import ecs.entities.Entity;
+import logging.CustomLogLevel;
 
 /**
  * The entire purpose of this class is that skills deal damage depending on the
@@ -27,9 +28,11 @@ public class DamageComponent extends Component {
 
     public void setDamage(int damage) {
         this.damage = damage;
+        damageLogger.info(entity + " damage was set to: " + damage);
     }
 
     public int getDamage() {
+        damageLogger.log(CustomLogLevel.DEBUG, entity + "damage has been requested");
         return damage;
     }
 
