@@ -9,7 +9,7 @@ und dessen Itemeigenschaften zu verwalten.
 
 
 ## Aufbau
-![UML Diagram](img/itemComponent.png)
+![UML Diagram](img/item_component.png)
 
 ## Wie nutzt man es
 
