@@ -282,7 +282,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private void frame() {
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         debugKeys();
-        HeroUI.getHeroUI().updateUI(HeroUI.getHeroUI().buildDataObject());
+        HeroUI.getHeroUI().update();
     }
 
     /** Just for debugging, remove later. */

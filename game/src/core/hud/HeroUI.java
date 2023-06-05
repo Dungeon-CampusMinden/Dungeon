@@ -26,19 +26,16 @@ public class HeroUI<T extends Actor> extends ScreenController<T> {
 
     private record HeroData(HealthComponent hc, XPComponent xc) {}
 
-    /**
-     * Creates a Screencontroller with a ScalingViewport which stretches the ScreenElements on
-     * resize
-     *
-     * @param batch the batch which should be used to draw with
-     */
     private HeroUI(SpriteBatch batch) {
         super(batch);
         setup();
     }
 
     /** Updates the UI with the current data of the hero */
-    public void updateUI(HeroData hd) {
+    @Override
+    public void update() {
+        super.update();
+        HeroData hd = buildDataObject();
         if (hd.xc != null) {
             level.setText("Level: " + hd.xc.getCurrentLevel());
             float xpPercentage =
@@ -83,12 +80,7 @@ public class HeroUI<T extends Actor> extends ScreenController<T> {
         }
     }
 
-    /**
-     * Builds a data object with the components of the hero
-     *
-     * @return the data object containing the components of the hero
-     */
-    public HeroData buildDataObject() {
+    private HeroData buildDataObject() {
         HealthComponent hc = null;
         XPComponent xc = null;
 
