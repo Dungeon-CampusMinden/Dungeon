@@ -202,7 +202,7 @@ public class ItemData {
      * @param position Position where to drop the item.
      */
     private static void defaultDrop(Entity who, ItemData which, Point position) {
-        Consumer<Entity> inventoryComponent =
+        InventoryComponent inventoryComponent =
                 (InventoryComponent) who.getComponent(InventoryComponent.class).orElseThrow();
         inventoryComponent.removeItem(which);
         WorldItemBuilder.buildWorldItem(which, position);

@@ -10,6 +10,8 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
 
+import java.util.function.Consumer;
+
 /** Class which creates all needed Components for a basic WorldItem */
 public class WorldItemBuilder {
 
@@ -26,7 +28,7 @@ public class WorldItemBuilder {
         new ItemComponent(droppedItem, itemData);
 
         Consumer<Entity> interaction =
-                (a) -> itemData.action(droppedItem, Game.getHero().orElseThrow());
+                (a) -> itemData.triggerCollect(droppedItem, Game.getHero().orElseThrow());
         new InteractionComponent(droppedItem, 1.2f, true, interaction);
 
         return droppedItem;

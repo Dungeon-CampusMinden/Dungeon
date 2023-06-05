@@ -23,7 +23,7 @@ public class InventorySlotClickListener extends ClickListener {
         if (getTapCount() == 2) {
             if (slot.hasInventoryItem() && slot.getInventoryItem().getItem().getOnUse() != null) {
                 InventoryItem item = slot.getInventoryItem();
-                item.getItem().getOnUse().onUse(Game.getHero().orElseThrow(), item.getItem());
+                item.getItem().triggerUse(Game.getHero().orElseThrow());
                 InventoryGUI.getInstance().updateInventory();
             }
         }
