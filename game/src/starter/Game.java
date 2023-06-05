@@ -206,12 +206,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      * The Information will be loaded from the File.
      */
     public static void readFromFile(){
-        if (currentLvl!= 1){
         SerializableGame serializableGame1 = SerializableGame.readObject("serialGame");
         currentLvl = serializableGame1.getCurrentlevel();
-        }
     }
-
     /**
      * The File will get new information
      * @param healthPoints value will be saved in healthpoints Attribute.

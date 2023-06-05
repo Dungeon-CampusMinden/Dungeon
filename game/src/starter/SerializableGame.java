@@ -41,9 +41,9 @@ public class SerializableGame implements Serializable {
             oos.writeObject(daten);
             oos.flush();
             oos.close();
-            logger.severe("The file has been successfully created");
+            logger.severe("The information is imported into the file");
         }catch (IOException ex){
-            logger.severe("The file cannot be created");
+            logger.severe("The information cannot be imported into the file");
         }
     }
     /**
