@@ -1,5 +1,7 @@
 package ecs.components;
 
+import java.util.logging.Logger;
+
 import ecs.entities.Entity;
 
 /**
@@ -10,6 +12,8 @@ public class DamageComponent extends Component {
 
     private int damage;
 
+    private final transient Logger damageLogger = Logger.getLogger(DamageComponent.class.getName());
+
     /**
      * Construct a DamageComponent
      * 
@@ -18,6 +22,7 @@ public class DamageComponent extends Component {
     public DamageComponent(Entity entity, int damage) {
         super(entity);
         this.damage = damage;
+        damageLogger.info("New DamageComponent: " + damage + " by: " + entity);
     }
 
     public void setDamage(int damage) {
