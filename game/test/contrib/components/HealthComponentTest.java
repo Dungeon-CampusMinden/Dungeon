@@ -5,13 +5,14 @@ import static org.mockito.Mockito.times;
 
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
-import contrib.utils.components.health.IOnDeathFunction;
 
 import core.Entity;
 import core.Game;
 
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.util.function.Consumer;
 
 public class HealthComponentTest {
 
@@ -95,10 +96,10 @@ public class HealthComponentTest {
     public void triggerOnDeath() {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        IOnDeathFunction onDeathFunction = Mockito.mock(IOnDeathFunction.class);
+        Consumer<Entity> onDeathFunction = Mockito.mock(Consumer.class);
         HealthComponent hc = new HealthComponent(entity, 10, onDeathFunction);
         hc.triggerOnDeath();
-        Mockito.verify(onDeathFunction, times(1)).onDeath(entity);
+        Mockito.verify(onDeathFunction, times(1)).accept(entity);
     }
 
     @Test
@@ -106,9 +107,9 @@ public class HealthComponentTest {
         Game.removeAllEntities();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity);
-        IOnDeathFunction function = Mockito.mock(IOnDeathFunction.class);
+        Consumer<Entity> function = Mockito.mock(Consumer.class);
         hc.setOnDeath(function);
         hc.triggerOnDeath();
-        Mockito.verify(function, times(1)).onDeath(entity);
+        Mockito.verify(function, times(1)).accept(entity);
     }
 }

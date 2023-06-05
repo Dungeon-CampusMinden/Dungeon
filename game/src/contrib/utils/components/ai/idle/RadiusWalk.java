@@ -3,13 +3,14 @@ package contrib.utils.components.ai.idle;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
 import contrib.utils.components.ai.AITools;
-import contrib.utils.components.ai.IIdleAI;
 
 import core.Entity;
 import core.level.Tile;
 import core.utils.Constants;
 
-public class RadiusWalk implements IIdleAI {
+import java.util.function.Consumer;
+
+public class RadiusWalk implements Consumer<Entity> {
     private final float radius;
     private GraphPath<Tile> path;
     private final int breakTime;
@@ -28,12 +29,12 @@ public class RadiusWalk implements IIdleAI {
     }
 
     @Override
-    public void idle(Entity entity) {
+    public void accept(Entity entity) {
         if (path == null || AITools.pathFinishedOrLeft(entity, path)) {
             if (currentBreak >= breakTime) {
                 currentBreak = 0;
                 path = AITools.calculatePathToRandomTileInRange(entity, radius);
-                idle(entity);
+                accept(entity);
             }
 
             currentBreak++;

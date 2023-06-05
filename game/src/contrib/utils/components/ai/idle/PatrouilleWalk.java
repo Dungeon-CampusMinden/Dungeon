@@ -3,7 +3,6 @@ package contrib.utils.components.ai.idle;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
 import contrib.utils.components.ai.AITools;
-import contrib.utils.components.ai.IIdleAI;
 
 import core.Entity;
 import core.Game;
@@ -16,8 +15,9 @@ import core.utils.components.MissingComponentException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
-public class PatrouilleWalk implements IIdleAI {
+public class PatrouilleWalk implements Consumer<Entity> {
 
     private static final Random random = new Random();
 
@@ -93,7 +93,7 @@ public class PatrouilleWalk implements IIdleAI {
     }
 
     @Override
-    public void idle(Entity entity) {
+    public void accept(Entity entity) {
         if (!initialized) this.init(entity);
 
         PositionComponent position =

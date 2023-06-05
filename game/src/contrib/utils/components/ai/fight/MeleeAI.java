@@ -3,14 +3,15 @@ package contrib.utils.components.ai.fight;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
 import contrib.utils.components.ai.AITools;
-import contrib.utils.components.ai.IFightAI;
 import contrib.utils.components.skill.Skill;
 
 import core.Entity;
 import core.level.Tile;
 import core.utils.Constants;
 
-public class MeleeAI implements IFightAI {
+import java.util.function.Consumer;
+
+public class MeleeAI implements Consumer<Entity> {
     private final float attackRange;
     private final int delay = Constants.FRAME_RATE;
     private int timeSinceLastUpdate = 0;
@@ -30,7 +31,7 @@ public class MeleeAI implements IFightAI {
     }
 
     @Override
-    public void fight(Entity entity) {
+    public void accept(Entity entity) {
         if (AITools.playerInRange(entity, attackRange)) {
             fightSkill.execute(entity);
         } else {

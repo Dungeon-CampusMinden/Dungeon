@@ -24,7 +24,7 @@ public class WorldItemBuilder {
         new DrawComponent(droppedItem, itemData.getWorldTexture());
         new ItemComponent(droppedItem, itemData);
         CollideComponent component = new CollideComponent(droppedItem);
-        component.setiCollideEnter(
+        component.setCollideEnter(
                 (a, b, direction) -> {
                     itemData.triggerCollect(a, b);
                 });

@@ -9,19 +9,22 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 public class InteractionTool {
 
-    public static final IReachable SIMPLE_REACHABLE =
+    public static final Function<InteractionData, Boolean> SIMPLE_REACHABLE =
             (interactionData -> (interactionData.ic().getRadius() - interactionData.dist()) > 0);
 
-    public static final IReachable CONTROLL_POINTS_REACHABLE = new ControlPointReachable();
+    public static final Function<InteractionData, Boolean> CONTROLL_POINTS_REACHABLE =
+            new ControlPointReachable();
 
     public static void interactWithClosestInteractable(Entity entity) {
         interactWithClosestInteractable(entity, SIMPLE_REACHABLE);
     }
 
-    public static void interactWithClosestInteractable(Entity entity, IReachable iReachable) {
+    public static void interactWithClosestInteractable(
+            Entity entity, Function<InteractionData, Boolean> iReachable) {
         PositionComponent heroPosition =
                 (PositionComponent)
                         entity.getComponent(PositionComponent.class)
@@ -35,7 +38,7 @@ public class InteractionTool {
                                                 .map(InteractionComponent.class::cast)
                                                 .stream())
                         .map(ic1 -> convertToData(ic1, heroPosition))
-                        .filter(iReachable::checkReachable)
+                        .filter(iReachable::apply)
                         .min((x, y) -> Float.compare(x.dist(), y.dist()));
         data.ifPresent(x -> x.ic().triggerInteraction());
     }
