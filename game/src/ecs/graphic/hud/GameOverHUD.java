@@ -76,7 +76,7 @@ public class GameOverHUD<T extends Actor> extends ScreenController<T> {
                         new TextButtonListener() {
                             @Override
                             public void clicked(InputEvent event, float x, float y) {
-                                Game.restartGame();
+                                Game.restartGame() ;
                                 System.exit(0);
                                 loggerHud.log(Level.SEVERE, "Closed Game");
                             }

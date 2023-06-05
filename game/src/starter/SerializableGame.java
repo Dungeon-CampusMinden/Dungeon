@@ -1,9 +1,4 @@
 package starter;
-
-<<<<<<< HEAD
-public class SerialGame {
-}
-=======
 import java.io.*;
 import java.util.logging.Logger;
 
@@ -12,7 +7,7 @@ import java.util.logging.Logger;
  * the information must then be taken from the file.
  */
 public class SerializableGame implements Serializable {
-    static final long serialVersion = 42L;
+    private final long serialVersion = 42L;
     private int currentlevel;
     private final int healthPoints;
     private final static Logger logger = Logger.getLogger("SerializableGame");
@@ -90,6 +85,3 @@ public class SerializableGame implements Serializable {
         this.currentlevel = currentlevel;
     }
 }
-
-
->>>>>>> master
