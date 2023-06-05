@@ -7,7 +7,6 @@ import contrib.components.StatsComponent;
 import contrib.utils.components.draw.AdditionalAnimations;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
-import contrib.utils.components.health.IOnDeathFunction;
 
 import core.Entity;
 import core.Game;
@@ -17,6 +16,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 public class HealthSystemTest {
     private static final String ANIMATION_PATH = "character/knight";
@@ -25,7 +25,7 @@ public class HealthSystemTest {
     public void updateEntityDies() throws IOException {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
+        Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
         DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
         HealthComponent component = new HealthComponent(entity, 1, onDeath);
         HealthSystem system = new HealthSystem();
@@ -41,7 +41,7 @@ public class HealthSystemTest {
     public void updateEntityGetDamage() throws IOException {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
+        Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
         DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
         HealthComponent component = new HealthComponent(entity, 10, onDeath);
         component.receiveHit(new Damage(5, DamageType.FIRE, null));
@@ -58,7 +58,7 @@ public class HealthSystemTest {
     public void updateEntityGetNegativeDamage() throws IOException {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
+        Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
         DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
         HealthComponent component = new HealthComponent(entity, 10, onDeath);
         component.setCurrentHealthpoints(3);
@@ -74,7 +74,7 @@ public class HealthSystemTest {
     public void updateEntityGetZeroDamage() throws IOException {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
+        Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
         DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
         HealthComponent component = new HealthComponent(entity, 10, onDeath);
         component.receiveHit(new Damage(0, DamageType.FIRE, null));

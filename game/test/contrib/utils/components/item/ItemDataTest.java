@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public class ItemDataTest {
     @Before
@@ -79,12 +80,12 @@ public class ItemDataTest {
     /** Tests if set callback is called. */
     @Test
     public void testUseCallback() {
-        IOnUse callback = Mockito.mock(IOnUse.class);
+        BiConsumer<Entity, ItemData> callback = Mockito.mock(BiConsumer.class);
         ItemData item = new ItemData();
         item.setOnUse(callback);
         Entity entity = new Entity();
         item.triggerUse(entity);
-        Mockito.verify(callback).onUse(entity, item);
+        Mockito.verify(callback).accept(entity, item);
     }
 
     /** Tests if no exception is thrown when callback is null. */

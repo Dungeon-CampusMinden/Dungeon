@@ -1,11 +1,50 @@
-<diagram program="umletino" version="15.0.0"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>580</x><y>220</y><w>210</w><h>150</h></coordinates><panel_attributes>InventoryComponent
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>730</x>
+      <y>700</y>
+      <w>370</w>
+      <h>200</h>
+    </coordinates>
+    <panel_attributes>InventoryComponent
 --
-- inventory: List&lt;Item&gt;
-- maxSize: int
+-inventory: List&lt;ItemData&gt;
+-maxSize: int
+-inventoryLogger: Logger
 --
-+ addItem(Item item):boolean
-+ removeItem(Item item):boolean
-+ filledSlots():int
-+ emptySlots():int
-+ getMaxSize():int
-+ getItems():List&lt;Item&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>620</x><y>80</y><w>100</w><h>30</h></coordinates><panel_attributes>/Component/</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>660</x><y>100</y><w>30</w><h>140</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;120</additional_attributes></element></diagram>
++InventoryComponent(Entity entity, int maxSize)
++addItem(ItemData itemData): boolean
++removeItem(ItemData itemData): boolean
++filledSlots(): int
++emptySlots(): int
++getMaxSize(): int
++getItems(): List&lt;ItemData&gt;
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>800</x>
+      <y>600</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>Component</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>840</x>
+      <y>620</y>
+      <w>30</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
+  </element>
+</diagram>

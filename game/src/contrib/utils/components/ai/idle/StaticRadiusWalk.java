@@ -3,7 +3,6 @@ package contrib.utils.components.ai.idle;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
 import contrib.utils.components.ai.AITools;
-import contrib.utils.components.ai.IIdleAI;
 
 import core.Entity;
 import core.components.PositionComponent;
@@ -11,7 +10,9 @@ import core.level.Tile;
 import core.utils.Constants;
 import core.utils.Point;
 
-public class StaticRadiusWalk implements IIdleAI {
+import java.util.function.Consumer;
+
+public class StaticRadiusWalk implements Consumer<Entity> {
     private final float radius;
     private GraphPath<Tile> path;
     private final int breakTime;
@@ -33,7 +34,7 @@ public class StaticRadiusWalk implements IIdleAI {
     }
 
     @Override
-    public void idle(Entity entity) {
+    public void accept(Entity entity) {
         if (path == null || AITools.pathFinishedOrLeft(entity, path)) {
             if (center == null) {
                 PositionComponent pc =
@@ -51,7 +52,7 @@ public class StaticRadiusWalk implements IIdleAI {
                 newEndTile =
                         AITools.getRandomAccessibleTileCoordinateInRange(center, radius).toPoint();
                 path = AITools.calculatePath(currentPosition, newEndTile);
-                idle(entity);
+                accept(entity);
             }
             currentBreak++;
 

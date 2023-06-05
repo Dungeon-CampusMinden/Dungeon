@@ -5,7 +5,6 @@ import static contrib.utils.components.ai.AITools.getAccessibleTilesInRange;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
 import contrib.utils.components.ai.AITools;
-import contrib.utils.components.ai.IFightAI;
 import contrib.utils.components.skill.Skill;
 
 import core.Entity;
@@ -16,8 +15,9 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
 import java.util.List;
+import java.util.function.Consumer;
 
-public class RangeAI implements IFightAI {
+public class RangeAI implements Consumer<Entity> {
 
     private final float attackRange;
     private final float distance;
@@ -46,7 +46,7 @@ public class RangeAI implements IFightAI {
     }
 
     @Override
-    public void fight(Entity entity) {
+    public void accept(Entity entity) {
         boolean playerInDistanceRange = AITools.playerInRange(entity, distance);
         boolean playerInAttackRange = AITools.playerInRange(entity, attackRange);
 

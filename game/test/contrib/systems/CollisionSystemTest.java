@@ -3,13 +3,13 @@ package contrib.systems;
 import static org.junit.Assert.*;
 
 import contrib.components.CollideComponent;
-import contrib.utils.components.collision.ICollide;
 
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.utils.Point;
+import core.utils.TriConsumer;
 
 import org.junit.Test;
 
@@ -66,7 +66,7 @@ public class CollisionSystemTest {
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-        ICollide collider = (a, b, c) -> {};
+        TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
                 new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
@@ -97,7 +97,7 @@ public class CollisionSystemTest {
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
 
-        ICollide collider = (a, b, c) -> {};
+        TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
                 new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
@@ -126,7 +126,7 @@ public class CollisionSystemTest {
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-        ICollide collider = (a, b, c) -> {};
+        TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
                 new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
@@ -157,7 +157,7 @@ public class CollisionSystemTest {
 
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
-        ICollide collider = (a, b, c) -> {};
+        TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
                 new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
@@ -185,7 +185,7 @@ public class CollisionSystemTest {
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-        ICollide collider = (a, b, c) -> {};
+        TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
                 new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
@@ -213,7 +213,7 @@ public class CollisionSystemTest {
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-        ICollide collider = (a, b, c) -> {};
+        TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
                 new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
@@ -240,7 +240,7 @@ public class CollisionSystemTest {
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-        ICollide collider = (a, b, c) -> {};
+        TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
                 new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
@@ -268,7 +268,7 @@ public class CollisionSystemTest {
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-        ICollide collider = (a, b, c) -> {};
+        TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
                 new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
@@ -292,7 +292,7 @@ public class CollisionSystemTest {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
         Entity e1 = prepareEntityWithPosition(new Point(-.1f, -.1f));
-        ICollide collider = (a, b, c) -> {};
+        TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
                 new CollideComponent(
                         e1,
@@ -325,7 +325,7 @@ public class CollisionSystemTest {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-        ICollide collider = (a, b, c) -> {};
+        TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
                 new CollideComponent(
                         e1,

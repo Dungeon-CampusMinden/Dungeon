@@ -11,9 +11,11 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
+import core.utils.TriConsumer;
 import core.utils.components.draw.Animation;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * A Class which contains the Information of a specific Item.
@@ -23,9 +25,7 @@ import java.util.List;
  * a {@link #description}.
  *
  * <p>It holds the method references for collecting ({@link #onCollect}), dropping ({@link #onDrop})
- * and using ({@link #onUse}) items as functional Interfaces. These can be either set at
- * construction or afterward with {@link #setOnCollect(IOnCollect)}, {@link #setOnDrop(IOnDrop)} and
- * {@link #setOnUse(IOnUse)}.
+ * and using ({@link #onUse}) items as functional Interfaces.
  *
  * <p>Lastly it holds a {@link #damageModifier}
  */
@@ -36,10 +36,10 @@ public class ItemData {
     private String itemName;
     private String description;
 
-    private IOnCollect onCollect;
-    private IOnDrop onDrop;
+    private BiConsumer<Entity, Entity> onCollect;
+    private TriConsumer<Entity, ItemData, Point> onDrop;
     // active
-    private IOnUse onUse;
+    private BiConsumer<Entity, ItemData> onUse;
 
     // passive
     private DamageModifier damageModifier;
@@ -63,9 +63,9 @@ public class ItemData {
             Animation worldTexture,
             String itemName,
             String description,
-            IOnCollect onCollect,
-            IOnDrop onDrop,
-            IOnUse onUse,
+            BiConsumer<Entity, Entity> onCollect,
+            TriConsumer<Entity, ItemData, Point> onDrop,
+            BiConsumer<Entity, ItemData> onUse,
             DamageModifier damageModifier) {
         this.itemType = itemType;
         this.inventoryTexture = inventoryTexture;
@@ -122,7 +122,7 @@ public class ItemData {
      * @param whoTriesCollects Entity that tries to collect item
      */
     public void triggerCollect(Entity worldItemEntity, Entity whoTriesCollects) {
-        if (getOnCollect() != null) getOnCollect().onCollect(worldItemEntity, whoTriesCollects);
+        if (getOnCollect() != null) getOnCollect().accept(worldItemEntity, whoTriesCollects);
     }
 
     /**
@@ -131,7 +131,7 @@ public class ItemData {
      * @param position the location of the drop
      */
     public void triggerDrop(Entity e, Point position) {
-        if (getOnDrop() != null) getOnDrop().onDrop(e, this, position);
+        if (getOnDrop() != null) getOnDrop().accept(e, this, position);
     }
 
     /**
@@ -141,7 +141,7 @@ public class ItemData {
      */
     public void triggerUse(Entity entity) {
         if (getOnUse() == null) return;
-        getOnUse().onUse(entity, this);
+        getOnUse().accept(entity, this);
     }
 
     /**
@@ -208,7 +208,7 @@ public class ItemData {
         new PositionComponent(droppedItem, position);
         new DrawComponent(droppedItem, which.getWorldTexture());
         CollideComponent component = new CollideComponent(droppedItem);
-        component.setiCollideEnter((a, b, direction) -> which.triggerCollect(a, b));
+        component.setCollideEnter((a, b, direction) -> which.triggerCollect(a, b));
     }
 
     /**
@@ -252,7 +252,7 @@ public class ItemData {
     /**
      * @return The callback function to collect the item.
      */
-    public IOnCollect getOnCollect() {
+    public BiConsumer<Entity, Entity> getOnCollect() {
         return onCollect;
     }
 
@@ -261,14 +261,14 @@ public class ItemData {
      *
      * @param onCollect New collect callback.
      */
-    public void setOnCollect(IOnCollect onCollect) {
+    public void setOnCollect(BiConsumer<Entity, Entity> onCollect) {
         this.onCollect = onCollect;
     }
 
     /**
      * @return The callback function to drop the item.
      */
-    public IOnDrop getOnDrop() {
+    public TriConsumer<Entity, ItemData, Point> getOnDrop() {
         return onDrop;
     }
 
@@ -277,14 +277,14 @@ public class ItemData {
      *
      * @param onDrop New drop callback.
      */
-    public void setOnDrop(IOnDrop onDrop) {
+    public void setOnDrop(TriConsumer<Entity, ItemData, Point> onDrop) {
         this.onDrop = onDrop;
     }
 
     /**
      * @return The callback function to use the item.
      */
-    public IOnUse getOnUse() {
+    public BiConsumer<Entity, ItemData> getOnUse() {
         return onUse;
     }
 
@@ -293,7 +293,7 @@ public class ItemData {
      *
      * @param onUse New use callback.
      */
-    public void setOnUse(IOnUse onUse) {
+    public void setOnUse(BiConsumer<Entity, ItemData> onUse) {
         this.onUse = onUse;
     }
 }
