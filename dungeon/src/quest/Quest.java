@@ -2,7 +2,6 @@ package quest;
 
 import core.level.elements.ILevel;
 import core.level.generator.IGenerator;
-import core.utils.controller.ScreenController;
 
 import dslToGame.QuestConfig;
 
@@ -12,15 +11,12 @@ public abstract class Quest {
     protected ILevel root;
     protected String questText;
 
-    protected ScreenController sc;
-
     protected int maxscore;
 
-    public Quest(QuestConfig questConfig, ScreenController sc) {
+    public Quest(QuestConfig questConfig) {
         this.questConfig = questConfig;
         this.maxscore = questConfig.questPoints();
         this.questText = questConfig.questDesc();
-        this.sc = sc;
     }
 
     public IGenerator getGenerator() {
