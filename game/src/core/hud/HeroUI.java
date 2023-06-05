@@ -23,6 +23,8 @@ public class HeroUI<T extends Actor> extends ScreenController<T> {
     private ScreenText level;
     private ScreenImage healthBar, xpBar;
     private BitmapFont font;
+    private int previousHealthPoints;
+    private long previousXP, previousLevel;
 
     private record HeroData(HealthComponent hc, XPComponent xc) {}
 
@@ -37,46 +39,66 @@ public class HeroUI<T extends Actor> extends ScreenController<T> {
         super.update();
         HeroData hd = buildDataObject();
         if (hd.xc != null) {
-            level.setText("Level: " + hd.xc.getCurrentLevel());
-            float xpPercentage =
-                    (float) hd.xc.getCurrentXP()
-                            / (hd.xc.getXPToNextLevel() + hd.xc.getCurrentXP())
-                            * 100;
-            if (xpPercentage <= 10) {
-                xpBar.setTexture("hud/xpBar/xpBar_1.png");
-            } else if (xpPercentage <= 20) {
-                xpBar.setTexture("hud/xpBar/xpBar_2.png");
-            } else if (xpPercentage <= 36) {
-                xpBar.setTexture("hud/xpBar/xpBar_3.png");
-            } else if (xpPercentage <= 52) {
-                xpBar.setTexture("hud/xpBar/xpBar_4.png");
-            } else if (xpPercentage <= 68) {
-                xpBar.setTexture("hud/xpBar/xpBar_5.png");
-            } else if (xpPercentage <= 84) {
-                xpBar.setTexture("hud/xpBar/xpBar_6.png");
-            } else if (xpPercentage <= 100) {
-                xpBar.setTexture("hud/xpBar/xpBar_7.png");
+            if (hd.xc.getCurrentLevel() != previousLevel) {
+                hd.hc.getLastDamageCause()
+                        .flatMap(e -> e.getComponent(XPComponent.class))
+                        .ifPresent(xc -> createXPPopup(((XPComponent) xc).getLootXP()));
+                previousLevel = hd.xc.getCurrentLevel();
+            } else if (hd.xc.getCurrentXP() != previousXP) {
+                createXPPopup(hd.xc.getCurrentXP() - previousXP);
             }
+            previousXP = hd.xc.getCurrentXP();
+            updateXPBar(hd);
         }
 
         if (hd.hc != null) {
-            float hpPercentage =
-                    (float) hd.hc.getCurrentHealthpoints() / hd.hc.getMaximalHealthpoints() * 100;
-            if (hpPercentage <= 0) {
-                healthBar.setTexture("hud/healthBar/healthBar_7.png");
-            } else if (hpPercentage <= 20) {
-                healthBar.setTexture("hud/healthBar/healthBar_6.png");
-            } else if (hpPercentage <= 36) {
-                healthBar.setTexture("hud/healthBar/healthBar_5.png");
-            } else if (hpPercentage <= 52) {
-                healthBar.setTexture("hud/healthBar/healthBar_4.png");
-            } else if (hpPercentage <= 68) {
-                healthBar.setTexture("hud/healthBar/healthBar_3.png");
-            } else if (hpPercentage <= 84) {
-                healthBar.setTexture("hud/healthBar/healthBar_2.png");
-            } else if (hpPercentage <= 100) {
-                healthBar.setTexture("hud/healthBar/healthBar_1.png");
-            }
+            if (hd.hc.getCurrentHealthpoints() != previousHealthPoints)
+                createHPPopup(hd.hc.getCurrentHealthpoints() - previousHealthPoints);
+            previousHealthPoints = hd.hc.getCurrentHealthpoints();
+            updateHealthBar(hd);
+        }
+    }
+
+    private void updateHealthBar(HeroData hd) {
+        float hpPercentage =
+                (float) hd.hc.getCurrentHealthpoints() / hd.hc.getMaximalHealthpoints() * 100;
+        if (hpPercentage <= 0) {
+            healthBar.setTexture("hud/healthBar/healthBar_7.png");
+        } else if (hpPercentage <= 20) {
+            healthBar.setTexture("hud/healthBar/healthBar_6.png");
+        } else if (hpPercentage <= 36) {
+            healthBar.setTexture("hud/healthBar/healthBar_5.png");
+        } else if (hpPercentage <= 52) {
+            healthBar.setTexture("hud/healthBar/healthBar_4.png");
+        } else if (hpPercentage <= 68) {
+            healthBar.setTexture("hud/healthBar/healthBar_3.png");
+        } else if (hpPercentage <= 84) {
+            healthBar.setTexture("hud/healthBar/healthBar_2.png");
+        } else if (hpPercentage <= 100) {
+            healthBar.setTexture("hud/healthBar/healthBar_1.png");
+        }
+    }
+
+    private void updateXPBar(HeroData hd) {
+        level.setText("Level: " + hd.xc.getCurrentLevel());
+        float xpPercentage =
+                (float) hd.xc.getCurrentXP()
+                        / (hd.xc.getXPToNextLevel() + hd.xc.getCurrentXP())
+                        * 100;
+        if (xpPercentage <= 10) {
+            xpBar.setTexture("hud/xpBar/xpBar_1.png");
+        } else if (xpPercentage <= 20) {
+            xpBar.setTexture("hud/xpBar/xpBar_2.png");
+        } else if (xpPercentage <= 36) {
+            xpBar.setTexture("hud/xpBar/xpBar_3.png");
+        } else if (xpPercentage <= 52) {
+            xpBar.setTexture("hud/xpBar/xpBar_4.png");
+        } else if (xpPercentage <= 68) {
+            xpBar.setTexture("hud/xpBar/xpBar_5.png");
+        } else if (xpPercentage <= 84) {
+            xpBar.setTexture("hud/xpBar/xpBar_6.png");
+        } else if (xpPercentage <= 100) {
+            xpBar.setTexture("hud/xpBar/xpBar_7.png");
         }
     }
 
@@ -107,35 +129,42 @@ public class HeroUI<T extends Actor> extends ScreenController<T> {
      * @param lootXP the amount of XP to display
      */
     public void createXPPopup(long lootXP) {
+        Color fontColor = lootXP > 0 ? Color.GREEN : Color.RED;
         ScreenText xpPopup =
                 new ScreenText(
-                        "+" + lootXP + " XP",
+                        "%+d XP".formatted(lootXP),
                         new Point(
                                 (float) Constants.WINDOW_WIDTH / 2,
                                 (float) Constants.WINDOW_HEIGHT / 2),
                         1,
-                        new LabelStyleBuilder(font).setFontcolor(Color.GREEN).build());
+                        new LabelStyleBuilder(font).setFontcolor(fontColor).build());
         xpPopup.addAction(Actions.sequence(Actions.moveBy(0, 50, 1), Actions.removeActor()));
         this.add((T) xpPopup);
     }
 
     /**
-     * Creates a popup on the screen with how much hp the hero lost
+     * Creates a popup on the screen with how much hp the hero lost or gained
      *
-     * @param damageAmount the amount of HP to display
+     * @param hpChange the amount of HP to display
      */
-    public void createDamagePopup(int damageAmount) {
+    public void createHPPopup(int hpChange) {
+        Color fontColor = hpChange > 0 ? Color.GREEN : Color.RED;
         ScreenText hpPopup =
                 new ScreenText(
-                        "-" + damageAmount + " HP",
+                        "%+d HP".formatted(hpChange),
                         new Point(Constants.WINDOW_WIDTH - 55, 30),
                         1,
-                        new LabelStyleBuilder(font).setFontcolor(Color.RED).build());
+                        new LabelStyleBuilder(font).setFontcolor(fontColor).build());
         hpPopup.addAction(Actions.sequence(Actions.moveBy(0, 50, 1), Actions.removeActor()));
         this.add((T) hpPopup);
     }
 
     private void setup() {
+        HeroData hd = buildDataObject();
+        previousXP = hd.xc.getCurrentXP();
+        previousHealthPoints = hd.hc.getCurrentHealthpoints();
+        previousLevel = hd.xc.getCurrentLevel();
+
         FreeTypeFontGenerator generator =
                 new FreeTypeFontGenerator(Gdx.files.internal("skin/DungeonFont.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter =

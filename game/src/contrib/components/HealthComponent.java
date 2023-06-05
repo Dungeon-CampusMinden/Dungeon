@@ -8,8 +8,6 @@ import contrib.utils.components.health.DamageType;
 
 import core.Component;
 import core.Entity;
-import core.Game;
-import core.hud.HeroUI;
 import core.utils.logging.CustomLogLevel;
 
 import semanticanalysis.types.DSLContextMember;
@@ -98,8 +96,6 @@ public class HealthComponent extends Component {
      */
     public void receiveHit(Damage damage) {
         damageToGet.add(damage);
-        if (this.getEntity().equals(Game.getHero().orElseThrow()))
-            HeroUI.getHeroUI().createDamagePopup(damage.damageAmount());
         this.lastCause = damage.cause() != null ? damage.cause() : this.lastCause;
     }
 

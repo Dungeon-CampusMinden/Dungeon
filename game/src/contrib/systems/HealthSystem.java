@@ -10,7 +10,6 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
-import core.hud.HeroUI;
 
 import java.util.stream.Stream;
 
@@ -119,13 +118,8 @@ public class HealthSystem extends System {
                                     .ifPresent(
                                             c -> {
                                                 XPComponent killerXPComponent = (XPComponent) c;
-                                                long lootXP = deadXPComponent.getLootXP();
-                                                killerXPComponent.addXP(lootXP);
-                                                // only call if the hero is the killer
-                                                if (killerXPComponent
-                                                        .getEntity()
-                                                        .equals(Game.getHero().orElseThrow()))
-                                                    HeroUI.getHeroUI().createXPPopup(lootXP);
+                                                killerXPComponent.addXP(
+                                                        deadXPComponent.getLootXP());
                                             });
                         });
     }
