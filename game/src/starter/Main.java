@@ -22,8 +22,6 @@ public class Main {
                     try {
                         EntityFactory.getChest();
                     } catch (IOException e) {
-                        // will be moved to MAIN in
-                        // https://github.com/Programmiermethoden/Dungeon/pull/688
                         LOGGER.warning("Could not create new Chest: " + e.getMessage());
                         throw new RuntimeException();
                     }
