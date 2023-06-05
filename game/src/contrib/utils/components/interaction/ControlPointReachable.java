@@ -4,10 +4,12 @@ import core.Game;
 import core.level.utils.Coordinate;
 import core.utils.Point;
 
-public class ControlPointReachable implements IReachable {
+import java.util.function.Function;
+
+public class ControlPointReachable implements Function<InteractionData, Boolean> {
 
     @Override
-    public boolean checkReachable(InteractionData interactionData) {
+    public Boolean apply(InteractionData interactionData) {
         boolean reachable = false;
         boolean pathBlocked = false;
         if ((interactionData.ic().getRadius() - interactionData.dist()) > 0) {

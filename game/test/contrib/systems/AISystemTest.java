@@ -3,7 +3,6 @@ package contrib.systems;
 import static org.junit.Assert.assertEquals;
 
 import contrib.components.AIComponent;
-import contrib.utils.components.ai.ITransition;
 
 import core.Entity;
 import core.Game;
@@ -25,12 +24,9 @@ public class AISystemTest {
         entity = new Entity();
         AIComponent component = new AIComponent(entity);
         component.setTransitionAI(
-                new ITransition() {
-                    @Override
-                    public boolean isInFightMode(Entity entity) {
-                        updateCounter++;
-                        return false;
-                    }
+                entity -> {
+                    updateCounter++;
+                    return false;
                 });
         updateCounter = 0;
     }

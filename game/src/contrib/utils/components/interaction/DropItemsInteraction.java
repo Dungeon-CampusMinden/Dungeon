@@ -11,10 +11,11 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 /**
- * This class is a specific implementation of the {@link IInteraction} interface to use in the
+ * This class is a specific implementation of the {@link Consumer<Entity>} interface to use in the
  * {@link InteractionComponent}.
  *
  * <p>The implementation will drop all the items inside the {@link InventoryComponent} of the
@@ -29,7 +30,7 @@ import java.util.stream.IntStream;
  * core.utils.components.draw.CoreAnimations#IDLE_RIGHT} animation will be set as the current
  * animation.
  */
-public class DropItemsInteraction implements IInteraction {
+public class DropItemsInteraction implements Consumer<Entity> {
 
     /**
      * Will drop all the items inside the {@link InventoryComponent} of the associated entity on the
@@ -46,7 +47,7 @@ public class DropItemsInteraction implements IInteraction {
      *
      * @param entity associated entity
      */
-    public void onInteraction(Entity entity) {
+    public void accept(Entity entity) {
         InventoryComponent inventoryComponent =
                 entity.getComponent(InventoryComponent.class)
                         .map(InventoryComponent.class::cast)

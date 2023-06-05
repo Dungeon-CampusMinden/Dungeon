@@ -5,7 +5,6 @@ import com.badlogic.gdx.utils.Null;
 import contrib.systems.HealthSystem;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
-import contrib.utils.components.health.IOnDeathFunction;
 
 import core.Component;
 import core.Entity;
@@ -18,6 +17,7 @@ import semanticanalysis.types.DSLTypeMember;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
@@ -33,7 +33,7 @@ import java.util.logging.Logger;
  *
  * <p>The HealthComponent also provides the ability to set an onDeath function, which is called when
  * the health points reach 0 or less. The onDeath function can be set via the {@link
- * #setOnDeath(IOnDeathFunction) setOnDeath} method.
+ * #setOnDeath(Consumer<Entity>) setOnDeath} method.
  */
 @DSLType(name = "health_component")
 public class HealthComponent extends Component {
@@ -41,7 +41,7 @@ public class HealthComponent extends Component {
     private @DSLTypeMember(name = "maximal_health_points") int maximalHealthpoints;
     private int currentHealthpoints;
     private @Null Entity lastCause = null;
-    private @DSLTypeMember(name = "on_death_function") IOnDeathFunction onDeath;
+    private @DSLTypeMember(name = "on_death_function") Consumer<Entity> onDeath;
     private final Logger healthLogger = Logger.getLogger(this.getClass().getName());
 
     /**
@@ -55,7 +55,7 @@ public class HealthComponent extends Component {
      *     that
      * @param onDeath Function that gets called, when this entity dies
      */
-    public HealthComponent(Entity entity, int maximalHitPoints, IOnDeathFunction onDeath) {
+    public HealthComponent(Entity entity, int maximalHitPoints, Consumer<Entity> onDeath) {
         super(entity);
         this.maximalHealthpoints = maximalHitPoints;
         this.currentHealthpoints = maximalHitPoints;
@@ -87,7 +87,7 @@ public class HealthComponent extends Component {
 
     /** Triggers the onDeath Function */
     public void triggerOnDeath() {
-        onDeath.onDeath(entity);
+        onDeath.accept(entity);
     }
 
     /**
@@ -147,7 +147,7 @@ public class HealthComponent extends Component {
      *
      * @param onDeath new onDeath function
      */
-    public void setOnDeath(IOnDeathFunction onDeath) {
+    public void setOnDeath(Consumer<Entity> onDeath) {
         this.onDeath = onDeath;
     }
 

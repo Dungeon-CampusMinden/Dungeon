@@ -1,9 +1,9 @@
 package contrib.components;
 
-import contrib.utils.components.xp.ILevelUp;
-
 import core.Component;
 import core.Entity;
+
+import java.util.function.LongConsumer;
 
 public class XPComponent extends Component {
 
@@ -12,7 +12,7 @@ public class XPComponent extends Component {
     private long currentLevel;
     private long currentXP;
     private long lootXP = -1;
-    private ILevelUp callbackLevelUp;
+    private LongConsumer callbackLevelUp;
 
     /**
      * Create a new XP-Component and add it to the associated entity
@@ -29,13 +29,13 @@ public class XPComponent extends Component {
      * @param entity associated entity
      * @param levelUp callback for when the entity levels up
      */
-    public XPComponent(Entity entity, ILevelUp levelUp, int lootXP) {
+    public XPComponent(Entity entity, LongConsumer levelUp, int lootXP) {
         super(entity);
         this.callbackLevelUp = levelUp;
         this.lootXP = lootXP;
     }
 
-    public XPComponent(Entity entity, ILevelUp levelUp) {
+    public XPComponent(Entity entity, LongConsumer levelUp) {
         super(entity);
         this.callbackLevelUp = levelUp;
     }
@@ -92,7 +92,7 @@ public class XPComponent extends Component {
      * @param level new level
      */
     public void levelUp(long level) {
-        if (this.callbackLevelUp != null) this.callbackLevelUp.onLevelUp(level);
+        if (this.callbackLevelUp != null) this.callbackLevelUp.accept(level);
     }
 
     /**

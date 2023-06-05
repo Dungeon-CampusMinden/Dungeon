@@ -10,7 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-/** Allows an Entity to carry Items */
+/**
+ * This Component marks an {@link Entity} as having an inventory
+ *
+ * <p>It keeps track of the currently carried items in the list {@link #inventory} and the size of
+ * the inventory in {@link #maxSize}. Carried items can be retrieved by using {@link #getItems()
+ * getItems}. List elements can be added via {@link #addItem(ItemData) addItem} and removed via
+ * {@link #removeItem(ItemData) removeItem}.
+ *
+ * <p>The number of filled slots can be retrieved via {@link #filledSlots() filledSlots} and the
+ * number of empty slots via {@link #emptySlots() emptySlots}. The maximum inventory size can also
+ * be retrieved via {@link #getMaxSize() getMaxSize}.
+ */
 public class InventoryComponent extends Component {
 
     private List<ItemData> inventory;
@@ -18,9 +29,11 @@ public class InventoryComponent extends Component {
     private final Logger inventoryLogger = Logger.getLogger(this.getClass().getName());
 
     /**
-     * creates a new InventoryComponent
+     * Creates a new InventoryComponent
      *
-     * @param entity the Entity where this Component should be added to
+     * <p>Create a new InventoryComponent by explicitly setting the maximum inventory size.
+     *
+     * @param entity the Entity which will have the inventory added
      * @param maxSize the maximal size of the inventory
      */
     public InventoryComponent(Entity entity, int maxSize) {

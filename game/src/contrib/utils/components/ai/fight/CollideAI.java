@@ -3,13 +3,14 @@ package contrib.utils.components.ai.fight;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
 import contrib.utils.components.ai.AITools;
-import contrib.utils.components.ai.IFightAI;
 
 import core.Entity;
 import core.level.Tile;
 import core.utils.Constants;
 
-public class CollideAI implements IFightAI {
+import java.util.function.Consumer;
+
+public class CollideAI implements Consumer<Entity> {
     private final float rushRange;
     private final int delay = Constants.FRAME_RATE;
     private int timeSinceLastUpdate = delay;
@@ -26,7 +27,7 @@ public class CollideAI implements IFightAI {
     }
 
     @Override
-    public void fight(Entity entity) {
+    public void accept(Entity entity) {
         if (AITools.playerInRange(entity, rushRange)) {
             // the faster pathing once a certain range is reached
             path = AITools.calculatePathToHero(entity);

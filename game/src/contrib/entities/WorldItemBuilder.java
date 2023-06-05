@@ -2,7 +2,6 @@ package contrib.entities;
 
 import contrib.components.InteractionComponent;
 import contrib.components.ItemComponent;
-import contrib.utils.components.interaction.IInteraction;
 import contrib.utils.components.item.ItemData;
 
 import core.Entity;
@@ -26,8 +25,8 @@ public class WorldItemBuilder {
         new DrawComponent(droppedItem, itemData.getWorldTexture());
         new ItemComponent(droppedItem, itemData);
 
-        IInteraction interaction =
-                (a) -> itemData.triggerCollect(droppedItem, Game.getHero().orElseThrow());
+        Consumer<Entity> interaction =
+                (a) -> itemData.action(droppedItem, Game.getHero().orElseThrow());
         new InteractionComponent(droppedItem, 1.2f, true, interaction);
 
         return droppedItem;

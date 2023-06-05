@@ -35,5 +35,5 @@ kontrollieren.
 
 ## Testabdeckung
 
-Es kann und wird alles getestet. Es gibt hier nur einfach zu testene Elemente.
+Es kann und wird alles getestet. Es gibt hier nur einfach zu testende Elemente.
 
