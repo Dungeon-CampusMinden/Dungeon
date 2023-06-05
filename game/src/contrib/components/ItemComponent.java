@@ -8,7 +8,7 @@ import core.Entity;
 /**
  * A class that marks an entity as an Item and controls its {@link ItemData}
  *
- * <p> It contains the {@link #itemData}, which contains all info about the Item.
+ * <p>It contains the {@link #itemData}, which contains all info about the Item.
  */
 public class ItemComponent extends Component {
     private ItemData itemData;
