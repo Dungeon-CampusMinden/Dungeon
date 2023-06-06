@@ -1,20 +1,23 @@
-package ecs.components.ai.transition;
+package contrib.utils.components.ai.transition;
 
-import ecs.components.HealthComponent;
-import ecs.components.MissingComponentException;
-import ecs.components.PlayableComponent;
-import ecs.entities.Entity;
+import contrib.components.HealthComponent;
+
+import core.Entity;
+import core.components.PlayerComponent;
+import core.utils.components.MissingComponentException;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
- * Implements an AI that protects a specific entity with a HealthComponent, if the hero dealt damage to it.
+ * Implements an AI that protects a specific entity with a HealthComponent, if the hero dealt damage
+ * to it.
  *
- * <p> Entity will stay in fight mode once entered.
+ * <p>Entity will stay in fight mode once entered.
  */
-public class ProtectOnAttack implements ITransition {
+public class ProtectOnAttack implements Function<Entity, Boolean> {
 
     private boolean isInFight = false;
 
@@ -42,8 +45,8 @@ public class ProtectOnAttack implements ITransition {
      */
     public ProtectOnAttack(Collection<Entity> entities) {
         entities.stream()
-            .peek(e -> e.getComponent(HealthComponent.class).orElseThrow())
-            .forEach(this.toProtect::add);
+                .peek(e -> e.getComponent(HealthComponent.class).orElseThrow())
+                .forEach(this.toProtect::add);
     }
 
     /**
@@ -53,17 +56,17 @@ public class ProtectOnAttack implements ITransition {
      * @return True if entity is in fight mode, false if entity is not
      */
     @Override
-    public boolean isInFightMode(Entity entity) {
+    public Boolean apply(Entity entity) {
         if (isInFight) return true;
 
         isInFight =
-            toProtect.stream()
-                .map(e -> (HealthComponent) e.getComponent(HealthComponent.class).get())
-                .anyMatch(
-                    e ->
-                        e.getLastDamageCause()
-                            .map(t -> t.getComponent(PlayableComponent.class))
-                            .isPresent());
+                toProtect.stream()
+                        .map(e -> (HealthComponent) e.getComponent(HealthComponent.class).get())
+                        .anyMatch(
+                                e ->
+                                        e.getLastDamageCause()
+                                                .map(t -> t.getComponent(PlayerComponent.class))
+                                                .isPresent());
 
         return isInFight;
     }

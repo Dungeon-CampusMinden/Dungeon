@@ -1,19 +1,23 @@
-package ecs.components.ai.transition;
+package contrib.utils.components.ai;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import ecs.components.HealthComponent;
-import ecs.components.PlayableComponent;
-import ecs.components.ai.AIComponent;
-import ecs.components.ai.fight.CollideAI;
-import ecs.components.ai.idle.RadiusWalk;
-import ecs.damage.Damage;
-import ecs.entities.Entity;
-import java.util.ArrayList;
-import java.util.List;
+import contrib.components.AIComponent;
+import contrib.components.HealthComponent;
+import contrib.utils.components.ai.fight.CollideAI;
+import contrib.utils.components.ai.idle.RadiusWalk;
+import contrib.utils.components.ai.transition.ProtectOnAttack;
+import contrib.utils.components.health.Damage;
+
+import core.Entity;
+import core.components.PlayerComponent;
+
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProtectOnAttackTest {
     private Entity protector;
@@ -34,7 +38,7 @@ public class ProtectOnAttackTest {
 
         // Get an attacker
         attacker = new Entity();
-        attacker.addComponent(new PlayableComponent(attacker));
+        attacker.addComponent(new PlayerComponent(attacker));
     }
 
     /** Prepare a list of entities with a HealthComponent */
@@ -65,7 +69,7 @@ public class ProtectOnAttackTest {
         entityHC.receiveHit(new Damage(1, null, attacker));
 
         // then
-        assertTrue(attackerAI.getTransitionAI().isInFightMode(protector));
+        assertTrue(attackerAI.getTransitionAI().apply(protector));
     }
 
     /** Add one entity to transition and inflict no damage */
@@ -83,7 +87,7 @@ public class ProtectOnAttackTest {
         protector.addComponent(attackerAI);
 
         // then
-        assertFalse(attackerAI.getTransitionAI().isInFightMode(protector));
+        assertFalse(attackerAI.getTransitionAI().apply(protector));
     }
 
     /** Try to add a list of entities to the transition */
@@ -118,7 +122,7 @@ public class ProtectOnAttackTest {
         }
 
         // then
-        assertTrue(attackerAI.getTransitionAI().isInFightMode(protector));
+        assertTrue(attackerAI.getTransitionAI().apply(protector));
     }
 
     /** Add an empty list of entities to the transition */
@@ -134,6 +138,6 @@ public class ProtectOnAttackTest {
                         new ProtectOnAttack(emptyList));
 
         // then
-        assertFalse(attackerAI.getTransitionAI().isInFightMode(protector));
+        assertFalse(attackerAI.getTransitionAI().apply(protector));
     }
 }
