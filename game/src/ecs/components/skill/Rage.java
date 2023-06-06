@@ -7,6 +7,9 @@ import ecs.damage.DamageType;
 import ecs.entities.Entity;
 import tools.Constants;
 
+/**
+ * Duration skill that increases the physical damage
+ */
 public class Rage implements IDurationSkillFunction {
 
     private float durationInFrames, currentDurationInFrames = 0.0f, damageMultiplier = 1.0f, originalDamageMultiplier;

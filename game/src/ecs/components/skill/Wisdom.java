@@ -7,6 +7,9 @@ import ecs.components.stats.XPModifier;
 import ecs.entities.Entity;
 import tools.Constants;
 
+/**
+ * Duration skill that increases the xp gain
+ */
 public class Wisdom implements IDurationSkillFunction {
 
     private float durationInFrames, currentDurationInFrames = 0.0f, xpMultiplier = 1.0f, originalXPMultiplier;

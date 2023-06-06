@@ -7,6 +7,9 @@ import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
 import tools.Point;
 
+/**
+ * Teleportation Skill
+ */
 public class Blink implements ISkillFunction {
 
     private ITargetSelection targetSelection;

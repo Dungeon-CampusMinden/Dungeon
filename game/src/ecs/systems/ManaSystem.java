@@ -3,6 +3,7 @@ package ecs.systems;
 import ecs.components.ManaComponent;
 import starter.Game;
 
+/** Used to regenerate Mana */
 public class ManaSystem extends ECS_System {
 
     @Override

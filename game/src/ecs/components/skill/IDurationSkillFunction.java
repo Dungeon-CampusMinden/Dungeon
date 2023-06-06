@@ -1,5 +1,8 @@
 package ecs.components.skill;
 
+/**
+ * Interface for the things a duration skill can do
+ */
 public interface IDurationSkillFunction extends ISkillFunction {
 
     /**

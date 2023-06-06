@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import ecs.entities.Entity;
 
+/** ManaComponent gives an entity the ability to spend mana */
 public class ManaComponent extends Component {
 
     private int currentMana, maxMana, regenerationRatePerSecond = 1;
