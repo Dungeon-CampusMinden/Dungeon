@@ -135,8 +135,7 @@ public class TypeBuilder {
         for (var method : adapterClass.getDeclaredMethods()) {
             if (method.isAnnotationPresent(DSLTypeAdapter.class)
                     && Modifier.isStatic(method.getModifiers())) {
-                var annotation = method.getAnnotation(DSLTypeAdapter.class);
-                var forType = annotation.t();
+                var forType = method.getReturnType();
                 if (this.typeAdapters.containsKey(forType)) {
                     return false;
                 }
