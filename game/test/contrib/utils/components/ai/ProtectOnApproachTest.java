@@ -1,17 +1,21 @@
-package ecs.components.ai.transition;
+package contrib.utils.components.ai;
 
-import ecs.components.PositionComponent;
-import ecs.components.ai.AIComponent;
-import ecs.components.ai.fight.CollideAI;
-import ecs.components.ai.idle.RadiusWalk;
-import ecs.entities.Entity;
+import static org.junit.Assert.assertTrue;
+
+import contrib.components.AIComponent;
+import contrib.utils.components.ai.fight.CollideAI;
+import contrib.utils.components.ai.idle.RadiusWalk;
+import contrib.utils.components.ai.transition.ProtectOnApproach;
+import contrib.utils.components.ai.transition.RangeTransition;
+
+import core.Entity;
+import core.Game;
+import core.components.PositionComponent;
+import core.utils.Point;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import starter.Game;
-import tools.Point;
-
-import static org.junit.Assert.assertTrue;
 
 public class ProtectOnApproachTest {
     private Entity entity;
@@ -26,11 +30,11 @@ public class ProtectOnApproachTest {
 
         // Add AI Component
         AIComponent protectedAI =
-            new AIComponent(
-                protectedEntity,
-                new CollideAI(0.2f),
-                new RadiusWalk(0, 50),
-                new RangeTransition(2));
+                new AIComponent(
+                        protectedEntity,
+                        new CollideAI(0.2f),
+                        new RadiusWalk(0, 50),
+                        new RangeTransition(2));
 
         protectedEntity.addComponent(protectedAI);
 
@@ -44,11 +48,11 @@ public class ProtectOnApproachTest {
 
         // Add AI Component
         entityAI =
-            new AIComponent(
-                entity,
-                new CollideAI(0.2f),
-                new RadiusWalk(0, 50),
-                new ProtectOnApproach(2f, protectedEntity));
+                new AIComponent(
+                        entity,
+                        new CollideAI(0.2f),
+                        new RadiusWalk(0, 50),
+                        new ProtectOnApproach(2f, protectedEntity));
         entity.addComponent(entityAI);
 
         // Add Position Component
@@ -60,8 +64,7 @@ public class ProtectOnApproachTest {
         hero = Game.getHero().orElse(new Entity());
     }
 
-
-    //Ignore because no solution to create hero during tests at the moment
+    // Ignore because no solution to create hero during tests at the moment
     @Test
     @Ignore
     public void testHeroInRange() {
@@ -70,6 +73,6 @@ public class ProtectOnApproachTest {
         hero.addComponent(new PositionComponent(hero, pointOfProtect));
 
         // then
-        assertTrue(entityAI.getTransitionAI().isInFightMode(entity));
+        assertTrue(entityAI.getTransitionAI().apply(entity));
     }
 }
