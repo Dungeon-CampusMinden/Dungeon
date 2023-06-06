@@ -437,7 +437,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             if (i % 5 == 0)
                 spawnTraps();
         }
-        addEntity(new Tombstone(new Npc()));
+        addEntity(new Tombstone(new Ghost()));
         addEntity(new QuestButton());
     }
 
