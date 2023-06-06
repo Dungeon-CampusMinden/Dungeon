@@ -10,7 +10,7 @@ import starter.Game;
 import tools.Point;
 
 /**
- * This GhostWalk is used to let the Npc walk randomly.
+ * This NpcWalk is used to let the Npc walk randomly.
  *
  * The NpcWalk is a walk, that randomly decide between follow the Player, walk
  * random or despawn.
