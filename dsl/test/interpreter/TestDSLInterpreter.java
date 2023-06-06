@@ -219,7 +219,7 @@ public class TestDSLInterpreter {
 
         @Override
         protected void bindBuiltIns() {
-            for (IType type : builtInTypes) {
+            for (IType type : BUILT_IN_TYPES) {
                 // load custom QuestConfig
                 if (!type.getName().equals("quest_config")
                         && !type.getName().equals("game_object")) {
@@ -229,9 +229,9 @@ public class TestDSLInterpreter {
 
             var questConfigType =
                     this.getTypeBuilder().createTypeFromClass(Scope.NULL, CustomQuestConfig.class);
-            loadTypes(new semanticanalysis.types.IType[] {questConfigType});
+            loadTypes(List.of(new IType[]{questConfigType}));
 
-            for (Symbol func : nativeFunctions) {
+            for (Symbol func : NATIVE_FUNCTIONS) {
                 globalScope.bind(func);
             }
         }
@@ -399,9 +399,9 @@ public class TestDSLInterpreter {
                         .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
         var externalType = env.getTypeBuilder().createTypeFromClass(Scope.NULL, ExternalType.class);
         env.loadTypes(
-                new semanticanalysis.types.IType[] {
-                    entityType, testCompType, externalComponentType, externalType
-                });
+            List.of(new IType[]{
+                entityType, testCompType, externalComponentType, externalType
+            }));
 
         var typesToLoad =
                 new semanticanalysis.types.IType[] {
