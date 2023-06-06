@@ -43,7 +43,7 @@ public class CameraSystemTest {
         Game.currentLevel = level;
         Entity entity = new Entity();
         PositionComponent positionComponent = new PositionComponent(entity);
-        CameraComponent cameraComponent = new CameraComponent(entity);
+new CameraComponent(entity);
 
         expectedFocusPoint = positionComponent.getPosition();
 
