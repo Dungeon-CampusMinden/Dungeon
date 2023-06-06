@@ -14,10 +14,7 @@ import contrib.utils.components.skill.SkillTools;
 
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
-import core.components.PlayerComponent;
-import core.components.PositionComponent;
-import core.components.VelocityComponent;
+import core.components.*;
 import core.hud.Inventory.InventoryGUI;
 import core.level.utils.LevelElement;
 import core.utils.Point;
