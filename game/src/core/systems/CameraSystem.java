@@ -26,7 +26,7 @@ import core.utils.Point;
  */
 public class CameraSystem extends System {
 
-    public static final OrthographicCamera CAMERA =
+    private static final OrthographicCamera CAMERA =
             new OrthographicCamera(Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
 
     public CameraSystem() {
@@ -68,5 +68,14 @@ public class CameraSystem extends System {
                         new Vector3(x - OFFSET, y - OFFSET, 0),
                         new Vector3(x + OFFSET, y + OFFSET, 0));
         return CAMERA.frustum.boundsInFrustum(bounds);
+    }
+
+    /**
+     * Getter for the camera
+     *
+     * @return Orthographic Camera from the libGDX Framework
+     */
+    public static OrthographicCamera camera() {
+        return CAMERA;
     }
 }

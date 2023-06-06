@@ -68,7 +68,7 @@ public class SkillTools {
      */
     public static Point getCursorPositionAsPoint() {
         Vector3 mousePosition =
-                CameraSystem.CAMERA.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+                CameraSystem.camera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
         return new Point(mousePosition.x, mousePosition.y);
     }
 }

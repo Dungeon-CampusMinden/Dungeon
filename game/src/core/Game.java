@@ -237,7 +237,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     @Override
     public void render(float delta) {
         if (doSetup) setup();
-        batch.setProjectionMatrix(CameraSystem.CAMERA.combined);
+        batch.setProjectionMatrix(CameraSystem.camera().combined);
         frame();
         clearScreen();
         levelManager.update();
@@ -245,7 +245,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         systems.values().stream().filter(System::isRunning).forEach(System::execute);
         // screen controller
         controller.forEach(AbstractController::update);
-        CameraSystem.CAMERA.update();
+        CameraSystem.camera().update();
     }
 
     /**
@@ -255,7 +255,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     private void setup() {
         doSetup = false;
-        CameraSystem.CAMERA.zoom = Constants.DEFAULT_ZOOM_FACTOR;
+        CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
         batch = new SpriteBatch();
         painter = new Painter(batch);
         IGenerator generator = new RandomWalkGenerator();

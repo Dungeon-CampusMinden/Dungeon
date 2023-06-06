@@ -63,8 +63,8 @@ public class DebuggerSystem extends System {
      */
     public static void ZOOM_CAMERA(float amount) {
         LOGGER.log(CustomLogLevel.DEBUG, "Change Camera Zoom " + amount);
-        CameraSystem.CAMERA.zoom = Math.max(0.1f, CameraSystem.CAMERA.zoom + amount);
-        LOGGER.log(CustomLogLevel.DEBUG, "Camera Zoom is now " + CameraSystem.CAMERA.zoom);
+        CameraSystem.camera().zoom = Math.max(0.1f, CameraSystem.camera().zoom + amount);
+        LOGGER.log(CustomLogLevel.DEBUG, "Camera Zoom is now " + CameraSystem.camera().zoom);
     }
 
     /** Teleports the Hero to the current position of the cursor. */

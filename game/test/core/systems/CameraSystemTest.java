@@ -43,13 +43,13 @@ public class CameraSystemTest {
         Game.currentLevel = level;
         Entity entity = new Entity();
         PositionComponent positionComponent = new PositionComponent(entity);
-new CameraComponent(entity);
+        new CameraComponent(entity);
 
         expectedFocusPoint = positionComponent.getPosition();
 
         cameraSystem.execute();
-        assertEquals(expectedFocusPoint.x, CameraSystem.CAMERA.position.x, 0.001);
-        assertEquals(expectedFocusPoint.y, CameraSystem.CAMERA.position.y, 0.001);
+        assertEquals(expectedFocusPoint.x, cameraSystem.camera().position.x, 0.001);
+        assertEquals(expectedFocusPoint.y, cameraSystem.camera().position.y, 0.001);
     }
 
     @Test
@@ -61,8 +61,8 @@ new CameraComponent(entity);
 
         cameraSystem.execute();
 
-        assertEquals(expectedFocusPoint.x, CameraSystem.CAMERA.position.x, 0.001);
-        assertEquals(expectedFocusPoint.y, CameraSystem.CAMERA.position.y, 0.001);
+        assertEquals(expectedFocusPoint.x, cameraSystem.camera().position.x, 0.001);
+        assertEquals(expectedFocusPoint.y, cameraSystem.camera().position.y, 0.001);
     }
 
     @Test
@@ -70,21 +70,21 @@ new CameraComponent(entity);
         Game.currentLevel = null;
         Point expectedFocusPoint = new Point(0, 0);
         cameraSystem.execute();
-        assertEquals(expectedFocusPoint.x, CameraSystem.CAMERA.position.x, 0.001);
-        assertEquals(expectedFocusPoint.y, CameraSystem.CAMERA.position.y, 0.001);
+        assertEquals(expectedFocusPoint.x, cameraSystem.camera().position.x, 0.001);
+        assertEquals(expectedFocusPoint.y, cameraSystem.camera().position.y, 0.001);
     }
 
     @Test
     public void isPointInFrustumWithVisiblePoint() {
         float x = 1.0f;
         float y = 1.0f;
-        assertTrue(CameraSystem.isPointInFrustum(x, y));
+        assertTrue(cameraSystem.isPointInFrustum(x, y));
     }
 
     @Test
     public void isPointInFrustumWithInvisiblePoint() {
         float x = 100.0f;
         float y = 100.0f;
-        assertFalse(CameraSystem.isPointInFrustum(x, y));
+        assertFalse(cameraSystem.isPointInFrustum(x, y));
     }
 }
