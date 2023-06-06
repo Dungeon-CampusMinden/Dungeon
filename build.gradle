@@ -42,6 +42,8 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
     implementation group: "com.google.code.gson", name: "gson", version: gsonVersion
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
 
     // ANTLR version 4 for DSL Grammar
     antlr "org.antlr:antlr4:4.11.1"

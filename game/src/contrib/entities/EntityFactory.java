@@ -32,8 +32,8 @@ public class EntityFactory {
 
     /**
      * Create a new Entity that can be used as a playable character. It will have a {@link
-     * PlayerComponent}. {@link PositionComponent}, {@link VelocityComponent} {@link DrawComponent},
-     * {@link CollideComponent}.
+     * CameraComponent}, {@link PlayerComponent}. {@link PositionComponent}, {@link
+     * VelocityComponent} {@link DrawComponent}, {@link CollideComponent}.
      *
      * @return Created Entity
      */
