@@ -5,7 +5,7 @@ package ecs.entities;
  * <p>
  * The Npc is an Entity that is used to create a Tombstone.
  */
-public abstract class Npc extends Entity{
+public abstract class Npc extends Entity {
     /**
      * This Methode is used to set up the PositionComponent
      */
@@ -16,6 +16,7 @@ public abstract class Npc extends Entity{
      */
 
     protected abstract void setupVelocityComponent();
+
     /**
      * This Methode is used to set up the AnimationComponent
      */

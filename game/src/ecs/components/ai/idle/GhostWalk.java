@@ -12,11 +12,11 @@ import tools.Point;
 /**
  * This GhostWalk is used to let the Npc walk randomly.
  *
- * The NpcWalk is a walk, that randomly decide between follow the Player, walk random or despawn.
+ * The NpcWalk is a walk, that randomly decide between follow the Player, walk
+ * random or despawn.
  */
 public class GhostWalk implements IIdleAI {
 
-    private int randomPath = -1;
     private GraphPath<Tile> path;
 
     /**
@@ -28,21 +28,27 @@ public class GhostWalk implements IIdleAI {
      */
     @Override
     public void idle(Entity entity) {
-        if(randomPath == -1){
+        if (path == null) {
             path = AITools.calculatePathToHero(entity);
         }
-        if(AITools.playerInRange(entity, 2) || AITools.pathFinishedOrLeft(entity, path)){
-            randomPath = (int) (Math.random() * 1000);
-            if(randomPath > 9 && !(AITools.playerInRange(entity, 2))){
-                path = AITools.calculatePathToHero(entity);
-            }
-            else if(randomPath < 10){
-                path = AITools.calculatePathToRandomTileInRange(entity, 40f);
-            }
-            if(randomPath == 999){
-                Game.removeEntity(entity);
-            }
+        if (!AITools.playerInRange(entity, 2) && !AITools.pathFinishedOrLeft(entity, path)) {
+            AITools.move(entity, path);
+            return;
         }
-        AITools.move(entity, path);
+        int randomPath = (int) (Math.random() * 1000);
+        final int GO_TO_PLAYER = 990;
+        final int WALK_RANDOM = 10;
+        final int DISAPPEAR = 999;
+        if (randomPath == DISAPPEAR) {
+            Game.removeEntity(entity);
+            return;
+        }
+        if (randomPath < WALK_RANDOM) {
+            path = AITools.calculatePathToRandomTileInRange(entity, 40f);
+            return;
+        }
+        if (randomPath < GO_TO_PLAYER && !(AITools.playerInRange(entity, 2))) {
+            path = AITools.calculatePathToHero(entity);
+        }
     }
 }

@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  * <p>
  * The Ghost is an Entity that is used to create a Tombstone.
  */
-public class Ghost extends Npc{
+public class Ghost extends Npc {
     private transient final Logger npcLogger = Logger.getLogger(this.getClass().getName());
     private final float xSpeed = 0.4f;
     private final float ySpeed = 0.2f;
@@ -30,7 +30,7 @@ public class Ghost extends Npc{
     /**
      * Npc constructor is used to set up the Entity.
      */
-    public Ghost(){
+    public Ghost() {
         super();
         setupPositionComponent();
         setupVelocityComponent();
@@ -42,7 +42,7 @@ public class Ghost extends Npc{
     /**
      * This Methode is used to set up the PositionComponent
      */
-    protected void setupPositionComponent(){
+    protected void setupPositionComponent() {
         new PositionComponent(this);
     }
 
@@ -71,4 +71,3 @@ public class Ghost extends Npc{
         new AIComponent(this, new CollideAI(0), new GhostWalk(), new RangeTransition(0));
     }
 }
-
