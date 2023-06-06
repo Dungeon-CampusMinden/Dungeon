@@ -20,6 +20,7 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelSize;
+import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
@@ -62,8 +63,8 @@ public class DebuggerSystem extends System {
      */
     public static void ZOOM_CAMERA(float amount) {
         LOGGER.log(CustomLogLevel.DEBUG, "Change Camera Zoom " + amount);
-        Game.camera.zoom = Math.max(0.1f, Game.camera.zoom + amount);
-        LOGGER.log(CustomLogLevel.DEBUG, "Camera Zoom is now " + Game.camera.zoom);
+        CameraSystem.camera().zoom = Math.max(0.1f, CameraSystem.camera().zoom + amount);
+        LOGGER.log(CustomLogLevel.DEBUG, "Camera Zoom is now " + CameraSystem.camera().zoom);
     }
 
     /** Teleports the Hero to the current position of the cursor. */

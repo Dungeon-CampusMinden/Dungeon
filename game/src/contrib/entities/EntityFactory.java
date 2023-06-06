@@ -35,8 +35,8 @@ public class EntityFactory {
 
     /**
      * Create a new Entity that can be used as a playable character. It will have a {@link
-     * PlayerComponent}. {@link PositionComponent}, {@link VelocityComponent} {@link DrawComponent},
-     * {@link CollideComponent}.
+     * CameraComponent}, {@link PlayerComponent}. {@link PositionComponent}, {@link
+     * VelocityComponent} {@link DrawComponent}, {@link CollideComponent}.
      *
      * @return Created Entity
      */
@@ -46,6 +46,7 @@ public class EntityFactory {
         final float ySpeed = 0.3f;
 
         Entity hero = new Entity("hero");
+        new CameraComponent(hero);
         new PositionComponent(hero);
         new HealthComponent(hero, 10);
         new XPComponent(hero);
