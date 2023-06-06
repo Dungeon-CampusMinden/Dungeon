@@ -31,10 +31,9 @@ public class GhostWalk implements IIdleAI {
         if (path == null) {
             path = AITools.calculatePathToHero(entity);
         }
-        if (!AITools.playerInRange(entity, 2) && !AITools.pathFinishedOrLeft(entity, path)) {
-            AITools.move(entity, path);
+        AITools.move(entity, path);
+        if (!AITools.playerInRange(entity, 2) && !AITools.pathFinishedOrLeft(entity, path))
             return;
-        }
         int randomPath = (int) (Math.random() * 1000);
         final int GO_TO_PLAYER = 990;
         final int DISAPPEAR = 0;
