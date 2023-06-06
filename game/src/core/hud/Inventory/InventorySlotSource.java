@@ -70,9 +70,7 @@ public class InventorySlotSource extends DragAndDrop.Source {
                                         .orElseThrow();
                 itemActor
                         .getItem()
-                        .triggerDrop(
-                                Game.getHero().orElseThrow(),
-                                positionComponent.getPosition());
+                        .triggerDrop(Game.getHero().orElseThrow(), positionComponent.getPosition());
                 itemActor.remove();
             } else {
                 inventorySlot.add(payload.getDragActor());

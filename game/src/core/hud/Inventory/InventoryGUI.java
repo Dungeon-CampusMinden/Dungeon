@@ -9,6 +9,8 @@ import contrib.components.InventoryComponent;
 import contrib.utils.components.item.ItemData;
 
 import core.Game;
+import core.System;
+import core.systems.PlayerSystem;
 import core.utils.Constants;
 import core.utils.controller.ScreenController;
 
@@ -109,17 +111,6 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
         inventory.pack();
     }
 
-    /** Debug method to print the inventory */
-    private void print() {
-        System.out.println();
-        System.out.println(inventory.getPrefHeight() + " " + inventory.getPrefWidth());
-
-        for (Actor inventorySlot : getInventoryWindow().getChildren()) {
-            if (inventorySlot instanceof InventorySlot inv)
-                System.out.println("Slot: " + inv.getInventoryItem());
-        }
-    }
-
     /** Toggles the visibility of the inventory */
     public void toggleInventory() {
         if (isOpen) closeInventory();
@@ -127,15 +118,19 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
     }
 
     private void openInventory() {
+        if (Game.getHero().orElseThrow().getComponent(InventoryComponent.class).isEmpty()) return;
         updateInventory();
         inventory.setVisible(true);
         isOpen = true;
-        // print();
+        Game.systems.values().stream()
+                .filter(s -> !(s instanceof PlayerSystem))
+                .forEach(System::stop);
     }
 
     private void closeInventory() {
         inventory.setVisible(false);
         isOpen = false;
+        Game.systems.values().forEach(System::run);
     }
 
     /**
@@ -148,9 +143,9 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
     }
 
     /**
-     * Returns the ScreenImage of the inventory
+     * Returns the Window of the inventory
      *
-     * @return the ScreenImage of the inventory
+     * @return the Window of the inventory
      */
     public Window getInventoryWindow() {
         return inventory;
