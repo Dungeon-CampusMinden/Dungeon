@@ -66,7 +66,7 @@ new CameraComponent(entity);
     }
 
     @Test
-    public void executeWithNullLevel() {
+    public void executeWithoutLevel() {
         Game.currentLevel = null;
         Point expectedFocusPoint = new Point(0, 0);
         cameraSystem.execute();
