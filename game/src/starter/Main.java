@@ -13,14 +13,14 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Logger LOGGER = Logger.getLogger("Main");
         // start the game
-        Game.hero(EntityFactory.getHero());
+        Game.hero(EntityFactory.newHero());
         Game.loadConfig("dungeon_config.json", KeyboardConfig.class);
         Game.frameRate(60);
         Game.disableAudio(true);
         Game.userOnLevelLoad(
                 () -> {
                     try {
-                        EntityFactory.getChest();
+                        EntityFactory.newChest();
                     } catch (IOException e) {
                         LOGGER.warning("Could not create new Chest: " + e.getMessage());
                         throw new RuntimeException();

@@ -34,7 +34,7 @@ public class ChestTest {
         List<ItemData> itemData = List.of();
         Point position = new Point(0, 0);
         Entity c = null;
-        c = EntityFactory.getChest(itemData, position);
+        c = EntityFactory.newChest(itemData, position);
 
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
@@ -120,7 +120,7 @@ public class ChestTest {
                         },
                         DesignLabel.DEFAULT);
 
-        Entity newChest = EntityFactory.getChest();
+        Entity newChest = EntityFactory.newChest();
 
         // assertTrue("Chest is added to Game", Game.getEntitiesStream().anyMatch(e -> e ==
         // newChest));
