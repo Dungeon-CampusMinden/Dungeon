@@ -26,11 +26,20 @@ public interface IEvironment {
     }
 
     // default Symbol lookupFunction(String name) { return Symbol.NULL; }
+    /**
+     * @param types AggregateTypes to load into the environment
+     */
+    default void loadTypes(IType... types) {}
 
     /**
      * @param types AggregateTypes to load into the environment
      */
     default void loadTypes(List<IType> types) {}
+
+    /**
+     * @param functionDefinitions FunctionSymbols to load into the environment
+     */
+    default void loadFunctions(ScopedSymbol... functionDefinitions) {}
 
     /**
      * @param functionDefinitions FunctionSymbols to load into the environment
