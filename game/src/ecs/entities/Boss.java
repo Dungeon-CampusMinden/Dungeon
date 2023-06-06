@@ -52,7 +52,7 @@ public class Boss extends Monster {
 
     /**
      * Creates a Boss with all its components and attributes.
-     * 
+     *
      * @param level The level of the Boss.
      *              The level determines the Boss's attributes.
      *              The higher the level, the stronger the Boss.
@@ -88,7 +88,7 @@ public class Boss extends Monster {
         new HitboxComponent(
                 this,
                 (you, other, direction) -> attack(other),
-                (you, other, direction) -> System.out.println("monsterCollisionLeave"));
+                (you, other, direction) -> {});
     }
 
     private void setupHealthComponent() {

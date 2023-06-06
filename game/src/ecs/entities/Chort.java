@@ -75,7 +75,7 @@ public class Chort extends Monster {
         new HitboxComponent(
                 this,
                 (you, other, direction) -> attack(other),
-                (you, other, direction) -> System.out.println("monsterCollisionLeave"));
+                (you, other, direction) -> {});
     }
 
     private void setupHealthComponent() {
