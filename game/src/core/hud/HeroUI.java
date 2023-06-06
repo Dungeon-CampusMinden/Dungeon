@@ -12,24 +12,33 @@ import contrib.components.HealthComponent;
 import contrib.components.XPComponent;
 
 import core.Game;
+import core.components.PlayerComponent;
+import core.components.PositionComponent;
 import core.utils.Constants;
 import core.utils.Point;
 import core.utils.controller.ScreenController;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /** This class represents the UI of the hero */
 public class HeroUI<T extends Actor> extends ScreenController<T> {
 
     private static final HeroUI<Actor> heroUI = new HeroUI<>(new SpriteBatch());
     private ScreenText level;
-    private ScreenImage healthBar, xpBar;
+    private ScreenImage healthBar;
+    private ScreenImage xpBar;
     private BitmapFont font;
+    private final Set<EnemyHealthBar> enemyHealthBars;
     private int previousHealthPoints;
-    private long previousXP, previousLevel;
+    private long previousXP;
+    private long previousLevel;
 
     private record HeroData(HealthComponent hc, XPComponent xc) {}
 
     private HeroUI(SpriteBatch batch) {
         super(batch);
+        enemyHealthBars = new HashSet<>() {};
         setup();
     }
 
@@ -37,6 +46,7 @@ public class HeroUI<T extends Actor> extends ScreenController<T> {
     @Override
     public void update() {
         super.update();
+        updateEnemyHealthBars();
         HeroData hd = buildDataObject();
         if (hd.xc != null) {
             if (hd.xc.getCurrentLevel() != previousLevel) {
@@ -100,6 +110,32 @@ public class HeroUI<T extends Actor> extends ScreenController<T> {
         } else if (xpPercentage <= 100) {
             xpBar.setTexture("hud/xpBar/xpBar_7.png");
         }
+    }
+
+    /**
+     * Creates a HealthBar for each entity that has a HealthComponent, PositionComponent and is not
+     * the hero
+     */
+    public void createEnemyHealthBars() {
+        this.clearEnemyHealthBars();
+        Game.getEntitiesStream()
+                .filter(e -> e.getComponent(HealthComponent.class).isPresent())
+                .filter(e -> e.getComponent(PositionComponent.class).isPresent())
+                .filter(e -> e.getComponent(PlayerComponent.class).isEmpty())
+                .forEach(
+                        e -> {
+                            EnemyHealthBar enemyHealthBar = new EnemyHealthBar(e);
+                            enemyHealthBars.add(enemyHealthBar);
+                        });
+    }
+
+    private void clearEnemyHealthBars() {
+        enemyHealthBars.forEach(enemyHealthBar -> this.remove((T) enemyHealthBar));
+        enemyHealthBars.clear();
+    }
+
+    private void updateEnemyHealthBars() {
+        enemyHealthBars.forEach(EnemyHealthBar::update);
     }
 
     private HeroData buildDataObject() {

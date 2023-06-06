@@ -331,6 +331,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
             LOGGER.warning("Could not create new Chest: " + e.getMessage());
             throw new RuntimeException();
         }
+        updateSystems();
+        HeroUI.getHeroUI().createEnemyHealthBars();
     }
 
     /**

@@ -1,0 +1,21 @@
+
+enemyHealthBar.png
+size: 32, 32
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+enemyHPBarBackground
+  rotate: false
+  xy: 1, 23
+  size: 30, 6
+  split: 0, 0, 0, 0
+  orig: 30, 6
+  offset: 0, 0
+  index: -1
+enemyHPBarForeground
+  rotate: false
+  xy: 1, 15
+  size: 30, 6
+  orig: 30, 6
+  offset: 0, 0
+  index: -1

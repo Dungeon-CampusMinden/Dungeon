@@ -36,7 +36,8 @@ public class EntityFactory {
     /**
      * Create a new Entity that can be used as a playable character. It will have a {@link
      * CameraComponent}, {@link PlayerComponent}. {@link PositionComponent}, {@link
-     * VelocityComponent} {@link DrawComponent}, {@link CollideComponent}.
+     * VelocityComponent} {@link DrawComponent}, {@link CollideComponent}, {@link HealthComponent}
+     * and {@link XPComponent}.
      *
      * @return Created Entity
      */
@@ -48,7 +49,7 @@ public class EntityFactory {
         Entity hero = new Entity("hero");
         new CameraComponent(hero);
         new PositionComponent(hero);
-        new HealthComponent(hero, 10);
+        new HealthComponent(hero, 20);
         new XPComponent(hero);
         new VelocityComponent(hero, xSpeed, ySpeed);
         new DrawComponent(hero, "character/knight");
@@ -166,9 +167,9 @@ public class EntityFactory {
     public static Entity getMonster() throws IOException {
         Entity imp = new Entity();
         new PositionComponent(imp);
-        new HealthComponent(imp);
+        new HealthComponent(imp, 3);
         new DrawComponent(imp, "character/monster/imp");
-        new VelocityComponent(imp);
+        new VelocityComponent(imp, 0.1f, 0.1f);
         new XPComponent(imp, null, 10);
         new CollideComponent(imp);
         new AIComponent(
