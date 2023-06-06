@@ -6,6 +6,9 @@ import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
 import tools.Constants;
 
+/**
+ * Duration skill that increases the speed
+ */
 public class Swiftness implements IDurationSkillFunction {
 
     private float durationInFrames, currentDurationInFrames = 0.0f, xSpeedMultiplier = 0.01f, ySpeedMultiplier = 0.01f,

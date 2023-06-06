@@ -2,6 +2,9 @@ package ecs.components.skill;
 
 import ecs.entities.Entity;
 
+/**
+ * A skill that lasts for a given amount of time
+ */
 public class DurationSkill extends Skill {
 
     private IDurationSkillFunction function;
