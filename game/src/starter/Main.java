@@ -15,7 +15,7 @@ public class Main {
         // start the game
         Game.hero(EntityFactory.newHero());
         Game.loadConfig("dungeon_config.json", KeyboardConfig.class);
-        Game.frameRate(60);
+        Game.frameRate(30);
         Game.disableAudio(true);
         Game.userOnLevelLoad(
                 () -> {
