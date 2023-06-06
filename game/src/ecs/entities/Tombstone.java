@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 /**
  * This Tombstone is used to despawn the Npc and to get the reward.
- *
+ * <p>
  * The reward will be executed, if the Player collides with the Tombstone and the Npc is in a range of 2.
  */
 public class Tombstone extends Entity{

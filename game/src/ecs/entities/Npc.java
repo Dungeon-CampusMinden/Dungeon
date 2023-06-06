@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 
 /**
  * This Npc is used to spawn a Ghost.
- *
+ * <p>
  * The Npc is an Entity that is used to create a Tombstone.
  */
 public class Npc extends Entity{

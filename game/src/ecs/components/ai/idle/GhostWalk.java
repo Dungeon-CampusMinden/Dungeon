@@ -21,7 +21,7 @@ public class GhostWalk implements IIdleAI {
 
     /**
      * The Methode randomly changes the path of the Entity.
-     *
+     * <p>
      * The follows the player, randomly walks through the map or despawns.
      *
      * @param entity is the Entity, which is walking.
