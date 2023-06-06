@@ -160,7 +160,14 @@ public class DialogDesign extends Table {
         VerticalGroup answerButtons = new VerticalGroup();
 
         ButtonGroup<CheckBox> btnGroup = new ButtonGroup<>();
+        btnGroup.setMinCheckCount(0);
+        btnGroup.uncheckAll();
 
+        final CheckBox.CheckBoxStyle style =
+                switch (quizQuestion.type()) {
+                    case MULTIPLE_CHOICE -> skin.get("radio", CheckBox.CheckBoxStyle.class);
+                    default -> skin.get("default", CheckBox.CheckBoxStyle.class);
+                };
         Arrays.stream(quizQuestion.answers())
                 .filter(
                         answer ->
@@ -170,15 +177,12 @@ public class DialogDesign extends Table {
                                 new CheckBox(
                                         QuizQuestionFormatted.formatStringForDialogWindow(
                                                 answer.content()),
-                                        skin))
+                                        style))
                 .forEach(
                         checkBox -> {
                             btnGroup.add(checkBox);
                             answerButtons.addActor(checkBox);
                         });
-
-        btnGroup.uncheckAll();
-        btnGroup.setMinCheckCount(0);
 
         switch (quizQuestion.type()) {
             case MULTIPLE_CHOICE -> btnGroup.setMaxCheckCount(quizQuestion.answers().length);
