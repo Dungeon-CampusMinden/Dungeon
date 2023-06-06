@@ -25,7 +25,7 @@ public class RadiusWalk implements Consumer<Entity> {
      */
     public RadiusWalk(float radius, int breakTimeInSeconds) {
         this.radius = radius;
-        this.breakTime = breakTimeInSeconds * Game.FRAME_RATE;
+        this.breakTime = breakTimeInSeconds * Game.frameRate();
     }
 
     @Override

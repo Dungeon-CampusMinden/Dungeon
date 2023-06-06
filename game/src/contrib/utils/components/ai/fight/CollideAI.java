@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 
 public class CollideAI implements Consumer<Entity> {
     private final float rushRange;
-    private final int delay = Game.FRAME_RATE;
+    private final int delay = Game.frameRate();
     private int timeSinceLastUpdate = delay;
     private GraphPath<Tile> path;
 

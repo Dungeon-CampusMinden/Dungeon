@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 
 public class MeleeAI implements Consumer<Entity> {
     private final float attackRange;
-    private final int delay = Game.FRAME_RATE;
+    private final int delay = Game.frameRate();
     private int timeSinceLastUpdate = 0;
     private final Skill fightSkill;
     private GraphPath<Tile> path;
