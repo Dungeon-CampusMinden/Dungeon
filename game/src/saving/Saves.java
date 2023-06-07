@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.lang.ClassNotFoundException;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import ecs.components.HealthComponent;
 import ecs.components.InventoryComponent;
@@ -17,6 +18,7 @@ public class Saves {
     @SuppressWarnings("unchecked")
     private Optional<GameData>[] saves = (Optional<GameData>[]) new Optional<?>[8];
     private Optional<GameData> autoSave;
+    private final Logger savesLogger = Logger.getLogger(Saves.class.getName());
 
     public boolean save() {
         try {
@@ -37,17 +39,16 @@ public class Saves {
                 saves[i] = GameData.load("saves" + 1 + i + ".txt");
                 setupHero(saves[i].get());
             } catch (IOException | ClassNotFoundException e) {
-                System.out.println(e.getLocalizedMessage());
-                e.printStackTrace();
+                savesLogger.info(e.getLocalizedMessage() + '\n' + exceptionToString(e));
             }
         }
         try {
             autoSave = GameData.load("saves/autosave.txt");
             setupHero(autoSave.get());
         } catch (IOException | ClassNotFoundException e) {
-            System.out.println(e.getLocalizedMessage());
-            e.printStackTrace();
+            savesLogger.info(e.getLocalizedMessage() + '\n' + exceptionToString(e));
         }
+
     }
 
     private void setupHero(GameData gameData) {
@@ -92,6 +93,21 @@ public class Saves {
         } catch (Exception e) {
             //
         }
+    }
+
+    private static String exceptionToString(Throwable throwable) {
+        StackTraceElement[] stackTrace = throwable.getStackTrace();
+        StringBuilder sb = new StringBuilder(stackTrace.length * 20);
+        sb.append(throwable.getLocalizedMessage()).append("\n");
+        for (StackTraceElement stackTraceElement : stackTrace) {
+            sb.append("\tat " + stackTraceElement + "\n");
+        }
+        for (Throwable t : throwable.getSuppressed()) {
+            sb.append("\t" + exceptionToString(t) + "\n");
+        }
+        if (throwable.getCause() != null)
+            sb.append(throwable.getCause());
+        return sb.toString();
     }
 
 }

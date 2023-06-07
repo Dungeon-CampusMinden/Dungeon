@@ -69,6 +69,14 @@ public class Hero extends Entity {
         setupSkillComponent();
         pc.setSkillSlot1(firstSkill);
         pc.setSkillSlot2(secondSkill);
+        if (xPComponent.getCurrentLevel() >= 5)
+            pc.setSkillSlot6(sixthSkill);
+        if (xPComponent.getCurrentLevel() >= 10)
+            pc.setSkillSlot5(fifthSkill);
+        if (xPComponent.getCurrentLevel() >= 15)
+            pc.setSkillSlot3(thirdSkill);
+        if (xPComponent.getCurrentLevel() >= 20)
+            pc.setSkillSlot4(fourthSkill);
         setupQuestComponent(questLog);
         new InventoryComponent(this, 2);
     }
