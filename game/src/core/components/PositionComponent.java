@@ -3,6 +3,7 @@ package core.components;
 import core.Component;
 import core.Entity;
 import core.Game;
+import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.logging.CustomLogLevel;
 
@@ -67,7 +68,7 @@ public class PositionComponent extends Component {
         super(entity);
 
         if (Game.currentLevel != null) {
-            position = Game.currentLevel.getRandomFloorTile().position();
+            position = Game.randomTilePoint(LevelElement.FLOOR);
         } else {
             position = new Point(0, 0);
         }
