@@ -270,9 +270,9 @@ den Typadapter aufgerufen.
 
 Der Aufruf unterscheidet sich je nach Art der Typadaptierung:
 
-- für die einfache Typadaptierung wird die Builder-Methode mit dem internen Wert der
+- Für die einfache Typadaptierung wird die Builder-Methode mit dem internen Wert der
   `Value`-Instanz aufgerufen.
-- für die komplexe Typadaptierung baut der `TypeInstantiator` vorher die Parameter-Liste für
+- Für die komplexe Typadaptierung baut der `TypeInstantiator` vorher die Parameter-Liste für
   den Aufruf der Builder-Methode zusammen. Hierzu werden die Parameternamen der
   Builder-Methode im Kontext vom `MemorySpace` des `AggregateTypeAdapters` aufgelöst und an
   die entsprechende Stelle der Parameter-Liste eingefügt.

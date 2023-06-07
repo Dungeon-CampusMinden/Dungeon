@@ -376,6 +376,8 @@ folgenden Sequenzdiagramm zu erkennen:
 
 ![UML: Ablauf komplexe Typadaptierung](img/typeadapting_complex.png)
 
+**Beispiel:**
+
 Für einen Datentyp namens `ExternalType` könnte dies wie folgt aussehen:
 
 ```java
