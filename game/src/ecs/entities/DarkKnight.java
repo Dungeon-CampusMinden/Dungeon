@@ -27,7 +27,7 @@ import java.lang.Math;
  * The DarkKnight is a hostile mob(npc). It's entity in the ECS. This class
  * helps to
  * setup darkknights with all its components and attributes.
- * 
+ *
  * I'm Batman
  */
 
@@ -81,7 +81,7 @@ public class DarkKnight extends Monster {
         new HitboxComponent(
                 this,
                 (you, other, direction) -> attack(other),
-                (you, other, direction) -> System.out.println("monsterCollisionLeave"));
+                (you, other, direction) -> {});
     }
 
     private void setupHealthComponent() {
