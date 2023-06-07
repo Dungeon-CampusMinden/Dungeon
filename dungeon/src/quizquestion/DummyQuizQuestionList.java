@@ -115,7 +115,7 @@ public class DummyQuizQuestionList {
                             new QuizQuestion(
                                     new QuizQuestionContent(
                                             QuizQuestionContent.QuizQuestionContentType
-                                                    .TEXT_AND_IMAGE,
+                                                    .TEXT,
                                             "Was ist \"Game Loop\"in LibGDX und was macht diese?"),
                                     new QuizQuestionContent[] {
                                         new QuizQuestionContent(
