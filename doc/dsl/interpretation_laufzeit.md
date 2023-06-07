@@ -238,12 +238,12 @@ Die Instanziierung von Java-Klassen, welche mit `@DSLType` (siehe
 durchgeführt. Als Beispiel wird wieder die oben angeführte `game_object`-Definition
 herangezogen.
 
-![UML: Instanziierung von Java-Klasse](img/instantiate_java_class.png)
 Der `IMemorySpace` eines `AggregateValue` wird dem `TypeInstantiator` übergeben. Dieser
 erstellt eine Instanz der Java-Klasse, die dem Datentyp des `AggregateValue` zugrunde liegt.
 Im Fall der `velocity_component` `Value`-Instanz ist dies die Java-Klasse
 `VelocityComponent`. Das Sequenzdiagramm hierfür:
 
+![UML: Instanziierung von Java-Klasse](img/instantiate_java_class.png)
 
 Um die Java-Klasse zu instanziieren ruft der `TypeBuilder` den Konstruktor der Klasse per
 Reflection auf. Die Parameter für diesen Konstruktor-Aufruf liest der `TypeBuilder` aus dem
@@ -272,10 +272,10 @@ Der Aufruf unterscheidet sich je nach Art der Typadaptierung:
 
 - für die einfache Typadaptierung wird die Builder-Methode mit dem internen Wert der
   `Value`-Instanz aufgerufen.
-- für die komplexe Typadaptierung baut der `TypeInstantiator` vorher die Parameter-Liste
-  für den Aufruf der Builder-Methode zusammen. Hierzu werden die Parameternamen der
-  Builder-Methode im Kontext vom `MemorySpace` des `AggregateTypeAdapters` aufgelöst und
-  an die entsprechende Stelle der Parameter-Liste eingefügt.
+- für die komplexe Typadaptierung baut der `TypeInstantiator` vorher die Parameter-Liste für
+  den Aufruf der Builder-Methode zusammen. Hierzu werden die Parameternamen der
+  Builder-Methode im Kontext vom `MemorySpace` des `AggregateTypeAdapters` aufgelöst und an
+  die entsprechende Stelle der Parameter-Liste eingefügt.
 
 Das so erstellte Objekt wird in die Klasseninstanz übertragen.
 
