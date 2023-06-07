@@ -148,9 +148,8 @@ public class TypeInstantiator {
                     if (fieldValue != Value.NONE && fieldValue.isDirty()) {
                         var internalValue = fieldValue.getInternalObject();
 
-                        // TODO: should this not be done at the toplevel of instantiation? not only
-                        // one level down?
-                        if (fieldValue.getDataType().getTypeKind().equals(IType.Kind.PODAdapted)) {
+                        var fieldsDataType = fieldValue.getDataType();
+                        if (fieldsDataType.getTypeKind().equals(IType.Kind.PODAdapted)) {
                             // call builder -> the type instantiator needs a reference to the
                             // builder or to the
                             // builder methods
@@ -158,13 +157,12 @@ public class TypeInstantiator {
                             var method = adaptedType.getBuilderMethod();
 
                             internalValue = method.invoke(null, internalValue);
-                        } else if (fieldValue
-                                .getDataType()
+                        } else if (fieldsDataType
                                 .getTypeKind()
                                 .equals(IType.Kind.AggregateAdapted)) {
                             // call builder -> store values from memory space in order of parameters
                             // of builder-method
-                            var adaptedType = (AggregateTypeAdapter) fieldValue.getDataType();
+                            var adaptedType = (AggregateTypeAdapter) fieldsDataType;
                             var method = adaptedType.getBuilderMethod();
                             var aggregateFieldValue = (AggregateValue) fieldValue;
 
