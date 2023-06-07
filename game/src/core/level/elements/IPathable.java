@@ -65,6 +65,6 @@ public interface IPathable extends IndexedGraph<Tile> {
                                                 new MissingComponentException(
                                                         entity.getClass().getName()
                                                                 + "is missing PositionComponent")))
-                .getPosition();
+                .position();
     }
 }

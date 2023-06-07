@@ -66,8 +66,8 @@ public class PatrouilleWalk implements Consumer<Entity> {
                         entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        Point center = position.getPosition();
-        Tile tile = Game.tileAT(position.getPosition());
+        Point center = position.position();
+        Tile tile = Game.tileAT(position.position());
 
         if (tile == null) {
             return;
@@ -105,7 +105,7 @@ public class PatrouilleWalk implements Consumer<Entity> {
             if (AITools.pathLeft(entity, currentPath)) {
                 currentPath =
                         AITools.calculatePath(
-                                position.getPosition(),
+                                position.position(),
                                 this.checkpoints.get(currentCheckpoint).coordinate().toPoint());
             }
             AITools.move(entity, currentPath);
@@ -131,14 +131,14 @@ public class PatrouilleWalk implements Consumer<Entity> {
                 currentCheckpoint = rnd.nextInt(checkpoints.size());
                 currentPath =
                         AITools.calculatePath(
-                                position.getPosition(),
+                                position.position(),
                                 this.checkpoints.get(currentCheckpoint).coordinate().toPoint());
             }
             case LOOP -> {
                 currentCheckpoint = (currentCheckpoint + 1) % checkpoints.size();
                 currentPath =
                         AITools.calculatePath(
-                                position.getPosition(),
+                                position.position(),
                                 this.checkpoints.get(currentCheckpoint).coordinate().toPoint());
             }
             case BACK_AND_FORTH -> {
@@ -157,7 +157,7 @@ public class PatrouilleWalk implements Consumer<Entity> {
                 }
                 currentPath =
                         AITools.calculatePath(
-                                position.getPosition(),
+                                position.position(),
                                 this.checkpoints.get(currentCheckpoint).coordinate().toPoint());
             }
             default -> {}

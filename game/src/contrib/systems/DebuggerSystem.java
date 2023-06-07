@@ -140,7 +140,7 @@ public class DebuggerSystem extends System {
                 return;
             }
 
-            pc.setPosition(targetLocation);
+            pc.position(targetLocation);
             LOGGER.info("Teleport successful");
         }
     }

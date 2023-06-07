@@ -728,7 +728,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
                         entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        Tile currentTile = tileAT(pc.getPosition());
+        Tile currentTile = tileAT(pc.position());
         return currentTile.equals(endTile());
     }
 
@@ -746,7 +746,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
                         hero.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        pc.setPosition(startTile().position());
+        pc.position(startTile());
     }
 
     /**

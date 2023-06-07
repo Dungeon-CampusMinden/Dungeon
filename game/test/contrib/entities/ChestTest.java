@@ -52,7 +52,7 @@ public class ChestTest {
         assertEquals(
                 "Position should be equal to the given Position",
                 position,
-                positionComponent.map(PositionComponent.class::cast).get().getPosition());
+                positionComponent.map(PositionComponent.class::cast).get().position());
         cleanup();
     }
 
@@ -143,7 +143,7 @@ public class ChestTest {
                 newChest.getComponent(PositionComponent.class)
                         .map(PositionComponent.class::cast)
                         .get()
-                        .getPosition()
+                        .position()
                         .x,
                 0.00001f);
         assertEquals(
@@ -152,7 +152,7 @@ public class ChestTest {
                 newChest.getComponent(PositionComponent.class)
                         .map(PositionComponent.class::cast)
                         .get()
-                        .getPosition()
+                        .position()
                         .y,
                 0.00001f);
         cleanup();

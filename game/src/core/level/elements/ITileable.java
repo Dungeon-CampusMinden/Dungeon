@@ -75,7 +75,7 @@ public interface ITileable extends IPathable {
     default Tile tileAtEntity(Entity entity) {
         PositionComponent pc =
                 (PositionComponent) entity.getComponent(PositionComponent.class).get();
-        return tileAt(pc.getPosition().toCoordinate());
+        return tileAt(pc.position().toCoordinate());
     }
 
     /**
@@ -92,7 +92,7 @@ public interface ITileable extends IPathable {
      * @return Position of the Tile as Point
      */
     default Point randomTilePoint() {
-        return randomTile().coordinate().toPoint();
+        return randomTile().position();
     }
 
     /**
@@ -102,6 +102,6 @@ public interface ITileable extends IPathable {
      * @return Position of the Tile as Point
      */
     default Point randomTilePoint(LevelElement elementTyp) {
-        return randomTile(elementTyp).coordinate().toPoint();
+        return randomTile(elementTyp).position();
     }
 }

@@ -39,7 +39,7 @@ public class ProjectileSystem extends System {
                                 hasReachedEndpoint(
                                         psd.prc.getStartPosition(),
                                         psd.prc.getGoalLocation(),
-                                        psd.pc.getPosition()))
+                                        psd.pc.position()))
                 // Remove all entities who reached their endpoint
                 .forEach(this::removeEntitiesOnEndpoint);
     }

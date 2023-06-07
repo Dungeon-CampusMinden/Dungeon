@@ -38,7 +38,7 @@ public class AITools {
                         entity.getComponent(VelocityComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("VelocityComponent"));
-        Tile currentTile = Game.tileAT(pc.getPosition());
+        Tile currentTile = Game.tileAT(pc.position());
         int i = 0;
         Tile nextTile = null;
         while (nextTile == null && i < path.getCount()) {
@@ -152,7 +152,7 @@ public class AITools {
                                                 () ->
                                                         new MissingComponentException(
                                                                 "PositionComponent")))
-                        .getPosition();
+                        .position();
         return calculatePathToRandomTileInRange(point, radius);
     }
 
@@ -174,7 +174,7 @@ public class AITools {
                         to.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        return calculatePath(fromPositionComponent.getPosition(), positionComponent.getPosition());
+        return calculatePath(fromPositionComponent.position(), positionComponent.position());
     }
 
     /**
@@ -212,7 +212,7 @@ public class AITools {
                                                 () ->
                                                         new MissingComponentException(
                                                                 "PositionComponent")))
-                        .getPosition();
+                        .position();
         Point entity2Position =
                 ((PositionComponent)
                                 entity2.getComponent(PositionComponent.class)
@@ -220,7 +220,7 @@ public class AITools {
                                                 () ->
                                                         new MissingComponentException(
                                                                 "PositionComponent")))
-                        .getPosition();
+                        .position();
         return inRange(entity1Position, entity2Position, range);
     }
 
@@ -250,10 +250,10 @@ public class AITools {
                         entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        boolean finished = lastTile(path).equals(Game.tileAT(pc.getPosition()));
+        boolean finished = lastTile(path).equals(Game.tileAT(pc.position()));
 
         boolean onPath = false;
-        Tile currentTile = Game.tileAT(pc.getPosition());
+        Tile currentTile = Game.tileAT(pc.position());
         for (Tile tile : path) {
             if (currentTile == tile) onPath = true;
         }
@@ -274,7 +274,7 @@ public class AITools {
                         entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        return lastTile(path).equals(Game.tileAT(pc.getPosition()));
+        return lastTile(path).equals(Game.tileAT(pc.position()));
     }
 
     /**
@@ -291,7 +291,7 @@ public class AITools {
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         boolean onPath = false;
-        Tile currentTile = Game.tileAT(pc.getPosition());
+        Tile currentTile = Game.tileAT(pc.position());
         for (Tile tile : path) {
             if (currentTile == tile) onPath = true;
         }

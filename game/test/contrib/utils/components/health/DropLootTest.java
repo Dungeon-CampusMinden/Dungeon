@@ -125,7 +125,7 @@ public class DropLootTest {
      * @return a function which returns true when the Points are equal, otherwise false
      */
     private static boolean isPointEqual(Point entityPosition, PositionComponent component) {
-        Point a = component.getPosition();
+        Point a = component.position();
         return a.x == entityPosition.x && a.y == entityPosition.y;
     }
 }

@@ -24,6 +24,7 @@ public class CameraSystemTest {
     private final Tile startTile = Mockito.mock(Tile.class);
 
     private Point expectedFocusPoint;
+    private static final Point testPoint = new Point(3, 3);
 
     @BeforeClass
     public static void initGDX() {
@@ -33,9 +34,9 @@ public class CameraSystemTest {
     @Before
     public void setup() {
         cameraSystem = new CameraSystem();
-        Mockito.when(level.getRandomFloorTile()).thenReturn(startTile);
+        Mockito.when(startTile.position()).thenReturn(testPoint);
+        Mockito.when(level.randomTilePoint(Mockito.any())).thenReturn(testPoint);
         Mockito.when(level.startTile()).thenReturn(startTile);
-        Mockito.when(startTile.position()).thenReturn(new Point(3, 3));
     }
 
     @Test
@@ -45,7 +46,7 @@ public class CameraSystemTest {
         PositionComponent positionComponent = new PositionComponent(entity);
         new CameraComponent(entity);
 
-        expectedFocusPoint = positionComponent.getPosition();
+        expectedFocusPoint = positionComponent.position();
 
         cameraSystem.execute();
         assertEquals(expectedFocusPoint.x, cameraSystem.camera().position.x, 0.001);

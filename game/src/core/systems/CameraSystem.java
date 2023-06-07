@@ -50,7 +50,7 @@ public class CameraSystem extends System {
     private void focus(Entity entity) {
         PositionComponent pc =
                 (PositionComponent) entity.getComponent(PositionComponent.class).get();
-        focus(pc.getPosition());
+        focus(pc.position());
     }
 
     private void focus(Point point) {

@@ -3,6 +3,7 @@ package core.components;
 import core.Component;
 import core.Entity;
 import core.Game;
+import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.logging.CustomLogLevel;
@@ -77,7 +78,7 @@ public class PositionComponent extends Component {
     /**
      * @return the position of the associated entity
      */
-    public Point getPosition() {
+    public Point position() {
         positionCompLogger.log(
                 CustomLogLevel.DEBUG,
                 "Fetching position for entity '"
@@ -92,7 +93,13 @@ public class PositionComponent extends Component {
     /**
      * @param position new Position of the associated entity
      */
-    public void setPosition(Point position) {
+    public void position(Point position) {
         this.position = position;
+    }
+    /**
+     * @param tile Tile where the new Position of the associated entity is
+     */
+    public void position(Tile tile) {
+        position(tile.position());
     }
 }

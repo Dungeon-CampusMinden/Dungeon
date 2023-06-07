@@ -20,9 +20,9 @@ public class PositionComponentTest {
 
     @Test
     public void setPosition() {
-        assertEquals(position, positionComponent.getPosition());
+        assertEquals(position, positionComponent.position());
         Point newPoint = new Point(3, 4);
-        positionComponent.setPosition(newPoint);
-        assertEquals(newPoint, positionComponent.getPosition());
+        positionComponent.position(newPoint);
+        assertEquals(newPoint, positionComponent.position());
     }
 }

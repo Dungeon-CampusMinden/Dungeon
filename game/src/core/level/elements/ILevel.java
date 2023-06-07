@@ -207,7 +207,7 @@ public interface ILevel extends ITileable {
     /**
      * @return random floor tile
      */
-    default Tile getRandomFloorTile() {
+    default Tile randomFloorTile() {
         return randomTile(LevelElement.FLOOR);
     }
 }
