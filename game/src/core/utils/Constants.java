@@ -50,7 +50,7 @@ public final class Constants {
 
     public static final String TEST_IMAGE_PATH_FOR_DIALOG = "image_quiz/dummy.png";
 
-    public static final Skin inventoryUI =
+    public static final Skin inventorySkin =
             new Skin(
                     Gdx.files.internal("skin/InventorySkin/inventorySkin.json"),
                     new TextureAtlas("skin/InventorySkin/inventorySkin.atlas"));

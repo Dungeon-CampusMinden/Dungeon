@@ -65,8 +65,7 @@ public class InventorySlotSource extends DragAndDrop.Source {
                 PositionComponent positionComponent =
                         (PositionComponent)
                                 Game.getHero()
-                                        .orElseThrow()
-                                        .getComponent(PositionComponent.class)
+                                        .flatMap(e -> e.getComponent(PositionComponent.class))
                                         .orElseThrow();
                 itemActor
                         .getItem()

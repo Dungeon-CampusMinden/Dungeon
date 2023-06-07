@@ -32,7 +32,7 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
     private InventoryGUI(SpriteBatch batch) {
         super(batch);
         dragAndDrop = new DragAndDrop();
-        inventory = new Window("", Constants.inventoryUI);
+        inventory = new Window("", Constants.inventorySkin);
         inventory.setResizable(false);
         add((T) inventory);
         initInventorySlots();
@@ -53,7 +53,7 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
         }
         int inventorySize = inventoryComponent.getMaxSize();
 
-        InventoryDescription description = new InventoryDescription(Constants.inventoryUI);
+        InventoryDescription description = new InventoryDescription(Constants.inventorySkin);
 
         for (int i = 1; i < inventorySize + 1; i++) {
             InventorySlot slot = new InventorySlot();
@@ -74,38 +74,40 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
         InventoryComponent inventoryComponent =
                 (InventoryComponent)
                         Game.getHero()
-                                .orElseThrow()
-                                .getComponent(InventoryComponent.class)
+                                .flatMap(e -> e.getComponent(InventoryComponent.class))
                                 .orElse(null);
         if (inventoryComponent == null) {
             return;
         }
+
         List<ItemData> items = inventoryComponent.getItems();
-        // check if items have been added or removed
+        // removes items from list if the item is in the InventoryGUI
+        // removes items from the InventoryGUI that are not present in the InventoryComponent
         for (Actor actors : inventory.getChildren()) {
-            if (!(actors instanceof InventorySlot invent)) continue;
-            if (invent.getInventoryItem() == null) continue;
-            // removes items that have been removed from the inventory
-            if (!items.contains(invent.getInventoryItem().getItem())) {
-                invent.removeInventoryItem();
+            if (!(actors instanceof InventorySlot inventorySlot)) continue;
+            if (inventorySlot.getInventoryItem() == null) continue;
+
+            ItemData inventoryItem = inventorySlot.getInventoryItem().getItem();
+
+            if (!inventoryComponent.getItems().contains(inventoryItem)) {
+                inventorySlot.removeInventoryItem();
+            } else {
+                items.remove(inventoryItem);
             }
-            // removes items from the list that have been added to the inventory
-            else items.remove(invent.getInventoryItem().getItem());
         }
         // adds new items to the inventory
         for (ItemData listItem : items) {
-            InventoryItem item;
             for (Actor actors : inventory.getChildren()) {
                 if (!(actors instanceof InventorySlot inventorySlot)) continue;
-                if (inventorySlot.getInventoryItem() == null) {
-                    item =
-                            new InventoryItem(
-                                    listItem.getInventoryTexture().getNextAnimationTexturePath(),
-                                    listItem);
-                    inventorySlot.setInventoryItem(item);
-                    dragAndDrop.addSource(new InventorySlotSource(inventorySlot, dragAndDrop));
-                    break;
-                }
+                if (inventorySlot.getInventoryItem() != null) continue;
+
+                InventoryItem item =
+                        new InventoryItem(
+                                listItem.getInventoryTexture().getNextAnimationTexturePath(),
+                                listItem);
+                inventorySlot.setInventoryItem(item);
+                dragAndDrop.addSource(new InventorySlotSource(inventorySlot, dragAndDrop));
+                break;
             }
         }
         inventory.pack();

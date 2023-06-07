@@ -48,10 +48,10 @@ public class InventoryDescriptionListener extends InputListener {
         defaultOffSet = new Point(inventorySlot.getWidth(), inventorySlot.getHeight());
 
         position.set(inventorySlot.getX() + inv.getX(), inventorySlot.getY() + inv.getY());
+        description.updateDescription(inventorySlot);
         this.updateOffset();
 
         description.setPosition(position.x + offSet.x, position.y + offSet.y);
-        description.updateDescription(inventorySlot);
         description.toFront();
         description.setVisible(inventorySlot, true);
     }
@@ -63,9 +63,9 @@ public class InventoryDescriptionListener extends InputListener {
             Window inv = InventoryGUI.getInstance().getInventoryWindow();
 
             position.set(inventorySlot.getX() + inv.getX(), inventorySlot.getY() + inv.getY());
+            description.updateDescription(inventorySlot);
             this.updateOffset();
 
-            description.updateDescription(inventorySlot);
             description.setPosition(position.x + offSet.x, position.y + offSet.y);
             description.toFront();
             description.setVisible(inventorySlot, true);
@@ -89,7 +89,7 @@ public class InventoryDescriptionListener extends InputListener {
             offSet.y = 0;
         }
         // does it fit on the left side ?
-        else if (position.x - description.getWidth() - defaultOffSet.x / 4f > 0) {
+        else if (position.x - description.getWidth() - defaultOffSet.x > 0) {
             offSet.x = -description.getWidth();
             offSet.y = 0;
         }
