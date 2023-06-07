@@ -86,7 +86,7 @@ public class DebuggerSystem extends System {
         for (Coordinate neighborTile : neighborTiles) {
             Tile neighbor = Game.tileAT(neighborTile);
             if (neighbor.isAccessible()) {
-                TELEPORT(neighborTile.toPoint());
+                TELEPORT(neighbor);
                 return;
             }
         }
@@ -95,13 +95,22 @@ public class DebuggerSystem extends System {
     /** Will teleport the Hero on the EndTile so the next level gets loaded */
     public static void LOAD_NEXT_LEVEL() {
         LOGGER.info("TELEPORT ON END");
-        TELEPORT(Game.endTile().coordinate().toPoint());
+        TELEPORT(Game.endTile());
     }
 
     /** Teleports the hero to the start of the level. */
     public static void TELEPORT_TO_START() {
         LOGGER.info("TELEPORT TO START");
-        TELEPORT(Game.startTile().position());
+        TELEPORT(Game.startTile());
+    }
+
+    /**
+     * Teleports the hero to the given tile.
+     *
+     * @param targetLocation the tile to teleport to
+     */
+    public static void TELEPORT(Tile targetLocation) {
+        TELEPORT(targetLocation.position());
     }
 
     /**
