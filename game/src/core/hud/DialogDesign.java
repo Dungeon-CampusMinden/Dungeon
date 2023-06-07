@@ -17,13 +17,13 @@ import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
 /** creates layout ot a dialog */
-public class DialogDesign extends Table {
-    private static final int DIFFERENCE_MEASURE = 150;
+public class DialogDesign extends VerticalGroup {
     public static final String PATTERN_IMAGE_FINDER = "(\\w+[\\\\|/])*\\w+.(?>png|bmp|tiff|jpeg)";
 
     public DialogDesign() {
         super();
         setFillParent(true);
+        left();
     }
 
     private static ScrollPane createScrollPane(Skin skin, Actor labelContent) {
@@ -44,10 +44,7 @@ public class DialogDesign extends Table {
      * @param outputMsg Content displayed in the scrollable label
      */
     public void TextDialog(Skin skin, String outputMsg) {
-        add(createScrollPane(skin, new Label(outputMsg, skin)))
-                .size(
-                        Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
-                        Constants.WINDOW_HEIGHT - DIFFERENCE_MEASURE * 2f);
+        addActor(createScrollPane(skin, new Label(outputMsg, skin)));
     }
 
     /**
@@ -60,14 +57,12 @@ public class DialogDesign extends Table {
     public void QuizQuestion(QuizQuestion quizQuestion, Skin skin, String outputMsg) {
         Label labelExercise = new Label(Constants.QUIZ_MESSAGE_TASK, skin);
         labelExercise.setColor(Color.YELLOW);
-        add(labelExercise);
-        row();
+        addActor(labelExercise);
         VisualizeQuestionSection(quizQuestion.question().type(), skin, outputMsg);
-        row();
         Label labelSolution = new Label(Constants.QUIZ_MESSAGE_SOLUTION, skin);
         labelSolution.setColor(Color.GREEN);
-        add(labelSolution);
-        row();
+        addActor(labelSolution);
+
         VisualizeAnswerSection(quizQuestion, skin);
     }
 
@@ -85,28 +80,15 @@ public class DialogDesign extends Table {
             String outputMsg) {
 
         switch (questionContentType) {
-            case TEXT -> add(createScrollPane(skin, new Label(outputMsg, skin)))
-                    .size(
-                            Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
-                            Constants.WINDOW_HEIGHT / 5f);
-            case IMAGE -> add(createScrollPane(
-                            skin, new Image(new Texture(ImagePathExtractor(outputMsg)))))
-                    .size(
-                            Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
-                            Constants.WINDOW_HEIGHT / 5f);
+            case TEXT -> addActor(createScrollPane(skin, new Label(outputMsg, skin)));
+            case IMAGE -> addActor(
+                    createScrollPane(skin, new Image(new Texture(ImagePathExtractor(outputMsg)))));
 
             case TEXT_AND_IMAGE -> {
-                add(createScrollPane(skin, new Label(outputMsg, skin)))
-                        .size(
-                                Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
-                                Constants.WINDOW_HEIGHT / 5f);
-                row();
-                add(new Label("", skin));
-                row();
-                add(createScrollPane(skin, new Image(new Texture(ImagePathExtractor(outputMsg)))))
-                        .size(
-                                Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
-                                Constants.WINDOW_HEIGHT / 5f);
+                addActor(createScrollPane(skin, new Label(outputMsg, skin)));
+                addActor(
+                        createScrollPane(
+                                skin, new Image(new Texture(ImagePathExtractor(outputMsg)))));
             }
             default -> {}
         }
@@ -132,19 +114,12 @@ public class DialogDesign extends Table {
                 ScrollPane scroller = new ScrollPane(scrollTable, skin);
                 scroller.setFadeScrollBars(false);
                 scroller.setScrollbarsVisible(true);
-                add(scroller)
-                        .size(
-                                Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
-                                Constants.WINDOW_HEIGHT / 7f);
+                addActor(scroller);
             }
             case MULTIPLE_CHOICE, SINGLE_CHOICE -> {
                 VerticalGroup btnGrp = createAnswerButtons(skin, quizQuestion);
 
-                add(createScrollPane(skin, btnGrp))
-                        .align(Align.left)
-                        .size(
-                                Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
-                                Constants.WINDOW_HEIGHT / 7f);
+                addActor(createScrollPane(skin, btnGrp));
             }
             default -> {}
         }

@@ -84,10 +84,6 @@ public class UITools {
                         windowText,
                         getResultHandler(e, buttonText));
         new UIComponent(e, textDialog, true);
-
-        textDialog.setPosition(200, 200);
-        textDialog.setWidth(500); // bug with width
-        textDialog.setHeight(500); // bug with default height
         return e;
     }
 
