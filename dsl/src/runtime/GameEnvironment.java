@@ -96,7 +96,10 @@ public class GameEnvironment implements IEvironment {
                 continue;
             }
             if (loadedTypes.containsKey(type.getName())) {
-                continue;
+                throw new RuntimeException(
+                        "A type with the name '"
+                                + type.getName()
+                                + "' is already loaded in the environment!");
             }
             loadedTypes.put(type.getName(), type);
             this.globalScope.bind((Symbol) type);
