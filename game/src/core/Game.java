@@ -611,11 +611,13 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /** Create the systems. */
     private void createSystems() {
-        new CameraSystem();
-        new VelocitySystem();
-        new DrawSystem(painter);
-        new PlayerSystem();
+        addSystem(new CameraSystem());
+        addSystem(new VelocitySystem());
+        addSystem(new DrawSystem(painter));
+        addSystem(new PlayerSystem());
+        // Debugger should not be a system, see #651
         debugger = new DebuggerSystem();
+        addSystem(debugger);
     }
 
     @Override

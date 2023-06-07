@@ -27,16 +27,12 @@ public class Main {
                     }
                 });
 
-        // or use the static attributes
-        Game.WINDOW_TITLE = "My Dungeon";
-
-        // explicit
+        Game.windowTitle("My Dungeon");
         Game.addSystem(new AISystem());
         Game.addSystem(new CollisionSystem());
         Game.addSystem(new HealthSystem());
-        // implicit
-        new XPSystem();
-        new ProjectileSystem();
+        Game.addSystem(new XPSystem());
+        Game.addSystem(new ProjectileSystem());
 
         // build and start game
         Game.run();
