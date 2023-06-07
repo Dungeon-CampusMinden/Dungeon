@@ -38,9 +38,7 @@ public class ProtectOnApproach implements Function<Entity, Boolean> {
      */
     @Override
     public Boolean apply(Entity entity) {
-        if (isInFight) {
-            return true;
-        }
+        if (isInFight) return true;
 
         isInFight = AITools.playerInRange(toProtect, range);
 

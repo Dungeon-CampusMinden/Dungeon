@@ -25,7 +25,9 @@ public class ProtectOnApproachTest {
     private final Point pointOfProtect = new Point(0, 0);
 
     @Before
-    public void setUpEntityToProtect() {
+    public void setup() {
+
+        // Protected Entity
         protectedEntity = new Entity();
 
         // Add AI Component
@@ -36,14 +38,10 @@ public class ProtectOnApproachTest {
                         new RadiusWalk(0, 50),
                         new RangeTransition(2));
 
-        protectedEntity.addComponent(protectedAI);
-
         // Add Position Component
-        protectedEntity.addComponent(new PositionComponent(protectedEntity, pointOfProtect));
-    }
+        new PositionComponent(protectedEntity, pointOfProtect);
 
-    @Before
-    public void setUpEntityThatProtects() {
+        // Protecting Entity
         entity = new Entity();
 
         // Add AI Component
@@ -53,24 +51,21 @@ public class ProtectOnApproachTest {
                         new CollideAI(0.2f),
                         new RadiusWalk(0, 50),
                         new ProtectOnApproach(2f, protectedEntity));
-        entity.addComponent(entityAI);
 
         // Add Position Component
-        entity.addComponent(new PositionComponent(entity, new Point(0f, 0f)));
-    }
+        new PositionComponent(entity, new Point(0f, 0f));
 
-    @Before
-    public void setUpHero() {
+        // Hero
         hero = Game.getHero().orElse(new Entity());
     }
 
     // Ignore because no solution to create hero during tests at the moment
     @Test
     @Ignore
-    public void testHeroInRange() {
+    public void heroInRange() {
         // when
         hero.removeComponent(PositionComponent.class);
-        hero.addComponent(new PositionComponent(hero, pointOfProtect));
+        new PositionComponent(hero, pointOfProtect);
 
         // then
         assertTrue(entityAI.getTransitionAI().apply(entity));
