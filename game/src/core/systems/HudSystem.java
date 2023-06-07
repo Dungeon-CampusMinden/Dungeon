@@ -79,9 +79,14 @@ public class HudSystem extends System {
         Game.systems.values().forEach(System::run);
     }
 
+    /** hudsysteam can´t be paused */
     @Override
     public void stop() {}
 
+    /**
+     * hudsystem is always running and not changing between stopped and running so no need to change
+     * anything
+     */
     @Override
     public void run() {}
 }
