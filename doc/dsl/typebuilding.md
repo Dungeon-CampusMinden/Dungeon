@@ -343,6 +343,46 @@ wie im folgenden Sequenzdiagramm zu erkennen:
 
 ![UML: Ablauf komplexe Typadaptierung](img/typeadapting_complex.png)
 
+```java
+// externer Datentyp, der in das DSL-Typsystem gebracht werden soll
+public class ExternalType {
+    int member1;
+    int member2;
+    String member3;
+
+    public ExternalType(int member1, int member2, String member3) {
+        this.member1 = member1;
+        this.member2 = member2;
+        this.member3 = member3;
+    }
+}
+
+// typebuilder für ExternalType
+public class ExternalTypeBuilderMultiParam {
+    @DSLTypeAdapter
+    public static ExternalType buildExternalType(
+            @DSLTypeMember(name = "number") int n,
+            @DSLTypeMember(name = "string") String str) {
+        return new ExternalType(n, 12, str);
+    }
+}
+```
+
+Der externe Datentyp kann in der DSL wie folgt verwendet werden:
+
+```
+game_object my_obj {
+    test_component_with_external_type {
+        member_external_type: external_type {
+            string: "Hello, World!",
+            number: 42
+        }
+    }
+}
+```
+
+**Beziehungen der Adapterklassen zum restlichen Typsystem**
+
 Das folgende UML Diagramm zeigt, in welcher Beziehung die beiden Adapterklassen
 `AdaptedType` und `AggregateTypeAdapter` zum Rest des Typsystems stehen:
 
