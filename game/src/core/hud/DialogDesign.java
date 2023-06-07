@@ -104,14 +104,7 @@ public class DialogDesign extends VerticalGroup {
     private void VisualizeAnswerSection(QuizQuestion quizQuestion, Skin skin) {
         switch (quizQuestion.type()) {
             case FREETEXT -> {
-                Table scrollTable = new Table();
-                scrollTable
-                        .add(createEditableText(skin))
-                        .minHeight(800)
-                        .expandX()
-                        .fillX()
-                        .colspan(1);
-                ScrollPane scroller = new ScrollPane(scrollTable, skin);
+                ScrollPane scroller = new ScrollPane(createEditableText(skin), skin);
                 scroller.setFadeScrollBars(false);
                 scroller.setScrollbarsVisible(true);
                 addActor(scroller);
