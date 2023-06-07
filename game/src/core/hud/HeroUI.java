@@ -139,22 +139,14 @@ public class HeroUI<T extends Actor> extends ScreenController<T> {
     }
 
     private HeroData buildDataObject() {
-        HealthComponent hc = null;
-        XPComponent xc = null;
-
-        if (Game.getHero().flatMap(hero -> hero.getComponent(HealthComponent.class)).isPresent())
-            hc =
-                    (HealthComponent)
-                            Game.getHero()
-                                    .flatMap(hero -> hero.getComponent(HealthComponent.class))
-                                    .orElseThrow();
-
-        if (Game.getHero().flatMap(hero -> hero.getComponent(XPComponent.class)).isPresent())
-            xc =
-                    (XPComponent)
-                            Game.getHero()
-                                    .flatMap(hero -> hero.getComponent(XPComponent.class))
-                                    .orElseThrow();
+        HealthComponent hc =
+                (HealthComponent)
+                        Game.getHero()
+                                .flatMap(e -> e.getComponent(HealthComponent.class))
+                                .orElse(null);
+        XPComponent xc =
+                (XPComponent)
+                        Game.getHero().flatMap(e -> e.getComponent(XPComponent.class)).orElse(null);
 
         return new HeroData(hc, xc);
     }
@@ -197,9 +189,11 @@ public class HeroUI<T extends Actor> extends ScreenController<T> {
 
     private void setup() {
         HeroData hd = buildDataObject();
-        previousXP = hd.xc.getCurrentXP();
-        previousHealthPoints = hd.hc.getCurrentHealthpoints();
-        previousLevel = hd.xc.getCurrentLevel();
+        if (hd.hc != null) previousHealthPoints = hd.hc.getCurrentHealthpoints();
+        if (hd.xc != null) {
+            previousXP = hd.xc.getCurrentXP();
+            previousLevel = hd.xc.getCurrentLevel();
+        }
 
         FreeTypeFontGenerator generator =
                 new FreeTypeFontGenerator(Gdx.files.internal("skin/DungeonFont.ttf"));
