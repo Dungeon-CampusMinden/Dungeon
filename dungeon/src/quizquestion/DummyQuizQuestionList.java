@@ -107,15 +107,15 @@ public class DummyQuizQuestionList {
                     add(
                             new QuizQuestion(
                                     new QuizQuestionContent(
-                                            QuizQuestionContent.QuizQuestionContentType.IMAGE, "image_quiz/dummy.png"),
+                                            QuizQuestionContent.QuizQuestionContentType.IMAGE,
+                                            "image_quiz/dummy.png"),
                                     new QuizQuestionContent[] {},
                                     QuizQuestion.QuizQuestionType.FREETEXT));
                     // Testfrage mit Bild als Fragestellung und einer Antwort als SINGLE_CHOICE
                     add(
                             new QuizQuestion(
                                     new QuizQuestionContent(
-                                            QuizQuestionContent.QuizQuestionContentType
-                                                    .TEXT,
+                                            QuizQuestionContent.QuizQuestionContentType.TEXT,
                                             "Was ist \"Game Loop\"in LibGDX und was macht diese?"),
                                     new QuizQuestionContent[] {
                                         new QuizQuestionContent(

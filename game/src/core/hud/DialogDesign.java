@@ -82,7 +82,8 @@ public class DialogDesign extends VerticalGroup {
         switch (questionContentType) {
             case TEXT -> addActor(createScrollPane(skin, new Label(outputMsg, skin)));
             case IMAGE -> addActor(
-                    createScrollPane(skin, new Image(new Texture(ImagePathExtractor(outputMsg).get()))));
+                    createScrollPane(
+                            skin, new Image(new Texture(ImagePathExtractor(outputMsg).get()))));
 
             case TEXT_AND_IMAGE -> {
                 addActor(createScrollPane(skin, new Label(outputMsg, skin)));
@@ -166,6 +167,6 @@ public class DialogDesign extends VerticalGroup {
     private Optional<String> ImagePathExtractor(String quizqustion) {
         Optional<MatchResult> first =
                 Pattern.compile(PATTERN_IMAGE_FINDER).matcher(quizqustion).results().findFirst();
-        return first.map(x->x.group());
+        return first.map(x -> x.group());
     }
 }
