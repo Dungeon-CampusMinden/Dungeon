@@ -44,21 +44,20 @@ public class HudSystem extends System {
                                                     stage.addActor(d);
                                                 }
                                             });
-                        });
-        /*stage.getActors()
-                        .select(
-                                x ->
-                                        getEntityStream()
-                                                .anyMatch(
-                                                        y ->
-                                                                y
-                                                                        .getComponent(UIComponent.class)
-                                                                        .map(UIComponent.class::cast)
-                                                                        .stream()
-                                                                        .noneMatch(
-                                                                                z -> z.getDialog() == x)))
-                        .forEach(Actor::remove);
-        */
+                        }); /*stage.getActors()
+                                            .select(
+                                                    x ->
+                                                            getEntityStream()
+                                                                    .anyMatch(
+                                                                            y ->
+                                                                                    y
+                                                                                            .getComponent(UIComponent.class)
+                                                                                            .map(UIComponent.class::cast)
+                                                                                            .stream()
+                                                                                            .noneMatch(
+                                                                                                    z -> z.getDialog() == x)))
+                                            .forEach(Actor::remove);
+                            */
         if (getEntityStream()
                 .anyMatch(
                         x ->

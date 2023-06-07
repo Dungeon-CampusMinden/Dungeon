@@ -38,7 +38,6 @@ import core.utils.Constants;
 import core.utils.DelayedSet;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
-import core.utils.controller.AbstractController;
 
 import quizquestion.DummyQuizQuestionList;
 
@@ -50,8 +49,6 @@ import java.util.stream.Stream;
 /** The heart of the framework. From here all strings are pulled. */
 public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
-    /** Contains all Controller of the Dungeon */
-    public static final List<AbstractController<?>> controller = new ArrayList<>();
     /** Set of all Systems in the ECS */
     public static final Map<Class<? extends System>, System> systems = new HashMap<>();
     /** All entities that are currently active in the dungeon */
@@ -258,8 +255,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         levelManager.update();
         updateSystems();
         systems.values().stream().filter(System::isRunning).forEach(System::execute);
-        // screen controller
-        controller.forEach(AbstractController::update);
         CameraSystem.camera().update();
         // stage logic
         Game.stage().ifPresent(Game::updateStage);
