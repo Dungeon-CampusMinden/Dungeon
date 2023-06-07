@@ -343,6 +343,8 @@ wie im folgenden Sequenzdiagramm zu erkennen:
 
 ![UML: Ablauf komplexe Typadaptierung](img/typeadapting_complex.png)
 
+Für einen Datentyp namens `ExternalType` könnte dies wie folgt aussehen:
+
 ```java
 // externer Datentyp, der in das DSL-Typsystem gebracht werden soll
 public class ExternalType {
@@ -359,7 +361,7 @@ public class ExternalType {
 
 // typebuilder für ExternalType
 public class ExternalTypeBuilderMultiParam {
-    @DSLTypeAdapter
+    @DSLTypeAdapter(name = "external_type")
     public static ExternalType buildExternalType(
             @DSLTypeMember(name = "number") int n,
             @DSLTypeMember(name = "string") String str) {
@@ -368,7 +370,8 @@ public class ExternalTypeBuilderMultiParam {
 }
 ```
 
-Der externe Datentyp kann in der DSL wie folgt verwendet werden:
+Der externe Datentyp kann in der DSL, mit dem in der `DSLTypeAdapter`-Annotation
+konfigurierten Namen, wie folgt verwendet werden:
 
 ```
 game_object my_obj {
