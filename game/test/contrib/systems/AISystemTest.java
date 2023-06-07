@@ -19,7 +19,7 @@ public class AISystemTest {
     @Before
     public void setup() {
         Game.removeAllEntities();
-        Game.systems.clear();
+        Game.removeAllSystems();
         system = new AISystem();
         entity = new Entity();
         AIComponent component = new AIComponent(entity);

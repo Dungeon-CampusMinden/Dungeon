@@ -31,9 +31,9 @@ public class UITools {
      */
     public static void showQuizDialog(QuizQuestion question) {
         String questionContent =
-                QuizQuestionFormatted.formatStringForDialogWindow(question.question().content());
+            QuizQuestionFormatted.formatStringForDialogWindow(question.question().content());
         generateQuizDialogue(
-                question, questionContent, DEFAULT_DIALOG_CONFIRM, DEFAULT_DIALOG_TITLE);
+            question, questionContent, DEFAULT_DIALOG_CONFIRM, DEFAULT_DIALOG_TITLE);
     }
 
     /**
@@ -43,16 +43,16 @@ public class UITools {
      * @param question Various question configurations
      */
     private static Entity generateQuizDialogue(
-            QuizQuestion question, String questionMsg, String buttonMsg, String dialogTitle) {
+        QuizQuestion question, String questionMsg, String buttonMsg, String dialogTitle) {
         Entity e = new Entity();
         Dialog dialog =
-                DialogFactory.createQuizDialog(
-                        DEFAULT_SKIN,
-                        question,
-                        questionMsg,
-                        buttonMsg,
-                        dialogTitle,
-                        getResultHandler(e, buttonMsg));
+            DialogFactory.createQuizDialog(
+                DEFAULT_SKIN,
+                question,
+                questionMsg,
+                buttonMsg,
+                dialogTitle,
+                getResultHandler(e, buttonMsg));
         new UIComponent(e, dialog, true);
         return e;
     }
@@ -65,21 +65,21 @@ public class UITools {
      * @param windowText text which should be shown as the name for the TextDialog
      */
     public static Entity generateNewTextDialog(
-            String content, String buttonText, String windowText) {
+        String content, String buttonText, String windowText) {
         Entity e = new Entity();
         Dialog textDialog =
-                DialogFactory.createTextDialog(
-                        DEFAULT_SKIN,
-                        content,
-                        buttonText,
-                        windowText,
-                        getResultHandler(e, buttonText));
+            DialogFactory.createTextDialog(
+                DEFAULT_SKIN,
+                content,
+                buttonText,
+                windowText,
+                getResultHandler(e, buttonText));
         new UIComponent(e, textDialog, true);
         return e;
     }
 
     private static BiFunction<TextDialog, String, Boolean> getResultHandler(
-            final Entity entity, final String closeButtonMsg) {
+        final Entity entity, final String closeButtonMsg) {
         return (d, id) -> {
             if (Objects.equals(id, closeButtonMsg)) {
                 Game.removeEntity(entity);

@@ -1,8 +1,13 @@
 package core;
 
+import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
+
+import static core.utils.logging.LoggerConfig.initBaseLogger;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
+
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
@@ -16,8 +21,10 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
 
 
+
 import contrib.configuration.KeyboardConfig;
 import contrib.systems.DebuggerSystem;
+
 import core.components.PositionComponent;
 import core.components.UIComponent;
 import core.configuration.Configuration;
@@ -43,6 +50,7 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 
+
 import quizquestion.DummyQuizQuestionList;
 
 import java.io.IOException;
@@ -50,12 +58,7 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
-import static core.utils.logging.LoggerConfig.initBaseLogger;
-
-/**
- * The heart of the framework. From here all strings are pulled.
- */
+/** The heart of the framework. From here all strings are pulled. */
 public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
 
@@ -64,14 +67,11 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * <p>The Key-Value is the Class of the system
      */
-    public static final Map<Class<? extends System>, System> systems = new HashMap<>();
-    /**
-     * All entities that are currently active in the dungeon
-     */
+    private static final Map<Class<? extends System>, System> systems = new HashMap<>();
+    /** All entities that are currently active in the dungeon */
     private static final DelayedSet<Entity> entities = new DelayedSet<>();
 
     private static final Logger LOGGER = Logger.getLogger("Game");
-
     /**
      * The currently loaded level of the game.
      *
@@ -98,7 +98,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     private static int FRAME_RATE = 30;
     /**
-     * Part of the pre-run configuration. The tilte of the Game-Window.
+     * Part of the pre-run configuration. The title of the Game-Window.
      *
      * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
      */
@@ -109,28 +109,24 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
      */
     private static String LOGO_PATH = "logo/CatLogo_35x35.png";
-    /**
-     * Currently used level-size configuration for generating new level
-     */
+    /** Currently used level-size configuration for generating new level */
     private static LevelSize LEVELSIZE = LevelSize.SMALL;
     /**
      * Part of the pre-run configuration.
      * This function will be called at each frame.
-     * <p> Use this, if you want to execute some logic outside of a sytem.</p>
+     * <p> Use this, if you want to execute some logic outside of a system.</p>
      * <p> Will not replace {@link #onFrame )</p>
      */
-    private static IVoidFunction userFrame = () -> {
-    };
+    private static IVoidFunction userFrame = () -> {};
     /**
      * Part of the pre-run configuration. This function will be called after a level was loaded.
      *
      * <p>Use this, if you want to execute some logic after a level was loaded. For example spawning
      * some Monsters.
      *
-     * <p>Will not replace {@link #onLevelLoad} )
+     * <p>Will not replace {@link #onLevelLoad}
      */
-    private static IVoidFunction userOnLevelLoad = () -> {
-    };
+    private static IVoidFunction userOnLevelLoad = () -> {};
     /**
      * Part of the pre-run configuration. If this value is true, the audio for the game will be
      * disabled.
@@ -148,17 +144,25 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * batch.
      */
     private SpriteBatch batch;
-    /**
-     * Draws objects
-     */
+    /** Draws objects */
     private Painter painter;
 
     private LevelManager levelManager;
     private boolean doSetup = true;
     private DebuggerSystem debugger;
-
     // for singleton
-    private Game() {
+    private Game() {}
+
+    /**
+     * @return a copy of the map that stores all registered {@link System} in the game.
+     */
+    public static Map<Class<? extends System>, System> systems() {
+        return new HashMap<>(systems);
+    }
+
+    /** Remove all registered systems from the game. */
+    public static void removeAllSystems() {
+        systems.clear();
     }
 
     /**
@@ -193,7 +197,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * <p>This value is used for the generation of the next level.
      *
-     * <p>The currently active level can have a differen size.
+     * <p>The currently active level can have a different size.
      *
      * @return currently set level-Size.
      */
@@ -292,7 +296,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * @param userOnLevelLoad the function that will be executed after a new level was loaded
      * @see IVoidFunction
-     * <p>Will not replace {@link #onLevelLoad}
+     *     <p>Will not replace {@link #onLevelLoad}
      */
     public static void userOnLevelLoad(IVoidFunction userOnLevelLoad) {
         Game.userOnLevelLoad = userOnLevelLoad;
@@ -376,16 +380,14 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * cached version will be used.
      *
      * @param pathAsString the path to the config file as a string
-     * @param klass        the class where the ConfigKey fields are located
+     * @param klass the class where the ConfigKey fields are located
      * @throws IOException if the file could not be read
      */
     public static void loadConfig(String pathAsString, Class<?> klass) throws IOException {
         Configuration.loadAndGetConfiguration(pathAsString, klass);
     }
 
-    /**
-     * Starts the dungeon and requires a {@link Game}.
-     */
+    /** Starts the dungeon and requires a {@link Game}. */
     public static void run() {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setWindowSizeLimits(WINDOW_WIDTH, WINDOW_HEIGHT, 9999, 9999);
@@ -400,13 +402,13 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         config.disableAudio(DISABLE_AUDIO);
         // uncomment this if you wish no audio
         new Lwjgl3Application(
-            new com.badlogic.gdx.Game() {
-                @Override
-                public void create() {
-                    setScreen(new Game());
-                }
-            },
-            config);
+                new com.badlogic.gdx.Game() {
+                    @Override
+                    public void create() {
+                        setScreen(new Game());
+                    }
+                },
+                config);
     }
 
     /**
@@ -422,7 +424,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * @param system the System to add
      * @return an optional that contains the previous existing system of the given system class, if
-     * one exists
+     *     one exists
      * @see System
      * @see Optional
      */
@@ -552,7 +554,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * Starts the indexed A* pathfinding algorithm a returns a path
      *
      * @param start Start tile
-     * @param end   End tile
+     * @param end End tile
      * @return Generated path
      */
     public static GraphPath<Tile> findPath(Tile start, Tile end) {
@@ -605,8 +607,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         levelManager = new LevelManager(batch, painter, generator, this);
         initBaseLogger();
         levelManager =
-            new LevelManager(
-                batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
+                new LevelManager(
+                        batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelManager.loadLevel(LEVELSIZE);
         createSystems();
 
@@ -637,6 +639,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
 
 
+
    private boolean uiDebugFlag = false;
 
 
@@ -662,6 +665,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
             LOGGER.info("Debugger ist now " + debugger.isRunning());
         }
     }
+
 
 
 
@@ -720,10 +724,10 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     private boolean isOnEndTile(Entity entity) {
         PositionComponent pc =
-            (PositionComponent)
-                entity.getComponent(PositionComponent.class)
-                    .orElseThrow(
-                        () -> new MissingComponentException("PositionComponent"));
+                (PositionComponent)
+                        entity.getComponent(PositionComponent.class)
+                                .orElseThrow(
+                                        () -> new MissingComponentException("PositionComponent"));
         Tile currentTile = tileAT(pc.getPosition());
         return currentTile.equals(endTile());
     }
@@ -738,10 +742,10 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private void placeOnLevelStart(Entity hero) {
         entities.add(hero);
         PositionComponent pc =
-            (PositionComponent)
-                hero.getComponent(PositionComponent.class)
-                    .orElseThrow(
-                        () -> new MissingComponentException("PositionComponent"));
+                (PositionComponent)
+                        hero.getComponent(PositionComponent.class)
+                                .orElseThrow(
+                                        () -> new MissingComponentException("PositionComponent"));
         pc.setPosition(startTile().position());
     }
 
@@ -755,9 +759,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    /**
-     * Create the systems.
-     */
+    /** Create the systems. */
     private void createSystems() {
         addSystem(new CameraSystem());
         addSystem(new VelocitySystem());

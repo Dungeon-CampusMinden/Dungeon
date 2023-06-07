@@ -34,8 +34,8 @@ public class CameraSystemTest {
     public void setup() {
         cameraSystem = new CameraSystem();
         Mockito.when(level.getRandomFloorTile()).thenReturn(startTile);
-        Mockito.when(level.getStartTile()).thenReturn(startTile);
-        Mockito.when(startTile.getCoordinateAsPoint()).thenReturn(new Point(3, 3));
+        Mockito.when(level.startTile()).thenReturn(startTile);
+        Mockito.when(startTile.position()).thenReturn(new Point(3, 3));
     }
 
     @Test
@@ -57,7 +57,7 @@ public class CameraSystemTest {
         Game.removeAllEntities();
         Game.currentLevel = level;
 
-        expectedFocusPoint = level.getStartTile().getCoordinateAsPoint();
+        expectedFocusPoint = level.startTile().position();
 
         cameraSystem.execute();
 
