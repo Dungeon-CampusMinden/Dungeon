@@ -1,33 +1,15 @@
 package core.systems;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.Scaling;
-import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
 import core.Game;
 import core.System;
 import core.components.UIComponent;
-import core.utils.Constants;
 
 public class HudSystem extends System {
 
-    private Stage stage;
-
-    public HudSystem(SpriteBatch batch) {
-        this(
-                new Stage(
-                        new ScalingViewport(
-                                Scaling.stretch, Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT),
-                        batch));
-    }
-
-    public HudSystem(Stage stage) {
+    public HudSystem() {
         super(UIComponent.class);
-        this.stage = stage;
-        Gdx.input.setInputProcessor(stage);
     }
 
     /*
@@ -55,9 +37,13 @@ public class HudSystem extends System {
                                             .map(UIComponent.class::cast)
                                             .get()
                                             .getDialog();
-                            if (!stage.getActors().contains(d, true)) {
-                                stage.addActor(d);
-                            }
+                            Game.stage()
+                                    .ifPresent(
+                                            stage -> {
+                                                if (!stage.getActors().contains(d, true)) {
+                                                    stage.addActor(d);
+                                                }
+                                            });
                         });
         /*stage.getActors()
                         .select(
@@ -84,9 +70,6 @@ public class HudSystem extends System {
         } else {
             unpauseGame();
         }
-
-        stage.act(Gdx.graphics.getDeltaTime());
-        stage.draw();
     }
 
     private void pauseGame() {

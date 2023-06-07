@@ -10,6 +10,9 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.EntityFactory;
@@ -61,6 +64,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     public static ILevel currentLevel;
     private static Entity hero;
     private static Game game;
+    private static Stage stage;
     /**
      * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
      * batch.
@@ -228,6 +232,15 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         LOGGER.info("All entities will be removed from the game.");
     }
 
+    public static Optional<Stage> stage() {
+        return Optional.ofNullable(stage);
+    }
+
+    private static void updateStage(Stage x) {
+        x.act(Gdx.graphics.getDeltaTime());
+        x.draw();
+    }
+
     /**
      * Main game loop.
      *
@@ -248,6 +261,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         // screen controller
         controller.forEach(AbstractController::update);
         CameraSystem.camera().update();
+        // stage logic
+        Game.stage().ifPresent(Game::updateStage);
     }
 
     /**
@@ -268,6 +283,17 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
                         batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelManager.loadLevel(LEVELSIZE);
         createSystems();
+
+        setupStage();
+    }
+
+    private static void setupStage() {
+        stage =
+                new Stage(
+                        new ScalingViewport(
+                                Scaling.stretch, Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT),
+                        new SpriteBatch());
+        Gdx.input.setInputProcessor(stage);
     }
 
     /**
@@ -401,7 +427,13 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         new HealthSystem();
         new XPSystem();
         new ProjectileSystem();
-        new HudSystem(new SpriteBatch());
+        new HudSystem();
         debugger = new DebuggerSystem();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        super.resize(width, height);
+        stage().ifPresent(x -> x.getViewport().update(width, height, true));
     }
 }

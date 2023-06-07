@@ -33,7 +33,7 @@ public class UITools {
         if (question == null) throw new NullPointerException("question can´t be null");
         String questionContent =
                 QuizQuestionFormatted.formatStringForDialogWindow(question.question().content());
-        generateQuizDialogue(question, questionContent, "ok", "Question");
+        generateQuizDialogue(question, questionContent, "confirm", "Question");
     }
 
     /**
