@@ -107,7 +107,7 @@ public class DummyQuizQuestionList {
                     add(
                             new QuizQuestion(
                                     new QuizQuestionContent(
-                                            QuizQuestionContent.QuizQuestionContentType.IMAGE, ""),
+                                            QuizQuestionContent.QuizQuestionContentType.IMAGE, "image_quiz/dummy.png"),
                                     new QuizQuestionContent[] {},
                                     QuizQuestion.QuizQuestionType.FREETEXT));
                     // Testfrage mit Bild als Fragestellung und einer Antwort als SINGLE_CHOICE
