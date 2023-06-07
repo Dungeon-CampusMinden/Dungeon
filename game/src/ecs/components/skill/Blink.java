@@ -19,7 +19,6 @@ public class Blink implements ISkillFunction {
     /**
      * Creates a new Blink skill with the given parameters
      * 
-     * @param entity          the entity that owns this skill
      * @param targetSelection the target selection
      * @param range           the range
      * @param manaCost        the mana cost
