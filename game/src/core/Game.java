@@ -306,7 +306,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private void debugKeys() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             // Text Dialogue (output of information texts)
-            // UITools.showInfoText(DEFAULT_MESSAGE);
 
             newPauseMenu();
 
