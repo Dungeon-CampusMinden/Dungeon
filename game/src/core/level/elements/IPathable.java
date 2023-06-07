@@ -38,12 +38,12 @@ public interface IPathable extends IndexedGraph<Tile> {
 
     @Override
     default int getIndex(Tile tile) {
-        return tile.getIndex();
+        return tile.index();
     }
 
     @Override
     default Array<Connection<Tile>> getConnections(Tile fromNode) {
-        return fromNode.getConnections();
+        return fromNode.connections();
     }
 
     /**

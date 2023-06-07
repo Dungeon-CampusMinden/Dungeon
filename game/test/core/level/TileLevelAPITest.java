@@ -122,21 +122,21 @@ public class TileLevelAPITest {
         LevelElement elementT4 = LevelElement.SKIP;
         Tile[][] layout = new Tile[2][2];
         layout[0][0] = Mockito.mock(Tile.class);
-        when(layout[0][0].getLevelElement()).thenReturn(elementT1);
-        when(layout[0][0].getTexturePath()).thenReturn(textureT1);
-        when(layout[0][0].getCoordinate()).thenReturn(coordinateT1);
+        when(layout[0][0].levelElement()).thenReturn(elementT1);
+        when(layout[0][0].texturePath()).thenReturn(textureT1);
+        when(layout[0][0].coordinate()).thenReturn(coordinateT1);
         layout[0][1] = Mockito.mock(Tile.class);
-        when(layout[0][1].getLevelElement()).thenReturn(elementT2);
-        when(layout[0][1].getTexturePath()).thenReturn(textureT2);
-        when(layout[0][1].getCoordinate()).thenReturn(coordinateT2);
+        when(layout[0][1].levelElement()).thenReturn(elementT2);
+        when(layout[0][1].texturePath()).thenReturn(textureT2);
+        when(layout[0][1].coordinate()).thenReturn(coordinateT2);
         layout[1][0] = Mockito.mock(Tile.class);
-        when(layout[1][0].getLevelElement()).thenReturn(elementT3);
-        when(layout[1][0].getTexturePath()).thenReturn(textureT3);
-        when(layout[1][0].getCoordinate()).thenReturn(coordinateT3);
+        when(layout[1][0].levelElement()).thenReturn(elementT3);
+        when(layout[1][0].texturePath()).thenReturn(textureT3);
+        when(layout[1][0].coordinate()).thenReturn(coordinateT3);
         layout[1][1] = Mockito.mock(Tile.class);
-        when(layout[1][1].getLevelElement()).thenReturn(elementT4);
-        when(layout[1][1].getTexturePath()).thenReturn(textureT4);
-        when(layout[1][1].getCoordinate()).thenReturn(coordinateT4);
+        when(layout[1][1].levelElement()).thenReturn(elementT4);
+        when(layout[1][1].texturePath()).thenReturn(textureT4);
+        when(layout[1][1].coordinate()).thenReturn(coordinateT4);
 
         when(level.getLayout()).thenReturn(layout);
 
@@ -146,31 +146,31 @@ public class TileLevelAPITest {
         verify(level).getLayout();
         verifyNoMoreInteractions(level);
 
-        verify(layout[0][0]).getLevelElement();
-        verify(layout[0][0]).getTexturePath();
-        verify(layout[0][0]).getCoordinate();
+        verify(layout[0][0]).levelElement();
+        verify(layout[0][0]).texturePath();
+        verify(layout[0][0]).coordinate();
         // for some reason mocktio.verify can't compare the points of the tile correctly
         verify(painter, times(3))
                 .draw(any(Point.class), any(String.class), any(PainterConfig.class));
         verifyNoMoreInteractions(layout[0][0]);
 
-        verify(layout[0][1]).getLevelElement();
-        verify(layout[0][1]).getTexturePath();
-        verify(layout[0][1]).getCoordinate();
+        verify(layout[0][1]).levelElement();
+        verify(layout[0][1]).texturePath();
+        verify(layout[0][1]).coordinate();
         // for some reason mocktio.verify can't compare the points of the tile correctly
         verify(painter, times(3))
                 .draw(any(Point.class), any(String.class), any(PainterConfig.class));
         verifyNoMoreInteractions(layout[0][1]);
-        verify(layout[1][0]).getLevelElement();
-        verify(layout[1][0]).getTexturePath();
-        verify(layout[1][0]).getCoordinate();
+        verify(layout[1][0]).levelElement();
+        verify(layout[1][0]).texturePath();
+        verify(layout[1][0]).coordinate();
         // for some reason mocktio.verify can't compare the points of the tile correctly
         verify(painter, times(3))
                 .draw(any(Point.class), any(String.class), any(PainterConfig.class));
         verifyNoMoreInteractions(layout[1][0]);
 
         // do not draw skip tiles
-        verify(layout[1][1]).getLevelElement();
+        verify(layout[1][1]).levelElement();
         verifyNoMoreInteractions(layout[1][1]);
         verifyNoMoreInteractions(painter);
     }

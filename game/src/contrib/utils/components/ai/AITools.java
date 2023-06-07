@@ -101,7 +101,7 @@ public class AITools {
      */
     public static Coordinate randomAccessibleTileCoordinateInRange(Point center, float radius) {
         List<Tile> tiles = accessibleTilesInRange(center, radius);
-        Coordinate newPosition = tiles.get(random.nextInt(tiles.size())).getCoordinate();
+        Coordinate newPosition = tiles.get(random.nextInt(tiles.size())).coordinate();
         return newPosition;
     }
 

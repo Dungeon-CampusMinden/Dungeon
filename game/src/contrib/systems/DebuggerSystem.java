@@ -76,7 +76,7 @@ public class DebuggerSystem extends System {
     /** Teleports the Hero to the end of the level, on a neighboring accessible tile if possible. */
     public static void TELEPORT_TO_END() {
         LOGGER.info("TELEPORT TO END");
-        Coordinate endTile = Game.endTile().getCoordinate();
+        Coordinate endTile = Game.endTile().coordinate();
         Coordinate[] neighborTiles = {
             new Coordinate(endTile.x + 1, endTile.y),
             new Coordinate(endTile.x - 1, endTile.y),
@@ -95,13 +95,13 @@ public class DebuggerSystem extends System {
     /** Will teleport the Hero on the EndTile so the next level gets loaded */
     public static void LOAD_NEXT_LEVEL() {
         LOGGER.info("TELEPORT ON END");
-        TELEPORT(Game.endTile().getCoordinate().toPoint());
+        TELEPORT(Game.endTile().coordinate().toPoint());
     }
 
     /** Teleports the hero to the start of the level. */
     public static void TELEPORT_TO_START() {
         LOGGER.info("TELEPORT TO START");
-        TELEPORT(Game.startTile().getCoordinateAsPoint());
+        TELEPORT(Game.startTile().position());
     }
 
     /**

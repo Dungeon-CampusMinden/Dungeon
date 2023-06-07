@@ -106,7 +106,7 @@ public class PatrouilleWalk implements Consumer<Entity> {
                 currentPath =
                         AITools.calculatePath(
                                 position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                                this.checkpoints.get(currentCheckpoint).coordinate().toPoint());
             }
             AITools.move(entity, currentPath);
             return;
@@ -132,14 +132,14 @@ public class PatrouilleWalk implements Consumer<Entity> {
                 currentPath =
                         AITools.calculatePath(
                                 position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                                this.checkpoints.get(currentCheckpoint).coordinate().toPoint());
             }
             case LOOP -> {
                 currentCheckpoint = (currentCheckpoint + 1) % checkpoints.size();
                 currentPath =
                         AITools.calculatePath(
                                 position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                                this.checkpoints.get(currentCheckpoint).coordinate().toPoint());
             }
             case BACK_AND_FORTH -> {
                 if (forward) {
@@ -158,7 +158,7 @@ public class PatrouilleWalk implements Consumer<Entity> {
                 currentPath =
                         AITools.calculatePath(
                                 position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                                this.checkpoints.get(currentCheckpoint).coordinate().toPoint());
             }
             default -> {}
         }

@@ -725,7 +725,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
                         hero.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        pc.setPosition(startTile().getCoordinateAsPoint());
+        pc.setPosition(startTile().position());
     }
 
     /**

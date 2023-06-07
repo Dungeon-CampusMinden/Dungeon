@@ -92,7 +92,7 @@ public interface ITileable extends IPathable {
      * @return Position of the Tile as Point
      */
     default Point randomTilePoint() {
-        return randomTile().getCoordinate().toPoint();
+        return randomTile().coordinate().toPoint();
     }
 
     /**
@@ -102,6 +102,6 @@ public interface ITileable extends IPathable {
      * @return Position of the Tile as Point
      */
     default Point randomTilePoint(LevelElement elementTyp) {
-        return randomTile(elementTyp).getCoordinate().toPoint();
+        return randomTile(elementTyp).coordinate().toPoint();
     }
 }

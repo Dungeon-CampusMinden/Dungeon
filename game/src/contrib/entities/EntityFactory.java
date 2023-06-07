@@ -115,7 +115,7 @@ public class EntityFactory {
                 IntStream.range(0, random.nextInt(1, 3))
                         .mapToObj(i -> itemDataGenerator.generateItemData())
                         .toList();
-        return newChest(itemData, Game.randomTile(LevelElement.FLOOR).getCoordinateAsPoint());
+        return newChest(itemData, Game.randomTile(LevelElement.FLOOR).position());
     }
 
     /**

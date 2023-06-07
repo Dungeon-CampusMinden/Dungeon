@@ -106,14 +106,11 @@ public class TileLevel implements ILevel {
     public void addConnectionsToNeighbours(Tile checkTile) {
         for (Coordinate v : CONNECTION_OFFSETS) {
             Coordinate c =
-                    new Coordinate(
-                            checkTile.getCoordinate().x + v.x, checkTile.getCoordinate().y + v.y);
+                    new Coordinate(checkTile.coordinate().x + v.x, checkTile.coordinate().y + v.y);
             Tile t = tileAt(c);
             if (t != null
                     && t.isAccessible()
-                    && !checkTile
-                            .getConnections()
-                            .contains(new TileConnection(checkTile, t), false)) {
+                    && !checkTile.connections().contains(new TileConnection(checkTile, t), false)) {
                 checkTile.addConnection(t);
             }
         }
@@ -184,7 +181,7 @@ public class TileLevel implements ILevel {
 
     @Override
     public void removeTile(Tile tile) {
-        switch (tile.getLevelElement()) {
+        switch (tile.levelElement()) {
             case SKIP -> skipTiles.remove(tile);
             case FLOOR -> floorTiles.remove(tile);
             case WALL -> wallTiles.remove(tile);
@@ -193,26 +190,26 @@ public class TileLevel implements ILevel {
             case EXIT -> exitTiles.remove(tile);
         }
 
-        tile.getConnections()
+        tile.connections()
                 .forEach(
                         x ->
                                 x.getToNode()
-                                        .getConnections()
+                                        .connections()
                                         .removeValue(
                                                 new TileConnection(x.getToNode(), tile), false));
-        if (tile.isAccessible()) removeIndex(tile.getIndex());
+        if (tile.isAccessible()) removeIndex(tile.index());
     }
 
     private void removeIndex(int index) {
         Arrays.stream(layout)
-                .flatMap(x -> Arrays.stream(x).filter(y -> y.getIndex() > index))
-                .forEach(x -> x.setIndex(x.getIndex() - 1));
+                .flatMap(x -> Arrays.stream(x).filter(y -> y.index() > index))
+                .forEach(x -> x.index(x.index() - 1));
         nodeCount--;
     }
 
     @Override
     public void addTile(Tile tile) {
-        switch (tile.getLevelElement()) {
+        switch (tile.levelElement()) {
             case SKIP -> addSkipTile((SkipTile) tile);
             case FLOOR -> addFloorTile((FloorTile) tile);
             case WALL -> addWallTile((WallTile) tile);
@@ -222,17 +219,17 @@ public class TileLevel implements ILevel {
         }
         if (tile.isAccessible()) {
             this.addConnectionsToNeighbours(tile);
-            tile.getConnections()
+            tile.connections()
                     .forEach(
                             x -> {
                                 if (!x.getToNode()
-                                        .getConnections()
+                                        .connections()
                                         .contains(new TileConnection(x.getToNode(), tile), false))
                                     x.getToNode().addConnection(tile);
                             });
-            tile.setIndex(nodeCount++);
+            tile.index(nodeCount++);
         }
-        tile.setLevel(this);
+        tile.level(this);
     }
 
     @Override
