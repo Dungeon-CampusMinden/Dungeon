@@ -17,8 +17,8 @@ import contrib.systems.*;
 
 import core.components.PositionComponent;
 import core.configuration.Configuration;
-import core.hud.HeroUI;
 import core.hud.UITools;
+import core.hud.heroUI.HeroUI;
 import core.level.IOnLevelLoader;
 import core.level.Tile;
 import core.level.elements.ILevel;
@@ -319,7 +319,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         getHero().ifPresent(this::placeOnLevelStart);
         getHero().ifPresent(Game::addEntity);
         try {
-            // TODO: remove this after testing
             EntityFactory.getMonster();
         } catch (IOException e) {
             LOGGER.warning("Could not create new TestEnemy: " + e.getMessage());

@@ -11,6 +11,7 @@ public class XPComponent extends Component {
     private static final double FORMULA_SLOPE = 0.5;
     private long currentLevel;
     private long currentXP;
+    private long totalXP;
     private long lootXP = -1;
     private LongConsumer callbackLevelUp;
 
@@ -66,6 +67,16 @@ public class XPComponent extends Component {
      */
     public void addXP(long xp) {
         this.currentXP = Math.max(0, currentXP + xp);
+        this.totalXP = Math.max(0, totalXP + xp);
+    }
+
+    /**
+     * Get the total xp of the entity
+     *
+     * @return total xp
+     */
+    public long getTotalXP() {
+        return totalXP;
     }
 
     /**

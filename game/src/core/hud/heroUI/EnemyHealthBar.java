@@ -1,4 +1,4 @@
-package core.hud;
+package core.hud.heroUI;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
@@ -11,8 +11,8 @@ import core.systems.CameraSystem;
 import core.utils.Constants;
 import core.utils.Point;
 
+/** This class represents the HealthBar of the enemy */
 public class EnemyHealthBar extends ProgressBar {
-
     private final Point POSITION_OFFSET = new Point(-29, 12);
     private final Entity entity;
 
