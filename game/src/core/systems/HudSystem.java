@@ -28,7 +28,7 @@ public class HudSystem extends System {
 
     @Override
     public void execute() {
-        // temporärer Fix damit die stage aktualisiert wird
+        // Temp fix until either addEntity is available or removeEntity
         getEntityStream()
                 .forEach(
                         x -> {
@@ -44,7 +44,11 @@ public class HudSystem extends System {
                                                     stage.addActor(d);
                                                 }
                                             });
-                        }); /*stage.getActors()
+                        });
+        // Temp fix until remove removeEntity is available or observer
+        /*
+
+        stage.getActors()
                                             .select(
                                                     x ->
                                                             getEntityStream()
