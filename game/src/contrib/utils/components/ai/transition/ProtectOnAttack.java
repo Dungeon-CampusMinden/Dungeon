@@ -29,11 +29,11 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
      * @param entity to protect
      */
     public ProtectOnAttack(Entity entity) {
-        if (entity.getComponent(HealthComponent.class).isEmpty()) {
+        if (!entity.isPresent(HealthComponent.class)) {
             throw (new MissingComponentException("HealthComponent"));
         }
 
-        this.toProtect.add(entity);
+        toProtect.add(entity);
     }
 
     /**

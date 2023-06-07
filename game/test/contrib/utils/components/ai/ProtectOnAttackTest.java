@@ -27,34 +27,30 @@ public class ProtectOnAttackTest {
     private HealthComponent entityHC;
 
     @Before
-    public void setUpEntities() {
+    public void setup() {
         // Get a protector
         protector = new Entity();
 
         // Get a victim and its HealthComponent
         protectedEntity = new Entity();
         entityHC = new HealthComponent(protectedEntity);
-        protectedEntity.addComponent(entityHC);
 
         // Get an attacker
         attacker = new Entity();
-        attacker.addComponent(new PlayerComponent(attacker));
-    }
+        new PlayerComponent(attacker);
 
-    /** Prepare a list of entities with a HealthComponent */
-    @Before
-    public void setUpVictimList() {
+        // Prepare a list of entities with a HealthComponent
         entitiesToProtect = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             Entity e = new Entity();
-            e.addComponent(new HealthComponent(e));
+            new HealthComponent(e);
             entitiesToProtect.add(e);
         }
     }
 
     /** Add one entity to transition and inflict damage */
     @Test
-    public void testOneEntityAdded() {
+    public void oneEntityAdded() {
         // given
         AIComponent attackerAI =
                 new AIComponent(
@@ -62,8 +58,6 @@ public class ProtectOnAttackTest {
                         new CollideAI(2f),
                         new RadiusWalk(2, 2),
                         new ProtectOnAttack(protectedEntity));
-
-        protector.addComponent(attackerAI);
 
         // when
         entityHC.receiveHit(new Damage(1, null, attacker));
@@ -74,7 +68,7 @@ public class ProtectOnAttackTest {
 
     /** Add one entity to transition and inflict no damage */
     @Test
-    public void testOneEntityAddedWithoutDamage() {
+    public void oneEntityAddedWithoutDamage() {
         // given
         AIComponent attackerAI =
                 new AIComponent(
@@ -84,27 +78,14 @@ public class ProtectOnAttackTest {
                         new ProtectOnAttack(protectedEntity));
 
         // when
-        protector.addComponent(attackerAI);
 
         // then
         assertFalse(attackerAI.getTransitionAI().apply(protector));
     }
 
-    /** Try to add a list of entities to the transition */
-    @Test
-    public void testAddListOfEntities() {
-        // when
-        AIComponent attackerAI =
-                new AIComponent(
-                        protector,
-                        new CollideAI(2f),
-                        new RadiusWalk(2, 2),
-                        new ProtectOnAttack(entitiesToProtect));
-    }
-
     /** Add a list of entities to the transition and inflict damage to all */
     @Test
-    public void addDmgToAllEntities() {
+    public void dmgToAllEntities() {
         // given
         AIComponent attackerAI =
                 new AIComponent(
@@ -127,7 +108,7 @@ public class ProtectOnAttackTest {
 
     /** Add an empty list of entities to the transition */
     @Test
-    public void addEmptyListOfEntities() {
+    public void emptyListOfEntities() {
         List<Entity> emptyList = new ArrayList<>();
         // given
         AIComponent attackerAI =
