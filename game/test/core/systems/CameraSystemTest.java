@@ -41,7 +41,7 @@ public class CameraSystemTest {
 
     @Test
     public void executeWithEntity() {
-        Game.currentLevel = level;
+        Game.currentLevel(level);
         Entity entity = new Entity();
         PositionComponent positionComponent = new PositionComponent(entity);
         new CameraComponent(entity);
@@ -56,7 +56,7 @@ public class CameraSystemTest {
     @Test
     public void executeWithoutEntity() {
         Game.removeAllEntities();
-        Game.currentLevel = level;
+        Game.currentLevel(level);
 
         expectedFocusPoint = level.startTile().position();
 
@@ -68,7 +68,7 @@ public class CameraSystemTest {
 
     @Test
     public void executeWithoutLevel() {
-        Game.currentLevel = null;
+        Game.currentLevel(null);
         Point expectedFocusPoint = new Point(0, 0);
         cameraSystem.execute();
         assertEquals(expectedFocusPoint.x, cameraSystem.camera().position.x, 0.001);

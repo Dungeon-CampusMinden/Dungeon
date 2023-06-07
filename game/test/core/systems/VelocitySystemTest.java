@@ -38,7 +38,7 @@ public class VelocitySystemTest {
 
     @Before
     public void setup() throws IOException {
-        Game.currentLevel = level;
+        Game.currentLevel(level);
         Mockito.when(level.tileAt((Point) Mockito.any())).thenReturn(tile);
         Game.removeEntity(entity);
         entity = new Entity();

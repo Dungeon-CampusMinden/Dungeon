@@ -77,13 +77,13 @@ public class ControlPointReachableTest {
             };
 
     private void cleanup() {
-        Game.currentLevel = null;
+        Game.currentLevel(null);
         Game.removeAllEntities();
     }
 
     private void setup() {
         cleanup();
-        Game.currentLevel = new TileLevel(testLayout, DesignLabel.DEFAULT);
+        Game.currentLevel(new TileLevel(testLayout, DesignLabel.DEFAULT));
     }
 
     /** Check when the Entities are on top of each other */

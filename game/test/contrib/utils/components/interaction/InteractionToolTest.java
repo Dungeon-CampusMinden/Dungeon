@@ -49,7 +49,7 @@ public class InteractionToolTest {
     private static void cleanup() {
         Game.removeAllEntities();
         Game.hero(null);
-        Game.currentLevel = null;
+        Game.currentLevel(null);
     }
 
     /** Tests the functionality when the Hero does not have the PositionComponent */
@@ -57,7 +57,7 @@ public class InteractionToolTest {
     public void interactWithClosestInteractableHeroMissingPositionComponent() {
         cleanup();
         Game.hero(testHero(false));
-        Game.currentLevel = prepareLevel();
+        Game.currentLevel(prepareLevel());
 
         MissingComponentException e =
                 assertThrows(
@@ -80,7 +80,7 @@ public class InteractionToolTest {
     public void interactWithClosestInteractableNoEntities() {
         cleanup();
         Game.hero(testHero(true));
-        Game.currentLevel = prepareLevel();
+        Game.currentLevel(prepareLevel());
         InteractionTool.interactWithClosestInteractable(Game.hero().get());
         cleanup();
     }
@@ -92,7 +92,7 @@ public class InteractionToolTest {
     public void interactWithClosestInteractableNoInteractable() {
         cleanup();
         Game.hero(testHero(true));
-        Game.currentLevel = prepareLevel();
+        Game.currentLevel(prepareLevel());
         Game.addEntity(Game.hero().get());
         InteractionTool.interactWithClosestInteractable(Game.hero().get());
         cleanup();
@@ -106,7 +106,7 @@ public class InteractionToolTest {
     public void interactWithClosestInteractableOneInteractableOutOfRange() {
         cleanup();
         Game.hero(testHero(true));
-        Game.currentLevel = prepareLevel();
+        Game.currentLevel(prepareLevel());
 
         Entity e = new Entity();
         new PositionComponent(e, new Point(10, 10));

@@ -111,14 +111,14 @@ public class ChestTest {
     @Test
     public void checkGeneratorMethod() throws IOException {
         cleanup();
-        Game.currentLevel =
+        Game.currentLevel(
                 new TileLevel(
                         new LevelElement[][] {
                             new LevelElement[] {
                                 LevelElement.FLOOR,
                             }
                         },
-                        DesignLabel.DEFAULT);
+                        DesignLabel.DEFAULT));
 
         Entity newChest = EntityFactory.newChest();
 
