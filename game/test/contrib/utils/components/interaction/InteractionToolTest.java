@@ -48,7 +48,7 @@ public class InteractionToolTest {
     /** cleanup to reset static Attributes from Game used by the InteractionTool */
     private static void cleanup() {
         Game.removeAllEntities();
-        Game.setHero(null);
+        Game.hero(null);
         Game.currentLevel = null;
     }
 
@@ -56,7 +56,7 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableHeroMissingPositionComponent() {
         cleanup();
-        Game.setHero(testHero(false));
+        Game.hero(testHero(false));
         Game.currentLevel = prepareLevel();
 
         MissingComponentException e =
@@ -64,7 +64,7 @@ public class InteractionToolTest {
                         MissingComponentException.class,
                         () ->
                                 InteractionTool.interactWithClosestInteractable(
-                                        Game.getHero().get()));
+                                        Game.hero().get()));
         assertTrue(
                 "Errormessage should contain information where the Exception was thrown.",
                 e.getMessage().contains(InteractionTool.class.getName()));
@@ -81,9 +81,9 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableNoEntities() {
         cleanup();
-        Game.setHero(testHero(true));
+        Game.hero(testHero(true));
         Game.currentLevel = prepareLevel();
-        InteractionTool.interactWithClosestInteractable(Game.getHero().get());
+        InteractionTool.interactWithClosestInteractable(Game.hero().get());
         cleanup();
     }
 
@@ -93,10 +93,10 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableNoInteractable() {
         cleanup();
-        Game.setHero(testHero(true));
+        Game.hero(testHero(true));
         Game.currentLevel = prepareLevel();
-        Game.addEntity(Game.getHero().get());
-        InteractionTool.interactWithClosestInteractable(Game.getHero().get());
+        Game.addEntity(Game.hero().get());
+        InteractionTool.interactWithClosestInteractable(Game.hero().get());
         cleanup();
     }
 
@@ -107,7 +107,7 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableOneInteractableOutOfRange() {
         cleanup();
-        Game.setHero(testHero(true));
+        Game.hero(testHero(true));
         Game.currentLevel = prepareLevel();
 
         Entity e = new Entity();
@@ -116,7 +116,7 @@ public class InteractionToolTest {
         SimpleCounter sc_e = new SimpleCounter();
         new InteractionComponent(e, 5f, false, (x) -> sc_e.inc());
 
-        InteractionTool.interactWithClosestInteractable(Game.getHero().get());
+        InteractionTool.interactWithClosestInteractable(Game.hero().get());
         assertEquals("No interaction should happen", 0, sc_e.getCount());
 
         cleanup();

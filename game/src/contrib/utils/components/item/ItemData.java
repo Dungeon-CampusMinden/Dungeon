@@ -219,7 +219,7 @@ public class ItemData {
      */
     private static void defaultCollect(Entity worldItem, Entity whoCollected) {
         // check if the Game has a Hero
-        Game.getHero()
+        Game.hero()
                 .ifPresent(
                         hero -> {
                             // check if entity picking up Item is the Hero

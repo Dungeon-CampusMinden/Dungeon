@@ -53,7 +53,7 @@ public abstract class System {
         else this.additionalComponents = new HashSet<>();
         entities = new HashSet<>();
         Game.addSystem(this);
-        Game.getEntityStream().forEach(this::showEntity);
+        Game.entityStream().forEach(this::showEntity);
         run = true;
         LOGGER.info("A new " + this.getClass().getName() + " was created");
     }

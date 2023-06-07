@@ -182,7 +182,7 @@ public class AITools {
      * @return Path from the entity to the hero, if there is no hero, path from the entity to itself
      */
     public static GraphPath<Tile> calculatePathToHero(Entity entity) {
-        Optional<Entity> hero = Game.getHero();
+        Optional<Entity> hero = Game.hero();
         if (hero.isPresent()) return calculatePath(entity, hero.get());
         else return calculatePath(entity, entity);
     }
@@ -232,7 +232,7 @@ public class AITools {
      */
     public static boolean playerInRange(Entity entity, float range) {
 
-        Optional<Entity> hero = Game.getHero();
+        Optional<Entity> hero = Game.hero();
         if (hero.isPresent()) return entityInRange(entity, hero.get(), range);
         else return false;
     }

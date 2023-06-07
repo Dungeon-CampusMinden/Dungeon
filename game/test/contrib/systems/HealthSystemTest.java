@@ -34,7 +34,7 @@ public class HealthSystemTest {
 
         system.execute();
         assertTrue(ac.isCurrentAnimation(AdditionalAnimations.DIE));
-        assertFalse(Game.getEntityStream().anyMatch(e -> e == entity));
+        assertFalse(Game.entityStream().anyMatch(e -> e == entity));
     }
 
     @Test

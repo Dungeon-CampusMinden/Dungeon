@@ -37,7 +37,7 @@ public class RangeAI implements Consumer<Entity> {
             throw new Error(
                     "attackRange must be greater than distance and distance must be 0 or greater than 0");
         }
-        if (Game.getHero().isEmpty()) {
+        if (Game.hero().isEmpty()) {
             throw new Error("There must be a Hero in the Game!");
         }
         this.attackRange = attackRange;
@@ -52,7 +52,7 @@ public class RangeAI implements Consumer<Entity> {
 
         if (playerInAttackRange) {
             if (playerInDistanceRange) {
-                Point positionHero = getPosition(Game.getHero().orElseThrow());
+                Point positionHero = getPosition(Game.hero().orElseThrow());
                 Point positionEntity = getPosition(entity);
                 List<Tile> tiles =
                         getAccessibleTilesInRange(positionEntity, attackRange - distance);

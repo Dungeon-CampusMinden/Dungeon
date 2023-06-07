@@ -304,7 +304,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * @return a stream of all entities currently in the game
      */
-    public static Stream<Entity> getEntityStream() {
+    public static Stream<Entity> entityStream() {
         return entities.stream();
     }
 
@@ -312,7 +312,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @return the player character, can be null if not initialized
      * @see Optional
      */
-    public static Optional<Entity> getHero() {
+    public static Optional<Entity> hero() {
         return Optional.ofNullable(hero);
     }
 
@@ -323,7 +323,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * @param hero the new reference of the hero
      */
-    public static void setHero(Entity hero) {
+    public static void hero(Entity hero) {
         Game.hero = hero;
     }
 
@@ -498,7 +498,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * <p>This is the place to add basic logic that isn't part of any system.
      */
     private void onFrame() {
-        getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
+        hero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         debugKeys();
         userFrame.execute();
     }
@@ -561,8 +561,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     public void onLevelLoad() {
         currentLevel = levelManager.getCurrentLevel();
         removeAllEntities();
-        getHero().ifPresent(this::placeOnLevelStart);
-        getHero().ifPresent(Game::addEntity);
+        hero().ifPresent(this::placeOnLevelStart);
+        hero().ifPresent(Game::addEntity);
         userOnLevelLoad.execute();
     }
 

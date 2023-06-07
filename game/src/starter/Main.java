@@ -13,7 +13,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Logger LOGGER = Logger.getLogger("Main");
         // start the game
-        Game.setHero(EntityFactory.getHero());
+        Game.hero(EntityFactory.getHero());
         Game.loadConfig("dungeon_config.json", KeyboardConfig.class);
         Game.frameRate(60);
         Game.disableAudio(true);

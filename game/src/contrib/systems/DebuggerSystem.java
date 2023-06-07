@@ -110,10 +110,10 @@ public class DebuggerSystem extends System {
      * @param targetLocation the location to teleport to
      */
     public static void TELEPORT(Point targetLocation) {
-        if (Game.getHero().isPresent()) {
+        if (Game.hero().isPresent()) {
             PositionComponent pc =
                     (PositionComponent)
-                            Game.getHero()
+                            Game.hero()
                                     .get()
                                     .getComponent(PositionComponent.class)
                                     .orElseThrow(
