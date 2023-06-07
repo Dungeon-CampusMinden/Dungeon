@@ -55,7 +55,7 @@ public class RangeAI implements Consumer<Entity> {
                 List<Tile> tiles = accessibleTilesInRange(positionEntity, attackRange - distance);
                 boolean newPositionFound = false;
                 for (Tile tile : tiles) {
-                    Point newPosition = tile.coordinate().toPoint();
+                    Point newPosition = tile.position();
                     if (!AITools.inRange(newPosition, positionHero, distance)) {
                         path = AITools.calculatePath(positionEntity, newPosition);
                         newPositionFound = true;

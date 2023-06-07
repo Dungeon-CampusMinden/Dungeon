@@ -101,7 +101,7 @@ public class LevelManager {
                     if (!mapping.containsKey(texturePath)) {
                         mapping.put(texturePath, new PainterConfig(texturePath));
                     }
-                    painter.draw(t.coordinate().toPoint(), texturePath, mapping.get(texturePath));
+                    painter.draw(t.position(), texturePath, mapping.get(texturePath));
                 }
             }
         }
