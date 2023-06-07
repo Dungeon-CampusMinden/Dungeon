@@ -17,8 +17,7 @@ public class ControlPointReachable implements Function<InteractionData, Boolean>
             // check path
             Point dirvec = interactionData.unitDir();
             for (int i = 1; i < interactionData.dist(); i++) {
-                if (!Game.currentLevel
-                        .getTileAt(
+                if (!Game.tileAT(
                                 new Coordinate(
                                         (int) (dirvec.x * i + interactionData.pc().getPosition().x),
                                         (int)

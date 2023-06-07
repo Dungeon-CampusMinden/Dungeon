@@ -7,7 +7,6 @@ import core.Game;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
-import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
@@ -39,8 +38,7 @@ public class AITools {
                         entity.getComponent(VelocityComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("VelocityComponent"));
-        ILevel level = Game.currentLevel;
-        Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
+        Tile currentTile = Game.tileAT(pc.getPosition());
         int i = 0;
         Tile nextTile = null;
         while (nextTile == null && i < path.getCount()) {
@@ -76,10 +74,9 @@ public class AITools {
      */
     public static List<Tile> getTilesInRange(Point center, float radius) {
         List<Tile> tiles = new ArrayList<>();
-        ILevel level = Game.currentLevel;
         for (float x = center.x - radius; x <= center.x + radius; x++) {
             for (float y = center.y - radius; y <= center.y + radius; y++) {
-                tiles.add(level.getTileAt(new Point(x, y).toCoordinate()));
+                tiles.add(Game.tileAT(new Point(x, y)));
             }
         }
         tiles.removeIf(Objects::isNull);
@@ -123,8 +120,7 @@ public class AITools {
      * @return Path from the start coordinate to the end coordinate
      */
     public static GraphPath<Tile> calculatePath(Coordinate from, Coordinate to) {
-        ILevel level = Game.currentLevel;
-        return level.findPath(level.getTileAt(from), level.getTileAt(to));
+        return Game.currentLevel.findPath(Game.tileAT(from), Game.tileAT(to));
     }
 
     /**
@@ -254,13 +250,10 @@ public class AITools {
                         entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        ILevel level = Game.currentLevel;
-        boolean finished =
-                path.get(path.getCount() - 1)
-                        .equals(level.getTileAt(pc.getPosition().toCoordinate()));
+        boolean finished = path.get(path.getCount() - 1).equals(Game.tileAT(pc.getPosition()));
 
         boolean onPath = false;
-        Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
+        Tile currentTile = Game.tileAT(pc.getPosition());
         for (Tile tile : path) {
             if (currentTile == tile) onPath = true;
         }
@@ -281,9 +274,7 @@ public class AITools {
                         entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        ILevel level = Game.currentLevel;
-        return path.get(path.getCount() - 1)
-                .equals(level.getTileAt(pc.getPosition().toCoordinate()));
+        return path.get(path.getCount() - 1).equals(Game.tileAT(pc.getPosition()));
     }
 
     /**
@@ -299,9 +290,8 @@ public class AITools {
                         entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        ILevel level = Game.currentLevel;
         boolean onPath = false;
-        Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
+        Tile currentTile = Game.tileAT(pc.getPosition());
         for (Tile tile : path) {
             if (currentTile == tile) onPath = true;
         }

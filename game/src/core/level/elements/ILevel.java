@@ -11,7 +11,7 @@ public interface ILevel extends ITileable {
 
     /** Mark a random tile as start */
     default void setRandomStart() {
-        setStartTile(getRandomTile(LevelElement.FLOOR));
+        setStartTile(randomTile(LevelElement.FLOOR));
     }
 
     /**
@@ -181,7 +181,7 @@ public interface ILevel extends ITileable {
     }
 
     @Override
-    default Tile getRandomTile(LevelElement elementType) {
+    default Tile randomTile(LevelElement elementType) {
         return switch (elementType) {
             case SKIP -> getSkipTiles().size() > 0
                     ? getSkipTiles().get(RANDOM.nextInt(getSkipTiles().size()))
@@ -208,6 +208,6 @@ public interface ILevel extends ITileable {
      * @return random floor tile
      */
     default Tile getRandomFloorTile() {
-        return getRandomTile(LevelElement.FLOOR);
+        return randomTile(LevelElement.FLOOR);
     }
 }

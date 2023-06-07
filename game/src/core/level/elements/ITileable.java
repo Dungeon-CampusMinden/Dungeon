@@ -11,29 +11,43 @@ import java.util.Random;
 
 public interface ITileable extends IPathable {
     Random RANDOM = new Random();
+
     /**
      * @return The layout of the level
      */
     Tile[][] getLayout();
 
     /**
-     * Get a tile on the global position.
+     * Get the tile at the given position.
      *
-     * @param globalPoint Position form where to get the tile.
-     * @return The tile on that point. null if there is no Tile or the Coordinate is out of bound
+     * @param coordinate Position form where to get the tile.
+     * @return The tile on that coordinate. null if there is no Tile or the Coordinate is out of
+     *     bound
      */
-    default Tile getTileAt(Coordinate globalPoint) {
+    default Tile tileAt(Coordinate coordinate) {
         try {
-            return getLayout()[globalPoint.y][globalPoint.x];
+            return getLayout()[coordinate.y][coordinate.x];
         } catch (IndexOutOfBoundsException e) {
             return null;
         }
     }
 
     /**
+     * Get the tile at the given position.
+     *
+     * <p>Will use {@link Point#toCoordinate} to convert the point into a coordinate.
+     *
+     * @param point Position form where to get the tile.
+     * @return The tile on that point. null if there is no Tile or the Coordinate is out of bound
+     */
+    default Tile tileAt(Point point) {
+        return tileAt(point.toCoordinate());
+    }
+
+    /**
      * @return a random Tile in the Level
      */
-    default Tile getRandomTile() {
+    default Tile randomTile() {
         return getLayout()[RANDOM.nextInt(getLayout().length)][
                 RANDOM.nextInt(getLayout()[0].length)];
     }
@@ -61,7 +75,7 @@ public interface ITileable extends IPathable {
     default Tile getTileAtEntity(Entity entity) {
         PositionComponent pc =
                 (PositionComponent) entity.getComponent(PositionComponent.class).get();
-        return getTileAt(pc.getPosition().toCoordinate());
+        return tileAt(pc.getPosition().toCoordinate());
     }
 
     /**
@@ -70,7 +84,7 @@ public interface ITileable extends IPathable {
      * @param elementType Type of the Tile
      * @return A random Tile of the given Type
      */
-    Tile getRandomTile(LevelElement elementType);
+    Tile randomTile(LevelElement elementType);
 
     /**
      * Get the position of a random Tile as Point
@@ -78,7 +92,7 @@ public interface ITileable extends IPathable {
      * @return Position of the Tile as Point
      */
     default Point getRandomTilePoint() {
-        return getRandomTile().getCoordinate().toPoint();
+        return randomTile().getCoordinate().toPoint();
     }
 
     /**
@@ -88,6 +102,6 @@ public interface ITileable extends IPathable {
      * @return Position of the Tile as Point
      */
     default Point getRandomTilePoint(LevelElement elementTyp) {
-        return getRandomTile(elementTyp).getCoordinate().toPoint();
+        return randomTile(elementTyp).getCoordinate().toPoint();
     }
 }

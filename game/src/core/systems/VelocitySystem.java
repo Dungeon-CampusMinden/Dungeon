@@ -56,7 +56,7 @@ public class VelocitySystem extends System {
         float newX = vsd.pc.getPosition().x + vsd.vc.getCurrentXVelocity();
         float newY = vsd.pc.getPosition().y + vsd.vc.getCurrentYVelocity();
         Point newPosition = new Point(newX, newY);
-        if (Game.currentLevel.getTileAt(newPosition.toCoordinate()).isAccessible()) {
+        if (Game.currentLevel.tileAt(newPosition.toCoordinate()).isAccessible()) {
             vsd.pc.setPosition(newPosition);
             movementAnimation(vsd);
         }

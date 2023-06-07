@@ -67,7 +67,7 @@ public class PatrouilleWalk implements Consumer<Entity> {
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         Point center = position.getPosition();
-        Tile tile = Game.currentLevel.getTileAt(position.getPosition().toCoordinate());
+        Tile tile = Game.tileAT(position.getPosition());
 
         if (tile == null) {
             return;

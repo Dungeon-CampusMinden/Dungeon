@@ -282,8 +282,8 @@ public class TileLevelTest {
             levelElement[i][1] = LevelElement.FLOOR;
         }
         var level = new TileLevel(levelElement, DesignLabel.randomDesign());
-        var start = level.getTileAt(new Coordinate(1, 0));
-        var end = level.getTileAt(new Coordinate(1, 2));
+        var start = level.tileAt(new Coordinate(1, 0));
+        var end = level.tileAt(new Coordinate(1, 2));
         var path = level.findPath(end, start);
         assertEquals(3, path.getCount());
     }
@@ -296,8 +296,8 @@ public class TileLevelTest {
             levelElement[i][0] = LevelElement.FLOOR;
         }
         var level = new TileLevel(levelElement, DesignLabel.randomDesign());
-        var start = level.getTileAt(new Coordinate(0, 0));
-        var end = level.getTileAt(new Coordinate(0, 2));
+        var start = level.tileAt(new Coordinate(0, 0));
+        var end = level.tileAt(new Coordinate(0, 2));
         var path = level.findPath(end, start);
         assertEquals(3, path.getCount());
     }
@@ -311,7 +311,7 @@ public class TileLevelTest {
         }
         levelLayout[0][0] = LevelElement.EXIT;
         var level = new TileLevel(levelLayout, DesignLabel.randomDesign());
-        assertEquals(levelLayout[1][2], level.getTileAt(new Coordinate(2, 1)).getLevelElement());
+        assertEquals(levelLayout[1][2], level.tileAt(new Coordinate(2, 1)).getLevelElement());
     }
 
     @Test
@@ -321,7 +321,7 @@ public class TileLevelTest {
             Arrays.fill(levelLayout[y], LevelElement.FLOOR);
         }
         var level = new TileLevel(levelLayout, DesignLabel.randomDesign());
-        assertNotNull(level.getRandomTile());
+        assertNotNull(level.randomTile());
     }
 
     @Test
@@ -342,7 +342,7 @@ public class TileLevelTest {
 
         Point randomWallPoint = tileLevel.getRandomTilePoint(LevelElement.WALL);
         assertNotNull(randomWallPoint);
-        Tile randomWall = tileLevel.getTileAt(randomWallPoint.toCoordinate());
+        Tile randomWall = tileLevel.tileAt(randomWallPoint.toCoordinate());
         assertNotNull(randomWall);
         assertEquals(LevelElement.WALL, randomWall.getLevelElement());
     }
@@ -356,7 +356,7 @@ public class TileLevelTest {
         var level = new TileLevel(levelLayout, DesignLabel.randomDesign());
         Point randomPoint = level.getRandomTilePoint();
         assertNotNull(randomPoint);
-        assertNotNull(level.getTileAt(randomPoint.toCoordinate()));
+        assertNotNull(level.tileAt(randomPoint.toCoordinate()));
     }
 
     @Test
@@ -377,8 +377,8 @@ public class TileLevelTest {
 
         Point randomWallPoint = tileLevel.getRandomTilePoint(LevelElement.WALL);
         Point randomFloorPoint = tileLevel.getRandomTilePoint(LevelElement.FLOOR);
-        Tile randomWall = tileLevel.getTileAt(randomWallPoint.toCoordinate());
-        Tile randomFloor = tileLevel.getTileAt(randomFloorPoint.toCoordinate());
+        Tile randomWall = tileLevel.tileAt(randomWallPoint.toCoordinate());
+        Tile randomFloor = tileLevel.tileAt(randomFloorPoint.toCoordinate());
         assertEquals(LevelElement.WALL, randomWall.getLevelElement());
         assertEquals(LevelElement.FLOOR, randomFloor.getLevelElement());
     }
@@ -646,7 +646,7 @@ public class TileLevelTest {
                     new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
                 };
         TileLevel level = new TileLevel(layout, DesignLabel.DEFAULT);
-        level.changeTileElementType(level.getTileAt(new Coordinate(0, 0)), LevelElement.FLOOR);
+        level.changeTileElementType(level.tileAt(new Coordinate(0, 0)), LevelElement.FLOOR);
         assertEquals(3, level.getNodeCount());
         AtomicInteger counter = new AtomicInteger();
         Arrays.stream(level.getLayout())
@@ -664,7 +664,7 @@ public class TileLevelTest {
                     new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
                 };
         TileLevel level = new TileLevel(layout, DesignLabel.DEFAULT);
-        level.changeTileElementType(level.getTileAt(new Coordinate(0, 0)), LevelElement.EXIT);
+        level.changeTileElementType(level.tileAt(new Coordinate(0, 0)), LevelElement.EXIT);
         assertEquals(3, level.getNodeCount());
         AtomicInteger counter = new AtomicInteger();
         Arrays.stream(level.getLayout())
@@ -682,7 +682,7 @@ public class TileLevelTest {
                     new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
                 };
         TileLevel level = new TileLevel(layout, DesignLabel.DEFAULT);
-        level.changeTileElementType(level.getTileAt(new Coordinate(0, 0)), LevelElement.WALL);
+        level.changeTileElementType(level.tileAt(new Coordinate(0, 0)), LevelElement.WALL);
         assertEquals(2, level.getNodeCount());
         AtomicInteger counter = new AtomicInteger();
         Arrays.stream(level.getLayout())
@@ -711,7 +711,7 @@ public class TileLevelTest {
                 .sorted(Comparator.comparingInt(Tile::getIndex))
                 .filter(Tile::isAccessible)
                 .forEachOrdered(x -> assertEquals(counter.getAndIncrement(), x.getIndex()));
-        assertNotEquals(LevelElement.WALL, level.getTileAt(new Coordinate(1, 0)).getLevelElement());
+        assertNotEquals(LevelElement.WALL, level.tileAt(new Coordinate(1, 0)).getLevelElement());
         assertEquals(3, counter.get());
     }
 }

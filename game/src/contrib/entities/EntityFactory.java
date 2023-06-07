@@ -117,7 +117,7 @@ public class EntityFactory {
                         .toList();
         return getChest(
                 itemData,
-                Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint());
+                Game.currentLevel.randomTile(LevelElement.FLOOR).getCoordinate().toPoint());
     }
 
     /**

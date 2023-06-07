@@ -84,7 +84,7 @@ public class DebuggerSystem extends System {
             new Coordinate(endTile.x, endTile.y - 1)
         };
         for (Coordinate neighborTile : neighborTiles) {
-            Tile neighbor = Game.currentLevel.getTileAt(neighborTile);
+            Tile neighbor = Game.tileAT(neighborTile);
             if (neighbor.isAccessible()) {
                 TELEPORT(neighborTile.toPoint());
                 return;
@@ -125,7 +125,7 @@ public class DebuggerSystem extends System {
             LOGGER.log(
                     CustomLogLevel.DEBUG,
                     "Trying to teleport to " + targetLocation.x + ":" + targetLocation.y);
-            Tile t = Game.currentLevel.getTileAt(targetLocation.toCoordinate());
+            Tile t = Game.tileAT(targetLocation);
             if (t == null || !t.isAccessible()) {
                 LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
                 return;
@@ -164,7 +164,7 @@ public class DebuggerSystem extends System {
         // Get the tile at the given position
         Tile tile = null;
         try {
-            tile = Game.currentLevel.getTileAt(position.toCoordinate());
+            tile = Game.tileAT(position);
         } catch (NullPointerException ex) {
             LOGGER.info(ex.getMessage());
         }

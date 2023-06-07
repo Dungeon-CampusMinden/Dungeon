@@ -62,7 +62,7 @@ public class RoomGenerator {
      */
     public IRoom getLevel(
             DesignLabel designLabel, LevelSize size, DoorDirection[] doors, LevelNode node) {
-        Room room = new Room(getLayout(size, doors), designLabel, node);
+        Room room = new Room(layout(size, doors), designLabel, node);
         addDoorTilesToRoom(room);
         return room;
     }
@@ -74,7 +74,7 @@ public class RoomGenerator {
      * @param doors Array of DoorDirections to specify where doors should be generated
      * @return The generated room layout
      */
-    public LevelElement[][] getLayout(LevelSize size, DoorDirection[] doors) {
+    public LevelElement[][] layout(LevelSize size, DoorDirection[] doors) {
         return generateRoom(size, RANDOM.nextLong(), doors);
     }
 
