@@ -18,7 +18,6 @@ import runtime.*;
 
 import semanticanalysis.Scope;
 import semanticanalysis.SemanticAnalyzer;
-import semanticanalysis.Symbol;
 import semanticanalysis.types.*;
 
 import java.io.ByteArrayOutputStream;
@@ -209,34 +208,6 @@ public class TestDSLInterpreter {
         assertEquals("Hello, World!", member2Value.getInternalObject());
     }
 
-    @DSLType(name = "quest_config")
-    public record CustomQuestConfig(@DSLTypeMember Entity entity) {}
-
-    class TestEnvironment extends GameEnvironment {
-        public TestEnvironment() {
-            super();
-        }
-
-        @Override
-        protected void bindBuiltIns() {
-            for (IType type : BUILT_IN_TYPES) {
-                // load custom QuestConfig
-                if (!type.getName().equals("quest_config")
-                        && !type.getName().equals("game_object")) {
-                    globalScope.bind((Symbol) type);
-                }
-            }
-
-            var questConfigType =
-                    this.getTypeBuilder().createTypeFromClass(Scope.NULL, CustomQuestConfig.class);
-            loadTypes(List.of(new IType[]{questConfigType}));
-
-            for (Symbol func : NATIVE_FUNCTIONS) {
-                globalScope.bind(func);
-            }
-        }
-    }
-
     @Test
     public void aggregateTypeInstancing() {
         String program =
@@ -274,7 +245,7 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         interpreter.initializeRuntime(env);
 
-        var entity = ((CustomQuestConfig) interpreter.generateQuestConfig(ast)).entity;
+        var entity = ((CustomQuestConfig) interpreter.generateQuestConfig(ast)).entity();
         var rtEnv = interpreter.getRuntimeEnvironment();
         var globalMs = interpreter.getGlobalMemorySpace();
 
@@ -399,15 +370,10 @@ public class TestDSLInterpreter {
                         .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
         var externalType = env.getTypeBuilder().createTypeFromClass(Scope.NULL, ExternalType.class);
         env.loadTypes(
-            List.of(new IType[]{
-                entityType, testCompType, externalComponentType, externalType
-            }));
-
-        var typesToLoad =
-                new semanticanalysis.types.IType[] {
-                    entityType, testCompType, externalComponentType
-                };
-        env.loadTypes(List.of(typesToLoad));
+                List.of(
+                        new IType[] {
+                            entityType, testCompType, externalComponentType, externalType
+                        }));
 
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
