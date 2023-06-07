@@ -152,6 +152,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private boolean doSetup = true;
     private DebuggerSystem debugger;
+
     // for singleton
     private Game() {}
 
