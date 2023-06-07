@@ -62,9 +62,7 @@ public class InteractionToolTest {
         MissingComponentException e =
                 assertThrows(
                         MissingComponentException.class,
-                        () ->
-                                InteractionTool.interactWithClosestInteractable(
-                                        Game.hero().get()));
+                        () -> InteractionTool.interactWithClosestInteractable(Game.hero().get()));
         assertTrue(
                 "Errormessage should contain information where the Exception was thrown.",
                 e.getMessage().contains(InteractionTool.class.getName()));
