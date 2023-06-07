@@ -6,6 +6,8 @@ import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
 import tools.Constants;
 
+import java.util.logging.Logger;
+
 /**
  * Duration skill that increases the speed
  */
@@ -16,12 +18,13 @@ public class Swiftness implements IDurationSkillFunction {
             originalYSpeed;
     private int manaCost;
     private VelocityComponent velocity;
+    private transient final Logger swiftnessLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * Creates a new Wisdom skill
      * <p/>
      * The Wisdom skill increases the XP wielder earns
-     * 
+     *
      * @param durationIneconds the duration in seconds
      * @param xSpeedMultiplier the speed multiplier on the x axis
      * @param ySpeedMultiplier the speed multiplier on the y axis
@@ -39,6 +42,7 @@ public class Swiftness implements IDurationSkillFunction {
         originalXSpeed = velocity.getXVelocity();
         originalYSpeed = velocity.getYVelocity();
         this.manaCost = manaCost;
+        swiftnessLogger.info("SwiftnessSkill was executed");
     }
 
     /**
@@ -51,7 +55,7 @@ public class Swiftness implements IDurationSkillFunction {
      * The standard speed multiplier is {@code 2.0f}
      * <p/>
      * The standard manaCost is {@code 20}
-     * 
+     *
      * @param entity the entity that owns this skill
      */
     public Swiftness(Entity entity) {

@@ -7,6 +7,8 @@ import ecs.components.stats.XPModifier;
 import ecs.entities.Entity;
 import tools.Constants;
 
+import java.util.logging.Logger;
+
 /**
  * Duration skill that increases the xp gain
  */
@@ -15,12 +17,13 @@ public class Wisdom implements IDurationSkillFunction {
     private float durationInFrames, currentDurationInFrames = 0.0f, xpMultiplier = 1.0f, originalXPMultiplier;
     private int manaCost;
     private StatsComponent stats;
+    private transient final Logger wisdomLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * Creates a new Wisdom skill
      * <p/>
      * The Wisdom skill increases the XP wielder earns
-     * 
+     *
      * @param durationIneconds the duration in seconds
      * @param xpMultiplier     the xp multiplier
      * @param entity           the entity that owns this skill
@@ -46,7 +49,7 @@ public class Wisdom implements IDurationSkillFunction {
      * The standard multiplier is {@code 3.0f}
      * <p/>
      * The standard manaCost is {@code 100}
-     * 
+     *
      * @param entity the entity that owns this skill
      */
     public Wisdom(Entity entity) {
@@ -60,6 +63,7 @@ public class Wisdom implements IDurationSkillFunction {
         if (entity.getComponent(ManaComponent.class).map(ManaComponent.class::cast).get().spendMana(manaCost)) {
             stats.setXpModifier(new XPModifier(originalXPMultiplier * xpMultiplier));
             activateDuration();
+            wisdomLogger.info("WisdomSkill was executed");
         }
     }
 

@@ -7,6 +7,8 @@ import ecs.components.VelocityComponent;
 import ecs.entities.Entity;
 import tools.Point;
 
+import java.util.logging.Logger;
+
 /**
  * Teleportation Skill
  */
@@ -15,10 +17,11 @@ public class Blink implements ISkillFunction {
     private ITargetSelection targetSelection;
     private float range;
     private int manaCost;
+    private transient final Logger blinkLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * Creates a new Blink skill with the given parameters
-     * 
+     *
      * @param targetSelection the target selection
      * @param range           the range
      * @param manaCost        the mana cost
@@ -44,6 +47,7 @@ public class Blink implements ISkillFunction {
             yDistance = Math.abs(yDistance) > range ? lastPoint.y - position.getPosition().y : yDistance;
             velocity.setCurrentXVelocity(xDistance);
             velocity.setCurrentYVelocity(yDistance);
+            blinkLogger.info("BlinkSkill was executed");
         }
     }
 

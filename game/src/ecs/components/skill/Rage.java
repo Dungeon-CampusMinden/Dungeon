@@ -7,6 +7,8 @@ import ecs.damage.DamageType;
 import ecs.entities.Entity;
 import tools.Constants;
 
+import java.util.logging.Logger;
+
 /**
  * Duration skill that increases the physical damage
  */
@@ -15,17 +17,18 @@ public class Rage implements IDurationSkillFunction {
     private float durationInFrames, currentDurationInFrames = 0.0f, damageMultiplier = 1.0f, originalDamageMultiplier;
     private int manaCost;
     private StatsComponent stats;
+    private transient final Logger rangeLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * Creates a new Rage skill
      * <p/>
      * The Rage skill increases the Physical damage the wielder deals
-     * 
+     *
      * @param durationIneconds time how long the skill lasts in seconds
      * @param damageMultiplier multiplier to increase the physical damage
      * @param entity           the entity that owns this Skill
      * @param manaCost         the amount of mana needed to activate this Skill
-     * 
+     *
      */
     public Rage(float durationIneconds, float damageMultiplier, Entity entity, int manaCost) {
         if (!entity.getComponent(StatsComponent.class).isPresent())
@@ -47,9 +50,9 @@ public class Rage implements IDurationSkillFunction {
      * The standard multiplier is {@code 2.0f}
      * <p/>
      * The standard manaCost is {@code 10}
-     * 
+     *
      * @param entity the entity that owns this Skill
-     * 
+     *
      */
     public Rage(Entity entity) {
         this(10, 2.0f, entity, 10);
@@ -62,6 +65,7 @@ public class Rage implements IDurationSkillFunction {
         if (entity.getComponent(ManaComponent.class).map(ManaComponent.class::cast).get().spendMana(manaCost)) {
             stats.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, originalDamageMultiplier * damageMultiplier);
             activateDuration();
+            rangeLogger.info("RangeSkill was executed");
         }
     }
 
