@@ -10,9 +10,9 @@ import starter.Game;
 import tools.Point;
 
 /**
- * This NpcWalk is used to let the Npc walk randomly.
- *
- * The NpcWalk is a walk, that randomly decide between follow the Player, walk
+ * This GhostWalk is used to let the Npc walk randomly.
+ * <p>
+ * The GhostWalk is a walk, that randomly decide between follow the Player, walk
  * random or despawn.
  */
 public class GhostWalk implements IIdleAI {
