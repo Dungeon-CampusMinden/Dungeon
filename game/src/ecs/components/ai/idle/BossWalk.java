@@ -30,7 +30,6 @@ public class BossWalk implements IIdleAI {
 
     /**
      * The Boss is in 2 of 99 times walking. The Boss is walking to a random Point (with a distance of 5 to 10 tiles).
-     * @param entity associated entity
      */
 
     public BossWalk(){
