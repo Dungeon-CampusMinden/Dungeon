@@ -26,8 +26,8 @@ public class DialogDesign extends VerticalGroup {
         left();
     }
 
-    private static ScrollPane createScrollPane(Skin skin, Actor labelContent) {
-        ScrollPane scrollPane = new ScrollPane(labelContent, skin);
+    private static ScrollPane createScrollPane(Skin skin, Actor container) {
+        ScrollPane scrollPane = new ScrollPane(container, skin);
         scrollPane.setFadeScrollBars(false);
         scrollPane.setScrollbarsVisible(true);
         return scrollPane;
