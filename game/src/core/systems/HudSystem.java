@@ -6,7 +6,7 @@ import core.Game;
 import core.System;
 import core.components.UIComponent;
 
-public class HudSystem extends System {
+public final class HudSystem extends System {
 
     public HudSystem() {
         super(UIComponent.class);
