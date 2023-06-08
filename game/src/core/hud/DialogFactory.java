@@ -28,8 +28,13 @@ public class DialogFactory {
         Dialog textDialog = new TextDialog(title, skin, resultHandler);
         DialogDesign dialogDesign = new DialogDesign();
         dialogDesign.QuizQuestion(quizQuestion, skin, outputMsg);
-        textDialog.addActor(dialogDesign);
         textDialog.button(buttonMsg, buttonMsg);
+        textDialog
+                .getContentTable()
+                .add(dialogDesign)
+                .expand()
+                .fill(); // changes size based on childrens
+        textDialog.pack(); // resizes to size
         return textDialog;
     }
 

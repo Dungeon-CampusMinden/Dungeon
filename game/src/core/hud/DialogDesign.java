@@ -30,6 +30,7 @@ public class DialogDesign extends VerticalGroup {
         ScrollPane scrollPane = new ScrollPane(container, skin);
         scrollPane.setFadeScrollBars(false);
         scrollPane.setScrollbarsVisible(true);
+
         return scrollPane;
     }
 
@@ -62,7 +63,6 @@ public class DialogDesign extends VerticalGroup {
         Label labelSolution = new Label(Constants.QUIZ_MESSAGE_SOLUTION, skin);
         labelSolution.setColor(Color.GREEN);
         addActor(labelSolution);
-
         VisualizeAnswerSection(quizQuestion, skin);
     }
 

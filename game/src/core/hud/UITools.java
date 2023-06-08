@@ -1,10 +1,8 @@
 package core.hud;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.utils.Align;
 
 import core.Entity;
 import core.Game;
@@ -54,15 +52,6 @@ public class UITools {
                         dialogTitle,
                         getResultHandler(e, buttonMsg));
         new UIComponent(e, dialog, true);
-        // setting default Color
-        dialog.setColor(Color.WHITE);
-        // fixing size of Dialog
-        dialog.setWidth(Constants.WINDOW_WIDTH - Constants.DIALOG_DIFFERENCE_MEASURE);
-        dialog.setHeight(Constants.WINDOW_HEIGHT - Constants.DIALOG_DIFFERENCE_MEASURE);
-        dialog.setPosition(
-                (Constants.WINDOW_WIDTH) / 2f,
-                (Constants.WINDOW_HEIGHT) / 2f,
-                Align.center | Align.top / 2);
         return e;
     }
 
