@@ -164,9 +164,9 @@ public class DialogDesign extends VerticalGroup {
         return answerButtons;
     }
 
-    private Optional<String> ImagePathExtractor(String quizqustion) {
+    private Optional<String> ImagePathExtractor(String quizQuestion) {
         Optional<MatchResult> first =
-                Pattern.compile(PATTERN_IMAGE_FINDER).matcher(quizqustion).results().findFirst();
-        return first.map(x -> x.group());
+                Pattern.compile(PATTERN_IMAGE_FINDER).matcher(quizQuestion).results().findFirst();
+        return first.map(MatchResult::group);
     }
 }
