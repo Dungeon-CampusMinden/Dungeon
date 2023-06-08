@@ -302,6 +302,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         debugKeys();
     }
 
+    private boolean uiDebugFlag = false;
     /** Just for debugging, remove later. */
     private void debugKeys() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
@@ -313,6 +314,9 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
             // Dialogue for quiz questions (display of quiz questions and the answer area in test
             // mode)
             UITools.showQuizDialog(DummyQuizQuestionList.getRandomQuestion());
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+            // toggle UI "debug rendering"
+            stage().ifPresent(x -> x.setDebugAll(uiDebugFlag = !uiDebugFlag));
         }
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_KEY.get())) {
             debugger.toggleRun();
