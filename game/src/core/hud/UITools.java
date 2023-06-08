@@ -20,6 +20,8 @@ import java.util.function.BiFunction;
  */
 public class UITools {
     public static final Skin DEFAULT_SKIN = new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG));
+    public static final String DEFAULT_DIALOG_CONFIRM = "confirm";
+    public static final String DEFAULT_DIALOG_TITLE = "Question";
 
     /**
      * display the Question-Content (Question and answer options (no pictures) as text, picture,
@@ -28,10 +30,10 @@ public class UITools {
      * @param question Various question configurations
      */
     public static void showQuizDialog(QuizQuestion question) {
-        if (question == null) throw new NullPointerException("question can´t be null");
         String questionContent =
                 QuizQuestionFormatted.formatStringForDialogWindow(question.question().content());
-        generateQuizDialogue(question, questionContent, "confirm", "Question");
+        generateQuizDialogue(
+                question, questionContent, DEFAULT_DIALOG_CONFIRM, DEFAULT_DIALOG_TITLE);
     }
 
     /**
