@@ -83,13 +83,13 @@ public class DialogDesign extends VerticalGroup {
             case TEXT -> addActor(createScrollPane(skin, new Label(outputMsg, skin)));
             case IMAGE -> addActor(
                     createScrollPane(
-                            skin, new Image(new Texture(ImagePathExtractor(outputMsg).get()))));
+                            skin, new Image(new Texture(imagePathExtractor(outputMsg).get()))));
 
             case TEXT_AND_IMAGE -> {
                 addActor(createScrollPane(skin, new Label(outputMsg, skin)));
                 addActor(
                         createScrollPane(
-                                skin, new Image(new Texture(ImagePathExtractor(outputMsg).get()))));
+                                skin, new Image(new Texture(imagePathExtractor(outputMsg).get()))));
             }
             default -> {}
         }
