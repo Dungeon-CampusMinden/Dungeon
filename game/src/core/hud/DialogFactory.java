@@ -46,7 +46,7 @@ public class DialogFactory {
             BiFunction<TextDialog, String, Boolean> resultHandler) {
         Dialog textDialog = new TextDialog(title, skin, resultHandler);
         DialogDesign dialogDesign = new DialogDesign();
-        dialogDesign.TextDialog(skin, outputMsg);
+        dialogDesign.createTextDialog(skin, outputMsg);
         textDialog.addActor(dialogDesign);
         textDialog.button(buttonMsg, buttonMsg);
         return textDialog;

@@ -44,7 +44,7 @@ public class DialogDesign extends VerticalGroup {
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
      * @param outputMsg Content displayed in the scrollable label
      */
-    public void TextDialog(Skin skin, String outputMsg) {
+    public void createTextDialog(Skin skin, String outputMsg) {
         addActor(createScrollPane(skin, new Label(outputMsg, skin)));
     }
 
@@ -59,11 +59,11 @@ public class DialogDesign extends VerticalGroup {
         Label labelExercise = new Label(Constants.QUIZ_MESSAGE_TASK, skin);
         labelExercise.setColor(Color.YELLOW);
         addActor(labelExercise);
-        VisualizeQuestionSection(quizQuestion.question().type(), skin, outputMsg);
+        visualizeQuestionSection(quizQuestion.question().type(), skin, outputMsg);
         Label labelSolution = new Label(Constants.QUIZ_MESSAGE_SOLUTION, skin);
         labelSolution.setColor(Color.GREEN);
         addActor(labelSolution);
-        VisualizeAnswerSection(quizQuestion, skin);
+        visualizeAnswerSection(quizQuestion, skin);
     }
 
     /**
@@ -74,7 +74,7 @@ public class DialogDesign extends VerticalGroup {
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
      * @param outputMsg Content displayed in the scrollable label
      */
-    private void VisualizeQuestionSection(
+    private void visualizeQuestionSection(
             QuizQuestionContent.QuizQuestionContentType questionContentType,
             Skin skin,
             String outputMsg) {
@@ -102,7 +102,7 @@ public class DialogDesign extends VerticalGroup {
      * @param quizQuestion Various question configurations
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
      */
-    private void VisualizeAnswerSection(QuizQuestion quizQuestion, Skin skin) {
+    private void visualizeAnswerSection(QuizQuestion quizQuestion, Skin skin) {
         switch (quizQuestion.type()) {
             case FREETEXT -> {
                 ScrollPane scroller = new ScrollPane(createEditableText(skin), skin);
