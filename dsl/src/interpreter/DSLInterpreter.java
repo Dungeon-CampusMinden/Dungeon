@@ -246,7 +246,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return null;
     }
 
-    protected Value instantiate(AggregateType type) {
+    protected Value instantiateDSLValue(AggregateType type) {
         AggregateValue instance = new AggregateValue(type, currentMemorySpace());
 
         IMemorySpace memorySpace = instance.getMemorySpace();
@@ -267,7 +267,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param prototype the {@link Prototype} to instantiate
      * @return A new {@link Value} created from the {@link Prototype}
      */
-    protected Value instantiate(Prototype prototype) {
+    protected Value instantiateDSLValue(Prototype prototype) {
         // create memory space to store the values in
         AggregateValue instance = new AggregateValue(prototype, currentMemorySpace());
 
@@ -282,7 +282,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             // check, if type defines default for member
             var defaultValue = prototype.getDefaultValue(member.getName());
             if (defaultValue instanceof Prototype) {
-                defaultValue = instantiate((Prototype) defaultValue);
+                defaultValue = instantiateDSLValue((Prototype) defaultValue);
             } else if (!defaultValue.equals(Value.NONE)) {
                 // copy value (this is a copy of the DSL-Value, not the internal Object of the
                 // value)
@@ -314,57 +314,60 @@ public class DSLInterpreter implements AstVisitor<Object> {
     @Override
     public Object visit(EntityTypeDefinitionNode node) {
         var prototype = this.environment.lookupPrototype(node.getIdName());
-        var instance = (AggregateValue) instantiate(prototype);
+        var instance = (AggregateValue) instantiateDSLValue(prototype);
 
+        var entityType = (AggregateType) this.symbolTable().getGlobalScope().resolve("entity");
+        return instantiateRuntimeValue(instance, entityType);
+    }
+
+    public Object instantiateRuntimeValue(AggregateValue dslValue, AggregateType asType) {
         // instantiate entity_type
         TypeInstantiator typeInstantiator = new TypeInstantiator();
-        var resolvedType = this.symbolTable().getGlobalScope().resolve("entity");
-        var type = (AggregateType) resolvedType;
-        var entityObject = typeInstantiator.instantiate(type, instance.getMemorySpace());
+        var entityType = asType;
+        var entityObject = typeInstantiator.instantiate(entityType, dslValue.getMemorySpace());
 
-        // push entity as context in TypeInstantiator
-        var annot = type.getOriginType().getAnnotation(DSLContextPush.class);
         // TODO: substitute the whole DSLContextMember-stuff with Builder-Methods, which would enable
         //  creation of components with different parameters -> requires the ability to
         //  store multiple builder-methods for one type, distinguished by their
         //  signature
+        var annot = entityType.getOriginType().getAnnotation(DSLContextPush.class);
         if (annot != null) {
             String contextName =
-                    annot.name().equals("") ? type.getOriginType().getName() : annot.name();
+                annot.name().equals("") ? entityType.getOriginType().getName() : annot.name();
             typeInstantiator.pushContextMember(contextName, entityObject);
         }
 
-        AggregateValue entityValue = new AggregateValue(type, currentMemorySpace(), entityObject);
+        AggregateValue entityValue = new AggregateValue(entityType, currentMemorySpace(), entityObject);
 
         // an entity-object itself has no members, so add the components as "artificial members"
         // to the aggregate dsl value of the entity
-        for (var memberEntry : instance.getValueSet()) {
+        for (var memberEntry : dslValue.getValueSet()) {
             String memberName = memberEntry.getKey();
             Value memberValue = memberEntry.getValue();
             if (memberValue instanceof AggregateValue) {
                 // TODO: this is needed, because Prototype does not extend AggregateType currently,
                 //  which should be fixed
                 AggregateType membersOriginalType =
-                        getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
+                    getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
 
                 // instantiate object as a new java Object
                 Object memberObject =
-                        typeInstantiator.instantiate(
-                                membersOriginalType,
-                                ((AggregateValue) memberValue).getMemorySpace());
+                    typeInstantiator.instantiate(
+                        membersOriginalType,
+                        ((AggregateValue) memberValue).getMemorySpace());
 
                 // put the memberObject inside an encapsulated memory space
                 EncapsulatedObject encapsulatedObject =
-                        new EncapsulatedObject(
-                                memberObject,
-                                membersOriginalType,
-                                currentMemorySpace(),
-                                this.environment);
+                    new EncapsulatedObject(
+                        memberObject,
+                        membersOriginalType,
+                        currentMemorySpace(),
+                        this.environment);
 
                 // add the memory space to an aggregateValue
                 AggregateValue aggregateMemberValue =
-                        new AggregateValue(
-                                memberValue.getDataType(), currentMemorySpace(), memberObject);
+                    new AggregateValue(
+                        memberValue.getDataType(), currentMemorySpace(), memberObject);
 
                 // TODO: this is a temporary fix; an AggregateValue with an encapsulated object as a
                 //  memory space should be a separate class
@@ -374,6 +377,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             }
         }
         return entityValue;
+
     }
 
     @Override
@@ -413,7 +417,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         var type = this.symbolTable().getGlobalScope().resolve(node.getIdName());
         assert type instanceof AggregateType;
 
-        var value = (AggregateValue) instantiate((AggregateType) type);
+        var value = (AggregateValue) instantiateDSLValue((AggregateType) type);
 
         // interpret the property definitions
         this.memoryStack.push(value.getMemorySpace());
