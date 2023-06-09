@@ -45,23 +45,7 @@ public final class HudSystem extends System {
                                                 }
                                             });
                         });
-        // Temp fix until remove removeEntity is available or observer
-        /*
 
-        stage.getActors()
-                                            .select(
-                                                    x ->
-                                                            getEntityStream()
-                                                                    .anyMatch(
-                                                                            y ->
-                                                                                    y
-                                                                                            .getComponent(UIComponent.class)
-                                                                                            .map(UIComponent.class::cast)
-                                                                                            .stream()
-                                                                                            .noneMatch(
-                                                                                                    z -> z.getDialog() == x)))
-                                            .forEach(Actor::remove);
-                            */
         if (getEntityStream()
                 .anyMatch(
                         x ->
