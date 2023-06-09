@@ -516,13 +516,18 @@ public class DSLInterpreter implements AstVisitor<Object> {
             setValue(parameterSymbol.getName(), paramValue);
         }
 
+        var functionType = (FunctionType) symbol.getDataType();
+        var returnValue = createDefaultValue(functionType.getReturnType());
+        String returnValueName = "$return_value$";
+        memoryStack.peek().bindValue(returnValueName, returnValue);
+
         // visit function AST
         // TODO: this could just be retrieved from the FunctionSymbol..
         var funcAstNode = this.symbolTable().getCreationAstNode(symbol);
         funcAstNode.accept(this);
 
         memoryStack.pop();
-        return null;
+        return returnValue;
     }
 
     @Override
