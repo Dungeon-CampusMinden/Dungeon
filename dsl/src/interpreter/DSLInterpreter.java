@@ -543,6 +543,25 @@ public class DSLInterpreter implements AstVisitor<Object> {
         assert funcSymbol instanceof ICallable;
         var funcCallable = (ICallable) funcSymbol;
 
-        return funcCallable.call(this, node.getParameters());
+        var returnValue = funcCallable.call(this, node.getParameters());
+        if (returnValue == null) {
+            return Value.NONE;
+        }
+
+        if (!(returnValue instanceof Value)) {
+            // package it into value
+            var valueClass = returnValue.getClass();
+            var dslType = TypeBuilder.getDSLTypeForClass(valueClass);
+            if (dslType == null) {
+                dslType = this.environment.javaTypeToDSLTypeMap().get(valueClass);
+                if (dslType == null) {
+                    throw new RuntimeException(
+                            "No DSL Type representation for java type '" + valueClass + "'");
+                }
+            }
+            return new Value(dslType, returnValue);
+        } else {
+            return returnValue;
+        }
     }
 }
