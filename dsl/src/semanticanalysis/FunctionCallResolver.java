@@ -81,6 +81,10 @@ public class FunctionCallResolver implements AstVisitor<Void> {
         // TODO: or link to ID?
         this.symbolTable.addSymbolNodeRelation(funcSymbol, funcCall);
 
+        for (var parameter : funcCall.getParameters()) {
+            parameter.accept(this);
+        }
+
         return null;
     }
 }
