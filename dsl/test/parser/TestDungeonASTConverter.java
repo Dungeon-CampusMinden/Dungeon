@@ -159,7 +159,7 @@ public class TestDungeonASTConverter {
         var ast = Helpers.getASTFromString(program);
 
         var objDef = ast.getChild(0);
-        assertEquals(Node.Type.GameObjectDefinition, objDef.type);
+        assertEquals(Node.Type.EntityTypeDefinition, objDef.type);
 
         var componentDefListNode =
                 ((EntityTypeDefinitionNode) objDef).getComponentDefinitionListNode();
@@ -196,7 +196,7 @@ public class TestDungeonASTConverter {
         var ast = Helpers.getASTFromString(program);
 
         var objDef = ast.getChild(0);
-        assertEquals(Node.Type.GameObjectDefinition, objDef.type);
+        assertEquals(Node.Type.EntityTypeDefinition, objDef.type);
 
         var componentDefListNode =
                 ((EntityTypeDefinitionNode) objDef).getComponentDefinitionListNode();
