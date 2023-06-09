@@ -307,6 +307,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     // this is the evaluation side of things
+    //
+    // TODO: implicitly creating an entity from an entity_type does not
+    //  seem such a good idea, because it entails so much hidden logic
+    //  ...rather do it explicitly somehow
     @Override
     public Object visit(EntityTypeDefinitionNode node) {
         var prototype = this.environment.lookupPrototype(node.getIdName());
@@ -318,10 +322,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
         var type = (AggregateType) resolvedType;
         var entityObject = typeInstantiator.instantiate(type, instance.getMemorySpace());
 
-        // TODO: this should be done automatically in the TypeInstantiator, this is a proof of
-        // concept
         // push entity as context in TypeInstantiator
         var annot = type.getOriginType().getAnnotation(DSLContextPush.class);
+        // TODO: substitute the whole DSLContextMember-stuff with Builder-Methods, which would enable
+        //  creation of components with different parameters -> requires the ability to
+        //  store multiple builder-methods for one type, distinguished by their
+        //  signature
         if (annot != null) {
             String contextName =
                     annot.name().equals("") ? type.getOriginType().getName() : annot.name();
