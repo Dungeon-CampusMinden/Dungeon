@@ -346,23 +346,23 @@ public class TestDSLInterpreter {
         var rtEnv = interpreter.getRuntimeEnvironment();
 
         var typeWithDefaults = rtEnv.lookupPrototype("c");
-        assertNotEquals(Prototype.NONE, typeWithDefaults);
+        assertNotEquals(EntityType.NONE, typeWithDefaults);
 
         var firstCompWithDefaults = typeWithDefaults.getDefaultValue("test_component");
         assertNotEquals(Value.NONE, firstCompWithDefaults);
-        assertTrue(firstCompWithDefaults instanceof Prototype);
+        assertTrue(firstCompWithDefaults instanceof EntityType);
 
         var secondCompWithDefaults = typeWithDefaults.getDefaultValue("other_component");
         assertNotEquals(Value.NONE, secondCompWithDefaults);
-        assertTrue(secondCompWithDefaults instanceof Prototype);
+        assertTrue(secondCompWithDefaults instanceof EntityType);
 
         // check members of components
-        var member1Value = ((Prototype) firstCompWithDefaults).getDefaultValue("member1");
+        var member1Value = ((EntityType) firstCompWithDefaults).getDefaultValue("member1");
         assertNotEquals(Value.NONE, member1Value);
         assertEquals(BuiltInType.intType, member1Value.getDataType());
         assertEquals(42, member1Value.getInternalObject());
 
-        var member2Value = ((Prototype) firstCompWithDefaults).getDefaultValue("member2");
+        var member2Value = ((EntityType) firstCompWithDefaults).getDefaultValue("member2");
         assertNotEquals(Value.NONE, member2Value);
         assertEquals(BuiltInType.stringType, member2Value.getDataType());
         assertEquals("Hello, World!", member2Value.getInternalObject());

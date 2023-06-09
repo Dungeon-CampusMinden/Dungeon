@@ -20,7 +20,7 @@ public class Node {
         ObjectDefinition,
         PropertyDefinitionList,
         PropertyDefinition,
-        GameObjectDefinition,
+        EntityTypeDefinition,
         ComponentDefinitionList,
         AggregateValueDefinition,
         DotDefinition,

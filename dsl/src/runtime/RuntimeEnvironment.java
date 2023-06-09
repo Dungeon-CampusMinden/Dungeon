@@ -13,7 +13,7 @@ public class RuntimeEnvironment implements IEvironment {
     private final SymbolTable symbolTable;
     private final HashMap<String, Symbol> functions;
     private final HashMap<String, IType> types;
-    private final HashMap<String, Prototype> prototypes;
+    private final HashMap<String, EntityType> prototypes;
     private final HashMap<Class<?>, IType> javaTypeToDSLType;
 
     /**
@@ -43,26 +43,26 @@ public class RuntimeEnvironment implements IEvironment {
     }
 
     /**
-     * Lookup a {@link Prototype} with name
+     * Lookup a {@link EntityType} with name
      *
      * @param name the name of the Prototype to lookup
      * @return the Prototype with the passed name or Prototype.NONE
      */
-    public Prototype lookupPrototype(String name) {
-        return this.prototypes.getOrDefault(name, Prototype.NONE);
+    public EntityType lookupPrototype(String name) {
+        return this.prototypes.getOrDefault(name, EntityType.NONE);
     }
 
     /**
-     * Add new {@link Prototype}
+     * Add new {@link EntityType}
      *
-     * @param prototype the new Prototype
+     * @param entityType the new Prototype
      * @return true on success, false otherwise
      */
-    public boolean addPrototype(Prototype prototype) {
-        if (this.prototypes.containsKey(prototype.getName())) {
+    public boolean addPrototype(EntityType entityType) {
+        if (this.prototypes.containsKey(entityType.getName())) {
             return false;
         } else {
-            this.prototypes.put(prototype.getName(), prototype);
+            this.prototypes.put(entityType.getName(), entityType);
             return true;
         }
     }
