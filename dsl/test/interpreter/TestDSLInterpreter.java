@@ -603,4 +603,87 @@ public class TestDSLInterpreter {
         Assert.assertEquals("Hello, World!", externalTypeMember.member3);
         Assert.assertEquals(42, externalTypeMember.member1);
     }
+
+
+    @Test
+    public void instanceByFunction() {
+        String program =
+            """
+            entity_type my_obj {
+                test_component1 {
+                    member1: 42,
+                    member2: 12.34
+                },
+                test_component2 {
+                    member1: "Hallo",
+                    member2: 123
+                }
+            }
+
+            quest_config config {
+                entity: instantiate(my_obj)
+            }
+            """;
+
+        TypeBuilder tb = new TypeBuilder();
+        var entityType = tb.createTypeFromClass(new Scope(), Entity.class);
+        var testCompType = tb.createTypeFromClass(new Scope(), TestComponent1.class);
+        var otherCompType = tb.createTypeFromClass(new Scope(), TestComponent2.class);
+
+        var env = new TestEnvironment();
+        var typesToLoad = new IType[] {entityType, testCompType, otherCompType};
+        env.loadTypes(List.of(typesToLoad));
+
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+        symbolTableParser.setup(env);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        interpreter.initializeRuntime(env);
+
+        var entity = ((CustomQuestConfig) interpreter.generateQuestConfig(ast)).entity();
+        var rtEnv = interpreter.getRuntimeEnvironment();
+        var globalMs = interpreter.getGlobalMemorySpace();
+
+        // the config should contain the my_obj definition on the entity-value, which should
+        // encapsulate the actual
+        // test component instances
+        var config = (AggregateValue) (globalMs.resolve("config"));
+        var myObj = config.getMemorySpace().resolve("entity");
+        assertNotEquals(Value.NONE, myObj);
+        assertTrue(myObj instanceof AggregateValue);
+
+        // test, that the referenced entities are correct
+        var testComp1Value = ((AggregateValue) myObj).getMemorySpace().resolve("test_component1");
+        assertNotEquals(Value.NONE, testComp1Value);
+        var testComp1EncapsulatedObj =
+            (EncapsulatedObject) ((AggregateValue) testComp1Value).getMemorySpace();
+        var testComp1Internal = testComp1EncapsulatedObj.getInternalObject();
+        assertTrue(testComp1Internal instanceof TestComponent1);
+
+        TestComponent1 testComp1 = (TestComponent1) testComp1Internal;
+        assertEquals(entity, testComp1.getEntity());
+
+        // check member-values
+        assertEquals(42, testComp1.getMember1());
+        assertEquals(12.34, testComp1.getMember2(), 0.001f);
+        assertEquals("DEFAULT VALUE", testComp1.getMember3());
+
+        // test, that the referenced entities are correct
+        var testComp2Value = ((AggregateValue) myObj).getMemorySpace().resolve("test_component2");
+        assertNotEquals(Value.NONE, testComp2Value);
+        var testComp2EncapsulatedObj =
+            (EncapsulatedObject) ((AggregateValue) testComp2Value).getMemorySpace();
+        var testComp2Internal = testComp2EncapsulatedObj.getInternalObject();
+        assertTrue(testComp2Internal instanceof TestComponent2);
+
+        TestComponent2 testComp2 = (TestComponent2) testComp2Internal;
+        assertEquals(entity, testComp2.getEntity());
+
+        // check member-values
+        assertEquals("Hallo", testComp2.getMember1());
+        assertEquals(123, testComp2.getMember2());
+        assertEquals("DEFAULT VALUE", testComp2.getMember3());
+    }
 }
