@@ -8,10 +8,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,6 +22,11 @@ public class TypeBuilder {
         this.typeAdapters = new HashMap<>();
         this.javaTypeToDSLType = new HashMap<>();
         this.currentLookedUpClasses = new HashSet<>();
+    }
+
+    public HashMap<Class<?>, IType> getJavaTypeToDSLTypeMap() {
+        // create copy of the hashmap
+        return new HashMap<>(javaTypeToDSLType);
     }
 
     /**

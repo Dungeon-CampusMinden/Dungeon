@@ -14,6 +14,7 @@ public class RuntimeEnvironment implements IEvironment {
     private final HashMap<String, Symbol> functions;
     private final HashMap<String, IType> types;
     private final HashMap<String, Prototype> prototypes;
+    private final HashMap<Class<?>, IType> javaTypeToDSLType;
 
     /**
      * Constructor. Create new runtime environment from an existing environment and add all type
@@ -37,6 +38,8 @@ public class RuntimeEnvironment implements IEvironment {
         }
 
         this.prototypes = new HashMap<>();
+
+        this.javaTypeToDSLType = other.javaTypeToDSLTypeMap();
     }
 
     /**
@@ -77,5 +80,10 @@ public class RuntimeEnvironment implements IEvironment {
     @Override
     public IScope getGlobalScope() {
         return this.symbolTable.getGlobalScope();
+    }
+
+    @Override
+    public HashMap<Class<?>, IType> javaTypeToDSLTypeMap() {
+        return this.javaTypeToDSLType;
     }
 }
