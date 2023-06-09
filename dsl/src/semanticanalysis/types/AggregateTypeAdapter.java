@@ -8,6 +8,10 @@ public class AggregateTypeAdapter extends AggregateType {
 
     final Method builderMethod;
 
+    public Method getBuilderMethod() {
+        return builderMethod;
+    }
+
     public AggregateTypeAdapter(
             String name, IScope parentScope, Class<?> originType, Method builderMethod) {
         super(name, parentScope, originType);

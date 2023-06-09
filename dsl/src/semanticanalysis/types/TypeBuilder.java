@@ -135,15 +135,21 @@ public class TypeBuilder {
         for (var method : adapterClass.getDeclaredMethods()) {
             if (method.isAnnotationPresent(DSLTypeAdapter.class)
                     && Modifier.isStatic(method.getModifiers())) {
-                var annotation = method.getAnnotation(DSLTypeAdapter.class);
-                var forType = annotation.t();
+                var forType = method.getReturnType();
                 if (this.typeAdapters.containsKey(forType)) {
                     return false;
                 }
                 this.typeAdapters.put(forType, method);
 
+                var annotation = method.getAnnotation(DSLTypeAdapter.class);
+                String dslTypeName =
+                        annotation.name().equals("")
+                                ? convertToDSLName(forType.getSimpleName())
+                                : annotation.name();
+
                 // create adapterType
-                var adapterType = createAdapterType(forType, method, parentScope);
+                var adapterType = createAdapterType(forType, dslTypeName, method, parentScope);
+
                 this.javaTypeToDSLType.put(forType, adapterType);
 
                 return true;
@@ -152,8 +158,8 @@ public class TypeBuilder {
         return true;
     }
 
-    public IType createAdapterType(Class<?> forType, Method adapterMethod, IScope parentScope) {
-        String dslTypeName = convertToDSLName(forType.getSimpleName());
+    public IType createAdapterType(
+            Class<?> forType, String dslTypeName, Method adapterMethod, IScope parentScope) {
         // get parameters, if only one: PODType, otherwise: AggregateType
         if (adapterMethod.getParameterCount() == 0) {
             // TODO: handle

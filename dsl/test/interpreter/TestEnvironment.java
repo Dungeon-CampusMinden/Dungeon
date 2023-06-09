@@ -9,6 +9,7 @@ import semanticanalysis.types.IType;
 import java.util.List;
 
 public class TestEnvironment extends GameEnvironment {
+
     public TestEnvironment() {
         super();
     }
@@ -23,9 +24,7 @@ public class TestEnvironment extends GameEnvironment {
         }
 
         var questConfigType =
-                this.getTypeBuilder()
-                        .createTypeFromClass(
-                                Scope.NULL, TestDSLInterpreter.CustomQuestConfig.class);
+                this.getTypeBuilder().createTypeFromClass(Scope.NULL, CustomQuestConfig.class);
         var typesToLoad = new semanticanalysis.types.IType[] {questConfigType};
         loadTypes(List.of(typesToLoad));
 

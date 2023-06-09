@@ -106,14 +106,22 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // datatype definition, because it is part of the definition
         // evaluate rhs and store the value in the member of
         // the prototype
-        Prototype componentPrototype = new Prototype((AggregateType) componentSymbol.getDataType());
+        AggregateType prototypesType = (AggregateType) componentSymbol.getDataType();
+        Prototype componentPrototype = new Prototype(prototypesType);
         for (var propDef : node.getPropertyDefinitionNodes()) {
             var propertyDefNode = (PropertyDefNode) propDef;
             var rhsValue = (Value) propertyDefNode.getStmtNode().accept(this);
 
-            // TODO: this fails for adapted types
-            var propertySymbol = symbolTable().getSymbolsForAstNode(propDef).get(0);
-            Value value = new Value(propertySymbol.getDataType(), rhsValue.getInternalObject());
+            // get type of lhs (the assignee)
+            var propName = propertyDefNode.getIdName();
+            var propertiesType = prototypesType.resolve(propName).getDataType();
+
+            // clone value
+            Value value = (Value) rhsValue.clone();
+
+            // promote value to property's datatype
+            // TODO: typechecking must be performed before this
+            value.setDataType((IType) propertiesType);
 
             // indicate, that the value is "dirty", which means it was set
             // explicitly and needs to be set in the java object corresponding
@@ -247,6 +255,21 @@ public class DSLInterpreter implements AstVisitor<Object> {
             }
         }
         return null;
+    }
+
+    protected Value instantiate(AggregateType type) {
+        AggregateValue instance = new AggregateValue(type, currentMemorySpace());
+
+        IMemorySpace memorySpace = instance.getMemorySpace();
+        this.memoryStack.push(memorySpace);
+        for (var member : type.getSymbols()) {
+            // check, if type defines default for member
+            var defaultValue = createDefaultValue(member.getDataType());
+            memorySpace.bindValue(member.getName(), defaultValue);
+        }
+        this.memoryStack.pop();
+
+        return instance;
     }
 
     /**
@@ -386,6 +409,24 @@ public class DSLInterpreter implements AstVisitor<Object> {
             return ti.instantiate((AggregateType) type, ms);
         }
         return null;
+    }
+
+    @Override
+    public Object visit(AggregateValueDefinitionNode node) {
+        // create instance of dsl data type
+        var type = this.symbolTable().getGlobalScope().resolve(node.getIdName());
+        assert type instanceof AggregateType;
+
+        var value = (AggregateValue) instantiate((AggregateType) type);
+
+        // interpret the property definitions
+        this.memoryStack.push(value.getMemorySpace());
+        for (var member : node.getPropertyDefinitionNodes()) {
+            member.accept(this);
+        }
+        this.memoryStack.pop();
+
+        return value;
     }
 
     @Override
