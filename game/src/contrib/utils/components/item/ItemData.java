@@ -1,15 +1,13 @@
 package contrib.utils.components.item;
 
-import contrib.components.CollideComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
 import contrib.configuration.ItemConfig;
+import contrib.entities.WorldItemBuilder;
 import contrib.utils.components.stats.DamageModifier;
 
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
-import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.draw.Animation;
@@ -30,11 +28,11 @@ import java.util.function.BiConsumer;
  * <p>Lastly it holds a {@link #damageModifier}
  */
 public class ItemData {
-    private ItemType itemType;
-    private Animation inventoryTexture;
-    private Animation worldTexture;
-    private String itemName;
-    private String description;
+    private final ItemType itemType;
+    private final Animation inventoryTexture;
+    private final Animation worldTexture;
+    private final String itemName;
+    private final String description;
 
     private BiConsumer<Entity, Entity> onCollect;
     private TriConsumer<Entity, ItemData, Point> onDrop;
@@ -42,7 +40,7 @@ public class ItemData {
     private BiConsumer<Entity, ItemData> onUse;
 
     // passive
-    private DamageModifier damageModifier;
+    private final DamageModifier damageModifier;
 
     /**
      * creates a new item data object.
@@ -204,11 +202,10 @@ public class ItemData {
      * @param position Position where to drop the item.
      */
     private static void defaultDrop(Entity who, ItemData which, Point position) {
-        Entity droppedItem = new Entity();
-        new PositionComponent(droppedItem, position);
-        new DrawComponent(droppedItem, which.getWorldTexture());
-        CollideComponent component = new CollideComponent(droppedItem);
-        component.setCollideEnter((a, b, direction) -> which.triggerCollect(a, b));
+        InventoryComponent inventoryComponent =
+                (InventoryComponent) who.getComponent(InventoryComponent.class).orElseThrow();
+        inventoryComponent.removeItem(which);
+        WorldItemBuilder.buildWorldItem(which, position);
     }
 
     /**

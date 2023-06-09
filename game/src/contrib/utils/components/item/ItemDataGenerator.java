@@ -7,29 +7,31 @@ import java.util.Random;
 
 /** Generator which creates a random ItemData based on the Templates prepared. */
 public class ItemDataGenerator {
-    private static final List<String> missingTexture = List.of("animation/missingTexture.png");
+    private static final List<String> boneTexture = List.of("items/bone.png");
+    private static final List<String> scrollTexture = List.of("items/scroll.png");
+    private static final List<String> leafTexture = List.of("items/leaf.png");
 
-    private List<ItemData> templates =
+    private final List<ItemData> templates =
             List.of(
                     new ItemData(
                             ItemType.Basic,
-                            new Animation(missingTexture, 1),
-                            new Animation(missingTexture, 1),
-                            "Buch",
-                            "Ein sehr lehrreiches Buch."),
+                            new Animation(scrollTexture, 1),
+                            new Animation(scrollTexture, 1),
+                            "Schriftrolle",
+                            "Eine sehr lehrreiche Schriftrolle."),
                     new ItemData(
                             ItemType.Basic,
-                            new Animation(missingTexture, 1),
-                            new Animation(missingTexture, 1),
-                            "Tuch",
-                            "Ein sauberes Tuch.."),
+                            new Animation(boneTexture, 1),
+                            new Animation(boneTexture, 1),
+                            "Knochen",
+                            "Ein harter Knochen.."),
                     new ItemData(
-                            ItemType.Basic,
-                            new Animation(missingTexture, 1),
-                            new Animation(missingTexture, 1),
-                            "Namensschild",
-                            "Ein Namensschild wo der Name nicht mehr lesbar ist.."));
-    private Random rand = new Random();
+                            ItemType.Active,
+                            new Animation(leafTexture, 1),
+                            new Animation(leafTexture, 1),
+                            "Blatt",
+                            "Ein Blatt..."));
+    private final Random rand = new Random();
 
     /**
      * @return a new randomItemData

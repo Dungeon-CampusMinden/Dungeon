@@ -1,6 +1,8 @@
 package contrib.entities;
 
-import contrib.components.*;
+import contrib.components.CollideComponent;
+import contrib.components.InteractionComponent;
+import contrib.components.InventoryComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.interaction.InteractionTool;
@@ -13,6 +15,7 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.*;
+import core.hud.Inventory.InventoryGUI;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.draw.CoreAnimations;
@@ -92,6 +95,12 @@ public class EntityFactory {
 
         // skills
         pc.registerFunction(KeyboardConfig.FIRST_SKILL.get(), fireball::execute);
+
+        pc.registerFunction(
+                KeyboardConfig.INVENTORY_OPEN.get(),
+                entity -> InventoryGUI.getInstance().toggleInventory());
+
+        new InventoryComponent(hero, 40);
 
         return hero;
     }
