@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  * @see System
  * @see Optional
  */
-@DSLType(name = "game_object")
+@DSLType(name = "entity")
 @DSLContextPush(name = "entity")
 public final class Entity {
     private static final Logger LOGGER = Logger.getLogger(Entity.class.getName());

@@ -10,7 +10,7 @@ import interpreter.TestEnvironment;
 import org.junit.Assert;
 import org.junit.Test;
 
-import parser.ast.GameObjectDefinitionNode;
+import parser.ast.EntityTypeDefinitionNode;
 import parser.ast.Node;
 
 import runtime.GameEnvironment;
@@ -64,7 +64,7 @@ public class TestSymbolTableParser {
                     A -- B
                 }
 
-                game_object c {
+                entity_type c {
                     test_component{
                         level_graph: g
                     }
@@ -91,7 +91,7 @@ public class TestSymbolTableParser {
         // definition
         var gameObjDefNode = ast.getChild(1);
         var componentDefNode =
-                ((GameObjectDefinitionNode) gameObjDefNode).getComponentDefinitionNodes().get(0);
+                ((EntityTypeDefinitionNode) gameObjDefNode).getComponentDefinitionNodes().get(0);
         var propertyDefList = componentDefNode.getChild(1);
 
         var firstPropertyDef = propertyDefList.getChild(0);

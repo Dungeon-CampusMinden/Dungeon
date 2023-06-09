@@ -57,14 +57,14 @@ Informationen ändern sich dynamisch während der Programmlaufzeit.
 **Erzeugung von Prototypen**
 
 Der erste Schritt der Interpretation (nach der Initialisierung) ist das Erzeugen von
-Prototypen für `game_object`-Definitionen.
+Prototypen für `entity_type`-Definitionen.
 
 Ein “Prototyp” ist eine Kombination aus einem `AggregateType` und vom Nutzer per DSL
-konfigurierten Defaultwerten. Ein Beispiel für eine `game_object`-Definition:
+konfigurierten Defaultwerten. Ein Beispiel für eine `entity_type`-Definition:
 
 
 ```
-game_object my_obj {
+entity_type my_obj {
     velocity_component {
         x_velocity: 2.0,
         y_velocity: 3.0
@@ -84,7 +84,7 @@ Prototyps sind die konfigurierten Defaultwerte gesetzt. Dem folgenden Objektdiag
 die beteiligten Instanzen für das obere Beispiel entnommen werden:
 
 Wie zu erkennen ist, wird für jede Komponenten-Definition auch ein `Prototype` erzeugt, der
-jedoch nur im `Prototype` der `game_object`-Definition existiert. Der `Prototype` einer
+jedoch nur im `Prototype` der `entity_type`-Definition existiert. Der `Prototype` einer
 Komponenten-Definition enthält die per DSL konfigurierten Defaultwerte der Komponente.
 
 Die Erzeugung der Prototypen ist im folgenden Sequenzdiagramm dargestellt:
@@ -92,7 +92,7 @@ Die Erzeugung der Prototypen ist im folgenden Sequenzdiagramm dargestellt:
 ![UML: Erzeugung Prototyp](img/create_prototype.png){width="50%"}
 
 In den Typdefinitionen, die vom `RuntimeEnvironment` für `getTypes` zurückgegeben werden,
-sind auch die `game_object`-Definition enthalten.
+sind auch die `entity_type`-Definition enthalten.
 
 Die referenzierte Sequenz `createComponentPrototype` ist im Folgenden dargestellt:
 
@@ -138,7 +138,7 @@ Eigenschaftszuweisungen dieser `quest_config`-Definition referenziert werden.
 Abschließend erzeugt der `DSLInterpreter` eine `QuestConfig`-Instanz und gibt diese an das
 Dungeon-Framework zurück. Die `QuestConfig`-Instanz enthält alle Informationen für das
 Dungeon-Framework, um ein Dungeonlevel mit spezifizierten Entitäten (als
-`game_object`-Definition) zu erzeugen.
+`entity_type`-Definition) zu erzeugen.
 
 ## `Value` und `IMemorySpace`
 
@@ -207,7 +207,7 @@ falls der Wert eines Members eine `Prototype`-Definition ist, wird auf für dies
 
 Für das bereits oben angeführte Beispiel
 ```
-game_object my_obj {
+entity_type my_obj {
     velocity_component {
         x_velocity: 2.0,
         y_velocity: 3.0
@@ -235,7 +235,7 @@ enthalten.
 
 Die Instanziierung von Java-Klassen, welche mit `@DSLType` (siehe
 [TypeBuilding](typebuilding.md)) markiert sind, wird durch den `TypeInstantiator`
-durchgeführt. Als Beispiel wird wieder die oben angeführte `game_object`-Definition
+durchgeführt. Als Beispiel wird wieder die oben angeführte `entity_type`-Definition
 herangezogen.
 
 Der `IMemorySpace` eines `AggregateValue` wird dem `TypeInstantiator` übergeben. Dieser
@@ -281,7 +281,7 @@ Das so erstellte Objekt wird in die Klasseninstanz übertragen.
 
 **EncapsulatedObject**
 
-Ab der Instanziierung von `game_object`-Definitionen als `Entity`, sind die eigentlichen
+Ab der Instanziierung von `entity_type`-Definitionen als `Entity`, sind die eigentlichen
 Werte in der Instanz der Java-Klasse und nicht mehr nur in einem MemorySpace im
 `DSLInterpreter` enthalten. Um die redundante Datenhaltung zu vermeiden, wird mit
 `EncapsulatedObject` eine Abstraktionsschicht um das Java-Objekt gelegt, welche

@@ -5,7 +5,7 @@ import helpers.Helpers;
 import org.junit.Assert;
 import org.junit.Test;
 
-import parser.ast.GameObjectDefinitionNode;
+import parser.ast.EntityTypeDefinitionNode;
 
 import runtime.GameEnvironment;
 
@@ -25,7 +25,7 @@ public class TestTypeBinder {
 
         String program =
                 """
-            game_object o {
+            entity_type o {
                 test_component{
                     member1: 42,
                     member2: "Hello",
@@ -68,7 +68,7 @@ public class TestTypeBinder {
 
         String program =
                 """
-        game_object o {
+        entity_type o {
             test_component{
                 member1: 42,
                 member2: "Hello"
@@ -95,7 +95,7 @@ public class TestTypeBinder {
         var testComponent = ((AggregateType) gameObjectDefinition).resolve("test_component");
         var testComponentDefNode = symbolTable.getCreationAstNode(testComponent);
         var testComponentDefNodeFromAST =
-                ((GameObjectDefinitionNode) gameObjectDefNodeFromAST)
+                ((EntityTypeDefinitionNode) gameObjectDefNodeFromAST)
                         .getComponentDefinitionNodes()
                         .get(0);
         Assert.assertEquals(testComponentDefNodeFromAST, testComponentDefNode);
@@ -106,7 +106,7 @@ public class TestTypeBinder {
 
         String program =
                 """
-            game_object o {
+            entity_type o {
                 test_record_user {
                     component_member: "Hello"
                 }
