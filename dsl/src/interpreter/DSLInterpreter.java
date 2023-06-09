@@ -313,31 +313,33 @@ public class DSLInterpreter implements AstVisitor<Object> {
     //  ...rather do it explicitly somehow
     @Override
     public Object visit(EntityTypeDefinitionNode node) {
+        //var prototype = this.environment.lookupPrototype(node.getIdName());
+        //var instance = (AggregateValue) instantiateDSLValue(prototype);
+
+        //var entityType = (AggregateType) this.symbolTable().getGlobalScope().resolve("entity");
+        //return instantiateRuntimeValue(instance, entityType);
         var prototype = this.environment.lookupPrototype(node.getIdName());
         var instance = (AggregateValue) instantiateDSLValue(prototype);
-
-        var entityType = (AggregateType) this.symbolTable().getGlobalScope().resolve("entity");
-        return instantiateRuntimeValue(instance, entityType);
+        return instance;
     }
 
     public Object instantiateRuntimeValue(AggregateValue dslValue, AggregateType asType) {
         // instantiate entity_type
         TypeInstantiator typeInstantiator = new TypeInstantiator();
-        var entityType = asType;
-        var entityObject = typeInstantiator.instantiate(entityType, dslValue.getMemorySpace());
+        var entityObject = typeInstantiator.instantiate(asType, dslValue.getMemorySpace());
 
         // TODO: substitute the whole DSLContextMember-stuff with Builder-Methods, which would enable
         //  creation of components with different parameters -> requires the ability to
         //  store multiple builder-methods for one type, distinguished by their
         //  signature
-        var annot = entityType.getOriginType().getAnnotation(DSLContextPush.class);
+        var annot = asType.getOriginType().getAnnotation(DSLContextPush.class);
         if (annot != null) {
             String contextName =
-                annot.name().equals("") ? entityType.getOriginType().getName() : annot.name();
+                annot.name().equals("") ? asType.getOriginType().getName() : annot.name();
             typeInstantiator.pushContextMember(contextName, entityObject);
         }
 
-        AggregateValue entityValue = new AggregateValue(entityType, currentMemorySpace(), entityObject);
+        AggregateValue entityValue = new AggregateValue(asType, currentMemorySpace(), entityObject);
 
         // an entity-object itself has no members, so add the components as "artificial members"
         // to the aggregate dsl value of the entity
