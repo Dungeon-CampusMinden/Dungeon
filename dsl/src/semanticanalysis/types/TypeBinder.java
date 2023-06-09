@@ -2,7 +2,7 @@ package semanticanalysis.types;
 
 import parser.ast.AggregateValueDefinitionNode;
 import parser.ast.AstVisitor;
-import parser.ast.GameObjectDefinitionNode;
+import parser.ast.EntityTypeDefinitionNode;
 import parser.ast.Node;
 
 import runtime.IEvironment;
@@ -39,7 +39,7 @@ public class TypeBinder implements AstVisitor<Object> {
     }
 
     @Override
-    public Object visit(GameObjectDefinitionNode node) {
+    public Object visit(EntityTypeDefinitionNode node) {
         // create new type with name of definition node
         var newTypeName = node.getIdName();
         if (resolveGlobal(newTypeName) != Symbol.NULL) {

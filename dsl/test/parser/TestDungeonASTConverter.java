@@ -152,7 +152,7 @@ public class TestDungeonASTConverter {
     public void testGameObjectDefinitionSimpleComponent() {
         String program =
                 """
-                game_object test_object {
+                entity_type test_object {
                     this_is_a_component
                     }
                 """;
@@ -162,7 +162,7 @@ public class TestDungeonASTConverter {
         assertEquals(Node.Type.GameObjectDefinition, objDef.type);
 
         var componentDefListNode =
-                ((GameObjectDefinitionNode) objDef).getComponentDefinitionListNode();
+                ((EntityTypeDefinitionNode) objDef).getComponentDefinitionListNode();
         assertEquals(Node.Type.ComponentDefinitionList, componentDefListNode.type);
 
         var componentDefinitions = componentDefListNode.getChildren();
@@ -186,7 +186,7 @@ public class TestDungeonASTConverter {
     public void testGameObjectDefinition() {
         String program =
                 """
-                game_object test_object {
+                entity_type test_object {
                     complex_component {
                         prop1: 123,
                         prop2: "Hello, World!"
@@ -199,7 +199,7 @@ public class TestDungeonASTConverter {
         assertEquals(Node.Type.GameObjectDefinition, objDef.type);
 
         var componentDefListNode =
-                ((GameObjectDefinitionNode) objDef).getComponentDefinitionListNode();
+                ((EntityTypeDefinitionNode) objDef).getComponentDefinitionListNode();
         assertEquals(Node.Type.ComponentDefinitionList, componentDefListNode.type);
 
         var componentDefinitions = componentDefListNode.getChildren();
@@ -227,7 +227,7 @@ public class TestDungeonASTConverter {
     public void testGameObjectDefinitionMultiComponent() {
         String program =
                 """
-            game_object test_object {
+            entity_type test_object {
                 complex_component1 {
                     prop1: 123,
                     prop2: "Hello, World!"
@@ -242,7 +242,7 @@ public class TestDungeonASTConverter {
 
         var objDef = ast.getChild(0);
         var componentDefListNode =
-                ((GameObjectDefinitionNode) objDef).getComponentDefinitionListNode();
+                ((EntityTypeDefinitionNode) objDef).getComponentDefinitionListNode();
         var componentDefinitions = componentDefListNode.getChildren();
         assertEquals(2, componentDefinitions.size());
 
@@ -281,7 +281,7 @@ public class TestDungeonASTConverter {
     public void adaptedAggregateType() {
         String program =
                 """
-            game_object my_obj {
+            entity_type my_obj {
                 test_component_with_external_type {
                     member_external_type: external_type { str: "Hello, World!", n: 42 }
                 }
@@ -293,7 +293,7 @@ public class TestDungeonASTConverter {
             """;
 
         var ast = Helpers.getASTFromString(program);
-        var gameObjectDef = (GameObjectDefinitionNode) ast.getChild(0);
+        var gameObjectDef = (EntityTypeDefinitionNode) ast.getChild(0);
         var componentDef =
                 (AggregateValueDefinitionNode) gameObjectDef.getComponentDefinitionNodes().get(0);
         var propertyDef = (PropertyDefNode) componentDef.getPropertyDefinitionNodes().get(0);

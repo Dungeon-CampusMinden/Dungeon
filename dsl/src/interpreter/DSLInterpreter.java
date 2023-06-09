@@ -87,7 +87,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 if (creationAstNode.type.equals(Node.Type.GameObjectDefinition)) {
                     var prototype = new Prototype((AggregateType) type);
 
-                    var gameObjDefNode = (GameObjectDefinitionNode) creationAstNode;
+                    var gameObjDefNode = (EntityTypeDefinitionNode) creationAstNode;
                     for (var node : gameObjDefNode.getComponentDefinitionNodes()) {
                         // add new component prototype to the enclosing game object prototype
                         AggregateValueDefinitionNode compDefNode =
@@ -308,13 +308,14 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     // this is the evaluation side of things
     @Override
-    public Object visit(GameObjectDefinitionNode node) {
+    public Object visit(EntityTypeDefinitionNode node) {
         var prototype = this.environment.lookupPrototype(node.getIdName());
         var instance = (AggregateValue) instantiate(prototype);
 
-        // instantiate entity
+        // instantiate entity_type
         TypeInstantiator typeInstantiator = new TypeInstantiator();
-        var type = (AggregateType) this.symbolTable().getGlobalScope().resolve("game_object");
+        var resolvedType = this.symbolTable().getGlobalScope().resolve("entity");
+        var type = (AggregateType) resolvedType;
         var entityObject = typeInstantiator.instantiate(type, instance.getMemorySpace());
 
         // TODO: this should be done automatically in the TypeInstantiator, this is a proof of

@@ -302,7 +302,7 @@ public class TestDSLInterpreter {
                     A -- B
                 }
 
-                game_object c {
+                entity_type c {
                     test_component{
                         member1: 42,
                         member2: "Hello, World!"
@@ -348,7 +348,7 @@ public class TestDSLInterpreter {
     public void aggregateTypeInstancing() {
         String program =
                 """
-                game_object my_obj {
+                entity_type my_obj {
                     test_component1 {
                         member1: 42,
                         member2: 12.34
@@ -424,7 +424,7 @@ public class TestDSLInterpreter {
     public void aggregateTypeInstancingNonSupportedExternalType() {
         String program =
                 """
-            game_object my_obj {
+            entity_type my_obj {
                 component_with_external_type_member { }
             }
 
@@ -461,7 +461,7 @@ public class TestDSLInterpreter {
     public void adaptedInstancing() {
         String program =
                 """
-            game_object my_obj {
+            entity_type my_obj {
                 test_component1 {
                     member1: 42,
                     member2: 12
@@ -504,7 +504,7 @@ public class TestDSLInterpreter {
     public void adaptedInstancingMultiParam() {
         String program =
                 """
-        game_object my_obj {
+        entity_type my_obj {
             test_component1 {
                 member1: 42,
                 member2: 12

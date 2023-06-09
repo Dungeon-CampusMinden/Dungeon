@@ -251,7 +251,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     }
 
     @Override
-    public Void visit(GameObjectDefinitionNode node) {
+    public Void visit(EntityTypeDefinitionNode node) {
         // resolve datatype of definition
         var typeName = node.getIdName();
         var typeSymbol = this.globalScope().resolve(typeName);

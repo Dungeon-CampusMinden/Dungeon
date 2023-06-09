@@ -171,7 +171,7 @@ public interface AstVisitor<T> {
      * @param node Node to visit
      * @return T
      */
-    default T visit(GameObjectDefinitionNode node) {
+    default T visit(EntityTypeDefinitionNode node) {
         return null;
     }
 
