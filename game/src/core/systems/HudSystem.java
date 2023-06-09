@@ -28,7 +28,8 @@ public final class HudSystem extends System {
 
     @Override
     public void execute() {
-        // Temp fix until either addEntity is available or removeEntity until dungeon Issue #727 implemented
+        // Temp fix until either addEntity is available or removeEntity until dungeon Issue #727
+        // implemented
         getEntityStream()
                 .forEach(
                         x -> {
