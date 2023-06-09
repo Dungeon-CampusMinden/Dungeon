@@ -44,7 +44,7 @@ public class EntityTypeDefinitionNode extends Node {
      *     object definition
      */
     public EntityTypeDefinitionNode(Node idNode, Node componentDefinitionList) {
-        super(Type.GameObjectDefinition, new ArrayList<Node>(2));
+        super(Type.EntityTypeDefinition, new ArrayList<Node>(2));
         this.children.add(idNode);
         this.children.add(componentDefinitionList);
     }
