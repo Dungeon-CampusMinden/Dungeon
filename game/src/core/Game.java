@@ -262,7 +262,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         levelManager = new LevelManager(batch, painter, new WallGenerator(generator), this);
         levelManager.loadLevel(LEVELSIZE);
         initBaseLogger();
-        levelManager.loadLevel(LEVELSIZE);
         createSystems();
     }
 
