@@ -324,10 +324,20 @@ graph g {
 }
 ```
 
+### Aufgabentypbezogene Definitionen
+
+**Ersetzung**
+
+**Kombination**
+
+**Lücken**
 
 ### Taskdefinition
 
 ### Funktionsdefinition
+
+TODO:
+- Überladung erlauben?
 
 Funktionen bieten die Möglichkeit, Anweisungen zu kapseln und in Abhängigkeit von Parametern
 bestimmtes Verhalten zu implementieren (beispielsweise native Dungeon-Funktionen aufzurufen).
@@ -400,3 +410,23 @@ Die Ausgabe für diese Anweisungen ist:
 ```
 > "Dieser String wird der Rückgabewert"
 ```
+
+### Import von anderen DSL-Files
+
+```
+#import <relative_file_path.dsl/name_of_thing_to_import>
+
+Bspw.
+#import <my_entity_types.dsl/question_monster>
+#import <my_function_definitions.dsl/evaluation_thingy>
+```
+
+Gedanken dazu:
+- brauchen wir namespaces?
+- soll einfach alles aus einer Datei in die aktuelle Datei inkludiert
+  werden?
+  - Das würde bedeuten, dass ich mir das auch verketten kann, also
+    indem ich in Datei1 Datei2 inkludiere, und in Datei3 Datei2 inkludiere,
+    automatisch Datei1 in Datei3 inkludiert habe
+- wie mit überladenen Funktionen umgehen? einfach alle mit dem gleichen
+  Namen laden?
