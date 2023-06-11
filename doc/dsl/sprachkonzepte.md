@@ -169,8 +169,14 @@ Primitive Datentypen können zu komplexen Datentypen zusammengesetzt werden. Ein
 "Member", das sind Variablen, die nur im Kontext eines Datentypen gültig sind. Ein Beispiel für einen
 komplexen Datentyp ist der `quest_config` Datentyp.
 
+TODO: `entity_type`, `entity`, arrays hinzufügen
+
+Für alle Datentypen (primitive und komplexe) können Listen erstellt werden, welche mehrere
+Elemente eines Datentypen speichern können. Listen mit statischer Länge sind nicht vorgesehen,
+Listen wachsen dynamisch.
+
 Es existiert aktuell kein Mechanismus für DSL-Nutzende, abseits von
-[Entitätsdefinitionen](#entitätsdefinition), per DSL-Eingabe komplexe Datentypen zu erstellen.
+[Entitätsdefinitionen](#entitätstyp-definition), per DSL-Eingabe komplexe Datentypen zu erstellen.
 Alle komplexen Datentypen werden in der Implementierung der DSL und des `DSLInterpreters` definiert, diese
 Implementierung ist DSL-Nutzenden nicht zugänglich.
 
@@ -279,19 +285,29 @@ Damit eine DSL Funktion als Event-Handler Funktion für ein bestimmtes Event ver
 Funktionssignatur (also Datentypen und Anzahl der Parameter sowie Rückgabetyp) der DSL Funktion zu der
 Signatur passen, die von der Komponente für diese Event-Handler Funktion erwartet wird.
 
+**Listen-Zugriff**
+
+Auf die Elemente einer Liste kann per `[]`-Operator und Index zugegriffen werden, dies könnte wie folgt
+aussehen:
+
+```
+string_array_variable = ["a", "b", "c"];
+string_variable = string_array_variable[0]
+```
+
 ### Quest-Config
 
 Die `quest_config`-Definition ist die zentrale Objektdefinition für ein DungeonDSL-Program. über die
 Eigenschaften des `quest_config`-Objekts werden dem Dungeon-Framework alle nötigen Informationen übergeben,
 die benötigt werden, um ein Level im Dungeon zu erstellen.
 
-### Entitätsdefinition
+### Entitätstyp-Definition
 
-Über eine Objektdefinition mit dem Datentypname `game_object` können [Entitäten](../ecs/create_own_content.md)
+Über eine Objektdefinition mit dem Datentypnamen `entity_type` können [Entitäten](../ecs/create_own_content.md)
 definiert werden.
 
 ```
-game_object object_name {
+entity_type object_name {
     component1: {
         component1_property1: value,
         component1_property2: other_value
@@ -328,7 +344,82 @@ graph g {
 
 **Ersetzung**
 
+Sortierte Menge:
+
+```
+replacement_task t {
+  elements: (
+    n1: ["elem1", "elem2"]
+  )
+}
+```
+
+Note: die `{` und `}` direkt hinter `elements:` kennzeichnen ebenfalls eine unsortierte Menge, d.h. Mengen
+können andere Mengen enthalten. Die Elemente einer Menge können benannt sein.
+Problem: Wie das syntaktisch von den `entity_type`-Definitionen abgrenzen?
+Yet another Problem: Wie Mengen von Mengen von Mengen im Typsystem abbilden? Eine Menge ist ja irgendwie
+eine eigene Kategorie `IType`, die einen weiteren, "zugrundeliegenden" `IType` hat.
+
+Idee:
+- `[x, y, z]` könnte eine sortierte Menge sein (halt eine Liste, mit optional benannten Elementen)
+- `(x, y, z)` könnte eine unsortierte Menge sein (ein Set), optional mit benannten Elementen
+
+**Frage:** Was macht hier wirklich den Unterschied aus? Eigentlich muss nur gespeichert im Datentyp
+gespeichert werden, ob die Reihenfolge relevant ist, oder nicht.
+
+Benannte sortierte Menge:
+
+```
+replacement_task t {
+  elements: (
+    n1: ["elem1", "elem2"]
+  )
+}
+```
+
+Unsortierte Menge:
+
+```
+replacement_task t {
+  elements: (
+    ("elem1", "elem3")
+  )
+}
+```
+
+Benannte unsortierte Menge:
+
+```
+replacement_task t {
+  elements: (
+    n2: ("elem1", "elem3")
+  )
+}
+```
+
+"Regel":
+
+```
+rules: {
+  r1: n1 -> n3,
+}
+```
+
 **Kombination**
+
+```
+mapping_task t {
+  mapping: {
+  // Definition Zuordnung - (<term>, <definition>)
+  ["a", "b"],
+
+  // Hinzufügen von zusätzlichem Term
+  ["c", _],
+
+  // Hinzufügen von zusätzlicher Definition
+  [_, "w"]
+}
+```
 
 **Lücken**
 
