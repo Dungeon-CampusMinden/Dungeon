@@ -6,8 +6,15 @@ import core.Game;
 import core.System;
 import core.components.UIComponent;
 
+/**
+ * The basic handling of any UIComponent. Adds them to the Stage, updates the Stage each Frame to
+ * allow EventHandling.
+ *
+ * <p>Issue #727 would add the ability to remove Dialogs from the Stage when the UIComponent is no
+ * longer available
+ */
 public final class HudSystem extends System {
-
+    /** The HudSystem needs the UIComponent to work. */
     public HudSystem() {
         super(UIComponent.class);
     }
