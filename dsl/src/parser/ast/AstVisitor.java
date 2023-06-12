@@ -176,6 +176,16 @@ public interface AstVisitor<T> {
     }
 
     /**
+     * Visitor method for ReturnStmtNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(ReturnStmtNode node) {
+        return null;
+    }
+
+    /**
      * Visit all children of the passed node
      *
      * @param node The node to visit all children of
