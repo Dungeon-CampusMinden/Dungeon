@@ -6,9 +6,9 @@ title: "Übersicht Konferenzen "
 
 | Name | Bereich | Zyklus | Link |
 | --- | --- | --- | --- |
-| Festival HFD | Digital | - | [Link](https://festival.hfd.digital/de/call-2023/) |
-| TURN Conference | - | - | [Link](https://turn-conference.org/turn23/) |
-| DELFI-Tagung | - | - | [Link](https://delfi-tagung.de/delfi-2023/call-for-papers) |
+| University Future Festival | Digitale Lehre; Informatik in der Lehre | 2 Jährig | [Link](https://festival.hfd.digital/de/) |
+| TURN Conference (Workshop)| Lehre; Digitale Lehre | Jährlich | [Link]https://turn-conference.org/) |
+| DELFI-Tagung | Digitale Lehre; Informatik in der Lehre | Jährlich (?)| [Link](https://delfi-tagung.de/) |
 | World CTE | - | - | [Link](https://www.worldcte.org/) |
 | ABP Workshop | - | - | [Link](https://www.abp-workshop.de/) |
 | Infos2023 | Informatik | - | [Link](https://infos2023.informatik.uni-rostock.de) |
