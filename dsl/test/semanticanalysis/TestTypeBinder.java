@@ -11,8 +11,6 @@ import runtime.GameEnvironment;
 
 import semanticanalysis.types.*;
 
-import java.util.List;
-
 public class TestTypeBinder {
     @DSLType
     private record TestComponent(
@@ -40,8 +38,7 @@ public class TestTypeBinder {
         var symTableParser = new SemanticAnalyzer();
 
         var env = new GameEnvironment();
-        var types = new IType[] {testCompType};
-        env.loadTypes(List.of(types));
+        env.loadTypes(testCompType);
         symTableParser.setup(env);
 
         SymbolTable symbolTable = symTableParser.walk(ast).symbolTable;
@@ -83,8 +80,7 @@ public class TestTypeBinder {
         var symTableParser = new SemanticAnalyzer();
 
         var env = new GameEnvironment();
-        var types = new IType[] {testCompType};
-        env.loadTypes(List.of(types));
+        env.loadTypes(testCompType);
         symTableParser.setup(env);
 
         SymbolTable symbolTable = symTableParser.walk(ast).symbolTable;
@@ -125,8 +121,7 @@ public class TestTypeBinder {
         env.getTypeBuilder().registerTypeAdapter(RecordBuilder.class, Scope.NULL);
         var type = env.getTypeBuilder().createTypeFromClass(new Scope(), TestRecordUser.class);
 
-        var types = new IType[] {type};
-        env.loadTypes(List.of(types));
+        env.loadTypes(type);
         symTableParser.setup(env);
 
         SymbolTable symbolTable = symTableParser.walk(ast).symbolTable;

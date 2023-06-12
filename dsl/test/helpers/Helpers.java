@@ -109,8 +109,7 @@ public class Helpers {
             parser.ast.Node ast, IType[] types) {
         var symTableParser = new SemanticAnalyzer();
         var env = new GameEnvironment();
-        var typesToLoad = types;
-        env.loadTypes(List.of(typesToLoad));
+        env.loadTypes(List.of(types));
         symTableParser.setup(env);
         return symTableParser.walk(ast);
     }

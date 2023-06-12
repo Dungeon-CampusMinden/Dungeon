@@ -17,6 +17,7 @@ import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -90,6 +91,11 @@ public class GameEnvironment implements IEvironment {
     }
 
     @Override
+    public void loadTypes(IType... types) {
+        loadTypes(Arrays.stream(types).toList());
+    }
+
+    @Override
     public void loadTypes(List<IType> types) {
         for (IType type : types) {
             if (!(type instanceof IType)) {
@@ -104,6 +110,11 @@ public class GameEnvironment implements IEvironment {
             loadedTypes.put(type.getName(), type);
             this.globalScope.bind((Symbol) type);
         }
+    }
+
+    @Override
+    public void loadFunctions(ScopedSymbol... functions) {
+        loadFunctions(Arrays.stream(functions).toList());
     }
 
     @Override
