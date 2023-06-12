@@ -3,6 +3,8 @@ package ecs.entities;
 import dslToGame.AnimationBuilder;
 import ecs.components.*;
 import ecs.components.skill.*;
+import ecs.components.xp.ILevelUp;
+import ecs.components.xp.XPComponent;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.entities.Entity;
@@ -25,7 +27,7 @@ import java.lang.Math;
  * The DarkKnight is a hostile mob(npc). It's entity in the ECS. This class
  * helps to
  * setup darkknights with all its components and attributes.
- * 
+ *
  * I'm Batman
  */
 
@@ -45,6 +47,8 @@ public class DarkKnight extends Monster {
     private final String pathToGetHit = "monster/darkKnight/getHit";
     private final String pathToDie = "monster/darkKnight/die";
 
+    private XPComponent xPComponent;
+
     private Skill attack;
 
     /** Entity with Components */
@@ -57,6 +61,8 @@ public class DarkKnight extends Monster {
         setupHitboxComponent();
         setupHealthComponent();
         setupAIComponent();
+        setupXPComponent();
+        setupDamageComponent();
     }
 
     private void setupVelocityComponent() {
@@ -75,7 +81,7 @@ public class DarkKnight extends Monster {
         new HitboxComponent(
                 this,
                 (you, other, direction) -> attack(other),
-                (you, other, direction) -> System.out.println("monsterCollisionLeave"));
+                (you, other, direction) -> {});
     }
 
     private void setupHealthComponent() {
@@ -116,7 +122,31 @@ public class DarkKnight extends Monster {
     }
 
     private int calcDamage() {
-        return 5 + (int) Math.sqrt(10 * level);
+        return 5 + (int) Math.sqrt(10 * xPComponent.getCurrentLevel());
+    }
+
+    private void setupDamageComponent() {
+        new DamageComponent(this, calcDamage());
+    }
+
+    private void setupXPComponent() {
+        xPComponent = new XPComponent(this, new ILevelUp() {
+
+            @Override
+            public void onLevelUp(long nexLevel) {
+                HealthComponent health = (HealthComponent) getComponent(HealthComponent.class).get();
+                health.setMaximalHealthpoints((int) (health.getMaximalHealthpoints() * 1.01f));
+                health.setCurrentHealthpoints(health.getMaximalHealthpoints());
+                xPComponent.setLootXP(40 * (nexLevel >> 1));
+                ((DamageComponent) getComponent(DamageComponent.class).get()).setDamage(calcDamage());
+            }
+
+        }, 40 * (level >> 1));
+        xPComponent.setCurrentLevel(level >> 1);
+        ((HealthComponent) getComponent(HealthComponent.class).get())
+                .setMaximalHealthpoints(maxHealth * (int) Math.pow(1.01f, xPComponent.getCurrentLevel()));
+        ((HealthComponent) getComponent(HealthComponent.class).get())
+                .setCurrentHealthpoints(maxHealth * (int) Math.pow(1.01f, xPComponent.getCurrentLevel()));
     }
 
 }

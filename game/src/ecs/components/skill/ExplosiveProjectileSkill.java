@@ -14,9 +14,7 @@ import ecs.components.skill.DamageProjectileSkill;
 import ecs.components.skill.ITargetSelection;
 import ecs.components.skill.SkillTools;
 
-import ecs.damage.Damage;
 import ecs.damage.DamageType;
-import tools.Point;
 
 public abstract class ExplosiveProjectileSkill extends DamageProjectileSkill {
 

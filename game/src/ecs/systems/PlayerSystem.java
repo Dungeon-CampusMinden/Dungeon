@@ -13,7 +13,8 @@ import starter.Game;
 /** Used to control the player */
 public class PlayerSystem extends ECS_System {
 
-    private record KSData(Entity e, PlayableComponent pc, VelocityComponent vc, InventoryComponent in) {}
+    private record KSData(Entity e, PlayableComponent pc, VelocityComponent vc, InventoryComponent in) {
+    }
 
     @Override
     public void update() {
@@ -33,37 +34,27 @@ public class PlayerSystem extends ECS_System {
         else if (Gdx.input.isKeyPressed(KeyboardConfig.MOVEMENT_LEFT.get()))
             ksd.vc.setCurrentXVelocity(-1 * ksd.vc.getXVelocity());
 
-        if(Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY.get())){
+        if (Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY.get())) {
             ksd.in.setOpen();
-        }
-        else if (Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_FIRST.get())){
+        } else if (Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_FIRST.get())) {
             ksd.in.useItem(0);
-        }
-        else if(Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_SECOND.get())){
+        } else if (Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_SECOND.get())) {
             ksd.in.useItem(1);
-        }
-        else if(Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_THIRD.get())){
+        } else if (Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_THIRD.get())) {
             ksd.in.useItem(2);
-        }
-        else if(Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_FOURTH.get())){
+        } else if (Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_FOURTH.get())) {
             ksd.in.useItem(3);
-        }
-        else if(Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_FIFTH.get())){
+        } else if (Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_FIFTH.get())) {
             ksd.in.useItem(4);
-        }
-        else if(Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_SIXTH.get())){
+        } else if (Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_SIXTH.get())) {
             ksd.in.useItem(5);
-        }
-        else if(Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_SEVENTH.get())){
+        } else if (Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_SEVENTH.get())) {
             ksd.in.useItem(6);
-        }
-        else if(Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_EIGHTH.get())){
+        } else if (Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_EIGHTH.get())) {
             ksd.in.useItem(7);
-        }
-        else if(Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_NINTH.get())){
+        } else if (Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_NINTH.get())) {
             ksd.in.useItem(8);
-        }
-        else if(Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_REMOVE.get())){
+        } else if (Gdx.input.isKeyPressed(KeyboardConfig.INVENTORY_REMOVE.get())) {
             ksd.in.removeFirstItem();
         }
 
@@ -77,20 +68,24 @@ public class PlayerSystem extends ECS_System {
             ksd.pc.getSkillSlot1().ifPresent(skill -> skill.execute(ksd.e));
         else if (Gdx.input.isKeyPressed(KeyboardConfig.SECOND_SKILL.get()))
             ksd.pc.getSkillSlot2().ifPresent(skill -> skill.execute(ksd.e));
+        else if (Gdx.input.isKeyPressed(KeyboardConfig.THIRD_SKILL.get()))
+            ksd.pc.getSkillSlot3().ifPresent(skill -> skill.execute(ksd.e));
+        else if (Gdx.input.isKeyPressed(KeyboardConfig.FOURTH_SKILL.get()))
+            ksd.pc.getSkillSlot4().ifPresent(skill -> skill.execute(ksd.e));
+        else if (Gdx.input.isKeyPressed(KeyboardConfig.FIFTH_SKILL.get()))
+            ksd.pc.getSkillSlot5().ifPresent(skill -> skill.execute(ksd.e));
+        else if (Gdx.input.isKeyPressed(KeyboardConfig.SIXTH_SKILL.get()))
+            ksd.pc.getSkillSlot6().ifPresent(skill -> skill.execute(ksd.e));
     }
 
     private KSData buildDataObject(PlayableComponent pc) {
         Entity e = pc.getEntity();
 
-        VelocityComponent vc =
-                (VelocityComponent)
-                        e.getComponent(VelocityComponent.class)
-                                .orElseThrow(PlayerSystem::missingVC);
+        VelocityComponent vc = (VelocityComponent) e.getComponent(VelocityComponent.class)
+                .orElseThrow(PlayerSystem::missingVC);
 
-        InventoryComponent in =
-                (InventoryComponent)
-                        e.getComponent(InventoryComponent.class)
-                                .orElseThrow(PlayerSystem::missingIN);
+        InventoryComponent in = (InventoryComponent) e.getComponent(InventoryComponent.class)
+                .orElseThrow(PlayerSystem::missingIN);
 
         return new KSData(e, pc, vc, in);
     }

@@ -16,25 +16,12 @@ import ecs.components.HealthComponent;
 import ecs.components.MissingComponentException;
 import ecs.components.PositionComponent;
 import ecs.components.quests.QuestComponent;
+import ecs.components.xp.XPComponent;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
-import ecs.entities.Entity;
-import ecs.entities.Hero;
+import ecs.entities.*;
 import ecs.systems.*;
 import ecs.tools.Flags.Flag;
-import ecs.entities.Bag;
-import ecs.entities.Boss;
-import ecs.entities.Cake;
-import ecs.entities.Chort;
-import ecs.entities.DamageTrap;
-import ecs.entities.DarkKnight;
-import ecs.entities.Imp;
-import ecs.entities.Monster;
-import ecs.entities.MonsterPotion;
-import ecs.entities.QuestButton;
-import ecs.entities.SpeedPotion;
-import ecs.entities.SummoningTrap;
-import ecs.entities.TeleportationTrap;
 import saving.GameData;
 import saving.Saves;
 import graphic.DungeonCamera;
@@ -227,7 +214,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         // "K" the Suicide Button (You'll probably want to press it)
         if (Gdx.input.isKeyJustPressed(Input.Keys.K))
             ((HealthComponent) hero.getComponent(HealthComponent.class).get())
-                    .receiveHit(new Damage(100, DamageType.PHYSICAL, hero));
+                    .receiveHit(new Damage(100 * ((HealthComponent) hero.getComponent(HealthComponent.class).get())
+                            .getMaximalHealthpoints(), DamageType.PHYSICAL, hero));
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
             throw new Flag();
         if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
@@ -246,6 +234,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         saves.setAutoSave(Optional.of(data));
         saves.save();
         gameLogger.info("Level: " + level);
+        gameLogger.info("PlayerLevel: " + Long.toString(((Entity) hero).getComponent(XPComponent.class).isPresent()
+                ? ((Entity) hero).getComponent(XPComponent.class).map(XPComponent.class::cast).get().getCurrentLevel()
+                : 0));
     }
 
     private void manageEntitiesSets() {
@@ -429,6 +420,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new SkillSystem();
         new ProjectileSystem();
         new QuestSystem();
+        new ManaSystem();
     }
 
     /** returns current level of the dungeon */
@@ -451,6 +443,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             if (i % 5 == 0)
                 spawnTraps();
         }
+        addEntity(new Tombstone(new Ghost()));
         addEntity(new QuestButton());
     }
 
@@ -461,7 +454,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             addEntity(new Imp(level));
         else if (random < 6)
             addEntity(new Chort(level));
-        else if(random < 9)
+        else if (random < 9)
             addEntity(new DarkKnight(level));
         else
             addEntity(new Boss(level));

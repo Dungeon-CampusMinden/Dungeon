@@ -44,7 +44,7 @@ public class TeleportationTrap extends Trap {
         new HitboxComponent(
                 this,
                 (you, other, direction) -> trigger(other),
-                (you, other, direction) -> System.out.println("trapCollisionLeave"));
+                (you, other, direction) -> {});
     }
 
     @Override

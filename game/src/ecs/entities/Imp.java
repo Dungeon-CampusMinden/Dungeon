@@ -6,6 +6,8 @@ import ecs.components.skill.*;
 import ecs.damage.Damage;
 import ecs.entities.Entity;
 import ecs.components.skill.PiercingArrowSkill;
+import ecs.components.xp.ILevelUp;
+import ecs.components.xp.XPComponent;
 import graphic.Animation;
 import ecs.components.OnDeathFunctions.EndGame;
 import ecs.components.ai.AIComponent;
@@ -41,6 +43,8 @@ public class Imp extends Monster {
     private final String pathToGetHit = "monster/imp/getHit";
     private final String pathToDie = "monster/imp/die";
 
+    private XPComponent xpComponent;
+
     private Skill attack;
 
     /** Entity with Components */
@@ -53,6 +57,8 @@ public class Imp extends Monster {
         setupHitboxComponent();
         setupHealthComponent();
         setupAIComponent();
+        setupXPComponent();
+        setupDamageComponent();
     }
 
     private void setupVelocityComponent() {
@@ -68,10 +74,7 @@ public class Imp extends Monster {
     }
 
     private void setupHitboxComponent() {
-        new HitboxComponent(
-                this,
-                (you, other, direction) -> System.out.println("monsterCollisionEnter"),
-                (you, other, direction) -> System.out.println("monsterCollisionLeave"));
+        new HitboxComponent(this);
     }
 
     private void setupHealthComponent() {
@@ -105,7 +108,31 @@ public class Imp extends Monster {
     }
 
     private int calcDamage() {
-        return 3 + (int) Math.sqrt(3 * level);
+        return 3 + (int) Math.sqrt(3 * xpComponent.getCurrentLevel());
+    }
+
+    private void setupDamageComponent() {
+        new DamageComponent(this, calcDamage());
+    }
+
+    private void setupXPComponent() {
+        xpComponent = new XPComponent(this, new ILevelUp() {
+
+            @Override
+            public void onLevelUp(long nexLevel) {
+                HealthComponent health = (HealthComponent) getComponent(HealthComponent.class).get();
+                health.setMaximalHealthpoints((int) (health.getMaximalHealthpoints() * 1.01f));
+                health.setCurrentHealthpoints(health.getMaximalHealthpoints());
+                xpComponent.setLootXP(10 * nexLevel);
+                ((DamageComponent) getComponent(DamageComponent.class).get()).setDamage(calcDamage());
+            }
+
+        }, 10 * level);
+        xpComponent.setCurrentLevel(level);
+        ((HealthComponent) getComponent(HealthComponent.class).get())
+                .setMaximalHealthpoints(maxHealth * (int) Math.pow(1.01f, xpComponent.getCurrentLevel()));
+        ((HealthComponent) getComponent(HealthComponent.class).get())
+                .setCurrentHealthpoints(maxHealth * (int) Math.pow(1.01f, xpComponent.getCurrentLevel()));
     }
 
 }

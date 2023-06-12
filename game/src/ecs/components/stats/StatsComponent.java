@@ -6,6 +6,7 @@ import ecs.entities.Entity;
 public class StatsComponent extends Component {
 
     private DamageModifier damageModifier = new DamageModifier();
+    private XPModifier xpModifier = new XPModifier(1.0f);
 
     /**
      * Create a new component and add it to the associated entity
@@ -26,11 +27,29 @@ public class StatsComponent extends Component {
     }
 
     /**
+     * Get the XPModifier object of the entity
+     * 
+     * @return {@link ecs.components.stats.XPModifier} object
+     */
+    public XPModifier getXpModifier() {
+        return xpModifier;
+    }
+
+    /**
      * Overwrite the DamageModifier object of the entity
      *
      * @param damageModifier new {@link ecs.components.stats.DamageModifier} object
      */
     public void setDamageModifier(DamageModifier damageModifier) {
         this.damageModifier = damageModifier;
+    }
+
+    /**
+     * Overwrite the XPModifier object of the entity
+     * 
+     * @param xpModifier new {@link ecs.components.stats.XPModifier} object
+     */
+    public void setXpModifier(XPModifier xpModifier) {
+        this.xpModifier = xpModifier;
     }
 }
