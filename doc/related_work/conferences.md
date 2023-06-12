@@ -13,10 +13,8 @@ title: "Übersicht Konferenzen "
 | ABP Workshop | Autograding | 2 Jährlich (?)| [Link](https://www.abp-workshop.de/) |
 | Infos2023 | Informatik-Lehre (Schulen) | 2 Jährlich (?) | [Link](https://infos2023.informatik.uni-rostock.de) |
 |Software Engineering | Software Engineering; Software-Technik | Jährlich | [Link](https://se-2023.gi.de/) |
-| ITiCSE | SIGCSE | - | [Link](https://sigcse.org/events/iticse/index.html) |
-| ICER | SIGCSE | - | [Link](https://sigcse.org/events/icer/index.html) |
-| Symposia | SIGCSE | - | [Link](https://sigcse.org/events/symposia/index.html) |
-| DELFI-Tagung | - | - | [Link](https://delfi-tagung.de/delfi-2023/call-for-papers) |
-| ABP Workshop | - | - | [Link](https://www.abp-workshop.de) |
-| Start Play | - | - | [Link](https://startplay-conference.com/) |
+| ITiCSE | Informatik-Lehre | Jährlich | [Link](https://sigcse.org/events/iticse/index.html) |
+| ICER | Informatik-Lehre |Jährlich | [Link](https://sigcse.org/events/icer/index.html) |
+| Symposia | Informatik-Lehre | Jährlich | [Link](https://sigcse.org/events/symposia/index.html) |
+| Start Play | Lehre; Gamification | Jährlich (?) | [Link](https://startplay-conference.com/) |
 
