@@ -12,20 +12,6 @@ public final class HudSystem extends System {
         super(UIComponent.class);
     }
 
-    /* for dungeon Issue #727
-        @Override
-        private void addEntity(Entity entity) {
-            stage.addActor(entity.getComponent(UIComponent.class).map(UIComponent.class::cast).map(UIComponent::getDialog).get());
-        }
-    */
-
-    /* for dungeon Issue #727
-        @Override
-        public void removeEntity(Entity entity) {
-            entity.getComponent(UIComponent.class).map(UIComponent.class::cast).map(UIComponent::getDialog).get().remove();
-        }
-    */
-
     @Override
     public void execute() {
         // Temp fix until either addEntity is available or removeEntity until dungeon Issue #727
