@@ -7,7 +7,7 @@ title: "Übersicht Konferenzen "
 | Name | Bereich | Zyklus | Link |
 | --- | --- | --- | --- |
 | University Future Festival | Digitale Lehre; Informatik in der Lehre | 2 Jährig | [Link](https://festival.hfd.digital/de/) |
-| TURN Conference (Workshop)| Lehre; Digitale Lehre | Jährlich | [Link]https://turn-conference.org/) |
+| TURN Conference (Workshop)| Lehre; Digitale Lehre | Jährlich | [Link](https://turn-conference.org/) |
 | DELFI-Tagung | Digitale Lehre; Informatik in der Lehre | Jährlich (?)| [Link](https://delfi-tagung.de/) |
 | World CTE | Lehre; Digitale Lehre | halb Jährlich | [Link](https://www.worldcte.org/) |
 | ABP Workshop | Autograding | 2 Jährlich (?)| [Link](https://www.abp-workshop.de/) |
