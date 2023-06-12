@@ -15,7 +15,6 @@ public enum DesignLabel {
     ICE,
     RAINBOW,
     TEMPLE;
-
     private static final List<DesignLabel> VALUES = List.of(values());
     private static final int SIZE = VALUES.size();
     private static final Random RANDOM = new Random();
