@@ -559,13 +559,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 dslType = this.environment.javaTypeToDSLTypeMap().get(valueClass);
                 if (dslType == null) {
                     throw new RuntimeException(
-                            "No DSL Type representation for java type '" + valueClass + "'");
+                        "No DSL Type representation for java type '" + valueClass + "'");
                 }
             }
-            return new Value(dslType, returnValue);
-        } else {
-            return returnValue;
+            returnValue = new Value(dslType, returnValue);
         }
+        return returnValue;
     }
 
     @Override
