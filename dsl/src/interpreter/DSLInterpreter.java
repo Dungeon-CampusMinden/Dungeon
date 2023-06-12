@@ -491,6 +491,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         var functionMemSpace = new MemorySpace(memoryStack.peek());
         this.memoryStack.push(functionMemSpace);
 
+        // bind all parameter-symbols as values in the function's memory space and set their values
         var parameterSymbols = symbol.getSymbols();
         for (int i = 0; i < parameterNodes.size(); i++) {
             var parameterSymbol = parameterSymbols.get(i);
