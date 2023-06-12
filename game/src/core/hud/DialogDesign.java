@@ -16,16 +16,25 @@ import java.util.Optional;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
-/** creates layout ot a dialog */
+/** Some of the basic layout needed to show either a TextDialog or a QuestionDialog. */
 public class DialogDesign extends VerticalGroup {
-    public static final String PATTERN_IMAGE_FINDER = "(\\w+[\\\\|/])*\\w+.(?>png|bmp|tiff|jpeg)";
+    // simple regex which allows path/to/image.png allowed file endings are png/bmp/tiff/jpeg
+    private static final String PATTERN_IMAGE_FINDER = "(\\w+[\\\\|/])*\\w+.(?>png|bmp|tiff|jpeg)";
 
+    /** Creates a Left aligned VerticalGroup which completely fills the Parent UI Element. */
     public DialogDesign() {
         super();
         setFillParent(true);
         left();
     }
 
+    /**
+     * Simple Helper with default ScollPane Configuration
+     *
+     * @param skin how the ScrollPane should look like
+     * @param container a container which should be scrollable
+     * @return the ScrollPane which then can be added to any UI Element
+     */
     private static ScrollPane createScrollPane(Skin skin, Actor container) {
         ScrollPane scrollPane = new ScrollPane(container, skin);
         scrollPane.setFadeScrollBars(false);
@@ -34,12 +43,18 @@ public class DialogDesign extends VerticalGroup {
         return scrollPane;
     }
 
+    /**
+     * Simple default Textarea with default Text
+     *
+     * @param skin how the ScrollPane should look like
+     * @return the TextArea which then can be added to any UI Element
+     */
     private static TextArea createEditableText(Skin skin) {
         return new TextArea("Click here...", skin);
     }
 
     /**
-     * Constructor that allows text to be placed and does the layout for the text.
+     * Creates a simple Dialog which only has static Text shown.
      *
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
      * @param outputMsg Content displayed in the scrollable label
@@ -49,13 +64,13 @@ public class DialogDesign extends VerticalGroup {
     }
 
     /**
-     * Presentation of the layouts of the questions and answers
+     * Creates a UI for a Quizquestion
      *
      * @param quizQuestion Various question configurations
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
      * @param outputMsg Content displayed in the scrollable label
      */
-    public void QuizQuestion(QuizQuestion quizQuestion, Skin skin, String outputMsg) {
+    public void createQuizQuestion(QuizQuestion quizQuestion, Skin skin, String outputMsg) {
         Label labelExercise = new Label(Constants.QUIZ_MESSAGE_TASK, skin);
         labelExercise.setColor(Color.YELLOW);
         addActor(labelExercise);
@@ -67,7 +82,12 @@ public class DialogDesign extends VerticalGroup {
     }
 
     /**
-     * Presentation of all possible variations of the questions as text, image or text and image
+     * creates needed UI Elements to vizualize all Question types.
+     *
+     * <p>QuestionType.TEXT will be shown on a Label, QuestionType.IMAGE will be shown on a Image
+     * and QuestionType.TEXT_AND_IMAGE will show the whole Text and then the Image. The Image needs
+     * to be loaded from the Filesystem so there could be a IOException thrown if the path is not
+     * correct in the Question.
      *
      * @param questionContentType represents the different types of quiz questions that can be
      *     created. The available types are SINGLE_CHOICE, MULTIPLE_CHOICE, and FREETEXT.
@@ -120,7 +140,9 @@ public class DialogDesign extends VerticalGroup {
     }
 
     /**
-     * Constructor Fills the vertical button group with text boxes and text contents for it
+     * Creates a vertical Button Group based on the answers provided by the QuizQuestion
+     *
+     * <p>currently does not support Image answers.
      *
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
      * @param quizQuestion Various question configurations
@@ -164,6 +186,12 @@ public class DialogDesign extends VerticalGroup {
         return answerButtons;
     }
 
+    /**
+     * a simple implementation to find a filepath in a String
+     *
+     * @param quizQuestion the string which may contain a path
+     * @return an Optional of either the path or empty when there is no path in the given question
+     */
     private Optional<String> imagePathExtractor(String quizQuestion) {
         Optional<MatchResult> first =
                 Pattern.compile(PATTERN_IMAGE_FINDER).matcher(quizQuestion).results().findFirst();

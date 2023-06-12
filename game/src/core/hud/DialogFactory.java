@@ -27,7 +27,7 @@ public class DialogFactory {
             BiFunction<TextDialog, String, Boolean> resultHandler) {
         Dialog textDialog = new TextDialog(title, skin, resultHandler);
         DialogDesign dialogDesign = new DialogDesign();
-        dialogDesign.QuizQuestion(quizQuestion, skin, outputMsg);
+        dialogDesign.createQuizQuestion(quizQuestion, skin, outputMsg);
         textDialog.button(buttonMsg, buttonMsg);
         textDialog
                 .getContentTable()
