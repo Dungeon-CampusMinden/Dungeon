@@ -566,4 +566,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
             return returnValue;
         }
     }
+
+    @Override
+    public Object visit(ReturnStmtNode node) {
+        // TODO: evaluate inner stmt
+        // TODO: walk up memorySpaceStack and find return value
+        // TODO: end function execution!
+        return null;
+    }
 }
