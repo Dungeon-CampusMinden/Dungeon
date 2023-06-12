@@ -5,14 +5,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import java.util.function.BiFunction;
 
-/** Contains Constructor, which immediately creates the dialogue including all its elements. */
+/** A TextDialog which allows the resulthandler to be defined per functional interface */
 public final class TextDialog extends Dialog {
 
     /** Handler for Button presses */
     private final BiFunction<TextDialog, String, Boolean> resultHandler;
 
     /**
-     * Constructor for Quiz Question
+     * creates a Textdialog with the given title and skin and stores the functional interface for
+     * Button events.
      *
      * @param skin Skin for the dialog (resources that can be used by UI widgets)
      * @param title Title of the dialog
@@ -25,7 +26,8 @@ public final class TextDialog extends Dialog {
     }
 
     /**
-     * Provides information about the pressed Button
+     * when a Button event happened calls the stored resultHandler and when the resultHandler
+     * returns a false stops the default hide on button press.
      *
      * @param object Object associated with the button
      */
