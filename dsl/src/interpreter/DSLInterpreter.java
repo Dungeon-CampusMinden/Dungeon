@@ -45,6 +45,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return this.memoryStack.peek();
     }
 
+    private static final String RETURN_VALUE_NAME = "$return_value$";
+
     // TODO: add entry-point for game-object traversal
 
     /** Constructor. */
@@ -518,8 +520,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         var functionType = (FunctionType) symbol.getDataType();
         var returnValue = createDefaultValue(functionType.getReturnType());
-        String returnValueName = "$return_value$";
-        memoryStack.peek().bindValue(returnValueName, returnValue);
+
+        memoryStack.peek().bindValue(RETURN_VALUE_NAME, returnValue);
 
         // visit function AST
         // TODO: this could just be retrieved from the FunctionSymbol..
