@@ -572,6 +572,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(ReturnStmtNode node) {
         Value value = (Value) node.getInnerStmtNode().accept(this);
 
+        // walk the memorystack, find the first return value
+        // and set it according to the evaluated value
         for (var ms : this.memoryStack) {
             Value returnValue = ms.resolve(RETURN_VALUE_NAME);
             if (returnValue != Value.NONE) {
@@ -580,6 +582,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             }
         }
 
+        // signal, that a return statement was hit
         this.hitReturnStmt = true;
         return null;
     }
