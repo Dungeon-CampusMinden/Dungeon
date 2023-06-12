@@ -444,4 +444,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         }
         return null;
     }
+
+    @Override
+    public Void visit(ReturnStmtNode node) {
+        node.getInnerStmtNode().accept(this);
+        return null;
+    }
 }
