@@ -64,8 +64,4 @@ public final class HudSystem extends System {
     /** HudSystem can´t be paused */
     @Override
     public void stop() {}
-
-    /** HudSystem is always running no need to log it */
-    @Override
-    public void run() {}
 }
