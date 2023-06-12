@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.List;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
@@ -171,8 +170,7 @@ public class TestDSLInterpreter {
         var otherCompType = tb.createTypeFromClass(new Scope(), OtherComponent.class);
 
         var env = new GameEnvironment();
-        var typesToLoad = new IType[] {testCompType, otherCompType};
-        env.loadTypes(List.of(typesToLoad));
+        env.loadTypes(testCompType, otherCompType);
 
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
@@ -234,8 +232,7 @@ public class TestDSLInterpreter {
         var otherCompType = tb.createTypeFromClass(new Scope(), TestComponent2.class);
 
         var env = new TestEnvironment();
-        var typesToLoad = new IType[] {entityType, testCompType, otherCompType};
-        env.loadTypes(List.of(typesToLoad));
+        env.loadTypes(entityType, testCompType, otherCompType);
 
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
@@ -308,8 +305,7 @@ public class TestDSLInterpreter {
         var compType = tb.createTypeFromClass(new Scope(), ComponentWithExternalTypeMember.class);
 
         var env = new TestEnvironment();
-        var typesToLoad = new IType[] {entityType, compType};
-        env.loadTypes(List.of(typesToLoad));
+        env.loadTypes(entityType, compType);
 
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
@@ -369,11 +365,7 @@ public class TestDSLInterpreter {
                 env.getTypeBuilder()
                         .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
         var externalType = env.getTypeBuilder().createTypeFromClass(Scope.NULL, ExternalType.class);
-        env.loadTypes(
-                List.of(
-                        new IType[] {
-                            entityType, testCompType, externalComponentType, externalType
-                        }));
+        env.loadTypes(entityType, testCompType, externalComponentType, externalType);
 
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
@@ -426,11 +418,7 @@ public class TestDSLInterpreter {
                 env.getTypeBuilder()
                         .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
         var adapterType = env.getTypeBuilder().createTypeFromClass(Scope.NULL, ExternalType.class);
-        env.loadTypes(
-                List.of(
-                        new IType[] {
-                            entityType, testCompType, externalComponentType, adapterType
-                        }));
+        env.loadTypes(entityType, testCompType, externalComponentType, adapterType);
 
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);

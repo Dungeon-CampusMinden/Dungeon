@@ -81,8 +81,7 @@ public class TestSymbolTableParser {
         var testComponentType = tb.createTypeFromClass(Scope.NULL, TestComponent.class);
 
         var env = new GameEnvironment();
-        var typesToLoad = new IType[] {testComponentType};
-        env.loadTypes(List.of(typesToLoad));
+        env.loadTypes(testComponentType);
         symbolTableParser.setup(env);
         var symbolTable = symbolTableParser.walk(ast).symbolTable;
 
