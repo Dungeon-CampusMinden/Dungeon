@@ -5,28 +5,52 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import core.Component;
 import core.Entity;
 
+/**
+ * A simple implementation for a UI Component which allows to define a Group of
+ * com.badlogic.gdx.scenes.scene2d.ui Elements. Also allows to define whether the Elements are
+ * pausing the Game or not.
+ */
 public class UIComponent extends Component {
     private final Group dialog;
-    private final boolean pauses;
+    private final boolean pausesGame;
 
+    /**
+     * @param entity where the Component should be added
+     * @param dialog a Group of Elements which should be shown
+     * @param pauses if the UI should pause the Game or not
+     */
     public UIComponent(Entity entity, Group dialog, boolean pauses) {
         super(entity);
         this.dialog = dialog;
-        this.pauses = pauses;
+        this.pausesGame = pauses;
     }
 
+    /**
+     * Creates an Empty Group which can be populated with Elements and pauses the Game when visible.
+     *
+     * @param entity where the Component should be added
+     */
     public UIComponent(Entity entity) {
         this(entity, new Group(), true);
     }
 
+    /**
+     * @return true when the dialog is shown
+     */
     public boolean isVisible() {
         return dialog.isVisible();
     }
 
-    public boolean isPauses() {
-        return pauses;
+    /**
+     * @return true if this hud should pause the Game when visible
+     */
+    public boolean isPausesGame() {
+        return pausesGame;
     }
 
+    /**
+     * @return the UI Elements which should be shown
+     */
     public Group getDialog() {
         return dialog;
     }

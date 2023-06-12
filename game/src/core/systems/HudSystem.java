@@ -38,7 +38,7 @@ public final class HudSystem extends System {
                         x ->
                                 x.getComponent(UIComponent.class)
                                         .map(UIComponent.class::cast)
-                                        .map(y -> y.isVisible() && y.isPauses())
+                                        .map(y -> y.isVisible() && y.isPausesGame())
                                         .get())) {
             pauseGame();
         } else {
