@@ -73,6 +73,7 @@ return_stmt
 
 stmt_list
     : stmt stmt_list
+    | return_stmt
     | stmt
     ;
 
