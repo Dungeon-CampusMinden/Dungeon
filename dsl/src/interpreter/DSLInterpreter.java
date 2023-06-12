@@ -145,25 +145,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public void initializeRuntime(IEvironment environment) {
         this.environment = new RuntimeEnvironment(environment);
 
-        TypeInstantiator typeInstantiator = new TypeInstantiator();
-
         // bind all function definition and object definition symbols to objects
         // in global memorySpace
         for (var symbol : symbolTable().getGlobalScope().getSymbols()) {
-            if (symbol instanceof ICallable) {
-                var callableType = ((ICallable) symbol).getCallableType();
-                if (callableType == ICallable.Type.Native) {
-                    bindFromSymbol(symbol, memoryStack.peek());
-                } else if (callableType == ICallable.Type.UserDefined) {
-                    // TODO: if userDefined -> reference AST -> how to?
-                    //  subclass of value? -> do it by symbol-reference
-                    bindFromSymbol(symbol, memoryStack.peek());
-                }
-            }
-            // bind all global definitions
-            else {
-                bindFromSymbol(symbol, memoryStack.peek());
-            }
+            bindFromSymbol(symbol, memoryStack.peek());
         }
     }
 
