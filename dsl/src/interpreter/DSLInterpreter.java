@@ -22,8 +22,8 @@ import semanticanalysis.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import semanticanalysis.types.*;
 
+import java.util.ArrayDeque;
 import java.util.List;
-import java.util.Stack;
 
 // TODO: specify EXACT semantics of value copying and setting
 
@@ -34,8 +34,9 @@ import java.util.Stack;
 public class DSLInterpreter implements AstVisitor<Object> {
 
     private RuntimeEnvironment environment;
-    private final Stack<IMemorySpace> memoryStack;
+    private final ArrayDeque<IMemorySpace> memoryStack;
     private final IMemorySpace globalSpace;
+    private boolean hitReturnStmt;
 
     private SymbolTable symbolTable() {
         return environment.getSymbolTable();
@@ -51,7 +52,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     /** Constructor. */
     public DSLInterpreter() {
-        memoryStack = new Stack<>();
+        memoryStack = new ArrayDeque<>();
         globalSpace = new MemorySpace();
         memoryStack.push(globalSpace);
     }
@@ -156,6 +157,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 } else if (callableType == ICallable.Type.UserDefined) {
                     // TODO: if userDefined -> reference AST -> how to?
                     //  subclass of value? -> do it by symbol-reference
+                    bindFromSymbol(symbol, memoryStack.peek());
                 }
             }
             // bind all global definitions
@@ -504,10 +506,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         var functionMemSpace = new MemorySpace(memoryStack.peek());
         this.memoryStack.push(functionMemSpace);
 
-        var funcAsScope = (ScopedSymbol) symbol;
-
-        // TODO: push parameter for return value and actually return it
-        var parameterSymbols = funcAsScope.getSymbols();
+        var parameterSymbols = symbol.getSymbols();
         for (int i = 0; i < parameterNodes.size(); i++) {
             var parameterSymbol = parameterSymbols.get(i);
             bindFromSymbol(parameterSymbol, memoryStack.peek());
@@ -518,15 +517,28 @@ public class DSLInterpreter implements AstVisitor<Object> {
             setValue(parameterSymbol.getName(), paramValue);
         }
 
+        // create and bind the return value
         var functionType = (FunctionType) symbol.getDataType();
         var returnValue = createDefaultValue(functionType.getReturnType());
-
         memoryStack.peek().bindValue(RETURN_VALUE_NAME, returnValue);
 
         // visit function AST
-        // TODO: this could just be retrieved from the FunctionSymbol..
-        var funcAstNode = this.symbolTable().getCreationAstNode(symbol);
-        funcAstNode.accept(this);
+        var funcRootNode = symbol.getAstRootNode();
+        var stmtList = funcRootNode.getStmts();
+
+        // reset return stmt flag
+        this.hitReturnStmt = false;
+
+        // execute function's statements one by one
+        for (var stmt : stmtList) {
+            stmt.accept(this);
+            // check, if a return statement was hit
+            // if so: stop function execution
+            if (hitReturnStmt) {
+                hitReturnStmt = false;
+                break;
+            }
+        }
 
         memoryStack.pop();
         return returnValue;
@@ -545,6 +557,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         assert funcSymbol instanceof ICallable;
         var funcCallable = (ICallable) funcSymbol;
 
+        // execute the function call
         var returnValue = funcCallable.call(this, node.getParameters());
         if (returnValue == null) {
             return Value.NONE;
@@ -553,8 +566,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
         if (!(returnValue instanceof Value)) {
             // package it into value
             var valueClass = returnValue.getClass();
+            // try to resolve the objects type as primitive built in type
             var dslType = TypeBuilder.getDSLTypeForClass(valueClass);
             if (dslType == null) {
+                // lookup the objects type in the java to dsl type map (created during type
+                // building)
                 dslType = this.environment.javaTypeToDSLTypeMap().get(valueClass);
                 if (dslType == null) {
                     throw new RuntimeException(
@@ -569,9 +585,17 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(ReturnStmtNode node) {
-        // TODO: evaluate inner stmt
-        // TODO: walk up memorySpaceStack and find return value
-        // TODO: end function execution!
+        Value value = (Value) node.getInnerStmtNode().accept(this);
+
+        for (var ms : this.memoryStack) {
+            Value returnValue = ms.resolve(RETURN_VALUE_NAME);
+            if (returnValue != Value.NONE) {
+                returnValue.setInternalValue(value.getInternalObject());
+                break;
+            }
+        }
+
+        this.hitReturnStmt = true;
         return null;
     }
 }
