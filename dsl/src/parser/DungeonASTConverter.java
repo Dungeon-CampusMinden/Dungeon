@@ -116,9 +116,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterReturn_stmt(DungeonDSLParser.Return_stmtContext ctx) {
-
-    }
+    public void enterReturn_stmt(DungeonDSLParser.Return_stmtContext ctx) {}
 
     @Override
     public void exitReturn_stmt(DungeonDSLParser.Return_stmtContext ctx) {
