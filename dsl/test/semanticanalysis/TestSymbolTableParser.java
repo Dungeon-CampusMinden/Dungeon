@@ -18,8 +18,6 @@ import runtime.nativefunctions.NativePrint;
 
 import semanticanalysis.types.*;
 
-import java.util.List;
-
 public class TestSymbolTableParser {
 
     /** Test, if the name of symbols is set correctly */
@@ -366,8 +364,7 @@ public class TestSymbolTableParser {
                         "dummyFunc2",
                         new FunctionType(BuiltInType.intType, BuiltInType.stringType));
 
-        var funcsToLoad = new ScopedSymbol[] {dummyFunc1, dummyFunc2};
-        env.loadFunctions(List.of(funcsToLoad));
+        env.loadFunctions(dummyFunc1, dummyFunc2);
 
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);

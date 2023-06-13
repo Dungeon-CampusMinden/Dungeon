@@ -56,7 +56,7 @@ public class TestDSLInterpreter {
             }
                 """;
         TestEnvironment env = new TestEnvironment();
-        env.loadFunctions(List.of(TestFunctionReturnHelloWorld.func));
+        env.loadFunctions(TestFunctionReturnHelloWorld.func);
 
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
@@ -158,7 +158,7 @@ public class TestDSLInterpreter {
         }
             """;
         TestEnvironment env = new TestEnvironment();
-        env.loadFunctions(List.of(TestFunctionReturnHelloWorld.func));
+        env.loadFunctions(TestFunctionReturnHelloWorld.func);
 
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
