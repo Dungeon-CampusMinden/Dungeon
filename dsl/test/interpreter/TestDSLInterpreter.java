@@ -177,6 +177,38 @@ public class TestDSLInterpreter {
         assertTrue(outputStream.toString().contains("Hello, World!"));
     }
 
+    @Test
+    public void funcCallReturnUserFuncWithoutReturnType() {
+        String program =
+            """
+            fn ret_string() {
+                return "Hello, World!";
+            }
+
+            quest_config c {
+                test: print(ret_string())
+            }
+        """;
+        TestEnvironment env = new TestEnvironment();
+        env.loadFunctions(TestFunctionReturnHelloWorld.func);
+
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+        symbolTableParser.setup(env);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        interpreter.initializeRuntime(env);
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        interpreter.generateQuestConfig(ast);
+
+        assertFalse(outputStream.toString().contains("Hello, World!"));
+    }
+
     /** Test, if Value.NULL does not get set, if non-existing property of datatype is assigned */
     @Test
     public void testDontSetNullValue() {
