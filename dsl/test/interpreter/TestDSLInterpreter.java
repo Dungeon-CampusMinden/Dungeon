@@ -112,7 +112,7 @@ public class TestDSLInterpreter {
     @Test
     public void funcCallDoubleReturnUserFuncDifferentValues() {
         String program =
-            """
+                """
             fn ret_string2() -> string {
                 return "Moin";
             }
