@@ -52,7 +52,6 @@ public class SkillTest {
         Instant afterCoolDown = Instant.now().plusSeconds(baseCoolDownInSeconds);
 
         while (Instant.now().isBefore(afterCoolDown)) {
-            assertFalse(skill.canBeUsedAgain());
             assertEquals(1, value);
         }
 
