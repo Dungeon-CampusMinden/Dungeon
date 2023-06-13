@@ -343,4 +343,4 @@ public Object call(DSLInterpreter interpreter, List<Node> parameters) {
 
 Das Sequenzdiagramm der Methode `executeUserDefinedFunction` ist unten dargestellt:
 
-Note: kommt mit [Issue \#705](https://github.com/Programmiermethoden/Dungeon/issues/705).
+![UML: executeUserDefinedFunction](img/execute_user_defined_function.png)
