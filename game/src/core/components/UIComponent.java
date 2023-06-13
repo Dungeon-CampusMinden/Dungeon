@@ -12,17 +12,17 @@ import core.Entity;
  */
 public class UIComponent extends Component {
     private final Group dialog;
-    private final boolean pausesGame;
+    private final boolean willPauseGame;
 
     /**
      * @param entity where the Component should be added
      * @param dialog a Group of Elements which should be shown
-     * @param pauses if the UI should pause the Game or not
+     * @param willPauseGame if the UI should pause the Game or not
      */
-    public UIComponent(Entity entity, Group dialog, boolean pauses) {
+    public UIComponent(Entity entity, Group dialog, boolean willPauseGame) {
         super(entity);
         this.dialog = dialog;
-        this.pausesGame = pauses;
+        this.willPauseGame = willPauseGame;
     }
 
     /**
@@ -44,8 +44,8 @@ public class UIComponent extends Component {
     /**
      * @return true if this hud should pause the Game when visible
      */
-    public boolean isPausesGame() {
-        return pausesGame;
+    public boolean willPauseGame() {
+        return willPauseGame;
     }
 
     /**
