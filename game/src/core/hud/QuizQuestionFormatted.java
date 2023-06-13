@@ -8,7 +8,10 @@ public class QuizQuestionFormatted {
 
     /**
      * Limits the length of the string to 40 characters, after which a line break occurs
-     * automatically. BlackMagic number based on Fontsize, VirtualWindowSize and DialogPadding
+     * automatically.
+     *
+     * <p>BlackMagic number which can be tweaked for better line break VirtualWindowWidth / FontSize
+     * = MAX_ROW_LENGTH 480 / 12 = 40
      */
     private static final int MAX_ROW_LENGTH = 40;
 
