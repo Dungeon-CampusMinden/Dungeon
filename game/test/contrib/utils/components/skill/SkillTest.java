@@ -1,8 +1,6 @@
-package contrib.systems;
+package contrib.utils.components.skill;
 
 import static org.junit.Assert.*;
-
-import contrib.utils.components.skill.Skill;
 
 import core.Entity;
 
@@ -10,8 +8,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.function.Consumer;
 import java.time.Instant;
+import java.util.function.Consumer;
 
 public class SkillTest {
 
@@ -35,24 +33,29 @@ public class SkillTest {
 
     @Test
     public void execute() {
-
-        // test first execution
         assertTrue(skill.canBeUsedAgain());
         skill.execute(entity);
         assertEquals(1, value);
+    }
 
-        // should not execute on cool down
-        assertFalse(skill.canBeUsedAgain());
+    @Test
+    public void executeWhenCoolDownActive() {
         skill.execute(entity);
+        assertFalse(skill.canBeUsedAgain());
         assertEquals(1, value);
+    }
 
-        // reduce cool down to 0
+    @Test
+    public void executeWhenCoolDownExpired() {
+        skill.execute(entity);
+
         Instant afterCoolDown = Instant.now().plusSeconds(baseCoolDownInSeconds);
+
         while (Instant.now().isBefore(afterCoolDown)) {
             assertFalse(skill.canBeUsedAgain());
+            assertEquals(1, value);
         }
 
-        // execution after cool down is over
         assertTrue(skill.canBeUsedAgain());
         skill.execute(entity);
         assertEquals(2, value);
