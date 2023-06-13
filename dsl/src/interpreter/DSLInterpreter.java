@@ -505,8 +505,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         // create and bind the return value
         var functionType = (FunctionType) symbol.getDataType();
-        var returnValue = createDefaultValue(functionType.getReturnType());
-        memoryStack.peek().bindValue(RETURN_VALUE_NAME, returnValue);
+        if (functionType.getReturnType() != BuiltInType.noType) {
+            var returnValue = createDefaultValue(functionType.getReturnType());
+            memoryStack.peek().bindValue(RETURN_VALUE_NAME, returnValue);
+        }
 
         // visit function AST
         var funcRootNode = symbol.getAstRootNode();
@@ -527,7 +529,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
 
         memoryStack.pop();
-        return returnValue;
+        if (functionType.getReturnType() != BuiltInType.noType) {
+            return functionMemSpace.resolve(RETURN_VALUE_NAME);
+        }
+        return Value.NONE;
     }
 
     @Override
