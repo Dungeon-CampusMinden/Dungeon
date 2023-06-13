@@ -17,4 +17,5 @@ title: "Übersicht Konferenzen"
 | ICER | Informatik-Lehre |Jährlich | [Link](https://sigcse.org/events/icer/index.html) |
 | Symposia | Informatik-Lehre | Jährlich | [Link](https://sigcse.org/events/symposia/index.html) |
 | Start Play | Lehre; Gamification | Jährlich (?) | [Link](https://startplay-conference.com/) |
+| SIGCSE | Informatik-Lehren | ?| [Link](https://cssplice.github.io/SIGCSE23/CFP.html) |
 
