@@ -1,9 +1,20 @@
 ---
 title: "Im Escape-Room lernen"
-link: "https://www.youtube.com/watch?v=8MeKsCXZS-0"
-project: "DigiKompASS"
-from: "Universität Koblenz-Landau"
 ---
+
+## Bibkey
+
+```
+@Online{??,
+  author  = {{Stiftung Innovation in der Hochschullehre}},
+  title   = {Im Escape-Room lernen},
+  url     = {https://www.youtube.com/watch?v=8MeKsCXZS-0},
+  urldate = {2023-07-13},
+  year    = {2023},
+}
+```
+
+## Zusammenfassung 
 
 Erstmal vorweg: Abgesehen vom Video findet man speziell zu dem Spiel nicht wirklich etwas im Internet. Die selbst beschreiben es als Online Live Escape-Room. Das Thema der Beispielumsetzung ist Unternehmensführung/-management.
 
