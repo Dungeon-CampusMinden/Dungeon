@@ -1,12 +1,10 @@
 package quest;
 
-import core.utils.controller.ScreenController;
-
 import dslToGame.QuestConfig;
 
 public class QuestFactory {
 
-    public static Quest generateQuestFromConfig(QuestConfig questConfig, ScreenController sc) {
+    public static Quest generateQuestFromConfig(QuestConfig questConfig) {
         // TODO replace dummy QuestType with Type in config
         // QuestType questType = questConfig.questType;
         enum QuestType {

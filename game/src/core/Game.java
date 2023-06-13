@@ -10,12 +10,16 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
 
 import core.components.PositionComponent;
+import core.components.UIComponent;
 import core.configuration.Configuration;
 import core.hud.UITools;
 import core.level.IOnLevelLoader;
@@ -27,13 +31,13 @@ import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.level.utils.LevelSize;
 import core.systems.CameraSystem;
 import core.systems.DrawSystem;
+import core.systems.HudSystem;
 import core.systems.PlayerSystem;
 import core.systems.VelocitySystem;
 import core.utils.Constants;
 import core.utils.DelayedSet;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
-import core.utils.controller.AbstractController;
 
 import quizquestion.DummyQuizQuestionList;
 
@@ -45,8 +49,6 @@ import java.util.stream.Stream;
 /** The heart of the framework. From here all strings are pulled. */
 public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
-    /** Contains all Controller of the Dungeon */
-    public static final List<AbstractController<?>> controller = new ArrayList<>();
     /** Set of all Systems in the ECS */
     public static final Map<Class<? extends System>, System> systems = new HashMap<>();
     /** All entities that are currently active in the dungeon */
@@ -59,6 +61,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     public static ILevel currentLevel;
     private static Entity hero;
     private static Game game;
+    private static Stage stage;
     /**
      * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
      * batch.
@@ -226,6 +229,15 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         LOGGER.info("All entities will be removed from the game.");
     }
 
+    public static Optional<Stage> stage() {
+        return Optional.ofNullable(stage);
+    }
+
+    private static void updateStage(Stage x) {
+        x.act(Gdx.graphics.getDeltaTime());
+        x.draw();
+    }
+
     /**
      * Main game loop.
      *
@@ -243,9 +255,9 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         levelManager.update();
         updateSystems();
         systems.values().stream().filter(System::isRunning).forEach(System::execute);
-        // screen controller
-        controller.forEach(AbstractController::update);
         CameraSystem.camera().update();
+        // stage logic
+        Game.stage().ifPresent(Game::updateStage);
     }
 
     /**
@@ -266,6 +278,17 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
                         batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelManager.loadLevel(LEVELSIZE);
         createSystems();
+
+        setupStage();
+    }
+
+    private static void setupStage() {
+        stage =
+                new Stage(
+                        new ScalingViewport(
+                                Scaling.stretch, Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT),
+                        new SpriteBatch());
+        Gdx.input.setInputProcessor(stage);
     }
 
     /**
@@ -279,20 +302,35 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         debugKeys();
     }
 
+    private boolean uiDebugFlag = false;
     /** Just for debugging, remove later. */
     private void debugKeys() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             // Text Dialogue (output of information texts)
-            UITools.showInfoText(Constants.DEFAULT_MESSAGE);
+
+            newPauseMenu();
+
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             // Dialogue for quiz questions (display of quiz questions and the answer area in test
             // mode)
-            DummyQuizQuestionList.getRandomQuestion().askQuizQuestionWithUI();
+            UITools.showQuizDialog(DummyQuizQuestionList.getRandomQuestion());
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+            // toggle UI "debug rendering"
+            stage().ifPresent(x -> x.setDebugAll(uiDebugFlag = !uiDebugFlag));
         }
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_KEY.get())) {
             debugger.toggleRun();
             LOGGER.info("Debugger ist now " + debugger.isRunning());
         }
+    }
+
+    private Entity newPauseMenu() {
+        Entity entity = UITools.generateNewTextDialog("Pause", "Continue", "Pausemenu");
+        entity.getComponent(UIComponent.class)
+                .map(UIComponent.class::cast)
+                .ifPresent(y -> y.getDialog().setVisible(true));
+
+        return entity;
     }
 
     /** Will update the entity sets of each system and {@link Game#entities}. */
@@ -389,6 +427,13 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         new HealthSystem();
         new XPSystem();
         new ProjectileSystem();
+        new HudSystem();
         debugger = new DebuggerSystem();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        super.resize(width, height);
+        stage().ifPresent(x -> x.getViewport().update(width, height, true));
     }
 }

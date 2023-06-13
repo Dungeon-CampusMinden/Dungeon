@@ -1,7 +1,5 @@
 package quizquestion;
 
-import core.utils.Constants;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -110,15 +108,14 @@ public class DummyQuizQuestionList {
                             new QuizQuestion(
                                     new QuizQuestionContent(
                                             QuizQuestionContent.QuizQuestionContentType.IMAGE,
-                                            Constants.EMPTY_MESSAGE),
+                                            "image_quiz/dummy.png"),
                                     new QuizQuestionContent[] {},
                                     QuizQuestion.QuizQuestionType.FREETEXT));
                     // Testfrage mit Bild als Fragestellung und einer Antwort als SINGLE_CHOICE
                     add(
                             new QuizQuestion(
                                     new QuizQuestionContent(
-                                            QuizQuestionContent.QuizQuestionContentType
-                                                    .TEXT_AND_IMAGE,
+                                            QuizQuestionContent.QuizQuestionContentType.TEXT,
                                             "Was ist \"Game Loop\"in LibGDX und was macht diese?"),
                                     new QuizQuestionContent[] {
                                         new QuizQuestionContent(

@@ -93,7 +93,12 @@
 		"checkboxOn": "checkbox-on",
 		"checkboxOff": "checkbox",
 		"font": "myFont"
-	}
+	},
+    "radio":{
+        "checkboxOn": "checkbox-on",
+        "checkboxOff": "checkbox",
+        "font": "myFont"
+    }
 },
 "com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle": {
 	"default": {
