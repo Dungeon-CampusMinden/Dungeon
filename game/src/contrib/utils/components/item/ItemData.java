@@ -15,28 +15,19 @@ import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 
-import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
  * A Class which contains the Information of a specific Item.
- *
- * <p>It contains the {@link #itemType}, animations / textures for inside the hero inventory ({@link
- * #inventoryTexture}) or in the world ({@link #worldTexture}), as well as the {@link #itemName} and
- * a {@link #description}.
  *
  * <p>It holds the method references for collecting ({@link #onCollect}), dropping ({@link #onDrop})
  * and using ({@link #onUse}) items as functional Interfaces.
  *
  * <p>Lastly it holds a {@link #damageModifier}
  */
-public final class ItemData {
-    private final ItemType itemType;
-    private final Animation inventoryTexture;
-    private final Animation worldTexture;
-    private final String itemName;
-    private final String description;
+public class ItemData {
 
+    private Item item;
     private BiConsumer<Entity, Entity> onCollect;
     private TriConsumer<Entity, ItemData, Point> onDrop;
     // active
@@ -48,58 +39,33 @@ public final class ItemData {
     /**
      * creates a new item data object.
      *
-     * @param itemType Enum entry describing item type.
-     * @param inventoryTexture Animation that is played inside the hero inventory.
-     * @param worldTexture Animation that is played while item is dropped in the world.
-     * @param itemName String defining name of item.
-     * @param description String giving a description of the item
+     * @param item Enum entry describing item.
      * @param onCollect Functional interface defining behaviour when item is collected.
      * @param onDrop Functional interface defining behaviour when item is dropped.
      * @param onUse Functional interface defining behaviour when item is used.
      * @param damageModifier Defining if dealt damage is altered.
      */
     public ItemData(
-            final ItemType itemType,
-            final Animation inventoryTexture,
-            final Animation worldTexture,
-            final String itemName,
-            final String description,
-            final BiConsumer<Entity, Entity> onCollect,
-            final TriConsumer<Entity, ItemData, Point> onDrop,
-            final BiConsumer<Entity, ItemData> onUse,
-            final DamageModifier damageModifier) {
-        this.itemType = itemType;
-        this.inventoryTexture = inventoryTexture;
-        this.worldTexture = worldTexture;
-        this.itemName = itemName;
-        this.description = description;
-        this.onCollect(onCollect);
-        this.onDrop(onDrop);
-        this.onUse(onUse);
+            Item item,
+            BiConsumer<Entity, Entity> onCollect,
+            TriConsumer<Entity, ItemData, Point> onDrop,
+            BiConsumer<Entity, ItemData> onUse,
+            DamageModifier damageModifier) {
+        this.item = item;
+        this.setOnCollect(onCollect);
+        this.setOnDrop(onDrop);
+        this.setOnUse(onUse);
         this.damageModifier = damageModifier;
     }
 
     /**
      * creates a new item data object. With a basic handling of collecting, dropping and using.
      *
-     * @param itemType Enum entry describing item type.
-     * @param inventoryTexture Animation that is played inside the hero inventory.
-     * @param worldTexture Animation that is played while item is dropped in the world.
-     * @param itemName String defining name of item.
-     * @param description String giving a description of the item
+     * @param item Enum entry describing item.
      */
-    public ItemData(
-            final ItemType itemType,
-            final Animation inventoryTexture,
-            final Animation worldTexture,
-            final String itemName,
-            final String description) {
+    public ItemData(Item item) {
         this(
-                itemType,
-                inventoryTexture,
-                worldTexture,
-                itemName,
-                description,
+                item,
                 ItemData::defaultCollect,
                 ItemData::defaultDrop,
                 ItemData::defaultUseCallback,
@@ -108,12 +74,7 @@ public final class ItemData {
 
     /** Constructing object with completely default values. Taken from {@link ItemConfig}. */
     public ItemData() {
-        this(
-                ItemConfig.TYPE.value(),
-                new Animation(List.of(ItemConfig.TEXTURE.value()), 1),
-                new Animation(List.of(ItemConfig.TEXTURE.value()), 1),
-                ItemConfig.NAME.value(),
-                ItemConfig.DESCRIPTION.value());
+        this(Item.valueOf(ItemConfig.DEFAULT_ITEM.get()));
     }
 
     /**
@@ -146,38 +107,10 @@ public final class ItemData {
     }
 
     /**
-     * @return The current itemType.
+     * @return Get the current Item
      */
-    public ItemType itemType() {
-        return itemType;
-    }
-
-    /**
-     * @return The current inventory animation
-     */
-    public Animation inventoryTexture() {
-        return inventoryTexture;
-    }
-
-    /**
-     * @return The current world animation
-     */
-    public Animation worldTexture() {
-        return worldTexture;
-    }
-
-    /**
-     * @return The current item name.
-     */
-    public String itemName() {
-        return itemName;
-    }
-
-    /**
-     * @return The current item description.
-     */
-    public String description() {
-        return description;
+    public Item getItem() {
+        return this.item;
     }
 
     /**
@@ -185,11 +118,16 @@ public final class ItemData {
      * inventory.
      *
      * @param e Entity that uses the item
-     * @param item Item that is used
+     * @param itemData Item that is used
      */
-    private static void defaultUseCallback(Entity e, ItemData item) {
-        e.fetch(InventoryComponent.class).ifPresent(component -> component.remove(item));
-        System.out.printf("Item \"%s\" used by entity %d\n", item.itemName(), e.id());
+    private static void defaultUseCallback(Entity e, ItemData itemData) {
+        e.getComponent(InventoryComponent.class)
+                .ifPresent(
+                        component -> {
+                            InventoryComponent invComp = (InventoryComponent) component;
+                            invComp.removeItem(itemData);
+                        });
+        System.out.printf("Item \"%s\" used by entity %d\n", itemData.getItem().getName(), e.id());
     }
 
     /**
@@ -202,7 +140,7 @@ public final class ItemData {
     private static void defaultDrop(Entity who, ItemData which, Point position) {
         Entity droppedItem = new Entity();
         new PositionComponent(droppedItem, position);
-        new DrawComponent(droppedItem, which.worldTexture());
+        new DrawComponent(droppedItem, which.getItem().getWorldAnimation());
         CollideComponent component = new CollideComponent(droppedItem);
         component.collideEnter((a, b, direction) -> which.triggerCollect(a, b));
     }
