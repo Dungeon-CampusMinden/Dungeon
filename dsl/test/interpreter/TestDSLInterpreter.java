@@ -180,7 +180,7 @@ public class TestDSLInterpreter {
     @Test
     public void funcCallReturnUserFuncWithoutReturnType() {
         String program =
-            """
+                """
             fn ret_string() {
                 return "Hello, World!";
             }
