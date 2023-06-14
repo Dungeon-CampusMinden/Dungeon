@@ -15,15 +15,21 @@ public class Main {
         Game.loadConfig("dungeon_config.json", KeyboardConfig.class);
         Game.frameRate(60);
         Game.disableAudio(true);
-        Game.windowTitle("My Dungeon");
         Game.userOnLevelLoad(EntityFactory::getChest);
-        new AISystem();
-        new CollisionSystem();
-        new HealthSystem();
+
+        // or use the static attributes
+        Game.WINDOW_TITLE = "My Dungeon";
+
+        // explicit
+        Game.addSystem(new AISystem());
+        Game.addSystem(new CollisionSystem());
+        Game.addSystem(new HealthSystem());
+        // implicit
         new XPSystem();
         new SkillSystem();
         new ProjectileSystem();
-        // start game
+
+        // build and start game
         Game.run();
     }
 }
