@@ -65,38 +65,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private static final DelayedSet<Entity> entities = new DelayedSet<>();
 
     private static final Logger LOGGER = Logger.getLogger("Game");
-    /**
-     * The width of the game window in pixels.
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
-    public static int WINDOW_WIDTH = 640;
-    /**
-     * Part of the pre-run configuration. The height of the game window in pixels.
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
-    public static int WINDOW_HEIGHT = 480;
-    /**
-     * Part of the pre-run configuration. The fps of the game (frames per second)
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
-    public static int FRAME_RATE = 30;
-    /**
-     * Part of the pre-run configuration. The tilte of the Game-Window.
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
-    public static String WINDOW_TITLE = "PM-Dungeon";
-    /**
-     * Part of the pre-run configuration. The path (as String) to the logo of the Game-Window.
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
-    public static String LOGO_PATH = "logo/CatLogo_35x35.png";
-    /** Currently used level-size configuration for generating new level */
-    public static LevelSize LEVELSIZE = LevelSize.SMALL;
 
     /**
      * The currently loaded level of the game.
@@ -106,12 +74,44 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     public static ILevel currentLevel;
     /**
+     * The width of the game window in pixels.
+     *
+     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
+     */
+    private static int WINDOW_WIDTH = 640;
+    /**
+     * Part of the pre-run configuration. The height of the game window in pixels.
+     *
+     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
+     */
+    private static int WINDOW_HEIGHT = 480;
+    /**
+     * Part of the pre-run configuration. The fps of the game (frames per second)
+     *
+     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
+     */
+    private static int FRAME_RATE = 30;
+    /**
+     * Part of the pre-run configuration. The tilte of the Game-Window.
+     *
+     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
+     */
+    private static String WINDOW_TITLE = "PM-Dungeon";
+    /**
+     * Part of the pre-run configuration. The path (as String) to the logo of the Game-Window.
+     *
+     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
+     */
+    private static String LOGO_PATH = "logo/CatLogo_35x35.png";
+    /** Currently used level-size configuration for generating new level */
+    private static LevelSize LEVELSIZE = LevelSize.SMALL;
+    /**
      * Part of the pre-run configuration.
      * This function will be called at each frame.
      * <p> Use this, if you want to execute some logic outside of a sytem.</p>
      * <p> Will not replace {@link #onFrame )</p>
      */
-    public static IVoidFunction userFrame = () -> {};
+    private static IVoidFunction userFrame = () -> {};
     /**
      * Part of the pre-run configuration. This function will be called after a level was loaded.
      *
@@ -120,16 +120,17 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * <p>Will not replace {@link #onLevelLoad} )
      */
-    public static IVoidFunction userOnLevelLoad = () -> {};
+    private static IVoidFunction userOnLevelLoad = () -> {};
     /**
      * Part of the pre-run configuration. If this value is true, the audio for the game will be
      * disabled.
      *
      * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
      */
-    public static boolean DISABLE_AUDIO = false;
+    private static boolean DISABLE_AUDIO = false;
 
     private static Entity hero;
+
     private static Stage stage;
 
     /**
@@ -143,9 +144,48 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private LevelManager levelManager;
     private boolean doSetup = true;
     private DebuggerSystem debugger;
-
     // for singleton
     private Game() {}
+
+    /**
+     * Width of the game-window in pixel
+     *
+     * @return the width of the game-window im pixel
+     */
+    public static int windowWidth() {
+        return WINDOW_WIDTH;
+    }
+
+    /**
+     * Height of the game-window in pixel
+     *
+     * @return the height of the game-window im pixel
+     */
+    public static int windowHeight() {
+        return WINDOW_HEIGHT;
+    }
+
+    /**
+     * Get the current frame rate of the game
+     *
+     * @return current frame rate of the game
+     */
+    public static int frameRate() {
+        return FRAME_RATE;
+    }
+
+    /**
+     * The currently set level-Size.
+     *
+     * <p>This value is used for the generation of the next level.
+     *
+     * <p>The currently active level can have a differen size.
+     *
+     * @return currently set level-Size.
+     */
+    public static LevelSize levelSize() {
+        return LEVELSIZE;
+    }
 
     /**
      * Set the width of the game window in pixels.

@@ -10,9 +10,23 @@ public final class Constants {
     /** Virtual width and height. */
     public static final float FIELD_WIDTH_AND_HEIGHT_IN_PIXEL = 16f;
 
-    public static final float VIEWPORT_WIDTH = Game.WINDOW_WIDTH / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
-    public static final float VIEWPORT_HEIGHT =
-            Game.WINDOW_HEIGHT / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+    /**
+     * todo: what exactly is this?
+     *
+     * @return width of the viewport
+     */
+    public static float viewportWidth() {
+        return Game.windowWidth() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+    }
+
+    /**
+     * todo: what exactly is this?
+     *
+     * @return height of the viewport
+     */
+    public static float viewportHeight() {
+        return Game.windowHeight() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+    }
 
     /** 200% zoom. */
     public static final float DEFAULT_ZOOM_FACTOR = 0.5f;

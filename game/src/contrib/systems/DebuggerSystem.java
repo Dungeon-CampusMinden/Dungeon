@@ -141,12 +141,12 @@ public class DebuggerSystem extends System {
      * load.
      */
     public static void TOGGLE_LEVEL_SIZE() {
-        switch (Game.LEVELSIZE) {
-            case SMALL -> Game.LEVELSIZE = LevelSize.MEDIUM;
-            case MEDIUM -> Game.LEVELSIZE = LevelSize.LARGE;
-            case LARGE -> Game.LEVELSIZE = LevelSize.SMALL;
+        switch (Game.levelSize()) {
+            case SMALL -> Game.levelSize(LevelSize.MEDIUM);
+            case MEDIUM -> Game.levelSize(LevelSize.LARGE);
+            case LARGE -> Game.levelSize(LevelSize.SMALL);
         }
-        LOGGER.info("LevelSize toggled to: " + Game.LEVELSIZE);
+        LOGGER.info("LevelSize toggled to: " + Game.levelSize());
     }
 
     /** Spawns a monster at the cursor's position. */
