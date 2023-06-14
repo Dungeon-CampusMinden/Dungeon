@@ -31,10 +31,7 @@ import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
-import core.systems.CameraSystem;
-import core.systems.DrawSystem;
-import core.systems.PlayerSystem;
-import core.systems.VelocitySystem;
+import core.systems.*;
 import core.utils.Constants;
 import core.utils.DelayedSet;
 import core.utils.IVoidFunction;
@@ -764,6 +761,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         addSystem(new VelocitySystem());
         addSystem(new DrawSystem(painter));
         addSystem(new PlayerSystem());
+        addSystem(new HudSystem());
         // Debugger should not be a system, see #651
         debugger = new DebuggerSystem();
         addSystem(debugger);
