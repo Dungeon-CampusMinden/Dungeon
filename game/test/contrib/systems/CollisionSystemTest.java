@@ -34,7 +34,7 @@ public class CollisionSystemTest {
      */
     private static void cleanUpEnvironment() {
         Game.removeAllEntities();
-        Game.systems.clear();
+        Game.removeAllSystems();
     }
 
     /** Creating a clean Systemcontroller to avoid interferences */

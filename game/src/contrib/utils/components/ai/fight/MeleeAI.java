@@ -6,14 +6,14 @@ import contrib.utils.components.ai.AITools;
 import contrib.utils.components.skill.Skill;
 
 import core.Entity;
+import core.Game;
 import core.level.Tile;
-import core.utils.Constants;
 
 import java.util.function.Consumer;
 
 public class MeleeAI implements Consumer<Entity> {
     private final float attackRange;
-    private final int delay = Constants.FRAME_RATE;
+    private final int delay = Game.frameRate();
     private int timeSinceLastUpdate = 0;
     private final Skill fightSkill;
     private GraphPath<Tile> path;

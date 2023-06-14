@@ -90,13 +90,13 @@ public class GraphLevel {
     private DoorTile[] findDoorsInRoom(IRoom room) {
         DoorTile[] doorsInOrder = new DoorTile[4];
         for (DoorTile door : room.getDoors()) {
-            if (isAccessible(door.getCoordinate(), room.getLayout(), DoorDirection.DOWN)) {
+            if (isAccessible(door.coordinate(), room.getLayout(), DoorDirection.DOWN)) {
                 doorsInOrder[DoorDirection.UP.getValue()] = door;
-            } else if (isAccessible(door.getCoordinate(), room.getLayout(), DoorDirection.LEFT)) {
+            } else if (isAccessible(door.coordinate(), room.getLayout(), DoorDirection.LEFT)) {
                 doorsInOrder[DoorDirection.RIGHT.getValue()] = door;
-            } else if (isAccessible(door.getCoordinate(), room.getLayout(), DoorDirection.RIGHT)) {
+            } else if (isAccessible(door.coordinate(), room.getLayout(), DoorDirection.RIGHT)) {
                 doorsInOrder[DoorDirection.LEFT.getValue()] = door;
-            } else if (isAccessible(door.getCoordinate(), room.getLayout(), DoorDirection.UP)) {
+            } else if (isAccessible(door.coordinate(), room.getLayout(), DoorDirection.UP)) {
                 doorsInOrder[DoorDirection.DOWN.getValue()] = door;
             }
         }
@@ -125,7 +125,7 @@ public class GraphLevel {
 
     private void findDoorstep(DoorTile door, DoorDirection direction, IRoom room) {
         Tile doorstep = null;
-        Coordinate doorCoordinate = door.getCoordinate();
+        Coordinate doorCoordinate = door.coordinate();
         Tile[][] layout = room.getLayout();
         switch (direction) {
             case UP:

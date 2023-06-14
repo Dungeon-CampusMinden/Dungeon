@@ -7,7 +7,6 @@ import core.Game;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
-import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
@@ -39,8 +38,7 @@ public class AITools {
                         entity.getComponent(VelocityComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("VelocityComponent"));
-        ILevel level = Game.currentLevel;
-        Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
+        Tile currentTile = Game.tileAT(pc.position());
         int i = 0;
         Tile nextTile = null;
         while (nextTile == null && i < path.getCount()) {
@@ -74,12 +72,11 @@ public class AITools {
      * @param radius Search radius
      * @return List of tiles in the given radius arround the center point
      */
-    public static List<Tile> getTilesInRange(Point center, float radius) {
+    public static List<Tile> tilesInRange(Point center, float radius) {
         List<Tile> tiles = new ArrayList<>();
-        ILevel level = Game.currentLevel;
         for (float x = center.x - radius; x <= center.x + radius; x++) {
             for (float y = center.y - radius; y <= center.y + radius; y++) {
-                tiles.add(level.getTileAt(new Point(x, y).toCoordinate()));
+                tiles.add(Game.tileAT(new Point(x, y)));
             }
         }
         tiles.removeIf(Objects::isNull);
@@ -91,8 +88,8 @@ public class AITools {
      * @param radius Search radius
      * @return List of accessible tiles in the given radius arround the center point
      */
-    public static List<Tile> getAccessibleTilesInRange(Point center, float radius) {
-        List<Tile> tiles = getTilesInRange(center, radius);
+    public static List<Tile> accessibleTilesInRange(Point center, float radius) {
+        List<Tile> tiles = tilesInRange(center, radius);
         tiles.removeIf(tile -> !tile.isAccessible());
         return tiles;
     }
@@ -102,9 +99,9 @@ public class AITools {
      * @param radius search radius
      * @return random tile in given range
      */
-    public static Coordinate getRandomAccessibleTileCoordinateInRange(Point center, float radius) {
-        List<Tile> tiles = getAccessibleTilesInRange(center, radius);
-        Coordinate newPosition = tiles.get(random.nextInt(tiles.size())).getCoordinate();
+    public static Coordinate randomAccessibleTileCoordinateInRange(Point center, float radius) {
+        List<Tile> tiles = accessibleTilesInRange(center, radius);
+        Coordinate newPosition = tiles.get(random.nextInt(tiles.size())).coordinate();
         return newPosition;
     }
 
@@ -123,8 +120,7 @@ public class AITools {
      * @return Path from the start coordinate to the end coordinate
      */
     public static GraphPath<Tile> calculatePath(Coordinate from, Coordinate to) {
-        ILevel level = Game.currentLevel;
-        return level.findPath(level.getTileAt(from), level.getTileAt(to));
+        return Game.findPath(Game.tileAT(from), Game.tileAT(to));
     }
 
     /**
@@ -136,7 +132,7 @@ public class AITools {
      * @return Path from the center point to the randomly selected tile
      */
     public static GraphPath<Tile> calculatePathToRandomTileInRange(Point point, float radius) {
-        Coordinate newPosition = getRandomAccessibleTileCoordinateInRange(point, radius);
+        Coordinate newPosition = randomAccessibleTileCoordinateInRange(point, radius);
         return calculatePath(point.toCoordinate(), newPosition);
     }
 
@@ -156,7 +152,7 @@ public class AITools {
                                                 () ->
                                                         new MissingComponentException(
                                                                 "PositionComponent")))
-                        .getPosition();
+                        .position();
         return calculatePathToRandomTileInRange(point, radius);
     }
 
@@ -178,7 +174,7 @@ public class AITools {
                         to.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        return calculatePath(fromPositionComponent.getPosition(), positionComponent.getPosition());
+        return calculatePath(fromPositionComponent.position(), positionComponent.position());
     }
 
     /**
@@ -186,7 +182,7 @@ public class AITools {
      * @return Path from the entity to the hero, if there is no hero, path from the entity to itself
      */
     public static GraphPath<Tile> calculatePathToHero(Entity entity) {
-        Optional<Entity> hero = Game.getHero();
+        Optional<Entity> hero = Game.hero();
         if (hero.isPresent()) return calculatePath(entity, hero.get());
         else return calculatePath(entity, entity);
     }
@@ -216,7 +212,7 @@ public class AITools {
                                                 () ->
                                                         new MissingComponentException(
                                                                 "PositionComponent")))
-                        .getPosition();
+                        .position();
         Point entity2Position =
                 ((PositionComponent)
                                 entity2.getComponent(PositionComponent.class)
@@ -224,7 +220,7 @@ public class AITools {
                                                 () ->
                                                         new MissingComponentException(
                                                                 "PositionComponent")))
-                        .getPosition();
+                        .position();
         return inRange(entity1Position, entity2Position, range);
     }
 
@@ -236,7 +232,7 @@ public class AITools {
      */
     public static boolean playerInRange(Entity entity, float range) {
 
-        Optional<Entity> hero = Game.getHero();
+        Optional<Entity> hero = Game.hero();
         if (hero.isPresent()) return entityInRange(entity, hero.get(), range);
         else return false;
     }
@@ -254,13 +250,10 @@ public class AITools {
                         entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        ILevel level = Game.currentLevel;
-        boolean finished =
-                path.get(path.getCount() - 1)
-                        .equals(level.getTileAt(pc.getPosition().toCoordinate()));
+        boolean finished = lastTile(path).equals(Game.tileAT(pc.position()));
 
         boolean onPath = false;
-        Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
+        Tile currentTile = Game.tileAT(pc.position());
         for (Tile tile : path) {
             if (currentTile == tile) onPath = true;
         }
@@ -281,9 +274,7 @@ public class AITools {
                         entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        ILevel level = Game.currentLevel;
-        return path.get(path.getCount() - 1)
-                .equals(level.getTileAt(pc.getPosition().toCoordinate()));
+        return lastTile(path).equals(Game.tileAT(pc.position()));
     }
 
     /**
@@ -299,12 +290,22 @@ public class AITools {
                         entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        ILevel level = Game.currentLevel;
         boolean onPath = false;
-        Tile currentTile = level.getTileAt(pc.getPosition().toCoordinate());
+        Tile currentTile = Game.tileAT(pc.position());
         for (Tile tile : path) {
             if (currentTile == tile) onPath = true;
         }
         return !onPath;
+    }
+
+    /**
+     * Get the last Tile in the given GraphPath
+     *
+     * @param path considered GraphPath
+     * @return last Tile in the given path
+     * @see GraphPath
+     */
+    public static Tile lastTile(GraphPath<Tile> path) {
+        return path.get(path.getCount() - 1);
     }
 }

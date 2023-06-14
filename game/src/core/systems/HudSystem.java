@@ -54,11 +54,11 @@ public final class HudSystem extends System {
     }
 
     private void pauseGame() {
-        Game.systems.values().forEach(System::stop);
+        Game.systems().values().forEach(System::stop);
     }
 
     private void unpauseGame() {
-        Game.systems.values().forEach(System::run);
+        Game.systems().values().forEach(System::run);
     }
 
     /** HudSystem can´t be paused */

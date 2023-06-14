@@ -8,7 +8,6 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.utils.Constants;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
@@ -56,7 +55,7 @@ public class PatrouilleWalk implements Consumer<Entity> {
     public PatrouilleWalk(float radius, int numberCheckpoints, int pauseTime, MODE mode) {
         this.radius = radius;
         this.numberCheckpoints = numberCheckpoints;
-        this.pauseFrames = pauseTime / (1000 / Constants.FRAME_RATE);
+        this.pauseFrames = pauseTime / (1000 / Game.frameRate());
         this.mode = mode;
     }
 
@@ -67,14 +66,14 @@ public class PatrouilleWalk implements Consumer<Entity> {
                         entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        Point center = position.getPosition();
-        Tile tile = Game.currentLevel.getTileAt(position.getPosition().toCoordinate());
+        Point center = position.position();
+        Tile tile = Game.tileAT(position.position());
 
         if (tile == null) {
             return;
         }
 
-        List<Tile> accessibleTiles = AITools.getAccessibleTilesInRange(center, radius);
+        List<Tile> accessibleTiles = AITools.accessibleTilesInRange(center, radius);
 
         if (accessibleTiles.isEmpty()) {
             return;
@@ -106,8 +105,8 @@ public class PatrouilleWalk implements Consumer<Entity> {
             if (AITools.pathLeft(entity, currentPath)) {
                 currentPath =
                         AITools.calculatePath(
-                                position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                                position.position(),
+                                this.checkpoints.get(currentCheckpoint).position());
             }
             AITools.move(entity, currentPath);
             return;
@@ -132,15 +131,15 @@ public class PatrouilleWalk implements Consumer<Entity> {
                 currentCheckpoint = rnd.nextInt(checkpoints.size());
                 currentPath =
                         AITools.calculatePath(
-                                position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                                position.position(),
+                                this.checkpoints.get(currentCheckpoint).position());
             }
             case LOOP -> {
                 currentCheckpoint = (currentCheckpoint + 1) % checkpoints.size();
                 currentPath =
                         AITools.calculatePath(
-                                position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                                position.position(),
+                                this.checkpoints.get(currentCheckpoint).position());
             }
             case BACK_AND_FORTH -> {
                 if (forward) {
@@ -158,8 +157,8 @@ public class PatrouilleWalk implements Consumer<Entity> {
                 }
                 currentPath =
                         AITools.calculatePath(
-                                position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                                position.position(),
+                                this.checkpoints.get(currentCheckpoint).position());
             }
             default -> {}
         }

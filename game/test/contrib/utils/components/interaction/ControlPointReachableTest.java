@@ -77,13 +77,13 @@ public class ControlPointReachableTest {
             };
 
     private void cleanup() {
-        Game.currentLevel = null;
+        Game.currentLevel(null);
         Game.removeAllEntities();
     }
 
     private void setup() {
         cleanup();
-        Game.currentLevel = new TileLevel(testLayout, DesignLabel.DEFAULT);
+        Game.currentLevel(new TileLevel(testLayout, DesignLabel.DEFAULT));
     }
 
     /** Check when the Entities are on top of each other */
@@ -100,7 +100,7 @@ public class ControlPointReachableTest {
         PreparedEntityWithCounter second = getEntityCounter(e2Point);
 
         Point unitDirectionalVector =
-                Point.getUnitDirectionalVector(first.pc.getPosition(), second.pc.getPosition());
+                Point.getUnitDirectionalVector(first.pc.position(), second.pc.position());
         int dist = 0;
         boolean reachable =
                 i.apply(
@@ -127,8 +127,8 @@ public class ControlPointReachableTest {
         PreparedEntityWithCounter second = getEntityCounter(e2Point);
 
         Point unitDirectionalVector =
-                Point.getUnitDirectionalVector(second.pc.getPosition(), first.pc.getPosition());
-        float dist = Point.calculateDistance(first.pc.getPosition(), second.pc.getPosition());
+                Point.getUnitDirectionalVector(second.pc.position(), first.pc.position());
+        float dist = Point.calculateDistance(first.pc.position(), second.pc.position());
         boolean reachable =
                 i.apply(
                         new InteractionData(
@@ -152,8 +152,8 @@ public class ControlPointReachableTest {
         PreparedEntityWithCounter second = getEntityCounter(e2Point);
 
         Point unitDirectionalVector =
-                Point.getUnitDirectionalVector(second.pc.getPosition(), first.pc.getPosition());
-        float dist = Point.calculateDistance(first.pc.getPosition(), second.pc.getPosition());
+                Point.getUnitDirectionalVector(second.pc.position(), first.pc.position());
+        float dist = Point.calculateDistance(first.pc.position(), second.pc.position());
         boolean reachable =
                 i.apply(
                         new InteractionData(
@@ -178,8 +178,8 @@ public class ControlPointReachableTest {
         PreparedEntityWithCounter second = getEntityCounter(e2Point);
 
         Point unitDirectionalVector =
-                Point.getUnitDirectionalVector(second.pc.getPosition(), first.pc.getPosition());
-        float dist = Point.calculateDistance(first.pc.getPosition(), second.pc.getPosition());
+                Point.getUnitDirectionalVector(second.pc.position(), first.pc.position());
+        float dist = Point.calculateDistance(first.pc.position(), second.pc.position());
         boolean reachable =
                 i.apply(
                         new InteractionData(
@@ -204,8 +204,8 @@ public class ControlPointReachableTest {
         PreparedEntityWithCounter second = getEntityCounter(e2Point);
 
         Point unitDirectionalVector =
-                Point.getUnitDirectionalVector(second.pc.getPosition(), first.pc.getPosition());
-        float dist = Point.calculateDistance(first.pc.getPosition(), second.pc.getPosition());
+                Point.getUnitDirectionalVector(second.pc.position(), first.pc.position());
+        float dist = Point.calculateDistance(first.pc.position(), second.pc.position());
         boolean reachable =
                 i.apply(
                         new InteractionData(
@@ -233,8 +233,8 @@ public class ControlPointReachableTest {
         PreparedEntityWithCounter second = getEntityCounter(e2Point);
 
         Point unitDirectionalVector =
-                Point.getUnitDirectionalVector(second.pc.getPosition(), first.pc.getPosition());
-        float dist = Point.calculateDistance(first.pc.getPosition(), second.pc.getPosition());
+                Point.getUnitDirectionalVector(second.pc.position(), first.pc.position());
+        float dist = Point.calculateDistance(first.pc.position(), second.pc.position());
         boolean reachable =
                 i.apply(
                         new InteractionData(
@@ -262,8 +262,8 @@ public class ControlPointReachableTest {
         PreparedEntityWithCounter second = getEntityCounter(e2Point);
 
         Point unitDirectionalVector =
-                Point.getUnitDirectionalVector(second.pc.getPosition(), first.pc.getPosition());
-        float dist = Point.calculateDistance(first.pc.getPosition(), second.pc.getPosition());
+                Point.getUnitDirectionalVector(second.pc.position(), first.pc.position());
+        float dist = Point.calculateDistance(first.pc.position(), second.pc.position());
         boolean reachable =
                 i.apply(
                         new InteractionData(

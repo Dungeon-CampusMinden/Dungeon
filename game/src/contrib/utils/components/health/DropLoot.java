@@ -78,7 +78,7 @@ public class DropLoot implements Consumer<Entity> {
      * @param d the needed Data for dropping an Item
      */
     private void dropItem(DLData d) {
-        d.i.triggerDrop(d.e, new Point(d.dlc.pc.getPosition()));
+        d.i.triggerDrop(d.e, new Point(d.dlc.pc.position()));
         d.dlc.ic.removeItem(d.i);
     }
 }

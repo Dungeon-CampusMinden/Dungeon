@@ -76,7 +76,7 @@ public class DebuggerSystem extends System {
     /** Teleports the Hero to the end of the level, on a neighboring accessible tile if possible. */
     public static void TELEPORT_TO_END() {
         LOGGER.info("TELEPORT TO END");
-        Coordinate endTile = Game.currentLevel.getEndTile().getCoordinate();
+        Coordinate endTile = Game.endTile().coordinate();
         Coordinate[] neighborTiles = {
             new Coordinate(endTile.x + 1, endTile.y),
             new Coordinate(endTile.x - 1, endTile.y),
@@ -84,9 +84,9 @@ public class DebuggerSystem extends System {
             new Coordinate(endTile.x, endTile.y - 1)
         };
         for (Coordinate neighborTile : neighborTiles) {
-            Tile neighbor = Game.currentLevel.getTileAt(neighborTile);
+            Tile neighbor = Game.tileAT(neighborTile);
             if (neighbor.isAccessible()) {
-                TELEPORT(neighborTile.toPoint());
+                TELEPORT(neighbor);
                 return;
             }
         }
@@ -95,13 +95,22 @@ public class DebuggerSystem extends System {
     /** Will teleport the Hero on the EndTile so the next level gets loaded */
     public static void LOAD_NEXT_LEVEL() {
         LOGGER.info("TELEPORT ON END");
-        TELEPORT(Game.currentLevel.getEndTile().getCoordinate().toPoint());
+        TELEPORT(Game.endTile());
     }
 
     /** Teleports the hero to the start of the level. */
     public static void TELEPORT_TO_START() {
         LOGGER.info("TELEPORT TO START");
-        TELEPORT(Game.currentLevel.getStartTile().getCoordinate().toPoint());
+        TELEPORT(Game.startTile());
+    }
+
+    /**
+     * Teleports the hero to the given tile.
+     *
+     * @param targetLocation the tile to teleport to
+     */
+    public static void TELEPORT(Tile targetLocation) {
+        TELEPORT(targetLocation.position());
     }
 
     /**
@@ -110,10 +119,10 @@ public class DebuggerSystem extends System {
      * @param targetLocation the location to teleport to
      */
     public static void TELEPORT(Point targetLocation) {
-        if (Game.getHero().isPresent()) {
+        if (Game.hero().isPresent()) {
             PositionComponent pc =
                     (PositionComponent)
-                            Game.getHero()
+                            Game.hero()
                                     .get()
                                     .getComponent(PositionComponent.class)
                                     .orElseThrow(
@@ -125,13 +134,13 @@ public class DebuggerSystem extends System {
             LOGGER.log(
                     CustomLogLevel.DEBUG,
                     "Trying to teleport to " + targetLocation.x + ":" + targetLocation.y);
-            Tile t = Game.currentLevel.getTileAt(targetLocation.toCoordinate());
+            Tile t = Game.tileAT(targetLocation);
             if (t == null || !t.isAccessible()) {
                 LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
                 return;
             }
 
-            pc.setPosition(targetLocation);
+            pc.position(targetLocation);
             LOGGER.info("Teleport successful");
         }
     }
@@ -141,12 +150,12 @@ public class DebuggerSystem extends System {
      * load.
      */
     public static void TOGGLE_LEVEL_SIZE() {
-        switch (Game.LEVELSIZE) {
-            case SMALL -> Game.LEVELSIZE = LevelSize.MEDIUM;
-            case MEDIUM -> Game.LEVELSIZE = LevelSize.LARGE;
-            case LARGE -> Game.LEVELSIZE = LevelSize.SMALL;
+        switch (Game.levelSize()) {
+            case SMALL -> Game.levelSize(LevelSize.MEDIUM);
+            case MEDIUM -> Game.levelSize(LevelSize.LARGE);
+            case LARGE -> Game.levelSize(LevelSize.SMALL);
         }
-        LOGGER.info("LevelSize toggled to: " + Game.LEVELSIZE);
+        LOGGER.info("LevelSize toggled to: " + Game.levelSize());
     }
 
     /** Spawns a monster at the cursor's position. */
@@ -164,7 +173,7 @@ public class DebuggerSystem extends System {
         // Get the tile at the given position
         Tile tile = null;
         try {
-            tile = Game.currentLevel.getTileAt(position.toCoordinate());
+            tile = Game.tileAT(position);
         } catch (NullPointerException ex) {
             LOGGER.info(ex.getMessage());
         }

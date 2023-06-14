@@ -63,9 +63,7 @@ public class DrawSystem extends System {
             configs.put(currentAnimationTexture, new PainterConfig(currentAnimationTexture));
         }
         painter.draw(
-                dsd.pc.getPosition(),
-                currentAnimationTexture,
-                configs.get(currentAnimationTexture));
+                dsd.pc.position(), currentAnimationTexture, configs.get(currentAnimationTexture));
     }
 
     private DSData buildDataObject(Entity e) {

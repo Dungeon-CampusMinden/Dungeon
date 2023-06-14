@@ -30,7 +30,7 @@ public class InteractionTool {
                         entity.getComponent(PositionComponent.class)
                                 .orElseThrow(() -> MissingPCFromEntity(Entity.class.getName()));
         Optional<InteractionData> data =
-                Game.getEntitiesStream()
+                Game.entityStream()
                         .flatMap(
                                 x ->
                                         x
@@ -56,8 +56,8 @@ public class InteractionTool {
                 entity,
                 pc,
                 ic,
-                Point.calculateDistance(heroPosition.getPosition(), pc.getPosition()),
-                Point.getUnitDirectionalVector(heroPosition.getPosition(), pc.getPosition()));
+                Point.calculateDistance(heroPosition.position(), pc.position()),
+                Point.getUnitDirectionalVector(heroPosition.position(), pc.position()));
     }
 
     private static MissingComponentException MissingPCFromEntity(String entity) {

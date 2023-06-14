@@ -5,9 +5,9 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.components.ai.AITools;
 
 import core.Entity;
+import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.utils.Constants;
 import core.utils.Point;
 
 import java.util.function.Consumer;
@@ -30,7 +30,7 @@ public class StaticRadiusWalk implements Consumer<Entity> {
      */
     public StaticRadiusWalk(float radius, int breakTimeInSeconds) {
         this.radius = radius;
-        this.breakTime = breakTimeInSeconds * Constants.FRAME_RATE;
+        this.breakTime = breakTimeInSeconds * Game.frameRate();
     }
 
     @Override
@@ -40,7 +40,7 @@ public class StaticRadiusWalk implements Consumer<Entity> {
                 PositionComponent pc =
                         (PositionComponent)
                                 entity.getComponent(PositionComponent.class).orElseThrow();
-                center = pc.getPosition();
+                center = pc.position();
             }
 
             if (currentBreak >= breakTime) {
@@ -48,9 +48,9 @@ public class StaticRadiusWalk implements Consumer<Entity> {
                 PositionComponent pc2 =
                         (PositionComponent)
                                 entity.getComponent(PositionComponent.class).orElseThrow();
-                currentPosition = pc2.getPosition();
+                currentPosition = pc2.position();
                 newEndTile =
-                        AITools.getRandomAccessibleTileCoordinateInRange(center, radius).toPoint();
+                        AITools.randomAccessibleTileCoordinateInRange(center, radius).toPoint();
                 path = AITools.calculatePath(currentPosition, newEndTile);
                 accept(entity);
             }

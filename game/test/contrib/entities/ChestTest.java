@@ -34,7 +34,7 @@ public class ChestTest {
         List<ItemData> itemData = List.of();
         Point position = new Point(0, 0);
         Entity c = null;
-        c = EntityFactory.getChest(itemData, position);
+        c = EntityFactory.newChest(itemData, position);
 
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
@@ -52,7 +52,7 @@ public class ChestTest {
         assertEquals(
                 "Position should be equal to the given Position",
                 position,
-                positionComponent.map(PositionComponent.class::cast).get().getPosition());
+                positionComponent.map(PositionComponent.class::cast).get().position());
         cleanup();
     }
 
@@ -111,16 +111,16 @@ public class ChestTest {
     @Test
     public void checkGeneratorMethod() throws IOException {
         cleanup();
-        Game.currentLevel =
+        Game.currentLevel(
                 new TileLevel(
                         new LevelElement[][] {
                             new LevelElement[] {
                                 LevelElement.FLOOR,
                             }
                         },
-                        DesignLabel.DEFAULT);
+                        DesignLabel.DEFAULT));
 
-        Entity newChest = EntityFactory.getChest();
+        Entity newChest = EntityFactory.newChest();
 
         // assertTrue("Chest is added to Game", Game.getEntitiesStream().anyMatch(e -> e ==
         // newChest));
@@ -143,7 +143,7 @@ public class ChestTest {
                 newChest.getComponent(PositionComponent.class)
                         .map(PositionComponent.class::cast)
                         .get()
-                        .getPosition()
+                        .position()
                         .x,
                 0.00001f);
         assertEquals(
@@ -152,7 +152,7 @@ public class ChestTest {
                 newChest.getComponent(PositionComponent.class)
                         .map(PositionComponent.class::cast)
                         .get()
-                        .getPosition()
+                        .position()
                         .y,
                 0.00001f);
         cleanup();

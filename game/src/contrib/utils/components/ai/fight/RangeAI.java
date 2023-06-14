@@ -1,6 +1,6 @@
 package contrib.utils.components.ai.fight;
 
-import static contrib.utils.components.ai.AITools.getAccessibleTilesInRange;
+import static contrib.utils.components.ai.AITools.accessibleTilesInRange;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
@@ -9,10 +9,8 @@ import contrib.utils.components.skill.Skill;
 
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
 import core.level.Tile;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -37,7 +35,7 @@ public class RangeAI implements Consumer<Entity> {
             throw new Error(
                     "attackRange must be greater than distance and distance must be 0 or greater than 0");
         }
-        if (Game.getHero().isEmpty()) {
+        if (Game.hero().isEmpty()) {
             throw new Error("There must be a Hero in the Game!");
         }
         this.attackRange = attackRange;
@@ -52,13 +50,12 @@ public class RangeAI implements Consumer<Entity> {
 
         if (playerInAttackRange) {
             if (playerInDistanceRange) {
-                Point positionHero = getPosition(Game.getHero().orElseThrow());
-                Point positionEntity = getPosition(entity);
-                List<Tile> tiles =
-                        getAccessibleTilesInRange(positionEntity, attackRange - distance);
+                Point positionHero = Game.getPosition(Game.hero().orElseThrow());
+                Point positionEntity = Game.getPosition(entity);
+                List<Tile> tiles = accessibleTilesInRange(positionEntity, attackRange - distance);
                 boolean newPositionFound = false;
                 for (Tile tile : tiles) {
-                    Point newPosition = tile.getCoordinate().toPoint();
+                    Point newPosition = tile.position();
                     if (!AITools.inRange(newPosition, positionHero, distance)) {
                         path = AITools.calculatePath(positionEntity, newPosition);
                         newPositionFound = true;
@@ -76,16 +73,5 @@ public class RangeAI implements Consumer<Entity> {
             path = AITools.calculatePathToHero(entity);
             AITools.move(entity, path);
         }
-    }
-
-    private Point getPosition(Entity entity) {
-        return ((PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () ->
-                                                new MissingComponentException(
-                                                        entity.getClass().getName()
-                                                                + "is missing PositionComponent")))
-                .getPosition();
     }
 }

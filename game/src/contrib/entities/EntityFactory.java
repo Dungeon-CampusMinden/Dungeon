@@ -37,7 +37,7 @@ public class EntityFactory {
      *
      * @return Created Entity
      */
-    public static Entity getHero() throws IOException {
+    public static Entity newHero() throws IOException {
         final int fireballCoolDown = 2;
         final float xSpeed = 0.3f;
         final float ySpeed = 0.3f;
@@ -107,7 +107,7 @@ public class EntityFactory {
      *
      * @return Created Entity
      */
-    public static Entity getChest() throws IOException {
+    public static Entity newChest() throws IOException {
         Random random = new Random();
         ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
 
@@ -115,9 +115,7 @@ public class EntityFactory {
                 IntStream.range(0, random.nextInt(1, 3))
                         .mapToObj(i -> itemDataGenerator.generateItemData())
                         .toList();
-        return getChest(
-                itemData,
-                Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint());
+        return newChest(itemData, Game.randomTile(LevelElement.FLOOR).position());
     }
 
     /**
@@ -131,7 +129,7 @@ public class EntityFactory {
      * @param position The position of the chest.
      * @return Created Entity
      */
-    public static Entity getChest(List<ItemData> itemData, Point position) throws IOException {
+    public static Entity newChest(List<ItemData> itemData, Point position) throws IOException {
         final float defaultInteractionRadius = 1f;
         Entity chest = new Entity("chest");
         new PositionComponent(chest, position);

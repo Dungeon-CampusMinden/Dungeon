@@ -88,8 +88,8 @@ public class DropItemsInteraction implements Consumer<Entity> {
      */
     private static Point calculateDropPosition(PositionComponent positionComponent, double radian) {
         return new Point(
-                (float) Math.cos(radian * Math.PI) + positionComponent.getPosition().x,
-                (float) Math.sin(radian * Math.PI) + positionComponent.getPosition().y);
+                (float) Math.cos(radian * Math.PI) + positionComponent.position().x,
+                (float) Math.sin(radian * Math.PI) + positionComponent.position().y);
     }
 
     /**

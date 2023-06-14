@@ -27,7 +27,7 @@ import core.utils.Point;
 public class CameraSystem extends System {
 
     private static final OrthographicCamera CAMERA =
-            new OrthographicCamera(Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
+            new OrthographicCamera(Constants.viewportWidth(), Constants.viewportHeight());
 
     public CameraSystem() {
         super(CameraComponent.class, PositionComponent.class);
@@ -42,15 +42,15 @@ public class CameraSystem extends System {
 
     private void focus() {
         Point focusPoint;
-        if (Game.currentLevel == null) focusPoint = new Point(0, 0);
-        else focusPoint = Game.currentLevel.getStartTile().getCoordinateAsPoint();
+        if (Game.currentLevel() == null) focusPoint = new Point(0, 0);
+        else focusPoint = Game.startTile().position();
         focus(focusPoint);
     }
 
     private void focus(Entity entity) {
         PositionComponent pc =
                 (PositionComponent) entity.getComponent(PositionComponent.class).get();
-        focus(pc.getPosition());
+        focus(pc.position());
     }
 
     private void focus(Point point) {

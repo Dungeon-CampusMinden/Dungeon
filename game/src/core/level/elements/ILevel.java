@@ -11,7 +11,7 @@ public interface ILevel extends ITileable {
 
     /** Mark a random tile as start */
     default void setRandomStart() {
-        setStartTile(getRandomTile(LevelElement.FLOOR));
+        setStartTile(randomTile(LevelElement.FLOOR));
     }
 
     /**
@@ -28,7 +28,7 @@ public interface ILevel extends ITileable {
             // not enough Tiles for startTile and ExitTile
             return;
         }
-        int startTileIndex = floorTiles.indexOf(getStartTile());
+        int startTileIndex = floorTiles.indexOf(startTile());
         int index = RANDOM.nextInt(floorTiles.size() - 1);
         changeTileElementType(
                 floorTiles.get(index < startTileIndex ? index : index + 1), LevelElement.EXIT);
@@ -143,11 +143,11 @@ public interface ILevel extends ITileable {
         StringBuilder output = new StringBuilder();
         for (int y = 0; y < getLayout().length; y++) {
             for (int x = 0; x < getLayout()[0].length; x++) {
-                if (getLayout()[y][x].getLevelElement() == LevelElement.FLOOR) {
+                if (getLayout()[y][x].levelElement() == LevelElement.FLOOR) {
                     output.append("F");
-                } else if (getLayout()[y][x].getLevelElement() == LevelElement.WALL) {
+                } else if (getLayout()[y][x].levelElement() == LevelElement.WALL) {
                     output.append("W");
-                } else if (getLayout()[y][x].getLevelElement() == LevelElement.EXIT) {
+                } else if (getLayout()[y][x].levelElement() == LevelElement.EXIT) {
                     output.append("E");
                 } else {
                     output.append("S");
@@ -165,7 +165,7 @@ public interface ILevel extends ITileable {
      * @param changeInto The LevelElement to change the Tile into.
      */
     default void changeTileElementType(Tile tile, LevelElement changeInto) {
-        ILevel level = tile.getLevel();
+        ILevel level = tile.level();
         if (level == null) {
             return;
         }
@@ -173,15 +173,15 @@ public interface ILevel extends ITileable {
         Tile newTile =
                 TileFactory.createTile(
                         TileTextureFactory.findTexturePath(tile, getLayout(), changeInto),
-                        tile.getCoordinate(),
+                        tile.coordinate(),
                         changeInto,
-                        tile.getDesignLabel());
-        level.getLayout()[tile.getCoordinate().y][tile.getCoordinate().x] = newTile;
+                        tile.designLabel());
+        level.getLayout()[tile.coordinate().y][tile.coordinate().x] = newTile;
         level.addTile(newTile);
     }
 
     @Override
-    default Tile getRandomTile(LevelElement elementType) {
+    default Tile randomTile(LevelElement elementType) {
         return switch (elementType) {
             case SKIP -> getSkipTiles().size() > 0
                     ? getSkipTiles().get(RANDOM.nextInt(getSkipTiles().size()))
@@ -207,7 +207,7 @@ public interface ILevel extends ITileable {
     /**
      * @return random floor tile
      */
-    default Tile getRandomFloorTile() {
-        return getRandomTile(LevelElement.FLOOR);
+    default Tile randomFloorTile() {
+        return randomTile(LevelElement.FLOOR);
     }
 }

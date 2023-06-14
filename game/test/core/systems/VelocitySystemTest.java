@@ -38,8 +38,8 @@ public class VelocitySystemTest {
 
     @Before
     public void setup() throws IOException {
-        Game.currentLevel = level;
-        Mockito.when(level.getTileAt(Mockito.any())).thenReturn(tile);
+        Game.currentLevel(level);
+        Mockito.when(level.tileAt((Point) Mockito.any())).thenReturn(tile);
         Game.removeEntity(entity);
         entity = new Entity();
         velocitySystem = new VelocitySystem();
@@ -56,7 +56,7 @@ public class VelocitySystemTest {
         velocityComponent.setCurrentXVelocity(xVelocity);
         velocityComponent.setCurrentYVelocity(yVelocity);
         velocitySystem.execute();
-        Point position = positionComponent.getPosition();
+        Point position = positionComponent.position();
         assertEquals(startXPosition + xVelocity, position.x, 0.001);
         assertEquals(startYPosition + yVelocity, position.y, 0.001);
         assertEquals(0, velocityComponent.getCurrentXVelocity(), 0.001);
@@ -69,7 +69,7 @@ public class VelocitySystemTest {
         velocityComponent.setCurrentXVelocity(-4);
         velocityComponent.setCurrentYVelocity(-8);
         velocitySystem.execute();
-        Point position = positionComponent.getPosition();
+        Point position = positionComponent.position();
         assertEquals(startXPosition - 4, position.x, 0.001);
         assertEquals(startYPosition - 8, position.y, 0.001);
         assertEquals(0, velocityComponent.getCurrentXVelocity(), 0.001);
@@ -82,7 +82,7 @@ public class VelocitySystemTest {
         velocityComponent.setCurrentXVelocity(xVelocity);
         velocityComponent.setCurrentYVelocity(yVelocity);
         velocitySystem.execute();
-        Point position = positionComponent.getPosition();
+        Point position = positionComponent.position();
         assertEquals(startXPosition, position.x, 0.001);
         assertEquals(startYPosition, position.y, 0.001);
         assertEquals(0, velocityComponent.getCurrentXVelocity(), 0.001);
@@ -95,7 +95,7 @@ public class VelocitySystemTest {
         velocityComponent.setCurrentXVelocity(-4);
         velocityComponent.setCurrentYVelocity(-8);
         velocitySystem.execute();
-        Point position = positionComponent.getPosition();
+        Point position = positionComponent.position();
         assertEquals(startXPosition, position.x, 0.001);
         assertEquals(startYPosition, position.y, 0.001);
         assertEquals(0, velocityComponent.getCurrentXVelocity(), 0.001);

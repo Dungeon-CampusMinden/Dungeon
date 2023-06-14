@@ -56,7 +56,7 @@ public class ProtectOnApproachTest {
         new PositionComponent(entity, new Point(0f, 0f));
 
         // Hero
-        hero = Game.getHero().orElse(new Entity());
+        hero = Game.hero().orElse(new Entity());
     }
 
     // Ignore because no solution to create hero during tests at the moment

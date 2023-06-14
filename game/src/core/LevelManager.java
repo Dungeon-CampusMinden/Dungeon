@@ -96,13 +96,12 @@ public class LevelManager {
         for (int y = 0; y < layout.length; y++) {
             for (int x = 0; x < layout[0].length; x++) {
                 Tile t = layout[y][x];
-                if (t.getLevelElement() != LevelElement.SKIP) {
-                    String texturePath = t.getTexturePath();
+                if (t.levelElement() != LevelElement.SKIP) {
+                    String texturePath = t.texturePath();
                     if (!mapping.containsKey(texturePath)) {
                         mapping.put(texturePath, new PainterConfig(texturePath));
                     }
-                    painter.draw(
-                            t.getCoordinate().toPoint(), texturePath, mapping.get(texturePath));
+                    painter.draw(t.position(), texturePath, mapping.get(texturePath));
                 }
             }
         }
