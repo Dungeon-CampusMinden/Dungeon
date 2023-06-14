@@ -13,23 +13,60 @@ import java.util.List;
  * #description}.
  */
 public enum Item {
-    WATER_BOTTLE("Wasserflasche", "Eine Flasche gefüllt mit Wasser.", ItemCategory.BASIC),
-    MUSHROOM_RED("Roter Pilz", "Ein ganz normaler, roter Pilz.", ItemCategory.BASIC),
-    MUSHROOM_BROWN("Brauner Pilz", "Ein ganz normaler, brauner Pilz.", ItemCategory.BASIC),
-    STONE("Stein", "Ein ganz normaler, grauer Stein.", ItemCategory.BASIC),
+    WATER_BOTTLE(
+            "Wasserflasche",
+            "Eine Flasche gefüllt mit Wasser.",
+            ItemCategory.BASIC,
+            new Animation(List.of("item/water_bottle.png"), 1),
+            new Animation(List.of("item/water_bottle.png"), 1)),
+    MUSHROOM_RED(
+            "Roter Pilz",
+            "Ein ganz normaler, roter Pilz.",
+            ItemCategory.BASIC,
+            new Animation(List.of("item/mushroom_red.png"), 1),
+            new Animation(List.of("item/mushroom_red.png"), 1)),
+    MUSHROOM_BROWN(
+            "Brauner Pilz",
+            "Ein ganz normaler, brauner Pilz.",
+            ItemCategory.BASIC,
+            new Animation(List.of("item/mushroom_brown.png"), 1),
+            new Animation(List.of("item/mushroom_brown.png"), 1)),
+    STONE(
+            "Stein",
+            "Ein ganz normaler, grauer Stein.",
+            ItemCategory.BASIC,
+            new Animation(List.of("item/stone.png"), 1),
+            new Animation(List.of("item/stone.png"), 1)),
     FLOWER_RED(
             "Rote Blume",
             "Eine rote Blume. Man erzählt sie hätte heilende Kräfte.",
-            ItemCategory.BASIC),
-    PLANT_BLUE("Blaue Pflanze", "Eine gewöhnliche blaue Blume", ItemCategory.BASIC),
-    LEATHER("Leder", "Ein Stück Leder.", ItemCategory.BASIC),
-    STICK("Stock", "Ein Stock.", ItemCategory.BASIC),
+            ItemCategory.BASIC,
+            new Animation(List.of("item/flower_red.png"), 1),
+            new Animation(List.of("item/flower_red.png"), 1)),
+    LEATHER(
+            "Leder",
+            "Ein Stück Leder.",
+            ItemCategory.BASIC,
+            new Animation(List.of("item/leather.png"), 1),
+            new Animation(List.of("item/leather.png"), 1)),
+    STICK(
+            "Stock",
+            "Ein Stock.",
+            ItemCategory.BASIC,
+            new Animation(List.of("item/stick.png"), 1),
+            new Animation(List.of("item/stick.png"), 1)),
     IRON_ORE(
             "Eisenerz",
             "Ein Stück Eisenerz. Daraus lassen sich sicherlich nützliche Dinge herstellen.",
-            ItemCategory.BASIC),
+            ItemCategory.BASIC,
+            new Animation(List.of("item/iron_ore.png"), 1),
+            new Animation(List.of("item/iron_ore.png"), 1)),
     HEALTH_POTION(
-            "Heiltrank", "Ein Heiltrank. Er regeneriert 10 Lebenspunkte.", ItemCategory.ACTIVE);
+            "Heiltrank",
+            "Ein Heiltrank. Er regeneriert 10 Lebenspunkte.",
+            ItemCategory.ACTIVE,
+            new Animation(List.of("item/health_potion.png"), 1),
+            new Animation(List.of("item/health_potion.png"), 1));
     private String name, description;
     private Animation inventoryAnimation, worldAnimation;
 
