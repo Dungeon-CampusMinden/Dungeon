@@ -60,3 +60,7 @@ replay_pid*
 # Game Generated Files #
 ########################
 dungeon_config.json
+
+# WINDOWS #
+###########
+desktop.ini
