@@ -2,6 +2,7 @@ package starter;
 
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.EntityFactory;
+import contrib.systems.*;
 
 import core.Game;
 
@@ -17,6 +18,12 @@ public class Main {
         Game.WINDOW_TITLE = "My Dungeon";
         // spawn a chest
         Game.userOnLevelLoad = EntityFactory::getChest;
+        new AISystem();
+        new CollisionSystem();
+        new HealthSystem();
+        new XPSystem();
+        new SkillSystem();
+        new ProjectileSystem();
         // start game
         Game.run();
     }

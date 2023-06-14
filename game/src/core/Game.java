@@ -297,7 +297,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         stage =
                 new Stage(
                         new ScalingViewport(
-                                Scaling.stretch, Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT),
+                                Scaling.stretch, WINDOW_WIDTH, WINDOW_HEIGHT),
                         new SpriteBatch());
         Gdx.input.setInputProcessor(stage);
     }
@@ -435,12 +435,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         new VelocitySystem();
         new DrawSystem(painter);
         new PlayerSystem();
-        new AISystem();
-        new CollisionSystem();
-        new HealthSystem();
-        new XPSystem();
-        new ProjectileSystem();
-        new HudSystem();
         debugger = new DebuggerSystem();
     }
 
