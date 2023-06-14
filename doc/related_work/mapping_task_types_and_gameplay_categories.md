@@ -6,13 +6,13 @@ title: "Mapping Task Types and Gameplay Categories in the Context of Declarative
 
 ```
 @inproceedings{lemoine2023mapping,
-  title={Mapping Task Types and Gameplay Categories in the Context of Declarative Knowledge Training},
-  author={Lemoine, B{\'e}r{\'e}nice and Laforcade, Pierre and George, S{\'e}bastien},
-  booktitle={15th International Conference on Computer Supported Education},
-  volume={2},
-  pages={264--275},
-  year={2023},
-  organization={SCITEPRESS-Science and Technology Publications}
+  title          = {Mapping Task Types and Gameplay Categories in the Context of Declarative Knowledge Training},
+  author         = {Lemoine, B{\'e}r{\'e}nice and Laforcade, Pierre and George, S{\'e}bastien},
+  booktitle      = {15th International Conference on Computer Supported Education},
+  volume         = {2},
+  pages          = {264--275},
+  year           = {2023},
+  organization   = {SCITEPRESS-Science and Technology Publications}
 }
 ```
 

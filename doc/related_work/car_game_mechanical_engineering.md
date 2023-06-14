@@ -6,13 +6,13 @@ title: "Video game-based education in mechanical engineering: A look at student 
 
 ```
 @article{coller2009video,
-  title={Video game-based education in mechanical engineering: A look at student engagement},
-  author={Coller, Brianno D and Shernoff, David J},
-  journal={International Journal of Engineering Education},
-  volume={25},
-  number={2},
-  pages={308},
-  year={2009}
+  title   = {Video game-based education in mechanical engineering: A look at student engagement},
+  author  = {Coller, Brianno D and Shernoff, David J},
+  journal = {International Journal of Engineering Education},
+  volume  = {25},
+  number  = {2},
+  pages   = {308},
+  year    = {2009}
 }
 ```
 
