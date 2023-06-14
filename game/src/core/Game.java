@@ -40,6 +40,7 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 
 import quizquestion.DummyQuizQuestionList;
+import quizquestion.QuizQuestionUI;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -658,7 +659,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             // Dialogue for quiz questions (display of quiz questions and the answer area in test
             // mode)
-            UITools.showQuizDialog(DummyQuizQuestionList.getRandomQuestion());
+            QuizQuestionUI.showQuizDialog(DummyQuizQuestionList.getRandomQuestion());
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
             // toggle UI "debug rendering"
             stage().ifPresent(x -> x.setDebugAll(uiDebugFlag = !uiDebugFlag));
@@ -674,7 +675,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         entity.getComponent(UIComponent.class)
                 .map(UIComponent.class::cast)
                 .ifPresent(y -> y.getDialog().setVisible(true));
-
         return entity;
     }
 

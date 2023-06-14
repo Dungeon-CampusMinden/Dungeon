@@ -9,10 +9,9 @@ import core.Game;
 import core.components.UIComponent;
 import core.utils.Constants;
 
-import quizquestion.QuizQuestion;
-
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 /**
  * Formatting of the window or dialog and controls the creation of a dialogue object depending on an
@@ -24,37 +23,13 @@ public class UITools {
     public static final String DEFAULT_DIALOG_TITLE = "Question";
 
     /**
-     * display the Question-Content (Question and answer options (no pictures) as text, picture,
-     * text and picture, single or multiple choice ) in the Dialog
+     * Show the given Dialog on the screen.
      *
-     * @param question Various question configurations
+     * @param provider return the dialog
+     * @param entity entity that stores the {@link UIComponent} with the UI-Elements
      */
-    public static void showQuizDialog(QuizQuestion question) {
-        String questionContent =
-                QuizQuestionFormatted.formatStringForDialogWindow(question.question().content());
-        generateQuizDialogue(
-                question, questionContent, DEFAULT_DIALOG_CONFIRM, DEFAULT_DIALOG_TITLE);
-    }
-
-    /**
-     * If no Quiz-Dialogue is created, a new dialogue is created according to the event key. Pause
-     * all systems except DrawSystem
-     *
-     * @param question Various question configurations
-     */
-    private static Entity generateQuizDialogue(
-            QuizQuestion question, String questionMsg, String buttonMsg, String dialogTitle) {
-        Entity e = new Entity();
-        Dialog dialog =
-                DialogFactory.createQuizDialog(
-                        DEFAULT_SKIN,
-                        question,
-                        questionMsg,
-                        buttonMsg,
-                        dialogTitle,
-                        getResultHandler(e, buttonMsg));
-        new UIComponent(e, dialog, true);
-        return e;
+    public static void show(Supplier<Dialog> provider, Entity entity) {
+        new UIComponent(entity, provider.get(), true);
     }
 
     /**
@@ -66,22 +41,37 @@ public class UITools {
      */
     public static Entity generateNewTextDialog(
             String content, String buttonText, String windowText) {
-        Entity e = new Entity();
-        Dialog textDialog =
-                DialogFactory.createTextDialog(
-                        DEFAULT_SKIN,
-                        content,
-                        buttonText,
-                        windowText,
-                        getResultHandler(e, buttonText));
-        new UIComponent(e, textDialog, true);
-        return e;
+        Entity entity = new Entity();
+        show(
+                new Supplier<Dialog>() {
+                    @Override
+                    public Dialog get() {
+                        return DialogFactory.createTextDialog(
+                                DEFAULT_SKIN,
+                                content,
+                                buttonText,
+                                windowText,
+                                getResultHandler(entity, buttonText));
+                    }
+                },
+                entity);
+        return entity;
     }
 
-    private static BiFunction<TextDialog, String, Boolean> getResultHandler(
-            final Entity entity, final String closeButtonMsg) {
+    /**
+     * Create a {@link BiFunction} that removes the UI-Entity from the Game and close the Dialog, if
+     * the close-button was pressed.
+     *
+     * @param entity UI-Entity
+     * @param closeButtonID id of the close-button. The handler will use the id to execute the
+     *     correct close-logic,
+     * @return the configurated BiFunction that closes the window and removes the entity from the
+     *     Game, if the close-button was pressed.
+     */
+    public static BiFunction<TextDialog, String, Boolean> getResultHandler(
+            final Entity entity, final String closeButtonID) {
         return (d, id) -> {
-            if (Objects.equals(id, closeButtonMsg)) {
+            if (Objects.equals(id, closeButtonID)) {
                 Game.removeEntity(entity);
                 return true;
             }

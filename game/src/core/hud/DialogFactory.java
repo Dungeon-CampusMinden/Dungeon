@@ -3,8 +3,6 @@ package core.hud;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
-import quizquestion.QuizQuestion;
-
 import java.util.function.BiFunction;
 
 /**
@@ -12,37 +10,6 @@ import java.util.function.BiFunction;
  * Dialog for Questions and a simple Text
  */
 public class DialogFactory {
-
-    /**
-     * Factory for a generic Quizquestion.
-     *
-     * @param skin Skin for the dialogue (resources that can be used by UI widgets)
-     * @param quizQuestion Various question configurations
-     * @param outputMsg Content displayed in the scrollable label
-     * @param buttonMsg text for the button
-     * @param title Title of the dialogue
-     * @param resultHandler a callback method which is called when the confirm button is pressed
-     * @return the fully configured Dialog which then can be added where it is needed
-     */
-    public static Dialog createQuizDialog(
-            Skin skin,
-            QuizQuestion quizQuestion,
-            String outputMsg,
-            String buttonMsg,
-            String title,
-            BiFunction<TextDialog, String, Boolean> resultHandler) {
-        Dialog textDialog = new TextDialog(title, skin, resultHandler);
-        DialogDesign dialogDesign = new DialogDesign();
-        dialogDesign.createQuizQuestion(quizQuestion, skin, outputMsg);
-        textDialog.button(buttonMsg, buttonMsg);
-        textDialog
-                .getContentTable()
-                .add(dialogDesign)
-                .expand()
-                .fill(); // changes size based on childrens
-        textDialog.pack(); // resizes to size
-        return textDialog;
-    }
 
     /**
      * a simple Text Dialog which shows only the provided string.
@@ -62,7 +29,7 @@ public class DialogFactory {
             BiFunction<TextDialog, String, Boolean> resultHandler) {
         Dialog textDialog = new TextDialog(title, skin, resultHandler);
         DialogDesign dialogDesign = new DialogDesign();
-        dialogDesign.createTextDialog(skin, outputMsg);
+        textDialog.getContentTable().add(DialogDesign.createTextDialog(skin, outputMsg));
         textDialog.addActor(dialogDesign);
         textDialog.button(confirmButton, confirmButton);
         return textDialog;
