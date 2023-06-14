@@ -8,7 +8,6 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.utils.Constants;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
@@ -56,7 +55,7 @@ public class PatrouilleWalk implements Consumer<Entity> {
     public PatrouilleWalk(float radius, int numberCheckpoints, int pauseTime, MODE mode) {
         this.radius = radius;
         this.numberCheckpoints = numberCheckpoints;
-        this.pauseFrames = pauseTime / (1000 / Constants.FRAME_RATE);
+        this.pauseFrames = pauseTime / (1000 / Game.FRAME_RATE);
         this.mode = mode;
     }
 

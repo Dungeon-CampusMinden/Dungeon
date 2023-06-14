@@ -5,9 +5,9 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.components.ai.AITools;
 
 import core.Entity;
+import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.utils.Constants;
 import core.utils.Point;
 
 import java.util.function.Consumer;
@@ -30,7 +30,7 @@ public class StaticRadiusWalk implements Consumer<Entity> {
      */
     public StaticRadiusWalk(float radius, int breakTimeInSeconds) {
         this.radius = radius;
-        this.breakTime = breakTimeInSeconds * Constants.FRAME_RATE;
+        this.breakTime = breakTimeInSeconds * Game.FRAME_RATE;
     }
 
     @Override

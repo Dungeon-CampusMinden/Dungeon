@@ -1,6 +1,7 @@
 package contrib.utils.components.skill;
 
 import core.Entity;
+import core.Game;
 
 import java.time.Instant;
 import java.util.function.Consumer;

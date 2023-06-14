@@ -95,21 +95,21 @@ public class DialogDesign extends VerticalGroup {
      * @param outputMsg Content displayed in the scrollable label
      */
     private void visualizeQuestionSection(
-            QuizQuestionContent.QuizQuestionContentType questionContentType,
-            Skin skin,
-            String outputMsg) {
+        QuizQuestionContent.QuizQuestionContentType questionContentType,
+        Skin skin,
+        String outputMsg) {
 
         switch (questionContentType) {
             case TEXT -> addActor(createScrollPane(skin, new Label(outputMsg, skin)));
             case IMAGE -> addActor(
-                    createScrollPane(
-                            skin, new Image(new Texture(imagePathExtractor(outputMsg).get()))));
+                createScrollPane(
+                    skin, new Image(new Texture(imagePathExtractor(outputMsg).get()))));
 
             case TEXT_AND_IMAGE -> {
                 addActor(createScrollPane(skin, new Label(outputMsg, skin)));
                 addActor(
-                        createScrollPane(
-                                skin, new Image(new Texture(imagePathExtractor(outputMsg).get()))));
+                    createScrollPane(
+                        skin, new Image(new Texture(imagePathExtractor(outputMsg).get()))));
             }
             default -> {}
         }
@@ -155,25 +155,25 @@ public class DialogDesign extends VerticalGroup {
         btnGroup.uncheckAll();
 
         final CheckBox.CheckBoxStyle style =
-                switch (quizQuestion.type()) {
-                    case MULTIPLE_CHOICE -> skin.get("radio", CheckBox.CheckBoxStyle.class);
-                    default -> skin.get("default", CheckBox.CheckBoxStyle.class);
-                };
+            switch (quizQuestion.type()) {
+                case MULTIPLE_CHOICE -> skin.get("radio", CheckBox.CheckBoxStyle.class);
+                default -> skin.get("default", CheckBox.CheckBoxStyle.class);
+            };
         Arrays.stream(quizQuestion.answers())
-                .filter(
-                        answer ->
-                                answer.type() != QuizQuestionContent.QuizQuestionContentType.IMAGE)
-                .map(
-                        answer ->
-                                new CheckBox(
-                                        QuizQuestionFormatted.formatStringForDialogWindow(
-                                                answer.content()),
-                                        style))
-                .forEach(
-                        checkBox -> {
-                            btnGroup.add(checkBox);
-                            answerButtons.addActor(checkBox);
-                        });
+            .filter(
+                answer ->
+                    answer.type() != QuizQuestionContent.QuizQuestionContentType.IMAGE)
+            .map(
+                answer ->
+                    new CheckBox(
+                        QuizQuestionFormatted.formatStringForDialogWindow(
+                            answer.content()),
+                        style))
+            .forEach(
+                checkBox -> {
+                    btnGroup.add(checkBox);
+                    answerButtons.addActor(checkBox);
+                });
 
         switch (quizQuestion.type()) {
             case MULTIPLE_CHOICE -> btnGroup.setMaxCheckCount(quizQuestion.answers().length);
@@ -194,7 +194,7 @@ public class DialogDesign extends VerticalGroup {
      */
     private Optional<String> imagePathExtractor(String quizQuestion) {
         Optional<MatchResult> first =
-                Pattern.compile(PATTERN_IMAGE_FINDER).matcher(quizQuestion).results().findFirst();
+            Pattern.compile(PATTERN_IMAGE_FINDER).matcher(quizQuestion).results().findFirst();
         return first.map(MatchResult::group);
     }
 }

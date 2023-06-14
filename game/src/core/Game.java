@@ -34,8 +34,7 @@ import core.systems.DrawSystem;
 import core.systems.HudSystem;
 import core.systems.PlayerSystem;
 import core.systems.VelocitySystem;
-import core.utils.Constants;
-import core.utils.DelayedSet;
+import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 
@@ -55,10 +54,23 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private static final DelayedSet<Entity> entities = new DelayedSet<>();
 
     private static final Logger LOGGER = Logger.getLogger("Game");
+    public static int WINDOW_WIDTH = 640;
+    public static int WINDOW_HEIGHT = 480;
+    /** Frames per seconds. */
+    public static int FRAME_RATE = 30;
+    /** Sets the window title for the LibGDX window. */
+    public static String WINDOW_TITLE = "PM-Dungeon";
+    /** Sets the LibGDX-window logo path. */
+    public static String LOGO_PATH = "logo/CatLogo_35x35.png";
     /** Currently used level-size configuration for generating new level */
     public static LevelSize LEVELSIZE = LevelSize.SMALL;
 
     public static ILevel currentLevel;
+    public static IGameInterface userFrame = () -> {};
+    public static IGameInterface userOnLevelLoad = () -> {};
+    public static boolean disable_audi = false;
+    /** A handler for managing asset paths */
+
     private static Entity hero;
     private static Game game;
     private static Stage stage;
@@ -71,7 +83,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private Painter painter;
 
     private LevelManager levelManager;
-
     private boolean doSetup = true;
     private DebuggerSystem debugger;
 
@@ -164,16 +175,16 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     /** Starts the dungeon and requires a {@link Game}. */
     public static void run() {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-        config.setWindowSizeLimits(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT, 9999, 9999);
+        config.setWindowSizeLimits(WINDOW_WIDTH, WINDOW_HEIGHT, 9999, 9999);
         // The third and fourth parameters ("maxWidth" and "maxHeight") affect the resizing
         // behavior
         // of the window. If the window is enlarged or maximized, then it can assume these
         // dimensions at maximum. If you have a larger screen resolution than 9999x9999 pixels,
         // increase these parameters.
-        config.setForegroundFPS(Constants.FRAME_RATE);
-        config.setTitle(Constants.WINDOW_TITLE);
-        config.setWindowIcon(Constants.LOGO_PATH);
-        // config.disableAudio(true);
+        config.setForegroundFPS(FRAME_RATE);
+        config.setTitle(WINDOW_TITLE);
+        config.setWindowIcon(LOGO_PATH);
+        config.disableAudio(disable_audi);
         // uncomment this if you wish no audio
         new Lwjgl3Application(
                 new com.badlogic.gdx.Game() {
@@ -300,6 +311,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private void frame() {
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         debugKeys();
+        userFrame.execute();
     }
 
     private boolean uiDebugFlag = false;
@@ -360,6 +372,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
             LOGGER.warning("Could not create new Chest: " + e.getMessage());
             throw new RuntimeException();
         }
+        userOnLevelLoad.execute();
     }
 
     /**
