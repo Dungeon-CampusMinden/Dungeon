@@ -2,7 +2,7 @@
 title: "An Analysis Framework for Designing Declarative Knowledge Training Games Using Roguelite Genre"
 ---
 
-## Bibkey
+## Bibtex
 
 ```
 @inproceedings{lemoine2023analysis,
