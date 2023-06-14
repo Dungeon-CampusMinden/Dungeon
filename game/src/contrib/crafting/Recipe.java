@@ -46,4 +46,12 @@ public class Recipe {
 
         return true;
     }
+
+    public CraftingIngredient[] getIngredients() {
+        return this.ingredients;
+    }
+
+    public CraftingResult[] getResults() {
+        return this.results;
+    }
 }
