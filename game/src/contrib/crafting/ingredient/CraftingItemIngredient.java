@@ -13,6 +13,12 @@ public class CraftingItemIngredient extends CraftingIngredient {
         super(Type.ITEM);
     }
 
+    public CraftingItemIngredient(Item item, int count) {
+        super(Type.ITEM);
+        this.item = item;
+        this.count = count;
+    }
+
     @Override
     public boolean match(CraftingIngredient input) {
         if (!(input instanceof CraftingItemIngredient inputItem)) {

@@ -18,6 +18,12 @@ public class CraftingItemResult extends CraftingResult {
         super(Type.ITEM);
     }
 
+    public CraftingItemResult(Item item, int count) {
+        super(Type.ITEM);
+        this.item = item;
+        this.count = count;
+    }
+
     @Override
     public void execute(Entity entity) {
         InventoryComponent ic =
