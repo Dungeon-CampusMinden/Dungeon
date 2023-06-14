@@ -445,6 +445,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
         addEntity(new Tombstone(new Ghost()));
         addEntity(new QuestButton());
+        addEntity(new Key());
     }
 
     // Monster spawn mechanics

@@ -78,9 +78,17 @@ public class Hero extends Entity {
         if (xPComponent.getCurrentLevel() >= 20)
             pc.setSkillSlot4(fourthSkill);
         setupQuestComponent(questLog);
+        setupInventoryComponent();
+        setupBunchOfKeysComponent();
+    }
+
+    private void setupInventoryComponent(){
         new InventoryComponent(this, 2);
     }
 
+    private void setupBunchOfKeysComponent(){
+        new BunchOfKeysComponent(this, 3);
+    }
     private void setupVelocityComponent() {
         Animation moveRight = AnimationBuilder.buildAnimation(pathToRunRight);
         Animation moveLeft = AnimationBuilder.buildAnimation(pathToRunLeft);
