@@ -1,0 +1,35 @@
+{
+    "ordered": true,
+    "ingredients": [
+        {
+            "type": "item",
+            "item": {
+                "id": "WATER_BOTTLE",
+                "count": 1
+            }
+        },
+        {
+            "type": "item",
+            "item": {
+                "id": "MUSHROOM_RED",
+                "count": 1
+            }
+        },
+        {
+            "type": "item",
+            "item": {
+                "id": "FLOWER_RED",
+                "count": 1
+            }
+        }
+    ],
+    "results": [
+        {
+            "type": "item",
+            "item": {
+                "id": "HEALTH_POTION",
+                "count": 1
+            }
+        }
+    ]
+}
