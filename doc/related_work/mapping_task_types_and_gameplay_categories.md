@@ -1,7 +1,5 @@
 ---
 title: "Mapping Task Types and Gameplay Categories in the Context of Declarative Knowledge Training"
-link: "https://hal.science/hal-04093538/document"
-from: "Bérénice Lemoine, Pierre Laforcade and Sébastien George" (LIUM Computer Science Laboratory, Le Mans Universite ́, Laval, France)
 ---
 
 ## Bibtex
