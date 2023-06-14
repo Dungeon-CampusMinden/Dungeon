@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import java.util.function.Consumer;
+
 public class SystemTest {
 
     @Test
@@ -16,9 +18,29 @@ public class SystemTest {
                     @Override
                     public void execute() {}
                 };
+
+        final boolean[] onShow = {false};
+        final boolean[] onAdd = {false};
+        ts.onEntityShow =
+                new Consumer<Entity>() {
+                    @Override
+                    public void accept(Entity entity) {
+                        onShow[0] = true;
+                    }
+                };
+        ts.onEntityAdd =
+                new Consumer<Entity>() {
+                    @Override
+                    public void accept(Entity entity) {
+                        onAdd[0] = true;
+                    }
+                };
+
         Entity e = new Entity();
         e.addComponent(new DummyComponent(e));
         ts.showEntity(e);
+        assertTrue(onShow[0]);
+        assertTrue(onAdd[0]);
         ts.execute();
         assertTrue(ts.getEntityStream().anyMatch(en -> e == en));
         Game.removeAllEntities();
@@ -32,7 +54,25 @@ public class SystemTest {
                     @Override
                     public void execute() {}
                 };
+        final boolean[] onShow = {false};
+        final boolean[] onAdd = {false};
+        ts.onEntityShow =
+                new Consumer<Entity>() {
+                    @Override
+                    public void accept(Entity entity) {
+                        onShow[0] = true;
+                    }
+                };
+        ts.onEntityAdd =
+                new Consumer<Entity>() {
+                    @Override
+                    public void accept(Entity entity) {
+                        onAdd[0] = true;
+                    }
+                };
         ts.showEntity(e);
+        assertTrue(onShow[0]);
+        assertFalse(onAdd[0]);
         ts.execute();
         assertFalse(ts.getEntityStream().anyMatch(en -> e == en));
         Game.removeAllEntities();
@@ -45,11 +85,63 @@ public class SystemTest {
                     @Override
                     public void execute() {}
                 };
+        final boolean[] onShow = {false};
+        final boolean[] onRemove = {false};
+        ts.onEntityShow =
+                new Consumer<Entity>() {
+                    @Override
+                    public void accept(Entity entity) {
+                        onShow[0] = true;
+                    }
+                };
+        ts.onEntityRemove =
+                new Consumer<Entity>() {
+                    @Override
+                    public void accept(Entity entity) {
+                        onRemove[0] = true;
+                    }
+                };
         Entity e = new Entity();
         e.addComponent(new DummyComponent(e));
         ts.showEntity(e);
+        assertTrue(onShow[0]);
         ts.execute();
         ts.removeEntity(e);
+        assertTrue(onRemove[0]);
+        ts.execute();
+        assertFalse(ts.getEntityStream().anyMatch(en -> e == en));
+        Game.removeAllEntities();
+    }
+
+    @Test
+    public void remove_notExisting() {
+        System ts =
+                new System(DummyComponent.class) {
+                    @Override
+                    public void execute() {}
+                };
+        final boolean[] onShow = {false};
+        final boolean[] onRemove = {false};
+        ts.onEntityShow =
+                new Consumer<Entity>() {
+                    @Override
+                    public void accept(Entity entity) {
+                        onShow[0] = true;
+                    }
+                };
+        ts.onEntityRemove =
+                new Consumer<Entity>() {
+                    @Override
+                    public void accept(Entity entity) {
+                        onRemove[0] = true;
+                    }
+                };
+        Entity e = new Entity();
+        ts.showEntity(e);
+        assertTrue(onShow[0]);
+        ts.execute();
+        ts.removeEntity(e);
+        assertFalse(onRemove[0]);
         ts.execute();
         assertFalse(ts.getEntityStream().anyMatch(en -> e == en));
         Game.removeAllEntities();
