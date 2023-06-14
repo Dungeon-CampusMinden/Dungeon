@@ -130,8 +130,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     public static boolean DISABLE_AUDIO = false;
 
     private static Entity hero;
-    private static Game game;
     private static Stage stage;
+
     /**
      * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
      * batch.
@@ -257,16 +257,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
-     * Create a new Game instance if no instance currently exists.
-     *
-     * @return the (new) Game instance
-     */
-    public static Game game() {
-        if (game == null) game = new Game();
-        return game;
-    }
-
-    /**
      * In the next frame, each system will be informed that the given entity has changes in its
      * Component Collection.
      *
@@ -357,7 +347,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
                 new com.badlogic.gdx.Game() {
                     @Override
                     public void create() {
-                        setScreen(Game.game());
+                        setScreen(new Game());
                     }
                 },
                 config);
@@ -502,7 +492,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         debugKeys();
         userFrame.execute();
     }
-
 
 
 
