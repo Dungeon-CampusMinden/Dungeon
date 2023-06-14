@@ -38,33 +38,33 @@ public abstract class System {
     /**
      * Will be called after an entity was added to the internal set of the system.
      *
-     * <p>Use this in your own System to implement logic that should be executed after an entity was
+     * <p>Use this in your own system to implement logic that should be executed after an entity was
      * added.
      *
-     * <p>The default implementation does nothing.
+     * <p>The default implementation is just empty.
      */
     protected Consumer<Entity> onEntityAdd = (e) -> {};
     /**
      * Will be called after an entity was removed from the internal set of the system.
      *
-     * <p>Use this in your own System to implement logic that should be executed after an entity was
+     * <p>Use this in your own system to implement logic that should be executed after an entity was
      * removed.
      *
-     * <p>The default implementation does nothing.
+     * <p>The default implementation is just empty.
      */
     protected Consumer<Entity> onEntityRemove = (e) -> {};
 
     /**
      * Will be called if an entity is shown to the system.
      *
-     * <p>Use this in your own System to implement logic that should be executed after an entity is
+     * <p>Use this in your own system to implement logic that should be executed after an entity is
      * shown to the system.
      *
-     * <p>This function will be called after the entity is added/removed from the set. It is the
+     * <p>This function will be called after the entity is added/removed to/from the set. It is the
      * final call in {@link #showEntity(Entity)}. So {@link #onEntityAdd} or {@link #onEntityRemove}
      * could have been executed already.
      *
-     * <p>The default implementation does nothing.
+     * <p>The default implementation is just empty.
      */
     protected Consumer<Entity> onEntityShow = (e) -> {};
 
