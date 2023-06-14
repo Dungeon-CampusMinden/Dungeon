@@ -21,6 +21,7 @@ import java.util.logging.Logger;
  * The Cake has an ItemComponent, a PositionComponent, a HitboxComponent and an AnimationComponent.
  */
 public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
+    private static ItemData itemData;
     private ItemComponent itemComponent;
     private transient final Logger cakeLogger = Logger.getLogger(this.getClass().getName());
 
@@ -69,7 +70,7 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
 
     @Override
     protected void setupItemComponent() {
-        ItemData itemData = new ItemData(
+        itemData = new ItemData(
                 ItemConfig.FOOD_TYPE.get(),
                 new Animation(List.of(ItemConfig.KUCHEN_TEXTURE.get()), 1),
                 new Animation(List.of(ItemConfig.KUCHEN_TEXTURE.get()), 1),
@@ -169,4 +170,7 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
         hc.setCurrentHealthpoints(hc.getMaximalHealthpoints());
     }
 
+    public static ItemData getItemData(){
+        return itemData;
+    }
 }

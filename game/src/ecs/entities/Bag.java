@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class Bag extends Item {
+    private static ItemData itemData;
     private ItemComponent itemComponent;
     private transient final Logger bagLogger = Logger.getLogger(this.getClass().getName());
 
@@ -68,7 +69,7 @@ public class Bag extends Item {
 
     @Override
     public void setupItemComponent() {
-        ItemData itemData = new ItemData(
+        itemData = new ItemData(
                 ItemConfig.BAG_TYPE.get(),
                 new Animation(List.of(ItemConfig.BAG_TEXTURE.get()), 1),
                 new Animation(List.of(ItemConfig.BAG_TEXTURE.get()), 1),
@@ -125,5 +126,9 @@ public class Bag extends Item {
                             InventoryComponent invComp = (InventoryComponent) component;
                             invComp.removeItem(which);
                         });
+    }
+
+    public static ItemData getItemData(){
+        return itemData;
     }
 }

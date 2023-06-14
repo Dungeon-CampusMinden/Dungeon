@@ -15,12 +15,11 @@ public class MimicAI implements IFightAI{
 
     @Override
     public void fight(Entity entity) {
-        if (entity instanceof Mimic){
-            Mimic mimic = (Mimic) entity;
-            if (mimic.getAttacking()){
-                skill.execute(entity);
-            }
+        if (!(entity instanceof Mimic)){
+            return;
         }
+        if(((Mimic)entity).getAttacking())
+            skill.execute(entity);
     }
 
 

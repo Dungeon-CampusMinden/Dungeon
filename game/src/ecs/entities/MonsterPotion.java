@@ -20,6 +20,7 @@ import java.util.logging.Logger;
  * The MonsterPotion is an entity in the ECS.
  */
 public class MonsterPotion extends Item {
+    private static ItemData itemData;
     private ItemComponent itemComponent;
     private transient final Logger monsterPotionLogger = Logger.getLogger(this.getClass().getName());
 
@@ -68,7 +69,7 @@ public class MonsterPotion extends Item {
 
     @Override
     protected void setupItemComponent() {
-        ItemData itemData = new ItemData(
+        itemData = new ItemData(
                 ItemConfig.POTION_TYPE.get(),
                 new Animation(List.of(ItemConfig.MONSTER_DESPAWN_TEXTURE.get()), 1),
                 new Animation(List.of(ItemConfig.MONSTER_DESPAWN_TEXTURE.get()), 1),
@@ -169,4 +170,7 @@ public class MonsterPotion extends Item {
                 .forEach(Game::removeEntity);
     }
 
+    public static ItemData getItemData(){
+        return itemData;
+    }
 }

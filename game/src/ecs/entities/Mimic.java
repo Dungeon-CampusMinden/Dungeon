@@ -15,18 +15,21 @@ import ecs.components.xp.ILevelUp;
 import ecs.components.xp.XPComponent;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
+import ecs.items.ItemData;
 import graphic.Animation;
 import starter.Game;
 import tools.Point;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class Mimic extends Monster{
 
     private static transient final Logger mimicLogger = Logger.getLogger(Mimic.class.getName());
 
-    private final int maxHealth = 100;
+    private final int maxHealth = 20;
     private int attackCooldown = 2;
     private int level;
     private boolean attacking = false;
@@ -41,12 +44,33 @@ public class Mimic extends Monster{
         new PositionComponent(this);
         setupAnimationComponent();
         setupHealthComponent();
+        setupXPComponent();
         setupDamageComponent();
         setupAIComponent();
         setupInteractionComponent();
+        setupHitBoxComponent();
         mimicLogger.info("Mimic created");
     }
 
+    private void setupXPComponent() {
+        xPComponent = new XPComponent(this, new ILevelUp() {
+
+            @Override
+            public void onLevelUp(long nexLevel) {
+                HealthComponent health = (HealthComponent) getComponent(HealthComponent.class).get();
+                health.setMaximalHealthpoints((int) (health.getMaximalHealthpoints() * 1.01f));
+                health.setCurrentHealthpoints(health.getMaximalHealthpoints());
+                xPComponent.setLootXP(50 * (int) nexLevel);
+                ((DamageComponent) getComponent(DamageComponent.class).get()).setDamage(calcDamage());
+            }
+
+        }, 5 * level);
+        xPComponent.setCurrentLevel(level / 10);
+        ((HealthComponent) getComponent(HealthComponent.class).get())
+            .setMaximalHealthpoints(maxHealth * (int) Math.pow(1.01f, xPComponent.getCurrentLevel()));
+        ((HealthComponent) getComponent(HealthComponent.class).get())
+            .setCurrentHealthpoints(maxHealth * (int) Math.pow(1.01f, xPComponent.getCurrentLevel()));
+    }
     private void setupAIComponent() {
         FireballSkill s1 = new FireballSkill(new ITargetSelection() {
             @Override
@@ -67,7 +91,7 @@ public class Mimic extends Monster{
 
     private Point entityPosition() {
         mimicLogger.info("Boss position requested");
-        if (!Game.getHero().isPresent())
+        if (Game.getHero().isEmpty())
             return null;
         return ((PositionComponent) Game.getHero().get().getComponent(PositionComponent.class)
             .orElseThrow(
@@ -76,24 +100,30 @@ public class Mimic extends Monster{
             .getPosition();
 
     }
-
+    private void setupHitBoxComponent(){
+        new HitboxComponent(this);
+    }
 
     private void setupAnimationComponent() {
         Animation openChest = AnimationBuilder.buildAnimation(pathToOpenChest);
         Animation closeChest = AnimationBuilder.buildAnimation(pathToClosedChest);
-        new AnimationComponent(this, openChest, closeChest);
+        new AnimationComponent(this, closeChest, openChest);
     }
 
     private void setupHealthComponent() {
         IOnDeathFunction iOnDeathFunction = new IOnDeathFunction() {
             public void onDeath(Entity entity) {
                 // Create a treasure chest
-                Chest treasureChest = Chest.createNewChest();
+                List<ItemData> items = new ArrayList<>(4);
+                items.add(SpeedPotion.getItemData());
+                items.add(Cake.getItemData());
+                items.add(MonsterPotion.getItemData());
+                items.add(Bag.getItemData());
+                PositionComponent positionComponent = (PositionComponent) entity.getComponent(PositionComponent.class).get();
+                Chest chest = new Chest(items, positionComponent.getPosition());
             }
         };
-        HealthComponent healthComponenet = new HealthComponent(this);
-        healthComponenet.setOnDeath(iOnDeathFunction);
-        healthComponenet.setMaximalHealthpoints(maxHealth);
+        new HealthComponent(this, maxHealth, iOnDeathFunction, AnimationBuilder.buildAnimation(this.pathToClosedChest), AnimationBuilder.buildAnimation(this.pathToClosedChest));
     }
 
     private void setupDamageComponent() {
@@ -101,20 +131,18 @@ public class Mimic extends Monster{
     }
 
     private void setupInteractionComponent() {
-        new InteractionComponent(this, 5, false, Mimic::mimicInteraction);
-        getAttacking();
-
+        IInteraction iInteraction = new IInteraction() {
+            @Override
+            public void onInteraction(Entity entity) {
+                 if(entity instanceof Mimic)
+                     ((Mimic) entity).attacking = true;
+            }
+        };
+        new InteractionComponent(this, 1, false, iInteraction);
     }
-
 
     private int calcDamage() {
         return 5 + (int) Math.sqrt(10 * xPComponent.getCurrentLevel());
-    }
-
-
-    public static void mimicInteraction(Entity entity) {
-        mimicLogger.info("Mimic attacked");
-
     }
 
     public boolean getAttacking(){

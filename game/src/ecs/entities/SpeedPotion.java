@@ -19,6 +19,7 @@ import java.util.logging.Logger;
  * The SpeedPotion increases the speed of the player on use.
  */
 public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
+    private static ItemData itemData;
     private ItemComponent itemComponent;
     private transient final Logger speedPotionLogger = Logger.getLogger(this.getClass().getName());
 
@@ -70,7 +71,7 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
 
     @Override
     protected void setupItemComponent() {
-        ItemData itemData = new ItemData(
+        itemData = new ItemData(
                 ItemConfig.POTION_TYPE.get(),
                 new Animation(List.of(ItemConfig.SPEED_TEXTURE.get()), 1),
                 new Animation(List.of(ItemConfig.SPEED_TEXTURE.get()), 1),
@@ -171,4 +172,7 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
         vc.setYVelocity(vc.getYVelocity() * 2);
     }
 
+    public static ItemData getItemData(){
+        return itemData;
+    }
 }
