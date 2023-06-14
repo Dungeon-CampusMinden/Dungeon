@@ -50,7 +50,7 @@ public class StaticRadiusWalk implements Consumer<Entity> {
                                 entity.getComponent(PositionComponent.class).orElseThrow();
                 currentPosition = pc2.getPosition();
                 newEndTile =
-                        AITools.getRandomAccessibleTileCoordinateInRange(center, radius).toPoint();
+                        AITools.randomAccessibleTileCoordinateInRange(center, radius).toPoint();
                 path = AITools.calculatePath(currentPosition, newEndTile);
                 accept(entity);
             }

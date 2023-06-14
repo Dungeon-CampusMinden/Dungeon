@@ -72,7 +72,7 @@ public class AITools {
      * @param radius Search radius
      * @return List of tiles in the given radius arround the center point
      */
-    public static List<Tile> getTilesInRange(Point center, float radius) {
+    public static List<Tile> tilesInRange(Point center, float radius) {
         List<Tile> tiles = new ArrayList<>();
         for (float x = center.x - radius; x <= center.x + radius; x++) {
             for (float y = center.y - radius; y <= center.y + radius; y++) {
@@ -88,8 +88,8 @@ public class AITools {
      * @param radius Search radius
      * @return List of accessible tiles in the given radius arround the center point
      */
-    public static List<Tile> getAccessibleTilesInRange(Point center, float radius) {
-        List<Tile> tiles = getTilesInRange(center, radius);
+    public static List<Tile> accessibleTilesInRange(Point center, float radius) {
+        List<Tile> tiles = tilesInRange(center, radius);
         tiles.removeIf(tile -> !tile.isAccessible());
         return tiles;
     }
@@ -99,8 +99,8 @@ public class AITools {
      * @param radius search radius
      * @return random tile in given range
      */
-    public static Coordinate getRandomAccessibleTileCoordinateInRange(Point center, float radius) {
-        List<Tile> tiles = getAccessibleTilesInRange(center, radius);
+    public static Coordinate randomAccessibleTileCoordinateInRange(Point center, float radius) {
+        List<Tile> tiles = accessibleTilesInRange(center, radius);
         Coordinate newPosition = tiles.get(random.nextInt(tiles.size())).getCoordinate();
         return newPosition;
     }
@@ -120,7 +120,7 @@ public class AITools {
      * @return Path from the start coordinate to the end coordinate
      */
     public static GraphPath<Tile> calculatePath(Coordinate from, Coordinate to) {
-        return Game.currentLevel.findPath(Game.tileAT(from), Game.tileAT(to));
+        return Game.findPath(Game.tileAT(from), Game.tileAT(to));
     }
 
     /**
@@ -132,7 +132,7 @@ public class AITools {
      * @return Path from the center point to the randomly selected tile
      */
     public static GraphPath<Tile> calculatePathToRandomTileInRange(Point point, float radius) {
-        Coordinate newPosition = getRandomAccessibleTileCoordinateInRange(point, radius);
+        Coordinate newPosition = randomAccessibleTileCoordinateInRange(point, radius);
         return calculatePath(point.toCoordinate(), newPosition);
     }
 
@@ -250,7 +250,7 @@ public class AITools {
                         entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        boolean finished = path.get(path.getCount() - 1).equals(Game.tileAT(pc.getPosition()));
+        boolean finished = lastTile(path).equals(Game.tileAT(pc.getPosition()));
 
         boolean onPath = false;
         Tile currentTile = Game.tileAT(pc.getPosition());
@@ -274,7 +274,7 @@ public class AITools {
                         entity.getComponent(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
-        return path.get(path.getCount() - 1).equals(Game.tileAT(pc.getPosition()));
+        return lastTile(path).equals(Game.tileAT(pc.getPosition()));
     }
 
     /**
@@ -296,5 +296,16 @@ public class AITools {
             if (currentTile == tile) onPath = true;
         }
         return !onPath;
+    }
+
+    /**
+     * Get the last Tile in the given GraphPath
+     *
+     * @param path considered GraphPath
+     * @return last Tile in the given path
+     * @see GraphPath
+     */
+    public static Tile lastTile(GraphPath<Tile> path) {
+        return path.get(path.getCount() - 1);
     }
 }

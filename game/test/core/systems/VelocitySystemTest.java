@@ -11,7 +11,6 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
-import core.level.utils.Coordinate;
 import core.utils.Point;
 import core.utils.components.draw.CoreAnimations;
 
@@ -40,7 +39,7 @@ public class VelocitySystemTest {
     @Before
     public void setup() throws IOException {
         Game.currentLevel = level;
-        Mockito.when(level.tileAt((Coordinate) Mockito.any())).thenReturn(tile);
+        Mockito.when(level.tileAt((Point) Mockito.any())).thenReturn(tile);
         Game.removeEntity(entity);
         entity = new Entity();
         velocitySystem = new VelocitySystem();

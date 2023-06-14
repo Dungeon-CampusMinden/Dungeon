@@ -7,8 +7,12 @@ import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.utils.Array;
 
+import core.Entity;
+import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.astar.TileHeuristic;
+import core.utils.Point;
+import core.utils.components.MissingComponentException;
 
 public interface IPathable extends IndexedGraph<Tile> {
 
@@ -46,4 +50,21 @@ public interface IPathable extends IndexedGraph<Tile> {
      * @return the TileHeuristic for the Level
      */
     TileHeuristic getTileHeuristic();
+
+    /**
+     * Get the Position of the given entity in the level.
+     *
+     * @param entity Entity to get the current position from (needs a {@link PositionComponent}
+     * @return Position of the given entity.
+     */
+    default Point getPosition(Entity entity) {
+        return ((PositionComponent)
+                        entity.getComponent(PositionComponent.class)
+                                .orElseThrow(
+                                        () ->
+                                                new MissingComponentException(
+                                                        entity.getClass().getName()
+                                                                + "is missing PositionComponent")))
+                .getPosition();
+    }
 }
