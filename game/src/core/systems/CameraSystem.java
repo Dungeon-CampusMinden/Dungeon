@@ -42,7 +42,7 @@ public class CameraSystem extends System {
 
     private void focus() {
         Point focusPoint;
-        if (Game.currentLevel == null) focusPoint = new Point(0, 0);
+        if (Game.currentLevel() == null) focusPoint = new Point(0, 0);
         else focusPoint = Game.startTile().position();
         focus(focusPoint);
     }

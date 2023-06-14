@@ -78,7 +78,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @see ILevel
      * @see LevelManager
      */
-    public static ILevel currentLevel;
+    private static ILevel currentLevel;
     /**
      * The width of the game window in pixels.
      *
@@ -137,7 +137,10 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private static Entity hero;
 
+
     private static Stage stage;
+
+    private static LevelManager levelManager;
 
     /**
      * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
@@ -147,11 +150,17 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     /** Draws objects */
     private Painter painter;
 
-    private LevelManager levelManager;
     private boolean doSetup = true;
     private DebuggerSystem debugger;
     // for singleton
     private Game() {}
+
+    /**
+     * @return the currently loaded level
+     */
+    public static ILevel currentLevel() {
+        return currentLevel;
+    }
 
     /**
      * @return a copy of the map that stores all registered {@link System} in the game.
@@ -569,6 +578,20 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     public static Point getPosition(Entity entity) {
         return currentLevel.getPosition(entity);
+    }
+
+    /**
+     * Set the current level.
+     *
+     * <p>This method is for testing and debugging purposes.
+     *
+     * <p>Will trigger {@link #onLevelLoad() if a {@link LevelManager} is active.}
+     *
+     * @param level New level
+     */
+    public static void currentLevel(ILevel level) {
+        if (levelManager != null) levelManager.setLevel(level);
+        currentLevel = level;
     }
 
     /**

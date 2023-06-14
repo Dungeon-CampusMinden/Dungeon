@@ -68,7 +68,7 @@ public class PositionComponent extends Component {
     public PositionComponent(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);
 
-        if (Game.currentLevel != null) {
+        if (Game.currentLevel() != null) {
             position = Game.randomTilePoint(LevelElement.FLOOR);
         } else {
             position = new Point(0, 0);
