@@ -2,6 +2,7 @@ package core;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -33,6 +34,39 @@ public abstract class System {
     private final Class<? extends Component> keyComponent;
     private final Set<Class<? extends Component>> additionalComponents;
     protected boolean run;
+
+    /**
+     * Will be called after an entity was added to the internal set of the system.
+     *
+     * <p>Use this in your own System to implement logic that should be executed after an entity was
+     * added.
+     *
+     * <p>The default implementation does nothing.
+     */
+    protected Consumer<Entity> onEntityAdd = (e) -> {};
+    /**
+     * Will be called after an entity was removed from the internal set of the system.
+     *
+     * <p>Use this in your own System to implement logic that should be executed after an entity was
+     * removed.
+     *
+     * <p>The default implementation does nothing.
+     */
+    protected Consumer<Entity> onEntityRemove = (e) -> {};
+
+    /**
+     * Will be called if an entity is shown to the system.
+     *
+     * <p>Use this in your own System to implement logic that should be executed after an entity is
+     * shown to the system.
+     *
+     * <p>This function will be called after the entity is added/removed from the set. It is the
+     * final call in {@link #showEntity(Entity)}. So {@link #onEntityAdd} or {@link #onEntityRemove}
+     * could have been executed already.
+     *
+     * <p>The default implementation does nothing.
+     */
+    protected Consumer<Entity> onEntityShow = (e) -> {};
 
     /**
      * Create a new system and add it to the game. {@link Game#addSystem}
@@ -82,7 +116,7 @@ public abstract class System {
      * <p>If the key component is missing, this system will ignore the entity. If the entity is
      * present in the internal set, it will be removed.
      *
-     * <p>If one ore more additionaly component are missing, this system will ignore the entity and
+     * <p>If one or more additionally component are missing, this system will ignore the entity and
      * create a log entry with information about the missing components. If the entity is present in
      * the internal set, it will be removed.
      *
@@ -91,6 +125,7 @@ public abstract class System {
     public final void showEntity(Entity entity) {
         if (accept(entity)) addEntity(entity);
         else removeEntity(entity);
+        onEntityShow.accept(entity);
     }
 
     /**
@@ -99,8 +134,10 @@ public abstract class System {
      * @param entity the entity to remove
      */
     private void addEntity(Entity entity) {
-        if (entities.add(entity))
+        if (entities.add(entity)) {
+            onEntityAdd.accept(entity);
             LOGGER.info("Entity " + entity + "will be added to " + getClass().getName());
+        }
     }
 
     /**
@@ -113,8 +150,10 @@ public abstract class System {
      * @param entity the entity to remove
      */
     public final void removeEntity(Entity entity) {
-        if (entities.remove(entity))
+        if (entities.remove(entity)) {
+            onEntityRemove.accept(entity);
             LOGGER.info("Entity " + entity + " will be removed from " + getClass().getName());
+        }
     }
 
     /**
@@ -178,7 +217,7 @@ public abstract class System {
     /**
      * Check if the given entity has all the components needed to be processed by this system.
      *
-     * <p>If one or more additionaly components are missing, this system will create a log entry
+     * <p>If one or more additionally components are missing, this system will create a log entry
      * with information about the missing components.
      *
      * @param entity the entity to check
