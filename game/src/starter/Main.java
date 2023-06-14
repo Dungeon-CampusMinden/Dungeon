@@ -14,7 +14,7 @@ public class Main {
         Game.setHero(EntityFactory.getHero());
         Game.loadConfig("dungeon_config.json", KeyboardConfig.class);
         Game.FRAME_RATE = 60;
-        Game.disable_audi = true;
+        Game.DISABLE_AUDIO = true;
         Game.WINDOW_TITLE = "My Dungeon";
         // spawn a chest
         Game.userOnLevelLoad = EntityFactory::getChest;

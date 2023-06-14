@@ -29,7 +29,7 @@ public class CollisionSystem extends System {
                                         .stream())
                 .flatMap(
                         a ->
-                                Game.getEntitiesStream()
+                                Game.getEntityStream()
                                         .filter(b -> a.getEntity().id() < b.id())
                                         .flatMap(
                                                 b ->

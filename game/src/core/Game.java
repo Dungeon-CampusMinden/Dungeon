@@ -16,7 +16,7 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.EntityFactory;
-import contrib.systems.*;
+import contrib.systems.DebuggerSystem;
 
 import core.components.PositionComponent;
 import core.components.UIComponent;
@@ -48,27 +48,75 @@ import java.util.stream.Stream;
 /** The heart of the framework. From here all strings are pulled. */
 public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
-    /** Set of all Systems in the ECS */
     public static final Map<Class<? extends System>, System> systems = new HashMap<>();
     /** All entities that are currently active in the dungeon */
     private static final DelayedSet<Entity> entities = new DelayedSet<>();
 
     private static final Logger LOGGER = Logger.getLogger("Game");
+    /**
+     * The width of the game window in pixels.
+     *
+     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
+     */
     public static int WINDOW_WIDTH = 640;
+    /**
+     * Part of the pre-run configuration. The height of the game window in pixels.
+     *
+     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
+     */
     public static int WINDOW_HEIGHT = 480;
-    /** Frames per seconds. */
+
+    /**
+     * Part of the pre-run configuration. The fps of the game (frames per second)
+     *
+     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
+     */
     public static int FRAME_RATE = 30;
-    /** Sets the window title for the LibGDX window. */
+    /**
+     * Part of the pre-run configuration. The tilte of the Game-Window.
+     *
+     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
+     */
     public static String WINDOW_TITLE = "PM-Dungeon";
-    /** Sets the LibGDX-window logo path. */
+    /**
+     * Part of the pre-run configuration. The path (as String) to the logo of the Game-Window.
+     *
+     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
+     */
     public static String LOGO_PATH = "logo/CatLogo_35x35.png";
     /** Currently used level-size configuration for generating new level */
     public static LevelSize LEVELSIZE = LevelSize.SMALL;
 
+    /**
+     * The currently loaded level of the game.
+     *
+     * @see ILevel
+     * @see LevelManager
+     */
     public static ILevel currentLevel;
-    public static IGameInterface userFrame = () -> {};
-    public static IGameInterface userOnLevelLoad = () -> {};
-    public static boolean disable_audi = false;
+    /**
+     * Part of the pre-run configuration.
+     * This function will be called at each frame.
+     * <p> Use this, if you want to execute some logic outside of a sytem.</p>
+     * <p> Will not replace {@link #onFrame )</p>
+     */
+    public static IVoidFunction userFrame = () -> {};
+    /**
+     * Part of the pre-run configuration. This function will be called after a level was loaded.
+     *
+     * <p>Use this, if you want to execute some logic after a level was loaded. For example spawning
+     * some Monsters.
+     *
+     * <p>Will not replace {@link #onLevelLoad} )
+     */
+    public static IVoidFunction userOnLevelLoad = () -> {};
+    /**
+     * Part of the pre-run configuration. If this value is true, the audio for the game will be
+     * disabled.
+     *
+     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
+     */
+    public static boolean DISABLE_AUDIO = false;
     /** A handler for managing asset paths */
 
     private static Entity hero;
@@ -94,7 +142,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * @return the (new) Game instance
      */
-    public static Game newGame() {
+    public static Game game() {
         if (game == null) game = new Game();
         return game;
     }
@@ -137,7 +185,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * @return a stream of all entities currently in the game
      */
-    public static Stream<Entity> getEntitiesStream() {
+    public static Stream<Entity> getEntityStream() {
         return entities.stream();
     }
 
@@ -184,13 +232,13 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         config.setForegroundFPS(FRAME_RATE);
         config.setTitle(WINDOW_TITLE);
         config.setWindowIcon(LOGO_PATH);
-        config.disableAudio(disable_audi);
+        config.disableAudio(DISABLE_AUDIO);
         // uncomment this if you wish no audio
         new Lwjgl3Application(
                 new com.badlogic.gdx.Game() {
                     @Override
                     public void create() {
-                        setScreen(Game.newGame());
+                        setScreen(Game.game());
                     }
                 },
                 config);
@@ -253,15 +301,15 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * Main game loop.
      *
      * <p>Redraws the dungeon, updates the entity sets, and triggers the execution of the systems.
-     * Will call {@link #frame}.
+     * Will call {@link #onFrame}.
      *
      * @param delta the time since the last loop
      */
     @Override
     public void render(float delta) {
-        if (doSetup) setup();
+        if (doSetup) onSetup();
         batch.setProjectionMatrix(CameraSystem.camera().combined);
-        frame();
+        onFrame();
         clearScreen();
         levelManager.update();
         updateSystems();
@@ -276,7 +324,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * <p>Will perform some setup.
      */
-    private void setup() {
+    private void onSetup() {
         doSetup = false;
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
         batch = new SpriteBatch();
@@ -308,7 +356,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * <p>This is the place to add basic logic that isn't part of any system.
      */
-    private void frame() {
+    private void onFrame() {
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         debugKeys();
         userFrame.execute();
