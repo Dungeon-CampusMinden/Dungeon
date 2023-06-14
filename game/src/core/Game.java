@@ -1,12 +1,9 @@
 package core;
 
-import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
-
-import static core.utils.logging.LoggerConfig.initBaseLogger;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -19,10 +16,8 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
 
 
-
 import contrib.configuration.KeyboardConfig;
 import contrib.systems.DebuggerSystem;
-
 import core.components.PositionComponent;
 import core.components.UIComponent;
 import core.configuration.Configuration;
@@ -34,6 +29,7 @@ import core.level.generator.IGenerator;
 import core.level.generator.postGeneration.WallGenerator;
 import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.level.utils.Coordinate;
+import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 import core.systems.CameraSystem;
 import core.systems.DrawSystem;
@@ -45,6 +41,8 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 
 
+
+
 import quizquestion.DummyQuizQuestionList;
 
 import java.io.IOException;
@@ -52,7 +50,12 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-/** The heart of the framework. From here all strings are pulled. */
+import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
+import static core.utils.logging.LoggerConfig.initBaseLogger;
+
+/**
+ * The heart of the framework. From here all strings are pulled.
+ */
 public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /**
@@ -61,7 +64,9 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * <p>The Key-Value is the Class of the system
      */
     public static final Map<Class<? extends System>, System> systems = new HashMap<>();
-    /** All entities that are currently active in the dungeon */
+    /**
+     * All entities that are currently active in the dungeon
+     */
     private static final DelayedSet<Entity> entities = new DelayedSet<>();
 
     private static final Logger LOGGER = Logger.getLogger("Game");
@@ -103,7 +108,9 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
      */
     private static String LOGO_PATH = "logo/CatLogo_35x35.png";
-    /** Currently used level-size configuration for generating new level */
+    /**
+     * Currently used level-size configuration for generating new level
+     */
     private static LevelSize LEVELSIZE = LevelSize.SMALL;
     /**
      * Part of the pre-run configuration.
@@ -111,7 +118,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * <p> Use this, if you want to execute some logic outside of a sytem.</p>
      * <p> Will not replace {@link #onFrame )</p>
      */
-    private static IVoidFunction userFrame = () -> {};
+    private static IVoidFunction userFrame = () -> {
+    };
     /**
      * Part of the pre-run configuration. This function will be called after a level was loaded.
      *
@@ -120,7 +128,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * <p>Will not replace {@link #onLevelLoad} )
      */
-    private static IVoidFunction userOnLevelLoad = () -> {};
+    private static IVoidFunction userOnLevelLoad = () -> {
+    };
     /**
      * Part of the pre-run configuration. If this value is true, the audio for the game will be
      * disabled.
@@ -138,14 +147,18 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * batch.
      */
     private SpriteBatch batch;
-    /** Draws objects */
+    /**
+     * Draws objects
+     */
     private Painter painter;
 
     private LevelManager levelManager;
     private boolean doSetup = true;
     private DebuggerSystem debugger;
+
     // for singleton
-    private Game() {}
+    private Game() {
+    }
 
     /**
      * Width of the game-window in pixel
@@ -278,7 +291,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * @param userOnLevelLoad the function that will be executed after a new level was loaded
      * @see IVoidFunction
-     *     <p>Will not replace {@link #onLevelLoad}
+     * <p>Will not replace {@link #onLevelLoad}
      */
     public static void userOnLevelLoad(IVoidFunction userOnLevelLoad) {
         Game.userOnLevelLoad = userOnLevelLoad;
@@ -362,14 +375,16 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * cached version will be used.
      *
      * @param pathAsString the path to the config file as a string
-     * @param klass the class where the ConfigKey fields are located
+     * @param klass        the class where the ConfigKey fields are located
      * @throws IOException if the file could not be read
      */
     public static void loadConfig(String pathAsString, Class<?> klass) throws IOException {
         Configuration.loadAndGetConfiguration(pathAsString, klass);
     }
 
-    /** Starts the dungeon and requires a {@link Game}. */
+    /**
+     * Starts the dungeon and requires a {@link Game}.
+     */
     public static void run() {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setWindowSizeLimits(WINDOW_WIDTH, WINDOW_HEIGHT, 9999, 9999);
@@ -384,13 +399,13 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         config.disableAudio(DISABLE_AUDIO);
         // uncomment this if you wish no audio
         new Lwjgl3Application(
-                new com.badlogic.gdx.Game() {
-                    @Override
-                    public void create() {
-                        setScreen(new Game());
-                    }
-                },
-                config);
+            new com.badlogic.gdx.Game() {
+                @Override
+                public void create() {
+                    setScreen(new Game());
+                }
+            },
+            config);
     }
 
     /**
@@ -406,7 +421,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * @param system the System to add
      * @return an optional that contains the previous existing system of the given system class, if
-     *     one exists
+     * one exists
      * @see System
      * @see Optional
      */
@@ -469,6 +484,81 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
+     * @return a random Tile in the Level
+     */
+    public static Tile randomTile() {
+        return currentLevel.randomTile();
+    }
+
+    /**
+     * Get the end tile.
+     *
+     * @return The end tile.
+     */
+    public static Tile endTile() {
+        return currentLevel.endTile();
+    }
+
+    /**
+     * Get the start tile.
+     *
+     * @return The start tile.
+     */
+    public static Tile startTile() {
+        return currentLevel.startTile();
+    }
+
+    /**
+     * Returns the tile the given entity is standing on.
+     *
+     * @param entity entity to check for.
+     * @return tile at the coordinate of the entity
+     */
+    public static Tile tileAtEntity(Entity entity) {
+        return currentLevel.tileAtEntity(entity);
+    }
+
+    /**
+     * Get a random Tile
+     *
+     * @param elementType Type of the Tile
+     * @return A random Tile of the given Type
+     */
+    public static Tile randomTile(LevelElement elementType) {
+        return currentLevel.randomTile(elementType);
+    }
+
+    /**
+     * Get the position of a random Tile as Point
+     *
+     * @return Position of the Tile as Point
+     */
+    public static Point randomTilePoint() {
+        return currentLevel.randomTilePoint();
+    }
+
+    /**
+     * Get the position of a random Tile as Point
+     *
+     * @param elementTyp Type of the Tile
+     * @return Position of the Tile as Point
+     */
+    public static Point randomTilePoint(LevelElement elementTyp) {
+        return currentLevel.randomTilePoint(elementTyp);
+    }
+
+    /**
+     * Starts the indexed A* pathfinding algorithm a returns a path
+     *
+     * @param start Start tile
+     * @param end   End tile
+     * @return Generated path
+     */
+    public static GraphPath<Tile> findPath(Tile start, Tile end) {
+        return currentLevel.findPath(start, end);
+    }
+
+    /**
      * Main game loop.
      *
      * <p>Redraws the dungeon, updates the entity sets, and triggers the execution of the systems.
@@ -504,8 +594,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         levelManager = new LevelManager(batch, painter, generator, this);
         initBaseLogger();
         levelManager =
-                new LevelManager(
-                        batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
+            new LevelManager(
+                batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelManager.loadLevel(LEVELSIZE);
         createSystems();
 
@@ -538,7 +628,9 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
    private boolean uiDebugFlag = false;
 
-    /** Just for debugging, remove later. */
+    /**
+     * Just for debugging, remove later.
+     */
     private void debugKeys() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             // Text Dialogue (output of information texts)
@@ -559,6 +651,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         }
     }
 
+
     private Entity newPauseMenu() {
         Entity entity = UITools.generateNewTextDialog("Pause", "Continue", "Pausemenu");
         entity.getComponent(UIComponent.class)
@@ -567,7 +660,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
         return entity;
     }
-
 
 
     /**
@@ -614,12 +706,12 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     private boolean isOnEndTile(Entity entity) {
         PositionComponent pc =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+            (PositionComponent)
+                entity.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
         Tile currentTile = tileAT(pc.getPosition());
-        return currentTile.equals(currentLevel.getEndTile());
+        return currentTile.equals(currentLevel.endTile());
     }
 
     /**
@@ -632,11 +724,11 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private void placeOnLevelStart(Entity hero) {
         entities.add(hero);
         PositionComponent pc =
-                (PositionComponent)
-                        hero.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
-        pc.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
+            (PositionComponent)
+                hero.getComponent(PositionComponent.class)
+                    .orElseThrow(
+                        () -> new MissingComponentException("PositionComponent"));
+        pc.setPosition(currentLevel.startTile().getCoordinate().toPoint());
     }
 
     /**
@@ -649,7 +741,10 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    /** Create the systems. */
+
+    /**
+     * Create the systems.
+     */
     private void createSystems() {
         addSystem(new CameraSystem());
         addSystem(new VelocitySystem());

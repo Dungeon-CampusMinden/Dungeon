@@ -57,14 +57,14 @@ public interface ITileable extends IPathable {
      *
      * @return The end tile.
      */
-    Tile getEndTile();
+    Tile endTile();
 
     /**
      * Get the start tile.
      *
      * @return The start tile.
      */
-    Tile getStartTile();
+    Tile startTile();
 
     /**
      * Returns the tile the given entity is standing on.
@@ -72,7 +72,7 @@ public interface ITileable extends IPathable {
      * @param entity entity to check for.
      * @return tile at the coordinate of the entity
      */
-    default Tile getTileAtEntity(Entity entity) {
+    default Tile tileAtEntity(Entity entity) {
         PositionComponent pc =
                 (PositionComponent) entity.getComponent(PositionComponent.class).get();
         return tileAt(pc.getPosition().toCoordinate());
@@ -91,7 +91,7 @@ public interface ITileable extends IPathable {
      *
      * @return Position of the Tile as Point
      */
-    default Point getRandomTilePoint() {
+    default Point randomTilePoint() {
         return randomTile().getCoordinate().toPoint();
     }
 
@@ -101,7 +101,7 @@ public interface ITileable extends IPathable {
      * @param elementTyp Type of the Tile
      * @return Position of the Tile as Point
      */
-    default Point getRandomTilePoint(LevelElement elementTyp) {
+    default Point randomTilePoint(LevelElement elementTyp) {
         return randomTile(elementTyp).getCoordinate().toPoint();
     }
 }

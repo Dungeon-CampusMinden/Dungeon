@@ -28,7 +28,7 @@ public interface ILevel extends ITileable {
             // not enough Tiles for startTile and ExitTile
             return;
         }
-        int startTileIndex = floorTiles.indexOf(getStartTile());
+        int startTileIndex = floorTiles.indexOf(startTile());
         int index = RANDOM.nextInt(floorTiles.size() - 1);
         changeTileElementType(
                 floorTiles.get(index < startTileIndex ? index : index + 1), LevelElement.EXIT);

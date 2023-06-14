@@ -101,8 +101,8 @@ public class TileLevelTest {
                 };
 
         TileLevel level = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
-        assertNull(level.getStartTile());
-        assertNull(level.getEndTile());
+        assertNull(level.startTile());
+        assertNull(level.endTile());
     }
 
     @Test
@@ -113,8 +113,8 @@ public class TileLevelTest {
                 };
 
         TileLevel level = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
-        assertNotNull(level.getStartTile());
-        assertNull(level.getEndTile());
+        assertNotNull(level.startTile());
+        assertNull(level.endTile());
     }
 
     @Test
@@ -190,10 +190,10 @@ public class TileLevelTest {
                     {LevelElement.EXIT, LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR},
                 };
         TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
-        Tile oldEndTile = tileLevel.getEndTile();
+        Tile oldEndTile = tileLevel.endTile();
         tileLevel.setRandomEnd();
-        assertNotSame(tileLevel.getStartTile(), tileLevel.getEndTile());
-        assertNotSame(oldEndTile, tileLevel.getEndTile());
+        assertNotSame(tileLevel.startTile(), tileLevel.endTile());
+        assertNotSame(oldEndTile, tileLevel.endTile());
     }
 
     @Test
@@ -204,8 +204,8 @@ public class TileLevelTest {
                 };
         TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
         tileLevel.setRandomEnd();
-        assertNotSame(tileLevel.getStartTile(), tileLevel.getEndTile());
-        assertNull(tileLevel.getEndTile());
+        assertNotSame(tileLevel.startTile(), tileLevel.endTile());
+        assertNull(tileLevel.endTile());
     }
 
     @Test
@@ -216,7 +216,7 @@ public class TileLevelTest {
                 };
         TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
         tileLevel.setRandomEnd();
-        assertNull(tileLevel.getEndTile());
+        assertNull(tileLevel.endTile());
     }
 
     @Test
@@ -234,7 +234,7 @@ public class TileLevelTest {
         tileLevel.setStartTile(layout[0][0]);
 
         /* How the level layout looks: (S=start, W=Wall,F=Floor,E=exit) SWE FWF FFF */
-        GraphPath<Tile> path = tileLevel.findPath(tileLevel.getStartTile(), tileLevel.getEndTile());
+        GraphPath<Tile> path = tileLevel.findPath(tileLevel.startTile(), tileLevel.endTile());
         assertEquals(7, path.getCount());
         assertEquals(layout[0][0], path.get(0));
         assertEquals(layout[1][0], path.get(1));
@@ -263,7 +263,7 @@ public class TileLevelTest {
         FFF
         FFF */
         // should take the shortest path
-        GraphPath<Tile> path = tileLevel.findPath(tileLevel.getStartTile(), tileLevel.getEndTile());
+        GraphPath<Tile> path = tileLevel.findPath(tileLevel.startTile(), tileLevel.endTile());
         assertEquals(5, path.getCount());
         assertEquals(layout[0][0], path.get(0));
         assertEquals(layout[1][0], path.get(1));
@@ -340,7 +340,7 @@ public class TileLevelTest {
 
         TileLevel tileLevel = new TileLevel(layout, DesignLabel.DEFAULT);
 
-        Point randomWallPoint = tileLevel.getRandomTilePoint(LevelElement.WALL);
+        Point randomWallPoint = tileLevel.randomTilePoint(LevelElement.WALL);
         assertNotNull(randomWallPoint);
         Tile randomWall = tileLevel.tileAt(randomWallPoint.toCoordinate());
         assertNotNull(randomWall);
@@ -354,7 +354,7 @@ public class TileLevelTest {
             Arrays.fill(levelLayout[y], LevelElement.FLOOR);
         }
         var level = new TileLevel(levelLayout, DesignLabel.randomDesign());
-        Point randomPoint = level.getRandomTilePoint();
+        Point randomPoint = level.randomTilePoint();
         assertNotNull(randomPoint);
         assertNotNull(level.tileAt(randomPoint.toCoordinate()));
     }
@@ -375,8 +375,8 @@ public class TileLevelTest {
 
         TileLevel tileLevel = new TileLevel(layout, DesignLabel.DEFAULT);
 
-        Point randomWallPoint = tileLevel.getRandomTilePoint(LevelElement.WALL);
-        Point randomFloorPoint = tileLevel.getRandomTilePoint(LevelElement.FLOOR);
+        Point randomWallPoint = tileLevel.randomTilePoint(LevelElement.WALL);
+        Point randomFloorPoint = tileLevel.randomTilePoint(LevelElement.FLOOR);
         Tile randomWall = tileLevel.tileAt(randomWallPoint.toCoordinate());
         Tile randomFloor = tileLevel.tileAt(randomFloorPoint.toCoordinate());
         assertEquals(LevelElement.WALL, randomWall.getLevelElement());

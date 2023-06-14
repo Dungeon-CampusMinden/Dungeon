@@ -141,8 +141,8 @@ public class TileLevel implements ILevel {
 
     @Override
     public void addExitTile(ExitTile tile) {
-        if (getEndTile() != null) {
-            changeTileElementType(getEndTile(), LevelElement.FLOOR);
+        if (endTile() != null) {
+            changeTileElementType(endTile(), LevelElement.FLOOR);
         }
         exitTiles.add(tile);
     }
@@ -241,7 +241,7 @@ public class TileLevel implements ILevel {
     }
 
     @Override
-    public Tile getStartTile() {
+    public Tile startTile() {
         return startTile;
     }
 
@@ -251,7 +251,7 @@ public class TileLevel implements ILevel {
     }
 
     @Override
-    public Tile getEndTile() {
+    public Tile endTile() {
         return exitTiles.size() > 0 ? exitTiles.get(0) : null;
     }
 }
