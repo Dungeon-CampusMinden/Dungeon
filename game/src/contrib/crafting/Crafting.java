@@ -22,10 +22,6 @@ public class Crafting {
     private static final HashSet<Recipe> recipes = new HashSet<>();
     private static final Logger logger = Logger.getLogger(Crafting.class.getName());
 
-    static {
-        loadRecipes(); // Load all available recipes when the class is loaded.
-    }
-
     /**
      * Get a recipe based on the provided items.
      *
@@ -51,12 +47,32 @@ public class Crafting {
         if (possibleRecipes.size() == 1) {
             return Optional.of(possibleRecipes.get(0));
         }
-        possibleRecipes.sort(Comparator.comparing(Recipe::isOrdered));
+        possibleRecipes.sort(Comparator.comparing(c -> !c.isOrdered()));
 
         return Optional.of(possibleRecipes.get(0));
     }
 
-    private static void loadRecipes() {
+    public static void addRecipe(Recipe recipe) {
+        if (recipe.getIngredients().length == 0) {
+            throw new InvalidRecipeException("Recipes with no ingredients are not allowed!");
+        }
+        recipes.add(recipe);
+    }
+
+    public static void removeRecipe(Recipe recipe) {
+        recipes.remove(recipe);
+    }
+
+    public static void clearRecipes() {
+        recipes.clear();
+    }
+
+    /**
+     * Load recipes from the recipes folder.
+     *
+     * <p>If the program is compiled to a jar file, recipes will be loaded from within the jar file.
+     */
+    public static void loadRecipes() {
         if (Objects.requireNonNull(Crafting.class.getResource("/recipes"))
                 .toString()
                 .startsWith("jar:")) {
@@ -118,6 +134,10 @@ public class Crafting {
             boolean orderedRecipe = root.getBoolean("ordered");
             JsonValue ingredients = root.get("ingredients"); // Array of items
             JsonValue results = root.get("results"); // Array of results
+
+            if (ingredients.size <= 0) {
+                throw new InvalidRecipeException("Recipes with no ingredients are not allowed!");
+            }
 
             // Load Ingredients
             CraftingIngredient[] ingredientsArray = new CraftingIngredient[ingredients.size];
