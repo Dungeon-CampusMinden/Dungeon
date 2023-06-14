@@ -54,6 +54,53 @@ public class DialogDesign extends VerticalGroup {
     }
 
     /**
+     * Creates a vertical Button Group based on the answers provided by the QuizQuestion
+     *
+     * <p>currently does not support Image answers.
+     *
+     * @param skin Skin for the dialogue (resources that can be used by UI widgets)
+     * @param quizQuestion Various question configurations
+     */
+    private static VerticalGroup createAnswerButtons(Skin skin, QuizQuestion quizQuestion) {
+        VerticalGroup answerButtons = new VerticalGroup();
+
+        ButtonGroup<CheckBox> btnGroup = new ButtonGroup<>();
+        btnGroup.setMinCheckCount(0);
+        btnGroup.uncheckAll();
+
+        final CheckBox.CheckBoxStyle style =
+                switch (quizQuestion.type()) {
+                    case MULTIPLE_CHOICE -> skin.get("radio", CheckBox.CheckBoxStyle.class);
+                    default -> skin.get("default", CheckBox.CheckBoxStyle.class);
+                };
+        Arrays.stream(quizQuestion.answers())
+                .filter(
+                        answer ->
+                                answer.type() != QuizQuestionContent.QuizQuestionContentType.IMAGE)
+                .map(
+                        answer ->
+                                new CheckBox(
+                                        QuizQuestionFormatted.formatStringForDialogWindow(
+                                                answer.content()),
+                                        style))
+                .forEach(
+                        checkBox -> {
+                            btnGroup.add(checkBox);
+                            answerButtons.addActor(checkBox);
+                        });
+
+        switch (quizQuestion.type()) {
+            case MULTIPLE_CHOICE -> btnGroup.setMaxCheckCount(quizQuestion.answers().length);
+            case SINGLE_CHOICE -> btnGroup.setMaxCheckCount(1);
+        }
+
+        answerButtons.align(Align.left);
+        answerButtons.left();
+
+        return answerButtons;
+    }
+
+    /**
      * Creates a simple Dialog which only has static Text shown.
      *
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
@@ -95,21 +142,21 @@ public class DialogDesign extends VerticalGroup {
      * @param outputMsg Content displayed in the scrollable label
      */
     private void visualizeQuestionSection(
-        QuizQuestionContent.QuizQuestionContentType questionContentType,
-        Skin skin,
-        String outputMsg) {
+            QuizQuestionContent.QuizQuestionContentType questionContentType,
+            Skin skin,
+            String outputMsg) {
 
         switch (questionContentType) {
             case TEXT -> addActor(createScrollPane(skin, new Label(outputMsg, skin)));
             case IMAGE -> addActor(
-                createScrollPane(
-                    skin, new Image(new Texture(imagePathExtractor(outputMsg).get()))));
+                    createScrollPane(
+                            skin, new Image(new Texture(imagePathExtractor(outputMsg).get()))));
 
             case TEXT_AND_IMAGE -> {
                 addActor(createScrollPane(skin, new Label(outputMsg, skin)));
                 addActor(
-                    createScrollPane(
-                        skin, new Image(new Texture(imagePathExtractor(outputMsg).get()))));
+                        createScrollPane(
+                                skin, new Image(new Texture(imagePathExtractor(outputMsg).get()))));
             }
             default -> {}
         }
@@ -140,53 +187,6 @@ public class DialogDesign extends VerticalGroup {
     }
 
     /**
-     * Creates a vertical Button Group based on the answers provided by the QuizQuestion
-     *
-     * <p>currently does not support Image answers.
-     *
-     * @param skin Skin for the dialogue (resources that can be used by UI widgets)
-     * @param quizQuestion Various question configurations
-     */
-    private static VerticalGroup createAnswerButtons(Skin skin, QuizQuestion quizQuestion) {
-        VerticalGroup answerButtons = new VerticalGroup();
-
-        ButtonGroup<CheckBox> btnGroup = new ButtonGroup<>();
-        btnGroup.setMinCheckCount(0);
-        btnGroup.uncheckAll();
-
-        final CheckBox.CheckBoxStyle style =
-            switch (quizQuestion.type()) {
-                case MULTIPLE_CHOICE -> skin.get("radio", CheckBox.CheckBoxStyle.class);
-                default -> skin.get("default", CheckBox.CheckBoxStyle.class);
-            };
-        Arrays.stream(quizQuestion.answers())
-            .filter(
-                answer ->
-                    answer.type() != QuizQuestionContent.QuizQuestionContentType.IMAGE)
-            .map(
-                answer ->
-                    new CheckBox(
-                        QuizQuestionFormatted.formatStringForDialogWindow(
-                            answer.content()),
-                        style))
-            .forEach(
-                checkBox -> {
-                    btnGroup.add(checkBox);
-                    answerButtons.addActor(checkBox);
-                });
-
-        switch (quizQuestion.type()) {
-            case MULTIPLE_CHOICE -> btnGroup.setMaxCheckCount(quizQuestion.answers().length);
-            case SINGLE_CHOICE -> btnGroup.setMaxCheckCount(1);
-        }
-
-        answerButtons.align(Align.left);
-        answerButtons.left();
-
-        return answerButtons;
-    }
-
-    /**
      * a simple implementation to find a filepath in a String
      *
      * @param quizQuestion the string which may contain a path
@@ -194,7 +194,7 @@ public class DialogDesign extends VerticalGroup {
      */
     private Optional<String> imagePathExtractor(String quizQuestion) {
         Optional<MatchResult> first =
-            Pattern.compile(PATTERN_IMAGE_FINDER).matcher(quizQuestion).results().findFirst();
+                Pattern.compile(PATTERN_IMAGE_FINDER).matcher(quizQuestion).results().findFirst();
         return first.map(MatchResult::group);
     }
 }

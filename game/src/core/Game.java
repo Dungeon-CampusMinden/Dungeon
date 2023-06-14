@@ -7,20 +7,13 @@ import static core.utils.logging.LoggerConfig.initBaseLogger;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
-
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
-
-
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
-
-
-
 
 import contrib.configuration.KeyboardConfig;
 import contrib.systems.DebuggerSystem;
@@ -40,7 +33,6 @@ import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 import core.systems.CameraSystem;
 import core.systems.DrawSystem;
-
 import core.systems.PlayerSystem;
 import core.systems.VelocitySystem;
 import core.utils.Constants;
@@ -50,17 +42,17 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 
-
 import quizquestion.DummyQuizQuestionList;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /** The heart of the framework. From here all strings are pulled. */
 public final class Game extends ScreenAdapter implements IOnLevelLoader {
-
 
     /**
      * A Map with each {@link System} in the game.
@@ -137,7 +129,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private static Entity hero;
 
-
     private static Stage stage;
 
     private static LevelManager levelManager;
@@ -152,6 +143,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private boolean doSetup = true;
     private DebuggerSystem debugger;
+    private boolean uiDebugFlag = false;
 
     // for singleton
     private Game() {}
@@ -595,6 +587,14 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         currentLevel = level;
     }
 
+    private static void setupStage() {
+        stage =
+                new Stage(
+                        new ScalingViewport(Scaling.stretch, WINDOW_WIDTH, WINDOW_HEIGHT),
+                        new SpriteBatch());
+        Gdx.input.setInputProcessor(stage);
+    }
+
     /**
      * Main game loop.
      *
@@ -639,15 +639,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         setupStage();
     }
 
-    private static void setupStage() {
-        stage =
-                new Stage(
-                        new ScalingViewport(
-                                Scaling.stretch, WINDOW_WIDTH, WINDOW_HEIGHT),
-                        new SpriteBatch());
-        Gdx.input.setInputProcessor(stage);
-    }
-
     /**
      * Called at the beginning of each frame, before the entities are updated and the systems are
      * executed.
@@ -660,16 +651,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         userFrame.execute();
     }
 
-
-
-
-
-   private boolean uiDebugFlag = false;
-
-
-    /**
-     * Just for debugging, remove later.
-     */
+    /** Just for debugging, remove later. */
     private void debugKeys() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             // Text Dialogue (output of information texts)
@@ -690,9 +672,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         }
     }
 
-
-
-
     private Entity newPauseMenu() {
         Entity entity = UITools.generateNewTextDialog("Pause", "Continue", "Pausemenu");
         entity.getComponent(UIComponent.class)
@@ -702,11 +681,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         return entity;
     }
 
-
-
-    /**
-     * Will update the entity sets of each system and {@link Game#entities}.
-     */
+    /** Will update the entity sets of each system and {@link Game#entities}. */
     private void updateSystems() {
         for (System system : systems.values()) {
             entities.foreachEntityInAddSet(system::showEntity);
