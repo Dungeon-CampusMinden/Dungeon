@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import contrib.utils.components.skill.Skill;
 
 import core.Entity;
-import core.Game;
 
 import org.junit.After;
 import org.junit.Test;
