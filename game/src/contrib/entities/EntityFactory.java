@@ -62,6 +62,7 @@ public class EntityFactory {
         new PositionComponent(hero);
         new VelocityComponent(hero, X_SPEED_HERO, Y_SPEED_HERO);
         new DrawComponent(hero, HERO_FILE_PATH);
+        new InventoryComponent(hero, 10);
         new CollideComponent(
                 hero,
                 (you, other, direction) -> System.out.println("heroCollisionEnter"),

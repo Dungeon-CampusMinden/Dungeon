@@ -1,20 +1,20 @@
 package contrib.utils.components.item;
 
-import contrib.components.CollideComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
 import contrib.configuration.ItemConfig;
+import contrib.entities.WorldItemBuilder;
 import contrib.utils.components.stats.DamageModifier;
 
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 /**
@@ -138,11 +138,11 @@ public class ItemData {
      * @param position Position where to drop the item.
      */
     private static void defaultDrop(Entity who, ItemData which, Point position) {
-        Entity droppedItem = new Entity();
-        new PositionComponent(droppedItem, position);
-        new DrawComponent(droppedItem, which.getItem().getWorldAnimation());
-        CollideComponent component = new CollideComponent(droppedItem);
-        component.collideEnter((a, b, direction) -> which.triggerCollect(a, b));
+        Entity droppedItem = WorldItemBuilder.buildWorldItem(which);
+        droppedItem
+                .getComponent(PositionComponent.class)
+                .map(PositionComponent.class::cast)
+                .ifPresent(x -> x.setPosition(position));
     }
 
     /**
@@ -153,7 +153,12 @@ public class ItemData {
      */
     private static void defaultCollect(Entity worldItem, Entity whoCollected) {
         // check if the Game has a Hero
-        Game.hero()
+
+        Optional<ItemComponent> itemComp =
+                worldItem.getComponent(ItemComponent.class).map(ItemComponent.class::cast);
+        if (itemComp.isEmpty()) return;
+
+        Game.getHero()
                 .ifPresent(
                         hero -> {
                             // check if entity picking up Item is the Hero
@@ -163,23 +168,12 @@ public class ItemData {
                                         .ifPresent(
                                                 (x) -> {
                                                     // check if Item can be added to hero Inventory
-                                                    if ((x)
-                                                            .add(
-                                                                    worldItem
-                                                                            .fetch(
-                                                                                    ItemComponent
-                                                                                            .class)
-                                                                            .orElseThrow(
-                                                                                    () ->
-                                                                                            MissingComponentException
-                                                                                                    .build(
-                                                                                                            worldItem,
-                                                                                                            ItemComponent
-                                                                                                                    .class))
-                                                                            .itemData()))
+                                                    if (((InventoryComponent) x)
+                                                            .addItem(itemComp.get().getItemData()))
                                                         // if added to hero Inventory
                                                         // remove Item from World
                                                         Game.removeEntity(worldItem);
+                                                    System.out.println("Item collected");
                                                 });
                             }
                         });
