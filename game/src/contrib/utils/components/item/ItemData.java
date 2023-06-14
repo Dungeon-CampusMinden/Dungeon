@@ -142,7 +142,7 @@ public class ItemData {
         droppedItem
                 .getComponent(PositionComponent.class)
                 .map(PositionComponent.class::cast)
-                .ifPresent(x -> x.setPosition(position));
+                .ifPresent(x -> x.position(position));
     }
 
     /**
@@ -158,7 +158,7 @@ public class ItemData {
                 worldItem.getComponent(ItemComponent.class).map(ItemComponent.class::cast);
         if (itemComp.isEmpty()) return;
 
-        Game.getHero()
+        Game.hero()
                 .ifPresent(
                         hero -> {
                             // check if entity picking up Item is the Hero
