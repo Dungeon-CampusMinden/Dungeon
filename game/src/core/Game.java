@@ -39,8 +39,6 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 
-import quizquestion.DummyQuizQuestionList;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -106,7 +104,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * <p> Use this, if you want to execute some logic outside of a system.</p>
      * <p> Will not replace {@link #onFrame )</p>
      */
-    private static IVoidFunction userFrame = () -> {};
+    private static IVoidFunction userOnFrame = () -> {};
     /**
      * Part of the pre-run configuration. This function will be called after a level was loaded.
      *
@@ -283,8 +281,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param userFrame function that will be called at each frame.
      * @see IVoidFunction
      */
-    public static void userFrame(IVoidFunction userFrame) {
-        Game.userFrame = userFrame;
+    public static void userOnFrame(IVoidFunction userFrame) {
+        Game.userOnFrame = userFrame;
     }
 
     /**
@@ -644,7 +642,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private void onFrame() {
         hero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         debugKeys();
-        userFrame.execute();
+        userOnFrame.execute();
     }
 
     /** Just for debugging, remove later. */
@@ -654,10 +652,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
             newPauseMenu();
 
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
-            // Dialogue for quiz questions (display of quiz questions and the answer area in test
-            // mode)
-            UITools.showQuizDialog(DummyQuizQuestionList.getRandomQuestion());
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
             // toggle UI "debug rendering"
             stage().ifPresent(x -> x.setDebugAll(uiDebugFlag = !uiDebugFlag));
@@ -673,7 +667,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         entity.getComponent(UIComponent.class)
                 .map(UIComponent.class::cast)
                 .ifPresent(y -> y.getDialog().setVisible(true));
-
         return entity;
     }
 

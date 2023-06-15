@@ -47,8 +47,6 @@ public final class Constants {
 
     public static final String QUIZ_MESSAGE_SOLUTION = "Lösung";
 
-    public static final String TEST_IMAGE_PATH_FOR_DIALOG = "image_quiz/dummy.png";
-
     /**
      * @param path the relative path to the resource
      * @return the absolute path of the internal resource
