@@ -87,6 +87,19 @@ task debug(dependsOn: classes, type: JavaExec) {
     }
 }
 
+task runManuelQuizTest(dependsOn: classes, type: JavaExec) {
+    mainClass = "manual.quizquestion.QuizQuestionUITest"
+    classpath = sourceSets.test.runtimeClasspath
+    standardInput = System.in
+    ignoreExitValue = true
+    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        allJvmArgs += ["-XstartOnFirstThread"]
+    }
+    doFirst {
+        println(DefaultNativePlatform.currentOperatingSystem)
+    }
+}
+
 test {
     testLogging {
         events "passed", "skipped", "failed"

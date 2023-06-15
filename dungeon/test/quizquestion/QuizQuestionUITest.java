@@ -1,4 +1,4 @@
-package manual.quizquestion;
+package quizquestion;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
