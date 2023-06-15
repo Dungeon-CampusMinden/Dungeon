@@ -87,7 +87,7 @@ task debug(dependsOn: classes, type: JavaExec) {
     }
 }
 
-task runManuelQuizTest(dependsOn: classes, type: JavaExec) {
+task runManualQuizTest(dependsOn: classes, type: JavaExec) {
     mainClass = "manual.quizquestion.QuizQuestionUITest"
     classpath = sourceSets.test.runtimeClasspath
     standardInput = System.in
