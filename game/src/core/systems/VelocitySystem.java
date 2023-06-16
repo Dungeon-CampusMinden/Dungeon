@@ -10,6 +10,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
+import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -39,7 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @see PositionComponent
  * @see core.level.elements.ILevel
  */
-public class VelocitySystem extends System {
+public final class VelocitySystem extends System {
 
     /** Create a new VelocitySystem */
     public VelocitySystem() {
@@ -70,11 +71,19 @@ public class VelocitySystem extends System {
     }
 
     private VSData buildDataObject(Entity e) {
-        VelocityComponent vc = (VelocityComponent) e.fetch(VelocityComponent.class).get();
+        VelocityComponent vc =
+                e.fetch(VelocityComponent.class)
+                        .orElseThrow(
+                                () -> MissingComponentException.build(e, VelocityComponent.class));
 
-        PositionComponent pc = (PositionComponent) e.fetch(PositionComponent.class).get();
+        PositionComponent pc =
+                e.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () -> MissingComponentException.build(e, PositionComponent.class));
 
-        DrawComponent dc = (DrawComponent) e.fetch(DrawComponent.class).get();
+        DrawComponent dc =
+                e.fetch(DrawComponent.class)
+                        .orElseThrow(() -> MissingComponentException.build(e, DrawComponent.class));
 
         return new VSData(e, vc, pc, dc);
     }
@@ -86,8 +95,7 @@ public class VelocitySystem extends System {
                 .fetch(HealthComponent.class)
                 .ifPresent(
                         component -> {
-                            HealthComponent healthComponent = (HealthComponent) component;
-                            isDead.set(healthComponent.isDead());
+                            isDead.set(component.isDead());
                         });
 
         if (isDead.get()) {
