@@ -2,15 +2,16 @@ package contrib.systems;
 
 import contrib.components.CollideComponent;
 
-import core.Game;
+import core.Entity;
 import core.System;
 import core.level.Tile;
+import core.utils.components.MissingComponentException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /** System to check for collisions between two entities */
-public class CollisionSystem extends System {
+public final class CollisionSystem extends System {
 
     private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
 
@@ -23,26 +24,23 @@ public class CollisionSystem extends System {
         getEntityStream()
                 .flatMap(
                         a ->
-                                a
-                                        .fetch(CollideComponent.class)
-                                        .map(CollideComponent.class::cast)
-                                        .stream())
-                .flatMap(
-                        a ->
-                                Game.entityStream()
-                                        .filter(b -> a.getEntity().id() < b.id())
-                                        .flatMap(
-                                                b ->
-                                                        b
-                                                                .fetch(CollideComponent.class)
-                                                                .map(CollideComponent.class::cast)
-                                                                .stream())
+                                getEntityStream()
+                                        .filter(b -> a.id() < b.id())
                                         .map(b -> buildData(a, b)))
                 .forEach(this::onEnterLeaveCheck);
     }
 
-    private CollisionData buildData(CollideComponent a, CollideComponent b) {
-        return new CollisionData(a, b);
+    private CollisionData buildData(Entity a, Entity b) {
+        CollideComponent cca =
+                a.fetch(CollideComponent.class)
+                        .orElseThrow(
+                                () -> MissingComponentException.build(a, CollideComponent.class));
+        CollideComponent ccb =
+                b.fetch(CollideComponent.class)
+                        .orElseThrow(
+                                () -> MissingComponentException.build(b, CollideComponent.class));
+
+        return new CollisionData(cca, ccb);
     }
 
     private void onEnterLeaveCheck(CollisionData cdata) {
