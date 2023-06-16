@@ -42,7 +42,7 @@ import java.util.logging.Logger;
  * @see System
  * @see KeyboardConfig
  */
-public class DebuggerSystem extends System {
+public final class DebuggerSystem extends System {
 
     private static final Logger LOGGER = Logger.getLogger(DebuggerSystem.class.getName());
 
@@ -121,14 +121,13 @@ public class DebuggerSystem extends System {
     public static void TELEPORT(Point targetLocation) {
         if (Game.hero().isPresent()) {
             PositionComponent pc =
-                    (PositionComponent)
-                            Game.hero()
-                                    .get()
-                                    .fetch(PositionComponent.class)
-                                    .orElseThrow(
-                                            () ->
-                                                    new MissingComponentException(
-                                                            "Hero is missing PositionComponent"));
+                    Game.hero()
+                            .get()
+                            .fetch(PositionComponent.class)
+                            .orElseThrow(
+                                    () ->
+                                            MissingComponentException.build(
+                                                    Game.hero().get(), PositionComponent.class));
 
             // Attempt to teleport to targetLocation
             LOGGER.log(
