@@ -22,12 +22,12 @@ public class CollideAI implements Consumer<Entity> {
      *
      * @param rushRange Range in which the faster collide logic should be executed
      */
-    public CollideAI(float rushRange) {
+    public CollideAI(final float rushRange) {
         this.rushRange = rushRange;
     }
 
     @Override
-    public void accept(Entity entity) {
+    public void accept(final Entity entity) {
         if (AITools.playerInRange(entity, rushRange)) {
             // the faster pathing once a certain range is reached
             path = AITools.calculatePathToHero(entity);
