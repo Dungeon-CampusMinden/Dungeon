@@ -4,7 +4,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import core.Entity;
-import core.hud.DialogDesign;
 import core.hud.TextDialog;
 
 import java.util.function.BiFunction;
@@ -87,16 +86,13 @@ public class QuizQuestionUI {
             String title,
             BiFunction<TextDialog, String, Boolean> resultHandler) {
         Dialog textDialog = new TextDialog(title, skin, resultHandler);
-        DialogDesign dialogDesign = new DialogDesign();
         textDialog
                 .getContentTable()
-                .add(QuizDialogDesign.createQuizQuestion(quizQuestion, skin, outputMsg));
+                .add(QuizDialogDesign.createQuizQuestion(quizQuestion, skin, outputMsg))
+                .grow()
+                .fill(); // changes size based on childrens;
         textDialog.button(buttonMsg, buttonMsg);
-        textDialog
-                .getContentTable()
-                .add(dialogDesign)
-                .expand()
-                .fill(); // changes size based on childrens
+
         textDialog.pack(); // resizes to size
         return textDialog;
     }

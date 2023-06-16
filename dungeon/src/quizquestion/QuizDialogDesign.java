@@ -77,6 +77,7 @@ public class QuizDialogDesign {
         vg.addActor(visualizeQuestionSection(quizQuestion.question().type(), skin, outputMsg));
         vg.addActor(labelSolution);
         vg.addActor(visualizeAnswerSection(quizQuestion, skin));
+        vg.grow();
         return vg;
     }
 
@@ -122,7 +123,7 @@ public class QuizDialogDesign {
             }
             default -> {}
         }
-
+        vg.grow();
         return vg;
     }
 
@@ -152,6 +153,7 @@ public class QuizDialogDesign {
             }
             default -> {}
         }
+        vg.grow();
         return vg;
     }
 }
