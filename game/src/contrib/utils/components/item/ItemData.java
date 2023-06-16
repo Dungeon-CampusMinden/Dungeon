@@ -208,7 +208,7 @@ public class ItemData {
         new PositionComponent(droppedItem, position);
         new DrawComponent(droppedItem, which.getWorldTexture());
         CollideComponent component = new CollideComponent(droppedItem);
-        component.setCollideEnter((a, b, direction) -> which.triggerCollect(a, b));
+        component.collideEnter((a, b, direction) -> which.triggerCollect(a, b));
     }
 
     /**

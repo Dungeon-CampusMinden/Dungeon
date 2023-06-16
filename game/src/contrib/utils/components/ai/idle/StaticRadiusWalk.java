@@ -38,16 +38,14 @@ public class StaticRadiusWalk implements Consumer<Entity> {
         if (path == null || AITools.pathFinishedOrLeft(entity, path)) {
             if (center == null) {
                 PositionComponent pc =
-                        (PositionComponent)
-                                entity.fetch(PositionComponent.class).orElseThrow();
+                        (PositionComponent) entity.fetch(PositionComponent.class).orElseThrow();
                 center = pc.position();
             }
 
             if (currentBreak >= breakTime) {
                 currentBreak = 0;
                 PositionComponent pc2 =
-                        (PositionComponent)
-                                entity.fetch(PositionComponent.class).orElseThrow();
+                        (PositionComponent) entity.fetch(PositionComponent.class).orElseThrow();
                 currentPosition = pc2.position();
                 newEndTile =
                         AITools.randomAccessibleTileCoordinateInRange(center, radius).toPoint();

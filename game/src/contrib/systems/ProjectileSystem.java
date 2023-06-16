@@ -46,8 +46,7 @@ public class ProjectileSystem extends System {
 
     private PSData buildDataObject(Entity e) {
 
-        ProjectileComponent prc =
-                (ProjectileComponent) e.fetch(ProjectileComponent.class).get();
+        ProjectileComponent prc = (ProjectileComponent) e.fetch(ProjectileComponent.class).get();
 
         PositionComponent pc = (PositionComponent) e.fetch(PositionComponent.class).get();
         VelocityComponent vc = (VelocityComponent) e.fetch(VelocityComponent.class).get();

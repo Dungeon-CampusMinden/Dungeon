@@ -63,8 +63,7 @@ public class VelocitySystem extends System {
 
         // remove projectiles that hit the wall or other non-accessible
         // tiles
-        else if (vsd.e.fetch(ProjectileComponent.class).isPresent())
-            Game.removeEntity(vsd.e);
+        else if (vsd.e.fetch(ProjectileComponent.class).isPresent()) Game.removeEntity(vsd.e);
 
         vsd.vc.setCurrentYVelocity(0);
         vsd.vc.setCurrentXVelocity(0);
