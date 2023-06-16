@@ -104,8 +104,8 @@ public final class Entity {
      * @return Optional that can contain the requested component
      * @see Optional
      */
-    public Optional<Component> getComponent(Class<? extends Component> klass) {
-        return Optional.ofNullable(components.get(klass));
+    public <T extends Component> Optional<T> getComponent(Class<T> klass) {
+        return Optional.ofNullable(klass.cast(components.get(klass)));
     }
 
     /**
