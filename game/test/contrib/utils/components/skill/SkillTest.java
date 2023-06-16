@@ -6,6 +6,7 @@ import core.Entity;
 import core.Game;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -19,6 +20,12 @@ public class SkillTest {
     private final int baseCoolDownInSeconds = 2;
     private Consumer<Entity> skillFunction = entity -> value++;
 
+    @Before
+    public void setup() {
+        entity = new Entity();
+        skill = new Skill(skillFunction, baseCoolDownInSeconds);
+    }
+
     @After
     public void cleanup() {
         value = 0;
@@ -27,9 +34,6 @@ public class SkillTest {
 
     @Test
     public void execute() {
-        entity = new Entity();
-        skill = new Skill(skillFunction, baseCoolDownInSeconds);
-
         assertTrue("Skill should be executable", skill.canBeUsedAgain());
         skill.execute(entity);
         assertEquals("Skill should have been executed once", 1, value);
@@ -38,9 +42,6 @@ public class SkillTest {
 
     @Test
     public void executeWhenCoolDownActive() {
-        entity = new Entity();
-        skill = new Skill(skillFunction, baseCoolDownInSeconds);
-
         skill.execute(entity);
         assertFalse("Skill should not be executable", skill.canBeUsedAgain());
         skill.execute(entity);
@@ -49,7 +50,6 @@ public class SkillTest {
 
     @Test
     public void executeWhenCoolDownExpired() {
-        entity = new Entity();
         final long baseCoolDown = TimeUnit.MILLISECONDS.toSeconds(1);
         skill = new Skill(skillFunction, baseCoolDown);
 
