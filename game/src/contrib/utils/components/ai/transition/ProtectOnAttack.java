@@ -45,7 +45,13 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
      */
     public ProtectOnAttack(final Collection<Entity> entities) {
         entities.stream()
-                .peek(e -> e.fetch(HealthComponent.class).orElseThrow())
+                .peek(
+                        entity ->
+                                entity.fetch(HealthComponent.class)
+                                        .orElseThrow(
+                                                () ->
+                                                        MissingComponentException.build(
+                                                                entity, HealthComponent.class)))
                 .forEach(this.toProtect::add);
     }
 
@@ -61,11 +67,23 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
 
         isInFight =
                 toProtect.stream()
-                        .map(e -> (HealthComponent) e.fetch(HealthComponent.class).get())
+                        .map(
+                                toProtect ->
+                                        toProtect
+                                                .fetch(HealthComponent.class)
+                                                .orElseThrow(
+                                                        () ->
+                                                                MissingComponentException.build(
+                                                                        toProtect,
+                                                                        HealthComponent.class)))
                         .anyMatch(
-                                e ->
-                                        e.getLastDamageCause()
-                                                .map(t -> t.fetch(PlayerComponent.class))
+                                toProtect ->
+                                        toProtect
+                                                .getLastDamageCause()
+                                                .map(
+                                                        causeEntity ->
+                                                                causeEntity.fetch(
+                                                                        PlayerComponent.class))
                                                 .isPresent());
 
         return isInFight;
