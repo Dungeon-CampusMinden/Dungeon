@@ -95,8 +95,8 @@
 		"font": "myFont"
 	},
     "radio":{
-        "checkboxOn": "checkbox-on",
-        "checkboxOff": "checkbox",
+        "checkboxOn": "radio-on",
+        "checkboxOff": "radio",
         "font": "myFont"
     }
 },

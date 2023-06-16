@@ -29,7 +29,7 @@ public class QuizDialogDesign {
 
         final CheckBox.CheckBoxStyle style =
                 switch (quizQuestion.type()) {
-                    case MULTIPLE_CHOICE -> skin.get("radio", CheckBox.CheckBoxStyle.class);
+                    case SINGLE_CHOICE -> skin.get("radio", CheckBox.CheckBoxStyle.class);
                     default -> skin.get("default", CheckBox.CheckBoxStyle.class);
                 };
         Arrays.stream(quizQuestion.answers())
