@@ -9,6 +9,7 @@ import core.utils.components.MissingComponentException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /** System to check for collisions between two entities */
 public final class CollisionSystem extends System {
@@ -21,12 +22,40 @@ public final class CollisionSystem extends System {
 
     @Override
     public void execute() {
-        entityStream()
-                .flatMap(a -> entityStream().filter(b -> a.id() < b.id()).map(b -> buildData(a, b)))
-                .forEach(this::onEnterLeaveCheck);
+        getEntityStream().flatMap(this::createDataPairs).forEach(this::onEnterLeaveCheck);
     }
 
-    private CollisionData buildData(Entity a, Entity b) {
+    /**
+     * Creates a Stream where every other Entity has a higher id.
+     *
+     * @param a Entity which is the lower id partner
+     * @return the stream which contains every valid pair of Entities
+     */
+    private Stream<CollisionData> createDataPairs(Entity a) {
+        return getEntityStream().filter(b -> isIDSmallerThen(a, b)).map(b -> newDataPair(a, b));
+    }
+
+    /**
+     * Makes sure only Entities with a higher id are paired up.
+     *
+     * <p>This Prevents a pair of Entities to be checked double or with itself.
+     *
+     * @param a first Entity
+     * @param b second Entity
+     * @return true when the id of b is bigger then the one from a
+     */
+    private static boolean isIDSmallerThen(Entity a, Entity b) {
+        return a.id() < b.id();
+    }
+
+    /**
+     * Creates a basic Pair of CollideComponents to allow one Stream to compute every Collide check
+     *
+     * @param a
+     * @param b
+     * @return
+     */
+    private CollisionData newDataPair(Entity a, Entity b) {
         CollideComponent cca =
                 a.fetch(CollideComponent.class)
                         .orElseThrow(
@@ -39,6 +68,11 @@ public final class CollisionSystem extends System {
         return new CollisionData(cca, ccb);
     }
 
+    /**
+     * Checks wheter a new Collision is happening or wheter a Collision ended
+     *
+     * @param cdata
+     */
     private void onEnterLeaveCheck(CollisionData cdata) {
         CollisionKey key = new CollisionKey(cdata.a.entity().id(), cdata.b.entity().id());
 
@@ -72,7 +106,7 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * The Check if hitbox intersect
+     * The Check if hitboxes intersect
      *
      * @param hitbox1
      * @param hitbox2
