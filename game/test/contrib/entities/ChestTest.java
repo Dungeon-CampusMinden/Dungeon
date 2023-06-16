@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import contrib.components.InventoryComponent;
 import contrib.utils.components.item.ItemData;
 
-import core.Component;
 import core.Entity;
 import core.Game;
 import core.components.*;
@@ -39,13 +38,13 @@ public class ChestTest {
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
                 c.fetch(DrawComponent.class).isPresent());
-        Optional<Component> inventoryComponent = c.fetch(InventoryComponent.class);
+        Optional<InventoryComponent> inventoryComponent = c.fetch(InventoryComponent.class);
         assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
         assertEquals(
                 "Chest should have the given Items",
                 itemData,
                 inventoryComponent.map(InventoryComponent.class::cast).get().getItems());
-        Optional<Component> positionComponent = c.fetch(PositionComponent.class);
+        Optional<PositionComponent> positionComponent = c.fetch(PositionComponent.class);
         assertTrue(
                 "Needs the PositionComponent to be somewhere in the Level",
                 positionComponent.isPresent());
@@ -127,7 +126,7 @@ public class ChestTest {
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
                 newChest.fetch(DrawComponent.class).isPresent());
-        Optional<Component> inventoryComponent = newChest.fetch(InventoryComponent.class);
+        Optional<InventoryComponent> inventoryComponent = newChest.fetch(InventoryComponent.class);
         assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
         assertTrue(
                 "Chest should have atleast 1 Item",

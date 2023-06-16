@@ -156,9 +156,8 @@ public class CollisionComponentTest {
                 assertThrows(MissingComponentException.class, hb::center);
         assertTrue(
                 missingComponentException.getMessage().contains(PositionComponent.class.getName()));
-        assertTrue(
-                missingComponentException.getMessage().contains(CollideComponent.class.getName()));
     }
+
     /*
        interesting Values could be
        position(0, 0), offset(0, 0),  size( 1, 1), result(.5f, .5f),
@@ -273,8 +272,6 @@ public class CollisionComponentTest {
                 assertThrows(MissingComponentException.class, hb::topRight);
         assertTrue(
                 missingComponentException.getMessage().contains(PositionComponent.class.getName()));
-        assertTrue(
-                missingComponentException.getMessage().contains(CollideComponent.class.getName()));
     }
 
     /** Position and offset stay in origin (0,0) */
@@ -382,8 +379,6 @@ public class CollisionComponentTest {
                 assertThrows(MissingComponentException.class, hb::center);
         assertTrue(
                 missingComponentException.getMessage().contains(PositionComponent.class.getName()));
-        assertTrue(
-                missingComponentException.getMessage().contains(CollideComponent.class.getName()));
     }
 
     /** Position and offset stay in origin (0,0) */

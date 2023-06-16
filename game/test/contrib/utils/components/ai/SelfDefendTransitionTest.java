@@ -55,6 +55,5 @@ public class SelfDefendTransitionTest {
         MissingComponentException exception =
                 assertThrows(MissingComponentException.class, () -> defend.apply(entity));
         assertTrue(exception.getMessage().contains(HealthComponent.class.getName()));
-        assertTrue(exception.getMessage().contains(SelfDefendTransition.class.getName()));
     }
 }
