@@ -35,11 +35,11 @@ public class DropLoot implements Consumer<Entity> {
      */
     private Components prepareComponent(Entity entity) {
         InventoryComponent ic =
-                entity.getComponent(InventoryComponent.class)
+                entity.fetch(InventoryComponent.class)
                         .map(InventoryComponent.class::cast)
                         .orElseThrow(DropLoot::missingInventoryComponentException);
         PositionComponent pc =
-                entity.getComponent(PositionComponent.class)
+                entity.fetch(PositionComponent.class)
                         .map(PositionComponent.class::cast)
                         .orElseThrow(DropLoot::missingPositionsComponentException);
 

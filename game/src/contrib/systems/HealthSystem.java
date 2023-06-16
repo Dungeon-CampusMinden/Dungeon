@@ -51,15 +51,15 @@ public class HealthSystem extends System {
 
     private HSData buildDataObject(Entity e) {
 
-        HealthComponent hc = (HealthComponent) e.getComponent(HealthComponent.class).get();
-        DrawComponent ac = (DrawComponent) e.getComponent(DrawComponent.class).get();
+        HealthComponent hc = (HealthComponent) e.fetch(HealthComponent.class).get();
+        DrawComponent ac = (DrawComponent) e.fetch(DrawComponent.class).get();
 
         return new HSData(e, hc, ac);
     }
 
     private HSData applyDamage(HSData hsd) {
         hsd.e
-                .getComponent(StatsComponent.class)
+                .fetch(StatsComponent.class)
                 .ifPresentOrElse(
                         sc -> {
                             StatsComponent scomp = (StatsComponent) sc;
@@ -108,13 +108,13 @@ public class HealthSystem extends System {
 
         // Add XP
         hsd.e
-                .getComponent(XPComponent.class)
+                .fetch(XPComponent.class)
                 .ifPresent(
                         component -> {
                             XPComponent deadXPComponent = (XPComponent) component;
                             hsd.hc
                                     .getLastDamageCause()
-                                    .flatMap(entity -> entity.getComponent(XPComponent.class))
+                                    .flatMap(entity -> entity.fetch(XPComponent.class))
                                     .ifPresent(
                                             c -> {
                                                 XPComponent killerXPComponent = (XPComponent) c;

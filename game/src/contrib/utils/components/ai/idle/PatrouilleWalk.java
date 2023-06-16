@@ -63,7 +63,7 @@ public class PatrouilleWalk implements Consumer<Entity> {
         initialized = true;
         PositionComponent position =
                 (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
+                        entity.fetch(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         Point center = position.position();
@@ -97,7 +97,7 @@ public class PatrouilleWalk implements Consumer<Entity> {
 
         PositionComponent position =
                 (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
+                        entity.fetch(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
 

@@ -61,28 +61,28 @@ public class EntityFactory {
                 KeyboardConfig.MOVEMENT_UP.get(),
                 entity -> {
                     VelocityComponent vc =
-                            (VelocityComponent) entity.getComponent(VelocityComponent.class).get();
+                            (VelocityComponent) entity.fetch(VelocityComponent.class).get();
                     vc.setCurrentYVelocity(1 * vc.getYVelocity());
                 });
         pc.registerFunction(
                 KeyboardConfig.MOVEMENT_DOWN.get(),
                 entity -> {
                     VelocityComponent vc =
-                            (VelocityComponent) entity.getComponent(VelocityComponent.class).get();
+                            (VelocityComponent) entity.fetch(VelocityComponent.class).get();
                     vc.setCurrentYVelocity(-1 * vc.getYVelocity());
                 });
         pc.registerFunction(
                 KeyboardConfig.MOVEMENT_RIGHT.get(),
                 entity -> {
                     VelocityComponent vc =
-                            (VelocityComponent) entity.getComponent(VelocityComponent.class).get();
+                            (VelocityComponent) entity.fetch(VelocityComponent.class).get();
                     vc.setCurrentXVelocity(1 * vc.getXVelocity());
                 });
         pc.registerFunction(
                 KeyboardConfig.MOVEMENT_LEFT.get(),
                 entity -> {
                     VelocityComponent vc =
-                            (VelocityComponent) entity.getComponent(VelocityComponent.class).get();
+                            (VelocityComponent) entity.fetch(VelocityComponent.class).get();
                     vc.setCurrentXVelocity(-1 * vc.getXVelocity());
                 });
 

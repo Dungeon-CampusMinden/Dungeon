@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 public class AISystem extends System {
 
     private static final Consumer<Entity> executeAI =
-            entity -> ((AIComponent) entity.getComponent(AIComponent.class).get()).execute();
+            entity -> ((AIComponent) entity.fetch(AIComponent.class).get()).execute();
 
     public AISystem() {
         super(AIComponent.class);

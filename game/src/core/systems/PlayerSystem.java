@@ -20,7 +20,7 @@ public class PlayerSystem extends System {
     }
 
     private void execute(Entity entity) {
-        PlayerComponent pc = (PlayerComponent) (entity.getComponent(PlayerComponent.class).get());
+        PlayerComponent pc = (PlayerComponent) (entity.fetch(PlayerComponent.class).get());
         pc.execute();
     }
 }

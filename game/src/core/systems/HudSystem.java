@@ -27,7 +27,7 @@ public final class HudSystem extends System {
                 .forEach(
                         x -> {
                             Group d =
-                                    x.getComponent(UIComponent.class)
+                                    x.fetch(UIComponent.class)
                                             .map(UIComponent.class::cast)
                                             .get()
                                             .getDialog();
@@ -43,7 +43,7 @@ public final class HudSystem extends System {
         if (getEntityStream()
                 .anyMatch(
                         x ->
-                                x.getComponent(UIComponent.class)
+                                x.fetch(UIComponent.class)
                                         .map(UIComponent.class::cast)
                                         .map(y -> y.isVisible() && y.willPauseGame())
                                         .get())) {

@@ -17,7 +17,7 @@ public class XPSystem extends System {
     }
 
     private void checkForLevelUP(Entity entity) {
-        XPComponent comp = (XPComponent) entity.getComponent(XPComponent.class).get();
+        XPComponent comp = (XPComponent) entity.fetch(XPComponent.class).get();
         long xpLeft;
         while ((xpLeft = comp.getXPToNextLevel()) <= 0) {
             this.performLevelUp(comp, (int) xpLeft);

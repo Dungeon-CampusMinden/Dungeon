@@ -49,14 +49,14 @@ public class DropItemsInteraction implements Consumer<Entity> {
      */
     public void accept(Entity entity) {
         InventoryComponent inventoryComponent =
-                entity.getComponent(InventoryComponent.class)
+                entity.fetch(InventoryComponent.class)
                         .map(InventoryComponent.class::cast)
                         .orElseThrow(
                                 () ->
                                         createMissingComponentException(
                                                 InventoryComponent.class.getName(), entity));
         PositionComponent positionComponent =
-                entity.getComponent(PositionComponent.class)
+                entity.fetch(PositionComponent.class)
                         .map(PositionComponent.class::cast)
                         .orElseThrow(
                                 () ->
@@ -74,7 +74,7 @@ public class DropItemsInteraction implements Consumer<Entity> {
                                                 calculateDropPosition(
                                                         positionComponent, index / count)));
 
-        entity.getComponent(DrawComponent.class)
+        entity.fetch(DrawComponent.class)
                 .map(DrawComponent.class::cast)
                 .ifPresent(x -> x.setCurrentAnimation(CoreAnimations.IDLE_RIGHT));
     }

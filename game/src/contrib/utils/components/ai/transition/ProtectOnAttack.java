@@ -45,7 +45,7 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
      */
     public ProtectOnAttack(Collection<Entity> entities) {
         entities.stream()
-                .peek(e -> e.getComponent(HealthComponent.class).orElseThrow())
+                .peek(e -> e.fetch(HealthComponent.class).orElseThrow())
                 .forEach(this.toProtect::add);
     }
 
@@ -61,11 +61,11 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
 
         isInFight =
                 toProtect.stream()
-                        .map(e -> (HealthComponent) e.getComponent(HealthComponent.class).get())
+                        .map(e -> (HealthComponent) e.fetch(HealthComponent.class).get())
                         .anyMatch(
                                 e ->
                                         e.getLastDamageCause()
-                                                .map(t -> t.getComponent(PlayerComponent.class))
+                                                .map(t -> t.fetch(PlayerComponent.class))
                                                 .isPresent());
 
         return isInFight;

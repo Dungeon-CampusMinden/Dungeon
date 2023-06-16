@@ -124,7 +124,7 @@ public class DebuggerSystem extends System {
                     (PositionComponent)
                             Game.hero()
                                     .get()
-                                    .getComponent(PositionComponent.class)
+                                    .fetch(PositionComponent.class)
                                     .orElseThrow(
                                             () ->
                                                     new MissingComponentException(

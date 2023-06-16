@@ -68,8 +68,8 @@ public class DrawSystem extends System {
 
     private DSData buildDataObject(Entity e) {
 
-        DrawComponent dc = (DrawComponent) e.getComponent(DrawComponent.class).get();
-        PositionComponent pc = (PositionComponent) e.getComponent(PositionComponent.class).get();
+        DrawComponent dc = (DrawComponent) e.fetch(DrawComponent.class).get();
+        PositionComponent pc = (PositionComponent) e.fetch(PositionComponent.class).get();
 
         return new DSData(e, dc, pc);
     }

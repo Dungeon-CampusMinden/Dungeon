@@ -24,7 +24,7 @@ public class CollisionSystem extends System {
                 .flatMap(
                         a ->
                                 a
-                                        .getComponent(CollideComponent.class)
+                                        .fetch(CollideComponent.class)
                                         .map(CollideComponent.class::cast)
                                         .stream())
                 .flatMap(
@@ -34,7 +34,7 @@ public class CollisionSystem extends System {
                                         .flatMap(
                                                 b ->
                                                         b
-                                                                .getComponent(
+                                                                .fetch(
                                                                         CollideComponent.class)
                                                                 .map(CollideComponent.class::cast)
                                                                 .stream())

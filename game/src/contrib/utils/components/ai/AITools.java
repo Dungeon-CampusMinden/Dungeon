@@ -30,12 +30,12 @@ public class AITools {
         }
         PositionComponent pc =
                 (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
+                        entity.fetch(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         VelocityComponent vc =
                 (VelocityComponent)
-                        entity.getComponent(VelocityComponent.class)
+                        entity.fetch(VelocityComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("VelocityComponent"));
         Tile currentTile = Game.tileAT(pc.position());
@@ -147,7 +147,7 @@ public class AITools {
     public static GraphPath<Tile> calculatePathToRandomTileInRange(Entity entity, float radius) {
         Point point =
                 ((PositionComponent)
-                                entity.getComponent(PositionComponent.class)
+                                entity.fetch(PositionComponent.class)
                                         .orElseThrow(
                                                 () ->
                                                         new MissingComponentException(
@@ -166,12 +166,12 @@ public class AITools {
     public static GraphPath<Tile> calculatePath(Entity from, Entity to) {
         PositionComponent fromPositionComponent =
                 (PositionComponent)
-                        from.getComponent(PositionComponent.class)
+                        from.fetch(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         PositionComponent positionComponent =
                 (PositionComponent)
-                        to.getComponent(PositionComponent.class)
+                        to.fetch(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         return calculatePath(fromPositionComponent.position(), positionComponent.position());
@@ -207,7 +207,7 @@ public class AITools {
 
         Point entity1Position =
                 ((PositionComponent)
-                                entity1.getComponent(PositionComponent.class)
+                                entity1.fetch(PositionComponent.class)
                                         .orElseThrow(
                                                 () ->
                                                         new MissingComponentException(
@@ -215,7 +215,7 @@ public class AITools {
                         .position();
         Point entity2Position =
                 ((PositionComponent)
-                                entity2.getComponent(PositionComponent.class)
+                                entity2.fetch(PositionComponent.class)
                                         .orElseThrow(
                                                 () ->
                                                         new MissingComponentException(
@@ -247,7 +247,7 @@ public class AITools {
     public static boolean pathFinishedOrLeft(Entity entity, GraphPath<Tile> path) {
         PositionComponent pc =
                 (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
+                        entity.fetch(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         boolean finished = lastTile(path).equals(Game.tileAT(pc.position()));
@@ -271,7 +271,7 @@ public class AITools {
     public static boolean pathFinished(Entity entity, GraphPath<Tile> path) {
         PositionComponent pc =
                 (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
+                        entity.fetch(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         return lastTile(path).equals(Game.tileAT(pc.position()));
@@ -287,7 +287,7 @@ public class AITools {
     public static boolean pathLeft(Entity entity, GraphPath<Tile> path) {
         PositionComponent pc =
                 (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
+                        entity.fetch(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         boolean onPath = false;

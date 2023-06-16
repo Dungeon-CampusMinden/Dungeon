@@ -63,7 +63,7 @@ public class VelocitySystem extends System {
 
         // remove projectiles that hit the wall or other non-accessible
         // tiles
-        else if (vsd.e.getComponent(ProjectileComponent.class).isPresent())
+        else if (vsd.e.fetch(ProjectileComponent.class).isPresent())
             Game.removeEntity(vsd.e);
 
         vsd.vc.setCurrentYVelocity(0);
@@ -71,11 +71,11 @@ public class VelocitySystem extends System {
     }
 
     private VSData buildDataObject(Entity e) {
-        VelocityComponent vc = (VelocityComponent) e.getComponent(VelocityComponent.class).get();
+        VelocityComponent vc = (VelocityComponent) e.fetch(VelocityComponent.class).get();
 
-        PositionComponent pc = (PositionComponent) e.getComponent(PositionComponent.class).get();
+        PositionComponent pc = (PositionComponent) e.fetch(PositionComponent.class).get();
 
-        DrawComponent dc = (DrawComponent) e.getComponent(DrawComponent.class).get();
+        DrawComponent dc = (DrawComponent) e.fetch(DrawComponent.class).get();
 
         return new VSData(e, vc, pc, dc);
     }
@@ -84,7 +84,7 @@ public class VelocitySystem extends System {
 
         AtomicBoolean isDead = new AtomicBoolean(false);
         vsd.e
-                .getComponent(HealthComponent.class)
+                .fetch(HealthComponent.class)
                 .ifPresent(
                         component -> {
                             HealthComponent healthComponent = (HealthComponent) component;

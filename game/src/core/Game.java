@@ -664,7 +664,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private Entity newPauseMenu() {
         Entity entity = UITools.generateNewTextDialog("Pause", "Continue", "Pausemenu");
-        entity.getComponent(UIComponent.class)
+        entity.fetch(UIComponent.class)
                 .map(UIComponent.class::cast)
                 .ifPresent(y -> y.getDialog().setVisible(true));
         return entity;
@@ -713,7 +713,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private boolean isOnEndTile(Entity entity) {
         PositionComponent pc =
                 (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
+                        entity.fetch(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         Tile currentTile = tileAT(pc.position());
@@ -731,7 +731,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         entities.add(hero);
         PositionComponent pc =
                 (PositionComponent)
-                        hero.getComponent(PositionComponent.class)
+                        hero.fetch(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         pc.position(startTile());

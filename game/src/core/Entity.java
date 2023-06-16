@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  * <p>If you want to remove a component from an entity, use {@link #removeComponent} and provide the
  * Class of the component you want to remove as a parameter.
  *
- * <p>With {@link #getComponent}, you can check if the entity has a component of the given class.
+ * <p>With {@link #fetch}, you can check if the entity has a component of the given class.
  *
  * @see Component
  * @see System
@@ -104,7 +104,7 @@ public final class Entity {
      * @return Optional that can contain the requested component
      * @see Optional
      */
-    public <T extends Component> Optional<T> getComponent(final Class<T> klass) {
+    public <T extends Component> Optional<T> fetch(final Class<T> klass) {
         return Optional.ofNullable(klass.cast(components.get(klass)));
     }
 

@@ -105,7 +105,7 @@ public class CollideComponent extends Component {
         PositionComponent pc =
                 (PositionComponent)
                         getEntity()
-                                .getComponent(PositionComponent.class)
+                                .fetch(PositionComponent.class)
                                 .orElseThrow(
                                         CollideComponent::getMissingPositionComponentException);
         return new Point(pc.position().x + offset.x, pc.position().y + offset.y);
@@ -118,7 +118,7 @@ public class CollideComponent extends Component {
         PositionComponent pc =
                 (PositionComponent)
                         getEntity()
-                                .getComponent(PositionComponent.class)
+                                .fetch(PositionComponent.class)
                                 .orElseThrow(
                                         CollideComponent::getMissingPositionComponentException);
         return new Point(pc.position().x + offset.x + size.x, pc.position().y + offset.y + size.y);
@@ -131,7 +131,7 @@ public class CollideComponent extends Component {
         PositionComponent pc =
                 (PositionComponent)
                         getEntity()
-                                .getComponent(PositionComponent.class)
+                                .fetch(PositionComponent.class)
                                 .orElseThrow(
                                         CollideComponent::getMissingPositionComponentException);
         return new Point(

@@ -74,7 +74,7 @@ public interface ITileable extends IPathable {
      */
     default Tile tileAtEntity(Entity entity) {
         PositionComponent pc =
-                (PositionComponent) entity.getComponent(PositionComponent.class).get();
+                (PositionComponent) entity.fetch(PositionComponent.class).get();
         return tileAt(pc.position().toCoordinate());
     }
 

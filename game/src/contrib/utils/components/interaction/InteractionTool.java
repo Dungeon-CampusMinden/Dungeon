@@ -27,14 +27,14 @@ public class InteractionTool {
             Entity entity, Function<InteractionData, Boolean> iReachable) {
         PositionComponent heroPosition =
                 (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
+                        entity.fetch(PositionComponent.class)
                                 .orElseThrow(() -> MissingPCFromEntity(Entity.class.getName()));
         Optional<InteractionData> data =
                 Game.entityStream()
                         .flatMap(
                                 x ->
                                         x
-                                                .getComponent(InteractionComponent.class)
+                                                .fetch(InteractionComponent.class)
                                                 .map(InteractionComponent.class::cast)
                                                 .stream())
                         .map(ic1 -> convertToData(ic1, heroPosition))
@@ -49,7 +49,7 @@ public class InteractionTool {
 
         PositionComponent pc =
                 ((PositionComponent)
-                        entity.getComponent(PositionComponent.class)
+                        entity.fetch(PositionComponent.class)
                                 .orElseThrow(
                                         () -> MissingPCFromEntity(entity.getClass().getName())));
         return new InteractionData(

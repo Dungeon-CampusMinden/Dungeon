@@ -76,7 +76,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         // Get the PositionComponent of the entity
         PositionComponent epc =
                 (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
+                        entity.fetch(PositionComponent.class)
                                 .orElseThrow(
                                         () -> new MissingComponentException("PositionComponent"));
         new PositionComponent(projectile, epc.position());
@@ -110,7 +110,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         TriConsumer<Entity, Entity, Tile.Direction> collide =
                 (a, b, from) -> {
                     if (b != entity) {
-                        b.getComponent(HealthComponent.class)
+                        b.fetch(HealthComponent.class)
                                 .ifPresent(
                                         hc -> {
                                             // Apply the projectile damage to the collided entity

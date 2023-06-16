@@ -12,7 +12,7 @@ public class SelfDefendTransition implements Function<Entity, Boolean> {
     public Boolean apply(Entity entity) {
         HealthComponent component =
                 (HealthComponent)
-                        entity.getComponent(HealthComponent.class)
+                        entity.fetch(HealthComponent.class)
                                 .orElseThrow(
                                         () ->
                                                 new MissingComponentException(

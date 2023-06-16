@@ -187,7 +187,7 @@ public class ItemData {
      * @param item Item that is used
      */
     private static void defaultUseCallback(Entity e, ItemData item) {
-        e.getComponent(InventoryComponent.class)
+        e.fetch(InventoryComponent.class)
                 .ifPresent(
                         component -> {
                             InventoryComponent invComp = (InventoryComponent) component;
@@ -225,14 +225,14 @@ public class ItemData {
                             // check if entity picking up Item is the Hero
                             if (whoCollected.equals(hero)) {
                                 // check if Hero has an Inventory Component
-                                hero.getComponent(InventoryComponent.class)
+                                hero.fetch(InventoryComponent.class)
                                         .ifPresent(
                                                 (x) -> {
                                                     // check if Item can be added to hero Inventory
                                                     if (((InventoryComponent) x)
                                                             .addItem(
                                                                     worldItem
-                                                                            .getComponent(
+                                                                            .fetch(
                                                                                     ItemComponent
                                                                                             .class)
                                                                             .map(
