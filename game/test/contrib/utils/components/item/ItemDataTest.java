@@ -25,9 +25,9 @@ public class ItemDataTest {
     @Test
     public void testDefaultConstructor() {
         ItemData itemData = new ItemData();
-        assertEquals(ItemConfig.NAME.get(), itemData.getItemName());
-        assertEquals(ItemConfig.DESCRIPTION.get(), itemData.getDescription());
-        assertEquals(ItemConfig.TYPE.get(), itemData.getItemType());
+        assertEquals(ItemConfig.NAME.get(), itemData.itemName());
+        assertEquals(ItemConfig.DESCRIPTION.get(), itemData.description());
+        assertEquals(ItemConfig.TYPE.get(), itemData.itemType());
         // assertEquals(ItemData.DEFAULT_WORLD_ANIMATION, itemData.getWorldTexture());
         // assertEquals(ItemData.DEFAULT_INVENTORY_ANIMATION, itemData.getInventoryTexture());
     }
@@ -47,12 +47,11 @@ public class ItemDataTest {
                         item_name,
                         item_description);
 
-        assertEquals(type, itemData.getItemType());
-        assertEquals(
-                inventoryTexture, itemData.getInventoryTexture().getNextAnimationTexturePath());
-        assertEquals(worldTexture, itemData.getWorldTexture().getNextAnimationTexturePath());
-        assertEquals(item_name, itemData.getItemName());
-        assertEquals(item_description, itemData.getDescription());
+        assertEquals(type, itemData.itemType());
+        assertEquals(inventoryTexture, itemData.inventoryTexture().getNextAnimationTexturePath());
+        assertEquals(worldTexture, itemData.worldTexture().getNextAnimationTexturePath());
+        assertEquals(item_name, itemData.itemName());
+        assertEquals(item_description, itemData.description());
     }
 
     // <p> Since we cant update the {@link Game#entities} from outside the gameloop, this is
