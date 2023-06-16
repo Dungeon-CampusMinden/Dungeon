@@ -43,6 +43,7 @@ public class SkillTest {
 
         skill.execute(entity);
         assertFalse("Skill should not be executable", skill.canBeUsedAgain());
+        skill.execute(entity);
         assertEquals("Skill should have been executed once", 1, value);
     }
 
