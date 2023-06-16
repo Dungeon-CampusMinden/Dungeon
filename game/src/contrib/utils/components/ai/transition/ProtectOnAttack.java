@@ -28,7 +28,7 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
      *
      * @param entity to protect
      */
-    public ProtectOnAttack(Entity entity) {
+    public ProtectOnAttack(final Entity entity) {
         if (!entity.isPresent(HealthComponent.class)) {
             throw (new MissingComponentException("HealthComponent"));
         }
@@ -43,7 +43,7 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
      *
      * @param entities - Entities that are protected
      */
-    public ProtectOnAttack(Collection<Entity> entities) {
+    public ProtectOnAttack(final Collection<Entity> entities) {
         entities.stream()
                 .peek(e -> e.fetch(HealthComponent.class).orElseThrow())
                 .forEach(this.toProtect::add);
@@ -56,7 +56,7 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
      * @return True if entity is in fight mode, false if entity is not
      */
     @Override
-    public Boolean apply(Entity entity) {
+    public Boolean apply(final Entity entity) {
         if (isInFight) return true;
 
         isInFight =

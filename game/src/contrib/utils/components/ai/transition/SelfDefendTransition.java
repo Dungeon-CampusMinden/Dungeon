@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 public class SelfDefendTransition implements Function<Entity, Boolean> {
     @Override
-    public Boolean apply(Entity entity) {
+    public Boolean apply(final Entity entity) {
         HealthComponent component =
                 (HealthComponent)
                         entity.fetch(HealthComponent.class)

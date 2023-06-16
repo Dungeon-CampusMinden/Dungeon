@@ -24,7 +24,7 @@ public class ProtectOnApproach implements Function<Entity, Boolean> {
      * @param range - The range in which the entity should in fight mode
      * @param toProtect - The entity which should be protected
      */
-    public ProtectOnApproach(float range, Entity toProtect) {
+    public ProtectOnApproach(final float range, final Entity toProtect) {
         this.range = range;
         this.toProtect = toProtect;
     }
@@ -37,7 +37,7 @@ public class ProtectOnApproach implements Function<Entity, Boolean> {
      * @return boolean
      */
     @Override
-    public Boolean apply(Entity entity) {
+    public Boolean apply(final Entity entity) {
         if (isInFight) return true;
 
         isInFight = AITools.playerInRange(toProtect, range);
