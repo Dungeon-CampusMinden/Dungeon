@@ -28,13 +28,11 @@ public class DialogFactory {
             String title,
             BiFunction<TextDialog, String, Boolean> resultHandler) {
         Dialog textDialog = new TextDialog(title, skin, resultHandler);
-        DialogDesign dialogDesign = new DialogDesign();
         textDialog
                 .getContentTable()
                 .add(DialogDesign.createTextDialog(skin, outputMsg))
                 .center()
                 .grow();
-        textDialog.addActor(dialogDesign);
         textDialog.button(confirmButton, confirmButton);
         return textDialog;
     }
