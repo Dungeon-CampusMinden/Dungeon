@@ -56,7 +56,7 @@ public class Skill {
      *
      * @return true if the specified time (coolDownInSeconds) has passed
      */
-    private boolean canBeUsedAgain() {
+    public boolean canBeUsedAgain() {
         return Instant.now().isAfter(nextUsableAt) || Instant.now().equals(nextUsableAt);
     }
 
