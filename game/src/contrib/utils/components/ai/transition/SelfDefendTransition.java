@@ -11,16 +11,11 @@ public class SelfDefendTransition implements Function<Entity, Boolean> {
     @Override
     public Boolean apply(final Entity entity) {
         HealthComponent component =
-                (HealthComponent)
-                        entity.fetch(HealthComponent.class)
-                                .orElseThrow(
-                                        () ->
-                                                new MissingComponentException(
-                                                        "Missing "
-                                                                + HealthComponent.class.getName()
-                                                                + " which is required for the "
-                                                                + SelfDefendTransition.class
-                                                                        .getName()));
+                entity.fetch(HealthComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, HealthComponent.class));
         return component.getCurrentHealthpoints() < component.getMaximalHealthpoints();
     }
 }
