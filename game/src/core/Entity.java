@@ -44,7 +44,7 @@ public final class Entity {
      *
      * @param name the name of the entity, used for better logging and debugging
      */
-    public Entity(String name) {
+    public Entity(final String name) {
         id = nextId++;
         components = new HashMap<>();
         this.name = name;
@@ -72,7 +72,7 @@ public final class Entity {
      *
      * @param component The component to add
      */
-    public void addComponent(Component component) {
+    public void addComponent(final Component component) {
         components.put(component.getClass(), component);
         Game.informAboutChanges(this);
         LOGGER.info(
@@ -90,7 +90,7 @@ public final class Entity {
      *
      * @param klass the Class of the component
      */
-    public void removeComponent(Class<? extends Component> klass) {
+    public void removeComponent(final Class<? extends Component> klass) {
         if (components.remove(klass) != null) {
             Game.informAboutChanges(this);
             LOGGER.info(klass.getName() + " from " + name + " was removed.");
@@ -104,7 +104,7 @@ public final class Entity {
      * @return Optional that can contain the requested component
      * @see Optional
      */
-    public <T extends Component> Optional<T> getComponent(Class<T> klass) {
+    public <T extends Component> Optional<T> getComponent(final Class<T> klass) {
         return Optional.ofNullable(klass.cast(components.get(klass)));
     }
 
@@ -114,7 +114,7 @@ public final class Entity {
      * @param klass class of the component to check for
      * @return true if the component is present in the entity, false if not
      */
-    public boolean isPresent(Class<? extends Component> klass) {
+    public boolean isPresent(final Class<? extends Component> klass) {
         return components.containsKey(klass);
     }
 
