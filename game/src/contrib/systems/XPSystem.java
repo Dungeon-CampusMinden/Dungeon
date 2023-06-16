@@ -4,8 +4,9 @@ import contrib.components.XPComponent;
 
 import core.Entity;
 import core.System;
+import core.utils.components.MissingComponentException;
 
-public class XPSystem extends System {
+public final class XPSystem extends System {
 
     public XPSystem() {
         super(XPComponent.class);
@@ -17,7 +18,9 @@ public class XPSystem extends System {
     }
 
     private void checkForLevelUP(Entity entity) {
-        XPComponent comp = (XPComponent) entity.fetch(XPComponent.class).get();
+        XPComponent comp =
+                entity.fetch(XPComponent.class)
+                        .orElseThrow(() -> MissingComponentException.build(entity, XPSystem.class));
         long xpLeft;
         while ((xpLeft = comp.getXPToNextLevel()) <= 0) {
             this.performLevelUp(comp, (int) xpLeft);
