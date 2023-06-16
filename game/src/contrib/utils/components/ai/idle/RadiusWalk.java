@@ -23,13 +23,13 @@ public class RadiusWalk implements Consumer<Entity> {
      * @param radius Radius in which a target point is to be searched for
      * @param breakTimeInSeconds how long to wait (in seconds) before searching a new goal
      */
-    public RadiusWalk(float radius, int breakTimeInSeconds) {
+    public RadiusWalk(final float radius, final int breakTimeInSeconds) {
         this.radius = radius;
         this.breakTime = breakTimeInSeconds * Game.frameRate();
     }
 
     @Override
-    public void accept(Entity entity) {
+    public void accept(final Entity entity) {
         if (path == null || AITools.pathFinishedOrLeft(entity, path)) {
             if (currentBreak >= breakTime) {
                 currentBreak = 0;

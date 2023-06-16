@@ -15,7 +15,7 @@ import core.utils.Point;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class RangeAI implements Consumer<Entity> {
+public final class RangeAI implements Consumer<Entity> {
 
     private final float attackRange;
     private final float distance;
@@ -30,7 +30,7 @@ public class RangeAI implements Consumer<Entity> {
      * @param distance min. Range in which the attack skill should be executed
      * @param skill Skill to be used when an attack is performed
      */
-    public RangeAI(float attackRange, float distance, Skill skill) {
+    public RangeAI(final float attackRange, final float distance, final Skill skill) {
         if (attackRange <= distance || distance < 0) {
             throw new Error(
                     "attackRange must be greater than distance and distance must be 0 or greater than 0");
@@ -44,7 +44,7 @@ public class RangeAI implements Consumer<Entity> {
     }
 
     @Override
-    public void accept(Entity entity) {
+    public void accept(final Entity entity) {
         boolean playerInDistanceRange = AITools.playerInRange(entity, distance);
         boolean playerInAttackRange = AITools.playerInRange(entity, attackRange);
 

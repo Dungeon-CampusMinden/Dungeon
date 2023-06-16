@@ -8,6 +8,7 @@ import core.System;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
+import core.utils.components.MissingComponentException;
 
 /**
  * The ProjectileSystem class represents a system responsible for managing {@link
@@ -44,15 +45,27 @@ public class ProjectileSystem extends System {
                 .forEach(this::removeEntitiesOnEndpoint);
     }
 
-    private PSData buildDataObject(Entity e) {
+    private PSData buildDataObject(Entity entity) {
 
         ProjectileComponent prc =
-                (ProjectileComponent) e.getComponent(ProjectileComponent.class).get();
-
-        PositionComponent pc = (PositionComponent) e.getComponent(PositionComponent.class).get();
-        VelocityComponent vc = (VelocityComponent) e.getComponent(VelocityComponent.class).get();
-
-        return new PSData(e, prc, pc, vc);
+                entity.fetch(ProjectileComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, ProjectileComponent.class));
+        PositionComponent pc =
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
+        VelocityComponent vc =
+                entity.fetch(VelocityComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, VelocityComponent.class));
+        return new PSData(entity, prc, pc, vc);
     }
 
     private PSData setVelocity(PSData data) {

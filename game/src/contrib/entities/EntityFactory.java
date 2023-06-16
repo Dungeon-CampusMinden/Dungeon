@@ -15,6 +15,7 @@ import core.Game;
 import core.components.*;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
 
 import java.io.IOException;
@@ -61,28 +62,47 @@ public class EntityFactory {
                 KeyboardConfig.MOVEMENT_UP.get(),
                 entity -> {
                     VelocityComponent vc =
-                            (VelocityComponent) entity.getComponent(VelocityComponent.class).get();
+                            entity.fetch(VelocityComponent.class)
+                                    .orElseThrow(
+                                            () ->
+                                                    MissingComponentException.build(
+                                                            entity, VelocityComponent.class));
                     vc.setCurrentYVelocity(1 * vc.getYVelocity());
                 });
         pc.registerFunction(
                 KeyboardConfig.MOVEMENT_DOWN.get(),
                 entity -> {
                     VelocityComponent vc =
-                            (VelocityComponent) entity.getComponent(VelocityComponent.class).get();
+                            entity.fetch(VelocityComponent.class)
+                                    .orElseThrow(
+                                            () ->
+                                                    MissingComponentException.build(
+                                                            entity, VelocityComponent.class));
+
                     vc.setCurrentYVelocity(-1 * vc.getYVelocity());
                 });
         pc.registerFunction(
                 KeyboardConfig.MOVEMENT_RIGHT.get(),
                 entity -> {
                     VelocityComponent vc =
-                            (VelocityComponent) entity.getComponent(VelocityComponent.class).get();
+                            entity.fetch(VelocityComponent.class)
+                                    .orElseThrow(
+                                            () ->
+                                                    MissingComponentException.build(
+                                                            entity, VelocityComponent.class));
+
                     vc.setCurrentXVelocity(1 * vc.getXVelocity());
                 });
         pc.registerFunction(
                 KeyboardConfig.MOVEMENT_LEFT.get(),
                 entity -> {
                     VelocityComponent vc =
-                            (VelocityComponent) entity.getComponent(VelocityComponent.class).get();
+                            entity.fetch(VelocityComponent.class)
+                                    .orElseThrow(
+                                            () ->
+                                                    MissingComponentException.build(
+                                                            entity, VelocityComponent.class));
+
                     vc.setCurrentXVelocity(-1 * vc.getXVelocity());
                 });
 

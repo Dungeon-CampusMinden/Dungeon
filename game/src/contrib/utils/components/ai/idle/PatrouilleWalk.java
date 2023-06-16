@@ -52,20 +52,22 @@ public class PatrouilleWalk implements Consumer<Entity> {
      * @param pauseTime Max time in milliseconds to wait on a checkpoint. The actual time is a
      *     random number between 0 and this value
      */
-    public PatrouilleWalk(float radius, int numberCheckpoints, int pauseTime, MODE mode) {
+    public PatrouilleWalk(
+            final float radius, final int numberCheckpoints, final int pauseTime, final MODE mode) {
         this.radius = radius;
         this.numberCheckpoints = numberCheckpoints;
         this.pauseFrames = pauseTime / (1000 / Game.frameRate());
         this.mode = mode;
     }
 
-    private void init(Entity entity) {
+    private void init(final Entity entity) {
         initialized = true;
         PositionComponent position =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
         Point center = position.position();
         Tile tile = Game.tileAT(position.position());
 
@@ -92,14 +94,15 @@ public class PatrouilleWalk implements Consumer<Entity> {
     }
 
     @Override
-    public void accept(Entity entity) {
+    public void accept(final Entity entity) {
         if (!initialized) this.init(entity);
 
         PositionComponent position =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
 
         if (currentPath != null && !AITools.pathFinished(entity, currentPath)) {
             if (AITools.pathLeft(entity, currentPath)) {

@@ -10,6 +10,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
+import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -39,7 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @see PositionComponent
  * @see core.level.elements.ILevel
  */
-public class VelocitySystem extends System {
+public final class VelocitySystem extends System {
 
     /** Create a new VelocitySystem */
     public VelocitySystem() {
@@ -63,19 +64,26 @@ public class VelocitySystem extends System {
 
         // remove projectiles that hit the wall or other non-accessible
         // tiles
-        else if (vsd.e.getComponent(ProjectileComponent.class).isPresent())
-            Game.removeEntity(vsd.e);
+        else if (vsd.e.fetch(ProjectileComponent.class).isPresent()) Game.removeEntity(vsd.e);
 
         vsd.vc.setCurrentYVelocity(0);
         vsd.vc.setCurrentXVelocity(0);
     }
 
     private VSData buildDataObject(Entity e) {
-        VelocityComponent vc = (VelocityComponent) e.getComponent(VelocityComponent.class).get();
+        VelocityComponent vc =
+                e.fetch(VelocityComponent.class)
+                        .orElseThrow(
+                                () -> MissingComponentException.build(e, VelocityComponent.class));
 
-        PositionComponent pc = (PositionComponent) e.getComponent(PositionComponent.class).get();
+        PositionComponent pc =
+                e.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () -> MissingComponentException.build(e, PositionComponent.class));
 
-        DrawComponent dc = (DrawComponent) e.getComponent(DrawComponent.class).get();
+        DrawComponent dc =
+                e.fetch(DrawComponent.class)
+                        .orElseThrow(() -> MissingComponentException.build(e, DrawComponent.class));
 
         return new VSData(e, vc, pc, dc);
     }
@@ -84,11 +92,10 @@ public class VelocitySystem extends System {
 
         AtomicBoolean isDead = new AtomicBoolean(false);
         vsd.e
-                .getComponent(HealthComponent.class)
+                .fetch(HealthComponent.class)
                 .ifPresent(
                         component -> {
-                            HealthComponent healthComponent = (HealthComponent) component;
-                            isDead.set(healthComponent.isDead());
+                            isDead.set(component.isDead());
                         });
 
         if (isDead.get()) {

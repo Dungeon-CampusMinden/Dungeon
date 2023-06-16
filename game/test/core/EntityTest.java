@@ -21,19 +21,19 @@ public class EntityTest {
 
     @Test
     public void addComponent() {
-        assertEquals(testComponent, entity.getComponent(testComponent.getClass()).get());
+        assertEquals(testComponent, entity.fetch(testComponent.getClass()).get());
     }
 
     @Test
     public void addAlreadyExistingComponent() {
         Component newComponent = Mockito.mock(Component.class);
         entity.addComponent(newComponent);
-        assertEquals(newComponent, entity.getComponent(testComponent.getClass()).get());
+        assertEquals(newComponent, entity.fetch(testComponent.getClass()).get());
     }
 
     @Test
     public void removeComponent() {
         entity.removeComponent(testComponent.getClass());
-        assertTrue(entity.getComponent(testComponent.getClass()).isEmpty());
+        assertTrue(entity.fetch(testComponent.getClass()).isEmpty());
     }
 }

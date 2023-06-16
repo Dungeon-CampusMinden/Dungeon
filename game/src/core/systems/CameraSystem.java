@@ -11,6 +11,7 @@ import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.utils.Constants;
 import core.utils.Point;
+import core.utils.components.MissingComponentException;
 
 /**
  * The CameraSystem sets the focus point of the game. It is responsible for what is visible on
@@ -24,7 +25,7 @@ import core.utils.Point;
  *
  * @see CameraComponent
  */
-public class CameraSystem extends System {
+public final class CameraSystem extends System {
 
     private static final OrthographicCamera CAMERA =
             new OrthographicCamera(Constants.viewportWidth(), Constants.viewportHeight());
@@ -49,7 +50,11 @@ public class CameraSystem extends System {
 
     private void focus(Entity entity) {
         PositionComponent pc =
-                (PositionComponent) entity.getComponent(PositionComponent.class).get();
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
         focus(pc.position());
     }
 

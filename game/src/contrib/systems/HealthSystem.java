@@ -10,6 +10,7 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
+import core.utils.components.MissingComponentException;
 
 import java.util.stream.Stream;
 
@@ -17,7 +18,7 @@ import java.util.stream.Stream;
  * The HealthSystem offsets the damage to be done to all entities with the HealthComponent. Triggers
  * the death of an entity when the health-points have fallen below 0.
  */
-public class HealthSystem extends System {
+public final class HealthSystem extends System {
 
     public HealthSystem() {
         super(HealthComponent.class, DrawComponent.class);
@@ -49,22 +50,26 @@ public class HealthSystem extends System {
                 .forEach(this::removeDeadEntities);
     }
 
-    private HSData buildDataObject(Entity e) {
+    private HSData buildDataObject(Entity entity) {
 
-        HealthComponent hc = (HealthComponent) e.getComponent(HealthComponent.class).get();
-        DrawComponent ac = (DrawComponent) e.getComponent(DrawComponent.class).get();
-
-        return new HSData(e, hc, ac);
+        HealthComponent hc =
+                entity.fetch(HealthComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, HealthComponent.class));
+        DrawComponent ac =
+                entity.fetch(DrawComponent.class)
+                        .orElseThrow(
+                                () -> MissingComponentException.build(entity, DrawComponent.class));
+        return new HSData(entity, hc, ac);
     }
 
     private HSData applyDamage(HSData hsd) {
         hsd.e
-                .getComponent(StatsComponent.class)
+                .fetch(StatsComponent.class)
                 .ifPresentOrElse(
-                        sc -> {
-                            StatsComponent scomp = (StatsComponent) sc;
-                            doDamageAndAnimation(hsd, calculateDamageWithMultipliers(scomp, hsd));
-                        },
+                        sc -> doDamageAndAnimation(hsd, calculateDamageWithMultipliers(sc, hsd)),
                         () ->
                                 doDamageAndAnimation(
                                         hsd,
@@ -108,20 +113,13 @@ public class HealthSystem extends System {
 
         // Add XP
         hsd.e
-                .getComponent(XPComponent.class)
+                .fetch(XPComponent.class)
                 .ifPresent(
-                        component -> {
-                            XPComponent deadXPComponent = (XPComponent) component;
-                            hsd.hc
-                                    .getLastDamageCause()
-                                    .flatMap(entity -> entity.getComponent(XPComponent.class))
-                                    .ifPresent(
-                                            c -> {
-                                                XPComponent killerXPComponent = (XPComponent) c;
-                                                killerXPComponent.addXP(
-                                                        deadXPComponent.getLootXP());
-                                            });
-                        });
+                        component ->
+                                hsd.hc
+                                        .getLastDamageCause()
+                                        .flatMap(entity -> entity.fetch(XPComponent.class))
+                                        .ifPresent(c -> c.addXP(component.getLootXP())));
     }
 
     // private record to hold all data during streaming

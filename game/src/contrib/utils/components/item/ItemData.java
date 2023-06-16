@@ -12,6 +12,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.TriConsumer;
+import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 
 import java.util.List;
@@ -29,12 +30,12 @@ import java.util.function.BiConsumer;
  *
  * <p>Lastly it holds a {@link #damageModifier}
  */
-public class ItemData {
-    private ItemType itemType;
-    private Animation inventoryTexture;
-    private Animation worldTexture;
-    private String itemName;
-    private String description;
+public final class ItemData {
+    private final ItemType itemType;
+    private final Animation inventoryTexture;
+    private final Animation worldTexture;
+    private final String itemName;
+    private final String description;
 
     private BiConsumer<Entity, Entity> onCollect;
     private TriConsumer<Entity, ItemData, Point> onDrop;
@@ -42,7 +43,7 @@ public class ItemData {
     private BiConsumer<Entity, ItemData> onUse;
 
     // passive
-    private DamageModifier damageModifier;
+    private final DamageModifier damageModifier;
 
     /**
      * creates a new item data object.
@@ -58,15 +59,15 @@ public class ItemData {
      * @param damageModifier Defining if dealt damage is altered.
      */
     public ItemData(
-            ItemType itemType,
-            Animation inventoryTexture,
-            Animation worldTexture,
-            String itemName,
-            String description,
-            BiConsumer<Entity, Entity> onCollect,
-            TriConsumer<Entity, ItemData, Point> onDrop,
-            BiConsumer<Entity, ItemData> onUse,
-            DamageModifier damageModifier) {
+            final ItemType itemType,
+            final Animation inventoryTexture,
+            final Animation worldTexture,
+            final String itemName,
+            final String description,
+            final BiConsumer<Entity, Entity> onCollect,
+            final TriConsumer<Entity, ItemData, Point> onDrop,
+            final BiConsumer<Entity, ItemData> onUse,
+            final DamageModifier damageModifier) {
         this.itemType = itemType;
         this.inventoryTexture = inventoryTexture;
         this.worldTexture = worldTexture;
@@ -88,11 +89,11 @@ public class ItemData {
      * @param description String giving a description of the item
      */
     public ItemData(
-            ItemType itemType,
-            Animation inventoryTexture,
-            Animation worldTexture,
-            String itemName,
-            String description) {
+            final ItemType itemType,
+            final Animation inventoryTexture,
+            final Animation worldTexture,
+            final String itemName,
+            final String description) {
         this(
                 itemType,
                 inventoryTexture,
@@ -121,7 +122,7 @@ public class ItemData {
      * @param worldItemEntity Item which is collected
      * @param whoTriesCollects Entity that tries to collect item
      */
-    public void triggerCollect(Entity worldItemEntity, Entity whoTriesCollects) {
+    public void triggerCollect(final Entity worldItemEntity, final Entity whoTriesCollects) {
         if (getOnCollect() != null) getOnCollect().accept(worldItemEntity, whoTriesCollects);
     }
 
@@ -130,7 +131,7 @@ public class ItemData {
      *
      * @param position the location of the drop
      */
-    public void triggerDrop(Entity e, Point position) {
+    public void triggerDrop(final Entity e, final Point position) {
         if (getOnDrop() != null) getOnDrop().accept(e, this, position);
     }
 
@@ -139,7 +140,7 @@ public class ItemData {
      *
      * @param entity Entity that uses the item
      */
-    public void triggerUse(Entity entity) {
+    public void triggerUse(final Entity entity) {
         if (getOnUse() == null) return;
         getOnUse().accept(entity, this);
     }
@@ -147,35 +148,35 @@ public class ItemData {
     /**
      * @return The current itemType.
      */
-    public ItemType getItemType() {
+    public ItemType itemType() {
         return itemType;
     }
 
     /**
      * @return The current inventory animation
      */
-    public Animation getInventoryTexture() {
+    public Animation inventoryTexture() {
         return inventoryTexture;
     }
 
     /**
      * @return The current world animation
      */
-    public Animation getWorldTexture() {
+    public Animation worldTexture() {
         return worldTexture;
     }
 
     /**
      * @return The current item name.
      */
-    public String getItemName() {
+    public String itemName() {
         return itemName;
     }
 
     /**
      * @return The current item description.
      */
-    public String getDescription() {
+    public String description() {
         return description;
     }
 
@@ -187,13 +188,8 @@ public class ItemData {
      * @param item Item that is used
      */
     private static void defaultUseCallback(Entity e, ItemData item) {
-        e.getComponent(InventoryComponent.class)
-                .ifPresent(
-                        component -> {
-                            InventoryComponent invComp = (InventoryComponent) component;
-                            invComp.removeItem(item);
-                        });
-        System.out.printf("Item \"%s\" used by entity %d\n", item.getItemName(), e.id());
+        e.fetch(InventoryComponent.class).ifPresent(component -> component.removeItem(item));
+        System.out.printf("Item \"%s\" used by entity %d\n", item.itemName(), e.id());
     }
 
     /**
@@ -206,9 +202,9 @@ public class ItemData {
     private static void defaultDrop(Entity who, ItemData which, Point position) {
         Entity droppedItem = new Entity();
         new PositionComponent(droppedItem, position);
-        new DrawComponent(droppedItem, which.getWorldTexture());
+        new DrawComponent(droppedItem, which.worldTexture());
         CollideComponent component = new CollideComponent(droppedItem);
-        component.setCollideEnter((a, b, direction) -> which.triggerCollect(a, b));
+        component.collideEnter((a, b, direction) -> which.triggerCollect(a, b));
     }
 
     /**
@@ -225,21 +221,23 @@ public class ItemData {
                             // check if entity picking up Item is the Hero
                             if (whoCollected.equals(hero)) {
                                 // check if Hero has an Inventory Component
-                                hero.getComponent(InventoryComponent.class)
+                                hero.fetch(InventoryComponent.class)
                                         .ifPresent(
                                                 (x) -> {
                                                     // check if Item can be added to hero Inventory
-                                                    if (((InventoryComponent) x)
+                                                    if ((x)
                                                             .addItem(
                                                                     worldItem
-                                                                            .getComponent(
+                                                                            .fetch(
                                                                                     ItemComponent
                                                                                             .class)
-                                                                            .map(
-                                                                                    ItemComponent
-                                                                                                    .class
-                                                                                            ::cast)
-                                                                            .get()
+                                                                            .orElseThrow(
+                                                                                    () ->
+                                                                                            MissingComponentException
+                                                                                                    .build(
+                                                                                                            worldItem,
+                                                                                                            ItemComponent
+                                                                                                                    .class))
                                                                             .getItemData()))
                                                         // if added to hero Inventory
                                                         // remove Item from World

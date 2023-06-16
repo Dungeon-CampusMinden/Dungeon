@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import contrib.components.InventoryComponent;
 import contrib.utils.components.item.ItemData;
 
-import core.Component;
 import core.Entity;
 import core.Game;
 import core.components.*;
@@ -38,14 +37,14 @@ public class ChestTest {
 
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
-                c.getComponent(DrawComponent.class).isPresent());
-        Optional<Component> inventoryComponent = c.getComponent(InventoryComponent.class);
+                c.fetch(DrawComponent.class).isPresent());
+        Optional<InventoryComponent> inventoryComponent = c.fetch(InventoryComponent.class);
         assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
         assertEquals(
                 "Chest should have the given Items",
                 itemData,
                 inventoryComponent.map(InventoryComponent.class::cast).get().getItems());
-        Optional<Component> positionComponent = c.getComponent(PositionComponent.class);
+        Optional<PositionComponent> positionComponent = c.fetch(PositionComponent.class);
         assertTrue(
                 "Needs the PositionComponent to be somewhere in the Level",
                 positionComponent.isPresent());
@@ -126,8 +125,8 @@ public class ChestTest {
         // newChest));
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
-                newChest.getComponent(DrawComponent.class).isPresent());
-        Optional<Component> inventoryComponent = newChest.getComponent(InventoryComponent.class);
+                newChest.fetch(DrawComponent.class).isPresent());
+        Optional<InventoryComponent> inventoryComponent = newChest.fetch(InventoryComponent.class);
         assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
         assertTrue(
                 "Chest should have atleast 1 Item",
@@ -140,7 +139,7 @@ public class ChestTest {
         assertEquals(
                 "x Position has to be 0. Only Tile is at 0,0",
                 0,
-                newChest.getComponent(PositionComponent.class)
+                newChest.fetch(PositionComponent.class)
                         .map(PositionComponent.class::cast)
                         .get()
                         .position()
@@ -149,7 +148,7 @@ public class ChestTest {
         assertEquals(
                 "y Position has to be 0. Only Tile is at 0,0",
                 0,
-                newChest.getComponent(PositionComponent.class)
+                newChest.fetch(PositionComponent.class)
                         .map(PositionComponent.class::cast)
                         .get()
                         .position()

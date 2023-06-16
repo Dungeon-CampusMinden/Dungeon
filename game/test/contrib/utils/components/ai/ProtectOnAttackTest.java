@@ -96,8 +96,8 @@ public class ProtectOnAttackTest {
 
         // when
         for (Entity e : entitiesToProtect) {
-            if (e.getComponent(HealthComponent.class).isPresent()) {
-                HealthComponent hCp = (HealthComponent) e.getComponent(HealthComponent.class).get();
+            if (e.fetch(HealthComponent.class).isPresent()) {
+                HealthComponent hCp = (HealthComponent) e.fetch(HealthComponent.class).get();
                 hCp.receiveHit(new Damage(1, null, attacker));
             }
         }

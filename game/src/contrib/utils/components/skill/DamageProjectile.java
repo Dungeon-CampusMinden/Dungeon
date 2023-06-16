@@ -75,10 +75,11 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         Entity projectile = new Entity("Projectile");
         // Get the PositionComponent of the entity
         PositionComponent epc =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
         new PositionComponent(projectile, epc.position());
 
         try {
@@ -110,11 +111,11 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         TriConsumer<Entity, Entity, Tile.Direction> collide =
                 (a, b, from) -> {
                     if (b != entity) {
-                        b.getComponent(HealthComponent.class)
+                        b.fetch(HealthComponent.class)
                                 .ifPresent(
                                         hc -> {
                                             // Apply the projectile damage to the collided entity
-                                            ((HealthComponent) hc).receiveHit(projectileDamage);
+                                            hc.receiveHit(projectileDamage);
 
                                             // Remove the projectile entity from the game
                                             Game.removeEntity(projectile);

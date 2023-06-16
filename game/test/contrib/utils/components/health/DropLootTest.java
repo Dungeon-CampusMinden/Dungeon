@@ -26,7 +26,6 @@ public class DropLootTest {
         MissingComponentException mce =
                 assertThrows(MissingComponentException.class, () -> dropLoot.accept(new Entity()));
         assertTrue(mce.getMessage().contains(InventoryComponent.class.getName()));
-        assertTrue(mce.getMessage().contains(DropLoot.class.getName()));
     }
 
     /** Checks the handling when the PositionComponent is missing on the entity */
@@ -38,7 +37,6 @@ public class DropLootTest {
         MissingComponentException mce =
                 assertThrows(MissingComponentException.class, () -> dropLoot.accept(entity));
         assertTrue(mce.getMessage().contains(PositionComponent.class.getName()));
-        assertTrue(mce.getMessage().contains(DropLoot.class.getName()));
     }
 
     /** Checks the handling when the InventoryComponent has no Items */

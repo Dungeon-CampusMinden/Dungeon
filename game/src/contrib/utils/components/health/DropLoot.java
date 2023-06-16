@@ -11,7 +11,7 @@ import core.utils.components.MissingComponentException;
 import java.util.function.Consumer;
 
 /** a simple implementation of dropping all items of an Entity when it is dying. */
-public class DropLoot implements Consumer<Entity> {
+public final class DropLoot implements Consumer<Entity> {
     private record DLData(Entity e, Components dlc, ItemData i) {}
 
     private record Components(InventoryComponent ic, PositionComponent pc) {}
@@ -22,7 +22,7 @@ public class DropLoot implements Consumer<Entity> {
      * @param entity Entity that has died
      */
     @Override
-    public void accept(Entity entity) {
+    public void accept(final Entity entity) {
         Components dlc = prepareComponent(entity);
         dlc.ic.getItems().stream().map(x -> new DLData(entity, dlc, x)).forEach(this::dropItem);
     }
@@ -35,41 +35,19 @@ public class DropLoot implements Consumer<Entity> {
      */
     private Components prepareComponent(Entity entity) {
         InventoryComponent ic =
-                entity.getComponent(InventoryComponent.class)
-                        .map(InventoryComponent.class::cast)
-                        .orElseThrow(DropLoot::missingInventoryComponentException);
+                entity.fetch(InventoryComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, InventoryComponent.class));
         PositionComponent pc =
-                entity.getComponent(PositionComponent.class)
-                        .map(PositionComponent.class::cast)
-                        .orElseThrow(DropLoot::missingPositionsComponentException);
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
 
         return new Components(ic, pc);
-    }
-
-    /**
-     * Default Message when PositionComponent is missing
-     *
-     * @return MissingComponentException with a predefined Message
-     */
-    private static MissingComponentException missingPositionsComponentException() {
-        return new MissingComponentException(
-                "Missing "
-                        + PositionComponent.class.getName()
-                        + " which is required for "
-                        + DropLoot.class.getName());
-    }
-
-    /**
-     * Default Message when InventoryComponent is missing
-     *
-     * @return MissingComponentException with a predefined Message
-     */
-    private static MissingComponentException missingInventoryComponentException() {
-        return new MissingComponentException(
-                "Missing "
-                        + InventoryComponent.class.getName()
-                        + " which is required for "
-                        + DropLoot.class.getName());
     }
 
     /**

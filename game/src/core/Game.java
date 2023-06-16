@@ -664,9 +664,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private Entity newPauseMenu() {
         Entity entity = UITools.generateNewTextDialog("Pause", "Continue", "Pausemenu");
-        entity.getComponent(UIComponent.class)
-                .map(UIComponent.class::cast)
-                .ifPresent(y -> y.getDialog().setVisible(true));
+        entity.fetch(UIComponent.class).ifPresent(y -> y.getDialog().setVisible(true));
         return entity;
     }
 
@@ -712,10 +710,11 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     private boolean isOnEndTile(Entity entity) {
         PositionComponent pc =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
         Tile currentTile = tileAT(pc.position());
         return currentTile.equals(endTile());
     }
@@ -725,15 +724,16 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * <p>A {@link PositionComponent} is needed.
      *
-     * @param hero entity to set on the start of the level, normally this is the hero.
+     * @param entity entity to set on the start of the level, normally this is the hero.
      */
-    private void placeOnLevelStart(Entity hero) {
-        entities.add(hero);
+    private void placeOnLevelStart(Entity entity) {
+        entities.add(entity);
         PositionComponent pc =
-                (PositionComponent)
-                        hero.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
         pc.position(startTile());
     }
 
