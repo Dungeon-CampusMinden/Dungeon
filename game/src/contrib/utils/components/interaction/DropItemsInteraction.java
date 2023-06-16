@@ -60,7 +60,7 @@ public class DropItemsInteraction implements Consumer<Entity> {
                                 () ->
                                         MissingComponentException.build(
                                                 entity, PositionComponent.class));
-        List<ItemData> itemData = inventoryComponent.getItems();
+        List<ItemData> itemData = inventoryComponent.items();
         double count = itemData.size();
 
         IntStream.range(0, itemData.size())
@@ -73,7 +73,7 @@ public class DropItemsInteraction implements Consumer<Entity> {
                                                         positionComponent, index / count)));
 
         entity.fetch(DrawComponent.class)
-                .ifPresent(x -> x.setCurrentAnimation(CoreAnimations.IDLE_RIGHT));
+                .ifPresent(x -> x.currentAnimation(CoreAnimations.IDLE_RIGHT));
     }
 
     /**

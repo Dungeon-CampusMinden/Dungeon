@@ -51,7 +51,7 @@ public class UITools {
                                 content,
                                 buttonText,
                                 windowText,
-                                getResultHandler(entity, buttonText));
+                                createResultHandler(entity, buttonText));
                     }
                 },
                 entity);
@@ -68,7 +68,7 @@ public class UITools {
      * @return the configurated BiFunction that closes the window and removes the entity from the
      *     Game, if the close-button was pressed.
      */
-    public static BiFunction<TextDialog, String, Boolean> getResultHandler(
+    public static BiFunction<TextDialog, String, Boolean> createResultHandler(
             final Entity entity, final String closeButtonID) {
         return (d, id) -> {
             if (Objects.equals(id, closeButtonID)) {

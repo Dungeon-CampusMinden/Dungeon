@@ -15,7 +15,7 @@ public interface ITileable extends IPathable {
     /**
      * @return The layout of the level
      */
-    Tile[][] getLayout();
+    Tile[][] layout();
 
     /**
      * Get the tile at the given position.
@@ -26,7 +26,7 @@ public interface ITileable extends IPathable {
      */
     default Tile tileAt(Coordinate coordinate) {
         try {
-            return getLayout()[coordinate.y][coordinate.x];
+            return layout()[coordinate.y][coordinate.x];
         } catch (IndexOutOfBoundsException e) {
             return null;
         }
@@ -48,8 +48,7 @@ public interface ITileable extends IPathable {
      * @return a random Tile in the Level
      */
     default Tile randomTile() {
-        return getLayout()[RANDOM.nextInt(getLayout().length)][
-                RANDOM.nextInt(getLayout()[0].length)];
+        return layout()[RANDOM.nextInt(layout().length)][RANDOM.nextInt(layout()[0].length)];
     }
 
     /**

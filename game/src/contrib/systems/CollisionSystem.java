@@ -21,12 +21,8 @@ public final class CollisionSystem extends System {
 
     @Override
     public void execute() {
-        getEntityStream()
-                .flatMap(
-                        a ->
-                                getEntityStream()
-                                        .filter(b -> a.id() < b.id())
-                                        .map(b -> buildData(a, b)))
+        entityStream()
+                .flatMap(a -> entityStream().filter(b -> a.id() < b.id()).map(b -> buildData(a, b)))
                 .forEach(this::onEnterLeaveCheck);
     }
 
@@ -44,7 +40,7 @@ public final class CollisionSystem extends System {
     }
 
     private void onEnterLeaveCheck(CollisionData cdata) {
-        CollisionKey key = new CollisionKey(cdata.a.getEntity().id(), cdata.b.getEntity().id());
+        CollisionKey key = new CollisionKey(cdata.a.entity().id(), cdata.b.entity().id());
 
         if (checkForCollision(cdata.a, cdata.b)) {
             if (!collisions.containsKey(key)) {

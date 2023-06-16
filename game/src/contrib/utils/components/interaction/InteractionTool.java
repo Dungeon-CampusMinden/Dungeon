@@ -14,7 +14,7 @@ import java.util.function.Function;
 public class InteractionTool {
 
     public static final Function<InteractionData, Boolean> SIMPLE_REACHABLE =
-            (interactionData -> (interactionData.ic().getRadius() - interactionData.dist()) > 0);
+            (interactionData -> (interactionData.ic().radius() - interactionData.dist()) > 0);
 
     public static final Function<InteractionData, Boolean> CONTROLL_POINTS_REACHABLE =
             new ControlPointReachable();
@@ -42,7 +42,7 @@ public class InteractionTool {
 
     private static InteractionData convertToData(
             InteractionComponent ic, PositionComponent heroPosition) {
-        Entity entity = ic.getEntity();
+        Entity entity = ic.entity();
 
         PositionComponent pc =
                 entity.fetch(PositionComponent.class)
@@ -55,6 +55,6 @@ public class InteractionTool {
                 pc,
                 ic,
                 Point.calculateDistance(heroPosition.position(), pc.position()),
-                Point.getUnitDirectionalVector(heroPosition.position(), pc.position()));
+                Point.unitDirectionalVector(heroPosition.position(), pc.position()));
     }
 }

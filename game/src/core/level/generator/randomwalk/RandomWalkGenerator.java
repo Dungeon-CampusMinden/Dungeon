@@ -30,8 +30,8 @@ public class RandomWalkGenerator implements IGenerator {
     private static final int MAX_STEPS_FACTOR = 2;
 
     @Override
-    public ILevel getLevel(DesignLabel designLabel, LevelSize size) {
-        return new TileLevel(getLayout(size), designLabel);
+    public ILevel level(DesignLabel designLabel, LevelSize size) {
+        return new TileLevel(layout(size), designLabel);
     }
 
     /**
@@ -40,7 +40,7 @@ public class RandomWalkGenerator implements IGenerator {
      * @param size size of the level to be generated
      * @return layout of the level
      */
-    public LevelElement[][] getLayout(LevelSize size) {
+    public LevelElement[][] layout(LevelSize size) {
         return switch (size) {
             case SMALL -> drunkWalk(
                     new MinMaxValue(SMALL_MIN_X_SIZE, SMALL_MAX_X_SIZE),
@@ -87,20 +87,20 @@ public class RandomWalkGenerator implements IGenerator {
         }
 
         // pick random floor tile as exit
-        Coordinate c = getRandomFloor(layout);
+        Coordinate c = randomFloor(layout);
         layout[c.y][c.x] = LevelElement.EXIT;
 
         return layout;
     }
 
-    private Coordinate getRandomFloor(LevelElement[][] layout) {
+    private Coordinate randomFloor(LevelElement[][] layout) {
         Coordinate coordinate =
                 new Coordinate(RANDOM.nextInt(layout[0].length), RANDOM.nextInt(layout.length));
         LevelElement randomTile = layout[coordinate.y][coordinate.x];
         if (randomTile == LevelElement.FLOOR) {
             return coordinate;
         } else {
-            return getRandomFloor(layout);
+            return randomFloor(layout);
         }
     }
 }

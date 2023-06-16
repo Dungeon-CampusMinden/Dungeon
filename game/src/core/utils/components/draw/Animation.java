@@ -113,7 +113,7 @@ public final class Animation {
      *
      * @return The texture of the next animation step (draw this).
      */
-    public String getNextAnimationTexturePath() {
+    public String nextAnimationTexturePath() {
         if (isFinished()) {
             return animationFrames.get(currentFrameIndex);
         }

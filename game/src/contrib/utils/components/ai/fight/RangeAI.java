@@ -50,8 +50,8 @@ public final class RangeAI implements Consumer<Entity> {
 
         if (playerInAttackRange) {
             if (playerInDistanceRange) {
-                Point positionHero = Game.getPosition(Game.hero().orElseThrow());
-                Point positionEntity = Game.getPosition(entity);
+                Point positionHero = Game.positionOf(Game.hero().orElseThrow());
+                Point positionEntity = Game.positionOf(entity);
                 List<Tile> tiles = accessibleTilesInRange(positionEntity, attackRange - distance);
                 boolean newPositionFound = false;
                 for (Tile tile : tiles) {

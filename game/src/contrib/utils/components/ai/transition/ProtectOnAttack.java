@@ -79,7 +79,7 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
                         .anyMatch(
                                 toProtect ->
                                         toProtect
-                                                .getLastDamageCause()
+                                                .lastDamageCause()
                                                 .map(
                                                         causeEntity ->
                                                                 causeEntity.fetch(

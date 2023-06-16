@@ -63,7 +63,7 @@ public class ProtectOnAttackTest {
         entityHC.receiveHit(new Damage(1, null, attacker));
 
         // then
-        assertTrue(attackerAI.getTransitionAI().apply(protector));
+        assertTrue(attackerAI.transitionAI().apply(protector));
     }
 
     /** Add one entity to transition and inflict no damage */
@@ -80,7 +80,7 @@ public class ProtectOnAttackTest {
         // when
 
         // then
-        assertFalse(attackerAI.getTransitionAI().apply(protector));
+        assertFalse(attackerAI.transitionAI().apply(protector));
     }
 
     /** Add a list of entities to the transition and inflict damage to all */
@@ -103,7 +103,7 @@ public class ProtectOnAttackTest {
         }
 
         // then
-        assertTrue(attackerAI.getTransitionAI().apply(protector));
+        assertTrue(attackerAI.transitionAI().apply(protector));
     }
 
     /** Add an empty list of entities to the transition */
@@ -119,6 +119,6 @@ public class ProtectOnAttackTest {
                         new ProtectOnAttack(emptyList));
 
         // then
-        assertFalse(attackerAI.getTransitionAI().apply(protector));
+        assertFalse(attackerAI.transitionAI().apply(protector));
     }
 }

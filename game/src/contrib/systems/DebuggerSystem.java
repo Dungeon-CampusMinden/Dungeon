@@ -70,7 +70,7 @@ public final class DebuggerSystem extends System {
     /** Teleports the Hero to the current position of the cursor. */
     public static void TELEPORT_TO_CURSOR() {
         LOGGER.log(CustomLogLevel.DEBUG, "TELEPORT TO CURSOR");
-        TELEPORT(SkillTools.getCursorPositionAsPoint());
+        TELEPORT(SkillTools.cursorPositionAsPoint());
     }
 
     /** Teleports the Hero to the end of the level, on a neighboring accessible tile if possible. */
@@ -160,7 +160,7 @@ public final class DebuggerSystem extends System {
     /** Spawns a monster at the cursor's position. */
     public static void SPAWN_MONSTER_ON_CURSOR() {
         LOGGER.info("Spawn Monster on Cursor");
-        SPAWN_MONSTER(SkillTools.getCursorPositionAsPoint());
+        SPAWN_MONSTER(SkillTools.cursorPositionAsPoint());
     }
 
     /**
@@ -213,21 +213,21 @@ public final class DebuggerSystem extends System {
      */
     @Override
     public void execute() {
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_OUT.get()))
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_OUT.value()))
             DebuggerSystem.ZOOM_CAMERA(-0.2f);
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_IN.get()))
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_IN.value()))
             DebuggerSystem.ZOOM_CAMERA(0.2f);
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_CURSOR.get()))
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_CURSOR.value()))
             DebuggerSystem.TELEPORT_TO_CURSOR();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_END.get()))
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_END.value()))
             DebuggerSystem.TELEPORT_TO_END();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_START.get()))
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_START.value()))
             DebuggerSystem.TELEPORT_TO_START();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_ON_END.get()))
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_ON_END.value()))
             DebuggerSystem.LOAD_NEXT_LEVEL();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_LEVELSIZE.get()))
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_LEVELSIZE.value()))
             DebuggerSystem.TOGGLE_LEVEL_SIZE();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.get()))
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.value()))
             DebuggerSystem.SPAWN_MONSTER_ON_CURSOR();
     }
 }

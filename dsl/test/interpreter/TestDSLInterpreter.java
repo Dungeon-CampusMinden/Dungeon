@@ -121,7 +121,7 @@ public class TestDSLInterpreter {
         assertEquals("TESTPW", questConfig.password());
         var graph = questConfig.levelGraph();
 
-        var edgeIter = graph.getEdgeIterator();
+        var edgeIter = graph.edgeIterator();
         int edgeCount = 0;
         while (edgeIter.hasNext()) {
             edgeIter.next();
@@ -129,7 +129,7 @@ public class TestDSLInterpreter {
         }
         assertEquals(1, edgeCount);
 
-        var nodeIter = graph.getNodeIterator();
+        var nodeIter = graph.nodeIterator();
         int nodeCount = 0;
         while (nodeIter.hasNext()) {
             nodeIter.next();

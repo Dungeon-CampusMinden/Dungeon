@@ -73,9 +73,9 @@ public final class ItemData {
         this.worldTexture = worldTexture;
         this.itemName = itemName;
         this.description = description;
-        this.setOnCollect(onCollect);
-        this.setOnDrop(onDrop);
-        this.setOnUse(onUse);
+        this.onCollect(onCollect);
+        this.onDrop(onDrop);
+        this.onUse(onUse);
         this.damageModifier = damageModifier;
     }
 
@@ -109,11 +109,11 @@ public final class ItemData {
     /** Constructing object with completely default values. Taken from {@link ItemConfig}. */
     public ItemData() {
         this(
-                ItemConfig.TYPE.get(),
-                new Animation(List.of(ItemConfig.TEXTURE.get()), 1),
-                new Animation(List.of(ItemConfig.TEXTURE.get()), 1),
-                ItemConfig.NAME.get(),
-                ItemConfig.DESCRIPTION.get());
+                ItemConfig.TYPE.value(),
+                new Animation(List.of(ItemConfig.TEXTURE.value()), 1),
+                new Animation(List.of(ItemConfig.TEXTURE.value()), 1),
+                ItemConfig.NAME.value(),
+                ItemConfig.DESCRIPTION.value());
     }
 
     /**
@@ -123,7 +123,7 @@ public final class ItemData {
      * @param whoTriesCollects Entity that tries to collect item
      */
     public void triggerCollect(final Entity worldItemEntity, final Entity whoTriesCollects) {
-        if (getOnCollect() != null) getOnCollect().accept(worldItemEntity, whoTriesCollects);
+        if (onCollect() != null) onCollect().accept(worldItemEntity, whoTriesCollects);
     }
 
     /**
@@ -132,7 +132,7 @@ public final class ItemData {
      * @param position the location of the drop
      */
     public void triggerDrop(final Entity e, final Point position) {
-        if (getOnDrop() != null) getOnDrop().accept(e, this, position);
+        if (onDrop() != null) onDrop().accept(e, this, position);
     }
 
     /**
@@ -141,8 +141,8 @@ public final class ItemData {
      * @param entity Entity that uses the item
      */
     public void triggerUse(final Entity entity) {
-        if (getOnUse() == null) return;
-        getOnUse().accept(entity, this);
+        if (onUse() == null) return;
+        onUse().accept(entity, this);
     }
 
     /**
@@ -238,7 +238,7 @@ public final class ItemData {
                                                                                                             worldItem,
                                                                                                             ItemComponent
                                                                                                                     .class))
-                                                                            .getItemData()))
+                                                                            .itemData()))
                                                         // if added to hero Inventory
                                                         // remove Item from World
                                                         Game.removeEntity(worldItem);
@@ -250,7 +250,7 @@ public final class ItemData {
     /**
      * @return The callback function to collect the item.
      */
-    public BiConsumer<Entity, Entity> getOnCollect() {
+    public BiConsumer<Entity, Entity> onCollect() {
         return onCollect;
     }
 
@@ -259,14 +259,14 @@ public final class ItemData {
      *
      * @param onCollect New collect callback.
      */
-    public void setOnCollect(BiConsumer<Entity, Entity> onCollect) {
+    public void onCollect(BiConsumer<Entity, Entity> onCollect) {
         this.onCollect = onCollect;
     }
 
     /**
      * @return The callback function to drop the item.
      */
-    public TriConsumer<Entity, ItemData, Point> getOnDrop() {
+    public TriConsumer<Entity, ItemData, Point> onDrop() {
         return onDrop;
     }
 
@@ -275,14 +275,14 @@ public final class ItemData {
      *
      * @param onDrop New drop callback.
      */
-    public void setOnDrop(TriConsumer<Entity, ItemData, Point> onDrop) {
+    public void onDrop(TriConsumer<Entity, ItemData, Point> onDrop) {
         this.onDrop = onDrop;
     }
 
     /**
      * @return The callback function to use the item.
      */
-    public BiConsumer<Entity, ItemData> getOnUse() {
+    public BiConsumer<Entity, ItemData> onUse() {
         return onUse;
     }
 
@@ -291,7 +291,7 @@ public final class ItemData {
      *
      * @param onUse New use callback.
      */
-    public void setOnUse(BiConsumer<Entity, ItemData> onUse) {
+    public void onUse(BiConsumer<Entity, ItemData> onUse) {
         this.onUse = onUse;
     }
 }

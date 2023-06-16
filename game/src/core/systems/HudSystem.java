@@ -25,7 +25,7 @@ public final class HudSystem extends System {
     public void execute() {
         // Temp fix until either addEntity is available or removeEntity until dungeon Issue #727
         // implemented
-        getEntityStream()
+        entityStream()
                 .forEach(
                         x -> {
                             Group d =
@@ -34,7 +34,7 @@ public final class HudSystem extends System {
                                                     () ->
                                                             MissingComponentException.build(
                                                                     x, UIComponent.class))
-                                            .getDialog();
+                                            .dialog();
                             Game.stage()
                                     .ifPresent(
                                             stage -> {
@@ -44,7 +44,7 @@ public final class HudSystem extends System {
                                             });
                         });
 
-        if (getEntityStream().anyMatch(x -> pausesGame(x))) pauseGame();
+        if (entityStream().anyMatch(x -> pausesGame(x))) pauseGame();
         else unpauseGame();
     }
 

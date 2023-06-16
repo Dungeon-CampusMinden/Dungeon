@@ -42,8 +42,8 @@ public class TileLevel implements ILevel {
     public TileLevel(Tile[][] layout) {
         this.layout = layout;
         putTilesInLists();
-        if (startTile == null) setRandomStart();
-        if (exitTiles.size() == 0) setRandomEnd();
+        if (startTile == null) randomStart();
+        if (exitTiles.size() == 0) randomEnd();
     }
 
     /**
@@ -94,7 +94,7 @@ public class TileLevel implements ILevel {
     }
 
     @Override
-    public TileHeuristic getTileHeuristic() {
+    public TileHeuristic tileHeuristic() {
         return tileHeuristic;
     }
 
@@ -150,32 +150,32 @@ public class TileLevel implements ILevel {
     }
 
     @Override
-    public List<FloorTile> getFloorTiles() {
+    public List<FloorTile> floorTiles() {
         return floorTiles;
     }
 
     @Override
-    public List<WallTile> getWallTiles() {
+    public List<WallTile> wallTiles() {
         return wallTiles;
     }
 
     @Override
-    public List<HoleTile> getHoleTiles() {
+    public List<HoleTile> holeTiles() {
         return holeTiles;
     }
 
     @Override
-    public List<DoorTile> getDoorTiles() {
+    public List<DoorTile> doorTiles() {
         return doorTiles;
     }
 
     @Override
-    public List<ExitTile> getExitTiles() {
+    public List<ExitTile> exitTiles() {
         return exitTiles;
     }
 
     @Override
-    public List<SkipTile> getSkipTiles() {
+    public List<SkipTile> skipTiles() {
         return skipTiles;
     }
 
@@ -233,7 +233,7 @@ public class TileLevel implements ILevel {
     }
 
     @Override
-    public Tile[][] getLayout() {
+    public Tile[][] layout() {
         return layout;
     }
 
@@ -243,7 +243,7 @@ public class TileLevel implements ILevel {
     }
 
     @Override
-    public void setStartTile(Tile start) {
+    public void startTile(Tile start) {
         startTile = start;
     }
 

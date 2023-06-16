@@ -50,7 +50,7 @@ public class NoiseArea {
     public void zoom(final double zoom) {
         width = (int) (width / zoom);
         height = (int) (height / zoom);
-        size = (int) (getSize() / zoom);
+        size = (int) (size() / zoom);
         final boolean[][] newArea = new boolean[width][height];
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
@@ -65,7 +65,7 @@ public class NoiseArea {
      *
      * @return the size of the area
      */
-    public int getSize() {
+    public int size() {
         return size;
     }
 
@@ -74,7 +74,7 @@ public class NoiseArea {
      *
      * @return the width of the area
      */
-    public int getWidth() {
+    public int width() {
         return width;
     }
 
@@ -83,7 +83,7 @@ public class NoiseArea {
      *
      * @return the height of the area
      */
-    public int getHeight() {
+    public int height() {
         return height;
     }
 
@@ -94,7 +94,7 @@ public class NoiseArea {
      *
      * @return a buffered image representing the area
      */
-    public BufferedImage getImage() {
+    public BufferedImage image() {
         final BufferedImage res = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         final Graphics2D g = res.createGraphics();
         g.setColor(Color.BLACK);
@@ -120,7 +120,7 @@ public class NoiseArea {
      * @param values the NoiseAreaValues
      * @return all found areas
      */
-    public static NoiseArea[] getAreas(final NoiseAreaValues values) {
+    public static NoiseArea[] areas(final NoiseAreaValues values) {
         final ArrayList<NoiseArea> alRes = new ArrayList<>();
         for (int x = 0; x < values.noiseValues.length; x++) {
             allPixel:

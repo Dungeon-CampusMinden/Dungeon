@@ -16,7 +16,7 @@ public class RandomWalkGeneratorTest {
     @Before
     public void setup() {
         generator = new RandomWalkGenerator();
-        level = generator.getLevel();
+        level = generator.level();
     }
 
     @Test

@@ -24,7 +24,7 @@ public final class DropLoot implements Consumer<Entity> {
     @Override
     public void accept(final Entity entity) {
         Components dlc = prepareComponent(entity);
-        dlc.ic.getItems().stream().map(x -> new DLData(entity, dlc, x)).forEach(this::dropItem);
+        dlc.ic.items().stream().map(x -> new DLData(entity, dlc, x)).forEach(this::dropItem);
     }
 
     /**

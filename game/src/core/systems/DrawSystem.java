@@ -54,12 +54,12 @@ public final class DrawSystem extends System {
      */
     @Override
     public void execute() {
-        getEntityStream().map(this::buildDataObject).forEach(this::draw);
+        entityStream().map(this::buildDataObject).forEach(this::draw);
     }
 
     private void draw(DSData dsd) {
-        final Animation animation = dsd.ac.getCurrentAnimation();
-        String currentAnimationTexture = animation.getNextAnimationTexturePath();
+        final Animation animation = dsd.ac.currentAnimation();
+        String currentAnimationTexture = animation.nextAnimationTexturePath();
         if (!configs.containsKey(currentAnimationTexture)) {
             configs.put(currentAnimationTexture, new PainterConfig(currentAnimationTexture));
         }

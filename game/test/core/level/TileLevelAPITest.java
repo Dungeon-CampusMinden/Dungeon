@@ -64,46 +64,46 @@ public class TileLevelAPITest {
 
     @Test
     public void test_loadLevel() {
-        when(generator.getLevel(Mockito.any(), Mockito.any())).thenReturn(level);
+        when(generator.level(Mockito.any(), Mockito.any())).thenReturn(level);
         api.loadLevel(LevelSize.SMALL, DesignLabel.DEFAULT);
-        verify(generator).getLevel(DesignLabel.DEFAULT, LevelSize.SMALL);
+        verify(generator).level(DesignLabel.DEFAULT, LevelSize.SMALL);
         Mockito.verifyNoMoreInteractions(generator);
         verify(onLevelLoader).onLevelLoad();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
-        assertEquals(level, api.getCurrentLevel());
+        assertEquals(level, api.currentLevel());
     }
 
     @Test
     public void test_loadLevel_noParameter() {
-        when(generator.getLevel(Mockito.any(), Mockito.any())).thenReturn(level);
+        when(generator.level(Mockito.any(), Mockito.any())).thenReturn(level);
         api.loadLevel();
-        verify(generator).getLevel(Mockito.any(), Mockito.any());
+        verify(generator).level(Mockito.any(), Mockito.any());
         Mockito.verifyNoMoreInteractions(generator);
         verify(onLevelLoader).onLevelLoad();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
-        assertEquals(level, api.getCurrentLevel());
+        assertEquals(level, api.currentLevel());
     }
 
     @Test
     public void test_loadLevel_withDesign_noSize() {
-        when(generator.getLevel(eq(DesignLabel.DEFAULT), any())).thenReturn(level);
+        when(generator.level(eq(DesignLabel.DEFAULT), any())).thenReturn(level);
         api.loadLevel(DesignLabel.DEFAULT);
-        verify(generator).getLevel(eq(DesignLabel.DEFAULT), any());
+        verify(generator).level(eq(DesignLabel.DEFAULT), any());
         Mockito.verifyNoMoreInteractions(generator);
         verify(onLevelLoader).onLevelLoad();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
-        assertEquals(level, api.getCurrentLevel());
+        assertEquals(level, api.currentLevel());
     }
 
     @Test
     public void test_loadLevel_noDesign_WithSize() {
-        when(generator.getLevel(any(), eq(LevelSize.SMALL))).thenReturn(level);
+        when(generator.level(any(), eq(LevelSize.SMALL))).thenReturn(level);
         api.loadLevel(LevelSize.SMALL);
-        verify(generator).getLevel(any(), eq(LevelSize.SMALL));
+        verify(generator).level(any(), eq(LevelSize.SMALL));
         Mockito.verifyNoMoreInteractions(generator);
         verify(onLevelLoader).onLevelLoad();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
-        assertEquals(level, api.getCurrentLevel());
+        assertEquals(level, api.currentLevel());
     }
 
     @Test
@@ -138,12 +138,12 @@ public class TileLevelAPITest {
         when(layout[1][1].texturePath()).thenReturn(textureT4);
         when(layout[1][1].position()).thenReturn(coordinateT4.toPoint());
 
-        when(level.getLayout()).thenReturn(layout);
+        when(level.layout()).thenReturn(layout);
 
-        api.setLevel(level);
+        api.level(level);
         api.update();
 
-        verify(level).getLayout();
+        verify(level).layout();
         verifyNoMoreInteractions(level);
 
         verify(layout[0][0]).levelElement();
@@ -177,10 +177,10 @@ public class TileLevelAPITest {
 
     @Test
     public void test_setLevel() {
-        api.setLevel(level);
+        api.level(level);
         Mockito.verifyNoInteractions(generator);
         verify(onLevelLoader).onLevelLoad();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
-        assertEquals(level, api.getCurrentLevel());
+        assertEquals(level, api.currentLevel());
     }
 }

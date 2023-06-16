@@ -19,7 +19,7 @@ public class PerlinNoiseGeneratorTest {
         PerlinNoiseGenerator generator = new PerlinNoiseGenerator();
         ILevel[] params = new ILevel[10];
         for (int i = 0; i < params.length; i++) {
-            params[i] = generator.getLevel();
+            params[i] = generator.level();
         }
         return params;
     }

@@ -21,7 +21,7 @@ public class InventoryComponentTest {
         InventoryComponent ic = new InventoryComponent(e, 1);
         assertEquals(0, ic.filledSlots());
         assertEquals(1, ic.emptySlots());
-        assertEquals(1, ic.getMaxSize());
+        assertEquals(1, ic.maxSize());
     }
 
     /** Adding one valid Item */
@@ -33,7 +33,7 @@ public class InventoryComponentTest {
         assertTrue(ic.addItem(itemData));
         assertEquals(1, ic.filledSlots());
         assertEquals(0, ic.emptySlots());
-        assertEquals(1, ic.getMaxSize());
+        assertEquals(1, ic.maxSize());
     }
 
     /**
@@ -48,7 +48,7 @@ public class InventoryComponentTest {
 
         assertEquals(2, ic.filledSlots());
         assertEquals(1, ic.emptySlots());
-        assertEquals(3, ic.getMaxSize());
+        assertEquals(3, ic.maxSize());
     }
 
     /** Adding two Items to an Inventory with a size of 1 should only add the first */
@@ -60,7 +60,7 @@ public class InventoryComponentTest {
         assertFalse(ic.addItem(new ItemData()));
         assertEquals(1, ic.filledSlots());
         assertEquals(0, ic.emptySlots());
-        assertEquals(1, ic.getMaxSize());
+        assertEquals(1, ic.maxSize());
     }
 
     /** removing of an added Item */
@@ -74,7 +74,7 @@ public class InventoryComponentTest {
 
         assertEquals(0, ic.filledSlots());
         assertEquals(1, ic.emptySlots());
-        assertEquals(1, ic.getMaxSize());
+        assertEquals(1, ic.maxSize());
     }
 
     /** removing an Item which was already removed before */
@@ -89,7 +89,7 @@ public class InventoryComponentTest {
 
         assertEquals(0, ic.filledSlots());
         assertEquals(1, ic.emptySlots());
-        assertEquals(1, ic.getMaxSize());
+        assertEquals(1, ic.maxSize());
     }
 
     /** null should not remove any Item */
@@ -103,7 +103,7 @@ public class InventoryComponentTest {
 
         assertEquals(1, ic.filledSlots());
         assertEquals(0, ic.emptySlots());
-        assertEquals(1, ic.getMaxSize());
+        assertEquals(1, ic.maxSize());
     }
 
     /** empty inventory should return an empty List */
@@ -111,7 +111,7 @@ public class InventoryComponentTest {
     public void getAllItemsEmptyInventory() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(e, 0);
-        List<ItemData> list = ic.getItems();
+        List<ItemData> list = ic.items();
         assertEquals("should have no Items", 0, list.size());
     }
 
@@ -122,7 +122,7 @@ public class InventoryComponentTest {
         InventoryComponent ic = new InventoryComponent(e, 1);
         ItemData itemData = new ItemData();
         ic.addItem(itemData);
-        List<ItemData> list = ic.getItems();
+        List<ItemData> list = ic.items();
         assertEquals("should have one Item", 1, list.size());
         assertTrue("Item should be in returned List", list.contains(itemData));
     }
@@ -136,7 +136,7 @@ public class InventoryComponentTest {
         ic.addItem(itemData1);
         ItemData itemData2 = new ItemData();
         ic.addItem(itemData2);
-        List<ItemData> list = ic.getItems();
+        List<ItemData> list = ic.items();
         assertEquals("should have two Items", 2, list.size());
         assertTrue("Item 1 should be in returned List", list.contains(itemData1));
         assertTrue("Item 2 should be in returned List", list.contains(itemData2));
@@ -148,7 +148,7 @@ public class InventoryComponentTest {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(e, 1);
         ItemData itemData = new ItemData();
-        List<ItemData> list = ic.getItems();
+        List<ItemData> list = ic.items();
         assertEquals("should have no Items", 0, list.size());
         assertFalse("Item should be in returned List", list.contains(itemData));
     }

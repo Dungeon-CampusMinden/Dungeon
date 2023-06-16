@@ -20,27 +20,27 @@ public class VelocityComponentTest {
 
     @Test
     public void setCurrentXVelocity() {
-        velocityComponent.setCurrentXVelocity(5.0f);
-        assertEquals(5.0f, velocityComponent.getCurrentXVelocity(), 0.001);
+        velocityComponent.currentXVelocity(5.0f);
+        assertEquals(5.0f, velocityComponent.currentXVelocity(), 0.001);
     }
 
     @Test
     public void setCurrentYVelocity() {
-        velocityComponent.setCurrentYVelocity(6.0f);
-        assertEquals(6.0f, velocityComponent.getCurrentYVelocity(), 0.001);
+        velocityComponent.currentYVelocity(6.0f);
+        assertEquals(6.0f, velocityComponent.currentYVelocity(), 0.001);
     }
 
     @Test
     public void setXVelocity() {
-        assertEquals(xVelocityAtStart, velocityComponent.getXVelocity(), 0.001);
-        velocityComponent.setXVelocity(6.0f);
-        assertEquals(6.0f, velocityComponent.getXVelocity(), 0.001);
+        assertEquals(xVelocityAtStart, velocityComponent.xVelocity(), 0.001);
+        velocityComponent.xVelocity(6.0f);
+        assertEquals(6.0f, velocityComponent.xVelocity(), 0.001);
     }
 
     @Test
     public void setYVelocity() {
-        assertEquals(yVelocityAtStart, velocityComponent.getYVelocity(), 0.001);
-        velocityComponent.setYVelocity(6.0f);
-        assertEquals(6.0f, velocityComponent.getYVelocity(), 0.001);
+        assertEquals(yVelocityAtStart, velocityComponent.yVelocity(), 0.001);
+        velocityComponent.yVelocity(6.0f);
+        assertEquals(6.0f, velocityComponent.yVelocity(), 0.001);
     }
 }

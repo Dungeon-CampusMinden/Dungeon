@@ -30,7 +30,7 @@ public class ProjectileSystem extends System {
     /** Sets the velocity and removes entities that have reached their endpoints. */
     @Override
     public void execute() {
-        getEntityStream()
+        entityStream()
                 // Consider only entities that have a ProjectileComponent
                 .map(this::buildDataObject)
                 .map(this::setVelocity)
@@ -38,8 +38,8 @@ public class ProjectileSystem extends System {
                 .filter(
                         psd ->
                                 hasReachedEndpoint(
-                                        psd.prc.getStartPosition(),
-                                        psd.prc.getGoalLocation(),
+                                        psd.prc.startPosition(),
+                                        psd.prc.goalLocation(),
                                         psd.pc.position()))
                 // Remove all entities who reached their endpoint
                 .forEach(this::removeEntitiesOnEndpoint);
@@ -69,14 +69,14 @@ public class ProjectileSystem extends System {
     }
 
     private PSData setVelocity(PSData data) {
-        data.vc.setCurrentYVelocity(data.vc.getYVelocity());
-        data.vc.setCurrentXVelocity(data.vc.getXVelocity());
+        data.vc.currentYVelocity(data.vc.yVelocity());
+        data.vc.currentXVelocity(data.vc.xVelocity());
 
         return data;
     }
 
     private void removeEntitiesOnEndpoint(PSData data) {
-        Game.removeEntity(data.pc.getEntity());
+        Game.removeEntity(data.pc.entity());
     }
 
     /**

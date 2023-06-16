@@ -25,11 +25,11 @@ public class XPSystemTest {
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
         xpSystem.showEntity(entity);
-        assertEquals(0, xpComponent.getCurrentXP());
-        assertEquals(0, xpComponent.getCurrentLevel());
+        assertEquals(0, xpComponent.currentXP());
+        assertEquals(0, xpComponent.currentLevel());
         xpSystem.execute();
-        assertEquals(0, xpComponent.getCurrentXP());
-        assertEquals(0, xpComponent.getCurrentLevel());
+        assertEquals(0, xpComponent.currentXP());
+        assertEquals(0, xpComponent.currentLevel());
     }
 
     /** Test if level up is not triggered if the xp is not enough. */
@@ -46,7 +46,7 @@ public class XPSystemTest {
         /* Test */
         xpComponent.addXP(99); // First level is reached with 100 XP
         xpSystem.execute();
-        assertEquals(0, xpComponent.getCurrentLevel());
+        assertEquals(0, xpComponent.currentLevel());
     }
 
     /** Test if level up is triggered if the xp is exact the needed amount. */
@@ -64,8 +64,8 @@ public class XPSystemTest {
         xpComponent.addXP(100); // First level is reached with 100 XP
 
         xpSystem.execute();
-        assertEquals(1, xpComponent.getCurrentLevel());
-        assertEquals(0, xpComponent.getCurrentXP());
+        assertEquals(1, xpComponent.currentLevel());
+        assertEquals(0, xpComponent.currentXP());
     }
 
     /** Test if level up is triggered if the xp is more than the needed amount. */
@@ -82,8 +82,8 @@ public class XPSystemTest {
         /* Test */
         xpComponent.addXP(120); // First level is reached with 100 XP
         xpSystem.execute();
-        assertEquals(1, xpComponent.getCurrentLevel());
-        assertEquals(20, xpComponent.getCurrentXP());
+        assertEquals(1, xpComponent.currentLevel());
+        assertEquals(20, xpComponent.currentXP());
     }
 
     /**
@@ -105,8 +105,8 @@ public class XPSystemTest {
         xpSystem.showEntity(entity);
 
         xpSystem.execute();
-        assertEquals(2, xpComponent.getCurrentLevel());
-        assertEquals(0, xpComponent.getCurrentXP());
+        assertEquals(2, xpComponent.currentLevel());
+        assertEquals(0, xpComponent.currentXP());
     }
 
     /**
@@ -127,8 +127,8 @@ public class XPSystemTest {
 
         xpComponent.addXP(221);
         xpSystem.execute();
-        assertEquals(2, xpComponent.getCurrentLevel());
-        assertEquals(20, xpComponent.getCurrentXP());
+        assertEquals(2, xpComponent.currentLevel());
+        assertEquals(20, xpComponent.currentXP());
     }
 
     /** Test if negative xp is not allowed. */
@@ -145,6 +145,6 @@ public class XPSystemTest {
         /* Test */
         xpComponent.addXP(-1);
         xpSystem.execute();
-        assertEquals(0, xpComponent.getCurrentXP());
+        assertEquals(0, xpComponent.currentXP());
     }
 }

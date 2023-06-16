@@ -16,6 +16,6 @@ public class SelfDefendTransition implements Function<Entity, Boolean> {
                                 () ->
                                         MissingComponentException.build(
                                                 entity, HealthComponent.class));
-        return component.getCurrentHealthpoints() < component.getMaximalHealthpoints();
+        return component.currentHealthpoints() < component.maximalHealthpoints();
     }
 }
