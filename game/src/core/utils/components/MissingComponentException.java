@@ -1,5 +1,6 @@
 package core.utils.components;
 
+import core.Entity;
 import core.utils.logging.CustomLogLevel;
 
 import java.util.logging.Logger;
@@ -21,5 +22,17 @@ public class MissingComponentException extends NullPointerException {
         super("Missing Component:" + message);
         Logger exceptionLogger = Logger.getLogger(this.getClass().getName());
         exceptionLogger.log(CustomLogLevel.FATAL, "Missing Component: " + message);
+    }
+
+    /**
+     * Create a new {@link MissingComponentException} that contains the default message, that the
+     * given entity is missing the given component.
+     *
+     * @param entity Entity that is missing a component
+     * @param klass Class of the Component that is missing
+     * @return the created MissingComponentException
+     */
+    public static MissingComponentException build(final Entity entity, final Class<?> klass) {
+        return new MissingComponentException(entity + "is missing " + klass.getName());
     }
 }
