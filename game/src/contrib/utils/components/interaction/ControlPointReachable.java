@@ -9,7 +9,7 @@ import java.util.function.Function;
 public class ControlPointReachable implements Function<InteractionData, Boolean> {
 
     @Override
-    public Boolean apply(InteractionData interactionData) {
+    public Boolean apply(final InteractionData interactionData) {
         boolean reachable = false;
         boolean pathBlocked = false;
         if ((interactionData.ic().getRadius() - interactionData.dist()) > 0) {
