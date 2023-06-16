@@ -14,7 +14,9 @@ import java.util.function.Consumer;
 public class SkillTest {
 
     private static int value = 0;
-
+    private Entity entity;
+    private Skill skill;
+    private final int baseCoolDownInSeconds = 2;
     private Consumer<Entity> skillFunction = entity -> value++;
 
     @After
@@ -25,9 +27,8 @@ public class SkillTest {
 
     @Test
     public void execute() {
-        Entity entity = new Entity();
-        final int baseCoolDownInSeconds = 2;
-        Skill skill = new Skill(skillFunction, baseCoolDownInSeconds);
+        entity = new Entity();
+        skill = new Skill(skillFunction, baseCoolDownInSeconds);
 
         assertTrue("Skill should be executable", skill.canBeUsedAgain());
         skill.execute(entity);
@@ -37,9 +38,8 @@ public class SkillTest {
 
     @Test
     public void executeWhenCoolDownActive() {
-        Entity entity = new Entity();
-        final int baseCoolDownInSeconds = 2;
-        Skill skill = new Skill(skillFunction, baseCoolDownInSeconds);
+        entity = new Entity();
+        skill = new Skill(skillFunction, baseCoolDownInSeconds);
 
         skill.execute(entity);
         assertFalse("Skill should not be executable", skill.canBeUsedAgain());
@@ -49,9 +49,9 @@ public class SkillTest {
 
     @Test
     public void executeWhenCoolDownExpired() {
-        Entity entity = new Entity();
+        entity = new Entity();
         final long baseCoolDown = TimeUnit.MILLISECONDS.toSeconds(1);
-        Skill skill = new Skill(skillFunction, baseCoolDown);
+        skill = new Skill(skillFunction, baseCoolDown);
 
         skill.execute(entity);
         assertEquals("Skill should have been executed once", 1, value);
