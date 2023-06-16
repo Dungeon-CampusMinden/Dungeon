@@ -46,6 +46,7 @@ public class QuizDialogDesign {
                         checkBox -> {
                             btnGroup.add(checkBox);
                             answerButtons.addActor(checkBox);
+                            checkBox.left();
                         });
 
         switch (quizQuestion.type()) {
@@ -145,7 +146,8 @@ public class QuizDialogDesign {
             }
             case MULTIPLE_CHOICE, SINGLE_CHOICE -> {
                 VerticalGroup btnGrp = createAnswerButtons(skin, quizQuestion);
-
+                btnGrp.fill();
+                btnGrp.left();
                 vg.addActor(DialogDesign.createScrollPane(skin, btnGrp));
             }
             default -> {}
