@@ -2,9 +2,11 @@ package core.systems;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 
+import core.Entity;
 import core.Game;
 import core.System;
 import core.components.UIComponent;
+import core.utils.components.MissingComponentException;
 
 /**
  * The basic handling of any UIComponent. Adds them to the Stage, updates the Stage each Frame to
@@ -28,8 +30,10 @@ public final class HudSystem extends System {
                         x -> {
                             Group d =
                                     x.fetch(UIComponent.class)
-                                            .map(UIComponent.class::cast)
-                                            .get()
+                                            .orElseThrow(
+                                                    () ->
+                                                            MissingComponentException.build(
+                                                                    x, UIComponent.class))
                                             .getDialog();
                             Game.stage()
                                     .ifPresent(
@@ -40,17 +44,15 @@ public final class HudSystem extends System {
                                             });
                         });
 
-        if (getEntityStream()
-                .anyMatch(
-                        x ->
-                                x.fetch(UIComponent.class)
-                                        .map(UIComponent.class::cast)
-                                        .map(y -> y.isVisible() && y.willPauseGame())
-                                        .get())) {
-            pauseGame();
-        } else {
-            unpauseGame();
-        }
+        if (getEntityStream().anyMatch(x -> pausesGame(x))) pauseGame();
+        else unpauseGame();
+    }
+
+    private boolean pausesGame(Entity x) {
+        UIComponent uiComponent =
+                x.fetch(UIComponent.class)
+                        .orElseThrow(() -> MissingComponentException.build(x, UIComponent.class));
+        return uiComponent.isVisible() && uiComponent.willPauseGame();
     }
 
     private void pauseGame() {
