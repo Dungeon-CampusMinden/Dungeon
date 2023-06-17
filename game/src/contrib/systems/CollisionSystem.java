@@ -20,6 +20,12 @@ public final class CollisionSystem extends System {
         super(CollideComponent.class);
     }
 
+    /**
+     * checks every CollideEntity with each other CollideEntity and checks them for a collision.
+     *
+     * <p>Some improvements are done so there is only one collision check between two Entities based
+     * on their IDs. When Entity A does collide with Entity B it also means B collides with A.
+     */
     @Override
     public void execute() {
         getEntityStream().flatMap(this::createDataPairs).forEach(this::onEnterLeaveCheck);
