@@ -27,9 +27,11 @@ import saving.Saves;
 import graphic.DungeonCamera;
 import graphic.Painter;
 import graphic.hud.GameOverMenu;
+import graphic.hud.MinigameScreen;
 import graphic.hud.PauseMenu;
 import graphic.hud.QuestLogMenu;
 import graphic.hud.QuestMenu;
+import minigame.Minigame;
 
 import java.io.IOException;
 import java.util.*;
@@ -96,6 +98,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static QuestLogMenu<Actor> questLogMenu;
     public static int questDisplayTime = 0;
     private static boolean inQuestLog = false;
+    private static boolean minigameIsActive = false;
+    public static Minigame minigame;
+    public static MinigameScreen<Actor> minigameScreen;
 
     public static void main(String[] args) {
         // start the game
@@ -123,6 +128,14 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     @Override
     public void render(float delta) {
+        if (minigameIsActive && minigame != null) {
+            minigameRender(delta);
+        } else {
+            gameRender(delta);
+        }
+    }
+
+    private void gameRender(float delta) {
         if (doSetup)
             prepareSetup();
         batch.setProjectionMatrix(camera.combined);
@@ -135,6 +148,24 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             questDisplayTime--;
         else if (questMenu != null)
             questMenu.hideMenu();
+    }
+
+    private void minigameRender(float delta) {
+        // TODO Minigame implementation
+        if (Gdx.input.isKeyJustPressed(Input.Keys.UP))
+            minigame.up();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN))
+            minigame.down();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            if (!minigame.push()) {
+                minigameIsActive = false;
+                minigame = null;
+                minigameScreen.hideMenu();
+                return;
+            }
+        }
+        minigameScreen.update();
+        minigameScreen.showMenu();
     }
 
     /** Checks for saves */
@@ -161,6 +192,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         gameLogger = Logger.getLogger(this.getClass().getName());
         systems = new SystemController();
         controller.add(systems);
+        minigameScreen = new MinigameScreen();
+        controller.add(minigameScreen);
         questMenu = new QuestMenu();
         controller.add(questMenu);
         questLogMenu = new QuestLogMenu();
