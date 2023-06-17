@@ -20,6 +20,7 @@ import ecs.components.xp.XPComponent;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.entities.*;
+import ecs.items.ItemData;
 import ecs.systems.*;
 import ecs.tools.Flags.Flag;
 import saving.GameData;
@@ -128,6 +129,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     @Override
     public void render(float delta) {
+        super.render(delta);
         if (minigameIsActive && minigame != null) {
             minigameRender(delta);
         } else {
@@ -152,20 +154,27 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private void minigameRender(float delta) {
         // TODO Minigame implementation
-        if (Gdx.input.isKeyJustPressed(Input.Keys.UP))
+        batch.setProjectionMatrix(camera.combined);
+        clearScreen();
+        levelAPI.update();
+        controller.forEach(AbstractController::update);
+        camera.update();
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             minigame.up();
-        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN))
+            minigameScreen.updateScreen(minigame);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             minigame.down();
+            minigameScreen.updateScreen(minigame);
+        }
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            if (!minigame.push()) {
-                minigameIsActive = false;
-                minigame = null;
+            if (!minigame.push() || minigame.isFinished()) {
                 minigameScreen.hideMenu();
+                toggleMinigame();
                 return;
             }
+            minigameScreen.updateScreen(minigame);
         }
-        minigameScreen.update();
-        minigameScreen.showMenu();
     }
 
     /** Checks for saves */
@@ -220,6 +229,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         gameLogger = Logger.getLogger(this.getClass().getName());
         systems = new SystemController();
         controller.add(systems);
+        minigameScreen = new MinigameScreen();
+        controller.add(minigameScreen);
         questMenu = new QuestMenu();
         controller.add(questMenu);
         questLogMenu = new QuestLogMenu();
@@ -368,6 +379,20 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         gameOverMenu.showMenu();
     }
 
+    /** Toggle minigame */
+    public static void toggleMinigame() {
+        System.out.println(!minigameIsActive);
+        minigameIsActive = !minigameIsActive;
+        if (systems != null) {
+            systems.forEach(ECS_System::toggleRun);
+        }
+        if (minigameIsActive)
+            minigameScreen.showMenu();
+        else {
+            minigameScreen.hideMenu();
+        }
+    }
+
     /**
      * Given entity will be added to the game in the next frame
      *
@@ -478,7 +503,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
         addEntity(new Tombstone(new Ghost()));
         addEntity(new QuestButton());
-        addEntity(new Key());
+        addEntity(Chest.createNewChest());
     }
 
     // Monster spawn mechanics

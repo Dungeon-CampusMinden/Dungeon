@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 import level.tools.LevelElement;
+import minigame.Minigame;
 import starter.Game;
 import tools.Point;
 
@@ -21,6 +22,10 @@ public class Chest extends Entity {
                         "objects/treasurechest/chest_full_open_anim_f1.png",
                         "objects/treasurechest/chest_full_open_anim_f2.png",
                         "objects/treasurechest/chest_empty_open_anim_f2.png");
+
+        private Minigame minigame;
+        private Key key;
+        private boolean open = false;
 
         /**
          * small Generator which uses the Item#ITEM_REGISTER
@@ -49,11 +54,14 @@ public class Chest extends Entity {
                 new PositionComponent(this, position);
                 InventoryComponent ic = new InventoryComponent(this, itemData.size());
                 itemData.forEach(ic::addItem);
-                new InteractionComponent(this, defaultInteractionRadius, false, this::dropItems);
+                new InteractionComponent(this, defaultInteractionRadius, true, this::open);
                 AnimationComponent ac = new AnimationComponent(
                                 this,
                                 new Animation(DEFAULT_CLOSED_ANIMATION_FRAMES, 100, false),
                                 new Animation(DEFAULT_OPENING_ANIMATION_FRAMES, 100, false));
+                minigame = new Minigame();
+                key = new Key();
+                Game.addEntity(key);
         }
 
         private void dropItems(Entity entity) {
@@ -111,5 +119,20 @@ public class Chest extends Entity {
                                                 + Chest.class.getName()
                                                 + " in Entity "
                                                 + e.getClass().getName());
+        }
+
+        private void open(Entity entity) {
+                if (!Game.getHero().get().getComponent(BunchOfKeysComponent.class).isPresent())
+                        throw new MissingComponentException("BunchOfKeysComponent");
+                BunchOfKeysComponent bokc = (BunchOfKeysComponent) Game.getHero().get()
+                                .getComponent(BunchOfKeysComponent.class).get();
+                if (open || bokc.removeKey(key) || minigame.isFinished()) {
+                        dropItems(entity);
+                        open = true;
+                } else {
+                        Game.minigame = minigame;
+                        Game.toggleMinigame();
+                        Game.minigameScreen.updateScreen(minigame);
+                }
         }
 }
