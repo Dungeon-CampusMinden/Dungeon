@@ -18,7 +18,8 @@ import java.util.logging.Logger;
  * The Cake is an entity in the ECS.
  * The Cake can be used, collected and dropped.
  * The Cake is an Item.
- * The Cake has an ItemComponent, a PositionComponent, a HitboxComponent and an AnimationComponent.
+ * The Cake has an ItemComponent, a PositionComponent, a HitboxComponent and an
+ * AnimationComponent.
  */
 public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
     private ItemComponent itemComponent;
@@ -35,8 +36,9 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
 
     /**
      * This constructor creates a Cake with the given itemData and point.
+     * 
      * @param itemData The itemData of the Cake.
-     * @param point The point of the Cake.
+     * @param point    The point of the Cake.
      */
     public Cake(ItemData itemData, Point point) {
         super();
@@ -49,7 +51,7 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
 
     @Override
     protected void setupAnimationComponent() {
-        Animation idle = AnimationBuilder.buildAnimation(ItemConfig.KUCHEN_TEXTURE.get());
+        Animation idle = AnimationBuilder.buildAnimation(ItemConfig.CAKE_TEXTURE.get());
         new AnimationComponent(this, idle);
     }
 
@@ -71,10 +73,10 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
     protected void setupItemComponent() {
         ItemData itemData = new ItemData(
                 ItemConfig.FOOD_TYPE.get(),
-                new Animation(List.of(ItemConfig.KUCHEN_TEXTURE.get()), 1),
-                new Animation(List.of(ItemConfig.KUCHEN_TEXTURE.get()), 1),
-                ItemConfig.KUCHEN_NAME.get(),
-                ItemConfig.KUCHEN_DESCRIPTION.get());
+                new Animation(List.of(ItemConfig.CAKE_TEXTURE.get()), 1),
+                new Animation(List.of(ItemConfig.CAKE_TEXTURE.get()), 1),
+                ItemConfig.CAKE_NAME.get(),
+                ItemConfig.CAKE_DESCRIPTION.get());
 
         itemData.setOnCollect(this::onCollect);
         itemData.setOnUse(this::onUse);
@@ -85,8 +87,9 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
 
     /**
      * This methode is used to collect the item
+     * 
      * @param WorldItemEntity is the item, that will be collected
-     * @param whoCollides that collects the item
+     * @param whoCollides     that collects the item
      */
     @Override
     public void onCollect(Entity WorldItemEntity, Entity whoCollides) {
@@ -111,7 +114,7 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
      * the item from the
      * inventory.
      *
-     * @param e Entity that uses the item
+     * @param e    Entity that uses the item
      * @param item Item that is used
      */
     @Override
@@ -141,8 +144,9 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
 
     /**
      * This methode is used to drop an item.
-     * @param user the entity, that drops the item
-     * @param which item that is dropped
+     * 
+     * @param user     the entity, that drops the item
+     * @param which    item that is dropped
      * @param position where the item will be dropped
      */
     @Override
@@ -159,6 +163,7 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
 
     /**
      * This Methode is executing the ability of the item
+     * 
      * @param entity
      */
     private void heal(Entity entity) {
