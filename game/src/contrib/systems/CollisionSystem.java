@@ -21,10 +21,10 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * checks every CollideEntity with each other CollideEntity and checks them for a collision.
+     * Test every CollideEntity with each other CollideEntity for collision.
      *
-     * <p>Some improvements are done so there is only one collision check between two Entities based
-     * on their IDs. When Entity A does collide with Entity B it also means B collides with A.
+     * <p>The collision check will be performed only once for a given tuple of entities.
+     * When entity A does collide with entity B it also means B collides with A.
      */
     @Override
     public void execute() {
@@ -32,7 +32,9 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * Creates a Stream where every other Entity has a higher id.
+     * Create a stream of pairs of entities
+     *
+     * <p>Pair a given entity with every other entity with a higher id.
      *
      * @param a Entity which is the lower id partner
      * @return the stream which contains every valid pair of Entities
@@ -55,7 +57,7 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * Creates a basic Pair of CollideComponents to allow one Stream to compute every Collide check
+     * Create a pair of CollideComponents
      *
      * @param a
      * @param b
@@ -112,7 +114,7 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * The Check if hitboxes intersect
+     * Check if two hitboxes intersect
      *
      * @param hitbox1
      * @param hitbox2
