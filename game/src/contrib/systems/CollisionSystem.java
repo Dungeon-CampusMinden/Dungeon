@@ -44,15 +44,16 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * Makes sure only Entities with a higher id are paired up.
+     * Compares the id of the given Entities.
      *
-     * <p>This Prevents a pair of Entities to be checked double or with itself.
+     * <p>Makes sure only Entities with a higher id are paired up. This Prevents a pair of Entities
+     * to be checked double or with itself.
      *
      * @param a first Entity
      * @param b second Entity
-     * @return true when the id of b is bigger then the one from a
+     * @return true when the id of a is smaller than the one from b, otherwise false
      */
-    private static boolean isIDSmallerThen(Entity a, Entity b) {
+    private boolean isIDSmallerThen(Entity a, Entity b) {
         return a.id() < b.id();
     }
 
