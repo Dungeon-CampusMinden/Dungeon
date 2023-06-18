@@ -48,7 +48,7 @@ public class MinigameScreen<T extends Actor> extends ScreenController<T> {
         forEach((T s) -> remove(s));
         minigameScreenLogger.log(CustomLogLevel.DEBUG, "All elements deleted");
         lockImage = new ScreenImage(game.getAnimationFrame(),
-                new Point(Constants.WINDOW_WIDTH / 2, Constants.WINDOW_HEIGHT / 2));
+                new Point((Constants.WINDOW_WIDTH / 2) - 100, Constants.WINDOW_HEIGHT / 2));
         add((T) lockImage);
         minigameScreenLogger.info("Lock image updated");
         circles = new ScreenImage[game.finishAmount()];

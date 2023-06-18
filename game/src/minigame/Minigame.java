@@ -6,8 +6,22 @@ public class Minigame {
 
     private final Logger minigameLogger = Logger.getLogger(Minigame.class.getName());
 
-    private static final String[] ANIMATION_FRAMES = { "animation/missingTexture.png" };
-    private static final long PICKING_STATES = 0x5569550000000000l;
+    private static final String[] ANIMATION_FRAMES = {
+            "minigame/Lock_0.png",
+            "minigame/Lock_1.png",
+            "minigame/Lock_2.png",
+            "minigame/Lock_3.png",
+            "minigame/Lock_4.png",
+            "minigame/Lock_5.png",
+            "minigame/Lock_6.png",
+            "minigame/Lock_7.png",
+            "minigame/Lock_8.png",
+            "minigame/Lock_9.png",
+            "minigame/Lock_10.png",
+            "minigame/Lock_11.png",
+            "minigame/Lock_12.png",
+    };
+    private static final long PICKING_STATES = 0x5565550000000000l;
     private static final byte FINISHED = 0b111;
     private static final byte PICKING_STATES_AMOUNT = 32;
     private byte statePointer;
