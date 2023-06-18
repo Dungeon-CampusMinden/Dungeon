@@ -23,8 +23,8 @@ public final class CollisionSystem extends System {
     /**
      * Test every CollideEntity with each other CollideEntity for collision.
      *
-     * <p>The collision check will be performed only once for a given tuple of entities.
-     * When entity A does collide with entity B it also means B collides with A.
+     * <p>The collision check will be performed only once for a given tuple of entities. When entity
+     * A does collide with entity B it also means B collides with A.
      */
     @Override
     public void execute() {
