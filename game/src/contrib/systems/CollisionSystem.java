@@ -77,21 +77,25 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * Checks wheter a new Collision is happening or wheter a Collision ended
+     * Checks whether a new collision is happening or whether a collision has ended
      *
-     * @param cdata
+     * @param cdata the CollisionData where a collision change may happen
      */
     private void onEnterLeaveCheck(CollisionData cdata) {
         CollisionKey key = new CollisionKey(cdata.a.entity().id(), cdata.b.entity().id());
 
         if (checkForCollision(cdata.a, cdata.b)) {
+            // a collision is currently happening
             if (!collisions.containsKey(key)) {
+                // a new collision should call the onEnter on both entities
                 collisions.put(key, cdata);
                 Tile.Direction d = checkDirectionOfCollision(cdata.a, cdata.b);
                 cdata.a.onEnter(cdata.b, d);
                 cdata.b.onEnter(cdata.a, inverse(d));
             }
         } else if (collisions.remove(key) != null) {
+            // a collision was happening and the two entities are no longer colliding on Leave
+            // called once
             Tile.Direction d = checkDirectionOfCollision(cdata.a, cdata.b);
             cdata.a.onLeave(cdata.b, d);
             cdata.b.onLeave(cdata.b, inverse(d));
