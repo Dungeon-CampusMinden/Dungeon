@@ -78,7 +78,11 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * Checks whether a new collision is happening or whether a collision has ended
+     * Checks whether a new collision is happening or whether a collision has ended.
+     *
+     * <p>Only allows a new collision to call the onEnter of the hitboxes. An ongoing collision is
+     * not calling the onEnter of the hitboxes. When a previous collision existed and no longer is
+     * an active collision the onLeave is called. The onLeave is only called once.
      *
      * @param cdata the CollisionData where a collision change may happen
      */
