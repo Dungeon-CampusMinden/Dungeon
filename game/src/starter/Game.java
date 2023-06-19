@@ -381,7 +381,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     /** Toggle minigame */
     public static void toggleMinigame() {
-        System.out.println(!minigameIsActive);
         minigameIsActive = !minigameIsActive;
         if (systems != null) {
             systems.forEach(ECS_System::toggleRun);

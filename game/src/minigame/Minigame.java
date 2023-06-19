@@ -21,7 +21,7 @@ public class Minigame {
             "minigame/Lock_11.png",
             "minigame/Lock_12.png",
     };
-    private static final long PICKING_STATES = 0x5565550000000000l;
+    private static final long PICKING_STATES = 0x5565540000000000l;
     private static final byte FINISHED = 0b111;
     private static final byte PICKING_STATES_AMOUNT = 32;
     private byte statePointer;
@@ -78,7 +78,7 @@ public class Minigame {
      * Places the {@code statePointer} at a random {@code 0} state
      */
     public void randomizeStatePointer() {
-        statePointer = (byte) (Math.random() * (PICKING_STATES_AMOUNT / 2));
+        statePointer = (byte) (Math.random() * 21);
         minigameLogger.info("State pointer is: " + statePointer);
     }
 
