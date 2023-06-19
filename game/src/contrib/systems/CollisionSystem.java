@@ -11,7 +11,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-/** System to check for collisions between two entities */
+/**
+ * CollisionSystem is a System which checks on execute whether the hitboxes of two entities are
+ * overlapping/colliding. In wich case the corresponding Methods are called on both entities.
+ *
+ * <p>The System does imply the hitboxes are axis aligned.
+ *
+ * <p>Each CollideCompoent should only be informed when a collision begins or ends. For this a map
+ * with all currently active collisions is stored and allows informing the entities when a
+ * collisionn ended.
+ */
 public final class CollisionSystem extends System {
 
     private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
@@ -58,11 +67,13 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * Create a pair of CollideComponents.
+     * Creates a pair of CollideComponents which is the used to check whether a collision is
+     * happening and to store in the internal map. Which allows informing the CollideComponents
+     * about an ended Collision
      *
-     * @param a
-     * @param b
-     * @return
+     * @param a The first Entity
+     * @param b the second Entity
+     * @return the pair of CollideComponents
      */
     private CollisionData newDataPair(Entity a, Entity b) {
         CollideComponent cca =
