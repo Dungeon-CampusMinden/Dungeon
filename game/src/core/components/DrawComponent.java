@@ -61,7 +61,7 @@ public final class DrawComponent extends Component {
      * <p>Will set the current animation to idle left
      *
      * @param entity associated entity
-     * @param path Path (as a string) to the directory in the assets' folder where the
+     * @param path Path (as a string) to the directory in the assets folder where the
      *     subdirectories containing the animation files are stored. Example: "character/knight".
      * @throws IOException if the given path does not exist
      * @see Animation
