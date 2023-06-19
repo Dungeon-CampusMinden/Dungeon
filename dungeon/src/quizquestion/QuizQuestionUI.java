@@ -117,6 +117,6 @@ public class QuizQuestionUI {
                 sumLength = 0;
             }
         }
-        return formattedMsg.toString();
+        return formattedMsg.toString().trim();
     }
 }
