@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import core.Entity;
 import core.hud.TextDialog;
+import core.hud.UITools;
 
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -53,13 +54,16 @@ public class QuizQuestionUI {
                     @Override
                     public Dialog get() {
 
-                        return createQuizDialog(
-                                core.hud.UITools.DEFAULT_SKIN,
-                                question,
-                                questionMsg,
-                                buttonMsg,
-                                dialogTitle,
-                                core.hud.UITools.createResultHandler(entity, buttonMsg));
+                        Dialog quizDialog =
+                                createQuizDialog(
+                                        UITools.DEFAULT_SKIN,
+                                        question,
+                                        questionMsg,
+                                        buttonMsg,
+                                        dialogTitle,
+                                        UITools.createResultHandler(entity, buttonMsg));
+                        UITools.centerActor(quizDialog);
+                        return quizDialog;
                     }
                 },
                 entity);
