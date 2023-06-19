@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
  * @see Animation
  * @see IPath
  */
-public class DrawComponent extends Component {
+public final class DrawComponent extends Component {
     private final Map<String, Animation> animationMap;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private Animation currentAnimation;
@@ -66,7 +66,7 @@ public class DrawComponent extends Component {
      * @throws IOException if the given path does not exist
      * @see Animation
      */
-    public DrawComponent(Entity entity, String path) throws IOException {
+    public DrawComponent(final Entity entity, final String path) throws IOException {
         super(entity);
         // fetch available animations
         ClassLoader classLoader = getClass().getClassLoader();
@@ -92,7 +92,7 @@ public class DrawComponent extends Component {
      * @param entity associated entity
      * @param idle Animation to use as idle-left and idle-right animation.
      */
-    public DrawComponent(Entity entity, Animation idle) {
+    public DrawComponent(final Entity entity, final Animation idle) {
         super(entity);
         animationMap = new HashMap<>();
         animationMap.put(CoreAnimations.IDLE_LEFT.pathString(), idle);
@@ -120,7 +120,7 @@ public class DrawComponent extends Component {
      * @param animationName Path of the new current animation (this is the name of the directory).
      * @see IPath
      */
-    public void currentAnimation(IPath animationName) {
+    public void currentAnimation(final IPath animationName) {
         Animation animation = animationMap.get(animationName.pathString());
         if (animation != null) this.currentAnimation = animation;
         else
@@ -139,7 +139,7 @@ public class DrawComponent extends Component {
      * @param path Path of the Animation
      * @return The animation or null
      */
-    public Optional<Animation> getAnimation(IPath path) {
+    public Optional<Animation> getAnimation(final IPath path) {
         return Optional.ofNullable(animationMap.get(path.pathString()));
     }
 
@@ -149,7 +149,7 @@ public class DrawComponent extends Component {
      * @param path Path of the animation to look for
      * @return true if the animation exists in this component, false if not
      */
-    public boolean hasAnimation(IPath path) {
+    public boolean hasAnimation(final IPath path) {
         return animationMap.containsKey(path.pathString());
     }
 
@@ -162,7 +162,7 @@ public class DrawComponent extends Component {
      * @return true if the current-animation equals the animation at the given path, false if not or
      *     no animation for the given oath is stored in this component.
      */
-    public boolean isCurrentAnimation(IPath path) {
+    public boolean isCurrentAnimation(final IPath path) {
         Optional<Animation> animation = getAnimation(path);
         if (animation.isPresent()) return animation.get() == currentAnimation;
         LOGGER.warning("Animation " + path + " is not stored inside " + entity.toString());
