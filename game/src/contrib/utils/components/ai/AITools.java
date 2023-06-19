@@ -55,17 +55,17 @@ public class AITools {
         }
 
         switch (currentTile.directionTo(nextTile)[0]) {
-            case N -> vc.setCurrentYVelocity(vc.getYVelocity());
-            case S -> vc.setCurrentYVelocity(-vc.getYVelocity());
-            case E -> vc.setCurrentXVelocity(vc.getXVelocity());
-            case W -> vc.setCurrentXVelocity(-vc.getXVelocity());
+            case N -> vc.currentYVelocity(vc.yVelocity());
+            case S -> vc.currentYVelocity(-vc.yVelocity());
+            case E -> vc.currentXVelocity(vc.xVelocity());
+            case W -> vc.currentXVelocity(-vc.xVelocity());
         }
         if (currentTile.directionTo(nextTile).length > 1)
             switch (currentTile.directionTo(nextTile)[1]) {
-                case N -> vc.setCurrentYVelocity(vc.getYVelocity());
-                case S -> vc.setCurrentYVelocity(-vc.getYVelocity());
-                case E -> vc.setCurrentXVelocity(vc.getXVelocity());
-                case W -> vc.setCurrentXVelocity(-vc.getXVelocity());
+                case N -> vc.currentYVelocity(vc.yVelocity());
+                case S -> vc.currentYVelocity(-vc.yVelocity());
+                case E -> vc.currentXVelocity(vc.xVelocity());
+                case W -> vc.currentXVelocity(-vc.xVelocity());
             }
     }
 

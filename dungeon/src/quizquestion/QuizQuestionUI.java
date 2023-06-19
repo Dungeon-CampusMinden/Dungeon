@@ -60,7 +60,7 @@ public class QuizQuestionUI {
                                 questionMsg,
                                 buttonMsg,
                                 dialogTitle,
-                                core.hud.UITools.getResultHandler(entity, buttonMsg));
+                                core.hud.UITools.createResultHandler(entity, buttonMsg));
                     }
                 },
                 entity);

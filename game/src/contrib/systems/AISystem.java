@@ -26,6 +26,6 @@ public final class AISystem extends System {
 
     @Override
     public void execute() {
-        getEntityStream().forEach(executeAI);
+        entityStream().forEach(executeAI);
     }
 }

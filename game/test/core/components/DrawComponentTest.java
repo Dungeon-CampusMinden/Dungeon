@@ -22,11 +22,11 @@ public class DrawComponentTest {
 
     @Test
     public void setCurrentAnimation() {
-        Animation currentAnimation = animationComponent.getCurrentAnimation();
+        Animation currentAnimation = animationComponent.currentAnimation();
         // Ensure that the current animation is initially set to the expected value
         assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.IDLE_LEFT));
         // Set a new animation and ensure that it is correctly set
-        animationComponent.setCurrentAnimation(CoreAnimations.IDLE_RIGHT);
+        animationComponent.currentAnimation(CoreAnimations.IDLE_RIGHT);
         assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.IDLE_RIGHT));
     }
 

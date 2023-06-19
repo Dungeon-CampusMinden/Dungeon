@@ -10,9 +10,9 @@ public interface IRoom {
     /**
      * @return all DoorTiles in this room
      */
-    LinkedHashSet<DoorTile> getDoors();
+    LinkedHashSet<DoorTile> doors();
 
-    Tile[][] getLayout();
+    Tile[][] layout();
 
-    LevelNode getLevelNode();
+    LevelNode levelNode();
 }

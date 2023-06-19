@@ -23,7 +23,7 @@ public enum AdditionalAnimations implements IPath {
     }
 
     @Override
-    public String getPathString() {
+    public String pathString() {
         return value;
     }
 }

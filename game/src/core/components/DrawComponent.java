@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
  * <p>Each Animation will be created with default settings. If you want to change these settings,
  * use the methods from {@link Animation}.
  *
- * <p>Use {@link #setCurrentAnimation} to set the current Animation.
+ * <p>Use {@link #currentAnimation} to set the current Animation.
  *
- * <p>Use {@link #getCurrentAnimation} to get the current active animation or use {@link
- * #getAnimation} to get a specific animation.
+ * <p>Use {@link #currentAnimation} to get the current active animation or use {@link #getAnimation}
+ * to get a specific animation.
  *
  * <p>Use {@link #hasAnimation} to check if the component has the desired animation.
  *
@@ -78,7 +78,7 @@ public class DrawComponent extends Component {
                 Arrays.stream(directory.listFiles())
                         .filter(File::isDirectory)
                         .collect(Collectors.toMap(File::getName, Animation::of));
-        setCurrentAnimation(CoreAnimations.IDLE_LEFT);
+        currentAnimation(CoreAnimations.IDLE_LEFT);
     }
 
     /**
@@ -95,8 +95,8 @@ public class DrawComponent extends Component {
     public DrawComponent(Entity entity, Animation idle) {
         super(entity);
         animationMap = new HashMap<>();
-        animationMap.put(CoreAnimations.IDLE_LEFT.getPathString(), idle);
-        animationMap.put(CoreAnimations.IDLE_RIGHT.getPathString(), idle);
+        animationMap.put(CoreAnimations.IDLE_LEFT.pathString(), idle);
+        animationMap.put(CoreAnimations.IDLE_RIGHT.pathString(), idle);
         currentAnimation = idle;
     }
 
@@ -105,7 +105,7 @@ public class DrawComponent extends Component {
      *
      * @return the current animation of the entity
      */
-    public Animation getCurrentAnimation() {
+    public Animation currentAnimation() {
         return currentAnimation;
     }
 
@@ -120,8 +120,8 @@ public class DrawComponent extends Component {
      * @param animationName Path of the new current animation (this is the name of the directory).
      * @see IPath
      */
-    public void setCurrentAnimation(IPath animationName) {
-        Animation animation = animationMap.get(animationName.getPathString());
+    public void currentAnimation(IPath animationName) {
+        Animation animation = animationMap.get(animationName.pathString());
         if (animation != null) this.currentAnimation = animation;
         else
             LOGGER.warning(
@@ -140,7 +140,7 @@ public class DrawComponent extends Component {
      * @return The animation or null
      */
     public Optional<Animation> getAnimation(IPath path) {
-        return Optional.ofNullable(animationMap.get(path.getPathString()));
+        return Optional.ofNullable(animationMap.get(path.pathString()));
     }
 
     /**
@@ -150,7 +150,7 @@ public class DrawComponent extends Component {
      * @return true if the animation exists in this component, false if not
      */
     public boolean hasAnimation(IPath path) {
-        return animationMap.containsKey(path.getPathString());
+        return animationMap.containsKey(path.pathString());
     }
 
     /**

@@ -47,21 +47,21 @@ public class AIComponentTest {
     @Test
     public void setFightAI() {
         Consumer<Entity> newAI = Mockito.mock(Consumer.class);
-        aiComponent.setFightAI(newAI);
-        assertEquals(newAI, aiComponent.getFightAI());
+        aiComponent.fightAI(newAI);
+        assertEquals(newAI, aiComponent.fightAI());
     }
 
     @Test
     public void setIdleAI() {
         Consumer<Entity> newAI = Mockito.mock(Consumer.class);
-        aiComponent.setIdleAI(newAI);
-        assertEquals(newAI, aiComponent.getIdleAI());
+        aiComponent.idleAI(newAI);
+        assertEquals(newAI, aiComponent.idleAI());
     }
 
     @Test
     public void setTransitionAI() {
         Function<Entity, Boolean> newAI = Mockito.mock(Function.class);
         aiComponent.setTransitionAI(newAI);
-        assertEquals(newAI, aiComponent.getTransitionAI());
+        assertEquals(newAI, aiComponent.transitionAI());
     }
 }

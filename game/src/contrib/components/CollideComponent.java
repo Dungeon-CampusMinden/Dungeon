@@ -103,12 +103,11 @@ public final class CollideComponent extends Component {
      */
     public Point bottomLeft() {
         PositionComponent pc =
-                getEntity()
-                        .fetch(PositionComponent.class)
+                entity().fetch(PositionComponent.class)
                         .orElseThrow(
                                 () ->
                                         MissingComponentException.build(
-                                                getEntity(), PositionComponent.class));
+                                                entity(), PositionComponent.class));
         return new Point(pc.position().x + offset.x, pc.position().y + offset.y);
     }
 
@@ -117,12 +116,11 @@ public final class CollideComponent extends Component {
      */
     public Point topRight() {
         PositionComponent pc =
-                getEntity()
-                        .fetch(PositionComponent.class)
+                entity().fetch(PositionComponent.class)
                         .orElseThrow(
                                 () ->
                                         MissingComponentException.build(
-                                                getEntity(), PositionComponent.class));
+                                                entity(), PositionComponent.class));
         return new Point(pc.position().x + offset.x + size.x, pc.position().y + offset.y + size.y);
     }
 
@@ -131,12 +129,11 @@ public final class CollideComponent extends Component {
      */
     public Point center() {
         PositionComponent pc =
-                getEntity()
-                        .fetch(PositionComponent.class)
+                entity().fetch(PositionComponent.class)
                         .orElseThrow(
                                 () ->
                                         MissingComponentException.build(
-                                                getEntity(), PositionComponent.class));
+                                                entity(), PositionComponent.class));
         return new Point(
                 pc.position().x + offset.x + size.x / 2, pc.position().y + offset.y + size.y / 2);
     }

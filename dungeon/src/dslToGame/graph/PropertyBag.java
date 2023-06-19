@@ -31,7 +31,7 @@ public class PropertyBag {
      * @return the {@link Property} associated with the name or `Property.NONE`, if no Property with
      *     the name is stored in this PropertyBag
      */
-    public Property getAttribute(String name) {
+    public Property attribute(String name) {
         return properties.getOrDefault(name, Property.NONE);
     }
 }

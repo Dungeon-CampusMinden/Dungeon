@@ -100,7 +100,7 @@ public class ControlPointReachableTest {
         PreparedEntityWithCounter second = getEntityCounter(e2Point);
 
         Point unitDirectionalVector =
-                Point.getUnitDirectionalVector(first.pc.position(), second.pc.position());
+                Point.unitDirectionalVector(first.pc.position(), second.pc.position());
         int dist = 0;
         boolean reachable =
                 i.apply(
@@ -127,7 +127,7 @@ public class ControlPointReachableTest {
         PreparedEntityWithCounter second = getEntityCounter(e2Point);
 
         Point unitDirectionalVector =
-                Point.getUnitDirectionalVector(second.pc.position(), first.pc.position());
+                Point.unitDirectionalVector(second.pc.position(), first.pc.position());
         float dist = Point.calculateDistance(first.pc.position(), second.pc.position());
         boolean reachable =
                 i.apply(
@@ -152,7 +152,7 @@ public class ControlPointReachableTest {
         PreparedEntityWithCounter second = getEntityCounter(e2Point);
 
         Point unitDirectionalVector =
-                Point.getUnitDirectionalVector(second.pc.position(), first.pc.position());
+                Point.unitDirectionalVector(second.pc.position(), first.pc.position());
         float dist = Point.calculateDistance(first.pc.position(), second.pc.position());
         boolean reachable =
                 i.apply(
@@ -178,7 +178,7 @@ public class ControlPointReachableTest {
         PreparedEntityWithCounter second = getEntityCounter(e2Point);
 
         Point unitDirectionalVector =
-                Point.getUnitDirectionalVector(second.pc.position(), first.pc.position());
+                Point.unitDirectionalVector(second.pc.position(), first.pc.position());
         float dist = Point.calculateDistance(first.pc.position(), second.pc.position());
         boolean reachable =
                 i.apply(
@@ -204,7 +204,7 @@ public class ControlPointReachableTest {
         PreparedEntityWithCounter second = getEntityCounter(e2Point);
 
         Point unitDirectionalVector =
-                Point.getUnitDirectionalVector(second.pc.position(), first.pc.position());
+                Point.unitDirectionalVector(second.pc.position(), first.pc.position());
         float dist = Point.calculateDistance(first.pc.position(), second.pc.position());
         boolean reachable =
                 i.apply(
@@ -233,7 +233,7 @@ public class ControlPointReachableTest {
         PreparedEntityWithCounter second = getEntityCounter(e2Point);
 
         Point unitDirectionalVector =
-                Point.getUnitDirectionalVector(second.pc.position(), first.pc.position());
+                Point.unitDirectionalVector(second.pc.position(), first.pc.position());
         float dist = Point.calculateDistance(first.pc.position(), second.pc.position());
         boolean reachable =
                 i.apply(
@@ -262,7 +262,7 @@ public class ControlPointReachableTest {
         PreparedEntityWithCounter second = getEntityCounter(e2Point);
 
         Point unitDirectionalVector =
-                Point.getUnitDirectionalVector(second.pc.position(), first.pc.position());
+                Point.unitDirectionalVector(second.pc.position(), first.pc.position());
         float dist = Point.calculateDistance(first.pc.position(), second.pc.position());
         boolean reachable =
                 i.apply(

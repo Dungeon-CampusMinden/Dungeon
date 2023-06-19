@@ -36,8 +36,8 @@ public final class CameraSystem extends System {
 
     @Override
     public void execute() {
-        if (getEntityStream().findAny().isEmpty()) focus();
-        else getEntityStream().forEach(this::focus);
+        if (entityStream().findAny().isEmpty()) focus();
+        else entityStream().forEach(this::focus);
         CAMERA.update();
     }
 

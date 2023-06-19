@@ -564,8 +564,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param entity Entity to get the current position from (needs a {@link PositionComponent}
      * @return Position of the given entity.
      */
-    public static Point getPosition(Entity entity) {
-        return currentLevel.getPosition(entity);
+    public static Point positionOf(Entity entity) {
+        return currentLevel.positionOf(entity);
     }
 
     /**
@@ -578,7 +578,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param level New level
      */
     public static void currentLevel(ILevel level) {
-        if (levelManager != null) levelManager.setLevel(level);
+        if (levelManager != null) levelManager.level(level);
         currentLevel = level;
     }
 
@@ -656,7 +656,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
             // toggle UI "debug rendering"
             stage().ifPresent(x -> x.setDebugAll(uiDebugFlag = !uiDebugFlag));
         }
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_KEY.get())) {
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_KEY.value())) {
             debugger.toggleRun();
             LOGGER.info("Debugger ist now " + debugger.isRunning());
         }
@@ -664,7 +664,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private Entity newPauseMenu() {
         Entity entity = UITools.generateNewTextDialog("Pause", "Continue", "Pausemenu");
-        entity.fetch(UIComponent.class).ifPresent(y -> y.getDialog().setVisible(true));
+        entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
         return entity;
     }
 
@@ -684,7 +684,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     @Override
     public void onLevelLoad() {
-        currentLevel = levelManager.getCurrentLevel();
+        currentLevel = levelManager.currentLevel();
         removeAllEntities();
         hero().ifPresent(this::placeOnLevelStart);
         hero().ifPresent(Game::addEntity);

@@ -42,7 +42,7 @@ public class SystemTest {
         assertTrue(onShow[0]);
         assertTrue(onAdd[0]);
         ts.execute();
-        assertTrue(ts.getEntityStream().anyMatch(en -> e == en));
+        assertTrue(ts.entityStream().anyMatch(en -> e == en));
         Game.removeAllEntities();
     }
 
@@ -74,7 +74,7 @@ public class SystemTest {
         assertTrue(onShow[0]);
         assertFalse(onAdd[0]);
         ts.execute();
-        assertFalse(ts.getEntityStream().anyMatch(en -> e == en));
+        assertFalse(ts.entityStream().anyMatch(en -> e == en));
         Game.removeAllEntities();
     }
 
@@ -109,7 +109,7 @@ public class SystemTest {
         ts.removeEntity(e);
         assertTrue(onRemove[0]);
         ts.execute();
-        assertFalse(ts.getEntityStream().anyMatch(en -> e == en));
+        assertFalse(ts.entityStream().anyMatch(en -> e == en));
         Game.removeAllEntities();
     }
 
@@ -143,7 +143,7 @@ public class SystemTest {
         ts.removeEntity(e);
         assertFalse(onRemove[0]);
         ts.execute();
-        assertFalse(ts.getEntityStream().anyMatch(en -> e == en));
+        assertFalse(ts.entityStream().anyMatch(en -> e == en));
         Game.removeAllEntities();
     }
 
@@ -164,9 +164,9 @@ public class SystemTest {
         ts.showEntity(e2);
         ts.showEntity(e3);
         ts.execute();
-        assertEquals(3, ts.getEntityStream().count());
+        assertEquals(3, ts.entityStream().count());
         ts.clearEntities();
-        assertEquals(0, ts.getEntityStream().count());
+        assertEquals(0, ts.entityStream().count());
         Game.removeAllEntities();
     }
 

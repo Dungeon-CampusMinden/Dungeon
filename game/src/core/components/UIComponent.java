@@ -51,7 +51,7 @@ public class UIComponent extends Component {
     /**
      * @return the UI Elements which should be shown
      */
-    public Group getDialog() {
+    public Group dialog() {
         return dialog;
     }
 }

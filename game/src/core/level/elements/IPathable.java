@@ -32,7 +32,7 @@ public interface IPathable extends IndexedGraph<Tile> {
      */
     default GraphPath<Tile> findPath(Tile start, Tile end) {
         GraphPath<Tile> path = new DefaultGraphPath<>();
-        new IndexedAStarPathFinder<>(this).searchNodePath(start, end, getTileHeuristic(), path);
+        new IndexedAStarPathFinder<>(this).searchNodePath(start, end, tileHeuristic(), path);
         return path;
     }
 
@@ -49,7 +49,7 @@ public interface IPathable extends IndexedGraph<Tile> {
     /**
      * @return the TileHeuristic for the Level
      */
-    TileHeuristic getTileHeuristic();
+    TileHeuristic tileHeuristic();
 
     /**
      * Get the Position of the given entity in the level.
@@ -57,7 +57,7 @@ public interface IPathable extends IndexedGraph<Tile> {
      * @param entity Entity to get the current position from (needs a {@link PositionComponent}
      * @return Position of the given entity.
      */
-    default Point getPosition(Entity entity) {
+    default Point positionOf(Entity entity) {
         return ((PositionComponent)
                         entity.fetch(PositionComponent.class)
                                 .orElseThrow(

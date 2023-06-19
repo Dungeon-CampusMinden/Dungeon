@@ -12,7 +12,7 @@ public class ControlPointReachable implements Function<InteractionData, Boolean>
     public Boolean apply(final InteractionData interactionData) {
         boolean reachable = false;
         boolean pathBlocked = false;
-        if ((interactionData.ic().getRadius() - interactionData.dist()) > 0) {
+        if ((interactionData.ic().radius() - interactionData.dist()) > 0) {
             reachable = true;
             // check path
             Point dirvec = interactionData.unitDir();

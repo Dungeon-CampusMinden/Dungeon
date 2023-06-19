@@ -68,6 +68,6 @@ public class ProtectOnApproachTest {
         new PositionComponent(hero, pointOfProtect);
 
         // then
-        assertTrue(entityAI.getTransitionAI().apply(entity));
+        assertTrue(entityAI.transitionAI().apply(entity));
     }
 }

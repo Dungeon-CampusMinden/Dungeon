@@ -52,7 +52,7 @@ public final class Constants {
      * @return the absolute path of the internal resource
      */
     @SuppressWarnings("unused")
-    private static String getResourceString(String path) {
+    private static String resourceString(String path) {
         URL url = ClassLoader.getSystemClassLoader().getResource(path);
         assert (url != null);
         String modifiedPath = null;

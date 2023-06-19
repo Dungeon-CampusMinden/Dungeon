@@ -54,12 +54,11 @@ public class EntityFactory {
                 (you, other, direction) -> System.out.println("heroCollisionLeave"));
         PlayerComponent pc = new PlayerComponent(hero);
         Skill fireball =
-                new Skill(
-                        new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
+                new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), fireballCoolDown);
 
         // hero movement
         pc.registerFunction(
-                KeyboardConfig.MOVEMENT_UP.get(),
+                KeyboardConfig.MOVEMENT_UP.value(),
                 entity -> {
                     VelocityComponent vc =
                             entity.fetch(VelocityComponent.class)
@@ -67,22 +66,10 @@ public class EntityFactory {
                                             () ->
                                                     MissingComponentException.build(
                                                             entity, VelocityComponent.class));
-                    vc.setCurrentYVelocity(1 * vc.getYVelocity());
+                    vc.currentYVelocity(1 * vc.yVelocity());
                 });
         pc.registerFunction(
-                KeyboardConfig.MOVEMENT_DOWN.get(),
-                entity -> {
-                    VelocityComponent vc =
-                            entity.fetch(VelocityComponent.class)
-                                    .orElseThrow(
-                                            () ->
-                                                    MissingComponentException.build(
-                                                            entity, VelocityComponent.class));
-
-                    vc.setCurrentYVelocity(-1 * vc.getYVelocity());
-                });
-        pc.registerFunction(
-                KeyboardConfig.MOVEMENT_RIGHT.get(),
+                KeyboardConfig.MOVEMENT_DOWN.value(),
                 entity -> {
                     VelocityComponent vc =
                             entity.fetch(VelocityComponent.class)
@@ -91,10 +78,10 @@ public class EntityFactory {
                                                     MissingComponentException.build(
                                                             entity, VelocityComponent.class));
 
-                    vc.setCurrentXVelocity(1 * vc.getXVelocity());
+                    vc.currentYVelocity(-1 * vc.yVelocity());
                 });
         pc.registerFunction(
-                KeyboardConfig.MOVEMENT_LEFT.get(),
+                KeyboardConfig.MOVEMENT_RIGHT.value(),
                 entity -> {
                     VelocityComponent vc =
                             entity.fetch(VelocityComponent.class)
@@ -103,15 +90,27 @@ public class EntityFactory {
                                                     MissingComponentException.build(
                                                             entity, VelocityComponent.class));
 
-                    vc.setCurrentXVelocity(-1 * vc.getXVelocity());
+                    vc.currentXVelocity(1 * vc.xVelocity());
+                });
+        pc.registerFunction(
+                KeyboardConfig.MOVEMENT_LEFT.value(),
+                entity -> {
+                    VelocityComponent vc =
+                            entity.fetch(VelocityComponent.class)
+                                    .orElseThrow(
+                                            () ->
+                                                    MissingComponentException.build(
+                                                            entity, VelocityComponent.class));
+
+                    vc.currentXVelocity(-1 * vc.xVelocity());
                 });
 
         pc.registerFunction(
-                KeyboardConfig.INTERACT_WORLD.get(),
+                KeyboardConfig.INTERACT_WORLD.value(),
                 InteractionTool::interactWithClosestInteractable);
 
         // skills
-        pc.registerFunction(KeyboardConfig.FIRST_SKILL.get(), fireball::execute);
+        pc.registerFunction(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);
 
         return hero;
     }

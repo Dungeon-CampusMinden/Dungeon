@@ -26,7 +26,7 @@ public final class HealthSystem extends System {
 
     @Override
     public void execute() {
-        getEntityStream()
+        entityStream()
                 // Consider only entities that have a HealthComponent
                 // Form triples (e, hc, ac)
                 .map(this::buildDataObject)
@@ -42,9 +42,9 @@ public final class HealthSystem extends System {
                                             .get()
                                             .isLooping()) return true;
                             if (!hsd.ac.isCurrentAnimation(AdditionalAnimations.DIE)) {
-                                hsd.ac.setCurrentAnimation(AdditionalAnimations.DIE);
+                                hsd.ac.currentAnimation(AdditionalAnimations.DIE);
                             }
-                            return hsd.ac.getCurrentAnimation().isFinished();
+                            return hsd.ac.currentAnimation().isFinished();
                         })
                 // Remove all dead entities
                 .forEach(this::removeDeadEntities);
@@ -74,7 +74,7 @@ public final class HealthSystem extends System {
                                 doDamageAndAnimation(
                                         hsd,
                                         Stream.of(DamageType.values())
-                                                .mapToInt(hsd.hc::getDamage)
+                                                .mapToInt(hsd.hc::calculateDamageOf)
                                                 .sum()));
         return hsd;
     }
@@ -90,26 +90,26 @@ public final class HealthSystem extends System {
                 .mapToInt(
                         dt ->
                                 Math.round(
-                                        statsComponent.getDamageModifiers().getMultiplier(dt)
-                                                * hsd.hc.getDamage(dt)))
+                                        statsComponent.damageModifiers().multiplierFor(dt)
+                                                * hsd.hc.calculateDamageOf(dt)))
                 .sum();
     }
 
     private void doDamageAndAnimation(HSData hsd, int dmgAmount) {
         if (dmgAmount > 0) {
             // we have some damage - let's show a little dance
-            hsd.ac.setCurrentAnimation(AdditionalAnimations.HIT);
+            hsd.ac.currentAnimation(AdditionalAnimations.HIT);
         }
         // reset all damage objects in health component and apply damage
         hsd.hc.clearDamage();
-        hsd.hc.setCurrentHealthpoints(hsd.hc.getCurrentHealthpoints() - dmgAmount);
+        hsd.hc.currentHealthpoints(hsd.hc.currentHealthpoints() - dmgAmount);
     }
 
     private void removeDeadEntities(HSData hsd) {
         // Entity appears to be dead, so let's clean up the mess
         hsd.hc.triggerOnDeath();
-        hsd.ac.setCurrentAnimation(AdditionalAnimations.DIE);
-        Game.removeEntity(hsd.hc.getEntity());
+        hsd.ac.currentAnimation(AdditionalAnimations.DIE);
+        Game.removeEntity(hsd.hc.entity());
 
         // Add XP
         hsd.e
@@ -117,9 +117,9 @@ public final class HealthSystem extends System {
                 .ifPresent(
                         component ->
                                 hsd.hc
-                                        .getLastDamageCause()
+                                        .lastDamageCause()
                                         .flatMap(entity -> entity.fetch(XPComponent.class))
-                                        .ifPresent(c -> c.addXP(component.getLootXP())));
+                                        .ifPresent(c -> c.addXP(component.lootXP())));
     }
 
     // private record to hold all data during streaming

@@ -28,14 +28,14 @@ public class Node<T> implements Comparable<Node<T>> {
     /**
      * @return the attributes associated with this node
      */
-    public PropertyBag getAttributes() {
+    public PropertyBag attributes() {
         return attributes;
     }
 
     /**
      * @return an iterator for the edges in which this node is used
      */
-    public Iterator<Edge> edgeIterator() {
+    public Iterator<Edge> iterator() {
         return edges.iterator();
     }
 
@@ -60,7 +60,7 @@ public class Node<T> implements Comparable<Node<T>> {
     /**
      * @return the value stored in this node
      */
-    public T getValue() {
+    public T value() {
         return this.value;
     }
 

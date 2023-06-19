@@ -19,11 +19,11 @@ public abstract class Quest {
         this.questText = questConfig.questDesc();
     }
 
-    public IGenerator getGenerator() {
+    public IGenerator generator() {
         return generator;
     }
 
-    public void setRootLevel(ILevel root) {
+    public void rootLevel(ILevel root) {
         this.root = root;
     }
 

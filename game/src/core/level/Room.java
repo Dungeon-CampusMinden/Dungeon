@@ -46,17 +46,17 @@ public class Room extends TileLevel implements IRoom {
         elements.remove(dungeonElement);
     }
 
-    public ArrayList<Entity> getElements() {
+    public ArrayList<Entity> entities() {
         return elements;
     }
 
     @Override
-    public LinkedHashSet<DoorTile> getDoors() {
+    public LinkedHashSet<DoorTile> doors() {
         return doors;
     }
 
     @Override
-    public LevelNode getLevelNode() {
+    public LevelNode levelNode() {
         return levelNode;
     }
 }

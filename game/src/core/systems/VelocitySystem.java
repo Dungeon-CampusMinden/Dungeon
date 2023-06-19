@@ -21,9 +21,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>Entities with the {@link VelocityComponent}, {@link PositionComponent}, and {@link
  * DrawComponent} will be processed by this system.
  *
- * <p>The system will take the {@link VelocityComponent#getCurrentXVelocity()} and {@link
- * VelocityComponent#getCurrentYVelocity()} and calculate the new position of the entity based on
- * their current position stored in the {@link PositionComponent}. If the new position is a valid
+ * <p>The system will take the {@link VelocityComponent#currentXVelocity()} and {@link
+ * VelocityComponent#currentYVelocity()} and calculate the new position of the entity based on their
+ * current position stored in the {@link PositionComponent}. If the new position is a valid
  * position, which means the tile they would stand on is accessible, the new position will be set.
  *
  * <p>This system will also set the current animation to {@link CoreAnimations#RUN_LEFT} or {@link
@@ -32,8 +32,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>If the new position is not valid, the {@link CoreAnimations#IDLE_LEFT} or {@link
  * CoreAnimations#IDLE_RIGHT} animations will be set as the new current animation.
  *
- * <p>At the end, the {@link VelocityComponent#setCurrentXVelocity(float)} and {@link
- * VelocityComponent#setYVelocity(float)} will be set to 0.
+ * <p>At the end, the {@link VelocityComponent#currentXVelocity(float)} and {@link
+ * VelocityComponent#yVelocity(float)} will be set to 0.
  *
  * @see VelocityComponent
  * @see DrawComponent
@@ -50,12 +50,12 @@ public final class VelocitySystem extends System {
     /** Updates the position of all entities based on their velocity */
     @Override
     public void execute() {
-        getEntityStream().map(this::buildDataObject).forEach(this::updatePosition);
+        entityStream().map(this::buildDataObject).forEach(this::updatePosition);
     }
 
     private void updatePosition(VSData vsd) {
-        float newX = vsd.pc.position().x + vsd.vc.getCurrentXVelocity();
-        float newY = vsd.pc.position().y + vsd.vc.getCurrentYVelocity();
+        float newX = vsd.pc.position().x + vsd.vc.currentXVelocity();
+        float newY = vsd.pc.position().y + vsd.vc.currentYVelocity();
         Point newPosition = new Point(newX, newY);
         if (Game.tileAT(newPosition).isAccessible()) {
             vsd.pc.position(newPosition);
@@ -66,8 +66,8 @@ public final class VelocitySystem extends System {
         // tiles
         else if (vsd.e.fetch(ProjectileComponent.class).isPresent()) Game.removeEntity(vsd.e);
 
-        vsd.vc.setCurrentYVelocity(0);
-        vsd.vc.setCurrentXVelocity(0);
+        vsd.vc.currentYVelocity(0);
+        vsd.vc.currentXVelocity(0);
     }
 
     private VSData buildDataObject(Entity e) {
@@ -102,16 +102,16 @@ public final class VelocitySystem extends System {
             return;
         }
 
-        float x = vsd.vc.getCurrentXVelocity();
-        if (x > 0) vsd.dc.setCurrentAnimation(CoreAnimations.RUN_RIGHT);
-        else if (x < 0) vsd.dc.setCurrentAnimation(CoreAnimations.RUN_LEFT);
+        float x = vsd.vc.currentXVelocity();
+        if (x > 0) vsd.dc.currentAnimation(CoreAnimations.RUN_RIGHT);
+        else if (x < 0) vsd.dc.currentAnimation(CoreAnimations.RUN_LEFT);
         // idle
         else {
             // each drawcomponent has an idle animation, so no check is needed
             if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_LEFT)
                     || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_LEFT))
-                vsd.dc.setCurrentAnimation(CoreAnimations.IDLE_LEFT);
-            else vsd.dc.setCurrentAnimation(CoreAnimations.IDLE_RIGHT);
+                vsd.dc.currentAnimation(CoreAnimations.IDLE_LEFT);
+            else vsd.dc.currentAnimation(CoreAnimations.IDLE_RIGHT);
         }
     }
 

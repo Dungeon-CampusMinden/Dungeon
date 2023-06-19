@@ -31,21 +31,21 @@ public class WallGenerator implements IGenerator {
     }
 
     @Override
-    public ILevel getLevel(DesignLabel designLabel, LevelSize size) {
+    public ILevel level(DesignLabel designLabel, LevelSize size) {
         runPreGeneration(size);
         placeWalls();
         return new TileLevel(layout, designLabel);
     }
 
     @Override
-    public LevelElement[][] getLayout(LevelSize size) {
+    public LevelElement[][] layout(LevelSize size) {
         runPreGeneration(size);
         placeWalls();
         return layout;
     }
 
     private void runPreGeneration(LevelSize size) {
-        LevelElement[][] preLayout = preGenerator.getLayout(size);
+        LevelElement[][] preLayout = preGenerator.layout(size);
         // Surround layout with 2 layers of LevelElement.SKIP
         this.layout = new LevelElement[preLayout.length + 4][preLayout[0].length + 4];
         for (int i = 0; i < this.layout.length; i++) {
@@ -80,27 +80,27 @@ public class WallGenerator implements IGenerator {
     }
 
     private boolean upperRightCornerIsEmpty(int y, int x) {
-        return !layout[y + 1][x].getValue()
-                && !layout[y][x + 1].getValue()
-                && !layout[y + 1][x + 1].getValue();
+        return !layout[y + 1][x].value()
+                && !layout[y][x + 1].value()
+                && !layout[y + 1][x + 1].value();
     }
 
     private boolean bottomRightCornerIsEmpty(int y, int x) {
-        return !layout[y - 1][x].getValue()
-                && !layout[y - 1][x + 1].getValue()
-                && !layout[y][x + 1].getValue();
+        return !layout[y - 1][x].value()
+                && !layout[y - 1][x + 1].value()
+                && !layout[y][x + 1].value();
     }
 
     private boolean upperLeftCornerIsEmpty(int y, int x) {
-        return !layout[y][x - 1].getValue()
-                && !layout[y + 1][x - 1].getValue()
-                && !layout[y + 1][x].getValue();
+        return !layout[y][x - 1].value()
+                && !layout[y + 1][x - 1].value()
+                && !layout[y + 1][x].value();
     }
 
     private boolean bottomLeftCornerIsEmpty(int y, int x) {
-        return !layout[y - 1][x - 1].getValue()
-                && !layout[y][x - 1].getValue()
-                && !layout[y - 1][x].getValue();
+        return !layout[y - 1][x - 1].value()
+                && !layout[y][x - 1].value()
+                && !layout[y - 1][x].value();
     }
 
     /**
@@ -110,13 +110,13 @@ public class WallGenerator implements IGenerator {
      *     accessible
      */
     private boolean accessibleTileIsAdjacent(int y, int x) {
-        if (layout[y - 1][x - 1].getValue()) return true;
-        if (layout[y - 1][x].getValue()) return true;
-        if (layout[y - 1][x + 1].getValue()) return true;
-        if (layout[y][x - 1].getValue()) return true;
-        if (layout[y][x + 1].getValue()) return true;
-        if (layout[y + 1][x - 1].getValue()) return true;
-        if (layout[y + 1][x].getValue()) return true;
-        return layout[y + 1][x + 1].getValue();
+        if (layout[y - 1][x - 1].value()) return true;
+        if (layout[y - 1][x].value()) return true;
+        if (layout[y - 1][x + 1].value()) return true;
+        if (layout[y][x - 1].value()) return true;
+        if (layout[y][x + 1].value()) return true;
+        if (layout[y + 1][x - 1].value()) return true;
+        if (layout[y + 1][x].value()) return true;
+        return layout[y + 1][x + 1].value();
     }
 }
