@@ -32,8 +32,8 @@ public final class CollisionSystem extends System {
     /**
      * Test every CollideEntity with every other CollideEntity for collision.
      *
-     * <p>The collision check will be performed only once for a given tuple of entities. When entity
-     * A does collide with entity B it also means B collides with A.
+     * <p>The collision check will be performed only once for a given tuple of entities, i.e. when
+     * entity A does collide with entity B it also means B collides with A.
      */
     @Override
     public void execute() {
@@ -55,7 +55,9 @@ public final class CollisionSystem extends System {
     /**
      * Compares the id of the given entities.
      *
-     * <p>This comparison is applied in the {@link #createDataPairs(Entity a) createDataPairs} method to create only tuples with entities with higher ID. This avoids performing a collision check twice for a pair of entities, first for (a,b) and second for (b,a).
+     * <p>This comparison is applied in the {@link #createDataPairs(Entity a) createDataPairs}
+     * method to create only tuples with entities with higher ID. This avoids performing a collision
+     * check twice for a pair of entities, first for (a,b) and second for (b,a).
      *
      * @param a first Entity
      * @param b second Entity
