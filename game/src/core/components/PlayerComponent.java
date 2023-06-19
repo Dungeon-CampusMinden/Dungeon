@@ -1,6 +1,7 @@
 package core.components;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 
 import core.Component;
 import core.Entity;
@@ -9,32 +10,31 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 
 /**
- * Component that marks an entity as playable.
+ * This component is used to mark an entity as playable by the player.
  *
- * <p>This component is used to mark an entity as playable by the player.
+ * <p>It contains a map of keys (as integers) (Map-Key-Value) and {@link Consumer<Entity>}
+ * (Map-Value).
  *
- * <p>It also contains a map of keys/buttons (Map-Key-Value) and functions (Map-Value). The {@link
- * core.systems.PlayerSystem} will trigger {@link #execute}. This method will check each entry in
- * the map and check if the given key is pressed. If so, the function registered to this key will be
- * executed.
+ * <p>The {@link core.systems.PlayerSystem} will trigger {@link #execute}. This method will check
+ * each entry in the map and verify if the corresponding key is pressed. If so, the function
+ * registered to this key will be executed.
  *
- * <p>Use {@link #registerFunction} to add a new function for a button press, for example, add
- * movement controls.
+ * <p>Use {@link #registerFunction} to add a new function for a button press.
  *
  * <p>In the dungeon, keys/buttons are represented by an integer value.
+ *
+ * @see Input.Keys
+ * @see core.systems.PlayerSystem
  */
 public final class PlayerComponent extends Component {
-
-    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private final Map<Integer, Consumer<Entity>> functions;
 
     /**
-     * Creates a new PlayerComponent.
+     * Creates a new PlayerComponent and add it to the associated entity.
      *
-     * @param entity - the entity this component belongs to
+     * @param entity associated entity
      */
     public PlayerComponent(final Entity entity) {
         super(entity);
@@ -46,9 +46,10 @@ public final class PlayerComponent extends Component {
      *
      * <p>If a function is already registered on this key, the old function will be replaced.
      *
-     * @param key The key-value on which the function should be executed
-     * @param function Function to execute if the key is pressed
-     * @return Optional<Consumer < Entity>> The old function, if one was existing. Can be null.
+     * @param key The integer value of the key on which the function should be executed.
+     * @param function The {@link Consumer} that contains the function to execute if the key is
+     *     pressed.
+     * @return Optional<Consumer<Entity>> The old function, if one was existing. Can be null.
      * @see com.badlogic.gdx.Gdx#input
      */
     public Optional<Consumer<Entity>> registerFunction(
@@ -61,15 +62,16 @@ public final class PlayerComponent extends Component {
     /**
      * Remove the registered function on the given key.
      *
-     * @param key Value of the key.
+     * @param key The integer value of the key.
+     * @see com.badlogic.gdx.Gdx#input
      */
     public void removeFunction(final int key) {
         functions.remove(key);
     }
 
     /**
-     * Will check each entry in the function map, and if the key is just pressed, the function will
-     * be executed.
+     * This method will check each entry in the function map, and if the key is just pressed, the
+     * function will be executed.
      */
     public void execute() {
         functions.forEach(this::execute);
