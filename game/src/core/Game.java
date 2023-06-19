@@ -640,7 +640,11 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * <p>This is the place to add basic logic that isn't part of any system.
      */
     private void onFrame() {
-        hero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
+        try {
+            hero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
+        } catch (MissingComponentException e) {
+            LOGGER.warning(e.getMessage());
+        }
         debugKeys();
         userOnFrame.execute();
     }
@@ -686,7 +690,11 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     public void onLevelLoad() {
         currentLevel = levelManager.currentLevel();
         removeAllEntities();
-        hero().ifPresent(this::placeOnLevelStart);
+        try {
+            hero().ifPresent(this::placeOnLevelStart);
+        } catch (MissingComponentException e) {
+            LOGGER.warning(e.getMessage());
+        }
         hero().ifPresent(Game::addEntity);
         userOnLevelLoad.execute();
     }
