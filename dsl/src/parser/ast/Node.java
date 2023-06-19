@@ -45,7 +45,8 @@ public class Node {
         ParamDefList,
         StmtList,
         FuncDef,
-        ParamDef
+        ParamDef,
+        ReturnStmt
     }
 
     public static Node NONE = new Node(Type.NONE, new ArrayList<>());

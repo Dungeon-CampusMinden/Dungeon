@@ -5,9 +5,6 @@ import interpreter.mockecs.*;
 import org.junit.Test;
 
 import semanticanalysis.Scope;
-import semanticanalysis.types.IType;
-
-import java.util.List;
 
 public class TestGameEnvironment {
     @Test(expected = RuntimeException.class)
@@ -29,6 +26,6 @@ public class TestGameEnvironment {
         var externalComponentType =
                 env.getTypeBuilder()
                         .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
-        env.loadTypes(List.of(new IType[] {externalComponentType, adapterType, otherAdapterType}));
+        env.loadTypes(externalComponentType, adapterType, otherAdapterType);
     }
 }

@@ -22,8 +22,8 @@ import semanticanalysis.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import semanticanalysis.types.*;
 
+import java.util.ArrayDeque;
 import java.util.List;
-import java.util.Stack;
 
 // TODO: specify EXACT semantics of value copying and setting
 
@@ -34,8 +34,9 @@ import java.util.Stack;
 public class DSLInterpreter implements AstVisitor<Object> {
 
     private RuntimeEnvironment environment;
-    private final Stack<IMemorySpace> memoryStack;
+    private final ArrayDeque<IMemorySpace> memoryStack;
     private final IMemorySpace globalSpace;
+    private boolean hitReturnStmt;
 
     private SymbolTable symbolTable() {
         return environment.getSymbolTable();
@@ -45,11 +46,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return this.memoryStack.peek();
     }
 
+    private static final String RETURN_VALUE_NAME = "$return_value$";
+
     // TODO: add entry-point for game-object traversal
 
     /** Constructor. */
     public DSLInterpreter() {
-        memoryStack = new Stack<>();
+        memoryStack = new ArrayDeque<>();
         globalSpace = new MemorySpace();
         memoryStack.push(globalSpace);
     }
@@ -142,24 +145,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public void initializeRuntime(IEvironment environment) {
         this.environment = new RuntimeEnvironment(environment);
 
-        TypeInstantiator typeInstantiator = new TypeInstantiator();
-
         // bind all function definition and object definition symbols to objects
         // in global memorySpace
         for (var symbol : symbolTable().getGlobalScope().getSymbols()) {
-            if (symbol instanceof ICallable) {
-                var callableType = ((ICallable) symbol).getCallableType();
-                if (callableType == ICallable.Type.Native) {
-                    bindFromSymbol(symbol, memoryStack.peek());
-                } else if (callableType == ICallable.Type.UserDefined) {
-                    // TODO: if userDefined -> reference AST -> how to?
-                    //  subclass of value? -> do it by symbol-reference
-                }
-            }
-            // bind all global definitions
-            else {
-                bindFromSymbol(symbol, memoryStack.peek());
-            }
+            bindFromSymbol(symbol, memoryStack.peek());
         }
     }
 
@@ -502,10 +491,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         var functionMemSpace = new MemorySpace(memoryStack.peek());
         this.memoryStack.push(functionMemSpace);
 
-        var funcAsScope = (ScopedSymbol) symbol;
-
-        // TODO: push parameter for return value and actually return it
-        var parameterSymbols = funcAsScope.getSymbols();
+        // bind all parameter-symbols as values in the function's memory space and set their values
+        var parameterSymbols = symbol.getSymbols();
         for (int i = 0; i < parameterNodes.size(); i++) {
             var parameterSymbol = parameterSymbols.get(i);
             bindFromSymbol(parameterSymbol, memoryStack.peek());
@@ -516,13 +503,36 @@ public class DSLInterpreter implements AstVisitor<Object> {
             setValue(parameterSymbol.getName(), paramValue);
         }
 
+        // create and bind the return value
+        var functionType = (FunctionType) symbol.getDataType();
+        if (functionType.getReturnType() != BuiltInType.noType) {
+            var returnValue = createDefaultValue(functionType.getReturnType());
+            memoryStack.peek().bindValue(RETURN_VALUE_NAME, returnValue);
+        }
+
         // visit function AST
-        // TODO: this could just be retrieved from the FunctionSymbol..
-        var funcAstNode = this.symbolTable().getCreationAstNode(symbol);
-        funcAstNode.accept(this);
+        var funcRootNode = symbol.getAstRootNode();
+        var stmtList = funcRootNode.getStmts();
+
+        // reset return stmt flag
+        this.hitReturnStmt = false;
+
+        // execute function's statements one by one
+        for (var stmt : stmtList) {
+            stmt.accept(this);
+            // check, if a return statement was hit
+            // if so: stop function execution
+            if (hitReturnStmt) {
+                hitReturnStmt = false;
+                break;
+            }
+        }
 
         memoryStack.pop();
-        return null;
+        if (functionType.getReturnType() != BuiltInType.noType) {
+            return functionMemSpace.resolve(RETURN_VALUE_NAME);
+        }
+        return Value.NONE;
     }
 
     @Override
@@ -538,6 +548,47 @@ public class DSLInterpreter implements AstVisitor<Object> {
         assert funcSymbol instanceof ICallable;
         var funcCallable = (ICallable) funcSymbol;
 
-        return funcCallable.call(this, node.getParameters());
+        // execute the function call
+        var returnValue = funcCallable.call(this, node.getParameters());
+        if (returnValue == null) {
+            return Value.NONE;
+        }
+
+        if (!(returnValue instanceof Value)) {
+            // package it into value
+            var valueClass = returnValue.getClass();
+            // try to resolve the objects type as primitive built in type
+            var dslType = TypeBuilder.getDSLTypeForClass(valueClass);
+            if (dslType == null) {
+                // lookup the objects type in the java to dsl type map (created during type
+                // building)
+                dslType = this.environment.javaTypeToDSLTypeMap().get(valueClass);
+                if (dslType == null) {
+                    throw new RuntimeException(
+                            "No DSL Type representation for java type '" + valueClass + "'");
+                }
+            }
+            returnValue = new Value(dslType, returnValue);
+        }
+        return returnValue;
+    }
+
+    @Override
+    public Object visit(ReturnStmtNode node) {
+        Value value = (Value) node.getInnerStmtNode().accept(this);
+
+        // walk the memorystack, find the first return value
+        // and set it according to the evaluated value
+        for (var ms : this.memoryStack) {
+            Value returnValue = ms.resolve(RETURN_VALUE_NAME);
+            if (returnValue != Value.NONE) {
+                returnValue.setInternalValue(value.getInternalObject());
+                break;
+            }
+        }
+
+        // signal, that a return statement was hit
+        this.hitReturnStmt = true;
+        return null;
     }
 }

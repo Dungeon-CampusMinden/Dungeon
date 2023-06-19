@@ -141,6 +141,11 @@ public class GameEnvironment implements IEvironment {
         return this.globalScope;
     }
 
+    @Override
+    public HashMap<Class<?>, IType> javaTypeToDSLTypeMap() {
+        return typeBuilder.getJavaTypeToDSLTypeMap();
+    }
+
     private ArrayList<IType> buildBuiltInTypes() {
         ArrayList<IType> types = new ArrayList<>();
 

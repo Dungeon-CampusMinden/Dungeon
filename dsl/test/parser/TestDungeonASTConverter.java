@@ -353,4 +353,24 @@ public class TestDungeonASTConverter {
 
         assertNotEquals(Node.NONE, funcDefNode);
     }
+
+    @Test
+    public void returnStmt() {
+        String program =
+                """
+                fn test_func() -> ret_type {
+                    return 42;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+
+        var stmts = funcDefNode.getStmts();
+        var returnStmt = stmts.get(0);
+        assertEquals(Node.Type.ReturnStmt, returnStmt.type);
+
+        var innerStmt = ((ReturnStmtNode) returnStmt).getInnerStmtNode();
+        assertEquals(Node.Type.Number, innerStmt.type);
+    }
 }

@@ -67,8 +67,13 @@ stmt
     : primary ';'
     ;
 
+return_stmt
+    : 'return' primary ';'
+    ;
+
 stmt_list
     : stmt stmt_list
+    | return_stmt
     | stmt
     ;
 

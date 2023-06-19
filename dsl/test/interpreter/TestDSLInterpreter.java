@@ -47,6 +47,168 @@ public class TestDSLInterpreter {
         assertTrue(outputStream.toString().contains("Hello, World!"));
     }
 
+    @Test
+    public void funcCallReturn() {
+        String program =
+                """
+            quest_config c {
+                test: print(testReturnHelloWorld())
+            }
+                """;
+        TestEnvironment env = new TestEnvironment();
+        env.loadFunctions(TestFunctionReturnHelloWorld.func);
+
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+        symbolTableParser.setup(env);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        interpreter.initializeRuntime(env);
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        interpreter.generateQuestConfig(ast);
+
+        assertTrue(outputStream.toString().contains("Hello, World!"));
+    }
+
+    @Test
+    public void funcCallDoubleReturnUserFunc() {
+        String program =
+                """
+        fn ret_string2() -> string {
+            return "Hello, World!";
+        }
+
+        fn ret_string1() -> string {
+            return ret_string2();
+        }
+
+        quest_config c {
+            test: print(ret_string1())
+        }
+            """;
+        TestEnvironment env = new TestEnvironment();
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+        symbolTableParser.setup(env);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        interpreter.initializeRuntime(env);
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        interpreter.generateQuestConfig(ast);
+
+        assertTrue(outputStream.toString().contains("Hello, World!"));
+    }
+
+    @Test
+    public void funcCallDoubleReturnUserFuncDifferentValues() {
+        String program =
+                """
+            fn ret_string2() -> string {
+                return "Moin";
+            }
+
+            fn ret_string1() -> string {
+                ret_string2();
+                return "Hello, World!";
+            }
+
+            quest_config c {
+                test: print(ret_string1())
+            }
+        """;
+        TestEnvironment env = new TestEnvironment();
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+        symbolTableParser.setup(env);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        interpreter.initializeRuntime(env);
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        interpreter.generateQuestConfig(ast);
+
+        assertTrue(outputStream.toString().contains("Hello, World!"));
+        assertFalse(outputStream.toString().contains("Moin"));
+    }
+
+    @Test
+    public void funcCallReturnUserFunc() {
+        String program =
+                """
+        fn ret_string() -> string {
+            return "Hello, World!";
+        }
+
+        quest_config c {
+            test: print(ret_string())
+        }
+            """;
+        TestEnvironment env = new TestEnvironment();
+        env.loadFunctions(TestFunctionReturnHelloWorld.func);
+
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+        symbolTableParser.setup(env);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        interpreter.initializeRuntime(env);
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        interpreter.generateQuestConfig(ast);
+
+        assertTrue(outputStream.toString().contains("Hello, World!"));
+    }
+
+    @Test
+    public void funcCallReturnUserFuncWithoutReturnType() {
+        String program =
+                """
+            fn ret_string() {
+                return "Hello, World!";
+            }
+
+            quest_config c {
+                test: print(ret_string())
+            }
+        """;
+        TestEnvironment env = new TestEnvironment();
+        env.loadFunctions(TestFunctionReturnHelloWorld.func);
+
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+        symbolTableParser.setup(env);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        interpreter.initializeRuntime(env);
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        interpreter.generateQuestConfig(ast);
+
+        assertFalse(outputStream.toString().contains("Hello, World!"));
+    }
+
     /** Test, if Value.NULL does not get set, if non-existing property of datatype is assigned */
     @Test
     public void testDontSetNullValue() {

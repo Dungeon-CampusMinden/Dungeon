@@ -343,4 +343,19 @@ public Object call(DSLInterpreter interpreter, List<Node> parameters) {
 
 Das Sequenzdiagramm der Methode `executeUserDefinedFunction` ist unten dargestellt:
 
-Note: kommt mit [Issue \#705](https://github.com/Programmiermethoden/Dungeon/issues/705).
+![UML: executeUserDefinedFunction](img/execute_user_defined_function.png)
+
+Für den Rückgabewert wird eine `Value`-Instanz im `MemorySpace` der Funktion gebunden. Der
+interne Wert dieser `Value`-Instanz wird durch während der Interpretation von
+`return`-Statements gesetzt. Ein `return`-Statement beendet die Ausführung der
+Funktionslogik.
+
+Der `DSLInterpreter` verfügt hierfür über ein Flag, welches während der Interpretation eines
+`return`-Statements aktiv geschaltet wird. Nach der Interpretation eines Statements wird der
+Zustand des Flags überprüft und (falls aktiv) die Ausführung der nachfolgenden Statements
+übersprungen.
+
+Note: Dieser Flag-basierte Mechanismus ist ein Provisorium und ist bspw. für konditionale
+Statements zu kurz gedacht, liegt allerdings außerhalb des Scopes des PRs, der die
+Behandlung von `return`-Statements implementiert. Siehe dazu [Issue
+737](https://github.com/Programmiermethoden/Dungeon/issues/737).

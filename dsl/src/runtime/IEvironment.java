@@ -3,6 +3,7 @@ package runtime;
 import semanticanalysis.*;
 import semanticanalysis.types.IType;
 
+import java.util.HashMap;
 import java.util.List;
 
 // TODO: this is more of a semantic analysis kind of concept -> put it there
@@ -55,4 +56,8 @@ public interface IEvironment {
      * @return global scope of this environment
      */
     IScope getGlobalScope();
+
+    default HashMap<Class<?>, IType> javaTypeToDSLTypeMap() {
+        return new HashMap<>();
+    }
 }
