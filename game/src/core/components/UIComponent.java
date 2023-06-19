@@ -10,7 +10,7 @@ import core.Entity;
  * com.badlogic.gdx.scenes.scene2d.ui Elements. Also allows to define whether the Elements are
  * pausing the Game or not.
  */
-public class UIComponent extends Component {
+public final class UIComponent extends Component {
     private final Group dialog;
     private final boolean willPauseGame;
 
@@ -19,7 +19,7 @@ public class UIComponent extends Component {
      * @param dialog a Group of Elements which should be shown
      * @param willPauseGame if the UI should pause the Game or not
      */
-    public UIComponent(Entity entity, Group dialog, boolean willPauseGame) {
+    public UIComponent(final Entity entity, final Group dialog, final boolean willPauseGame) {
         super(entity);
         this.dialog = dialog;
         this.willPauseGame = willPauseGame;
@@ -30,7 +30,7 @@ public class UIComponent extends Component {
      *
      * @param entity where the Component should be added
      */
-    public UIComponent(Entity entity) {
+    public UIComponent(final Entity entity) {
         this(entity, new Group(), true);
     }
 
