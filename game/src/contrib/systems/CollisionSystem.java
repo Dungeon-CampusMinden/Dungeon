@@ -13,13 +13,13 @@ import java.util.stream.Stream;
 
 /**
  * CollisionSystem is a system which checks on execute whether the hitboxes of two entities are
- * overlapping/colliding. In wich case the corresponding Methods are called on both entities.
+ * overlapping/colliding. In which case the corresponding Methods are called on both entities.
  *
  * <p>The system does imply the hitboxes are axis aligned.
  *
- * <p>Each CollideCompoent should only be informed when a collision begins or ends. For this a map
- * with all currently active collisions is stored and allows informing the entities when a
- * collisionn ended.
+ * <p>Each CollideComponent should only be informed when a collision begins or ends. For this a map
+ * with all currently active collisions is stored and allows informing the entities when a collision
+ * ended.
  */
 public final class CollisionSystem extends System {
 
