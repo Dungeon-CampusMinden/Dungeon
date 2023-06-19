@@ -21,7 +21,7 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * Test every CollideEntity with each other CollideEntity for collision.
+     * Test every CollideEntity with every other CollideEntity for collision.
      *
      * <p>The collision check will be performed only once for a given tuple of entities. When entity
      * A does collide with entity B it also means B collides with A.
@@ -32,7 +32,7 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * Create a stream of pairs of entities
+     * Create a stream of pairs of entities.
      *
      * <p>Pair a given entity with every other entity with a higher id.
      *
@@ -44,7 +44,7 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * Compares the id of the given Entities.
+     * Compares the id of the given entities.
      *
      * <p>Makes sure only Entities with a higher id are paired up. This Prevents a pair of Entities
      * to be checked double or with itself.
@@ -58,7 +58,7 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * Create a pair of CollideComponents
+     * Create a pair of CollideComponents.
      *
      * @param a
      * @param b
