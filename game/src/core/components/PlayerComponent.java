@@ -26,17 +26,17 @@ import java.util.logging.Logger;
  *
  * <p>In the dungeon, keys/buttons are represented by an integer value.
  */
-public class PlayerComponent extends Component {
+public final class PlayerComponent extends Component {
 
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
-    private Map<Integer, Consumer<Entity>> functions;
+    private final Map<Integer, Consumer<Entity>> functions;
 
     /**
      * Creates a new PlayerComponent.
      *
      * @param entity - the entity this component belongs to
      */
-    public PlayerComponent(Entity entity) {
+    public PlayerComponent(final Entity entity) {
         super(entity);
         functions = new HashMap<>();
     }
@@ -51,7 +51,8 @@ public class PlayerComponent extends Component {
      * @return Optional<Consumer<Entity>> The old function, if one was existing. Can be null.
      * @see com.badlogic.gdx.Gdx#input
      */
-    public Optional<Consumer<Entity>> registerFunction(int key, Consumer<Entity> function) {
+    public Optional<Consumer<Entity>> registerFunction(
+            final int key, final Consumer<Entity> function) {
         Optional<Consumer<Entity>> oldFunction = Optional.ofNullable(functions.get(key));
         functions.put(key, function);
         return oldFunction;
@@ -62,7 +63,7 @@ public class PlayerComponent extends Component {
      *
      * @param key Value of the key.
      */
-    public void removeFunction(int key) {
+    public void removeFunction(final int key) {
         functions.remove(key);
     }
 
@@ -74,7 +75,7 @@ public class PlayerComponent extends Component {
         functions.forEach((k, f) -> execute(k, f));
     }
 
-    private void execute(Integer key, Consumer<Entity> function) {
+    private void execute(final Integer key, final Consumer<Entity> function) {
         if (Gdx.input.isKeyPressed(key)) function.accept(entity);
     }
 }
