@@ -56,6 +56,7 @@ public class QuizDialogDesign {
 
         answerButtons.align(Align.left);
         answerButtons.left();
+        answerButtons.space(10);
 
         return answerButtons;
     }
