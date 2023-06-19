@@ -75,7 +75,7 @@ public final class PlayerComponent extends Component {
         functions.forEach((k, f) -> execute(k, f));
     }
 
-    private void execute(final Integer key, final Consumer<Entity> function) {
+    private void execute(final int key, final Consumer<Entity> function) {
         if (Gdx.input.isKeyPressed(key)) function.accept(entity);
     }
 }
