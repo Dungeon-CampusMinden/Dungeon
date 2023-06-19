@@ -33,6 +33,6 @@ public final class MissingComponentException extends NullPointerException {
      * @return the created MissingComponentException
      */
     public static MissingComponentException build(final Entity entity, final Class<?> klass) {
-        return new MissingComponentException(entity + "is missing " + klass.getName());
+        return new MissingComponentException(entity + " is missing " + klass.getName());
     }
 }
