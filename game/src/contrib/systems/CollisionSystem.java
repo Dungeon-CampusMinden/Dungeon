@@ -12,10 +12,10 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 /**
- * CollisionSystem is a System which checks on execute whether the hitboxes of two entities are
+ * CollisionSystem is a system which checks on execute whether the hitboxes of two entities are
  * overlapping/colliding. In wich case the corresponding Methods are called on both entities.
  *
- * <p>The System does imply the hitboxes are axis aligned.
+ * <p>The system does imply the hitboxes are axis aligned.
  *
  * <p>Each CollideCompoent should only be informed when a collision begins or ends. For this a map
  * with all currently active collisions is stored and allows informing the entities when a
@@ -55,8 +55,7 @@ public final class CollisionSystem extends System {
     /**
      * Compares the id of the given entities.
      *
-     * <p>Makes sure only Entities with a higher id are paired up. This Prevents a pair of Entities
-     * to be checked double or with itself.
+     * <p>This comparison is applied in the {@link #createDataPairs(Entity a) createDataPairs} method to create only tuples with entities with higher ID. This avoids performing a collision check twice for a pair of entities, first for (a,b) and second for (b,a).
      *
      * @param a first Entity
      * @param b second Entity
