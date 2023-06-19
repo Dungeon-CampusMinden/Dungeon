@@ -52,8 +52,8 @@ public class TileLevelAPITest {
         texture = Mockito.mock(Texture.class);
         textureMap = Mockito.mock(TextureMap.class);
         PowerMockito.mockStatic(TextureMap.class);
-        when(TextureMap.getInstance()).thenReturn(textureMap);
-        when(textureMap.getTexture(anyString())).thenReturn(texture);
+        when(TextureMap.instance()).thenReturn(textureMap);
+        when(textureMap.textureAt(anyString())).thenReturn(texture);
 
         painter = Mockito.mock(Painter.class);
         generator = Mockito.mock(IGenerator.class);
