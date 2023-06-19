@@ -61,8 +61,8 @@ public final class DrawComponent extends Component {
      * <p>Will set the current animation to idle left
      *
      * @param entity associated entity
-     * @param path Path (as a string) to the directory in the assets folder where the subdirectories
-     *     containing the animation files are stored. Example: "character/knight".
+     * @param path Path (as a string) to the directory in the assets' folder where the
+     *     subdirectories containing the animation files are stored. Example: "character/knight".
      * @throws IOException if the given path does not exist
      * @see Animation
      */
@@ -70,12 +70,12 @@ public final class DrawComponent extends Component {
         super(entity);
         // fetch available animations
         ClassLoader classLoader = getClass().getClassLoader();
-        File directory = new File(classLoader.getResource(path).getFile());
+        File directory = new File(Objects.requireNonNull(classLoader.getResource(path)).getFile());
         if (!directory.exists() || !directory.isDirectory()) {
             throw new FileNotFoundException("Path " + path + " not found.");
         }
         animationMap =
-                Arrays.stream(directory.listFiles())
+                Arrays.stream(Objects.requireNonNull(directory.listFiles()))
                         .filter(File::isDirectory)
                         .collect(Collectors.toMap(File::getName, Animation::of));
         currentAnimation(CoreAnimations.IDLE_LEFT);
