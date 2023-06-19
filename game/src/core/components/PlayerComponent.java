@@ -48,7 +48,7 @@ public final class PlayerComponent extends Component {
      *
      * @param key The key-value on which the function should be executed
      * @param function Function to execute if the key is pressed
-     * @return Optional<Consumer<Entity>> The old function, if one was existing. Can be null.
+     * @return Optional<Consumer < Entity>> The old function, if one was existing. Can be null.
      * @see com.badlogic.gdx.Gdx#input
      */
     public Optional<Consumer<Entity>> registerFunction(
@@ -72,7 +72,7 @@ public final class PlayerComponent extends Component {
      * be executed.
      */
     public void execute() {
-        functions.forEach((k, f) -> execute(k, f));
+        functions.forEach(this::execute);
     }
 
     private void execute(final int key, final Consumer<Entity> function) {
