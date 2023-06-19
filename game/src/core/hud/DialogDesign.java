@@ -3,6 +3,7 @@ package core.hud;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.utils.Align;
 
 import java.util.Optional;
 import java.util.regex.MatchResult;
@@ -52,7 +53,8 @@ public class DialogDesign extends VerticalGroup {
      * @param outputMsg Content displayed in the scrollable label
      */
     public static Group createTextDialog(Skin skin, String outputMsg) {
-        return createScrollPane(skin, new Label(outputMsg, skin));
+        return createScrollPane(
+                skin, new Container<>(new Label(outputMsg, skin)).align(Align.center));
     }
 
     /**

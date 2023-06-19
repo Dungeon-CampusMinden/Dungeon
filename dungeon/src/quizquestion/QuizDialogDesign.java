@@ -29,7 +29,7 @@ public class QuizDialogDesign {
 
         final CheckBox.CheckBoxStyle style =
                 switch (quizQuestion.type()) {
-                    case MULTIPLE_CHOICE -> skin.get("radio", CheckBox.CheckBoxStyle.class);
+                    case SINGLE_CHOICE -> skin.get("radio", CheckBox.CheckBoxStyle.class);
                     default -> skin.get("default", CheckBox.CheckBoxStyle.class);
                 };
         Arrays.stream(quizQuestion.answers())
@@ -46,6 +46,7 @@ public class QuizDialogDesign {
                         checkBox -> {
                             btnGroup.add(checkBox);
                             answerButtons.addActor(checkBox);
+                            checkBox.left();
                         });
 
         switch (quizQuestion.type()) {
@@ -55,6 +56,7 @@ public class QuizDialogDesign {
 
         answerButtons.align(Align.left);
         answerButtons.left();
+        answerButtons.space(10);
 
         return answerButtons;
     }
@@ -76,6 +78,7 @@ public class QuizDialogDesign {
         vg.addActor(visualizeQuestionSection(quizQuestion.question().type(), skin, outputMsg));
         vg.addActor(labelSolution);
         vg.addActor(visualizeAnswerSection(quizQuestion, skin));
+        vg.grow();
         return vg;
     }
 
@@ -121,7 +124,7 @@ public class QuizDialogDesign {
             }
             default -> {}
         }
-
+        vg.grow();
         return vg;
     }
 
@@ -145,11 +148,13 @@ public class QuizDialogDesign {
             }
             case MULTIPLE_CHOICE, SINGLE_CHOICE -> {
                 VerticalGroup btnGrp = createAnswerButtons(skin, quizQuestion);
-
+                btnGrp.fill();
+                btnGrp.left();
                 vg.addActor(DialogDesign.createScrollPane(skin, btnGrp));
             }
             default -> {}
         }
+        vg.grow();
         return vg;
     }
 }

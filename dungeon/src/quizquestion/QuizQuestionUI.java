@@ -4,8 +4,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import core.Entity;
-import core.hud.DialogDesign;
 import core.hud.TextDialog;
+import core.hud.UITools;
 
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -54,13 +54,16 @@ public class QuizQuestionUI {
                     @Override
                     public Dialog get() {
 
-                        return createQuizDialog(
-                                core.hud.UITools.DEFAULT_SKIN,
-                                question,
-                                questionMsg,
-                                buttonMsg,
-                                dialogTitle,
-                                core.hud.UITools.createResultHandler(entity, buttonMsg));
+                        Dialog quizDialog =
+                                createQuizDialog(
+                                        UITools.DEFAULT_SKIN,
+                                        question,
+                                        questionMsg,
+                                        buttonMsg,
+                                        dialogTitle,
+                                        UITools.createResultHandler(entity, buttonMsg));
+                        UITools.centerActor(quizDialog);
+                        return quizDialog;
                     }
                 },
                 entity);
@@ -87,16 +90,13 @@ public class QuizQuestionUI {
             String title,
             BiFunction<TextDialog, String, Boolean> resultHandler) {
         Dialog textDialog = new TextDialog(title, skin, resultHandler);
-        DialogDesign dialogDesign = new DialogDesign();
         textDialog
                 .getContentTable()
-                .add(QuizDialogDesign.createQuizQuestion(quizQuestion, skin, outputMsg));
+                .add(QuizDialogDesign.createQuizQuestion(quizQuestion, skin, outputMsg))
+                .grow()
+                .fill(); // changes size based on childrens;
         textDialog.button(buttonMsg, buttonMsg);
-        textDialog
-                .getContentTable()
-                .add(dialogDesign)
-                .expand()
-                .fill(); // changes size based on childrens
+
         textDialog.pack(); // resizes to size
         return textDialog;
     }
@@ -121,6 +121,6 @@ public class QuizQuestionUI {
                 sumLength = 0;
             }
         }
-        return formattedMsg.toString();
+        return formattedMsg.toString().trim();
     }
 }

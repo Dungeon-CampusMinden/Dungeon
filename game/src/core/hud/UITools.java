@@ -1,6 +1,7 @@
 package core.hud;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
@@ -46,12 +47,15 @@ public class UITools {
                 new Supplier<Dialog>() {
                     @Override
                     public Dialog get() {
-                        return DialogFactory.createTextDialog(
-                                DEFAULT_SKIN,
-                                content,
-                                buttonText,
-                                windowText,
-                                createResultHandler(entity, buttonText));
+                        Dialog textDialog =
+                                DialogFactory.createTextDialog(
+                                        DEFAULT_SKIN,
+                                        content,
+                                        buttonText,
+                                        windowText,
+                                        createResultHandler(entity, buttonText));
+                        centerActor(textDialog);
+                        return textDialog;
                     }
                 },
                 entity);
@@ -77,5 +81,15 @@ public class UITools {
             }
             return false;
         };
+    }
+
+    /**
+     * centers the actor based on the current windowWidth / windowHeight
+     *
+     * @param a Actor which position should be updated
+     */
+    public static void centerActor(Actor a) {
+        a.setPosition(
+                (Game.windowWidth() - a.getWidth()) / 2, (Game.windowHeight() - a.getHeight()) / 2);
     }
 }
