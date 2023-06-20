@@ -14,16 +14,13 @@ import java.util.function.Consumer;
 /**
  * Mark an entity as playable by the player.
  *
- * <p>It contains a map of keys (as integers) (Map-Key-Value) and {@link Consumer<Entity>}
- * (Map-Value).
+ * <p>This component stores pairs of keystroke codes with an associated callback function. The
+ * mappings can be added or changed via {@link #registerFunction} and deleted via {@link
+ * #removeFunction}. The codes for the buttons originate from {@link Input.Keys}
  *
- * <p>The {@link core.systems.PlayerSystem} will trigger {@link #execute}. This method will check
- * each entry in the map and verify if the corresponding key is pressed. If so, the function
- * registered to this key will be executed.
- *
- * <p>Use {@link #registerFunction} to add a new function for a button press.
- *
- * <p>In the dungeon, keys/buttons are represented by an integer value.
+ * <p>The {@link core.systems.PlayerSystem} invokes the {@link #execute} method of this component,
+ * which invokes for each stored tuple the associated callback if the corresponding button was
+ * pressed.
  *
  * @see Input.Keys
  * @see core.systems.PlayerSystem
