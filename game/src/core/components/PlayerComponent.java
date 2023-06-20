@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * This component is used to mark an entity as playable by the player.
+ * Mark an entity as playable by the player.
  *
  * <p>It contains a map of keys (as integers) (Map-Key-Value) and {@link Consumer<Entity>}
  * (Map-Value).
@@ -32,7 +32,7 @@ public final class PlayerComponent extends Component {
     private final Map<Integer, Consumer<Entity>> functions;
 
     /**
-     * Creates a new PlayerComponent and add it to the associated entity.
+     * Create a new PlayerComponent and add it to the associated entity.
      *
      * @param entity associated entity
      */
