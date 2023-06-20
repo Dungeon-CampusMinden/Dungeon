@@ -49,8 +49,7 @@ public final class PlayerComponent extends Component {
      * @return Optional<Consumer<Entity>> The old function, if one was existing. Can be null.
      * @see com.badlogic.gdx.Gdx#input
      */
-    public Optional<Consumer<Entity>> registerFunction(
-            final int key, final Consumer<Entity> function) {
+    public Optional<Consumer<Entity>> registerFunction(int key, final Consumer<Entity> function) {
         Optional<Consumer<Entity>> oldFunction = Optional.ofNullable(functions.get(key));
         functions.put(key, function);
         return oldFunction;
@@ -62,7 +61,7 @@ public final class PlayerComponent extends Component {
      * @param key The integer value of the key.
      * @see com.badlogic.gdx.Gdx#input
      */
-    public void removeFunction(final int key) {
+    public void removeFunction(int key) {
         functions.remove(key);
     }
 
@@ -74,7 +73,7 @@ public final class PlayerComponent extends Component {
         functions.forEach(this::execute);
     }
 
-    private void execute(final int key, final Consumer<Entity> function) {
+    private void execute(int key, final Consumer<Entity> function) {
         if (Gdx.input.isKeyPressed(key)) function.accept(entity);
     }
 }
