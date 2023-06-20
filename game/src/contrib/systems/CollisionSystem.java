@@ -53,7 +53,7 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * Compares the id of the given entities.
+     * Compare the id of the given entities.
      *
      * <p>This comparison is applied in the {@link #createDataPairs(Entity a) createDataPairs}
      * method to create only tuples with entities with higher ID. This avoids performing a collision
@@ -68,7 +68,7 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * Creates a pair of CollideComponents which is the used to check whether a collision is
+     * Create a pair of CollideComponents which is the used to check whether a collision is
      * happening and to store in the internal map. Which allows informing the CollideComponents
      * about an ended Collision
      *
@@ -90,7 +90,7 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * Checks whether a new collision is happening or whether a collision has ended.
+     * Check whether a new collision is happening or whether a collision has ended.
      *
      * <p>Only allows a new collision to call the onEnter of the hitboxes. An ongoing collision is
      * not calling the onEnter of the hitboxes. When a previous collision existed and no longer is
