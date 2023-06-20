@@ -27,11 +27,13 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 public class TestDSLInterpreter {
-    /** Tests, if a native function call is evaluated by the DSLInterpreter */
+    /**
+     * Tests, if a native function call is evaluated by the DSLInterpreter
+     */
     @Test
     public void funcCall() {
         String program =
-                """
+            """
                 quest_config c {
                     test: print("Hello, World!")
                 }
@@ -50,11 +52,11 @@ public class TestDSLInterpreter {
     @Test
     public void funcCallReturn() {
         String program =
-                """
-            quest_config c {
-                test: print(testReturnHelloWorld())
-            }
-                """;
+            """
+                quest_config c {
+                    test: print(testReturnHelloWorld())
+                }
+                    """;
         TestEnvironment env = new TestEnvironment();
         env.loadFunctions(TestFunctionReturnHelloWorld.func);
 
@@ -78,19 +80,19 @@ public class TestDSLInterpreter {
     @Test
     public void funcCallDoubleReturnUserFunc() {
         String program =
-                """
-        fn ret_string2() -> string {
-            return "Hello, World!";
-        }
+            """
+                fn ret_string2() -> string {
+                    return "Hello, World!";
+                }
 
-        fn ret_string1() -> string {
-            return ret_string2();
-        }
+                fn ret_string1() -> string {
+                    return ret_string2();
+                }
 
-        quest_config c {
-            test: print(ret_string1())
-        }
-            """;
+                quest_config c {
+                    test: print(ret_string1())
+                }
+                    """;
         TestEnvironment env = new TestEnvironment();
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
@@ -112,20 +114,20 @@ public class TestDSLInterpreter {
     @Test
     public void funcCallDoubleReturnUserFuncDifferentValues() {
         String program =
-                """
-            fn ret_string2() -> string {
-                return "Moin";
-            }
+            """
+                    fn ret_string2() -> string {
+                        return "Moin";
+                    }
 
-            fn ret_string1() -> string {
-                ret_string2();
-                return "Hello, World!";
-            }
+                    fn ret_string1() -> string {
+                        ret_string2();
+                        return "Hello, World!";
+                    }
 
-            quest_config c {
-                test: print(ret_string1())
-            }
-        """;
+                    quest_config c {
+                        test: print(ret_string1())
+                    }
+                """;
         TestEnvironment env = new TestEnvironment();
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
@@ -148,15 +150,15 @@ public class TestDSLInterpreter {
     @Test
     public void funcCallReturnUserFunc() {
         String program =
-                """
-        fn ret_string() -> string {
-            return "Hello, World!";
-        }
+            """
+                fn ret_string() -> string {
+                    return "Hello, World!";
+                }
 
-        quest_config c {
-            test: print(ret_string())
-        }
-            """;
+                quest_config c {
+                    test: print(ret_string())
+                }
+                    """;
         TestEnvironment env = new TestEnvironment();
         env.loadFunctions(TestFunctionReturnHelloWorld.func);
 
@@ -180,15 +182,15 @@ public class TestDSLInterpreter {
     @Test
     public void funcCallReturnUserFuncWithoutReturnType() {
         String program =
-                """
-            fn ret_string() {
-                return "Hello, World!";
-            }
+            """
+                    fn ret_string() {
+                        return "Hello, World!";
+                    }
 
-            quest_config c {
-                test: print(ret_string())
-            }
-        """;
+                    quest_config c {
+                        test: print(ret_string())
+                    }
+                """;
         TestEnvironment env = new TestEnvironment();
         env.loadFunctions(TestFunctionReturnHelloWorld.func);
 
@@ -209,11 +211,13 @@ public class TestDSLInterpreter {
         assertFalse(outputStream.toString().contains("Hello, World!"));
     }
 
-    /** Test, if Value.NULL does not get set, if non-existing property of datatype is assigned */
+    /**
+     * Test, if Value.NULL does not get set, if non-existing property of datatype is assigned
+     */
     @Test
     public void testDontSetNullValue() {
         String program =
-                """
+            """
                 quest_config c {
                     this_value_does_not_exist_in_type: 42
                 }
@@ -227,7 +231,7 @@ public class TestDSLInterpreter {
      * Test, if a dot definition and object definition is correctly created
      *
      * @throws URISyntaxException if the resource URL is not valid
-     * @throws IOException if the resource file does not exist
+     * @throws IOException        if the resource file does not exist
      */
     @Test
     public void questConfigHighLevel() throws URISyntaxException, IOException {
@@ -247,11 +251,11 @@ public class TestDSLInterpreter {
         // the quest_config type has also a quest_points and a password
         // parameter, these should be set to default values
         String program =
-                """
-            quest_config c {
-                quest_desc: "Hello"
-            }
-                """;
+            """
+                quest_config c {
+                    quest_desc: "Hello"
+                }
+                    """;
         DSLInterpreter interpreter = new DSLInterpreter();
 
         var questConfig = (QuestConfig) interpreter.getQuestConfig(program);
@@ -260,11 +264,13 @@ public class TestDSLInterpreter {
         assertEquals("", questConfig.password());
     }
 
-    /** Test, if the properties of the quest_config definition are correctly parsed */
+    /**
+     * Test, if the properties of the quest_config definition are correctly parsed
+     */
     @Test
     public void questConfigFull() {
         String program =
-                """
+            """
                 graph g {
                     A -- B
                 }
@@ -301,16 +307,18 @@ public class TestDSLInterpreter {
     }
 
     @DSLType
-    private record TestComponent(@DSLTypeMember int member1, @DSLTypeMember String member2) {}
+    private record TestComponent(@DSLTypeMember int member1, @DSLTypeMember String member2) {
+    }
 
     @DSLType
     private record OtherComponent(
-            @DSLTypeMember int member3, @DSLTypeMember Graph<String> member4) {}
+        @DSLTypeMember int member3, @DSLTypeMember Graph<String> member4) {
+    }
 
     @Test
     public void aggregateTypeWithDefaults() {
         String program =
-                """
+            """
                 graph g {
                     A -- B
                 }
@@ -371,7 +379,7 @@ public class TestDSLInterpreter {
     @Test
     public void aggregateTypeInstancing() {
         String program =
-                """
+            """
                 entity_type my_obj {
                     test_component1 {
                         member1: 42,
@@ -384,7 +392,7 @@ public class TestDSLInterpreter {
                 }
 
                 quest_config config {
-                    entity: my_obj
+                    entity: instantiate(my_obj)
                 }
                 """;
 
@@ -420,7 +428,7 @@ public class TestDSLInterpreter {
         var testComp1Value = ((AggregateValue) myObj).getMemorySpace().resolve("test_component1");
         assertNotEquals(Value.NONE, testComp1Value);
         var testComp1EncapsulatedObj =
-                (EncapsulatedObject) ((AggregateValue) testComp1Value).getMemorySpace();
+            (EncapsulatedObject) ((AggregateValue) testComp1Value).getMemorySpace();
         var testComp1Internal = testComp1EncapsulatedObj.getInternalObject();
         assertTrue(testComp1Internal instanceof TestComponent1);
 
@@ -436,7 +444,7 @@ public class TestDSLInterpreter {
         var testComp2Value = ((AggregateValue) myObj).getMemorySpace().resolve("test_component2");
         assertNotEquals(Value.NONE, testComp2Value);
         var testComp2EncapsulatedObj =
-                (EncapsulatedObject) ((AggregateValue) testComp2Value).getMemorySpace();
+            (EncapsulatedObject) ((AggregateValue) testComp2Value).getMemorySpace();
         var testComp2Internal = testComp2EncapsulatedObj.getInternalObject();
         assertTrue(testComp2Internal instanceof TestComponent2);
 
@@ -452,15 +460,15 @@ public class TestDSLInterpreter {
     @Test
     public void aggregateTypeInstancingNonSupportedExternalType() {
         String program =
-                """
-            entity_type my_obj {
-                component_with_external_type_member { }
-            }
+            """
+                entity_type my_obj {
+                    component_with_external_type_member { }
+                }
 
-            quest_config config {
-                entity: my_obj
-            }
-            """;
+                quest_config config {
+                    entity: instantiate(my_obj)
+                }
+                """;
 
         TypeBuilder tb = new TypeBuilder();
         var entityType = tb.createTypeFromClass(new Scope(), Entity.class);
@@ -486,9 +494,9 @@ public class TestDSLInterpreter {
         var config = (AggregateValue) (globalMs.resolve("config"));
         var myObj = config.getMemorySpace().resolve("entity");
         var component =
-                ((AggregateValue) myObj)
-                        .getMemorySpace()
-                        .resolve("component_with_external_type_member");
+            ((AggregateValue) myObj)
+                .getMemorySpace()
+                .resolve("component_with_external_type_member");
         var encapsulatedObject = (EncapsulatedObject) ((AggregateValue) component).getMemorySpace();
         var internalComponent = encapsulatedObject.getInternalObject();
 
@@ -500,32 +508,32 @@ public class TestDSLInterpreter {
     @Test
     public void adaptedInstancing() {
         String program =
-                """
-            entity_type my_obj {
-                test_component1 {
-                    member1: 42,
-                    member2: 12
-                },
-                test_component_with_external_type {
-                    member_external_type: "Hello, World!"
+            """
+                entity_type my_obj {
+                    test_component1 {
+                        member1: 42,
+                        member2: 12
+                    },
+                    test_component_with_external_type {
+                        member_external_type: "Hello, World!"
+                    }
                 }
-            }
 
-            quest_config config {
-                entity: my_obj
-            }
-            """;
+                quest_config config {
+                    entity: instantiate(my_obj)
+                }
+                """;
 
         // setup test type system
         var env = new TestEnvironment();
         var entityType = env.getTypeBuilder().createTypeFromClass(new Scope(), Entity.class);
         var testCompType =
-                env.getTypeBuilder().createTypeFromClass(new Scope(), TestComponent1.class);
+            env.getTypeBuilder().createTypeFromClass(new Scope(), TestComponent1.class);
 
         env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, Scope.NULL);
         var externalComponentType =
-                env.getTypeBuilder()
-                        .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
+            env.getTypeBuilder()
+                .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
         var externalType = env.getTypeBuilder().createTypeFromClass(Scope.NULL, ExternalType.class);
         env.loadTypes(entityType, testCompType, externalComponentType, externalType);
 
@@ -543,8 +551,8 @@ public class TestDSLInterpreter {
         AggregateValue config = (AggregateValue) (globalMs.resolve("config"));
         AggregateValue myObj = (AggregateValue) config.getMemorySpace().resolve("entity");
         AggregateValue component =
-                (AggregateValue)
-                        myObj.getMemorySpace().resolve("test_component_with_external_type");
+            (AggregateValue)
+                myObj.getMemorySpace().resolve("test_component_with_external_type");
         var internalObject = (TestComponentWithExternalType) component.getInternalObject();
         ExternalType externalTypeMember = internalObject.getMemberExternalType();
         Assert.assertEquals("Hello, World!", externalTypeMember.member3);
@@ -553,32 +561,32 @@ public class TestDSLInterpreter {
     @Test
     public void adaptedInstancingMultiParam() {
         String program =
-                """
-        entity_type my_obj {
-            test_component1 {
-                member1: 42,
-                member2: 12
-            },
-            test_component_with_external_type {
-                member_external_type: external_type { string: "Hello, World!", number: 42 }
-            }
-        }
+            """
+                entity_type my_obj {
+                    test_component1 {
+                        member1: 42,
+                        member2: 12
+                    },
+                    test_component_with_external_type {
+                        member_external_type: external_type { string: "Hello, World!", number: 42 }
+                    }
+                }
 
-        quest_config config {
-            entity: my_obj
-        }
-        """;
+                quest_config config {
+                    entity: instantiate(my_obj)
+                }
+                """;
 
         // setup test type system
         var env = new TestEnvironment();
         var entityType = env.getTypeBuilder().createTypeFromClass(new Scope(), Entity.class);
         var testCompType =
-                env.getTypeBuilder().createTypeFromClass(new Scope(), TestComponent1.class);
+            env.getTypeBuilder().createTypeFromClass(new Scope(), TestComponent1.class);
 
         env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
         var externalComponentType =
-                env.getTypeBuilder()
-                        .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
+            env.getTypeBuilder()
+                .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
         var adapterType = env.getTypeBuilder().createTypeFromClass(Scope.NULL, ExternalType.class);
         env.loadTypes(entityType, testCompType, externalComponentType, adapterType);
 
@@ -596,92 +604,12 @@ public class TestDSLInterpreter {
         AggregateValue config = (AggregateValue) (globalMs.resolve("config"));
         AggregateValue myObj = (AggregateValue) config.getMemorySpace().resolve("entity");
         AggregateValue component =
-                (AggregateValue)
-                        myObj.getMemorySpace().resolve("test_component_with_external_type");
+            (AggregateValue)
+                myObj.getMemorySpace().resolve("test_component_with_external_type");
         var internalObject = (TestComponentWithExternalType) component.getInternalObject();
         ExternalType externalTypeMember = internalObject.getMemberExternalType();
         Assert.assertEquals("Hello, World!", externalTypeMember.member3);
         Assert.assertEquals(42, externalTypeMember.member1);
     }
 
-    @Test
-    public void instanceByFunction() {
-        String program =
-                """
-            entity_type my_obj {
-                test_component1 {
-                    member1: 42,
-                    member2: 12.34
-                },
-                test_component2 {
-                    member1: "Hallo",
-                    member2: 123
-                }
-            }
-
-            quest_config config {
-                entity: instantiate(my_obj)
-            }
-            """;
-
-        TypeBuilder tb = new TypeBuilder();
-        var entityType = tb.createTypeFromClass(new Scope(), Entity.class);
-        var testCompType = tb.createTypeFromClass(new Scope(), TestComponent1.class);
-        var otherCompType = tb.createTypeFromClass(new Scope(), TestComponent2.class);
-
-        var env = new TestEnvironment();
-        env.loadTypes(entityType, testCompType, otherCompType);
-
-        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
-        symbolTableParser.setup(env);
-        var ast = Helpers.getASTFromString(program);
-        symbolTableParser.walk(ast);
-
-        DSLInterpreter interpreter = new DSLInterpreter();
-        interpreter.initializeRuntime(env);
-
-        var entity = ((CustomQuestConfig) interpreter.generateQuestConfig(ast)).entity();
-        var rtEnv = interpreter.getRuntimeEnvironment();
-        var globalMs = interpreter.getGlobalMemorySpace();
-
-        // the config should contain the my_obj definition on the entity-value, which should
-        // encapsulate the actual
-        // test component instances
-        var config = (AggregateValue) (globalMs.resolve("config"));
-        var myObj = config.getMemorySpace().resolve("entity");
-        assertNotEquals(Value.NONE, myObj);
-        assertTrue(myObj instanceof AggregateValue);
-
-        // test, that the referenced entities are correct
-        var testComp1Value = ((AggregateValue) myObj).getMemorySpace().resolve("test_component1");
-        assertNotEquals(Value.NONE, testComp1Value);
-        var testComp1EncapsulatedObj =
-                (EncapsulatedObject) ((AggregateValue) testComp1Value).getMemorySpace();
-        var testComp1Internal = testComp1EncapsulatedObj.getInternalObject();
-        assertTrue(testComp1Internal instanceof TestComponent1);
-
-        TestComponent1 testComp1 = (TestComponent1) testComp1Internal;
-        assertEquals(entity, testComp1.getEntity());
-
-        // check member-values
-        assertEquals(42, testComp1.getMember1());
-        assertEquals(12.34, testComp1.getMember2(), 0.001f);
-        assertEquals("DEFAULT VALUE", testComp1.getMember3());
-
-        // test, that the referenced entities are correct
-        var testComp2Value = ((AggregateValue) myObj).getMemorySpace().resolve("test_component2");
-        assertNotEquals(Value.NONE, testComp2Value);
-        var testComp2EncapsulatedObj =
-                (EncapsulatedObject) ((AggregateValue) testComp2Value).getMemorySpace();
-        var testComp2Internal = testComp2EncapsulatedObj.getInternalObject();
-        assertTrue(testComp2Internal instanceof TestComponent2);
-
-        TestComponent2 testComp2 = (TestComponent2) testComp2Internal;
-        assertEquals(entity, testComp2.getEntity());
-
-        // check member-values
-        assertEquals("Hallo", testComp2.getMember1());
-        assertEquals(123, testComp2.getMember2());
-        assertEquals("DEFAULT VALUE", testComp2.getMember3());
-    }
 }
