@@ -313,14 +313,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     //  ...rather do it explicitly somehow
     @Override
     public Object visit(EntityTypeDefinitionNode node) {
-        //var prototype = this.environment.lookupPrototype(node.getIdName());
-        //var instance = (AggregateValue) instantiateDSLValue(prototype);
-
-        //var entityType = (AggregateType) this.symbolTable().getGlobalScope().resolve("entity");
-        //return instantiateRuntimeValue(instance, entityType);
-        var prototype = this.environment.lookupPrototype(node.getIdName());
-        var instance = (AggregateValue) instantiateDSLValue(prototype);
-        return instance;
+        return this.environment.lookupPrototype(node.getIdName());
     }
 
     public Object instantiateRuntimeValue(AggregateValue dslValue, AggregateType asType) {
