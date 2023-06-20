@@ -119,10 +119,6 @@ public Object visit(NumNode node) {
 }
 ```
 
-Für einen `GameObjectDefinition`-Knoten, der Teil eines Ausdrucks ist, ist dieses Vorgehen
-deutlich komplexer und wird unter [Typinstanziierung](#typinstanziierung) genauer erläutert.
-Allerdings wird auch für diesen Fall ein `Value`-Objekt zurückgegeben.
-
 **Anmerkung:**
 
 Die im Folgenden beschriebenen Aspekte bzgl. `quest_config` als zentralem Übergabepunkt von
@@ -236,7 +232,8 @@ enthalten.
 Die Instanziierung von Java-Klassen, welche mit `@DSLType` (siehe
 [TypeBuilding](typebuilding.md)) markiert sind, wird durch den `TypeInstantiator`
 durchgeführt. Als Beispiel wird wieder die oben angeführte `entity_type`-Definition
-herangezogen.
+herangezogen. **Dieser Prozess muss explizit durch die native `instantiate`-Funktion
+angestoßen werden.**
 
 Der `IMemorySpace` eines `AggregateValue` wird dem `TypeInstantiator` übergeben. Dieser
 erstellt eine Instanz der Java-Klasse, die dem Datentyp des `AggregateValue` zugrunde liegt.
