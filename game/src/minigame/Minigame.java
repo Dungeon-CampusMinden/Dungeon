@@ -2,6 +2,9 @@ package minigame;
 
 import java.util.logging.Logger;
 
+/**
+ * Contains the inner logic and states of the minigame
+ */
 public class Minigame {
 
     private final Logger minigameLogger = Logger.getLogger(Minigame.class.getName());

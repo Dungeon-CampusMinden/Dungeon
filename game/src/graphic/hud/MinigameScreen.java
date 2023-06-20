@@ -12,6 +12,9 @@ import minigame.Minigame;
 import tools.Constants;
 import tools.Point;
 
+/**
+ * Screen on wich only the lockpicking minigame is displayed
+ */
 public class MinigameScreen<T extends Actor> extends ScreenController<T> {
 
     private static final Logger minigameScreenLogger = Logger.getLogger(MinigameScreen.class.getName());
