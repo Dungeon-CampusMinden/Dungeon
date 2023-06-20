@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- * The DrawComponent stores all {@link Animation}s for an entity.
+ * Store all {@link Animation}s for an entity.
  *
  * <p>At creation, the component will read in each subdirectory in the given path and create an
  * animation for each subdirectory.
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * <p>Each Animation will be created with default settings. If you want to change these settings,
  * use the methods from {@link Animation}.
  *
- * <p>Use {@link #currentAnimation} to set the current Animation.
+ * <p>Use {@link #currentAnimation} to set the current animation.
  *
  * <p>Use {@link #currentAnimation} to get the current active animation or use {@link #getAnimation}
  * to get a specific animation.
@@ -159,12 +159,12 @@ public final class DrawComponent extends Component {
     }
 
     /**
-     * Check if the animation at the given path is the current-animation
+     * Check if the animation at the given path is the current animation
      *
      * <p>Will log a warning if no animation is stored for the given path.
      *
      * @param path Path to the animation to check
-     * @return true if the current-animation equals the animation at the given path, false if not or
+     * @return true if the current animation equals the animation at the given path, false if not or
      *     no animation for the given oath is stored in this component.
      */
     public boolean isCurrentAnimation(final IPath path) {
