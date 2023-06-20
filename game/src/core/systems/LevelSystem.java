@@ -1,4 +1,4 @@
-package core;
+package core.systems;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /** Manages the level. */
-public class LevelManager {
+public class LevelSystem {
     private final SpriteBatch batch;
     private final Painter painter;
     private final IOnLevelLoader onLevelLoader;
@@ -31,7 +31,7 @@ public class LevelManager {
      * @param generator Level generator
      * @param onLevelLoader Object that implements the onLevelLoad method.
      */
-    public LevelManager(
+    public LevelSystem(
             SpriteBatch batch,
             Painter painter,
             IGenerator generator,

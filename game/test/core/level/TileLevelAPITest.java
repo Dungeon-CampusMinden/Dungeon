@@ -12,13 +12,13 @@ import static org.mockito.Mockito.when;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-import core.LevelManager;
 import core.level.elements.ILevel;
 import core.level.generator.IGenerator;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
@@ -36,7 +36,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest({TextureMap.class})
 public class TileLevelAPITest {
 
-    private LevelManager api;
+    private LevelSystem api;
     private IGenerator generator;
     private Texture texture;
     private TextureMap textureMap;
@@ -59,7 +59,7 @@ public class TileLevelAPITest {
         generator = Mockito.mock(IGenerator.class);
         onLevelLoader = Mockito.mock(IOnLevelLoader.class);
         level = Mockito.mock(TileLevel.class);
-        api = new LevelManager(batch, painter, generator, onLevelLoader);
+        api = new LevelSystem(batch, painter, generator, onLevelLoader);
     }
 
     @Test

@@ -59,7 +59,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * The currently loaded level of the game.
      *
      * @see ILevel
-     * @see LevelManager
+     * @see LevelSystem
      */
     private static ILevel currentLevel;
     /**
@@ -131,7 +131,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private static Stage stage;
 
-    private static LevelManager levelManager;
+    private static LevelSystem levelSystem;
 
     private boolean doSetup = true;
     private boolean uiDebugFlag = false;
@@ -594,12 +594,12 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * <p>This method is for testing and debugging purposes.
      *
-     * <p>Will trigger {@link #onLevelLoad() if a {@link LevelManager} is active.}
+     * <p>Will trigger {@link #onLevelLoad() if a {@link LevelSystem } is active.}
      *
      * @param level New level
      */
     public static void currentLevel(ILevel level) {
-        if (levelManager != null) levelManager.level(level);
+        if (levelSystem != null) levelSystem.level(level);
         currentLevel = level;
     }
 
@@ -626,7 +626,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         ds.batch().setProjectionMatrix(CameraSystem.camera().combined);
         onFrame();
         clearScreen();
-        levelManager.update();
+        levelSystem.update();
         updateSystems();
         systems.values().stream().filter(System::isRunning).forEach(System::execute);
         CameraSystem.camera().update();
@@ -646,13 +646,13 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         initBaseLogger();
         createSystems();
         DrawSystem ds = (DrawSystem) systems.get(DrawSystem.class);
-        levelManager =
-                new LevelManager(
+        levelSystem =
+                new LevelSystem(
                         ds.batch(),
                         ds.painter(),
                         new WallGenerator(new RandomWalkGenerator()),
                         this);
-        levelManager.loadLevel(LEVELSIZE);
+        levelSystem.loadLevel(LEVELSIZE);
 
         setupStage();
     }
@@ -720,7 +720,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     @Override
     public void onLevelLoad() {
-        currentLevel = levelManager.currentLevel();
+        currentLevel = levelSystem.currentLevel();
         removeAllEntities();
         try {
             hero().ifPresent(this::placeOnLevelStart);
@@ -739,7 +739,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
         if (isOnEndTile(hero)) {
-            levelManager.loadLevel(LEVELSIZE);
+            levelSystem.loadLevel(LEVELSIZE);
         }
     }
 
