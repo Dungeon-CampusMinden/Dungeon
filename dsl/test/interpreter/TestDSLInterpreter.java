@@ -544,11 +544,10 @@ public class TestDSLInterpreter {
         Assert.assertEquals(42, externalTypeMember.member1);
     }
 
-
     @Test
     public void instanceByFunction() {
         String program =
-            """
+                """
             entity_type my_obj {
                 test_component1 {
                     member1: 42,
@@ -571,8 +570,7 @@ public class TestDSLInterpreter {
         var otherCompType = tb.createTypeFromClass(new Scope(), TestComponent2.class);
 
         var env = new TestEnvironment();
-        var typesToLoad = new IType[] {entityType, testCompType, otherCompType};
-        env.loadTypes(List.of(typesToLoad));
+        env.loadTypes(entityType, testCompType, otherCompType);
 
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
@@ -598,7 +596,7 @@ public class TestDSLInterpreter {
         var testComp1Value = ((AggregateValue) myObj).getMemorySpace().resolve("test_component1");
         assertNotEquals(Value.NONE, testComp1Value);
         var testComp1EncapsulatedObj =
-            (EncapsulatedObject) ((AggregateValue) testComp1Value).getMemorySpace();
+                (EncapsulatedObject) ((AggregateValue) testComp1Value).getMemorySpace();
         var testComp1Internal = testComp1EncapsulatedObj.getInternalObject();
         assertTrue(testComp1Internal instanceof TestComponent1);
 
@@ -614,7 +612,7 @@ public class TestDSLInterpreter {
         var testComp2Value = ((AggregateValue) myObj).getMemorySpace().resolve("test_component2");
         assertNotEquals(Value.NONE, testComp2Value);
         var testComp2EncapsulatedObj =
-            (EncapsulatedObject) ((AggregateValue) testComp2Value).getMemorySpace();
+                (EncapsulatedObject) ((AggregateValue) testComp2Value).getMemorySpace();
         var testComp2Internal = testComp2EncapsulatedObj.getInternalObject();
         assertTrue(testComp2Internal instanceof TestComponent2);
 
