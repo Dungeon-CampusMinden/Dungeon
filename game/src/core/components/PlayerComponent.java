@@ -65,7 +65,7 @@ public final class PlayerComponent extends Component {
         callbacks.remove(key);
     }
 
-    /** Execute the callback function registered to a key when it is pressed.. */
+    /** Execute the callback function registered to a key when it is pressed. */
     public void execute() {
         callbacks.forEach(this::execute);
     }
