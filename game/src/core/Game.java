@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
 import contrib.configuration.KeyboardConfig;
+import contrib.entities.EntityFactory;
 import contrib.systems.DebuggerSystem;
 
 import core.components.PositionComponent;
@@ -687,15 +688,26 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * <p>Will re-add the hero if he exists.
      */
     @Override
-    public void onLevelLoad() {
+    public void onLevelLoad(){
         currentLevel = levelManager.currentLevel();
         removeAllEntities();
         try {
             hero().ifPresent(this::placeOnLevelStart);
-        } catch (MissingComponentException e) {
+            EntityFactory.newChest();
+            for(int i = 0; i < 5; i++){
+                EntityFactory.getRandomizedMonster();
+            }
+        }
+        catch (MissingComponentException e) {
             LOGGER.warning(e.getMessage());
         }
+        catch (IOException e) {
+            // will be moved to MAIN in https://github.com/Programmiermethoden/Dungeon/pull/688
+            LOGGER.warning("Could not create new Chest: " + e.getMessage());
+            throw new RuntimeException();
+        }
         hero().ifPresent(Game::addEntity);
+        
         userOnLevelLoad.execute();
     }
 

@@ -2,6 +2,15 @@ package contrib.entities;
 
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
+import contrib.utils.components.ai.fight.CollideAI;
+import contrib.utils.components.ai.fight.MeleeAI;
+import contrib.utils.components.ai.fight.RangeAI;
+import contrib.utils.components.ai.idle.PatrouilleWalk;
+import contrib.utils.components.ai.idle.RadiusWalk;
+import contrib.utils.components.ai.idle.StaticRadiusWalk;
+import contrib.utils.components.ai.transition.ProtectOnApproach;
+import contrib.utils.components.ai.transition.RangeTransition;
+import contrib.utils.components.ai.transition.SelfDefendTransition;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.item.ItemData;
@@ -16,11 +25,14 @@ import core.components.*;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
@@ -160,5 +172,47 @@ public class EntityFactory {
         dc.getAnimation(CoreAnimations.IDLE_RIGHT).ifPresent(a -> a.setLoop(false));
 
         return chest;
+    }
+
+    /**
+     * Gets a randomly generated "Monster" Entity.
+     * @return The generated "Monster".
+     */
+    public static Entity getRandomizedMonster() throws IOException {
+        Random random = new Random();
+        int health = random.nextInt(2,5 + 1);
+        float speed = random.nextFloat(0.1f, 0.25f);
+
+        Entity monster = new Entity("monster");
+        String[] monsterFilePaths = {
+            "character/monster/chort",
+            "character/monster/imp"
+        };
+
+        PositionComponent pc = new PositionComponent(monster);
+        Point pos = Game.currentLevel().randomTile(LevelElement.FLOOR).coordinate().toPoint();
+        pc.position(pos);
+
+        HealthComponent hc = new HealthComponent(monster);
+        hc.maximalHealthpoints(health);
+        hc.currentHealthpoints(health);
+
+        AIComponent aic = new AIComponent(monster);
+        aic.idleAI(
+            AIFactory.generateRandomIdleAI());
+        aic.fightAI(
+            AIFactory.generateRandomFightAI());
+        aic.setTransitionAI(
+            AIFactory.generateRandomTransitionAI(monster));
+
+        DrawComponent dc = new DrawComponent(monster,
+            monsterFilePaths[random.nextInt(0, monsterFilePaths.length)]
+        );
+
+        VelocityComponent vc = new VelocityComponent(monster,speed, speed);
+
+        CollideComponent cc = new CollideComponent(monster);
+
+        return monster;
     }
 }
