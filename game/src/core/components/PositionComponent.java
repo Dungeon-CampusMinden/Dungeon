@@ -14,15 +14,9 @@ import semanticanalysis.types.DSLType;
 import java.util.logging.Logger;
 
 /**
- * The PositionComponent stores the {@link Point} of an Entity that represents the position of the
- * associated entity in the level.
+ * Represents the position of the associated entity in the level.
  *
- * <p>The {@link core.systems.DrawSystem} uses that position to draw the Entity at the correct
- * location.
- *
- * <p>The {@link core.systems.VelocitySystem} will update the position values.
- *
- * <p>Other Systems will use the position for other calculations, like AI movement.
+ * <p>Various systems access the position of an entity through this component, e.g. the {@link core.systems.DrawSystem} uses the position to draw an entity in the right place and the {@link core.systems.VelocitySystem} updates the position values based on the velocity and the previous position of an entity. See https://github.com/Programmiermethoden/Dungeon/tree/master/doc/ecs/systems.
  *
  * @see Point
  * @see core.systems.DrawSystem
@@ -61,9 +55,9 @@ public final class PositionComponent extends Component {
     }
 
     /**
-     * Creates a new PositionComponent and adds it to the associated entity.
+     * Create a new PositionComponent with random position and add it to the associated entity.
      *
-     * <p>Sets the position of this entity on a random floor tile in the level.If no level is
+     * <p>Sets the position of this entity on a random floor tile in the level. If no level is
      * loaded, set the position to (0,0). Beware that (0,0) may not necessarily be a playable area
      * within the level, it could be a wall or an "out of level" area.
      *
