@@ -16,7 +16,11 @@ import java.util.logging.Logger;
 /**
  * Represents the position of the associated entity in the level.
  *
- * <p>Various systems access the position of an entity through this component, e.g. the {@link core.systems.DrawSystem} uses the position to draw an entity in the right place and the {@link core.systems.VelocitySystem} updates the position values based on the velocity and the previous position of an entity. See https://github.com/Programmiermethoden/Dungeon/tree/master/doc/ecs/systems.
+ * <p>Various systems access the position of an entity through this component, e.g. the {@link
+ * core.systems.DrawSystem} uses the position to draw an entity in the right place and the {@link
+ * core.systems.VelocitySystem} updates the position values based on the velocity and the previous
+ * position of an entity. See
+ * https://github.com/Programmiermethoden/Dungeon/tree/master/doc/ecs/systems.
  *
  * @see Point
  * @see core.systems.DrawSystem
@@ -50,7 +54,7 @@ public final class PositionComponent extends Component {
      * @param x x-position of the entity
      * @param y y-position of the entity
      */
-    public PositionComponent(final Entity entity, final float x, final float y) {
+    public PositionComponent(final Entity entity, float x, float y) {
         this(entity, new Point(x, y));
     }
 
