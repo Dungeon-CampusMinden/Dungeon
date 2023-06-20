@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 import contrib.utils.components.item.ItemData;
+import contrib.utils.components.item.ItemNature;
 
 public class InventoryItem extends Image {
     private ItemData item;
@@ -36,4 +37,6 @@ public class InventoryItem extends Image {
     public ItemData getItem() {
         return this.item;
     }
+
+    public ItemNature getItemNature() { return this.item.getItemNature(); }
 }

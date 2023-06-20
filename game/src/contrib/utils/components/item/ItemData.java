@@ -29,6 +29,7 @@ import java.util.function.BiConsumer;
  */
 public class ItemData {
     private final ItemType itemType;
+    private ItemNature itemNature;
     private final Animation inventoryTexture;
     private final Animation worldTexture;
     private final String itemName;
@@ -103,6 +104,34 @@ public class ItemData {
                 new DamageModifier());
     }
 
+    /**
+     * creates a new item data object. With a basic handling of collecting, dropping and using.
+     *
+     * @param itemType Enum entry describing item type.
+     *  @param itemNature Enum entry describing item type.
+     * @param inventoryTexture Animation that is played inside the hero inventory.
+     * @param worldTexture Animation that is played while item is dropped in the world.
+     * @param itemName String defining name of item.
+     * @param description String giving a description of the item
+     */
+    public ItemData(
+        ItemType itemType,
+        ItemNature itemNature,
+        Animation inventoryTexture,
+        Animation worldTexture,
+        String itemName,
+        String description) {
+            this.itemType = itemType;
+            this.itemNature = itemNature;
+            this.inventoryTexture = inventoryTexture;
+            this.worldTexture = worldTexture;
+            this.itemName = itemName;
+            this.description = description;
+            this.onCollect = ItemData::defaultCollect;
+            this.onDrop = ItemData::defaultDrop;
+            this.onUse = ItemData::defaultUseCallback;
+            this.damageModifier = new DamageModifier();
+    }
     /** Constructing object with completely default values. Taken from {@link ItemConfig}. */
     public ItemData() {
         this(
@@ -147,6 +176,14 @@ public class ItemData {
      */
     public ItemType getItemType() {
         return itemType;
+    }
+
+
+    /**
+     * @return The current itemNature.
+     */
+    public ItemNature getItemNature() {
+        return this.itemNature;
     }
 
     /**
@@ -237,7 +274,7 @@ public class ItemData {
                                                                                                     .class
                                                                                             ::cast)
                                                                             .get()
-                                                                            .getItemData()))
+                                                                            .getItemData(), 8))
                                                         // if added to hero Inventory
                                                         // remove Item from World
                                                         Game.removeEntity(worldItem);

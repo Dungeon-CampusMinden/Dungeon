@@ -62,6 +62,33 @@ public class InventoryComponent extends Component {
     }
 
     /**
+     * Adding an Element to the Inventory does not allow adding more items than the size of the
+     * Inventory.
+     *
+     * @param itemData the item which should be added
+     * @return true if the item was added, otherwise false
+     */
+    public boolean addItem(ItemData itemData, int position ) {
+        if (inventory.size() >= maxSize) return false;
+        inventoryLogger.log(
+            CustomLogLevel.DEBUG,
+            "Item '"
+                + this.getClass().getSimpleName()
+                + "' was added to the inventory of entity '"
+                + entity.getClass().getSimpleName()
+                + "'.");
+
+        if( inventory.size() == 0 ) {
+            for( int i = 0; i <= position; i++ ) {
+                inventory.add(null);
+            }
+        }
+
+        inventory.add(itemData);
+        return true;
+    }
+
+    /**
      * removes the given Item from the inventory
      *
      * @param itemData the item which should be removed

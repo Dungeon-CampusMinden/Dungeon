@@ -17,6 +17,7 @@ import core.Game;
 import core.components.*;
 import core.hud.Inventory.InventoryGUI;
 import core.level.utils.LevelElement;
+import core.utils.Constants;
 import core.utils.Point;
 import core.utils.components.draw.CoreAnimations;
 
@@ -100,7 +101,7 @@ public class EntityFactory {
                 KeyboardConfig.INVENTORY_OPEN.get(),
                 entity -> InventoryGUI.getInstance().toggleInventory());
 
-        new InventoryComponent(hero, 40);
+        new InventoryComponent(hero, Constants.SIZE_INVENTORY);
 
         return hero;
     }

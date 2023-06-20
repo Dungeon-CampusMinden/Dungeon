@@ -56,6 +56,13 @@ public final class TextDialog extends Dialog {
         button(buttonMsg, BUTTON_ID);
     }
 
+    public TextDialog(Skin skin, String title) {
+        super(title, skin);
+
+        DialogDesign dialogDesign = new DialogDesign();
+        dialogDesign.InventoryDialog(skin );
+        addActor(dialogDesign);
+    }
     /**
      * Provides information about the pressed Button
      *

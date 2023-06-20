@@ -53,6 +53,9 @@ public class DialogDesign extends Table {
         VisualizeAnswerSection(quizQuestion, skin);
     }
 
+    public void InventoryDialog(Skin skin ) {
+        // Element in the background of the dialog
+    }
     /**
      * Presentation of all possible variations of the questions as text, image or text and image
      *
