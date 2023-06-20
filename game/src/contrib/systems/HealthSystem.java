@@ -34,20 +34,29 @@ public final class HealthSystem extends System {
                 .map(this::applyDamage)
                 // Filter all dead entities
                 .filter(hsd -> hsd.hc.isDead())
-                .filter(
-                        hsd -> {
-                            if (!hsd.ac.hasAnimation(AdditionalAnimations.DIE)
-                                    || hsd.ac
-                                            .getAnimation(AdditionalAnimations.DIE)
-                                            .get()
-                                            .isLooping()) return true;
-                            if (!hsd.ac.isCurrentAnimation(AdditionalAnimations.DIE)) {
-                                hsd.ac.currentAnimation(AdditionalAnimations.DIE);
-                            }
-                            return hsd.ac.currentAnimation().isFinished();
-                        })
+                .filter(this::checkAnimationStatus)
                 // Remove all dead entities
                 .forEach(this::removeDeadEntities);
+    }
+
+    private boolean checkAnimationStatus(HSData hsd) {
+        // if the filtered Entity has no DeathAnimation
+        if (!hsd.ac.hasAnimation(AdditionalAnimations.DIE)) {
+            return true;
+        }
+        // if it has a DeathAnimation check if the DeathAnimation is active
+        else {
+            if (!hsd.ac.isCurrentAnimation(AdditionalAnimations.DIE)) {
+                hsd.ac.currentAnimation(AdditionalAnimations.DIE);
+            }
+        }
+
+        // if the DeathAnimation is looping return true
+        if (hsd.ac.getAnimation(AdditionalAnimations.DIE).get().isLooping()) return true;
+
+        // as it was checked before if current animation is the DeathAnimation just check if it is
+        // finished
+        return hsd.ac.currentAnimation().isFinished();
     }
 
     private HSData buildDataObject(Entity entity) {
