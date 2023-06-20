@@ -20,7 +20,7 @@ public class Node {
         ObjectDefinition,
         PropertyDefinitionList,
         PropertyDefinition,
-        EntityTypeDefinition,
+        PrototypeDefinition,
         ComponentDefinitionList,
         AggregateValueDefinition,
         DotDefinition,

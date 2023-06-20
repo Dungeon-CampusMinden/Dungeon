@@ -5,7 +5,7 @@ import helpers.Helpers;
 import org.junit.Assert;
 import org.junit.Test;
 
-import parser.ast.EntityTypeDefinitionNode;
+import parser.ast.PrototypeDefinitionNode;
 
 import runtime.GameEnvironment;
 
@@ -95,7 +95,7 @@ public class TestTypeBinder {
         var testComponent = ((AggregateType) gameObjectDefinition).resolve("test_component");
         var testComponentDefNode = symbolTable.getCreationAstNode(testComponent);
         var testComponentDefNodeFromAST =
-                ((EntityTypeDefinitionNode) gameObjectDefNodeFromAST)
+                ((PrototypeDefinitionNode) gameObjectDefNodeFromAST)
                         .getComponentDefinitionNodes()
                         .get(0);
         Assert.assertEquals(testComponentDefNodeFromAST, testComponentDefNode);

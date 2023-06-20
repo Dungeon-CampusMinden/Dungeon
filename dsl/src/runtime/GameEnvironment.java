@@ -155,7 +155,7 @@ public class GameEnvironment implements IEvironment {
         types.add(BuiltInType.floatType);
         types.add(BuiltInType.stringType);
         types.add(BuiltInType.graphType);
-        types.add(EntityType.ENTITY_TYPE);
+        types.add(Prototype.PROTOTYPE);
         // types.add(BuiltInType.funcType);
 
         registerDefaultTypeAdapters();

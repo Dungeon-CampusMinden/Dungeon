@@ -72,7 +72,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     /**
-     * Iterates over all types in the passed IEnvironment and creates a {@link EntityType} for any
+     * Iterates over all types in the passed IEnvironment and creates a {@link Prototype} for any
      * game object definition, which was defined by the user
      *
      * @param environment the environment to check for game object definitions
@@ -84,24 +84,24 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 // if the type has a creation node, it is user defined, and we need to
                 // create a prototype for it
                 var creationAstNode = symbolTable().getCreationAstNode((Symbol) type);
-                if (creationAstNode.type.equals(Node.Type.EntityTypeDefinition)) {
-                    var entityType = new EntityType((AggregateType) type);
+                if (creationAstNode.type.equals(Node.Type.PrototypeDefinition)) {
+                    var prototype = new Prototype((AggregateType) type);
 
-                    var gameObjDefNode = (EntityTypeDefinitionNode) creationAstNode;
+                    var gameObjDefNode = (PrototypeDefinitionNode) creationAstNode;
                     for (var node : gameObjDefNode.getComponentDefinitionNodes()) {
                         // add new component prototype to the enclosing game object prototype
                         AggregateValueDefinitionNode compDefNode =
                                 (AggregateValueDefinitionNode) node;
                         var componentPrototype = createComponentPrototype(compDefNode);
-                        entityType.addDefaultValue(compDefNode.getIdName(), componentPrototype);
+                        prototype.addDefaultValue(compDefNode.getIdName(), componentPrototype);
                     }
-                    this.environment.addPrototype(entityType);
+                    this.environment.addPrototype(prototype);
                 }
             }
         }
     }
 
-    private EntityType createComponentPrototype(AggregateValueDefinitionNode node) {
+    private Prototype createComponentPrototype(AggregateValueDefinitionNode node) {
         var componentSymbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
         assert componentSymbol.getDataType() instanceof AggregateType;
 
@@ -110,7 +110,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // evaluate rhs and store the value in the member of
         // the prototype
         AggregateType prototypesType = (AggregateType) componentSymbol.getDataType();
-        EntityType componentEntityType = new EntityType(prototypesType);
+        Prototype componentPrototype = new Prototype(prototypesType);
         for (var propDef : node.getPropertyDefinitionNodes()) {
             var propertyDefNode = (PropertyDefNode) propDef;
             var rhsValue = (Value) propertyDefNode.getStmtNode().accept(this);
@@ -132,9 +132,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
             value.setDirty();
 
             var valueName = propertyDefNode.getIdName();
-            componentEntityType.addDefaultValue(valueName, value);
+            componentPrototype.addDefaultValue(valueName, value);
         }
-        return componentEntityType;
+        return componentPrototype;
     }
 
     /**
@@ -264,12 +264,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
     /**
      * Instantiate a dsl prototype (which is an aggregate type with defaults) as a new Value
      *
-     * @param entityType the {@link EntityType} to instantiate
-     * @return A new {@link Value} created from the {@link EntityType}
+     * @param prototype the {@link Prototype} to instantiate
+     * @return A new {@link Value} created from the {@link Prototype}
      */
-    public Value instantiateDSLValue(EntityType entityType) {
+    public Value instantiateDSLValue(Prototype prototype) {
         // create memory space to store the values in
-        AggregateValue instance = new AggregateValue(entityType, currentMemorySpace());
+        AggregateValue instance = new AggregateValue(prototype, currentMemorySpace());
 
         // TODO: how to handle function calls here?
         //  we should evaluate functions as soon as possible, and only allow
@@ -277,12 +277,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
         //  callback function
         IMemorySpace memorySpace = instance.getMemorySpace();
         this.memoryStack.push(memorySpace);
-        var internalType = (AggregateType) entityType.getInternalType();
+        var internalType = (AggregateType) prototype.getInternalType();
         for (var member : internalType.getSymbols()) {
             // check, if type defines default for member
-            var defaultValue = entityType.getDefaultValue(member.getName());
-            if (defaultValue instanceof EntityType) {
-                defaultValue = instantiateDSLValue((EntityType) defaultValue);
+            var defaultValue = prototype.getDefaultValue(member.getName());
+            if (defaultValue instanceof Prototype) {
+                defaultValue = instantiateDSLValue((Prototype) defaultValue);
             } else if (!defaultValue.equals(Value.NONE)) {
                 // copy value (this is a copy of the DSL-Value, not the internal Object of the
                 // value)
@@ -298,10 +298,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return instance;
     }
 
-    private AggregateType getOriginalTypeOfPrototype(EntityType type) {
+    private AggregateType getOriginalTypeOfPrototype(Prototype type) {
         IType returnType = type;
-        while (returnType instanceof EntityType) {
-            returnType = ((EntityType) returnType).getInternalType();
+        while (returnType instanceof Prototype) {
+            returnType = ((Prototype) returnType).getInternalType();
         }
         return (AggregateType) returnType;
     }
@@ -312,7 +312,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     //  seem such a good idea, because it entails so much hidden logic
     //  ...rather do it explicitly somehow
     @Override
-    public Object visit(EntityTypeDefinitionNode node) {
+    public Object visit(PrototypeDefinitionNode node) {
         return this.environment.lookupPrototype(node.getIdName());
     }
 
@@ -343,7 +343,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 // TODO: this is needed, because Prototype does not extend AggregateType currently,
                 //  which should be fixed
                 AggregateType membersOriginalType =
-                    getOriginalTypeOfPrototype((EntityType) memberValue.getDataType());
+                    getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
 
                 // instantiate object as a new java Object
                 Object memberObject =
