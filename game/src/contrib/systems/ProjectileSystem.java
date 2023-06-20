@@ -80,7 +80,8 @@ public class ProjectileSystem extends System {
      * <p>A Projectile can be out of range, if it "skips" the endpoint, it has already reached the
      * endpoint and can be removed.
      *
-     * @param psd the PSData to check if Projectile has reached end
+* @param psd the PSData to check if the projectile has reached the endpoint
+ */
      * @return true if the endpoint was reached or passed, else false
      */
     private boolean hasReachedEndpoint(PSData psd) {
