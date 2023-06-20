@@ -321,14 +321,15 @@ public class DSLInterpreter implements AstVisitor<Object> {
         TypeInstantiator typeInstantiator = new TypeInstantiator();
         var entityObject = typeInstantiator.instantiate(asType, dslValue.getMemorySpace());
 
-        // TODO: substitute the whole DSLContextMember-stuff with Builder-Methods, which would enable
+        // TODO: substitute the whole DSLContextMember-stuff with Builder-Methods, which would
+        // enable
         //  creation of components with different parameters -> requires the ability to
         //  store multiple builder-methods for one type, distinguished by their
         //  signature
         var annot = asType.getOriginType().getAnnotation(DSLContextPush.class);
         if (annot != null) {
             String contextName =
-                annot.name().equals("") ? asType.getOriginType().getName() : annot.name();
+                    annot.name().equals("") ? asType.getOriginType().getName() : annot.name();
             typeInstantiator.pushContextMember(contextName, entityObject);
         }
 
@@ -343,26 +344,26 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 // TODO: this is needed, because Prototype does not extend AggregateType currently,
                 //  which should be fixed
                 AggregateType membersOriginalType =
-                    getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
+                        getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
 
                 // instantiate object as a new java Object
                 Object memberObject =
-                    typeInstantiator.instantiate(
-                        membersOriginalType,
-                        ((AggregateValue) memberValue).getMemorySpace());
+                        typeInstantiator.instantiate(
+                                membersOriginalType,
+                                ((AggregateValue) memberValue).getMemorySpace());
 
                 // put the memberObject inside an encapsulated memory space
                 EncapsulatedObject encapsulatedObject =
-                    new EncapsulatedObject(
-                        memberObject,
-                        membersOriginalType,
-                        currentMemorySpace(),
-                        this.environment);
+                        new EncapsulatedObject(
+                                memberObject,
+                                membersOriginalType,
+                                currentMemorySpace(),
+                                this.environment);
 
                 // add the memory space to an aggregateValue
                 AggregateValue aggregateMemberValue =
-                    new AggregateValue(
-                        memberValue.getDataType(), currentMemorySpace(), memberObject);
+                        new AggregateValue(
+                                memberValue.getDataType(), currentMemorySpace(), memberObject);
 
                 // TODO: this is a temporary fix; an AggregateValue with an encapsulated object as a
                 //  memory space should be a separate class
@@ -372,7 +373,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
             }
         }
         return entityValue;
-
     }
 
     @Override

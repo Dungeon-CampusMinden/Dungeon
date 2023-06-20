@@ -2,8 +2,8 @@ package semanticanalysis.types;
 
 import parser.ast.AggregateValueDefinitionNode;
 import parser.ast.AstVisitor;
-import parser.ast.PrototypeDefinitionNode;
 import parser.ast.Node;
+import parser.ast.PrototypeDefinitionNode;
 
 import runtime.IEvironment;
 

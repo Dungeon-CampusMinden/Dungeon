@@ -27,13 +27,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 public class TestDSLInterpreter {
-    /**
-     * Tests, if a native function call is evaluated by the DSLInterpreter
-     */
+    /** Tests, if a native function call is evaluated by the DSLInterpreter */
     @Test
     public void funcCall() {
         String program =
-            """
+                """
                 quest_config c {
                     test: print("Hello, World!")
                 }
@@ -52,7 +50,7 @@ public class TestDSLInterpreter {
     @Test
     public void funcCallReturn() {
         String program =
-            """
+                """
                 quest_config c {
                     test: print(testReturnHelloWorld())
                 }
@@ -80,7 +78,7 @@ public class TestDSLInterpreter {
     @Test
     public void funcCallDoubleReturnUserFunc() {
         String program =
-            """
+                """
                 fn ret_string2() -> string {
                     return "Hello, World!";
                 }
@@ -114,7 +112,7 @@ public class TestDSLInterpreter {
     @Test
     public void funcCallDoubleReturnUserFuncDifferentValues() {
         String program =
-            """
+                """
                     fn ret_string2() -> string {
                         return "Moin";
                     }
@@ -150,7 +148,7 @@ public class TestDSLInterpreter {
     @Test
     public void funcCallReturnUserFunc() {
         String program =
-            """
+                """
                 fn ret_string() -> string {
                     return "Hello, World!";
                 }
@@ -182,7 +180,7 @@ public class TestDSLInterpreter {
     @Test
     public void funcCallReturnUserFuncWithoutReturnType() {
         String program =
-            """
+                """
                     fn ret_string() {
                         return "Hello, World!";
                     }
@@ -211,13 +209,11 @@ public class TestDSLInterpreter {
         assertFalse(outputStream.toString().contains("Hello, World!"));
     }
 
-    /**
-     * Test, if Value.NULL does not get set, if non-existing property of datatype is assigned
-     */
+    /** Test, if Value.NULL does not get set, if non-existing property of datatype is assigned */
     @Test
     public void testDontSetNullValue() {
         String program =
-            """
+                """
                 quest_config c {
                     this_value_does_not_exist_in_type: 42
                 }
@@ -231,7 +227,7 @@ public class TestDSLInterpreter {
      * Test, if a dot definition and object definition is correctly created
      *
      * @throws URISyntaxException if the resource URL is not valid
-     * @throws IOException        if the resource file does not exist
+     * @throws IOException if the resource file does not exist
      */
     @Test
     public void questConfigHighLevel() throws URISyntaxException, IOException {
@@ -251,7 +247,7 @@ public class TestDSLInterpreter {
         // the quest_config type has also a quest_points and a password
         // parameter, these should be set to default values
         String program =
-            """
+                """
                 quest_config c {
                     quest_desc: "Hello"
                 }
@@ -264,13 +260,11 @@ public class TestDSLInterpreter {
         assertEquals("", questConfig.password());
     }
 
-    /**
-     * Test, if the properties of the quest_config definition are correctly parsed
-     */
+    /** Test, if the properties of the quest_config definition are correctly parsed */
     @Test
     public void questConfigFull() {
         String program =
-            """
+                """
                 graph g {
                     A -- B
                 }
@@ -307,18 +301,16 @@ public class TestDSLInterpreter {
     }
 
     @DSLType
-    private record TestComponent(@DSLTypeMember int member1, @DSLTypeMember String member2) {
-    }
+    private record TestComponent(@DSLTypeMember int member1, @DSLTypeMember String member2) {}
 
     @DSLType
     private record OtherComponent(
-        @DSLTypeMember int member3, @DSLTypeMember Graph<String> member4) {
-    }
+            @DSLTypeMember int member3, @DSLTypeMember Graph<String> member4) {}
 
     @Test
     public void aggregateTypeWithDefaults() {
         String program =
-            """
+                """
                 graph g {
                     A -- B
                 }
@@ -379,7 +371,7 @@ public class TestDSLInterpreter {
     @Test
     public void aggregateTypeInstancing() {
         String program =
-            """
+                """
                 entity_type my_obj {
                     test_component1 {
                         member1: 42,
@@ -428,7 +420,7 @@ public class TestDSLInterpreter {
         var testComp1Value = ((AggregateValue) myObj).getMemorySpace().resolve("test_component1");
         assertNotEquals(Value.NONE, testComp1Value);
         var testComp1EncapsulatedObj =
-            (EncapsulatedObject) ((AggregateValue) testComp1Value).getMemorySpace();
+                (EncapsulatedObject) ((AggregateValue) testComp1Value).getMemorySpace();
         var testComp1Internal = testComp1EncapsulatedObj.getInternalObject();
         assertTrue(testComp1Internal instanceof TestComponent1);
 
@@ -444,7 +436,7 @@ public class TestDSLInterpreter {
         var testComp2Value = ((AggregateValue) myObj).getMemorySpace().resolve("test_component2");
         assertNotEquals(Value.NONE, testComp2Value);
         var testComp2EncapsulatedObj =
-            (EncapsulatedObject) ((AggregateValue) testComp2Value).getMemorySpace();
+                (EncapsulatedObject) ((AggregateValue) testComp2Value).getMemorySpace();
         var testComp2Internal = testComp2EncapsulatedObj.getInternalObject();
         assertTrue(testComp2Internal instanceof TestComponent2);
 
@@ -460,7 +452,7 @@ public class TestDSLInterpreter {
     @Test
     public void aggregateTypeInstancingNonSupportedExternalType() {
         String program =
-            """
+                """
                 entity_type my_obj {
                     component_with_external_type_member { }
                 }
@@ -494,9 +486,9 @@ public class TestDSLInterpreter {
         var config = (AggregateValue) (globalMs.resolve("config"));
         var myObj = config.getMemorySpace().resolve("entity");
         var component =
-            ((AggregateValue) myObj)
-                .getMemorySpace()
-                .resolve("component_with_external_type_member");
+                ((AggregateValue) myObj)
+                        .getMemorySpace()
+                        .resolve("component_with_external_type_member");
         var encapsulatedObject = (EncapsulatedObject) ((AggregateValue) component).getMemorySpace();
         var internalComponent = encapsulatedObject.getInternalObject();
 
@@ -508,7 +500,7 @@ public class TestDSLInterpreter {
     @Test
     public void adaptedInstancing() {
         String program =
-            """
+                """
                 entity_type my_obj {
                     test_component1 {
                         member1: 42,
@@ -528,12 +520,12 @@ public class TestDSLInterpreter {
         var env = new TestEnvironment();
         var entityType = env.getTypeBuilder().createTypeFromClass(new Scope(), Entity.class);
         var testCompType =
-            env.getTypeBuilder().createTypeFromClass(new Scope(), TestComponent1.class);
+                env.getTypeBuilder().createTypeFromClass(new Scope(), TestComponent1.class);
 
         env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, Scope.NULL);
         var externalComponentType =
-            env.getTypeBuilder()
-                .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
+                env.getTypeBuilder()
+                        .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
         var externalType = env.getTypeBuilder().createTypeFromClass(Scope.NULL, ExternalType.class);
         env.loadTypes(entityType, testCompType, externalComponentType, externalType);
 
@@ -551,8 +543,8 @@ public class TestDSLInterpreter {
         AggregateValue config = (AggregateValue) (globalMs.resolve("config"));
         AggregateValue myObj = (AggregateValue) config.getMemorySpace().resolve("entity");
         AggregateValue component =
-            (AggregateValue)
-                myObj.getMemorySpace().resolve("test_component_with_external_type");
+                (AggregateValue)
+                        myObj.getMemorySpace().resolve("test_component_with_external_type");
         var internalObject = (TestComponentWithExternalType) component.getInternalObject();
         ExternalType externalTypeMember = internalObject.getMemberExternalType();
         Assert.assertEquals("Hello, World!", externalTypeMember.member3);
@@ -561,7 +553,7 @@ public class TestDSLInterpreter {
     @Test
     public void adaptedInstancingMultiParam() {
         String program =
-            """
+                """
                 entity_type my_obj {
                     test_component1 {
                         member1: 42,
@@ -581,12 +573,12 @@ public class TestDSLInterpreter {
         var env = new TestEnvironment();
         var entityType = env.getTypeBuilder().createTypeFromClass(new Scope(), Entity.class);
         var testCompType =
-            env.getTypeBuilder().createTypeFromClass(new Scope(), TestComponent1.class);
+                env.getTypeBuilder().createTypeFromClass(new Scope(), TestComponent1.class);
 
         env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
         var externalComponentType =
-            env.getTypeBuilder()
-                .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
+                env.getTypeBuilder()
+                        .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
         var adapterType = env.getTypeBuilder().createTypeFromClass(Scope.NULL, ExternalType.class);
         env.loadTypes(entityType, testCompType, externalComponentType, adapterType);
 
@@ -604,12 +596,11 @@ public class TestDSLInterpreter {
         AggregateValue config = (AggregateValue) (globalMs.resolve("config"));
         AggregateValue myObj = (AggregateValue) config.getMemorySpace().resolve("entity");
         AggregateValue component =
-            (AggregateValue)
-                myObj.getMemorySpace().resolve("test_component_with_external_type");
+                (AggregateValue)
+                        myObj.getMemorySpace().resolve("test_component_with_external_type");
         var internalObject = (TestComponentWithExternalType) component.getInternalObject();
         ExternalType externalTypeMember = internalObject.getMemberExternalType();
         Assert.assertEquals("Hello, World!", externalTypeMember.member3);
         Assert.assertEquals(42, externalTypeMember.member1);
     }
-
 }

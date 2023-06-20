@@ -43,15 +43,16 @@ public class NativeInstantiate extends NativeFunction {
 
         Value param = (Value) parameters.get(0).accept(interpreter);
         if (param.getDataType() != Prototype.PROTOTYPE) {
-            throw new RuntimeException("Wrong type ('" +param.getDataType().getName() + "') of parameter for call of instantiate()!");
+            throw new RuntimeException(
+                    "Wrong type ('"
+                            + param.getDataType().getName()
+                            + "') of parameter for call of instantiate()!");
         } else {
-            var dslEntityInstance = (AggregateValue) interpreter.instantiateDSLValue((Prototype)param);
+            var dslEntityInstance =
+                    (AggregateValue) interpreter.instantiateDSLValue((Prototype) param);
             var entityType =
                     (AggregateType)
-                            interpreter
-                                    .getRuntimeEnvironment()
-                                    .getGlobalScope()
-                                    .resolve("entity");
+                            interpreter.getRuntimeEnvironment().getGlobalScope().resolve("entity");
             return interpreter.instantiateRuntimeValue(dslEntityInstance, entityType);
         }
     }
