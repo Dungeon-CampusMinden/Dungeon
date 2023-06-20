@@ -47,10 +47,10 @@ public class SkillTools {
      * @return hero position as a Point
      */
     public static Point getHeroPosition() {
-        Entity hero = Game.getHero().orElseThrow();
+        Entity hero = Game.hero().orElseThrow();
         PositionComponent pc =
-                (PositionComponent) hero.getComponent(PositionComponent.class).orElseThrow();
-        return pc.getPosition();
+                (PositionComponent) hero.fetch(PositionComponent.class).orElseThrow();
+        return pc.position();
     }
 
     /**

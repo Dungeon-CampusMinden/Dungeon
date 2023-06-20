@@ -33,7 +33,7 @@ public class Main {
         Game.addSystem(new HealthSystem());
         Game.addSystem(new XPSystem());
         Game.addSystem(new ProjectileSystem());
-
+        Game.addSystem(new HealthbarSystem());
         // build and start game
         Game.run();
     }
