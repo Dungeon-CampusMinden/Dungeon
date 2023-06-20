@@ -19,6 +19,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
+import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
@@ -42,7 +43,7 @@ public class TileLevelAPITest {
     private TextureMap textureMap;
     private Painter painter;
     private SpriteBatch batch;
-    private IOnLevelLoader onLevelLoader;
+    private IVoidFunction onLevelLoader;
     private ILevel level;
 
     @Before
@@ -57,7 +58,7 @@ public class TileLevelAPITest {
 
         painter = Mockito.mock(Painter.class);
         generator = Mockito.mock(IGenerator.class);
-        onLevelLoader = Mockito.mock(IOnLevelLoader.class);
+        onLevelLoader = Mockito.mock(IVoidFunction.class);
         level = Mockito.mock(TileLevel.class);
         api = new LevelSystem(batch, painter, generator, onLevelLoader);
     }
@@ -68,7 +69,7 @@ public class TileLevelAPITest {
         api.loadLevel(LevelSize.SMALL, DesignLabel.DEFAULT);
         verify(generator).level(DesignLabel.DEFAULT, LevelSize.SMALL);
         Mockito.verifyNoMoreInteractions(generator);
-        verify(onLevelLoader).onLevelLoad();
+        verify(onLevelLoader).execute();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
         assertEquals(level, api.currentLevel());
     }
@@ -79,7 +80,7 @@ public class TileLevelAPITest {
         api.loadLevel();
         verify(generator).level(Mockito.any(), Mockito.any());
         Mockito.verifyNoMoreInteractions(generator);
-        verify(onLevelLoader).onLevelLoad();
+        verify(onLevelLoader).execute();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
         assertEquals(level, api.currentLevel());
     }
@@ -90,7 +91,7 @@ public class TileLevelAPITest {
         api.loadLevel(DesignLabel.DEFAULT);
         verify(generator).level(eq(DesignLabel.DEFAULT), any());
         Mockito.verifyNoMoreInteractions(generator);
-        verify(onLevelLoader).onLevelLoad();
+        verify(onLevelLoader).execute();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
         assertEquals(level, api.currentLevel());
     }
@@ -101,7 +102,7 @@ public class TileLevelAPITest {
         api.loadLevel(LevelSize.SMALL);
         verify(generator).level(any(), eq(LevelSize.SMALL));
         Mockito.verifyNoMoreInteractions(generator);
-        verify(onLevelLoader).onLevelLoad();
+        verify(onLevelLoader).execute();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
         assertEquals(level, api.currentLevel());
     }
@@ -179,7 +180,7 @@ public class TileLevelAPITest {
     public void test_setLevel() {
         api.level(level);
         Mockito.verifyNoInteractions(generator);
-        verify(onLevelLoader).onLevelLoad();
+        verify(onLevelLoader).execute();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
         assertEquals(level, api.currentLevel());
     }

@@ -2,13 +2,19 @@ package core.systems;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-import core.level.IOnLevelLoader;
+import core.Entity;
+import core.Game;
+import core.System;
+import core.components.PlayerComponent;
+import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.generator.IGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+import core.utils.IVoidFunction;
+import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 
@@ -17,12 +23,20 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /** Manages the level. */
-public class LevelSystem {
+public class LevelSystem extends System {
     private final SpriteBatch batch;
     private final Painter painter;
-    private final IOnLevelLoader onLevelLoader;
+    private final IVoidFunction onLevelLoader;
     private IGenerator gen;
-    private ILevel currentLevel;
+    /** Currently used level-size configuration for generating new level */
+    private static LevelSize LEVELSIZE = LevelSize.SMALL;
+    /**
+     * The currently loaded level of the game.
+     *
+     * @see ILevel
+     */
+    private static ILevel currentLevel;
+
     private final Logger levelAPI_logger = Logger.getLogger(this.getClass().getName());
 
     /**
@@ -32,10 +46,8 @@ public class LevelSystem {
      * @param onLevelLoader Object that implements the onLevelLoad method.
      */
     public LevelSystem(
-            SpriteBatch batch,
-            Painter painter,
-            IGenerator generator,
-            IOnLevelLoader onLevelLoader) {
+            SpriteBatch batch, Painter painter, IGenerator generator, IVoidFunction onLevelLoader) {
+        super(PlayerComponent.class, PositionComponent.class);
         this.gen = generator;
         this.batch = batch;
         this.painter = painter;
@@ -50,7 +62,7 @@ public class LevelSystem {
      */
     public void loadLevel(LevelSize size, DesignLabel label) {
         currentLevel = gen.level(label, size);
-        onLevelLoader.onLevelLoad();
+        onLevelLoader.execute();
         levelAPI_logger.info("A new level was loaded.");
     }
 
@@ -85,8 +97,12 @@ public class LevelSystem {
     /**
      * @return The currently loaded level.
      */
-    public ILevel currentLevel() {
+    public static ILevel currentLevel() {
         return currentLevel;
+    }
+
+    public static void currentLevel(ILevel level) {
+        currentLevel = level;
     }
 
     protected void drawLevel() {
@@ -130,6 +146,48 @@ public class LevelSystem {
      */
     public void level(ILevel level) {
         currentLevel = level;
-        onLevelLoader.onLevelLoad();
+        onLevelLoader.execute();
+    }
+
+    /**
+     * If the given entity is on the end-tile, load the new level
+     *
+     * @param hero entity to check for, normally this is the hero
+     */
+    public void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
+        if (isOnEndTile(hero)) {
+            loadLevel(LEVELSIZE);
+        }
+    }
+
+    /**
+     * Check if the given en entity is on the end-tile
+     *
+     * @param entity entity to check for
+     * @return true if the entity is on the end-tile, false if not
+     */
+    private boolean isOnEndTile(Entity entity) {
+        PositionComponent pc =
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
+        Tile currentTile = Game.tileAT(pc.position());
+        return currentTile.equals(Game.endTile());
+    }
+
+    public static LevelSize levelSize() {
+        return LEVELSIZE;
+    }
+
+    public static void levelSize(LevelSize levelSize) {
+        LEVELSIZE = levelSize;
+    }
+
+    @Override
+    public void execute() {
+        drawLevel();
+        entityStream().forEach(this::loadNextLevelIfEntityIsOnEndTile);
     }
 }
