@@ -23,6 +23,11 @@ public class EntityType extends Value implements IType {
         return internalType;
     }
 
+    /*@Override
+    public IType getDataType() {
+        return ENTITY_TYPE;
+    }*/
+
     /*private AggregateType internalType() {
         return this.internalType;
     }*/
