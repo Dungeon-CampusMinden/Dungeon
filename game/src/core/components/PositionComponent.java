@@ -13,35 +13,38 @@ import semanticanalysis.types.DSLType;
 
 import java.util.logging.Logger;
 
-/** A PositionComponent stores the associated entity's position in the level */
+/**
+ * Store the position of the associated entity in the level.
+ *
+ * <p>Various systems access the position of an entity through this component, e.g. the {@link
+ * core.systems.DrawSystem} uses the position to draw an entity in the right place and the {@link
+ * core.systems.VelocitySystem} updates the position values based on the velocity and the previous
+ * position of an entity. See <a
+ * href="https://github.com/Programmiermethoden/Dungeon/tree/master/doc/ecs/systems">System-Overview</a>.
+ *
+ * @see Point
+ */
 @DSLType(name = "position_component")
-public class PositionComponent extends Component {
+public final class PositionComponent extends Component {
 
-    private final Logger positionCompLogger = Logger.getLogger(this.getClass().getName());
-    private /*@DSLTypeMember(name="position")*/ Point position;
+    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+    private Point position;
 
     /**
-     * Creates a new PositionComponent at a given point.
-     *
-     * <p>Creates a new PositionComponent to store the associated entity's position in the level and
-     * add this component to the associated entity.
+     * Create a new PositionComponent with given position and add it to the associated entity.
      *
      * <p>Sets the position of this entity to the given point.
      *
-     * @param entity associated entity
-     * @param point position of the entity
+     * @param entity The associated entity.
+     * @param position The position of the entity in the level.
      */
-    public PositionComponent(@DSLContextMember(name = "entity") Entity entity, Point point) {
+    public PositionComponent(final Entity entity, final Point position) {
         super(entity);
-
-        this.position = point;
+        this.position = position;
     }
 
     /**
-     * Creates a new PositionComponent at a given point.
-     *
-     * <p>Creates a new PositionComponent to store the associated entity's position in the level and
-     * add this component to the associated entity.
+     * Create a new PositionComponent and add it to the associated entity.
      *
      * <p>Sets the position of this entity to a point with the given x and y positions.
      *
@@ -49,15 +52,12 @@ public class PositionComponent extends Component {
      * @param x x-position of the entity
      * @param y y-position of the entity
      */
-    public PositionComponent(@DSLContextMember(name = "entity") Entity entity, float x, float y) {
+    public PositionComponent(final Entity entity, float x, float y) {
         this(entity, new Point(x, y));
     }
 
     /**
-     * Creates a new PositionComponent at a random point.
-     *
-     * <p>Creates a new PositionComponent to store the associated entity's position in the level and
-     * add this component to the associated entity.
+     * Create a new PositionComponent with random position and add it to the associated entity.
      *
      * <p>Sets the position of this entity on a random floor tile in the level. If no level is
      * loaded, set the position to (0,0). Beware that (0,0) may not necessarily be a playable area
@@ -65,7 +65,7 @@ public class PositionComponent extends Component {
      *
      * @param entity associated entity
      */
-    public PositionComponent(@DSLContextMember(name = "entity") Entity entity) {
+    public PositionComponent(@DSLContextMember(name = "entity") final Entity entity) {
         super(entity);
 
         if (Game.currentLevel() != null) {
@@ -76,13 +76,15 @@ public class PositionComponent extends Component {
     }
 
     /**
-     * @return the position of the associated entity
+     * Get the position of the associated entity.
+     *
+     * @return The position of the associated entity.
      */
     public Point position() {
-        positionCompLogger.log(
+        LOGGER.log(
                 CustomLogLevel.DEBUG,
                 "Fetching position for entity '"
-                        + entity.getClass().getSimpleName()
+                        + entity
                         + "': x = "
                         + position.x
                         + " --- y = "
@@ -91,15 +93,21 @@ public class PositionComponent extends Component {
     }
 
     /**
+     * Set the position of the associated entity
+     *
      * @param position new Position of the associated entity
      */
-    public void position(Point position) {
+    public void position(final Point position) {
         this.position = position;
     }
+
     /**
-     * @param tile Tile where the new Position of the associated entity is
+     * Set the position of the associated entity.
+     *
+     * @param tile The tile where the new position of the associated entity is located.
+     * @see Tile
      */
-    public void position(Tile tile) {
+    public void position(final Tile tile) {
         position(tile.position());
     }
 }
