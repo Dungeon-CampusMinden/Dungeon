@@ -24,7 +24,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 
-/*
+/**
  * A Class solely dedicated to randomly generating all types of AIs.
  *
  * NOTE: Random ints get a +1 inside the random function due to the exclusionary nature of random.nextInt()
@@ -153,7 +153,7 @@ public class AIFactory {
      */
     public static Function<Entity, Boolean> generateRandomTransitionAI(Entity entity){
         Random random = new Random();
-        int index = random.nextInt(0,4);
+        int index = random.nextInt(0, 4);
 
         switch (index) {
             case 0 -> {
@@ -194,6 +194,10 @@ public class AIFactory {
         }
     }
 
+    /**
+     * Goes filters all Entities for Monsters and returns a random one.
+     * @return returns either a random Monster or null if it cant find one
+     */
     private static Optional<Entity> getRandomMonster(){
         Random random = new Random();
         Stream<Entity> monsterStream = Game.getEntitiesStream()
