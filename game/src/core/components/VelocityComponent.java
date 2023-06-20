@@ -11,7 +11,7 @@ import semanticanalysis.types.DSLTypeMember;
 import java.util.logging.Logger;
 
 /**
- * Allows associated entity to move in the dungeon.
+ * Allow associated entity to move in the dungeon.
  *
  * <p>The VelocityComponent stores the speed at which the entity can move along the x and y axes.
  *
@@ -43,7 +43,7 @@ public final class VelocityComponent extends Component {
      * @param xVelocity Speed with which the entity can move on the x-axis
      * @param yVelocity Speed with which the entity can move on the y-axis
      */
-    public VelocityComponent(final Entity entity, final float xVelocity, final float yVelocity) {
+    public VelocityComponent(final Entity entity, float xVelocity, float yVelocity) {
         super(entity);
         this.currentXVelocity = 0;
         this.currentYVelocity = 0;
