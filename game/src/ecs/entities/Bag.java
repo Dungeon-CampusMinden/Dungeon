@@ -47,6 +47,12 @@ public class Bag extends Item {
         bagLogger.info(itemData.getItemName() + " created at " + point.toString());
     }
 
+    private Bag(ItemData itemData){
+        if(itemData != null)
+            return;
+        setupItemComponent();
+    }
+
     @Override
     public void setupAnimationComponent() {
         Animation idle = AnimationBuilder.buildAnimation(ItemConfig.BAG_TEXTURE.get());
@@ -129,6 +135,7 @@ public class Bag extends Item {
     }
 
     public static ItemData getItemData(){
+        new Bag(itemData);
         return itemData;
     }
 }

@@ -50,6 +50,12 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
         this.speedPotionLogger.info(itemData.getItemName() + " created at " + point.toString());
     }
 
+    private SpeedPotion(ItemData itemData){
+        if(itemData != null)
+            return;
+        setupItemComponent();
+    }
+
     protected void setupAnimationComponent() {
         Animation idle = AnimationBuilder.buildAnimation(ItemConfig.SPEED_TEXTURE.get());
         new AnimationComponent(this, idle);
@@ -173,6 +179,7 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
     }
 
     public static ItemData getItemData(){
+        new SpeedPotion(itemData);
         return itemData;
     }
 }

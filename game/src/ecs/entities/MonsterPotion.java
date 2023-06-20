@@ -48,6 +48,12 @@ public class MonsterPotion extends Item {
         this.monsterPotionLogger.info(itemData.getItemName() + " created at " + point.toString());
     }
 
+    private MonsterPotion(ItemData itemData){
+        if(itemData != null)
+            return;
+        setupItemComponent();
+    }
+
     protected void setupAnimationComponent() {
         Animation idle = AnimationBuilder.buildAnimation(ItemConfig.MONSTER_DESPAWN_TEXTURE.get());
         new AnimationComponent(this, idle);
@@ -171,6 +177,7 @@ public class MonsterPotion extends Item {
     }
 
     public static ItemData getItemData(){
+        new MonsterPotion(itemData);
         return itemData;
     }
 }

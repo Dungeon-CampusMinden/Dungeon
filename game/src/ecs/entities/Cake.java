@@ -48,6 +48,12 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
         this.cakeLogger.info(itemData.getItemName() + " created at " + point.toString());
     }
 
+    private Cake(ItemData itemData){
+        if(itemData != null)
+            return;
+        setupItemComponent();
+    }
+
     @Override
     protected void setupAnimationComponent() {
         Animation idle = AnimationBuilder.buildAnimation(ItemConfig.KUCHEN_TEXTURE.get());
@@ -171,6 +177,7 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
     }
 
     public static ItemData getItemData(){
+        new Cake(itemData);
         return itemData;
     }
 }
