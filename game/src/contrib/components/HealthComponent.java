@@ -64,6 +64,20 @@ public class HealthComponent extends Component {
     }
 
     /**
+     * Creates a HealthComponent with default onDeath.
+     *
+     * <p>The maximal health points are set accordingly, the onDeath function is empty and the
+     * animations are set to an animation composed of the "missingTexture" texture.
+     *
+     * @param entity associated entity
+     * @param maximalHitPoints maximum amount of hit-points, currentHitPoints can't be bigger than
+     *     that
+     */
+    public HealthComponent(Entity entity, int maximalHitPoints) {
+        this(entity, maximalHitPoints, onDeath -> {});
+    }
+
+    /**
      * Creates a HealthComponent with default values.
      *
      * <p>The maximal health points are set to 1, the onDeath function is empty and the animations
@@ -76,7 +90,7 @@ public class HealthComponent extends Component {
     }
 
     /**
-     * Adds damage, which is accounted for by the system
+     * Adds damage, which is accounted for by the system and creates a damage popup for the hero.
      *
      * @param damage Damage that should be inflicted
      */

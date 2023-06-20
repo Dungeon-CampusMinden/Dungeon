@@ -1,5 +1,9 @@
 package core.utils;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -45,6 +49,12 @@ public final class Constants {
     public static final String QUIZ_MESSAGE_SOLUTION = "Lösung";
 
     public static final String TEST_IMAGE_PATH_FOR_DIALOG = "image_quiz/dummy.png";
+
+    public static final Skin enemyHealthBarSkin =
+            new Skin(
+                    Gdx.files.internal("skin/enemyHealthBar/enemyHealthBar.json"),
+                    new TextureAtlas("skin/enemyHealthBar/enemyHealthBar.atlas"));
+
     /**
      * @param path the relative path to the resource
      * @return the absolute path of the internal resource

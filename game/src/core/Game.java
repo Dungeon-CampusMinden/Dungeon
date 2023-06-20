@@ -18,6 +18,7 @@ import contrib.systems.*;
 import core.components.PositionComponent;
 import core.configuration.Configuration;
 import core.hud.UITools;
+import core.hud.heroUI.HeroUI;
 import core.level.IOnLevelLoader;
 import core.level.Tile;
 import core.level.elements.ILevel;
@@ -266,6 +267,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
                         batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelManager.loadLevel(LEVELSIZE);
         createSystems();
+        controller.add(HeroUI.getHeroUI());
     }
 
     /**
@@ -277,6 +279,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private void frame() {
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         debugKeys();
+        HeroUI.getHeroUI().update();
     }
 
     /** Just for debugging, remove later. */
@@ -316,12 +319,19 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         getHero().ifPresent(this::placeOnLevelStart);
         getHero().ifPresent(Game::addEntity);
         try {
+            EntityFactory.getMonster();
+        } catch (IOException e) {
+            LOGGER.warning("Could not create new TestEnemy: " + e.getMessage());
+        }
+        try {
             EntityFactory.getChest();
         } catch (IOException e) {
             // will be moved to MAIN in https://github.com/Programmiermethoden/Dungeon/pull/688
             LOGGER.warning("Could not create new Chest: " + e.getMessage());
             throw new RuntimeException();
         }
+        updateSystems();
+        HeroUI.getHeroUI().createEnemyHealthBars();
     }
 
     /**

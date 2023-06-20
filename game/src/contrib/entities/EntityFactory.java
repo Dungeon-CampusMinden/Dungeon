@@ -2,6 +2,9 @@ package contrib.entities;
 
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
+import contrib.utils.components.ai.fight.RangeAI;
+import contrib.utils.components.ai.idle.RadiusWalk;
+import contrib.utils.components.ai.transition.RangeTransition;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.item.ItemData;
@@ -33,7 +36,8 @@ public class EntityFactory {
     /**
      * Create a new Entity that can be used as a playable character. It will have a {@link
      * CameraComponent}, {@link PlayerComponent}. {@link PositionComponent}, {@link
-     * VelocityComponent} {@link DrawComponent}, {@link CollideComponent}.
+     * VelocityComponent} {@link DrawComponent}, {@link CollideComponent}, {@link HealthComponent}
+     * and {@link XPComponent}.
      *
      * @return Created Entity
      */
@@ -45,6 +49,8 @@ public class EntityFactory {
         Entity hero = new Entity("hero");
         new CameraComponent(hero);
         new PositionComponent(hero);
+        new HealthComponent(hero, 20);
+        new XPComponent(hero);
         new VelocityComponent(hero, xSpeed, ySpeed);
         new DrawComponent(hero, "character/knight");
         new CollideComponent(
@@ -143,5 +149,34 @@ public class EntityFactory {
         dc.getAnimation(CoreAnimations.IDLE_RIGHT).ifPresent(a -> a.setLoop(false));
 
         return chest;
+    }
+
+    /**
+     * Create a new monster.
+     *
+     * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link DrawComponent},
+     * {@link VelocityComponent}, {@link XPComponent}, {@link CollideComponent}, {@link
+     * AIComponent}.
+     *
+     * <p>{@link RangeAI} is used to attack the hero if he is in range. {@link RadiusWalk} is used
+     * to walk around in a radius. {@link RangeTransition} is used to transition between the two
+     * states.
+     *
+     * @return Created Entity
+     */
+    public static Entity getMonster() throws IOException {
+        Entity imp = new Entity();
+        new PositionComponent(imp);
+        new HealthComponent(imp, 3);
+        new DrawComponent(imp, "character/monster/imp");
+        new VelocityComponent(imp, 0.1f, 0.1f);
+        new XPComponent(imp, null, 10);
+        new CollideComponent(imp);
+        new AIComponent(
+                imp,
+                new RangeAI(3, 1, new Skill(new FireballSkill(SkillTools::getHeroPosition), 2)),
+                new RadiusWalk(1, 1),
+                new RangeTransition(3));
+        return imp;
     }
 }

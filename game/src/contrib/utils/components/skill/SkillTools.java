@@ -4,6 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import core.Entity;
+import core.Game;
+import core.components.PositionComponent;
 import core.systems.CameraSystem;
 import core.utils.Point;
 
@@ -36,6 +39,18 @@ public class SkillTools {
         scv.scl(range);
 
         return new Point(startPoint.x + scv.x, startPoint.y + scv.y);
+    }
+
+    /**
+     * Gets the current position of the hero as a Point.
+     *
+     * @return hero position as a Point
+     */
+    public static Point getHeroPosition() {
+        Entity hero = Game.getHero().orElseThrow();
+        PositionComponent pc =
+                (PositionComponent) hero.getComponent(PositionComponent.class).orElseThrow();
+        return pc.getPosition();
     }
 
     /**
