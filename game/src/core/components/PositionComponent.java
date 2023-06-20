@@ -14,17 +14,15 @@ import semanticanalysis.types.DSLType;
 import java.util.logging.Logger;
 
 /**
- * Represents the position of the associated entity in the level.
+ * Store the position of the associated entity in the level.
  *
  * <p>Various systems access the position of an entity through this component, e.g. the {@link
  * core.systems.DrawSystem} uses the position to draw an entity in the right place and the {@link
  * core.systems.VelocitySystem} updates the position values based on the velocity and the previous
- * position of an entity. See
- * https://github.com/Programmiermethoden/Dungeon/tree/master/doc/ecs/systems.
+ * position of an entity. See <a
+ * href="https://github.com/Programmiermethoden/Dungeon/tree/master/doc/ecs/systems">System-Overview</a>.
  *
  * @see Point
- * @see core.systems.DrawSystem
- * @see core.systems.VelocitySystem
  */
 @DSLType(name = "position_component")
 public final class PositionComponent extends Component {
@@ -33,7 +31,7 @@ public final class PositionComponent extends Component {
     private Point position;
 
     /**
-     * Creates a new PositionComponent and adds it to the associated entity.
+     * Create a new PositionComponent with given position and add it to the associated entity.
      *
      * <p>Sets the position of this entity to the given point.
      *
@@ -46,7 +44,7 @@ public final class PositionComponent extends Component {
     }
 
     /**
-     * Creates a new PositionComponent and adds it to the associated entity.
+     * Create a new PositionComponent and add it to the associated entity.
      *
      * <p>Sets the position of this entity to a point with the given x and y positions.
      *
