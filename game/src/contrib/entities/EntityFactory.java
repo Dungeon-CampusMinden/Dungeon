@@ -178,10 +178,10 @@ public class EntityFactory {
      * Create a new Entity that can be used as a Monster.
      *
      * <p>It will have a {@link PositionComponent}, {@link HealthComponent},
-     * {@link AIComponent} with random AIs from the AIFactory class,
+     * {@link AIComponent} with random AIs from the {@link AIFactory} class,
      * {@link DrawComponent} with a randomly set Animation, {@link VelocityComponent},
      * {@link CollideComponent} and a 10% chancec for an {@link InventoryComponent}.
-     * If it has one it will use the {@link DropItemsInteraction} on death.
+     * If it has an Inventory it will use the {@link DropItemsInteraction} on death.
      *
      * @return The generated "Monster".
      * NOTE: +1 for health as nextInt() is exclusive
