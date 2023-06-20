@@ -53,7 +53,7 @@ public final class DrawComponent extends Component {
     private Animation currentAnimation;
 
     /**
-     * Create a new DrawComponent and add it to the associated entity..
+     * Create a new DrawComponent and add it to the associated entity.
      *
      * <p>Will read in all subdirectories of the given path and use each file in the subdirectory to
      * create an animation. So each subdirectory should contain only the files for one animation.
@@ -70,7 +70,12 @@ public final class DrawComponent extends Component {
         super(entity);
         // fetch available animations
         ClassLoader classLoader = getClass().getClassLoader();
-        File directory = new File(classLoader.getResource(path).getFile());
+        File directory;
+        try {
+            directory = new File(classLoader.getResource(path).getFile());
+        } catch (NullPointerException np) {
+            throw new FileNotFoundException("Path " + path + " not found.");
+        }
         if (!directory.exists() || !directory.isDirectory()) {
             throw new FileNotFoundException("Path " + path + " not found.");
         }
