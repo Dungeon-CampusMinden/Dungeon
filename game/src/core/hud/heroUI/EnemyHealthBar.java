@@ -2,13 +2,14 @@ package core.hud.heroUI;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import contrib.components.HealthComponent;
 
 import core.Entity;
+import core.Game;
 import core.components.PositionComponent;
 import core.systems.CameraSystem;
-import core.utils.Constants;
 import core.utils.Point;
 
 /** This class represents the HealthBar of the enemy */
@@ -24,16 +25,16 @@ public class EnemyHealthBar extends ProgressBar {
      * @param entity the entity to create the HealthBar for
      */
     public EnemyHealthBar(Entity entity) {
-        super(0, 100, 1, false, Constants.enemyHealthBarSkin);
+        super(0, 100, 1, false, new Skin());
         this.entity = entity;
         this.setAnimateDuration(0.1f);
         EnemyData ed = buildDataObject();
-        Point position = ed.pc.getPosition();
+        Point position = ed.pc.position();
         Vector3 screenPosition =
                 CameraSystem.camera().project(new Vector3(position.x, position.y, 0));
         this.setBounds(
                 screenPosition.x + POSITION_OFFSET.x, screenPosition.y + POSITION_OFFSET.y, 35, 10);
-        HeroUI.getHeroUI().add(this);
+        Game.stage().get().addActor(this);
     }
 
     /**
@@ -42,23 +43,22 @@ public class EnemyHealthBar extends ProgressBar {
      */
     public void update() {
         EnemyData ed = buildDataObject();
-        if (ed.hc.getCurrentHealthpoints() <= 0) HeroUI.getHeroUI().remove(this);
+        if (ed.hc.currentHealthpoints() <= 0) this.remove();
         // set visible only if entity lost health
-        this.setVisible(ed.hc.getCurrentHealthpoints() != ed.hc.getMaximalHealthpoints());
-        Point position = ed.pc.getPosition();
+        this.setVisible(ed.hc.currentHealthpoints() != ed.hc.maximalHealthpoints());
+        Point position = ed.pc.position();
         Vector3 screenPosition =
                 CameraSystem.camera().project(new Vector3(position.x, position.y, 0));
         this.setPosition(
                 screenPosition.x + POSITION_OFFSET.x, screenPosition.y + POSITION_OFFSET.y);
 
         // set value to health percent
-        this.setValue(
-                (float) ed.hc.getCurrentHealthpoints() / ed.hc.getMaximalHealthpoints() * 100);
+        this.setValue((float) ed.hc.currentHealthpoints() / ed.hc.maximalHealthpoints() * 100);
     }
 
     private EnemyData buildDataObject() {
         return new EnemyData(
-                (HealthComponent) entity.getComponent(HealthComponent.class).orElseThrow(),
-                (PositionComponent) entity.getComponent(PositionComponent.class).orElseThrow());
+                entity.fetch(HealthComponent.class).orElseThrow(),
+                entity.fetch(PositionComponent.class).orElseThrow());
     }
 }

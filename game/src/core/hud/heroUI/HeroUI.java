@@ -1,11 +1,11 @@
 package core.hud.heroUI;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import contrib.components.HealthComponent;
 import contrib.components.XPComponent;
@@ -13,22 +13,17 @@ import contrib.components.XPComponent;
 import core.Game;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
-import core.hud.LabelStyleBuilder;
-import core.hud.ScreenText;
-import core.utils.Constants;
-import core.utils.Point;
-import core.utils.controller.ScreenController;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
 /** This class represents the UI of the hero */
-public class HeroUI<T extends Actor> extends ScreenController<T> {
-    private static final HeroUI<Actor> heroUI = new HeroUI<>(new SpriteBatch());
+public class HeroUI {
+    private static final HeroUI heroUI = new HeroUI();
     private final Logger LOGGER = Logger.getLogger(HeroUI.class.getName());
     private final Set<EnemyHealthBar> enemyHealthBars;
-    private ScreenText level;
+    private Label level;
     private HeroHealthBar healthBar;
     private HeroXPBar xpBar;
     private BitmapFont font;
@@ -37,31 +32,27 @@ public class HeroUI<T extends Actor> extends ScreenController<T> {
 
     private record HeroData(HealthComponent hc, XPComponent xc) {}
 
-    private HeroUI(SpriteBatch batch) {
-        super(batch);
+    private HeroUI() {
         enemyHealthBars = new HashSet<>();
         setup();
     }
 
     /** Updates the UI with the current data of the hero */
-    @Override
     public void update() {
-        super.update();
         updateEnemyHealthBars();
         HeroData hd = buildDataObject();
         if (hd.xc != null) {
             if (hd.xc.getTotalXP() != previousTotalXP)
                 xpBar.createXPPopup(hd.xc.getTotalXP() - previousTotalXP, font);
             previousTotalXP = hd.xc.getTotalXP();
-            level.setText("Level: " + hd.xc.getCurrentLevel());
+            level.setText("Level: " + hd.xc.currentLevel());
             xpBar.updateXPBar(hd.xc);
         }
 
         if (hd.hc != null) {
-            if (hd.hc.getCurrentHealthpoints() != previousHealthPoints)
-                healthBar.createHPPopup(
-                        hd.hc.getCurrentHealthpoints() - previousHealthPoints, font);
-            previousHealthPoints = hd.hc.getCurrentHealthpoints();
+            if (hd.hc.currentHealthpoints() != previousHealthPoints)
+                healthBar.createHPPopup(hd.hc.currentHealthpoints() - previousHealthPoints, font);
+            previousHealthPoints = hd.hc.currentHealthpoints();
             healthBar.updateHealthBar(hd.hc);
         }
     }
@@ -72,7 +63,7 @@ public class HeroUI<T extends Actor> extends ScreenController<T> {
      */
     public void createEnemyHealthBars() {
         this.clearEnemyHealthBars();
-        Game.getEntitiesStream()
+        Game.entityStream()
                 .filter(e -> e.isPresent(HealthComponent.class))
                 .filter(e -> e.isPresent(PositionComponent.class))
                 .filter(e -> !e.isPresent(PlayerComponent.class))
@@ -84,7 +75,7 @@ public class HeroUI<T extends Actor> extends ScreenController<T> {
     }
 
     private void clearEnemyHealthBars() {
-        enemyHealthBars.forEach(enemyHealthBar -> this.remove((T) enemyHealthBar));
+        enemyHealthBars.forEach(Actor::remove);
         enemyHealthBars.clear();
     }
 
@@ -93,14 +84,8 @@ public class HeroUI<T extends Actor> extends ScreenController<T> {
     }
 
     private HeroData buildDataObject() {
-        HealthComponent hc =
-                (HealthComponent)
-                        Game.getHero()
-                                .flatMap(e -> e.getComponent(HealthComponent.class))
-                                .orElse(null);
-        XPComponent xc =
-                (XPComponent)
-                        Game.getHero().flatMap(e -> e.getComponent(XPComponent.class)).orElse(null);
+        HealthComponent hc = Game.hero().flatMap(e -> e.fetch(HealthComponent.class)).orElse(null);
+        XPComponent xc = Game.hero().flatMap(e -> e.fetch(XPComponent.class)).orElse(null);
 
         return new HeroData(hc, xc);
     }
@@ -117,28 +102,19 @@ public class HeroUI<T extends Actor> extends ScreenController<T> {
 
         if (hd.xc != null) {
             previousTotalXP = hd.xc.getTotalXP();
-            level =
-                    new ScreenText(
-                            "Level: ",
-                            new Point(3, 35),
-                            1,
-                            new LabelStyleBuilder(font).setFontcolor(Color.GREEN).build());
-            this.add((T) level);
+            level = new Label("Level: ", new Skin());
+            Game.stage().get().addActor(level);
 
-            xpBar = new HeroXPBar("hud/xpBar/xpBar_7.png", new Point(0, 5), 1.9f);
-            this.add((T) xpBar);
+            xpBar = new HeroXPBar();
+            Game.stage().get().addActor(xpBar);
         } else {
             LOGGER.warning("Couldn't create hero xp bar because of missing XPComponent");
         }
 
         if (hd.hc != null) {
-            previousHealthPoints = hd.hc.getCurrentHealthpoints();
-            healthBar =
-                    new HeroHealthBar(
-                            "hud/healthBar/healthBar_7.png",
-                            new Point(Constants.WINDOW_WIDTH - 195, 5),
-                            1.9f);
-            this.add((T) healthBar);
+            previousHealthPoints = hd.hc.currentHealthpoints();
+            healthBar = new HeroHealthBar();
+            Game.stage().get().addActor(healthBar);
         } else {
             LOGGER.warning("Couldn't create hero health bar because of missing HealthComponent");
         }
@@ -149,7 +125,7 @@ public class HeroUI<T extends Actor> extends ScreenController<T> {
      *
      * @return the instance of the HeroUI
      */
-    public static HeroUI<Actor> getHeroUI() {
+    public static HeroUI getHeroUI() {
         return heroUI;
     }
 }
