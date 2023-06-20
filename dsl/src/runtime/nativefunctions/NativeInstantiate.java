@@ -38,26 +38,22 @@ public class NativeInstantiate extends NativeFunction {
     }
 
     @Override
-    public Object call(DSLInterpreter interperter, List<Node> parameters) {
+    public Object call(DSLInterpreter interpreter, List<Node> parameters) {
         assert parameters != null && parameters.size() > 0;
-        try {
-            Value param = (Value) parameters.get(0).accept(interperter);
-            //if (param.getDataType() == EntityType.ENTITY_TYPE) {
-            // TODO: figure this one out
-            if (param.getDataType() instanceof EntityType) {
-                var entityType =
-                        (AggregateType)
-                                interperter
-                                        .getRuntimeEnvironment()
-                                        .getGlobalScope()
-                                        .resolve("entity");
-                return interperter.instantiateRuntimeValue((AggregateValue) param, entityType);
-            }
-        } catch (ClassCastException ex) {
-            // TODO: handle.. although this should not be a problem because
-            //  of typechecking, once it is impelemented
+
+        Value param = (Value) parameters.get(0).accept(interpreter);
+        if (param.getDataType() != EntityType.ENTITY_TYPE) {
+            throw new RuntimeException("Wrong type ('" +param.getDataType().getName() + "') of parameter for call of instantiate()!");
+        } else {
+            var dslEntityInstance = (AggregateValue) interpreter.instantiateDSLValue((EntityType)param);
+            var entityType =
+                    (AggregateType)
+                            interpreter
+                                    .getRuntimeEnvironment()
+                                    .getGlobalScope()
+                                    .resolve("entity");
+            return interpreter.instantiateRuntimeValue(dslEntityInstance, entityType);
         }
-        return null;
     }
 
     @Override
