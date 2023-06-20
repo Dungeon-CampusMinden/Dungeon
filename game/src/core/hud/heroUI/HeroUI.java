@@ -1,9 +1,5 @@
 package core.hud.heroUI;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
@@ -11,76 +7,53 @@ import contrib.components.HealthComponent;
 import contrib.components.XPComponent;
 
 import core.Game;
-import core.components.PlayerComponent;
-import core.components.PositionComponent;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Logger;
 
 /** This class represents the UI of the hero */
 public class HeroUI {
-    private static final HeroUI heroUI = new HeroUI();
+    // Logger
     private final Logger LOGGER = Logger.getLogger(HeroUI.class.getName());
-    private final Set<EnemyHealthBar> enemyHealthBars;
-    private Label level;
+    // Hero UI enthält lebensbalken, expbalken und level
     private HeroHealthBar healthBar;
     private HeroXPBar xpBar;
-    private BitmapFont font;
+    private Label level;
+
+    // ??
     private int previousHealthPoints;
     private long previousTotalXP;
 
     private record HeroData(HealthComponent hc, XPComponent xc) {}
 
     private HeroUI() {
-        enemyHealthBars = new HashSet<>();
         setup();
     }
 
     /** Updates the UI with the current data of the hero */
     public void update() {
-        updateEnemyHealthBars();
         HeroData hd = buildDataObject();
+        updateExperienceBar(hd);
+
+        updateHealthBar(hd);
+    }
+
+    private void updateExperienceBar(HeroData hd) {
         if (hd.xc != null) {
             if (hd.xc.getTotalXP() != previousTotalXP)
-                xpBar.createXPPopup(hd.xc.getTotalXP() - previousTotalXP, font);
+                xpBar.createXPPopup(hd.xc.getTotalXP() - previousTotalXP);
             previousTotalXP = hd.xc.getTotalXP();
             level.setText("Level: " + hd.xc.currentLevel());
             xpBar.updateXPBar(hd.xc);
         }
+    }
 
+    private void updateHealthBar(HeroData hd) {
         if (hd.hc != null) {
             if (hd.hc.currentHealthpoints() != previousHealthPoints)
-                healthBar.createHPPopup(hd.hc.currentHealthpoints() - previousHealthPoints, font);
+                healthBar.createHPPopup(hd.hc.currentHealthpoints() - previousHealthPoints);
             previousHealthPoints = hd.hc.currentHealthpoints();
             healthBar.updateHealthBar(hd.hc);
         }
-    }
-
-    /**
-     * Creates a HealthBar for each entity that has a HealthComponent, PositionComponent and is not
-     * the hero
-     */
-    public void createEnemyHealthBars() {
-        this.clearEnemyHealthBars();
-        Game.entityStream()
-                .filter(e -> e.isPresent(HealthComponent.class))
-                .filter(e -> e.isPresent(PositionComponent.class))
-                .filter(e -> !e.isPresent(PlayerComponent.class))
-                .forEach(
-                        e -> {
-                            EnemyHealthBar enemyHealthBar = new EnemyHealthBar(e);
-                            enemyHealthBars.add(enemyHealthBar);
-                        });
-    }
-
-    private void clearEnemyHealthBars() {
-        enemyHealthBars.forEach(Actor::remove);
-        enemyHealthBars.clear();
-    }
-
-    private void updateEnemyHealthBars() {
-        enemyHealthBars.forEach(EnemyHealthBar::update);
     }
 
     private HeroData buildDataObject() {
@@ -92,13 +65,6 @@ public class HeroUI {
 
     private void setup() {
         HeroData hd = buildDataObject();
-
-        FreeTypeFontGenerator generator =
-                new FreeTypeFontGenerator(Gdx.files.internal("skin/DungeonFont.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter =
-                new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 21;
-        font = generator.generateFont(parameter);
 
         if (hd.xc != null) {
             previousTotalXP = hd.xc.getTotalXP();
@@ -118,14 +84,5 @@ public class HeroUI {
         } else {
             LOGGER.warning("Couldn't create hero health bar because of missing HealthComponent");
         }
-    }
-
-    /**
-     * Returns the instance of the HeroUI
-     *
-     * @return the instance of the HeroUI
-     */
-    public static HeroUI getHeroUI() {
-        return heroUI;
     }
 }
