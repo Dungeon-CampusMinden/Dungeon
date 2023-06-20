@@ -4,24 +4,32 @@ import ecs.components.skill.Skill;
 import ecs.entities.Entity;
 import ecs.entities.Mimic;
 
-public class MimicAI implements IFightAI{
+/**
+ * Stationary attack mainly used by the {@link Mimic} class
+ * 
+ * @see MimicWalk
+ */
+public class MimicAI implements IFightAI {
 
     private final Skill skill;
 
-
-    public MimicAI (Skill skill){
+    /**
+     * Creates a new instance of MimicAI
+     * 
+     * @param skill the skill used to fight by the wielder
+     */
+    public MimicAI(Skill skill) {
         this.skill = skill;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * Stationary fight without movement
+     */
     @Override
     public void fight(Entity entity) {
-        if (!(entity instanceof Mimic)){
-            return;
-        }
-        if(((Mimic)entity).getAttacking())
-            skill.execute(entity);
+        skill.execute(entity);
     }
-
-
 
 }
