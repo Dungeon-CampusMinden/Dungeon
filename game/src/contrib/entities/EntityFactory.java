@@ -175,8 +175,16 @@ public class EntityFactory {
     }
 
     /**
-     * Gets a randomly generated "Monster" Entity.
+     * Create a new Entity that can be used as a Monster.
+     *
+     * <p>It will have a {@link PositionComponent}, {@link HealthComponent},
+     * {@link AIComponent} with random AIs from the AIFactory class,
+     * {@link DrawComponent} with a randomly set Animation, {@link VelocityComponent},
+     * {@link CollideComponent} and a 10% chancec for an {@link InventoryComponent}.
+     * If it has one it will use the {@link DropItemsInteraction} on death.
+     *
      * @return The generated "Monster".
+     * NOTE: +1 for health as nextInt() is exclusive
      */
     public static Entity getRandomizedMonster() throws IOException {
         Random random = new Random();
@@ -212,6 +220,15 @@ public class EntityFactory {
         VelocityComponent vc = new VelocityComponent(monster,speed, speed);
 
         CollideComponent cc = new CollideComponent(monster);
+
+        int itemRoll = random.nextInt(0,10);
+        if(itemRoll == 0){
+            ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
+            ItemData item = itemDataGenerator.generateItemData();
+            InventoryComponent ic = new InventoryComponent(monster, 1);
+            ic.addItem(item);
+            hc.setOnDeath(new DropItemsInteraction());
+        }
 
         return monster;
     }
