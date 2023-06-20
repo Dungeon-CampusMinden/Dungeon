@@ -7,11 +7,11 @@ public class Graph<T> {
     private final ArrayList<Edge> edges;
     private final ArrayList<Node<T>> nodes;
 
-    public Iterator<Edge> getEdgeIterator() {
+    public Iterator<Edge> edgeIterator() {
         return edges.iterator();
     }
 
-    public Iterator<Node<T>> getNodeIterator() {
+    public Iterator<Node<T>> nodeIterator() {
         return nodes.iterator();
     }
 

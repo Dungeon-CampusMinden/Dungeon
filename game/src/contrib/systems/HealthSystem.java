@@ -10,6 +10,7 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
+import core.utils.components.MissingComponentException;
 
 import java.util.stream.Stream;
 
@@ -17,7 +18,7 @@ import java.util.stream.Stream;
  * The HealthSystem offsets the damage to be done to all entities with the HealthComponent. Triggers
  * the death of an entity when the health-points have fallen below 0.
  */
-public class HealthSystem extends System {
+public final class HealthSystem extends System {
 
     public HealthSystem() {
         super(HealthComponent.class, DrawComponent.class);
@@ -25,7 +26,7 @@ public class HealthSystem extends System {
 
     @Override
     public void execute() {
-        getEntityStream()
+        entityStream()
                 // Consider only entities that have a HealthComponent
                 // Form triples (e, hc, ac)
                 .map(this::buildDataObject)
@@ -41,35 +42,39 @@ public class HealthSystem extends System {
                                             .get()
                                             .isLooping()) return true;
                             if (!hsd.ac.isCurrentAnimation(AdditionalAnimations.DIE)) {
-                                hsd.ac.setCurrentAnimation(AdditionalAnimations.DIE);
+                                hsd.ac.currentAnimation(AdditionalAnimations.DIE);
                             }
-                            return hsd.ac.getCurrentAnimation().isFinished();
+                            return hsd.ac.currentAnimation().isFinished();
                         })
                 // Remove all dead entities
                 .forEach(this::removeDeadEntities);
     }
 
-    private HSData buildDataObject(Entity e) {
+    private HSData buildDataObject(Entity entity) {
 
-        HealthComponent hc = (HealthComponent) e.getComponent(HealthComponent.class).get();
-        DrawComponent ac = (DrawComponent) e.getComponent(DrawComponent.class).get();
-
-        return new HSData(e, hc, ac);
+        HealthComponent hc =
+                entity.fetch(HealthComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, HealthComponent.class));
+        DrawComponent ac =
+                entity.fetch(DrawComponent.class)
+                        .orElseThrow(
+                                () -> MissingComponentException.build(entity, DrawComponent.class));
+        return new HSData(entity, hc, ac);
     }
 
     private HSData applyDamage(HSData hsd) {
         hsd.e
-                .getComponent(StatsComponent.class)
+                .fetch(StatsComponent.class)
                 .ifPresentOrElse(
-                        sc -> {
-                            StatsComponent scomp = (StatsComponent) sc;
-                            doDamageAndAnimation(hsd, calculateDamageWithMultipliers(scomp, hsd));
-                        },
+                        sc -> doDamageAndAnimation(hsd, calculateDamageWithMultipliers(sc, hsd)),
                         () ->
                                 doDamageAndAnimation(
                                         hsd,
                                         Stream.of(DamageType.values())
-                                                .mapToInt(hsd.hc::getDamage)
+                                                .mapToInt(hsd.hc::calculateDamageOf)
                                                 .sum()));
         return hsd;
     }
@@ -85,43 +90,36 @@ public class HealthSystem extends System {
                 .mapToInt(
                         dt ->
                                 Math.round(
-                                        statsComponent.getDamageModifiers().getMultiplier(dt)
-                                                * hsd.hc.getDamage(dt)))
+                                        statsComponent.damageModifiers().multiplierFor(dt)
+                                                * hsd.hc.calculateDamageOf(dt)))
                 .sum();
     }
 
     private void doDamageAndAnimation(HSData hsd, int dmgAmount) {
         if (dmgAmount > 0) {
             // we have some damage - let's show a little dance
-            hsd.ac.setCurrentAnimation(AdditionalAnimations.HIT);
+            hsd.ac.currentAnimation(AdditionalAnimations.HIT);
         }
         // reset all damage objects in health component and apply damage
         hsd.hc.clearDamage();
-        hsd.hc.setCurrentHealthpoints(hsd.hc.getCurrentHealthpoints() - dmgAmount);
+        hsd.hc.currentHealthpoints(hsd.hc.currentHealthpoints() - dmgAmount);
     }
 
     private void removeDeadEntities(HSData hsd) {
         // Entity appears to be dead, so let's clean up the mess
         hsd.hc.triggerOnDeath();
-        hsd.ac.setCurrentAnimation(AdditionalAnimations.DIE);
-        Game.removeEntity(hsd.hc.getEntity());
+        hsd.ac.currentAnimation(AdditionalAnimations.DIE);
+        Game.removeEntity(hsd.hc.entity());
 
         // Add XP
         hsd.e
-                .getComponent(XPComponent.class)
+                .fetch(XPComponent.class)
                 .ifPresent(
-                        component -> {
-                            XPComponent deadXPComponent = (XPComponent) component;
-                            hsd.hc
-                                    .getLastDamageCause()
-                                    .flatMap(entity -> entity.getComponent(XPComponent.class))
-                                    .ifPresent(
-                                            c -> {
-                                                XPComponent killerXPComponent = (XPComponent) c;
-                                                killerXPComponent.addXP(
-                                                        deadXPComponent.getLootXP());
-                                            });
-                        });
+                        component ->
+                                hsd.hc
+                                        .lastDamageCause()
+                                        .flatMap(entity -> entity.fetch(XPComponent.class))
+                                        .ifPresent(c -> c.addXP(component.lootXP())));
     }
 
     // private record to hold all data during streaming

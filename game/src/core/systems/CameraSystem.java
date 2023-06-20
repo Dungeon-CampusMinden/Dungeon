@@ -11,6 +11,7 @@ import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.utils.Constants;
 import core.utils.Point;
+import core.utils.components.MissingComponentException;
 
 /**
  * The CameraSystem sets the focus point of the game. It is responsible for what is visible on
@@ -24,10 +25,10 @@ import core.utils.Point;
  *
  * @see CameraComponent
  */
-public class CameraSystem extends System {
+public final class CameraSystem extends System {
 
     private static final OrthographicCamera CAMERA =
-            new OrthographicCamera(Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
+            new OrthographicCamera(Constants.viewportWidth(), Constants.viewportHeight());
 
     public CameraSystem() {
         super(CameraComponent.class, PositionComponent.class);
@@ -35,22 +36,26 @@ public class CameraSystem extends System {
 
     @Override
     public void execute() {
-        if (getEntityStream().findAny().isEmpty()) focus();
-        else getEntityStream().forEach(this::focus);
+        if (entityStream().findAny().isEmpty()) focus();
+        else entityStream().forEach(this::focus);
         CAMERA.update();
     }
 
     private void focus() {
         Point focusPoint;
-        if (Game.currentLevel == null) focusPoint = new Point(0, 0);
-        else focusPoint = Game.currentLevel.getStartTile().getCoordinateAsPoint();
+        if (Game.currentLevel() == null) focusPoint = new Point(0, 0);
+        else focusPoint = Game.startTile().position();
         focus(focusPoint);
     }
 
     private void focus(Entity entity) {
         PositionComponent pc =
-                (PositionComponent) entity.getComponent(PositionComponent.class).get();
-        focus(pc.getPosition());
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
+        focus(pc.position());
     }
 
     private void focus(Point point) {

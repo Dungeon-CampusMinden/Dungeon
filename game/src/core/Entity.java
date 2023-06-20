@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  * <p>If you want to remove a component from an entity, use {@link #removeComponent} and provide the
  * Class of the component you want to remove as a parameter.
  *
- * <p>With {@link #getComponent}, you can check if the entity has a component of the given class.
+ * <p>With {@link #fetch}, you can check if the entity has a component of the given class.
  *
  * @see Component
  * @see System
@@ -44,7 +44,7 @@ public final class Entity {
      *
      * @param name the name of the entity, used for better logging and debugging
      */
-    public Entity(String name) {
+    public Entity(final String name) {
         id = nextId++;
         components = new HashMap<>();
         this.name = name;
@@ -72,7 +72,7 @@ public final class Entity {
      *
      * @param component The component to add
      */
-    public void addComponent(Component component) {
+    public void addComponent(final Component component) {
         components.put(component.getClass(), component);
         Game.informAboutChanges(this);
         LOGGER.info(
@@ -90,7 +90,7 @@ public final class Entity {
      *
      * @param klass the Class of the component
      */
-    public void removeComponent(Class<? extends Component> klass) {
+    public void removeComponent(final Class<? extends Component> klass) {
         if (components.remove(klass) != null) {
             Game.informAboutChanges(this);
             LOGGER.info(klass.getName() + " from " + name + " was removed.");
@@ -104,8 +104,8 @@ public final class Entity {
      * @return Optional that can contain the requested component
      * @see Optional
      */
-    public Optional<Component> getComponent(Class<? extends Component> klass) {
-        return Optional.ofNullable(components.get(klass));
+    public <T extends Component> Optional<T> fetch(final Class<T> klass) {
+        return Optional.ofNullable(klass.cast(components.get(klass)));
     }
 
     /**
@@ -114,7 +114,7 @@ public final class Entity {
      * @param klass class of the component to check for
      * @return true if the component is present in the entity, false if not
      */
-    public boolean isPresent(Class<? extends Component> klass) {
+    public boolean isPresent(final Class<? extends Component> klass) {
         return components.containsKey(klass);
     }
 

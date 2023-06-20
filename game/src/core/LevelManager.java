@@ -49,7 +49,7 @@ public class LevelManager {
      * @param label The design that the level should have
      */
     public void loadLevel(LevelSize size, DesignLabel label) {
-        currentLevel = gen.getLevel(label, size);
+        currentLevel = gen.level(label, size);
         onLevelLoader.onLevelLoad();
         levelAPI_logger.info("A new level was loaded.");
     }
@@ -85,24 +85,23 @@ public class LevelManager {
     /**
      * @return The currently loaded level.
      */
-    public ILevel getCurrentLevel() {
+    public ILevel currentLevel() {
         return currentLevel;
     }
 
     protected void drawLevel() {
         Map<String, PainterConfig> mapping = new HashMap<>();
 
-        Tile[][] layout = currentLevel.getLayout();
+        Tile[][] layout = currentLevel.layout();
         for (int y = 0; y < layout.length; y++) {
             for (int x = 0; x < layout[0].length; x++) {
                 Tile t = layout[y][x];
-                if (t.getLevelElement() != LevelElement.SKIP) {
-                    String texturePath = t.getTexturePath();
+                if (t.levelElement() != LevelElement.SKIP) {
+                    String texturePath = t.texturePath();
                     if (!mapping.containsKey(texturePath)) {
                         mapping.put(texturePath, new PainterConfig(texturePath));
                     }
-                    painter.draw(
-                            t.getCoordinate().toPoint(), texturePath, mapping.get(texturePath));
+                    painter.draw(t.position(), texturePath, mapping.get(texturePath));
                 }
             }
         }
@@ -111,7 +110,7 @@ public class LevelManager {
     /**
      * @return The currently used Level-Generator
      */
-    public IGenerator getGenerator() {
+    public IGenerator generator() {
         return gen;
     }
 
@@ -120,7 +119,7 @@ public class LevelManager {
      *
      * @param generator new level generator
      */
-    public void setGenerator(IGenerator generator) {
+    public void generator(IGenerator generator) {
         gen = generator;
     }
 
@@ -129,7 +128,7 @@ public class LevelManager {
      *
      * @param level The level to be set.
      */
-    public void setLevel(ILevel level) {
+    public void level(ILevel level) {
         currentLevel = level;
         onLevelLoader.onLevelLoad();
     }

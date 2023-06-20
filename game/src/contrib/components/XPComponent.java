@@ -46,7 +46,7 @@ public class XPComponent extends Component {
      *
      * @return current level
      */
-    public long getCurrentLevel() {
+    public long currentLevel() {
         return currentLevel;
     }
 
@@ -55,7 +55,7 @@ public class XPComponent extends Component {
      *
      * @param currentLevel current level
      */
-    public void setCurrentLevel(long currentLevel) {
+    public void currentLevel(long currentLevel) {
         this.currentLevel = currentLevel;
     }
 
@@ -84,7 +84,7 @@ public class XPComponent extends Component {
      *
      * @return current xp
      */
-    public long getCurrentXP() {
+    public long currentXP() {
         return currentXP;
     }
 
@@ -93,7 +93,7 @@ public class XPComponent extends Component {
      *
      * @param currentXP current xp
      */
-    public void setCurrentXP(long currentXP) {
+    public void currentXP(long currentXP) {
         this.currentXP = currentXP;
     }
 
@@ -112,7 +112,7 @@ public class XPComponent extends Component {
      *
      * @return xp that will be dropped
      */
-    public long getLootXP() {
+    public long lootXP() {
         return lootXP == -1 ? currentXP / 2 : lootXP;
     }
 
@@ -121,7 +121,7 @@ public class XPComponent extends Component {
      *
      * @param lootXP xp that will be dropped
      */
-    public void setLootXP(long lootXP) {
+    public void lootXP(long lootXP) {
         this.lootXP = lootXP;
     }
 
@@ -132,7 +132,7 @@ public class XPComponent extends Component {
      *
      * @return xp left to next level
      */
-    public long getXPToNextLevel() {
+    public long xpToNextLevel() {
         // level 0 in Formula is level 1 in game.
         return Math.round(FORMULA_SLOPE * Math.pow(currentLevel, 2) + LEVEL_1_XP) - currentXP;
     }

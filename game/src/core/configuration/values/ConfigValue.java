@@ -33,7 +33,7 @@ public abstract class ConfigValue<T> {
      *
      * @return The current value.
      */
-    public T get() {
+    public T value() {
         return value;
     }
 
@@ -42,7 +42,7 @@ public abstract class ConfigValue<T> {
      *
      * @param value The new value.
      */
-    public void set(T value) {
+    public void value(T value) {
         this.value = value;
     }
 }

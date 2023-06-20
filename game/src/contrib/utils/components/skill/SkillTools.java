@@ -81,7 +81,7 @@ public class SkillTools {
      *
      * @return mouse cursor position as Point
      */
-    public static Point getCursorPositionAsPoint() {
+    public static Point cursorPositionAsPoint() {
         Vector3 mousePosition =
                 CameraSystem.camera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
         return new Point(mousePosition.x, mousePosition.y);

@@ -26,14 +26,14 @@ import java.util.logging.Logger;
  * <p>It keeps track of the current health points and its maximum.
  *
  * <p>It also keeps track of the damage received via the {@link #receiveHit(Damage) receiveHit}
- * method. The damage is stored in a list and can be retrieved via the {@link #getDamage(DamageType)
- * getDamage} method. The damage is applied and cleared by the {@link HealthSystem HealthSystem}
- * every tick. To determine what the last cause of damage was, the {@link #getLastDamageCause()}
- * method can be used.
+ * method. The damage is stored in a list and can be retrieved via the {@link
+ * #calculateDamageOf(DamageType) getDamage} method. The damage is applied and cleared by the {@link
+ * HealthSystem HealthSystem} every tick. To determine what the last cause of damage was, the {@link
+ * #lastDamageCause()} method can be used.
  *
  * <p>The HealthComponent also provides the ability to set an onDeath function, which is called when
  * the health points reach 0 or less. The onDeath function can be set via the {@link
- * #setOnDeath(Consumer<Entity>) setOnDeath} method.
+ * #onDeath(Consumer<Entity>) setOnDeath} method.
  */
 @DSLType(name = "health_component")
 public class HealthComponent extends Component {
@@ -110,7 +110,7 @@ public class HealthComponent extends Component {
      * @param dt Type of damage object that still need to be accounted for
      * @return Sum of all damage objects of type dt (default: 0)
      */
-    public int getDamage(DamageType dt) {
+    public int calculateDamageOf(DamageType dt) {
         int damageSum =
                 damageToGet.stream()
                         .filter(d -> d.damageType() == dt)
@@ -141,7 +141,7 @@ public class HealthComponent extends Component {
      *
      * @param amount new amount of current health-points
      */
-    public void setCurrentHealthpoints(int amount) {
+    public void currentHealthpoints(int amount) {
         this.currentHealthpoints = Math.min(maximalHealthpoints, amount);
     }
 
@@ -151,7 +151,7 @@ public class HealthComponent extends Component {
      *
      * @param amount new amount of maximal health-points
      */
-    public void setMaximalHealthpoints(int amount) {
+    public void maximalHealthpoints(int amount) {
         this.maximalHealthpoints = amount;
         currentHealthpoints = Math.min(currentHealthpoints, maximalHealthpoints);
     }
@@ -161,28 +161,28 @@ public class HealthComponent extends Component {
      *
      * @param onDeath new onDeath function
      */
-    public void setOnDeath(Consumer<Entity> onDeath) {
+    public void onDeath(Consumer<Entity> onDeath) {
         this.onDeath = onDeath;
     }
 
     /**
      * @return The current health-points the entity has
      */
-    public int getCurrentHealthpoints() {
+    public int currentHealthpoints() {
         return currentHealthpoints;
     }
 
     /**
      * @return The maximal health-points the entity can have
      */
-    public int getMaximalHealthpoints() {
+    public int maximalHealthpoints() {
         return maximalHealthpoints;
     }
 
     /**
      * @return The last entity that caused damage to this entity.
      */
-    public Optional<Entity> getLastDamageCause() {
+    public Optional<Entity> lastDamageCause() {
         return Optional.ofNullable(this.lastCause);
     }
 

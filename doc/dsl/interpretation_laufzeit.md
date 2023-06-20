@@ -238,12 +238,12 @@ Die Instanziierung von Java-Klassen, welche mit `@DSLType` (siehe
 durchgeführt. Als Beispiel wird wieder die oben angeführte `game_object`-Definition
 herangezogen.
 
-![UML: Instanziierung von Java-Klasse](img/instantiate_java_class.png)
 Der `IMemorySpace` eines `AggregateValue` wird dem `TypeInstantiator` übergeben. Dieser
 erstellt eine Instanz der Java-Klasse, die dem Datentyp des `AggregateValue` zugrunde liegt.
 Im Fall der `velocity_component` `Value`-Instanz ist dies die Java-Klasse
 `VelocityComponent`. Das Sequenzdiagramm hierfür:
 
+![UML: Instanziierung von Java-Klasse](img/instantiate_java_class.png)
 
 Um die Java-Klasse zu instanziieren ruft der `TypeBuilder` den Konstruktor der Klasse per
 Reflection auf. Die Parameter für diesen Konstruktor-Aufruf liest der `TypeBuilder` aus dem
@@ -266,13 +266,18 @@ die Klassen-Instanz übertragen, falls der Wert explizit per DSL gesetzt wurde (
 Falls der Datentyp eines Klassen-Members [adaptiert](typebuilding.md#typadaptierung) ist,
 wird nicht direkt der interne Wert der `Value`-Instanz in die Klasseninstanz übertragen. Als
 Zwischenschritt wird die [Builder-Methode](typebuilding.md#1-nur-ein-parameter-nötig) für
-den Typadapter aufgerufen. Das so erstellte Objekt wird in die Klasseninstanz übertragen.
+den Typadapter aufgerufen.
 
-NOTE: Hier scheint in `TypeInstantiator:150` noch was konzeptionell nicht ganz zu stimmen
-(Fix kommt mit [PR #272](https://github.com/Programmiermethoden/Dungeon/pull/272))
+Der Aufruf unterscheidet sich je nach Art der Typadaptierung:
 
-TODO:
-- Instanziierung von AggregateTypeAdapter (kommt mit [PR #272](https://github.com/Programmiermethoden/Dungeon/pull/272))
+- Für die einfache Typadaptierung wird die Builder-Methode mit dem internen Wert der
+  `Value`-Instanz aufgerufen.
+- Für die komplexe Typadaptierung baut der `TypeInstantiator` vorher die Parameter-Liste für
+  den Aufruf der Builder-Methode zusammen. Hierzu werden die Parameternamen der
+  Builder-Methode im Kontext vom `MemorySpace` des `AggregateTypeAdapters` aufgelöst und an
+  die entsprechende Stelle der Parameter-Liste eingefügt.
+
+Das so erstellte Objekt wird in die Klasseninstanz übertragen.
 
 **EncapsulatedObject**
 
@@ -338,4 +343,19 @@ public Object call(DSLInterpreter interpreter, List<Node> parameters) {
 
 Das Sequenzdiagramm der Methode `executeUserDefinedFunction` ist unten dargestellt:
 
-Note: kommt mit [Issue \#705](https://github.com/Programmiermethoden/Dungeon/issues/705).
+![UML: executeUserDefinedFunction](img/execute_user_defined_function.png)
+
+Für den Rückgabewert wird eine `Value`-Instanz im `MemorySpace` der Funktion gebunden. Der
+interne Wert dieser `Value`-Instanz wird durch während der Interpretation von
+`return`-Statements gesetzt. Ein `return`-Statement beendet die Ausführung der
+Funktionslogik.
+
+Der `DSLInterpreter` verfügt hierfür über ein Flag, welches während der Interpretation eines
+`return`-Statements aktiv geschaltet wird. Nach der Interpretation eines Statements wird der
+Zustand des Flags überprüft und (falls aktiv) die Ausführung der nachfolgenden Statements
+übersprungen.
+
+Note: Dieser Flag-basierte Mechanismus ist ein Provisorium und ist bspw. für konditionale
+Statements zu kurz gedacht, liegt allerdings außerhalb des Scopes des PRs, der die
+Behandlung von `return`-Statements implementiert. Siehe dazu [Issue
+737](https://github.com/Programmiermethoden/Dungeon/issues/737).

@@ -42,7 +42,7 @@ import java.util.logging.Logger;
  * @see System
  * @see KeyboardConfig
  */
-public class DebuggerSystem extends System {
+public final class DebuggerSystem extends System {
 
     private static final Logger LOGGER = Logger.getLogger(DebuggerSystem.class.getName());
 
@@ -70,13 +70,13 @@ public class DebuggerSystem extends System {
     /** Teleports the Hero to the current position of the cursor. */
     public static void TELEPORT_TO_CURSOR() {
         LOGGER.log(CustomLogLevel.DEBUG, "TELEPORT TO CURSOR");
-        TELEPORT(SkillTools.getCursorPositionAsPoint());
+        TELEPORT(SkillTools.cursorPositionAsPoint());
     }
 
     /** Teleports the Hero to the end of the level, on a neighboring accessible tile if possible. */
     public static void TELEPORT_TO_END() {
         LOGGER.info("TELEPORT TO END");
-        Coordinate endTile = Game.currentLevel.getEndTile().getCoordinate();
+        Coordinate endTile = Game.endTile().coordinate();
         Coordinate[] neighborTiles = {
             new Coordinate(endTile.x + 1, endTile.y),
             new Coordinate(endTile.x - 1, endTile.y),
@@ -84,9 +84,9 @@ public class DebuggerSystem extends System {
             new Coordinate(endTile.x, endTile.y - 1)
         };
         for (Coordinate neighborTile : neighborTiles) {
-            Tile neighbor = Game.currentLevel.getTileAt(neighborTile);
+            Tile neighbor = Game.tileAT(neighborTile);
             if (neighbor.isAccessible()) {
-                TELEPORT(neighborTile.toPoint());
+                TELEPORT(neighbor);
                 return;
             }
         }
@@ -95,13 +95,22 @@ public class DebuggerSystem extends System {
     /** Will teleport the Hero on the EndTile so the next level gets loaded */
     public static void LOAD_NEXT_LEVEL() {
         LOGGER.info("TELEPORT ON END");
-        TELEPORT(Game.currentLevel.getEndTile().getCoordinate().toPoint());
+        TELEPORT(Game.endTile());
     }
 
     /** Teleports the hero to the start of the level. */
     public static void TELEPORT_TO_START() {
         LOGGER.info("TELEPORT TO START");
-        TELEPORT(Game.currentLevel.getStartTile().getCoordinate().toPoint());
+        TELEPORT(Game.startTile());
+    }
+
+    /**
+     * Teleports the hero to the given tile.
+     *
+     * @param targetLocation the tile to teleport to
+     */
+    public static void TELEPORT(Tile targetLocation) {
+        TELEPORT(targetLocation.position());
     }
 
     /**
@@ -110,28 +119,27 @@ public class DebuggerSystem extends System {
      * @param targetLocation the location to teleport to
      */
     public static void TELEPORT(Point targetLocation) {
-        if (Game.getHero().isPresent()) {
+        if (Game.hero().isPresent()) {
             PositionComponent pc =
-                    (PositionComponent)
-                            Game.getHero()
-                                    .get()
-                                    .getComponent(PositionComponent.class)
-                                    .orElseThrow(
-                                            () ->
-                                                    new MissingComponentException(
-                                                            "Hero is missing PositionComponent"));
+                    Game.hero()
+                            .get()
+                            .fetch(PositionComponent.class)
+                            .orElseThrow(
+                                    () ->
+                                            MissingComponentException.build(
+                                                    Game.hero().get(), PositionComponent.class));
 
             // Attempt to teleport to targetLocation
             LOGGER.log(
                     CustomLogLevel.DEBUG,
                     "Trying to teleport to " + targetLocation.x + ":" + targetLocation.y);
-            Tile t = Game.currentLevel.getTileAt(targetLocation.toCoordinate());
+            Tile t = Game.tileAT(targetLocation);
             if (t == null || !t.isAccessible()) {
                 LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
                 return;
             }
 
-            pc.setPosition(targetLocation);
+            pc.position(targetLocation);
             LOGGER.info("Teleport successful");
         }
     }
@@ -141,18 +149,18 @@ public class DebuggerSystem extends System {
      * load.
      */
     public static void TOGGLE_LEVEL_SIZE() {
-        switch (Game.LEVELSIZE) {
-            case SMALL -> Game.LEVELSIZE = LevelSize.MEDIUM;
-            case MEDIUM -> Game.LEVELSIZE = LevelSize.LARGE;
-            case LARGE -> Game.LEVELSIZE = LevelSize.SMALL;
+        switch (Game.levelSize()) {
+            case SMALL -> Game.levelSize(LevelSize.MEDIUM);
+            case MEDIUM -> Game.levelSize(LevelSize.LARGE);
+            case LARGE -> Game.levelSize(LevelSize.SMALL);
         }
-        LOGGER.info("LevelSize toggled to: " + Game.LEVELSIZE);
+        LOGGER.info("LevelSize toggled to: " + Game.levelSize());
     }
 
     /** Spawns a monster at the cursor's position. */
     public static void SPAWN_MONSTER_ON_CURSOR() {
         LOGGER.info("Spawn Monster on Cursor");
-        SPAWN_MONSTER(SkillTools.getCursorPositionAsPoint());
+        SPAWN_MONSTER(SkillTools.cursorPositionAsPoint());
     }
 
     /**
@@ -164,7 +172,7 @@ public class DebuggerSystem extends System {
         // Get the tile at the given position
         Tile tile = null;
         try {
-            tile = Game.currentLevel.getTileAt(position.toCoordinate());
+            tile = Game.tileAT(position);
         } catch (NullPointerException ex) {
             LOGGER.info(ex.getMessage());
         }
@@ -205,21 +213,21 @@ public class DebuggerSystem extends System {
      */
     @Override
     public void execute() {
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_OUT.get()))
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_OUT.value()))
             DebuggerSystem.ZOOM_CAMERA(-0.2f);
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_IN.get()))
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_IN.value()))
             DebuggerSystem.ZOOM_CAMERA(0.2f);
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_CURSOR.get()))
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_CURSOR.value()))
             DebuggerSystem.TELEPORT_TO_CURSOR();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_END.get()))
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_END.value()))
             DebuggerSystem.TELEPORT_TO_END();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_START.get()))
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_START.value()))
             DebuggerSystem.TELEPORT_TO_START();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_ON_END.get()))
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_ON_END.value()))
             DebuggerSystem.LOAD_NEXT_LEVEL();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_LEVELSIZE.get()))
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_LEVELSIZE.value()))
             DebuggerSystem.TOGGLE_LEVEL_SIZE();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.get()))
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.value()))
             DebuggerSystem.SPAWN_MONSTER_ON_CURSOR();
     }
 }

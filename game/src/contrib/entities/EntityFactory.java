@@ -18,6 +18,7 @@ import core.Game;
 import core.components.*;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
 
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class EntityFactory {
      *
      * @return Created Entity
      */
-    public static Entity getHero() throws IOException {
+    public static Entity newHero() throws IOException {
         final int fireballCoolDown = 2;
         final float xSpeed = 0.3f;
         final float ySpeed = 0.3f;
@@ -59,45 +60,63 @@ public class EntityFactory {
                 (you, other, direction) -> System.out.println("heroCollisionLeave"));
         PlayerComponent pc = new PlayerComponent(hero);
         Skill fireball =
-                new Skill(
-                        new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
+                new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), fireballCoolDown);
 
         // hero movement
         pc.registerFunction(
-                KeyboardConfig.MOVEMENT_UP.get(),
+                KeyboardConfig.MOVEMENT_UP.value(),
                 entity -> {
                     VelocityComponent vc =
-                            (VelocityComponent) entity.getComponent(VelocityComponent.class).get();
-                    vc.setCurrentYVelocity(1 * vc.getYVelocity());
+                            entity.fetch(VelocityComponent.class)
+                                    .orElseThrow(
+                                            () ->
+                                                    MissingComponentException.build(
+                                                            entity, VelocityComponent.class));
+                    vc.currentYVelocity(1 * vc.yVelocity());
                 });
         pc.registerFunction(
-                KeyboardConfig.MOVEMENT_DOWN.get(),
+                KeyboardConfig.MOVEMENT_DOWN.value(),
                 entity -> {
                     VelocityComponent vc =
-                            (VelocityComponent) entity.getComponent(VelocityComponent.class).get();
-                    vc.setCurrentYVelocity(-1 * vc.getYVelocity());
+                            entity.fetch(VelocityComponent.class)
+                                    .orElseThrow(
+                                            () ->
+                                                    MissingComponentException.build(
+                                                            entity, VelocityComponent.class));
+
+                    vc.currentYVelocity(-1 * vc.yVelocity());
                 });
         pc.registerFunction(
-                KeyboardConfig.MOVEMENT_RIGHT.get(),
+                KeyboardConfig.MOVEMENT_RIGHT.value(),
                 entity -> {
                     VelocityComponent vc =
-                            (VelocityComponent) entity.getComponent(VelocityComponent.class).get();
-                    vc.setCurrentXVelocity(1 * vc.getXVelocity());
+                            entity.fetch(VelocityComponent.class)
+                                    .orElseThrow(
+                                            () ->
+                                                    MissingComponentException.build(
+                                                            entity, VelocityComponent.class));
+
+                    vc.currentXVelocity(1 * vc.xVelocity());
                 });
         pc.registerFunction(
-                KeyboardConfig.MOVEMENT_LEFT.get(),
+                KeyboardConfig.MOVEMENT_LEFT.value(),
                 entity -> {
                     VelocityComponent vc =
-                            (VelocityComponent) entity.getComponent(VelocityComponent.class).get();
-                    vc.setCurrentXVelocity(-1 * vc.getXVelocity());
+                            entity.fetch(VelocityComponent.class)
+                                    .orElseThrow(
+                                            () ->
+                                                    MissingComponentException.build(
+                                                            entity, VelocityComponent.class));
+
+                    vc.currentXVelocity(-1 * vc.xVelocity());
                 });
 
         pc.registerFunction(
-                KeyboardConfig.INTERACT_WORLD.get(),
+                KeyboardConfig.INTERACT_WORLD.value(),
                 InteractionTool::interactWithClosestInteractable);
 
         // skills
-        pc.registerFunction(KeyboardConfig.FIRST_SKILL.get(), fireball::execute);
+        pc.registerFunction(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);
 
         return hero;
     }
@@ -113,7 +132,7 @@ public class EntityFactory {
      *
      * @return Created Entity
      */
-    public static Entity getChest() throws IOException {
+    public static Entity newChest() throws IOException {
         Random random = new Random();
         ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
 
@@ -121,9 +140,7 @@ public class EntityFactory {
                 IntStream.range(0, random.nextInt(1, 3))
                         .mapToObj(i -> itemDataGenerator.generateItemData())
                         .toList();
-        return getChest(
-                itemData,
-                Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint());
+        return newChest(itemData, Game.randomTile(LevelElement.FLOOR).position());
     }
 
     /**
@@ -137,7 +154,7 @@ public class EntityFactory {
      * @param position The position of the chest.
      * @return Created Entity
      */
-    public static Entity getChest(List<ItemData> itemData, Point position) throws IOException {
+    public static Entity newChest(List<ItemData> itemData, Point position) throws IOException {
         final float defaultInteractionRadius = 1f;
         Entity chest = new Entity("chest");
         new PositionComponent(chest, position);

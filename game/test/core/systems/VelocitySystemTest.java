@@ -38,8 +38,8 @@ public class VelocitySystemTest {
 
     @Before
     public void setup() throws IOException {
-        Game.currentLevel = level;
-        Mockito.when(level.getTileAt(Mockito.any())).thenReturn(tile);
+        Game.currentLevel(level);
+        Mockito.when(level.tileAt((Point) Mockito.any())).thenReturn(tile);
         Game.removeEntity(entity);
         entity = new Entity();
         velocitySystem = new VelocitySystem();
@@ -53,80 +53,80 @@ public class VelocitySystemTest {
     @Test
     public void updateValidMove() {
         Mockito.when(tile.isAccessible()).thenReturn(true);
-        velocityComponent.setCurrentXVelocity(xVelocity);
-        velocityComponent.setCurrentYVelocity(yVelocity);
+        velocityComponent.currentXVelocity(xVelocity);
+        velocityComponent.currentYVelocity(yVelocity);
         velocitySystem.execute();
-        Point position = positionComponent.getPosition();
+        Point position = positionComponent.position();
         assertEquals(startXPosition + xVelocity, position.x, 0.001);
         assertEquals(startYPosition + yVelocity, position.y, 0.001);
-        assertEquals(0, velocityComponent.getCurrentXVelocity(), 0.001);
-        assertEquals(0, velocityComponent.getCurrentYVelocity(), 0.001);
+        assertEquals(0, velocityComponent.currentXVelocity(), 0.001);
+        assertEquals(0, velocityComponent.currentYVelocity(), 0.001);
     }
 
     @Test
     public void updateValidMoveWithNegativeVelocity() {
         Mockito.when(tile.isAccessible()).thenReturn(true);
-        velocityComponent.setCurrentXVelocity(-4);
-        velocityComponent.setCurrentYVelocity(-8);
+        velocityComponent.currentXVelocity(-4);
+        velocityComponent.currentYVelocity(-8);
         velocitySystem.execute();
-        Point position = positionComponent.getPosition();
+        Point position = positionComponent.position();
         assertEquals(startXPosition - 4, position.x, 0.001);
         assertEquals(startYPosition - 8, position.y, 0.001);
-        assertEquals(0, velocityComponent.getCurrentXVelocity(), 0.001);
-        assertEquals(0, velocityComponent.getCurrentYVelocity(), 0.001);
+        assertEquals(0, velocityComponent.currentXVelocity(), 0.001);
+        assertEquals(0, velocityComponent.currentYVelocity(), 0.001);
     }
 
     @Test
     public void updateUnValidMove() {
         Mockito.when(tile.isAccessible()).thenReturn(false);
-        velocityComponent.setCurrentXVelocity(xVelocity);
-        velocityComponent.setCurrentYVelocity(yVelocity);
+        velocityComponent.currentXVelocity(xVelocity);
+        velocityComponent.currentYVelocity(yVelocity);
         velocitySystem.execute();
-        Point position = positionComponent.getPosition();
+        Point position = positionComponent.position();
         assertEquals(startXPosition, position.x, 0.001);
         assertEquals(startYPosition, position.y, 0.001);
-        assertEquals(0, velocityComponent.getCurrentXVelocity(), 0.001);
-        assertEquals(0, velocityComponent.getCurrentYVelocity(), 0.001);
+        assertEquals(0, velocityComponent.currentXVelocity(), 0.001);
+        assertEquals(0, velocityComponent.currentYVelocity(), 0.001);
     }
 
     @Test
     public void updateUnValidMoveWithNegativeVelocity() {
         Mockito.when(tile.isAccessible()).thenReturn(false);
-        velocityComponent.setCurrentXVelocity(-4);
-        velocityComponent.setCurrentYVelocity(-8);
+        velocityComponent.currentXVelocity(-4);
+        velocityComponent.currentYVelocity(-8);
         velocitySystem.execute();
-        Point position = positionComponent.getPosition();
+        Point position = positionComponent.position();
         assertEquals(startXPosition, position.x, 0.001);
         assertEquals(startYPosition, position.y, 0.001);
-        assertEquals(0, velocityComponent.getCurrentXVelocity(), 0.001);
-        assertEquals(0, velocityComponent.getCurrentYVelocity(), 0.001);
+        assertEquals(0, velocityComponent.currentXVelocity(), 0.001);
+        assertEquals(0, velocityComponent.currentYVelocity(), 0.001);
     }
 
     @Test
     public void changeAnimation() {
         Mockito.when(tile.isAccessible()).thenReturn(true);
         // right
-        velocityComponent.setCurrentXVelocity(xVelocity);
-        velocityComponent.setCurrentYVelocity(yVelocity);
+        velocityComponent.currentXVelocity(xVelocity);
+        velocityComponent.currentYVelocity(yVelocity);
         velocitySystem.execute();
         assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.RUN_RIGHT));
 
         // idleRight
-        velocityComponent.setCurrentXVelocity(0);
-        velocityComponent.setCurrentYVelocity(0);
+        velocityComponent.currentXVelocity(0);
+        velocityComponent.currentYVelocity(0);
 
         velocitySystem.execute();
         assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.IDLE_RIGHT));
 
         // left
-        velocityComponent.setCurrentXVelocity(-1);
-        velocityComponent.setCurrentYVelocity(0);
+        velocityComponent.currentXVelocity(-1);
+        velocityComponent.currentYVelocity(0);
         velocitySystem.execute();
         assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.RUN_LEFT));
 
         // idleLeft
-        velocityComponent.setCurrentXVelocity(0);
-        velocityComponent.setCurrentYVelocity(0);
+        velocityComponent.currentXVelocity(0);
+        velocityComponent.currentYVelocity(0);
 
         velocitySystem.execute();
         assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.IDLE_LEFT));

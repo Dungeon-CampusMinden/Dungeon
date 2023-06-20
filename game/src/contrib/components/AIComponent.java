@@ -72,7 +72,7 @@ public class AIComponent extends Component {
      *
      * @param ai new fight ai
      */
-    public void setFightAI(Consumer<Entity> ai) {
+    public void fightAI(Consumer<Entity> ai) {
         this.fightAI = ai;
     }
 
@@ -81,7 +81,7 @@ public class AIComponent extends Component {
      *
      * @param ai new idle ai
      */
-    public void setIdleAI(Consumer<Entity> ai) {
+    public void idleAI(Consumer<Entity> ai) {
         this.idleAI = ai;
     }
 
@@ -99,7 +99,7 @@ public class AIComponent extends Component {
      *
      * @return IIdleAI object representing the idle AI
      */
-    public Consumer<Entity> getIdleAI() {
+    public Consumer<Entity> idleAI() {
         return idleAI;
     }
 
@@ -108,7 +108,7 @@ public class AIComponent extends Component {
      *
      * @return ITransition object representing the transition AI
      */
-    public Function<Entity, Boolean> getTransitionAI() {
+    public Function<Entity, Boolean> transitionAI() {
         return transitionAI;
     }
 
@@ -117,7 +117,7 @@ public class AIComponent extends Component {
      *
      * @return IFigthAI object representing the fight AI
      */
-    public Consumer<Entity> getFightAI() {
+    public Consumer<Entity> fightAI() {
         return fightAI;
     }
 }

@@ -29,12 +29,12 @@ public class HealthSystemTest {
         DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
         HealthComponent component = new HealthComponent(entity, 1, onDeath);
         HealthSystem system = new HealthSystem();
-        component.setCurrentHealthpoints(0);
+        component.currentHealthpoints(0);
         system.showEntity(entity);
 
         system.execute();
         assertTrue(ac.isCurrentAnimation(AdditionalAnimations.DIE));
-        assertFalse(Game.getEntitiesStream().anyMatch(e -> e == entity));
+        assertFalse(Game.entityStream().anyMatch(e -> e == entity));
     }
 
     @Test
@@ -50,7 +50,7 @@ public class HealthSystemTest {
         system.showEntity(entity);
 
         system.execute();
-        assertEquals(3, component.getCurrentHealthpoints());
+        assertEquals(3, component.currentHealthpoints());
         assertTrue(ac.isCurrentAnimation(AdditionalAnimations.HIT));
     }
 
@@ -61,12 +61,12 @@ public class HealthSystemTest {
         Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
         DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
         HealthComponent component = new HealthComponent(entity, 10, onDeath);
-        component.setCurrentHealthpoints(3);
+        component.currentHealthpoints(3);
         component.receiveHit(new Damage(-3, DamageType.FIRE, null));
         HealthSystem system = new HealthSystem();
         system.showEntity(entity);
         system.execute();
-        assertEquals(6, component.getCurrentHealthpoints());
+        assertEquals(6, component.currentHealthpoints());
         assertFalse(ac.isCurrentAnimation(AdditionalAnimations.HIT));
     }
 
@@ -81,7 +81,7 @@ public class HealthSystemTest {
         HealthSystem system = new HealthSystem();
         system.showEntity(entity);
         system.execute();
-        assertEquals(10, component.getCurrentHealthpoints());
+        assertEquals(10, component.currentHealthpoints());
         assertFalse(ac.isCurrentAnimation(AdditionalAnimations.HIT));
     }
 
@@ -98,11 +98,11 @@ public class HealthSystemTest {
         Entity entity = new Entity();
         new DrawComponent(entity, ANIMATION_PATH);
         StatsComponent statsComponent = new StatsComponent(entity);
-        statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, 2);
+        statsComponent.damageModifiers().setMultiplier(DamageType.PHYSICAL, 2);
 
         HealthComponent healthComponent = new HealthComponent(entity);
-        healthComponent.setMaximalHealthpoints(100);
-        healthComponent.setCurrentHealthpoints(100);
+        healthComponent.maximalHealthpoints(100);
+        healthComponent.currentHealthpoints(100);
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
@@ -110,7 +110,7 @@ public class HealthSystemTest {
 
         system.execute();
 
-        assertEquals(80, healthComponent.getCurrentHealthpoints()); // 100 - 10 * 2
+        assertEquals(80, healthComponent.currentHealthpoints()); // 100 - 10 * 2
     }
 
     @Test
@@ -119,11 +119,11 @@ public class HealthSystemTest {
         Entity entity = new Entity();
         new DrawComponent(entity, ANIMATION_PATH);
         StatsComponent statsComponent = new StatsComponent(entity);
-        statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, -2);
+        statsComponent.damageModifiers().setMultiplier(DamageType.PHYSICAL, -2);
 
         HealthComponent healthComponent = new HealthComponent(entity);
-        healthComponent.setMaximalHealthpoints(200);
-        healthComponent.setCurrentHealthpoints(100);
+        healthComponent.maximalHealthpoints(200);
+        healthComponent.currentHealthpoints(100);
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
@@ -131,7 +131,7 @@ public class HealthSystemTest {
 
         system.execute();
 
-        assertEquals(120, healthComponent.getCurrentHealthpoints()); // 100 - 10 * -2
+        assertEquals(120, healthComponent.currentHealthpoints()); // 100 - 10 * -2
     }
 
     @Test
@@ -140,11 +140,11 @@ public class HealthSystemTest {
         Entity entity = new Entity();
         new DrawComponent(entity, ANIMATION_PATH);
         StatsComponent statsComponent = new StatsComponent(entity);
-        statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, 0);
+        statsComponent.damageModifiers().setMultiplier(DamageType.PHYSICAL, 0);
 
         HealthComponent healthComponent = new HealthComponent(entity);
-        healthComponent.setMaximalHealthpoints(200);
-        healthComponent.setCurrentHealthpoints(100);
+        healthComponent.maximalHealthpoints(200);
+        healthComponent.currentHealthpoints(100);
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
@@ -152,7 +152,7 @@ public class HealthSystemTest {
 
         system.execute();
 
-        assertEquals(100, healthComponent.getCurrentHealthpoints()); // 100 - 10 * 0
+        assertEquals(100, healthComponent.currentHealthpoints()); // 100 - 10 * 0
     }
 
     @Test
@@ -161,11 +161,11 @@ public class HealthSystemTest {
         Entity entity = new Entity();
         new DrawComponent(entity, ANIMATION_PATH);
         StatsComponent statsComponent = new StatsComponent(entity);
-        statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, 100);
+        statsComponent.damageModifiers().setMultiplier(DamageType.PHYSICAL, 100);
 
         HealthComponent healthComponent = new HealthComponent(entity);
-        healthComponent.setMaximalHealthpoints(200);
-        healthComponent.setCurrentHealthpoints(100);
+        healthComponent.maximalHealthpoints(200);
+        healthComponent.currentHealthpoints(100);
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
@@ -175,6 +175,6 @@ public class HealthSystemTest {
 
         assertTrue(
                 "Entity should have 0 ore less health points.",
-                healthComponent.getCurrentHealthpoints() <= 0); // 100 - 10 * 100
+                healthComponent.currentHealthpoints() <= 0); // 100 - 10 * 100
     }
 }

@@ -55,7 +55,7 @@ public class InteractionComponent extends Component {
     /**
      * @return the radius in which an interaction can happen
      */
-    public float getRadius() {
+    public float radius() {
         return radius;
     }
 }

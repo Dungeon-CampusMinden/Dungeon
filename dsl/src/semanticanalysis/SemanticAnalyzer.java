@@ -272,22 +272,34 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     public Void visit(AggregateValueDefinitionNode node) {
         // push datatype of component
         // resolve in current scope, which will be datatype of game object definition
-        var memberSymbol = currentScope().resolve(node.getIdName());
-        if (memberSymbol == Symbol.NULL) {
-            errorStringBuilder.append("Could not resolve Component with name " + node.getIdName());
-        } else {
-            var typeSymbol = memberSymbol.getDataType();
-            // TODO: errorhandling
-            if (typeSymbol == Symbol.NULL || typeSymbol == null) {
-                errorStringBuilder.append("Could not resolve type " + "TODO");
-            } else {
-                scopeStack.push((AggregateType) typeSymbol);
+        IType membersType;
+        String valueName = node.getIdName();
 
-                for (var propertyDef : node.getPropertyDefinitionNodes()) {
-                    propertyDef.accept(this);
-                }
-                scopeStack.pop();
+        // TODO: for an anonymous object (inline defined aggregate value), the memberSymbol will be
+        // Symbol.NULL
+        //  could just resolve the name as a datatype and resolve any member in it..
+        //  but this is not really clean. Should make this explicit at a higher level
+
+        // get the type of the aggregate value
+        var memberSymbol = currentScope().resolve(valueName);
+        if (memberSymbol == Symbol.NULL) {
+            var type = this.environment.getGlobalScope().resolve(valueName);
+            assert type instanceof AggregateType;
+            membersType = (IType) type;
+        } else {
+            membersType = memberSymbol.getDataType();
+        }
+
+        // TODO: errorhandling
+        if (membersType == Symbol.NULL || membersType == null) {
+            errorStringBuilder.append("Could not resolve type " + "TODO");
+        } else {
+            // visit all property-definitions of the aggregate value definition
+            scopeStack.push((AggregateType) membersType);
+            for (var propertyDef : node.getPropertyDefinitionNodes()) {
+                propertyDef.accept(this);
             }
+            scopeStack.pop();
         }
 
         return null;
@@ -430,6 +442,12 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
             scopeStack.pop();
         }
+        return null;
+    }
+
+    @Override
+    public Void visit(ReturnStmtNode node) {
+        node.getInnerStmtNode().accept(this);
         return null;
     }
 }

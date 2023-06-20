@@ -36,14 +36,14 @@ public class ItemComponent extends Component {
     /**
      * @return the ItemData
      */
-    public ItemData getItemData() {
+    public ItemData itemData() {
         return itemData;
     }
 
     /**
      * @param itemData data of the item for the component
      */
-    public void setItemData(ItemData itemData) {
+    public void itemData(ItemData itemData) {
         this.itemData = itemData;
     }
 }

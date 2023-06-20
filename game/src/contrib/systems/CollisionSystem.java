@@ -2,15 +2,16 @@ package contrib.systems;
 
 import contrib.components.CollideComponent;
 
-import core.Game;
+import core.Entity;
 import core.System;
 import core.level.Tile;
+import core.utils.components.MissingComponentException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /** System to check for collisions between two entities */
-public class CollisionSystem extends System {
+public final class CollisionSystem extends System {
 
     private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
 
@@ -20,34 +21,26 @@ public class CollisionSystem extends System {
 
     @Override
     public void execute() {
-        getEntityStream()
-                .flatMap(
-                        a ->
-                                a
-                                        .getComponent(CollideComponent.class)
-                                        .map(CollideComponent.class::cast)
-                                        .stream())
-                .flatMap(
-                        a ->
-                                Game.getEntitiesStream()
-                                        .filter(b -> a.getEntity().id() < b.id())
-                                        .flatMap(
-                                                b ->
-                                                        b
-                                                                .getComponent(
-                                                                        CollideComponent.class)
-                                                                .map(CollideComponent.class::cast)
-                                                                .stream())
-                                        .map(b -> buildData(a, b)))
+        entityStream()
+                .flatMap(a -> entityStream().filter(b -> a.id() < b.id()).map(b -> buildData(a, b)))
                 .forEach(this::onEnterLeaveCheck);
     }
 
-    private CollisionData buildData(CollideComponent a, CollideComponent b) {
-        return new CollisionData(a, b);
+    private CollisionData buildData(Entity a, Entity b) {
+        CollideComponent cca =
+                a.fetch(CollideComponent.class)
+                        .orElseThrow(
+                                () -> MissingComponentException.build(a, CollideComponent.class));
+        CollideComponent ccb =
+                b.fetch(CollideComponent.class)
+                        .orElseThrow(
+                                () -> MissingComponentException.build(b, CollideComponent.class));
+
+        return new CollisionData(cca, ccb);
     }
 
     private void onEnterLeaveCheck(CollisionData cdata) {
-        CollisionKey key = new CollisionKey(cdata.a.getEntity().id(), cdata.b.getEntity().id());
+        CollisionKey key = new CollisionKey(cdata.a.entity().id(), cdata.b.entity().id());
 
         if (checkForCollision(cdata.a, cdata.b)) {
             if (!collisions.containsKey(key)) {
@@ -86,10 +79,10 @@ public class CollisionSystem extends System {
      * @return true if intersection exists otherwise false
      */
     protected boolean checkForCollision(CollideComponent hitbox1, CollideComponent hitbox2) {
-        return hitbox1.getBottomLeft().x < hitbox2.getTopRight().x
-                && hitbox1.getTopRight().x > hitbox2.getBottomLeft().x
-                && hitbox1.getBottomLeft().y < hitbox2.getTopRight().y
-                && hitbox1.getTopRight().y > hitbox2.getBottomLeft().y;
+        return hitbox1.bottomLeft().x < hitbox2.topRight().x
+                && hitbox1.topRight().x > hitbox2.bottomLeft().x
+                && hitbox1.bottomLeft().y < hitbox2.topRight().y
+                && hitbox1.topRight().y > hitbox2.bottomLeft().y;
     }
 
     /**
@@ -101,8 +94,8 @@ public class CollisionSystem extends System {
      */
     protected Tile.Direction checkDirectionOfCollision(
             CollideComponent hitbox1, CollideComponent hitbox2) {
-        float y = hitbox2.getCenter().y - hitbox1.getCenter().y;
-        float x = hitbox2.getCenter().x - hitbox1.getCenter().x;
+        float y = hitbox2.center().y - hitbox1.center().y;
+        float x = hitbox2.center().x - hitbox1.center().x;
         float rads = (float) Math.atan2(y, x);
         double piQuarter = Math.PI / 4;
         if (rads < 3 * -piQuarter) {

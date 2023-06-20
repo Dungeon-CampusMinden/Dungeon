@@ -17,7 +17,7 @@ public class Painter {
 
     public void draw(Point position, String texturePath, PainterConfig config) {
         if (CameraSystem.isPointInFrustum(position.x, position.y)) {
-            Sprite sprite = new Sprite(TextureMap.getInstance().getTexture(texturePath));
+            Sprite sprite = new Sprite(TextureMap.instance().textureAt(texturePath));
             // set up scaling of textures
             sprite.setSize(config.xScaling, config.yScaling);
             // where to draw the sprite

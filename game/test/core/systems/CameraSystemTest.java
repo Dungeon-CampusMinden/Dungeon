@@ -24,6 +24,7 @@ public class CameraSystemTest {
     private final Tile startTile = Mockito.mock(Tile.class);
 
     private Point expectedFocusPoint;
+    private static final Point testPoint = new Point(3, 3);
 
     @BeforeClass
     public static void initGDX() {
@@ -33,19 +34,19 @@ public class CameraSystemTest {
     @Before
     public void setup() {
         cameraSystem = new CameraSystem();
-        Mockito.when(level.getRandomFloorTile()).thenReturn(startTile);
-        Mockito.when(level.getStartTile()).thenReturn(startTile);
-        Mockito.when(startTile.getCoordinateAsPoint()).thenReturn(new Point(3, 3));
+        Mockito.when(startTile.position()).thenReturn(testPoint);
+        Mockito.when(level.randomTilePoint(Mockito.any())).thenReturn(testPoint);
+        Mockito.when(level.startTile()).thenReturn(startTile);
     }
 
     @Test
     public void executeWithEntity() {
-        Game.currentLevel = level;
+        Game.currentLevel(level);
         Entity entity = new Entity();
         PositionComponent positionComponent = new PositionComponent(entity);
         new CameraComponent(entity);
 
-        expectedFocusPoint = positionComponent.getPosition();
+        expectedFocusPoint = positionComponent.position();
 
         cameraSystem.execute();
         assertEquals(expectedFocusPoint.x, cameraSystem.camera().position.x, 0.001);
@@ -55,9 +56,9 @@ public class CameraSystemTest {
     @Test
     public void executeWithoutEntity() {
         Game.removeAllEntities();
-        Game.currentLevel = level;
+        Game.currentLevel(level);
 
-        expectedFocusPoint = level.getStartTile().getCoordinateAsPoint();
+        expectedFocusPoint = level.startTile().position();
 
         cameraSystem.execute();
 
@@ -67,7 +68,7 @@ public class CameraSystemTest {
 
     @Test
     public void executeWithoutLevel() {
-        Game.currentLevel = null;
+        Game.currentLevel(null);
         Point expectedFocusPoint = new Point(0, 0);
         cameraSystem.execute();
         assertEquals(expectedFocusPoint.x, cameraSystem.camera().position.x, 0.001);

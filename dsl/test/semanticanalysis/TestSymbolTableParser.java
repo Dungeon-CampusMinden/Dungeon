@@ -18,8 +18,6 @@ import runtime.nativefunctions.NativePrint;
 
 import semanticanalysis.types.*;
 
-import java.util.List;
-
 public class TestSymbolTableParser {
 
     /** Test, if the name of symbols is set correctly */
@@ -81,8 +79,7 @@ public class TestSymbolTableParser {
         var testComponentType = tb.createTypeFromClass(Scope.NULL, TestComponent.class);
 
         var env = new GameEnvironment();
-        var typesToLoad = new IType[] {testComponentType};
-        env.loadTypes(List.of(typesToLoad));
+        env.loadTypes(testComponentType);
         symbolTableParser.setup(env);
         var symbolTable = symbolTableParser.walk(ast).symbolTable;
 
@@ -367,8 +364,7 @@ public class TestSymbolTableParser {
                         "dummyFunc2",
                         new FunctionType(BuiltInType.intType, BuiltInType.stringType));
 
-        var funcsToLoad = new ScopedSymbol[] {dummyFunc1, dummyFunc2};
-        env.loadFunctions(List.of(funcsToLoad));
+        env.loadFunctions(dummyFunc1, dummyFunc2);
 
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);

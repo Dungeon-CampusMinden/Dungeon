@@ -5,14 +5,14 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.components.ai.AITools;
 
 import core.Entity;
+import core.Game;
 import core.level.Tile;
-import core.utils.Constants;
 
 import java.util.function.Consumer;
 
 public class CollideAI implements Consumer<Entity> {
     private final float rushRange;
-    private final int delay = Constants.FRAME_RATE;
+    private final int delay = Game.frameRate();
     private int timeSinceLastUpdate = delay;
     private GraphPath<Tile> path;
 
@@ -22,12 +22,12 @@ public class CollideAI implements Consumer<Entity> {
      *
      * @param rushRange Range in which the faster collide logic should be executed
      */
-    public CollideAI(float rushRange) {
+    public CollideAI(final float rushRange) {
         this.rushRange = rushRange;
     }
 
     @Override
-    public void accept(Entity entity) {
+    public void accept(final Entity entity) {
         if (AITools.playerInRange(entity, rushRange)) {
             // the faster pathing once a certain range is reached
             path = AITools.calculatePathToHero(entity);

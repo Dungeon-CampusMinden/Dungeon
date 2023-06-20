@@ -8,10 +8,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,6 +22,11 @@ public class TypeBuilder {
         this.typeAdapters = new HashMap<>();
         this.javaTypeToDSLType = new HashMap<>();
         this.currentLookedUpClasses = new HashSet<>();
+    }
+
+    public HashMap<Class<?>, IType> getJavaTypeToDSLTypeMap() {
+        // create copy of the hashmap
+        return new HashMap<>(javaTypeToDSLType);
     }
 
     /**
@@ -135,15 +137,21 @@ public class TypeBuilder {
         for (var method : adapterClass.getDeclaredMethods()) {
             if (method.isAnnotationPresent(DSLTypeAdapter.class)
                     && Modifier.isStatic(method.getModifiers())) {
-                var annotation = method.getAnnotation(DSLTypeAdapter.class);
-                var forType = annotation.t();
+                var forType = method.getReturnType();
                 if (this.typeAdapters.containsKey(forType)) {
                     return false;
                 }
                 this.typeAdapters.put(forType, method);
 
+                var annotation = method.getAnnotation(DSLTypeAdapter.class);
+                String dslTypeName =
+                        annotation.name().equals("")
+                                ? convertToDSLName(forType.getSimpleName())
+                                : annotation.name();
+
                 // create adapterType
-                var adapterType = createAdapterType(forType, method, parentScope);
+                var adapterType = createAdapterType(forType, dslTypeName, method, parentScope);
+
                 this.javaTypeToDSLType.put(forType, adapterType);
 
                 return true;
@@ -152,8 +160,8 @@ public class TypeBuilder {
         return true;
     }
 
-    public IType createAdapterType(Class<?> forType, Method adapterMethod, IScope parentScope) {
-        String dslTypeName = convertToDSLName(forType.getSimpleName());
+    public IType createAdapterType(
+            Class<?> forType, String dslTypeName, Method adapterMethod, IScope parentScope) {
         // get parameters, if only one: PODType, otherwise: AggregateType
         if (adapterMethod.getParameterCount() == 0) {
             // TODO: handle

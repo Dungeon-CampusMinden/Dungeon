@@ -10,8 +10,6 @@ import runtime.IEvironment;
 import semanticanalysis.Symbol;
 import semanticanalysis.SymbolTable;
 
-import java.util.List;
-
 public class TypeBinder implements AstVisitor<Object> {
 
     private StringBuilder errorStringBuilder;
@@ -67,9 +65,8 @@ public class TypeBinder implements AstVisitor<Object> {
                 symbolTable().addSymbolNodeRelation(memberSymbol, compDefNode);
             }
         }
-        var typesToLoad = new AggregateType[] {newType};
 
-        this.environment.loadTypes(List.of(typesToLoad));
+        this.environment.loadTypes(newType);
         return newType;
     }
 

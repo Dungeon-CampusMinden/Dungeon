@@ -9,8 +9,13 @@ import java.util.Random;
  * @author Andre Matutat
  */
 public enum DesignLabel {
-    DEFAULT;
-
+    DEFAULT,
+    FIRE,
+    FOREST,
+    ICE,
+    RAINBOW,
+    TEMPLE,
+    DARK;
     private static final List<DesignLabel> VALUES = List.of(values());
     private static final int SIZE = VALUES.size();
     private static final Random RANDOM = new Random();

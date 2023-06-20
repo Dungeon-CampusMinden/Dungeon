@@ -60,9 +60,9 @@ public class RoomGenerator {
      * @param node LevelNode the room should be attached to
      * @return The generated room
      */
-    public IRoom getLevel(
+    public IRoom level(
             DesignLabel designLabel, LevelSize size, DoorDirection[] doors, LevelNode node) {
-        Room room = new Room(getLayout(size, doors), designLabel, node);
+        Room room = new Room(layout(size, doors), designLabel, node);
         addDoorTilesToRoom(room);
         return room;
     }
@@ -74,7 +74,7 @@ public class RoomGenerator {
      * @param doors Array of DoorDirections to specify where doors should be generated
      * @return The generated room layout
      */
-    public LevelElement[][] getLayout(LevelSize size, DoorDirection[] doors) {
+    public LevelElement[][] layout(LevelSize size, DoorDirection[] doors) {
         return generateRoom(size, RANDOM.nextLong(), doors);
     }
 
@@ -428,10 +428,10 @@ public class RoomGenerator {
      * @param layout The layout of the level
      */
     private void addDoors(DoorDirection[] doors, Area maxArea, LevelElement[][] layout) {
-        boolean upperDoor = doors[DoorDirection.UP.getValue()] != null;
-        boolean bottomDoor = doors[DoorDirection.DOWN.getValue()] != null;
-        boolean leftDoor = doors[DoorDirection.LEFT.getValue()] != null;
-        boolean rightDoor = doors[DoorDirection.RIGHT.getValue()] != null;
+        boolean upperDoor = doors[DoorDirection.UP.value()] != null;
+        boolean bottomDoor = doors[DoorDirection.DOWN.value()] != null;
+        boolean leftDoor = doors[DoorDirection.LEFT.value()] != null;
+        boolean rightDoor = doors[DoorDirection.RIGHT.value()] != null;
 
         if (upperDoor) {
             ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
@@ -570,7 +570,7 @@ public class RoomGenerator {
      * @param room The generated room
      */
     private void addDoorTilesToRoom(Room room) {
-        for (Tile[] row : room.getLayout())
+        for (Tile[] row : room.layout())
             for (Tile tile : row) if (tile instanceof DoorTile) room.addDoor((DoorTile) tile);
     }
 

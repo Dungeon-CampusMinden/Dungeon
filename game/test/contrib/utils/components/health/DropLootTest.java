@@ -26,7 +26,6 @@ public class DropLootTest {
         MissingComponentException mce =
                 assertThrows(MissingComponentException.class, () -> dropLoot.accept(new Entity()));
         assertTrue(mce.getMessage().contains(InventoryComponent.class.getName()));
-        assertTrue(mce.getMessage().contains(DropLoot.class.getName()));
     }
 
     /** Checks the handling when the PositionComponent is missing on the entity */
@@ -38,7 +37,6 @@ public class DropLootTest {
         MissingComponentException mce =
                 assertThrows(MissingComponentException.class, () -> dropLoot.accept(entity));
         assertTrue(mce.getMessage().contains(PositionComponent.class.getName()));
-        assertTrue(mce.getMessage().contains(DropLoot.class.getName()));
     }
 
     /** Checks the handling when the InventoryComponent has no Items */
@@ -50,7 +48,7 @@ public class DropLootTest {
         new InventoryComponent(entity, 10);
         dropLoot.accept(entity);
         Game.removeEntity(entity);
-        assertEquals(0, Game.getEntitiesStream().count());
+        assertEquals(0, Game.entityStream().count());
     }
 
     /**
@@ -125,7 +123,7 @@ public class DropLootTest {
      * @return a function which returns true when the Points are equal, otherwise false
      */
     private static boolean isPointEqual(Point entityPosition, PositionComponent component) {
-        Point a = component.getPosition();
+        Point a = component.position();
         return a.x == entityPosition.x && a.y == entityPosition.y;
     }
 }

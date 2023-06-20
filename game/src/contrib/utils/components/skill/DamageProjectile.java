@@ -75,11 +75,12 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         Entity projectile = new Entity("Projectile");
         // Get the PositionComponent of the entity
         PositionComponent epc =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
-        new PositionComponent(projectile, epc.getPosition());
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
+        new PositionComponent(projectile, epc.position());
 
         try {
             new DrawComponent(projectile, pathToTexturesOfProjectile);
@@ -95,33 +96,27 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         // Get the target point based on the selection function and projectile range
         Point aimedOn = selectionFunction.get();
         Point targetPoint =
-                SkillTools.calculateLastPositionInRange(
-                        epc.getPosition(), aimedOn, projectileRange);
+                SkillTools.calculateLastPositionInRange(epc.position(), aimedOn, projectileRange);
 
         // Calculate the velocity of the projectile
-        Point velocity =
-                SkillTools.calculateVelocity(epc.getPosition(), targetPoint, projectileSpeed);
+        Point velocity = SkillTools.calculateVelocity(epc.position(), targetPoint, projectileSpeed);
 
         // Add the VelocityComponent to the projectile
         VelocityComponent vc = new VelocityComponent(projectile, velocity.x, velocity.y);
 
         // Add the ProjectileComponent with the initial and target positions to the projectile
-        new ProjectileComponent(projectile, epc.getPosition(), targetPoint);
+        new ProjectileComponent(projectile, epc.position(), targetPoint);
 
         // Create a collision handler for the projectile
         TriConsumer<Entity, Entity, Tile.Direction> collide =
                 (a, b, from) -> {
                     if (b != entity) {
-                        b.getComponent(HealthComponent.class)
+                        b.fetch(HealthComponent.class)
                                 .ifPresent(
                                         hc -> {
                                             // Apply the projectile damage to the collided entity
-                                            ((HealthComponent) hc)
-                                                    .receiveHit(
-                                                            new Damage(
-                                                                    projectileDamage.damageAmount(),
-                                                                    projectileDamage.damageType(),
-                                                                    entity));
+                                            hc.receiveHit(projectileDamage);
+
                                             // Remove the projectile entity from the game
                                             Game.removeEntity(projectile);
                                         });
