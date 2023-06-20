@@ -10,7 +10,7 @@ import interpreter.TestEnvironment;
 import org.junit.Assert;
 import org.junit.Test;
 
-import parser.ast.EntityTypeDefinitionNode;
+import parser.ast.PrototypeDefinitionNode;
 import parser.ast.Node;
 
 import runtime.GameEnvironment;
@@ -91,7 +91,7 @@ public class TestSymbolTableParser {
         // definition
         var gameObjDefNode = ast.getChild(1);
         var componentDefNode =
-                ((EntityTypeDefinitionNode) gameObjDefNode).getComponentDefinitionNodes().get(0);
+                ((PrototypeDefinitionNode) gameObjDefNode).getComponentDefinitionNodes().get(0);
         var propertyDefList = componentDefNode.getChild(1);
 
         var firstPropertyDef = propertyDefList.getChild(0);

@@ -3,7 +3,7 @@ package parser.ast;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntityTypeDefinitionNode extends Node {
+public class PrototypeDefinitionNode extends Node {
     public final int idIdx = 0;
     public final int componentDefinitionListIdx = 1;
 
@@ -43,8 +43,8 @@ public class EntityTypeDefinitionNode extends Node {
      * @param componentDefinitionList node representing the component definition list of the game
      *     object definition
      */
-    public EntityTypeDefinitionNode(Node idNode, Node componentDefinitionList) {
-        super(Type.EntityTypeDefinition, new ArrayList<Node>(2));
+    public PrototypeDefinitionNode(Node idNode, Node componentDefinitionList) {
+        super(Type.PrototypeDefinition, new ArrayList<Node>(2));
         this.children.add(idNode);
         this.children.add(componentDefinitionList);
     }

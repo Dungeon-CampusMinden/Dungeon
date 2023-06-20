@@ -237,8 +237,8 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         var idNode = astStack.pop();
         assert idNode.type == Node.Type.Identifier;
 
-        var entityTypeDefinitionNode = new EntityTypeDefinitionNode(idNode, componentDefList);
-        astStack.push(entityTypeDefinitionNode);
+        var prototypeDefinitionNode = new PrototypeDefinitionNode(idNode, componentDefList);
+        astStack.push(prototypeDefinitionNode);
     }
 
     @Override

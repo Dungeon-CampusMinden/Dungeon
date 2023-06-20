@@ -5,7 +5,7 @@ import interpreter.DSLInterpreter;
 import parser.ast.Node;
 
 import runtime.AggregateValue;
-import runtime.EntityType;
+import runtime.Prototype;
 import runtime.Value;
 
 import semanticanalysis.ICallable;
@@ -33,7 +33,7 @@ public class NativeInstantiate extends NativeFunction {
                 new FunctionType(BuiltInType.noType, BuiltInType.stringType));
 
         // bind parameters
-        Symbol param = new Symbol("param", this, EntityType.ENTITY_TYPE);
+        Symbol param = new Symbol("param", this, Prototype.PROTOTYPE);
         this.bind(param);
     }
 
@@ -42,10 +42,10 @@ public class NativeInstantiate extends NativeFunction {
         assert parameters != null && parameters.size() > 0;
 
         Value param = (Value) parameters.get(0).accept(interpreter);
-        if (param.getDataType() != EntityType.ENTITY_TYPE) {
+        if (param.getDataType() != Prototype.PROTOTYPE) {
             throw new RuntimeException("Wrong type ('" +param.getDataType().getName() + "') of parameter for call of instantiate()!");
         } else {
-            var dslEntityInstance = (AggregateValue) interpreter.instantiateDSLValue((EntityType)param);
+            var dslEntityInstance = (AggregateValue) interpreter.instantiateDSLValue((Prototype)param);
             var entityType =
                     (AggregateType)
                             interpreter

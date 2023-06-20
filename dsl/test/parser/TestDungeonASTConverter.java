@@ -159,10 +159,10 @@ public class TestDungeonASTConverter {
         var ast = Helpers.getASTFromString(program);
 
         var objDef = ast.getChild(0);
-        assertEquals(Node.Type.EntityTypeDefinition, objDef.type);
+        assertEquals(Node.Type.PrototypeDefinition, objDef.type);
 
         var componentDefListNode =
-                ((EntityTypeDefinitionNode) objDef).getComponentDefinitionListNode();
+                ((PrototypeDefinitionNode) objDef).getComponentDefinitionListNode();
         assertEquals(Node.Type.ComponentDefinitionList, componentDefListNode.type);
 
         var componentDefinitions = componentDefListNode.getChildren();
@@ -196,10 +196,10 @@ public class TestDungeonASTConverter {
         var ast = Helpers.getASTFromString(program);
 
         var objDef = ast.getChild(0);
-        assertEquals(Node.Type.EntityTypeDefinition, objDef.type);
+        assertEquals(Node.Type.PrototypeDefinition, objDef.type);
 
         var componentDefListNode =
-                ((EntityTypeDefinitionNode) objDef).getComponentDefinitionListNode();
+                ((PrototypeDefinitionNode) objDef).getComponentDefinitionListNode();
         assertEquals(Node.Type.ComponentDefinitionList, componentDefListNode.type);
 
         var componentDefinitions = componentDefListNode.getChildren();
@@ -242,7 +242,7 @@ public class TestDungeonASTConverter {
 
         var objDef = ast.getChild(0);
         var componentDefListNode =
-                ((EntityTypeDefinitionNode) objDef).getComponentDefinitionListNode();
+                ((PrototypeDefinitionNode) objDef).getComponentDefinitionListNode();
         var componentDefinitions = componentDefListNode.getChildren();
         assertEquals(2, componentDefinitions.size());
 
@@ -293,7 +293,7 @@ public class TestDungeonASTConverter {
             """;
 
         var ast = Helpers.getASTFromString(program);
-        var gameObjectDef = (EntityTypeDefinitionNode) ast.getChild(0);
+        var gameObjectDef = (PrototypeDefinitionNode) ast.getChild(0);
         var componentDef =
                 (AggregateValueDefinitionNode) gameObjectDef.getComponentDefinitionNodes().get(0);
         var propertyDef = (PropertyDefNode) componentDef.getPropertyDefinitionNodes().get(0);
