@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import core.Game;
+import core.components.PositionComponent;
 import core.systems.CameraSystem;
 import core.utils.Point;
 
@@ -70,5 +72,10 @@ public class SkillTools {
         Vector3 mousePosition =
                 CameraSystem.camera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
         return new Point(mousePosition.x, mousePosition.y);
+    }
+
+    public static Point getHeroPositionAsPoint(){
+        PositionComponent pc =(PositionComponent) Game.getHero().get().getComponent(PositionComponent.class).get();
+        return pc.getPosition();
     }
 }
