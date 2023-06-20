@@ -88,13 +88,9 @@ public class ProjectileSystem extends System {
         Point end = psd.prc.goalLocation();
         Point current = psd.pc.position();
 
-        float dx = start.x - current.x;
-        float dy = start.y - current.y;
-        double distanceToStart = Math.sqrt(dx * dx + dy * dy);
+        double distanceToStart = Point.calculateDistance(start, current);
 
-        dx = start.x - end.x;
-        dy = start.y - end.y;
-        double totalDistance = Math.sqrt(dx * dx + dy * dy);
+        double totalDistance = Point.calculateDistance(start, end);
 
         return distanceToStart > totalDistance;
     }
