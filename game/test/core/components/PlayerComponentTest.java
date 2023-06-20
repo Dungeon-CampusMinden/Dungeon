@@ -26,7 +26,7 @@ public class PlayerComponentTest {
                     @Override
                     public void accept(Entity entity) {}
                 };
-        assertTrue(playableComponent.registerFunction(1, function).isEmpty());
+        assertTrue(playableComponent.registerCallback(1, function).isEmpty());
     }
 
     public void addFunction_exisitng() {
@@ -40,7 +40,7 @@ public class PlayerComponentTest {
                     @Override
                     public void accept(Entity entity) {}
                 };
-        playableComponent.registerFunction(1, function).get();
-        assertEquals(function, playableComponent.registerFunction(1, newfunction).get());
+        playableComponent.registerCallback(1, function).get();
+        assertEquals(function, playableComponent.registerCallback(1, newfunction).get());
     }
 }
