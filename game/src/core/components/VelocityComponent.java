@@ -11,7 +11,7 @@ import semanticanalysis.types.DSLTypeMember;
 import java.util.logging.Logger;
 
 /**
- * The VelocityComponent allows the associated entity to move in the dungeon.
+ * Allows associated entity to move in the dungeon.
  *
  * <p>The VelocityComponent stores the speed at which the entity can move along the x and y axes.
  *
