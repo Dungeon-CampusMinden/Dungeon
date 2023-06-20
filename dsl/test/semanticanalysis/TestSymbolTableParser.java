@@ -10,8 +10,8 @@ import interpreter.TestEnvironment;
 import org.junit.Assert;
 import org.junit.Test;
 
-import parser.ast.PrototypeDefinitionNode;
 import parser.ast.Node;
+import parser.ast.PrototypeDefinitionNode;
 
 import runtime.GameEnvironment;
 import runtime.nativefunctions.NativePrint;
