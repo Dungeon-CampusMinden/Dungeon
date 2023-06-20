@@ -12,7 +12,9 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 /**
- * CollisionSystem is a system which checks on execute whether the hitboxes of two entities are
+ * System to check for collisions between two entities.
+ *
+ * <p>CollisionSystem is a system which checks on execute whether the hitboxes of two entities are
  * overlapping/colliding. In which case the corresponding Methods are called on both entities.
  *
  * <p>The system does imply the hitboxes are axis aligned.
