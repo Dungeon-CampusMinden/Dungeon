@@ -108,29 +108,29 @@ public class ItemData {
      * creates a new item data object. With a basic handling of collecting, dropping and using.
      *
      * @param itemType Enum entry describing item type.
-     *  @param itemNature Enum entry describing item type.
+     * @param itemNature Enum entry describing item type.
      * @param inventoryTexture Animation that is played inside the hero inventory.
      * @param worldTexture Animation that is played while item is dropped in the world.
      * @param itemName String defining name of item.
      * @param description String giving a description of the item
      */
     public ItemData(
-        ItemType itemType,
-        ItemNature itemNature,
-        Animation inventoryTexture,
-        Animation worldTexture,
-        String itemName,
-        String description) {
-            this.itemType = itemType;
-            this.itemNature = itemNature;
-            this.inventoryTexture = inventoryTexture;
-            this.worldTexture = worldTexture;
-            this.itemName = itemName;
-            this.description = description;
-            this.onCollect = ItemData::defaultCollect;
-            this.onDrop = ItemData::defaultDrop;
-            this.onUse = ItemData::defaultUseCallback;
-            this.damageModifier = new DamageModifier();
+            ItemType itemType,
+            ItemNature itemNature,
+            Animation inventoryTexture,
+            Animation worldTexture,
+            String itemName,
+            String description) {
+        this.itemType = itemType;
+        this.itemNature = itemNature;
+        this.inventoryTexture = inventoryTexture;
+        this.worldTexture = worldTexture;
+        this.itemName = itemName;
+        this.description = description;
+        this.onCollect = ItemData::defaultCollect;
+        this.onDrop = ItemData::defaultDrop;
+        this.onUse = ItemData::defaultUseCallback;
+        this.damageModifier = new DamageModifier();
     }
     /** Constructing object with completely default values. Taken from {@link ItemConfig}. */
     public ItemData() {
@@ -177,7 +177,6 @@ public class ItemData {
     public ItemType getItemType() {
         return itemType;
     }
-
 
     /**
      * @return The current itemNature.
@@ -274,7 +273,8 @@ public class ItemData {
                                                                                                     .class
                                                                                             ::cast)
                                                                             .get()
-                                                                            .getItemData(), 8))
+                                                                            .getItemData(),
+                                                                    8))
                                                         // if added to hero Inventory
                                                         // remove Item from World
                                                         Game.removeEntity(worldItem);

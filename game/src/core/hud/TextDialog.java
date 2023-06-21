@@ -60,7 +60,7 @@ public final class TextDialog extends Dialog {
         super(title, skin);
 
         DialogDesign dialogDesign = new DialogDesign();
-        dialogDesign.InventoryDialog(skin );
+        dialogDesign.InventoryDialog(skin);
         addActor(dialogDesign);
     }
     /**

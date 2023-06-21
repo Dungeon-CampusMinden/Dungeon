@@ -1,7 +1,7 @@
 package core.hud.Inventory;
 
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
-import contrib.utils.components.item.ItemData;
+
 import contrib.utils.components.item.ItemNature;
 
 public class InventorySlotTarget extends DragAndDrop.Target {
@@ -39,19 +39,18 @@ public class InventorySlotTarget extends DragAndDrop.Target {
 
         boolean belongsToAreaOfValidity = false;
 
-        if( !inventorySlot.hasInventoryItem() )
-        {
+        if (!inventorySlot.hasInventoryItem()) {
             if (sourceActor != null) {
                 final ItemNature natureSlot = inventorySlot.getItemNature();
                 final ItemNature natureItem = sourceActor.getItemNature();
 
-                if (natureItem == natureSlot || natureSlot == ItemNature.UNDEFINED ) {
+                if (natureItem == natureSlot || natureSlot == ItemNature.UNDEFINED) {
                     belongsToAreaOfValidity = true;
                 }
             }
         }
 
-        if ( belongsToAreaOfValidity ) {
+        if (belongsToAreaOfValidity) {
             inventorySlot.add(sourceActor);
             dragAndDrop.addSource(new InventorySlotSource(inventorySlot, dragAndDrop));
             dragAndDrop.removeSource(source);

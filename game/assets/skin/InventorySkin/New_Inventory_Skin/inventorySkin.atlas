@@ -1,0 +1,31 @@
+
+inventorySkin.png
+size: 1024, 1024
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+Inventory_ToolTip_New
+  rotate: false
+  xy: 1, 49
+  size: 130, 70
+  split: 7, 7, 10, 11
+  pad: 9, 9, 9, 9
+  orig: 130, 70
+  offset: 0, 0
+  index: -1
+myFont
+  rotate: false
+  xy: 1, 121
+  size: 512, 512
+  orig: 512, 512
+  offset: 0, 0
+  index: -1
+stone
+  rotate: false
+  xy: 515, 563
+  size: 120, 70
+  split: 4, 4, 4, 4
+  pad: 4, 4, 5, 5
+  orig: 120, 70
+  offset: 0, 0
+  index: -1

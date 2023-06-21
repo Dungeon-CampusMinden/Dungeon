@@ -3,10 +3,6 @@ package core.hud.Inventory;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
-import contrib.utils.components.item.ItemData;
-
-import core.Game;
-
 public class InventorySlotClickListener extends ClickListener {
     private final InventorySlot slot;
 
@@ -22,12 +18,12 @@ public class InventorySlotClickListener extends ClickListener {
 
     @Override
     public void clicked(InputEvent event, float x, float y) {
-        if (getTapCount() == 2) {
+        /*if (getTapCount() == 2) {
             if (slot.hasInventoryItem() && slot.getInventoryItem().getItem().getOnUse() != null) {
                 ItemData item = slot.getInventoryItem().getItem();
                 item.triggerUse(Game.getHero().orElseThrow());
                 InventoryGUI.getInstance().updateInventory();
             }
-        }
+        }*/
     }
 }

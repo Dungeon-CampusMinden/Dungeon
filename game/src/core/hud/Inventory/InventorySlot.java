@@ -5,12 +5,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 
-import contrib.utils.components.item.ItemData;
 import contrib.utils.components.item.ItemNature;
+
 import core.utils.Constants;
 
 public class InventorySlot extends Stack {
-    private ItemNature itemNature;
+    private final ItemNature itemNature;
 
     /** Creates an InventorySlot */
     public InventorySlot() {
@@ -19,8 +19,10 @@ public class InventorySlot extends Stack {
         this.addListener(new InventorySlotClickListener(this));
     }
 
-    /** Creates an Inventory-Slot using the predefined path
-     * @param path: path for pictute of inventory slot
+    /**
+     * Creates an Inventory-Slot using the predefined path
+     *
+     * @param path: path for picture of inventory slot
      */
     public InventorySlot(String path, ItemNature nature) {
         itemNature = nature;

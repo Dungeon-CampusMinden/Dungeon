@@ -68,18 +68,18 @@ public class InventoryComponent extends Component {
      * @param itemData the item which should be added
      * @return true if the item was added, otherwise false
      */
-    public boolean addItem(ItemData itemData, int position ) {
+    public boolean addItem(ItemData itemData, int position) {
         if (inventory.size() >= maxSize) return false;
         inventoryLogger.log(
-            CustomLogLevel.DEBUG,
-            "Item '"
-                + this.getClass().getSimpleName()
-                + "' was added to the inventory of entity '"
-                + entity.getClass().getSimpleName()
-                + "'.");
+                CustomLogLevel.DEBUG,
+                "Item '"
+                        + this.getClass().getSimpleName()
+                        + "' was added to the inventory of entity '"
+                        + entity.getClass().getSimpleName()
+                        + "'.");
 
-        if( inventory.size() == 0 ) {
-            for( int i = 0; i <= position; i++ ) {
+        if (inventory.size() == 0) {
+            for (int i = 0; i <= position; i++) {
                 inventory.add(null);
             }
         }

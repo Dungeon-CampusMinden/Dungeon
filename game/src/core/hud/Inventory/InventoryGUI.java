@@ -4,13 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 
 import contrib.components.InventoryComponent;
 import contrib.utils.components.item.ItemData;
-
 import contrib.utils.components.item.ItemNature;
+
 import core.Game;
 import core.System;
 import core.hud.TextDialog;
@@ -37,8 +36,10 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
         super(batch);
         dragAndDrop = new DragAndDrop();
 
-        String[] arrayOfMessages = { "Inventory" };
-        inventory = createInventoryDialog(new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG)),arrayOfMessages );
+        String[] arrayOfMessages = {"Inventory"};
+        inventory =
+                createInventoryDialog(
+                        new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG)), arrayOfMessages);
 
         inventory.setResizable(false);
         add((T) inventory);
@@ -65,47 +66,43 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
 
         for (int i = 1; i < inventorySize + 1; i++) {
 
-            if( i== 1 ||  i== 4 || i== 7 )
-            {
+            if (i == 1 || i == 4 || i == 7) {
                 inventory.row().colspan(3);
-            }
-            else if( i == 10)
-            {
+            } else if (i == 10) {
                 inventory.row().colspan(1);
             }
 
-            if(i== 1)
-                slot = new InventorySlot(Constants.INVENTORYSLOT_NECKLACE_PATH, ItemNature.NECKLACE);
-            else if(i== 2)
+            if (i == 1)
+                slot =
+                        new InventorySlot(
+                                Constants.INVENTORYSLOT_NECKLACE_PATH, ItemNature.NECKLACE);
+            else if (i == 2)
                 slot = new InventorySlot(Constants.INVENTORYSLOT_HELMET_PATH, ItemNature.HELMET);
-            else if(i== 3)
+            else if (i == 3)
                 slot = new InventorySlot(Constants.INVENTORYSLOT_GLOVES_PATH, ItemNature.GLOVES);
-            else if(i== 4)
+            else if (i == 4)
                 slot = new InventorySlot(Constants.INVENTORYSLOT_SCHIELD_PATH, ItemNature.SHIELD);
-            else if(i== 5)
+            else if (i == 5)
                 slot = new InventorySlot(Constants.INVENTORYSLOT_ARMOUR_PATH, ItemNature.ARMOR);
-            else if(i== 6)
-                slot = new InventorySlot(Constants.INVENTORYSLOT_SWORD_PATH, ItemNature.SWORD);
-            else if(i== 7)
+            else if (i == 6)
+                slot = new InventorySlot(Constants.INVENTORYSLOT_SWORD_PATH, ItemNature.WEAPON);
+            else if (i == 7)
                 slot = new InventorySlot(Constants.INVENTORYSLOT_BOOK_PATH, ItemNature.BOOK);
-            else if(i== 8)
-                slot = new InventorySlot(Constants.INVENTORYSLOT_SHOES_PATH, ItemNature.SHOES);
-            else if(i== 9)
-                slot = new InventorySlot(Constants.INVENTORYSLOT_RING_PATH, ItemNature.RING );
-            else
-                slot = new InventorySlot();
+            else if (i == 8)
+                slot = new InventorySlot(Constants.INVENTORYSLOT_SHOES_PATH, ItemNature.PANTS);
+            else if (i == 9)
+                slot = new InventorySlot(Constants.INVENTORYSLOT_RING_PATH, ItemNature.RING);
+            else slot = new InventorySlot();
 
-            if(i== 1 ||  i== 4 || i== 7 ) {
+            if (i == 1 || i == 4 || i == 7) {
                 inventory.add(slot).pad(9);
-            }
-            else {
+            } else {
                 inventory.add(slot).pad(3);
             }
 
             slot.addListener(new InventoryDescriptionListener(description));
 
-            if (i != 11 && i % INVENTORYSLOTS_IN_A_ROW == 0)
-            {
+            if (i != 11 && i % INVENTORYSLOTS_IN_A_ROW == 0) {
                 inventory.row();
             }
 
@@ -152,33 +149,36 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
         for (ItemData listItem : items) {
             for (Actor actors : inventory.getChildren()) {
                 if (!(actors instanceof InventorySlot inventorySlot)) continue;
-                if (inventorySlot.getInventoryItem() != null ) continue;
 
-                if( listItem == null )
-                {
+                if (inventorySlot.getInventoryItem() != null) {
+                    continue;
+                }
+
+                if (listItem == null) {
                     selectionFieldNumber++;
                     break;
-                }
-                else {
-                    if( maxNumberOfSelectionFields < selectionFieldNumber ) {
+                } else {
+                    if (maxNumberOfSelectionFields < selectionFieldNumber) {
                         maxNumberOfSelectionFields = selectionFieldNumber;
                     }
 
-                    if( selectionFieldNumber == 0 && considerSelectionFields)
-                    {
+                    if (selectionFieldNumber == 0 && considerSelectionFields) {
                         selectionFieldNumber = maxNumberOfSelectionFields;
                         considerSelectionFields = false;
                     }
 
-                    if( selectionFieldNumber > 0 ){
+                    if (selectionFieldNumber > 0) {
                         selectionFieldNumber--;
-                        continue;
+
+                        if (inventorySlot.getItemNature() != ItemNature.UNDEFINED) {
+                            continue;
+                        }
                     }
 
                     InventoryItem item =
-                        new InventoryItem(
-                            listItem.getInventoryTexture().getNextAnimationTexturePath(),
-                            listItem);
+                            new InventoryItem(
+                                    listItem.getInventoryTexture().getNextAnimationTexturePath(),
+                                    listItem);
                     inventorySlot.setInventoryItem(item);
                     dragAndDrop.addSource(new InventorySlotSource(inventorySlot, dragAndDrop));
                 }
@@ -233,8 +233,7 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
     private TextDialog createInventoryDialog(Skin skin, String... arrayOfMessages) {
         String caption = "Inventory";
 
-       if( arrayOfMessages.length > 0)
-           caption = arrayOfMessages[0];
+        if (arrayOfMessages.length > 0) caption = arrayOfMessages[0];
 
         return new TextDialog(skin, caption);
     }

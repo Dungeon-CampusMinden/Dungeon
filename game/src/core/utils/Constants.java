@@ -57,15 +57,22 @@ public final class Constants {
 
     public static final String INVENTORYSLOT_PATH = "skin/InventorySkin/inventorySlot.png";
 
-    public static final String INVENTORYSLOT_ARMOUR_PATH = "skin/InventorySkin/inventorySlotArmour.png";
-    public static final String INVENTORYSLOT_GLOVES_PATH = "skin/InventorySkin/inventorySlotGloves.png";
-    public static final String INVENTORYSLOT_HELMET_PATH = "skin/InventorySkin/inventorySlotHelmet.png";
+    public static final String INVENTORYSLOT_ARMOUR_PATH =
+            "skin/InventorySkin/inventorySlotArmour.png";
+    public static final String INVENTORYSLOT_GLOVES_PATH =
+            "skin/InventorySkin/inventorySlotGloves.png";
+    public static final String INVENTORYSLOT_HELMET_PATH =
+            "skin/InventorySkin/inventorySlotHelmet.png";
     public static final String INVENTORYSLOT_RING_PATH = "skin/InventorySkin/inventorySlotRing.png";
-    public static final String INVENTORYSLOT_NECKLACE_PATH = "skin/InventorySkin/inventorySlotNecklace.png";
+    public static final String INVENTORYSLOT_NECKLACE_PATH =
+            "skin/InventorySkin/inventorySlotNecklace.png";
     public static final String INVENTORYSLOT_BOOK_PATH = "skin/InventorySkin/inventorySlotBook.png";
-    public static final String INVENTORYSLOT_SCHIELD_PATH = "skin/InventorySkin/inventorySlotSchield.png";
-    public static final String INVENTORYSLOT_SHOES_PATH = "skin/InventorySkin/inventorySlotShoes.png";
-    public static final String INVENTORYSLOT_SWORD_PATH = "skin/InventorySkin/inventorySlotSword.png";
+    public static final String INVENTORYSLOT_SCHIELD_PATH =
+            "skin/InventorySkin/inventorySlotSchield.png";
+    public static final String INVENTORYSLOT_SHOES_PATH =
+            "skin/InventorySkin/inventorySlotShoes.png";
+    public static final String INVENTORYSLOT_SWORD_PATH =
+            "skin/InventorySkin/inventorySlotSword.png";
 
     public static final int SIZE_INVENTORY = 36;
     /**
