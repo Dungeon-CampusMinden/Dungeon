@@ -157,22 +157,16 @@ public class TestDSLInterpreter {
                     test: print(ret_string())
                 }
                     """;
-        TestEnvironment env = new TestEnvironment();
-        env.loadFunctions(TestFunctionReturnHelloWorld.func);
-
-        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
-        symbolTableParser.setup(env);
-        var ast = Helpers.getASTFromString(program);
-        symbolTableParser.walk(ast);
-
-        DSLInterpreter interpreter = new DSLInterpreter();
-        interpreter.initializeRuntime(env);
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
         var outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
-        interpreter.generateQuestConfig(ast);
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(
+                program, env, interpreter, TestFunctionReturnHelloWorld.func);
 
         assertTrue(outputStream.toString().contains("Hello, World!"));
     }
@@ -189,22 +183,15 @@ public class TestDSLInterpreter {
                         test: print(ret_string())
                     }
                 """;
-        TestEnvironment env = new TestEnvironment();
-        env.loadFunctions(TestFunctionReturnHelloWorld.func);
-
-        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
-        symbolTableParser.setup(env);
-        var ast = Helpers.getASTFromString(program);
-        symbolTableParser.walk(ast);
-
-        DSLInterpreter interpreter = new DSLInterpreter();
-        interpreter.initializeRuntime(env);
-
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
         var outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
-        interpreter.generateQuestConfig(ast);
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(
+                program, env, interpreter, TestFunctionReturnHelloWorld.func);
 
         assertFalse(outputStream.toString().contains("Hello, World!"));
     }
@@ -327,22 +314,11 @@ public class TestDSLInterpreter {
                 }
                 """;
 
-        TypeBuilder tb = new TypeBuilder();
-        var testCompType = tb.createTypeFromClass(new Scope(), TestComponent.class);
-        var otherCompType = tb.createTypeFromClass(new Scope(), OtherComponent.class);
-
         var env = new GameEnvironment();
-        env.loadTypes(testCompType, otherCompType);
+        var interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomTypes(
+                program, env, interpreter, TestComponent.class, OtherComponent.class);
 
-        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
-        symbolTableParser.setup(env);
-        var ast = Helpers.getASTFromString(program);
-        symbolTableParser.walk(ast);
-
-        DSLInterpreter interpreter = new DSLInterpreter();
-        interpreter.initializeRuntime(env);
-
-        var questConfig = interpreter.generateQuestConfig(ast);
         var rtEnv = interpreter.getRuntimeEnvironment();
 
         var typeWithDefaults = rtEnv.lookupPrototype("c");
@@ -388,23 +364,18 @@ public class TestDSLInterpreter {
                 }
                 """;
 
-        TypeBuilder tb = new TypeBuilder();
-        var entityType = tb.createTypeFromClass(new Scope(), Entity.class);
-        var testCompType = tb.createTypeFromClass(new Scope(), TestComponent1.class);
-        var otherCompType = tb.createTypeFromClass(new Scope(), TestComponent2.class);
-
         var env = new TestEnvironment();
-        env.loadTypes(entityType, testCompType, otherCompType);
+        var interpreter = new DSLInterpreter();
+        var questConfig =
+                Helpers.generateQuestConfigWithCustomTypes(
+                        program,
+                        env,
+                        interpreter,
+                        Entity.class,
+                        TestComponent1.class,
+                        TestComponent2.class);
 
-        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
-        symbolTableParser.setup(env);
-        var ast = Helpers.getASTFromString(program);
-        symbolTableParser.walk(ast);
-
-        DSLInterpreter interpreter = new DSLInterpreter();
-        interpreter.initializeRuntime(env);
-
-        var entity = ((CustomQuestConfig) interpreter.generateQuestConfig(ast)).entity();
+        var entity = ((CustomQuestConfig) questConfig).entity();
         var rtEnv = interpreter.getRuntimeEnvironment();
         var globalMs = interpreter.getGlobalMemorySpace();
 
@@ -462,22 +433,11 @@ public class TestDSLInterpreter {
                 }
                 """;
 
-        TypeBuilder tb = new TypeBuilder();
-        var entityType = tb.createTypeFromClass(new Scope(), Entity.class);
-        var compType = tb.createTypeFromClass(new Scope(), ComponentWithExternalTypeMember.class);
-
         var env = new TestEnvironment();
-        env.loadTypes(entityType, compType);
-
-        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
-        symbolTableParser.setup(env);
-        var ast = Helpers.getASTFromString(program);
-        symbolTableParser.walk(ast);
-
         DSLInterpreter interpreter = new DSLInterpreter();
-        interpreter.initializeRuntime(env);
+        Helpers.generateQuestConfigWithCustomTypes(
+                program, env, interpreter, Entity.class, ComponentWithExternalTypeMember.class);
 
-        interpreter.generateQuestConfig(ast);
         var globalMs = interpreter.getGlobalMemorySpace();
 
         // check, if the component was instantiated and the
@@ -518,26 +478,16 @@ public class TestDSLInterpreter {
 
         // setup test type system
         var env = new TestEnvironment();
-        var entityType = env.getTypeBuilder().createTypeFromClass(new Scope(), Entity.class);
-        var testCompType =
-                env.getTypeBuilder().createTypeFromClass(new Scope(), TestComponent1.class);
-
         env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, Scope.NULL);
-        var externalComponentType =
-                env.getTypeBuilder()
-                        .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
-        var externalType = env.getTypeBuilder().createTypeFromClass(Scope.NULL, ExternalType.class);
-        env.loadTypes(entityType, testCompType, externalComponentType, externalType);
-
-        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
-        symbolTableParser.setup(env);
-        var ast = Helpers.getASTFromString(program);
-        symbolTableParser.walk(ast);
-
         DSLInterpreter interpreter = new DSLInterpreter();
-        interpreter.initializeRuntime(env);
-
-        interpreter.generateQuestConfig(ast);
+        Helpers.generateQuestConfigWithCustomTypes(
+                program,
+                env,
+                interpreter,
+                Entity.class,
+                TestComponent1.class,
+                TestComponentWithExternalType.class,
+                ExternalType.class);
 
         var globalMs = interpreter.getGlobalMemorySpace();
         AggregateValue config = (AggregateValue) (globalMs.resolve("config"));
@@ -571,26 +521,16 @@ public class TestDSLInterpreter {
 
         // setup test type system
         var env = new TestEnvironment();
-        var entityType = env.getTypeBuilder().createTypeFromClass(new Scope(), Entity.class);
-        var testCompType =
-                env.getTypeBuilder().createTypeFromClass(new Scope(), TestComponent1.class);
-
         env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
-        var externalComponentType =
-                env.getTypeBuilder()
-                        .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
-        var adapterType = env.getTypeBuilder().createTypeFromClass(Scope.NULL, ExternalType.class);
-        env.loadTypes(entityType, testCompType, externalComponentType, adapterType);
-
-        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
-        symbolTableParser.setup(env);
-        var ast = Helpers.getASTFromString(program);
-        symbolTableParser.walk(ast);
-
         DSLInterpreter interpreter = new DSLInterpreter();
-        interpreter.initializeRuntime(env);
-
-        interpreter.generateQuestConfig(ast);
+        Helpers.generateQuestConfigWithCustomTypes(
+                program,
+                env,
+                interpreter,
+                Entity.class,
+                TestComponent1.class,
+                TestComponentWithExternalType.class,
+                ExternalType.class);
 
         var globalMs = interpreter.getGlobalMemorySpace();
         AggregateValue config = (AggregateValue) (globalMs.resolve("config"));
