@@ -46,11 +46,10 @@ public class Key extends Entity{
     }
 
     private void collect(Entity entity){
-        if(Game.getHero().isEmpty())
-            return;
-        if(Game.getHero().get().getComponent(BunchOfKeysComponent.class).isEmpty())
+        if(entity.getComponent(BunchOfKeysComponent.class).isEmpty())
             return;
         BunchOfKeysComponent bunchOffKeysComponent = (BunchOfKeysComponent) Game.getHero().get().getComponent(BunchOfKeysComponent.class).get();
         bunchOffKeysComponent.addKey(this);
+        keyLogger.info(entity + " collected key");
     }
 }
