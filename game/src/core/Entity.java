@@ -47,7 +47,7 @@ public final class Entity {
     public Entity(final String name) {
         id = nextId++;
         components = new HashMap<>();
-        this.name = name;
+        this.name = name + "_" + id;
         Game.addEntity(this);
         LOGGER.info("The entity '" + name + "' was created.");
     }
