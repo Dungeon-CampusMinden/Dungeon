@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class BunchOfKeysComponent extends Component {
-    private List<Key> keys;
+    private final List<Key> keys;
     private transient final Logger bunchOfKeysLogger = Logger.getLogger(this.getClass().getName());
 
     /**
