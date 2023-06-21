@@ -41,9 +41,10 @@ public class Chest extends Entity {
 		List<ItemData> itemData = IntStream.range(0, random.nextInt(1, 3))
 				.mapToObj(i -> itemDataGenerator.generateItemData())
 				.toList();
+		boolean open = 0.8 < Math.random();
 		return new Chest(
 				itemData,
-				Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint());
+				Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint(), open);
 	}
 
 	/**
@@ -51,8 +52,10 @@ public class Chest extends Entity {
 	 *
 	 * @param itemData which the chest is supposed to drop
 	 * @param position the position where the chest is placed
+	 * @param open     whether the chest is already open
 	 */
-	public Chest(List<ItemData> itemData, Point position) {
+	public Chest(List<ItemData> itemData, Point position, boolean open) {
+		this.open = open;
 		new PositionComponent(this, position);
 		InventoryComponent ic = new InventoryComponent(this, itemData.size());
 		itemData.forEach(ic::addItem);
@@ -61,9 +64,22 @@ public class Chest extends Entity {
 				this,
 				new Animation(DEFAULT_CLOSED_ANIMATION_FRAMES, 100, false),
 				new Animation(DEFAULT_OPENING_ANIMATION_FRAMES, 100, false));
-		minigame = new Minigame();
-		key = new Key();
-		Game.addEntity(key);
+		if (!open) {
+			minigame = new Minigame();
+			key = new Key();
+			Game.addEntity(key);
+		}
+
+	}
+
+	/**
+	 * Creates a new Chest with the given items on interaction
+	 * 
+	 * @param itemData which the chest is supposed to drop
+	 * @param position the position where the chest is placed
+	 */
+	public Chest(List<ItemData> itemData, Point position) {
+		this(itemData, position, true);
 	}
 
 	private void dropItems(Entity entity) {
