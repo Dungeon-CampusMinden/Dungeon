@@ -3,6 +3,8 @@ package helpers;
 import antlr.main.DungeonDSLLexer;
 import antlr.main.DungeonDSLParser;
 
+import interpreter.DSLInterpreter;
+
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -13,6 +15,8 @@ import runtime.GameEnvironment;
 import runtime.MemorySpace;
 import runtime.Value;
 
+import semanticanalysis.Scope;
+import semanticanalysis.ScopedSymbol;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.Symbol;
 import semanticanalysis.types.IType;
@@ -118,5 +122,58 @@ public class Helpers {
         var defaultValue = Value.getDefaultValue(symbol.getDataType());
         var value = new Value(symbol.getDataType(), defaultValue);
         ms.bindValue(symbol.getName(), value);
+    }
+
+    /**
+     * @param program String representation of DSL program to generate the quest config for
+     * @param environment GameEnvironment to use for loading types and semantic analysis
+     * @param interpreter DSLInterpreter to use to generate the quest config
+     * @param classesToLoadAsTypes List of all classes marked with @DSLType to load as types into
+     *     the environment
+     * @return the generated quest config
+     */
+    public static Object generateQuestConfigWithCustomTypes(
+            String program,
+            GameEnvironment environment,
+            DSLInterpreter interpreter,
+            Class<?>... classesToLoadAsTypes) {
+
+        for (var clazz : classesToLoadAsTypes) {
+            var type = environment.getTypeBuilder().createTypeFromClass(new Scope(), clazz);
+            environment.loadTypes(type);
+        }
+
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+        symbolTableParser.setup(environment);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        interpreter.initializeRuntime(environment);
+        return interpreter.generateQuestConfig(ast);
+    }
+
+    /**
+     * @param program String representation of DSL program to generate the quest config for
+     * @param environment GameEnvironment to use for loading functions and semantic analysis
+     * @param interpreter DSLInterpreter to use to generate the quest config
+     * @param functions List of all functions to load into the environment
+     * @return the generated quest config
+     */
+    public static Object generateQuestConfigWithCustomFunctions(
+            String program,
+            GameEnvironment environment,
+            DSLInterpreter interpreter,
+            ScopedSymbol... functions) {
+
+        environment.loadFunctions(functions);
+
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+        symbolTableParser.setup(environment);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        interpreter.initializeRuntime(environment);
+
+        return interpreter.generateQuestConfig(ast);
     }
 }
