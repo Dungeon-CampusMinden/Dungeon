@@ -21,6 +21,7 @@ public class Main {
                 () -> {
                     try {
                         EntityFactory.newChest();
+                        EntityFactory.newMonster();
                     } catch (IOException e) {
                         LOGGER.warning("Could not create new Chest: " + e.getMessage());
                         throw new RuntimeException();

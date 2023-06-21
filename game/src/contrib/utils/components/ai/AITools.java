@@ -72,7 +72,7 @@ public class AITools {
     /**
      * @param center center point
      * @param radius Search radius
-     * @return List of tiles in the given radius arround the center point
+     * @return List of tiles in the given radius around the center point
      */
     public static List<Tile> tilesInRange(final Point center, final float radius) {
         List<Tile> tiles = new ArrayList<>();
@@ -88,7 +88,7 @@ public class AITools {
     /**
      * @param center center point
      * @param radius Search radius
-     * @return List of accessible tiles in the given radius arround the center point
+     * @return List of accessible tiles in the given radius around the center point
      */
     public static List<Tile> accessibleTilesInRange(final Point center, final float radius) {
         List<Tile> tiles = tilesInRange(center, radius);
@@ -101,11 +101,13 @@ public class AITools {
      * @param radius search radius
      * @return random tile in given range
      */
-    public static Coordinate randomAccessibleTileCoordinateInRange(
+    public static Optional<Coordinate> randomAccessibleTileCoordinateInRange(
             final Point center, final float radius) {
-        List<Tile> tiles = accessibleTilesInRange(center, radius);
+        List<Tile> tiles = Collections.emptyList();
+        // List<Tile> tiles = accessibleTilesInRange(center, radius);
+        if (tiles.isEmpty()) return Optional.empty();
         Coordinate newPosition = tiles.get(random.nextInt(tiles.size())).coordinate();
-        return newPosition;
+        return Optional.of(newPosition);
     }
 
     /**
@@ -136,7 +138,8 @@ public class AITools {
      */
     public static GraphPath<Tile> calculatePathToRandomTileInRange(
             final Point point, final float radius) {
-        Coordinate newPosition = randomAccessibleTileCoordinateInRange(point, radius);
+        Coordinate newPosition =
+                randomAccessibleTileCoordinateInRange(point, radius).orElse(point.toCoordinate());
         return calculatePath(point.toCoordinate(), newPosition);
     }
 
@@ -239,8 +242,7 @@ public class AITools {
     public static boolean playerInRange(final Entity entity, final float range) {
 
         Optional<Entity> hero = Game.hero();
-        if (hero.isPresent()) return entityInRange(entity, hero.get(), range);
-        else return false;
+        return hero.filter(value -> entityInRange(entity, value, range)).isPresent();
     }
 
     /**
