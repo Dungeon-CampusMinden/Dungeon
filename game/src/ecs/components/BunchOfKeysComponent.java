@@ -4,21 +4,22 @@ import ecs.entities.Entity;
 import ecs.entities.Key;
 import starter.Game;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class BunchOfKeysComponent extends Component {
-    private Key[] keys;
+    private List<Key> keys;
     private transient final Logger bunchOfKeysLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * Create a new component and add it to the associated entity
      *
      * @param entity         associated entity
-     * @param maxNumberOfKey regulates the number of collectible keys
      */
-    public BunchOfKeysComponent(Entity entity, int maxNumberOfKey) {
+    public BunchOfKeysComponent(Entity entity) {
         super(entity);
-        this.keys = new Key[maxNumberOfKey];
+        this.keys = new LinkedList<>();
         bunchOfKeysLogger.info("BunchOfKeysComponent added to " + entity.getClass().getName());
     }
 
@@ -28,14 +29,8 @@ public class BunchOfKeysComponent extends Component {
      * @param key is the key to collect
      */
     public void addKey(Key key) {
-        for (int index = 0; index < keys.length; index++) {
-            if (keys[index] == null) {
-                keys[index] = key;
-                Game.removeEntity(key);
-                bunchOfKeysLogger.info(key.getClass().getName() + " was added to " + this.getClass().getName());
-                break;
-            }
-        }
+        this.keys.add(key);
+        bunchOfKeysLogger.info(key + " added to " + this.getClass().getName());
     }
 
     /**
@@ -46,15 +41,9 @@ public class BunchOfKeysComponent extends Component {
      *         in the BunchOfKeys
      */
     public boolean removeKey(Key key) {
-        for (int index = 0; index < keys.length; index++) {
-            if (keys[index] == null) // Exact same key (same location in memory)
-                continue;
-            if (keys[index] == key) {
-                keys[index] = null;
-                bunchOfKeysLogger.info(key.getClass().getName() + " was removed from " + this.getClass().getName());
-                return true;
-            }
-        }
-        return false;
+        boolean b = this.keys.remove(key);
+        if(b)
+            bunchOfKeysLogger.info(key + " removed from " + this.getClass().getName());
+        return b;
     }
 }

@@ -87,7 +87,7 @@ public class Hero extends Entity {
     }
 
     private void setupBunchOfKeysComponent(){
-        new BunchOfKeysComponent(this, 3);
+        new BunchOfKeysComponent(this);
     }
     private void setupVelocityComponent() {
         Animation moveRight = AnimationBuilder.buildAnimation(pathToRunRight);
