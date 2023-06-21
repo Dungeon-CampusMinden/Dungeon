@@ -73,17 +73,19 @@ public final class DrawComponent extends Component {
         File directory;
         try {
             directory = new File(classLoader.getResource(path).getFile());
+            animationMap =
+                    Arrays.stream(directory.listFiles())
+                            .filter(File::isDirectory)
+                            .collect(Collectors.toMap(File::getName, Animation::of));
+            currentAnimation(CoreAnimations.IDLE_LEFT);
         } catch (NullPointerException np) {
-            throw new FileNotFoundException("Path " + path + " not found.");
+            entity.removeComponent(DrawComponent.class);
+            throw new FileNotFoundException(
+                    "Path "
+                            + path
+                            + " not found. DrawComponent was removed from Entity: "
+                            + entity);
         }
-        if (!directory.exists() || !directory.isDirectory()) {
-            throw new FileNotFoundException("Path " + path + " not found.");
-        }
-        animationMap =
-                Arrays.stream(directory.listFiles())
-                        .filter(File::isDirectory)
-                        .collect(Collectors.toMap(File::getName, Animation::of));
-        currentAnimation(CoreAnimations.IDLE_LEFT);
     }
 
     /**
