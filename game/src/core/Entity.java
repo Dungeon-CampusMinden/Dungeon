@@ -127,6 +127,7 @@ public final class Entity {
 
     @Override
     public String toString() {
-        return name;
+        if (name.contains("_" + id)) return name;
+        else return name + "_" + id;
     }
 }
