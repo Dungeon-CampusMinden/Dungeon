@@ -19,13 +19,11 @@ import semanticanalysis.Scope;
 import semanticanalysis.ScopedSymbol;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.Symbol;
-import semanticanalysis.types.IType;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.List;
 
 public class Helpers {
 
@@ -99,23 +97,6 @@ public class Helpers {
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(new GameEnvironment());
         return symbolTableParser.walk(ast);
-    }
-
-    /**
-     * Performs semantic analysis for given AST with loaded types and returns the {@link
-     * SemanticAnalyzer.Result} output from the SymbolTableParser
-     *
-     * @param ast the AST to create the symbol table for
-     * @param types the types to load into the environment before doing semantic analysis
-     * @return the {@link SemanticAnalyzer.Result} of the semantic analysis
-     */
-    public static SemanticAnalyzer.Result getSymtableForASTWithLoadedTypes(
-            parser.ast.Node ast, IType[] types) {
-        var symTableParser = new SemanticAnalyzer();
-        var env = new GameEnvironment();
-        env.loadTypes(List.of(types));
-        symTableParser.setup(env);
-        return symTableParser.walk(ast);
     }
 
     public static void bindDefaultValueInMemorySpace(Symbol symbol, MemorySpace ms) {
