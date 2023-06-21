@@ -41,7 +41,7 @@ public class Mimic extends Monster {
 
     /**
      * Create a new instance of the Mimic class
-     * 
+     *
      * @param level initial level of the Mimic
      */
     public Mimic(int level) {
@@ -130,6 +130,7 @@ public class Mimic extends Monster {
                 PositionComponent positionComponent = (PositionComponent) entity.getComponent(PositionComponent.class)
                         .get();
                 Chest chest = new Chest(items, positionComponent.getPosition());
+                mimicLogger.info("New Chest created");
             }
         };
         new HealthComponent(this, maxHealth + 1, iOnDeathFunction,

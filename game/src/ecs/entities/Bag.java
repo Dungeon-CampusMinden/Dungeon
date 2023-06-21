@@ -134,6 +134,10 @@ public class Bag extends Item {
                         });
     }
 
+    /**
+     * Returns ItemData object
+     * @return ItemData
+     */
     public static ItemData getItemData(){
         new Bag(itemData);
         return itemData;

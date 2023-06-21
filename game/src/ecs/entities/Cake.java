@@ -176,6 +176,10 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
         hc.setCurrentHealthpoints(hc.getMaximalHealthpoints());
     }
 
+    /**
+     * Returns ItemData object
+     * @return ItemData
+     */
     public static ItemData getItemData(){
         new Cake(itemData);
         return itemData;

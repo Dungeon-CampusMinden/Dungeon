@@ -176,6 +176,10 @@ public class MonsterPotion extends Item {
                 .forEach(Game::removeEntity);
     }
 
+    /**
+     * Returns ItemData object
+     * @return ItemData
+     */
     public static ItemData getItemData(){
         new MonsterPotion(itemData);
         return itemData;
