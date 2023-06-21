@@ -281,6 +281,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         gameLogger.info("PlayerLevel: " + Long.toString(((Entity) hero).getComponent(XPComponent.class).isPresent()
                 ? ((Entity) hero).getComponent(XPComponent.class).map(XPComponent.class::cast).get().getCurrentLevel()
                 : 0));
+        new Mimic(Game.getLevel());
     }
 
     private void manageEntitiesSets() {

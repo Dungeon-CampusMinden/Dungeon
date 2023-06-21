@@ -88,7 +88,8 @@ public class Boss extends Monster {
         new HitboxComponent(
                 this,
                 (you, other, direction) -> attack(other),
-                (you, other, direction) -> {});
+                (you, other, direction) -> {
+                });
     }
 
     private void setupHealthComponent() {
@@ -173,7 +174,7 @@ public class Boss extends Monster {
                 ((DamageComponent) getComponent(DamageComponent.class).get()).setDamage(calcDamage());
             }
 
-        }, 5 * level);
+        }, 50 * level);
         xPComponent.setCurrentLevel(level / 10);
         ((HealthComponent) getComponent(HealthComponent.class).get())
                 .setMaximalHealthpoints(maxHealth * (int) Math.pow(1.01f, xPComponent.getCurrentLevel()));

@@ -22,6 +22,7 @@ import java.util.logging.Logger;
  * AnimationComponent.
  */
 public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
+    private static ItemData itemData;
     private ItemComponent itemComponent;
     private transient final Logger cakeLogger = Logger.getLogger(this.getClass().getName());
 
@@ -49,6 +50,12 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
         this.cakeLogger.info(itemData.getItemName() + " created at " + point.toString());
     }
 
+    private Cake(ItemData itemData){
+        if(itemData != null)
+            return;
+        setupItemComponent();
+    }
+
     @Override
     protected void setupAnimationComponent() {
         Animation idle = AnimationBuilder.buildAnimation(ItemConfig.CAKE_TEXTURE.get());
@@ -71,7 +78,7 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
 
     @Override
     protected void setupItemComponent() {
-        ItemData itemData = new ItemData(
+        itemData = new ItemData(
                 ItemConfig.FOOD_TYPE.get(),
                 new Animation(List.of(ItemConfig.CAKE_TEXTURE.get()), 1),
                 new Animation(List.of(ItemConfig.CAKE_TEXTURE.get()), 1),
@@ -174,4 +181,12 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
         hc.setCurrentHealthpoints(hc.getMaximalHealthpoints());
     }
 
+    /**
+     * Returns ItemData object
+     * @return ItemData
+     */
+    public static ItemData getItemData(){
+        new Cake(itemData);
+        return itemData;
+    }
 }
