@@ -47,7 +47,7 @@ public final class Entity {
     public Entity(final String name) {
         id = nextId++;
         components = new HashMap<>();
-        this.name = name + "_" + id;
+        this.name = name;
         Game.addEntity(this);
         LOGGER.info("The entity '" + name + "' was created.");
     }
@@ -127,6 +127,7 @@ public final class Entity {
 
     @Override
     public String toString() {
-        return name;
+        if (name.contains("_" + id)) return name;
+        else return name + "_" + id;
     }
 }
