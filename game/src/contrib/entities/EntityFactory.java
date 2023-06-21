@@ -38,10 +38,10 @@ public class EntityFactory {
         final int fireballCoolDown = 2;
         final float xSpeed = 0.3f;
         final float ySpeed = 0.3f;
-        final String pathToIdleLeft = "knight/idleLeft";
-        final String pathToIdleRight = "knight/idleRight";
-        final String pathToRunLeft = "knight/runLeft";
-        final String pathToRunRight = "knight/runRight";
+        final String pathToIdleLeft ="knight/idle";
+        final String pathToIdleRight ="knight/idle";
+        final String pathToRunLeft = "knight/run_left";
+        final String pathToRunRight = "knight/run_right";
 
         Entity hero = new Entity("hero");
         new PositionComponent(hero);
