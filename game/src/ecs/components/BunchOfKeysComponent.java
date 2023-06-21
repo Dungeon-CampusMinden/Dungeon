@@ -30,6 +30,7 @@ public class BunchOfKeysComponent extends Component {
      */
     public void addKey(Key key) {
         this.keys.add(key);
+        Game.removeEntity(key);
         bunchOfKeysLogger.info(key + " added to " + this.getClass().getName());
     }
 
