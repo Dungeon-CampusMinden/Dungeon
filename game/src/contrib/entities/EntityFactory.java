@@ -2,15 +2,6 @@ package contrib.entities;
 
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
-import contrib.utils.components.ai.fight.CollideAI;
-import contrib.utils.components.ai.fight.MeleeAI;
-import contrib.utils.components.ai.fight.RangeAI;
-import contrib.utils.components.ai.idle.PatrouilleWalk;
-import contrib.utils.components.ai.idle.RadiusWalk;
-import contrib.utils.components.ai.idle.StaticRadiusWalk;
-import contrib.utils.components.ai.transition.ProtectOnApproach;
-import contrib.utils.components.ai.transition.RangeTransition;
-import contrib.utils.components.ai.transition.SelfDefendTransition;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.item.ItemData;
