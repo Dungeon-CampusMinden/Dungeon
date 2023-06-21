@@ -7,7 +7,7 @@ title: "Übersicht anderer Projekt-Teams mit denen wir im Austausch stehen"
 *   Austausch zum Thema Gamification 
 *   Kurzbeschreibung des Projekts: 
     *   Grafisches Aufbereiten der Aufgaben im Moodle
-    *   Klinken sich per JavaScript in Moodle ein. 
+    *   Klinken sich per JavaScript in Moodle ein
     *   Nutzen das Moodle Feedbacksystem um Hinweise zu geben
     *   Vorschau: https://marvin.hs-bochum.de/~mneugebauer/fantasy/moved_fantasy.gif
 
