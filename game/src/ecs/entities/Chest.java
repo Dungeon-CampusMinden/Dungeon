@@ -96,26 +96,14 @@ public class Chest extends Entity {
 		List<ItemData> itemData = inventoryComponent.getItems();
 		double count = itemData.size();
 
-		for (int i = 0; i < count; i++) {
-			Point p = calculateDropPosition(positionComponent, i / count);
-			PositionComponent pc;
-			Entity item;
-			switch (itemData.get(i).getItemName()) {
-				case "Speed":
-					item = new SpeedPotion();
-					break;
-
-				case "Despawn":
-					item = new MonsterPotion();
-					break;
-
-				default:
-					item = new Cake();
-					break;
-			}
-			pc = (PositionComponent) item.getComponent(PositionComponent.class).get();
-			pc.setPosition(p);
-		}
+		IntStream.range(0, itemData.size())
+				.forEach(
+						index -> itemData.get(index)
+								.triggerDrop(
+										entity,
+										calculateDropPosition(
+												positionComponent,
+												index / count)));
 		entity.getComponent(AnimationComponent.class)
 				.map(AnimationComponent.class::cast)
 				.ifPresent(x -> x.setCurrentAnimation(x.getIdleRight()));

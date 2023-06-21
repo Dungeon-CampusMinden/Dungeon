@@ -37,7 +37,7 @@ import minigame.Minigame;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.Optional;
+
 import level.IOnLevelLoader;
 import level.LevelAPI;
 import level.elements.ILevel;
@@ -45,6 +45,7 @@ import level.elements.tile.Tile;
 import level.generator.IGenerator;
 import level.generator.postGeneration.WallGenerator;
 import level.generator.randomwalk.RandomWalkGenerator;
+import level.tools.LevelElement;
 import level.tools.LevelSize;
 import tools.Constants;
 import tools.Point;
@@ -503,7 +504,13 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
         addEntity(new Tombstone(new Ghost()));
         addEntity(new QuestButton());
-        addEntity(Chest.createNewChest());
+        List<ItemData> items = new ArrayList<>(4);
+        items.add(SpeedPotion.getItemData());
+        items.add(Cake.getItemData());
+        items.add(MonsterPotion.getItemData());
+        items.add(Bag.getItemData());
+        addEntity(
+                new Chest(items, Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint(), false));
     }
 
     // Monster spawn mechanics
