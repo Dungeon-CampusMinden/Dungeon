@@ -5,7 +5,7 @@ title: "Übersicht anderer Projekt-Teams mit denen wir im Austausch stehen"
 ## Hochschule Bochum: Gamification in der Hochschulmathematik
 
 *   Austausch zum Thema Gamification 
-*   Kurzbeschreibung deren Projekt: 
+*   Kurzbeschreibung des Projekts: 
     *   Grafisches aufbereiten der Aufgaben im Moodle
     *   Klinken sich per JavaScript in Moodle ein. 
     *   Nutzen das Moodle Feedbacksystem um Hinweise zu geben
