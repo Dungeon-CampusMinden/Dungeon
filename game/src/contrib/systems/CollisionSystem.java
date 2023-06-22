@@ -51,11 +51,11 @@ public final class CollisionSystem extends System {
      * @return the stream which contains every valid pair of Entities
      */
     private Stream<CollisionData> createDataPairs(Entity a) {
-        return entityStream().filter(b -> isIDSmallerThen(a, b)).map(b -> newDataPair(a, b));
+        return entityStream().filter(b -> isSmallerThen(a, b)).map(b -> newDataPair(a, b));
     }
 
     /**
-     * Compare the id of the given entities.
+     * Compare the entities.
      *
      * <p>This comparison is applied in the {@link #createDataPairs(Entity a) createDataPairs}
      * method to create only tuples with entities with higher ID. This avoids performing a collision
@@ -63,10 +63,10 @@ public final class CollisionSystem extends System {
      *
      * @param a first Entity
      * @param b second Entity
-     * @return true when the id of a is smaller than the one from b, otherwise false
+     * @return true when the comparison between a and b is less than zero, otherwise false
      */
-    private boolean isIDSmallerThen(Entity a, Entity b) {
-        return a.id() < b.id();
+    private boolean isSmallerThen(Entity a, Entity b) {
+        return a.compareTo(b) < 0;
     }
 
     /**
