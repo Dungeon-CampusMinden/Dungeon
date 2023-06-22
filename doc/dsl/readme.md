@@ -91,7 +91,7 @@ detaillierter als der Quickstart Guide:
 
 ## Technische Dokumentation
 
-- [Einordnung der DSL-Interpreters in das Gesamtsystem](schnittstellen.md)
+- [Einordnung der DSL-Interpreters in das Gesamtsystem](dsl_zu_level.md)
 - [Typebuilding - Erweiterung des DungeonDSL
   Typsystems](https://github.com/Programmiermethoden/Dungeon/wiki/Typebuilding)
 - [Interpretation und Laufzeit eines DungeonDSL Programms](interpretation_laufzeit.md)
