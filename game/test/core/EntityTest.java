@@ -13,8 +13,6 @@ public class EntityTest {
 
     @Before
     public void setup() {
-        // Cleanup
-        Game.removeEntity(entity);
         entity = new Entity();
         entity.addComponent(testComponent);
     }
