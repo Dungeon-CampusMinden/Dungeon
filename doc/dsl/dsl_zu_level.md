@@ -1,5 +1,5 @@
 ---
-title: "Erzeugung eines Dungeon-Level aus DSL-Definiton"
+title: "Erzeugung eines Dungeon-Level aus DSL-Definition"
 ---
 
 ## Erzeugung eines konkreten Dungeon-Levels aus einer DSL-Definition
@@ -50,7 +50,7 @@ an einen Knoten des Supergraphen angeschlossen wird. Die Erzeugung der Supergrap
 daher in Abhängigkeit des Petri-Netzes geschehen, sodass auch genug Anschlussmöglichkeiten
 für die Subgraphen der Unteraufgaben zur Verfügung stehen.
 
-Auch ***die Struktur*** des Task-Graphs ***kann*** Einfluss auf die Struktur des
+Auch ***die Struktur*** des Taskgraphs ***kann*** Einfluss auf die Struktur des
 Supergraphen haben, sodass sich Abhängigkeiten der Aufgaben auch in der Struktur des
 Supergraphen wiederspiegeln, dies ist allerdings aktuell **noch nicht geplant.**
 
