@@ -32,7 +32,7 @@ import java.util.logging.Logger;
  */
 @DSLType(name = "game_object")
 @DSLContextPush(name = "entity")
-public final class Entity {
+public final class Entity implements Comparable<Entity> {
     private static final Logger LOGGER = Logger.getLogger(Entity.class.getName());
     private static int nextId = 0;
     private final int id;
@@ -129,5 +129,10 @@ public final class Entity {
     public String toString() {
         if (name.contains("_" + id)) return name;
         else return name + "_" + id;
+    }
+
+    @Override
+    public int compareTo(Entity o) {
+        return id - o.id;
     }
 }
