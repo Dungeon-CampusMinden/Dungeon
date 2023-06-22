@@ -8,7 +8,7 @@ Das folgende Diagram zeigt den Ablauf der Erstellung eines konkreten Dungeon-Lev
 einer DSL-Definition und die Schnittstellen zwischen Dungeon und DSL-Interpreter die dabei
 beteiligt sind.
 
-![Überblick](img/overview.png)
+![Überblick](img/system_overview.png)
 
 ### Kasten 1 - Einlesen und Auswahl einer `level_config`
 
