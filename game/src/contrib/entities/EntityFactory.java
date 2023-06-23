@@ -1,12 +1,7 @@
 package contrib.entities;
 
-import static core.level.elements.ITileable.RANDOM;
-
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
-import contrib.utils.components.ai.fight.CollideAI;
-import contrib.utils.components.ai.idle.RadiusWalk;
-import contrib.utils.components.ai.transition.RangeTransition;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.item.ItemData;
@@ -26,8 +21,6 @@ import core.utils.components.draw.CoreAnimations;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
@@ -167,20 +160,5 @@ public class EntityFactory {
         dc.getAnimation(CoreAnimations.IDLE_RIGHT).ifPresent(a -> a.setLoop(false));
 
         return chest;
-    }
-
-    public static Entity newMonster() throws IOException {
-        Entity monster = new Entity("monster");
-
-        new PositionComponent(monster);
-        new VelocityComponent(monster, 0.3f, 0.3f);
-        new DrawComponent(monster, "character/monster/imp");
-
-        Consumer<Entity> fightAI = new CollideAI(RANDOM.nextFloat(1.5f));
-        Function<Entity, Boolean> transition = new RangeTransition(RANDOM.nextFloat(2f, 4f));
-        Consumer<Entity> idle = new RadiusWalk(RANDOM.nextFloat(10f), RANDOM.nextInt(2, 4));
-        new AIComponent(monster, fightAI, idle, transition);
-
-        return monster;
     }
 }

@@ -97,14 +97,17 @@ public class AITools {
     }
 
     /**
-     * @param center center point
-     * @param radius search radius
-     * @return random tile in given range
+     * Gets a random accessible tile coordinate within a specified range around a given center
+     * point. The range is determined by the provided radius.
+     *
+     * @param center The center point around which the tiles are considered.
+     * @param radius The radius within which the accessible tiles should be located.
+     * @return An Optional containing a random Coordinate object representing an accessible tile
+     *     within the range, or an empty Optional if no accessible tiles were found.
      */
     public static Optional<Coordinate> randomAccessibleTileCoordinateInRange(
             final Point center, final float radius) {
-        List<Tile> tiles = Collections.emptyList();
-        // List<Tile> tiles = accessibleTilesInRange(center, radius);
+        List<Tile> tiles = accessibleTilesInRange(center, radius);
         if (tiles.isEmpty()) return Optional.empty();
         Coordinate newPosition = tiles.get(random.nextInt(tiles.size())).coordinate();
         return Optional.of(newPosition);
