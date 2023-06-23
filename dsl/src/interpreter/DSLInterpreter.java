@@ -518,13 +518,24 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         // visit function AST
         var funcRootNode = symbol.getAstRootNode();
-        var stmtList = funcRootNode.getStmts();
+        var stmtBlock = funcRootNode.getStmtBlock();
+        if (stmtBlock != Node.NONE) {
+            // reset return stmt flag
+            this.hitReturnStmt = false;
+            stmtBlock.accept(this);
+        }
 
-        // reset return stmt flag
-        this.hitReturnStmt = false;
+        memoryStack.pop();
+        if (functionType.getReturnType() != BuiltInType.noType) {
+            return functionMemSpace.resolve(RETURN_VALUE_NAME);
+        }
+        return Value.NONE;
+    }
 
+    @Override
+    public Object visit(StmtBlockNode node) {
         // execute function's statements one by one
-        for (var stmt : stmtList) {
+        for (var stmt : node.getStmts()) {
             stmt.accept(this);
             // check, if a return statement was hit
             // if so: stop function execution
@@ -533,12 +544,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 break;
             }
         }
-
-        memoryStack.pop();
-        if (functionType.getReturnType() != BuiltInType.noType) {
-            return functionMemSpace.resolve(RETURN_VALUE_NAME);
-        }
-        return Value.NONE;
+        return null;
     }
 
     @Override
