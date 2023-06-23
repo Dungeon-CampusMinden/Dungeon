@@ -21,7 +21,7 @@ Projektbeschreibung (per E-Mail erhalten):
 
 > Im Rahmen der BMBF-Initiative „Nationale Bildungsplattform“ [3] engagieren wir uns nun, um den Einsatz von automatisch-bewertbaren Programmieraufgaben in der Lehre (Schule, Hochschule und MOOCs) zu fördern und den Austausch von Lehrenden untereinander zu verbessern. Dazu arbeiten wir an einer Austauschplattform namens CodeHarbor [4], die als Repository für Programmieraufgaben mit automatischen Tests dienen soll. Hier sollen Lehrenden dann kollaborativ an der Erstellung von Aufgaben arbeiten und diese gegenseitig austauschen können. Zum Austausch der Aufgaben unterstützen wir (sowohl in CodeOcean als auch in CodeHarbor) den anbieterunabhängigen ProFormA-Standard [5] für größtmögliche Kompatibilität mit verschiedenen Auto-Gradern. Weitere Informationen zu unseren bisherigen Ergebnissen und einen kurzen Überblick liefert eine unserer vergangenen Publikationen [6].
 
-> [1]: https://open.hpi.de/
+[1]: https://open.hpi.de/
 > [2]: https://github.com/openHPI/codeocean
 > [3]: https://bildungsraum.de/
 > [4]: https://github.com/openHPI/codeharbor, https://codeharbor.openhpi.de/
