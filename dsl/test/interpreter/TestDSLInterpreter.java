@@ -148,13 +148,41 @@ public class TestDSLInterpreter {
     @Test
     public void funcCallReturnUserFunc() {
         String program =
+            """
+            fn ret_string() -> string {
+                return "Hello, World!";
+            }
+
+            quest_config c {
+                test: print(ret_string())
+            }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(
+            program, env, interpreter, TestFunctionReturnHelloWorld.func);
+
+        assertTrue(outputStream.toString().contains("Hello, World!"));
+    }
+
+    @Test
+    public void funcCallNestedStmtBlock() {
+        String program =
                 """
-                fn ret_string() -> string {
-                    return "Hello, World!";
+                fn print_string() {
+                    {
+                        print("Hello, World!");
+                    }
                 }
 
                 quest_config c {
-                    test: print(ret_string())
+                    test: print_string()
                 }
             """;
 
