@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Defines the behavior of AI-controlled entities.
+ * Define the behavior of AI-controlled entities.
  *
  * <p>The {@link #idleAI} defines the behavior in Idle-State, e.g. walking on a specific path {@link
  * contrib.utils.components.ai.idle.PatrouilleWalk}.
