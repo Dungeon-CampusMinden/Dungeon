@@ -75,7 +75,7 @@ public class SkillTools {
     }
 
     public static Point getHeroPositionAsPoint(){
-        PositionComponent pc =(PositionComponent) Game.getHero().get().getComponent(PositionComponent.class).get();
-        return pc.getPosition();
+        PositionComponent pc = Game.hero().get().fetch(PositionComponent.class).get();
+        return pc.position();
     }
 }

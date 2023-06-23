@@ -1,5 +1,7 @@
 package contrib.entities;
 
+import contrib.components.AIComponent;
+import contrib.components.HealthComponent;
 import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.fight.RangeAI;
 import contrib.utils.components.ai.idle.PatrouilleWalk;
@@ -14,6 +16,8 @@ import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
+import core.components.VelocityComponent;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,46 +37,46 @@ import java.util.stream.Stream;
 public class AIFactory {
     //FightAI Parameters:
     //CollideAI
-    private static final float rushRangeLow = 0.5f;
-    private static final float rushRangeHigh = 2.0f;
+    private static final float RUSH_RANGE_LOW = 0.5f;
+    private static final float RUSH_RANGE_HIGH = 2.0f;
 
     //RangeAI
-    private static final float attackRangeLow = 2.1f;
-    private static final float attackRangeHigh = 8f;
-    private static final float distanceLow = 1f;
-    private static final float distanceHigh = 2f;
+    private static final float ATTACK_RANGE_LOW = 2.1f;
+    private static final float ATTACK_RANGE_HIGH = 8f;
+    private static final float DISTANCE_LOW = 1f;
+    private static final float DISTANCE_HIGH = 2f;
 
 
     //IdleAi Parameters:
     //PatroullieWalk
-    private static final float patrouilleRadiusLow = 2f;
-    private static final float patrouilleRadiusHigh = 6f;
-    private static final int checkpointsLow = 2;
-    private static final int checkpointsHigh = 6;
-    private static final int pauseTimeLow = 1;
-    private static final int pauseTimeHigh = 5;
+    private static final float PATROUILLE_RADIUS_LOW = 2f;
+    private static final float PATROUILLE_RADIUS_HIGH = 6f;
+    private static final int CHECKPOINTS_LOW = 2;
+    private static final int CHECKPOINTS_HIGH = 6;
+    private static final int PAUSE_TIME_LOW = 1;
+    private static final int PAUSE_TIME_HIGH = 5;
 
     //RadiusWalk
-    private static final float radiusWalkLow = 2f;
-    private static final float radiusWalkHigh = 8f;
-    private static final int breakTimeLow = 1;
-    private static final int breakTimeHigh = 5;
+    private static final float RADIUS_WALK_LOW = 2f;
+    private static final float RADIUS_WALK_HIGH = 8f;
+    private static final int BREAK_TIME_LOW = 1;
+    private static final int BREAK_TIME_HIGH = 5;
 
     //StaticRadiusWalk
-    private static final float staticRadiusWalkLow = 2f;
-    private static final float staticRadiusWalkHigh = 8f;
-    private static final int staticBreakTimeLow = 1;
-    private static final int staticBreakTimeHigh = 5;
+    private static final float STATIC_RADIUS_WALK_LOW = 2f;
+    private static final float STATIC_RADIUS_WALK_HIGH = 8f;
+    private static final int STATIC_BREAK_TIME_LOW = 1;
+    private static final int STATIC_BREAK_TIME_HIGH = 5;
 
 
     //TransitionAI Parameters:
     //RangeTransition
-    private static final float rangeTransitionLow = 2f;
-    private static final float rangeTransitionHigh = 10f;
+    private static final float RANGE_TRANSITION_LOW = 2f;
+    private static final float RANGE_TRANSITION_HIGH = 10f;
 
     //ProtectOnApproach
-    private static final float protectRangeLow = 2f;
-    private static final float protectRangeHigh = 8f;
+    private static final float PROTECT_RANGE_LOW = 2f;
+    private static final float PROTECT_RANGE_HIGH = 8f;
 
 
 
@@ -91,11 +95,11 @@ public class AIFactory {
 
         return switch (index) {
             case 0 -> new CollideAI(
-                random.nextFloat(rushRangeLow, rushRangeHigh)
+                random.nextFloat(RUSH_RANGE_LOW, RUSH_RANGE_HIGH)
             );
             case 1 -> new RangeAI(
-                random.nextFloat(attackRangeLow, attackRangeHigh),
-                random.nextFloat(distanceLow,distanceHigh),
+                random.nextFloat(ATTACK_RANGE_LOW, ATTACK_RANGE_HIGH),
+                random.nextFloat(DISTANCE_LOW, DISTANCE_HIGH),
                 new Skill(
                     new FireballSkill(SkillTools::getHeroPositionAsPoint),
                     1)
@@ -107,7 +111,7 @@ public class AIFactory {
                     new FireballSkill(SkillTools::getHeroPositionAsPoint),
                     1)
             );*/
-            default -> throw new IndexOutOfBoundsException("This IdleAI does not exist!");
+            default -> throw new IndexOutOfBoundsException("This FightAI does not exist");
         };
     }
 
@@ -124,25 +128,25 @@ public class AIFactory {
             case 0 -> {
                 PatrouilleWalk.MODE[] modes = PatrouilleWalk.MODE.values();
                 return new PatrouilleWalk(
-                    random.nextFloat(patrouilleRadiusLow, patrouilleRadiusHigh),
-                    random.nextInt(checkpointsLow, checkpointsHigh + 1),
-                    random.nextInt(pauseTimeLow, pauseTimeHigh + 1),
+                    random.nextFloat(PATROUILLE_RADIUS_LOW, PATROUILLE_RADIUS_HIGH),
+                    random.nextInt(CHECKPOINTS_LOW, CHECKPOINTS_HIGH + 1),
+                    random.nextInt(PAUSE_TIME_LOW, PAUSE_TIME_HIGH + 1),
                     modes[random.nextInt(0, modes.length)]
                 );
             }
             case 1 -> {
                 return new RadiusWalk(
-                    random.nextFloat(radiusWalkLow, radiusWalkHigh),
-                    random.nextInt(breakTimeLow, breakTimeHigh + 1)
+                    random.nextFloat(RADIUS_WALK_LOW, RADIUS_WALK_HIGH),
+                    random.nextInt(BREAK_TIME_LOW, BREAK_TIME_HIGH + 1)
                 );
             }
             case 2 -> {
                 return new StaticRadiusWalk(
-                    random.nextFloat(staticRadiusWalkLow, staticRadiusWalkHigh),
-                    random.nextInt(staticBreakTimeLow, staticBreakTimeHigh + 1)
+                    random.nextFloat(STATIC_RADIUS_WALK_LOW, STATIC_RADIUS_WALK_HIGH),
+                    random.nextInt(STATIC_BREAK_TIME_LOW, STATIC_BREAK_TIME_HIGH + 1)
                 );
             }
-            default -> throw new IndexOutOfBoundsException("This IdleAI does not exist!");
+            default -> throw new IndexOutOfBoundsException("This IdleAI does not exist");
         }
     }
 
@@ -158,7 +162,7 @@ public class AIFactory {
         switch (index) {
             case 0 -> {
                 return new RangeTransition(
-                    random.nextFloat(rangeTransitionLow, rangeTransitionHigh)
+                    random.nextFloat(RANGE_TRANSITION_LOW, RANGE_TRANSITION_HIGH)
                 );
             }
             case 1 -> {
@@ -169,12 +173,12 @@ public class AIFactory {
                 Optional<Entity> randomMonster = getRandomMonster();
                 if(getRandomMonster().isPresent()){
                     transition = new ProtectOnApproach(
-                        random.nextFloat(protectRangeLow, protectRangeHigh),
+                        random.nextFloat(PROTECT_RANGE_LOW, PROTECT_RANGE_HIGH),
                         randomMonster.get());
                 }
                 else{
                     transition = new ProtectOnApproach(
-                        random.nextFloat(protectRangeLow, protectRangeHigh),
+                        random.nextFloat(PROTECT_RANGE_LOW, PROTECT_RANGE_HIGH),
                         entity);
                 }
                 return transition;
@@ -190,7 +194,7 @@ public class AIFactory {
                 }
                 return transition;
             }
-            default -> throw new IndexOutOfBoundsException("This IdleAI does not exist!");
+            default -> throw new IndexOutOfBoundsException("This TransitionAI does not exist");
         }
     }
 
@@ -200,8 +204,11 @@ public class AIFactory {
      */
     private static Optional<Entity> getRandomMonster(){
         Random random = new Random();
-        Stream<Entity> monsterStream = Game.getEntitiesStream()
-            .filter(m -> Objects.equals(m.toString(), "monster"));
+        Stream<Entity> monsterStream = Game.entityStream()
+            .filter(m -> m.fetch(HealthComponent.class).isPresent())
+            .filter(m -> m.fetch(AIComponent.class).isPresent())
+            .filter(m -> m.fetch(VelocityComponent.class).isPresent());
+
         List<Entity> monsterList = monsterStream.toList();
 
         if(monsterList.size() > 0){
