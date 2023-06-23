@@ -17,6 +17,9 @@ import java.util.function.Function;
 /**
  * Define the behavior of AI-controlled entities.
  *
+ * <p>The {@link AISystem} will use {@link #shouldFight} to check if the idle or combat behavior
+ * should be executed.
+ *
  * <p>The {@link #idleAI} defines the behavior in Idle-State, e.g. walking on a specific path {@link
  * contrib.utils.components.ai.idle.PatrouilleWalk}.
  *
@@ -25,9 +28,6 @@ import java.util.function.Function;
  *
  * <p>The {@link #fightAI} defines the combat behavior, e.g. attacking with a fireball skill {@link
  * contrib.utils.components.ai.fight.RangeAI}.
- *
- * <p>The {@link AISystem} will use the {@link #shouldFight} to check if the idle or combat behavior
- * should be executed.
  *
  * @see AISystem
  */

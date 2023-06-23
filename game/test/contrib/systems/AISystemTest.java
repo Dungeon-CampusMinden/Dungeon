@@ -22,15 +22,14 @@ public class AISystemTest {
         Game.removeAllSystems();
         system = new AISystem();
         entity = new Entity();
-        AIComponent component =
-                new AIComponent(
-                        entity,
-                        null,
-                        null,
-                        entity -> {
-                            updateCounter++;
-                            return false;
-                        });
+        new AIComponent(
+                entity,
+                null,
+                e -> {},
+                entity -> {
+                    updateCounter++;
+                    return false;
+                });
 
         updateCounter = 0;
     }
@@ -38,9 +37,7 @@ public class AISystemTest {
     @Test
     public void update() {
         system.showEntity(entity);
-
         system.execute();
-
         assertEquals(1, updateCounter);
     }
 
