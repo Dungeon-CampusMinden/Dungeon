@@ -80,6 +80,20 @@ public class VariableBinder implements AstVisitor<Void> {
     }
 
     @Override
+    public Void visit(StmtBlockNode node) {
+        for (var stmt : node.getStmts()) {
+            stmt.accept(this);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visit(FuncDefNode node) {
+        node.getStmtBlock().accept(this);
+        return null;
+    }
+
+    @Override
     public Void visit(DotDefNode node) {
         var id = node.getIdNode();
         assert id.type == Node.Type.Identifier;
