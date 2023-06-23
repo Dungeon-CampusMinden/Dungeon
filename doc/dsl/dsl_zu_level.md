@@ -58,7 +58,7 @@ DSL-Interpreter ein Subgraph erstellt, der die nötigen Räume für die Aufgabe 
 Räumen sind die nötigen Entitäten zur Realisierung der Aufgabe im Dungeon enthalten.
 
 Um unterschiedliche Szenarien für den gleichen Aufgabentyp zu realisieren, können per DSL
-`task_builder`-Methoden definiert werden (vgl. [Issue #197 - Einlesen und Verwenden von
+`task_builder`-Methoden definiert werden (**TODO** [Issue #197 - Einlesen und Verwenden von
 Task-Builder-Methoden](https://github.com/Programmiermethoden/Dungeon/issues/197)). Diese
 können auch durch DSL-Nutzende definiert werden. Vereinfachend wird hier angenommen, das
 `task_builder`-Methoden nur aus fest definierten Verzeichnissen aus DSL-Dateien eingelesen
@@ -80,15 +80,15 @@ Operation einer `task_builder`-Methode sollte folgende Schritte abdecken:
 
 Hier ist zwar die Rede von “Räumen”, ob es sich dabei allerdings direkt um physische Räume
 in Dungeon-Level handelt, ist noch nicht klar. Wahrscheinlich wird das erstmal nur eine
-abstrakte Definition sein, die losgelöst von tatsächlichen Level-Tiles im Level ist (siehe
-hierzu [Issue #196 - Aufgabe in mehreren Räumen
+abstrakte Definition sein, die losgelöst von tatsächlichen Level-Tiles im Level ist (**TODO**:
+[Issue #196 - Aufgabe in mehreren Räumen
 verteilen](https://github.com/Programmiermethoden/Dungeon/issues/196)).
 
 Der für die `task`-Definition erzeugte Subgraph mit erzeugten Entitäten wird an den Dungeon
 zurückgegeben und dann wie oben beschrieben in den Supergraphen eingebaut.
 
-***Wie, was, wann instanziiert wird und zu konkreten Entitäten und Level-Tiles wird, ist
-aktuell noch nicht klar definiert.***
+***TODO: Wie, was, wann instanziiert wird und zu konkreten Entitäten und Level-Tiles wird,
+ist aktuell noch nicht klar definiert.***
 
 ### Kasten 4 - Übersetzung des Task-Graph in ein Laufzeit Petri-Netz
 
