@@ -127,9 +127,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             stmtList = astStack.pop();
         }
 
-        var list = new ArrayList<Node>(1);
-        list.add(stmtList);
-        var blockNode = new Node(Node.Type.Block, list);
+        var blockNode = new StmtBlockNode(stmtList);
         astStack.push(blockNode);
     }
 
