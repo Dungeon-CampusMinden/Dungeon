@@ -37,6 +37,15 @@ public class FuncDefNode extends Node {
     }
 
     /**
+     * Getter for the AstNode corresponding to the stmtBlock of the function definition
+     *
+     * @return AstNode corresponding to the stmtBlock of the function definition
+     */
+    public Node getStmtBlock() {
+        return this.getChild(stmtBlockIdx);
+    }
+
+    /**
      * Getter for the name of return type of the function definition
      *
      * @return Name of the return type as String
@@ -51,8 +60,8 @@ public class FuncDefNode extends Node {
      * @return List of the AstNodes corresponding to the stmts of the function definition
      */
     public List<Node> getStmts() {
-        var stmtList = this.children.get(stmtBlockIdx).getChild(0);
-        return stmtList.getChildren();
+        var block = this.getStmtBlock();
+        return block.getChild(0).getChildren();
     }
 
     /**
