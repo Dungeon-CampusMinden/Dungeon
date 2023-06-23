@@ -1,7 +1,5 @@
 package contrib.utils.components.ai;
 
-import static org.junit.Assert.assertTrue;
-
 import contrib.components.AIComponent;
 import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.idle.RadiusWalk;
@@ -14,8 +12,6 @@ import core.components.PositionComponent;
 import core.utils.Point;
 
 import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 
 public class ProtectOnApproachTest {
     private Entity entity;
@@ -57,17 +53,5 @@ public class ProtectOnApproachTest {
 
         // Hero
         hero = Game.hero().orElse(new Entity());
-    }
-
-    // Ignore because no solution to create hero during tests at the moment
-    @Test
-    @Ignore
-    public void heroInRange() {
-        // when
-        hero.removeComponent(PositionComponent.class);
-        new PositionComponent(hero, pointOfProtect);
-
-        // then
-        assertTrue(entityAI.transitionAI().apply(entity));
     }
 }

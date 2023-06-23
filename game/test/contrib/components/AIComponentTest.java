@@ -1,13 +1,11 @@
 package contrib.components;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 import core.Entity;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -42,26 +40,5 @@ public class AIComponentTest {
         aiComponent.execute();
         verify(mockFightAI, never()).accept(entity);
         verify(mockIdleAI, times(1)).accept(entity);
-    }
-
-    @Test
-    public void setFightAI() {
-        Consumer<Entity> newAI = Mockito.mock(Consumer.class);
-        aiComponent.fightAI(newAI);
-        assertEquals(newAI, aiComponent.fightAI());
-    }
-
-    @Test
-    public void setIdleAI() {
-        Consumer<Entity> newAI = Mockito.mock(Consumer.class);
-        aiComponent.idleAI(newAI);
-        assertEquals(newAI, aiComponent.idleAI());
-    }
-
-    @Test
-    public void setTransitionAI() {
-        Function<Entity, Boolean> newAI = Mockito.mock(Function.class);
-        aiComponent.transitionAI(newAI);
-        assertEquals(newAI, aiComponent.transitionAI());
     }
 }
