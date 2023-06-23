@@ -69,7 +69,10 @@ public final class AIComponent extends Component {
     }
 
     /**
-     * Check if the entity is in idle mode or in fight mode and execute the corresponding behavior
+     * Exceute AI behavior.
+     *
+     * <p>Uses {@link #shouldFight} to check if the entity is in idle mode or in fight mode and
+     * execute the corresponding behavior
      */
     public void execute() {
         if (shouldFight.apply(entity)) fightAI.accept(entity);
