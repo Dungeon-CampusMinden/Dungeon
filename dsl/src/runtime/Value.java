@@ -21,7 +21,7 @@ public class Value implements IClonable {
 
     /**
      * Indicates, if the internal value of this {@link Value} was set explicitly (e.g. in a
-     * game_object definition).
+     * entity_type definition).
      *
      * @return true, if the internal value was set explicitly, false otherwise
      */

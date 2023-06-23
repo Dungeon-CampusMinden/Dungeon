@@ -51,10 +51,10 @@ public class TestDSLInterpreter {
     public void funcCallReturn() {
         String program =
                 """
-            quest_config c {
-                test: print(testReturnHelloWorld())
-            }
-                """;
+                quest_config c {
+                    test: print(testReturnHelloWorld())
+                }
+                    """;
         TestEnvironment env = new TestEnvironment();
         env.loadFunctions(TestFunctionReturnHelloWorld.func);
 
@@ -79,18 +79,18 @@ public class TestDSLInterpreter {
     public void funcCallDoubleReturnUserFunc() {
         String program =
                 """
-        fn ret_string2() -> string {
-            return "Hello, World!";
-        }
+                fn ret_string2() -> string {
+                    return "Hello, World!";
+                }
 
-        fn ret_string1() -> string {
-            return ret_string2();
-        }
+                fn ret_string1() -> string {
+                    return ret_string2();
+                }
 
-        quest_config c {
-            test: print(ret_string1())
-        }
-            """;
+                quest_config c {
+                    test: print(ret_string1())
+                }
+                    """;
         TestEnvironment env = new TestEnvironment();
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
@@ -113,19 +113,19 @@ public class TestDSLInterpreter {
     public void funcCallDoubleReturnUserFuncDifferentValues() {
         String program =
                 """
-            fn ret_string2() -> string {
-                return "Moin";
-            }
+                    fn ret_string2() -> string {
+                        return "Moin";
+                    }
 
-            fn ret_string1() -> string {
-                ret_string2();
-                return "Hello, World!";
-            }
+                    fn ret_string1() -> string {
+                        ret_string2();
+                        return "Hello, World!";
+                    }
 
-            quest_config c {
-                test: print(ret_string1())
-            }
-        """;
+                    quest_config c {
+                        test: print(ret_string1())
+                    }
+                """;
         TestEnvironment env = new TestEnvironment();
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(env);
@@ -149,13 +149,13 @@ public class TestDSLInterpreter {
     public void funcCallReturnUserFunc() {
         String program =
                 """
-        fn ret_string() -> string {
-            return "Hello, World!";
-        }
+                fn ret_string() -> string {
+                    return "Hello, World!";
+                }
 
-        quest_config c {
-            test: print(ret_string())
-        }
+                quest_config c {
+                    test: print(ret_string())
+                }
             """;
 
         // print currently just prints to system.out, so we need to
@@ -175,14 +175,15 @@ public class TestDSLInterpreter {
     public void funcCallReturnUserFuncWithoutReturnType() {
         String program =
                 """
-            fn ret_string() {
-                return "Hello, World!";
-            }
+                    fn ret_string() {
+                        return "Hello, World!";
+                    }
 
-            quest_config c {
-                test: print(ret_string())
-            }
+                quest_config c {
+                    test: print(ret_string())
+                }
             """;
+
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
         var outputStream = new ByteArrayOutputStream();
@@ -235,10 +236,10 @@ public class TestDSLInterpreter {
         // parameter, these should be set to default values
         String program =
                 """
-            quest_config c {
-                quest_desc: "Hello"
-            }
-                """;
+                quest_config c {
+                    quest_desc: "Hello"
+                }
+                    """;
         DSLInterpreter interpreter = new DSLInterpreter();
 
         var questConfig = (QuestConfig) interpreter.getQuestConfig(program);
@@ -302,7 +303,7 @@ public class TestDSLInterpreter {
                     A -- B
                 }
 
-                game_object c {
+                entity_type c {
                     test_component{
                         member1: 42,
                         member2: "Hello, World!"
@@ -348,7 +349,7 @@ public class TestDSLInterpreter {
     public void aggregateTypeInstancing() {
         String program =
                 """
-                game_object my_obj {
+                entity_type my_obj {
                     test_component1 {
                         member1: 42,
                         member2: 12.34
@@ -360,7 +361,7 @@ public class TestDSLInterpreter {
                 }
 
                 quest_config config {
-                    entity: my_obj
+                    entity: instantiate(my_obj)
                 }
                 """;
 
@@ -424,14 +425,14 @@ public class TestDSLInterpreter {
     public void aggregateTypeInstancingNonSupportedExternalType() {
         String program =
                 """
-            game_object my_obj {
-                component_with_external_type_member { }
-            }
+                entity_type my_obj {
+                    component_with_external_type_member { }
+                }
 
-            quest_config config {
-                entity: my_obj
-            }
-            """;
+                quest_config config {
+                    entity: instantiate(my_obj)
+                }
+                """;
 
         var env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
@@ -461,20 +462,20 @@ public class TestDSLInterpreter {
     public void adaptedInstancing() {
         String program =
                 """
-            game_object my_obj {
-                test_component1 {
-                    member1: 42,
-                    member2: 12
-                },
-                test_component_with_external_type {
-                    member_external_type: "Hello, World!"
+                entity_type my_obj {
+                    test_component1 {
+                        member1: 42,
+                        member2: 12
+                    },
+                    test_component_with_external_type {
+                        member_external_type: "Hello, World!"
+                    }
                 }
-            }
 
-            quest_config config {
-                entity: my_obj
-            }
-            """;
+                quest_config config {
+                    entity: instantiate(my_obj)
+                }
+                """;
 
         // setup test type system
         var env = new TestEnvironment();
@@ -504,20 +505,20 @@ public class TestDSLInterpreter {
     public void adaptedInstancingMultiParam() {
         String program =
                 """
-        game_object my_obj {
-            test_component1 {
-                member1: 42,
-                member2: 12
-            },
-            test_component_with_external_type {
-                member_external_type: external_type { string: "Hello, World!", number: 42 }
-            }
-        }
+                entity_type my_obj {
+                    test_component1 {
+                        member1: 42,
+                        member2: 12
+                    },
+                    test_component_with_external_type {
+                        member_external_type: external_type { string: "Hello, World!", number: 42 }
+                    }
+                }
 
-        quest_config config {
-            entity: my_obj
-        }
-        """;
+                quest_config config {
+                    entity: instantiate(my_obj)
+                }
+                """;
 
         // setup test type system
         var env = new TestEnvironment();
