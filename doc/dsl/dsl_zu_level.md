@@ -17,13 +17,10 @@ den DSL-Dateien werden die `level_config`-Definitionen gesucht. Für jede
 `level_config`-Definition kann ein Level im Dungeon erzeugt werden. Eine
 `level_config`-Definition kann eine `task_org` Struktur referenzieren, welche mehrere
 `task`-Definition miteinander in Verbindung setzt, hierfür wird ein Ansatz basierend auf
-Petri-Netzen genutzt (vgl. [Issue #260 - Petri Netze
-erstellen](https://github.com/Programmiermethoden/Dungeon/issues/260), [Issue #520 -
-Petri-Netze in der DSL
-abbilden](https://github.com/Programmiermethoden/Dungeon/issues/260)), wobei die
-Nutzereingabe als dot-graph erfolgt (“Task-Graph”). Falls nur eine Aufgabe im Level
-realisiert werden soll, kann auch der Zwischenschritt der Task-Organisation übersprungen
-werden, sodass die `task`-Definition direkt in der `level_config` referenziert werden kann.
+[Petri-Netzen](../control_mechanisms/petri_nets.md) genutzt, wobei die Nutzereingabe als
+dot-graph erfolgt (“Task-Graph”). Falls nur eine Aufgabe im Level realisiert werden soll,
+kann auch der Zwischenschritt der Task-Organisation übersprungen werden, sodass die
+`task`-Definition direkt in der `level_config` referenziert werden kann.
 
 Alle verfügbaren `level_config`s werden im Dungeon dargestellt und eine kann von
 Studierenden ausgewählt werden (GUI, etc.). Zu dem Zeitpunkt wurde der Rest der DSL-Datei
