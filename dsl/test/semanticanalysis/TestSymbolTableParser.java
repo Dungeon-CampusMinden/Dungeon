@@ -273,7 +273,8 @@ public class TestSymbolTableParser {
         var symtableResult = Helpers.getSymtableForAST(ast);
 
         var funcDefNode = ast.getChild(0);
-        var stmtList = funcDefNode.getChild(3);
+        var stmtBlock = funcDefNode.getChild(3);
+        var stmtList = stmtBlock.getChild(0);
         var funcCallStmt = stmtList.getChild(0);
         var paramList = funcCallStmt.getChild(1);
         var firstParam = paramList.getChild(0);
