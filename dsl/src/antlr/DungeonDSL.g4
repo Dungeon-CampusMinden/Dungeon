@@ -60,21 +60,35 @@ definition
         ;
 
 fn_def
-    : 'fn' ID '(' param_def_list? ')' ret_type_def? '{' stmt_list? '}'
+    : 'fn' ID '(' param_def_list? ')' ret_type_def? stmt_block
     ;
 
 stmt
     : primary ';'
+    | stmt_block
+    | conditional_stmt
     ;
 
-return_stmt
-    : 'return' primary ';'
+stmt_block
+    : '{' stmt_list? '}'
     ;
 
 stmt_list
     : stmt stmt_list
     | return_stmt
     | stmt
+    ;
+
+return_stmt
+    : 'return' primary ';'
+    ;
+
+conditional_stmt
+    : 'if' primary stmt else_stmt?
+    ;
+
+else_stmt
+    : 'else' stmt
     ;
 
 ret_type_def
