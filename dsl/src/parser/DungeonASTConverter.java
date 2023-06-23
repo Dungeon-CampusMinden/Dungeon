@@ -85,10 +85,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     @Override
     public void exitFn_def(DungeonDSLParser.Fn_defContext ctx) {
         // pop everything (depending on ctx) and create fnDefNode
-        Node stmtList = Node.NONE;
-        if (ctx.stmt_list() != null) {
+        Node stmtBlock = Node.NONE;
+        if (ctx.stmt_block() != null) {
             // no stmt list
-            stmtList = astStack.pop();
+            stmtBlock = astStack.pop();
         }
 
         Node retType = Node.NONE;
@@ -103,7 +103,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
         Node functionName = astStack.pop();
 
-        var funcDefNode = new FuncDefNode(functionName, paramDefList, retType, stmtList);
+        var funcDefNode = new FuncDefNode(functionName, paramDefList, retType, stmtBlock);
         astStack.push(funcDefNode);
     }
 
@@ -113,6 +113,24 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     @Override
     public void exitStmt(DungeonDSLParser.StmtContext ctx) {
         // just let it bubble up, we don't need to store the information, that it is a stmt
+    }
+
+    @Override
+    public void enterStmt_block(DungeonDSLParser.Stmt_blockContext ctx) {
+
+    }
+
+    @Override
+    public void exitStmt_block(DungeonDSLParser.Stmt_blockContext ctx) {
+        var stmtList = Node.NONE;
+        if (ctx.stmt_list() != null) {
+            stmtList = astStack.pop();
+        }
+
+        var list = new ArrayList<Node>(1);
+        list.add(stmtList);
+        var blockNode = new Node(Node.Type.Block, list);
+        astStack.push(blockNode);
     }
 
     @Override
@@ -126,6 +144,26 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
         var returnStmt = new ReturnStmtNode(innerStmt);
         astStack.push(returnStmt);
+    }
+
+    @Override
+    public void enterConditional_stmt(DungeonDSLParser.Conditional_stmtContext ctx) {
+
+    }
+
+    @Override
+    public void exitConditional_stmt(DungeonDSLParser.Conditional_stmtContext ctx) {
+
+    }
+
+    @Override
+    public void enterElse_stmt(DungeonDSLParser.Else_stmtContext ctx) {
+
+    }
+
+    @Override
+    public void exitElse_stmt(DungeonDSLParser.Else_stmtContext ctx) {
+
     }
 
     @Override
