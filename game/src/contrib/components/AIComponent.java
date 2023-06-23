@@ -69,7 +69,7 @@ public final class AIComponent extends Component {
     }
 
     /**
-     * Exceute AI behavior.
+     * Execute AI behavior.
      *
      * <p>Uses {@link #shouldFight} to check if the entity is in idle mode or in fight mode and
      * execute the corresponding behavior
