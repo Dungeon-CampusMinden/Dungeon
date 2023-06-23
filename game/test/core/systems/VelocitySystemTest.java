@@ -46,7 +46,7 @@ public class VelocitySystemTest {
         velocityComponent = new VelocityComponent(entity, xVelocity, yVelocity);
         positionComponent =
                 new PositionComponent(entity, new Point(startXPosition, startYPosition));
-        animationComponent = new DrawComponent(entity, "character/knight");
+        animationComponent = new DrawComponent(entity, "character/blue_knight");
         velocitySystem.showEntity(entity);
     }
 

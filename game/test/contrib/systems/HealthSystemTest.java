@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 public class HealthSystemTest {
-    private static final String ANIMATION_PATH = "character/knight";
+    private static final String ANIMATION_PATH = "character/blue_knight";
 
     @Test
     public void updateEntityDies() throws IOException {
