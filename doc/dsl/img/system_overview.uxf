@@ -1,0 +1,214 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>13</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLNote</id><coordinates><x>13</x><y>195</y><w>182</w><h>351</h></coordinates><panel_attributes># my_file.dsl
+
+task t1 {
+  ...
+}
+
+task t2 {
+  ...
+}
+
+task_org org1{
+  task_graph(t1, t2)
+}
+
+level_config config1 {
+  org: org1
+}
+bg=white</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>13</x><y>572</y><w>182</w><h>351</h></coordinates><panel_attributes># my_other_file.dsl
+
+task t3 {
+  ...
+}
+
+task t4 {
+  ...
+}
+
+task_org org2{
+  task_graph(t3, t4)
+}
+
+level_config config2 {
+  org: org2
+}
+bg=white</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>377</x><y>208</y><w>182</w><h>169</h></coordinates><panel_attributes>Dungeon</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>403</x><y>260</y><w>130</w><h>91</h></coordinates><panel_attributes>Level Auswahl
+--
+- config1
+- config2</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>182</x><y>273</y><w>247</w><h>52</h></coordinates><panel_attributes>lt=&lt;&lt;-
+einlesen</panel_attributes><additional_attributes>170;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>182</x><y>312</y><w>247</w><h>403</h></coordinates><panel_attributes>lt=&lt;&lt;-
+einlesen</panel_attributes><additional_attributes>170;10;60;10;60;290;10;290</additional_attributes></element><element><id>Relation</id><coordinates><x>455</x><y>338</y><w>195</w><h>156</h></coordinates><panel_attributes>lt=&lt;&lt;-
+auswahl(level_config)</panel_attributes><additional_attributes>10;100;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>377</x><y>468</y><w>182</w><h>416</h></coordinates><panel_attributes>DSL-Interpreter
+layer=-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>390</x><y>507</y><w>156</w><h>364</h></coordinates><panel_attributes>Task-Graph Parser
+--
+layer=-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>390</x><y>546</y><w>169</w><h>91</h></coordinates><panel_attributes>"task_org org1{
+   task_graph(t1, t2)
+ }"
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>403</x><y>702</y><w>130</w><h>156</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>455</x><y>598</y><w>39</w><h>117</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;70;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>806</x><y>416</y><w>624</w><h>351</h></coordinates><panel_attributes>Dungeon</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>819</x><y>468</y><w>195</w><h>104</h></coordinates><panel_attributes>"Level Builder"
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>520</x><y>468</y><w>351</w><h>338</h></coordinates><panel_attributes>lt=&lt;&lt;-
+rückgabe(task_graph)</panel_attributes><additional_attributes>230;10;130;10;130;240;10;240</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1326</x><y>520</y><w>26</w><h>26</h></coordinates><panel_attributes>type=initial
+bg=white
+group=group-20</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1313</x><y>533</y><w>52</w><h>78</h></coordinates><panel_attributes>lt=-
+group=group-20</panel_attributes><additional_attributes>10;40;20;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1287</x><y>481</y><w>130</w><h>195</h></coordinates><panel_attributes>Levelgraph</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1313</x><y>585</y><w>26</w><h>26</h></coordinates><panel_attributes>type=initial
+bg=white
+group=group-20</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1365</x><y>559</y><w>26</w><h>26</h></coordinates><panel_attributes>type=initial
+bg=white
+group=group-20</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1313</x><y>637</y><w>26</w><h>26</h></coordinates><panel_attributes>type=initial
+bg=white
+group=group-20</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1313</x><y>598</y><w>39</w><h>65</h></coordinates><panel_attributes>lt=-
+group=group-20</panel_attributes><additional_attributes>10;30;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1326</x><y>533</y><w>65</w><h>65</h></coordinates><panel_attributes>lt=-
+group=group-20</panel_attributes><additional_attributes>30;30;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1001</x><y>455</y><w>312</w><h>65</h></coordinates><panel_attributes>lt=&lt;&lt;-
+initialen level supergraph erzeugen
+(mit task-graph Struktur)</panel_attributes><additional_attributes>220;20;10;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>767</x><y>871</y><w>520</w><h>689</h></coordinates><panel_attributes>DSL-Interpreter
+layer=-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>819</x><y>923</y><w>143</w><h>65</h></coordinates><panel_attributes>build_task(task)
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>832</x><y>559</y><w>143</w><h>390</h></coordinates><panel_attributes>lt=&lt;&lt;-
+für jeden task 
+im task-graph
+
+
+
+</panel_attributes><additional_attributes>10;280;10;10</additional_attributes></element><element><id>UMLNote</id><coordinates><x>793</x><y>1625</y><w>234</w><h>104</h></coordinates><panel_attributes># my_taskbuilder1.dsl
+fn build_task1(task) -&gt; graph {
+  ...
+}
+bg=white
+group=group-19</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>793</x><y>1755</y><w>234</w><h>104</h></coordinates><panel_attributes># my_taskbuilder2.dsl
+fn build_task2(task) -&gt; graph {
+  ...
+}
+bg=white
+group=group-19</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>793</x><y>1885</y><w>234</w><h>104</h></coordinates><panel_attributes># my_taskbuilder3.dsl
+fn build_task3(task) -&gt; graph {
+  ...
+}
+bg=white
+group=group-19</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>780</x><y>1599</y><w>260</w><h>403</h></coordinates><panel_attributes>Std Lib
+group=group-19</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>780</x><y>1378</y><w>260</w><h>169</h></coordinates><panel_attributes>Map&lt;TaskType, TaskBuilder[]&gt;
+--
+"SingleChoice"
+  - build_task1()
+  - build_task2()
+
+"MultipleChoice"
+  - build_task3()</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>832</x><y>975</y><w>169</w><h>429</h></coordinates><panel_attributes>lt=&lt;&lt;-
+task_builder für
+task type suchen 
+</panel_attributes><additional_attributes>10;310;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>949</x><y>936</y><w>234</w><h>78</h></coordinates><panel_attributes>lt=&lt;&lt;-
+ausführen(task_builder)</panel_attributes><additional_attributes>160;40;160;20;10;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1027</x><y>988</y><w>247</w><h>169</h></coordinates><panel_attributes>fn task_builder(task) -&gt; graph
+--
+- Entitäten erzeugen
+- Räume erzeugen
+- Entitäten in Räume setzen
+- Event Handler Funktionen
+  verknüpfen
+- Entitäten mit Task verknüpfen</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1092</x><y>1235</y><w>78</w><h>78</h></coordinates><panel_attributes>type=initial
+Entity1,
+Entity2
+group=group-4
+bg=white</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1118</x><y>1300</y><w>39</w><h>78</h></coordinates><panel_attributes>lt=-
+group=group-4</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1092</x><y>1352</y><w>78</w><h>78</h></coordinates><panel_attributes>type=initial
+Entity3,
+Entity4
+group=group-4
+bg=white</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>1157</x><y>1222</y><w>78</w><h>39</h></coordinates><panel_attributes>Raum1
+style=wordwrap
+group=group-4</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1079</x><y>1196</y><w>156</w><h>247</h></coordinates><panel_attributes>level_subgraph
+--
+
+group=group-4</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>1157</x><y>1339</y><w>78</w><h>39</h></coordinates><panel_attributes>Raum2
+style=wordwrap
+group=group-4</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1144</x><y>1144</y><w>39</w><h>78</h></coordinates><panel_attributes>lt=&lt;&lt;-
+</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>949</x><y>559</y><w>390</w><h>845</h></coordinates><panel_attributes>lt=&lt;&lt;-
+</panel_attributes><additional_attributes>10;10;10;200;280;200;280;630;220;630</additional_attributes></element><element><id>Relation</id><coordinates><x>1001</x><y>507</y><w>351</w><h>52</h></coordinates><panel_attributes>lt=&lt;&lt;-
+einsetzen(level_subgraph)
+group=group-15</panel_attributes><additional_attributes>250;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>2054</x><y>351</y><w>78</w><h>78</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>40;40;10;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>2106</x><y>377</y><w>78</w><h>78</h></coordinates><panel_attributes>type=initial
+Entity7,
+Entity8
+bg=white</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>2080</x><y>273</y><w>78</w><h>39</h></coordinates><panel_attributes>Raum3
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1547</x><y>78</y><w>208</w><h>221</h></coordinates><panel_attributes>level_subgraph, task1
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>2119</x><y>338</y><w>78</w><h>39</h></coordinates><panel_attributes>Raum4
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>2015</x><y>286</y><w>78</w><h>78</h></coordinates><panel_attributes>type=initial
+Entity5,
+Entity6
+bg=white</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1794</x><y>78</y><w>78</w><h>78</h></coordinates><panel_attributes>type=initial
+bg=white
+layer=-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1768</x><y>39</y><w>52</w><h>78</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>20;40;10;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1664</x><y>117</y><w>78</w><h>78</h></coordinates><panel_attributes>type=initial
+Entity1,
+Entity2
+bg=white</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>1599</x><y>117</y><w>78</w><h>39</h></coordinates><panel_attributes>Raum1
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1638</x><y>169</y><w>65</w><h>78</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>10;40;30;10</additional_attributes></element><element><id>Text</id><coordinates><x>1547</x><y>182</y><w>78</w><h>39</h></coordinates><panel_attributes>Raum2
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1586</x><y>208</y><w>78</w><h>78</h></coordinates><panel_attributes>type=initial
+Entity3,
+Entity4
+bg=white</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1781</x><y>104</y><w>26</w><h>26</h></coordinates><panel_attributes>bg=white</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1716</x><y>104</y><w>91</w><h>52</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>10;20;50;10</additional_attributes></element><element><id>Text</id><coordinates><x>1768</x><y>26</y><w>52</w><h>39</h></coordinates><panel_attributes>Tür
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1768</x><y>208</y><w>78</w><h>78</h></coordinates><panel_attributes>type=initial
+bg=white</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1794</x><y>143</y><w>52</w><h>91</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>10;50;20;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1768</x><y>338</y><w>78</w><h>78</h></coordinates><panel_attributes>type=initial
+bg=white</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1794</x><y>273</y><w>39</w><h>91</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1924</x><y>169</y><w>78</w><h>78</h></coordinates><panel_attributes>type=initial
+bg=white
+layer=-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1846</x><y>130</y><w>117</w><h>78</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>70;40;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>2002</x><y>247</y><w>208</w><h>221</h></coordinates><panel_attributes>level_subgraph, task2
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1950</x><y>234</y><w>26</w><h>26</h></coordinates><panel_attributes>bg=white</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1950</x><y>247</y><w>91</w><h>91</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>50;50;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1911</x><y>260</y><w>65</w><h>65</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>30;10;10;30</additional_attributes></element><element><id>Text</id><coordinates><x>1898</x><y>299</y><w>52</w><h>39</h></coordinates><panel_attributes>Tür
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1534</x><y>0</y><w>689</w><h>494</h></coordinates><panel_attributes>finaler Levelgraph
+layer=-2</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1404</x><y>156</y><w>156</w><h>403</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>100;10;70;10;70;290;10;290</additional_attributes></element><element><id>Relation</id><coordinates><x>897</x><y>1534</y><w>104</w><h>91</h></coordinates><panel_attributes>lt=&lt;&lt;-
+einlesen</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>143</y><w>650</w><h>806</h></coordinates><panel_attributes>lt=.
+layer=-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>728</x><y>377</y><w>728</w><h>416</h></coordinates><panel_attributes>lt=.
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>728</x><y>845</y><w>611</w><h>1183</h></coordinates><panel_attributes>lt=.
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>0</x><y>143</y><w>52</w><h>65</h></coordinates><panel_attributes>**1**
+style=wordwrap
+fontsize=24</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>728</x><y>390</y><w>52</w><h>65</h></coordinates><panel_attributes>**2**
+style=wordwrap
+fontsize=24</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>728</x><y>845</y><w>52</w><h>65</h></coordinates><panel_attributes>**3**
+style=wordwrap
+fontsize=24</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>455</x><y>728</y><w>26</w><h>26</h></coordinates><panel_attributes>type=initial
+bg=white
+group=group-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>429</x><y>741</y><w>65</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+group=group-1</panel_attributes><additional_attributes>10;40;30;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>429</x><y>793</y><w>26</w><h>26</h></coordinates><panel_attributes>type=initial
+bg=white
+group=group-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>481</x><y>793</y><w>26</w><h>26</h></coordinates><panel_attributes>type=initial
+bg=white
+group=group-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>455</x><y>741</y><w>65</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+group=group-1</panel_attributes><additional_attributes>30;40;10;10</additional_attributes></element><element><id>Text</id><coordinates><x>1547</x><y>559</y><w>52</w><h>65</h></coordinates><panel_attributes>**4**
+style=wordwrap
+fontsize=24</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1560</x><y>624</y><w>442</w><h>351</h></coordinates><panel_attributes>Dungeon/DSL-Interpreter</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1534</x><y>559</y><w>494</w><h>442</h></coordinates><panel_attributes>lt=.
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1573</x><y>702</y><w>416</w><h>260</h></coordinates><panel_attributes>Task-Graph Interpreter
+--
+layer=0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1638</x><y>819</y><w>26</w><h>26</h></coordinates><panel_attributes>type=initial
+bg=white
+group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1612</x><y>884</y><w>26</w><h>26</h></coordinates><panel_attributes>type=initial
+bg=white
+group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1664</x><y>884</y><w>26</w><h>26</h></coordinates><panel_attributes>type=initial
+bg=white
+group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1638</x><y>832</y><w>65</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+group=group-0</panel_attributes><additional_attributes>30;40;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1612</x><y>832</y><w>65</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+group=group-0</panel_attributes><additional_attributes>10;40;30;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1586</x><y>793</y><w>130</w><h>156</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1911</x><y>806</y><w>26</w><h>26</h></coordinates><panel_attributes>type=initial
+bg=white
+group=group-3</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1859</x><y>806</y><w>26</w><h>26</h></coordinates><panel_attributes>type=initial
+bg=white
+group=group-3</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>1885</x><y>910</y><w>26</w><h>26</h></coordinates><panel_attributes>type=initial
+bg=white
+group=group-3</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1859</x><y>819</y><w>39</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+group=group-3</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1911</x><y>819</y><w>39</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+group=group-3</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>UMLSyncBarHorizontal</id><coordinates><x>1846</x><y>858</y><w>104</w><h>26</h></coordinates><panel_attributes>lw=5
+
+group=group-3</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1885</x><y>858</y><w>39</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+group=group-3</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1820</x><y>793</y><w>156</w><h>156</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1716</x><y>858</y><w>117</w><h>39</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>70;10;10;10</additional_attributes></element><element><id>Text</id><coordinates><x>1599</x><y>754</y><w>117</w><h>52</h></coordinates><panel_attributes>Task-Graph
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>1820</x><y>754</y><w>169</w><h>52</h></coordinates><panel_attributes>Laufzeit Petri-Netz
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>988</x><y>559</y><w>611</w><h>325</h></coordinates><panel_attributes>lt=&lt;&lt;-
+weitergabe(task_graph)</panel_attributes><additional_attributes>450;230;390;230;390;130;10;130;10;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>2197</x><y>689</y><w>26</w><h>26</h></coordinates><panel_attributes>type=initial
+bg=white
+group=group-5</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>2145</x><y>689</y><w>26</w><h>26</h></coordinates><panel_attributes>type=initial
+bg=white
+group=group-5</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>2171</x><y>793</y><w>26</w><h>26</h></coordinates><panel_attributes>type=initial
+bg=white
+group=group-5</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>2197</x><y>702</y><w>39</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+group=group-5</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>UMLSyncBarHorizontal</id><coordinates><x>2132</x><y>741</y><w>104</w><h>26</h></coordinates><panel_attributes>lw=5
+
+group=group-5</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>2171</x><y>741</y><w>39</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+group=group-5</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>2145</x><y>702</y><w>39</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+group=group-5</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>2106</x><y>676</y><w>156</w><h>156</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>2106</x><y>455</y><w>312</w><h>377</h></coordinates><panel_attributes>steuert Interaktivität (an/aus) 
+von enthaltenen Entitäten
+lt=&lt;-</panel_attributes><additional_attributes>10;10;10;110;140;110;140;270;70;270</additional_attributes></element><element><id>Relation</id><coordinates><x>1963</x><y>754</y><w>169</w><h>143</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>110;10;10;90</additional_attributes></element><element><id>UMLClass</id><coordinates><x>2093</x><y>637</y><w>182</w><h>208</h></coordinates><panel_attributes>Laufzeit
+layer=0</panel_attributes><additional_attributes></additional_attributes></element></diagram>
