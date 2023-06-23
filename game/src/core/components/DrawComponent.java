@@ -69,10 +69,9 @@ public final class DrawComponent extends Component {
     public DrawComponent(final Entity entity, final String path) throws IOException {
         super(entity);
         // fetch available animations
-        ClassLoader classLoader = getClass().getClassLoader();
-        File directory;
         try {
-            directory = new File(classLoader.getResource(path).getFile());
+            ClassLoader classLoader = getClass().getClassLoader();
+            File directory = new File(classLoader.getResource(path).getFile());
             animationMap =
                     Arrays.stream(directory.listFiles())
                             .filter(File::isDirectory)
