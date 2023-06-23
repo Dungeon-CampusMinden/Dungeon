@@ -35,39 +35,39 @@ public class MonsterTest {
         Entity m = null;
         m = EntityFactory.getRandomizedMonster();
 
-        Optional<Component> drawComponent = m.getComponent(DrawComponent.class);
+        Optional<DrawComponent> drawComponent = m.fetch(DrawComponent.class);
         assertTrue(
-            "Needs the DrawComponent to be visible to the player.",
+            "Entity needs the DrawComponent.",
             drawComponent.isPresent());
 
-        Optional<Component> positionComponent = m.getComponent(PositionComponent.class);
+        Optional<PositionComponent> positionComponent = m.fetch(PositionComponent.class);
         assertTrue(
-            "Needs the PositionComponent to be somewhere in the Level",
+            "Entity needs the PositionComponent.",
             positionComponent.isPresent());
-        PositionComponent pc = (PositionComponent) positionComponent.get();
+        PositionComponent pc = positionComponent.get();
         assertTrue(
-            "Needs to spawn somewhere accessible",
-            Game.currentLevel.getTileAt(pc.getPosition().toCoordinate()).isAccessible()
+            "Entity needs to spawn somewhere accessible",
+            Game.currentLevel().tileAt(pc.position().toCoordinate()).isAccessible()
         );
 
-        Optional<Component> HealthComponent = m.getComponent(HealthComponent.class);
+        Optional<HealthComponent> HealthComponent = m.fetch(HealthComponent.class);
         assertTrue(
-            "Needs the HealthComponent to take damage",
+            "Entity needs the HealthComponent to take damage",
             HealthComponent.isPresent());
 
-        Optional<Component> AiComponent = m.getComponent(AIComponent.class);
+        Optional<AIComponent> AiComponent = m.fetch(AIComponent.class);
         assertTrue(
-            "Needs the AIComponent to collide with things",
+            "Entity needs the AIComponent to collide with things",
             AiComponent.isPresent());
         AIComponent ai = (AIComponent) AiComponent.get();
-        assertNotNull("The Ai needs a FightAI", ai.getFightAI());
-        assertNotNull("The Ai needs an IdleAI", ai.getIdleAI());
-        assertNotNull("The Ai needs a TransitionAI", ai.getTransitionAI());
+        assertNotNull("The Ai needs a FightAI", ai.fightAI());
+        assertNotNull("The Ai needs an IdleAI", ai.idleAI());
+        assertNotNull("The Ai needs a TransitionAI", ai.transitionAI());
 
 
-        Optional<Component> collideComponent = m.getComponent(CollideComponent.class);
+        Optional<CollideComponent> collideComponent = m.fetch(CollideComponent.class);
         assertTrue(
-            "Needs the PositionComponent to be somewhere in the Level",
+            "Entity needs the CollideComponent to collide with things",
             collideComponent.isPresent());
 
         cleanup();

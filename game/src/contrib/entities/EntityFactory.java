@@ -218,7 +218,7 @@ public class EntityFactory {
             ItemData item = itemDataGenerator.generateItemData();
             InventoryComponent ic = new InventoryComponent(monster, 1);
             ic.addItem(item);
-            hc.setOnDeath(new DropItemsInteraction());
+            hc.onDeath(new DropItemsInteraction());
         }
 
         return monster;
