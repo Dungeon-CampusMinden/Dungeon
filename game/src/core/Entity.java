@@ -76,11 +76,7 @@ public final class Entity implements Comparable<Entity> {
     public void addComponent(final Component component) {
         components.put(component.getClass(), component);
         Game.informAboutChanges(this);
-        LOGGER.info(
-                component.getClass().getName()
-                        + " Components from "
-                        + this.toString()
-                        + " was added.");
+        LOGGER.info(component.getClass().getName() + " Components from " + this + " was added.");
     }
 
     /**
@@ -145,6 +141,7 @@ public final class Entity implements Comparable<Entity> {
     public Stream<Component> componentValueStream() {
         return components.values().stream();
     }
+
     /**
      * Get a stream of component classes where instances of the class are associated with this
      * entity.
