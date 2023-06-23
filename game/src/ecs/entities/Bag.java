@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class Bag extends Item {
+    private static ItemData itemData;
     private ItemComponent itemComponent;
     private transient final Logger bagLogger = Logger.getLogger(this.getClass().getName());
 
@@ -46,6 +47,12 @@ public class Bag extends Item {
         bagLogger.info(itemData.getItemName() + " created at " + point.toString());
     }
 
+    private Bag(ItemData itemData){
+        if(itemData != null)
+            return;
+        setupItemComponent();
+    }
+
     @Override
     public void setupAnimationComponent() {
         Animation idle = AnimationBuilder.buildAnimation(ItemConfig.BAG_TEXTURE.get());
@@ -68,7 +75,7 @@ public class Bag extends Item {
 
     @Override
     public void setupItemComponent() {
-        ItemData itemData = new ItemData(
+        itemData = new ItemData(
                 ItemConfig.BAG_TYPE.get(),
                 new Animation(List.of(ItemConfig.BAG_TEXTURE.get()), 1),
                 new Animation(List.of(ItemConfig.BAG_TEXTURE.get()), 1),
@@ -125,5 +132,14 @@ public class Bag extends Item {
                             InventoryComponent invComp = (InventoryComponent) component;
                             invComp.removeItem(which);
                         });
+    }
+
+    /**
+     * Returns ItemData object
+     * @return ItemData
+     */
+    public static ItemData getItemData(){
+        new Bag(itemData);
+        return itemData;
     }
 }

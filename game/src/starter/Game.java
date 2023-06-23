@@ -20,6 +20,7 @@ import ecs.components.xp.XPComponent;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
 import ecs.entities.*;
+import ecs.items.ItemData;
 import ecs.systems.*;
 import ecs.tools.Flags.Flag;
 import saving.GameData;
@@ -27,14 +28,16 @@ import saving.Saves;
 import graphic.DungeonCamera;
 import graphic.Painter;
 import graphic.hud.GameOverMenu;
+import graphic.hud.MinigameScreen;
 import graphic.hud.PauseMenu;
 import graphic.hud.QuestLogMenu;
 import graphic.hud.QuestMenu;
+import minigame.Minigame;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.Optional;
+
 import level.IOnLevelLoader;
 import level.LevelAPI;
 import level.elements.ILevel;
@@ -42,6 +45,7 @@ import level.elements.tile.Tile;
 import level.generator.IGenerator;
 import level.generator.postGeneration.WallGenerator;
 import level.generator.randomwalk.RandomWalkGenerator;
+import level.tools.LevelElement;
 import level.tools.LevelSize;
 import tools.Constants;
 import tools.Point;
@@ -96,6 +100,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static QuestLogMenu<Actor> questLogMenu;
     public static int questDisplayTime = 0;
     private static boolean inQuestLog = false;
+    private static boolean minigameIsActive = false;
+    public static Minigame minigame;
+    public static MinigameScreen<Actor> minigameScreen;
 
     public static void main(String[] args) {
         // start the game
@@ -123,6 +130,15 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     @Override
     public void render(float delta) {
+        super.render(delta);
+        if (minigameIsActive && minigame != null) {
+            minigameRender(delta);
+        } else {
+            gameRender(delta);
+        }
+    }
+
+    private void gameRender(float delta) {
         if (doSetup)
             prepareSetup();
         batch.setProjectionMatrix(camera.combined);
@@ -135,6 +151,31 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             questDisplayTime--;
         else if (questMenu != null)
             questMenu.hideMenu();
+    }
+
+    private void minigameRender(float delta) {
+        // TODO Minigame implementation
+        batch.setProjectionMatrix(camera.combined);
+        clearScreen();
+        levelAPI.update();
+        controller.forEach(AbstractController::update);
+        camera.update();
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            minigame.up();
+            minigameScreen.updateScreen(minigame);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            minigame.down();
+            minigameScreen.updateScreen(minigame);
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            if (!minigame.push() || minigame.isFinished()) {
+                minigameScreen.hideMenu();
+                toggleMinigame();
+                return;
+            }
+            minigameScreen.updateScreen(minigame);
+        }
     }
 
     /** Checks for saves */
@@ -161,6 +202,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         gameLogger = Logger.getLogger(this.getClass().getName());
         systems = new SystemController();
         controller.add(systems);
+        minigameScreen = new MinigameScreen();
+        controller.add(minigameScreen);
         questMenu = new QuestMenu();
         controller.add(questMenu);
         questLogMenu = new QuestLogMenu();
@@ -187,6 +230,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         gameLogger = Logger.getLogger(this.getClass().getName());
         systems = new SystemController();
         controller.add(systems);
+        minigameScreen = new MinigameScreen();
+        controller.add(minigameScreen);
         questMenu = new QuestMenu();
         controller.add(questMenu);
         questLogMenu = new QuestLogMenu();
@@ -237,6 +282,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         gameLogger.info("PlayerLevel: " + Long.toString(((Entity) hero).getComponent(XPComponent.class).isPresent()
                 ? ((Entity) hero).getComponent(XPComponent.class).map(XPComponent.class::cast).get().getCurrentLevel()
                 : 0));
+        new Mimic(Game.getLevel());
     }
 
     private void manageEntitiesSets() {
@@ -333,6 +379,19 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
         deleteAutoSave();
         gameOverMenu.showMenu();
+    }
+
+    /** Toggle minigame */
+    public static void toggleMinigame() {
+        minigameIsActive = !minigameIsActive;
+        if (systems != null) {
+            systems.forEach(ECS_System::toggleRun);
+        }
+        if (minigameIsActive)
+            minigameScreen.showMenu();
+        else {
+            minigameScreen.hideMenu();
+        }
     }
 
     /**
@@ -445,6 +504,13 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
         addEntity(new Tombstone(new Ghost()));
         addEntity(new QuestButton());
+        List<ItemData> items = new ArrayList<>(4);
+        items.add(SpeedPotion.getItemData());
+        items.add(Cake.getItemData());
+        items.add(MonsterPotion.getItemData());
+        items.add(Bag.getItemData());
+        addEntity(
+                new Chest(items, Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint(), false));
     }
 
     // Monster spawn mechanics

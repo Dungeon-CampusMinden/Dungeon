@@ -4,34 +4,36 @@ import graphic.Animation;
 import java.util.List;
 import java.util.Random;
 
-/** Generator which creates a random ItemData based on the Templates prepared.
- *  The ItemDataGenerator is used to create random Items for the ItemGenerator.
- *  It uses the Templates prepared in the ItemDataTemplates class.
- *  The ItemDataGenerator is used in the ItemGenerator to create random Items.
+import configuration.ItemConfig;
+
+/**
+ * Generator which creates a random ItemData based on the Templates prepared.
+ * The ItemDataGenerator is used to create random Items for the ItemGenerator.
+ * It uses the Templates prepared in the ItemDataTemplates class.
+ * The ItemDataGenerator is used in the ItemGenerator to create random Items.
  */
 public class ItemDataGenerator {
     private static final List<String> missingTexture = List.of("animation/missingTexture.png");
 
-    private List<ItemData> templates =
-            List.of(
-                    new ItemData(
-                            ItemType.Basic,
-                            new Animation(missingTexture, 1),
-                            new Animation(missingTexture, 1),
-                            "Buch",
-                            "Ein sehr lehrreiches Buch."),
-                    new ItemData(
-                            ItemType.Basic,
-                            new Animation(missingTexture, 1),
-                            new Animation(missingTexture, 1),
-                            "Tuch",
-                            "Ein sauberes Tuch.."),
-                    new ItemData(
-                            ItemType.Basic,
-                            new Animation(missingTexture, 1),
-                            new Animation(missingTexture, 1),
-                            "Namensschild",
-                            "Ein Namensschild wo der Name nicht mehr lesbar ist.."));
+    private List<ItemData> templates = List.of(
+            new ItemData(
+                    ItemType.Food,
+                    new Animation(List.of(ItemConfig.CAKE_TEXTURE.get()), 1),
+                    new Animation(List.of(ItemConfig.CAKE_TEXTURE.get()), 1),
+                    ItemConfig.CAKE_NAME.get(),
+                    ItemConfig.CAKE_DESCRIPTION.get()),
+            new ItemData(
+                    ItemType.Potion,
+                    new Animation(List.of(ItemConfig.SPEED_TEXTURE.get()), 1),
+                    new Animation(List.of(ItemConfig.SPEED_TEXTURE.get()), 1),
+                    ItemConfig.SPEED_NAME.get(),
+                    ItemConfig.SPEED_DESCRIPTION.get()),
+            new ItemData(
+                    ItemType.Potion,
+                    new Animation(List.of(ItemConfig.MONSTER_DESPAWN_TEXTURE.get()), 1),
+                    new Animation(List.of(ItemConfig.MONSTER_DESPAWN_TEXTURE.get()), 1),
+                    ItemConfig.MONSTER_DESPAWN_NAME.get(),
+                    ItemConfig.MONSTER_DESPAWN_DESCRIPTION.get()));
     private Random rand = new Random();
 
     /**
