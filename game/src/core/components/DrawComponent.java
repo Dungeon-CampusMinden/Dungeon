@@ -82,9 +82,8 @@ public final class DrawComponent extends Component {
             // This means that if the files can't be loaded, the component is considered "defective" and will likely throw exceptions.
             // For that reason, we remove the defective component from the entity.
             entity.removeComponent(DrawComponent.class);
-            /* We convert the "NullPointerException" to a "FileNotFoundException" because the only
-               reason for a NullPointerException is if the directory does not exist.
-            */
+            // We convert the "NullPointerException" to a "FileNotFoundException" because the only
+            // reason for a NullPointerException is if the directory does not exist.
             throw new FileNotFoundException(
                     "Path "
                             + path
