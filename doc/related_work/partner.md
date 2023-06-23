@@ -15,7 +15,7 @@ title: "Übersicht anderer Projekt-Teams mit denen wir im Austausch stehen"
 
 *   Austausch zum Thema Deploy 2 Grading
 
-Projektbeschreibung (per E-Mail erhalten):  
+*   Projektbeschreibung (per E-Mail erhalten):  
 
 > Ich bin wissenschaftlicher Mitarbeiter am Hasso-Plattner-Institut an der Universität Potsdam und beschäftige mich im Rahmen meiner Promotion mit Fragestellungen zur Programmierausbildung mittels Massive Open Online Courses (MOOCs). Dazu bieten wir in Online-Kursen auf openHPI [^1] für verschiedene Programmiersprachen (darunter Java, Python, Ruby, und R) praktische Programmieraufgaben an, die Lernende direkt im Browser in unserer Plattform CodeOcean [2] lösen können. In CodeOcean sind dazu zu den Aufgaben verschiedene Tests hinterlegt (etwa mit JUnit oder PyUnit für Unit-Tests oder PyLint für statische Codeanalyse), deren Ergebnisse den Lernenden während der Bearbeitung angezeigt werden. Bei weitergehenden Fragen haben wir einen Peer-Feedback-Mechanismus etabliert, mit dem sich Lernende gegenseitig unterstützen können.
 
