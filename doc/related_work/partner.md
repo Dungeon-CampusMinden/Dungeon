@@ -7,7 +7,9 @@ title: "Übersicht anderer Projekt-Teams mit denen wir im Austausch stehen"
 *   Austausch zum Thema Gamification 
 *   Kurzbeschreibung des Projekts: 
     *   Grafisches Aufbereiten der Aufgaben im Moodle
-    *   Klinken sich per JavaScript in Moodle ein
+        *   Aufgabentypen: Lückentext - Matheaufgaben mussten berechnet und (Zwischen-)Ergebnisse im Eingabefeld eingegeben werden.
+    *   Klinken sich per JavaScript in Moodle ein.
+        * Moodle erlaubt anscheinend die Ausführung von JavaScript in den Aufgaben. Darüber haben sie sich eingeklinkt und relativ viel DOM-Manipulation gemacht, damit das Ganze optisch mehr wie ein Spiel aussieht. Inwieweit weitere Logiken implementiert wurden, ist nicht klar.
     *   Nutzen das Moodle Feedbacksystem um Hinweise zu geben
     *   Vorschau: https://marvin.hs-bochum.de/~mneugebauer/fantasy/moved_fantasy.gif
 
