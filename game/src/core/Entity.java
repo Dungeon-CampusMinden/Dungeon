@@ -6,6 +6,7 @@ import semanticanalysis.types.DSLType;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * An Entity is a container for {@link Component}s.
@@ -134,5 +135,23 @@ public final class Entity implements Comparable<Entity> {
     @Override
     public int compareTo(Entity o) {
         return id - o.id;
+    }
+
+    /**
+     * Get a stream of components associated with this entity.
+     *
+     * @return Stream of components.
+     */
+    public Stream<Component> componentValueStream() {
+        return components.values().stream();
+    }
+    /**
+     * Get a stream of component classes where instances of the class are associated with this
+     * entity.
+     *
+     * @return Stream of classes.
+     */
+    public Stream<Class<? extends Component>> componentKeyStream() {
+        return components.keySet().stream();
     }
 }
