@@ -94,9 +94,8 @@ aktuell noch nicht klar definiert.***
 
 Das “Laufzeit” Petri-Netz soll genutzt werden, um den Zustand der Aufgaben zu modellieren
 und zu steuern. Dafür muss aus dem Task-Graph ein Petri-Netz erstellt werden. Die Struktur
-des erzeugten Petri-Netzes ist von den Relationen der Aufgaben untereinander abhängig (siehe
-[Issue #503 - Petri Netze für verschachtelte
-Aufgaben](https://github.com/Programmiermethoden/Dungeon/issues/503)). Die Markierung der
+des erzeugten [Petri-Netzes](../control_mechanisms/petri_nets.md) ist von den Relationen der
+Aufgaben untereinander abhängig. Die Markierung der
 Stellen im Petri-Netz soll bspw. dafür genutzt werden, die Interaktion mit den Entitäten,
 welche für die Realisierung einer bestimmten Aufgabe nötig sind, zu blockieren. So könnte
 abgebildet werden, dass eine Aufgabe “aktiv” ist, also bearbeitet werden kann.
