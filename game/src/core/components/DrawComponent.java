@@ -78,10 +78,9 @@ public final class DrawComponent extends Component {
                             .collect(Collectors.toMap(File::getName, Animation::of));
             currentAnimation(CoreAnimations.IDLE_LEFT);
         } catch (NullPointerException np) {
-            /* The component gets registered at the entity in super().
-               This means that if the files can't be loaded, the component is considered "defective" and will likely throw exceptions.
-               For that reason, we remove the defective component from the entity.
-            */
+            // The component gets registered at the entity in super().
+            // This means that if the files can't be loaded, the component is considered "defective" and will likely throw exceptions.
+            // For that reason, we remove the defective component from the entity.
             entity.removeComponent(DrawComponent.class);
             /* We convert the "NullPointerException" to a "FileNotFoundException" because the only
                reason for a NullPointerException is if the directory does not exist.
