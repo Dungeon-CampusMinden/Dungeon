@@ -61,7 +61,7 @@ public class AIComponentTest {
     @Test
     public void setTransitionAI() {
         Function<Entity, Boolean> newAI = Mockito.mock(Function.class);
-        aiComponent.setTransitionAI(newAI);
+        aiComponent.transitionAI(newAI);
         assertEquals(newAI, aiComponent.transitionAI());
     }
 }

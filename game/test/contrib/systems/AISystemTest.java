@@ -23,7 +23,7 @@ public class AISystemTest {
         system = new AISystem();
         entity = new Entity();
         AIComponent component = new AIComponent(entity);
-        component.setTransitionAI(
+        component.transitionAI(
                 entity -> {
                     updateCounter++;
                     return false;
