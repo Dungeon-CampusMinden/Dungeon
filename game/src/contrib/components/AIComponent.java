@@ -20,39 +20,39 @@ import java.util.function.Function;
  * <p>The {@link AISystem} will use {@link #shouldFight} to check if the idle or combat behavior
  * should be executed.
  *
- * <p>The {@link #idleAI} defines the behavior in Idle-State, e.g. walking on a specific path {@link
- * contrib.utils.components.ai.idle.PatrouilleWalk}.
+ * <p>The {@link #idleBehavior} defines the behavior in Idle-State, e.g. walking on a specific path
+ * {@link contrib.utils.components.ai.idle.PatrouilleWalk}.
  *
  * <p>The {@link #shouldFight} defines when the entity goes into fight mode, e.g. if the player is
  * too close to the entity {@link RangeTransition}.
  *
- * <p>The {@link #fightAI} defines the combat behavior, e.g. attacking with a fireball skill {@link
- * contrib.utils.components.ai.fight.RangeAI}.
+ * <p>The {@link #fightBehavior} defines the combat behavior, e.g. attacking with a fireball skill
+ * {@link contrib.utils.components.ai.fight.RangeAI}.
  *
  * @see AISystem
  */
 @DSLType(name = "ai_component")
 public final class AIComponent extends Component {
-    private Consumer<Entity> fightAI;
-    private Consumer<Entity> idleAI;
-    private Function<Entity, Boolean> shouldFight;
+    private final Consumer<Entity> fightBehavior;
+    private final Consumer<Entity> idleBehavior;
+    private final Function<Entity, Boolean> shouldFight;
 
     /**
      * Create an AIComponent with the given behavior and add it to the associated entity.
      *
      * @param entity The associated entity.
-     * @param fightAI The combat behavior.
-     * @param idleAI The idle behavior.
+     * @param fightBehavior The combat behavior.
+     * @param idleBehavior The idle behavior.
      * @param shouldFight Determines when to fight.
      */
     public AIComponent(
             final Entity entity,
-            final Consumer<Entity> fightAI,
-            final Consumer<Entity> idleAI,
+            final Consumer<Entity> fightBehavior,
+            final Consumer<Entity> idleBehavior,
             final Function<Entity, Boolean> shouldFight) {
         super(entity);
-        this.fightAI = fightAI;
-        this.idleAI = idleAI;
+        this.fightBehavior = fightBehavior;
+        this.idleBehavior = idleBehavior;
         this.shouldFight = shouldFight;
     }
 
@@ -75,7 +75,7 @@ public final class AIComponent extends Component {
      * execute the corresponding behavior
      */
     public void execute() {
-        if (shouldFight.apply(entity)) fightAI.accept(entity);
-        else idleAI.accept(entity);
+        if (shouldFight.apply(entity)) fightBehavior.accept(entity);
+        else idleBehavior.accept(entity);
     }
 }
