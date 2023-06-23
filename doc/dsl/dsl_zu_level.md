@@ -47,9 +47,9 @@ an einen Knoten des Supergraphen angeschlossen wird. Die Erzeugung der Supergrap
 daher in Abhängigkeit des Petri-Netzes geschehen, sodass auch genug Anschlussmöglichkeiten
 für die Subgraphen der Unteraufgaben zur Verfügung stehen.
 
-Auch ***die Struktur*** des Taskgraphs ***kann*** Einfluss auf die Struktur des
-Supergraphen haben, sodass sich Abhängigkeiten der Aufgaben auch in der Struktur des
-Supergraphen wiederspiegeln, dies ist allerdings aktuell **noch nicht geplant.**
+Auch ***die Struktur*** des Taskgraphs ***kann*** Einfluss auf die Struktur des Supergraphen
+haben, sodass sich Abhängigkeiten der Aufgaben auch in der Struktur des Supergraphen
+wiederspiegeln, dies ist allerdings aktuell **noch nicht geplant.**
 
 ### Kasten 3 - Übersetzung einer Task-Definition ins Level
 
@@ -95,7 +95,7 @@ ist aktuell noch nicht klar definiert.***
 Das “Laufzeit” Petri-Netz soll genutzt werden, um den Zustand der Aufgaben zu modellieren
 und zu steuern. Dafür muss aus dem Task-Graph ein Petri-Netz erstellt werden. Die Struktur
 des erzeugten [Petri-Netzes](../control_mechanisms/petri_nets.md) ist von den Relationen der
-Aufgaben untereinander abhängig. Die Markierung der
-Stellen im Petri-Netz soll bspw. dafür genutzt werden, die Interaktion mit den Entitäten,
-welche für die Realisierung einer bestimmten Aufgabe nötig sind, zu blockieren. So könnte
-abgebildet werden, dass eine Aufgabe “aktiv” ist, also bearbeitet werden kann.
+Aufgaben untereinander abhängig. Die Markierung der Stellen im Petri-Netz soll bspw. dafür
+genutzt werden, die Interaktion mit den Entitäten, welche für die Realisierung einer
+bestimmten Aufgabe nötig sind, zu blockieren. So könnte abgebildet werden, dass eine Aufgabe
+“aktiv” ist, also bearbeitet werden kann.
