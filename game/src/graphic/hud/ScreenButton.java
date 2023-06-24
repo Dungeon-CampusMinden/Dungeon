@@ -30,7 +30,7 @@ public class ScreenButton extends TextButton {
         super(text, style);
         this.setPosition(position.x, position.y);
         this.addListener(listener);
-        this.setScale(1 / Constants.DEFAULT_ZOOM_FACTOR);
+        this.setScale(1.0f);
     }
 
     /**

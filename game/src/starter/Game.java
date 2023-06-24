@@ -20,6 +20,7 @@ import ecs.systems.*;
 import graphic.DungeonCamera;
 import graphic.Painter;
 import graphic.hud.PauseMenu;
+import graphic.hud.menus.Menu;
 import graphic.textures.TextureHandler;
 import java.io.IOException;
 import java.util.*;
@@ -74,9 +75,13 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static SystemController systems;
 
     public static ILevel currentLevel;
+
+    private static Menu<Actor> mainMenu;
+    private static Menu<Actor> optionsMenu;
     private static PauseMenu<Actor> pauseMenu;
     private static Entity hero;
     private Logger gameLogger;
+    private static Game game;
 
     public static void main(String[] args) {
         // start the game
@@ -85,7 +90,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        DesktopLauncher.run(new Game());
+        game = new Game();
+        DesktopLauncher.run(game);
     }
 
     /**
@@ -137,10 +143,50 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         controller.add(systems);
         pauseMenu = new PauseMenu<>();
         controller.add(pauseMenu);
+        mainMenu = new Menu<>("DUNGEON", Menu.generateMainMenu());
         hero = new Hero();
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel(LEVELSIZE);
         createSystems();
+        toggleMainMenu();
+        toggleSystems(); // disabling all systems, so the game can't be played while the main menu
+        // is shown
+    }
+
+    /** Makes the main menu visible */
+    public void toggleMainMenu() {
+        if (mainMenu.isVisible()) {
+            mainMenu.hideMenu();
+            controller.remove(mainMenu);
+
+            optionsMenu = new Menu<>("OPTIONS", Menu.generateOptionsMenu());
+
+            controller.add(optionsMenu);
+        } else {
+            controller.remove(optionsMenu);
+            controller.add(mainMenu);
+            mainMenu.showMenu();
+        }
+    }
+
+    /** Makes the options menu visible */
+    public void toggleOptions() {
+        if (optionsMenu.isVisible()) {
+            optionsMenu.hideMenu();
+            controller.remove(optionsMenu);
+            controller.add(mainMenu);
+        } else {
+            controller.remove(mainMenu);
+            controller.add(optionsMenu);
+            optionsMenu.showMenu();
+        }
+    }
+
+    /**
+     * @return current instance of the game
+     */
+    public static Game getGame() {
+        return game;
     }
 
     /** Called at the beginning of each frame. Before the controllers call <code>update</code>. */
@@ -218,12 +264,18 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     /** Toggle between pause and run */
     public static void togglePause() {
         paused = !paused;
-        if (systems != null) {
-            systems.forEach(ECS_System::toggleRun);
-        }
+        toggleSystems();
+
         if (pauseMenu != null) {
             if (paused) pauseMenu.showMenu();
             else pauseMenu.hideMenu();
+        }
+    }
+
+    /** Toggles the running state of all systems */
+    public static void toggleSystems() {
+        if (systems != null) {
+            systems.forEach(ECS_System::toggleRun);
         }
     }
 
