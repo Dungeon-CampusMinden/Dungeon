@@ -47,6 +47,12 @@ public final class Constants {
 
     public static final String QUIZ_MESSAGE_SOLUTION = "Lösung";
 
+    public static final int TIME_BETWEEN_FRAMES_HERO = 15;
+
+    public static final float X_AXIS_SPEED_HERO = 0.1f;
+
+    public static final float Y_AXIS_SPEED_HERO = 0.1f;
+
     /**
      * @param path the relative path to the resource
      * @return the absolute path of the internal resource

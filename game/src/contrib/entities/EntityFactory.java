@@ -14,6 +14,7 @@ import core.Entity;
 import core.Game;
 import core.components.*;
 import core.level.utils.LevelElement;
+import core.utils.Constants;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
@@ -40,8 +41,8 @@ public class EntityFactory {
      */
     public static Entity newHero() throws IOException {
         final int fireballCoolDown = 2;
-        final float xSpeed = 0.3f;
-        final float ySpeed = 0.3f;
+        final float xSpeed = Constants.X_AXIS_SPEED_HERO;
+        final float ySpeed = Constants.Y_AXIS_SPEED_HERO;
 
         Entity hero = new Entity("hero");
         new CameraComponent(hero);

@@ -1,5 +1,8 @@
 package core.systems;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
 
@@ -9,6 +12,7 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.utils.Constants;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
@@ -42,9 +46,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class VelocitySystem extends System {
 
+    protected boolean isHeroInFight;
     /** Create a new VelocitySystem */
     public VelocitySystem() {
         super(VelocityComponent.class, PositionComponent.class, DrawComponent.class);
+        isHeroInFight = false;
     }
 
     /** Updates the position of all entities based on their velocity */
@@ -103,15 +109,43 @@ public final class VelocitySystem extends System {
         }
 
         float x = vsd.vc.currentXVelocity();
-        if (x > 0) vsd.dc.currentAnimation(CoreAnimations.RUN_RIGHT);
-        else if (x < 0) vsd.dc.currentAnimation(CoreAnimations.RUN_LEFT);
-        // idle
-        else {
-            // each drawcomponent has an idle animation, so no check is needed
-            if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_LEFT)
-                    || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_LEFT))
-                vsd.dc.currentAnimation(CoreAnimations.IDLE_LEFT);
-            else vsd.dc.currentAnimation(CoreAnimations.IDLE_RIGHT);
+        float y = vsd.vc.currentYVelocity();
+        vsd.dc.currentAnimation().setTimeBetweenFrames(Constants.TIME_BETWEEN_FRAMES_HERO);
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.N)) {
+            if (!isHeroInFight) {
+                isHeroInFight = true;
+            } else {
+                isHeroInFight = false;
+            }
+        }
+
+        if (x > 0) {
+            if (isHeroInFight) {
+                vsd.dc.currentAnimation(CoreAnimations.FIGHT_RIGHT);
+            } else {
+                vsd.dc.currentAnimation(CoreAnimations.RUN_RIGHT);
+            }
+        } else if (x < 0) {
+            if (isHeroInFight) {
+                vsd.dc.currentAnimation(CoreAnimations.FIGHT_LEFT);
+            } else {
+                vsd.dc.currentAnimation(CoreAnimations.RUN_LEFT);
+            }
+        } else if (y < 0) {
+            if (isHeroInFight) {
+                vsd.dc.currentAnimation(CoreAnimations.FIGHT_FRONT);
+            } else {
+                vsd.dc.currentAnimation(CoreAnimations.RUN_FORWARD);
+            }
+        } else if (y > 0) {
+            if (isHeroInFight) {
+                vsd.dc.currentAnimation(CoreAnimations.FIGHT_BACK);
+            } else {
+                vsd.dc.currentAnimation(CoreAnimations.RUN_BACKWARD);
+            }
+        } else {
+            vsd.dc.currentAnimation(CoreAnimations.IDLE_LEFT);
         }
     }
 
