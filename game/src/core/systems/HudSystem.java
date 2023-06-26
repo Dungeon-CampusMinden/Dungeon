@@ -34,7 +34,12 @@ public final class HudSystem extends System {
      *
      * @param entity which no longer has a UIComponent
      */
-    private void removeListener(Entity entity) {}
+    private void removeListener(Entity entity) {
+        Group remove = idGroupMap.remove(entity.id());
+        if (remove != null) {
+            remove.remove();
+        }
+    }
 
     /**
      * when an Entity with a UIComponent is added its dialog has to be added to the Stage for UI
@@ -48,7 +53,12 @@ public final class HudSystem extends System {
                         .orElseThrow(
                                 () -> MissingComponentException.build(entity, UIComponent.class))
                         .dialog();
-        Game.stage().ifPresent(stage -> addDialogToStage(dialog, stage));
+        Game.stage()
+                .ifPresent(
+                        stage -> {
+                            addDialogToStage(dialog, stage);
+                            idGroupMap.put(entity.id(), dialog);
+                        });
     }
 
     private static void addDialogToStage(Group d, Stage stage) {
