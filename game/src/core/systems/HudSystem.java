@@ -20,6 +20,10 @@ import java.util.Map;
  * longer available
  */
 public final class HudSystem extends System {
+    /**
+     * the removeListener only gets the Entity after its Component is removed. Which means no longer
+     * any access to the Group.
+     */
     private Map<Integer, Group> idGroupMap = new HashMap<>();
 
     /** The HudSystem needs the UIComponent to work. */
