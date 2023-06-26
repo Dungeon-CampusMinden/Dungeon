@@ -184,3 +184,17 @@ generateGrammarSource {
     maxHeapSize = "64m"
     arguments += ["-visitor", "-listener" ]
 }
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes 'Main-Class': project.mainClassName
+    }
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', "META-INF/*module-info.class"
+}
