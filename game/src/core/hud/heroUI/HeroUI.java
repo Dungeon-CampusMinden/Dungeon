@@ -14,13 +14,11 @@ import java.util.logging.Logger;
 public class HeroUI {
     // Logger
     private final Logger LOGGER = Logger.getLogger(HeroUI.class.getName());
-    // Hero UI enthält lebensbalken, expbalken und level
-    private HeroHealthBar healthBar;
+    // Hero UI enthält expbalken und level
     private HeroXPBar xpBar;
     private Label level;
 
     // ??
-    private int previousHealthPoints;
     private long previousTotalXP;
 
     private record HeroData(HealthComponent hc, XPComponent xc) {}
@@ -33,8 +31,6 @@ public class HeroUI {
     public void update() {
         HeroData hd = buildDataObject();
         updateExperienceBar(hd);
-
-        updateHealthBar(hd);
     }
 
     private void updateExperienceBar(HeroData hd) {
@@ -44,15 +40,6 @@ public class HeroUI {
             previousTotalXP = hd.xc.getTotalXP();
             level.setText("Level: " + hd.xc.currentLevel());
             xpBar.updateXPBar(hd.xc);
-        }
-    }
-
-    private void updateHealthBar(HeroData hd) {
-        if (hd.hc != null) {
-            if (hd.hc.currentHealthpoints() != previousHealthPoints)
-                healthBar.createHPPopup(hd.hc.currentHealthpoints() - previousHealthPoints);
-            previousHealthPoints = hd.hc.currentHealthpoints();
-            healthBar.updateHealthBar(hd.hc);
         }
     }
 
@@ -75,14 +62,6 @@ public class HeroUI {
             Game.stage().get().addActor(xpBar);
         } else {
             LOGGER.warning("Couldn't create hero xp bar because of missing XPComponent");
-        }
-
-        if (hd.hc != null) {
-            previousHealthPoints = hd.hc.currentHealthpoints();
-            healthBar = new HeroHealthBar();
-            Game.stage().get().addActor(healthBar);
-        } else {
-            LOGGER.warning("Couldn't create hero health bar because of missing HealthComponent");
         }
     }
 }
