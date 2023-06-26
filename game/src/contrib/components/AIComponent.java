@@ -17,6 +17,10 @@ import java.util.function.Function;
 /**
  * Define the behavior of AI-controlled entities.
  *
+ * <p>An AI-Controlled Entity can have two different states which define the behavior of the entity.
+ * The idle state describes the default behavior of the entity, like walking around in the level.
+ * The combat state describes the fighting behavior, like throwing fireballs at the hero.
+ *
  * <p>The {@link AISystem} will trigger {@link #execute()} which uses {@link #shouldFight} to check
  * if the idle or combat behavior should be executed.
  *
