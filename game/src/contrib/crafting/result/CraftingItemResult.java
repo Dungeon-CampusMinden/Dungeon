@@ -27,12 +27,11 @@ public class CraftingItemResult extends CraftingResult {
     @Override
     public void execute(Entity entity) {
         InventoryComponent ic =
-                (InventoryComponent)
-                        entity.fetch(InventoryComponent.class)
-                                .orElseThrow(
-                                        () ->
-                                                new MissingComponentException(
-                                                        "Could not execute crafting result"));
+                entity.fetch(InventoryComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        new MissingComponentException(
+                                                "Could not execute crafting result"));
         for (int i = 0; i < this.count; i++) {
             ic.addItem(new ItemData(this.item));
         }

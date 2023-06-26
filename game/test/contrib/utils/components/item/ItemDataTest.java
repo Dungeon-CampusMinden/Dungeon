@@ -23,7 +23,7 @@ public class ItemDataTest {
     @Test
     public void testDefaultConstructor() {
         ItemData itemData = new ItemData();
-        assertEquals(Item.valueOf(ItemConfig.DEFAULT_ITEM.get()), itemData.getItem());
+        assertEquals(Item.valueOf(ItemConfig.DEFAULT_ITEM.value()), itemData.getItem());
     }
 
     @Test
