@@ -17,20 +17,20 @@ import java.util.function.Function;
 /**
  * Define the behavior of AI-controlled entities.
  *
- * <p>An AI-controlled entity can have two different states which define the behaviour of the entity.
- * The "idle state" describes the default behaviour of the entity, like walking around in the level.
- * The "combat state" describes the fighting behaviour, like throwing fireballs at the hero.
- * The {@link AISystem} will trigger {@link #execute()} which uses {@link #shouldFight} to check
- * if the idle or combat behaviour should be executed.
+ * <p>An AI-controlled entity can have two different states which define the behaviour of the
+ * entity. The "idle state" describes the default behaviour of the entity, like walking around in
+ * the level. The "combat state" describes the fighting behaviour, like throwing fireballs at the
+ * hero. The {@link AISystem} will trigger {@link #execute()} which uses {@link #shouldFight} to
+ * check if the idle or combat behaviour should be executed.
  *
  * <p>The {@link #idleBehavior} defines the behaviour in idle state, e.g. walking on a specific path
  * {@link contrib.utils.components.ai.idle.PatrouilleWalk}.
  *
- * <p>The {@link #shouldFight} defines when the entity goes into fight mode, e.g. if the player is
- * too close to the entity {@link RangeTransition}.
- *
  * <p>The {@link #fightBehavior} defines the combat behaviour, e.g. attacking with a fireball skill
  * {@link contrib.utils.components.ai.fight.RangeAI}.
+ *
+ * <p>The {@link #shouldFight} defines when the entity goes into fight mode, e.g. if the player is
+ * too close to the entity {@link RangeTransition}.
  *
  * @see AISystem
  */
