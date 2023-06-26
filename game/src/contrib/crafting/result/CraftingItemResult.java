@@ -28,7 +28,7 @@ public class CraftingItemResult extends CraftingResult {
     public void execute(Entity entity) {
         InventoryComponent ic =
                 (InventoryComponent)
-                        entity.getComponent(InventoryComponent.class)
+                        entity.fetch(InventoryComponent.class)
                                 .orElseThrow(
                                         () ->
                                                 new MissingComponentException(

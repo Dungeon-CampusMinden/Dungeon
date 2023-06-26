@@ -11,8 +11,6 @@ import core.Game;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.TriConsumer;
-import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Animation;
 
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -52,9 +50,9 @@ public class ItemData {
             BiConsumer<Entity, ItemData> onUse,
             DamageModifier damageModifier) {
         this.item = item;
-        this.setOnCollect(onCollect);
-        this.setOnDrop(onDrop);
-        this.setOnUse(onUse);
+        this.onCollect = onCollect;
+        this.onDrop = onDrop;
+        this.onUse = onUse;
         this.damageModifier = damageModifier;
     }
 
@@ -74,7 +72,7 @@ public class ItemData {
 
     /** Constructing object with completely default values. Taken from {@link ItemConfig}. */
     public ItemData() {
-        this(Item.valueOf(ItemConfig.DEFAULT_ITEM.get()));
+        this(Item.valueOf(ItemConfig.DEFAULT_ITEM.value()));
     }
 
     /**
@@ -121,11 +119,10 @@ public class ItemData {
      * @param itemData Item that is used
      */
     private static void defaultUseCallback(Entity e, ItemData itemData) {
-        e.getComponent(InventoryComponent.class)
+        e.fetch(InventoryComponent.class)
                 .ifPresent(
                         component -> {
-                            InventoryComponent invComp = (InventoryComponent) component;
-                            invComp.removeItem(itemData);
+                            component.removeItem(itemData);
                         });
         System.out.printf("Item \"%s\" used by entity %d\n", itemData.getItem().getName(), e.id());
     }
@@ -139,10 +136,7 @@ public class ItemData {
      */
     private static void defaultDrop(Entity who, ItemData which, Point position) {
         Entity droppedItem = WorldItemBuilder.buildWorldItem(which);
-        droppedItem
-                .getComponent(PositionComponent.class)
-                .map(PositionComponent.class::cast)
-                .ifPresent(x -> x.position(position));
+        droppedItem.fetch(PositionComponent.class).ifPresent(x -> x.position(position));
     }
 
     /**
@@ -154,8 +148,7 @@ public class ItemData {
     private static void defaultCollect(Entity worldItem, Entity whoCollected) {
         // check if the Game has a Hero
 
-        Optional<ItemComponent> itemComp =
-                worldItem.getComponent(ItemComponent.class).map(ItemComponent.class::cast);
+        Optional<ItemComponent> itemComp = worldItem.fetch(ItemComponent.class);
         if (itemComp.isEmpty()) return;
 
         Game.hero()
@@ -169,7 +162,7 @@ public class ItemData {
                                                 (x) -> {
                                                     // check if Item can be added to hero Inventory
                                                     if (((InventoryComponent) x)
-                                                            .addItem(itemComp.get().getItemData()))
+                                                            .addItem(itemComp.get().itemData()))
                                                         // if added to hero Inventory
                                                         // remove Item from World
                                                         Game.removeEntity(worldItem);

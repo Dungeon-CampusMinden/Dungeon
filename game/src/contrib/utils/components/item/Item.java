@@ -77,8 +77,8 @@ public enum Item {
                 name,
                 description,
                 category,
-                new Animation(List.of(ItemConfig.TEXTURE.get()), 1),
-                new Animation(List.of(ItemConfig.TEXTURE.get()), 1));
+                new Animation(List.of(ItemConfig.TEXTURE.value()), 1),
+                new Animation(List.of(ItemConfig.TEXTURE.value()), 1));
     }
 
     Item(
