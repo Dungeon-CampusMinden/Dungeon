@@ -21,41 +21,39 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
- * The HealthComponent adds health points and the ability to take damage and die to an entity.
+ * Allow associated entity to take damage and die.
  *
- * <p>It keeps track of the current health points and its maximum.
+ * <p>The component keeps track of the current and maximum health points of the associated entity.
  *
- * <p>It also keeps track of the damage received via the {@link #receiveHit(Damage) receiveHit}
- * method. The damage is stored in a list and can be retrieved via the {@link
- * #calculateDamageOf(DamageType) getDamage} method. The damage is applied and cleared by the {@link
- * HealthSystem HealthSystem} every tick. To determine what the last cause of damage was, the {@link
- * #lastDamageCause()} method can be used.
+ * <p>The component also keeps track of the damage received via the {@link #receiveHit(Damage)
+ * receiveHit} method. The damage is stored in a list and can be retrieved via the {@link
+ * #calculateDamageOf(DamageType) calculateDamageOf} method. The damage is applied, and the list is
+ * cleared by the {@link HealthSystem HealthSystem} every frame.
  *
- * <p>The HealthComponent also provides the ability to set an onDeath function, which is called when
- * the health points reach 0 or less. The onDeath function can be set via the {@link
- * #onDeath(Consumer<Entity>) setOnDeath} method.
+ * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
+ *
+ * <p>If the current health points of an entity go to or below 0, the {@link HealthSystem} will
+ * trigger the {@link #onDeath} function stored in this component.
  */
 @DSLType(name = "health_component")
-public class HealthComponent extends Component {
+public final class HealthComponent extends Component {
     private final List<Damage> damageToGet;
+    private @DSLTypeMember(name = "on_death_function") final Consumer<Entity> onDeath;
+    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private @DSLTypeMember(name = "maximal_health_points") int maximalHealthpoints;
     private int currentHealthpoints;
     private @Null Entity lastCause = null;
-    private @DSLTypeMember(name = "on_death_function") Consumer<Entity> onDeath;
-    private final Logger healthLogger = Logger.getLogger(this.getClass().getName());
 
     /**
-     * Creates a new HealthComponent
-     *
-     * <p>Create a new HealthComponent by explicitly setting maximal health points, onDeath
-     * function, a getHitAnimation and a dieAnimation.
+     * Create new HealthComponent and adds it to the associated entity.
      *
      * @param entity associated entity
-     * @param maximalHitPoints maximum amount of hit-points, currentHitPoints can't be bigger than
-     *     that
-     * @param onDeath Function that gets called, when this entity dies
+     * @param maximalHitPoints Maximum amount of health points; currentHitPoints cannot be greater
+     *     than that
+     * @param onDeath Function that gets called when this entity dies
      */
-    public HealthComponent(Entity entity, int maximalHitPoints, Consumer<Entity> onDeath) {
+    public HealthComponent(
+            final Entity entity, int maximalHitPoints, final Consumer<Entity> onDeath) {
         super(entity);
         this.maximalHealthpoints = maximalHitPoints;
         this.currentHealthpoints = maximalHitPoints;
@@ -64,19 +62,21 @@ public class HealthComponent extends Component {
     }
 
     /**
-     * Creates a HealthComponent with default values.
+     * Creates a HealthComponent with default values and adds it to the associated entity.
      *
-     * <p>The maximal health points are set to 1, the onDeath function is empty and the animations
-     * are set to an animation composed of the "missingTexture" texture.
+     * <p>The maximum health points are set to 1, and the onDeath function is empty.
      *
      * @param entity associated entity
      */
-    public HealthComponent(@DSLContextMember(name = "entity") Entity entity) {
+    public HealthComponent(@DSLContextMember(name = "entity") final Entity entity) {
         this(entity, 1, onDeath -> {});
     }
 
     /**
-     * Adds damage, which is accounted for by the system
+     * Add damage, which is accounted for by the {@link HealthSystem}.
+     *
+     * <p>The {@link HealthSystem} will reduce the current health points based on the received
+     * damage.
      *
      * @param damage Damage that should be inflicted
      */
@@ -85,7 +85,7 @@ public class HealthComponent extends Component {
         this.lastCause = damage.cause() != null ? damage.cause() : this.lastCause;
     }
 
-    /** Triggers the onDeath Function */
+    /** Trigger the onDeath function */
     public void triggerOnDeath() {
         onDeath.accept(entity);
     }
@@ -96,18 +96,18 @@ public class HealthComponent extends Component {
      * @param dt Type of damage object that still need to be accounted for
      * @return Sum of all damage objects of type dt (default: 0)
      */
-    public int calculateDamageOf(DamageType dt) {
+    public int calculateDamageOf(final DamageType dt) {
         int damageSum =
                 damageToGet.stream()
                         .filter(d -> d.damageType() == dt)
                         .mapToInt(Damage::damageAmount)
                         .sum();
 
-        healthLogger.log(
+        LOGGER.log(
                 CustomLogLevel.DEBUG,
                 this.getClass().getSimpleName()
-                        + " processed damage for entity '"
-                        + entity.getClass().getSimpleName()
+                        + " processed damage for entity: '"
+                        + entity
                         + "': "
                         + damageSum);
 
@@ -115,27 +115,33 @@ public class HealthComponent extends Component {
     }
 
     /**
-     * Clear the damage list. The damage list is used to determine the damage the entity should
-     * receive on next tick.
+     * Clear the damage list.
+     *
+     * <p>The damage list is used to determine the damage the entity should receive on next tick.
      */
     public void clearDamage() {
         damageToGet.clear();
     }
 
     /**
-     * Sets the current life points, capped at the value of the maximum hit-points
+     * Set the current health points.
      *
-     * @param amount new amount of current health-points
+     * <p>If the new current health points are greater than the maximum health points of this
+     * component, the current health points will be set to the maximum health points amount.
+     *
+     * @param amount New amount of current health points
      */
     public void currentHealthpoints(int amount) {
         this.currentHealthpoints = Math.min(maximalHealthpoints, amount);
     }
 
     /**
-     * Sets the value of the Maximum health-points. If the new maximum health-points are less than
-     * the current health-points, the current points are set to the new maximum health-points.
+     * Set the value of the maximum health points.
      *
-     * @param amount new amount of maximal health-points
+     * <p>If the new maximum health points are less than the current health points, the current
+     * health points are set to the new maximum health points.
+     *
+     * @param amount New amount of maximal health points
      */
     public void maximalHealthpoints(int amount) {
         this.maximalHealthpoints = amount;
@@ -143,35 +149,37 @@ public class HealthComponent extends Component {
     }
 
     /**
-     * Set a new function to be called when dying.
+     * Get current health-points.
      *
-     * @param onDeath new onDeath function
-     */
-    public void onDeath(Consumer<Entity> onDeath) {
-        this.onDeath = onDeath;
-    }
-
-    /**
-     * @return The current health-points the entity has
+     * @return The current health-points the associated entity has.
      */
     public int currentHealthpoints() {
         return currentHealthpoints;
     }
 
     /**
-     * @return The maximal health-points the entity can have
+     * Get the maximal health-points.
+     *
+     * @return The maximal health-points the associated entity can have.
      */
     public int maximalHealthpoints() {
         return maximalHealthpoints;
     }
 
     /**
-     * @return The last entity that caused damage to this entity.
+     * Get last entity that caused damage to the associated entity.
+     *
+     * @return The last entity that caused damage to the associated entity.
      */
     public Optional<Entity> lastDamageCause() {
         return Optional.ofNullable(this.lastCause);
     }
 
+    /**
+     * Check if the current health-points are 0 or less.
+     *
+     * @return true if the current health-points are 0 or less, false if they are more than 0.
+     */
     public boolean isDead() {
         return currentHealthpoints <= 0;
     }
