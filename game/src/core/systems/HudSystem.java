@@ -15,16 +15,13 @@ import java.util.Map;
 /**
  * The basic handling of any UIComponent. Adds them to the Stage, updates the Stage each Frame to
  * allow EventHandling.
- *
- * <p>Issue #727 would add the ability to remove Dialogs from the Stage when the UIComponent is no
- * longer available
  */
 public final class HudSystem extends System {
     /**
      * the removeListener only gets the Entity after its Component is removed. Which means no longer
-     * any access to the Group.
+     * any access to the Group. This is why we need the last group an entity had as a mapping.
      */
-    private Map<Integer, Group> idGroupMap = new HashMap<>();
+    private Map<Entity, Group> entityGroupMap = new HashMap<>();
 
     /** The HudSystem needs the UIComponent to work. */
     public HudSystem() {
@@ -39,7 +36,7 @@ public final class HudSystem extends System {
      * @param entity which no longer has a UIComponent
      */
     private void removeListener(Entity entity) {
-        Group remove = idGroupMap.remove(entity.id());
+        Group remove = entityGroupMap.remove(entity);
         if (remove != null) {
             remove.remove();
         }
@@ -61,11 +58,18 @@ public final class HudSystem extends System {
                 .ifPresent(
                         stage -> {
                             addDialogToStage(dialog, stage);
-                            idGroupMap.put(entity.id(), dialog);
+                            addMapping(entity, dialog);
                         });
     }
 
-    private static void addDialogToStage(Group d, Stage stage) {
+    private void addMapping(Entity entity, Group dialog) {
+        Group previous = entityGroupMap.put(entity, dialog);
+        if (previous != null) {
+            previous.remove();
+        }
+    }
+
+    private void addDialogToStage(Group d, Stage stage) {
         if (!stage.getActors().contains(d, true)) {
             stage.addActor(d);
         }
