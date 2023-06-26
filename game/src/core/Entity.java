@@ -138,17 +138,7 @@ public final class Entity implements Comparable<Entity> {
      *
      * @return Stream of components.
      */
-    public Stream<Component> componentValueStream() {
+    public Stream<Component> componentStream() {
         return components.values().stream();
-    }
-
-    /**
-     * Get a stream of component classes where instances of the class are associated with this
-     * entity.
-     *
-     * @return Stream of classes.
-     */
-    public Stream<Class<? extends Component>> componentKeyStream() {
-        return components.keySet().stream();
     }
 }
