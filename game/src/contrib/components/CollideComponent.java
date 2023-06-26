@@ -14,26 +14,54 @@ import semanticanalysis.types.DSLType;
 
 import java.util.logging.Logger;
 
+/**
+ * Allows an entity to collide with other entities that have a {@link CollideComponent}.
+ *
+ * <p>The component creates a hitbox (an invisible square) around the associated entity.
+ *
+ * <p>The {@link contrib.systems.CollisionSystem} will check if the hitbox collides with another
+ * hitbox of a different entity, and then trigger the {@link #onEnter(CollideComponent,
+ * Tile.Direction)} function. This function stores the behavior that should be executed if a
+ * collision is detected.
+ *
+ * <p>The {@link contrib.systems.CollisionSystem} can also detect when a collision is stopped and
+ * will then trigger the {@link #onLeave(CollideComponent, Tile.Direction)} function.
+ *
+ * <p>Example use cases for a collision are pushing an object like a chest or getting damaged by a
+ * spiky monster.
+ *
+ * <p>The {@link #collideEnter} and {@link #collideLeave} are {@link TriConsumer} that will be
+ * executed at {@link #onEnter(CollideComponent, Tile.Direction)} or {@link
+ * #onLeave(CollideComponent, Tile.Direction)} respectively. The first parameter is the entity of
+ * this component, the second parameter is the entity with which the collision is happening, and the
+ * third parameter defines the direction from where the collision is happening.
+ *
+ * @see contrib.systems.CollisionSystem
+ */
 @DSLType(name = "hitbox_component")
 public final class CollideComponent extends Component {
     public static final Point DEFAULT_OFFSET = new Point(0.25f, 0.25f);
     public static final Point DEFAULT_SIZE = new Point(0.5f, 0.5f);
     public static final TriConsumer<Entity, Entity, Tile.Direction> DEFAULT_COLLIDER =
-            (a, b, c) -> System.out.println("Collide");
-    private /*@DSLTypeMember(name="offset")*/ Point offset;
-    private /*@DSLTypeMember(name="size")*/ Point size;
+            (a, b, c) -> {};
+
+    private final Point offset;
+    private final Point size;
     private TriConsumer<Entity, Entity, Tile.Direction> collideEnter;
     private TriConsumer<Entity, Entity, Tile.Direction> collideLeave;
-    private final Logger hitboxLogger = Logger.getLogger(this.getClass().getName());
+    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
 
     /**
-     * Creates A Hitbox
+     * Create a new CollisionComponent and add it to the associated entity.
      *
      * @param entity associated entity
-     * @param offset the offset for the hitbox to the position
-     * @param size the size for the hitbox
-     * @param collideEnter behaviour if a collision started
-     * @param collideLeave behaviour if a collision stopped
+     * @param offset the offset for the hitbox to the position; Use {@link #DEFAULT_OFFSET} for the
+     *     default offset,
+     * @param size the size for the hitboxUse {@link #DEFAULT_SIZE} for the default size.
+     * @param collideEnter behaviour if a collision started; Use {@link #DEFAULT_COLLIDER} for an
+     *     empty function.
+     * @param collideLeave behaviour if a collision stopped; Use {@link #DEFAULT_COLLIDER} for an
+     *     empty function.
      */
     public CollideComponent(
             final Entity entity,
@@ -49,11 +77,14 @@ public final class CollideComponent extends Component {
     }
 
     /**
-     * Creates A Hitbox with a default offset of 0.25f x 0.25f and a default size of 0.5f x 0.5f
+     * Create a new CollisionComponent with a default offset of 0.25f x 0.25f and a default size of
+     * 0.5f x 0.5f and add it to the associated entity.
      *
      * @param entity associated entity
-     * @param collideEnter behaviour if a collision started
-     * @param collideLeave behaviour if a collision stopped
+     * @param collideEnter behaviour if a collision started; Use {@link #DEFAULT_COLLIDER} for an
+     *     empty function.
+     * @param collideLeave behaviour if a collision stopped; Use {@link #DEFAULT_COLLIDER} for an
+     *     empty function.
      */
     public CollideComponent(
             final Entity entity,
@@ -63,8 +94,8 @@ public final class CollideComponent extends Component {
     }
 
     /**
-     * Creates A Hitbox with a default offset of 0.25f x 0.25f and a default size of 0.5f x 0.5f and
-     * defaultCollideMethods
+     * Create a new CollisionComponent with a default offset of 0.25f x 0.25f and a default size of
+     * 0.5f x 0.5f and empty collide functions.
      *
      * @param entity associated entity
      */
@@ -73,20 +104,24 @@ public final class CollideComponent extends Component {
     }
 
     /**
-     * @param other hitbox of another entity
-     * @param direction direction in which the collision happens
+     * Trigger function to execute at start of a collision.
+     *
+     * @param other Component of the colliding entity
+     * @param direction Direction in which the collision happens
      */
     public void onEnter(final CollideComponent other, final Tile.Direction direction) {
         if (collideEnter != null) collideEnter.accept(this.entity, other.entity, direction);
     }
 
     /**
-     * @param other hitbox of another entity
-     * @param direction direction in which the collision happens
+     * Trigger function to execute at end of a collision.
+     *
+     * @param other Component of the colliding entity
+     * @param direction Direction in which the collision happens
      */
     public void onLeave(final CollideComponent other, final Tile.Direction direction) {
         if (collideLeave != null) {
-            hitboxLogger.log(
+            LOGGER.log(
                     CustomLogLevel.DEBUG,
                     this.getClass().getSimpleName()
                             + " is processing collision between entities '"
@@ -99,7 +134,9 @@ public final class CollideComponent extends Component {
     }
 
     /**
-     * @return bottom left point of entity's hitbox
+     * Get the bottom-left point of the hitbox.
+     *
+     * @return Bottom-left point of the entity's hitbox
      */
     public Point bottomLeft() {
         PositionComponent pc =
@@ -112,7 +149,9 @@ public final class CollideComponent extends Component {
     }
 
     /**
-     * @return top right point of entity's hitbox
+     * Get the top-right point of the hitbox.
+     *
+     * @return Top-right point of the entity's hitbox
      */
     public Point topRight() {
         PositionComponent pc =
@@ -125,7 +164,9 @@ public final class CollideComponent extends Component {
     }
 
     /**
-     * @return center point of entity's hitbox
+     * Get the center point of the hitbox.
+     *
+     * @return Center point of the entity's hitbox
      */
     public Point center() {
         PositionComponent pc =
@@ -139,6 +180,8 @@ public final class CollideComponent extends Component {
     }
 
     /**
+     * Set function to execute at start of a collision.
+     *
      * @param collideEnter new collideMethod of the associated entity
      */
     public void collideEnter(TriConsumer<Entity, Entity, Tile.Direction> collideEnter) {
@@ -146,6 +189,8 @@ public final class CollideComponent extends Component {
     }
 
     /**
+     * Set function to execute at end of a collision.
+     *
      * @param collideLeave new collideMethod of the associated entity
      */
     public void collideLeave(TriConsumer<Entity, Entity, Tile.Direction> collideLeave) {
