@@ -40,7 +40,7 @@ public final class HealthbarSystem extends System {
                     LOGGER.log(CustomLogLevel.TRACE, "HealthbarSystem added to temporary mapping");
                 };
         LOGGER.log(CustomLogLevel.TRACE, "HealthbarSystem onEntityAdd was changed");
-        this.onEntityRemove = (x) -> healthbarMapping.remove(x.id());
+        this.onEntityRemove = (x) -> healthbarMapping.remove(x.id()).remove();
         LOGGER.log(CustomLogLevel.TRACE, "HealthbarSystem onEntityRemove was changed");
         LOGGER.info("HealthbarSystem created");
     }
