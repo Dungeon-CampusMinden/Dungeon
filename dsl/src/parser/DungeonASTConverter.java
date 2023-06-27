@@ -151,7 +151,24 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitConditional_stmt(DungeonDSLParser.Conditional_stmtContext ctx) {
+        // check, whether we have an else stmt
+        var elseStmt = Node.NONE;
+        if (ctx.else_stmt() != null) {
+            elseStmt = astStack.pop();
+        }
 
+        var stmt = astStack.pop();
+        var condition = astStack.pop();
+
+        var conditionalStmtNode = Node.NONE;
+        if (elseStmt == Node.NONE) {
+            // we have no else stmt
+            conditionalStmtNode = new ConditionalStmtNodeIf(condition, stmt);
+        } else {
+            // we have an else stmt
+            conditionalStmtNode = new ConditionalStmtNodeIfElse(condition, stmt, elseStmt);
+        }
+        astStack.push(conditionalStmtNode);
     }
 
     @Override
