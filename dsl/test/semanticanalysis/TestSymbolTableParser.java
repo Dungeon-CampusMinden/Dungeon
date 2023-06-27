@@ -385,7 +385,7 @@ public class TestSymbolTableParser {
                 dummyFunc1Sym.getDataType().hashCode(), testFunc1.getDataType().hashCode());
     }
 
-    /** Test, if a native function call is correctly resolved */
+    /** Test, if a native function call is correctly resolved in nested stmt blocks*/
     @Test
     public void funcDefNestedBlocks() {
         String program =
@@ -401,20 +401,22 @@ public class TestSymbolTableParser {
             """;
 
         var ast = Helpers.getASTFromString(program);
+        var result = Helpers.getSymtableForAST(ast);
 
         FuncDefNode funcDefNode = (FuncDefNode)ast.getChild(0);
         var stmtList = funcDefNode.getStmts();
         Assert.assertEquals(1, stmtList.size());
 
         Node outerStmtBlock = funcDefNode.getStmtBlock();
-        Assert.assertEquals(Node.Type.Block, outerStmtBlock.type);
         Node outerBlocksStmtList = outerStmtBlock.getChild(0);
-        Assert.assertEquals(Node.Type.StmtList, outerBlocksStmtList.type);
         Node middleStmtBlock = outerBlocksStmtList.getChild(0);
-        Assert.assertEquals(Node.Type.Block, middleStmtBlock.type);
         Node middleBlocksStmtList = middleStmtBlock.getChild(0);
-        Assert.assertEquals(Node.Type.StmtList, middleBlocksStmtList.type);
         Node innerStmtBlock = middleBlocksStmtList.getChild(0);
-        Assert.assertEquals(Node.Type.Block, innerStmtBlock.type);
+        Node funcCallStmt = ((StmtBlockNode)innerStmtBlock).getStmts().get(0);
+        var funcCallNode = (FuncCallNode)funcCallStmt;
+
+        var funcCallSymbol = result.symbolTable.getSymbolsForAstNode(funcCallNode).get(0);
+        Assert.assertEquals(NativePrint.func, funcCallSymbol);
     }
+
 }

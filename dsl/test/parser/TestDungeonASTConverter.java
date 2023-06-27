@@ -376,6 +376,39 @@ public class TestDungeonASTConverter {
     }
 
     @Test
+    public void nestedBlocks() {
+        String program =
+            """
+            fn test_func(int param1, float param2, string param3) -> int
+            {
+                {
+                    {
+                        print(param1);
+                    }
+                }
+            }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+
+        FuncDefNode funcDefNode = (FuncDefNode)ast.getChild(0);
+        var stmtList = funcDefNode.getStmts();
+        Assert.assertEquals(1, stmtList.size());
+
+        Node outerStmtBlock = funcDefNode.getStmtBlock();
+        Assert.assertEquals(Node.Type.Block, outerStmtBlock.type);
+        Node outerBlocksStmtList = outerStmtBlock.getChild(0);
+        Assert.assertEquals(Node.Type.StmtList, outerBlocksStmtList.type);
+        Node middleStmtBlock = outerBlocksStmtList.getChild(0);
+        Assert.assertEquals(Node.Type.Block, middleStmtBlock.type);
+        Node middleBlocksStmtList = middleStmtBlock.getChild(0);
+        Assert.assertEquals(Node.Type.StmtList, middleBlocksStmtList.type);
+        Node innerStmtBlock = middleBlocksStmtList.getChild(0);
+        Assert.assertEquals(Node.Type.Block, innerStmtBlock.type);
+        Node funcCallStmt = ((StmtBlockNode)innerStmtBlock).getStmts().get(0);
+    }
+
+    @Test
     public void ifStmt() {
         String program =
             """
