@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
@@ -603,4 +604,28 @@ public class TestDSLInterpreter {
         Assert.assertEquals("Hello, World!", externalTypeMember.member3);
         Assert.assertEquals(42, externalTypeMember.member1);
     }
+
+    @Test
+    public void testIsBoolean() {
+        Assert.assertFalse(DSLInterpreter.isBooleanTrue(Value.NONE));
+
+        var zeroIntValue = new Value(BuiltInType.intType, 0);
+        Assert.assertFalse(DSLInterpreter.isBooleanTrue(zeroIntValue));
+
+        var nonZeroIntValue = new Value(BuiltInType.intType, 42);
+        Assert.assertTrue(DSLInterpreter.isBooleanTrue(nonZeroIntValue));
+
+        var zeroFloatValue = new Value(BuiltInType.floatType, 0.0f);
+        Assert.assertFalse(DSLInterpreter.isBooleanTrue(zeroFloatValue));
+
+        var nonZeroFloatValue = new Value(BuiltInType.floatType, 3.14f);
+        Assert.assertTrue(DSLInterpreter.isBooleanTrue(nonZeroFloatValue));
+
+        var stringValue = new Value(BuiltInType.stringType, "");
+        Assert.assertTrue(DSLInterpreter.isBooleanTrue(stringValue));
+
+        var graphValue = new Value(BuiltInType.graphType, new Graph<String>(new ArrayList<>(), new ArrayList<>()));
+        Assert.assertTrue(DSLInterpreter.isBooleanTrue(graphValue));
+    }
+
 }
