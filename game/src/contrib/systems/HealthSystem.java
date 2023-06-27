@@ -44,6 +44,7 @@ public final class HealthSystem extends System {
 
     /**
      * Filters the stream by checking the Animation of an Entity.
+     *
      * @param hsd HSData to check Animations in
      * @return true if Entity can be removed from the game
      */
