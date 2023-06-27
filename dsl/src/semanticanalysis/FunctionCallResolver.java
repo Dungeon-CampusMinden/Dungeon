@@ -99,4 +99,16 @@ public class FunctionCallResolver implements AstVisitor<Void> {
 
         return null;
     }
+
+    @Override
+    public Void visit(ConditionalStmtNodeIf node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(ConditionalStmtNodeIfElse node) {
+        visitChildren(node);
+        return null;
+    }
 }
