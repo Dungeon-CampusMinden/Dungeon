@@ -18,50 +18,33 @@ public class HeroUI {
     private HeroXPBar xpBar;
     private Label level;
 
-    // ??
+    public HeroUI(long level, long xp){
+        previousTotalXP = xp;
+        this.level = new Label("Level: ", new Skin());
+
+        xpBar = new HeroXPBar();
+    }
+
+    // benutzt um zu erkennen ob es eine Änderung in der Erfahrung gab.
     private long previousTotalXP;
 
     private record HeroData(HealthComponent hc, XPComponent xc) {}
 
-    private HeroUI() {
-        setup();
-    }
-
-    /** Updates the UI with the current data of the hero */
-    public void update() {
-        HeroData hd = buildDataObject();
-        updateExperienceBar(hd);
-    }
-
     private void updateExperienceBar(HeroData hd) {
         if (hd.xc != null) {
-            if (hd.xc.getTotalXP() != previousTotalXP)
-                xpBar.createXPPopup(hd.xc.getTotalXP() - previousTotalXP);
-            previousTotalXP = hd.xc.getTotalXP();
-            level.setText("Level: " + hd.xc.currentLevel());
-            xpBar.updateXPBar(hd.xc);
+            if (hd.xc.currentXP() != previousTotalXP)
+                HeroUITools.createXPPopup(hd.xc.currentXP() - previousTotalXP);
+            previousTotalXP = hd.xc.currentXP();
+
         }
     }
 
-    private HeroData buildDataObject() {
-        HealthComponent hc = Game.hero().flatMap(e -> e.fetch(HealthComponent.class)).orElse(null);
-        XPComponent xc = Game.hero().flatMap(e -> e.fetch(XPComponent.class)).orElse(null);
-
-        return new HeroData(hc, xc);
+    public void updateLevel(int level){
+        this.level.setText("Level: " + level);
     }
 
-    private void setup() {
-        HeroData hd = buildDataObject();
-
-        if (hd.xc != null) {
-            previousTotalXP = hd.xc.getTotalXP();
-            level = new Label("Level: ", new Skin());
-            Game.stage().get().addActor(level);
-
-            xpBar = new HeroXPBar();
-            Game.stage().get().addActor(xpBar);
-        } else {
-            LOGGER.warning("Couldn't create hero xp bar because of missing XPComponent");
-        }
+    public void updateXPbar(float xpPercentage){
+        xpBar.updateXPBar(xpPercentage);
     }
+
 }

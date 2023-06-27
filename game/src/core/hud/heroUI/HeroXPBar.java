@@ -1,13 +1,9 @@
 package core.hud.heroUI;
 
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import contrib.components.XPComponent;
-
-import core.Game;
 
 /** This class represents the XPBar of the Hero */
 public class HeroXPBar extends ProgressBar {
@@ -21,19 +17,8 @@ public class HeroXPBar extends ProgressBar {
      *
      * @param xc the XPComponent of the Hero
      */
-    protected void updateXPBar(XPComponent xc) {
-        float xpPercentage = (float) xc.currentXP() / (xc.xpToNextLevel() + xc.currentXP()) * 100;
+    protected void updateXPBar(float xpPercentage) {
         this.setValue(xpPercentage);
     }
 
-    /**
-     * Creates a popup on the screen with how much xp the hero lost or gained
-     *
-     * @param xpChange the amount of XP to display
-     */
-    public void createXPPopup(long xpChange) {
-        Label xpPopup = new Label("%+d XP".formatted(xpChange), new Skin());
-        xpPopup.addAction(Actions.sequence(Actions.moveBy(0, 50, 1), Actions.removeActor()));
-        Game.stage().get().addActor(xpPopup);
-    }
 }
