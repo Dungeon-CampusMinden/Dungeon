@@ -408,9 +408,22 @@ entity_type object_name {
 ```
 
 Eine Entitätsdefinition verhält sich anders als eine Objektdefinition. Aus ihr wird nicht direkt ein Objekt
-erzeugt (wie bei Objektdefinitionen). Eine Entitätsdefinition stellt zunächst nur eine "Blaupause" für ein
-Objekt dar, welche explizit instanziiert werden muss. "Instanziierung" beschreibt das Erstellen eines konkreten
-Objekts aus so einer Blaupause.
+erzeugt (wie bei Objektdefinitionen). Eine Entitätsdefinition stellt zunächst nur eine "Blaupause" für eine
+konkrete Entität im Dungeon-Kontext dar, welche explizit instanziiert werden muss.
+"Instanziierung" beschreibt das Erstellen einer konkreten Entität aus so einer Blaupause, welche anschließend
+im Dungeon-Kontext existiert.
+
+### Instanziierung von Entitätstypen
+
+Entitätstypen werden mit einem Aufruf der nativen `instantiate`-Funktion instanziiert:
+
+```
+// ...
+
+my_entity = instantiate(entity_type_name);
+
+// ...
+```
 
 ### Graphendefinition
 
