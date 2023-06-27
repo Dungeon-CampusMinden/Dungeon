@@ -616,4 +616,26 @@ public class DSLInterpreter implements AstVisitor<Object> {
         this.hitReturnStmt = true;
         return null;
     }
+
+    @Override
+    public Object visit(ConditionalStmtNodeIf node) {
+        Value conditionValue = (Value)node.getCondition().accept(this);
+        if (isBooleanTrue(conditionValue)) {
+            node.getIfStmt().accept(this);
+        }
+
+        return null;
+    }
+
+    @Override
+    public Object visit(ConditionalStmtNodeIfElse node) {
+        Value conditionValue = (Value)node.getCondition().accept(this);
+        if (isBooleanTrue(conditionValue)) {
+            node.getIfStmt().accept(this);
+        } else {
+            node.getElseStmt().accept(this);
+        }
+
+        return null;
+    }
 }
