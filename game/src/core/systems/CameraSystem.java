@@ -1,5 +1,6 @@
 package core.systems;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
@@ -38,6 +39,9 @@ public final class CameraSystem extends System {
     public void execute() {
         if (entityStream().findAny().isEmpty()) focus();
         else entityStream().forEach(this::focus);
+        float aspectRatio = Gdx.graphics.getWidth() / (float) Gdx.graphics.getHeight();
+        CAMERA.viewportWidth = Constants.viewportWidth();
+        CAMERA.viewportHeight = Constants.viewportWidth() / aspectRatio;
         CAMERA.update();
     }
 
