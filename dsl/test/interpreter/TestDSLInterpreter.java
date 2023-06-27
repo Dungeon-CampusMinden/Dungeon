@@ -628,4 +628,139 @@ public class TestDSLInterpreter {
         Assert.assertTrue(DSLInterpreter.isBooleanTrue(graphValue));
     }
 
+    @Test
+    public void testIfStmtFalse() {
+        String program =
+            """
+            fn test_func() {
+                if 0 print("Hello, World!");
+            }
+
+            quest_config c {
+                test: test_func()
+            }
+                """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(
+            program, env, interpreter);
+
+        assertFalse(outputStream.toString().contains("Hello, World!"));
+    }
+
+    @Test
+    public void testIfStmtTrue() {
+        String program =
+            """
+            fn test_func() {
+                if 1 print("Hello, World!");
+            }
+
+            quest_config c {
+                test: test_func()
+            }
+                """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(
+            program, env, interpreter);
+
+        assertTrue(outputStream.toString().contains("Hello, World!"));
+    }
+
+    @Test
+    public void testElseStmt() {
+        String program =
+            """
+            fn test_func() {
+                if 0 print("Hello");
+                else print ("World");
+            }
+
+            quest_config c {
+                test: test_func()
+            }
+                """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(
+            program, env, interpreter);
+
+        assertTrue(outputStream.toString().contains("World"));
+    }
+
+    @Test
+    public void testIfElseStmt() {
+        String program =
+            """
+            fn test_func() {
+                if 0 print("Hello");
+                else if 0 print ("World");
+                else print("!");
+            }
+
+            quest_config c {
+                test: test_func()
+            }
+                """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(
+            program, env, interpreter);
+
+        assertTrue(outputStream.toString().contains("!"));
+    }
+
+    @Test
+    public void testIfElseStmtSecondIf() {
+        String program =
+            """
+            fn test_func() {
+                if 0 print("Hello");
+                else if 1 print ("World");
+                else print("!");
+            }
+
+            quest_config c {
+                test: test_func()
+            }
+                """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(
+            program, env, interpreter);
+
+        assertTrue(outputStream.toString().contains("World"));
+        assertFalse(outputStream.toString().contains("!"));
+    }
 }
