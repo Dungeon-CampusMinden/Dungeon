@@ -150,8 +150,8 @@ variablen_name;
 
 ```
 variablen_name = complex_type {
-    property1: expression1,
-    property2: expression2
+  property1: expression1,
+  property2: expression2
 }
 ```
 
@@ -567,8 +567,8 @@ die Anweisungsliste innerhalb von geschweiften Klammern. Die Anweisungen müssen
 Beispiel für eine Funktion mit Parametern:
 ```
 fn function_with_parameters(int number, string text) {
-    print(text);
-    print(number);
+  print(text);
+  print(number);
 }
 ```
 
@@ -591,12 +591,13 @@ Die Ausgabe (TODO: beschreiben, wo die landet) dieses Funktionsaufrufs sieht wie
 > 42
 ```
 
+
 **Rückgabewert**
 
 Beispiel für eine Funktion mit Rückgabewert:
 ```
 fn function_with_return_value() -> string {
-    "Dieser String wird der Rückgabewert"
+  "Dieser String wird der Rückgabewert"
 }
 ```
 
@@ -628,11 +629,11 @@ von Typechecking hinzugefügt wird, oder nicht.
 ### Import aus anderen DSL-Files
 
 ```
-#import <relative_file_path.dsl/name_of_thing_to_import>
+#import <relative_file_path.dsl>:name_of_thing_to_import
 
 Bspw.
-#import <my_entity_types.dsl/question_monster>
-#import <my_function_definitions.dsl/evaluation_thingy>
+#import <my_entity_types.dsl>:question_monster
+#import <my_function_definitions.dsl>:evaluation_thingy>
 ```
 
 Gedanken dazu:
