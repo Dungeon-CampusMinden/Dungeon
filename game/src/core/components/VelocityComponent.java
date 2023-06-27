@@ -11,7 +11,7 @@ import semanticanalysis.types.DSLTypeMember;
 import java.util.logging.Logger;
 
 /**
- * The VelocityComponent allows the associated entity to move in the dungeon.
+ * Allow associated entity to move in the dungeon.
  *
  * <p>The VelocityComponent stores the speed at which the entity can move along the x and y axes.
  *
@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  * Normally you want to use the {@link #xVelocity} or {@link #yVelocity} as parameter this.
  */
 @DSLType(name = "velocity_component")
-public class VelocityComponent extends Component {
+public final class VelocityComponent extends Component {
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private float currentXVelocity;
     private float currentYVelocity;
@@ -43,7 +43,7 @@ public class VelocityComponent extends Component {
      * @param xVelocity Speed with which the entity can move on the x-axis
      * @param yVelocity Speed with which the entity can move on the y-axis
      */
-    public VelocityComponent(Entity entity, float xVelocity, float yVelocity) {
+    public VelocityComponent(final Entity entity, float xVelocity, float yVelocity) {
         super(entity);
         this.currentXVelocity = 0;
         this.currentYVelocity = 0;
@@ -58,7 +58,7 @@ public class VelocityComponent extends Component {
      *
      * @param entity associated entity
      */
-    public VelocityComponent(@DSLContextMember(name = "entity") Entity entity) {
+    public VelocityComponent(@DSLContextMember(name = "entity") final Entity entity) {
         super(entity);
         this.currentXVelocity = 0;
         this.currentYVelocity = 0;
@@ -164,6 +164,7 @@ public class VelocityComponent extends Component {
                         + yVelocity);
         return yVelocity;
     }
+
     /**
      * Set the velocity with which the entity should move on the y-axis.
      *

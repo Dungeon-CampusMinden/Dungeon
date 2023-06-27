@@ -15,9 +15,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
-import contrib.configuration.KeyboardConfig;
-import contrib.systems.DebuggerSystem;
-
 import core.components.PositionComponent;
 import core.components.UIComponent;
 import core.configuration.Configuration;
@@ -137,7 +134,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private Painter painter;
 
     private boolean doSetup = true;
-    private DebuggerSystem debugger;
     private boolean uiDebugFlag = false;
 
     // for singleton
@@ -660,10 +656,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
             // toggle UI "debug rendering"
             stage().ifPresent(x -> x.setDebugAll(uiDebugFlag = !uiDebugFlag));
         }
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_KEY.value())) {
-            debugger.toggleRun();
-            LOGGER.info("Debugger ist now " + debugger.isRunning());
-        }
     }
 
     private Entity newPauseMenu() {
@@ -762,9 +754,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         addSystem(new DrawSystem(painter));
         addSystem(new PlayerSystem());
         addSystem(new HudSystem());
-        // Debugger should not be a system, see #651
-        debugger = new DebuggerSystem();
-        addSystem(debugger);
     }
 
     @Override

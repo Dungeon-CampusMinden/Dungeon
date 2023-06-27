@@ -35,12 +35,7 @@ public class ProjectileSystem extends System {
                 .map(this::buildDataObject)
                 .map(this::setVelocity)
                 // Filter all entities that have reached their endpoint
-                .filter(
-                        psd ->
-                                hasReachedEndpoint(
-                                        psd.prc.startPosition(),
-                                        psd.prc.goalLocation(),
-                                        psd.pc.position()))
+                .filter(this::hasReachedEndpoint)
                 // Remove all entities who reached their endpoint
                 .forEach(this::removeEntitiesOnEndpoint);
     }
@@ -85,19 +80,17 @@ public class ProjectileSystem extends System {
      * <p>A Projectile can be out of range, if it "skips" the endpoint, it has already reached the
      * endpoint and can be removed.
      *
-     * @param start position to start the calculation
-     * @param end point to check if projectile has reached its goal
-     * @param current current position
+     * @param psd the PSData to check if the projectile has reached the endpoint
      * @return true if the endpoint was reached or passed, else false
      */
-    private boolean hasReachedEndpoint(Point start, Point end, Point current) {
-        float dx = start.x - current.x;
-        float dy = start.y - current.y;
-        double distanceToStart = Math.sqrt(dx * dx + dy * dy);
+    private boolean hasReachedEndpoint(PSData psd) {
+        Point start = psd.prc.startPosition();
+        Point end = psd.prc.goalLocation();
+        Point current = psd.pc.position();
 
-        dx = start.x - end.x;
-        dy = start.y - end.y;
-        double totalDistance = Math.sqrt(dx * dx + dy * dy);
+        double distanceToStart = Point.calculateDistance(start, current);
+
+        double totalDistance = Point.calculateDistance(start, end);
 
         return distanceToStart > totalDistance;
     }

@@ -1,11 +1,9 @@
 package contrib.utils.components.ai;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static junit.framework.TestCase.assertEquals;
 
 import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
-import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.ProtectOnAttack;
 import contrib.utils.components.health.Damage;
@@ -25,6 +23,7 @@ public class ProtectOnAttackTest {
     private Entity attacker;
     private List<Entity> entitiesToProtect;
     private HealthComponent entityHC;
+    private int updateCounter;
 
     @Before
     public void setup() {
@@ -46,6 +45,7 @@ public class ProtectOnAttackTest {
             new HealthComponent(e);
             entitiesToProtect.add(e);
         }
+        updateCounter = 0;
     }
 
     /** Add one entity to transition and inflict damage */
@@ -55,7 +55,9 @@ public class ProtectOnAttackTest {
         AIComponent attackerAI =
                 new AIComponent(
                         protector,
-                        new CollideAI(2f),
+                        entity -> {
+                            updateCounter++;
+                        },
                         new RadiusWalk(2, 2),
                         new ProtectOnAttack(protectedEntity));
 
@@ -63,7 +65,8 @@ public class ProtectOnAttackTest {
         entityHC.receiveHit(new Damage(1, null, attacker));
 
         // then
-        assertTrue(attackerAI.transitionAI().apply(protector));
+        attackerAI.execute();
+        assertEquals(1, updateCounter);
     }
 
     /** Add one entity to transition and inflict no damage */
@@ -73,14 +76,15 @@ public class ProtectOnAttackTest {
         AIComponent attackerAI =
                 new AIComponent(
                         protector,
-                        new CollideAI(2f),
+                        entity -> {
+                            updateCounter++;
+                        },
                         new RadiusWalk(2, 2),
                         new ProtectOnAttack(protectedEntity));
 
-        // when
-
         // then
-        assertFalse(attackerAI.transitionAI().apply(protector));
+        attackerAI.execute();
+        assertEquals(0, updateCounter);
     }
 
     /** Add a list of entities to the transition and inflict damage to all */
@@ -90,7 +94,9 @@ public class ProtectOnAttackTest {
         AIComponent attackerAI =
                 new AIComponent(
                         protector,
-                        new CollideAI(2f),
+                        entity -> {
+                            updateCounter++;
+                        },
                         new RadiusWalk(2, 2),
                         new ProtectOnAttack(entitiesToProtect));
 
@@ -103,7 +109,8 @@ public class ProtectOnAttackTest {
         }
 
         // then
-        assertTrue(attackerAI.transitionAI().apply(protector));
+        attackerAI.execute();
+        assertEquals(1, updateCounter);
     }
 
     /** Add an empty list of entities to the transition */
@@ -114,11 +121,14 @@ public class ProtectOnAttackTest {
         AIComponent attackerAI =
                 new AIComponent(
                         protector,
-                        new CollideAI(2f),
+                        entity -> {
+                            updateCounter++;
+                        },
                         new RadiusWalk(2, 2),
-                        new ProtectOnAttack(emptyList));
+                        new ProtectOnAttack(protectedEntity));
 
         // then
-        assertFalse(attackerAI.transitionAI().apply(protector));
+        attackerAI.execute();
+        assertEquals(0, updateCounter);
     }
 }

@@ -16,7 +16,7 @@ public class TestEnvironment extends GameEnvironment {
     protected void bindBuiltIns() {
         for (IType type : BUILT_IN_TYPES) {
             // load custom QuestConfig
-            if (!type.getName().equals("quest_config") && !type.getName().equals("game_object")) {
+            if (!type.getName().equals("quest_config") && !type.getName().equals("entity")) {
                 globalScope.bind((Symbol) type);
             }
         }

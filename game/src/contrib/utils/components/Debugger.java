@@ -1,4 +1,4 @@
-package contrib.systems;
+package contrib.utils.components;
 
 import com.badlogic.gdx.Gdx;
 
@@ -13,7 +13,6 @@ import contrib.utils.components.skill.SkillTools;
 
 import core.Entity;
 import core.Game;
-import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
@@ -21,6 +20,7 @@ import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelSize;
 import core.systems.CameraSystem;
+import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
@@ -29,32 +29,19 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
- * The Debugger is an auxiliary system designed to accelerate the creation and testing of specific
- * game scenarios.
+ * Auxiliary class to accelerate the creation and testing of specific game scenarios.
  *
- * <p>While not strictly an ECS_System in the traditional sense, it provides useful functionalities
- * that can aid in verifying the correct behavior of a game implementation. The Debugger is
- * integrated into the GameLoop as an ECS_System.
+ * <p>It provides useful functionalities that can aid in verifying the correct behavior of a game
+ * implementation.
  *
- * <p>On default the debugger is deactivated and must first be activated, by pressing the
- * corresponding key.
+ * <p>Add the Debugger in the Game-Loop by adding the {@link #execute()} call in {@link
+ * Game#userOnFrame(IVoidFunction)}
  *
- * @see System
  * @see KeyboardConfig
  */
-public final class DebuggerSystem extends System {
+public class Debugger {
 
-    private static final Logger LOGGER = Logger.getLogger(DebuggerSystem.class.getName());
-
-    /**
-     * Constructs a new Debugger instance, initially in an inactive state. To activate it, use the
-     * togglePause method.
-     */
-    public DebuggerSystem() {
-        super(null);
-        toggleRun();
-        LOGGER.info("Create new Debugger");
-    }
+    private static final Logger LOGGER = Logger.getLogger(Debugger.class.getName());
 
     /**
      * Zooms the camera in or out by the given amount.
@@ -211,23 +198,22 @@ public final class DebuggerSystem extends System {
      * Checks for key input corresponding to Debugger functionalities, and executes the relevant
      * function if detected.
      */
-    @Override
     public void execute() {
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_OUT.value()))
-            DebuggerSystem.ZOOM_CAMERA(-0.2f);
+            Debugger.ZOOM_CAMERA(-0.2f);
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_IN.value()))
-            DebuggerSystem.ZOOM_CAMERA(0.2f);
+            Debugger.ZOOM_CAMERA(0.2f);
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_CURSOR.value()))
-            DebuggerSystem.TELEPORT_TO_CURSOR();
+            Debugger.TELEPORT_TO_CURSOR();
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_END.value()))
-            DebuggerSystem.TELEPORT_TO_END();
+            Debugger.TELEPORT_TO_END();
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_START.value()))
-            DebuggerSystem.TELEPORT_TO_START();
+            Debugger.TELEPORT_TO_START();
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_ON_END.value()))
-            DebuggerSystem.LOAD_NEXT_LEVEL();
+            Debugger.LOAD_NEXT_LEVEL();
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_LEVELSIZE.value()))
-            DebuggerSystem.TOGGLE_LEVEL_SIZE();
+            Debugger.TOGGLE_LEVEL_SIZE();
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.value()))
-            DebuggerSystem.SPAWN_MONSTER_ON_CURSOR();
+            Debugger.SPAWN_MONSTER_ON_CURSOR();
     }
 }
