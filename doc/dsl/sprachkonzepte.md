@@ -608,7 +608,12 @@ Die Ausgabe für diese Anweisungen ist:
 > "Dieser String wird der Rückgabewert"
 ```
 
-### Import von anderen DSL-Files
+**Note:** Zum aktuellen Zeitpunkt unterstützt die DSL keine [Überladung](https://en.wikipedia.org/wiki/Function_overloading)
+von Funktionsnamen. Die Auflösung eines Funktionsaufrufs basierend auf den Parametertypen erfordert
+Typechecking, was aktuell noch nicht implementiert ist. Es ist noch nicht klar, ob Überladung nach der Implementierung
+von Typechecking hinzugefügt wird, oder nicht.
+
+### Import aus anderen DSL-Files
 
 ```
 #import <relative_file_path.dsl/name_of_thing_to_import>
