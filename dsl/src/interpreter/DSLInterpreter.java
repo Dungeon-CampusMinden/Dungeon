@@ -306,6 +306,19 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return (AggregateType) returnType;
     }
 
+    static boolean isBooleanTrue(Value value) {
+        var valuesType = value.getDataType();
+        var typeKind = valuesType.getTypeKind();
+        if (!typeKind.equals(IType.Kind.Basic) && !value.equals(Value.NONE)) {
+            return true;
+        } else if (value.equals(Value.NONE)) {
+            return false;
+        } else {
+            // basically check if zero
+            return ((BuiltInType)valuesType).isBooleanFunction.run(value);
+        }
+    }
+
     // this is the evaluation side of things
     //
     // TODO: implicitly creating an entity from an entity_type does not
