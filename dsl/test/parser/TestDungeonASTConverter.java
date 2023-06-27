@@ -504,4 +504,44 @@ public class TestDungeonASTConverter {
         var elseStmt = ((ConditionalStmtNodeIfElse)elseIfStmt).getElseStmt();
         Assert.assertEquals(Node.Type.Block, elseStmt.type);
     }
+
+    @Test
+    public void nestedIfElseStmts() {
+        String program =
+            """
+            fn test_func() {
+                if outer_expr {
+                  if inner_expr {
+                    print("hello");
+                  } else if inner_else_if_expr {
+                    print("moin");
+                  }
+                } else {
+                  print("world");
+                }
+            }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var conditionalStmt = stmts.get(0);
+        var outerCondition = ((ConditionalStmtNodeIfElse)conditionalStmt).getCondition();
+        Assert.assertEquals("outer_expr", ((IdNode)outerCondition).getName());
+
+        var ifStmt = ((ConditionalStmtNodeIfElse)conditionalStmt).getIfStmt();
+        var innerConditionalStmt = ((StmtBlockNode)ifStmt).getStmts().get(0);
+        Assert.assertEquals(Node.Type.ConditionalStmtIfElse, innerConditionalStmt.type);
+
+        var innerIfCondition = ((ConditionalStmtNodeIfElse)innerConditionalStmt).getCondition();
+        Assert.assertEquals("inner_expr", ((IdNode)innerIfCondition).getName());
+
+        var innerElseStmt = ((ConditionalStmtNodeIfElse)innerConditionalStmt).getElseStmt();
+        var innerElseIfCondition = ((ConditionalStmtNodeIf)innerElseStmt).getCondition();
+        Assert.assertEquals("inner_else_if_expr", ((IdNode)innerElseIfCondition).getName());
+
+        var elseStmt = ((ConditionalStmtNodeIfElse)conditionalStmt).getElseStmt();
+        Assert.assertEquals(Node.Type.Block, elseStmt.type);
+    }
 }
