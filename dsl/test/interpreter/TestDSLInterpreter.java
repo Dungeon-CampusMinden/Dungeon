@@ -148,7 +148,7 @@ public class TestDSLInterpreter {
     @Test
     public void funcCallReturnUserFunc() {
         String program =
-            """
+                """
             fn ret_string() -> string {
                 return "Hello, World!";
             }
@@ -166,7 +166,7 @@ public class TestDSLInterpreter {
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomFunctions(
-            program, env, interpreter, TestFunctionReturnHelloWorld.func);
+                program, env, interpreter, TestFunctionReturnHelloWorld.func);
 
         assertTrue(outputStream.toString().contains("Hello, World!"));
     }
@@ -174,7 +174,7 @@ public class TestDSLInterpreter {
     @Test
     public void funcCallReturnUserFuncNestedBlock() {
         String program =
-            """
+                """
             fn ret_string() -> string {
                 {
                     {
@@ -195,8 +195,7 @@ public class TestDSLInterpreter {
 
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
-        Helpers.generateQuestConfigWithCustomFunctions(
-            program, env, interpreter);
+        Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
 
         assertTrue(outputStream.toString().contains("Hello, World!"));
     }

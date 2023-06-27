@@ -378,7 +378,7 @@ public class TestDungeonASTConverter {
     @Test
     public void nestedBlocks() {
         String program =
-            """
+                """
             fn test_func(int param1, float param2, string param3) -> int
             {
                 {
@@ -391,7 +391,7 @@ public class TestDungeonASTConverter {
 
         var ast = Helpers.getASTFromString(program);
 
-        FuncDefNode funcDefNode = (FuncDefNode)ast.getChild(0);
+        FuncDefNode funcDefNode = (FuncDefNode) ast.getChild(0);
         var stmtList = funcDefNode.getStmts();
         Assert.assertEquals(1, stmtList.size());
 
@@ -405,13 +405,13 @@ public class TestDungeonASTConverter {
         Assert.assertEquals(Node.Type.StmtList, middleBlocksStmtList.type);
         Node innerStmtBlock = middleBlocksStmtList.getChild(0);
         Assert.assertEquals(Node.Type.Block, innerStmtBlock.type);
-        Node funcCallStmt = ((StmtBlockNode)innerStmtBlock).getStmts().get(0);
+        Node funcCallStmt = ((StmtBlockNode) innerStmtBlock).getStmts().get(0);
     }
 
     @Test
     public void ifStmt() {
         String program =
-            """
+                """
             fn test_func() {
                 if expr {
                     print("hello");
@@ -426,18 +426,18 @@ public class TestDungeonASTConverter {
         var conditionalIfStmt = stmts.get(0);
         Assert.assertEquals(Node.Type.ConditionalStmtIf, conditionalIfStmt.type);
 
-        var condition = ((ConditionalStmtNodeIf)conditionalIfStmt).getCondition();
+        var condition = ((ConditionalStmtNodeIf) conditionalIfStmt).getCondition();
         Assert.assertEquals(Node.Type.Identifier, condition.type);
-        Assert.assertEquals("expr", ((IdNode)condition).getName());
+        Assert.assertEquals("expr", ((IdNode) condition).getName());
 
-        var stmt = ((ConditionalStmtNodeIf)conditionalIfStmt).getIfStmt();
+        var stmt = ((ConditionalStmtNodeIf) conditionalIfStmt).getIfStmt();
         Assert.assertEquals(Node.Type.Block, stmt.type);
     }
 
     @Test
     public void ifElseStmt() {
         String program =
-            """
+                """
             fn test_func() {
                 if expr {
                     print("hello");
@@ -453,21 +453,21 @@ public class TestDungeonASTConverter {
         var conditionalStmt = stmts.get(0);
         Assert.assertEquals(Node.Type.ConditionalStmtIfElse, conditionalStmt.type);
 
-        var condition = ((ConditionalStmtNodeIfElse)conditionalStmt).getCondition();
+        var condition = ((ConditionalStmtNodeIfElse) conditionalStmt).getCondition();
         Assert.assertEquals(Node.Type.Identifier, condition.type);
-        Assert.assertEquals("expr", ((IdNode)condition).getName());
+        Assert.assertEquals("expr", ((IdNode) condition).getName());
 
-        var ifStmt = ((ConditionalStmtNodeIfElse)conditionalStmt).getIfStmt();
+        var ifStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getIfStmt();
         Assert.assertEquals(Node.Type.Block, ifStmt.type);
 
-        var elseStmt = ((ConditionalStmtNodeIfElse)conditionalStmt).getElseStmt();
+        var elseStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getElseStmt();
         Assert.assertEquals(Node.Type.FuncCall, elseStmt.type);
     }
 
     @Test
     public void elseIfStmt() {
         String program =
-            """
+                """
             fn test_func() {
                 if expr {
                     print("hello");
@@ -483,25 +483,25 @@ public class TestDungeonASTConverter {
         var conditionalStmt = stmts.get(0);
         Assert.assertEquals(Node.Type.ConditionalStmtIfElse, conditionalStmt.type);
 
-        var condition = ((ConditionalStmtNodeIfElse)conditionalStmt).getCondition();
+        var condition = ((ConditionalStmtNodeIfElse) conditionalStmt).getCondition();
         Assert.assertEquals(Node.Type.Identifier, condition.type);
-        Assert.assertEquals("expr", ((IdNode)condition).getName());
+        Assert.assertEquals("expr", ((IdNode) condition).getName());
 
-        var ifStmt = ((ConditionalStmtNodeIfElse)conditionalStmt).getIfStmt();
+        var ifStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getIfStmt();
         Assert.assertEquals(Node.Type.Block, ifStmt.type);
 
-        var elseIfStmt = ((ConditionalStmtNodeIfElse)conditionalStmt).getElseStmt();
+        var elseIfStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getElseStmt();
         Assert.assertEquals(Node.Type.ConditionalStmtIf, elseIfStmt.type);
 
-        var elseIfStmtCondition = ((ConditionalStmtNodeIf)elseIfStmt).getCondition();
+        var elseIfStmtCondition = ((ConditionalStmtNodeIf) elseIfStmt).getCondition();
         Assert.assertEquals(Node.Type.Identifier, elseIfStmtCondition.type);
-        Assert.assertEquals("other_expr", ((IdNode)elseIfStmtCondition).getName());
+        Assert.assertEquals("other_expr", ((IdNode) elseIfStmtCondition).getName());
     }
 
     @Test
     public void elseIfElseStmt() {
         String program =
-            """
+                """
             fn test_func() {
                 if expr {
                     print("hello");
@@ -520,28 +520,28 @@ public class TestDungeonASTConverter {
         var conditionalStmt = stmts.get(0);
         Assert.assertEquals(Node.Type.ConditionalStmtIfElse, conditionalStmt.type);
 
-        var condition = ((ConditionalStmtNodeIfElse)conditionalStmt).getCondition();
+        var condition = ((ConditionalStmtNodeIfElse) conditionalStmt).getCondition();
         Assert.assertEquals(Node.Type.Identifier, condition.type);
-        Assert.assertEquals("expr", ((IdNode)condition).getName());
+        Assert.assertEquals("expr", ((IdNode) condition).getName());
 
-        var ifStmt = ((ConditionalStmtNodeIfElse)conditionalStmt).getIfStmt();
+        var ifStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getIfStmt();
         Assert.assertEquals(Node.Type.Block, ifStmt.type);
 
-        var elseIfStmt = ((ConditionalStmtNodeIfElse)conditionalStmt).getElseStmt();
+        var elseIfStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getElseStmt();
         Assert.assertEquals(Node.Type.ConditionalStmtIfElse, elseIfStmt.type);
 
-        var elseIfStmtCondition = ((ConditionalStmtNodeIfElse)elseIfStmt).getCondition();
+        var elseIfStmtCondition = ((ConditionalStmtNodeIfElse) elseIfStmt).getCondition();
         Assert.assertEquals(Node.Type.Identifier, elseIfStmtCondition.type);
-        Assert.assertEquals("other_expr", ((IdNode)elseIfStmtCondition).getName());
+        Assert.assertEquals("other_expr", ((IdNode) elseIfStmtCondition).getName());
 
-        var elseStmt = ((ConditionalStmtNodeIfElse)elseIfStmt).getElseStmt();
+        var elseStmt = ((ConditionalStmtNodeIfElse) elseIfStmt).getElseStmt();
         Assert.assertEquals(Node.Type.Block, elseStmt.type);
     }
 
     @Test
     public void nestedIfElseStmts() {
         String program =
-            """
+                """
             fn test_func() {
                 if outer_expr {
                   if inner_expr {
@@ -560,21 +560,21 @@ public class TestDungeonASTConverter {
         var stmts = funcDefNode.getStmts();
 
         var conditionalStmt = stmts.get(0);
-        var outerCondition = ((ConditionalStmtNodeIfElse)conditionalStmt).getCondition();
-        Assert.assertEquals("outer_expr", ((IdNode)outerCondition).getName());
+        var outerCondition = ((ConditionalStmtNodeIfElse) conditionalStmt).getCondition();
+        Assert.assertEquals("outer_expr", ((IdNode) outerCondition).getName());
 
-        var ifStmt = ((ConditionalStmtNodeIfElse)conditionalStmt).getIfStmt();
-        var innerConditionalStmt = ((StmtBlockNode)ifStmt).getStmts().get(0);
+        var ifStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getIfStmt();
+        var innerConditionalStmt = ((StmtBlockNode) ifStmt).getStmts().get(0);
         Assert.assertEquals(Node.Type.ConditionalStmtIfElse, innerConditionalStmt.type);
 
-        var innerIfCondition = ((ConditionalStmtNodeIfElse)innerConditionalStmt).getCondition();
-        Assert.assertEquals("inner_expr", ((IdNode)innerIfCondition).getName());
+        var innerIfCondition = ((ConditionalStmtNodeIfElse) innerConditionalStmt).getCondition();
+        Assert.assertEquals("inner_expr", ((IdNode) innerIfCondition).getName());
 
-        var innerElseStmt = ((ConditionalStmtNodeIfElse)innerConditionalStmt).getElseStmt();
-        var innerElseIfCondition = ((ConditionalStmtNodeIf)innerElseStmt).getCondition();
-        Assert.assertEquals("inner_else_if_expr", ((IdNode)innerElseIfCondition).getName());
+        var innerElseStmt = ((ConditionalStmtNodeIfElse) innerConditionalStmt).getElseStmt();
+        var innerElseIfCondition = ((ConditionalStmtNodeIf) innerElseStmt).getCondition();
+        Assert.assertEquals("inner_else_if_expr", ((IdNode) innerElseIfCondition).getName());
 
-        var elseStmt = ((ConditionalStmtNodeIfElse)conditionalStmt).getElseStmt();
+        var elseStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getElseStmt();
         Assert.assertEquals(Node.Type.Block, elseStmt.type);
     }
 }

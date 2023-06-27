@@ -116,9 +116,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterStmt_block(DungeonDSLParser.Stmt_blockContext ctx) {
-
-    }
+    public void enterStmt_block(DungeonDSLParser.Stmt_blockContext ctx) {}
 
     @Override
     public void exitStmt_block(DungeonDSLParser.Stmt_blockContext ctx) {
@@ -145,9 +143,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterConditional_stmt(DungeonDSLParser.Conditional_stmtContext ctx) {
-
-    }
+    public void enterConditional_stmt(DungeonDSLParser.Conditional_stmtContext ctx) {}
 
     @Override
     public void exitConditional_stmt(DungeonDSLParser.Conditional_stmtContext ctx) {
@@ -172,14 +168,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterElse_stmt(DungeonDSLParser.Else_stmtContext ctx) {
-
-    }
+    public void enterElse_stmt(DungeonDSLParser.Else_stmtContext ctx) {}
 
     @Override
-    public void exitElse_stmt(DungeonDSLParser.Else_stmtContext ctx) {
-
-    }
+    public void exitElse_stmt(DungeonDSLParser.Else_stmtContext ctx) {}
 
     @Override
     public void enterStmt_list(DungeonDSLParser.Stmt_listContext ctx) {}
