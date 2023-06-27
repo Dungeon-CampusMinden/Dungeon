@@ -96,6 +96,7 @@ Konzepte gesammelt:
   - Task-Definition
   - Enum-Variant Binding
   - Member-Zugriff über `.`-Operator
+  - arithmetische, logische und vergleichende Operationen
 
 ### Kommentare
 
@@ -542,12 +543,10 @@ mapping_task t {
 
 **Lücken**
 
-### Taskdefinition
-
 ### Funktionsdefinition
 
 TODO:
-- Überladung erlauben?
+- Überladung erlauben? -> erstmal nicht
 
 Funktionen bieten die Möglichkeit, Anweisungen zu kapseln und in Abhängigkeit von Parametern
 bestimmtes Verhalten zu implementieren (beispielsweise native Dungeon-Funktionen aufzurufen).
@@ -637,11 +636,12 @@ Bspw.
 ```
 
 Gedanken dazu:
-- brauchen wir namespaces?
-- soll einfach alles aus einer Datei in die aktuelle Datei inkludiert
-  werden?
+- [x] brauchen wir namespaces? -> BRAUCHEN? nein!
+- [x] soll einfach alles aus einer Datei in die aktuelle Datei inkludiert
+  werden? -> nein
   - Das würde bedeuten, dass ich mir das auch verketten kann, also
     indem ich in Datei1 Datei2 inkludiere, und in Datei3 Datei2 inkludiere,
     automatisch Datei1 in Datei3 inkludiert habe
-- wie mit überladenen Funktionen umgehen? einfach alle mit dem gleichen
-  Namen laden?
+  - lieber explizit sein!
+- [x] wie mit überladenen Funktionen umgehen? einfach alle mit dem gleichen
+  Namen laden? -> aktuell gibt es keine überladenen Funktionen
