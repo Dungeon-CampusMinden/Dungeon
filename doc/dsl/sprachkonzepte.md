@@ -428,6 +428,24 @@ graph g {
 }
 ```
 
+### Taskdefinition
+
+Eine Taskdefinition verwendet die Syntax der Objektdefinition, um eine Aufgabe
+zu definieren. Für jeden [Aufgabentyp](../tasks/readme.md#aufgabentypen) steht
+ein Datentyp zur Verfügung (`single_choice_task` für Single Choice Aufgaben,
+`multiple_choice_task` für Multiple Choice Aufgaben, usw.). Welche Eigenschaften
+benötigt werden, um eine Aufgabe zu definieren, unterscheidet sich abhängig vom
+Aufgabentyp (siehe hierfür [die Auflistung der nötigen Daten pro Aufgabentyp](data_task_definition.md)).
+Alle Aufgabendefinitionen benötigen allerdings eine Beschreibung (welche die
+Aufgabenstellung enthält) und eine Bewertungsfunktion.
+
+```
+single_choice_task t {
+  description: "Dies ist die Aufgabenstellung",
+  fn_score: score_single_choice_task, // Funktionsreferenz
+}
+```
+
 ### Aufgabentypbezogene Definitionen
 
 **Ersetzung**
