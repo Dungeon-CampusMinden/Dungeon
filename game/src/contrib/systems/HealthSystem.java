@@ -12,6 +12,7 @@ import core.System;
 import core.components.DrawComponent;
 import core.utils.components.MissingComponentException;
 
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -34,29 +35,41 @@ public final class HealthSystem extends System {
                 .map(this::applyDamage)
                 // Filter all dead entities
                 .filter(hsd -> hsd.hc.isDead())
-                .filter(this::checkAnimationStatus)
+                // Set DeathAnimation if possible and not yet set
+                .map(this::triggerDeathAnimation)
+                .filter(this::filterByAnimation)
                 // Remove all dead entities
                 .forEach(this::removeDeadEntities);
     }
 
-    private boolean checkAnimationStatus(HSData hsd) {
-        // if the filtered Entity has no DeathAnimation
-        if (!hsd.ac.hasAnimation(AdditionalAnimations.DIE)) {
-            return true;
-        }
+    /**
+     * Filters the stream by checking the Animation of an Entity.
+     * @param hsd HSData to check Animations in
+     * @return true if Entity can be removed from the game
+     */
+    private boolean filterByAnimation(HSData hsd) {
+        // test if hsd has a DeathAnimation
+        Predicate<HSData> hasDeathAnimation =
+                (hsData) -> hsData.ac.hasAnimation(AdditionalAnimations.DIE);
+        // test if Animation is looping
+        Predicate<HSData> isAnimationLooping =
+                (hsData) -> hsData.ac.getAnimation(AdditionalAnimations.DIE).get().isLooping();
+        // test if Animation has finished playing
+        Predicate<HSData> isAnimationFinished =
+                (hsData) -> hsData.ac.currentAnimation().isFinished();
+
+        return !hasDeathAnimation.test(hsd)
+                || isAnimationLooping.test(hsd)
+                || isAnimationFinished.test(hsd);
+    }
+
+    private HSData triggerDeathAnimation(HSData hsd) {
         // if it has a DeathAnimation check if the DeathAnimation is active
-        else {
-            if (!hsd.ac.isCurrentAnimation(AdditionalAnimations.DIE)) {
-                hsd.ac.currentAnimation(AdditionalAnimations.DIE);
-            }
+        if (!hsd.ac.isCurrentAnimation(AdditionalAnimations.DIE)) {
+            hsd.ac.currentAnimation(AdditionalAnimations.DIE);
         }
 
-        // if the DeathAnimation is looping return true
-        if (hsd.ac.getAnimation(AdditionalAnimations.DIE).get().isLooping()) return true;
-
-        // as it was checked before if current animation is the DeathAnimation just check if it is
-        // finished
-        return hsd.ac.currentAnimation().isFinished();
+        return hsd;
     }
 
     private HSData buildDataObject(Entity entity) {
