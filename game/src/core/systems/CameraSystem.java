@@ -39,6 +39,8 @@ public final class CameraSystem extends System {
     public void execute() {
         if (entityStream().findAny().isEmpty()) focus();
         else entityStream().forEach(this::focus);
+        // Check if Gdx.graphics is null which happens when the game is run in headless mode (e.g.
+        // in tests)
         if (Gdx.graphics != null) {
             float aspectRatio = Gdx.graphics.getWidth() / (float) Gdx.graphics.getHeight();
             CAMERA.viewportWidth = Constants.viewportWidth();
