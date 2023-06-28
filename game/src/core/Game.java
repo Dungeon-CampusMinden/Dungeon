@@ -403,7 +403,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param klass the class where the ConfigKey fields are located
      * @throws IOException if the file could not be read
      */
-    public static void loadConfig(String pathAsString, Class<?> klass) throws IOException {
+    public static void loadConfig(String pathAsString, Class<?>... klass) throws IOException {
         Configuration.loadAndGetConfiguration(pathAsString, klass);
     }
 
@@ -694,7 +694,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     private void fullscreenKey() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F11)) {
+        if (Gdx.input.isKeyJustPressed(
+                core.configuration.KeyboardConfig.TOGGLE_FULLSCREEN.value())) {
             if (!Gdx.graphics.isFullscreen()) {
                 Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
             } else {
