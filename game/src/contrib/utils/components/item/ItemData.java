@@ -105,7 +105,9 @@ public class ItemData {
     }
 
     /**
-     * @return Get the current Item
+     * Get the {@link Item item} of this ItemData. This is the enum entry describing the item.
+     *
+     * @return Get the item of this ItemData.
      */
     public Item item() {
         return this.item;
