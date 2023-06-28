@@ -17,6 +17,13 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
+/**
+ * Class that handles the crafting system.
+ *
+ * <p>It contains a list of recipes and methods to {@link #addRecipe(Recipe) add} and {@link
+ * #removeRecipe(Recipe) remove} recipes. It also provides the method {@link
+ * #recipeByIngredients(CraftingIngredient[])} to get a recipe based on the provided ingredients.
+ */
 public class Crafting {
 
     private static final HashSet<Recipe> recipes = new HashSet<>();
@@ -52,6 +59,11 @@ public class Crafting {
         return Optional.of(possibleRecipes.get(0));
     }
 
+    /**
+     * Add A recipe to the list of recipes programmatically.
+     *
+     * @param recipe The recipe to add.
+     */
     public static void addRecipe(Recipe recipe) {
         if (recipe.getIngredients().length == 0) {
             throw new InvalidRecipeException("Recipes with no ingredients are not allowed!");
@@ -59,10 +71,16 @@ public class Crafting {
         recipes.add(recipe);
     }
 
+    /**
+     * Remove a recipe from the list of recipes programmatically.
+     *
+     * @param recipe The recipe to remove.
+     */
     public static void removeRecipe(Recipe recipe) {
         recipes.remove(recipe);
     }
 
+    /** Remove all recipes. */
     public static void clearRecipes() {
         recipes.clear();
     }
