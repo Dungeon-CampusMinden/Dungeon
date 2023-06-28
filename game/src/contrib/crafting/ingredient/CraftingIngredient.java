@@ -2,15 +2,27 @@ package contrib.crafting.ingredient;
 
 import com.badlogic.gdx.utils.JsonValue;
 
+/**
+ * A class which represents an ingredient in a crafting recipe.
+ *
+ * <p>The ingredient can be of different types, which are defined in the {@link Type} enum and their
+ * respective classes.
+ */
 public abstract class CraftingIngredient {
 
+    /** The different types of ingredients. */
     public enum Type {
         ITEM
     }
 
     protected Type type;
 
-    public CraftingIngredient(Type type) {
+    /**
+     * Create a new ingredient of the given type.
+     *
+     * @param type The type of the ingredient.
+     */
+    protected CraftingIngredient(Type type) {
         this.type = type;
     }
 
@@ -19,7 +31,7 @@ public abstract class CraftingIngredient {
      *
      * @return The type of the ingredient.
      */
-    public Type getType() {
+    public Type type() {
         return this.type;
     }
 
