@@ -21,6 +21,7 @@ Die Abbildung aller Datentypen auf Wahrheitswerte sieht wie folgt aus:
 | **Datentyp**  | **Abbildung**                                                |
 |---------------|--------------------------------------------------------------|
 | none          | `false`                                                      |
+| bool          | Value = `false`: `false`; Value = `true`: `true`             |
 | int           | Value = `0`: `false`; Value != `0`: `true`                   |
 | float         | Value = `0.0`: `false`; Value != `0.0`: `true`               |
 | string        | Value = `Value.NONE`: `false`; Value != `Value.NONE`: `true` |
