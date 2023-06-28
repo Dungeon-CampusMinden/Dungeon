@@ -267,7 +267,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
                         batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelManager.loadLevel(LEVELSIZE);
         createSystems();
-        controller.add(InventoryGUI.getInstance());
+        // controller.add(InventoryGUI.getInstance());
     }
 
     /**

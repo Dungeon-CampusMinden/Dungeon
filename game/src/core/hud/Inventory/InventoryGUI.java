@@ -3,6 +3,7 @@ package core.hud.Inventory;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 
@@ -19,9 +20,9 @@ import core.utils.controller.ScreenController;
 
 import java.util.List;
 
-public class InventoryGUI<T extends Actor> extends ScreenController<T> {
+public class InventoryGUI extends Group {
 
-    private static final InventoryGUI<Actor> instance = new InventoryGUI<>(new SpriteBatch());
+    private static final InventoryGUI instance = new InventoryGUI();
     private final TextDialog inventory;
     private final DragAndDrop dragAndDrop;
     private boolean isOpen = true;
@@ -30,10 +31,9 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
     /**
      * Creates an inventory GUI as big as the inventory component of the hero
      *
-     * @param batch the batch which should be used to draw with
      */
-    private InventoryGUI(SpriteBatch batch) {
-        super(batch);
+    private InventoryGUI() {
+
         dragAndDrop = new DragAndDrop();
 
         String[] arrayOfMessages = {"Inventory"};
@@ -42,7 +42,7 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
                         new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG)), arrayOfMessages);
 
         inventory.setResizable(false);
-        add((T) inventory);
+        addActor(inventory);
         initInventorySlots();
         closeInventory();
     }
@@ -56,7 +56,7 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
                                 .getComponent(InventoryComponent.class)
                                 .orElse(null);
         if (inventoryComponent == null) {
-            this.remove((T) inventory);
+            inventory.remove();
             return;
         }
         int inventorySize = inventoryComponent.getMaxSize();
@@ -72,6 +72,7 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
                 inventory.row().colspan(1);
             }
 
+            // ???
             if (i == 1)
                 slot =
                         new InventorySlot(
@@ -93,7 +94,7 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
             else if (i == 9)
                 slot = new InventorySlot(Constants.INVENTORYSLOT_RING_PATH, ItemNature.RING);
             else slot = new InventorySlot();
-
+            // ????
             if (i == 1 || i == 4 || i == 7) {
                 inventory.add(slot).pad(9);
             } else {
@@ -101,7 +102,7 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
             }
 
             slot.addListener(new InventoryDescriptionListener(description));
-
+            // ?????
             if (i != 11 && i % INVENTORYSLOTS_IN_A_ROW == 0) {
                 inventory.row();
             }
@@ -217,7 +218,7 @@ public class InventoryGUI<T extends Actor> extends ScreenController<T> {
      *
      * @return the instance of the InventoryGUI
      */
-    public static InventoryGUI<Actor> getInstance() {
+    public static InventoryGUI getInstance() {
         return instance;
     }
 
