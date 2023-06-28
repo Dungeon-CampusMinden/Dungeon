@@ -36,7 +36,7 @@ public final class HealthSystem extends System {
                 // Filter all dead entities
                 .filter(hsd -> hsd.hc.isDead())
                 // Set DeathAnimation if possible and not yet set
-                .map(this::triggerDeathAnimation)
+                .map(this::activateDeathAnimation)
                 .filter(this::filterByAnimation)
                 // Remove all dead entities
                 .forEach(this::removeDeadEntities);
@@ -66,7 +66,7 @@ public final class HealthSystem extends System {
                 || isAnimationFinished.test(dc);
     }
 
-    private HSData triggerDeathAnimation(HSData hsd) {
+    private HSData activateDeathAnimation(HSData hsd) {
         // set DeathAnimation as active animation
         if (!hsd.dc.isCurrentAnimation(AdditionalAnimations.DIE)) {
             hsd.dc.currentAnimation(AdditionalAnimations.DIE);
