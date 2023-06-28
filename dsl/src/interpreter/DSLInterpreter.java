@@ -315,7 +315,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             return false;
         } else {
             // basically check if zero
-            return ((BuiltInType)valuesType).isBooleanFunction.run(value);
+            return ((BuiltInType)valuesType).asBooleanFunction.run(value);
         }
     }
 

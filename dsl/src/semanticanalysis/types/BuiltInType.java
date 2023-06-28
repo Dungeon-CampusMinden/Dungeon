@@ -8,7 +8,7 @@ import semanticanalysis.Symbol;
 // TODO: "entity_type" type definition should be fixed part of the
 //  built in type system
 public class BuiltInType extends Symbol implements IType {
-    public interface IsBooleanFunction {
+    public interface AsBooleanFunction {
         boolean run(Value param);
     }
 
@@ -20,7 +20,7 @@ public class BuiltInType extends Symbol implements IType {
     // TODO: this should not be a basic type
     public static BuiltInType graphType = new BuiltInType("dslToGame/graph", Scope.NULL, (v) -> true);
 
-    public final IsBooleanFunction isBooleanFunction;
+    public final AsBooleanFunction asBooleanFunction;
 
     /**
      * Constructor
@@ -28,9 +28,9 @@ public class BuiltInType extends Symbol implements IType {
      * @param name name of this type
      * @param parentScope parent scope of the type
      */
-    public BuiltInType(String name, IScope parentScope, IsBooleanFunction isBoolean) {
+    public BuiltInType(String name, IScope parentScope, AsBooleanFunction asBooleanFunction) {
         super(name, parentScope, null);
-        isBooleanFunction = isBoolean;
+        this.asBooleanFunction = asBooleanFunction;
     }
 
     @Override
