@@ -27,7 +27,7 @@ public class ConditionalStmtNodeIf extends Node {
     /**
      * Constructor
      *
-     * @param condition        The AstNode corresponding to the condition
+     * @param condition The AstNode corresponding to the condition
      * @param stmt The AstNode corresponding to the stmt
      */
     public ConditionalStmtNodeIf(Node condition, Node stmt) {
@@ -42,4 +42,3 @@ public class ConditionalStmtNodeIf extends Node {
         return visitor.visit(this);
     }
 }
-

@@ -1,6 +1,7 @@
 package semanticanalysis.types;
 
 import runtime.Value;
+
 import semanticanalysis.IScope;
 import semanticanalysis.Scope;
 import semanticanalysis.Symbol;
@@ -13,12 +14,16 @@ public class BuiltInType extends Symbol implements IType {
     }
 
     public static BuiltInType noType = new BuiltInType("none", Scope.NULL, (v) -> false);
-    public static BuiltInType boolType = new BuiltInType("bool", Scope.NULL, (v) -> (boolean)v.getInternalObject());
-    public static BuiltInType intType = new BuiltInType("int", Scope.NULL, (v) -> (int)v.getInternalObject() != 0);
-    public static BuiltInType floatType = new BuiltInType("float", Scope.NULL, (v) -> (float)v.getInternalObject() != 0.0);
+    public static BuiltInType boolType =
+            new BuiltInType("bool", Scope.NULL, (v) -> (boolean) v.getInternalObject());
+    public static BuiltInType intType =
+            new BuiltInType("int", Scope.NULL, (v) -> (int) v.getInternalObject() != 0);
+    public static BuiltInType floatType =
+            new BuiltInType("float", Scope.NULL, (v) -> (float) v.getInternalObject() != 0.0);
     public static BuiltInType stringType = new BuiltInType("string", Scope.NULL, (v) -> true);
     // TODO: this should not be a basic type
-    public static BuiltInType graphType = new BuiltInType("dslToGame/graph", Scope.NULL, (v) -> true);
+    public static BuiltInType graphType =
+            new BuiltInType("dslToGame/graph", Scope.NULL, (v) -> true);
 
     public final AsBooleanFunction asBooleanFunction;
 

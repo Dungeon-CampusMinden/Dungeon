@@ -34,13 +34,12 @@ public class ConditionalStmtNodeIfElse extends Node {
         return this.getChild(stmtElseIdx);
     }
 
-
     /**
      * Constructor
      *
      * @param condition The AstNode corresponding to the condition
-     * @param stmtIf    The AstNode corresponding to the stmt in the if-branch
-     * @param stmtElse  The AstNode corresponding to the stmt in the else-branch
+     * @param stmtIf The AstNode corresponding to the stmt in the if-branch
+     * @param stmtElse The AstNode corresponding to the stmt in the else-branch
      */
     public ConditionalStmtNodeIfElse(Node condition, Node stmtIf, Node stmtElse) {
         super(Type.ConditionalStmtIfElse, new ArrayList<>(3));

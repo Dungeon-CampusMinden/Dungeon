@@ -315,7 +315,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             return false;
         } else {
             // basically check if zero
-            return ((BuiltInType)valuesType).asBooleanFunction.run(value);
+            return ((BuiltInType) valuesType).asBooleanFunction.run(value);
         }
     }
 
@@ -619,7 +619,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(ConditionalStmtNodeIf node) {
-        Value conditionValue = (Value)node.getCondition().accept(this);
+        Value conditionValue = (Value) node.getCondition().accept(this);
         if (isBooleanTrue(conditionValue)) {
             node.getIfStmt().accept(this);
         }
@@ -629,7 +629,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(ConditionalStmtNodeIfElse node) {
-        Value conditionValue = (Value)node.getCondition().accept(this);
+        Value conditionValue = (Value) node.getCondition().accept(this);
         if (isBooleanTrue(conditionValue)) {
             node.getIfStmt().accept(this);
         } else {

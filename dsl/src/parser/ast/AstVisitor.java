@@ -225,7 +225,6 @@ public interface AstVisitor<T> {
         return null;
     }
 
-
     /**
      * Visit all children of the passed node
      *

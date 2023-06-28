@@ -630,14 +630,17 @@ public class TestDSLInterpreter {
         var stringValue = new Value(BuiltInType.stringType, "");
         Assert.assertTrue(DSLInterpreter.isBooleanTrue(stringValue));
 
-        var graphValue = new Value(BuiltInType.graphType, new Graph<String>(new ArrayList<>(), new ArrayList<>()));
+        var graphValue =
+                new Value(
+                        BuiltInType.graphType,
+                        new Graph<String>(new ArrayList<>(), new ArrayList<>()));
         Assert.assertTrue(DSLInterpreter.isBooleanTrue(graphValue));
     }
 
     @Test
     public void testIfStmtFalse() {
         String program =
-            """
+                """
             fn test_func() {
                 if 0 print("Hello, World!");
             }
@@ -654,8 +657,7 @@ public class TestDSLInterpreter {
 
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
-        Helpers.generateQuestConfigWithCustomFunctions(
-            program, env, interpreter);
+        Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
 
         assertFalse(outputStream.toString().contains("Hello, World!"));
     }
@@ -663,7 +665,7 @@ public class TestDSLInterpreter {
     @Test
     public void testIfStmtTrue() {
         String program =
-            """
+                """
             fn test_func() {
                 if 1 print("Hello, World!");
             }
@@ -680,8 +682,7 @@ public class TestDSLInterpreter {
 
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
-        Helpers.generateQuestConfigWithCustomFunctions(
-            program, env, interpreter);
+        Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
 
         assertTrue(outputStream.toString().contains("Hello, World!"));
     }
@@ -689,7 +690,7 @@ public class TestDSLInterpreter {
     @Test
     public void testElseStmt() {
         String program =
-            """
+                """
             fn test_func() {
                 if 0 print("Hello");
                 else print ("World");
@@ -707,8 +708,7 @@ public class TestDSLInterpreter {
 
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
-        Helpers.generateQuestConfigWithCustomFunctions(
-            program, env, interpreter);
+        Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
 
         assertTrue(outputStream.toString().contains("World"));
     }
@@ -716,7 +716,7 @@ public class TestDSLInterpreter {
     @Test
     public void testIfElseStmt() {
         String program =
-            """
+                """
             fn test_func() {
                 if 0 print("Hello");
                 else if 0 print ("World");
@@ -735,8 +735,7 @@ public class TestDSLInterpreter {
 
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
-        Helpers.generateQuestConfigWithCustomFunctions(
-            program, env, interpreter);
+        Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
 
         assertTrue(outputStream.toString().contains("!"));
     }
@@ -744,7 +743,7 @@ public class TestDSLInterpreter {
     @Test
     public void testIfElseStmtSecondIf() {
         String program =
-            """
+                """
             fn test_func() {
                 if false print("Hello");
                 else if true print ("World");
@@ -763,8 +762,7 @@ public class TestDSLInterpreter {
 
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
-        Helpers.generateQuestConfigWithCustomFunctions(
-            program, env, interpreter);
+        Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
 
         assertTrue(outputStream.toString().contains("World"));
         assertFalse(outputStream.toString().contains("!"));
