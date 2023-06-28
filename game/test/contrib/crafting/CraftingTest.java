@@ -18,7 +18,7 @@ public class CraftingTest {
     public void testFindRecipeWithNoInputs() {
         assertTrue(
                 "No Recipe should be found with no ingredients.",
-                Crafting.getRecipeByIngredients(new CraftingItemIngredient[0]).isEmpty());
+                Crafting.recipeByIngredients(new CraftingItemIngredient[0]).isEmpty());
     }
 
     @Test
@@ -41,7 +41,7 @@ public class CraftingTest {
             new CraftingItemIngredient(Item.WATER_BOTTLE, 1),
         };
 
-        Optional<Recipe> foundRecipe = Crafting.getRecipeByIngredients(ingredients);
+        Optional<Recipe> foundRecipe = Crafting.recipeByIngredients(ingredients);
 
         assertFalse("There should be a recipe.", foundRecipe.isEmpty());
         assertEquals("The found recipe is the correct recipe", recipe, foundRecipe.get());
@@ -70,7 +70,7 @@ public class CraftingTest {
             new CraftingItemIngredient(Item.FLOWER_RED, 1),
         };
 
-        Optional<Recipe> foundRecipe = Crafting.getRecipeByIngredients(ingredients);
+        Optional<Recipe> foundRecipe = Crafting.recipeByIngredients(ingredients);
 
         assertFalse("There should be a recipe.", foundRecipe.isEmpty());
         assertEquals("The found recipe is the correct recipe", recipe, foundRecipe.get());
@@ -99,7 +99,7 @@ public class CraftingTest {
             new CraftingItemIngredient(Item.WATER_BOTTLE, 1),
         };
 
-        Optional<Recipe> foundRecipe = Crafting.getRecipeByIngredients(ingredients);
+        Optional<Recipe> foundRecipe = Crafting.recipeByIngredients(ingredients);
 
         assertTrue("There should be no recipe.", foundRecipe.isEmpty());
 
@@ -127,7 +127,7 @@ public class CraftingTest {
             new CraftingItemIngredient(Item.MUSHROOM_RED, 1),
             new CraftingItemIngredient(Item.FLOWER_RED, 1),
         };
-        Optional<Recipe> foundRecipe = Crafting.getRecipeByIngredients(ingredients);
+        Optional<Recipe> foundRecipe = Crafting.recipeByIngredients(ingredients);
 
         assertFalse("There should be a recipe.", foundRecipe.isEmpty());
         assertEquals("The found recipe is the correct recipe", recipeOrdered, foundRecipe.get());
