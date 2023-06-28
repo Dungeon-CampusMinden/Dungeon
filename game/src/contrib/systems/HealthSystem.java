@@ -37,18 +37,19 @@ public final class HealthSystem extends System {
                 .filter(hsd -> hsd.hc.isDead())
                 // Set DeathAnimation if possible and not yet set
                 .map(this::activateDeathAnimation)
-                .filter(this::filterByAnimation)
+                .filter(this::testDeathAnimationStatus)
                 // Remove all dead entities
                 .forEach(this::removeDeadEntities);
     }
 
     /**
-     * Filters the stream by checking the Animation of an Entity.
+     * Tests the existence and current status of the DeathAnimation of an Entity.
+     * Returns a corresponding boolean if the Entity can be removed from the game.
      *
      * @param hsd HSData to check Animations in
      * @return true if Entity can be removed from the game
      */
-    private boolean filterByAnimation(HSData hsd) {
+    private boolean testDeathAnimationStatus(HSData hsd) {
         DrawComponent dc = hsd.dc;
         // test if hsd has a DeathAnimation
         Predicate<DrawComponent> hasDeathAnimation =
