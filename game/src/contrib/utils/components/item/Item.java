@@ -7,7 +7,9 @@ import core.utils.components.draw.Animation;
 import java.util.List;
 
 /**
- * It contains the {@link #category ItemCategory}, animations / textures for inside the hero
+ * This is an enum that represents all items in the game.
+ *
+ * <p>It contains the {@link #category ItemCategory}, animations / textures for inside the hero
  * inventory ({@link #inventoryAnimation InventoryAnimation}) or in the world ({@link
  * #worldAnimation WorldAnimation}), as well as the {@link #name Name} of the Item and a {@link
  * #description}.
