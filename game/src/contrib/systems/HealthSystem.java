@@ -43,8 +43,8 @@ public final class HealthSystem extends System {
     }
 
     /**
-     * Tests the existence and current status of the DeathAnimation of an Entity.
-     * Returns a corresponding boolean if the Entity can be removed from the game.
+     * Tests the existence and current status of the DeathAnimation of an Entity. Returns a
+     * corresponding boolean if the Entity can be removed from the game.
      *
      * @param hsd HSData to check Animations in
      * @return true if Entity can be removed from the game
