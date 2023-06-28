@@ -132,7 +132,7 @@ public class EntityFactory {
                 Input.Keys.I,
                 entity -> {
                     System.out.print("Inventory: ");
-                    ic.items().forEach(item -> System.out.print(item.getItem().getName() + ", "));
+                    ic.items().forEach(item -> System.out.print(item.item().displayName() + ", "));
                     System.out.println();
                 });
 

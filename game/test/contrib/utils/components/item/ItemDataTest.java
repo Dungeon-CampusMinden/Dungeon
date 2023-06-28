@@ -23,13 +23,13 @@ public class ItemDataTest {
     @Test
     public void testDefaultConstructor() {
         ItemData itemData = new ItemData();
-        assertEquals(Item.valueOf(ItemConfig.DEFAULT_ITEM.value()), itemData.getItem());
+        assertEquals(Item.valueOf(ItemConfig.DEFAULT_ITEM.value()), itemData.item());
     }
 
     @Test
     public void testParameterConstructor() {
         ItemData itemData = new ItemData(Item.MUSHROOM_RED);
-        assertEquals(Item.MUSHROOM_RED, itemData.getItem());
+        assertEquals(Item.MUSHROOM_RED, itemData.item());
     }
 
     // <p> Since we cant update the {@link Game#entities} from outside the gameloop, this is

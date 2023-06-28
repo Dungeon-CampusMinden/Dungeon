@@ -94,19 +94,19 @@ public enum Item {
         this.worldAnimation = worldAnimation;
     }
 
-    public String getName() {
+    public String displayName() {
         return this.name;
     }
 
-    public String getDescription() {
+    public String description() {
         return this.description;
     }
 
-    public Animation getInventoryAnimation() {
+    public Animation inventoryAnimation() {
         return this.inventoryAnimation;
     }
 
-    public Animation getWorldAnimation() {
+    public Animation worldAnimation() {
         return this.worldAnimation;
     }
 }

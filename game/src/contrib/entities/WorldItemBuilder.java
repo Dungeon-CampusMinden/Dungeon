@@ -21,7 +21,7 @@ public class WorldItemBuilder {
     public static Entity buildWorldItem(ItemData itemData) {
         Entity droppedItem = new Entity();
         new PositionComponent(droppedItem, new Point(0, 0));
-        new DrawComponent(droppedItem, itemData.getItem().getWorldAnimation());
+        new DrawComponent(droppedItem, itemData.item().worldAnimation());
         new ItemComponent(droppedItem, itemData);
         CollideComponent component = new CollideComponent(droppedItem);
         component.collideEnter(

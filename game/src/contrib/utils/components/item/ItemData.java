@@ -107,7 +107,7 @@ public class ItemData {
     /**
      * @return Get the current Item
      */
-    public Item getItem() {
+    public Item item() {
         return this.item;
     }
 
@@ -124,7 +124,7 @@ public class ItemData {
                         component -> {
                             component.removeItem(itemData);
                         });
-        System.out.printf("Item \"%s\" used by entity %d\n", itemData.getItem().getName(), e.id());
+        System.out.printf("Item \"%s\" used by entity %d\n", itemData.item().displayName(), e.id());
     }
 
     /**

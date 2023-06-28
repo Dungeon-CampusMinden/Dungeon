@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 public class Crafting {
 
     private static final HashSet<Recipe> recipes = new HashSet<>();
-    private static final Logger logger = Logger.getLogger(Crafting.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Crafting.class.getName());
 
     /**
      * Get a recipe based on the provided items.
@@ -32,7 +32,7 @@ public class Crafting {
      * @return The recipe that can be crafted with the provided ingredients. If none can be crafted,
      *     the returned optional will be empty.
      */
-    public static Optional<Recipe> getRecipeByIngredients(CraftingIngredient[] inputs) {
+    public static Optional<Recipe> recipeByIngredients(CraftingIngredient[] inputs) {
 
         List<Recipe> possibleRecipes = new ArrayList<>();
         for (Recipe recipe : recipes) {
@@ -94,7 +94,7 @@ public class Crafting {
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
                 if (entry.getName().startsWith("recipes") && entry.getName().endsWith(".recipe")) {
-                    logger.info("Load recipe: " + entry.getName());
+                    LOGGER.info("Load recipe: " + entry.getName());
                     Crafting.recipes.add(
                             parseRecipe(Main.class.getResourceAsStream("/" + entry.getName())));
                 }
@@ -113,7 +113,7 @@ public class Crafting {
         }
         for (File file : files) {
             if (file.getName().endsWith(".recipe")) {
-                logger.info("Load recipe: " + file.getName());
+                LOGGER.info("Load recipe: " + file.getName());
                 Crafting.recipes.add(
                         parseRecipe(Main.class.getResourceAsStream("/recipes/" + file.getName())));
             }
