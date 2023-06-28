@@ -14,6 +14,7 @@ public class ItemConfig {
                     new String[] {"texture"},
                     new ConfigStringValue("animation/missingTexture.png"));
 
+    /** The default Item used for the default constructor of ItemData */
     public static final ConfigKey<String> DEFAULT_ITEM =
             new ConfigKey<>(new String[] {"default", "item"}, new ConfigStringValue("STONE"));
 }
