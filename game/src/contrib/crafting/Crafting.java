@@ -54,7 +54,7 @@ public class Crafting {
         if (possibleRecipes.size() == 1) {
             return Optional.of(possibleRecipes.get(0));
         }
-        possibleRecipes.sort(Comparator.comparing(c -> !c.isOrdered()));
+        possibleRecipes.sort(Comparator.comparing(c -> !c.ordered()));
 
         return Optional.of(possibleRecipes.get(0));
     }
@@ -65,7 +65,7 @@ public class Crafting {
      * @param recipe The recipe to add.
      */
     public static void addRecipe(Recipe recipe) {
-        if (recipe.getIngredients().length == 0) {
+        if (recipe.ingredients().length == 0) {
             throw new InvalidRecipeException("Recipes with no ingredients are not allowed!");
         }
         recipes.add(recipe);
