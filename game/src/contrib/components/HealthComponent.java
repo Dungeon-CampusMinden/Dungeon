@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
- * Allow associated entity to take damage and die.
+ * Allow an associated entity to take damage and to die.
  *
  * <p>The component keeps track of the current and maximum health points of the associated entity.
  *
@@ -45,7 +45,7 @@ public final class HealthComponent extends Component {
     private @Null Entity lastCause = null;
 
     /**
-     * Create new HealthComponent and adds it to the associated entity.
+     * Create a new HealthComponent and add it to the associated entity.
      *
      * @param entity associated entity
      * @param maximalHitPoints Maximum amount of health points; currentHitPoints cannot be greater
@@ -62,7 +62,7 @@ public final class HealthComponent extends Component {
     }
 
     /**
-     * Creates a HealthComponent with default values and adds it to the associated entity.
+     * Create a HealthComponent with default values and add it to the associated entity.
      *
      * <p>The maximum health points are set to 1, and the onDeath function is empty.
      *
