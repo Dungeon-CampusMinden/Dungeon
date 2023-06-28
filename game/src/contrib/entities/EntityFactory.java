@@ -1,7 +1,5 @@
 package contrib.entities;
 
-import com.badlogic.gdx.Input;
-
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.utils.components.interaction.DropItemsInteraction;
@@ -16,6 +14,7 @@ import core.Entity;
 import core.Game;
 import core.components.*;
 import core.level.utils.LevelElement;
+import core.utils.Constants;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
@@ -64,7 +63,7 @@ public class EntityFactory {
         new PositionComponent(hero);
         new VelocityComponent(hero, xSpeed, ySpeed);
         new DrawComponent(hero, "character/knight");
-        final InventoryComponent ic = new InventoryComponent(hero, 10);
+        new InventoryComponent(hero, Constants.DEFAULT_INVENTORY_SIZE);
         new CollideComponent(
                 hero,
                 (you, other, direction) -> System.out.println("heroCollisionEnter"),
@@ -127,14 +126,6 @@ public class EntityFactory {
         pc.registerCallback(
                 KeyboardConfig.INTERACT_WORLD.value(),
                 InteractionTool::interactWithClosestInteractable);
-
-        pc.registerCallback(
-                Input.Keys.I,
-                entity -> {
-                    System.out.print("Inventory: ");
-                    ic.items().forEach(item -> System.out.print(item.item().displayName() + ", "));
-                    System.out.println();
-                });
 
         // skills
         pc.registerCallback(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);

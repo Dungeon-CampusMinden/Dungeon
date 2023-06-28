@@ -44,8 +44,8 @@ public final class Constants {
     public static final String DEFAULT_MESSAGE = "Das Spiel ist pausiert.";
     public static final String DEFAULT_BUTTON_MESSAGE = "OK ";
     public static final String QUIZ_MESSAGE_TASK = "Aufgabestellung";
-
     public static final String QUIZ_MESSAGE_SOLUTION = "Lösung";
+    public static final int DEFAULT_INVENTORY_SIZE = 5;
 
     /**
      * @param path the relative path to the resource
