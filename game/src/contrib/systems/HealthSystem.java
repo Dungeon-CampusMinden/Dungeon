@@ -29,7 +29,7 @@ public final class HealthSystem extends System {
     public void execute() {
         entityStream()
                 // Consider only entities that have a HealthComponent
-                // Form triples (e, hc, ac)
+                // Form triples (e, hc, dc)
                 .map(this::buildDataObject)
                 // Apply damage
                 .map(this::applyDamage)
@@ -49,7 +49,7 @@ public final class HealthSystem extends System {
      * @return true if Entity can be removed from the game
      */
     private boolean filterByAnimation(HSData hsd) {
-        DrawComponent dc = hsd.ac;
+        DrawComponent dc = hsd.dc;
         // test if hsd has a DeathAnimation
         Predicate<DrawComponent> hasDeathAnimation =
                 (drawComponent) -> drawComponent.hasAnimation(AdditionalAnimations.DIE);
@@ -68,8 +68,8 @@ public final class HealthSystem extends System {
 
     private HSData triggerDeathAnimation(HSData hsd) {
         // set DeathAnimation as active animation
-        if (!hsd.ac.isCurrentAnimation(AdditionalAnimations.DIE)) {
-            hsd.ac.currentAnimation(AdditionalAnimations.DIE);
+        if (!hsd.dc.isCurrentAnimation(AdditionalAnimations.DIE)) {
+            hsd.dc.currentAnimation(AdditionalAnimations.DIE);
         }
 
         return hsd;
@@ -123,7 +123,7 @@ public final class HealthSystem extends System {
     private void doDamageAndAnimation(HSData hsd, int dmgAmount) {
         if (dmgAmount > 0) {
             // we have some damage - let's show a little dance
-            hsd.ac.currentAnimation(AdditionalAnimations.HIT);
+            hsd.dc.currentAnimation(AdditionalAnimations.HIT);
         }
         // reset all damage objects in health component and apply damage
         hsd.hc.clearDamage();
@@ -133,7 +133,7 @@ public final class HealthSystem extends System {
     private void removeDeadEntities(HSData hsd) {
         // Entity appears to be dead, so let's clean up the mess
         hsd.hc.triggerOnDeath();
-        hsd.ac.currentAnimation(AdditionalAnimations.DIE);
+        hsd.dc.currentAnimation(AdditionalAnimations.DIE);
         Game.removeEntity(hsd.hc.entity());
 
         // Add XP
@@ -148,5 +148,5 @@ public final class HealthSystem extends System {
     }
 
     // private record to hold all data during streaming
-    private record HSData(Entity e, HealthComponent hc, DrawComponent ac) {}
+    private record HSData(Entity e, HealthComponent hc, DrawComponent dc) {}
 }
