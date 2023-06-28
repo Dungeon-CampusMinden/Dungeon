@@ -15,13 +15,13 @@ import semanticanalysis.types.DSLType;
 import java.util.logging.Logger;
 
 /**
- * Allows an entity to collide with other entities that have a {@link CollideComponent}.
+ * Allow an entity to collide with other entities that have a {@link CollideComponent}.
  *
  * <p>The component creates a hitbox (an invisible square) around the associated entity.
  *
  * <p>The {@link contrib.systems.CollisionSystem} will check if the hitbox collides with another
  * hitbox of a different entity, and then trigger the {@link #onEnter(CollideComponent,
- * Tile.Direction)} function. This function stores the behavior that should be executed if a
+ * Tile.Direction)} function. This function stores the behaviour that should be executed if a
  * collision is detected.
  *
  * <p>The {@link contrib.systems.CollisionSystem} can also detect when a collision is stopped and
@@ -55,12 +55,12 @@ public final class CollideComponent extends Component {
      * Create a new CollisionComponent and add it to the associated entity.
      *
      * @param entity associated entity
-     * @param offset the offset for the hitbox to the position; Use {@link #DEFAULT_OFFSET} for the
+     * @param offset the offset for the hitbox to the position; use {@link #DEFAULT_OFFSET} for the
      *     default offset,
      * @param size the size for the hitboxUse {@link #DEFAULT_SIZE} for the default size.
-     * @param collideEnter behaviour if a collision started; Use {@link #DEFAULT_COLLIDER} for an
+     * @param collideEnter behaviour if a collision started; use {@link #DEFAULT_COLLIDER} for an
      *     empty function.
-     * @param collideLeave behaviour if a collision stopped; Use {@link #DEFAULT_COLLIDER} for an
+     * @param collideLeave behaviour if a collision stopped; use {@link #DEFAULT_COLLIDER} for an
      *     empty function.
      */
     public CollideComponent(
@@ -81,9 +81,9 @@ public final class CollideComponent extends Component {
      * 0.5f x 0.5f and add it to the associated entity.
      *
      * @param entity associated entity
-     * @param collideEnter behaviour if a collision started; Use {@link #DEFAULT_COLLIDER} for an
+     * @param collideEnter behaviour if a collision started; use {@link #DEFAULT_COLLIDER} for an
      *     empty function.
-     * @param collideLeave behaviour if a collision stopped; Use {@link #DEFAULT_COLLIDER} for an
+     * @param collideLeave behaviour if a collision stopped; use {@link #DEFAULT_COLLIDER} for an
      *     empty function.
      */
     public CollideComponent(
@@ -104,7 +104,7 @@ public final class CollideComponent extends Component {
     }
 
     /**
-     * Trigger function to execute at start of a collision.
+     * Function to be executed at the beginning of a collision.
      *
      * @param other Component of the colliding entity
      * @param direction Direction in which the collision happens
@@ -114,7 +114,7 @@ public final class CollideComponent extends Component {
     }
 
     /**
-     * Trigger function to execute at end of a collision.
+     * Function to be executed at the end of a collision.
      *
      * @param other Component of the colliding entity
      * @param direction Direction in which the collision happens
