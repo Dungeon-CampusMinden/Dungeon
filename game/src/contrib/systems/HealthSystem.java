@@ -49,23 +49,25 @@ public final class HealthSystem extends System {
      * @return true if Entity can be removed from the game
      */
     private boolean filterByAnimation(HSData hsd) {
+        DrawComponent dc = hsd.ac;
         // test if hsd has a DeathAnimation
-        Predicate<HSData> hasDeathAnimation =
-                (hsData) -> hsData.ac.hasAnimation(AdditionalAnimations.DIE);
+        Predicate<DrawComponent> hasDeathAnimation =
+                (drawComponent) -> drawComponent.hasAnimation(AdditionalAnimations.DIE);
         // test if Animation is looping
-        Predicate<HSData> isAnimationLooping =
-                (hsData) -> hsData.ac.getAnimation(AdditionalAnimations.DIE).get().isLooping();
+        Predicate<DrawComponent> isAnimationLooping =
+                (drawComponent) ->
+                        drawComponent.getAnimation(AdditionalAnimations.DIE).get().isLooping();
         // test if Animation has finished playing
-        Predicate<HSData> isAnimationFinished =
-                (hsData) -> hsData.ac.currentAnimation().isFinished();
+        Predicate<DrawComponent> isAnimationFinished =
+                (drawComponent) -> drawComponent.currentAnimation().isFinished();
 
-        return !hasDeathAnimation.test(hsd)
-                || isAnimationLooping.test(hsd)
-                || isAnimationFinished.test(hsd);
+        return !hasDeathAnimation.test(dc)
+                || isAnimationLooping.test(dc)
+                || isAnimationFinished.test(dc);
     }
 
     private HSData triggerDeathAnimation(HSData hsd) {
-        // if it has a DeathAnimation check if the DeathAnimation is active
+        // set DeathAnimation as active animation
         if (!hsd.ac.isCurrentAnimation(AdditionalAnimations.DIE)) {
             hsd.ac.currentAnimation(AdditionalAnimations.DIE);
         }
