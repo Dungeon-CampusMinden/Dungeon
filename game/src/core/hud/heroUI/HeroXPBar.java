@@ -15,7 +15,7 @@ public class HeroXPBar extends ProgressBar {
     /**
      * Updates the XPBar of the Hero based on his current level progress
      *
-     * @param xc the XPComponent of the Hero
+     * @param xpPercentage the xpPercentage of the Hero
      */
     protected void updateXPBar(float xpPercentage) {
         this.setValue(xpPercentage);

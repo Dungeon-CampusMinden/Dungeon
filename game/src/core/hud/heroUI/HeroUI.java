@@ -6,8 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import contrib.components.HealthComponent;
 import contrib.components.XPComponent;
 
-import core.Game;
-
 import java.util.logging.Logger;
 
 /** This class represents the UI of the hero */
@@ -18,26 +16,17 @@ public class HeroUI {
     private HeroXPBar xpBar;
     private Label level;
 
-    public HeroUI(long level, long xp){
-        previousTotalXP = xp;
-        this.level = new Label("Level: ", new Skin());
+    public HeroUI(long level, float xpPercentage){
+
+        this.level = new Label("Level: " + level, new Skin());
 
         xpBar = new HeroXPBar();
+        xpBar.setValue(xpPercentage);
     }
 
     // benutzt um zu erkennen ob es eine Änderung in der Erfahrung gab.
     private long previousTotalXP;
 
-    private record HeroData(HealthComponent hc, XPComponent xc) {}
-
-    private void updateExperienceBar(HeroData hd) {
-        if (hd.xc != null) {
-            if (hd.xc.currentXP() != previousTotalXP)
-                HeroUITools.createXPPopup(hd.xc.currentXP() - previousTotalXP);
-            previousTotalXP = hd.xc.currentXP();
-
-        }
-    }
 
     public void updateLevel(int level){
         this.level.setText("Level: " + level);
