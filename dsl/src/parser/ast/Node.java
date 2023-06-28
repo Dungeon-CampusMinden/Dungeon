@@ -49,6 +49,7 @@ public class Node {
         ReturnStmt,
         Block,
         ConditionalStmtIf,
+        Bool,
         ConditionalStmtIfElse
     }
 

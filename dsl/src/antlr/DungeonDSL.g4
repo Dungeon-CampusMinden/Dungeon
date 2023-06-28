@@ -15,6 +15,8 @@ TYPE_SPECIFIER
 DOUBLE_LINE : '--';
 ARROW       : '->';
 
+TRUE : 'true';
+FALSE: 'false';
 ID  : [_a-zA-Z][a-zA-Z0-9_]*;
 NUM : ([0-9]|[1-9][0-9]*);
 NUM_DEC: [0-9]+'.'[0-9]+;
@@ -140,6 +142,8 @@ param_list
 
 primary : ID
         | STRING_LITERAL
+        | TRUE
+        | FALSE
         | NUM
         | NUM_DEC
         | func_call

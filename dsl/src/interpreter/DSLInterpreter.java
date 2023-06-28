@@ -638,4 +638,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         return null;
     }
+
+    @Override
+    public Object visit(BoolNode node) {
+        return new Value(BuiltInType.boolType, node.getValue());
+    }
 }

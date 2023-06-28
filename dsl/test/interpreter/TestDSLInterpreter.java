@@ -609,6 +609,12 @@ public class TestDSLInterpreter {
     public void testIsBoolean() {
         Assert.assertFalse(DSLInterpreter.isBooleanTrue(Value.NONE));
 
+        var boolFalse = new Value(BuiltInType.boolType, false);
+        Assert.assertFalse(DSLInterpreter.isBooleanTrue(boolFalse));
+
+        var boolTrue = new Value(BuiltInType.boolType, true);
+        Assert.assertTrue(DSLInterpreter.isBooleanTrue(boolTrue));
+
         var zeroIntValue = new Value(BuiltInType.intType, 0);
         Assert.assertFalse(DSLInterpreter.isBooleanTrue(zeroIntValue));
 
@@ -740,8 +746,8 @@ public class TestDSLInterpreter {
         String program =
             """
             fn test_func() {
-                if 0 print("Hello");
-                else if 1 print ("World");
+                if false print("Hello");
+                else if true print ("World");
                 else print("!");
             }
 

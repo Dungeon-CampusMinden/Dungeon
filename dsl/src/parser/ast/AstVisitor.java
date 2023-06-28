@@ -215,6 +215,16 @@ public interface AstVisitor<T> {
         return null;
     }
 
+    /**
+     * Visitor method for BoolNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(BoolNode node) {
+        return null;
+    }
+
 
     /**
      * Visit all children of the passed node

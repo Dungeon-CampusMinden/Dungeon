@@ -719,6 +719,12 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             String value = node.getText();
             var typeSpecifierNode = new IdNode(value, getSourceFileReference(node));
             astStack.push(typeSpecifierNode);
+        } else if (nodeType == DungeonDSLLexer.TRUE) {
+            var boolNode = new BoolNode(true, getSourceFileReference(node));
+            astStack.push(boolNode);
+        } else if (nodeType == DungeonDSLLexer.FALSE) {
+            var boolNode = new BoolNode(false, getSourceFileReference(node));
+            astStack.push(boolNode);
         }
     }
 
