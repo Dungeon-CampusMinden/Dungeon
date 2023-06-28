@@ -56,11 +56,10 @@ public final class HealthSystem extends System {
                 (drawComponent) -> drawComponent.hasAnimation(AdditionalAnimations.DIE);
         // test if Animation is looping
         Predicate<DrawComponent> isAnimationLooping =
-                (drawComponent) ->
-                        drawComponent.getAnimation(AdditionalAnimations.DIE).get().isLooping();
+            DrawComponent::isCurrentAnimationLooping;
         // test if Animation has finished playing
         Predicate<DrawComponent> isAnimationFinished =
-                (drawComponent) -> drawComponent.currentAnimation().isFinished();
+                DrawComponent::isCurrentAnimationFinished;
 
         return !hasDeathAnimation.test(dc)
                 || isAnimationLooping.test(dc)

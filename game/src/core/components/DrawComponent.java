@@ -168,4 +168,22 @@ public class DrawComponent extends Component {
         LOGGER.warning("Animation " + path + " is not stored inside " + entity.toString());
         return false;
     }
+
+    /**
+     * Check if the current animation is a looping animation
+     *
+     * @return true if the current animation is looping
+     */
+    public boolean isCurrentAnimationLooping() {
+        return currentAnimation.isLooping();
+    }
+
+    /**
+     * Check if the current animation has finished playing
+     *
+     * @return true if the current animation has finished playing
+     */
+    public boolean isCurrentAnimationFinished() {
+        return currentAnimation.isFinished();
+    }
 }
