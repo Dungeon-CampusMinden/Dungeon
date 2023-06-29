@@ -26,6 +26,8 @@ import java.util.stream.IntStream;
  * DrawComponent#idleRight} animation will be set as the current animation.
  */
 public class DropItemsInteraction implements IInteraction {
+    public DropItemsInteraction(){
+    }
 
     /**
      * Will drop all the items inside the {@link InventoryComponent} of the associated entity on the

@@ -39,6 +39,15 @@ public class XPComponent extends Component {
         this.callbackLevelUp = levelUp;
     }
 
+    public XPComponent(Entity entity, ILevelUp levelUp, long currentLevel, long currentXP, long lootXP){
+        super(entity);
+        this.entity = entity;
+        this.callbackLevelUp = levelUp;
+        this.currentLevel = currentLevel;
+        this.currentXP = currentXP;
+        this.lootXP = lootXP;
+    }
+
     /**
      * Get the current level of the entity
      *
@@ -124,4 +133,6 @@ public class XPComponent extends Component {
         // level 0 in Formula is level 1 in game.
         return Math.round(FORMULA_SLOPE * Math.pow(currentLevel, 2) + LEVEL_1_XP) - currentXP;
     }
+
+    public ILevelUp getCallbackLevelUp(){ return callbackLevelUp; }
 }

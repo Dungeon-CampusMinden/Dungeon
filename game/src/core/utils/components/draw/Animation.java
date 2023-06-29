@@ -89,4 +89,8 @@ public class Animation {
     public List<String> getAnimationFrames() {
         return animationFrames;
     }
+
+    public int getFrameTime() {
+        return frameTime;
+    }
 }

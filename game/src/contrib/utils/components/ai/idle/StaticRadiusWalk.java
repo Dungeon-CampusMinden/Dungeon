@@ -55,4 +55,12 @@ public class StaticRadiusWalk implements IIdleAI {
 
         } else AITools.move(entity, path);
     }
+
+    public float getRadius() {
+        return radius;
+    }
+
+    public int getBreakTime() {
+        return breakTime;
+    }
 }

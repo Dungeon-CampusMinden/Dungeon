@@ -40,4 +40,8 @@ public class CollideAI implements IFightAI {
             AITools.move(entity, path);
         }
     }
+
+    public float getRushRange() {
+        return rushRange;
+    }
 }

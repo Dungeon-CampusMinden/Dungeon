@@ -1,5 +1,6 @@
 package contrib.components;
 
+import contrib.utils.components.interaction.DefaultInteraction;
 import contrib.utils.components.interaction.IInteraction;
 import core.Component;
 import core.Entity;
@@ -33,7 +34,7 @@ public class InteractionComponent extends Component {
      * @param entity the entity to link to
      */
     public InteractionComponent(Entity entity) {
-        this(entity, DEFAULT_RADIUS, DEFAULT_REPEATABLE, InteractionComponent::DefaultInteraction);
+        this(entity, DEFAULT_RADIUS, DEFAULT_REPEATABLE, new DefaultInteraction());
     }
 
     /** triggers the interaction between hero and the Entity of the component */
@@ -56,5 +57,10 @@ public class InteractionComponent extends Component {
      */
     public float getRadius() {
         return radius;
+    }
+    public boolean getRepeatable(){ return repeatable; }
+
+    public IInteraction getOnInteraction() {
+        return onInteraction;
     }
 }

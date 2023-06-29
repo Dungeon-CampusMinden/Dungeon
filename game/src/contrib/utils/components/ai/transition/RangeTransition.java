@@ -21,4 +21,8 @@ public class RangeTransition implements ITransition {
     public boolean isInFightMode(Entity entity) {
         return AITools.playerInRange(entity, range);
     }
+
+    public float getRange() {
+        return range;
+    }
 }

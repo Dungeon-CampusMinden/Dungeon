@@ -31,6 +31,7 @@ public class PatrouilleWalk implements IIdleAI {
 
     private final List<Tile> checkpoints = new ArrayList<>();
     private final int numberCheckpoints;
+    private final int pauseTime;
     private final int pauseFrames;
     private final float radius;
     private final MODE mode;
@@ -53,6 +54,7 @@ public class PatrouilleWalk implements IIdleAI {
     public PatrouilleWalk(float radius, int numberCheckpoints, int pauseTime, MODE mode) {
         this.radius = radius;
         this.numberCheckpoints = numberCheckpoints;
+        this.pauseTime = pauseTime;
         this.pauseFrames = pauseTime / (1000 / Constants.FRAME_RATE);
         this.mode = mode;
     }
@@ -160,5 +162,21 @@ public class PatrouilleWalk implements IIdleAI {
             }
             default -> {}
         }
+    }
+
+    public float getRadius() {
+        return radius;
+    }
+
+    public int getNumberCheckpoints() {
+        return numberCheckpoints;
+    }
+
+    public int getPauseTime() {
+        return pauseTime;
+    }
+
+    public MODE getMode() {
+        return mode;
     }
 }

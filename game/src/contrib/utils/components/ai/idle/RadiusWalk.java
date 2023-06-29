@@ -38,4 +38,11 @@ public class RadiusWalk implements IIdleAI {
 
         } else AITools.move(entity, path);
     }
+
+    public float getRadius() {
+        return radius;
+    }
+    public int getBreakTime() {
+        return breakTime;
+    }
 }

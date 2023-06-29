@@ -4,15 +4,18 @@ import com.badlogic.gdx.utils.Null;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
+import core.Entity;
 import core.level.elements.ILevel;
 import core.utils.Point;
 import mp.packages.GameState;
+import mp.packages.LevelInfo;
 import mp.packages.NetworkSetup;
 import mp.packages.event.GameStateUpdateEvent;
 import mp.packages.request.*;
 import mp.packages.response.*;
 
 import java.io.IOException;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +31,8 @@ public class MultiplayerServer extends Listener {
     private static final Integer writeBufferSize = maxObjectSizeExpected;
     private static final Integer objectBufferSize = maxObjectSizeExpected;
     private final Server server = new Server(writeBufferSize, objectBufferSize );
-    private ILevel level;
+   // private ILevel level;
+    private final LevelInfo levelInfo = new LevelInfo();
     private final GameState gameState = new GameState();
     // Used to pretend initial position for joining clients
     private Point initialHeroPosition = new Point(0, 0);
@@ -61,15 +65,15 @@ public class MultiplayerServer extends Listener {
         } else if (object instanceof InitServerRequest initServerRequest){
             connection.sendTCP(new InitServerResponse(true));
         } else if (object instanceof LoadMapRequest loadMapRequest) {
-            level = loadMapRequest.getLevel();
-            //Todo - look if necessary (every level has a start tile)
-            final Point initialHeroPosition = loadMapRequest.getHeroInitialPosition();
+            levelInfo.setLevel(loadMapRequest.getLevel());
+            levelInfo.setCurrentEntities(loadMapRequest.getCurrentEntities());
+            ///todo todo todo
             if (initialHeroPosition != null) {
                 this.initialHeroPosition = initialHeroPosition;
                 gameState.getHeroPositionByClientId().put(connection.getID(), initialHeroPosition);
             }
             gameState.getHeroPositionByClientId().replaceAll((id, pos) -> pos = initialHeroPosition);
-            server.sendToAllExceptTCP(connection.getID(), new LoadMapResponse(true, level, gameState.getHeroPositionByClientId()));
+            server.sendToAllExceptTCP(connection.getID(), new LoadMapResponse(true, levelInfo.getLevel(), gameState.getHeroPositionByClientId()));
             //connection.sendTCP(new InitializeServerResponse(true, this.initialHeroPosition));
         } else if (object instanceof ChangeMapRequest){
             server.sendToTCP(1, new ChangeMapResponse());
@@ -77,7 +81,7 @@ public class MultiplayerServer extends Listener {
             final int clientId = connection.getID();
             gameState.getHeroPositionByClientId().put(clientId, this.initialHeroPosition);
             JoinSessionResponse response =
-                new JoinSessionResponse(true, level, clientId, gameState.getHeroPositionByClientId());
+                new JoinSessionResponse(true, levelInfo.getLevel(), clientId, gameState.getHeroPositionByClientId());
             connection.sendTCP(response);
         } else if (object instanceof UpdateOwnPositionRequest positionRequest) {
             gameState.getHeroPositionByClientId().put(positionRequest.getClientId(), positionRequest.getHeroPosition());

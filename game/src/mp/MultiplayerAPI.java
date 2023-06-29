@@ -1,6 +1,7 @@
 package mp;
 
 import com.badlogic.gdx.utils.Null;
+import core.Entity;
 import core.level.elements.ILevel;
 import core.utils.Point;
 import mp.client.IMultiplayerClientObserver;
@@ -11,6 +12,7 @@ import mp.server.MultiplayerServer;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static java.util.Objects.requireNonNull;
@@ -133,8 +135,8 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
 //        }
     }
 
-    public void changeLevel(final ILevel level, final Point ownHeroInitialPosition){
-        multiplayerClient.send(new LoadMapRequest(level, ownHeroInitialPosition));
+    public void changeLevel(final ILevel level, final Set<Entity> currentEntities){
+        multiplayerClient.send(new LoadMapRequest(level, currentEntities));
     }
 
     public void requestNewLevel(){

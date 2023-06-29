@@ -192,6 +192,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
         entities.clear();
         getHero().ifPresent(this::placeOnLevelStart);
         EntityFactory.getChest();
+        EntityFactory.getMonster();
     }
 
     private void setCameraFocus() {
@@ -227,7 +228,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
                         () ->
                         new MissingComponentException(
                             "PositionComponent"));
-                multiplayerAPI.changeLevel(currentLevel,pc.getPosition());
+                ////todo - change level design for multiplayer
+                multiplayerAPI.changeLevel(currentLevel, entities.getSet());
             } else {
                 //ask host to generate new map
                 multiplayerAPI.requestNewLevel();
@@ -466,7 +468,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     public void onMultiplayerSessionStarted(final boolean isSucceed) {
         if (isSucceed) {
             hideMenu(startMenu);
-            multiplayerAPI.changeLevel(currentLevel, currentLevel.getStartTile().getCoordinate().toPoint());
+            multiplayerAPI.changeLevel(currentLevel, entities.getSet());
         } else {
             // TODO: error handling like popup menu with error message
 //            System.out.println("Server responded unsuccessful start");
@@ -493,16 +495,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IStartMenuObs
     public void onChangeMapRequest() {
         if(multiplayerAPI.isHost()) {
             levelAPI.loadLevel(LEVELSIZE);
-            PositionComponent pc =
-                (PositionComponent)
-                    getHero()
-                        .get()
-                        .getComponent(PositionComponent.class)
-                        .orElseThrow(
-                            () ->
-                                new MissingComponentException(
-                                    "PositionComponent"));
-            multiplayerAPI.changeLevel(currentLevel, pc.getPosition());
+            multiplayerAPI.changeLevel(currentLevel, entities.getSet());
         }
     }
 

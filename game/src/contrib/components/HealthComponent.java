@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.Null;
 import contrib.systems.HealthSystem;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
+import contrib.utils.components.health.DefaultOnDeath;
 import contrib.utils.components.health.IOnDeathFunction;
 import core.Component;
 import core.Entity;
@@ -48,7 +49,7 @@ public class HealthComponent extends Component {
     private @DSLTypeMember(name = "on_death_function") IOnDeathFunction onDeath;
     private @DSLTypeMember(name = "get_hit_animation") Animation getHitAnimation;
     private @DSLTypeMember(name = "die_animation") Animation dieAnimation;
-    private final Logger healthLogger = Logger.getLogger(this.getClass().getName());
+    private final transient Logger healthLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * Creates a new HealthComponent
@@ -90,7 +91,8 @@ public class HealthComponent extends Component {
         this(
                 entity,
                 1,
-                entity2 -> {},
+                new DefaultOnDeath(),
+                //entity2 -> {},
                 new Animation(missingTexture, 100),
                 new Animation(missingTexture, 100));
     }
@@ -187,6 +189,9 @@ public class HealthComponent extends Component {
      */
     public void setOnDeath(IOnDeathFunction onDeath) {
         this.onDeath = onDeath;
+    }
+    public IOnDeathFunction getOnDeath(){
+        return onDeath;
     }
 
     /**

@@ -1,15 +1,21 @@
 package contrib.entities;
 
 import contrib.components.*;
+import contrib.utils.components.ai.fight.CollideAI;
+import contrib.utils.components.ai.idle.RadiusWalk;
+import contrib.utils.components.ai.transition.SelfDefendTransition;
+import contrib.utils.components.collision.DefaultCollider;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.item.ItemData;
 import contrib.utils.components.item.ItemDataGenerator;
+import contrib.utils.components.skill.CursorPositionTargetSelection;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.*;
+import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.draw.Animation;
@@ -52,12 +58,12 @@ public class EntityFactory {
         new DrawComponent(hero, idleLeft, idleRight);
         new CollideComponent(
                 hero,
-                (you, other, direction) -> System.out.println("heroCollisionEnter"),
-                (you, other, direction) -> System.out.println("heroCollisionLeave"));
+                new DefaultCollider("heroCollisionEnter"),
+                new DefaultCollider("heroCollisionLeave"));
         PlayerComponent pc = new PlayerComponent(hero);
         Skill fireball =
                 new Skill(
-                        new FireballSkill(SkillTools::getCursorPositionAsPoint), fireballCoolDown);
+                        new FireballSkill(new CursorPositionTargetSelection()), fireballCoolDown);
         pc.setSkillSlot1(fireball);
         new SkillComponent(hero).addSkill(fireball);
         return hero;
@@ -147,8 +153,39 @@ public class EntityFactory {
         new DrawComponent(hero, idleLeft, idleRight);
         new CollideComponent(
             hero,
-            (you, other, direction) -> System.out.println("heroCollisionEnter"),
-            (you, other, direction) -> System.out.println("heroCollisionLeave"));
+            new DefaultCollider("heroCollisionEnter"),
+            new DefaultCollider("heroCollisionLeave"));
         return hero;
+    }
+
+    public static Entity getMonster(){
+        return getMonster(Game.currentLevel.getRandomTile(LevelElement.FLOOR).getCoordinate().toPoint());
+    }
+
+    //Todo - make better
+    public static Entity getMonster(Point position){
+        Entity monster = new Entity();
+
+        // Add components to the monster entity
+        new PositionComponent(monster, position);
+        new DrawComponent(
+            monster,
+            AnimationBuilder.buildAnimation("character/monster/chort/idleLeft/"),
+            AnimationBuilder.buildAnimation("character/monster/chort/idleRight/"));
+        new VelocityComponent(
+            monster,
+            0.1f,
+            0.1f,
+            AnimationBuilder.buildAnimation("character/monster/chort/runLeft/"),
+            AnimationBuilder.buildAnimation("character/monster/chort/runRight/"));
+        new HealthComponent(monster);
+        new CollideComponent(monster);
+        new AIComponent(
+            monster,
+            new CollideAI(1),
+            new RadiusWalk(5, 1),
+            new SelfDefendTransition());
+
+        return monster;
     }
 }

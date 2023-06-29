@@ -1,5 +1,6 @@
 package contrib.components;
 
+import contrib.utils.components.collision.DefaultCollider;
 import contrib.utils.components.collision.ICollide;
 import core.Component;
 import core.Entity;
@@ -16,12 +17,11 @@ import semanticAnalysis.types.DSLType;
 public class CollideComponent extends Component {
     public static final Point DEFAULT_OFFSET = new Point(0.25f, 0.25f);
     public static final Point DEFAULT_SIZE = new Point(0.5f, 0.5f);
-    public static final ICollide DEFAULT_COLLIDER = (a, b, c) -> System.out.println("Collide");
     private /*@DSLTypeMember(name="offset")*/ Point offset;
     private /*@DSLTypeMember(name="size")*/ Point size;
     private ICollide iCollideEnter;
     private ICollide iCollideLeave;
-    private final Logger hitboxLogger = Logger.getLogger(this.getClass().getName());
+    private final transient Logger hitboxLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * Creates A Hitbox
@@ -63,7 +63,7 @@ public class CollideComponent extends Component {
      * @param entity associated entity
      */
     public CollideComponent(@DSLContextMember(name = "entity") Entity entity) {
-        this(entity, CollideComponent.DEFAULT_COLLIDER, CollideComponent.DEFAULT_COLLIDER);
+        this(entity, new DefaultCollider(), new DefaultCollider());
     }
 
     /**
@@ -151,5 +151,18 @@ public class CollideComponent extends Component {
     private static MissingComponentException getMissingPositionComponentException() {
         return new MissingComponentException(
                 PositionComponent.class.getName() + " in " + CollideComponent.class.getName());
+    }
+
+    public Point getOffset(){
+        return offset;
+    }
+    public Point getSize(){
+        return size;
+    }
+    public ICollide getiCollideEnter(){
+        return iCollideEnter;
+    }
+    public ICollide getiCollideLeave(){
+        return iCollideLeave;
     }
 }

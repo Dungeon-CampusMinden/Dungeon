@@ -51,6 +51,10 @@ public final class Entity {
         return Optional.ofNullable(components.get(klass));
     }
 
+    public HashMap<Class, Component> getComponents(){
+        return components;
+    }
+
     /**
      * @return The id of this Entity
      */

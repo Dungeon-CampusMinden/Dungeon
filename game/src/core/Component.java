@@ -1,12 +1,13 @@
 package core;
 
+import java.io.Serializable;
 import java.util.logging.Logger;
 
 /*+
  *Component is a piece of data associated with an entity
  */
-public abstract class Component {
-    protected Entity entity;
+public abstract class Component implements Serializable {
+    protected transient Entity entity;
 
     /**
      * @param entity associated with this component

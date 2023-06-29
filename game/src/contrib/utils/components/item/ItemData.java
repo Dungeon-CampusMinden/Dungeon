@@ -84,9 +84,12 @@ public class ItemData {
                 worldTexture,
                 itemName,
                 description,
-                ItemData::defaultCollect,
-                ItemData::defaultDrop,
-                ItemData::defaultUseCallback,
+                new DefaultCollect(),
+                new DefaultDrop(),
+                new DefaultUseCallback(),
+//                ItemData::defaultCollect,
+//                ItemData::defaultDrop,
+//                ItemData::defaultUseCallback,
                 new DamageModifier());
     }
 

@@ -61,19 +61,24 @@ public abstract class DamageProjectileSkill implements ISkillFunction {
         VelocityComponent vc =
                 new VelocityComponent(projectile, velocity.x, velocity.y, animation, animation);
         new ProjectileComponent(projectile, epc.getPosition(), targetPoint);
-        ICollide collide =
-                (a, b, from) -> {
-                    if (b != entity) {
-                        b.getComponent(HealthComponent.class)
-                                .ifPresent(
-                                        hc -> {
-                                            ((HealthComponent) hc).receiveHit(projectileDamage);
-                                            Game.removeEntity(projectile);
-                                        });
-                    }
-                };
+//        ICollide collide =
+//                (a, b, from) -> {
+//                    if (b != entity) {
+//                        b.getComponent(HealthComponent.class)
+//                                .ifPresent(
+//                                        hc -> {
+//                                            ((HealthComponent) hc).receiveHit(projectileDamage);
+//                                            Game.removeEntity(projectile);
+//                                        });
+//                    }
+//                };
+        ICollide collide = new DamageProjectileColliderEnter(entity, projectileDamage, projectile);
 
         new CollideComponent(
                 projectile, new Point(0.25f, 0.25f), projectileHitboxSize, collide, null);
+    }
+
+    public ITargetSelection getSelectionFunction() {
+        return selectionFunction;
     }
 }

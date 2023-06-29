@@ -13,7 +13,7 @@ import semanticAnalysis.types.DSLType;
 @DSLType(name = "position_component")
 public class PositionComponent extends Component {
 
-    private final Logger positionCompLogger = Logger.getLogger(this.getClass().getName());
+    private final transient Logger positionCompLogger = Logger.getLogger(this.getClass().getName());
     private /*@DSLTypeMember(name="position")*/ Point position;
 
     /**

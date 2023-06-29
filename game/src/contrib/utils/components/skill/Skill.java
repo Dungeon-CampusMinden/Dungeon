@@ -7,6 +7,7 @@ public class Skill {
 
     private ISkillFunction skillFunction;
     private int coolDownInFrames;
+    private float coolDownInSeconds;
     private int currentCoolDownInFrames;
 
     /**
@@ -14,6 +15,7 @@ public class Skill {
      */
     public Skill(ISkillFunction skillFunction, float coolDownInSeconds) {
         this.skillFunction = skillFunction;
+        this.coolDownInSeconds = coolDownInSeconds;
         this.coolDownInFrames = (int) (coolDownInSeconds * Constants.FRAME_RATE);
         this.currentCoolDownInFrames = 0;
     }
@@ -45,5 +47,13 @@ public class Skill {
     /** reduces the current cool down by frame */
     public void reduceCoolDown() {
         currentCoolDownInFrames = Math.max(0, --currentCoolDownInFrames);
+    }
+
+    public float getCoolDownInSeconds() {
+        return coolDownInSeconds;
+    }
+
+    public ISkillFunction getSkillFunction() {
+        return skillFunction;
     }
 }
