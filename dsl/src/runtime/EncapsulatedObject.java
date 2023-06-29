@@ -86,7 +86,8 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                 var type = TypeBuilder.getDSLTypeForClass(value.getClass());
                 if (type != null) {
                     // TODO: create encapsulated value (because the field is a POD-field, or "basic
-                    // type")
+                    //  type") -> linking the value to the field is only required for setting the internal value
+                    //  not for reading.. but this decision should not be made here in the `resolve`-method
 
                 } else {
                     var dslTypeName = TypeBuilder.getDSLName(value.getClass());
