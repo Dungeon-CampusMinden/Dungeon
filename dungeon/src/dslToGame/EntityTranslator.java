@@ -5,13 +5,18 @@ import core.Entity;
 
 import interpreter.DSLInterpreter;
 import runtime.AggregateValue;
+import runtime.EncapsulatedObject;
 import runtime.IEvironment;
 import runtime.IMemorySpace;
+import semanticanalysis.Symbol;
 import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.IType;
+import semanticanalysis.types.TypeBuilder;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class EntityTranslator implements IRuntimeObjectTranslator<Entity, AggregateValue> {
     @Override
@@ -25,34 +30,32 @@ public class EntityTranslator implements IRuntimeObjectTranslator<Entity, Aggreg
             // create aggregateValue
             var value = new AggregateValue((AggregateType)entityType, parentMemorySpace, object);
 
-            // check for presence of components
-            var types = env.getTypes();
-            ArrayList<AggregateType> componentTypes = new ArrayList<>();
-            for (var type : types) {
-                if (type.getTypeKind() == IType.Kind.Aggregate ||
-                    type.getTypeKind() == IType.Kind.PODAdapted ||
-                    type.getTypeKind() == IType.Kind.AggregateAdapted) {
-                    if (type instanceof AggregateType) {
-                        var aggrType = (AggregateType) type;
-                        var originType = aggrType.getOriginType();
-                        var superClass = originType.getSuperclass();
-                        if (superClass.equals(Component.class)) {
-                            componentTypes.add(aggrType);
-                        }
-                    }
+            // get components
+            // TODO: use stream better
+            List<Component> componentTypes =  object.componentStream().toList();
+
+            // TODO: translate components into DSL-objects
+            //  this probably could be done by encapsulating objects with a previos check
+            //  for type availability
+            var globalScope = interpreter.getRuntimeEnvironment().getSymbolTable().getGlobalScope();
+            for (var component : componentTypes) {
+                String componentDSLName = TypeBuilder.getDSLName(component.getClass());
+                var componentDSLType = globalScope.resolve(componentDSLName);
+
+                if (componentDSLType != Symbol.NULL) {
+                    // TODO: casting to AggregateType here is probably not safe
+                    //  -> was passiert, wenn das hier PODAdapted ist?
+
+                    var encapsulatedObject = new EncapsulatedObject(component, (AggregateType)componentDSLType, value.getMemorySpace(), null);
+                    AggregateValue aggregateMemberValue =
+                        new AggregateValue((AggregateType)componentDSLType, value.getMemorySpace(), component);
+                    aggregateMemberValue.setMemorySpace(encapsulatedObject);
+
+                    value.getMemorySpace().bindValue(componentDSLName, aggregateMemberValue);
                 }
             }
 
-            for (var componentType : componentTypes) {
-                var originType = componentType.getOriginType();
-                if (object.isPresent((Class<? extends Component>) originType)) {
-                    // add aggregate value for component in memoryspace of entity
-                    // TODO: this probably needs a translator for each component..
-                    boolean b = true;
-                }
-            }
+            return value;
         }
-
-        return null;
     }
 }
