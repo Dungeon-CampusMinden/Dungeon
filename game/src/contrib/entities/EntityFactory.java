@@ -47,7 +47,7 @@ public class EntityFactory {
         new CameraComponent(hero);
         new PositionComponent(hero);
         new VelocityComponent(hero, xSpeed, ySpeed);
-        new DrawComponent(hero, "character/knight");
+        new DrawComponent(hero, "character/blue_knight");
         new CollideComponent(
                 hero,
                 (you, other, direction) -> System.out.println("heroCollisionEnter"),
