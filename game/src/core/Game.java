@@ -81,6 +81,15 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
      */
     private static int FRAME_RATE = 30;
+
+    /**
+     * Part of the pre-run configuration. If this value is true, the game will be started in full
+     * screen mode.
+     *
+     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
+     */
+    private static boolean FULL_SCREEN = false;
+
     /**
      * Part of the pre-run configuration. The title of the Game-Window.
      *
@@ -186,6 +195,15 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
+     * Get if the game is currently in full screen mode
+     *
+     * @return true if the game is currently in full screen mode
+     */
+    public static boolean fullScreen() {
+        return FULL_SCREEN;
+    }
+
+    /**
      * The currently set level-Size.
      *
      * <p>This value is used for the generation of the next level.
@@ -234,6 +252,15 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     public static void frameRate(int frameRate) {
         FRAME_RATE = frameRate;
+    }
+
+    /**
+     * Set the window to fullscreen mode or windowed mode.
+     *
+     * @param fullscreen true for fullscreen, false for windowed
+     */
+    public static void fullScreen(boolean fullscreen) {
+        FULL_SCREEN = fullscreen;
     }
 
     /**
@@ -376,7 +403,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param klass the class where the ConfigKey fields are located
      * @throws IOException if the file could not be read
      */
-    public static void loadConfig(String pathAsString, Class<?> klass) throws IOException {
+    public static void loadConfig(String pathAsString, Class<?>... klass) throws IOException {
         Configuration.loadAndGetConfiguration(pathAsString, klass);
     }
 
@@ -393,6 +420,13 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         config.setTitle(WINDOW_TITLE);
         config.setWindowIcon(LOGO_PATH);
         config.disableAudio(DISABLE_AUDIO);
+
+        if (FULL_SCREEN) {
+            config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
+        } else {
+            config.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
+        }
+
         // uncomment this if you wish no audio
         new Lwjgl3Application(
                 new com.badlogic.gdx.Game() {
@@ -642,6 +676,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
             LOGGER.warning(e.getMessage());
         }
         debugKeys();
+        fullscreenKey();
         userOnFrame.execute();
     }
 
@@ -655,6 +690,17 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
             // toggle UI "debug rendering"
             stage().ifPresent(x -> x.setDebugAll(uiDebugFlag = !uiDebugFlag));
+        }
+    }
+
+    private void fullscreenKey() {
+        if (Gdx.input.isKeyJustPressed(
+                core.configuration.KeyboardConfig.TOGGLE_FULLSCREEN.value())) {
+            if (!Gdx.graphics.isFullscreen()) {
+                Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+            } else {
+                Gdx.graphics.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
+            }
         }
     }
 
