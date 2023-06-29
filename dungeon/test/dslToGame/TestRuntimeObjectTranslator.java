@@ -6,6 +6,7 @@ import core.Entity;
 import core.components.CameraComponent;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.utils.Point;
 import helpers.Helpers;
 import interpreter.DSLInterpreter;
@@ -19,6 +20,7 @@ public class TestRuntimeObjectTranslator {
         var entity = new Entity();
         entity.addComponent(new CameraComponent(entity));
         entity.addComponent(new PositionComponent(entity, new Point(0,0)));
+        entity.addComponent(new VelocityComponent(entity));
         entity.addComponent(new HealthComponent(entity));
 
         String program =
@@ -33,6 +35,9 @@ public class TestRuntimeObjectTranslator {
         var rtEnv = interpreter.getRuntimeEnvironment();
         var globalMs = interpreter.getGlobalMemorySpace();
         var translator = new EntityTranslator();
-        AggregateValue entityAsValue = translator.translate(entity, rtEnv, globalMs);
+        AggregateValue entityAsValue = translator.translate(entity, rtEnv, globalMs, interpreter);
+
+        var velocityComponent = (AggregateValue)entityAsValue.getMemorySpace().resolve("velocity_component");
+        var xVelocity = velocityComponent.getMemorySpace().resolve("x_velocity");
     }
 }
