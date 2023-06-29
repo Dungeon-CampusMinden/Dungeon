@@ -626,6 +626,48 @@ von Funktionsnamen. Die Auflösung eines Funktionsaufrufs basierend auf den Para
 Typechecking, was aktuell noch nicht implementiert ist. Es ist noch nicht klar, ob Überladung nach der Implementierung
 von Typechecking hinzugefügt wird, oder nicht.
 
+### Kontrollfluss-Steuerung
+
+**Konditionale Statements**
+
+Per `if` und `else`-Keywords können Anweisungen im Funktionsrumpf abhängig von einer Bedingung ausgeführt werden.
+Die Bedingung wird auf einen Wahrheitswert (`true` oder `false`) abgebildet. Falls die Bedingung `true` ist, werden
+die Anweisungen im `if`-Zweig ausgeführt, andernfalls die Anweisungen im `else`-Zweig (falls vorhanden).
+
+Falls nur eine Anweisung in einem `if`- oder `else`-Zweig ausgeführt werden soll, kann dies so aussehen:
+```
+if condition
+  print("Hello");
+else
+  print("World");
+```
+Zum obigen Beispiel: ist `condition` `true`, wird `"Hello"` ausgegeben, andernfalls wird `"World"` ausgegeben.
+
+Falls mehr als Anweisung im Zweig ausgeführt werden sollen, müssen sie in geschweifte Klammern zusammengefasst werden:
+
+```
+if condition {
+  print("Hello");
+  print("World");
+}
+```
+
+Konditionale Anweisungen können kaskadiert werden:
+
+```
+if condition1
+  print("Hello");
+else if condition 2
+  print("World");
+else
+  print("!");
+```
+
+Im obigen Beispiel wird zuerst `condition1` überprüft, falls sie `true` ist, wird `"Hello"` ausgegeben.
+Nur falls `condition1` `false` ist, wird `condition2` überprüft und falls diese Bedingung `true` ist, wird
+`"World"` ausgegeben. Nur wenn `condition1` und `condition2` `false` sind, wird die letzte `else` Anweisung
+ausgeführt und `"!"` wird ausgegeben.
+
 ### Import aus anderen DSL-Files
 
 ```
