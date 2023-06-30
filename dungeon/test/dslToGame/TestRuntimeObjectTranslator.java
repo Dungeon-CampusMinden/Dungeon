@@ -36,10 +36,7 @@ public class TestRuntimeObjectTranslator {
         var interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
 
-        var rtEnv = interpreter.getRuntimeEnvironment();
-        var globalMs = interpreter.getGlobalMemorySpace();
-        var translator = new EntityTranslator();
-        AggregateValue entityAsValue = translator.translate(entity, rtEnv, globalMs, interpreter);
+        AggregateValue entityAsValue = (AggregateValue)env.translateRuntimeObject(entity, interpreter);
 
         var velocityComponent =
                 (AggregateValue) entityAsValue.getMemorySpace().resolve("velocity_component");

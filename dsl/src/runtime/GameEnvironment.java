@@ -7,8 +7,11 @@ import core.Entity;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
+import dslToGame.EntityTranslator;
+import dslToGame.IRuntimeObjectTranslator;
 import dslToGame.QuestConfig;
 
+import interpreter.DSLInterpreter;
 import runtime.nativefunctions.NativeInstantiate;
 import runtime.nativefunctions.NativePrint;
 
@@ -35,6 +38,7 @@ public class GameEnvironment implements IEvironment {
     protected final HashMap<String, Symbol> loadedFunctions = new HashMap<>();
     protected final SymbolTable symbolTable;
     protected final Scope globalScope;
+    protected final HashMap<Class<?>, IRuntimeObjectTranslator> runtimeTranslators = new HashMap<>();
 
     public TypeBuilder getTypeBuilder() {
         return typeBuilder;
@@ -55,12 +59,17 @@ public class GameEnvironment implements IEvironment {
 
         bindBuiltIns();
         registerDefaultTypeAdapters();
+        registerDefaultRuntimeObjectTranslators();
     }
 
     protected void registerDefaultTypeAdapters() {
         /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
          * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
         // typeBuilder.registerTypeAdapter(AnimationBuilder.class, Scope.NULL);
+    }
+
+    protected void registerDefaultRuntimeObjectTranslators() {
+        this.runtimeTranslators.put(Entity.class, new EntityTranslator());
     }
 
     protected void bindBuiltIns() {
@@ -191,5 +200,17 @@ public class GameEnvironment implements IEvironment {
         nativeFunctions.add(NativePrint.func);
         nativeFunctions.add(NativeInstantiate.func);
         return nativeFunctions;
+    }
+
+    public Value translateRuntimeObject(Object object, DSLInterpreter interpreter) {
+        var objectsClass = object.getClass();
+        var translator = this.runtimeTranslators.get(objectsClass);
+        if (translator == null) {
+            // TODO: lookup type
+            // TODO: create new Value for type and set internal object accordingly
+            return null;
+        } else {
+            return translator.translate(object, this, interpreter.getGlobalMemorySpace(), interpreter);
+        }
     }
 }

@@ -4,10 +4,11 @@ import interpreter.DSLInterpreter;
 
 import runtime.IEvironment;
 import runtime.IMemorySpace;
+import runtime.Value;
 
-public interface IRuntimeObjectTranslator<FromTy, ToTy> {
-    ToTy translate(
-            FromTy object,
+public interface IRuntimeObjectTranslator {
+    Value translate(
+            Object object,
             IEvironment environment,
             IMemorySpace parentMemorySpace,
             DSLInterpreter interpreter);
