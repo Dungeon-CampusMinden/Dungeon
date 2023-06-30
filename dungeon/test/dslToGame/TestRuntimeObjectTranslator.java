@@ -1,16 +1,20 @@
 package dslToGame;
 
 import contrib.components.HealthComponent;
-import core.Entity;
 
+import core.Entity;
 import core.components.CameraComponent;
-import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
+
 import helpers.Helpers;
+
 import interpreter.DSLInterpreter;
+
+import org.junit.Assert;
 import org.junit.Test;
+
 import runtime.AggregateValue;
 import runtime.GameEnvironment;
 
@@ -19,12 +23,11 @@ public class TestRuntimeObjectTranslator {
     public void testEntityTranslation() {
         var entity = new Entity();
         entity.addComponent(new CameraComponent(entity));
-        entity.addComponent(new PositionComponent(entity, new Point(0,0)));
+        entity.addComponent(new PositionComponent(entity, new Point(0, 0)));
         entity.addComponent(new VelocityComponent(entity));
         entity.addComponent(new HealthComponent(entity));
 
-        String program =
-            """
+        String program = """
             quest_config my_quest_config {}
             """;
 
@@ -37,7 +40,14 @@ public class TestRuntimeObjectTranslator {
         var translator = new EntityTranslator();
         AggregateValue entityAsValue = translator.translate(entity, rtEnv, globalMs, interpreter);
 
-        var velocityComponent = (AggregateValue)entityAsValue.getMemorySpace().resolve("velocity_component");
-        var xVelocity = velocityComponent.getMemorySpace().resolve("x_velocity");
+        var velocityComponent =
+                (AggregateValue) entityAsValue.getMemorySpace().resolve("velocity_component");
+        var xVelocityValue = velocityComponent.getMemorySpace().resolve("x_velocity");
+        var internalXVelocity = xVelocityValue.getInternalValue();
+
+        Assert.assertEquals(0.0f, internalXVelocity);
+        xVelocityValue.setInternalValue(42.0f);
+        internalXVelocity = xVelocityValue.getInternalValue();
+        Assert.assertEquals(42.0f, internalXVelocity);
     }
 }
