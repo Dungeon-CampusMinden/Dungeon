@@ -677,6 +677,10 @@ ausgeführt und `"!"` wird ausgegeben.
 
 ### Import aus anderen DSL-Files
 
+Per `#import`-Anweisung können Definition aus anderen DSL-Dateien in die aktuelle Datei integriert werden.
+Dabei wird der (relative) Pfad der Datei in `<` und `>` gefasst, gefolgt von einem `:` und dem Namen des Symbols
+(also z.B. einer Entitätstyp-Definition oder Funktionsdefinition), welches importiert werden soll.
+
 ```
 #import <relative_file_path.dsl>:name_of_thing_to_import
 
@@ -684,14 +688,3 @@ Bspw.
 #import <my_entity_types.dsl>:question_monster
 #import <my_function_definitions.dsl>:evaluation_thingy>
 ```
-
-Gedanken dazu:
-- [x] brauchen wir namespaces? -> BRAUCHEN? nein!
-- [x] soll einfach alles aus einer Datei in die aktuelle Datei inkludiert
-  werden? -> nein
-  - Das würde bedeuten, dass ich mir das auch verketten kann, also
-    indem ich in Datei1 Datei2 inkludiere, und in Datei3 Datei2 inkludiere,
-    automatisch Datei1 in Datei3 inkludiert habe
-  - lieber explizit sein!
-- [x] wie mit überladenen Funktionen umgehen? einfach alle mit dem gleichen
-  Namen laden? -> aktuell gibt es keine überladenen Funktionen
