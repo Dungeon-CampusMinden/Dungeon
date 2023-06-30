@@ -12,10 +12,12 @@ import dslToGame.IRuntimeObjectTranslator;
 import dslToGame.QuestConfig;
 
 import interpreter.DSLInterpreter;
+
 import runtime.nativefunctions.NativeInstantiate;
 import runtime.nativefunctions.NativePrint;
 
 import semanticanalysis.*;
+import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
@@ -38,7 +40,8 @@ public class GameEnvironment implements IEvironment {
     protected final HashMap<String, Symbol> loadedFunctions = new HashMap<>();
     protected final SymbolTable symbolTable;
     protected final Scope globalScope;
-    protected final HashMap<Class<?>, IRuntimeObjectTranslator> runtimeTranslators = new HashMap<>();
+    protected final HashMap<Class<?>, IRuntimeObjectTranslator> runtimeTranslators =
+            new HashMap<>();
 
     public TypeBuilder getTypeBuilder() {
         return typeBuilder;
@@ -202,15 +205,40 @@ public class GameEnvironment implements IEvironment {
         return nativeFunctions;
     }
 
-    public Value translateRuntimeObject(Object object, DSLInterpreter interpreter) {
+    public Value translateRuntimeObject(Object object, DSLInterpreter interpreter, IMemorySpace parentMemorySpace) {
         var objectsClass = object.getClass();
         var translator = this.runtimeTranslators.get(objectsClass);
+        Value returnValue = Value.NONE;
         if (translator == null) {
             // TODO: lookup type
-            // TODO: create new Value for type and set internal object accordingly
-            return null;
+            IType dslType = TypeBuilder.getDSLTypeForClass(objectsClass);
+            if (dslType != null) {
+                // create plain value
+                returnValue = new Value(dslType, object);
+            } else {
+                String dslTypeName = TypeBuilder.getDSLName(objectsClass);
+                Symbol dslTypeSymbol = this.globalScope.resolve(dslTypeName);
+                if (dslTypeSymbol.equals(Symbol.NULL)) {
+                    throw new RuntimeException(
+                            "Could not translate object of type '"
+                                    + objectsClass
+                                    + "' to dsl value, type could not be resolved!");
+                } else {
+                    dslType = (IType)dslTypeSymbol;
+                    if (dslType.getTypeKind() == IType.Kind.Aggregate) {
+                        var aggregateType = (AggregateType)dslType;
+                        returnValue = new AggregateValue(aggregateType, parentMemorySpace);
+                        var encapsulatedObject = new EncapsulatedObject(object, aggregateType, parentMemorySpace, this);
+                        ((AggregateValue)returnValue).setMemorySpace(encapsulatedObject);
+                    }
+                    // TODO: Add other branches or figure out, if the distinction based on
+                    //  typekind is even necessary here
+                }
+            }
         } else {
-            return translator.translate(object, this, interpreter.getGlobalMemorySpace(), interpreter);
+            returnValue = translator.translate(
+                    object, this, parentMemorySpace, interpreter);
         }
+        return returnValue;
     }
 }
