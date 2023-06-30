@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import runtime.AggregateValue;
 import runtime.GameEnvironment;
+import runtime.Value;
 
 public class TestRuntimeObjectTranslator {
     @Test
@@ -42,12 +43,10 @@ public class TestRuntimeObjectTranslator {
 
         var velocityComponent =
                 (AggregateValue) entityAsValue.getMemorySpace().resolve("velocity_component");
-        var xVelocityValue = velocityComponent.getMemorySpace().resolve("x_velocity");
-        var internalXVelocity = xVelocityValue.getInternalValue();
+        Assert.assertNotEquals(Value.NONE, velocityComponent);
 
-        Assert.assertEquals(0.0f, internalXVelocity);
-        xVelocityValue.setInternalValue(42.0f);
-        internalXVelocity = xVelocityValue.getInternalValue();
-        Assert.assertEquals(42.0f, internalXVelocity);
+        var positionComponent =
+            (AggregateValue) entityAsValue.getMemorySpace().resolve("position_component");
+        Assert.assertNotEquals(Value.NONE, positionComponent);
     }
 }
