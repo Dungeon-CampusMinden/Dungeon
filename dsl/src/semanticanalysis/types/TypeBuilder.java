@@ -100,7 +100,7 @@ public class TypeBuilder {
         var classAnnotation = clazz.getAnnotation(DSLType.class);
         if (classAnnotation == null) return "";
         return classAnnotation.name().equals("")
-                ? convertToDSLName(clazz.getName())
+                ? convertToDSLName(clazz.getSimpleName())
                 : classAnnotation.name();
     }
 

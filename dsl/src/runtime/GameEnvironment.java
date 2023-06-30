@@ -40,7 +40,7 @@ public class GameEnvironment implements IEvironment {
     protected final HashMap<String, Symbol> loadedFunctions = new HashMap<>();
     protected final SymbolTable symbolTable;
     protected final Scope globalScope;
-    protected final HashMap<Class<?>, IRuntimeObjectTranslator> runtimeTranslators =
+    protected final HashMap<Class<?>, IRuntimeObjectTranslator> runtimeObjectTranslators =
             new HashMap<>();
 
     public TypeBuilder getTypeBuilder() {
@@ -72,7 +72,7 @@ public class GameEnvironment implements IEvironment {
     }
 
     protected void registerDefaultRuntimeObjectTranslators() {
-        this.runtimeTranslators.put(Entity.class, new EntityTranslator());
+        this.runtimeObjectTranslators.put(Entity.class, new EntityTranslator());
     }
 
     protected void bindBuiltIns() {
@@ -130,6 +130,7 @@ public class GameEnvironment implements IEvironment {
         loadFunctions(Arrays.stream(functions).toList());
     }
 
+
     @Override
     public void loadFunctions(List<ScopedSymbol> functions) {
         for (var func : functions) {
@@ -142,6 +143,13 @@ public class GameEnvironment implements IEvironment {
             loadedFunctions.put(func.getName(), func);
             this.globalScope.bind(func);
         }
+    }
+
+    public void loadRuntimeTranslator(Class<?> clazz, IRuntimeObjectTranslator translator) {
+        if (this.runtimeObjectTranslators.containsKey(clazz)) {
+            throw new RuntimeException("RuntimeObjectTranslator for class '" + clazz + "' is already registered");
+        }
+        this.runtimeObjectTranslators.put(clazz, translator);
     }
 
     @Override
@@ -207,7 +215,7 @@ public class GameEnvironment implements IEvironment {
 
     public Value translateRuntimeObject(Object object, DSLInterpreter interpreter, IMemorySpace parentMemorySpace) {
         var objectsClass = object.getClass();
-        var translator = this.runtimeTranslators.get(objectsClass);
+        var translator = this.runtimeObjectTranslators.get(objectsClass);
         Value returnValue = Value.NONE;
         if (translator == null) {
             // TODO: lookup type
