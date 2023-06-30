@@ -685,3 +685,15 @@ Bspw.
 #import <my_entity_types.dsl>:question_monster
 #import <my_function_definitions.dsl>:evaluation_thingy>
 ```
+
+**Taskbuilder-Methoden**
+
+Der Import-Mechanismus muss nicht für Taskbuilder-Methoden verwendet werden, da diese gesondert vom
+DSLInterpreter behandelt werden.
+Das Dungeon-System ließt die Taskbuilder-Methoden automatisch aus einem fest definierten Verzeichnis ein
+und wählt, sofern nicht anders in der `quest_config`-Definition vorgesehen, eine passende Taskbuilder-Methode
+für den jeweiligen Aufgabentypen aus. Nur falls **eine bestimmte** Taskbuilder-Methode für eine
+Aufgabe verwendet werden soll, muss die entsprechende Definition per `#import`-Anweisung importiert werden.
+
+### Aufgabenabhängigkeiten
+
