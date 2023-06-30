@@ -298,9 +298,6 @@ type id {
 }
 ```
 
-**inline Objektdefinition**
-
-TODO: kommt mit [PR #272](https://github.com/Programmiermethoden/Dungeon/pull/272)
 
 #### Eigenschaftsdefinition (Propertydefinition)
 
@@ -316,6 +313,7 @@ der rechten Seite. Die linke und rechte Seite werden durch `:` getrennt.
 
 Auf der rechten Seite muss ein Ausdruck stehen, welcher vom `DSLInterpreter` zu einem Wert evaluiert
 werden kann (gültige Ausdrücke sind im Kapitel [Ausdrücke](#ausdrücke) dargestellt.)
+
 
 ### Ausdrücke
 
@@ -382,6 +380,15 @@ aussehen:
 ```
 string_array_variable = ["a", "b", "c"];
 string_variable = string_array_variable[0]
+```
+
+**inline Objektdefinition**
+
+Es ist möglich, Objekte für komplexe Datentypen auf der rechten Seite einer
+Zuweisung zu erzeugen und den Eigenschaften so zuzuweisen:
+
+```
+variable_with_complex_type = complex_type { string: "Hello, World!", number: 42 };
 ```
 
 ### Quest-Config
