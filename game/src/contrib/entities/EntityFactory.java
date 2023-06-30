@@ -16,14 +16,11 @@ import core.components.*;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
@@ -168,25 +165,21 @@ public class EntityFactory {
     /**
      * Create a new Entity that can be used as a Monster.
      *
-     * <p>It will have a {@link PositionComponent}, {@link HealthComponent},
-     * {@link AIComponent} with random AIs from the {@link AIFactory} class,
-     * {@link DrawComponent} with a randomly set Animation, {@link VelocityComponent},
-     * {@link CollideComponent} and a 10% chancec for an {@link InventoryComponent}.
-     * If it has an Inventory it will use the {@link DropItemsInteraction} on death.
+     * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link AIComponent}
+     * with random AIs from the {@link AIFactory} class, {@link DrawComponent} with a randomly set
+     * Animation, {@link VelocityComponent}, {@link CollideComponent} and a 10% chance for an {@link
+     * InventoryComponent}. If it has an Inventory it will use the {@link DropItemsInteraction} on
+     * death.
      *
-     * @return The generated "Monster".
-     * NOTE: +1 for health as nextInt() is exclusive
+     * @return The generated "Monster". NOTE: +1 for health as nextInt() is exclusive
      */
     public static Entity getRandomizedMonster() throws IOException {
         Random random = new Random();
-        int health = random.nextInt(2,5 + 1);
+        int health = random.nextInt(2, 5 + 1);
         float speed = random.nextFloat(0.1f, 0.25f);
 
         Entity monster = new Entity("monster");
-        String[] monsterFilePaths = {
-            "character/monster/chort",
-            "character/monster/imp"
-        };
+        String[] monsterFilePaths = {"character/monster/chort", "character/monster/imp"};
 
         PositionComponent pc = new PositionComponent(monster);
         Point pos = Game.currentLevel().randomTile(LevelElement.FLOOR).coordinate().toPoint();
@@ -196,24 +189,20 @@ public class EntityFactory {
         hc.maximalHealthpoints(health);
         hc.currentHealthpoints(health);
 
-        AIComponent aic = new AIComponent(monster);
-        aic.idleAI(
-            AIFactory.generateRandomIdleAI());
-        aic.fightAI(
-            AIFactory.generateRandomFightAI());
-        aic.setTransitionAI(
-            AIFactory.generateRandomTransitionAI(monster));
+        new AIComponent(
+                monster,
+                AIFactory.generateRandomFightAI(),
+                AIFactory.generateRandomIdleAI(),
+                AIFactory.generateRandomTransitionAI(monster));
 
-        DrawComponent dc = new DrawComponent(monster,
-            monsterFilePaths[random.nextInt(0, monsterFilePaths.length)]
-        );
+        new DrawComponent(monster, monsterFilePaths[random.nextInt(0, monsterFilePaths.length)]);
 
-        VelocityComponent vc = new VelocityComponent(monster,speed, speed);
+        new VelocityComponent(monster, speed, speed);
 
-        CollideComponent cc = new CollideComponent(monster);
+        new CollideComponent(monster);
 
-        int itemRoll = random.nextInt(0,10);
-        if(itemRoll == 0){
+        int itemRoll = random.nextInt(0, 10);
+        if (itemRoll == 0) {
             ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
             ItemData item = itemDataGenerator.generateItemData();
             InventoryComponent ic = new InventoryComponent(monster, 1);
