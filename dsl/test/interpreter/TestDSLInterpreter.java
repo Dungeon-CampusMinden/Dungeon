@@ -484,7 +484,7 @@ public class TestDSLInterpreter {
     @Test
     public void objectEncapsulation() {
         String program =
-            """
+                """
             entity_type my_obj {
                 test_component1 {
                     member1: 42,
@@ -505,13 +505,13 @@ public class TestDSLInterpreter {
         var env = new TestEnvironment();
         var interpreter = new DSLInterpreter();
         var questConfig =
-            Helpers.generateQuestConfigWithCustomTypes(
-                program,
-                env,
-                interpreter,
-                Entity.class,
-                TestComponent1.class,
-                TestComponent2.class);
+                Helpers.generateQuestConfigWithCustomTypes(
+                        program,
+                        env,
+                        interpreter,
+                        Entity.class,
+                        TestComponent1.class,
+                        TestComponent2.class);
 
         var entity = ((CustomQuestConfig) questConfig).entity();
         var rtEnv = interpreter.getRuntimeEnvironment();
@@ -521,16 +521,18 @@ public class TestDSLInterpreter {
         // encapsulate the actual
         // test component instances
         var config = (AggregateValue) (globalMs.resolve("config"));
-        var firstEntity = (AggregateValue)config.getMemorySpace().resolve("entity");
-        var secondEntity = (AggregateValue)config.getMemorySpace().resolve("second_entity");
+        var firstEntity = (AggregateValue) config.getMemorySpace().resolve("entity");
+        var secondEntity = (AggregateValue) config.getMemorySpace().resolve("second_entity");
 
         // set values in the testComponent1 of firstEntity and check, that the members in
         // second Entity stay the same
-        var firstEntitysComp1 = (AggregateValue)firstEntity.getMemorySpace().resolve("test_component1");
+        var firstEntitysComp1 =
+                (AggregateValue) firstEntity.getMemorySpace().resolve("test_component1");
         var firstEntitysComp1Member1 = firstEntitysComp1.getMemorySpace().resolve("member1");
         firstEntitysComp1Member1.setInternalValue(123);
 
-        var secondEntitysComp1 = (AggregateValue)secondEntity.getMemorySpace().resolve("test_component1");
+        var secondEntitysComp1 =
+                (AggregateValue) secondEntity.getMemorySpace().resolve("test_component1");
         var secondEntitysComp1Member1 = secondEntitysComp1.getMemorySpace().resolve("member1");
         var internalValue = secondEntitysComp1Member1.getInternalValue();
         Assert.assertEquals(42, internalValue);
@@ -539,7 +541,7 @@ public class TestDSLInterpreter {
     @Test
     public void aggregateTypeInstancingNonSupportedExternalType() {
         String program =
-            """
+                """
             entity_type my_obj {
                 component_with_external_type_member { }
             }

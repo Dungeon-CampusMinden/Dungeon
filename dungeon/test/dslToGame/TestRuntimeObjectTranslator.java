@@ -46,7 +46,7 @@ public class TestRuntimeObjectTranslator {
         Assert.assertNotEquals(Value.NONE, velocityComponent);
 
         var positionComponent =
-            (AggregateValue) entityAsValue.getMemorySpace().resolve("position_component");
+                (AggregateValue) entityAsValue.getMemorySpace().resolve("position_component");
         Assert.assertNotEquals(Value.NONE, positionComponent);
     }
 }
