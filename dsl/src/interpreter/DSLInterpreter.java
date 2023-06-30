@@ -491,9 +491,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
         if (valueInMemorySpace instanceof AggregateValue) {
             AggregateValue valueToSet = (AggregateValue) value;
             ((AggregateValue) valueInMemorySpace).setMemorySpace(valueToSet.getMemorySpace());
-            valueInMemorySpace.setInternalValue(valueToSet.getInternalObject());
+            valueInMemorySpace.setInternalValue(valueToSet.getInternalValue());
         } else {
-            valueInMemorySpace.setInternalValue(((Value) value).getInternalObject());
+            valueInMemorySpace.setInternalValue(((Value) value).getInternalValue());
         }
         return true;
     }
@@ -607,7 +607,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         for (var ms : this.memoryStack) {
             Value returnValue = ms.resolve(RETURN_VALUE_NAME);
             if (returnValue != Value.NONE) {
-                returnValue.setInternalValue(value.getInternalObject());
+                returnValue.setInternalValue(value.getInternalValue());
                 break;
             }
         }

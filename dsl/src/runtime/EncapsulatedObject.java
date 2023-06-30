@@ -22,8 +22,9 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
     // TODO: should probably abstract all that away in a TypeFactory, which
     //  handles creation of encapsulated objects and other stuff
     private IEvironment environment;
-    private HashMap<String, EncapsulatedObject> objectCache;
+    private HashMap<String, Value> objectCache;
 
+    // TODO: rename -> this is an "encapsulatedComplexObject"
     /**
      * Constructor
      *
@@ -67,30 +68,33 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
 
     @Override
     public Value resolve(String name) {
+        Value returnValue = Value.NONE;
         if (objectCache.containsKey(name)) {
             return objectCache.get(name);
         }
 
         // lookup name
         Field correspondingField = this.typeMemberToField.getOrDefault(name, null);
-        if (correspondingField == null) {
-            return Value.NONE;
-        } else {
+        if (correspondingField != null) {
             // read field value
             correspondingField.setAccessible(true);
             try {
-                var value = correspondingField.get(this.getInternalObject());
+                var fieldValue = correspondingField.get(this.getInternalValue());
                 // convert the read field value to a DSL 'Value'
                 // this may require recursive creation of encapsulated objects,
                 // if the field is a component for example
-                var type = TypeBuilder.getDSLTypeForClass(value.getClass());
+                var type = TypeBuilder.getDSLTypeForClass(fieldValue.getClass());
                 if (type != null) {
                     // TODO: create encapsulated value (because the field is a POD-field, or "basic
-                    //  type") -> linking the value to the field is only required for setting the internal value
-                    //  not for reading.. but this decision should not be made here in the `resolve`-method
-
+                    //  type") -> linking the value to the field is only required for setting the
+                    // internal value
+                    //  not for reading.. but this decision should not be made here in the
+                    // `resolve`-method
+                    returnValue = new EncapsulatedValue(type, correspondingField, this.object);
+                    // cache it
+                    this.objectCache.put(name, returnValue);
                 } else {
-                    var dslTypeName = TypeBuilder.getDSLName(value.getClass());
+                    var dslTypeName = TypeBuilder.getDSLName(fieldValue.getClass());
                     var typeFromGlobalScope =
                             this.environment.getGlobalScope().resolve(dslTypeName);
                     if (typeFromGlobalScope instanceof IType) {
@@ -101,20 +105,18 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                         // has a representation in the dsl type system, which means
                         // that we should be able to just construct a new EncapsulatedObject
                         // around it -> which should be cached;
-                        var encapsulatedObject =
+                        returnValue =
                                 new EncapsulatedObject(
-                                        value, (AggregateType) type, this, this.environment);
+                                        fieldValue, (AggregateType) type, this, this.environment);
                         // cache it
-                        this.objectCache.put(name, encapsulatedObject);
-
-                        return encapsulatedObject;
+                        this.objectCache.put(name, returnValue);
                     }
                 }
             } catch (IllegalAccessException e) {
                 // TODO: handle
             }
         }
-        return Value.NONE;
+        return returnValue;
     }
 
     @Override
@@ -132,7 +134,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
             // read field value
             correspondingField.setAccessible(true);
             try {
-                correspondingField.set(this.getInternalObject(), value.getInternalObject());
+                correspondingField.set(this.getInternalValue(), value.getInternalValue());
             } catch (IllegalAccessException e) {
                 // TODO: handle
                 return false;
