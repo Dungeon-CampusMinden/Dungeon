@@ -481,9 +481,6 @@ replacement_task t {
 }
 ```
 
-Note: die `{` und `}` direkt hinter `elements:` kennzeichnen ebenfalls eine unsortierte Menge, d.h. Mengen
-können andere Mengen enthalten. Die Elemente einer Menge können benannt sein.
-Problem: Wie das syntaktisch von den `entity_type`-Definitionen abgrenzen?
 Yet another Problem: Wie Mengen von Mengen von Mengen im Typsystem abbilden? Eine Menge ist ja irgendwie
 eine eigene Kategorie `IType`, die einen weiteren, "zugrundeliegenden" `IType` hat.
 
