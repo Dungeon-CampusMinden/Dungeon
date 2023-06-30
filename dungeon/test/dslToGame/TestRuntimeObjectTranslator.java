@@ -12,12 +12,18 @@ import helpers.Helpers;
 
 import interpreter.DSLInterpreter;
 
+import interpreter.TestEnvironment;
+import interpreter.mockecs.ExternalType;
+import interpreter.mockecs.ExternalTypeBuilder;
+import interpreter.mockecs.ExternalTypeBuilderMultiParam;
+import interpreter.mockecs.TestComponentWithExternalType;
 import org.junit.Assert;
 import org.junit.Test;
 
 import runtime.AggregateValue;
 import runtime.GameEnvironment;
 import runtime.Value;
+import semanticanalysis.Scope;
 
 public class TestRuntimeObjectTranslator {
     @Test
@@ -76,5 +82,28 @@ public class TestRuntimeObjectTranslator {
         xVelocityValue.setInternalValue(42.0f);
         float xVelocityFromComponent = componentObject.xVelocity();
         Assert.assertEquals(42.0f, xVelocityFromComponent, 0.0f);
+    }
+
+    // TODO: mocking this requires the following:
+    //  - extend TestInvronment to load other translators
+    @Test
+    public void testIsolatedComponentTranslationAdapted() {
+        String program = """
+            quest_config my_quest_config {}
+            """;
+
+        var env = new TestEnvironment();
+        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, Scope.NULL);
+        var interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter, ExternalType.class, TestComponentWithExternalType.class);
+
+        TestComponentWithExternalType componentObject = new TestComponentWithExternalType();
+
+        // TODO: test this further and define, how encapsulated objects should behave
+        //  externally and which use cases exist for them (translation and instantiation are kind of related, because
+        //  the logic performed for instantiation right now is basically setting/applying defaults and then
+        //  translating) -> this should be unified!
+        AggregateValue componentDSLValue =
+            (AggregateValue) env.translateRuntimeObject(componentObject, interpreter, interpreter.getGlobalMemorySpace());
     }
 }
