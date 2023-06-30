@@ -29,42 +29,38 @@ public class EntityTranslator implements IRuntimeObjectTranslator<Entity, Aggreg
         if (!(entityType instanceof AggregateType)) {
             throw new RuntimeException("The resolved symbol for 'entity' is not an AggregateType!");
         } else {
-            // create aggregateValue
+            // create aggregateValue for entity
             var value = new AggregateValue((AggregateType) entityType, parentMemorySpace, object);
-
-            // get components
-            // TODO: use stream better
-            List<Component> componentTypes = object.componentStream().toList();
-
-            // TODO: translate components into DSL-objects
-            //  this probably could be done by encapsulating objects with a previos check
-            //  for type availability
             var globalScope = interpreter.getRuntimeEnvironment().getSymbolTable().getGlobalScope();
-            for (var component : componentTypes) {
-                String componentDSLName = TypeBuilder.getDSLName(component.getClass());
-                var componentDSLType = globalScope.resolve(componentDSLName);
 
-                if (componentDSLType != Symbol.NULL) {
-                    // TODO: casting to AggregateType here is probably not safe
-                    //  -> was passiert, wenn das hier PODAdapted ist?
+            object.componentStream().forEach(
+                (component) ->
+                {
+                    String componentDSLName = TypeBuilder.getDSLName(component.getClass());
+                    var componentDSLType = globalScope.resolve(componentDSLName);
 
-                    var encapsulatedObject =
+                    if (componentDSLType != Symbol.NULL) {
+                        // TODO: casting to AggregateType here is probably not safe
+                        //  -> was passiert, wenn das hier PODAdapted ist?
+
+                        // encapsulate the component
+                        var encapsulatedObject =
                             new EncapsulatedObject(
-                                    component,
-                                    (AggregateType) componentDSLType,
-                                    value.getMemorySpace(),
-                                    null);
-                    AggregateValue aggregateMemberValue =
+                                component,
+                                (AggregateType) componentDSLType,
+                                value.getMemorySpace(),
+                                null);
+                        AggregateValue aggregateMemberValue =
                             new AggregateValue(
-                                    (AggregateType) componentDSLType,
-                                    value.getMemorySpace(),
-                                    component);
-                    aggregateMemberValue.setMemorySpace(encapsulatedObject);
+                                (AggregateType) componentDSLType,
+                                value.getMemorySpace(),
+                                component);
+                        aggregateMemberValue.setMemorySpace(encapsulatedObject);
 
-                    value.getMemorySpace().bindValue(componentDSLName, aggregateMemberValue);
+                        value.getMemorySpace().bindValue(componentDSLName, aggregateMemberValue);
+                    }
                 }
-            }
-
+            );
             return value;
         }
     }
