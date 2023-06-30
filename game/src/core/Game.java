@@ -15,6 +15,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
+import contrib.systems.HeroUISystem;
+
 import core.components.PositionComponent;
 import core.components.UIComponent;
 import core.configuration.Configuration;
@@ -754,6 +756,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         addSystem(new DrawSystem(painter));
         addSystem(new PlayerSystem());
         addSystem(new HudSystem());
+        addSystem(new HeroUISystem());
     }
 
     @Override
