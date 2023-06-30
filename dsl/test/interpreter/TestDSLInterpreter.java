@@ -497,7 +497,8 @@ public class TestDSLInterpreter {
             }
 
             quest_config config {
-                entity: instantiate(my_obj)
+                entity: instantiate(my_obj),
+                second_entity: instantiate(my_obj)
             }
             """;
 
@@ -520,41 +521,19 @@ public class TestDSLInterpreter {
         // encapsulate the actual
         // test component instances
         var config = (AggregateValue) (globalMs.resolve("config"));
-        var myObj = config.getMemorySpace().resolve("entity");
-        assertNotEquals(Value.NONE, myObj);
-        assertTrue(myObj instanceof AggregateValue);
+        var firstEntity = (AggregateValue)config.getMemorySpace().resolve("entity");
+        var secondEntity = (AggregateValue)config.getMemorySpace().resolve("second_entity");
 
-        // test, that the referenced entities are correct
-        var testComp1Value = ((AggregateValue) myObj).getMemorySpace().resolve("test_component1");
-        assertNotEquals(Value.NONE, testComp1Value);
-        var testComp1EncapsulatedObj =
-            (EncapsulatedObject) ((AggregateValue) testComp1Value).getMemorySpace();
-        var testComp1Internal = testComp1EncapsulatedObj.getInternalValue();
-        assertTrue(testComp1Internal instanceof TestComponent1);
+        // set values in the testComponent1 of firstEntity and check, that the members in
+        // second Entity stay the same
+        var firstEntitysComp1 = (AggregateValue)firstEntity.getMemorySpace().resolve("test_component1");
+        var firstEntitysComp1Member1 = firstEntitysComp1.getMemorySpace().resolve("member1");
+        firstEntitysComp1Member1.setInternalValue(123);
 
-        TestComponent1 testComp1 = (TestComponent1) testComp1Internal;
-        assertEquals(entity, testComp1.getEntity());
-
-        // check member-values
-        assertEquals(42, testComp1.getMember1());
-        assertEquals(12.34, testComp1.getMember2(), 0.001f);
-        assertEquals("DEFAULT VALUE", testComp1.getMember3());
-
-        // test, that the referenced entities are correct
-        var testComp2Value = ((AggregateValue) myObj).getMemorySpace().resolve("test_component2");
-        assertNotEquals(Value.NONE, testComp2Value);
-        var testComp2EncapsulatedObj =
-            (EncapsulatedObject) ((AggregateValue) testComp2Value).getMemorySpace();
-        var testComp2Internal = testComp2EncapsulatedObj.getInternalValue();
-        assertTrue(testComp2Internal instanceof TestComponent2);
-
-        TestComponent2 testComp2 = (TestComponent2) testComp2Internal;
-        assertEquals(entity, testComp2.getEntity());
-
-        // check member-values
-        assertEquals("Hallo", testComp2.getMember1());
-        assertEquals(123, testComp2.getMember2());
-        assertEquals("DEFAULT VALUE", testComp2.getMember3());
+        var secondEntitysComp1 = (AggregateValue)secondEntity.getMemorySpace().resolve("test_component1");
+        var secondEntitysComp1Member1 = secondEntitysComp1.getMemorySpace().resolve("member1");
+        var internalValue = secondEntitysComp1Member1.getInternalValue();
+        Assert.assertEquals(42, internalValue);
     }
 
     @Test
