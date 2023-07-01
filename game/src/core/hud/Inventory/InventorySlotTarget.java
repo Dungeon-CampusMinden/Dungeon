@@ -41,8 +41,8 @@ public class InventorySlotTarget extends DragAndDrop.Target {
 
         if (!inventorySlot.hasInventoryItem()) {
             if (sourceActor != null) {
-                final ItemNature natureSlot = inventorySlot.getItemNature();
-                final ItemNature natureItem = sourceActor.getItemNature();
+                final ItemNature natureSlot = inventorySlot.itemNature();
+                final ItemNature natureItem = sourceActor.itemNature();
 
                 if (natureItem == natureSlot || natureSlot == ItemNature.UNDEFINED) {
                     belongsToAreaOfValidity = true;

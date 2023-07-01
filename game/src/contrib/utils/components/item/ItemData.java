@@ -1,13 +1,15 @@
 package contrib.utils.components.item;
 
+import contrib.components.CollideComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
 import contrib.configuration.ItemConfig;
-import contrib.entities.WorldItemBuilder;
 import contrib.utils.components.stats.DamageModifier;
 
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
@@ -34,6 +36,7 @@ public final class ItemData {
     private final Animation worldTexture;
     private final String itemName;
     private final String description;
+    private final ItemNature itemNature;
 
     private BiConsumer<Entity, Entity> onCollect;
     private TriConsumer<Entity, ItemData, Point> onDrop;
@@ -58,6 +61,7 @@ public final class ItemData {
      */
     public ItemData(
             final ItemType itemType,
+            ItemNature itemNature,
             final Animation inventoryTexture,
             final Animation worldTexture,
             final String itemName,
@@ -67,6 +71,7 @@ public final class ItemData {
             final BiConsumer<Entity, ItemData> onUse,
             final DamageModifier damageModifier) {
         this.itemType = itemType;
+        this.itemNature = itemNature;
         this.inventoryTexture = inventoryTexture;
         this.worldTexture = worldTexture;
         this.itemName = itemName;
@@ -81,6 +86,7 @@ public final class ItemData {
      * creates a new item data object. With a basic handling of collecting, dropping and using.
      *
      * @param itemType Enum entry describing item type.
+     * @param itemNature Enum entry describing item type.
      * @param inventoryTexture Animation that is played inside the hero inventory.
      * @param worldTexture Animation that is played while item is dropped in the world.
      * @param itemName String defining name of item.
@@ -88,12 +94,14 @@ public final class ItemData {
      */
     public ItemData(
             final ItemType itemType,
+            ItemNature itemNature,
             final Animation inventoryTexture,
             final Animation worldTexture,
             final String itemName,
             final String description) {
         this(
                 itemType,
+                itemNature,
                 inventoryTexture,
                 worldTexture,
                 itemName,
@@ -104,38 +112,11 @@ public final class ItemData {
                 new DamageModifier());
     }
 
-    /**
-     * creates a new item data object. With a basic handling of collecting, dropping and using.
-     *
-     * @param itemType Enum entry describing item type.
-     * @param itemNature Enum entry describing item type.
-     * @param inventoryTexture Animation that is played inside the hero inventory.
-     * @param worldTexture Animation that is played while item is dropped in the world.
-     * @param itemName String defining name of item.
-     * @param description String giving a description of the item
-     */
-    public ItemData(
-            ItemType itemType,
-            ItemNature itemNature,
-            Animation inventoryTexture,
-            Animation worldTexture,
-            String itemName,
-            String description) {
-        this.itemType = itemType;
-        this.itemNature = itemNature;
-        this.inventoryTexture = inventoryTexture;
-        this.worldTexture = worldTexture;
-        this.itemName = itemName;
-        this.description = description;
-        this.onCollect = ItemData::defaultCollect;
-        this.onDrop = ItemData::defaultDrop;
-        this.onUse = ItemData::defaultUseCallback;
-        this.damageModifier = new DamageModifier();
-    }
     /** Constructing object with completely default values. Taken from {@link ItemConfig}. */
     public ItemData() {
         this(
                 ItemConfig.TYPE.value(),
+                ItemConfig.NATURE.value(),
                 new Animation(List.of(ItemConfig.TEXTURE.value()), 1),
                 new Animation(List.of(ItemConfig.TEXTURE.value()), 1),
                 ItemConfig.NAME.value(),

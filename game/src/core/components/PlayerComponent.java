@@ -3,8 +3,6 @@ package core.components;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
-import contrib.configuration.KeyboardConfig;
-
 import core.Component;
 import core.Entity;
 

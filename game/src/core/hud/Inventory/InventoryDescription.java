@@ -42,8 +42,8 @@ public class InventoryDescription extends Label {
         if (slot.getInventoryItem() == null) {
             return;
         }
-        String descriptionText = slot.getInventoryItem().getItem().getItemName();
-        descriptionText += "\n" + slot.getInventoryItem().getItem().getDescription();
+        String descriptionText = slot.getInventoryItem().getItem().itemName();
+        descriptionText += "\n" + slot.getInventoryItem().getItem().description();
         this.setText(descriptionText);
         this.pack();
     }

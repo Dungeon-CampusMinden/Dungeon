@@ -9,6 +9,7 @@ public final class Constants {
 
     /** Virtual width and height. */
     public static final float FIELD_WIDTH_AND_HEIGHT_IN_PIXEL = 16f;
+    public static final int SIZE_INVENTORY = 1000000;
 
     /**
      * todo: what exactly is this?

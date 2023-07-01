@@ -82,25 +82,30 @@ public class InventoryDescriptionListener extends InputListener {
     }
 
     // Positions the description screen to where it can fit on the screen
+    // wth is this shit????
     private void updateOffset() {
-        // does it fit on the right side?
-        if (position.x + description.getWidth() + defaultOffSet.x < Constants.WINDOW_WIDTH) {
+        // is the right side of Screen
+        if (position.x + description.getWidth() + defaultOffSet.x < Constants.viewportWidth()) {
             offSet.x = defaultOffSet.x;
             offSet.y = 0;
         }
-        // does it fit on the left side ?
+        // is the left side on screen
         else if (position.x - description.getWidth() - defaultOffSet.x > 0) {
             offSet.x = -description.getWidth();
             offSet.y = 0;
         }
         // does it fit on top ?
-        else if (position.y + description.getHeight() + defaultOffSet.x < Constants.WINDOW_HEIGHT) {
-            offSet.x = Constants.WINDOW_WIDTH - position.x - description.getWidth();
+        // is the top side on screen
+        else if (position.y + description.getHeight() + defaultOffSet.x
+                < Constants.viewportHeight()) {
+            // copy pastete
+            offSet.x = Constants.viewportWidth() - position.x - description.getWidth();
             offSet.y = defaultOffSet.y;
         }
         // put it below
         else {
-            offSet.x = Constants.WINDOW_WIDTH - position.x - description.getWidth();
+            //  copy pastete
+            offSet.x = Constants.viewportWidth() - position.x - description.getWidth();
             offSet.y = -description.getHeight();
         }
     }

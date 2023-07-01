@@ -13,6 +13,7 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -57,26 +58,25 @@ public final class VelocitySystem extends System {
         float newX = vsd.pc.position().x + vsd.vc.currentXVelocity();
         float newY = vsd.pc.position().y + vsd.vc.currentYVelocity();
         Point newPosition = new Point(newX, newY);
+        Optional<ProjectileComponent> fetch = vsd.e.fetch(ProjectileComponent.class);
         if (Game.tileAT(newPosition).isAccessible()) {
             vsd.pc.position(newPosition);
             movementAnimation(vsd);
-        } else if (Game.currentLevel
-                        .getTileAt(new Point(newX, vsd.pc.getPosition().y).toCoordinate())
-                        .isAccessible()
-                && projectileComponent == null) {
-            vsd.pc.setPosition(new Point(newX, vsd.pc.getPosition().y));
+        } else if (Game.tileAT(new Point(newX, vsd.pc.position().y).toCoordinate())
+                        .isAccessible() && fetch.isEmpty() ) {
+            vsd.pc.position(new Point(newX, vsd.pc.position().y));
             movementAnimation(vsd);
-        } else if (Game.currentLevel
-                        .getTileAt(new Point(vsd.pc.getPosition().x, newY).toCoordinate())
-                        .isAccessible()
-                && projectileComponent == null) {
-            vsd.pc.setPosition(new Point(vsd.pc.getPosition().x, newY));
+        } else if (Game.tileAT(new Point(vsd.pc.position().x, newY).toCoordinate())
+                        .isAccessible() && fetch.isEmpty()) {
+            vsd.pc.position(new Point(vsd.pc.position().x, newY));
             movementAnimation(vsd);
         }
 
         // remove projectiles that hit the wall or other non-accessible
         // tiles
-        else if (vsd.e.fetch(ProjectileComponent.class).isPresent()) Game.removeEntity(vsd.e);
+        else if (fetch.isPresent()) {
+            Game.removeEntity(vsd.e);
+        }
 
         vsd.vc.currentYVelocity(0);
         vsd.vc.currentXVelocity(0);

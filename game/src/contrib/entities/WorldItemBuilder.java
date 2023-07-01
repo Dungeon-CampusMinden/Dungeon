@@ -1,16 +1,13 @@
 package contrib.entities;
 
-import contrib.components.InteractionComponent;
+import contrib.components.CollideComponent;
 import contrib.components.ItemComponent;
 import contrib.utils.components.item.ItemData;
 
 import core.Entity;
-import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
-
-import java.util.function.Consumer;
 
 /** Class which creates all needed Components for a basic WorldItem */
 public class WorldItemBuilder {

@@ -116,8 +116,8 @@ public class EntityFactory {
         // skills
         pc.registerCallback(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);
 
-        pc.registerFunction(
-                KeyboardConfig.INVENTORY_OPEN.get(),
+        pc.registerCallback(
+                KeyboardConfig.INVENTORY_OPEN.value(),
                 entity -> InventoryGUI.getInstance().toggleInventory());
 
         new InventoryComponent(hero, Constants.SIZE_INVENTORY);

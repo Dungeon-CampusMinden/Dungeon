@@ -64,12 +64,12 @@ public class InventorySlotSource extends DragAndDrop.Source {
                     || itemActor.getY() > inv.getY() + inv.getHeight()) {
                 PositionComponent positionComponent =
                         (PositionComponent)
-                                Game.getHero()
-                                        .flatMap(e -> e.getComponent(PositionComponent.class))
+                                Game.hero()
+                                        .flatMap(e -> e.fetch(PositionComponent.class))
                                         .orElseThrow();
                 itemActor
                         .getItem()
-                        .triggerDrop(Game.getHero().orElseThrow(), positionComponent.getPosition());
+                        .triggerDrop(Game.hero().orElseThrow(), positionComponent.position());
                 itemActor.remove();
             } else {
                 inventorySlot.add(payload.getDragActor());

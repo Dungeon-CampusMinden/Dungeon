@@ -18,7 +18,9 @@ public class InventorySlotClickListener extends ClickListener {
 
     @Override
     public void clicked(InputEvent event, float x, float y) {
-        /*if (getTapCount() == 2) {
+        /*
+        why is it uncommented ??
+        if (getTapCount() == 2) {
             if (slot.hasInventoryItem() && slot.getInventoryItem().getItem().getOnUse() != null) {
                 ItemData item = slot.getInventoryItem().getItem();
                 item.triggerUse(Game.getHero().orElseThrow());

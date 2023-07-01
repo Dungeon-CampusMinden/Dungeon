@@ -1,5 +1,6 @@
 package contrib.configuration;
 
+import contrib.utils.components.item.ItemNature;
 import contrib.utils.components.item.ItemType;
 
 import core.configuration.ConfigKey;
@@ -27,4 +28,8 @@ public class ItemConfig {
             new ConfigKey<>(
                     new String[] {"texture"},
                     new ConfigStringValue("animation/missingTexture.png"));
+    /** The Nature of the Default Item */
+    public static final ConfigKey<ItemNature> NATURE =
+            new ConfigKey<>(new String[] {"nature"}, new ConfigEnumValue<>(ItemNature.UNDEFINED));
+    ;
 }

@@ -1,32 +1,23 @@
 package core.hud.Inventory;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 
 import contrib.utils.components.item.ItemNature;
-
-import core.utils.Constants;
 
 public class InventorySlot extends Stack {
     private final ItemNature itemNature;
 
     /** Creates an InventorySlot */
     public InventorySlot() {
-        itemNature = ItemNature.UNDEFINED;
-        this.add(new Image(new Texture(Gdx.files.internal(Constants.INVENTORYSLOT_PATH))));
-        this.addListener(new InventorySlotClickListener(this));
+        this(ItemNature.UNDEFINED);
     }
 
-    /**
-     * Creates an Inventory-Slot using the predefined path
-     *
-     * @param path: path for picture of inventory slot
-     */
-    public InventorySlot(String path, ItemNature nature) {
+    /** Creates an Inventory-Slot using the predefined path */
+    public InventorySlot(ItemNature nature) {
         itemNature = nature;
-        this.add(new Image(new Texture(Gdx.files.internal(path))));
+        this.add(new Image(new Skin(), nature.slotBackground));
         this.addListener(new InventorySlotClickListener(this));
     }
 
@@ -65,7 +56,7 @@ public class InventorySlot extends Stack {
         return this.getChildren().size > 1;
     }
 
-    public ItemNature getItemNature() {
+    public ItemNature itemNature() {
         return itemNature;
     }
 }

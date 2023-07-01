@@ -18,7 +18,6 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import core.components.PositionComponent;
 import core.components.UIComponent;
 import core.configuration.Configuration;
-import core.hud.Inventory.InventoryGUI;
 import core.hud.UITools;
 import core.level.IOnLevelLoader;
 import core.level.Tile;

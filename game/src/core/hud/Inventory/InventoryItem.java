@@ -38,7 +38,7 @@ public class InventoryItem extends Image {
         return this.item;
     }
 
-    public ItemNature getItemNature() {
+    public ItemNature itemNature() {
         return this.item.getItemNature();
     }
 }
