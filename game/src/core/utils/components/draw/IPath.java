@@ -26,5 +26,5 @@ public interface IPath {
      *
      * @return The value as a string that can be used as a path
      */
-    String getPathString();
+    String pathString();
 }

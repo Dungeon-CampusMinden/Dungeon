@@ -30,7 +30,7 @@ public enum LevelElement {
     /**
      * @return A random enum-value
      */
-    public boolean getValue() {
+    public boolean value() {
         return value;
     }
 }

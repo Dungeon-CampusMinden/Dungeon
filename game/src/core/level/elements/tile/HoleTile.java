@@ -28,6 +28,6 @@ public class HoleTile extends Tile {
 
     @Override
     public boolean isAccessible() {
-        return levelElement.getValue();
+        return levelElement.value();
     }
 }

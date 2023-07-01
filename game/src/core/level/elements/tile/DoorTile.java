@@ -36,12 +36,12 @@ public class DoorTile extends Tile {
 
     @Override
     public void onEntering(Entity element) {
-        otherDoor.level.setStartTile(otherDoor.doorstep);
+        otherDoor.level.startTile(otherDoor.doorstep);
     }
 
     @Override
     public boolean isAccessible() {
-        return levelElement.getValue();
+        return levelElement.value();
     }
 
     /**

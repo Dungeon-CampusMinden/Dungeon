@@ -47,22 +47,20 @@ public class DropItemsInteraction implements Consumer<Entity> {
      *
      * @param entity associated entity
      */
-    public void accept(Entity entity) {
+    public void accept(final Entity entity) {
         InventoryComponent inventoryComponent =
-                entity.getComponent(InventoryComponent.class)
-                        .map(InventoryComponent.class::cast)
+                entity.fetch(InventoryComponent.class)
                         .orElseThrow(
                                 () ->
-                                        createMissingComponentException(
-                                                InventoryComponent.class.getName(), entity));
+                                        MissingComponentException.build(
+                                                entity, InventoryComponent.class));
         PositionComponent positionComponent =
-                entity.getComponent(PositionComponent.class)
-                        .map(PositionComponent.class::cast)
+                entity.fetch(PositionComponent.class)
                         .orElseThrow(
                                 () ->
-                                        createMissingComponentException(
-                                                PositionComponent.class.getName(), entity));
-        List<ItemData> itemData = inventoryComponent.getItems();
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
+        List<ItemData> itemData = inventoryComponent.items();
         double count = itemData.size();
 
         IntStream.range(0, itemData.size())
@@ -74,9 +72,8 @@ public class DropItemsInteraction implements Consumer<Entity> {
                                                 calculateDropPosition(
                                                         positionComponent, index / count)));
 
-        entity.getComponent(DrawComponent.class)
-                .map(DrawComponent.class::cast)
-                .ifPresent(x -> x.setCurrentAnimation(CoreAnimations.IDLE_RIGHT));
+        entity.fetch(DrawComponent.class)
+                .ifPresent(x -> x.currentAnimation(CoreAnimations.IDLE_RIGHT));
     }
 
     /**
@@ -88,24 +85,7 @@ public class DropItemsInteraction implements Consumer<Entity> {
      */
     private static Point calculateDropPosition(PositionComponent positionComponent, double radian) {
         return new Point(
-                (float) Math.cos(radian * Math.PI) + positionComponent.getPosition().x,
-                (float) Math.sin(radian * Math.PI) + positionComponent.getPosition().y);
-    }
-
-    /**
-     * Helper to create a MissingComponentException with a bit more information
-     *
-     * @param Component the name of the Component which is missing
-     * @param e the Entity which did miss the Component
-     * @return the newly created Exception
-     */
-    private static MissingComponentException createMissingComponentException(
-            String Component, Entity e) {
-        return new MissingComponentException(
-                Component
-                        + " missing in "
-                        + DropItemsInteraction.class.getName()
-                        + " in Entity "
-                        + e.getClass().getName());
+                (float) Math.cos(radian * Math.PI) + positionComponent.position().x,
+                (float) Math.sin(radian * Math.PI) + positionComponent.position().y);
     }
 }

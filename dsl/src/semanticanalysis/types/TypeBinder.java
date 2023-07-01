@@ -2,15 +2,13 @@ package semanticanalysis.types;
 
 import parser.ast.AggregateValueDefinitionNode;
 import parser.ast.AstVisitor;
-import parser.ast.GameObjectDefinitionNode;
 import parser.ast.Node;
+import parser.ast.PrototypeDefinitionNode;
 
 import runtime.IEvironment;
 
 import semanticanalysis.Symbol;
 import semanticanalysis.SymbolTable;
-
-import java.util.List;
 
 public class TypeBinder implements AstVisitor<Object> {
 
@@ -41,7 +39,7 @@ public class TypeBinder implements AstVisitor<Object> {
     }
 
     @Override
-    public Object visit(GameObjectDefinitionNode node) {
+    public Object visit(PrototypeDefinitionNode node) {
         // create new type with name of definition node
         var newTypeName = node.getIdName();
         if (resolveGlobal(newTypeName) != Symbol.NULL) {
@@ -67,9 +65,8 @@ public class TypeBinder implements AstVisitor<Object> {
                 symbolTable().addSymbolNodeRelation(memberSymbol, compDefNode);
             }
         }
-        var typesToLoad = new AggregateType[] {newType};
 
-        this.environment.loadTypes(List.of(typesToLoad));
+        this.environment.loadTypes(newType);
         return newType;
     }
 

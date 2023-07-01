@@ -4,6 +4,7 @@ import core.Entity;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
@@ -28,7 +29,7 @@ import java.util.Map;
  * @see DrawComponent
  * @see Animation
  */
-public class DrawSystem extends System {
+public final class DrawSystem extends System {
 
     private final Painter painter;
     private final Map<String, PainterConfig> configs;
@@ -53,26 +54,27 @@ public class DrawSystem extends System {
      */
     @Override
     public void execute() {
-        getEntityStream().map(this::buildDataObject).forEach(this::draw);
+        entityStream().map(this::buildDataObject).forEach(this::draw);
     }
 
     private void draw(DSData dsd) {
-        final Animation animation = dsd.ac.getCurrentAnimation();
-        String currentAnimationTexture = animation.getNextAnimationTexturePath();
+        final Animation animation = dsd.ac.currentAnimation();
+        String currentAnimationTexture = animation.nextAnimationTexturePath();
         if (!configs.containsKey(currentAnimationTexture)) {
             configs.put(currentAnimationTexture, new PainterConfig(currentAnimationTexture));
         }
         painter.draw(
-                dsd.pc.getPosition(),
-                currentAnimationTexture,
-                configs.get(currentAnimationTexture));
+                dsd.pc.position(), currentAnimationTexture, configs.get(currentAnimationTexture));
     }
 
     private DSData buildDataObject(Entity e) {
-
-        DrawComponent dc = (DrawComponent) e.getComponent(DrawComponent.class).get();
-        PositionComponent pc = (PositionComponent) e.getComponent(PositionComponent.class).get();
-
+        DrawComponent dc =
+                e.fetch(DrawComponent.class)
+                        .orElseThrow(() -> MissingComponentException.build(e, DrawComponent.class));
+        PositionComponent pc =
+                e.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () -> MissingComponentException.build(e, PositionComponent.class));
         return new DSData(e, dc, pc);
     }
 

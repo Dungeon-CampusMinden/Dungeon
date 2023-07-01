@@ -116,6 +116,19 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
+    public void enterReturn_stmt(DungeonDSLParser.Return_stmtContext ctx) {}
+
+    @Override
+    public void exitReturn_stmt(DungeonDSLParser.Return_stmtContext ctx) {
+        // pop the inner statement
+        assert astStack.size() > 0;
+        var innerStmt = astStack.pop();
+
+        var returnStmt = new ReturnStmtNode(innerStmt);
+        astStack.push(returnStmt);
+    }
+
+    @Override
     public void enterStmt_list(DungeonDSLParser.Stmt_listContext ctx) {}
 
     @Override
@@ -209,10 +222,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterGame_obj_def(DungeonDSLParser.Game_obj_defContext ctx) {}
+    public void enterEntity_type_def(DungeonDSLParser.Entity_type_defContext ctx) {}
 
     @Override
-    public void exitGame_obj_def(DungeonDSLParser.Game_obj_defContext ctx) {
+    public void exitEntity_type_def(DungeonDSLParser.Entity_type_defContext ctx) {
         // if we have a component definition list, it will be on the stack
         var componentDefList = Node.NONE;
         if (ctx.component_def_list() != null) {
@@ -224,8 +237,8 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         var idNode = astStack.pop();
         assert idNode.type == Node.Type.Identifier;
 
-        var gameObjectDefinition = new GameObjectDefinitionNode(idNode, componentDefList);
-        astStack.push(gameObjectDefinition);
+        var prototypeDefinitionNode = new PrototypeDefinitionNode(idNode, componentDefList);
+        astStack.push(prototypeDefinitionNode);
     }
 
     @Override

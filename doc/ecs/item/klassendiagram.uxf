@@ -1,0 +1,36 @@
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>0</x><y>0</y><w>310</w><h>70</h></coordinates><panel_attributes>ItemComponent
+--
+- itemData: ItemData
+--
++ ItemComponent(entity: Entity, itemData:ItemData)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>510</x><y>310</y><w>280</w><h>50</h></coordinates><panel_attributes>WorldItemBuilder
+--
+_+ buildWorldItem(itemData: ItemData): Entity_</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>550</x><y>10</y><w>210</w><h>30</h></coordinates><panel_attributes>Component</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>160</y><w>440</w><h>340</h></coordinates><panel_attributes>ItemData
+--
+- itemType: ItemType
+- inventoryTexture: Animation
+- worldTexture: Animation
+- itemName: String
+- description: String
+- onCollect: BiConsumer&lt;Entity, Entity&gt;
+- onDrop: TriConsumer&lt;Entity, ItemData, Point&gt;
+- onUse: BiConsumer&lt;Entity, ItemData&gt;
+- damageModifier: DamageModifier
+--
++ ItemData(itemType: ItemType, inventoryTexture: Animation, 
+worldTexture: Animation, itemName: String, description: String, 
+onCollect: BiConsumer&lt;Entity, Entity&gt;, 
+onDrop: TriConsumer&lt;Entity, ItemData, Point&gt;, 
+onUse: BiConsumer&lt;Entity, ItemData&gt;, damageModifier: DamageModifier)
++ ItemData (itemType: ItemType, inventoryTexture: Animation,
+ worldTexture: Animation, itemName: String, description: String)
++ ItemData()
++ triggerCollect(worldItemEntity: Entity, whoTriesCollects: Entity): void
++ triggerDrop(e: Entity, position: Point): void
++ triggerUse(entity: Entity): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>300</x><y>10</y><w>270</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>250;10;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>510</x><y>160</y><w>300</w><h>110</h></coordinates><panel_attributes>InventoryComponent
+--
+- inventory: List&lt;ItemData&gt;
+- maxSize: int
+--
++ InventoryComponent(entity: Entity, maxSize: int)
++ addItem(itemData: ItemData): boolean
++ removeItem(itemData: ItemData): boolean</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>660</x><y>30</y><w>30</w><h>150</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;130</additional_attributes></element><element><id>UMLClass</id><coordinates><x>550</x><y>440</y><w>210</w><h>30</h></coordinates><panel_attributes>Entity</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>640</x><y>350</y><w>30</w><h>110</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;90;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>430</x><y>330</y><w>100</w><h>30</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;10;80;10</additional_attributes></element><element><id>Relation</id><coordinates><x>430</x><y>230</y><w>100</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>80;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>170</x><y>60</y><w>30</w><h>120</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;100</additional_attributes></element></diagram>

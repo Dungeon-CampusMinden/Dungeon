@@ -8,7 +8,6 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.utils.Constants;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
@@ -53,28 +52,30 @@ public class PatrouilleWalk implements Consumer<Entity> {
      * @param pauseTime Max time in milliseconds to wait on a checkpoint. The actual time is a
      *     random number between 0 and this value
      */
-    public PatrouilleWalk(float radius, int numberCheckpoints, int pauseTime, MODE mode) {
+    public PatrouilleWalk(
+            final float radius, final int numberCheckpoints, final int pauseTime, final MODE mode) {
         this.radius = radius;
         this.numberCheckpoints = numberCheckpoints;
-        this.pauseFrames = pauseTime / (1000 / Constants.FRAME_RATE);
+        this.pauseFrames = pauseTime / (1000 / Game.frameRate());
         this.mode = mode;
     }
 
-    private void init(Entity entity) {
+    private void init(final Entity entity) {
         initialized = true;
         PositionComponent position =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
-        Point center = position.getPosition();
-        Tile tile = Game.currentLevel.getTileAt(position.getPosition().toCoordinate());
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
+        Point center = position.position();
+        Tile tile = Game.tileAT(position.position());
 
         if (tile == null) {
             return;
         }
 
-        List<Tile> accessibleTiles = AITools.getAccessibleTilesInRange(center, radius);
+        List<Tile> accessibleTiles = AITools.accessibleTilesInRange(center, radius);
 
         if (accessibleTiles.isEmpty()) {
             return;
@@ -93,21 +94,22 @@ public class PatrouilleWalk implements Consumer<Entity> {
     }
 
     @Override
-    public void accept(Entity entity) {
+    public void accept(final Entity entity) {
         if (!initialized) this.init(entity);
 
         PositionComponent position =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
 
         if (currentPath != null && !AITools.pathFinished(entity, currentPath)) {
             if (AITools.pathLeft(entity, currentPath)) {
                 currentPath =
                         AITools.calculatePath(
-                                position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                                position.position(),
+                                this.checkpoints.get(currentCheckpoint).position());
             }
             AITools.move(entity, currentPath);
             return;
@@ -132,15 +134,15 @@ public class PatrouilleWalk implements Consumer<Entity> {
                 currentCheckpoint = rnd.nextInt(checkpoints.size());
                 currentPath =
                         AITools.calculatePath(
-                                position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                                position.position(),
+                                this.checkpoints.get(currentCheckpoint).position());
             }
             case LOOP -> {
                 currentCheckpoint = (currentCheckpoint + 1) % checkpoints.size();
                 currentPath =
                         AITools.calculatePath(
-                                position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                                position.position(),
+                                this.checkpoints.get(currentCheckpoint).position());
             }
             case BACK_AND_FORTH -> {
                 if (forward) {
@@ -158,8 +160,8 @@ public class PatrouilleWalk implements Consumer<Entity> {
                 }
                 currentPath =
                         AITools.calculatePath(
-                                position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                                position.position(),
+                                this.checkpoints.get(currentCheckpoint).position());
             }
             default -> {}
         }

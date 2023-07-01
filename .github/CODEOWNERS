@@ -8,7 +8,7 @@
 /dsl/ @malt-r @Programmiermethoden/dungeon
 
 #dsl connector owner
-/dsl-connector/ @malt-r @AMatutat @Programmiermethoden/dungeon
+/dungeon/ @malt-r @AMatutat @Programmiermethoden/dungeon
 
 #doc folder
 /doc/ @Programmiermethoden/dungeon

@@ -14,7 +14,7 @@ import java.util.function.Function;
 public class InteractionTool {
 
     public static final Function<InteractionData, Boolean> SIMPLE_REACHABLE =
-            (interactionData -> (interactionData.ic().getRadius() - interactionData.dist()) > 0);
+            (interactionData -> (interactionData.ic().radius() - interactionData.dist()) > 0);
 
     public static final Function<InteractionData, Boolean> CONTROLL_POINTS_REACHABLE =
             new ControlPointReachable();
@@ -24,19 +24,16 @@ public class InteractionTool {
     }
 
     public static void interactWithClosestInteractable(
-            Entity entity, Function<InteractionData, Boolean> iReachable) {
+            final Entity entity, final Function<InteractionData, Boolean> iReachable) {
         PositionComponent heroPosition =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(() -> MissingPCFromEntity(Entity.class.getName()));
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
         Optional<InteractionData> data =
-                Game.getEntitiesStream()
-                        .flatMap(
-                                x ->
-                                        x
-                                                .getComponent(InteractionComponent.class)
-                                                .map(InteractionComponent.class::cast)
-                                                .stream())
+                Game.entityStream()
+                        .flatMap(x -> x.fetch(InteractionComponent.class).stream())
                         .map(ic1 -> convertToData(ic1, heroPosition))
                         .filter(iReachable::apply)
                         .min((x, y) -> Float.compare(x.dist(), y.dist()));
@@ -45,28 +42,19 @@ public class InteractionTool {
 
     private static InteractionData convertToData(
             InteractionComponent ic, PositionComponent heroPosition) {
-        Entity entity = ic.getEntity();
+        Entity entity = ic.entity();
 
         PositionComponent pc =
-                ((PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> MissingPCFromEntity(entity.getClass().getName())));
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
         return new InteractionData(
                 entity,
                 pc,
                 ic,
-                Point.calculateDistance(heroPosition.getPosition(), pc.getPosition()),
-                Point.getUnitDirectionalVector(heroPosition.getPosition(), pc.getPosition()));
-    }
-
-    private static MissingComponentException MissingPCFromEntity(String entity) {
-        return new MissingComponentException(
-                "Missing "
-                        + PositionComponent.class.getName()
-                        + " from "
-                        + entity
-                        + " in "
-                        + InteractionTool.class.getName());
+                Point.calculateDistance(heroPosition.position(), pc.position()),
+                Point.unitDirectionalVector(heroPosition.position(), pc.position()));
     }
 }

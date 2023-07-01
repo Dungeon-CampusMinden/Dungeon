@@ -9,21 +9,18 @@ import java.util.function.Function;
 public class ControlPointReachable implements Function<InteractionData, Boolean> {
 
     @Override
-    public Boolean apply(InteractionData interactionData) {
+    public Boolean apply(final InteractionData interactionData) {
         boolean reachable = false;
         boolean pathBlocked = false;
-        if ((interactionData.ic().getRadius() - interactionData.dist()) > 0) {
+        if ((interactionData.ic().radius() - interactionData.dist()) > 0) {
             reachable = true;
             // check path
             Point dirvec = interactionData.unitDir();
             for (int i = 1; i < interactionData.dist(); i++) {
-                if (!Game.currentLevel
-                        .getTileAt(
+                if (!Game.tileAT(
                                 new Coordinate(
-                                        (int) (dirvec.x * i + interactionData.pc().getPosition().x),
-                                        (int)
-                                                (dirvec.y * i
-                                                        + interactionData.pc().getPosition().y)))
+                                        (int) (dirvec.x * i + interactionData.pc().position().x),
+                                        (int) (dirvec.y * i + interactionData.pc().position().y)))
                         .isAccessible()) {
                     pathBlocked = true;
                     break;

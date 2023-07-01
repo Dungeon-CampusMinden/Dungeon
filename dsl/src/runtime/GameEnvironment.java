@@ -9,6 +9,7 @@ import core.components.VelocityComponent;
 
 import dslToGame.QuestConfig;
 
+import runtime.nativefunctions.NativeInstantiate;
 import runtime.nativefunctions.NativePrint;
 
 import semanticanalysis.*;
@@ -17,17 +18,18 @@ import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 public class GameEnvironment implements IEvironment {
     // TODO: the type builder should also be part of some 'type factory' to
     //  avoid having only one builder for game Environments
-    protected static final TypeBuilder typeBuilder = new TypeBuilder();
+    protected final TypeBuilder typeBuilder;
 
     // TODO: also make HashMaps
-    protected static final ArrayList<IType> BUILT_IN_TYPES = buildBuiltInTypes();
-    protected static final ArrayList<Symbol> NATIVE_FUNCTIONS = buildNativeFunctions();
+    protected final ArrayList<IType> BUILT_IN_TYPES;
+    protected final ArrayList<Symbol> NATIVE_FUNCTIONS;
 
     protected final HashMap<String, IType> loadedTypes = new HashMap<>();
     protected final HashMap<String, Symbol> loadedFunctions = new HashMap<>();
@@ -43,14 +45,19 @@ public class GameEnvironment implements IEvironment {
      * functions
      */
     public GameEnvironment() {
+        this.typeBuilder = new TypeBuilder();
         this.globalScope = new Scope();
         this.symbolTable = new SymbolTable(this.globalScope);
+
+        // create built in types and native functions
+        this.BUILT_IN_TYPES = buildBuiltInTypes();
+        this.NATIVE_FUNCTIONS = buildNativeFunctions();
 
         bindBuiltIns();
         registerDefaultTypeAdapters();
     }
 
-    protected static void registerDefaultTypeAdapters() {
+    protected void registerDefaultTypeAdapters() {
         /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
          * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
         // typeBuilder.registerTypeAdapter(AnimationBuilder.class, Scope.NULL);
@@ -85,17 +92,30 @@ public class GameEnvironment implements IEvironment {
     }
 
     @Override
+    public void loadTypes(IType... types) {
+        loadTypes(Arrays.stream(types).toList());
+    }
+
+    @Override
     public void loadTypes(List<IType> types) {
         for (IType type : types) {
             if (!(type instanceof IType)) {
                 continue;
             }
             if (loadedTypes.containsKey(type.getName())) {
-                continue;
+                throw new RuntimeException(
+                        "A type with the name '"
+                                + type.getName()
+                                + "' is already loaded in the environment!");
             }
             loadedTypes.put(type.getName(), type);
             this.globalScope.bind((Symbol) type);
         }
+    }
+
+    @Override
+    public void loadFunctions(ScopedSymbol... functions) {
+        loadFunctions(Arrays.stream(functions).toList());
     }
 
     @Override
@@ -122,7 +142,12 @@ public class GameEnvironment implements IEvironment {
         return this.globalScope;
     }
 
-    private static ArrayList<IType> buildBuiltInTypes() {
+    @Override
+    public HashMap<Class<?>, IType> javaTypeToDSLTypeMap() {
+        return typeBuilder.getJavaTypeToDSLTypeMap();
+    }
+
+    private ArrayList<IType> buildBuiltInTypes() {
         ArrayList<IType> types = new ArrayList<>();
 
         types.add(BuiltInType.noType);
@@ -130,7 +155,7 @@ public class GameEnvironment implements IEvironment {
         types.add(BuiltInType.floatType);
         types.add(BuiltInType.stringType);
         types.add(BuiltInType.graphType);
-        types.add(BuiltInType.funcType);
+        types.add(Prototype.PROTOTYPE);
 
         registerDefaultTypeAdapters();
 
@@ -163,6 +188,7 @@ public class GameEnvironment implements IEvironment {
     private static ArrayList<Symbol> buildNativeFunctions() {
         ArrayList<Symbol> nativeFunctions = new ArrayList<>();
         nativeFunctions.add(NativePrint.func);
+        nativeFunctions.add(NativeInstantiate.func);
         return nativeFunctions;
     }
 }

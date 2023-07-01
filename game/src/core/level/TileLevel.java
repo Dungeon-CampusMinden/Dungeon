@@ -42,8 +42,8 @@ public class TileLevel implements ILevel {
     public TileLevel(Tile[][] layout) {
         this.layout = layout;
         putTilesInLists();
-        if (startTile == null) setRandomStart();
-        if (exitTiles.size() == 0) setRandomEnd();
+        if (startTile == null) randomStart();
+        if (exitTiles.size() == 0) randomEnd();
     }
 
     /**
@@ -94,7 +94,7 @@ public class TileLevel implements ILevel {
     }
 
     @Override
-    public TileHeuristic getTileHeuristic() {
+    public TileHeuristic tileHeuristic() {
         return tileHeuristic;
     }
 
@@ -106,14 +106,11 @@ public class TileLevel implements ILevel {
     public void addConnectionsToNeighbours(Tile checkTile) {
         for (Coordinate v : CONNECTION_OFFSETS) {
             Coordinate c =
-                    new Coordinate(
-                            checkTile.getCoordinate().x + v.x, checkTile.getCoordinate().y + v.y);
-            Tile t = getTileAt(c);
+                    new Coordinate(checkTile.coordinate().x + v.x, checkTile.coordinate().y + v.y);
+            Tile t = tileAt(c);
             if (t != null
                     && t.isAccessible()
-                    && !checkTile
-                            .getConnections()
-                            .contains(new TileConnection(checkTile, t), false)) {
+                    && !checkTile.connections().contains(new TileConnection(checkTile, t), false)) {
                 checkTile.addConnection(t);
             }
         }
@@ -141,8 +138,8 @@ public class TileLevel implements ILevel {
 
     @Override
     public void addExitTile(ExitTile tile) {
-        if (getEndTile() != null) {
-            changeTileElementType(getEndTile(), LevelElement.FLOOR);
+        if (endTile() != null) {
+            changeTileElementType(endTile(), LevelElement.FLOOR);
         }
         exitTiles.add(tile);
     }
@@ -153,38 +150,38 @@ public class TileLevel implements ILevel {
     }
 
     @Override
-    public List<FloorTile> getFloorTiles() {
+    public List<FloorTile> floorTiles() {
         return floorTiles;
     }
 
     @Override
-    public List<WallTile> getWallTiles() {
+    public List<WallTile> wallTiles() {
         return wallTiles;
     }
 
     @Override
-    public List<HoleTile> getHoleTiles() {
+    public List<HoleTile> holeTiles() {
         return holeTiles;
     }
 
     @Override
-    public List<DoorTile> getDoorTiles() {
+    public List<DoorTile> doorTiles() {
         return doorTiles;
     }
 
     @Override
-    public List<ExitTile> getExitTiles() {
+    public List<ExitTile> exitTiles() {
         return exitTiles;
     }
 
     @Override
-    public List<SkipTile> getSkipTiles() {
+    public List<SkipTile> skipTiles() {
         return skipTiles;
     }
 
     @Override
     public void removeTile(Tile tile) {
-        switch (tile.getLevelElement()) {
+        switch (tile.levelElement()) {
             case SKIP -> skipTiles.remove(tile);
             case FLOOR -> floorTiles.remove(tile);
             case WALL -> wallTiles.remove(tile);
@@ -193,26 +190,26 @@ public class TileLevel implements ILevel {
             case EXIT -> exitTiles.remove(tile);
         }
 
-        tile.getConnections()
+        tile.connections()
                 .forEach(
                         x ->
                                 x.getToNode()
-                                        .getConnections()
+                                        .connections()
                                         .removeValue(
                                                 new TileConnection(x.getToNode(), tile), false));
-        if (tile.isAccessible()) removeIndex(tile.getIndex());
+        if (tile.isAccessible()) removeIndex(tile.index());
     }
 
     private void removeIndex(int index) {
         Arrays.stream(layout)
-                .flatMap(x -> Arrays.stream(x).filter(y -> y.getIndex() > index))
-                .forEach(x -> x.setIndex(x.getIndex() - 1));
+                .flatMap(x -> Arrays.stream(x).filter(y -> y.index() > index))
+                .forEach(x -> x.index(x.index() - 1));
         nodeCount--;
     }
 
     @Override
     public void addTile(Tile tile) {
-        switch (tile.getLevelElement()) {
+        switch (tile.levelElement()) {
             case SKIP -> addSkipTile((SkipTile) tile);
             case FLOOR -> addFloorTile((FloorTile) tile);
             case WALL -> addWallTile((WallTile) tile);
@@ -222,36 +219,36 @@ public class TileLevel implements ILevel {
         }
         if (tile.isAccessible()) {
             this.addConnectionsToNeighbours(tile);
-            tile.getConnections()
+            tile.connections()
                     .forEach(
                             x -> {
                                 if (!x.getToNode()
-                                        .getConnections()
+                                        .connections()
                                         .contains(new TileConnection(x.getToNode(), tile), false))
                                     x.getToNode().addConnection(tile);
                             });
-            tile.setIndex(nodeCount++);
+            tile.index(nodeCount++);
         }
-        tile.setLevel(this);
+        tile.level(this);
     }
 
     @Override
-    public Tile[][] getLayout() {
+    public Tile[][] layout() {
         return layout;
     }
 
     @Override
-    public Tile getStartTile() {
+    public Tile startTile() {
         return startTile;
     }
 
     @Override
-    public void setStartTile(Tile start) {
+    public void startTile(Tile start) {
         startTile = start;
     }
 
     @Override
-    public Tile getEndTile() {
+    public Tile endTile() {
         return exitTiles.size() > 0 ? exitTiles.get(0) : null;
     }
 }

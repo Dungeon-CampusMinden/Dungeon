@@ -51,7 +51,7 @@ sourceCompatibility = 17
 [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
 sourceSets.main.java.srcDirs = ["game/src/", "dsl/src/", "dungeon/src", "$projectDir/build/generated-src/"]
 sourceSets.main.resources.srcDirs = ["game/assets/"]
-sourceSets.test.resources.srcDirs = ["dsl/test_resources"]
+sourceSets.test.resources.srcDirs = ["dsl/test_resources", "dungeon/assets/"]
 sourceSets.test.java.srcDirs = ["game/test/", "dsl/test/", "dungeon/test"]
 sourceSets.main.antlr.srcDirs = ["dsl/src/antlr"]
 
@@ -79,6 +79,19 @@ task debug(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     debug = true
+    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        allJvmArgs += ["-XstartOnFirstThread"]
+    }
+    doFirst {
+        println(DefaultNativePlatform.currentOperatingSystem)
+    }
+}
+
+task runManualQuizTest(dependsOn: classes, type: JavaExec) {
+    mainClass = "manual.quizquestion.QuizQuestionUITest"
+    classpath = sourceSets.test.runtimeClasspath
+    standardInput = System.in
+    ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
         allJvmArgs += ["-XstartOnFirstThread"]
     }

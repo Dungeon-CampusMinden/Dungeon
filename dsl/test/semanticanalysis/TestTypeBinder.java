@@ -5,13 +5,11 @@ import helpers.Helpers;
 import org.junit.Assert;
 import org.junit.Test;
 
-import parser.ast.GameObjectDefinitionNode;
+import parser.ast.PrototypeDefinitionNode;
 
 import runtime.GameEnvironment;
 
 import semanticanalysis.types.*;
-
-import java.util.List;
 
 public class TestTypeBinder {
     @DSLType
@@ -27,7 +25,7 @@ public class TestTypeBinder {
 
         String program =
                 """
-            game_object o {
+            entity_type o {
                 test_component{
                     member1: 42,
                     member2: "Hello",
@@ -40,8 +38,7 @@ public class TestTypeBinder {
         var symTableParser = new SemanticAnalyzer();
 
         var env = new GameEnvironment();
-        var types = new IType[] {testCompType};
-        env.loadTypes(List.of(types));
+        env.loadTypes(testCompType);
         symTableParser.setup(env);
 
         SymbolTable symbolTable = symTableParser.walk(ast).symbolTable;
@@ -71,7 +68,7 @@ public class TestTypeBinder {
 
         String program =
                 """
-        game_object o {
+        entity_type o {
             test_component{
                 member1: 42,
                 member2: "Hello"
@@ -83,8 +80,7 @@ public class TestTypeBinder {
         var symTableParser = new SemanticAnalyzer();
 
         var env = new GameEnvironment();
-        var types = new IType[] {testCompType};
-        env.loadTypes(List.of(types));
+        env.loadTypes(testCompType);
         symTableParser.setup(env);
 
         SymbolTable symbolTable = symTableParser.walk(ast).symbolTable;
@@ -99,7 +95,7 @@ public class TestTypeBinder {
         var testComponent = ((AggregateType) gameObjectDefinition).resolve("test_component");
         var testComponentDefNode = symbolTable.getCreationAstNode(testComponent);
         var testComponentDefNodeFromAST =
-                ((GameObjectDefinitionNode) gameObjectDefNodeFromAST)
+                ((PrototypeDefinitionNode) gameObjectDefNodeFromAST)
                         .getComponentDefinitionNodes()
                         .get(0);
         Assert.assertEquals(testComponentDefNodeFromAST, testComponentDefNode);
@@ -110,7 +106,7 @@ public class TestTypeBinder {
 
         String program =
                 """
-            game_object o {
+            entity_type o {
                 test_record_user {
                     component_member: "Hello"
                 }
@@ -125,8 +121,7 @@ public class TestTypeBinder {
         env.getTypeBuilder().registerTypeAdapter(RecordBuilder.class, Scope.NULL);
         var type = env.getTypeBuilder().createTypeFromClass(new Scope(), TestRecordUser.class);
 
-        var types = new IType[] {type};
-        env.loadTypes(List.of(types));
+        env.loadTypes(type);
         symTableParser.setup(env);
 
         SymbolTable symbolTable = symTableParser.walk(ast).symbolTable;

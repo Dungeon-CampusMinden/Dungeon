@@ -8,6 +8,7 @@ import core.System;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
+import core.utils.components.MissingComponentException;
 
 /**
  * The ProjectileSystem class represents a system responsible for managing {@link
@@ -29,41 +30,48 @@ public class ProjectileSystem extends System {
     /** Sets the velocity and removes entities that have reached their endpoints. */
     @Override
     public void execute() {
-        getEntityStream()
+        entityStream()
                 // Consider only entities that have a ProjectileComponent
                 .map(this::buildDataObject)
                 .map(this::setVelocity)
                 // Filter all entities that have reached their endpoint
-                .filter(
-                        psd ->
-                                hasReachedEndpoint(
-                                        psd.prc.getStartPosition(),
-                                        psd.prc.getGoalLocation(),
-                                        psd.pc.getPosition()))
+                .filter(this::hasReachedEndpoint)
                 // Remove all entities who reached their endpoint
                 .forEach(this::removeEntitiesOnEndpoint);
     }
 
-    private PSData buildDataObject(Entity e) {
+    private PSData buildDataObject(Entity entity) {
 
         ProjectileComponent prc =
-                (ProjectileComponent) e.getComponent(ProjectileComponent.class).get();
-
-        PositionComponent pc = (PositionComponent) e.getComponent(PositionComponent.class).get();
-        VelocityComponent vc = (VelocityComponent) e.getComponent(VelocityComponent.class).get();
-
-        return new PSData(e, prc, pc, vc);
+                entity.fetch(ProjectileComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, ProjectileComponent.class));
+        PositionComponent pc =
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
+        VelocityComponent vc =
+                entity.fetch(VelocityComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, VelocityComponent.class));
+        return new PSData(entity, prc, pc, vc);
     }
 
     private PSData setVelocity(PSData data) {
-        data.vc.setCurrentYVelocity(data.vc.getYVelocity());
-        data.vc.setCurrentXVelocity(data.vc.getXVelocity());
+        data.vc.currentYVelocity(data.vc.yVelocity());
+        data.vc.currentXVelocity(data.vc.xVelocity());
 
         return data;
     }
 
     private void removeEntitiesOnEndpoint(PSData data) {
-        Game.removeEntity(data.pc.getEntity());
+        Game.removeEntity(data.pc.entity());
     }
 
     /**
@@ -72,19 +80,17 @@ public class ProjectileSystem extends System {
      * <p>A Projectile can be out of range, if it "skips" the endpoint, it has already reached the
      * endpoint and can be removed.
      *
-     * @param start position to start the calculation
-     * @param end point to check if projectile has reached its goal
-     * @param current current position
+     * @param psd the PSData to check if the projectile has reached the endpoint
      * @return true if the endpoint was reached or passed, else false
      */
-    private boolean hasReachedEndpoint(Point start, Point end, Point current) {
-        float dx = start.x - current.x;
-        float dy = start.y - current.y;
-        double distanceToStart = Math.sqrt(dx * dx + dy * dy);
+    private boolean hasReachedEndpoint(PSData psd) {
+        Point start = psd.prc.startPosition();
+        Point end = psd.prc.goalLocation();
+        Point current = psd.pc.position();
 
-        dx = start.x - end.x;
-        dy = start.y - end.y;
-        double totalDistance = Math.sqrt(dx * dx + dy * dy);
+        double distanceToStart = Point.calculateDistance(start, current);
+
+        double totalDistance = Point.calculateDistance(start, end);
 
         return distanceToStart > totalDistance;
     }

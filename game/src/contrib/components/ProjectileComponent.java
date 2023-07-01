@@ -7,8 +7,8 @@ import core.utils.Point;
 /**
  * ProjectileComponent saves the start position and goal location of a projectile.
  *
- * <p>The {@link #getGoalLocation()} method retrieves the goal position of the projectile. The
- * {@link #getStartPosition()} method retrieves the start position of the projectile.
+ * <p>The {@link #goalLocation()} method retrieves the goal position of the projectile. The {@link
+ * #startPosition()} method retrieves the start position of the projectile.
  */
 public class ProjectileComponent extends Component {
 
@@ -26,7 +26,7 @@ public class ProjectileComponent extends Component {
      *
      * @return goal position of the projectile
      */
-    public Point getGoalLocation() {
+    public Point goalLocation() {
         return goalLocation;
     }
 
@@ -35,7 +35,7 @@ public class ProjectileComponent extends Component {
      *
      * @return start position of the projectile
      */
-    public Point getStartPosition() {
+    public Point startPosition() {
         return startPosition;
     }
 }

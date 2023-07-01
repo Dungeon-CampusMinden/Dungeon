@@ -7,7 +7,7 @@ import java.util.logging.Logger;
  *
  * <p>This class is the abstract base class for each component.
  *
- * <p>Each component is linked to exactly one entity. Use {@link #getEntity} to get the associated
+ * <p>Each component is linked to exactly one entity. Use {@link #entity} to get the associated
  * entity of the component.
  *
  * <p>Each component will automatically add itself to the associated entity using {@link
@@ -42,7 +42,7 @@ public abstract class Component {
     /**
      * @return the associated entity
      */
-    public Entity getEntity() {
+    public Entity entity() {
         return entity;
     }
 }

@@ -35,7 +35,7 @@ public class PainterConfig {
      * @param texturePath path to the texture
      */
     public PainterConfig(String texturePath) {
-        this(TextureMap.getInstance().getTexture(texturePath));
+        this(TextureMap.instance().textureAt(texturePath));
     }
 
     /**

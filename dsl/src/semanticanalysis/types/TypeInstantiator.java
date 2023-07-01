@@ -2,6 +2,7 @@ package semanticanalysis.types;
 
 import static semanticanalysis.types.TypeBuilder.convertToDSLName;
 
+import runtime.AggregateValue;
 import runtime.IMemorySpace;
 import runtime.Value;
 
@@ -147,9 +148,8 @@ public class TypeInstantiator {
                     if (fieldValue != Value.NONE && fieldValue.isDirty()) {
                         var internalValue = fieldValue.getInternalObject();
 
-                        // TODO: should this not be done at the toplevel of instantiation? not only
-                        // one level down?
-                        if (fieldValue.getDataType().getTypeKind().equals(IType.Kind.PODAdapted)) {
+                        var fieldsDataType = fieldValue.getDataType();
+                        if (fieldsDataType.getTypeKind().equals(IType.Kind.PODAdapted)) {
                             // call builder -> the type instantiator needs a reference to the
                             // builder or to the
                             // builder methods
@@ -157,6 +157,25 @@ public class TypeInstantiator {
                             var method = adaptedType.getBuilderMethod();
 
                             internalValue = method.invoke(null, internalValue);
+                        } else if (fieldsDataType
+                                .getTypeKind()
+                                .equals(IType.Kind.AggregateAdapted)) {
+                            // call builder -> store values from memory space in order of parameters
+                            // of builder-method
+                            var adaptedType = (AggregateTypeAdapter) fieldsDataType;
+                            var method = adaptedType.getBuilderMethod();
+                            var aggregateFieldValue = (AggregateValue) fieldValue;
+
+                            var parameters = new ArrayList<>(method.getParameterCount());
+                            for (var parameter : method.getParameters()) {
+                                var memberName = TypeBuilder.getDSLName(parameter);
+                                var memberValue =
+                                        aggregateFieldValue.getMemorySpace().resolve(memberName);
+                                var internalObject = memberValue.getInternalObject();
+                                parameters.add(internalObject);
+                            }
+
+                            internalValue = method.invoke(null, parameters.toArray());
                         }
 
                         field.setAccessible(true);

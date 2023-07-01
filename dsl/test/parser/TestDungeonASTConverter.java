@@ -152,17 +152,17 @@ public class TestDungeonASTConverter {
     public void testGameObjectDefinitionSimpleComponent() {
         String program =
                 """
-                game_object test_object {
+                entity_type test_object {
                     this_is_a_component
                     }
                 """;
         var ast = Helpers.getASTFromString(program);
 
         var objDef = ast.getChild(0);
-        assertEquals(Node.Type.GameObjectDefinition, objDef.type);
+        assertEquals(Node.Type.PrototypeDefinition, objDef.type);
 
         var componentDefListNode =
-                ((GameObjectDefinitionNode) objDef).getComponentDefinitionListNode();
+                ((PrototypeDefinitionNode) objDef).getComponentDefinitionListNode();
         assertEquals(Node.Type.ComponentDefinitionList, componentDefListNode.type);
 
         var componentDefinitions = componentDefListNode.getChildren();
@@ -186,7 +186,7 @@ public class TestDungeonASTConverter {
     public void testGameObjectDefinition() {
         String program =
                 """
-                game_object test_object {
+                entity_type test_object {
                     complex_component {
                         prop1: 123,
                         prop2: "Hello, World!"
@@ -196,10 +196,10 @@ public class TestDungeonASTConverter {
         var ast = Helpers.getASTFromString(program);
 
         var objDef = ast.getChild(0);
-        assertEquals(Node.Type.GameObjectDefinition, objDef.type);
+        assertEquals(Node.Type.PrototypeDefinition, objDef.type);
 
         var componentDefListNode =
-                ((GameObjectDefinitionNode) objDef).getComponentDefinitionListNode();
+                ((PrototypeDefinitionNode) objDef).getComponentDefinitionListNode();
         assertEquals(Node.Type.ComponentDefinitionList, componentDefListNode.type);
 
         var componentDefinitions = componentDefListNode.getChildren();
@@ -227,7 +227,7 @@ public class TestDungeonASTConverter {
     public void testGameObjectDefinitionMultiComponent() {
         String program =
                 """
-            game_object test_object {
+            entity_type test_object {
                 complex_component1 {
                     prop1: 123,
                     prop2: "Hello, World!"
@@ -242,7 +242,7 @@ public class TestDungeonASTConverter {
 
         var objDef = ast.getChild(0);
         var componentDefListNode =
-                ((GameObjectDefinitionNode) objDef).getComponentDefinitionListNode();
+                ((PrototypeDefinitionNode) objDef).getComponentDefinitionListNode();
         var componentDefinitions = componentDefListNode.getChildren();
         assertEquals(2, componentDefinitions.size());
 
@@ -281,7 +281,7 @@ public class TestDungeonASTConverter {
     public void adaptedAggregateType() {
         String program =
                 """
-            game_object my_obj {
+            entity_type my_obj {
                 test_component_with_external_type {
                     member_external_type: external_type { str: "Hello, World!", n: 42 }
                 }
@@ -293,7 +293,7 @@ public class TestDungeonASTConverter {
             """;
 
         var ast = Helpers.getASTFromString(program);
-        var gameObjectDef = (GameObjectDefinitionNode) ast.getChild(0);
+        var gameObjectDef = (PrototypeDefinitionNode) ast.getChild(0);
         var componentDef =
                 (AggregateValueDefinitionNode) gameObjectDef.getComponentDefinitionNodes().get(0);
         var propertyDef = (PropertyDefNode) componentDef.getPropertyDefinitionNodes().get(0);
@@ -352,5 +352,25 @@ public class TestDungeonASTConverter {
         assertEquals(Node.Type.FuncCall, stmts.get(0).type);
 
         assertNotEquals(Node.NONE, funcDefNode);
+    }
+
+    @Test
+    public void returnStmt() {
+        String program =
+                """
+                fn test_func() -> ret_type {
+                    return 42;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+
+        var stmts = funcDefNode.getStmts();
+        var returnStmt = stmts.get(0);
+        assertEquals(Node.Type.ReturnStmt, returnStmt.type);
+
+        var innerStmt = ((ReturnStmtNode) returnStmt).getInnerStmtNode();
+        assertEquals(Node.Type.Number, innerStmt.type);
     }
 }

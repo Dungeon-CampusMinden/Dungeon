@@ -57,14 +57,14 @@ Informationen ändern sich dynamisch während der Programmlaufzeit.
 **Erzeugung von Prototypen**
 
 Der erste Schritt der Interpretation (nach der Initialisierung) ist das Erzeugen von
-Prototypen für `game_object`-Definitionen.
+Prototypen für `entity_type`-Definitionen.
 
 Ein “Prototyp” ist eine Kombination aus einem `AggregateType` und vom Nutzer per DSL
-konfigurierten Defaultwerten. Ein Beispiel für eine `game_object`-Definition:
+konfigurierten Defaultwerten. Ein Beispiel für eine `entity_type`-Definition:
 
 
 ```
-game_object my_obj {
+entity_type my_obj {
     velocity_component {
         x_velocity: 2.0,
         y_velocity: 3.0
@@ -84,7 +84,7 @@ Prototyps sind die konfigurierten Defaultwerte gesetzt. Dem folgenden Objektdiag
 die beteiligten Instanzen für das obere Beispiel entnommen werden:
 
 Wie zu erkennen ist, wird für jede Komponenten-Definition auch ein `Prototype` erzeugt, der
-jedoch nur im `Prototype` der `game_object`-Definition existiert. Der `Prototype` einer
+jedoch nur im `Prototype` der `entity_type`-Definition existiert. Der `Prototype` einer
 Komponenten-Definition enthält die per DSL konfigurierten Defaultwerte der Komponente.
 
 Die Erzeugung der Prototypen ist im folgenden Sequenzdiagramm dargestellt:
@@ -92,7 +92,7 @@ Die Erzeugung der Prototypen ist im folgenden Sequenzdiagramm dargestellt:
 ![UML: Erzeugung Prototyp](img/create_prototype.png){width="50%"}
 
 In den Typdefinitionen, die vom `RuntimeEnvironment` für `getTypes` zurückgegeben werden,
-sind auch die `game_object`-Definition enthalten.
+sind auch die `entity_type`-Definition enthalten.
 
 Die referenzierte Sequenz `createComponentPrototype` ist im Folgenden dargestellt:
 
@@ -119,10 +119,6 @@ public Object visit(NumNode node) {
 }
 ```
 
-Für einen `GameObjectDefinition`-Knoten, der Teil eines Ausdrucks ist, ist dieses Vorgehen
-deutlich komplexer und wird unter [Typinstanziierung](#typinstanziierung) genauer erläutert.
-Allerdings wird auch für diesen Fall ein `Value`-Objekt zurückgegeben.
-
 **Anmerkung:**
 
 Die im Folgenden beschriebenen Aspekte bzgl. `quest_config` als zentralem Übergabepunkt von
@@ -138,7 +134,7 @@ Eigenschaftszuweisungen dieser `quest_config`-Definition referenziert werden.
 Abschließend erzeugt der `DSLInterpreter` eine `QuestConfig`-Instanz und gibt diese an das
 Dungeon-Framework zurück. Die `QuestConfig`-Instanz enthält alle Informationen für das
 Dungeon-Framework, um ein Dungeonlevel mit spezifizierten Entitäten (als
-`game_object`-Definition) zu erzeugen.
+`entity_type`-Definition) zu erzeugen.
 
 ## `Value` und `IMemorySpace`
 
@@ -207,7 +203,7 @@ falls der Wert eines Members eine `Prototype`-Definition ist, wird auf für dies
 
 Für das bereits oben angeführte Beispiel
 ```
-game_object my_obj {
+entity_type my_obj {
     velocity_component {
         x_velocity: 2.0,
         y_velocity: 3.0
@@ -235,15 +231,16 @@ enthalten.
 
 Die Instanziierung von Java-Klassen, welche mit `@DSLType` (siehe
 [TypeBuilding](typebuilding.md)) markiert sind, wird durch den `TypeInstantiator`
-durchgeführt. Als Beispiel wird wieder die oben angeführte `game_object`-Definition
-herangezogen.
+durchgeführt. Als Beispiel wird wieder die oben angeführte `entity_type`-Definition
+herangezogen. **Dieser Prozess muss explizit durch die native `instantiate`-Funktion
+angestoßen werden.**
 
-![UML: Instanziierung von Java-Klasse](img/instantiate_java_class.png)
 Der `IMemorySpace` eines `AggregateValue` wird dem `TypeInstantiator` übergeben. Dieser
 erstellt eine Instanz der Java-Klasse, die dem Datentyp des `AggregateValue` zugrunde liegt.
 Im Fall der `velocity_component` `Value`-Instanz ist dies die Java-Klasse
 `VelocityComponent`. Das Sequenzdiagramm hierfür:
 
+![UML: Instanziierung von Java-Klasse](img/instantiate_java_class.png)
 
 Um die Java-Klasse zu instanziieren ruft der `TypeBuilder` den Konstruktor der Klasse per
 Reflection auf. Die Parameter für diesen Konstruktor-Aufruf liest der `TypeBuilder` aus dem
@@ -266,17 +263,22 @@ die Klassen-Instanz übertragen, falls der Wert explizit per DSL gesetzt wurde (
 Falls der Datentyp eines Klassen-Members [adaptiert](typebuilding.md#typadaptierung) ist,
 wird nicht direkt der interne Wert der `Value`-Instanz in die Klasseninstanz übertragen. Als
 Zwischenschritt wird die [Builder-Methode](typebuilding.md#1-nur-ein-parameter-nötig) für
-den Typadapter aufgerufen. Das so erstellte Objekt wird in die Klasseninstanz übertragen.
+den Typadapter aufgerufen.
 
-NOTE: Hier scheint in `TypeInstantiator:150` noch was konzeptionell nicht ganz zu stimmen
-(Fix kommt mit [PR #272](https://github.com/Programmiermethoden/Dungeon/pull/272))
+Der Aufruf unterscheidet sich je nach Art der Typadaptierung:
 
-TODO:
-- Instanziierung von AggregateTypeAdapter (kommt mit [PR #272](https://github.com/Programmiermethoden/Dungeon/pull/272))
+- Für die einfache Typadaptierung wird die Builder-Methode mit dem internen Wert der
+  `Value`-Instanz aufgerufen.
+- Für die komplexe Typadaptierung baut der `TypeInstantiator` vorher die Parameter-Liste für
+  den Aufruf der Builder-Methode zusammen. Hierzu werden die Parameternamen der
+  Builder-Methode im Kontext vom `MemorySpace` des `AggregateTypeAdapters` aufgelöst und an
+  die entsprechende Stelle der Parameter-Liste eingefügt.
+
+Das so erstellte Objekt wird in die Klasseninstanz übertragen.
 
 **EncapsulatedObject**
 
-Ab der Instanziierung von `game_object`-Definitionen als `Entity`, sind die eigentlichen
+Ab der Instanziierung von `entity_type`-Definitionen als `Entity`, sind die eigentlichen
 Werte in der Instanz der Java-Klasse und nicht mehr nur in einem MemorySpace im
 `DSLInterpreter` enthalten. Um die redundante Datenhaltung zu vermeiden, wird mit
 `EncapsulatedObject` eine Abstraktionsschicht um das Java-Objekt gelegt, welche
@@ -338,4 +340,19 @@ public Object call(DSLInterpreter interpreter, List<Node> parameters) {
 
 Das Sequenzdiagramm der Methode `executeUserDefinedFunction` ist unten dargestellt:
 
-Note: kommt mit [Issue \#705](https://github.com/Programmiermethoden/Dungeon/issues/705).
+![UML: executeUserDefinedFunction](img/execute_user_defined_function.png)
+
+Für den Rückgabewert wird eine `Value`-Instanz im `MemorySpace` der Funktion gebunden. Der
+interne Wert dieser `Value`-Instanz wird durch während der Interpretation von
+`return`-Statements gesetzt. Ein `return`-Statement beendet die Ausführung der
+Funktionslogik.
+
+Der `DSLInterpreter` verfügt hierfür über ein Flag, welches während der Interpretation eines
+`return`-Statements aktiv geschaltet wird. Nach der Interpretation eines Statements wird der
+Zustand des Flags überprüft und (falls aktiv) die Ausführung der nachfolgenden Statements
+übersprungen.
+
+Note: Dieser Flag-basierte Mechanismus ist ein Provisorium und ist bspw. für konditionale
+Statements zu kurz gedacht, liegt allerdings außerhalb des Scopes des PRs, der die
+Behandlung von `return`-Statements implementiert. Siehe dazu [Issue
+737](https://github.com/Programmiermethoden/Dungeon/issues/737).

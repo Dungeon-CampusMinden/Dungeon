@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import contrib.components.InventoryComponent;
 import contrib.utils.components.item.ItemData;
 
-import core.Component;
 import core.Entity;
 import core.Game;
 import core.components.*;
@@ -34,25 +33,25 @@ public class ChestTest {
         List<ItemData> itemData = List.of();
         Point position = new Point(0, 0);
         Entity c = null;
-        c = EntityFactory.getChest(itemData, position);
+        c = EntityFactory.newChest(itemData, position);
 
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
-                c.getComponent(DrawComponent.class).isPresent());
-        Optional<Component> inventoryComponent = c.getComponent(InventoryComponent.class);
+                c.fetch(DrawComponent.class).isPresent());
+        Optional<InventoryComponent> inventoryComponent = c.fetch(InventoryComponent.class);
         assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
         assertEquals(
                 "Chest should have the given Items",
                 itemData,
-                inventoryComponent.map(InventoryComponent.class::cast).get().getItems());
-        Optional<Component> positionComponent = c.getComponent(PositionComponent.class);
+                inventoryComponent.map(InventoryComponent.class::cast).get().items());
+        Optional<PositionComponent> positionComponent = c.fetch(PositionComponent.class);
         assertTrue(
                 "Needs the PositionComponent to be somewhere in the Level",
                 positionComponent.isPresent());
         assertEquals(
                 "Position should be equal to the given Position",
                 position,
-                positionComponent.map(PositionComponent.class::cast).get().getPosition());
+                positionComponent.map(PositionComponent.class::cast).get().position());
         cleanup();
     }
 
@@ -111,48 +110,43 @@ public class ChestTest {
     @Test
     public void checkGeneratorMethod() throws IOException {
         cleanup();
-        Game.currentLevel =
+        Game.currentLevel(
                 new TileLevel(
                         new LevelElement[][] {
                             new LevelElement[] {
                                 LevelElement.FLOOR,
                             }
                         },
-                        DesignLabel.DEFAULT);
+                        DesignLabel.DEFAULT));
 
-        Entity newChest = EntityFactory.getChest();
+        Entity newChest = EntityFactory.newChest();
 
         // assertTrue("Chest is added to Game", Game.getEntitiesStream().anyMatch(e -> e ==
         // newChest));
         assertTrue(
                 "Needs the AnimationComponent to be visible to the player.",
-                newChest.getComponent(DrawComponent.class).isPresent());
-        Optional<Component> inventoryComponent = newChest.getComponent(InventoryComponent.class);
+                newChest.fetch(DrawComponent.class).isPresent());
+        Optional<InventoryComponent> inventoryComponent = newChest.fetch(InventoryComponent.class);
         assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
         assertTrue(
                 "Chest should have atleast 1 Item",
-                1
-                        <= inventoryComponent
-                                .map(InventoryComponent.class::cast)
-                                .get()
-                                .getItems()
-                                .size());
+                1 <= inventoryComponent.map(InventoryComponent.class::cast).get().items().size());
         assertEquals(
                 "x Position has to be 0. Only Tile is at 0,0",
                 0,
-                newChest.getComponent(PositionComponent.class)
+                newChest.fetch(PositionComponent.class)
                         .map(PositionComponent.class::cast)
                         .get()
-                        .getPosition()
+                        .position()
                         .x,
                 0.00001f);
         assertEquals(
                 "y Position has to be 0. Only Tile is at 0,0",
                 0,
-                newChest.getComponent(PositionComponent.class)
+                newChest.fetch(PositionComponent.class)
                         .map(PositionComponent.class::cast)
                         .get()
-                        .getPosition()
+                        .position()
                         .y,
                 0.00001f);
         cleanup();

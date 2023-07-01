@@ -11,7 +11,7 @@ import semanticanalysis.types.DSLTypeMember;
 import java.util.logging.Logger;
 
 /**
- * The VelocityComponent allows the associated entity to move in the dungeon.
+ * Allow associated entity to move in the dungeon.
  *
  * <p>The VelocityComponent stores the speed at which the entity can move along the x and y axes.
  *
@@ -25,12 +25,11 @@ import java.util.logging.Logger;
  * velocity means that the entity is moving left/down. If the current x and y velocity is 0, that
  * means the entity is not moving.
  *
- * <p>Use {@link #setYVelocity(float)} or {@link #setXVelocity(float)} to change the current
- * velocity. Normally you want to use the {@link #xVelocity} or {@link #yVelocity} as parameter
- * this.
+ * <p>Use {@link #yVelocity(float)} or {@link #xVelocity(float)} to change the current velocity.
+ * Normally you want to use the {@link #xVelocity} or {@link #yVelocity} as parameter this.
  */
 @DSLType(name = "velocity_component")
-public class VelocityComponent extends Component {
+public final class VelocityComponent extends Component {
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private float currentXVelocity;
     private float currentYVelocity;
@@ -44,7 +43,7 @@ public class VelocityComponent extends Component {
      * @param xVelocity Speed with which the entity can move on the x-axis
      * @param yVelocity Speed with which the entity can move on the y-axis
      */
-    public VelocityComponent(Entity entity, float xVelocity, float yVelocity) {
+    public VelocityComponent(final Entity entity, float xVelocity, float yVelocity) {
         super(entity);
         this.currentXVelocity = 0;
         this.currentYVelocity = 0;
@@ -59,7 +58,7 @@ public class VelocityComponent extends Component {
      *
      * @param entity associated entity
      */
-    public VelocityComponent(@DSLContextMember(name = "entity") Entity entity) {
+    public VelocityComponent(@DSLContextMember(name = "entity") final Entity entity) {
         super(entity);
         this.currentXVelocity = 0;
         this.currentYVelocity = 0;
@@ -76,7 +75,7 @@ public class VelocityComponent extends Component {
      *
      * @return current velocity on the x-axis
      */
-    public float getCurrentXVelocity() {
+    public float currentXVelocity() {
         return currentXVelocity;
     }
 
@@ -90,7 +89,7 @@ public class VelocityComponent extends Component {
      *
      * @param currentXVelocity set current speed on the x-axis
      */
-    public void setCurrentXVelocity(float currentXVelocity) {
+    public void currentXVelocity(float currentXVelocity) {
         this.currentXVelocity = currentXVelocity;
     }
 
@@ -103,7 +102,7 @@ public class VelocityComponent extends Component {
      *
      * @return current velocity on the y-axis
      */
-    public float getCurrentYVelocity() {
+    public float currentYVelocity() {
         return currentYVelocity;
     }
 
@@ -117,7 +116,7 @@ public class VelocityComponent extends Component {
      *
      * @param currentYVelocity set current speed on the x-axis
      */
-    public void setCurrentYVelocity(float currentYVelocity) {
+    public void currentYVelocity(float currentYVelocity) {
         this.currentYVelocity = currentYVelocity;
     }
 
@@ -128,7 +127,7 @@ public class VelocityComponent extends Component {
      *
      * @return velocity with which the entity should move on the x-axis
      */
-    public float getXVelocity() {
+    public float xVelocity() {
         LOGGER.log(
                 CustomLogLevel.DEBUG,
                 "Fetching x-velocity for entity '"
@@ -145,7 +144,7 @@ public class VelocityComponent extends Component {
      *
      * @param xVelocity set speed with which the entity can should on the x-axis
      */
-    public void setXVelocity(float xVelocity) {
+    public void xVelocity(float xVelocity) {
         this.xVelocity = xVelocity;
     }
 
@@ -156,7 +155,7 @@ public class VelocityComponent extends Component {
      *
      * @return velocity with which the entity should move on the y-axis
      */
-    public float getYVelocity() {
+    public float yVelocity() {
         LOGGER.log(
                 CustomLogLevel.DEBUG,
                 "Fetching y-velocity for entity '"
@@ -165,6 +164,7 @@ public class VelocityComponent extends Component {
                         + yVelocity);
         return yVelocity;
     }
+
     /**
      * Set the velocity with which the entity should move on the y-axis.
      *
@@ -172,7 +172,7 @@ public class VelocityComponent extends Component {
      *
      * @param yVelocity set speed with which the entity can should on the y-axis
      */
-    public void setYVelocity(float yVelocity) {
+    public void yVelocity(float yVelocity) {
         this.yVelocity = yVelocity;
     }
 }

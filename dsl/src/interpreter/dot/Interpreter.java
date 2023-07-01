@@ -116,7 +116,7 @@ public class Interpreter implements AstVisitor<dslToGame.graph.Node<String>> {
                             : Edge.Type.undirected;
 
             var graphEdge = new Edge(edgeType, lhsDotNode, rhsDotNode);
-            graphEdges.put(graphEdge.getName(), graphEdge);
+            graphEdges.put(graphEdge.name(), graphEdge);
 
             lhsDotNode = rhsDotNode;
         }

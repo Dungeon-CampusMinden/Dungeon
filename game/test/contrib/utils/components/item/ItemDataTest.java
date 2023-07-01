@@ -25,9 +25,9 @@ public class ItemDataTest {
     @Test
     public void testDefaultConstructor() {
         ItemData itemData = new ItemData();
-        assertEquals(ItemConfig.NAME.get(), itemData.getItemName());
-        assertEquals(ItemConfig.DESCRIPTION.get(), itemData.getDescription());
-        assertEquals(ItemConfig.TYPE.get(), itemData.getItemType());
+        assertEquals(ItemConfig.NAME.value(), itemData.itemName());
+        assertEquals(ItemConfig.DESCRIPTION.value(), itemData.description());
+        assertEquals(ItemConfig.TYPE.value(), itemData.itemType());
         // assertEquals(ItemData.DEFAULT_WORLD_ANIMATION, itemData.getWorldTexture());
         // assertEquals(ItemData.DEFAULT_INVENTORY_ANIMATION, itemData.getInventoryTexture());
     }
@@ -47,12 +47,11 @@ public class ItemDataTest {
                         item_name,
                         item_description);
 
-        assertEquals(type, itemData.getItemType());
-        assertEquals(
-                inventoryTexture, itemData.getInventoryTexture().getNextAnimationTexturePath());
-        assertEquals(worldTexture, itemData.getWorldTexture().getNextAnimationTexturePath());
-        assertEquals(item_name, itemData.getItemName());
-        assertEquals(item_description, itemData.getDescription());
+        assertEquals(type, itemData.itemType());
+        assertEquals(inventoryTexture, itemData.inventoryTexture().nextAnimationTexturePath());
+        assertEquals(worldTexture, itemData.worldTexture().nextAnimationTexturePath());
+        assertEquals(item_name, itemData.itemName());
+        assertEquals(item_description, itemData.description());
     }
 
     // <p> Since we cant update the {@link Game#entities} from outside the gameloop, this is
@@ -82,7 +81,7 @@ public class ItemDataTest {
     public void testUseCallback() {
         BiConsumer<Entity, ItemData> callback = Mockito.mock(BiConsumer.class);
         ItemData item = new ItemData();
-        item.setOnUse(callback);
+        item.onUse(callback);
         Entity entity = new Entity();
         item.triggerUse(entity);
         Mockito.verify(callback).accept(entity, item);
@@ -92,7 +91,7 @@ public class ItemDataTest {
     @Test
     public void testUseNullCallback() {
         ItemData item = new ItemData();
-        item.setOnUse(null);
+        item.onUse(null);
         Entity entity = new Entity();
         item.triggerUse(entity);
     }
@@ -106,10 +105,10 @@ public class ItemDataTest {
         inventoryComponent.addItem(item);
         assertTrue(
                 "ItemActive needs to be in entities inventory.",
-                inventoryComponent.getItems().contains(item));
+                inventoryComponent.items().contains(item));
         item.triggerUse(entity);
         assertFalse(
                 "Item was not removed from inventory after use.",
-                inventoryComponent.getItems().contains(item));
+                inventoryComponent.items().contains(item));
     }
 }

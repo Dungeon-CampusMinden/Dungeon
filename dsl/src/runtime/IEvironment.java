@@ -3,6 +3,7 @@ package runtime;
 import semanticanalysis.*;
 import semanticanalysis.types.IType;
 
+import java.util.HashMap;
 import java.util.List;
 
 // TODO: this is more of a semantic analysis kind of concept -> put it there
@@ -26,11 +27,20 @@ public interface IEvironment {
     }
 
     // default Symbol lookupFunction(String name) { return Symbol.NULL; }
+    /**
+     * @param types AggregateTypes to load into the environment
+     */
+    default void loadTypes(IType... types) {}
 
     /**
      * @param types AggregateTypes to load into the environment
      */
     default void loadTypes(List<IType> types) {}
+
+    /**
+     * @param functionDefinitions FunctionSymbols to load into the environment
+     */
+    default void loadFunctions(ScopedSymbol... functionDefinitions) {}
 
     /**
      * @param functionDefinitions FunctionSymbols to load into the environment
@@ -46,4 +56,8 @@ public interface IEvironment {
      * @return global scope of this environment
      */
     IScope getGlobalScope();
+
+    default HashMap<Class<?>, IType> javaTypeToDSLTypeMap() {
+        return new HashMap<>();
+    }
 }

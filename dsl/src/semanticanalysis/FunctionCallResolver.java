@@ -70,6 +70,12 @@ public class FunctionCallResolver implements AstVisitor<Void> {
     }
 
     @Override
+    public Void visit(ReturnStmtNode node) {
+        node.getInnerStmtNode().accept(this);
+        return null;
+    }
+
+    @Override
     public Void visit(FuncCallNode funcCall) {
         // resolve function definition in global scope
         String funcName = funcCall.getIdName();
@@ -80,6 +86,10 @@ public class FunctionCallResolver implements AstVisitor<Void> {
 
         // TODO: or link to ID?
         this.symbolTable.addSymbolNodeRelation(funcSymbol, funcCall);
+
+        for (var parameter : funcCall.getParameters()) {
+            parameter.accept(this);
+        }
 
         return null;
     }

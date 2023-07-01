@@ -5,10 +5,11 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.components.ai.AITools;
 
 import core.Entity;
+import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.utils.Constants;
 import core.utils.Point;
+import core.utils.components.MissingComponentException;
 
 import java.util.function.Consumer;
 
@@ -28,29 +29,35 @@ public class StaticRadiusWalk implements Consumer<Entity> {
      * @param radius Radius in which a target point is to be searched for
      * @param breakTimeInSeconds how long to wait (in seconds) before searching a new goal
      */
-    public StaticRadiusWalk(float radius, int breakTimeInSeconds) {
+    public StaticRadiusWalk(final float radius, final int breakTimeInSeconds) {
         this.radius = radius;
-        this.breakTime = breakTimeInSeconds * Constants.FRAME_RATE;
+        this.breakTime = breakTimeInSeconds * Game.frameRate();
     }
 
     @Override
-    public void accept(Entity entity) {
+    public void accept(final Entity entity) {
         if (path == null || AITools.pathFinishedOrLeft(entity, path)) {
             if (center == null) {
                 PositionComponent pc =
-                        (PositionComponent)
-                                entity.getComponent(PositionComponent.class).orElseThrow();
-                center = pc.getPosition();
+                        entity.fetch(PositionComponent.class)
+                                .orElseThrow(
+                                        () ->
+                                                MissingComponentException.build(
+                                                        entity, PositionComponent.class));
+                center = pc.position();
             }
 
             if (currentBreak >= breakTime) {
                 currentBreak = 0;
                 PositionComponent pc2 =
-                        (PositionComponent)
-                                entity.getComponent(PositionComponent.class).orElseThrow();
-                currentPosition = pc2.getPosition();
+                        entity.fetch(PositionComponent.class)
+                                .orElseThrow(
+                                        () ->
+                                                MissingComponentException.build(
+                                                        entity, PositionComponent.class));
+                currentPosition = pc2.position();
                 newEndTile =
-                        AITools.getRandomAccessibleTileCoordinateInRange(center, radius).toPoint();
+                        AITools.randomAccessibleTileCoordinateInRange(center, radius).toPoint();
                 path = AITools.calculatePath(currentPosition, newEndTile);
                 accept(entity);
             }

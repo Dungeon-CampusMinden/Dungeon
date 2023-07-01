@@ -17,7 +17,7 @@ public class InteractionComponentTest {
     public void createSimpleConstructor() {
         Entity e = new Entity();
         InteractionComponent component = new InteractionComponent(e);
-        assertEquals(InteractionComponent.DEFAULT_RADIUS, component.getRadius(), 0.0001);
+        assertEquals(InteractionComponent.DEFAULT_RADIUS, component.radius(), 0.0001);
     }
 
     /** Tests if the complex Constructor sets the attributes to the parameter */
@@ -30,7 +30,7 @@ public class InteractionComponentTest {
 
         InteractionComponent component = new InteractionComponent(e, radius, repeat, iInteraction);
 
-        assertEquals(radius, component.getRadius(), 0.0001);
+        assertEquals(radius, component.radius(), 0.0001);
     }
 
     /** Checks if the iInteraction is called on triggerInteraction */
@@ -41,7 +41,7 @@ public class InteractionComponentTest {
         InteractionComponent component = new InteractionComponent(e, 1, true, iInteraction);
         component.triggerInteraction();
         verify(iInteraction).accept(e);
-        assertTrue(e.getComponent(InteractionComponent.class).isPresent());
+        assertTrue(e.fetch(InteractionComponent.class).isPresent());
     }
 
     /** Checks if after the interaction the component gets removed */
@@ -52,7 +52,7 @@ public class InteractionComponentTest {
         InteractionComponent component = new InteractionComponent(e, 1, false, iInteraction);
         component.triggerInteraction();
         verify(iInteraction).accept(e);
-        assertFalse(e.getComponent(InteractionComponent.class).isPresent());
+        assertFalse(e.fetch(InteractionComponent.class).isPresent());
     }
 
     /** Checks that the interaction only gets triggered for the linked iInteraction */
@@ -78,6 +78,6 @@ public class InteractionComponentTest {
         InteractionComponent component = new InteractionComponent(e, 1, false, iInteraction);
         InteractionComponent component2 = new InteractionComponent(e2, 1, false, iInteraction2);
         component.triggerInteraction();
-        assertTrue(e2.getComponent(InteractionComponent.class).isPresent());
+        assertTrue(e2.fetch(InteractionComponent.class).isPresent());
     }
 }

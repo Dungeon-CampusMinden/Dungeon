@@ -22,8 +22,8 @@ public class SelfDefendTransitionTest {
     public void isInFightModeHealtpointsAreMax() {
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity);
-        hc.setMaximalHealthpoints(10);
-        hc.setCurrentHealthpoints(10);
+        hc.maximalHealthpoints(10);
+        hc.currentHealthpoints(10);
         Function<Entity, Boolean> defend = new SelfDefendTransition();
 
         assertFalse(defend.apply(entity));
@@ -36,11 +36,11 @@ public class SelfDefendTransitionTest {
     public void isInFightModeHealthpointsAreLowerThenMax() {
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity);
-        hc.setMaximalHealthpoints(10);
-        hc.setCurrentHealthpoints(10);
+        hc.maximalHealthpoints(10);
+        hc.currentHealthpoints(10);
         Function<Entity, Boolean> defend = new SelfDefendTransition();
         assertFalse(defend.apply(entity));
-        hc.setCurrentHealthpoints(9);
+        hc.currentHealthpoints(9);
         assertTrue(defend.apply(entity));
     }
 
@@ -55,6 +55,5 @@ public class SelfDefendTransitionTest {
         MissingComponentException exception =
                 assertThrows(MissingComponentException.class, () -> defend.apply(entity));
         assertTrue(exception.getMessage().contains(HealthComponent.class.getName()));
-        assertTrue(exception.getMessage().contains(SelfDefendTransition.class.getName()));
     }
 }

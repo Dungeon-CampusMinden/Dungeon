@@ -23,14 +23,14 @@ public class WorldItemBuilder {
      */
     public static Entity buildWorldItem(ItemData itemData, Point position) {
         Entity droppedItem = new Entity();
-        new PositionComponent(droppedItem, position);
-        new DrawComponent(droppedItem, itemData.getWorldTexture());
+        new PositionComponent(droppedItem, new Point(0, 0));
+        new DrawComponent(droppedItem, itemData.worldTexture());
         new ItemComponent(droppedItem, itemData);
-
-        Consumer<Entity> interaction =
-                (a) -> itemData.triggerCollect(droppedItem, Game.getHero().orElseThrow());
-        new InteractionComponent(droppedItem, 1.2f, true, interaction);
-
+        CollideComponent component = new CollideComponent(droppedItem);
+        component.collideEnter(
+                (a, b, direction) -> {
+                    itemData.triggerCollect(a, b);
+                });
         return droppedItem;
     }
 }

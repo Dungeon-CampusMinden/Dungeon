@@ -4,7 +4,7 @@ import semanticanalysis.IScope;
 import semanticanalysis.Scope;
 import semanticanalysis.Symbol;
 
-// TODO: "game_object" type definition should be fixed part of the
+// TODO: "entity_type" type definition should be fixed part of the
 //  built in type system
 public class BuiltInType extends Symbol implements IType {
     public static BuiltInType noType = new BuiltInType("none", Scope.NULL);

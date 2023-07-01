@@ -29,9 +29,10 @@ public class HealthComponentTest {
         hc.receiveHit(fdmg2);
         hc.receiveHit(mdmg);
         hc.receiveHit(pdmg);
-        assertEquals(fdmg.damageAmount() + fdmg2.damageAmount(), hc.getDamage(DamageType.FIRE));
-        assertEquals(mdmg.damageAmount(), hc.getDamage(DamageType.MAGIC));
-        assertEquals(pdmg.damageAmount(), hc.getDamage(DamageType.PHYSICAL));
+        assertEquals(
+                fdmg.damageAmount() + fdmg2.damageAmount(), hc.calculateDamageOf(DamageType.FIRE));
+        assertEquals(mdmg.damageAmount(), hc.calculateDamageOf(DamageType.MAGIC));
+        assertEquals(pdmg.damageAmount(), hc.calculateDamageOf(DamageType.PHYSICAL));
     }
 
     @Test
@@ -45,9 +46,9 @@ public class HealthComponentTest {
         Damage dmg2 = new Damage(5, DamageType.FIRE, damager2);
         hc.receiveHit(dmg);
         hc.receiveHit(dmg2);
-        assertEquals(damager2, hc.getLastDamageCause().get());
+        assertEquals(damager2, hc.lastDamageCause().get());
         hc.receiveHit(dmg);
-        assertEquals(damager, hc.getLastDamageCause().get());
+        assertEquals(damager, hc.lastDamageCause().get());
     }
 
     @Test
@@ -55,11 +56,11 @@ public class HealthComponentTest {
         Game.removeAllEntities();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity, 10, null);
-        assertEquals(10, hc.getMaximalHealthpoints());
-        assertEquals(10, hc.getCurrentHealthpoints());
-        hc.setMaximalHealthpoints(8);
-        assertEquals(8, hc.getMaximalHealthpoints());
-        assertEquals(8, hc.getCurrentHealthpoints());
+        assertEquals(10, hc.maximalHealthpoints());
+        assertEquals(10, hc.currentHealthpoints());
+        hc.maximalHealthpoints(8);
+        assertEquals(8, hc.maximalHealthpoints());
+        assertEquals(8, hc.currentHealthpoints());
     }
 
     @Test
@@ -67,11 +68,11 @@ public class HealthComponentTest {
         Game.removeAllEntities();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity, 10, null);
-        assertEquals(10, hc.getMaximalHealthpoints());
-        assertEquals(10, hc.getCurrentHealthpoints());
-        hc.setMaximalHealthpoints(12);
-        assertEquals(12, hc.getMaximalHealthpoints());
-        assertEquals(10, hc.getCurrentHealthpoints());
+        assertEquals(10, hc.maximalHealthpoints());
+        assertEquals(10, hc.currentHealthpoints());
+        hc.maximalHealthpoints(12);
+        assertEquals(12, hc.maximalHealthpoints());
+        assertEquals(10, hc.currentHealthpoints());
     }
 
     @Test
@@ -79,8 +80,8 @@ public class HealthComponentTest {
         Game.removeAllEntities();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity, 10, null);
-        hc.setCurrentHealthpoints(12);
-        assertEquals(10, hc.getCurrentHealthpoints());
+        hc.currentHealthpoints(12);
+        assertEquals(10, hc.currentHealthpoints());
     }
 
     @Test
@@ -88,8 +89,8 @@ public class HealthComponentTest {
         Game.removeAllEntities();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity, 10, null);
-        hc.setCurrentHealthpoints(8);
-        assertEquals(8, hc.getCurrentHealthpoints());
+        hc.currentHealthpoints(8);
+        assertEquals(8, hc.currentHealthpoints());
     }
 
     @Test
@@ -108,7 +109,7 @@ public class HealthComponentTest {
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity);
         Consumer<Entity> function = Mockito.mock(Consumer.class);
-        hc.setOnDeath(function);
+        hc.onDeath(function);
         hc.triggerOnDeath();
         Mockito.verify(function, times(1)).accept(entity);
     }

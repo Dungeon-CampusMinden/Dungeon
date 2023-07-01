@@ -14,14 +14,14 @@ import semanticanalysis.types.IType;
 public class Value implements IClonable {
     public static Value NONE = new Value(null, null, false);
 
-    protected final IType dataType;
+    protected IType dataType;
     protected Object value;
     protected final boolean isMutable;
     protected boolean dirty;
 
     /**
      * Indicates, if the internal value of this {@link Value} was set explicitly (e.g. in a
-     * game_object definition).
+     * entity_type definition).
      *
      * @return true, if the internal value was set explicitly, false otherwise
      */
@@ -50,6 +50,10 @@ public class Value implements IClonable {
      */
     public IType getDataType() {
         return dataType;
+    }
+
+    public void setDataType(IType type) {
+        this.dataType = type;
     }
 
     /**

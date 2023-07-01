@@ -46,7 +46,7 @@ public class Point {
      * @param b Point B
      * @return the unit vector
      */
-    public static Point getUnitDirectionalVector(Point b, Point a) {
+    public static Point unitDirectionalVector(Point b, Point a) {
         Point interactionDir = new Point(b);
         // (interactable - a) / len(interactable - a)
         interactionDir.x -= a.x;

@@ -15,12 +15,12 @@ public class RangeTransition implements Function<Entity, Boolean> {
      *
      * @param range Range of the entity.
      */
-    public RangeTransition(float range) {
+    public RangeTransition(final float range) {
         this.range = range;
     }
 
     @Override
-    public Boolean apply(Entity entity) {
+    public Boolean apply(final Entity entity) {
         return AITools.playerInRange(entity, range);
     }
 }

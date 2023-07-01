@@ -4,8 +4,9 @@ import contrib.components.XPComponent;
 
 import core.Entity;
 import core.System;
+import core.utils.components.MissingComponentException;
 
-public class XPSystem extends System {
+public final class XPSystem extends System {
 
     public XPSystem() {
         super(XPComponent.class);
@@ -13,13 +14,15 @@ public class XPSystem extends System {
 
     @Override
     public void execute() {
-        getEntityStream().forEach(this::checkForLevelUP);
+        entityStream().forEach(this::checkForLevelUP);
     }
 
     private void checkForLevelUP(Entity entity) {
-        XPComponent comp = (XPComponent) entity.getComponent(XPComponent.class).get();
+        XPComponent comp =
+                entity.fetch(XPComponent.class)
+                        .orElseThrow(() -> MissingComponentException.build(entity, XPSystem.class));
         long xpLeft;
-        while ((xpLeft = comp.getXPToNextLevel()) <= 0) {
+        while ((xpLeft = comp.xpToNextLevel()) <= 0) {
             this.performLevelUp(comp, (int) xpLeft);
         }
     }
@@ -33,8 +36,8 @@ public class XPSystem extends System {
      * @param xpLeft XP left to level up (can be negative if greater the needed amount)
      */
     private void performLevelUp(XPComponent comp, int xpLeft) {
-        comp.setCurrentLevel(comp.getCurrentLevel() + 1);
-        comp.setCurrentXP(xpLeft * -1);
-        comp.levelUp(comp.getCurrentLevel());
+        comp.currentLevel(comp.currentLevel() + 1);
+        comp.currentXP(xpLeft * -1);
+        comp.levelUp(comp.currentLevel());
     }
 }

@@ -1,25 +1,32 @@
 package core.utils;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import core.Game;
 
 import java.net.URISyntaxException;
 import java.net.URL;
 
 public final class Constants {
-    public static final int WINDOW_WIDTH = 640;
-
-    public static final int WINDOW_HEIGHT = 480;
-
-    /** Frames per seconds. */
-    public static final int FRAME_RATE = 30;
 
     /** Virtual width and height. */
     public static final float FIELD_WIDTH_AND_HEIGHT_IN_PIXEL = 16f;
 
-    public static final float VIEWPORT_WIDTH = WINDOW_WIDTH / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
-    public static final float VIEWPORT_HEIGHT = WINDOW_HEIGHT / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+    /**
+     * todo: what exactly is this?
+     *
+     * @return width of the viewport
+     */
+    public static float viewportWidth() {
+        return Game.windowWidth() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+    }
+
+    /**
+     * todo: what exactly is this?
+     *
+     * @return height of the viewport
+     */
+    public static float viewportHeight() {
+        return Game.windowHeight() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+    }
 
     /** 200% zoom. */
     public static final float DEFAULT_ZOOM_FACTOR = 0.5f;
@@ -29,12 +36,6 @@ public final class Constants {
     /** Value for LevelElements that are not accessible */
     public static final boolean LEVELELEMENT_IS_NOT_ACCESSIBLE = false;
 
-    /** Sets the window title for the LibGDX window. */
-    public static final String WINDOW_TITLE = "PM-Dungeon";
-
-    /** Sets the LibGDX-window logo path. */
-    public static final String LOGO_PATH = "logo/CatLogo_35x35.png";
-
     /** set Path to libgdx default Skins */
     public static final String SKIN_FOR_DIALOG = "skin/uiskin.json";
 
@@ -42,45 +43,16 @@ public final class Constants {
     public static final String DEFAULT_HEADING = "Default heading";
     public static final String DEFAULT_MESSAGE = "Das Spiel ist pausiert.";
     public static final String DEFAULT_BUTTON_MESSAGE = "OK ";
-    public static final String EMPTY_MESSAGE = "";
-
     public static final String QUIZ_MESSAGE_TASK = "Aufgabestellung";
 
     public static final String QUIZ_MESSAGE_SOLUTION = "Lösung";
 
-    public static final String TEST_IMAGE_PATH_FOR_DIALOG = "image_quiz/dummy.png";
-
-    public static final Skin inventorySkin =
-            new Skin(
-                    Gdx.files.internal("skin/InventorySkin/inventorySkin.json"),
-                    new TextureAtlas("skin/InventorySkin/inventorySkin.atlas"));
-
-    public static final String INVENTORYSLOT_PATH = "skin/InventorySkin/inventorySlot.png";
-
-    public static final String INVENTORYSLOT_ARMOUR_PATH =
-            "skin/InventorySkin/inventorySlotArmour.png";
-    public static final String INVENTORYSLOT_GLOVES_PATH =
-            "skin/InventorySkin/inventorySlotGloves.png";
-    public static final String INVENTORYSLOT_HELMET_PATH =
-            "skin/InventorySkin/inventorySlotHelmet.png";
-    public static final String INVENTORYSLOT_RING_PATH = "skin/InventorySkin/inventorySlotRing.png";
-    public static final String INVENTORYSLOT_NECKLACE_PATH =
-            "skin/InventorySkin/inventorySlotNecklace.png";
-    public static final String INVENTORYSLOT_BOOK_PATH = "skin/InventorySkin/inventorySlotBook.png";
-    public static final String INVENTORYSLOT_SCHIELD_PATH =
-            "skin/InventorySkin/inventorySlotSchield.png";
-    public static final String INVENTORYSLOT_SHOES_PATH =
-            "skin/InventorySkin/inventorySlotShoes.png";
-    public static final String INVENTORYSLOT_SWORD_PATH =
-            "skin/InventorySkin/inventorySlotSword.png";
-
-    public static final int SIZE_INVENTORY = 36;
     /**
      * @param path the relative path to the resource
      * @return the absolute path of the internal resource
      */
     @SuppressWarnings("unused")
-    private static String getResourceString(String path) {
+    private static String resourceString(String path) {
         URL url = ClassLoader.getSystemClassLoader().getResource(path);
         assert (url != null);
         String modifiedPath = null;

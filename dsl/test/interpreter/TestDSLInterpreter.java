@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.List;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
@@ -46,6 +45,156 @@ public class TestDSLInterpreter {
         interpreter.getQuestConfig(program);
 
         assertTrue(outputStream.toString().contains("Hello, World!"));
+    }
+
+    @Test
+    public void funcCallReturn() {
+        String program =
+                """
+                quest_config c {
+                    test: print(testReturnHelloWorld())
+                }
+                    """;
+        TestEnvironment env = new TestEnvironment();
+        env.loadFunctions(TestFunctionReturnHelloWorld.func);
+
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+        symbolTableParser.setup(env);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        interpreter.initializeRuntime(env);
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        interpreter.generateQuestConfig(ast);
+
+        assertTrue(outputStream.toString().contains("Hello, World!"));
+    }
+
+    @Test
+    public void funcCallDoubleReturnUserFunc() {
+        String program =
+                """
+                fn ret_string2() -> string {
+                    return "Hello, World!";
+                }
+
+                fn ret_string1() -> string {
+                    return ret_string2();
+                }
+
+                quest_config c {
+                    test: print(ret_string1())
+                }
+                    """;
+        TestEnvironment env = new TestEnvironment();
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+        symbolTableParser.setup(env);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        interpreter.initializeRuntime(env);
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        interpreter.generateQuestConfig(ast);
+
+        assertTrue(outputStream.toString().contains("Hello, World!"));
+    }
+
+    @Test
+    public void funcCallDoubleReturnUserFuncDifferentValues() {
+        String program =
+                """
+                    fn ret_string2() -> string {
+                        return "Moin";
+                    }
+
+                    fn ret_string1() -> string {
+                        ret_string2();
+                        return "Hello, World!";
+                    }
+
+                    quest_config c {
+                        test: print(ret_string1())
+                    }
+                """;
+        TestEnvironment env = new TestEnvironment();
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+        symbolTableParser.setup(env);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        interpreter.initializeRuntime(env);
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        interpreter.generateQuestConfig(ast);
+
+        assertTrue(outputStream.toString().contains("Hello, World!"));
+        assertFalse(outputStream.toString().contains("Moin"));
+    }
+
+    @Test
+    public void funcCallReturnUserFunc() {
+        String program =
+                """
+                fn ret_string() -> string {
+                    return "Hello, World!";
+                }
+
+                quest_config c {
+                    test: print(ret_string())
+                }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(
+                program, env, interpreter, TestFunctionReturnHelloWorld.func);
+
+        assertTrue(outputStream.toString().contains("Hello, World!"));
+    }
+
+    @Test
+    public void funcCallReturnUserFuncWithoutReturnType() {
+        String program =
+                """
+                    fn ret_string() {
+                        return "Hello, World!";
+                    }
+
+                quest_config c {
+                    test: print(ret_string())
+                }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(
+                program, env, interpreter, TestFunctionReturnHelloWorld.func);
+
+        assertFalse(outputStream.toString().contains("Hello, World!"));
     }
 
     /** Test, if Value.NULL does not get set, if non-existing property of datatype is assigned */
@@ -87,10 +236,10 @@ public class TestDSLInterpreter {
         // parameter, these should be set to default values
         String program =
                 """
-            quest_config c {
-                quest_desc: "Hello"
-            }
-                """;
+                quest_config c {
+                    quest_desc: "Hello"
+                }
+                    """;
         DSLInterpreter interpreter = new DSLInterpreter();
 
         var questConfig = (QuestConfig) interpreter.getQuestConfig(program);
@@ -122,7 +271,7 @@ public class TestDSLInterpreter {
         assertEquals("TESTPW", questConfig.password());
         var graph = questConfig.levelGraph();
 
-        var edgeIter = graph.getEdgeIterator();
+        var edgeIter = graph.edgeIterator();
         int edgeCount = 0;
         while (edgeIter.hasNext()) {
             edgeIter.next();
@@ -130,7 +279,7 @@ public class TestDSLInterpreter {
         }
         assertEquals(1, edgeCount);
 
-        var nodeIter = graph.getNodeIterator();
+        var nodeIter = graph.nodeIterator();
         int nodeCount = 0;
         while (nodeIter.hasNext()) {
             nodeIter.next();
@@ -154,7 +303,7 @@ public class TestDSLInterpreter {
                     A -- B
                 }
 
-                game_object c {
+                entity_type c {
                     test_component{
                         member1: 42,
                         member2: "Hello, World!"
@@ -166,23 +315,11 @@ public class TestDSLInterpreter {
                 }
                 """;
 
-        TypeBuilder tb = new TypeBuilder();
-        var testCompType = tb.createTypeFromClass(new Scope(), TestComponent.class);
-        var otherCompType = tb.createTypeFromClass(new Scope(), OtherComponent.class);
-
         var env = new GameEnvironment();
-        var typesToLoad = new IType[] {testCompType, otherCompType};
-        env.loadTypes(List.of(typesToLoad));
+        var interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomTypes(
+                program, env, interpreter, TestComponent.class, OtherComponent.class);
 
-        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
-        symbolTableParser.setup(env);
-        var ast = Helpers.getASTFromString(program);
-        symbolTableParser.walk(ast);
-
-        DSLInterpreter interpreter = new DSLInterpreter();
-        interpreter.initializeRuntime(env);
-
-        var questConfig = interpreter.generateQuestConfig(ast);
         var rtEnv = interpreter.getRuntimeEnvironment();
 
         var typeWithDefaults = rtEnv.lookupPrototype("c");
@@ -208,14 +345,11 @@ public class TestDSLInterpreter {
         assertEquals("Hello, World!", member2Value.getInternalObject());
     }
 
-    @DSLType(name = "quest_config")
-    public record CustomQuestConfig(@DSLTypeMember Entity entity) {}
-
     @Test
     public void aggregateTypeInstancing() {
         String program =
                 """
-                game_object my_obj {
+                entity_type my_obj {
                     test_component1 {
                         member1: 42,
                         member2: 12.34
@@ -227,28 +361,22 @@ public class TestDSLInterpreter {
                 }
 
                 quest_config config {
-                    entity: my_obj
+                    entity: instantiate(my_obj)
                 }
                 """;
 
-        TypeBuilder tb = new TypeBuilder();
-        var entityType = tb.createTypeFromClass(new Scope(), Entity.class);
-        var testCompType = tb.createTypeFromClass(new Scope(), TestComponent1.class);
-        var otherCompType = tb.createTypeFromClass(new Scope(), TestComponent2.class);
-
         var env = new TestEnvironment();
-        var typesToLoad = new IType[] {entityType, testCompType, otherCompType};
-        env.loadTypes(List.of(typesToLoad));
+        var interpreter = new DSLInterpreter();
+        var questConfig =
+                Helpers.generateQuestConfigWithCustomTypes(
+                        program,
+                        env,
+                        interpreter,
+                        Entity.class,
+                        TestComponent1.class,
+                        TestComponent2.class);
 
-        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
-        symbolTableParser.setup(env);
-        var ast = Helpers.getASTFromString(program);
-        symbolTableParser.walk(ast);
-
-        DSLInterpreter interpreter = new DSLInterpreter();
-        interpreter.initializeRuntime(env);
-
-        var entity = ((CustomQuestConfig) interpreter.generateQuestConfig(ast)).entity;
+        var entity = ((CustomQuestConfig) questConfig).entity();
         var rtEnv = interpreter.getRuntimeEnvironment();
         var globalMs = interpreter.getGlobalMemorySpace();
 
@@ -297,32 +425,20 @@ public class TestDSLInterpreter {
     public void aggregateTypeInstancingNonSupportedExternalType() {
         String program =
                 """
-            game_object my_obj {
-                component_with_external_type_member { }
-            }
+                entity_type my_obj {
+                    component_with_external_type_member { }
+                }
 
-            quest_config config {
-                entity: my_obj
-            }
-            """;
-
-        TypeBuilder tb = new TypeBuilder();
-        var entityType = tb.createTypeFromClass(new Scope(), Entity.class);
-        var compType = tb.createTypeFromClass(new Scope(), ComponentWithExternalTypeMember.class);
+                quest_config config {
+                    entity: instantiate(my_obj)
+                }
+                """;
 
         var env = new TestEnvironment();
-        var typesToLoad = new IType[] {entityType, compType};
-        env.loadTypes(List.of(typesToLoad));
-
-        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
-        symbolTableParser.setup(env);
-        var ast = Helpers.getASTFromString(program);
-        symbolTableParser.walk(ast);
-
         DSLInterpreter interpreter = new DSLInterpreter();
-        interpreter.initializeRuntime(env);
+        Helpers.generateQuestConfigWithCustomTypes(
+                program, env, interpreter, Entity.class, ComponentWithExternalTypeMember.class);
 
-        interpreter.generateQuestConfig(ast);
         var globalMs = interpreter.getGlobalMemorySpace();
 
         // check, if the component was instantiated and the
@@ -346,47 +462,33 @@ public class TestDSLInterpreter {
     public void adaptedInstancing() {
         String program =
                 """
-            game_object my_obj {
-                test_component1 {
-                    member1: 42,
-                    member2: 12
-                },
-                test_component_with_external_type {
-                    member_external_type: "Hello, World!"
+                entity_type my_obj {
+                    test_component1 {
+                        member1: 42,
+                        member2: 12
+                    },
+                    test_component_with_external_type {
+                        member_external_type: "Hello, World!"
+                    }
                 }
-            }
 
-            quest_config config {
-                entity: my_obj
-            }
-            """;
+                quest_config config {
+                    entity: instantiate(my_obj)
+                }
+                """;
 
         // setup test type system
         var env = new TestEnvironment();
-        var entityType = env.getTypeBuilder().createTypeFromClass(new Scope(), Entity.class);
-        var testCompType =
-                env.getTypeBuilder().createTypeFromClass(new Scope(), TestComponent1.class);
-
         env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, Scope.NULL);
-        var externalComponentType =
-                env.getTypeBuilder()
-                        .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
-
-        var typesToLoad =
-                new semanticanalysis.types.IType[] {
-                    entityType, testCompType, externalComponentType
-                };
-        env.loadTypes(List.of(typesToLoad));
-
-        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
-        symbolTableParser.setup(env);
-        var ast = Helpers.getASTFromString(program);
-        symbolTableParser.walk(ast);
-
         DSLInterpreter interpreter = new DSLInterpreter();
-        interpreter.initializeRuntime(env);
-
-        interpreter.generateQuestConfig(ast);
+        Helpers.generateQuestConfigWithCustomTypes(
+                program,
+                env,
+                interpreter,
+                Entity.class,
+                TestComponent1.class,
+                TestComponentWithExternalType.class,
+                ExternalType.class);
 
         var globalMs = interpreter.getGlobalMemorySpace();
         AggregateValue config = (AggregateValue) (globalMs.resolve("config"));
@@ -397,5 +499,49 @@ public class TestDSLInterpreter {
         var internalObject = (TestComponentWithExternalType) component.getInternalObject();
         ExternalType externalTypeMember = internalObject.getMemberExternalType();
         Assert.assertEquals("Hello, World!", externalTypeMember.member3);
+    }
+
+    @Test
+    public void adaptedInstancingMultiParam() {
+        String program =
+                """
+                entity_type my_obj {
+                    test_component1 {
+                        member1: 42,
+                        member2: 12
+                    },
+                    test_component_with_external_type {
+                        member_external_type: external_type { string: "Hello, World!", number: 42 }
+                    }
+                }
+
+                quest_config config {
+                    entity: instantiate(my_obj)
+                }
+                """;
+
+        // setup test type system
+        var env = new TestEnvironment();
+        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomTypes(
+                program,
+                env,
+                interpreter,
+                Entity.class,
+                TestComponent1.class,
+                TestComponentWithExternalType.class,
+                ExternalType.class);
+
+        var globalMs = interpreter.getGlobalMemorySpace();
+        AggregateValue config = (AggregateValue) (globalMs.resolve("config"));
+        AggregateValue myObj = (AggregateValue) config.getMemorySpace().resolve("entity");
+        AggregateValue component =
+                (AggregateValue)
+                        myObj.getMemorySpace().resolve("test_component_with_external_type");
+        var internalObject = (TestComponentWithExternalType) component.getInternalObject();
+        ExternalType externalTypeMember = internalObject.getMemberExternalType();
+        Assert.assertEquals("Hello, World!", externalTypeMember.member3);
+        Assert.assertEquals(42, externalTypeMember.member1);
     }
 }

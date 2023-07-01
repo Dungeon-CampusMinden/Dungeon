@@ -6,9 +6,8 @@ import semanticanalysis.Scope;
 import semanticanalysis.Symbol;
 import semanticanalysis.types.IType;
 
-import java.util.List;
-
 public class TestEnvironment extends GameEnvironment {
+
     public TestEnvironment() {
         super();
     }
@@ -17,17 +16,14 @@ public class TestEnvironment extends GameEnvironment {
     protected void bindBuiltIns() {
         for (IType type : BUILT_IN_TYPES) {
             // load custom QuestConfig
-            if (!type.getName().equals("quest_config") && !type.getName().equals("game_object")) {
+            if (!type.getName().equals("quest_config") && !type.getName().equals("entity")) {
                 globalScope.bind((Symbol) type);
             }
         }
 
         var questConfigType =
-                this.getTypeBuilder()
-                        .createTypeFromClass(
-                                Scope.NULL, TestDSLInterpreter.CustomQuestConfig.class);
-        var typesToLoad = new semanticanalysis.types.IType[] {questConfigType};
-        loadTypes(List.of(typesToLoad));
+                this.getTypeBuilder().createTypeFromClass(Scope.NULL, CustomQuestConfig.class);
+        loadTypes(questConfigType);
 
         for (Symbol func : NATIVE_FUNCTIONS) {
             globalScope.bind(func);

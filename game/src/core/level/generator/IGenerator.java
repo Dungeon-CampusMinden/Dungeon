@@ -13,15 +13,15 @@ public interface IGenerator {
      * @param size Size of the level
      * @return The level
      */
-    ILevel getLevel(DesignLabel designLabel, LevelSize size);
+    ILevel level(DesignLabel designLabel, LevelSize size);
 
     /**
      * Get a level with a random configuration.
      *
      * @return The level.
      */
-    default ILevel getLevel() {
-        return getLevel(DesignLabel.randomDesign(), LevelSize.randomSize());
+    default ILevel level() {
+        return level(DesignLabel.randomDesign(), LevelSize.randomSize());
     }
 
     /**
@@ -30,8 +30,8 @@ public interface IGenerator {
      * @param designLabel Design of the level
      * @return The level
      */
-    default ILevel getLevel(DesignLabel designLabel) {
-        return getLevel(designLabel, LevelSize.randomSize());
+    default ILevel level(DesignLabel designLabel) {
+        return level(designLabel, LevelSize.randomSize());
     }
 
     /**
@@ -40,8 +40,8 @@ public interface IGenerator {
      * @param size Size of the level
      * @return The level
      */
-    default ILevel getLevel(LevelSize size) {
-        return getLevel(DesignLabel.randomDesign(), size);
+    default ILevel level(LevelSize size) {
+        return level(DesignLabel.randomDesign(), size);
     }
 
     /**
@@ -50,5 +50,5 @@ public interface IGenerator {
      * @param size Size of the level
      * @return The layout
      */
-    LevelElement[][] getLayout(LevelSize size);
+    LevelElement[][] layout(LevelSize size);
 }

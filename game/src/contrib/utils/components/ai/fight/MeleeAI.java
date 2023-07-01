@@ -6,14 +6,14 @@ import contrib.utils.components.ai.AITools;
 import contrib.utils.components.skill.Skill;
 
 import core.Entity;
+import core.Game;
 import core.level.Tile;
-import core.utils.Constants;
 
 import java.util.function.Consumer;
 
 public class MeleeAI implements Consumer<Entity> {
     private final float attackRange;
-    private final int delay = Constants.FRAME_RATE;
+    private final int delay = Game.frameRate();
     private int timeSinceLastUpdate = 0;
     private final Skill fightSkill;
     private GraphPath<Tile> path;
@@ -25,13 +25,13 @@ public class MeleeAI implements Consumer<Entity> {
      * @param attackRange Range in which the attack skill should be executed
      * @param fightSkill Skill to be used when an attack is performed
      */
-    public MeleeAI(float attackRange, Skill fightSkill) {
+    public MeleeAI(final float attackRange, final Skill fightSkill) {
         this.attackRange = attackRange;
         this.fightSkill = fightSkill;
     }
 
     @Override
-    public void accept(Entity entity) {
+    public void accept(final Entity entity) {
         if (AITools.playerInRange(entity, attackRange)) {
             fightSkill.execute(entity);
         } else {

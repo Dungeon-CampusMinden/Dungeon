@@ -1,7 +1,5 @@
 package quizquestion;
 
-import core.hud.UITools;
-
 /**
  * The QuizQuestion class represents a single quiz question, including the question itself, possible
  * answer choices, and the type of question.
@@ -12,13 +10,6 @@ import core.hud.UITools;
  */
 public record QuizQuestion(
         QuizQuestionContent question, QuizQuestionContent[] answers, QuizQuestionType type) {
-    /**
-     * Asks the quiz question in a graphical user interface by calling the showQuizDialog() method
-     * of the UITools class.
-     */
-    public void askQuizQuestionWithUI() {
-        UITools.showQuizDialog(this);
-    }
 
     /**
      * The QuizQuestionType enum represents the different types of quiz questions that can be
