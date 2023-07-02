@@ -1,7 +1,7 @@
 package core.systems;
 
 import core.Entity;
-import core.Game;
+
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -9,61 +9,74 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
+
 import java.util.HashMap;
 import java.util.Map;
 
-/** used to draw entities */
-public class DrawSystem extends System {
+/**
+ * This system draws the entities on the screen.
+ *
+ * <p>Each entity with a {@link DrawComponent} and a {@link PositionComponent} will be drawn on the
+ * screen.
+ *
+ * <p>The system will get the current animation from the {@link DrawComponent} and will get the next
+ * animation frame from the {@link Animation}, and then draw it on the current position stored in
+ * the {@link PositionComponent}.
+ *
+ * <p>This system will not set the current animation. This must be done by other systems.
+ *
+ * <p>The DrawSystem can't be paused.
+ *
+ * @see DrawComponent
+ * @see Animation
+ */
+public final class DrawSystem extends System {
 
-    private Painter painter;
-    private Map<String, PainterConfig> configs;
-
-    private record DSData(Entity e, DrawComponent ac, PositionComponent pc) {}
+    private final Painter painter;
+    private final Map<String, PainterConfig> configs;
 
     /**
-     * @param painter PM-Dungeon painter to draw
+     * Create a new DrawSystem to draw entities.
+     *
+     * @param painter The Painter to use for drawing.
+     * @see Painter
      */
     public DrawSystem(Painter painter) {
-        super();
+        super(DrawComponent.class, PositionComponent.class);
         this.painter = painter;
         configs = new HashMap<>();
     }
 
-    /** draw entities at their position */
-    public void update() {
-        Game.getEntities().stream()
-                .flatMap(e -> e.getComponent(DrawComponent.class).stream())
-                .map(ac -> buildDataObject((DrawComponent) ac))
-                .forEach(this::draw);
+    /**
+     * Will draw entities at their position with their current animation.
+     *
+     * @see DrawComponent
+     * @see Animation
+     */
+    @Override
+    public void execute() {
+        entityStream().map(this::buildDataObject).forEach(this::draw);
     }
 
     private void draw(DSData dsd) {
-        final Animation animation = dsd.ac.getCurrentAnimation();
-        String currentAnimationTexture = animation.getNextAnimationTexturePath();
+        final Animation animation = dsd.ac.currentAnimation();
+        String currentAnimationTexture = animation.nextAnimationTexturePath();
         if (!configs.containsKey(currentAnimationTexture)) {
             configs.put(currentAnimationTexture, new PainterConfig(currentAnimationTexture));
         }
         painter.draw(
-                dsd.pc.getPosition(),
-                currentAnimationTexture,
-                configs.get(currentAnimationTexture));
+                dsd.pc.position(), currentAnimationTexture, configs.get(currentAnimationTexture));
     }
 
-    private DSData buildDataObject(DrawComponent ac) {
-        Entity e = ac.getEntity();
-
+    private DSData buildDataObject(Entity e) {
+        DrawComponent dc =
+                e.fetch(DrawComponent.class)
+                        .orElseThrow(() -> MissingComponentException.build(e, DrawComponent.class));
         PositionComponent pc =
-                (PositionComponent)
-                        e.getComponent(PositionComponent.class).orElseThrow(DrawSystem::missingPC);
-
-        return new DSData(e, ac, pc);
-    }
-
-    /** DrawSystem cant be paused */
-    @Override
-    public void toggleRun() {
-        // DrawSystem cant pause
-        run = true;
+                e.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () -> MissingComponentException.build(e, PositionComponent.class));
+        return new DSData(e, dc, pc);
     }
 
     /** DrawSystem cant be paused */
@@ -73,7 +86,5 @@ public class DrawSystem extends System {
         run = true;
     }
 
-    private static MissingComponentException missingPC() {
-        return new MissingComponentException("PositionComponent");
-    }
+    private record DSData(Entity e, DrawComponent ac, PositionComponent pc) {}
 }

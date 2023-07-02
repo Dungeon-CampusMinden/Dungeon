@@ -14,7 +14,7 @@ die Entität in den Fight-Zustand versetzen, sobald sich ein Gegner in einem bes
 
 ## Aufbau
 
-![UML Diagram](img/aiComponent.png)
+![UML Diagram](img/ai_component.png)
 
 ## Wie nutzt man es
 

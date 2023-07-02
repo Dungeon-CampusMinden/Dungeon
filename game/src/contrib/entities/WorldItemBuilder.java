@@ -3,6 +3,7 @@ package contrib.entities;
 import contrib.components.CollideComponent;
 import contrib.components.ItemComponent;
 import contrib.utils.components.item.ItemData;
+
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -20,10 +21,10 @@ public class WorldItemBuilder {
     public static Entity buildWorldItem(ItemData itemData) {
         Entity droppedItem = new Entity();
         new PositionComponent(droppedItem, new Point(0, 0));
-        new DrawComponent(droppedItem, itemData.getWorldTexture());
+        new DrawComponent(droppedItem, itemData.worldTexture());
         new ItemComponent(droppedItem, itemData);
         CollideComponent component = new CollideComponent(droppedItem);
-        component.setiCollideEnter(
+        component.collideEnter(
                 (a, b, direction) -> {
                     itemData.triggerCollect(a, b);
                 });

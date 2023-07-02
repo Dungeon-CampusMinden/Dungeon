@@ -16,9 +16,9 @@ public class TileSerializer extends Serializer<Tile> {
     public void write(Kryo kryo, Output output, Tile object) {
         Class<?> concreteClass = object.getClass();
         kryo.writeClass(output, concreteClass);
-        output.writeString(object.getTexturePath());
-        kryo.writeObject(output, object.getCoordinate());
-        output.writeInt(object.getDesignLabel().ordinal());
+        output.writeString(object.texturePath());
+        kryo.writeObject(output, object.coordinate());
+        output.writeInt(object.designLabel().ordinal());
     }
 
     @Override

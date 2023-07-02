@@ -14,6 +14,7 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -135,7 +136,7 @@ public class MultiplayerAPI implements IMultiplayerClientObserver {
 //        }
     }
 
-    public void changeLevel(final ILevel level, final Set<Entity> currentEntities){
+    public void changeLevel(final ILevel level, final Stream<Entity> currentEntities){
         multiplayerClient.send(new LoadMapRequest(level, currentEntities));
     }
 

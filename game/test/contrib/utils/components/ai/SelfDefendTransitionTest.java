@@ -4,9 +4,13 @@ import static org.junit.Assert.*;
 
 import contrib.components.HealthComponent;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
+
 import core.Entity;
 import core.utils.components.MissingComponentException;
+
 import org.junit.Test;
+
+import java.util.function.Function;
 
 public class SelfDefendTransitionTest {
 
@@ -18,11 +22,11 @@ public class SelfDefendTransitionTest {
     public void isInFightModeHealtpointsAreMax() {
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity);
-        hc.setMaximalHealthpoints(10);
-        hc.setCurrentHealthpoints(10);
-        ITransition defend = new SelfDefendTransition();
+        hc.maximalHealthpoints(10);
+        hc.currentHealthpoints(10);
+        Function<Entity, Boolean> defend = new SelfDefendTransition();
 
-        assertFalse(defend.isInFightMode(entity));
+        assertFalse(defend.apply(entity));
     }
     /**
      * tests if the isInFight method returns true when the current HealthPoints of an entity are
@@ -32,12 +36,12 @@ public class SelfDefendTransitionTest {
     public void isInFightModeHealthpointsAreLowerThenMax() {
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity);
-        hc.setMaximalHealthpoints(10);
-        hc.setCurrentHealthpoints(10);
-        ITransition defend = new SelfDefendTransition();
-        assertFalse(defend.isInFightMode(entity));
-        hc.setCurrentHealthpoints(9);
-        assertTrue(defend.isInFightMode(entity));
+        hc.maximalHealthpoints(10);
+        hc.currentHealthpoints(10);
+        Function<Entity, Boolean> defend = new SelfDefendTransition();
+        assertFalse(defend.apply(entity));
+        hc.currentHealthpoints(9);
+        assertTrue(defend.apply(entity));
     }
 
     /**
@@ -47,10 +51,9 @@ public class SelfDefendTransitionTest {
     @Test
     public void isInFightModeHealthComponentMissing() {
         Entity entity = new Entity();
-        ITransition defend = new SelfDefendTransition();
+        Function<Entity, Boolean> defend = new SelfDefendTransition();
         MissingComponentException exception =
-                assertThrows(MissingComponentException.class, () -> defend.isInFightMode(entity));
+                assertThrows(MissingComponentException.class, () -> defend.apply(entity));
         assertTrue(exception.getMessage().contains(HealthComponent.class.getName()));
-        assertTrue(exception.getMessage().contains(SelfDefendTransition.class.getName()));
     }
 }

@@ -1,24 +1,21 @@
 package contrib.utils.components.ai.transition;
 
 import contrib.components.HealthComponent;
-import contrib.utils.components.ai.ITransition;
+
 import core.Entity;
 import core.utils.components.MissingComponentException;
 
-public class SelfDefendTransition implements ITransition {
+import java.util.function.Function;
+
+public class SelfDefendTransition implements Function<Entity, Boolean> {
     @Override
-    public boolean isInFightMode(Entity entity) {
+    public Boolean apply(final Entity entity) {
         HealthComponent component =
-                (HealthComponent)
-                        entity.getComponent(HealthComponent.class)
-                                .orElseThrow(
-                                        () ->
-                                                new MissingComponentException(
-                                                        "Missing "
-                                                                + HealthComponent.class.getName()
-                                                                + " which is required for the "
-                                                                + SelfDefendTransition.class
-                                                                        .getName()));
-        return component.getCurrentHealthpoints() < component.getMaximalHealthpoints();
+                entity.fetch(HealthComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, HealthComponent.class));
+        return component.currentHealthpoints() < component.maximalHealthpoints();
     }
 }

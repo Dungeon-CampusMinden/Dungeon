@@ -1,21 +1,26 @@
 package runtime;
 
+import semanticanalysis.Scope;
+import semanticanalysis.Symbol;
+import semanticanalysis.types.AggregateType;
+import semanticanalysis.types.BuiltInType;
+import semanticanalysis.types.IType;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import semanticAnalysis.Scope;
-import semanticAnalysis.Symbol;
-import semanticAnalysis.types.AggregateType;
-import semanticAnalysis.types.IType;
 
 // TODO: make this a subclass of AggregateType
 // TODO: add class description
 public class Prototype extends Value implements IType {
     public static Prototype NONE = new Prototype(new AggregateType("NO_TYPE_NAME", Scope.NULL));
+    public static BuiltInType PROTOTYPE = new BuiltInType("prototype", Scope.NULL);
     private final HashMap<String, Value> defaultValues;
 
-    private AggregateType internalType() {
-        return (AggregateType) this.dataType;
+    private final AggregateType internalType;
+
+    public AggregateType getInternalType() {
+        return internalType;
     }
 
     /**
@@ -24,7 +29,9 @@ public class Prototype extends Value implements IType {
      * @param internalType the {@link AggregateType} of which this is a Prototype
      */
     public Prototype(AggregateType internalType) {
-        super(internalType, Value.NONE);
+        // an Prototype is a value and a type at the same time
+        super(PROTOTYPE, Value.NONE);
+        this.internalType = internalType;
         defaultValues = new HashMap<>();
     }
 
@@ -36,7 +43,7 @@ public class Prototype extends Value implements IType {
      * @return true on success, false otherwise
      */
     public boolean addDefaultValue(String name, Value value) {
-        if (internalType().resolve(name) == Symbol.NULL) {
+        if (getInternalType().resolve(name) == Symbol.NULL) {
             return false;
         } else {
             // TODO: typecheck?
@@ -65,7 +72,7 @@ public class Prototype extends Value implements IType {
      */
     @Override
     public String getName() {
-        return dataType.getName();
+        return internalType.getName();
     }
 
     /**
@@ -73,6 +80,6 @@ public class Prototype extends Value implements IType {
      */
     @Override
     public Kind getTypeKind() {
-        return dataType.getTypeKind();
+        return internalType.getTypeKind();
     }
 }

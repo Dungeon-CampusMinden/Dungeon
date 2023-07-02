@@ -2,9 +2,12 @@ package contrib.utils.components.interaction;
 
 import core.Entity;
 
-public class DefaultInteraction implements IInteraction{
+import java.util.function.Consumer;
+
+public class DefaultInteraction implements Consumer<Entity> {
+
     @Override
-    public void onInteraction(Entity entity) {
+    public void accept(Entity entity) {
         System.out.println(entity.id() + " did use the DefaultInteraction");
     }
 }

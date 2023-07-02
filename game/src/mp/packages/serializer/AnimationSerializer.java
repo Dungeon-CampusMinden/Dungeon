@@ -13,7 +13,7 @@ import java.util.List;
 public class AnimationSerializer extends Serializer<Animation> {
     @Override
     public void write(Kryo kryo, Output output, Animation object) {
-        output.writeInt(object.getFrameTime());
+        //output.writeInt(object.getFrameTime());
         output.writeBoolean(object.isLooping());
         List<String> animationFrames = object.getAnimationFrames();
         int size = animationFrames.size();
@@ -25,7 +25,7 @@ public class AnimationSerializer extends Serializer<Animation> {
 
     @Override
     public Animation read(Kryo kryo, Input input, Class<Animation> type) {
-        int frameTime = input.readInt();
+        //int frameTime = input.readInt();
         boolean looping = input.readBoolean();
         int size = input.readInt();
         Collection<String> animationFrames = new ArrayList<>();
@@ -33,6 +33,7 @@ public class AnimationSerializer extends Serializer<Animation> {
             String frame = input.readString();
             animationFrames.add(frame);
         }
-        return new Animation(animationFrames, frameTime, looping);
+        //return new Animation(animationFrames, frameTime, looping);
+        return null;
     }
 }

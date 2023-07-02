@@ -21,12 +21,12 @@ public class ItemComponentSerializer extends Serializer<ItemComponent> {
     }
     @Override
     public void write(Kryo kryo, Output output, ItemComponent object) {
-        kryo.writeObject(output, object.getItemData());
+        kryo.writeObject(output, object.itemData());
     }
 
     @Override
     public ItemComponent read(Kryo kryo, Input input, Class<ItemComponent> type) {
         ItemData itemData = kryo.readObject(input, ItemData.class);
-        return new ItemComponent(entity);
+        return new ItemComponent(entity, itemData);
     }
 }

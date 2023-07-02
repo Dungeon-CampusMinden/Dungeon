@@ -2,6 +2,7 @@ package core;
 
 import static org.junit.Assert.*;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -13,33 +14,62 @@ public class EntityTest {
 
     @Before
     public void setup() {
-        Game.getEntities().forEach(e -> Game.removeEntity(e));
-        Game.getDelayedEntitySet().update();
         entity = new Entity();
         entity.addComponent(testComponent);
     }
 
     @Test
-    public void cTor() {
-        Game.getDelayedEntitySet().update();
-        assertTrue(Game.getEntities().contains(entity));
-    }
-
-    @Test
     public void addComponent() {
-        assertEquals(testComponent, entity.getComponent(testComponent.getClass()).get());
+        assertEquals(testComponent, entity.fetch(testComponent.getClass()).get());
     }
 
     @Test
     public void addAlreadyExistingComponent() {
         Component newComponent = Mockito.mock(Component.class);
         entity.addComponent(newComponent);
-        assertEquals(newComponent, entity.getComponent(testComponent.getClass()).get());
+        assertEquals(newComponent, entity.fetch(testComponent.getClass()).get());
     }
 
     @Test
     public void removeComponent() {
         entity.removeComponent(testComponent.getClass());
-        assertTrue(entity.getComponent(testComponent.getClass()).isEmpty());
+        assertTrue(entity.fetch(testComponent.getClass()).isEmpty());
+    }
+
+    @Test
+    public void compareToSameID() {
+        assertEquals(entity.id(), entity.id());
+        assertEquals("Entity with the same id should return a 0. ", 0, entity.compareTo(entity));
+    }
+
+    @Test
+    public void compareToLowerID() {
+        Entity entity1 = new Entity();
+        Entity entity2 = new Entity();
+        assertTrue(
+                "Entity which gets created earlier should have a lower id.",
+                entity1.id() < entity2.id());
+        assertTrue(
+                "Entity which gets created earlier should return negative number.",
+                entity1.compareTo(entity2) < 0);
+    }
+
+    @Test
+    public void compareToHigherID() {
+        Entity entity1 = new Entity();
+        Entity entity2 = new Entity();
+
+        assertTrue(
+                "Entity which gets created later should have a higher id.",
+                entity2.id() > entity1.id());
+        assertTrue(
+                "Entity which gets created later should return a number higher then 0.",
+                entity2.compareTo(entity1) > 0);
+    }
+
+    /** Gets called after each @Test and cleans up any Entity left in game. */
+    @After
+    public void tearDown() {
+        Game.removeAllEntities();
     }
 }

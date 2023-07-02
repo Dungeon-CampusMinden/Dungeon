@@ -2,10 +2,12 @@ package contrib.utils.components.health;
 
 import core.Entity;
 
-public class DefaultOnDeath implements IOnDeathFunction{
+import java.util.function.Consumer;
+
+public class DefaultOnDeath implements Consumer<Entity> {
 
     @Override
-    public void onDeath(Entity entity) {
+    public void accept(Entity entity) {
 
     }
 }

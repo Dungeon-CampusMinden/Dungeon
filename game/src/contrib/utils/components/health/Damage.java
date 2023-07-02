@@ -1,6 +1,7 @@
 package contrib.utils.components.health;
 
 import com.badlogic.gdx.utils.Null;
+
 import core.Entity;
 
 /**

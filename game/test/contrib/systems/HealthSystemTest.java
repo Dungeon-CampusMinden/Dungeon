@@ -4,196 +4,177 @@ import static org.junit.Assert.*;
 
 import contrib.components.HealthComponent;
 import contrib.components.StatsComponent;
+import contrib.utils.components.draw.AdditionalAnimations;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
-import contrib.utils.components.health.IOnDeathFunction;
+
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
-import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Animation;
-import core.utils.controller.SystemController;
-import java.util.List;
+
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.util.function.Consumer;
+
 public class HealthSystemTest {
+    private static final String ANIMATION_PATH = "character/knight";
 
     @Test
-    public void updateEntityDies() {
-        Game.getDelayedEntitySet().clear();
-        Game.systems = new SystemController();
+    public void updateEntityDies() throws IOException {
+        Game.removeAllEntities();
         Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
-        IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
-        Animation dieAnimation = new Animation(List.of("FRAME1"), 1, false);
-        DrawComponent ac = new DrawComponent(entity);
-        HealthComponent component = new HealthComponent(entity, 1, onDeath, null, dieAnimation);
+        Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
+        DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
+        HealthComponent component = new HealthComponent(entity, 1, onDeath);
         HealthSystem system = new HealthSystem();
-        component.setCurrentHealthpoints(0);
-        system.update();
-        assertEquals(dieAnimation, ac.getCurrentAnimation());
-        Game.getDelayedEntitySet().update();
-        assertFalse(Game.getEntities().contains(entity));
+        component.currentHealthpoints(0);
+        system.showEntity(entity);
+
+        system.execute();
+        assertTrue(ac.isCurrentAnimation(AdditionalAnimations.DIE));
+        assertFalse(Game.entityStream().anyMatch(e -> e == entity));
     }
 
     @Test
-    public void updateEntityGetDamage() {
-        Game.getDelayedEntitySet().clear();
-        Game.systems = new SystemController();
+    public void updateEntityGetDamage() throws IOException {
+        Game.removeAllEntities();
         Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
-        IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
-        Animation hitAnimation = Mockito.mock(Animation.class);
-        DrawComponent ac = new DrawComponent(entity);
-        HealthComponent component = new HealthComponent(entity, 10, onDeath, hitAnimation, null);
+        Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
+        DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
+        HealthComponent component = new HealthComponent(entity, 10, onDeath);
         component.receiveHit(new Damage(5, DamageType.FIRE, null));
         component.receiveHit(new Damage(2, DamageType.FIRE, null));
         HealthSystem system = new HealthSystem();
-        system.update();
-        assertEquals(3, component.getCurrentHealthpoints());
-        assertEquals(hitAnimation, ac.getCurrentAnimation());
+        system.showEntity(entity);
+
+        system.execute();
+        assertEquals(3, component.currentHealthpoints());
+        assertTrue(ac.isCurrentAnimation(AdditionalAnimations.HIT));
     }
 
     @Test
-    public void updateEntityGetNegativeDamage() {
-        Game.getDelayedEntitySet().clear();
-        Game.systems = new SystemController();
+    public void updateEntityGetNegativeDamage() throws IOException {
+        Game.removeAllEntities();
         Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
-        IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
-        Animation hitAnimation = Mockito.mock(Animation.class);
-        DrawComponent ac = new DrawComponent(entity);
-        HealthComponent component = new HealthComponent(entity, 10, onDeath, hitAnimation, null);
-        component.setCurrentHealthpoints(3);
+        Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
+        DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
+        HealthComponent component = new HealthComponent(entity, 10, onDeath);
+        component.currentHealthpoints(3);
         component.receiveHit(new Damage(-3, DamageType.FIRE, null));
         HealthSystem system = new HealthSystem();
-        system.update();
-        assertEquals(6, component.getCurrentHealthpoints());
-        assertNotEquals(hitAnimation, ac.getCurrentAnimation());
+        system.showEntity(entity);
+        system.execute();
+        assertEquals(6, component.currentHealthpoints());
+        assertFalse(ac.isCurrentAnimation(AdditionalAnimations.HIT));
     }
 
     @Test
-    public void updateEntityGetZeroDamage() {
-        Game.getDelayedEntitySet().clear();
-        Game.systems = new SystemController();
+    public void updateEntityGetZeroDamage() throws IOException {
+        Game.removeAllEntities();
         Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
-        IOnDeathFunction onDeath = Mockito.mock(IOnDeathFunction.class);
-        Animation hitAnimation = Mockito.mock(Animation.class);
-        DrawComponent ac = new DrawComponent(entity);
-        HealthComponent component = new HealthComponent(entity, 10, onDeath, hitAnimation, null);
+        Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
+        DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
+        HealthComponent component = new HealthComponent(entity, 10, onDeath);
         component.receiveHit(new Damage(0, DamageType.FIRE, null));
         HealthSystem system = new HealthSystem();
-        system.update();
-        assertEquals(10, component.getCurrentHealthpoints());
-        assertNotEquals(hitAnimation, ac.getCurrentAnimation());
+        system.showEntity(entity);
+        system.execute();
+        assertEquals(10, component.currentHealthpoints());
+        assertFalse(ac.isCurrentAnimation(AdditionalAnimations.HIT));
     }
 
     @Test
     public void updateWithoutHealthComponent() {
-        Game.getDelayedEntitySet().clear();
-        Game.systems = new SystemController();
-        Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
+        Game.removeAllEntities();
         HealthSystem system = new HealthSystem();
-        system.update();
+        system.execute();
     }
 
     @Test
-    public void updateWithoutAnimationComponent() {
-        Game.getDelayedEntitySet().clear();
-        Game.systems = new SystemController();
+    public void testDamageWithModifier() throws IOException {
+        Game.removeAllEntities();
         Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
-        HealthComponent component = new HealthComponent(entity);
-        HealthSystem system = new HealthSystem();
-        assertThrows(MissingComponentException.class, () -> system.update());
-    }
-
-    @Test
-    public void testDamageWithModifier() {
-        Game.getDelayedEntitySet().clear();
-        Game.systems = new SystemController();
-        Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
-        new DrawComponent(entity);
+        new DrawComponent(entity, ANIMATION_PATH);
         StatsComponent statsComponent = new StatsComponent(entity);
-        statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, 2);
+        statsComponent.damageModifiers().setMultiplier(DamageType.PHYSICAL, 2);
 
         HealthComponent healthComponent = new HealthComponent(entity);
-        healthComponent.setMaximalHealthpoints(100);
-        healthComponent.setCurrentHealthpoints(100);
+        healthComponent.maximalHealthpoints(100);
+        healthComponent.currentHealthpoints(100);
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
-        system.update();
+        system.showEntity(entity);
 
-        assertEquals(80, healthComponent.getCurrentHealthpoints()); // 100 - 10 * 2
+        system.execute();
+
+        assertEquals(80, healthComponent.currentHealthpoints()); // 100 - 10 * 2
     }
 
     @Test
-    public void testDamageWithModifierNegative() {
-        Game.getDelayedEntitySet().clear();
-        Game.systems = new SystemController();
+    public void testDamageWithModifierNegative() throws IOException {
+        Game.removeAllEntities();
         Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
-        new DrawComponent(entity);
+        new DrawComponent(entity, ANIMATION_PATH);
         StatsComponent statsComponent = new StatsComponent(entity);
-        statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, -2);
+        statsComponent.damageModifiers().setMultiplier(DamageType.PHYSICAL, -2);
 
         HealthComponent healthComponent = new HealthComponent(entity);
-        healthComponent.setMaximalHealthpoints(200);
-        healthComponent.setCurrentHealthpoints(100);
+        healthComponent.maximalHealthpoints(200);
+        healthComponent.currentHealthpoints(100);
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
-        system.update();
+        system.showEntity(entity);
 
-        assertEquals(120, healthComponent.getCurrentHealthpoints()); // 100 - 10 * -2
+        system.execute();
+
+        assertEquals(120, healthComponent.currentHealthpoints()); // 100 - 10 * -2
     }
 
     @Test
-    public void testDamageWithModifierZero() {
-        Game.getDelayedEntitySet().clear();
-        Game.systems = new SystemController();
+    public void testDamageWithModifierZero() throws IOException {
+        Game.removeAllEntities();
         Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
-        new DrawComponent(entity);
+        new DrawComponent(entity, ANIMATION_PATH);
         StatsComponent statsComponent = new StatsComponent(entity);
-        statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, 0);
+        statsComponent.damageModifiers().setMultiplier(DamageType.PHYSICAL, 0);
 
         HealthComponent healthComponent = new HealthComponent(entity);
-        healthComponent.setMaximalHealthpoints(200);
-        healthComponent.setCurrentHealthpoints(100);
+        healthComponent.maximalHealthpoints(200);
+        healthComponent.currentHealthpoints(100);
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
-        system.update();
+        system.showEntity(entity);
 
-        assertEquals(100, healthComponent.getCurrentHealthpoints()); // 100 - 10 * 0
+        system.execute();
+
+        assertEquals(100, healthComponent.currentHealthpoints()); // 100 - 10 * 0
     }
 
     @Test
-    public void testDamageWithModifierHuge() {
-        Game.getDelayedEntitySet().clear();
-        Game.systems = new SystemController();
+    public void testDamageWithModifierHuge() throws IOException {
+        Game.removeAllEntities();
         Entity entity = new Entity();
-        Game.getDelayedEntitySet().update();
-        new DrawComponent(entity);
+        new DrawComponent(entity, ANIMATION_PATH);
         StatsComponent statsComponent = new StatsComponent(entity);
-        statsComponent.getDamageModifiers().setMultiplier(DamageType.PHYSICAL, 100);
+        statsComponent.damageModifiers().setMultiplier(DamageType.PHYSICAL, 100);
 
         HealthComponent healthComponent = new HealthComponent(entity);
-        healthComponent.setMaximalHealthpoints(200);
-        healthComponent.setCurrentHealthpoints(100);
+        healthComponent.maximalHealthpoints(200);
+        healthComponent.currentHealthpoints(100);
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
-        system.update();
+        system.showEntity(entity);
+
+        system.execute();
 
         assertTrue(
                 "Entity should have 0 ore less health points.",
-                healthComponent.getCurrentHealthpoints() <= 0); // 100 - 10 * 100
+                healthComponent.currentHealthpoints() <= 0); // 100 - 10 * 100
     }
 }

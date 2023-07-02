@@ -4,15 +4,16 @@ import core.Entity;
 import core.level.elements.ILevel;
 
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class LevelInfo {
     private ILevel level;
-    private Set<Entity> currentEntities;
+    private Stream<Entity> currentEntities;
 
     public LevelInfo(){
     }
 
-    public LevelInfo(ILevel level, Set<Entity> currentEntities){
+    public LevelInfo(ILevel level, Stream<Entity> currentEntities){
         this.level = level;
         this.currentEntities = currentEntities;
     }
@@ -25,11 +26,11 @@ public class LevelInfo {
         return level;
     }
 
-    public Set<Entity> getCurrentEntities() {
+    public Stream<Entity> getCurrentEntities() {
         return currentEntities;
     }
 
-    public void setCurrentEntities(Set<Entity> currentEntities) {
+    public void setCurrentEntities(Stream<Entity> currentEntities) {
         this.currentEntities = currentEntities;
     }
 }

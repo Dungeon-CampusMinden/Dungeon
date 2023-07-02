@@ -2,20 +2,28 @@ package helpers;
 
 import antlr.main.DungeonDSLLexer;
 import antlr.main.DungeonDSLParser;
+
+import interpreter.DSLInterpreter;
+
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+
+import parser.DungeonASTConverter;
+
+import runtime.GameEnvironment;
+import runtime.MemorySpace;
+import runtime.Value;
+
+import semanticanalysis.Scope;
+import semanticanalysis.ScopedSymbol;
+import semanticanalysis.SemanticAnalyzer;
+import semanticanalysis.Symbol;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import parser.DungeonASTConverter;
-import runtime.GameEnvironment;
-import runtime.MemorySpace;
-import runtime.Value;
-import semanticAnalysis.Symbol;
-import semanticAnalysis.SymbolTableParser;
-import semanticAnalysis.types.IType;
 
 public class Helpers {
 
@@ -40,12 +48,12 @@ public class Helpers {
     }
 
     /**
-     * Converts a {@link DungeonDSLParser.ProgramContext} to a {@link parser.AST.Node}
+     * Converts a {@link DungeonDSLParser.ProgramContext} to a {@link parser.ast.Node}
      *
      * @param parseTree the parser tree to convert
      * @return the AST for the parse tree
      */
-    public static parser.AST.Node convertToAST(DungeonDSLParser.ProgramContext parseTree) {
+    public static parser.ast.Node convertToAST(DungeonDSLParser.ProgramContext parseTree) {
         DungeonASTConverter converter = new DungeonASTConverter();
         return converter.walk(parseTree);
     }
@@ -56,7 +64,7 @@ public class Helpers {
      * @param program the program to generate an AST for
      * @return the AST
      */
-    public static parser.AST.Node getASTFromString(String program) {
+    public static parser.ast.Node getASTFromString(String program) {
         var parseTree = getParseTree(program);
         return convertToAST(parseTree);
     }
@@ -69,7 +77,7 @@ public class Helpers {
      * @throws URISyntaxException on invalid URI syntax
      * @throws IOException if the file does not exist
      */
-    public static parser.AST.Node getASTFromResourceFile(URL fileResourceURL)
+    public static parser.ast.Node getASTFromResourceFile(URL fileResourceURL)
             throws URISyntaxException, IOException {
         var file = new File(fileResourceURL.toURI());
         var stream = CharStreams.fromFileName(file.getAbsolutePath());
@@ -79,38 +87,74 @@ public class Helpers {
     }
 
     /**
-     * Performs semantic analysis for given AST and returns the {@link
-     * semanticAnalysis.SymbolTableParser.Result} output from the SymbolTableParser
+     * Performs semantic analysis for given AST and returns the {@link SemanticAnalyzer.Result}
+     * output from the SymbolTableParser
      *
      * @param ast the AST to create the symbol table for
-     * @return the {@link semanticAnalysis.SymbolTableParser.Result} of the semantic analysis
+     * @return the {@link SemanticAnalyzer.Result} of the semantic analysis
      */
-    public static SymbolTableParser.Result getSymtableForAST(parser.AST.Node ast) {
-        SymbolTableParser symbolTableParser = new SymbolTableParser();
+    public static SemanticAnalyzer.Result getSymtableForAST(parser.ast.Node ast) {
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(new GameEnvironment());
         return symbolTableParser.walk(ast);
-    }
-
-    /**
-     * Performs semantic analysis for given AST with loaded types and returns the {@link
-     * semanticAnalysis.SymbolTableParser.Result} output from the SymbolTableParser
-     *
-     * @param ast the AST to create the symbol table for
-     * @param types the types to load into the environment before doing semantic analysis
-     * @return the {@link semanticAnalysis.SymbolTableParser.Result} of the semantic analysis
-     */
-    public static SymbolTableParser.Result getSymtableForASTWithLoadedTypes(
-            parser.AST.Node ast, IType[] types) {
-        var symTableParser = new SymbolTableParser();
-        var env = new GameEnvironment();
-        env.loadTypes(types);
-        symTableParser.setup(env);
-        return symTableParser.walk(ast);
     }
 
     public static void bindDefaultValueInMemorySpace(Symbol symbol, MemorySpace ms) {
         var defaultValue = Value.getDefaultValue(symbol.getDataType());
         var value = new Value(symbol.getDataType(), defaultValue);
         ms.bindValue(symbol.getName(), value);
+    }
+
+    /**
+     * @param program String representation of DSL program to generate the quest config for
+     * @param environment GameEnvironment to use for loading types and semantic analysis
+     * @param interpreter DSLInterpreter to use to generate the quest config
+     * @param classesToLoadAsTypes List of all classes marked with @DSLType to load as types into
+     *     the environment
+     * @return the generated quest config
+     */
+    public static Object generateQuestConfigWithCustomTypes(
+            String program,
+            GameEnvironment environment,
+            DSLInterpreter interpreter,
+            Class<?>... classesToLoadAsTypes) {
+
+        for (var clazz : classesToLoadAsTypes) {
+            var type = environment.getTypeBuilder().createTypeFromClass(new Scope(), clazz);
+            environment.loadTypes(type);
+        }
+
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+        symbolTableParser.setup(environment);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        interpreter.initializeRuntime(environment);
+        return interpreter.generateQuestConfig(ast);
+    }
+
+    /**
+     * @param program String representation of DSL program to generate the quest config for
+     * @param environment GameEnvironment to use for loading functions and semantic analysis
+     * @param interpreter DSLInterpreter to use to generate the quest config
+     * @param functions List of all functions to load into the environment
+     * @return the generated quest config
+     */
+    public static Object generateQuestConfigWithCustomFunctions(
+            String program,
+            GameEnvironment environment,
+            DSLInterpreter interpreter,
+            ScopedSymbol... functions) {
+
+        environment.loadFunctions(functions);
+
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+        symbolTableParser.setup(environment);
+        var ast = Helpers.getASTFromString(program);
+        symbolTableParser.walk(ast);
+
+        interpreter.initializeRuntime(environment);
+
+        return interpreter.generateQuestConfig(ast);
     }
 }

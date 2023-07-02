@@ -3,15 +3,11 @@ package core.components;
 import static org.junit.Assert.assertEquals;
 
 import core.Entity;
-import core.utils.components.draw.Animation;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class VelocityComponentTest {
-
-    private final Animation moveLeft = Mockito.mock(Animation.class);
-    private final Animation moveRight = Mockito.mock(Animation.class);
 
     private final float xVelocityAtStart = 3f;
     private final float yVelocityAtStart = 3f;
@@ -19,40 +15,32 @@ public class VelocityComponentTest {
 
     @Before
     public void setup() {
-        velocityComponent =
-                new VelocityComponent(
-                        new Entity(), xVelocityAtStart, yVelocityAtStart, moveLeft, moveRight);
+        velocityComponent = new VelocityComponent(new Entity(), xVelocityAtStart, yVelocityAtStart);
     }
 
     @Test
     public void setCurrentXVelocity() {
-        velocityComponent.setCurrentXVelocity(5.0f);
-        assertEquals(5.0f, velocityComponent.getCurrentXVelocity(), 0.001);
+        velocityComponent.currentXVelocity(5.0f);
+        assertEquals(5.0f, velocityComponent.currentXVelocity(), 0.001);
     }
 
     @Test
     public void setCurrentYVelocity() {
-        velocityComponent.setCurrentYVelocity(6.0f);
-        assertEquals(6.0f, velocityComponent.getCurrentYVelocity(), 0.001);
+        velocityComponent.currentYVelocity(6.0f);
+        assertEquals(6.0f, velocityComponent.currentYVelocity(), 0.001);
     }
 
     @Test
     public void setXVelocity() {
-        assertEquals(xVelocityAtStart, velocityComponent.getXVelocity(), 0.001);
-        velocityComponent.setXVelocity(6.0f);
-        assertEquals(6.0f, velocityComponent.getXVelocity(), 0.001);
+        assertEquals(xVelocityAtStart, velocityComponent.xVelocity(), 0.001);
+        velocityComponent.xVelocity(6.0f);
+        assertEquals(6.0f, velocityComponent.xVelocity(), 0.001);
     }
 
     @Test
     public void setYVelocity() {
-        assertEquals(yVelocityAtStart, velocityComponent.getYVelocity(), 0.001);
-        velocityComponent.setYVelocity(6.0f);
-        assertEquals(6.0f, velocityComponent.getYVelocity(), 0.001);
-    }
-
-    @Test
-    public void getAnimation() {
-        assertEquals(moveLeft, velocityComponent.getMoveLeftAnimation());
-        assertEquals(moveRight, velocityComponent.getMoveRightAnimation());
+        assertEquals(yVelocityAtStart, velocityComponent.yVelocity(), 0.001);
+        velocityComponent.yVelocity(6.0f);
+        assertEquals(6.0f, velocityComponent.yVelocity(), 0.001);
     }
 }

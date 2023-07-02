@@ -3,8 +3,10 @@ package interpreter.dot;
 import static org.junit.Assert.assertTrue;
 
 import helpers.Helpers;
+
 import org.junit.Test;
-import parser.AST.DotDefNode;
+
+import parser.ast.DotDefNode;
 
 public class TestDotInterpreter {
 
@@ -18,7 +20,7 @@ public class TestDotInterpreter {
         Interpreter dotInterpreter = new Interpreter();
         var graph = dotInterpreter.getGraph((DotDefNode) dot_def);
 
-        var nodeIter = graph.getNodeIterator();
+        var nodeIter = graph.nodeIterator();
         int iteration = 0;
         int lastNodeIdx = -1;
         while (nodeIter.hasNext()) {
@@ -46,7 +48,7 @@ public class TestDotInterpreter {
         Interpreter dotInterpreter = new Interpreter();
         var graph = dotInterpreter.getGraph((DotDefNode) dot_def);
 
-        var edgeIter = graph.getEdgeIterator();
+        var edgeIter = graph.edgeIterator();
         int iteration = 0;
         int lastEdgeIdx = -1;
         while (edgeIter.hasNext()) {

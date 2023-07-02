@@ -3,72 +3,79 @@ package contrib.systems;
 import contrib.components.HealthComponent;
 import contrib.components.StatsComponent;
 import contrib.components.XPComponent;
+import contrib.utils.components.draw.AdditionalAnimations;
 import contrib.utils.components.health.DamageType;
+
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.utils.components.MissingComponentException;
+
 import java.util.stream.Stream;
 
 /**
  * The HealthSystem offsets the damage to be done to all entities with the HealthComponent. Triggers
  * the death of an entity when the health-points have fallen below 0.
  */
-public class HealthSystem extends System {
+public final class HealthSystem extends System {
 
-    // private record to hold all data during streaming
-    private record HSData(Entity e, HealthComponent hc, DrawComponent ac) {}
+    public HealthSystem() {
+        super(HealthComponent.class, DrawComponent.class);
+    }
 
     @Override
-    public void update() {
-        Game.getEntities().stream()
+    public void execute() {
+        entityStream()
                 // Consider only entities that have a HealthComponent
-                .flatMap(e -> e.getComponent(HealthComponent.class).stream())
                 // Form triples (e, hc, ac)
-                .map(hc -> buildDataObject((HealthComponent) hc))
+                .map(this::buildDataObject)
                 // Apply damage
                 .map(this::applyDamage)
                 // Filter all dead entities
                 .filter(hsd -> hsd.hc.isDead())
                 .filter(
                         hsd -> {
-                            if (hsd.hc.getDeathAnimation() == null
-                                    || hsd.hc.getDeathAnimation().isLooping()) return true;
-                            if (!hsd.ac.getCurrentAnimation().equals(hsd.hc.getDeathAnimation())) {
-                                hsd.ac.setCurrentAnimation(hsd.hc.getDeathAnimation());
+                            if (!hsd.ac.hasAnimation(AdditionalAnimations.DIE)
+                                    || hsd.ac
+                                            .getAnimation(AdditionalAnimations.DIE)
+                                            .get()
+                                            .isLooping()) return true;
+                            if (!hsd.ac.isCurrentAnimation(AdditionalAnimations.DIE)) {
+                                hsd.ac.currentAnimation(AdditionalAnimations.DIE);
                             }
-                            return hsd.ac.getCurrentAnimation().isFinished();
+                            return hsd.ac.currentAnimation().isFinished();
                         })
                 // Remove all dead entities
                 .forEach(this::removeDeadEntities);
     }
 
-    private HSData buildDataObject(HealthComponent hc) {
-        Entity e = hc.getEntity();
+    private HSData buildDataObject(Entity entity) {
 
+        HealthComponent hc =
+                entity.fetch(HealthComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, HealthComponent.class));
         DrawComponent ac =
-                (DrawComponent)
-                        e.getComponent(DrawComponent.class).orElseThrow(HealthSystem::missingAC);
-
-        return new HSData(e, hc, ac);
+                entity.fetch(DrawComponent.class)
+                        .orElseThrow(
+                                () -> MissingComponentException.build(entity, DrawComponent.class));
+        return new HSData(entity, hc, ac);
     }
 
     private HSData applyDamage(HSData hsd) {
         hsd.e
-                .getComponent(StatsComponent.class)
+                .fetch(StatsComponent.class)
                 .ifPresentOrElse(
-                        sc -> {
-                            StatsComponent scomp = (StatsComponent) sc;
-                            doDamageAndAnimation(hsd, calculateDamageWithMultipliers(scomp, hsd));
-                        },
-                        () -> {
-                            doDamageAndAnimation(
-                                    hsd,
-                                    Stream.of(DamageType.values())
-                                            .mapToInt(hsd.hc::getDamage)
-                                            .sum());
-                        });
+                        sc -> doDamageAndAnimation(hsd, calculateDamageWithMultipliers(sc, hsd)),
+                        () ->
+                                doDamageAndAnimation(
+                                        hsd,
+                                        Stream.of(DamageType.values())
+                                                .mapToInt(hsd.hc::calculateDamageOf)
+                                                .sum()));
         return hsd;
     }
 
@@ -83,46 +90,38 @@ public class HealthSystem extends System {
                 .mapToInt(
                         dt ->
                                 Math.round(
-                                        statsComponent.getDamageModifiers().getMultiplier(dt)
-                                                * hsd.hc.getDamage(dt)))
+                                        statsComponent.damageModifiers().multiplierFor(dt)
+                                                * hsd.hc.calculateDamageOf(dt)))
                 .sum();
     }
 
     private void doDamageAndAnimation(HSData hsd, int dmgAmount) {
         if (dmgAmount > 0) {
             // we have some damage - let's show a little dance
-            hsd.ac.setCurrentAnimation(hsd.hc.getGetHitAnimation());
+            hsd.ac.currentAnimation(AdditionalAnimations.HIT);
         }
         // reset all damage objects in health component and apply damage
         hsd.hc.clearDamage();
-        hsd.hc.setCurrentHealthpoints(hsd.hc.getCurrentHealthpoints() - dmgAmount);
+        hsd.hc.currentHealthpoints(hsd.hc.currentHealthpoints() - dmgAmount);
     }
 
     private void removeDeadEntities(HSData hsd) {
         // Entity appears to be dead, so let's clean up the mess
         hsd.hc.triggerOnDeath();
-        hsd.ac.setCurrentAnimation(hsd.hc.getDeathAnimation());
-        Game.removeEntity(hsd.hc.getEntity());
+        hsd.ac.currentAnimation(AdditionalAnimations.DIE);
+        Game.removeEntity(hsd.hc.entity());
 
         // Add XP
         hsd.e
-                .getComponent(XPComponent.class)
+                .fetch(XPComponent.class)
                 .ifPresent(
-                        component -> {
-                            XPComponent deadXPComponent = (XPComponent) component;
-                            hsd.hc
-                                    .getLastDamageCause()
-                                    .flatMap(entity -> entity.getComponent(XPComponent.class))
-                                    .ifPresent(
-                                            c -> {
-                                                XPComponent killerXPComponent = (XPComponent) c;
-                                                killerXPComponent.addXP(
-                                                        deadXPComponent.getLootXP());
-                                            });
-                        });
+                        component ->
+                                hsd.hc
+                                        .lastDamageCause()
+                                        .flatMap(entity -> entity.fetch(XPComponent.class))
+                                        .ifPresent(c -> c.addXP(component.lootXP())));
     }
 
-    private static MissingComponentException missingAC() {
-        return new MissingComponentException("AnimationComponent");
-    }
+    // private record to hold all data during streaming
+    private record HSData(Entity e, HealthComponent hc, DrawComponent ac) {}
 }

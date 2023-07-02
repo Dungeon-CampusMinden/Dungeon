@@ -11,7 +11,8 @@ Abhandeln des Geschehens.
 ## Aufbau
 
 To-do: nach Besprechung von Umfang UMLs besprechen.
-![](img/interactionComponent.png)
+
+![](img/interaction_component.png)
 
 Die Interaktionskomponente besitzt die grundlegenden Informationen wie und wann interagiert werden darf.
 Einmal gibt es den Radius welcher die maximale Entfernung angibt, in welcher eine Interaktion stattfinden darf.

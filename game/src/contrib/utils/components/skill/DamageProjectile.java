@@ -1,0 +1,131 @@
+package contrib.utils.components.skill;
+
+import contrib.components.CollideComponent;
+import contrib.components.HealthComponent;
+import contrib.components.ProjectileComponent;
+import contrib.utils.components.health.Damage;
+
+import core.Entity;
+import core.Game;
+import core.components.*;
+import core.level.Tile;
+import core.utils.Point;
+import core.utils.TriConsumer;
+import core.utils.components.MissingComponentException;
+
+import java.io.IOException;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
+
+/**
+ * DamageProjectile is an abstract class that represents a projectile capable of dealing damage to
+ * entities. The DamageProjectile class implements the Consumer interface, allowing it to accept an
+ * entity as a parameter.
+ */
+public abstract class DamageProjectile implements Consumer<Entity> {
+    private static final Logger LOGGER = Logger.getLogger(DamageProjectile.class.getName());
+    private String pathToTexturesOfProjectile;
+    private float projectileSpeed;
+
+    private float projectileRange;
+    private Damage projectileDamage;
+    private Point projectileHitboxSize;
+
+    private Supplier<Point> selectionFunction;
+
+    /**
+     * The DamageProjectile constructor sets the path to the textures of the projectile, the speed
+     * of the projectile, the damage to be dealt, the size of the projectile's hitbox, the target
+     * selection function, and the range of the projectile.
+     *
+     * <p>for specific implementation, see {@link contrib.utils.components.skill.FireballSkill}
+     *
+     * @param pathToTexturesOfProjectile path to the textures of the projectile
+     * @param projectileSpeed speed of the projectile
+     * @param projectileDamage damage of the projectile
+     * @param projectileHitboxSize size of the Hitbox
+     * @param selectionFunction specific functionality of the projectile
+     * @param projectileRange range in which the projectile is effective
+     */
+    public DamageProjectile(
+            String pathToTexturesOfProjectile,
+            float projectileSpeed,
+            Damage projectileDamage,
+            Point projectileHitboxSize,
+            Supplier<Point> selectionFunction,
+            float projectileRange) {
+        this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
+        this.projectileDamage = projectileDamage;
+        this.projectileSpeed = projectileSpeed;
+        this.projectileRange = projectileRange;
+        this.projectileHitboxSize = projectileHitboxSize;
+        this.selectionFunction = selectionFunction;
+    }
+
+    /**
+     * Performs the necessary actions to create and handle the damage projectile based on the
+     * provided entity.
+     *
+     * @param entity the entity on which the damage projectile will be applied
+     * @throws MissingComponentException if the entity does not have a PositionComponent
+     */
+    @Override
+    public void accept(Entity entity) {
+        Entity projectile = new Entity("Projectile");
+        // Get the PositionComponent of the entity
+        PositionComponent epc =
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
+        new PositionComponent(projectile, epc.position());
+
+        try {
+            new DrawComponent(projectile, pathToTexturesOfProjectile);
+        } catch (IOException e) {
+            LOGGER.warning(
+                    "The DrawComponent for the projectile "
+                            + entity.toString()
+                            + " cant be created. "
+                            + e.getMessage());
+            throw new RuntimeException();
+        }
+
+        // Get the target point based on the selection function and projectile range
+        Point aimedOn = selectionFunction.get();
+        Point targetPoint =
+                SkillTools.calculateLastPositionInRange(epc.position(), aimedOn, projectileRange);
+
+        // Calculate the velocity of the projectile
+        Point velocity = SkillTools.calculateVelocity(epc.position(), targetPoint, projectileSpeed);
+
+        // Add the VelocityComponent to the projectile
+        VelocityComponent vc = new VelocityComponent(projectile, velocity.x, velocity.y);
+
+        // Add the ProjectileComponent with the initial and target positions to the projectile
+        new ProjectileComponent(projectile, epc.position(), targetPoint);
+
+        // Create a collision handler for the projectile
+        TriConsumer<Entity, Entity, Tile.Direction> collide =
+                (a, b, from) -> {
+                    if (b != entity) {
+                        b.fetch(HealthComponent.class)
+                                .ifPresent(
+                                        hc -> {
+                                            // Apply the projectile damage to the collided entity
+                                            hc.receiveHit(projectileDamage);
+
+                                            // Remove the projectile entity from the game
+                                            Game.removeEntity(projectile);
+                                        });
+                    }
+                };
+
+        // Add the CollideComponent with the appropriate hitbox size and collision handler to the
+        // projectile
+        new CollideComponent(
+                projectile, new Point(0.25f, 0.25f), projectileHitboxSize, collide, null);
+    }
+}

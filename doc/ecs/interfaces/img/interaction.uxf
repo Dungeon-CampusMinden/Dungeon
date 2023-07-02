@@ -1,0 +1,11 @@
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>520</x><y>470</y><w>240</w><h>70</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+IInteraction
+--
+onInteraction(entity: Entity): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>550</x><y>390</y><w>180</w><h>50</h></coordinates><panel_attributes>InteractionComponent
+--
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>630</x><y>430</y><w>30</w><h>60</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>310</x><y>460</y><w>160</w><h>30</h></coordinates><panel_attributes>bg=red
+InteractionStrategy A
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>460</x><y>470</y><w>80</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>60;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>460</x><y>520</y><w>80</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>60;10;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>310</x><y>510</y><w>160</w><h>30</h></coordinates><panel_attributes>bg=red
+InteractionStrategy B
+</panel_attributes><additional_attributes></additional_attributes></element></diagram>

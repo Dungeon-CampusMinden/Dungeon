@@ -63,7 +63,7 @@ public class TileTextureFactory {
      * @return Path to texture
      */
     public static String findTexturePath(Tile element, Tile[][] layout) {
-        return findTexturePath(element, layout, element.getLevelElement());
+        return findTexturePath(element, layout, element.levelElement());
     }
 
     /**
@@ -78,16 +78,13 @@ public class TileTextureFactory {
         LevelElement[][] elementLayout = new LevelElement[layout.length][layout[0].length];
         for (int x = 0; x < layout[0].length; x++) {
             for (int y = 0; y < layout.length; y++) {
-                elementLayout[y][x] = layout[y][x].getLevelElement();
+                elementLayout[y][x] = layout[y][x].levelElement();
             }
         }
-        elementLayout[element.getCoordinate().y][element.getCoordinate().x] = elementType;
+        elementLayout[element.coordinate().y][element.coordinate().x] = elementType;
         return findTexturePath(
                 new LevelPart(
-                        elementType,
-                        element.getDesignLabel(),
-                        elementLayout,
-                        element.getCoordinate()));
+                        elementType, element.designLabel(), elementLayout, element.coordinate()));
     }
 
     private static String findTexturePathFloor(LevelPart levelPart) {
@@ -524,7 +521,7 @@ public class TileTextureFactory {
      */
     private static boolean aboveIsAccessible(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[p.y + 1][p.x].getValue();
+            return layout[p.y + 1][p.x].value();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -540,7 +537,7 @@ public class TileTextureFactory {
      */
     private static boolean leftIsAccessible(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[p.y][p.x - 1].getValue();
+            return layout[p.y][p.x - 1].value();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -556,7 +553,7 @@ public class TileTextureFactory {
      */
     private static boolean rightIsAccessible(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[p.y][p.x + 1].getValue();
+            return layout[p.y][p.x + 1].value();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -572,7 +569,7 @@ public class TileTextureFactory {
      */
     private static boolean belowIsAccessible(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[p.y - 1][p.x].getValue();
+            return layout[p.y - 1][p.x].value();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -588,7 +585,7 @@ public class TileTextureFactory {
      */
     private static boolean upperRightIsAccessible(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[p.y + 1][p.x + 1].getValue();
+            return layout[p.y + 1][p.x + 1].value();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -604,7 +601,7 @@ public class TileTextureFactory {
      */
     private static boolean bottomRightIsAccessible(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[p.y - 1][p.x + 1].getValue();
+            return layout[p.y - 1][p.x + 1].value();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -620,7 +617,7 @@ public class TileTextureFactory {
      */
     private static boolean bottomLeftIsAccessible(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[p.y - 1][p.x - 1].getValue();
+            return layout[p.y - 1][p.x - 1].value();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -636,7 +633,7 @@ public class TileTextureFactory {
      */
     private static boolean upperLeftIsAccessible(Coordinate p, LevelElement[][] layout) {
         try {
-            return layout[p.y + 1][p.x - 1].getValue();
+            return layout[p.y + 1][p.x - 1].value();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;

@@ -2,8 +2,9 @@ package contrib.utils.components.collision;
 
 import core.Entity;
 import core.level.Tile;
+import core.utils.TriConsumer;
 
-public class DefaultCollider implements ICollide {
+public class DefaultCollider implements TriConsumer<Entity, Entity, Tile.Direction> {
 
     public String message;
 
@@ -14,12 +15,13 @@ public class DefaultCollider implements ICollide {
     public DefaultCollider(String message){
         this.message = message;
     }
-    @Override
-    public void onCollision(Entity a, Entity b, Tile.Direction from) {
-        System.out.println(message);
-    }
 
     public String getMessage() {
         return message;
+    }
+
+    @Override
+    public void accept(Entity entity, Entity entity2, Tile.Direction direction) {
+        System.out.println(message);
     }
 }

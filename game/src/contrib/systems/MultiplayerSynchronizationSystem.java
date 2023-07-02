@@ -9,13 +9,15 @@ import core.System;
 import contrib.components.MultiplayerComponent;
 import mp.MultiplayerAPI;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
+// Todo - Adapt to new System change
 /** Used to synchronize multiplayer session state with local client state. */
-public class MultiplayerSynchronizationSystem extends System {
+public final class MultiplayerSynchronizationSystem extends System {
 
     private final MultiplayerAPI multiplayerAPI;
 
@@ -23,12 +25,13 @@ public class MultiplayerSynchronizationSystem extends System {
      * @param multiplayerAPI
      */
     public MultiplayerSynchronizationSystem(final MultiplayerAPI multiplayerAPI) {
-        super();
+        // Todo - Look if Multiplayercomponent the only necessary component is
+        super(MultiplayerComponent.class);
         this.multiplayerAPI = requireNonNull(multiplayerAPI);
     }
 
     @Override
-    public void update() {
+    public void execute() {
         if (multiplayerAPI.isConnectedToSession()) {
             if (multiplayerAPI.getHeroPositionByPlayerId() != null) {
                 synchronizeAddedEntities();
@@ -43,8 +46,8 @@ public class MultiplayerSynchronizationSystem extends System {
     /* Adds multiplayer entities to local state, that newly joined session. */
     private void synchronizeAddedEntities() {
         final Set<Integer> currentLocalMultiplayerEntityIds =
-            Game.getEntities().stream()
-                .flatMap(e -> e.getComponent(MultiplayerComponent.class).stream())
+            Game.entityStream()
+                .flatMap(e -> e.fetch(MultiplayerComponent.class).stream())
                 .map(component -> ((MultiplayerComponent)component).getPlayerId())
                 .collect(Collectors.toSet());
         multiplayerAPI.getHeroPositionByPlayerId()
@@ -52,47 +55,53 @@ public class MultiplayerSynchronizationSystem extends System {
                 boolean isOwnHero = playerId == multiplayerAPI.getOwnPlayerId();
                 if (!isOwnHero) {
                     boolean isHeroNewJoined = !currentLocalMultiplayerEntityIds.contains(playerId);
-                    if(isHeroNewJoined) EntityFactory.getHeroDummy(playerId);
+                    if(isHeroNewJoined) {
+                        try {
+                            EntityFactory.newHeroDummy(playerId);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
                 }
         });
     }
 
     /* Removes multiplayer entities from local state, that are no longer part of multiplayer session. */
     private void synchronizeRemovedEntities() {
-        Game.getEntities().stream()
-            .flatMap(entity -> entity.getComponent(MultiplayerComponent.class).stream())
+        Game.entityStream()
+            .flatMap(entity -> entity.fetch(MultiplayerComponent.class).stream())
             .map(multiplayerComponent -> (MultiplayerComponent) multiplayerComponent)
             .forEach(multiplayerComponent -> {
                 boolean isOwnHero = multiplayerComponent.getPlayerId() == multiplayerAPI.getOwnPlayerId();
                 boolean isEntityRemoved =
                     !multiplayerAPI.getHeroPositionByPlayerId().containsKey(multiplayerComponent.getPlayerId());
-                if (!isOwnHero && isEntityRemoved) Game.removeEntity(multiplayerComponent.getEntity());
+                if (!isOwnHero && isEntityRemoved) Game.removeEntity(multiplayerComponent.entity());
             });
     }
 
     // TODO: not synchronizing position - update velocity component instead for movement animation over velocity system
     /* Synchronizes local positions with positions from multiplayer session. */
     private void synchronizePositions() {
-        Game.getEntities().stream()
-            .flatMap(entity -> entity.getComponent(MultiplayerComponent.class).stream())
+        Game.entityStream()
+            .flatMap(entity -> entity.fetch(MultiplayerComponent.class).stream())
             .map(multiplayerComponent -> (MultiplayerComponent) multiplayerComponent)
             .forEach(multiplayerComponent -> {
                     PositionComponent positionComponent =
                         (PositionComponent) multiplayerComponent
-                            .getEntity()
-                            .getComponent(PositionComponent.class)
+                            .entity()
+                            .fetch(PositionComponent.class)
                             .orElseThrow();
                     Point currentPositionAtMultiplayerSession =
                         multiplayerAPI.getHeroPositionByPlayerId().get(multiplayerComponent.getPlayerId());
-                    positionComponent.setPosition(currentPositionAtMultiplayerSession);
+                    positionComponent.position(currentPositionAtMultiplayerSession);
             });
     }
 
     /* Removes all entities that has been added due to multiplayer session from local state */
     private void removeMultiplayerEntities() {
-        Game.getEntities().stream()
+        Game.entityStream()
             .forEach(entity -> {
-                if (entity.getComponent(MultiplayerComponent.class).isPresent()) {
+                if (entity.fetch(MultiplayerComponent.class).isPresent()) {
                     Game.removeEntity(entity);
                 }
             });

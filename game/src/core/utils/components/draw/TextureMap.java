@@ -1,6 +1,7 @@
 package core.utils.components.draw;
 
 import com.badlogic.gdx.graphics.Texture;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +11,7 @@ public class TextureMap {
 
     private TextureMap() {}
 
-    public static TextureMap getInstance() {
+    public static TextureMap instance() {
         return INSTANCE;
     }
 
@@ -21,7 +22,7 @@ public class TextureMap {
      * @param path to texture
      * @return the Texture
      */
-    public Texture getTexture(String path) {
+    public Texture textureAt(String path) {
         if (!textureMap.containsKey(path)) {
             textureMap.put(path, new Texture(path));
         }

@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
 import core.LevelManager;
 import core.level.elements.ILevel;
 import core.level.generator.IGenerator;
@@ -22,6 +23,7 @@ import core.utils.Point;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 import core.utils.components.draw.TextureMap;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,8 +52,8 @@ public class TileLevelAPITest {
         texture = Mockito.mock(Texture.class);
         textureMap = Mockito.mock(TextureMap.class);
         PowerMockito.mockStatic(TextureMap.class);
-        when(TextureMap.getInstance()).thenReturn(textureMap);
-        when(textureMap.getTexture(anyString())).thenReturn(texture);
+        when(TextureMap.instance()).thenReturn(textureMap);
+        when(textureMap.textureAt(anyString())).thenReturn(texture);
 
         painter = Mockito.mock(Painter.class);
         generator = Mockito.mock(IGenerator.class);
@@ -62,46 +64,46 @@ public class TileLevelAPITest {
 
     @Test
     public void test_loadLevel() {
-        when(generator.getLevel(Mockito.any(), Mockito.any())).thenReturn(level);
+        when(generator.level(Mockito.any(), Mockito.any())).thenReturn(level);
         api.loadLevel(LevelSize.SMALL, DesignLabel.DEFAULT);
-        verify(generator).getLevel(DesignLabel.DEFAULT, LevelSize.SMALL);
+        verify(generator).level(DesignLabel.DEFAULT, LevelSize.SMALL);
         Mockito.verifyNoMoreInteractions(generator);
         verify(onLevelLoader).onLevelLoad();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
-        assertEquals(level, api.getCurrentLevel());
+        assertEquals(level, api.currentLevel());
     }
 
     @Test
     public void test_loadLevel_noParameter() {
-        when(generator.getLevel(Mockito.any(), Mockito.any())).thenReturn(level);
+        when(generator.level(Mockito.any(), Mockito.any())).thenReturn(level);
         api.loadLevel();
-        verify(generator).getLevel(Mockito.any(), Mockito.any());
+        verify(generator).level(Mockito.any(), Mockito.any());
         Mockito.verifyNoMoreInteractions(generator);
         verify(onLevelLoader).onLevelLoad();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
-        assertEquals(level, api.getCurrentLevel());
+        assertEquals(level, api.currentLevel());
     }
 
     @Test
     public void test_loadLevel_withDesign_noSize() {
-        when(generator.getLevel(eq(DesignLabel.DEFAULT), any())).thenReturn(level);
+        when(generator.level(eq(DesignLabel.DEFAULT), any())).thenReturn(level);
         api.loadLevel(DesignLabel.DEFAULT);
-        verify(generator).getLevel(eq(DesignLabel.DEFAULT), any());
+        verify(generator).level(eq(DesignLabel.DEFAULT), any());
         Mockito.verifyNoMoreInteractions(generator);
         verify(onLevelLoader).onLevelLoad();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
-        assertEquals(level, api.getCurrentLevel());
+        assertEquals(level, api.currentLevel());
     }
 
     @Test
     public void test_loadLevel_noDesign_WithSize() {
-        when(generator.getLevel(any(), eq(LevelSize.SMALL))).thenReturn(level);
+        when(generator.level(any(), eq(LevelSize.SMALL))).thenReturn(level);
         api.loadLevel(LevelSize.SMALL);
-        verify(generator).getLevel(any(), eq(LevelSize.SMALL));
+        verify(generator).level(any(), eq(LevelSize.SMALL));
         Mockito.verifyNoMoreInteractions(generator);
         verify(onLevelLoader).onLevelLoad();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
-        assertEquals(level, api.getCurrentLevel());
+        assertEquals(level, api.currentLevel());
     }
 
     @Test
@@ -120,65 +122,65 @@ public class TileLevelAPITest {
         LevelElement elementT4 = LevelElement.SKIP;
         Tile[][] layout = new Tile[2][2];
         layout[0][0] = Mockito.mock(Tile.class);
-        when(layout[0][0].getLevelElement()).thenReturn(elementT1);
-        when(layout[0][0].getTexturePath()).thenReturn(textureT1);
-        when(layout[0][0].getCoordinate()).thenReturn(coordinateT1);
+        when(layout[0][0].levelElement()).thenReturn(elementT1);
+        when(layout[0][0].texturePath()).thenReturn(textureT1);
+        when(layout[0][0].position()).thenReturn(coordinateT1.toPoint());
         layout[0][1] = Mockito.mock(Tile.class);
-        when(layout[0][1].getLevelElement()).thenReturn(elementT2);
-        when(layout[0][1].getTexturePath()).thenReturn(textureT2);
-        when(layout[0][1].getCoordinate()).thenReturn(coordinateT2);
+        when(layout[0][1].levelElement()).thenReturn(elementT2);
+        when(layout[0][1].texturePath()).thenReturn(textureT2);
+        when(layout[0][1].position()).thenReturn(coordinateT2.toPoint());
         layout[1][0] = Mockito.mock(Tile.class);
-        when(layout[1][0].getLevelElement()).thenReturn(elementT3);
-        when(layout[1][0].getTexturePath()).thenReturn(textureT3);
-        when(layout[1][0].getCoordinate()).thenReturn(coordinateT3);
+        when(layout[1][0].levelElement()).thenReturn(elementT3);
+        when(layout[1][0].texturePath()).thenReturn(textureT3);
+        when(layout[1][0].position()).thenReturn(coordinateT3.toPoint());
         layout[1][1] = Mockito.mock(Tile.class);
-        when(layout[1][1].getLevelElement()).thenReturn(elementT4);
-        when(layout[1][1].getTexturePath()).thenReturn(textureT4);
-        when(layout[1][1].getCoordinate()).thenReturn(coordinateT4);
+        when(layout[1][1].levelElement()).thenReturn(elementT4);
+        when(layout[1][1].texturePath()).thenReturn(textureT4);
+        when(layout[1][1].position()).thenReturn(coordinateT4.toPoint());
 
-        when(level.getLayout()).thenReturn(layout);
+        when(level.layout()).thenReturn(layout);
 
-        api.setLevel(level);
+        api.level(level);
         api.update();
 
-        verify(level).getLayout();
+        verify(level).layout();
         verifyNoMoreInteractions(level);
 
-        verify(layout[0][0]).getLevelElement();
-        verify(layout[0][0]).getTexturePath();
-        verify(layout[0][0]).getCoordinate();
+        verify(layout[0][0]).levelElement();
+        verify(layout[0][0]).texturePath();
+        verify(layout[0][0]).position();
         // for some reason mocktio.verify can't compare the points of the tile correctly
         verify(painter, times(3))
                 .draw(any(Point.class), any(String.class), any(PainterConfig.class));
         verifyNoMoreInteractions(layout[0][0]);
 
-        verify(layout[0][1]).getLevelElement();
-        verify(layout[0][1]).getTexturePath();
-        verify(layout[0][1]).getCoordinate();
+        verify(layout[0][1]).levelElement();
+        verify(layout[0][1]).texturePath();
+        verify(layout[0][1]).position();
         // for some reason mocktio.verify can't compare the points of the tile correctly
         verify(painter, times(3))
                 .draw(any(Point.class), any(String.class), any(PainterConfig.class));
         verifyNoMoreInteractions(layout[0][1]);
-        verify(layout[1][0]).getLevelElement();
-        verify(layout[1][0]).getTexturePath();
-        verify(layout[1][0]).getCoordinate();
+        verify(layout[1][0]).levelElement();
+        verify(layout[1][0]).texturePath();
+        verify(layout[1][0]).position();
         // for some reason mocktio.verify can't compare the points of the tile correctly
         verify(painter, times(3))
                 .draw(any(Point.class), any(String.class), any(PainterConfig.class));
         verifyNoMoreInteractions(layout[1][0]);
 
         // do not draw skip tiles
-        verify(layout[1][1]).getLevelElement();
+        verify(layout[1][1]).levelElement();
         verifyNoMoreInteractions(layout[1][1]);
         verifyNoMoreInteractions(painter);
     }
 
     @Test
     public void test_setLevel() {
-        api.setLevel(level);
+        api.level(level);
         Mockito.verifyNoInteractions(generator);
         verify(onLevelLoader).onLevelLoad();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
-        assertEquals(level, api.getCurrentLevel());
+        assertEquals(level, api.currentLevel());
     }
 }

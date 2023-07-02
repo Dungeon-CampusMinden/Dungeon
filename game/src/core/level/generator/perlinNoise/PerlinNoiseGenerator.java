@@ -7,6 +7,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+
 import java.util.Random;
 
 public class PerlinNoiseGenerator implements IGenerator {
@@ -25,13 +26,13 @@ public class PerlinNoiseGenerator implements IGenerator {
     private static final int BIG_MAX_Y_SIZE = 150;
 
     @Override
-    public ILevel getLevel(DesignLabel designLabel, LevelSize size) {
-        return getLevel(designLabel, size, GLOBAL_RANDOM);
+    public ILevel level(DesignLabel designLabel, LevelSize size) {
+        return level(designLabel, size, GLOBAL_RANDOM);
     }
 
     @Override
-    public LevelElement[][] getLayout(LevelSize size) {
-        return getLayout(size, new Random());
+    public LevelElement[][] layout(LevelSize size) {
+        return layout(size, new Random());
     }
 
     /**
@@ -42,11 +43,11 @@ public class PerlinNoiseGenerator implements IGenerator {
      * @param seed seed of level
      * @return The level.
      */
-    public ILevel getLevel(long seed) {
+    public ILevel level(long seed) {
         final Random random = new Random(seed);
         DesignLabel designLabel = DesignLabel.values()[random.nextInt(DesignLabel.values().length)];
         LevelSize size = LevelSize.values()[random.nextInt(LevelSize.values().length)];
-        return getLevel(designLabel, size, random);
+        return level(designLabel, size, random);
     }
 
     /**
@@ -57,22 +58,22 @@ public class PerlinNoiseGenerator implements IGenerator {
      * @param random Random Object used to generate the level
      * @return the generated Level
      */
-    public ILevel getLevel(DesignLabel designLabel, LevelSize size, final Random random) {
+    public ILevel level(DesignLabel designLabel, LevelSize size, final Random random) {
         // playing field
-        LevelElement[][] elements = getLayout(size, random);
+        LevelElement[][] elements = layout(size, random);
         TileLevel generatedLevel = new TileLevel(elements, designLabel);
         return generatedLevel;
     }
 
-    private static LevelElement[][] getLayout(LevelSize size, Random random) {
+    private static LevelElement[][] layout(LevelSize size, Random random) {
         final NoiseArea playingArea = generateNoiseArea(size, random);
         LevelElement[][] elements = toLevelElementArray(playingArea, random);
         return elements;
     }
 
     private static NoiseArea generateNoiseArea(final LevelSize size, final Random randomGenerator) {
-        final int width = getWidthFromLevelSize(size, randomGenerator);
-        final int height = getHeightFromLevelSize(size, randomGenerator);
+        final int width = widthFromLevelSize(size, randomGenerator);
+        final int height = heightFromLevelSize(size, randomGenerator);
         int octavesAdd = 0;
         switch (size) {
             case LARGE:
@@ -92,10 +93,10 @@ public class PerlinNoiseGenerator implements IGenerator {
                         randomGenerator);
         final double[][] noise = pNoise.noiseAll(1);
 
-        final NoiseArea[] areas = NoiseArea.getAreas(new NoiseAreaValues(0.4, 0.6, noise, false));
+        final NoiseArea[] areas = NoiseArea.areas(new NoiseAreaValues(0.4, 0.6, noise, false));
         NoiseArea area = areas[0];
         for (final NoiseArea f : areas) {
-            if (area.getSize() < f.getSize()) {
+            if (area.size() < f.size()) {
                 area = f;
             }
         }
@@ -103,9 +104,9 @@ public class PerlinNoiseGenerator implements IGenerator {
     }
 
     private static LevelElement[][] toLevelElementArray(NoiseArea playingArea, Random random) {
-        LevelElement[][] res = new LevelElement[playingArea.getWidth()][playingArea.getHeight()];
-        for (int i = 0; i < playingArea.getWidth(); i++) {
-            for (int j = 0; j < playingArea.getHeight(); j++) {
+        LevelElement[][] res = new LevelElement[playingArea.width()][playingArea.height()];
+        for (int i = 0; i < playingArea.width(); i++) {
+            for (int j = 0; j < playingArea.height(); j++) {
                 if (playingArea.contains(i, j)) {
                     res[i][j] = LevelElement.FLOOR;
                 } else {
@@ -114,12 +115,12 @@ public class PerlinNoiseGenerator implements IGenerator {
             }
         }
         // pick random floor tile as exit
-        Coordinate c = getRandomFloor(res, random);
+        Coordinate c = randomFloorFrom(res, random);
         res[c.y][c.x] = LevelElement.EXIT;
         return res;
     }
 
-    private static int getWidthFromLevelSize(LevelSize size, Random random) {
+    private static int widthFromLevelSize(LevelSize size, Random random) {
         return switch (size) {
             case LARGE -> random.nextInt(BIG_MAX_X_SIZE - BIG_MIN_X_SIZE) + BIG_MIN_X_SIZE;
             case MEDIUM -> random.nextInt(MEDIUM_MAX_X_SIZE - MEDIUM_MIN_X_SIZE)
@@ -128,7 +129,7 @@ public class PerlinNoiseGenerator implements IGenerator {
         };
     }
 
-    private static int getHeightFromLevelSize(LevelSize size, Random random) {
+    private static int heightFromLevelSize(LevelSize size, Random random) {
         return switch (size) {
             case LARGE -> random.nextInt(BIG_MAX_Y_SIZE - BIG_MIN_Y_SIZE) + BIG_MIN_Y_SIZE;
             case MEDIUM -> random.nextInt(MEDIUM_MAX_Y_SIZE - MEDIUM_MIN_Y_SIZE)
@@ -137,14 +138,14 @@ public class PerlinNoiseGenerator implements IGenerator {
         };
     }
 
-    private static Coordinate getRandomFloor(LevelElement[][] layout, Random random) {
+    private static Coordinate randomFloorFrom(LevelElement[][] layout, Random random) {
         Coordinate coordinate =
                 new Coordinate(random.nextInt(layout[0].length), random.nextInt(layout.length));
         LevelElement randomTile = layout[coordinate.y][coordinate.x];
         if (randomTile == LevelElement.FLOOR) {
             return coordinate;
         } else {
-            return getRandomFloor(layout, random);
+            return randomFloorFrom(layout, random);
         }
     }
 }

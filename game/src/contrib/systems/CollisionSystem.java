@@ -1,61 +1,120 @@
 package contrib.systems;
 
 import contrib.components.CollideComponent;
-import core.Game;
+
+import core.Entity;
 import core.System;
 import core.level.Tile;
+import core.utils.components.MissingComponentException;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
-/** System to check for collisions between two entities */
-public class CollisionSystem extends System {
+/**
+ * System to check for collisions between two entities.
+ *
+ * <p>CollisionSystem is a system which checks on execute whether the hitboxes of two entities are
+ * overlapping/colliding. In which case the corresponding Methods are called on both entities.
+ *
+ * <p>The system does imply the hitboxes are axis aligned.
+ *
+ * <p>Each CollideComponent should only be informed when a collision begins or ends. For this a map
+ * with all currently active collisions is stored and allows informing the entities when a collision
+ * ended.
+ */
+public final class CollisionSystem extends System {
 
-    private record CollisionKey(int a, int b) {}
+    private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
 
-    protected record CollisionData(CollideComponent a, CollideComponent b) {}
+    public CollisionSystem() {
+        super(CollideComponent.class);
+    }
 
-    private Map<CollisionKey, CollisionData> collisions = new HashMap<>();
-
-    /** checks if there is a collision between two entities based on their hitbox */
+    /**
+     * Test every CollideEntity with every other CollideEntity for collision.
+     *
+     * <p>The collision check will be performed only once for a given tuple of entities, i.e. when
+     * entity A does collide with entity B it also means B collides with A.
+     */
     @Override
-    public void update() {
-        Game.getEntities().stream()
-                .flatMap(
-                        a ->
-                                a
-                                        .getComponent(CollideComponent.class)
-                                        .map(CollideComponent.class::cast)
-                                        .stream())
-                .flatMap(
-                        a ->
-                                Game.getEntities().stream()
-                                        .filter(b -> a.getEntity().id() < b.id())
-                                        .flatMap(
-                                                b ->
-                                                        b
-                                                                .getComponent(
-                                                                        CollideComponent.class)
-                                                                .map(CollideComponent.class::cast)
-                                                                .stream())
-                                        .map(b -> buildData(a, b)))
-                .forEach(this::onEnterLeaveCheck);
+    public void execute() {
+        entityStream().flatMap(this::createDataPairs).forEach(this::onEnterLeaveCheck);
     }
 
-    private CollisionData buildData(CollideComponent a, CollideComponent b) {
-        return new CollisionData(a, b);
+    /**
+     * Create a stream of pairs of entities.
+     *
+     * <p>Pair a given entity with every other entity with a higher id.
+     *
+     * @param a Entity which is the lower id partner
+     * @return the stream which contains every valid pair of Entities
+     */
+    private Stream<CollisionData> createDataPairs(Entity a) {
+        return entityStream().filter(b -> isSmallerThen(a, b)).map(b -> newDataPair(a, b));
     }
 
+    /**
+     * Compare the entities.
+     *
+     * <p>This comparison is applied in the {@link #createDataPairs(Entity a) createDataPairs}
+     * method to create only tuples with entities with higher ID. This avoids performing a collision
+     * check twice for a pair of entities, first for (a,b) and second for (b,a).
+     *
+     * @param a first Entity
+     * @param b second Entity
+     * @return true when the comparison between a and b is less than zero, otherwise false
+     */
+    private boolean isSmallerThen(Entity a, Entity b) {
+        return a.compareTo(b) < 0;
+    }
+
+    /**
+     * Create a pair of CollideComponents which is the used to check whether a collision is
+     * happening and to store in the internal map. Which allows informing the CollideComponents
+     * about an ended Collision
+     *
+     * @param a The first Entity
+     * @param b the second Entity
+     * @return the pair of CollideComponents
+     */
+    private CollisionData newDataPair(Entity a, Entity b) {
+        CollideComponent cca =
+                a.fetch(CollideComponent.class)
+                        .orElseThrow(
+                                () -> MissingComponentException.build(a, CollideComponent.class));
+        CollideComponent ccb =
+                b.fetch(CollideComponent.class)
+                        .orElseThrow(
+                                () -> MissingComponentException.build(b, CollideComponent.class));
+
+        return new CollisionData(cca, ccb);
+    }
+
+    /**
+     * Check whether a new collision is happening or whether a collision has ended.
+     *
+     * <p>Only allows a new collision to call the onEnter of the hitboxes. An ongoing collision is
+     * not calling the onEnter of the hitboxes. When a previous collision existed and no longer is
+     * an active collision the onLeave is called. The onLeave is only called once.
+     *
+     * @param cdata the CollisionData where a collision change may happen
+     */
     private void onEnterLeaveCheck(CollisionData cdata) {
-        CollisionKey key = new CollisionKey(cdata.a.getEntity().id(), cdata.b.getEntity().id());
+        CollisionKey key = new CollisionKey(cdata.a.entity().id(), cdata.b.entity().id());
 
         if (checkForCollision(cdata.a, cdata.b)) {
+            // a collision is currently happening
             if (!collisions.containsKey(key)) {
+                // a new collision should call the onEnter on both entities
                 collisions.put(key, cdata);
                 Tile.Direction d = checkDirectionOfCollision(cdata.a, cdata.b);
                 cdata.a.onEnter(cdata.b, d);
                 cdata.b.onEnter(cdata.a, inverse(d));
             }
         } else if (collisions.remove(key) != null) {
+            // a collision was happening and the two entities are no longer colliding on Leave
+            // called once
             Tile.Direction d = checkDirectionOfCollision(cdata.a, cdata.b);
             cdata.a.onLeave(cdata.b, d);
             cdata.b.onLeave(cdata.b, inverse(d));
@@ -66,7 +125,7 @@ public class CollisionSystem extends System {
      * Simple Direction inversion
      *
      * @param d to inverse
-     * @return the oposite direction
+     * @return the opposite direction
      */
     protected Tile.Direction inverse(Tile.Direction d) {
         return switch (d) {
@@ -78,17 +137,17 @@ public class CollisionSystem extends System {
     }
 
     /**
-     * The Check if hitbox intersect
+     * Check if two hitboxes intersect
      *
      * @param hitbox1
      * @param hitbox2
      * @return true if intersection exists otherwise false
      */
     protected boolean checkForCollision(CollideComponent hitbox1, CollideComponent hitbox2) {
-        return hitbox1.getBottomLeft().x < hitbox2.getTopRight().x
-                && hitbox1.getTopRight().x > hitbox2.getBottomLeft().x
-                && hitbox1.getBottomLeft().y < hitbox2.getTopRight().y
-                && hitbox1.getTopRight().y > hitbox2.getBottomLeft().y;
+        return hitbox1.bottomLeft().x < hitbox2.topRight().x
+                && hitbox1.topRight().x > hitbox2.bottomLeft().x
+                && hitbox1.bottomLeft().y < hitbox2.topRight().y
+                && hitbox1.topRight().y > hitbox2.bottomLeft().y;
     }
 
     /**
@@ -100,8 +159,8 @@ public class CollisionSystem extends System {
      */
     protected Tile.Direction checkDirectionOfCollision(
             CollideComponent hitbox1, CollideComponent hitbox2) {
-        float y = hitbox2.getCenter().y - hitbox1.getCenter().y;
-        float x = hitbox2.getCenter().x - hitbox1.getCenter().x;
+        float y = hitbox2.center().y - hitbox1.center().y;
+        float x = hitbox2.center().x - hitbox1.center().x;
         float rads = (float) Math.atan2(y, x);
         double piQuarter = Math.PI / 4;
         if (rads < 3 * -piQuarter) {
@@ -116,4 +175,8 @@ public class CollisionSystem extends System {
             return Tile.Direction.W;
         }
     }
+
+    private record CollisionKey(int a, int b) {}
+
+    protected record CollisionData(CollideComponent a, CollideComponent b) {}
 }

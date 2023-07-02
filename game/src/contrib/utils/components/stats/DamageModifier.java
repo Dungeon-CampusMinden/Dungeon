@@ -1,6 +1,7 @@
 package contrib.utils.components.stats;
 
 import contrib.utils.components.health.DamageType;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,7 +16,7 @@ public class DamageModifier {
      * @return multiplier (1 is default, values greater than 1 increase damage, values less than 1
      *     decrease damage)
      */
-    public float getMultiplier(DamageType type) {
+    public float multiplierFor(DamageType type) {
         return this.damageMultipliers.getOrDefault(type, 1f);
     }
 

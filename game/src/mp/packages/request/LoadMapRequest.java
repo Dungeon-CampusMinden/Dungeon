@@ -5,12 +5,13 @@ import core.level.elements.ILevel;
 import core.utils.Point;
 
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class LoadMapRequest {
     private final ILevel level;
-    private final Set<Entity> currentEntities;
+    private final Stream<Entity> currentEntities;
 
-    public LoadMapRequest(final ILevel currentLevel, final Set<Entity> currentEntities){
+    public LoadMapRequest(final ILevel currentLevel, final Stream<Entity> currentEntities){
         this.level = currentLevel;
         this.currentEntities = currentEntities;
     }
@@ -19,5 +20,5 @@ public class LoadMapRequest {
         return this.level;
     }
 
-    public Set<Entity> getCurrentEntities(){ return currentEntities; }
+    public Stream<Entity> getCurrentEntities(){ return currentEntities; }
 }

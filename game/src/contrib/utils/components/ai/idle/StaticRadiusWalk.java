@@ -1,15 +1,19 @@
 package contrib.utils.components.ai.idle;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
+
 import contrib.utils.components.ai.AITools;
-import contrib.utils.components.ai.IIdleAI;
+
+import core.Dungeon;
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.utils.Constants;
 import core.utils.Point;
+import core.utils.components.MissingComponentException;
 
-public class StaticRadiusWalk implements IIdleAI {
+import java.util.function.Consumer;
+
+public class StaticRadiusWalk implements Consumer<Entity> {
     private final float radius;
     private GraphPath<Tile> path;
     private final int breakTime;
@@ -25,31 +29,37 @@ public class StaticRadiusWalk implements IIdleAI {
      * @param radius Radius in which a target point is to be searched for
      * @param breakTimeInSeconds how long to wait (in seconds) before searching a new goal
      */
-    public StaticRadiusWalk(float radius, int breakTimeInSeconds) {
+    public StaticRadiusWalk(final float radius, final int breakTimeInSeconds) {
         this.radius = radius;
-        this.breakTime = breakTimeInSeconds * Constants.FRAME_RATE;
+        this.breakTime = breakTimeInSeconds * Dungeon.frameRate();
     }
 
     @Override
-    public void idle(Entity entity) {
+    public void accept(final Entity entity) {
         if (path == null || AITools.pathFinishedOrLeft(entity, path)) {
             if (center == null) {
                 PositionComponent pc =
-                        (PositionComponent)
-                                entity.getComponent(PositionComponent.class).orElseThrow();
-                center = pc.getPosition();
+                        entity.fetch(PositionComponent.class)
+                                .orElseThrow(
+                                        () ->
+                                                MissingComponentException.build(
+                                                        entity, PositionComponent.class));
+                center = pc.position();
             }
 
             if (currentBreak >= breakTime) {
                 currentBreak = 0;
                 PositionComponent pc2 =
-                        (PositionComponent)
-                                entity.getComponent(PositionComponent.class).orElseThrow();
-                currentPosition = pc2.getPosition();
+                        entity.fetch(PositionComponent.class)
+                                .orElseThrow(
+                                        () ->
+                                                MissingComponentException.build(
+                                                        entity, PositionComponent.class));
+                currentPosition = pc2.position();
                 newEndTile =
-                        AITools.getRandomAccessibleTileCoordinateInRange(center, radius).toPoint();
+                        AITools.randomAccessibleTileCoordinateInRange(center, radius).toPoint();
                 path = AITools.calculatePath(currentPosition, newEndTile);
-                idle(entity);
+                accept(entity);
             }
             currentBreak++;
 

@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import core.level.utils.Coordinate;
 import core.utils.Point;
+
 import org.junit.Before;
 import org.junit.Test;
 

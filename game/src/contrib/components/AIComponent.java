@@ -1,117 +1,97 @@
 package contrib.components;
 
 import contrib.systems.AISystem;
-import contrib.utils.components.ai.IFightAI;
-import contrib.utils.components.ai.IIdleAI;
-import contrib.utils.components.ai.ITransition;
+
 import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
+
 import core.Component;
 import core.Entity;
-import semanticAnalysis.types.DSLContextMember;
-import semanticAnalysis.types.DSLType;
+
+import semanticanalysis.types.DSLContextMember;
+import semanticanalysis.types.DSLType;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
- * AIComponent is a component that stores the idle and combat behavior of AI controlled entities.
+ * Define the behavior of AI-controlled entities.
  *
- * <p>The {@link AISystem AISystem} determines which behavior is used based on the set {@link ITransition TransitionAI}.
- * If the implicit constructor is used the entity will have a default behavior composed of a {@link RadiusWalk} as {@link IIdleAI IdleAI},
- * {@link RangeTransition} as {@link ITransition TransitionAI} and {@link CollideAI} as {@link IFightAI FightAI.
+ * <p>An AI-controlled entity can have two different states which define the behaviour of the
+ * entity. The "idle state" describes the default behaviour of the entity, like walking around in
+ * the level. The "combat state" describes the fighting behaviour, like throwing fireballs at the
+ * hero. The {@link AISystem} will trigger {@link #execute()} which uses {@link #shouldFight} to
+ * check if the idle or combat behaviour should be executed.
+ *
+ * <p>The {@link #idleBehavior} defines the behaviour in idle state, e.g. walking on a specific path
+ * {@link contrib.utils.components.ai.idle.PatrouilleWalk}.
+ *
+ * <p>The {@link #fightBehavior} defines the combat behaviour, e.g. attacking with a fireball skill
+ * {@link contrib.utils.components.ai.fight.RangeAI}.
+ *
+ * <p>The {@link #shouldFight} defines when the entity goes into fight mode, e.g. if the player is
+ * too close to the entity {@link RangeTransition}.
+ *
+ * @see AISystem
  */
 @DSLType(name = "ai_component")
-public class AIComponent extends Component {
-
-    public static String name = "AIComponent";
-    private /*@DSLTypeMember(name="fight_ai)*/ IFightAI fightAI;
-    private /*@DSLTypeMember(name="idle_ai)*/ IIdleAI idleAI;
-    private /*@DSLTypeMember(name="transition_ai)*/ ITransition transitionAI;
+public final class AIComponent extends Component {
+    private final Consumer<Entity> fightBehavior;
+    private final Consumer<Entity> idleBehavior;
+    private final Function<Entity, Boolean> shouldFight;
 
     /**
-     * Create AIComponent with the given behavior.
+     * Create an AIComponent with the given behavior and add it to the associated entity.
      *
-     * @param entity associated entity
-     * @param fightAI combat behavior
-     * @param idleAI idle behavior
-     * @param transition Determines when to fight
+     * @param entity The associated entity.
+     * @param fightBehavior The combat behavior.
+     * @param idleBehavior The idle behavior.
+     * @param shouldFight Determines when to fight.
      */
-    public AIComponent(Entity entity, IFightAI fightAI, IIdleAI idleAI, ITransition transition) {
+    public AIComponent(
+            final Entity entity,
+            final Consumer<Entity> fightBehavior,
+            final Consumer<Entity> idleBehavior,
+            final Function<Entity, Boolean> shouldFight) {
         super(entity);
-        this.fightAI = fightAI;
-        this.idleAI = idleAI;
-        this.transitionAI = transition;
+        this.fightBehavior = fightBehavior;
+        this.idleBehavior = idleBehavior;
+        this.shouldFight = shouldFight;
     }
 
     /**
-     * Creates AIComponent with default behavior. For default behavior see class documentation of
-     * AIComponent.
+     * Create an AIComponent with default behavior and add it to the associated entity.
      *
-     * @param entity associated entity
+     * <p>The default behavior uses {@link RadiusWalk} as the idle behavior, {@link RangeTransition}
+     * as the transition function, and {@link CollideAI} as the fight behavior.
+     *
+     * @param entity The associated entity.
      */
-    public AIComponent(@DSLContextMember(name = "entity") Entity entity) {
-        super(entity);
-        idleAI = new RadiusWalk(5, 2);
-        transitionAI = new RangeTransition(5f);
-        fightAI = new CollideAI(2f);
+    public AIComponent(@DSLContextMember(name = "entity") final Entity entity) {
+        this(entity, new CollideAI(2f), new RadiusWalk(5, 2), new RangeTransition(5f));
     }
 
-    /** Excecute the ai behavior */
+    /**
+     * Execute AI behavior.
+     *
+     * <p>Uses {@link #shouldFight} to check if the entity is in idle mode or in fight mode and
+     * execute the corresponding behavior
+     */
     public void execute() {
-        if (transitionAI.isInFightMode(entity)) fightAI.fight(entity);
-        else idleAI.idle(entity);
+        if (shouldFight.apply(entity)) fightBehavior.accept(entity);
+        else idleBehavior.accept(entity);
     }
 
-    /**
-     * Set a new fight ai
-     *
-     * @param ai new fight ai
-     */
-    public void setFightAI(IFightAI ai) {
-        this.fightAI = ai;
+    public Consumer<Entity> fightBehavior() {
+        return fightBehavior;
     }
 
-    /**
-     * Set a new idle ai
-     *
-     * @param ai new idle ai
-     */
-    public void setIdleAI(IIdleAI ai) {
-        this.idleAI = ai;
+    public Consumer<Entity> idleBehavior() {
+        return idleBehavior;
     }
 
-    /**
-     * Set a new transition ai
-     *
-     * @param ai new transition ai
-     */
-    public void setTransitionAI(ITransition ai) {
-        this.transitionAI = ai;
-    }
-
-    /**
-     * Returns the idle AI of the AIComponent
-     *
-     * @return IIdleAI object representing the idle AI
-     */
-    public IIdleAI getIdleAI() {
-        return idleAI;
-    }
-
-    /**
-     * Returns the transition AI of the AIComponent
-     *
-     * @return ITransition object representing the transition AI
-     */
-    public ITransition getTransitionAI() {
-        return transitionAI;
-    }
-
-    /**
-     * Returns the fight AI of the AIComponent
-     *
-     * @return IFigthAI object representing the fight AI
-     */
-    public IFightAI getFightAI() {
-        return fightAI;
+    public Function<Entity, Boolean> shouldFight() {
+        return shouldFight;
     }
 }

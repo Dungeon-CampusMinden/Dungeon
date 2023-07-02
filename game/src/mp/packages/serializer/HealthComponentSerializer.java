@@ -5,9 +5,10 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import contrib.components.HealthComponent;
-import contrib.utils.components.health.IOnDeathFunction;
 import core.Entity;
 import core.utils.components.draw.Animation;
+
+import java.util.function.Consumer;
 
 public class HealthComponentSerializer extends Serializer<HealthComponent> {
     private Entity entity;
@@ -22,18 +23,18 @@ public class HealthComponentSerializer extends Serializer<HealthComponent> {
     }
     @Override
     public void write(Kryo kryo, Output output, HealthComponent object) {
-        output.writeInt(object.getMaximalHealthpoints());
-        kryo.writeObject(output, object.getOnDeath());
-        kryo.writeObject(output, object.getGetHitAnimation());
-        kryo.writeObject(output, object.getDeathAnimation());
+        output.writeInt(object.maximalHealthpoints());
+        output.writeInt(object.currentHealthpoints());
+        kryo.writeObject(output, object.onDeath());
     }
 
     @Override
     public HealthComponent read(Kryo kryo, Input input, Class<HealthComponent> type) {
         int maximalHealthpoints = input.readInt();
-        IOnDeathFunction onDeath = kryo.readObject(input, IOnDeathFunction.class);
-        Animation getHitAnimation = kryo.readObject(input, Animation.class);
-        Animation dieAnimation = kryo.readObject(input, Animation.class);
-        return new HealthComponent(entity, maximalHealthpoints, onDeath, getHitAnimation, dieAnimation);
+        int currentHealthpoints = input.readInt();
+        Consumer<Entity> onDeath = kryo.readObject(input, Consumer.class);
+        HealthComponent hc = new HealthComponent(entity, maximalHealthpoints, onDeath);
+        hc.currentHealthpoints(currentHealthpoints);
+        return hc;
     }
 }

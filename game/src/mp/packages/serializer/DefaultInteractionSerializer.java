@@ -5,13 +5,12 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import contrib.utils.components.interaction.DefaultInteraction;
-import contrib.utils.components.interaction.IInteraction;
 
 public class DefaultInteractionSerializer extends Serializer<DefaultInteraction> {
     @Override
     public void write(Kryo kryo, Output output, DefaultInteraction object) {
-        Class<? extends IInteraction> concreteClass = object.getClass();
-        kryo.writeClass(output, concreteClass);
+//        Class<? extends IInteraction> concreteClass = object.getClass();
+//        kryo.writeClass(output, concreteClass);
     }
 
     @Override

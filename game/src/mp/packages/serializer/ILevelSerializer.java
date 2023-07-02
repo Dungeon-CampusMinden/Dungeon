@@ -16,8 +16,8 @@ public class ILevelSerializer extends Serializer<ILevel> {
     public void write(Kryo kryo, Output output, ILevel object) {
         Class<? extends ILevel> concreteClass = object.getClass();
         kryo.writeClass(output, concreteClass);
-        kryo.writeObject(output, object.getLayout());
-        kryo.writeObject(output, object.getStartTile());
+        kryo.writeObject(output, object.layout());
+        kryo.writeObject(output, object.startTile());
     }
 
     @Override
@@ -27,7 +27,7 @@ public class ILevelSerializer extends Serializer<ILevel> {
         try {
             Constructor<? extends ILevel> constructor = concreteClass.getConstructor(Tile[][].class);
             ILevel instance = constructor.newInstance(new Object[]{layout});
-            instance.setStartTile(kryo.readObject(input, FloorTile.class));
+            instance.startTile(kryo.readObject(input, FloorTile.class));
             return instance;
         } catch (Exception e) {
             e.printStackTrace();

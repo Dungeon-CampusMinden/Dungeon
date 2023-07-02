@@ -24,8 +24,8 @@ public class InventoryComponentSerializer extends Serializer<InventoryComponent>
     }
     @Override
     public void write(Kryo kryo, Output output, InventoryComponent object) {
-        output.writeInt(object.getMaxSize());
-        List<ItemData> inventory = object.getItems();
+        output.writeInt(object.maxSize());
+        List<ItemData> inventory = object.items();
         output.writeInt(inventory.size());
         for (ItemData item : inventory){
             kryo.writeObject(output, item);

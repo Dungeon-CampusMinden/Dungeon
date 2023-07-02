@@ -2,13 +2,15 @@ package interpreter.dot;
 
 import dslToGame.graph.Edge;
 import dslToGame.graph.Graph;
+// CHECKSTYLE:OFF: AvoidStarImport
+
+import parser.ast.*;
+// CHECKSTYLE:ON: AvoidStarImport
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
-// CHECKSTYLE:OFF: AvoidStarImport
-import parser.AST.*;
-// CHECKSTYLE:ON: AvoidStarImport
 
 public class Interpreter implements AstVisitor<dslToGame.graph.Node<String>> {
     // how to build graph?
@@ -114,7 +116,7 @@ public class Interpreter implements AstVisitor<dslToGame.graph.Node<String>> {
                             : Edge.Type.undirected;
 
             var graphEdge = new Edge(edgeType, lhsDotNode, rhsDotNode);
-            graphEdges.put(graphEdge.getName(), graphEdge);
+            graphEdges.put(graphEdge.name(), graphEdge);
 
             lhsDotNode = rhsDotNode;
         }

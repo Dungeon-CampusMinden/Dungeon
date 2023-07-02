@@ -2,9 +2,7 @@ package parser;
 
 import antlr.main.DungeonDSLLexer;
 import antlr.main.DungeonDSLParser;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Stack;
+
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -12,8 +10,13 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.TerminalNode;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
-import parser.AST.*;
+
+import parser.ast.*;
 // CHECKSTYLE:ON: AvoidStarImport
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Stack;
 
 /**
  * This class converts the {@link ParseTree} created by the antlr parser into an AST. While walking
@@ -29,7 +32,7 @@ import parser.AST.*;
 @SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
 public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
-    Stack<parser.AST.Node> astStack;
+    Stack<parser.ast.Node> astStack;
 
     /** Constructor */
     public DungeonASTConverter() {
@@ -42,7 +45,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
      * @param parseTree The ParseTree to walk
      * @return Root Node of the AST.
      */
-    public parser.AST.Node walk(ParseTree parseTree) {
+    public parser.ast.Node walk(ParseTree parseTree) {
         astStack = new Stack<>();
         ParseTreeWalker.DEFAULT.walk(this, parseTree);
         return astStack.peek();
@@ -110,6 +113,19 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     @Override
     public void exitStmt(DungeonDSLParser.StmtContext ctx) {
         // just let it bubble up, we don't need to store the information, that it is a stmt
+    }
+
+    @Override
+    public void enterReturn_stmt(DungeonDSLParser.Return_stmtContext ctx) {}
+
+    @Override
+    public void exitReturn_stmt(DungeonDSLParser.Return_stmtContext ctx) {
+        // pop the inner statement
+        assert astStack.size() > 0;
+        var innerStmt = astStack.pop();
+
+        var returnStmt = new ReturnStmtNode(innerStmt);
+        astStack.push(returnStmt);
     }
 
     @Override
@@ -206,10 +222,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterGame_obj_def(DungeonDSLParser.Game_obj_defContext ctx) {}
+    public void enterEntity_type_def(DungeonDSLParser.Entity_type_defContext ctx) {}
 
     @Override
-    public void exitGame_obj_def(DungeonDSLParser.Game_obj_defContext ctx) {
+    public void exitEntity_type_def(DungeonDSLParser.Entity_type_defContext ctx) {
         // if we have a component definition list, it will be on the stack
         var componentDefList = Node.NONE;
         if (ctx.component_def_list() != null) {
@@ -221,8 +237,8 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         var idNode = astStack.pop();
         assert idNode.type == Node.Type.Identifier;
 
-        var gameObjectDefinition = new GameObjectDefinitionNode(idNode, componentDefList);
-        astStack.push(gameObjectDefinition);
+        var prototypeDefinitionNode = new PrototypeDefinitionNode(idNode, componentDefList);
+        astStack.push(prototypeDefinitionNode);
     }
 
     @Override

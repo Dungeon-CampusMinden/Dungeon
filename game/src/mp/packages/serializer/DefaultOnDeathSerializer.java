@@ -5,13 +5,12 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import contrib.utils.components.health.DefaultOnDeath;
-import contrib.utils.components.health.IOnDeathFunction;
 
 public class DefaultOnDeathSerializer extends Serializer<DefaultOnDeath> {
     @Override
     public void write(Kryo kryo, Output output, DefaultOnDeath object) {
-        Class<? extends IOnDeathFunction> concreteClass = object.getClass();
-        kryo.writeClass(output, concreteClass);
+//        Class<? extends IOnDeathFunction> concreteClass = object.getClass();
+//        kryo.writeClass(output, concreteClass);
     }
 
     @Override

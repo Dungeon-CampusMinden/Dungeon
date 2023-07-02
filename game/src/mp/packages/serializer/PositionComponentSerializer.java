@@ -21,7 +21,7 @@ public class PositionComponentSerializer extends Serializer<PositionComponent> {
     }
     @Override
     public void write(Kryo kryo, Output output, PositionComponent object) {
-        kryo.writeObject(output, object.getPosition());
+        kryo.writeObject(output, object.position());
     }
 
     @Override

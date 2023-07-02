@@ -1,20 +1,23 @@
 package contrib.utils.components.ai.idle;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
+
 import contrib.utils.components.ai.AITools;
-import contrib.utils.components.ai.IIdleAI;
+
+import core.Dungeon;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.utils.Constants;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
-public class PatrouilleWalk implements IIdleAI {
+public class PatrouilleWalk implements Consumer<Entity> {
 
     private static final Random random = new Random();
 
@@ -31,7 +34,6 @@ public class PatrouilleWalk implements IIdleAI {
 
     private final List<Tile> checkpoints = new ArrayList<>();
     private final int numberCheckpoints;
-    private final int pauseTime;
     private final int pauseFrames;
     private final float radius;
     private final MODE mode;
@@ -51,29 +53,30 @@ public class PatrouilleWalk implements IIdleAI {
      * @param pauseTime Max time in milliseconds to wait on a checkpoint. The actual time is a
      *     random number between 0 and this value
      */
-    public PatrouilleWalk(float radius, int numberCheckpoints, int pauseTime, MODE mode) {
+    public PatrouilleWalk(
+            final float radius, final int numberCheckpoints, final int pauseTime, final MODE mode) {
         this.radius = radius;
         this.numberCheckpoints = numberCheckpoints;
-        this.pauseTime = pauseTime;
-        this.pauseFrames = pauseTime / (1000 / Constants.FRAME_RATE);
+        this.pauseFrames = pauseTime / (1000 / Dungeon.frameRate());
         this.mode = mode;
     }
 
-    private void init(Entity entity) {
+    private void init(final Entity entity) {
         initialized = true;
         PositionComponent position =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
-        Point center = position.getPosition();
-        Tile tile = Game.currentLevel.getTileAt(position.getPosition().toCoordinate());
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
+        Point center = position.position();
+        Tile tile = Game.tileAT(position.position());
 
         if (tile == null) {
             return;
         }
 
-        List<Tile> accessibleTiles = AITools.getAccessibleTilesInRange(center, radius);
+        List<Tile> accessibleTiles = AITools.accessibleTilesInRange(center, radius);
 
         if (accessibleTiles.isEmpty()) {
             return;
@@ -92,21 +95,22 @@ public class PatrouilleWalk implements IIdleAI {
     }
 
     @Override
-    public void idle(Entity entity) {
+    public void accept(final Entity entity) {
         if (!initialized) this.init(entity);
 
         PositionComponent position =
-                (PositionComponent)
-                        entity.getComponent(PositionComponent.class)
-                                .orElseThrow(
-                                        () -> new MissingComponentException("PositionComponent"));
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
 
         if (currentPath != null && !AITools.pathFinished(entity, currentPath)) {
             if (AITools.pathLeft(entity, currentPath)) {
                 currentPath =
                         AITools.calculatePath(
-                                position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                                position.position(),
+                                this.checkpoints.get(currentCheckpoint).position());
             }
             AITools.move(entity, currentPath);
             return;
@@ -131,15 +135,15 @@ public class PatrouilleWalk implements IIdleAI {
                 currentCheckpoint = rnd.nextInt(checkpoints.size());
                 currentPath =
                         AITools.calculatePath(
-                                position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                                position.position(),
+                                this.checkpoints.get(currentCheckpoint).position());
             }
             case LOOP -> {
                 currentCheckpoint = (currentCheckpoint + 1) % checkpoints.size();
                 currentPath =
                         AITools.calculatePath(
-                                position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                                position.position(),
+                                this.checkpoints.get(currentCheckpoint).position());
             }
             case BACK_AND_FORTH -> {
                 if (forward) {
@@ -157,8 +161,8 @@ public class PatrouilleWalk implements IIdleAI {
                 }
                 currentPath =
                         AITools.calculatePath(
-                                position.getPosition(),
-                                this.checkpoints.get(currentCheckpoint).getCoordinate().toPoint());
+                                position.position(),
+                                this.checkpoints.get(currentCheckpoint).position());
             }
             default -> {}
         }
@@ -170,10 +174,6 @@ public class PatrouilleWalk implements IIdleAI {
 
     public int getNumberCheckpoints() {
         return numberCheckpoints;
-    }
-
-    public int getPauseTime() {
-        return pauseTime;
     }
 
     public MODE getMode() {

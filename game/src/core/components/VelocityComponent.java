@@ -2,95 +2,133 @@ package core.components;
 
 import core.Component;
 import core.Entity;
-import core.utils.components.draw.Animation;
 import core.utils.logging.CustomLogLevel;
-import java.util.List;
-import java.util.logging.Logger;
-import semanticAnalysis.types.DSLContextMember;
-import semanticAnalysis.types.DSLType;
-import semanticAnalysis.types.DSLTypeMember;
 
-/** VelocityComponent is a component that stores the x, y movement direction */
+import semanticanalysis.types.DSLContextMember;
+import semanticanalysis.types.DSLType;
+import semanticanalysis.types.DSLTypeMember;
+
+import java.util.logging.Logger;
+
+/**
+ * Allow associated entity to move in the dungeon.
+ *
+ * <p>The VelocityComponent stores the speed at which the entity can move along the x and y axes.
+ *
+ * <p>It also stores the current movement speed on the x and y axes. This information will be used
+ * by the {@link core.systems.VelocitySystem} to move the entity at the given speed.
+ *
+ * <p>The current movement speed can be set by other Systems like the {@link
+ * core.systems.PlayerSystem}.
+ *
+ * <p>Note that a positive velocity means that the entity is moving right or up, and a negative
+ * velocity means that the entity is moving left/down. If the current x and y velocity is 0, that
+ * means the entity is not moving.
+ *
+ * <p>Use {@link #yVelocity(float)} or {@link #xVelocity(float)} to change the current velocity.
+ * Normally you want to use the {@link #xVelocity} or {@link #yVelocity} as parameter this.
+ */
 @DSLType(name = "velocity_component")
-public class VelocityComponent extends Component {
-    private static List<String> missingTexture = List.of("animation/missingTexture.png");
+public final class VelocityComponent extends Component {
+    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private float currentXVelocity;
     private float currentYVelocity;
     private @DSLTypeMember(name = "x_velocity") float xVelocity;
     private @DSLTypeMember(name = "y_velocity") float yVelocity;
 
-    private @DSLTypeMember(name = "move_right_animation") Animation moveRightAnimation;
-    private @DSLTypeMember(name = "move_left_animation") Animation moveLeftAnimation;
-    private final transient Logger velocityCompLogger = Logger.getLogger(this.getClass().getName());
-
     /**
+     * Create a new VelocityComponent with the given configuration.
+     *
      * @param entity associated entity
-     * @param xVelocity Speed with which the entity moves on the x-axis
-     * @param yVelocity Speed with which the entity moves on the y-axis
-     * @param moveLeftAnimation Animation that plays when the entity moves to the left
-     * @param moveRightAnimation Animation that plays when the entity moves to the right
+     * @param xVelocity Speed with which the entity can move on the x-axis
+     * @param yVelocity Speed with which the entity can move on the y-axis
      */
-    public VelocityComponent(
-            Entity entity,
-            float xVelocity,
-            float yVelocity,
-            Animation moveLeftAnimation,
-            Animation moveRightAnimation) {
+    public VelocityComponent(final Entity entity, float xVelocity, float yVelocity) {
         super(entity);
         this.currentXVelocity = 0;
         this.currentYVelocity = 0;
         this.xVelocity = xVelocity;
         this.yVelocity = yVelocity;
-        this.moveLeftAnimation = moveLeftAnimation;
-        this.moveRightAnimation = moveRightAnimation;
     }
 
     /**
+     * Create a new VelocityComponent with the default configuration.
+     *
+     * <p>In the default configuration, the movement-speed is set to 0, so the entity will not move.
+     *
      * @param entity associated entity
      */
-    public VelocityComponent(@DSLContextMember(name = "entity") Entity entity) {
+    public VelocityComponent(@DSLContextMember(name = "entity") final Entity entity) {
         super(entity);
         this.currentXVelocity = 0;
         this.currentYVelocity = 0;
         this.xVelocity = 0;
         this.yVelocity = 0;
-        this.moveLeftAnimation = new Animation(missingTexture, 100);
-        this.moveRightAnimation = new Animation(missingTexture, 100);
     }
 
     /**
-     * @return x movement
+     * Get the current x-velocity speed
+     *
+     * <p>Note that a positive velocity means that the entity is moving right and a negative
+     * velocity means that the entity is moving left. If the x and y velocity is 0, that means the
+     * entity is currently not moving.
+     *
+     * @return current velocity on the x-axis
      */
-    public float getCurrentXVelocity() {
+    public float currentXVelocity() {
         return currentXVelocity;
     }
 
     /**
-     * @param currentXVelocity set x velocity
+     * Set the current velocity on the x-axis. This value will be used by the {@link
+     * core.systems.VelocitySystem} to calculate the next position of this entity.
+     *
+     * <p>Note that a positive velocity means that the entity is moving right and a negative
+     * velocity means that the entity is moving left. If the x and y velocity is 0, that means the
+     * entity is currently not moving.
+     *
+     * @param currentXVelocity set current speed on the x-axis
      */
-    public void setCurrentXVelocity(float currentXVelocity) {
+    public void currentXVelocity(float currentXVelocity) {
         this.currentXVelocity = currentXVelocity;
     }
 
     /**
-     * @return y velocity
+     * Get the current y-velocity speed
+     *
+     * <p>Note that a positive velocity means that the entity is moving up and a negative velocity
+     * means that the entity is moving down. If the x and y velocity is 0, that means the entity is
+     * currently not moving.
+     *
+     * @return current velocity on the y-axis
      */
-    public float getCurrentYVelocity() {
+    public float currentYVelocity() {
         return currentYVelocity;
     }
 
     /**
-     * @param currentYVelocity set y velocity
+     * Set the current velocity on the y-axis. This value will be used by the {@link
+     * core.systems.VelocitySystem} to calculate the next position of this entity.
+     *
+     * <p>Note that a positive velocity means that the entity is moving up and a negative velocity
+     * means that the entity is moving down. If the x and y velocity is 0, that means the entity is
+     * currently not moving.
+     *
+     * @param currentYVelocity set current speed on the x-axis
      */
-    public void setCurrentYVelocity(float currentYVelocity) {
+    public void currentYVelocity(float currentYVelocity) {
         this.currentYVelocity = currentYVelocity;
     }
 
     /**
-     * @return speed with which the entity moves on the x-axis
+     * Get the velocity with which the entity should move on the x-axis.
+     *
+     * <p>This value will be used by other systems to set the current-velocity.
+     *
+     * @return velocity with which the entity should move on the x-axis
      */
-    public float getXVelocity() {
-        velocityCompLogger.log(
+    public float xVelocity() {
+        LOGGER.log(
                 CustomLogLevel.DEBUG,
                 "Fetching x-velocity for entity '"
                         + entity.getClass().getSimpleName()
@@ -100,19 +138,25 @@ public class VelocityComponent extends Component {
     }
 
     /**
-     * Set speed with which the entity moves on the x-axis
+     * Set the velocity with which the entity should move on the x-axis.
      *
-     * @param xVelocity
+     * <p>This value will be used by other systems to set the current-velocity.
+     *
+     * @param xVelocity set speed with which the entity can should on the x-axis
      */
-    public void setXVelocity(float xVelocity) {
+    public void xVelocity(float xVelocity) {
         this.xVelocity = xVelocity;
     }
 
     /**
-     * @return Speed with which the entity moves on the y-axis
+     * Get the velocity with which the entity should move on the y-axis.
+     *
+     * <p>This value will be used by other systems to set the current-velocity.
+     *
+     * @return velocity with which the entity should move on the y-axis
      */
-    public float getYVelocity() {
-        velocityCompLogger.log(
+    public float yVelocity() {
+        LOGGER.log(
                 CustomLogLevel.DEBUG,
                 "Fetching y-velocity for entity '"
                         + entity.getClass().getSimpleName()
@@ -120,26 +164,15 @@ public class VelocityComponent extends Component {
                         + yVelocity);
         return yVelocity;
     }
+
     /**
-     * Set speed with which the entity moves on the y-axis
+     * Set the velocity with which the entity should move on the y-axis.
      *
-     * @param yVelocity
+     * <p>This value will be used by other systems to set the current-velocity.
+     *
+     * @param yVelocity set speed with which the entity can should on the y-axis
      */
-    public void setYVelocity(float yVelocity) {
+    public void yVelocity(float yVelocity) {
         this.yVelocity = yVelocity;
-    }
-
-    /**
-     * @return Animation that plays when the entity moves to the right
-     */
-    public Animation getMoveRightAnimation() {
-        return moveRightAnimation;
-    }
-
-    /**
-     * @return Animation that plays when the entity moves to the left
-     */
-    public Animation getMoveLeftAnimation() {
-        return moveLeftAnimation;
     }
 }

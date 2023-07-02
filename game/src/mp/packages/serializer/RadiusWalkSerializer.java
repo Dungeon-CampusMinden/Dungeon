@@ -5,6 +5,8 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import contrib.utils.components.ai.idle.RadiusWalk;
+import core.Dungeon;
+import core.Game;
 import core.utils.Constants;
 
 public class RadiusWalkSerializer extends Serializer<RadiusWalk> {
@@ -19,7 +21,7 @@ public class RadiusWalkSerializer extends Serializer<RadiusWalk> {
     public RadiusWalk read(Kryo kryo, Input input, Class<RadiusWalk> type) {
         float radius = input.readFloat();
         int breakTime = input.readInt();
-        int breakTimeInSeconds = breakTime / Constants.FRAME_RATE;
+        int breakTimeInSeconds = breakTime / Dungeon.frameRate();
         return new RadiusWalk(radius, breakTimeInSeconds);
     }
 }

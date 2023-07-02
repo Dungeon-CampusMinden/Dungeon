@@ -1,6 +1,7 @@
 package core.configuration;
 
 import core.configuration.values.ConfigValue;
+
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -43,8 +44,8 @@ public class ConfigKey<Type> {
      *
      * @return The current or default value of this key.
      */
-    public Type get() {
-        return this.value.get();
+    public Type value() {
+        return this.value.value();
     }
 
     /**
@@ -52,8 +53,8 @@ public class ConfigKey<Type> {
      *
      * @param value The new value of this key.
      */
-    public void set(Type value) {
-        this.value.set(value);
+    public void value(Type value) {
+        this.value.value(value);
         this.configuration.ifPresent(c -> c.update(this));
     }
 }

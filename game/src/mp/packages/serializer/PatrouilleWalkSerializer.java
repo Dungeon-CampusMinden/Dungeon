@@ -12,7 +12,7 @@ public class PatrouilleWalkSerializer extends Serializer<PatrouilleWalk> {
         kryo.writeClass(output, object.getClass());
         output.writeFloat(object.getRadius());
         output.writeInt(object.getNumberCheckpoints());
-        output.writeInt(object.getPauseTime());
+        //output.writeInt(object.getPauseTime());
         kryo.writeObject(output, object.getMode());
     }
 

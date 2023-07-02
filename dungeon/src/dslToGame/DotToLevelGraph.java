@@ -1,9 +1,11 @@
 package dslToGame;
 
 import core.level.levelgraph.LevelNode;
+
 import dslToGame.graph.Edge;
 import dslToGame.graph.Graph;
 import dslToGame.graph.Node;
+
 import java.util.*;
 
 public class DotToLevelGraph {
@@ -11,7 +13,7 @@ public class DotToLevelGraph {
     public static ConvertedGraph convert(Graph<String> levelGenGraph) {
         HashMap<Node<String>, LevelNode> nodeToLevelNode = new LinkedHashMap<>();
         HashMap<LevelNode, Node<String>> levelNodeToNode = new LinkedHashMap<>();
-        Iterator<Node<String>> iterator = levelGenGraph.getNodeIterator();
+        Iterator<Node<String>> iterator = levelGenGraph.nodeIterator();
 
         // create LevelNodes
         Node node = iterator.next();
@@ -27,11 +29,11 @@ public class DotToLevelGraph {
         }
 
         // connect Edges
-        Iterator<Edge> edgeIterator = levelGenGraph.getEdgeIterator();
+        Iterator<Edge> edgeIterator = levelGenGraph.edgeIterator();
         while (edgeIterator.hasNext()) {
             Edge edge = edgeIterator.next();
-            Node n1 = edge.getStartNode();
-            Node n2 = edge.getEndNode();
+            Node n1 = edge.startNode();
+            Node n2 = edge.endNode();
             LevelNode ln1 = nodeToLevelNode.get(n1);
             LevelNode ln2 = nodeToLevelNode.get(n2);
             if (!ln1.connect(ln2)) throw new IllegalArgumentException("Graph cant be converted");

@@ -1,8 +1,9 @@
 package runtime;
 
+import semanticanalysis.types.IType;
+
 import java.util.Map;
 import java.util.Set;
-import semanticAnalysis.types.IType;
 
 public class AggregateValue extends Value {
     protected IMemorySpace ms;
@@ -50,5 +51,10 @@ public class AggregateValue extends Value {
      */
     public Set<Map.Entry<String, Value>> getValueSet() {
         return this.getMemorySpace().getValueSet();
+    }
+
+    @Override
+    public Object clone() {
+        return this;
     }
 }

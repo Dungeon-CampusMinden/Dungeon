@@ -21,8 +21,8 @@ public class ProjectileComponentSerializer extends Serializer<ProjectileComponen
     }
     @Override
     public void write(Kryo kryo, Output output, ProjectileComponent object) {
-        kryo.writeObject(output, object.getGoalLocation());
-        kryo.writeObject(output, object.getStartPosition());
+        kryo.writeObject(output, object.goalLocation());
+        kryo.writeObject(output, object.startPosition());
     }
 
     @Override

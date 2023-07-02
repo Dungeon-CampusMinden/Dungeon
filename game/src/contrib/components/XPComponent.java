@@ -1,8 +1,9 @@
 package contrib.components;
 
-import contrib.utils.components.xp.ILevelUp;
 import core.Component;
 import core.Entity;
+
+import java.util.function.LongConsumer;
 
 public class XPComponent extends Component {
 
@@ -11,7 +12,7 @@ public class XPComponent extends Component {
     private long currentLevel;
     private long currentXP;
     private long lootXP = -1;
-    private ILevelUp callbackLevelUp;
+    private LongConsumer callbackLevelUp;
 
     /**
      * Create a new XP-Component and add it to the associated entity
@@ -28,18 +29,18 @@ public class XPComponent extends Component {
      * @param entity associated entity
      * @param levelUp callback for when the entity levels up
      */
-    public XPComponent(Entity entity, ILevelUp levelUp, int lootXP) {
+    public XPComponent(Entity entity, LongConsumer levelUp, long lootXP) {
         super(entity);
         this.callbackLevelUp = levelUp;
         this.lootXP = lootXP;
     }
 
-    public XPComponent(Entity entity, ILevelUp levelUp) {
+    public XPComponent(Entity entity, LongConsumer levelUp) {
         super(entity);
         this.callbackLevelUp = levelUp;
     }
 
-    public XPComponent(Entity entity, ILevelUp levelUp, long currentLevel, long currentXP, long lootXP){
+    public XPComponent(Entity entity, LongConsumer levelUp, long currentLevel, long currentXP, long lootXP){
         super(entity);
         this.entity = entity;
         this.callbackLevelUp = levelUp;
@@ -53,7 +54,7 @@ public class XPComponent extends Component {
      *
      * @return current level
      */
-    public long getCurrentLevel() {
+    public long currentLevel() {
         return currentLevel;
     }
 
@@ -62,7 +63,7 @@ public class XPComponent extends Component {
      *
      * @param currentLevel current level
      */
-    public void setCurrentLevel(long currentLevel) {
+    public void currentLevel(long currentLevel) {
         this.currentLevel = currentLevel;
     }
 
@@ -81,7 +82,7 @@ public class XPComponent extends Component {
      *
      * @return current xp
      */
-    public long getCurrentXP() {
+    public long currentXP() {
         return currentXP;
     }
 
@@ -90,7 +91,7 @@ public class XPComponent extends Component {
      *
      * @param currentXP current xp
      */
-    public void setCurrentXP(long currentXP) {
+    public void currentXP(long currentXP) {
         this.currentXP = currentXP;
     }
 
@@ -100,7 +101,7 @@ public class XPComponent extends Component {
      * @param level new level
      */
     public void levelUp(long level) {
-        if (this.callbackLevelUp != null) this.callbackLevelUp.onLevelUp(level);
+        if (this.callbackLevelUp != null) this.callbackLevelUp.accept(level);
     }
 
     /**
@@ -109,7 +110,7 @@ public class XPComponent extends Component {
      *
      * @return xp that will be dropped
      */
-    public long getLootXP() {
+    public long lootXP() {
         return lootXP == -1 ? currentXP / 2 : lootXP;
     }
 
@@ -118,7 +119,7 @@ public class XPComponent extends Component {
      *
      * @param lootXP xp that will be dropped
      */
-    public void setLootXP(long lootXP) {
+    public void lootXP(long lootXP) {
         this.lootXP = lootXP;
     }
 
@@ -129,10 +130,12 @@ public class XPComponent extends Component {
      *
      * @return xp left to next level
      */
-    public long getXPToNextLevel() {
+    public long xpToNextLevel() {
         // level 0 in Formula is level 1 in game.
         return Math.round(FORMULA_SLOPE * Math.pow(currentLevel, 2) + LEVEL_1_XP) - currentXP;
     }
 
-    public ILevelUp getCallbackLevelUp(){ return callbackLevelUp; }
+    public LongConsumer getCallbackLevelUp() {
+        return callbackLevelUp;
+    }
 }

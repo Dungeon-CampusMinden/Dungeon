@@ -5,10 +5,12 @@ import core.level.generator.IGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+
 import dslToGame.ConvertedGraph;
 import dslToGame.DotToLevelGraph;
 import dslToGame.graph.Graph;
 import dslToGame.graph.Node;
+
 import java.util.HashMap;
 
 /**
@@ -24,7 +26,7 @@ public class GraphLevelGenerator implements IGenerator {
     public static HashMap<LevelNode, Node<String>> levelNodeToNode;
 
     public GraphLevelGenerator(Graph<String> graph) {
-        setGraph(graph);
+        graph(graph);
     }
 
     /**
@@ -32,7 +34,7 @@ public class GraphLevelGenerator implements IGenerator {
      *
      * @param graph
      */
-    public void setGraph(Graph<String> graph) {
+    public void graph(Graph<String> graph) {
         ConvertedGraph cg = DotToLevelGraph.convert(graph);
         root = cg.root();
         this.graph = cg.graph();
@@ -41,18 +43,18 @@ public class GraphLevelGenerator implements IGenerator {
     }
 
     @Override
-    public ILevel getLevel(DesignLabel designLabel, LevelSize size) {
+    public ILevel level(DesignLabel designLabel, LevelSize size) {
         if (root == null)
             throw new NullPointerException("Root is null. Please add a graph to this generator");
-        else return (ILevel) new GraphLevel(root, size, designLabel).getRootRoom();
+        else return (ILevel) new GraphLevel(root, size, designLabel).rootRoom();
     }
 
     @Override
-    public LevelElement[][] getLayout(LevelSize size) {
+    public LevelElement[][] layout(LevelSize size) {
         throw new UnsupportedOperationException("This Method is not supported for GraphLevel");
     }
 
-    public Graph<String> getGraph() {
+    public Graph<String> graph() {
         return graph;
     }
 

@@ -1,23 +1,30 @@
 package contrib.systems;
 
 import contrib.components.XPComponent;
-import core.Game;
-import core.System;
 
-public class XPSystem extends System {
+import core.Entity;
+import core.System;
+import core.utils.components.MissingComponentException;
+
+public final class XPSystem extends System {
+
+    public XPSystem() {
+        super(XPComponent.class);
+    }
 
     @Override
-    public void update() {
-        Game.getEntities().stream()
-                .flatMap(e -> e.getComponent(XPComponent.class).stream())
-                .forEach(
-                        component -> {
-                            XPComponent comp = (XPComponent) component;
-                            long xpLeft;
-                            while ((xpLeft = comp.getXPToNextLevel()) <= 0) {
-                                this.performLevelUp(comp, (int) xpLeft);
-                            }
-                        });
+    public void execute() {
+        entityStream().forEach(this::checkForLevelUP);
+    }
+
+    private void checkForLevelUP(Entity entity) {
+        XPComponent comp =
+                entity.fetch(XPComponent.class)
+                        .orElseThrow(() -> MissingComponentException.build(entity, XPSystem.class));
+        long xpLeft;
+        while ((xpLeft = comp.xpToNextLevel()) <= 0) {
+            this.performLevelUp(comp, (int) xpLeft);
+        }
     }
 
     /**
@@ -29,8 +36,8 @@ public class XPSystem extends System {
      * @param xpLeft XP left to level up (can be negative if greater the needed amount)
      */
     private void performLevelUp(XPComponent comp, int xpLeft) {
-        comp.setCurrentLevel(comp.getCurrentLevel() + 1);
-        comp.setCurrentXP(xpLeft * -1);
-        comp.levelUp(comp.getCurrentLevel());
+        comp.currentLevel(comp.currentLevel() + 1);
+        comp.currentXP(xpLeft * -1);
+        comp.levelUp(comp.currentLevel());
     }
 }

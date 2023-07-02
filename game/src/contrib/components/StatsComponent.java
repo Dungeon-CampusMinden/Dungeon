@@ -1,6 +1,7 @@
 package contrib.components;
 
 import contrib.utils.components.stats.DamageModifier;
+
 import core.Component;
 import core.Entity;
 
@@ -22,7 +23,7 @@ public class StatsComponent extends Component {
      *
      * @return {@link DamageModifier} object
      */
-    public DamageModifier getDamageModifiers() {
+    public DamageModifier damageModifiers() {
         return this.damageModifier;
     }
 
@@ -31,7 +32,7 @@ public class StatsComponent extends Component {
      *
      * @param damageModifier new {@link DamageModifier} object
      */
-    public void setDamageModifier(DamageModifier damageModifier) {
+    public void damageModifier(DamageModifier damageModifier) {
         this.damageModifier = damageModifier;
     }
 }

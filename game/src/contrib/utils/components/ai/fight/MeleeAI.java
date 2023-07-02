@@ -1,16 +1,19 @@
 package contrib.utils.components.ai.fight;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
+
 import contrib.utils.components.ai.AITools;
-import contrib.utils.components.ai.IFightAI;
 import contrib.utils.components.skill.Skill;
+
+import core.Dungeon;
 import core.Entity;
 import core.level.Tile;
-import core.utils.Constants;
 
-public class MeleeAI implements IFightAI {
+import java.util.function.Consumer;
+
+public class MeleeAI implements Consumer<Entity> {
     private final float attackRange;
-    private final int delay = Constants.FRAME_RATE;
+    private final int delay = Dungeon.frameRate();
     private int timeSinceLastUpdate = 0;
     private final Skill fightSkill;
     private GraphPath<Tile> path;
@@ -22,13 +25,13 @@ public class MeleeAI implements IFightAI {
      * @param attackRange Range in which the attack skill should be executed
      * @param fightSkill Skill to be used when an attack is performed
      */
-    public MeleeAI(float attackRange, Skill fightSkill) {
+    public MeleeAI(final float attackRange, final Skill fightSkill) {
         this.attackRange = attackRange;
         this.fightSkill = fightSkill;
     }
 
     @Override
-    public void fight(Entity entity) {
+    public void accept(final Entity entity) {
         if (AITools.playerInRange(entity, attackRange)) {
             fightSkill.execute(entity);
         } else {

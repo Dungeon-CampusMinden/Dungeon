@@ -1,10 +1,12 @@
 package contrib.utils.components.ai.transition;
 
 import contrib.utils.components.ai.AITools;
-import contrib.utils.components.ai.ITransition;
+
 import core.Entity;
 
-public class RangeTransition implements ITransition {
+import java.util.function.Function;
+
+public class RangeTransition implements Function<Entity, Boolean> {
 
     private final float range;
 
@@ -13,12 +15,12 @@ public class RangeTransition implements ITransition {
      *
      * @param range Range of the entity.
      */
-    public RangeTransition(float range) {
+    public RangeTransition(final float range) {
         this.range = range;
     }
 
     @Override
-    public boolean isInFightMode(Entity entity) {
+    public Boolean apply(final Entity entity) {
         return AITools.playerInRange(entity, range);
     }
 

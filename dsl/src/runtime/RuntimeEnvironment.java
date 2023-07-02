@@ -1,10 +1,11 @@
 package runtime;
 
+import semanticanalysis.IScope;
+import semanticanalysis.Symbol;
+import semanticanalysis.SymbolTable;
+import semanticanalysis.types.IType;
+
 import java.util.HashMap;
-import semanticAnalysis.IScope;
-import semanticAnalysis.Symbol;
-import semanticAnalysis.SymbolTable;
-import semanticAnalysis.types.IType;
 
 // this extends the normal IEnvironment definition by storing prototypes
 // which are basically evaluated type definitions (of game objects)
@@ -13,6 +14,7 @@ public class RuntimeEnvironment implements IEvironment {
     private final HashMap<String, Symbol> functions;
     private final HashMap<String, IType> types;
     private final HashMap<String, Prototype> prototypes;
+    private final HashMap<Class<?>, IType> javaTypeToDSLType;
 
     /**
      * Constructor. Create new runtime environment from an existing environment and add all type
@@ -36,6 +38,8 @@ public class RuntimeEnvironment implements IEvironment {
         }
 
         this.prototypes = new HashMap<>();
+
+        this.javaTypeToDSLType = other.javaTypeToDSLTypeMap();
     }
 
     /**
@@ -76,5 +80,10 @@ public class RuntimeEnvironment implements IEvironment {
     @Override
     public IScope getGlobalScope() {
         return this.symbolTable.getGlobalScope();
+    }
+
+    @Override
+    public HashMap<Class<?>, IType> javaTypeToDSLTypeMap() {
+        return this.javaTypeToDSLType;
     }
 }

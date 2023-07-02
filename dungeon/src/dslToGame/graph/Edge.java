@@ -21,28 +21,28 @@ public class Edge implements Comparable<Edge> {
     /**
      * @return the attributes associated with this edge
      */
-    public PropertyBag getAttributes() {
+    public PropertyBag attributes() {
         return attributes;
     }
 
     /**
      * @return the {@link Type} of this edge
      */
-    public Type getEdgeType() {
+    public Type edgeType() {
         return edgeType;
     }
 
     /**
      * @return the start node of this edge (on it's beginning)
      */
-    public Node getStartNode() {
+    public Node startNode() {
         return startNode;
     }
 
     /**
      * @return the end node of this edge
      */
-    public Node getEndNode() {
+    public Node endNode() {
         return endNode;
     }
 
@@ -50,14 +50,14 @@ public class Edge implements Comparable<Edge> {
      * @return a formatted name for this edge, featuring the values and hashCodes for each node (for
      *     identification) and marker for the edgeType
      */
-    public String getName() {
+    public String name() {
         String separator = edgeType.equals(Type.directed) ? "->" : "--";
         return String.format(
                 "%1$s[%2$s] %3$s %4$s[%5$s]",
-                startNode.getValue(),
+                startNode.value(),
                 startNode.hashCode(),
                 separator,
-                endNode.getValue(),
+                endNode.value(),
                 endNode.hashCode());
     }
 

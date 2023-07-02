@@ -1,10 +1,10 @@
 package runtime;
 
-import semanticAnalysis.FunctionSymbol;
-import semanticAnalysis.IScope;
-import semanticAnalysis.Symbol;
-import semanticAnalysis.SymbolTable;
-import semanticAnalysis.types.IType;
+import semanticanalysis.*;
+import semanticanalysis.types.IType;
+
+import java.util.HashMap;
+import java.util.List;
 
 // TODO: this is more of a semantic analysis kind of concept -> put it there
 // TODO: add getTypeBuilder
@@ -27,16 +27,25 @@ public interface IEvironment {
     }
 
     // default Symbol lookupFunction(String name) { return Symbol.NULL; }
+    /**
+     * @param types AggregateTypes to load into the environment
+     */
+    default void loadTypes(IType... types) {}
 
     /**
      * @param types AggregateTypes to load into the environment
      */
-    default void loadTypes(IType[] types) {}
+    default void loadTypes(List<IType> types) {}
 
     /**
      * @param functionDefinitions FunctionSymbols to load into the environment
      */
-    default void loadFunctions(FunctionSymbol[] functionDefinitions) {}
+    default void loadFunctions(ScopedSymbol... functionDefinitions) {}
+
+    /**
+     * @param functionDefinitions FunctionSymbols to load into the environment
+     */
+    default void loadFunctions(List<ScopedSymbol> functionDefinitions) {}
 
     /**
      * @return symbol table of this environment
@@ -47,4 +56,8 @@ public interface IEvironment {
      * @return global scope of this environment
      */
     IScope getGlobalScope();
+
+    default HashMap<Class<?>, IType> javaTypeToDSLTypeMap() {
+        return new HashMap<>();
+    }
 }

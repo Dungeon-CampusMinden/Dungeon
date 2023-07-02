@@ -18,7 +18,7 @@ public enum DoorDirection {
         this.value = value;
     }
 
-    public int getValue() {
+    public int value() {
         return value;
     }
 
@@ -28,7 +28,7 @@ public enum DoorDirection {
      * @param direction
      * @return opposite side of the room
      */
-    public static DoorDirection getOpposite(DoorDirection direction) {
+    public static DoorDirection opposite(DoorDirection direction) {
         return switch (direction) {
             case UP -> DOWN;
             case DOWN -> UP;

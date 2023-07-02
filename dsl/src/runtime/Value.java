@@ -1,8 +1,9 @@
 package runtime;
 
 import dslToGame.graph.Graph;
-import semanticAnalysis.types.BuiltInType;
-import semanticAnalysis.types.IType;
+
+import semanticanalysis.types.BuiltInType;
+import semanticanalysis.types.IType;
 
 // TODO: should this be able to be undefined?
 
@@ -13,14 +14,14 @@ import semanticAnalysis.types.IType;
 public class Value implements IClonable {
     public static Value NONE = new Value(null, null, false);
 
-    protected final IType dataType;
+    protected IType dataType;
     protected Object value;
     protected final boolean isMutable;
     protected boolean dirty;
 
     /**
      * Indicates, if the internal value of this {@link Value} was set explicitly (e.g. in a
-     * game_object definition).
+     * entity_type definition).
      *
      * @return true, if the internal value was set explicitly, false otherwise
      */
@@ -51,6 +52,10 @@ public class Value implements IClonable {
         return dataType;
     }
 
+    public void setDataType(IType type) {
+        this.dataType = type;
+    }
+
     /**
      * Setter for the internal, underlying value
      *
@@ -73,7 +78,7 @@ public class Value implements IClonable {
      *
      * @param dataType The datatype of this value
      * @param internalValue The actual value stored in this value //* @param symbolIdx The index of
-     *     the {@link semanticAnalysis.Symbol} this Value corresponds to
+     *     the {@link semanticanalysis.Symbol} this Value corresponds to
      */
     public Value(IType dataType, Object internalValue) {
         this.value = internalValue;
@@ -88,7 +93,7 @@ public class Value implements IClonable {
      *
      * @param dataType The datatype of this value
      * @param internalValue The actual value stored in this value //* @param symbolIdx The index of
-     *     the {@link semanticAnalysis.Symbol} this Value corresponds to
+     *     the {@link semanticanalysis.Symbol} this Value corresponds to
      */
     public Value(IType dataType, Object internalValue, boolean isMutable) {
         this.value = internalValue;

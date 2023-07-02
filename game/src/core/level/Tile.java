@@ -2,6 +2,7 @@ package core.level;
 
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.utils.Array;
+
 import core.Entity;
 import core.level.elements.ILevel;
 import core.level.elements.astar.TileConnection;
@@ -9,6 +10,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +55,7 @@ public abstract class Tile {
     /**
      * @return path to the texture of this tile
      */
-    public String getTexturePath() {
+    public String texturePath() {
         return texturePath;
     }
 
@@ -62,35 +64,35 @@ public abstract class Tile {
      *
      * @param texture New texture of the tile.
      */
-    public void setTexturePath(String texture) {
+    public void texturePath(String texture) {
         this.texturePath = texture;
     }
 
     /**
      * @return The global coordinate of the tile.
      */
-    public Coordinate getCoordinate() {
+    public Coordinate coordinate() {
         return globalPosition;
     }
 
     /**
      * @return The global coordinate of the tile as point.
      */
-    public Point getCoordinateAsPoint() {
-        return getCoordinate().toPoint();
+    public Point position() {
+        return coordinate().toPoint();
     }
 
     /**
      * @return the DesignLabel of this tile
      */
-    public DesignLabel getDesignLabel() {
+    public DesignLabel designLabel() {
         return designLabel;
     }
 
     /**
      * @return the LevelElement of this tile
      */
-    public LevelElement getLevelElement() {
+    public LevelElement levelElement() {
         return levelElement;
     }
 
@@ -99,14 +101,14 @@ public abstract class Tile {
      *
      * @param newLevelElement New type of the tile.
      */
-    public void setLevelElement(LevelElement newLevelElement) {
+    public void levelElement(LevelElement newLevelElement) {
         this.levelElement = newLevelElement;
     }
 
     /**
      * @return the Level this tile is in
      */
-    public ILevel getLevel() {
+    public ILevel level() {
         return level;
     }
 
@@ -115,7 +117,7 @@ public abstract class Tile {
      *
      * @param tileLevel The level this tile is in
      */
-    public void setLevel(TileLevel tileLevel) {
+    public void level(TileLevel tileLevel) {
         level = tileLevel;
     }
 
@@ -124,7 +126,7 @@ public abstract class Tile {
      *
      * @return the index of this tile
      */
-    public int getIndex() {
+    public int index() {
         return index;
     }
 
@@ -133,7 +135,7 @@ public abstract class Tile {
      *
      * @param index value of the index
      */
-    public void setIndex(int index) {
+    public void index(int index) {
         this.index = index;
     }
 
@@ -153,9 +155,9 @@ public abstract class Tile {
     /**
      * Used by libGDX pathfinding
      *
-     * @return all connections to other tiles
+     * @return all connections to other tile
      */
-    public Array<Connection<Tile>> getConnections() {
+    public Array<Connection<Tile>> connections() {
         return connections;
     }
 
@@ -167,14 +169,14 @@ public abstract class Tile {
      */
     public Direction[] directionTo(Tile goal) {
         List<Direction> directions = new ArrayList<>();
-        if (globalPosition.x < goal.getCoordinate().x) {
+        if (globalPosition.x < goal.coordinate().x) {
             directions.add(Direction.E);
-        } else if (globalPosition.x > goal.getCoordinate().x) {
+        } else if (globalPosition.x > goal.coordinate().x) {
             directions.add(Direction.W);
         }
-        if (globalPosition.y < goal.getCoordinate().y) {
+        if (globalPosition.y < goal.coordinate().y) {
             directions.add(Direction.N);
-        } else if (globalPosition.y > goal.getCoordinate().y) {
+        } else if (globalPosition.y > goal.coordinate().y) {
             directions.add(Direction.S);
         }
         return directions.toArray(new Direction[0]);

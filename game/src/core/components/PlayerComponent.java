@@ -1,88 +1,76 @@
 package core.components;
 
-import contrib.utils.components.skill.Skill;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+
 import core.Component;
 import core.Entity;
-import core.utils.logging.CustomLogLevel;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Logger;
+import java.util.function.Consumer;
 
 /**
- * This component is for the player character entity only. It should only be implemented by one
- * entity and mark this entity as the player character. This component stores data that is only
- * relevant for the player character. The PlayerSystems acts on the PlayableComponent.
+ * Mark an entity as playable by the player.
+ *
+ * <p>This component stores pairs of keystroke codes with an associated callback function. The
+ * mappings can be added or changed via {@link #registerCallback} and deleted via {@link
+ * #removeCallback}. The codes for the buttons originate from {@link Input.Keys}
+ *
+ * <p>The {@link core.systems.PlayerSystem} invokes the {@link #execute} method of this component,
+ * which invokes for each stored tuple the associated callback if the corresponding button was
+ * pressed.
+ *
+ * @see Input.Keys
+ * @see core.systems.PlayerSystem
  */
-public class PlayerComponent extends Component {
-
-    private boolean playable;
-    private final transient Logger playableCompLogger = Logger.getLogger(this.getClass().getName());
-
-    private Skill skillSlot1;
-    private Skill skillSlot2;
+public final class PlayerComponent extends Component {
+    private final Map<Integer, Consumer<Entity>> callbacks;
 
     /**
+     * Create a new PlayerComponent and add it to the associated entity.
+     *
      * @param entity associated entity
-     * @param skillSlot1 skill that will be on the first skillslot
-     * @param skillSlot2 skill that will be on the second skillslot
      */
-    public PlayerComponent(Entity entity, Skill skillSlot1, Skill skillSlot2) {
+    public PlayerComponent(final Entity entity) {
         super(entity);
-        playable = true;
-        this.skillSlot1 = skillSlot1;
-        this.skillSlot2 = skillSlot2;
-    }
-
-    /** {@inheritDoc} */
-    public PlayerComponent(Entity entity) {
-        super(entity);
-        playable = true;
+        callbacks = new HashMap<>();
     }
 
     /**
-     * @return the playable state
+     * Register a new callback for a key.
+     *
+     * <p>If a callback is already registered on this key, the old callback will be replaced.
+     *
+     * @param key The integer value of the key on which the callback should be executed.
+     * @param callback The {@link Consumer} that contains the callback to execute if the key is
+     *     pressed.
+     * @return Optional<Consumer<Entity>> The old callback, if one was existing. Can be null.
+     * @see com.badlogic.gdx.Gdx#input
      */
-    public boolean isPlayable() {
-        playableCompLogger.log(
-                CustomLogLevel.DEBUG,
-                "Checking if entity '"
-                        + entity.getClass().getSimpleName()
-                        + "' is playable: "
-                        + playable);
-        return playable;
+    public Optional<Consumer<Entity>> registerCallback(int key, final Consumer<Entity> callback) {
+        Optional<Consumer<Entity>> oldCallback = Optional.ofNullable(callbacks.get(key));
+        callbacks.put(key, callback);
+        return oldCallback;
     }
 
     /**
-     * @param playable set the playabale state
+     * Remove the registered callback on the given key.
+     *
+     * @param key The integer value of the key.
+     * @see com.badlogic.gdx.Gdx#input
      */
-    public void setPlayable(boolean playable) {
-        this.playable = playable;
+    public void removeCallback(int key) {
+        callbacks.remove(key);
     }
 
-    /**
-     * @param skillSlot1 skill that will be on the first skillslot
-     */
-    public void setSkillSlot1(Skill skillSlot1) {
-        this.skillSlot1 = skillSlot1;
+    /** Execute the callback function registered to a key when it is pressed. */
+    public void execute() {
+        callbacks.forEach(this::execute);
     }
 
-    /**
-     * @param skillSlot2 skill that will be on the first skillslot
-     */
-    public void setSkillSlot2(Skill skillSlot2) {
-        this.skillSlot2 = skillSlot2;
-    }
-
-    /**
-     * @return skill on first skill slot
-     */
-    public Optional<Skill> getSkillSlot1() {
-        return Optional.ofNullable(skillSlot1);
-    }
-
-    /**
-     * @return skill on second skill slot
-     */
-    public Optional<Skill> getSkillSlot2() {
-        return Optional.ofNullable(skillSlot2);
+    private void execute(int key, final Consumer<Entity> callback) {
+        if (Gdx.input.isKeyPressed(key)) callback.accept(entity);
     }
 }

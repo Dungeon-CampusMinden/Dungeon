@@ -1,13 +1,16 @@
 package contrib.utils.components.ai.idle;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
+
 import contrib.utils.components.ai.AITools;
-import contrib.utils.components.ai.IIdleAI;
+
+import core.Dungeon;
 import core.Entity;
 import core.level.Tile;
-import core.utils.Constants;
 
-public class RadiusWalk implements IIdleAI {
+import java.util.function.Consumer;
+
+public class RadiusWalk implements Consumer<Entity> {
     private final float radius;
     private GraphPath<Tile> path;
     private final int breakTime;
@@ -20,18 +23,18 @@ public class RadiusWalk implements IIdleAI {
      * @param radius Radius in which a target point is to be searched for
      * @param breakTimeInSeconds how long to wait (in seconds) before searching a new goal
      */
-    public RadiusWalk(float radius, int breakTimeInSeconds) {
+    public RadiusWalk(final float radius, final int breakTimeInSeconds) {
         this.radius = radius;
-        this.breakTime = breakTimeInSeconds * Constants.FRAME_RATE;
+        this.breakTime = breakTimeInSeconds * Dungeon.frameRate();
     }
 
     @Override
-    public void idle(Entity entity) {
+    public void accept(final Entity entity) {
         if (path == null || AITools.pathFinishedOrLeft(entity, path)) {
             if (currentBreak >= breakTime) {
                 currentBreak = 0;
                 path = AITools.calculatePathToRandomTileInRange(entity, radius);
-                idle(entity);
+                accept(entity);
             }
 
             currentBreak++;

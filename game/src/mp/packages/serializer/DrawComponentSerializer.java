@@ -21,14 +21,12 @@ public class DrawComponentSerializer extends Serializer<DrawComponent> {
     }
     @Override
     public void write(Kryo kryo, Output output, DrawComponent object) {
-        kryo.writeObject(output, object.getIdleLeft());
-        kryo.writeObject(output, object.getIdleRight());
+        kryo.writeObject(output, object.currentAnimation());
     }
 
     @Override
     public DrawComponent read(Kryo kryo, Input input, Class<DrawComponent> type) {
-        Animation idleLeft = kryo.readObject(input, Animation.class);
-        Animation idleRight = kryo.readObject(input, Animation.class);
-        return new DrawComponent(entity,idleLeft,idleRight);
+        Animation idle = kryo.readObject(input, Animation.class);
+        return new DrawComponent(entity, idle);
     }
 }

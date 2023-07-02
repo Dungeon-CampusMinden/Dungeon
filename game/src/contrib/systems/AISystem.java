@@ -1,26 +1,31 @@
 package contrib.systems;
 
 import contrib.components.AIComponent;
+
 import core.Entity;
-import core.Game;
 import core.System;
+import core.utils.components.MissingComponentException;
+
+import java.util.function.Consumer;
 
 /** Controls the AI */
-public class AISystem extends System {
+public final class AISystem extends System {
 
-    private record AISData(Entity e, AIComponent aic) {}
+    private static final Consumer<Entity> executeAI =
+            entity ->
+                    entity.fetch(AIComponent.class)
+                            .orElseThrow(
+                                    () ->
+                                            MissingComponentException.build(
+                                                    entity, AIComponent.class))
+                            .execute();
 
-    @Override
-    public void update() {
-        Game.getEntities().stream()
-                .flatMap(e -> e.getComponent(AIComponent.class).stream())
-                .map(aic -> buildDataObject((AIComponent) aic))
-                .forEach(aic -> aic.aic.execute());
+    public AISystem() {
+        super(AIComponent.class);
     }
 
-    private AISystem.AISData buildDataObject(AIComponent aic) {
-        Entity e = aic.getEntity();
-
-        return new AISData(e, aic);
+    @Override
+    public void execute() {
+        entityStream().forEach(executeAI);
     }
 }

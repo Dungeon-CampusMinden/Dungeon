@@ -1,0 +1,111 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>13</zoom_level><element><id>UMLSpecialState</id><coordinates><x>780</x><y>143</y><w>52</w><h>52</h></coordinates><panel_attributes>type=initial
+bg=white
+fg=black
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>702</x><y>143</y><w>52</w><h>52</h></coordinates><panel_attributes>type=initial
+bg=white
+fg=black
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSyncBarVertical</id><coordinates><x>650</x><y>156</y><w>26</w><h>26</h></coordinates><panel_attributes>template=txt
+title=titletext
+bg=red
+layer=2</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSyncBarHorizontal</id><coordinates><x>793</x><y>91</y><w>26</w><h>26</h></coordinates><panel_attributes>lw=5
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>598</x><y>130</y><w>117</w><h>26</h></coordinates><panel_attributes>t1 aktivieren
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>793</x><y>91</y><w>39</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+layer=-1</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>Text</id><coordinates><x>819</x><y>91</y><w>65</w><h>26</h></coordinates><panel_attributes>start
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>702</x><y>234</y><w>130</w><h>26</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>715</x><y>182</y><w>39</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>793</x><y>182</y><w>39</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>741</x><y>299</y><w>52</w><h>52</h></coordinates><panel_attributes>type=initial
+bg=white
+fg=black
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>793</x><y>299</y><w>143</w><h>52</h></coordinates><panel_attributes>t1 Bearb. aktiviert
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>754</x><y>247</y><w>39</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>520</x><y>312</y><w>78</w><h>39</h></coordinates><panel_attributes>lt=&lt;-
+layer=-1</panel_attributes><additional_attributes>40;10;10;10</additional_attributes></element><element><id>UMLSyncBarVertical</id><coordinates><x>520</x><y>312</y><w>26</w><h>26</h></coordinates><panel_attributes>template=txt
+title=titletext
+bg=red</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>468</x><y>260</y><w>130</w><h>52</h></coordinates><panel_attributes>t1 falsch abschließen
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>650</x><y>143</y><w>78</w><h>52</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>40;20;10;20</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>572</x><y>299</y><w>52</w><h>52</h></coordinates><panel_attributes>type=initial
+bg=white
+fg=black
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>572</x><y>403</y><w>130</w><h>26</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>585</x><y>338</y><w>39</w><h>91</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>663</x><y>338</y><w>117</w><h>91</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;50;70;10</additional_attributes></element><element><id>Relation</id><coordinates><x>585</x><y>416</y><w>39</w><h>91</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>572</x><y>481</y><w>52</w><h>52</h></coordinates><panel_attributes>type=initial
+bg=white
+fg=black
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>455</x><y>442</y><w>156</w><h>52</h></coordinates><panel_attributes>t1 falsch abgeschlossen
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>650</x><y>481</y><w>52</w><h>52</h></coordinates><panel_attributes>type=initial
+bg=white
+fg=black
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>663</x><y>416</y><w>39</w><h>91</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>Text</id><coordinates><x>676</x><y>442</y><w>143</w><h>52</h></coordinates><panel_attributes>t2 Bearb. aktiviert
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>663</x><y>520</y><w>39</w><h>156</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;100;10;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>572</x><y>559</y><w>52</w><h>52</h></coordinates><panel_attributes>type=initial
+bg=white
+fg=black
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>572</x><y>650</y><w>130</w><h>26</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>416</x><y>559</y><w>143</w><h>39</h></coordinates><panel_attributes>t2 abschließen
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>520</x><y>559</y><w>78</w><h>52</h></coordinates><panel_attributes>lt=-&gt;
+</panel_attributes><additional_attributes>10;20;40;20</additional_attributes></element><element><id>UMLSyncBarVertical</id><coordinates><x>520</x><y>572</y><w>26</w><h>26</h></coordinates><panel_attributes>template=txt
+title=titletext
+bg=red
+layer=2</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>585</x><y>598</y><w>39</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>572</x><y>715</y><w>52</w><h>52</h></coordinates><panel_attributes>type=initial
+bg=white
+fg=black
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>429</x><y>702</y><w>156</w><h>39</h></coordinates><panel_attributes>t2 abgeschlossen
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>585</x><y>663</y><w>39</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>949</x><y>312</y><w>78</w><h>39</h></coordinates><panel_attributes>lt=&lt;-
+layer=-1</panel_attributes><additional_attributes>10;10;40;10</additional_attributes></element><element><id>UMLSyncBarVertical</id><coordinates><x>988</x><y>312</y><w>26</w><h>26</h></coordinates><panel_attributes>template=txt
+title=titletext
+bg=red</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>962</x><y>260</y><w>130</w><h>52</h></coordinates><panel_attributes>t1 korrekt abschließen
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>910</x><y>299</y><w>52</w><h>52</h></coordinates><panel_attributes>type=initial
+bg=white
+fg=black
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>832</x><y>403</y><w>130</w><h>26</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>767</x><y>338</y><w>117</w><h>91</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>70;50;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>923</x><y>338</y><w>39</w><h>91</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>910</x><y>481</y><w>52</w><h>52</h></coordinates><panel_attributes>type=initial
+bg=white
+fg=black
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>962</x><y>442</y><w>156</w><h>52</h></coordinates><panel_attributes>t1 korrekt abgeschlossen
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>832</x><y>481</y><w>52</w><h>52</h></coordinates><panel_attributes>type=initial
+bg=white
+fg=black
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>767</x><y>507</y><w>143</w><h>52</h></coordinates><panel_attributes>t3 Bearb. aktiviert
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>845</x><y>520</y><w>39</w><h>156</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;100;10;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>910</x><y>559</y><w>52</w><h>52</h></coordinates><panel_attributes>type=initial
+bg=white
+fg=black
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>832</x><y>650</y><w>130</w><h>26</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>1001</x><y>559</y><w>143</w><h>39</h></coordinates><panel_attributes>t3 abschließen
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>949</x><y>559</y><w>78</w><h>52</h></coordinates><panel_attributes>lt=-&gt;
+</panel_attributes><additional_attributes>40;20;10;20</additional_attributes></element><element><id>UMLSyncBarVertical</id><coordinates><x>988</x><y>572</y><w>26</w><h>26</h></coordinates><panel_attributes>template=txt
+title=titletext
+bg=red
+layer=2</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>923</x><y>598</y><w>39</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>910</x><y>715</y><w>52</w><h>52</h></coordinates><panel_attributes>type=initial
+bg=white
+fg=black
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>962</x><y>702</y><w>156</w><h>39</h></coordinates><panel_attributes>t3 abgeschlossen
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>923</x><y>663</y><w>39</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>845</x><y>416</y><w>39</w><h>91</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>923</x><y>416</y><w>39</w><h>91</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>520</x><y>494</y><w>78</w><h>39</h></coordinates><panel_attributes>lt=-&gt;
+layer=-1</panel_attributes><additional_attributes>40;10;10;10</additional_attributes></element><element><id>UMLSyncBarVertical</id><coordinates><x>520</x><y>494</y><w>26</w><h>26</h></coordinates><panel_attributes>template=txt
+title=titletext
+bg=red</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>949</x><y>494</y><w>78</w><h>39</h></coordinates><panel_attributes>lt=-&gt;
+layer=-1</panel_attributes><additional_attributes>10;10;40;10</additional_attributes></element><element><id>UMLSyncBarVertical</id><coordinates><x>988</x><y>494</y><w>26</w><h>26</h></coordinates><panel_attributes>template=txt
+title=titletext
+bg=red</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>520</x><y>728</y><w>78</w><h>39</h></coordinates><panel_attributes>lt=-&gt;
+layer=-1</panel_attributes><additional_attributes>40;10;10;10</additional_attributes></element><element><id>UMLSyncBarVertical</id><coordinates><x>520</x><y>728</y><w>26</w><h>26</h></coordinates><panel_attributes>template=txt
+title=titletext
+bg=red</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>949</x><y>728</y><w>78</w><h>39</h></coordinates><panel_attributes>lt=-&gt;
+layer=-1</panel_attributes><additional_attributes>10;10;40;10</additional_attributes></element><element><id>UMLSyncBarVertical</id><coordinates><x>988</x><y>728</y><w>26</w><h>26</h></coordinates><panel_attributes>template=txt
+title=titletext
+bg=red</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>741</x><y>806</y><w>52</w><h>52</h></coordinates><panel_attributes>type=initial
+bg=white
+fg=black
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>793</x><y>845</y><w>208</w><h>39</h></coordinates><panel_attributes>t2 oder t3 abgeschlossen
+style=wordwrap</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>780</x><y>819</y><w>78</w><h>39</h></coordinates><panel_attributes>lt=-&gt;
+layer=-1</panel_attributes><additional_attributes>10;10;40;10</additional_attributes></element><element><id>UMLSyncBarVertical</id><coordinates><x>819</x><y>819</y><w>26</w><h>26</h></coordinates><panel_attributes>template=txt
+title=titletext
+bg=red</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>663</x><y>663</y><w>117</w><h>169</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>70;110;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>767</x><y>663</y><w>117</w><h>169</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;110;70;10</additional_attributes></element></diagram>

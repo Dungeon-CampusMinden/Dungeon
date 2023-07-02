@@ -55,7 +55,7 @@ program : definition* EOF
 definition
         : dot_def
         | object_def
-        | game_obj_def
+        | entity_type_def
         | fn_def
         ;
 
@@ -67,8 +67,13 @@ stmt
     : primary ';'
     ;
 
+return_stmt
+    : 'return' primary ';'
+    ;
+
 stmt_list
     : stmt stmt_list
+    | return_stmt
     | stmt
     ;
 
@@ -85,8 +90,8 @@ param_def_list
         | param_def
         ;
 
-game_obj_def
-        : 'game_object' ID '{' component_def_list? '}' ;
+entity_type_def
+        : 'entity_type' ID '{' component_def_list? '}' ;
 
 // used to specify, which components should be used in a game object
 component_def_list

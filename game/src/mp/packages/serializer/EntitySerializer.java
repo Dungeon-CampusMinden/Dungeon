@@ -15,27 +15,26 @@ import core.components.VelocityComponent;
 public class EntitySerializer extends Serializer<Entity> {
     @Override
     public void write(Kryo kryo, Output output, Entity object) {
-        int size = object.getComponents().size();
-        output.writeInt(size);
-        object.getComponents().forEach((key, value) -> {
-            kryo.writeClass(output, key);
-            kryo.writeObject(output, value);
+        output.writeString(object.name());
+        long size = object.componentStream().count();
+        output.writeLong(size);
+        object.componentStream().forEach((component) -> {
+            kryo.writeClass(output, component.getClass());
+            kryo.writeObject(output, component);
         });
     }
 
     @Override
     public Entity read(Kryo kryo, Input input, Class<Entity> type) {
-        int size = input.readInt();
+        String name = input.readString();
+        long size = input.readLong();
         //Todo - Look if creating a clone corrupts the given ids
-        Entity e = new Entity();
+        Entity e = new Entity(name);
         for (int i = 0; i < size; i++){
             Class <? extends Component> klass = kryo.readClass(input).getType();
             switch (klass.getSimpleName()){
                 case "DrawComponent":
                     kryo.readObject(input,klass,new DrawComponentSerializer(e));
-                    break;
-                case "PlayerComponent":
-                    kryo.readObject(input,klass,new PlayerComponentSerializer(e));
                     break;
                 case "PositionComponent":
                     kryo.readObject(input,klass,new PositionComponentSerializer(e));
@@ -66,9 +65,6 @@ public class EntitySerializer extends Serializer<Entity> {
                     break;
                 case "ProjectileComponent":
                     kryo.readObject(input,klass,new ProjectileComponentSerializer(e));
-                    break;
-                case "SkillComponent":
-                    kryo.readObject(input,klass,new SkillComponentSerializer(e));
                     break;
                 case "StatsComponent":
                     kryo.readObject(input,klass,new StatsComponentSerializer(e));

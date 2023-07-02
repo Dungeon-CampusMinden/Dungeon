@@ -1,6 +1,7 @@
 package contrib.configuration;
 
 import contrib.utils.components.item.ItemType;
+
 import core.configuration.ConfigKey;
 import core.configuration.ConfigMap;
 import core.configuration.values.ConfigEnumValue;

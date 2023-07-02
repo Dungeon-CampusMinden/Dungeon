@@ -5,18 +5,20 @@ import static org.mockito.Mockito.times;
 
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
-import contrib.utils.components.health.IOnDeathFunction;
+
 import core.Entity;
 import core.Game;
-import core.utils.components.draw.Animation;
+
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.util.function.Consumer;
 
 public class HealthComponentTest {
 
     @Test
     public void receiveHit() {
-        Game.getEntities().clear();
+        Game.removeAllEntities();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity);
         Damage fdmg = new Damage(3, DamageType.FIRE, null);
@@ -27,14 +29,15 @@ public class HealthComponentTest {
         hc.receiveHit(fdmg2);
         hc.receiveHit(mdmg);
         hc.receiveHit(pdmg);
-        assertEquals(fdmg.damageAmount() + fdmg2.damageAmount(), hc.getDamage(DamageType.FIRE));
-        assertEquals(mdmg.damageAmount(), hc.getDamage(DamageType.MAGIC));
-        assertEquals(pdmg.damageAmount(), hc.getDamage(DamageType.PHYSICAL));
+        assertEquals(
+                fdmg.damageAmount() + fdmg2.damageAmount(), hc.calculateDamageOf(DamageType.FIRE));
+        assertEquals(mdmg.damageAmount(), hc.calculateDamageOf(DamageType.MAGIC));
+        assertEquals(pdmg.damageAmount(), hc.calculateDamageOf(DamageType.PHYSICAL));
     }
 
     @Test
     public void testDamageCause() {
-        Game.getEntities().clear();
+        Game.removeAllEntities();
         Entity entity = new Entity();
         Entity damager = new Entity();
         Entity damager2 = new Entity();
@@ -43,91 +46,71 @@ public class HealthComponentTest {
         Damage dmg2 = new Damage(5, DamageType.FIRE, damager2);
         hc.receiveHit(dmg);
         hc.receiveHit(dmg2);
-        assertEquals(damager2, hc.getLastDamageCause().get());
+        assertEquals(damager2, hc.lastDamageCause().get());
         hc.receiveHit(dmg);
-        assertEquals(damager, hc.getLastDamageCause().get());
+        assertEquals(damager, hc.lastDamageCause().get());
     }
 
     @Test
     public void setMaximalHealthPointsLowerThanCurrent() {
-        Game.getEntities().clear();
+        Game.removeAllEntities();
         Entity entity = new Entity();
-        HealthComponent hc = new HealthComponent(entity, 10, null, null, null);
-        assertEquals(10, hc.getMaximalHealthpoints());
-        assertEquals(10, hc.getCurrentHealthpoints());
-        hc.setMaximalHealthpoints(8);
-        assertEquals(8, hc.getMaximalHealthpoints());
-        assertEquals(8, hc.getCurrentHealthpoints());
+        HealthComponent hc = new HealthComponent(entity, 10, null);
+        assertEquals(10, hc.maximalHealthpoints());
+        assertEquals(10, hc.currentHealthpoints());
+        hc.maximalHealthpoints(8);
+        assertEquals(8, hc.maximalHealthpoints());
+        assertEquals(8, hc.currentHealthpoints());
     }
 
     @Test
     public void setMaximalHealthPointsHigherThanCurrent() {
-        Game.getEntities().clear();
+        Game.removeAllEntities();
         Entity entity = new Entity();
-        HealthComponent hc = new HealthComponent(entity, 10, null, null, null);
-        assertEquals(10, hc.getMaximalHealthpoints());
-        assertEquals(10, hc.getCurrentHealthpoints());
-        hc.setMaximalHealthpoints(12);
-        assertEquals(12, hc.getMaximalHealthpoints());
-        assertEquals(10, hc.getCurrentHealthpoints());
+        HealthComponent hc = new HealthComponent(entity, 10, null);
+        assertEquals(10, hc.maximalHealthpoints());
+        assertEquals(10, hc.currentHealthpoints());
+        hc.maximalHealthpoints(12);
+        assertEquals(12, hc.maximalHealthpoints());
+        assertEquals(10, hc.currentHealthpoints());
     }
 
     @Test
     public void setCurrentHealthPointsHigherThanMaximum() {
-        Game.getEntities().clear();
+        Game.removeAllEntities();
         Entity entity = new Entity();
-        HealthComponent hc = new HealthComponent(entity, 10, null, null, null);
-        hc.setCurrentHealthpoints(12);
-        assertEquals(10, hc.getCurrentHealthpoints());
+        HealthComponent hc = new HealthComponent(entity, 10, null);
+        hc.currentHealthpoints(12);
+        assertEquals(10, hc.currentHealthpoints());
     }
 
     @Test
     public void setCurrentHealthPointsLowerThanMaximum() {
-        Game.getEntities().clear();
+        Game.removeAllEntities();
         Entity entity = new Entity();
-        HealthComponent hc = new HealthComponent(entity, 10, null, null, null);
-        hc.setCurrentHealthpoints(8);
-        assertEquals(8, hc.getCurrentHealthpoints());
+        HealthComponent hc = new HealthComponent(entity, 10, null);
+        hc.currentHealthpoints(8);
+        assertEquals(8, hc.currentHealthpoints());
     }
 
     @Test
     public void triggerOnDeath() {
-        Game.getEntities().clear();
+        Game.removeAllEntities();
         Entity entity = new Entity();
-        IOnDeathFunction onDeathFunction = Mockito.mock(IOnDeathFunction.class);
-        HealthComponent hc = new HealthComponent(entity, 10, onDeathFunction, null, null);
+        Consumer<Entity> onDeathFunction = Mockito.mock(Consumer.class);
+        HealthComponent hc = new HealthComponent(entity, 10, onDeathFunction);
         hc.triggerOnDeath();
-        Mockito.verify(onDeathFunction, times(1)).onDeath(entity);
-    }
-
-    @Test
-    public void setDieAnimation() {
-        Game.getEntities().clear();
-        Entity entity = new Entity();
-        HealthComponent hc = new HealthComponent(entity);
-        Animation animation = Mockito.mock(Animation.class);
-        hc.setDeathAnimation(animation);
-        assertEquals(animation, hc.getDeathAnimation());
-    }
-
-    @Test
-    public void setGetHitAnimation() {
-        Game.getEntities().clear();
-        Entity entity = new Entity();
-        HealthComponent hc = new HealthComponent(entity);
-        Animation animation = Mockito.mock(Animation.class);
-        hc.setGetHitAnimation(animation);
-        assertEquals(animation, hc.getGetHitAnimation());
+        Mockito.verify(onDeathFunction, times(1)).accept(entity);
     }
 
     @Test
     public void setOnDeathFunction() {
-        Game.getEntities().clear();
+        Game.removeAllEntities();
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent(entity);
-        IOnDeathFunction function = Mockito.mock(IOnDeathFunction.class);
-        hc.setOnDeath(function);
+        Consumer<Entity> function = Mockito.mock(Consumer.class);
+        hc.onDeath(function);
         hc.triggerOnDeath();
-        Mockito.verify(function, times(1)).onDeath(entity);
+        Mockito.verify(function, times(1)).accept(entity);
     }
 }

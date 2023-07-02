@@ -1,23 +1,24 @@
 package contrib.components;
 
 import com.badlogic.gdx.utils.Null;
+
 import contrib.systems.HealthSystem;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
-import contrib.utils.components.health.DefaultOnDeath;
-import contrib.utils.components.health.IOnDeathFunction;
+
 import core.Component;
 import core.Entity;
-import core.systems.DrawSystem;
-import core.utils.components.draw.Animation;
 import core.utils.logging.CustomLogLevel;
+
+import semanticanalysis.types.DSLContextMember;
+import semanticanalysis.types.DSLType;
+import semanticanalysis.types.DSLTypeMember;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
-import semanticAnalysis.types.DSLContextMember;
-import semanticAnalysis.types.DSLType;
-import semanticAnalysis.types.DSLTypeMember;
 
 /**
  * The HealthComponent adds health points and the ability to take damage and die to an entity.
@@ -25,31 +26,23 @@ import semanticAnalysis.types.DSLTypeMember;
  * <p>It keeps track of the current health points and its maximum.
  *
  * <p>It also keeps track of the damage received via the {@link #receiveHit(Damage) receiveHit}
- * method. The damage is stored in a list and can be retrieved via the {@link #getDamage(DamageType)
- * getDamage} method. The damage is applied and cleared by the {@link HealthSystem HealthSystem}
- * every tick. To determine what the last cause of damage was, the {@link #getLastDamageCause()}
- * method can be used.
+ * method. The damage is stored in a list and can be retrieved via the {@link
+ * #calculateDamageOf(DamageType) getDamage} method. The damage is applied and cleared by the {@link
+ * HealthSystem HealthSystem} every tick. To determine what the last cause of damage was, the {@link
+ * #lastDamageCause()} method can be used.
  *
  * <p>The HealthComponent also provides the ability to set an onDeath function, which is called when
  * the health points reach 0 or less. The onDeath function can be set via the {@link
- * #setOnDeath(IOnDeathFunction) setOnDeath} method.
- *
- * <p>Finally, the HealthComponent provides the ability to set animations for the entity to be
- * played when it is hit or dies. These animations can be set via the {@link
- * #setGetHitAnimation(Animation) setGetHitAnimation} and {@link #setDieAnimation(Animation)
- * setDieAnimation} methods and are played by the {@link DrawSystem DrawSystem} automatically.
+ * #onDeath(Consumer<Entity>) setOnDeath} method.
  */
 @DSLType(name = "health_component")
 public class HealthComponent extends Component {
-    private static final List<String> missingTexture = List.of("animation/missingTexture.png");
     private final List<Damage> damageToGet;
     private @DSLTypeMember(name = "maximal_health_points") int maximalHealthpoints;
     private int currentHealthpoints;
     private @Null Entity lastCause = null;
-    private @DSLTypeMember(name = "on_death_function") IOnDeathFunction onDeath;
-    private @DSLTypeMember(name = "get_hit_animation") Animation getHitAnimation;
-    private @DSLTypeMember(name = "die_animation") Animation dieAnimation;
-    private final transient Logger healthLogger = Logger.getLogger(this.getClass().getName());
+    private @DSLTypeMember(name = "on_death_function") Consumer<Entity> onDeath;
+    private final Logger healthLogger = Logger.getLogger(this.getClass().getName());
 
     /**
      * Creates a new HealthComponent
@@ -61,21 +54,12 @@ public class HealthComponent extends Component {
      * @param maximalHitPoints maximum amount of hit-points, currentHitPoints can't be bigger than
      *     that
      * @param onDeath Function that gets called, when this entity dies
-     * @param getHitAnimation Animation to be played as the entity was hit
-     * @param dieAnimation Animation to be played as the entity dies
      */
-    public HealthComponent(
-            Entity entity,
-            int maximalHitPoints,
-            IOnDeathFunction onDeath,
-            Animation getHitAnimation,
-            Animation dieAnimation) {
+    public HealthComponent(Entity entity, int maximalHitPoints, Consumer<Entity> onDeath) {
         super(entity);
         this.maximalHealthpoints = maximalHitPoints;
         this.currentHealthpoints = maximalHitPoints;
         this.onDeath = onDeath;
-        this.getHitAnimation = getHitAnimation;
-        this.dieAnimation = dieAnimation;
         damageToGet = new ArrayList<>();
     }
 
@@ -88,13 +72,7 @@ public class HealthComponent extends Component {
      * @param entity associated entity
      */
     public HealthComponent(@DSLContextMember(name = "entity") Entity entity) {
-        this(
-                entity,
-                1,
-                new DefaultOnDeath(),
-                //entity2 -> {},
-                new Animation(missingTexture, 100),
-                new Animation(missingTexture, 100));
+        this(entity, 1, onDeath -> {});
     }
 
     /**
@@ -109,7 +87,7 @@ public class HealthComponent extends Component {
 
     /** Triggers the onDeath Function */
     public void triggerOnDeath() {
-        onDeath.onDeath(entity);
+        onDeath.accept(entity);
     }
 
     /**
@@ -118,7 +96,7 @@ public class HealthComponent extends Component {
      * @param dt Type of damage object that still need to be accounted for
      * @return Sum of all damage objects of type dt (default: 0)
      */
-    public int getDamage(DamageType dt) {
+    public int calculateDamageOf(DamageType dt) {
         int damageSum =
                 damageToGet.stream()
                         .filter(d -> d.damageType() == dt)
@@ -149,7 +127,7 @@ public class HealthComponent extends Component {
      *
      * @param amount new amount of current health-points
      */
-    public void setCurrentHealthpoints(int amount) {
+    public void currentHealthpoints(int amount) {
         this.currentHealthpoints = Math.min(maximalHealthpoints, amount);
     }
 
@@ -159,27 +137,9 @@ public class HealthComponent extends Component {
      *
      * @param amount new amount of maximal health-points
      */
-    public void setMaximalHealthpoints(int amount) {
+    public void maximalHealthpoints(int amount) {
         this.maximalHealthpoints = amount;
         currentHealthpoints = Math.min(currentHealthpoints, maximalHealthpoints);
-    }
-
-    /**
-     * Set the animation to be played when the entity dies
-     *
-     * @param dieAnimation new dieAnimation
-     */
-    public void setDeathAnimation(Animation dieAnimation) {
-        this.dieAnimation = dieAnimation;
-    }
-
-    /**
-     * Set the animation to be played when the entity is hit
-     *
-     * @param isHitAnimation new isHitAnimation
-     */
-    public void setGetHitAnimation(Animation isHitAnimation) {
-        this.getHitAnimation = isHitAnimation;
     }
 
     /**
@@ -187,49 +147,36 @@ public class HealthComponent extends Component {
      *
      * @param onDeath new onDeath function
      */
-    public void setOnDeath(IOnDeathFunction onDeath) {
+    public void onDeath(Consumer<Entity> onDeath) {
         this.onDeath = onDeath;
-    }
-    public IOnDeathFunction getOnDeath(){
-        return onDeath;
     }
 
     /**
      * @return The current health-points the entity has
      */
-    public int getCurrentHealthpoints() {
+    public int currentHealthpoints() {
         return currentHealthpoints;
     }
 
     /**
      * @return The maximal health-points the entity can have
      */
-    public int getMaximalHealthpoints() {
+    public int maximalHealthpoints() {
         return maximalHealthpoints;
-    }
-
-    /**
-     * @return Animation to be played as the entity was hit
-     */
-    public Animation getGetHitAnimation() {
-        return getHitAnimation;
-    }
-
-    /**
-     * @return Animation to be played when dying
-     */
-    public Animation getDeathAnimation() {
-        return dieAnimation;
     }
 
     /**
      * @return The last entity that caused damage to this entity.
      */
-    public Optional<Entity> getLastDamageCause() {
+    public Optional<Entity> lastDamageCause() {
         return Optional.ofNullable(this.lastCause);
     }
 
     public boolean isDead() {
         return currentHealthpoints <= 0;
+    }
+
+    public Consumer<Entity> onDeath() {
+        return onDeath;
     }
 }

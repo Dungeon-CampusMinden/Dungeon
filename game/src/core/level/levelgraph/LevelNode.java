@@ -2,6 +2,7 @@ package core.level.levelgraph;
 
 import core.level.elements.tile.DoorTile;
 import core.level.room.IRoom;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -40,11 +41,11 @@ public class LevelNode<T extends IRoom> {
             DoorDirection direction,
             boolean onedirectedEdge,
             DoorTile.DoorColor color) {
-        if (neighbours[direction.getValue()] == null) {
+        if (neighbours[direction.value()] == null) {
             if (onedirectedEdge
-                    || other.connect(this, DoorDirection.getOpposite(direction), true, color)) {
-                neighbours[direction.getValue()] = other;
-                colors[direction.getValue()] = color;
+                    || other.connect(this, DoorDirection.opposite(direction), true, color)) {
+                neighbours[direction.value()] = other;
+                colors[direction.value()] = color;
                 return true;
             }
         }
@@ -78,7 +79,7 @@ public class LevelNode<T extends IRoom> {
      *
      * @param room
      */
-    public void setRoom(T room) {
+    public void room(T room) {
         this.room = room;
     }
 
@@ -88,38 +89,38 @@ public class LevelNode<T extends IRoom> {
      * @param direction
      * @return
      */
-    public LevelNode getNeighbour(DoorDirection direction) {
-        return neighbours[direction.getValue()];
+    public LevelNode neighbourAt(DoorDirection direction) {
+        return neighbours[direction.value()];
     }
 
     /**
      * @return all neighbour nodes
      */
-    public LevelNode[] getNeighbours() {
+    public LevelNode[] neighbours() {
         return neighbours;
     }
 
     /**
      * @return The room this node "is"
      */
-    public T getRoom() {
+    public T room() {
         return room;
     }
 
-    public DoorDirection[] getNeighboursAsDirection() {
+    public DoorDirection[] neighboursAsDirection() {
         DoorDirection[] directions = new DoorDirection[4];
-        if (neighbours[DoorDirection.UP.getValue()] != null)
-            directions[DoorDirection.UP.getValue()] = DoorDirection.UP;
-        if (neighbours[DoorDirection.RIGHT.getValue()] != null)
-            directions[DoorDirection.RIGHT.getValue()] = DoorDirection.RIGHT;
-        if (neighbours[DoorDirection.LEFT.getValue()] != null)
-            directions[DoorDirection.LEFT.getValue()] = DoorDirection.LEFT;
-        if (neighbours[DoorDirection.DOWN.getValue()] != null)
-            directions[DoorDirection.DOWN.getValue()] = DoorDirection.DOWN;
+        if (neighbours[DoorDirection.UP.value()] != null)
+            directions[DoorDirection.UP.value()] = DoorDirection.UP;
+        if (neighbours[DoorDirection.RIGHT.value()] != null)
+            directions[DoorDirection.RIGHT.value()] = DoorDirection.RIGHT;
+        if (neighbours[DoorDirection.LEFT.value()] != null)
+            directions[DoorDirection.LEFT.value()] = DoorDirection.LEFT;
+        if (neighbours[DoorDirection.DOWN.value()] != null)
+            directions[DoorDirection.DOWN.value()] = DoorDirection.DOWN;
         return directions;
     }
 
-    public DoorTile.DoorColor[] getColors() {
+    public DoorTile.DoorColor[] colors() {
         return colors;
     }
 }
