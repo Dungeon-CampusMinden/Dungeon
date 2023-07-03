@@ -13,10 +13,7 @@ import helpers.Helpers;
 import interpreter.DSLInterpreter;
 
 import interpreter.TestEnvironment;
-import interpreter.mockecs.ExternalType;
-import interpreter.mockecs.ExternalTypeBuilder;
-import interpreter.mockecs.ExternalTypeBuilderMultiParam;
-import interpreter.mockecs.TestComponentWithExternalType;
+import interpreter.mockecs.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,7 +40,7 @@ public class TestRuntimeObjectTranslator {
         Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
 
         AggregateValue entityAsValue =
-                (AggregateValue) env.translateRuntimeObject(entity, interpreter, interpreter.getGlobalMemorySpace());
+                (AggregateValue) interpreter.getRuntimeEnvironment().translateRuntimeObject(entity, interpreter);
 
         var velocityComponent =
                 (AggregateValue) entityAsValue.getMemorySpace().resolve("velocity_component");
@@ -73,7 +70,7 @@ public class TestRuntimeObjectTranslator {
         var componentObject = entity.fetch(VelocityComponent.class).get();
 
         AggregateValue velocityValue =
-            (AggregateValue) env.translateRuntimeObject(componentObject, interpreter, interpreter.getGlobalMemorySpace());
+            (AggregateValue) interpreter.getRuntimeEnvironment().translateRuntimeObject(componentObject, interpreter);
 
         var xVelocityValue = velocityValue.getMemorySpace().resolve("x_velocity");
         var internalXVelocityValue = xVelocityValue.getInternalValue();
@@ -85,7 +82,7 @@ public class TestRuntimeObjectTranslator {
     }
 
     // TODO: mocking this requires the following:
-    //  - extend TestInvronment to load other translators
+    //  - extend TestEnvironment to load other translators
     @Test
     public void testIsolatedComponentTranslationAdapted() {
         String program = """
@@ -97,13 +94,14 @@ public class TestRuntimeObjectTranslator {
         var interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter, ExternalType.class, TestComponentWithExternalType.class);
 
-        TestComponentWithExternalType componentObject = new TestComponentWithExternalType();
+        interpreter.mockecs.Entity entity = new interpreter.mockecs.Entity();
+        TestComponentWithExternalType componentObject = new TestComponentWithExternalType(entity);
 
         // TODO: test this further and define, how encapsulated objects should behave
         //  externally and which use cases exist for them (translation and instantiation are kind of related, because
         //  the logic performed for instantiation right now is basically setting/applying defaults and then
         //  translating) -> this should be unified!
         AggregateValue componentDSLValue =
-            (AggregateValue) env.translateRuntimeObject(componentObject, interpreter, interpreter.getGlobalMemorySpace());
+            (AggregateValue) interpreter.getRuntimeEnvironment().translateRuntimeObject(componentObject, interpreter);
     }
 }
