@@ -1,2 +1,7 @@
-package interpreter.mockecs;public class Component {
+package interpreter.mockecs;
+
+public class Component {
+    public Component(Entity entity) {
+        entity.components.add(this);
+    }
 }
