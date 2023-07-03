@@ -151,6 +151,7 @@ public class GameEnvironment implements IEvironment {
         ArrayList<IType> types = new ArrayList<>();
 
         types.add(BuiltInType.noType);
+        types.add(BuiltInType.boolType);
         types.add(BuiltInType.intType);
         types.add(BuiltInType.floatType);
         types.add(BuiltInType.stringType);

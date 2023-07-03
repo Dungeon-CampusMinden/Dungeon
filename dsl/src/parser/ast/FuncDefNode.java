@@ -7,7 +7,7 @@ public class FuncDefNode extends Node {
     public final int idIdx = 0;
     public final int paramListIdx = 1;
     public final int retTypeIdx = 2;
-    public final int stmtListIdx = 3;
+    public final int stmtBlockIdx = 3;
 
     /**
      * Getter for the AstNode corresponding to the identifier of the defined function
@@ -37,6 +37,15 @@ public class FuncDefNode extends Node {
     }
 
     /**
+     * Getter for the AstNode corresponding to the stmtBlock of the function definition
+     *
+     * @return AstNode corresponding to the stmtBlock of the function definition
+     */
+    public Node getStmtBlock() {
+        return this.getChild(stmtBlockIdx);
+    }
+
+    /**
      * Getter for the name of return type of the function definition
      *
      * @return Name of the return type as String
@@ -51,7 +60,8 @@ public class FuncDefNode extends Node {
      * @return List of the AstNodes corresponding to the stmts of the function definition
      */
     public List<Node> getStmts() {
-        return this.children.get(stmtListIdx).getChildren();
+        var block = this.getStmtBlock();
+        return block.getChild(0).getChildren();
     }
 
     /**
@@ -69,13 +79,13 @@ public class FuncDefNode extends Node {
      * @param id The AstNode corresponding to the identifier of the called function
      * @param paramList The AstNode corresponding to the parameter list of the function call
      */
-    public FuncDefNode(Node id, Node paramList, Node retType, Node stmtList) {
+    public FuncDefNode(Node id, Node paramList, Node retType, Node stmtBlock) {
         super(Type.FuncDef, new ArrayList<>(4));
 
         this.children.add(id);
         this.children.add(paramList);
         this.children.add(retType);
-        this.children.add(stmtList);
+        this.children.add(stmtBlock);
     }
 
     @Override

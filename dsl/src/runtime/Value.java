@@ -12,7 +12,7 @@ import semanticanalysis.types.IType;
  * value and a dataType (defined by {@link IType}
  */
 public class Value implements IClonable {
-    public static Value NONE = new Value(null, null, false);
+    public static Value NONE = new Value(BuiltInType.noType, null, false);
 
     protected IType dataType;
     protected Object value;
