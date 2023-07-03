@@ -7,7 +7,7 @@ import core.components.PositionComponent;
 import core.utils.Point;
 import core.System;
 import contrib.components.MultiplayerComponent;
-import mp.MultiplayerAPI;
+import contrib.utils.multiplayer.MultiplayerAPI;
 
 import java.io.IOException;
 import java.util.Set;

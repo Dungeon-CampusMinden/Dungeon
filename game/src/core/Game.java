@@ -42,8 +42,8 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import mp.IMultiplayer;
-import mp.MultiplayerAPI;
+import contrib.utils.multiplayer.IMultiplayer;
+import contrib.utils.multiplayer.MultiplayerAPI;
 
 public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer {
 
