@@ -15,9 +15,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
-import contrib.configuration.KeyboardConfig;
-import contrib.systems.DebuggerSystem;
-
 import core.components.PositionComponent;
 import core.components.UIComponent;
 import core.configuration.Configuration;
@@ -84,6 +81,15 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
      */
     private static int FRAME_RATE = 30;
+
+    /**
+     * Part of the pre-run configuration. If this value is true, the game will be started in full
+     * screen mode.
+     *
+     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
+     */
+    private static boolean FULL_SCREEN = false;
+
     /**
      * Part of the pre-run configuration. The title of the Game-Window.
      *
@@ -95,7 +101,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
      */
-    private static String LOGO_PATH = "logo/CatLogo_35x35.png";
+    private static String LOGO_PATH = "logo/cat_logo_35x35.png";
     /** Currently used level-size configuration for generating new level */
     private static LevelSize LEVELSIZE = LevelSize.SMALL;
     /**
@@ -137,7 +143,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private Painter painter;
 
     private boolean doSetup = true;
-    private DebuggerSystem debugger;
     private boolean uiDebugFlag = false;
 
     // for singleton
@@ -190,6 +195,15 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
+     * Get if the game is currently in full screen mode
+     *
+     * @return true if the game is currently in full screen mode
+     */
+    public static boolean fullScreen() {
+        return FULL_SCREEN;
+    }
+
+    /**
      * The currently set level-Size.
      *
      * <p>This value is used for the generation of the next level.
@@ -238,6 +252,15 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      */
     public static void frameRate(int frameRate) {
         FRAME_RATE = frameRate;
+    }
+
+    /**
+     * Set the window to fullscreen mode or windowed mode.
+     *
+     * @param fullscreen true for fullscreen, false for windowed
+     */
+    public static void fullScreen(boolean fullscreen) {
+        FULL_SCREEN = fullscreen;
     }
 
     /**
@@ -380,7 +403,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param klass the class where the ConfigKey fields are located
      * @throws IOException if the file could not be read
      */
-    public static void loadConfig(String pathAsString, Class<?> klass) throws IOException {
+    public static void loadConfig(String pathAsString, Class<?>... klass) throws IOException {
         Configuration.loadAndGetConfiguration(pathAsString, klass);
     }
 
@@ -397,6 +420,13 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         config.setTitle(WINDOW_TITLE);
         config.setWindowIcon(LOGO_PATH);
         config.disableAudio(DISABLE_AUDIO);
+
+        if (FULL_SCREEN) {
+            config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
+        } else {
+            config.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
+        }
+
         // uncomment this if you wish no audio
         new Lwjgl3Application(
                 new com.badlogic.gdx.Game() {
@@ -646,6 +676,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
             LOGGER.warning(e.getMessage());
         }
         debugKeys();
+        fullscreenKey();
         userOnFrame.execute();
     }
 
@@ -660,9 +691,16 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
             // toggle UI "debug rendering"
             stage().ifPresent(x -> x.setDebugAll(uiDebugFlag = !uiDebugFlag));
         }
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_KEY.value())) {
-            debugger.toggleRun();
-            LOGGER.info("Debugger ist now " + debugger.isRunning());
+    }
+
+    private void fullscreenKey() {
+        if (Gdx.input.isKeyJustPressed(
+                core.configuration.KeyboardConfig.TOGGLE_FULLSCREEN.value())) {
+            if (!Gdx.graphics.isFullscreen()) {
+                Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+            } else {
+                Gdx.graphics.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
+            }
         }
     }
 
@@ -762,9 +800,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         addSystem(new DrawSystem(painter));
         addSystem(new PlayerSystem());
         addSystem(new HudSystem());
-        // Debugger should not be a system, see #651
-        debugger = new DebuggerSystem();
-        addSystem(debugger);
     }
 
     @Override

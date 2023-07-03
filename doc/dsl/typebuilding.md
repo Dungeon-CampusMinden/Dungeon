@@ -15,7 +15,7 @@ Ein Beispiel für einen Entitätstypen names `my_object`, der ein `PositionCompo
 `AnimationComponent` hat, könnte so aussehen:
 
 ```
-game_object my_object {
+entity_type my_object {
     position_component {},
     animation_component {
         idle_animation: "path/to/idle/frames"
@@ -68,7 +68,7 @@ von Datentypen](#laden-von-datentypen)) wie folgt in einer Entitätsdefinition v
 werden:
 
 ```
-game_ojbect my_obj {
+entity_type my_obj {
     component_class {
         member1: 42,
         member3: 3.14,
@@ -99,7 +99,7 @@ Der entsprechende Komponententyp könnte wie folgt in einer Entitätsdefinition 
 werden:
 
 ```
-game_ojbect my_obj {
+entity_type my_obj {
     my_component {
         member1: 42,
         member3: 3.14,
@@ -199,7 +199,7 @@ public PositionComponent(Entity entity) {
 **Wichtige Anmerkung: Die Verwendung des `TypeBuilder`-Kontextes setzt (aktuell) zwingend
 voraus, dass die Instanziierung einem hierarchischen Muster folgt.**
 
-Ein Beispiel hierfür: für eine `game_object`-Definition per DSL wird zuerst die
+Ein Beispiel hierfür: für eine `entity_type`-Definition per DSL wird zuerst die
 entsprechende `Entity`-Instanz erzeugt, bevor die konfigurierten `Component`-Klassen
 instanziiert werden. Hierarchisch ist die `Entity`-Instanziierung also der
 `Component`-Instanziierung übergeordnet. Nur in diesem Fall kann der im Folgenden
@@ -221,7 +221,7 @@ werden. Über diesen Namen kann der `TypeBuilder` auf die erstellte Instanz zugr
 folgende Beispiel zeigt diese Verwendung in der `Entity`-Klasse:
 
 ```java
-@DSLType(name = "game_object")
+@DSLType(name = "entity_type")
 @DSLContextPush(name = "entity")
 public class Entity {
     private static int nextId = 0;
@@ -311,7 +311,7 @@ verwendet. Für die oben definierte Methode `buildExternalType` ist das `String`
 Konfiguration per DSL würde wie folgt aussehen:
 
 ```
-game_object my_obj {
+entity_type my_obj {
     component {
         member1: 42,
         member2: "Parameter"
@@ -339,7 +339,7 @@ public class ExternalTypeBuilder {
 Die Konfiguration über die DSL kann wie folgt vorgenommen werden:
 
 ```
-game_object my_obj {
+entity_type my_obj {
     component {
         member1: 42,
         member2: external_type {
@@ -409,7 +409,7 @@ Der externe Datentyp kann in der DSL, mit dem in der `DSLTypeAdapter`-Annotation
 konfigurierten Namen, wie folgt verwendet werden:
 
 ```
-game_object my_obj {
+entity_type my_obj {
     test_component_with_external_type {
         member_external_type: external_type {
             string: "Hello, World!",

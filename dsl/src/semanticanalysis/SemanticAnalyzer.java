@@ -251,7 +251,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     }
 
     @Override
-    public Void visit(GameObjectDefinitionNode node) {
+    public Void visit(PrototypeDefinitionNode node) {
         // resolve datatype of definition
         var typeName = node.getIdName();
         var typeSymbol = this.globalScope().resolve(typeName);
@@ -448,6 +448,29 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     @Override
     public Void visit(ReturnStmtNode node) {
         node.getInnerStmtNode().accept(this);
+        return null;
+    }
+
+    @Override
+    public Void visit(StmtBlockNode node) {
+        var blockScope = new Scope(scopeStack.peek());
+        scopeStack.push(blockScope);
+        for (var stmt : node.getStmts()) {
+            stmt.accept(this);
+        }
+        scopeStack.pop();
+        return null;
+    }
+
+    @Override
+    public Void visit(ConditionalStmtNodeIf node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(ConditionalStmtNodeIfElse node) {
+        visitChildren(node);
         return null;
     }
 }

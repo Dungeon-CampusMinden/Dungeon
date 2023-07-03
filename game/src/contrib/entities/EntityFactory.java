@@ -47,7 +47,7 @@ public class EntityFactory {
         new CameraComponent(hero);
         new PositionComponent(hero);
         new VelocityComponent(hero, xSpeed, ySpeed);
-        new DrawComponent(hero, "character/knight");
+        new DrawComponent(hero, "character/blue_knight");
         new CollideComponent(
                 hero,
                 (you, other, direction) -> System.out.println("heroCollisionEnter"),
@@ -57,7 +57,7 @@ public class EntityFactory {
                 new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), fireballCoolDown);
 
         // hero movement
-        pc.registerFunction(
+        pc.registerCallback(
                 KeyboardConfig.MOVEMENT_UP.value(),
                 entity -> {
                     VelocityComponent vc =
@@ -68,7 +68,7 @@ public class EntityFactory {
                                                             entity, VelocityComponent.class));
                     vc.currentYVelocity(1 * vc.yVelocity());
                 });
-        pc.registerFunction(
+        pc.registerCallback(
                 KeyboardConfig.MOVEMENT_DOWN.value(),
                 entity -> {
                     VelocityComponent vc =
@@ -80,7 +80,7 @@ public class EntityFactory {
 
                     vc.currentYVelocity(-1 * vc.yVelocity());
                 });
-        pc.registerFunction(
+        pc.registerCallback(
                 KeyboardConfig.MOVEMENT_RIGHT.value(),
                 entity -> {
                     VelocityComponent vc =
@@ -92,7 +92,7 @@ public class EntityFactory {
 
                     vc.currentXVelocity(1 * vc.xVelocity());
                 });
-        pc.registerFunction(
+        pc.registerCallback(
                 KeyboardConfig.MOVEMENT_LEFT.value(),
                 entity -> {
                     VelocityComponent vc =
@@ -105,12 +105,12 @@ public class EntityFactory {
                     vc.currentXVelocity(-1 * vc.xVelocity());
                 });
 
-        pc.registerFunction(
+        pc.registerCallback(
                 KeyboardConfig.INTERACT_WORLD.value(),
                 InteractionTool::interactWithClosestInteractable);
 
         // skills
-        pc.registerFunction(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);
+        pc.registerCallback(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);
 
         return hero;
     }

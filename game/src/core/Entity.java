@@ -6,6 +6,7 @@ import semanticanalysis.types.DSLType;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * An Entity is a container for {@link Component}s.
@@ -30,9 +31,9 @@ import java.util.logging.Logger;
  * @see System
  * @see Optional
  */
-@DSLType(name = "game_object")
+@DSLType(name = "entity")
 @DSLContextPush(name = "entity")
-public final class Entity {
+public final class Entity implements Comparable<Entity> {
     private static final Logger LOGGER = Logger.getLogger(Entity.class.getName());
     private static int nextId = 0;
     private final int id;
@@ -75,11 +76,7 @@ public final class Entity {
     public void addComponent(final Component component) {
         components.put(component.getClass(), component);
         Game.informAboutChanges(this);
-        LOGGER.info(
-                component.getClass().getName()
-                        + " Components from "
-                        + this.toString()
-                        + " was added.");
+        LOGGER.info(component.getClass().getName() + " Components from " + this + " was added.");
     }
 
     /**
@@ -127,6 +124,21 @@ public final class Entity {
 
     @Override
     public String toString() {
-        return name;
+        if (name.contains("_" + id)) return name;
+        else return name + "_" + id;
+    }
+
+    @Override
+    public int compareTo(Entity o) {
+        return id - o.id;
+    }
+
+    /**
+     * Get a stream of components associated with this entity.
+     *
+     * @return Stream of components.
+     */
+    public Stream<Component> componentStream() {
+        return components.values().stream();
     }
 }

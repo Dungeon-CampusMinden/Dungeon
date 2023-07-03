@@ -171,7 +171,7 @@ public interface AstVisitor<T> {
      * @param node Node to visit
      * @return T
      */
-    default T visit(GameObjectDefinitionNode node) {
+    default T visit(PrototypeDefinitionNode node) {
         return null;
     }
 
@@ -182,6 +182,46 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(ReturnStmtNode node) {
+        return null;
+    }
+
+    /**
+     * Visitor method for ConditionStmtNodeIfs
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(ConditionalStmtNodeIf node) {
+        return null;
+    }
+
+    /**
+     * Visitor method for ConditionalStmtNodeIfElses
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(ConditionalStmtNodeIfElse node) {
+        return null;
+    }
+
+    /**
+     * Visitor method for StmtBlockNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(StmtBlockNode node) {
+        return null;
+    }
+
+    /**
+     * Visitor method for BoolNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(BoolNode node) {
         return null;
     }
 

@@ -9,6 +9,7 @@ import core.components.VelocityComponent;
 
 import dslToGame.QuestConfig;
 
+import runtime.nativefunctions.NativeInstantiate;
 import runtime.nativefunctions.NativePrint;
 
 import semanticanalysis.*;
@@ -150,11 +151,12 @@ public class GameEnvironment implements IEvironment {
         ArrayList<IType> types = new ArrayList<>();
 
         types.add(BuiltInType.noType);
+        types.add(BuiltInType.boolType);
         types.add(BuiltInType.intType);
         types.add(BuiltInType.floatType);
         types.add(BuiltInType.stringType);
         types.add(BuiltInType.graphType);
-        types.add(BuiltInType.funcType);
+        types.add(Prototype.PROTOTYPE);
 
         registerDefaultTypeAdapters();
 
@@ -187,6 +189,7 @@ public class GameEnvironment implements IEvironment {
     private static ArrayList<Symbol> buildNativeFunctions() {
         ArrayList<Symbol> nativeFunctions = new ArrayList<>();
         nativeFunctions.add(NativePrint.func);
+        nativeFunctions.add(NativeInstantiate.func);
         return nativeFunctions;
     }
 }

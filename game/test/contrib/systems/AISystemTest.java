@@ -22,21 +22,22 @@ public class AISystemTest {
         Game.removeAllSystems();
         system = new AISystem();
         entity = new Entity();
-        AIComponent component = new AIComponent(entity);
-        component.setTransitionAI(
+        new AIComponent(
+                entity,
+                null,
+                e -> {},
                 entity -> {
                     updateCounter++;
                     return false;
                 });
+
         updateCounter = 0;
     }
 
     @Test
     public void update() {
         system.showEntity(entity);
-
         system.execute();
-
         assertEquals(1, updateCounter);
     }
 

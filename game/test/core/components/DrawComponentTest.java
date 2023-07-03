@@ -17,7 +17,7 @@ public class DrawComponentTest {
 
     @Before
     public void setup() throws IOException {
-        animationComponent = new DrawComponent(new Entity(), "character/knight");
+        animationComponent = new DrawComponent(new Entity(), "character/blue_knight");
     }
 
     @Test

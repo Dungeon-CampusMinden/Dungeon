@@ -29,6 +29,9 @@ import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.IType;
 // CHECKSTYLE:ON: AvoidStarImport
 
+// TODO: handle scoped Variables in stmt Blocks correctly, once
+//  variable definitions are implemented
+
 /** Creates symbols for definition nodes (graph, object) and binds these nodes to those symbols */
 public class VariableBinder implements AstVisitor<Void> {
     SymbolTable symbolTable;
@@ -76,6 +79,32 @@ public class VariableBinder implements AstVisitor<Void> {
     @Override
     public Void visit(BinaryNode node) {
         visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(StmtBlockNode node) {
+        for (var stmt : node.getStmts()) {
+            stmt.accept(this);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visit(ConditionalStmtNodeIf node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(ConditionalStmtNodeIfElse node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(FuncDefNode node) {
+        node.getStmtBlock().accept(this);
         return null;
     }
 

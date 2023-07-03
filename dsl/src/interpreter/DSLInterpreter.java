@@ -84,10 +84,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 // if the type has a creation node, it is user defined, and we need to
                 // create a prototype for it
                 var creationAstNode = symbolTable().getCreationAstNode((Symbol) type);
-                if (creationAstNode.type.equals(Node.Type.GameObjectDefinition)) {
+                if (creationAstNode.type.equals(Node.Type.PrototypeDefinition)) {
                     var prototype = new Prototype((AggregateType) type);
 
-                    var gameObjDefNode = (GameObjectDefinitionNode) creationAstNode;
+                    var gameObjDefNode = (PrototypeDefinitionNode) creationAstNode;
                     for (var node : gameObjDefNode.getComponentDefinitionNodes()) {
                         // add new component prototype to the enclosing game object prototype
                         AggregateValueDefinitionNode compDefNode =
@@ -246,7 +246,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return null;
     }
 
-    protected Value instantiate(AggregateType type) {
+    protected Value instantiateDSLValue(AggregateType type) {
         AggregateValue instance = new AggregateValue(type, currentMemorySpace());
 
         IMemorySpace memorySpace = instance.getMemorySpace();
@@ -267,7 +267,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param prototype the {@link Prototype} to instantiate
      * @return A new {@link Value} created from the {@link Prototype}
      */
-    protected Value instantiate(Prototype prototype) {
+    public Value instantiateDSLValue(Prototype prototype) {
         // create memory space to store the values in
         AggregateValue instance = new AggregateValue(prototype, currentMemorySpace());
 
@@ -277,12 +277,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
         //  callback function
         IMemorySpace memorySpace = instance.getMemorySpace();
         this.memoryStack.push(memorySpace);
-        var internalType = (AggregateType) prototype.getDataType();
+        var internalType = (AggregateType) prototype.getInternalType();
         for (var member : internalType.getSymbols()) {
             // check, if type defines default for member
             var defaultValue = prototype.getDefaultValue(member.getName());
             if (defaultValue instanceof Prototype) {
-                defaultValue = instantiate((Prototype) defaultValue);
+                defaultValue = instantiateDSLValue((Prototype) defaultValue);
             } else if (!defaultValue.equals(Value.NONE)) {
                 // copy value (this is a copy of the DSL-Value, not the internal Object of the
                 // value)
@@ -301,37 +301,56 @@ public class DSLInterpreter implements AstVisitor<Object> {
     private AggregateType getOriginalTypeOfPrototype(Prototype type) {
         IType returnType = type;
         while (returnType instanceof Prototype) {
-            returnType = ((Prototype) returnType).getDataType();
+            returnType = ((Prototype) returnType).getInternalType();
         }
         return (AggregateType) returnType;
     }
 
+    static boolean isBooleanTrue(Value value) {
+        var valuesType = value.getDataType();
+        var typeKind = valuesType.getTypeKind();
+        if (!typeKind.equals(IType.Kind.Basic) && !value.equals(Value.NONE)) {
+            return true;
+        } else if (value.equals(Value.NONE)) {
+            return false;
+        } else {
+            // basically check if zero
+            return ((BuiltInType) valuesType).asBooleanFunction.run(value);
+        }
+    }
+
     // this is the evaluation side of things
+    //
+    // TODO: implicitly creating an entity from an entity_type does not
+    //  seem such a good idea, because it entails so much hidden logic
+    //  ...rather do it explicitly somehow
     @Override
-    public Object visit(GameObjectDefinitionNode node) {
-        var prototype = this.environment.lookupPrototype(node.getIdName());
-        var instance = (AggregateValue) instantiate(prototype);
+    public Object visit(PrototypeDefinitionNode node) {
+        return this.environment.lookupPrototype(node.getIdName());
+    }
 
-        // instantiate entity
+    public Object instantiateRuntimeValue(AggregateValue dslValue, AggregateType asType) {
+        // instantiate entity_type
         TypeInstantiator typeInstantiator = new TypeInstantiator();
-        var type = (AggregateType) this.symbolTable().getGlobalScope().resolve("game_object");
-        var entityObject = typeInstantiator.instantiate(type, instance.getMemorySpace());
+        var entityObject = typeInstantiator.instantiate(asType, dslValue.getMemorySpace());
 
-        // TODO: this should be done automatically in the TypeInstantiator, this is a proof of
-        // concept
-        // push entity as context in TypeInstantiator
-        var annot = type.getOriginType().getAnnotation(DSLContextPush.class);
+        // TODO: substitute the whole DSLContextMember-stuff with Builder-Methods, which would
+        // enable
+        //  creation of components with different parameters -> requires the ability to
+        //  store multiple builder-methods for one type, distinguished by their
+        //  signature
+        var annot = asType.getOriginType().getAnnotation(DSLContextPush.class);
         if (annot != null) {
             String contextName =
-                    annot.name().equals("") ? type.getOriginType().getName() : annot.name();
+                    annot.name().equals("") ? asType.getOriginType().getName() : annot.name();
             typeInstantiator.pushContextMember(contextName, entityObject);
         }
 
-        AggregateValue entityValue = new AggregateValue(type, currentMemorySpace(), entityObject);
+        AggregateValue entityValue = new AggregateValue(asType, currentMemorySpace(), entityObject);
 
         // an entity-object itself has no members, so add the components as "artificial members"
         // to the aggregate dsl value of the entity
-        for (var memberEntry : instance.getValueSet()) {
+        for (var memberEntry : dslValue.getValueSet()) {
             String memberName = memberEntry.getKey();
             Value memberValue = memberEntry.getValue();
             if (memberValue instanceof AggregateValue) {
@@ -406,7 +425,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         var type = this.symbolTable().getGlobalScope().resolve(node.getIdName());
         assert type instanceof AggregateType;
 
-        var value = (AggregateValue) instantiate((AggregateType) type);
+        var value = (AggregateValue) instantiateDSLValue((AggregateType) type);
 
         // interpret the property definitions
         this.memoryStack.push(value.getMemorySpace());
@@ -512,13 +531,24 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         // visit function AST
         var funcRootNode = symbol.getAstRootNode();
-        var stmtList = funcRootNode.getStmts();
+        var stmtBlock = funcRootNode.getStmtBlock();
+        if (stmtBlock != Node.NONE) {
+            // reset return stmt flag
+            this.hitReturnStmt = false;
+            stmtBlock.accept(this);
+        }
 
-        // reset return stmt flag
-        this.hitReturnStmt = false;
+        memoryStack.pop();
+        if (functionType.getReturnType() != BuiltInType.noType) {
+            return functionMemSpace.resolve(RETURN_VALUE_NAME);
+        }
+        return Value.NONE;
+    }
 
+    @Override
+    public Object visit(StmtBlockNode node) {
         // execute function's statements one by one
-        for (var stmt : stmtList) {
+        for (var stmt : node.getStmts()) {
             stmt.accept(this);
             // check, if a return statement was hit
             // if so: stop function execution
@@ -527,12 +557,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 break;
             }
         }
-
-        memoryStack.pop();
-        if (functionType.getReturnType() != BuiltInType.noType) {
-            return functionMemSpace.resolve(RETURN_VALUE_NAME);
-        }
-        return Value.NONE;
+        return null;
     }
 
     @Override
@@ -590,5 +615,32 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // signal, that a return statement was hit
         this.hitReturnStmt = true;
         return null;
+    }
+
+    @Override
+    public Object visit(ConditionalStmtNodeIf node) {
+        Value conditionValue = (Value) node.getCondition().accept(this);
+        if (isBooleanTrue(conditionValue)) {
+            node.getIfStmt().accept(this);
+        }
+
+        return null;
+    }
+
+    @Override
+    public Object visit(ConditionalStmtNodeIfElse node) {
+        Value conditionValue = (Value) node.getCondition().accept(this);
+        if (isBooleanTrue(conditionValue)) {
+            node.getIfStmt().accept(this);
+        } else {
+            node.getElseStmt().accept(this);
+        }
+
+        return null;
+    }
+
+    @Override
+    public Object visit(BoolNode node) {
+        return new Value(BuiltInType.boolType, node.getValue());
     }
 }

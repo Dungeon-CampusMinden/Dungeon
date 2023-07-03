@@ -1,6 +1,7 @@
 package core.components;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 
 import core.Component;
 import core.Entity;
@@ -9,72 +10,67 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 
 /**
- * Component that marks an entity as playable.
+ * Mark an entity as playable by the player.
  *
- * <p>This component is used to mark an entity as playable by the player.
+ * <p>This component stores pairs of keystroke codes with an associated callback function. The
+ * mappings can be added or changed via {@link #registerCallback} and deleted via {@link
+ * #removeCallback}. The codes for the buttons originate from {@link Input.Keys}
  *
- * <p>It also contains a map of keys/buttons (Map-Key-Value) and functions (Map-Value). The {@link
- * core.systems.PlayerSystem} will trigger {@link #execute}. This method will check each entry in
- * the map and check if the given key is pressed. If so, the function registered to this key will be
- * executed.
+ * <p>The {@link core.systems.PlayerSystem} invokes the {@link #execute} method of this component,
+ * which invokes for each stored tuple the associated callback if the corresponding button was
+ * pressed.
  *
- * <p>Use {@link #registerFunction} to add a new function for a button press, for example, add
- * movement controls.
- *
- * <p>In the dungeon, keys/buttons are represented by an integer value.
+ * @see Input.Keys
+ * @see core.systems.PlayerSystem
  */
-public class PlayerComponent extends Component {
-
-    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
-    private Map<Integer, Consumer<Entity>> functions;
+public final class PlayerComponent extends Component {
+    private final Map<Integer, Consumer<Entity>> callbacks;
 
     /**
-     * Creates a new PlayerComponent.
+     * Create a new PlayerComponent and add it to the associated entity.
      *
-     * @param entity - the entity this component belongs to
+     * @param entity associated entity
      */
-    public PlayerComponent(Entity entity) {
+    public PlayerComponent(final Entity entity) {
         super(entity);
-        functions = new HashMap<>();
+        callbacks = new HashMap<>();
     }
 
     /**
-     * Add a new function to this component.
+     * Register a new callback for a key.
      *
-     * <p>If a function is already registered on this key, the old function will be replaced.
+     * <p>If a callback is already registered on this key, the old callback will be replaced.
      *
-     * @param key The key-value on which the function should be executed
-     * @param function Function to execute if the key is pressed
-     * @return Optional<Consumer<Entity>> The old function, if one was existing. Can be null.
+     * @param key The integer value of the key on which the callback should be executed.
+     * @param callback The {@link Consumer} that contains the callback to execute if the key is
+     *     pressed.
+     * @return Optional<Consumer<Entity>> The old callback, if one was existing. Can be null.
      * @see com.badlogic.gdx.Gdx#input
      */
-    public Optional<Consumer<Entity>> registerFunction(int key, Consumer<Entity> function) {
-        Optional<Consumer<Entity>> oldFunction = Optional.ofNullable(functions.get(key));
-        functions.put(key, function);
-        return oldFunction;
+    public Optional<Consumer<Entity>> registerCallback(int key, final Consumer<Entity> callback) {
+        Optional<Consumer<Entity>> oldCallback = Optional.ofNullable(callbacks.get(key));
+        callbacks.put(key, callback);
+        return oldCallback;
     }
 
     /**
-     * Remove the registered function on the given key.
+     * Remove the registered callback on the given key.
      *
-     * @param key Value of the key.
+     * @param key The integer value of the key.
+     * @see com.badlogic.gdx.Gdx#input
      */
-    public void removeFunction(int key) {
-        functions.remove(key);
+    public void removeCallback(int key) {
+        callbacks.remove(key);
     }
 
-    /**
-     * Will check each entry in the function map, and if the key is just pressed, the function will
-     * be executed.
-     */
+    /** Execute the callback function registered to a key when it is pressed. */
     public void execute() {
-        functions.forEach((k, f) -> execute(k, f));
+        callbacks.forEach(this::execute);
     }
 
-    private void execute(Integer key, Consumer<Entity> function) {
-        if (Gdx.input.isKeyPressed(key)) function.accept(entity);
+    private void execute(int key, final Consumer<Entity> callback) {
+        if (Gdx.input.isKeyPressed(key)) callback.accept(entity);
     }
 }
