@@ -9,7 +9,7 @@ import semanticanalysis.Symbol;
 import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.TypeBuilder;
 
-public class EntityTranslator implements IRuntimeObjectTranslator {
+public class EntityTranslator implements IObjectToValueTranslator {
     public static EntityTranslator instance = new EntityTranslator();
 
     private EntityTranslator() {}

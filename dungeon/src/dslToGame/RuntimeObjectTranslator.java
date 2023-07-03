@@ -13,9 +13,9 @@ import semanticanalysis.types.TypeBuilder;
 import java.util.HashMap;
 
 public class RuntimeObjectTranslator {
-    private HashMap<Class<?>, IRuntimeObjectTranslator> translators = new HashMap<>();
+    private HashMap<Class<?>, IObjectToValueTranslator> translators = new HashMap<>();
 
-    public void loadRuntimeTranslator(Class<?> clazz, IRuntimeObjectTranslator translator) {
+    public void loadRuntimeTranslator(Class<?> clazz, IObjectToValueTranslator translator) {
         if (this.translators.containsKey(clazz)) {
             throw new RuntimeException(
                     "RuntimeObjectTranslator for class '" + clazz + "' is already registered");

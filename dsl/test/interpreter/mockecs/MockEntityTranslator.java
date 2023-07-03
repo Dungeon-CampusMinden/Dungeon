@@ -1,6 +1,6 @@
 package interpreter.mockecs;
 
-import dslToGame.IRuntimeObjectTranslator;
+import dslToGame.IObjectToValueTranslator;
 
 import runtime.*;
 
@@ -9,7 +9,7 @@ import semanticanalysis.Symbol;
 import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.TypeBuilder;
 
-public class MockEntityTranslator implements IRuntimeObjectTranslator {
+public class MockEntityTranslator implements IObjectToValueTranslator {
     public static MockEntityTranslator instance = new MockEntityTranslator();
 
     private MockEntityTranslator() {}

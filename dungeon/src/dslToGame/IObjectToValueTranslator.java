@@ -5,6 +5,6 @@ import runtime.Value;
 
 import semanticanalysis.IScope;
 
-public interface IRuntimeObjectTranslator {
+public interface IObjectToValueTranslator {
     Value translate(Object object, IScope globalScope, IMemorySpace parentMemorySpace);
 }
