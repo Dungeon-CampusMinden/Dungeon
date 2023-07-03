@@ -101,7 +101,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
      */
-    private static String LOGO_PATH = "logo/CatLogo_35x35.png";
+    private static String LOGO_PATH = "logo/cat_logo_35x35.png";
     /** Currently used level-size configuration for generating new level */
     private static LevelSize LEVELSIZE = LevelSize.SMALL;
     /**
