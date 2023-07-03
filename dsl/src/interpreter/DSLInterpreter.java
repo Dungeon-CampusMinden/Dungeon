@@ -42,7 +42,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return environment.getSymbolTable();
     }
 
-    private IMemorySpace currentMemorySpace() {
+    public IMemorySpace getCurrentMemorySpace() {
         return this.memoryStack.peek();
     }
 
@@ -182,7 +182,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             Object internalValue = Value.getDefaultValue(type);
             return new Value(type, internalValue);
         } else {
-            AggregateValue value = new AggregateValue(type, currentMemorySpace());
+            AggregateValue value = new AggregateValue(type, getCurrentMemorySpace());
 
             this.memoryStack.push(value.getMemorySpace());
             for (var member : ((AggregateType) type).getSymbols()) {
@@ -247,7 +247,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     protected Value instantiateDSLValue(AggregateType type) {
-        AggregateValue instance = new AggregateValue(type, currentMemorySpace());
+        AggregateValue instance = new AggregateValue(type, getCurrentMemorySpace());
 
         IMemorySpace memorySpace = instance.getMemorySpace();
         this.memoryStack.push(memorySpace);
@@ -269,7 +269,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
      */
     public Value instantiateDSLValue(Prototype prototype) {
         // create memory space to store the values in
-        AggregateValue instance = new AggregateValue(prototype, currentMemorySpace());
+        AggregateValue instance = new AggregateValue(prototype, getCurrentMemorySpace());
 
         // TODO: how to handle function calls here?
         //  we should evaluate functions as soon as possible, and only allow
@@ -346,7 +346,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             typeInstantiator.pushContextMember(contextName, entityObject);
         }
 
-        AggregateValue entityValue = new AggregateValue(asType, currentMemorySpace(), entityObject);
+        AggregateValue entityValue = new AggregateValue(asType, getCurrentMemorySpace(), entityObject);
 
         // an entity-object itself has no members, so add the components as "artificial members"
         // to the aggregate dsl value of the entity
@@ -392,7 +392,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(ObjectDefNode node) {
         // resolve name of object in memory space
         IMemorySpace ms;
-        var objectsValue = currentMemorySpace().resolve(node.getIdName());
+        var objectsValue = getCurrentMemorySpace().resolve(node.getIdName());
         if (objectsValue instanceof AggregateValue) {
             ms = ((AggregateValue) objectsValue).getMemorySpace();
         } else {
