@@ -2,8 +2,6 @@ package dslToGame;
 
 import core.Entity;
 
-import interpreter.DSLInterpreter;
-
 import runtime.*;
 
 import semanticanalysis.IScope;
@@ -14,13 +12,10 @@ import semanticanalysis.types.TypeBuilder;
 public class EntityTranslator implements IRuntimeObjectTranslator {
     public static EntityTranslator instance = new EntityTranslator();
 
-    private EntityTranslator() { }
+    private EntityTranslator() {}
 
     @Override
-    public Value translate(
-            Object object,
-            IScope globalScope,
-            IMemorySpace parentMemorySpace) {
+    public Value translate(Object object, IScope globalScope, IMemorySpace parentMemorySpace) {
         var entity = (Entity) object;
         // get datatype for entity
         var entityType = globalScope.resolve("entity");
@@ -30,7 +25,8 @@ public class EntityTranslator implements IRuntimeObjectTranslator {
         } else {
             // create aggregateValue for entity
             var value = new AggregateValue((AggregateType) entityType, parentMemorySpace, entity);
-            //var globalScope = interpreter.getRuntimeEnvironment().getSymbolTable().getGlobalScope();
+            // var globalScope =
+            // interpreter.getRuntimeEnvironment().getSymbolTable().getGlobalScope();
 
             entity.componentStream()
                     .forEach(

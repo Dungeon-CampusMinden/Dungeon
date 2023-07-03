@@ -52,9 +52,7 @@ public class NativeInstantiate extends NativeFunction {
         } else {
             var dslEntityInstance =
                     (AggregateValue) interpreter.instantiateDSLValue((Prototype) param);
-            var entityType =
-                    (AggregateType)
-                            rtEnv.getGlobalScope().resolve("entity");
+            var entityType = (AggregateType) rtEnv.getGlobalScope().resolve("entity");
             var entityObject = interpreter.instantiateRuntimeValue(dslEntityInstance, entityType);
 
             return rtEnv.translateRuntimeObject(entityObject, interpreter);

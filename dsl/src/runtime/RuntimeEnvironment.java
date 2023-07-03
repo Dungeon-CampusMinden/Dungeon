@@ -1,16 +1,13 @@
 package runtime;
 
-import core.Entity;
-import dslToGame.EntityTranslator;
-import dslToGame.IRuntimeObjectTranslator;
 import dslToGame.RuntimeObjectTranslator;
+
 import interpreter.DSLInterpreter;
+
 import semanticanalysis.IScope;
 import semanticanalysis.Symbol;
 import semanticanalysis.SymbolTable;
-import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.IType;
-import semanticanalysis.types.TypeBuilder;
 
 import java.util.HashMap;
 

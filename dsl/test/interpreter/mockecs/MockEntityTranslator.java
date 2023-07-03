@@ -1,8 +1,9 @@
 package interpreter.mockecs;
 
 import dslToGame.IRuntimeObjectTranslator;
-import interpreter.DSLInterpreter;
+
 import runtime.*;
+
 import semanticanalysis.IScope;
 import semanticanalysis.Symbol;
 import semanticanalysis.types.AggregateType;
@@ -12,9 +13,10 @@ public class MockEntityTranslator implements IRuntimeObjectTranslator {
     public static MockEntityTranslator instance = new MockEntityTranslator();
 
     private MockEntityTranslator() {}
+
     @Override
     public Value translate(Object object, IScope globalScope, IMemorySpace parentMemorySpace) {
-        Entity entity = (Entity)object;
+        Entity entity = (Entity) object;
         // get datatype for entity
         var entityType = globalScope.resolve("entity");
 
@@ -25,8 +27,7 @@ public class MockEntityTranslator implements IRuntimeObjectTranslator {
             var value = new AggregateValue((AggregateType) entityType, parentMemorySpace, entity);
 
             for (var component : entity.components) {
-                String componentDSLName =
-                    TypeBuilder.getDSLName(component.getClass());
+                String componentDSLName = TypeBuilder.getDSLName(component.getClass());
                 var componentDSLType = globalScope.resolve(componentDSLName);
 
                 if (componentDSLType != Symbol.NULL) {
@@ -35,19 +36,18 @@ public class MockEntityTranslator implements IRuntimeObjectTranslator {
 
                     // encapsulate the component
                     var encapsulatedObject =
-                        new EncapsulatedObject(
-                            component,
-                            (AggregateType) componentDSLType,
-                            value.getMemorySpace());
+                            new EncapsulatedObject(
+                                    component,
+                                    (AggregateType) componentDSLType,
+                                    value.getMemorySpace());
                     AggregateValue aggregateMemberValue =
-                        new AggregateValue(
-                            (AggregateType) componentDSLType,
-                            value.getMemorySpace(),
-                            component);
+                            new AggregateValue(
+                                    (AggregateType) componentDSLType,
+                                    value.getMemorySpace(),
+                                    component);
                     aggregateMemberValue.setMemorySpace(encapsulatedObject);
 
-                    value.getMemorySpace()
-                        .bindValue(componentDSLName, aggregateMemberValue);
+                    value.getMemorySpace().bindValue(componentDSLName, aggregateMemberValue);
                 }
             }
             return value;

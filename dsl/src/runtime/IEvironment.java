@@ -1,7 +1,7 @@
 package runtime;
 
-import dslToGame.IRuntimeObjectTranslator;
 import dslToGame.RuntimeObjectTranslator;
+
 import semanticanalysis.*;
 import semanticanalysis.types.IType;
 

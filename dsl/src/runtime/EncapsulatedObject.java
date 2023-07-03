@@ -33,8 +33,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
      *     (used for resolving member access)
      * @param parent the parent {@link IMemorySpace}
      */
-    public EncapsulatedObject(
-            Object innerObject, AggregateType type, IMemorySpace parent) {
+    public EncapsulatedObject(Object innerObject, AggregateType type, IMemorySpace parent) {
         super(type, innerObject);
         assert innerObject.getClass().equals(type.getOriginType());
 
@@ -105,8 +104,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                         // that we should be able to just construct a new EncapsulatedObject
                         // around it -> which should be cached;
                         returnValue =
-                                new EncapsulatedObject(
-                                        fieldValue, (AggregateType) type, this);
+                                new EncapsulatedObject(fieldValue, (AggregateType) type, this);
                         // cache it
                         this.objectCache.put(name, returnValue);
                     }

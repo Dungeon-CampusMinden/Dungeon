@@ -9,9 +9,7 @@ import core.components.VelocityComponent;
 
 import dslToGame.EntityTranslator;
 import dslToGame.QuestConfig;
-
 import dslToGame.RuntimeObjectTranslator;
-import interpreter.DSLInterpreter;
 
 import runtime.nativefunctions.NativeInstantiate;
 import runtime.nativefunctions.NativePrint;
@@ -128,7 +126,6 @@ public class GameEnvironment implements IEvironment {
         loadFunctions(Arrays.stream(functions).toList());
     }
 
-
     @Override
     public void loadFunctions(List<ScopedSymbol> functions) {
         for (var func : functions) {
@@ -208,5 +205,4 @@ public class GameEnvironment implements IEvironment {
         nativeFunctions.add(NativeInstantiate.func);
         return nativeFunctions;
     }
-
 }

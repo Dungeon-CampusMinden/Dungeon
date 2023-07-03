@@ -357,8 +357,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
                 // instantiate object as a new java Object
                 typeInstantiator.instantiate(
-                        membersOriginalType,
-                        ((AggregateValue) memberValue).getMemorySpace());
+                        membersOriginalType, ((AggregateValue) memberValue).getMemorySpace());
             }
         }
         return entityObject;

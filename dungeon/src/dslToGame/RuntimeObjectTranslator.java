@@ -1,15 +1,15 @@
 package dslToGame;
 
-import core.Entity;
 import interpreter.DSLInterpreter;
+
 import runtime.*;
+
 import semanticanalysis.IScope;
 import semanticanalysis.Symbol;
 import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 
-import java.util.AbstractMap;
 import java.util.HashMap;
 
 public class RuntimeObjectTranslator {
@@ -17,7 +17,8 @@ public class RuntimeObjectTranslator {
 
     public void loadRuntimeTranslator(Class<?> clazz, IRuntimeObjectTranslator translator) {
         if (this.translators.containsKey(clazz)) {
-            throw new RuntimeException("RuntimeObjectTranslator for class '" + clazz + "' is already registered");
+            throw new RuntimeException(
+                    "RuntimeObjectTranslator for class '" + clazz + "' is already registered");
         }
         this.translators.put(clazz, translator);
     }
@@ -40,25 +41,25 @@ public class RuntimeObjectTranslator {
                 Symbol dslTypeSymbol = globalScope.resolve(dslTypeName);
                 if (dslTypeSymbol.equals(Symbol.NULL)) {
                     throw new RuntimeException(
-                        "Could not translate object of type '"
-                            + objectsClass
-                            + "' to dsl value, type could not be resolved!");
+                            "Could not translate object of type '"
+                                    + objectsClass
+                                    + "' to dsl value, type could not be resolved!");
                 } else {
-                    dslType = (IType)dslTypeSymbol;
+                    dslType = (IType) dslTypeSymbol;
                     if (dslType.getTypeKind() == IType.Kind.Aggregate) {
-                        var aggregateType = (AggregateType)dslType;
+                        var aggregateType = (AggregateType) dslType;
 
                         returnValue = new AggregateValue(aggregateType, parentMemorySpace);
-                        var encapsulatedObject = new EncapsulatedObject(object, aggregateType, parentMemorySpace);
-                        ((AggregateValue)returnValue).setMemorySpace(encapsulatedObject);
+                        var encapsulatedObject =
+                                new EncapsulatedObject(object, aggregateType, parentMemorySpace);
+                        ((AggregateValue) returnValue).setMemorySpace(encapsulatedObject);
                     }
                     // TODO: Add other branches or figure out, if the distinction based on
                     //  typekind is even necessary here
                 }
             }
         } else {
-            returnValue = translator.translate(
-                object, globalScope, parentMemorySpace);
+            returnValue = translator.translate(object, globalScope, parentMemorySpace);
         }
         return returnValue;
     }
