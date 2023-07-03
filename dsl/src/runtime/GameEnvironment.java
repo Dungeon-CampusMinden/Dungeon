@@ -8,16 +8,15 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
 import dslToGame.EntityTranslator;
-import dslToGame.IRuntimeObjectTranslator;
 import dslToGame.QuestConfig;
 
+import dslToGame.RuntimeObjectTranslator;
 import interpreter.DSLInterpreter;
 
 import runtime.nativefunctions.NativeInstantiate;
 import runtime.nativefunctions.NativePrint;
 
 import semanticanalysis.*;
-import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
@@ -40,8 +39,7 @@ public class GameEnvironment implements IEvironment {
     protected final HashMap<String, Symbol> loadedFunctions = new HashMap<>();
     protected final SymbolTable symbolTable;
     protected final Scope globalScope;
-    protected final HashMap<Class<?>, IRuntimeObjectTranslator> runtimeObjectTranslators =
-            new HashMap<>();
+    protected final RuntimeObjectTranslator runtimeObjectTranslator = new RuntimeObjectTranslator();
 
     public TypeBuilder getTypeBuilder() {
         return typeBuilder;
@@ -72,7 +70,7 @@ public class GameEnvironment implements IEvironment {
     }
 
     protected void registerDefaultRuntimeObjectTranslators() {
-        this.runtimeObjectTranslators.put(Entity.class, new EntityTranslator());
+        this.runtimeObjectTranslator.loadRuntimeTranslator(Entity.class, EntityTranslator.instance);
     }
 
     protected void bindBuiltIns() {
@@ -145,13 +143,6 @@ public class GameEnvironment implements IEvironment {
         }
     }
 
-    public void loadRuntimeTranslator(Class<?> clazz, IRuntimeObjectTranslator translator) {
-        if (this.runtimeObjectTranslators.containsKey(clazz)) {
-            throw new RuntimeException("RuntimeObjectTranslator for class '" + clazz + "' is already registered");
-        }
-        this.runtimeObjectTranslators.put(clazz, translator);
-    }
-
     @Override
     public SymbolTable getSymbolTable() {
         return this.symbolTable;
@@ -165,6 +156,11 @@ public class GameEnvironment implements IEvironment {
     @Override
     public HashMap<Class<?>, IType> javaTypeToDSLTypeMap() {
         return typeBuilder.getJavaTypeToDSLTypeMap();
+    }
+
+    @Override
+    public RuntimeObjectTranslator getRuntimeObjectTranslator() {
+        return this.runtimeObjectTranslator;
     }
 
     private ArrayList<IType> buildBuiltInTypes() {
@@ -213,40 +209,4 @@ public class GameEnvironment implements IEvironment {
         return nativeFunctions;
     }
 
-    public Value translateRuntimeObject(Object object, DSLInterpreter interpreter, IMemorySpace parentMemorySpace) {
-        var objectsClass = object.getClass();
-        var translator = this.runtimeObjectTranslators.get(objectsClass);
-        Value returnValue = Value.NONE;
-        if (translator == null) {
-            // TODO: lookup type
-            IType dslType = TypeBuilder.getDSLTypeForClass(objectsClass);
-            if (dslType != null) {
-                // create plain value
-                returnValue = new Value(dslType, object);
-            } else {
-                String dslTypeName = TypeBuilder.getDSLName(objectsClass);
-                Symbol dslTypeSymbol = this.globalScope.resolve(dslTypeName);
-                if (dslTypeSymbol.equals(Symbol.NULL)) {
-                    throw new RuntimeException(
-                            "Could not translate object of type '"
-                                    + objectsClass
-                                    + "' to dsl value, type could not be resolved!");
-                } else {
-                    dslType = (IType)dslTypeSymbol;
-                    if (dslType.getTypeKind() == IType.Kind.Aggregate) {
-                        var aggregateType = (AggregateType)dslType;
-                        returnValue = new AggregateValue(aggregateType, parentMemorySpace);
-                        var encapsulatedObject = new EncapsulatedObject(object, aggregateType, parentMemorySpace, this);
-                        ((AggregateValue)returnValue).setMemorySpace(encapsulatedObject);
-                    }
-                    // TODO: Add other branches or figure out, if the distinction based on
-                    //  typekind is even necessary here
-                }
-            }
-        } else {
-            returnValue = translator.translate(
-                    object, this, parentMemorySpace, interpreter);
-        }
-        return returnValue;
-    }
 }

@@ -5,11 +5,11 @@ import interpreter.DSLInterpreter;
 import runtime.IEvironment;
 import runtime.IMemorySpace;
 import runtime.Value;
+import semanticanalysis.IScope;
 
 public interface IRuntimeObjectTranslator {
     Value translate(
             Object object,
-            IEvironment environment,
-            IMemorySpace parentMemorySpace,
-            DSLInterpreter interpreter);
+            IScope globalScope,
+            IMemorySpace parentMemorySpace);
 }

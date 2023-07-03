@@ -6,27 +6,31 @@ import interpreter.DSLInterpreter;
 
 import runtime.*;
 
+import semanticanalysis.IScope;
 import semanticanalysis.Symbol;
 import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.TypeBuilder;
 
 public class EntityTranslator implements IRuntimeObjectTranslator {
+    public static EntityTranslator instance = new EntityTranslator();
+
+    private EntityTranslator() { }
+
     @Override
     public Value translate(
             Object object,
-            IEvironment env,
-            IMemorySpace parentMemorySpace,
-            DSLInterpreter interpreter) {
+            IScope globalScope,
+            IMemorySpace parentMemorySpace) {
         var entity = (Entity) object;
         // get datatype for entity
-        var entityType = env.getGlobalScope().resolve("entity");
+        var entityType = globalScope.resolve("entity");
 
         if (!(entityType instanceof AggregateType)) {
             throw new RuntimeException("The resolved symbol for 'entity' is not an AggregateType!");
         } else {
             // create aggregateValue for entity
             var value = new AggregateValue((AggregateType) entityType, parentMemorySpace, entity);
-            var globalScope = interpreter.getRuntimeEnvironment().getSymbolTable().getGlobalScope();
+            //var globalScope = interpreter.getRuntimeEnvironment().getSymbolTable().getGlobalScope();
 
             entity.componentStream()
                     .forEach(
@@ -44,8 +48,7 @@ public class EntityTranslator implements IRuntimeObjectTranslator {
                                             new EncapsulatedObject(
                                                     component,
                                                     (AggregateType) componentDSLType,
-                                                    value.getMemorySpace(),
-                                                    null);
+                                                    value.getMemorySpace());
                                     AggregateValue aggregateMemberValue =
                                             new AggregateValue(
                                                     (AggregateType) componentDSLType,

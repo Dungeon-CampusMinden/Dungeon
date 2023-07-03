@@ -1,5 +1,7 @@
 package runtime;
 
+import dslToGame.IRuntimeObjectTranslator;
+import dslToGame.RuntimeObjectTranslator;
 import semanticanalysis.*;
 import semanticanalysis.types.IType;
 
@@ -60,4 +62,6 @@ public interface IEvironment {
     default HashMap<Class<?>, IType> javaTypeToDSLTypeMap() {
         return new HashMap<>();
     }
+
+    RuntimeObjectTranslator getRuntimeObjectTranslator();
 }

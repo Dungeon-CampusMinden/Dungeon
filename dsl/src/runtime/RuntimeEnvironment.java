@@ -1,20 +1,33 @@
 package runtime;
 
+import core.Entity;
+import dslToGame.EntityTranslator;
+import dslToGame.IRuntimeObjectTranslator;
+import dslToGame.RuntimeObjectTranslator;
+import interpreter.DSLInterpreter;
 import semanticanalysis.IScope;
 import semanticanalysis.Symbol;
 import semanticanalysis.SymbolTable;
+import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.IType;
+import semanticanalysis.types.TypeBuilder;
 
 import java.util.HashMap;
 
 // this extends the normal IEnvironment definition by storing prototypes
 // which are basically evaluated type definitions (of game objects)
+// TODO: add runtime translator
 public class RuntimeEnvironment implements IEvironment {
     private final SymbolTable symbolTable;
     private final HashMap<String, Symbol> functions;
     private final HashMap<String, IType> types;
     private final HashMap<String, Prototype> prototypes;
     private final HashMap<Class<?>, IType> javaTypeToDSLType;
+    private final RuntimeObjectTranslator runtimeObjectTranslator;
+
+    public RuntimeObjectTranslator getRuntimeObjectTranslator() {
+        return runtimeObjectTranslator;
+    }
 
     /**
      * Constructor. Create new runtime environment from an existing environment and add all type
@@ -40,6 +53,8 @@ public class RuntimeEnvironment implements IEvironment {
         this.prototypes = new HashMap<>();
 
         this.javaTypeToDSLType = other.javaTypeToDSLTypeMap();
+
+        this.runtimeObjectTranslator = other.getRuntimeObjectTranslator();
     }
 
     /**
@@ -85,5 +100,9 @@ public class RuntimeEnvironment implements IEvironment {
     @Override
     public HashMap<Class<?>, IType> javaTypeToDSLTypeMap() {
         return this.javaTypeToDSLType;
+    }
+
+    public Object translateRuntimeObject(Object object, DSLInterpreter interpreter) {
+        return this.runtimeObjectTranslator.translateRuntimeObject(object, interpreter);
     }
 }
