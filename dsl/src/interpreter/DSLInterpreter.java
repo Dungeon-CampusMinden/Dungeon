@@ -345,12 +345,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
             typeInstantiator.pushContextMember(contextName, entityObject);
         }
 
-        //AggregateValue entityValue = new AggregateValue(asType, getCurrentMemorySpace(), entityObject);
-
         // an entity-object itself has no members, so add the components as "artificial members"
         // to the aggregate dsl value of the entity
         for (var memberEntry : dslValue.getValueSet()) {
-            String memberName = memberEntry.getKey();
             Value memberValue = memberEntry.getValue();
             if (memberValue instanceof AggregateValue) {
                 // TODO: this is needed, because Prototype does not extend AggregateType currently,
@@ -359,35 +356,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
 
                 // instantiate object as a new java Object
-                //Object memberObject =
-                        typeInstantiator.instantiate(
-                                membersOriginalType,
-                                ((AggregateValue) memberValue).getMemorySpace());
-
-                        /*
-                // put the memberObject inside an encapsulated memory space
-                EncapsulatedObject encapsulatedObject =
-                        new EncapsulatedObject(
-                                memberObject,
-                                membersOriginalType,
-                                currentMemorySpace(),
-                                this.environment);
-
-                // add the memory space to an aggregateValue
-                AggregateValue aggregateMemberValue =
-                        new AggregateValue(
-                                memberValue.getDataType(), currentMemorySpace(), memberObject);
-
-                // TODO: this is a temporary fix; an AggregateValue with an encapsulated object as a
-                //  memory space should be a separate class
-                aggregateMemberValue.setMemorySpace(encapsulatedObject);
-
-                entityValue.getMemorySpace().bindValue(memberName, aggregateMemberValue);
-
-                         */
+                typeInstantiator.instantiate(
+                        membersOriginalType,
+                        ((AggregateValue) memberValue).getMemorySpace());
             }
         }
-        //return entityValue;
         return entityObject;
     }
 
