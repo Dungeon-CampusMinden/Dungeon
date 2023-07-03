@@ -10,10 +10,10 @@ public class PatrouilleWalkSerializer extends Serializer<PatrouilleWalk> {
     @Override
     public void write(Kryo kryo, Output output, PatrouilleWalk object) {
         kryo.writeClass(output, object.getClass());
-        output.writeFloat(object.getRadius());
-        output.writeInt(object.getNumberCheckpoints());
-        //output.writeInt(object.getPauseTime());
-        kryo.writeObject(output, object.getMode());
+        output.writeFloat(object.radius());
+        output.writeInt(object.numberCheckpoints());
+        output.writeInt(object.pauseTime());
+        kryo.writeObject(output, object.mode());
     }
 
     @Override

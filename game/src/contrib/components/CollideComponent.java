@@ -21,8 +21,8 @@ public final class CollideComponent extends Component {
     public static final Point DEFAULT_OFFSET = new Point(0.25f, 0.25f);
     public static final Point DEFAULT_SIZE = new Point(0.5f, 0.5f);
     public static final TriConsumer<Entity, Entity, Tile.Direction> DEFAULT_COLLIDER = new DefaultCollider();
-    private /*@DSLTypeMember(name="offset")*/ Point offset;
-    private /*@DSLTypeMember(name="size")*/ Point size;
+    private final /*@DSLTypeMember(name="offset")*/ Point offset;
+    private final /*@DSLTypeMember(name="size")*/ Point size;
     private TriConsumer<Entity, Entity, Tile.Direction> collideEnter;
     private TriConsumer<Entity, Entity, Tile.Direction> collideLeave;
     private final Logger hitboxLogger = Logger.getLogger(this.getClass().getName());

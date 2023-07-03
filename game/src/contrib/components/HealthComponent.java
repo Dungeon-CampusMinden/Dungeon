@@ -6,6 +6,7 @@ import contrib.systems.HealthSystem;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 
+import contrib.utils.components.health.DefaultOnDeath;
 import core.Component;
 import core.Entity;
 import core.utils.logging.CustomLogLevel;
@@ -72,7 +73,7 @@ public class HealthComponent extends Component {
      * @param entity associated entity
      */
     public HealthComponent(@DSLContextMember(name = "entity") Entity entity) {
-        this(entity, 1, onDeath -> {});
+        this(entity, 1, new DefaultOnDeath());
     }
 
     /**

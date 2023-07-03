@@ -35,6 +35,7 @@ public class PatrouilleWalk implements Consumer<Entity> {
     private final List<Tile> checkpoints = new ArrayList<>();
     private final int numberCheckpoints;
     private final int pauseFrames;
+    private final int pauseTime;
     private final float radius;
     private final MODE mode;
     private GraphPath<Tile> currentPath;
@@ -57,6 +58,7 @@ public class PatrouilleWalk implements Consumer<Entity> {
             final float radius, final int numberCheckpoints, final int pauseTime, final MODE mode) {
         this.radius = radius;
         this.numberCheckpoints = numberCheckpoints;
+        this.pauseTime = pauseTime;
         this.pauseFrames = pauseTime / (1000 / Dungeon.frameRate());
         this.mode = mode;
     }
@@ -168,15 +170,21 @@ public class PatrouilleWalk implements Consumer<Entity> {
         }
     }
 
-    public float getRadius() {
+    public float radius() {
         return radius;
     }
 
-    public int getNumberCheckpoints() {
+    public int numberCheckpoints() {
         return numberCheckpoints;
     }
 
-    public MODE getMode() {
+
+
+    public MODE mode() {
         return mode;
+    }
+
+    public int pauseTime() {
+        return pauseTime;
     }
 }

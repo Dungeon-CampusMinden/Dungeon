@@ -11,27 +11,29 @@ import mp.packages.request.LoadMapRequest;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class LoadMapRequestSerializer extends Serializer<LoadMapRequest> {
     @Override
     public void write(Kryo kryo, Output output, LoadMapRequest object) {
         kryo.writeObject(output, object.getLevel());
-        Stream<Entity> currentEntities = object.getCurrentEntities();
-//        output.writeLong(currentEntities.count());
-//        currentEntities.forEach((entity) -> {
-//            kryo.writeObject(output, entity);
-//        });
+        Stream<Entity> currentStream = object.getCurrentEntities();
+        Set<Entity> currentEntities = currentStream.collect(Collectors.toSet());
+        output.writeLong(currentEntities.size());
+        currentEntities.forEach((entity) -> {
+            kryo.writeObject(output, entity);
+        });
     }
 
     @Override
     public LoadMapRequest read(Kryo kryo, Input input, Class<LoadMapRequest> type) {
         final ILevel level = kryo.readObject(input, ILevel.class);
-//        long size = input.readLong();
+        long size = input.readLong();
         Set<Entity> currentEntities = new HashSet<>();
-//        for (int i = 0; i < size; i++){
-//            currentEntities.add(kryo.readObject(input, Entity.class));
-//        }
+        for (int i = 0; i < size; i++){
+            currentEntities.add(kryo.readObject(input, Entity.class));
+        }
         return new LoadMapRequest(level, currentEntities.stream());
     }
 }

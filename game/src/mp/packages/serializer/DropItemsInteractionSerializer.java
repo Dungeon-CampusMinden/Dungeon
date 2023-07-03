@@ -6,15 +6,17 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import contrib.utils.components.interaction.DropItemsInteraction;
 
+import java.util.function.Consumer;
+
 public class DropItemsInteractionSerializer extends Serializer<DropItemsInteraction> {
     @Override
     public void write(Kryo kryo, Output output, DropItemsInteraction object) {
-//        Class<? extends IInteraction> concreteClass = object.getClass();
-//        kryo.writeClass(output, concreteClass);
+            Class<? extends Consumer> concreteClass = object.getClass();
+            kryo.writeClass(output, concreteClass);
     }
 
     @Override
     public DropItemsInteraction read(Kryo kryo, Input input, Class<DropItemsInteraction> type) {
-        return null;
+        return new DropItemsInteraction();
     }
 }

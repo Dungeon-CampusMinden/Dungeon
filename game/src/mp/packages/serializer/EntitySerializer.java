@@ -7,10 +7,9 @@ import com.esotericsoftware.kryo.io.Output;
 import contrib.components.*;
 import core.Component;
 import core.Entity;
-import core.components.DrawComponent;
-import core.components.PlayerComponent;
-import core.components.PositionComponent;
-import core.components.VelocityComponent;
+import core.components.*;
+
+import java.util.HashMap;
 
 public class EntitySerializer extends Serializer<Entity> {
     @Override
@@ -28,8 +27,8 @@ public class EntitySerializer extends Serializer<Entity> {
     public Entity read(Kryo kryo, Input input, Class<Entity> type) {
         String name = input.readString();
         long size = input.readLong();
-        //Todo - Look if creating a clone corrupts the given ids
-        Entity e = new Entity(name);
+        //Todo - change between load map request and response so entities get created in the right way
+        Entity e = new Entity(name, true);
         for (int i = 0; i < size; i++){
             Class <? extends Component> klass = kryo.readClass(input).getType();
             switch (klass.getSimpleName()){

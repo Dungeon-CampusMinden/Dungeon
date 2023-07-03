@@ -6,12 +6,16 @@ import contrib.components.*;
 import contrib.utils.components.ai.AITools;
 import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.fight.MeleeAI;
+import contrib.utils.components.ai.fight.RangeAI;
 import contrib.utils.components.ai.idle.PatrouilleWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.idle.StaticRadiusWalk;
+import contrib.utils.components.ai.transition.ProtectOnApproach;
+import contrib.utils.components.ai.transition.ProtectOnAttack;
 import contrib.utils.components.ai.transition.RangeTransition;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
 import contrib.utils.components.collision.DefaultCollider;
+import contrib.utils.components.collision.ItemCollider;
 import contrib.utils.components.health.*;
 import contrib.utils.components.interaction.*;
 import contrib.utils.components.item.*;
@@ -19,10 +23,7 @@ import contrib.utils.components.skill.*;
 import contrib.utils.components.stats.DamageModifier;
 import core.Component;
 import core.Entity;
-import core.components.DrawComponent;
-import core.components.PlayerComponent;
-import core.components.PositionComponent;
-import core.components.VelocityComponent;
+import core.components.*;
 import core.level.Tile;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
@@ -32,6 +33,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import core.utils.TriConsumer;
 import core.utils.components.draw.*;
 import mp.packages.request.*;
 import mp.packages.response.*;
@@ -42,6 +44,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class NetworkSetup {
 
@@ -83,6 +88,11 @@ public class NetworkSetup {
         kryo.register(Entity.class, new EntitySerializer());
         kryo.register(Component.class);
 
+        kryo.register(Consumer.class, new ConsumerSerializer());
+        kryo.register(BiConsumer.class, new BiConsumerSerializer());
+        kryo.register(TriConsumer.class, new TriConsumerSerializer());
+        kryo.register(Function.class, new FunctionSerializer());
+
         kryo.register(AIComponent.class, new AIComponentSerializer());
         kryo.register(CollideComponent.class, new CollideComponentSerializer());
         kryo.register(HealthComponent.class, new HealthComponentSerializer());
@@ -93,7 +103,9 @@ public class NetworkSetup {
         kryo.register(ProjectileComponent.class, new ProjectileComponentSerializer());
         kryo.register(StatsComponent.class, new StatsComponentSerializer());
         kryo.register(XPComponent.class, new XPComponentSerializer());
+        kryo.register(CameraComponent.class, new CameraComponentSerializer());
         kryo.register(DrawComponent.class, new DrawComponentSerializer());
+        kryo.register(PlayerComponent.class, new PlayerComponentSerializer());
         kryo.register(PositionComponent.class, new PositionComponentSerializer());
         kryo.register(VelocityComponent.class, new VelocityComponentSerializer());
 
@@ -105,11 +117,15 @@ public class NetworkSetup {
 
         kryo.register(CollideAI.class, new CollideAISerializer());
         kryo.register(MeleeAI.class, new MeleeAISerializer());
+        kryo.register(RangeAI.class, new RangeAiSerializer());
 
         kryo.register(PatrouilleWalk.class, new PatrouilleWalkSerializer());
         kryo.register(RadiusWalk.class, new RadiusWalkSerializer());
         kryo.register(StaticRadiusWalk.class, new StaticRadiusWalkSerializer());
 
+        //not implemented yet because of cyclic dependencies
+        //kryo.register(ProtectOnApproach.class, new ProtectOnApproachSerializer());
+        //kryo.register(ProtectOnAttack.class, new ProtectOnAttackSerializer());
         kryo.register(RangeTransition.class, new RangeTransitionSerializer());
         kryo.register(SelfDefendTransition.class, new SelfDefendTransitionSerializer());
 
@@ -117,19 +133,22 @@ public class NetworkSetup {
 
         kryo.register(Damage.class, new DamageSerializer());
         kryo.register(DamageType.class);
+        kryo.register(DefaultOnDeath.class);
 
         kryo.register(DropLoot.class, new DropLootSerializer());
         kryo.register(DefaultOnDeath.class, new DefaultOnDeathSerializer());
 
-        kryo.register(ControlPointReachable.class);
+        kryo.register(ControlPointReachable.class, new ControlPointReachableSerializer() );
 
-        kryo.register(InteractionTool.class);
+        //kryo.register(InteractionTool.class);
 
         kryo.register(DropItemsInteraction.class, new DropItemsInteractionSerializer());
         kryo.register(DefaultInteraction.class, new DefaultInteractionSerializer());
 
-        kryo.register(ItemData.class);
-        kryo.register(ItemDataGenerator.class);
+        kryo.register(ItemData.class, new ItemDataSerializer());
+        kryo.register(DefaultDrop.class, new DefaultDropSerializer());
+        kryo.register(DefaultCollect.class, new DefaultCollectSerializer());
+        kryo.register(DefaultUseCallback.class, new DefaultUseCallbackSerializer());
         kryo.register(ItemType.class);
 
         kryo.register(FireballSkill.class, new FireballSkillSerializer());
@@ -140,7 +159,7 @@ public class NetworkSetup {
         kryo.register(DamageModifier.class);
 
         kryo.register(DefaultCollider.class, new DefaultColliderSerializer());
-
+        kryo.register(ItemCollider.class, new ItemColliderSerializer());
 
         kryo.register(GameStateUpdateEvent.class, new GameStateUpdateEventSerializer());
         kryo.register(GameState.class, new GameStateSerializer());

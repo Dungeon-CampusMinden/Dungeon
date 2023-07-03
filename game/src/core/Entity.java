@@ -62,6 +62,19 @@ public final class Entity implements Comparable<Entity> {
         this("_" + nextId);
     }
 
+
+    public Entity(final String name, boolean multiplayer){
+        this.name = name;
+        components = new HashMap<>();
+        if (!multiplayer){
+            id = nextId++;
+            Game.addEntity(this);
+            LOGGER.info("The entity '" + name + "' was created.");
+        }else{
+            id = -1;
+        }
+    }
+
     /**
      * Add a new component to this entity.
      *

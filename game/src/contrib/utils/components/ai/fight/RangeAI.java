@@ -74,4 +74,16 @@ public final class RangeAI implements Consumer<Entity> {
             AITools.move(entity, path);
         }
     }
+
+    public float attackRange() {
+        return attackRange;
+    }
+
+    public float distance() {
+        return distance;
+    }
+
+    public Skill skill() {
+        return skill;
+    }
 }

@@ -16,7 +16,7 @@ public class DefaultCollider implements TriConsumer<Entity, Entity, Tile.Directi
         this.message = message;
     }
 
-    public String getMessage() {
+    public String message() {
         return message;
     }
 

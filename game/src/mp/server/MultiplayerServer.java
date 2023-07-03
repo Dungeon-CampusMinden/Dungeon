@@ -67,7 +67,7 @@ public class MultiplayerServer extends Listener {
         } else if (object instanceof LoadMapRequest loadMapRequest) {
             levelInfo.setLevel(loadMapRequest.getLevel());
             levelInfo.setCurrentEntities(loadMapRequest.getCurrentEntities());
-            ///todo todo todo
+            ///todo - change to single currentGameState with level and entity
             if (initialHeroPosition != null) {
                 this.initialHeroPosition = initialHeroPosition;
                 gameState.getHeroPositionByClientId().put(connection.getID(), initialHeroPosition);

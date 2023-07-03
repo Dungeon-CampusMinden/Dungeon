@@ -55,8 +55,8 @@ public class EntityFactory {
         new DrawComponent(hero, "character/knight");
         new CollideComponent(
                 hero,
-                (you, other, direction) -> System.out.println("heroCollisionEnter"),
-                (you, other, direction) -> System.out.println("heroCollisionLeave"));
+                new DefaultCollider("heroCollisionEnter"),
+                new DefaultCollider("heroCollisionLeave"));
         PlayerComponent pc = new PlayerComponent(hero);
         Skill fireball =
                 new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), fireballCoolDown);
@@ -197,7 +197,7 @@ public class EntityFactory {
 
     //Todo - Adjust to changes
     public static Entity newMonster(Point position) throws IOException{
-        Entity monster = new Entity();
+        Entity monster = new Entity("chort");
 
         // Add components to the monster entity
         new PositionComponent(monster, position);

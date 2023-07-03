@@ -6,11 +6,13 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import contrib.utils.components.health.DropLoot;
 
+import java.util.function.Consumer;
+
 public class DropLootSerializer extends Serializer<DropLoot> {
     @Override
     public void write(Kryo kryo, Output output, DropLoot object) {
-//        Class<? extends IOnDeathFunction> concreteClass = object.getClass();
-//        kryo.writeClass(output, concreteClass);
+        Class<? extends Consumer> concreteClass = object.getClass();
+        kryo.writeClass(output, concreteClass);
     }
 
     @Override

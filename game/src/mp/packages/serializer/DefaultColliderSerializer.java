@@ -10,7 +10,7 @@ public class DefaultColliderSerializer extends Serializer<DefaultCollider> {
     @Override
     public void write(Kryo kryo, Output output, DefaultCollider object) {
         kryo.writeClass(output, object.getClass());
-        output.writeString(object.getMessage());
+        output.writeString(object.message());
     }
 
     @Override

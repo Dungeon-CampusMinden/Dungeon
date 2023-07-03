@@ -44,7 +44,6 @@ import java.util.stream.Stream;
 
 import mp.IMultiplayer;
 import mp.MultiplayerAPI;
-import quizquestion.DummyQuizQuestionList;
 
 public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer {
 
@@ -195,7 +194,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      * @param entity the entity that has changes in its Component Collection
      */
     public static void informAboutChanges(Entity entity) {
-        entities.add(entity);
+        // Todo - is the next line necessary?
+        //entities.add(entity);
         LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
     }
 
@@ -326,7 +326,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
 
     public void openToLan() {
         if (doSetup) onSetup();
-
+        updateSystems();
         try {
             PositionComponent positionComponent =
                 hero()
@@ -605,17 +605,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         Game.stage().ifPresent(Game::updateStage);
     }
 
-//@Override
-//        public void render(float delta) {
-//            if (doSetup) setup();
-//            batch.setProjectionMatrix(camera.combined);
-//            frame();
-//            clearScreen();
-//            levelAPI.update();
-//            controller.forEach(AbstractController::update);
-//            camera.update();
-//        }
-
     /**
      * Called once at the beginning of the game.
      *
@@ -633,11 +622,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
                         batch, painter, new WallGenerator(generator), this);
         levelManager.loadLevel(LEVELSIZE);
         multiplayerAPI = new MultiplayerAPI(this);
-//        setupMenus();
         createSystems();
 
         setupStage();
-//        showMenu(startMenu);
     }
 
 //** Called once at the beginning of the game. */

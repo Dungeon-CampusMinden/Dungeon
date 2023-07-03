@@ -157,6 +157,10 @@ public final class Animation {
         this.timeBetweenFrames = timeBetweenFrames;
     }
 
+    public int timeBetweenFrames() {
+        return timeBetweenFrames;
+    }
+
     /**
      * Set if the Animation should stop at the end or start again if the last frame was played.
      *
