@@ -32,7 +32,6 @@ import java.util.List;
 // will be high naturally
 @SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
 public class DSLInterpreter implements AstVisitor<Object> {
-
     private RuntimeEnvironment environment;
     private final ArrayDeque<IMemorySpace> memoryStack;
     private final IMemorySpace globalSpace;
@@ -346,7 +345,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             typeInstantiator.pushContextMember(contextName, entityObject);
         }
 
-        AggregateValue entityValue = new AggregateValue(asType, getCurrentMemorySpace(), entityObject);
+        //AggregateValue entityValue = new AggregateValue(asType, getCurrentMemorySpace(), entityObject);
 
         // an entity-object itself has no members, so add the components as "artificial members"
         // to the aggregate dsl value of the entity
@@ -360,11 +359,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
 
                 // instantiate object as a new java Object
-                Object memberObject =
+                //Object memberObject =
                         typeInstantiator.instantiate(
                                 membersOriginalType,
                                 ((AggregateValue) memberValue).getMemorySpace());
 
+                        /*
                 // put the memberObject inside an encapsulated memory space
                 EncapsulatedObject encapsulatedObject =
                         new EncapsulatedObject(
@@ -383,9 +383,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 aggregateMemberValue.setMemorySpace(encapsulatedObject);
 
                 entityValue.getMemorySpace().bindValue(memberName, aggregateMemberValue);
+
+                         */
             }
         }
-        return entityValue;
+        //return entityValue;
+        return entityObject;
     }
 
     @Override

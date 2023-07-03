@@ -6,6 +6,7 @@ import parser.ast.Node;
 
 import runtime.AggregateValue;
 import runtime.Prototype;
+import runtime.RuntimeEnvironment;
 import runtime.Value;
 
 import semanticanalysis.ICallable;
@@ -41,6 +42,7 @@ public class NativeInstantiate extends NativeFunction {
     public Object call(DSLInterpreter interpreter, List<Node> parameters) {
         assert parameters != null && parameters.size() > 0;
 
+        RuntimeEnvironment rtEnv = interpreter.getRuntimeEnvironment();
         Value param = (Value) parameters.get(0).accept(interpreter);
         if (param.getDataType() != Prototype.PROTOTYPE) {
             throw new RuntimeException(
@@ -52,8 +54,10 @@ public class NativeInstantiate extends NativeFunction {
                     (AggregateValue) interpreter.instantiateDSLValue((Prototype) param);
             var entityType =
                     (AggregateType)
-                            interpreter.getRuntimeEnvironment().getGlobalScope().resolve("entity");
-            return interpreter.instantiateRuntimeValue(dslEntityInstance, entityType);
+                            rtEnv.getGlobalScope().resolve("entity");
+            var entityObject = interpreter.instantiateRuntimeValue(dslEntityInstance, entityType);
+
+            return rtEnv.translateRuntimeObject(entityObject, interpreter);
         }
     }
 
