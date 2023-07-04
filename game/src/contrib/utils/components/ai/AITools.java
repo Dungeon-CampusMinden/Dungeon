@@ -135,6 +135,10 @@ public class AITools {
      * Finds the path to a random (accessible) tile in the given radius, starting from the given
      * center point
      *
+     * <p>If there is no accessible tile in the range, the path will be calculated from the given
+     * center point to the given center point. This is known misbehavior, see
+     * https://github.com/Programmiermethoden/Dungeon/issues/786
+     *
      * @param point Center point
      * @param radius Search radius
      * @return Path from the center point to the randomly selected tile
