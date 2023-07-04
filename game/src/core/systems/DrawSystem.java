@@ -41,6 +41,7 @@ public final class DrawSystem extends System {
      * batch.
      */
     private final SpriteBatch batch;
+
     private final Map<String, PainterConfig> configs;
 
     /**
