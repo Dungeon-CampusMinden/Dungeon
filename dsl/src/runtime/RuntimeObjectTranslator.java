@@ -37,11 +37,15 @@ public class RuntimeObjectTranslator {
     /**
      * Default translation for given Object to a DSL Value. This will look up the equivalent
      * DSL-type for the Objects-Class and depending on the kind of type it will perform different
-     * operations: - if the object is of basic type (bool, int, float), it will be wrapped in a
-     * normal Value - if the object is of an aggregateType, it will be wrapped in an
-     * EncapsulatedObject, which will be used as a MemorySpace by an AggregateValue - if the object
-     * is of an adapted type (an external type, which can not be directly modified to be a
-     * DSL-Value), it is wrapped in a normal Value
+     * operations:
+     *
+     * <p>If the object is of basic type (bool, int, float), it will be wrapped in a normal Value
+     *
+     * <p>If the object is of an aggregateType, it will be wrapped in an EncapsulatedObject, which
+     * will be used as a MemorySpace by an AggregateValue
+     *
+     * <p>If the object is of an adapted type (an external type, which can not be directly modified
+     * to be a DSL-Value), it is wrapped in a normal Value
      *
      * @param object the object to translate into an DSL Value
      * @param parentMemorySpace the memory space in which to add the value
