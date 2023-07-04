@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 public class EncapsulatedValue extends Value {
     private final Field field;
 
+    // TODO: rename to EncapsulatedField
     public EncapsulatedValue(IType type, Field field, Object object) {
         super(type, object, true);
         this.field = field;
