@@ -15,8 +15,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
-import contrib.entities.EntityFactory;
-
 import core.components.PositionComponent;
 import core.components.UIComponent;
 import core.configuration.Configuration;
@@ -732,16 +730,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         removeAllEntities();
         try {
             hero().ifPresent(this::placeOnLevelStart);
-            EntityFactory.newChest();
-            for (int i = 0; i < 5; i++) {
-                EntityFactory.getRandomizedMonster();
-            }
         } catch (MissingComponentException e) {
             LOGGER.warning(e.getMessage());
-        } catch (IOException e) {
-            // will be moved to MAIN in https://github.com/Programmiermethoden/Dungeon/pull/688
-            LOGGER.warning("Could not create new Chest: " + e.getMessage());
-            throw new RuntimeException();
         }
         hero().ifPresent(Game::addEntity);
 

@@ -17,11 +17,11 @@ import contrib.utils.components.skill.SkillTools;
 
 import core.Entity;
 import core.Game;
-import core.components.VelocityComponent;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -33,6 +33,9 @@ import java.util.stream.Stream;
  * random.nextInt() NOTE: If the first Monster rolls a ProtectOn AI, it will Protect itself.
  */
 public class AIFactory {
+
+    private static final Random RANDOM = new Random();
+
     // FightAI Parameters:
     // CollideAI
     private static final float RUSH_RANGE_LOW = 0.5f;
@@ -83,15 +86,15 @@ public class AIFactory {
      *     null as its path, causing the crash.
      */
     public static Consumer<Entity> generateRandomFightAI() {
-        Random random = new Random();
-        int index = random.nextInt(0, 2);
+        int index = RANDOM.nextInt(0, 2);
 
         return switch (index) {
-            case 0 -> new CollideAI(random.nextFloat(RUSH_RANGE_LOW, RUSH_RANGE_HIGH));
-            case 1 -> new RangeAI(
-                    random.nextFloat(ATTACK_RANGE_LOW, ATTACK_RANGE_HIGH),
-                    random.nextFloat(DISTANCE_LOW, DISTANCE_HIGH),
-                    new Skill(new FireballSkill(SkillTools::getHeroPositionAsPoint), 1));
+            case 0 -> new CollideAI(RANDOM.nextFloat(RUSH_RANGE_LOW, RUSH_RANGE_HIGH));
+            default -> new RangeAI(
+                    RANDOM.nextFloat(ATTACK_RANGE_LOW, ATTACK_RANGE_HIGH),
+                    RANDOM.nextFloat(DISTANCE_LOW, DISTANCE_HIGH),
+                    new Skill(new FireballSkill(SkillTools::heroPositionAsPoint), 1));
+                // siehe Bug https://github.com/Programmiermethoden/Dungeon/issues/812
                 /*
                 case 2 -> new MeleeAI(
                     1f,
@@ -99,7 +102,6 @@ public class AIFactory {
                         new FireballSkill(SkillTools::getHeroPositionAsPoint),
                         1)
                 );*/
-            default -> throw new IndexOutOfBoundsException("This FightAI does not exist");
         };
     }
 
@@ -110,29 +112,27 @@ public class AIFactory {
      * @return the generated IdleAI
      */
     public static Consumer<Entity> generateRandomIdleAI() {
-        Random random = new Random();
-        int index = random.nextInt(0, 3);
+        int index = RANDOM.nextInt(0, 3);
 
         switch (index) {
             case 0 -> {
                 PatrouilleWalk.MODE[] modes = PatrouilleWalk.MODE.values();
                 return new PatrouilleWalk(
-                        random.nextFloat(PATROUILLE_RADIUS_LOW, PATROUILLE_RADIUS_HIGH),
-                        random.nextInt(CHECKPOINTS_LOW, CHECKPOINTS_HIGH + 1),
-                        random.nextInt(PAUSE_TIME_LOW, PAUSE_TIME_HIGH + 1),
-                        modes[random.nextInt(0, modes.length)]);
+                        RANDOM.nextFloat(PATROUILLE_RADIUS_LOW, PATROUILLE_RADIUS_HIGH),
+                        RANDOM.nextInt(CHECKPOINTS_LOW, CHECKPOINTS_HIGH + 1),
+                        RANDOM.nextInt(PAUSE_TIME_LOW, PAUSE_TIME_HIGH + 1),
+                        modes[RANDOM.nextInt(0, modes.length)]);
             }
             case 1 -> {
                 return new RadiusWalk(
-                        random.nextFloat(RADIUS_WALK_LOW, RADIUS_WALK_HIGH),
-                        random.nextInt(BREAK_TIME_LOW, BREAK_TIME_HIGH + 1));
+                        RANDOM.nextFloat(RADIUS_WALK_LOW, RADIUS_WALK_HIGH),
+                        RANDOM.nextInt(BREAK_TIME_LOW, BREAK_TIME_HIGH + 1));
             }
-            case 2 -> {
+            default -> {
                 return new StaticRadiusWalk(
-                        random.nextFloat(STATIC_RADIUS_WALK_LOW, STATIC_RADIUS_WALK_HIGH),
-                        random.nextInt(STATIC_BREAK_TIME_LOW, STATIC_BREAK_TIME_HIGH + 1));
+                        RANDOM.nextFloat(STATIC_RADIUS_WALK_LOW, STATIC_RADIUS_WALK_HIGH),
+                        RANDOM.nextInt(STATIC_BREAK_TIME_LOW, STATIC_BREAK_TIME_HIGH + 1));
             }
-            default -> throw new IndexOutOfBoundsException("This IdleAI does not exist");
         }
     }
 
@@ -143,66 +143,67 @@ public class AIFactory {
      * @return the generated TransitionAI
      */
     public static Function<Entity, Boolean> generateRandomTransitionAI(Entity entity) {
-        Random random = new Random();
-        int index = random.nextInt(0, 4);
+        int index = RANDOM.nextInt(0, 4);
 
         switch (index) {
             case 0 -> {
                 return new RangeTransition(
-                        random.nextFloat(RANGE_TRANSITION_LOW, RANGE_TRANSITION_HIGH));
+                        RANDOM.nextFloat(RANGE_TRANSITION_LOW, RANGE_TRANSITION_HIGH));
             }
             case 1 -> {
                 return new SelfDefendTransition();
             }
             case 2 -> {
-                ProtectOnApproach transition;
-                Optional<Entity> randomMonster = getRandomMonster();
-                if (getRandomMonster().isPresent()) {
-                    transition =
-                            new ProtectOnApproach(
-                                    random.nextFloat(PROTECT_RANGE_LOW, PROTECT_RANGE_HIGH),
-                                    randomMonster.get());
-                } else {
-                    transition =
-                            new ProtectOnApproach(
-                                    random.nextFloat(PROTECT_RANGE_LOW, PROTECT_RANGE_HIGH),
-                                    entity);
-                }
-                return transition;
+                return new ProtectOnApproach(
+                        RANDOM.nextFloat(PROTECT_RANGE_LOW, PROTECT_RANGE_HIGH),
+                        randomMonsterOrMe(entity));
             }
-            case 3 -> {
-                ProtectOnAttack transition;
-                Optional<Entity> randomMonster = getRandomMonster();
-                if (getRandomMonster().isPresent()) {
-                    transition = new ProtectOnAttack(randomMonster.get());
-                } else {
-                    transition = new ProtectOnAttack(entity);
-                }
-                return transition;
+            default -> {
+                return new ProtectOnAttack(randomMonsterOrMe(entity));
             }
-            default -> throw new IndexOutOfBoundsException("This TransitionAI does not exist");
         }
     }
 
     /**
-     * Goes filters all Entities for Monsters and returns a random one.
+     * Returns random entity from Game that is a monster.
      *
-     * @return returns either a random Monster or null if it cant find one
+     * <p>A monster is an Entity with a {@link HealthComponent} and an {@link AIComponent}.
+     *
+     * <p>Use this method to get an entity as parameter for specific AI-Behaviors like {@link
+     * ProtectOnAttack}
+     *
+     * @return a random monster from the game or null no monster exists in the game.
      */
-    private static Optional<Entity> getRandomMonster() {
-        Random random = new Random();
+    private static Optional<Entity> randomMonster() {
         Stream<Entity> monsterStream =
                 Game.entityStream()
                         .filter(m -> m.fetch(HealthComponent.class).isPresent())
-                        .filter(m -> m.fetch(AIComponent.class).isPresent())
-                        .filter(m -> m.fetch(VelocityComponent.class).isPresent());
+                        .filter(m -> m.fetch(AIComponent.class).isPresent());
 
         List<Entity> monsterList = monsterStream.toList();
         Entity monster = null;
 
         if (monsterList.size() > 0) {
-            monster = monsterList.get(random.nextInt(monsterList.size()));
+            monster = monsterList.get(RANDOM.nextInt(monsterList.size()));
         }
         return Optional.ofNullable(monster);
+    }
+
+    /**
+     * Returns random entity from Game that is a monster. If no monster exist, return the given
+     * entity,
+     *
+     * <p>A monster is an Entity with a {@link HealthComponent} and an {@link AIComponent}.
+     *
+     * <p>Use this method to get an entity as parameter for specific AI-Behaviors like {@link
+     * ProtectOnAttack}
+     *
+     * @param me entity to return if the no monster exist in the game
+     * @return a random monster from the game or the given entity if no monster exists in the game.
+     */
+    private static Entity randomMonsterOrMe(Entity me) {
+        AtomicReference<Entity> r = new AtomicReference<>(me);
+        randomMonster().ifPresent(r::set);
+        return r.get();
     }
 }

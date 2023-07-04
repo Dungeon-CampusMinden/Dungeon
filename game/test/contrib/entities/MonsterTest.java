@@ -39,7 +39,7 @@ public class MonsterTest {
                         DesignLabel.DEFAULT));
 
         Game.hero(EntityFactory.newHero());
-        Entity m = EntityFactory.getRandomizedMonster();
+        Entity m = EntityFactory.randomMonster();
 
         Optional<DrawComponent> drawComponent = m.fetch(DrawComponent.class);
         assertTrue("Entity needs the DrawComponent.", drawComponent.isPresent());
