@@ -1,10 +1,9 @@
 package quest.quizquestion;
 
+import quest.IContentType;
 import quest.Quest;
 
-public class QuizQuestion extends Quest {
-
-    private final QuizQuestionType type;
+public final class QuizQuestion extends Quest {
 
     /**
      * The QuizQuestion class represents a single quiz question, including the question itself,
@@ -16,13 +15,9 @@ public class QuizQuestion extends Quest {
      */
     public QuizQuestion(
             QuizQuestionContent question, QuizQuestionContent[] answers, QuizQuestionType type) {
-        super(answers, question);
-        this.type = type;
+        super(answers, question, type);
     }
 
-    public QuizQuestionType type() {
-        return type;
-    }
     /**
      * The QuizQuestionType enum represents the different types of quiz questions that can be
      * created. The available types are SINGLE_CHOICE, MULTIPLE_CHOICE, and FREETEXT. SINGLE_CHOICE
@@ -31,7 +26,7 @@ public class QuizQuestion extends Quest {
      * allowed to select multiple answers. FREETEXT represents a question where the user is required
      * to input their answer as text.
      */
-    public enum QuizQuestionType {
+    public enum QuizQuestionType implements IContentType {
         SINGLE_CHOICE,
         MULTIPLE_CHOICE,
         FREETEXT

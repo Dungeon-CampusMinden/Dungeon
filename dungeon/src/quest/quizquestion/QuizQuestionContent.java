@@ -1,9 +1,9 @@
 package quest.quizquestion;
 
-import quest.IQuestContentType;
+import quest.IContentType;
 import quest.QuestContent;
 
-public class QuizQuestionContent extends QuestContent {
+public final class QuizQuestionContent extends QuestContent {
 
     /**
      * The QuizQuestionContent class represents the content of a quiz question, such as the question
@@ -25,7 +25,7 @@ public class QuizQuestionContent extends QuestContent {
      * choice as an image. TEXT_AND_IMAGE represents a question or answer choice as both text and an
      * image.
      */
-    public enum QuizQuestionContentType implements IQuestContentType {
+    public enum QuizQuestionContentType implements IContentType {
         TEXT,
         IMAGE,
         TEXT_AND_IMAGE

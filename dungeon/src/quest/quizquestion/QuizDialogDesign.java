@@ -28,7 +28,7 @@ public class QuizDialogDesign {
         btnGroup.uncheckAll();
 
         final CheckBox.CheckBoxStyle style =
-                switch (quizQuestion.type()) {
+                switch ((QuizQuestion.QuizQuestionType) quizQuestion.type()) {
                     case SINGLE_CHOICE -> skin.get("radio", CheckBox.CheckBoxStyle.class);
                     default -> skin.get("default", CheckBox.CheckBoxStyle.class);
                 };
@@ -49,7 +49,7 @@ public class QuizDialogDesign {
                             checkBox.left();
                         });
 
-        switch (quizQuestion.type()) {
+        switch ((QuizQuestion.QuizQuestionType) quizQuestion.type()) {
             case MULTIPLE_CHOICE -> btnGroup.setMaxCheckCount(quizQuestion.content().length);
             case SINGLE_CHOICE -> btnGroup.setMaxCheckCount(1);
         }
@@ -143,7 +143,7 @@ public class QuizDialogDesign {
 
         VerticalGroup vg = new VerticalGroup();
 
-        switch (quizQuestion.type()) {
+        switch ((QuizQuestion.QuizQuestionType) quizQuestion.type()) {
             case FREETEXT -> {
                 ScrollPane scroller = new ScrollPane(DialogDesign.createEditableText(skin), skin);
                 scroller.setFadeScrollBars(false);
