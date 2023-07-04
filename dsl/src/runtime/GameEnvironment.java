@@ -9,7 +9,6 @@ import core.components.VelocityComponent;
 
 import dslToGame.EntityTranslator;
 import dslToGame.QuestConfig;
-import dslToGame.RuntimeObjectTranslator;
 
 import runtime.nativefunctions.NativeInstantiate;
 import runtime.nativefunctions.NativePrint;

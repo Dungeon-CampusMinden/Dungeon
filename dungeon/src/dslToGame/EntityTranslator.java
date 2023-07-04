@@ -5,7 +5,6 @@ import core.Entity;
 import runtime.*;
 
 import semanticanalysis.IScope;
-import semanticanalysis.Symbol;
 import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.TypeBuilder;
 

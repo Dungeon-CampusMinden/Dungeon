@@ -1,6 +1,6 @@
 package interpreter.mockecs;
 
-import dslToGame.IObjectToValueTranslator;
+import runtime.IObjectToValueTranslator;
 
 import runtime.*;
 

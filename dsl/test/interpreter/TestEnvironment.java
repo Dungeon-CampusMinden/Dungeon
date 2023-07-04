@@ -8,8 +8,14 @@ import runtime.GameEnvironment;
 import semanticanalysis.Scope;
 import semanticanalysis.Symbol;
 import semanticanalysis.types.IType;
+import semanticanalysis.types.TypeBuilder;
 
 public class TestEnvironment extends GameEnvironment {
+
+    @Override
+    public TypeBuilder getTypeBuilder() {
+        return super.getTypeBuilder();
+    }
 
     public TestEnvironment() {
         super();

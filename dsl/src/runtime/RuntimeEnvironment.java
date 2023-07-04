@@ -1,7 +1,5 @@
 package runtime;
 
-import dslToGame.RuntimeObjectTranslator;
-
 import semanticanalysis.IScope;
 import semanticanalysis.Symbol;
 import semanticanalysis.SymbolTable;
