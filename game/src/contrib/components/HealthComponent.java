@@ -27,13 +27,14 @@ import java.util.logging.Logger;
  *
  * <p>The component also keeps track of the damage received via the {@link #receiveHit(Damage)
  * receiveHit} method. The damage is stored in a list and can be retrieved via the {@link
- * #calculateDamageOf(DamageType) calculateDamageOf} method. The damage is applied, and the list is
- * cleared by the {@link HealthSystem HealthSystem} every frame.
+ * #calculateDamageOf(DamageType) calculateDamageOf} method.
+ *
+ * <p>The {@link HealthSystem} will call {@link #calculateDamageOf(DamageType)} for each {@link
+ * DamageType} and will calculate the sum of the damage. Then the {@link HealthSystem} will reduce
+ * the {@link #currentHealthpoints} and calls {@link #clearDamage()}. If the health points go to 0
+ * or less, the system will call {@link #triggerOnDeath()}.
  *
  * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
- *
- * <p>If the current health points of an entity go to or below 0, the {@link HealthSystem} will
- * trigger the {@link #onDeath} function stored in this component.
  */
 @DSLType(name = "health_component")
 public final class HealthComponent extends Component {
