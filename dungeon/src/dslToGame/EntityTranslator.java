@@ -6,6 +6,7 @@ import runtime.*;
 
 import semanticanalysis.IScope;
 import semanticanalysis.types.AggregateType;
+import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 
 public class EntityTranslator implements IObjectToValueTranslator {
@@ -14,7 +15,11 @@ public class EntityTranslator implements IObjectToValueTranslator {
     private EntityTranslator() {}
 
     @Override
-    public Value translate(Object object, IScope globalScope, IMemorySpace parentMemorySpace) {
+    public Value translate(
+            Object object,
+            IScope globalScope,
+            IMemorySpace parentMemorySpace,
+            IEvironment environment) {
         var entity = (Entity) object;
         // get datatype for entity
         var entityType = globalScope.resolve("entity");
@@ -24,33 +29,25 @@ public class EntityTranslator implements IObjectToValueTranslator {
         } else {
             // create aggregateValue for entity
             var value = new AggregateValue((AggregateType) entityType, parentMemorySpace, entity);
-            // var globalScope =
-            // interpreter.getRuntimeEnvironment().getSymbolTable().getGlobalScope();
 
             entity.componentStream()
                     .forEach(
                             (component) -> {
-                                String componentDSLName =
-                                        TypeBuilder.getDSLName(component.getClass());
-                                var componentDSLType = globalScope.resolve(componentDSLName);
+                                var aggregateMemberValue =
+                                        environment
+                                                .getRuntimeObjectTranslator()
+                                                .translateRuntimeObject(
+                                                        component,
+                                                        globalScope,
+                                                        value.getMemorySpace(),
+                                                        environment);
 
-                                if (componentDSLType != Symbol.NULL) {
-                                    // TODO: casting to AggregateType here is probably not safe
-                                    //  -> was passiert, wenn das hier PODAdapted ist?
+                                // translateComponent(component, globalScope,
+                                // value.getMemorySpace());
 
-                                    // encapsulate the component
-                                    var encapsulatedObject =
-                                            new EncapsulatedObject(
-                                                    component,
-                                                    (AggregateType) componentDSLType,
-                                                    value.getMemorySpace());
-                                    AggregateValue aggregateMemberValue =
-                                            new AggregateValue(
-                                                    (AggregateType) componentDSLType,
-                                                    value.getMemorySpace(),
-                                                    component);
-                                    aggregateMemberValue.setMemorySpace(encapsulatedObject);
-
+                                if (aggregateMemberValue != Value.NONE) {
+                                    String componentDSLName =
+                                            TypeBuilder.getDSLName(component.getClass());
                                     value.getMemorySpace()
                                             .bindValue(componentDSLName, aggregateMemberValue);
                                 }

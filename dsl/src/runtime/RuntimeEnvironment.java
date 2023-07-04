@@ -103,7 +103,8 @@ public class RuntimeEnvironment implements IEvironment {
         return this.javaTypeToDSLType;
     }
 
-    public Object translateRuntimeObject(Object object, DSLInterpreter interpreter) {
-        return this.runtimeObjectTranslator.translateRuntimeObject(object, interpreter);
+    public Object translateRuntimeObject(Object object, IMemorySpace parentMemorySpace) {
+        return this.runtimeObjectTranslator.translateRuntimeObject(
+                object, this.getGlobalScope(), parentMemorySpace, this);
     }
 }

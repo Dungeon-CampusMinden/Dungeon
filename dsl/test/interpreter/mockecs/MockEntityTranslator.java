@@ -5,7 +5,6 @@ import runtime.IObjectToValueTranslator;
 import runtime.*;
 
 import semanticanalysis.IScope;
-import semanticanalysis.Symbol;
 import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.TypeBuilder;
 
@@ -15,7 +14,11 @@ public class MockEntityTranslator implements IObjectToValueTranslator {
     private MockEntityTranslator() {}
 
     @Override
-    public Value translate(Object object, IScope globalScope, IMemorySpace parentMemorySpace) {
+    public Value translate(
+            Object object,
+            IScope globalScope,
+            IMemorySpace parentMemorySpace,
+            IEvironment environment) {
         Entity entity = (Entity) object;
         // get datatype for entity
         var entityType = globalScope.resolve("entity");
@@ -27,26 +30,16 @@ public class MockEntityTranslator implements IObjectToValueTranslator {
             var value = new AggregateValue((AggregateType) entityType, parentMemorySpace, entity);
 
             for (var component : entity.components) {
-                String componentDSLName = TypeBuilder.getDSLName(component.getClass());
-                var componentDSLType = globalScope.resolve(componentDSLName);
-
-                if (componentDSLType != Symbol.NULL) {
-                    // TODO: casting to AggregateType here is probably not safe
-                    //  -> was passiert, wenn das hier PODAdapted ist?
-
-                    // encapsulate the component
-                    var encapsulatedObject =
-                            new EncapsulatedObject(
-                                    component,
-                                    (AggregateType) componentDSLType,
-                                    value.getMemorySpace());
-                    AggregateValue aggregateMemberValue =
-                            new AggregateValue(
-                                    (AggregateType) componentDSLType,
-                                    value.getMemorySpace(),
-                                    component);
-                    aggregateMemberValue.setMemorySpace(encapsulatedObject);
-
+                var aggregateMemberValue =
+                        environment
+                                .getRuntimeObjectTranslator()
+                                .translateRuntimeObject(
+                                        component,
+                                        globalScope,
+                                        value.getMemorySpace(),
+                                        environment);
+                if (aggregateMemberValue != Value.NONE) {
+                    String componentDSLName = TypeBuilder.getDSLName(component.getClass());
                     value.getMemorySpace().bindValue(componentDSLName, aggregateMemberValue);
                 }
             }

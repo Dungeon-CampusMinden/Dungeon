@@ -55,7 +55,7 @@ public class NativeInstantiate extends NativeFunction {
             var entityType = (AggregateType) rtEnv.getGlobalScope().resolve("entity");
             var entityObject = interpreter.instantiateRuntimeValue(dslEntityInstance, entityType);
 
-            return rtEnv.translateRuntimeObject(entityObject, interpreter);
+            return rtEnv.translateRuntimeObject(entityObject, interpreter.getCurrentMemorySpace());
         }
     }
 

@@ -33,12 +33,13 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
      *     (used for resolving member access)
      * @param parent the parent {@link IMemorySpace}
      */
-    public EncapsulatedObject(Object innerObject, AggregateType type, IMemorySpace parent) {
+    public EncapsulatedObject(Object innerObject, AggregateType type, IMemorySpace parent, IEvironment environment) {
         super(type, innerObject);
         assert innerObject.getClass().equals(type.getOriginType());
 
         this.parent = parent;
         this.type = type;
+        this.environment = environment;
         this.typeMemberToField = new HashMap<>();
         this.objectCache = new HashMap<>();
 
@@ -83,32 +84,22 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                 // if the field is a component for example
                 var type = TypeBuilder.getDSLTypeForClass(fieldValue.getClass());
                 if (type != null) {
-                    // TODO: create encapsulated value (because the field is a POD-field, or "basic
-                    //  type") -> linking the value to the field is only required for setting the
+                    // create encapsulated value (because the field is a POD-field, or "basic
+                    // type") -> linking the value to the field is only required for setting the
                     // internal value
-                    //  not for reading.. but this decision should not be made here in the
-                    // `resolve`-method
+                    // NOTE: this behaviour differs from the default translation of the
+                    // RuntimeObjectTranslator, because we know in this case, that the resolved
+                    // name is a member of the underlying object
                     returnValue = new EncapsulatedValue(type, correspondingField, this.object);
-                    // cache it
-                    this.objectCache.put(name, returnValue);
                 } else {
-                    var dslTypeName = TypeBuilder.getDSLName(fieldValue.getClass());
-                    var typeFromGlobalScope =
-                            this.environment.getGlobalScope().resolve(dslTypeName);
-                    if (typeFromGlobalScope instanceof IType) {
-                        // TODO: test thins
-                        type = (IType) typeFromGlobalScope;
-                        assert type instanceof AggregateType;
-                        // if we reach this point, then the field in the actual java class
-                        // has a representation in the dsl type system, which means
-                        // that we should be able to just construct a new EncapsulatedObject
-                        // around it -> which should be cached;
-                        returnValue =
-                                new EncapsulatedObject(fieldValue, (AggregateType) type, this);
-                        // cache it
-                        this.objectCache.put(name, returnValue);
-                    }
+                    returnValue = environment.getRuntimeObjectTranslator().translateRuntimeObject(
+                        fieldValue,
+                        environment.getGlobalScope(),
+                        this,
+                        this.environment);
                 }
+                // cache it
+                this.objectCache.put(name, returnValue);
             } catch (IllegalAccessException e) {
                 // TODO: handle
             }
