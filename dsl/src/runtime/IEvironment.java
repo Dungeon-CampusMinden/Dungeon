@@ -4,6 +4,7 @@ import dslToGame.RuntimeObjectTranslator;
 
 import semanticanalysis.*;
 import semanticanalysis.types.IType;
+import semanticanalysis.types.TypeBuilder;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,8 @@ import java.util.List;
 // TODO: this is more of a semantic analysis kind of concept -> put it there
 // TODO: add getTypeBuilder
 public interface IEvironment {
+
+    TypeBuilder getTypeBuilder();
 
     /**
      * @return all available types of the environment

@@ -2,12 +2,11 @@ package runtime;
 
 import dslToGame.RuntimeObjectTranslator;
 
-import interpreter.DSLInterpreter;
-
 import semanticanalysis.IScope;
 import semanticanalysis.Symbol;
 import semanticanalysis.SymbolTable;
 import semanticanalysis.types.IType;
+import semanticanalysis.types.TypeBuilder;
 
 import java.util.HashMap;
 
@@ -21,6 +20,7 @@ public class RuntimeEnvironment implements IEvironment {
     private final HashMap<String, Prototype> prototypes;
     private final HashMap<Class<?>, IType> javaTypeToDSLType;
     private final RuntimeObjectTranslator runtimeObjectTranslator;
+    private final TypeBuilder typeBuilder;
 
     public RuntimeObjectTranslator getRuntimeObjectTranslator() {
         return runtimeObjectTranslator;
@@ -34,6 +34,7 @@ public class RuntimeEnvironment implements IEvironment {
      */
     public RuntimeEnvironment(IEvironment other) {
         this.symbolTable = other.getSymbolTable();
+        this.typeBuilder = other.getTypeBuilder();
 
         var functions = other.getFunctions();
         this.functions = new HashMap<>();
@@ -77,6 +78,11 @@ public class RuntimeEnvironment implements IEvironment {
             this.prototypes.put(prototype.getName(), prototype);
             return true;
         }
+    }
+
+    @Override
+    public TypeBuilder getTypeBuilder() {
+        return this.typeBuilder;
     }
 
     @Override

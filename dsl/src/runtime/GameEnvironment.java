@@ -39,6 +39,7 @@ public class GameEnvironment implements IEvironment {
     protected final Scope globalScope;
     protected final RuntimeObjectTranslator runtimeObjectTranslator = new RuntimeObjectTranslator();
 
+    @Override
     public TypeBuilder getTypeBuilder() {
         return typeBuilder;
     }
