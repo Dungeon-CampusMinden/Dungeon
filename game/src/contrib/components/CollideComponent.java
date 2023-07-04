@@ -17,15 +17,18 @@ import java.util.logging.Logger;
 /**
  * Allow an entity to collide with other entities that have a {@link CollideComponent}.
  *
- * <p>The component creates a hitbox (an invisible square) around the associated entity.
+ * <p>The component creates a hitbox (an invisible rectangle) around the associated entity. The
+ * default size is {@link #DEFAULT_SIZE}, but you can configure the size of the hitbox in the
+ * constructor parameter.
  *
  * <p>The {@link contrib.systems.CollisionSystem} will check if the hitbox collides with another
- * hitbox of a different entity, and then trigger the {@link #onEnter(CollideComponent,
- * Tile.Direction)} function. This function stores the behaviour that should be executed if a
- * collision is detected.
- *
- * <p>The {@link contrib.systems.CollisionSystem} can also detect when a collision is stopped and
- * will then trigger the {@link #onLeave(CollideComponent, Tile.Direction)} function.
+ * hitbox of a different entity. The system can detect two different types of collisions. The first
+ * one is a new collision, which occurs if the collision between the two hitboxes was not present at
+ * the last check. If a new collision is detected, the {@link contrib.systems.CollisionSystem} will
+ * call {@link #onEnter(CollideComponent, Tile.Direction)}. The second type of collision is a
+ * leaving collision, which occurs if a collision that was present in the last check is no longer
+ * present in the current check. If a leaving collision is detected, the {@link
+ * contrib.systems.CollisionSystem} will call {@link #collideLeave(TriConsumer)}.
  *
  * <p>Example use cases for a collision are pushing an object like a chest or getting damaged by a
  * spiky monster.
