@@ -34,7 +34,6 @@ import core.utils.DelayedSet;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Painter;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -133,14 +132,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private static Stage stage;
 
     private static LevelManager levelManager;
-
-    /**
-     * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
-     * batch.
-     */
-    private SpriteBatch batch;
-    /** Draws objects */
-    private Painter painter;
 
     private boolean doSetup = true;
     private boolean uiDebugFlag = false;

@@ -33,7 +33,13 @@ import java.util.Map;
  */
 public final class DrawSystem extends System {
 
+    /** Draws objects */
     private final Painter painter;
+
+    /**
+     * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
+     * batch.
+     */
     private final SpriteBatch batch;
     private final Map<String, PainterConfig> configs;
 
