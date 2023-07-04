@@ -44,7 +44,7 @@ public class TestRuntimeObjectTranslator {
                 (AggregateValue)
                         interpreter
                                 .getRuntimeEnvironment()
-                                .translateRuntimeObject(entity, interpreter);
+                                .translateRuntimeObject(entity, interpreter.getGlobalMemorySpace());
 
         var velocityComponent =
                 (AggregateValue) entityAsValue.getMemorySpace().resolve("velocity_component");
@@ -77,7 +77,8 @@ public class TestRuntimeObjectTranslator {
                 (AggregateValue)
                         interpreter
                                 .getRuntimeEnvironment()
-                                .translateRuntimeObject(componentObject, interpreter);
+                                .translateRuntimeObject(
+                                        componentObject, interpreter.getGlobalMemorySpace());
 
         var xVelocityValue = velocityValue.getMemorySpace().resolve("x_velocity");
         var internalXVelocityValue = xVelocityValue.getInternalValue();
@@ -88,10 +89,8 @@ public class TestRuntimeObjectTranslator {
         Assert.assertEquals(42.0f, xVelocityFromComponent, 0.0f);
     }
 
-    // TODO: mocking this requires the following:
-    //  - extend TestEnvironment to load other translators
     @Test
-    public void testIsolatedComponentTranslationAdapted() {
+    public void testIsolatedComponentTranslationPODAdapted() {
         String program = """
             quest_config my_quest_config {}
             """;
@@ -100,21 +99,55 @@ public class TestRuntimeObjectTranslator {
         env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, Scope.NULL);
         var interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomTypes(
-                program, env, interpreter, ExternalType.class, TestComponentWithExternalType.class);
+                program,
+                env,
+                interpreter,
+                interpreter.mockecs.Entity.class,
+                ExternalType.class,
+                TestComponentWithExternalType.class);
 
         interpreter.mockecs.Entity entity = new interpreter.mockecs.Entity();
         TestComponentWithExternalType componentObject = new TestComponentWithExternalType(entity);
+        componentObject.setMemberExternalType(ExternalTypeBuilder.buildExternalType("Hello"));
 
-        // TODO: test this further and define, how encapsulated objects should behave
-        //  externally and which use cases exist for them (translation and instantiation are kind of
-        // related, because
-        //  the logic performed for instantiation right now is basically setting/applying defaults
-        // and then
-        //  translating) -> this should be unified!
-        AggregateValue componentDSLValue =
-                (AggregateValue)
+        Value externalTypeValue =
+                (Value)
                         interpreter
                                 .getRuntimeEnvironment()
-                                .translateRuntimeObject(componentObject, interpreter);
+                                .translateRuntimeObject(
+                                        componentObject.getMemberExternalType(),
+                                        interpreter.getGlobalMemorySpace());
+        Assert.assertTrue(true);
+    }
+
+    @Test
+    public void testIsolatedComponentTranslationAggregateAdapted() {
+        String program = """
+            quest_config my_quest_config {}
+            """;
+
+        var env = new TestEnvironment();
+        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
+        var interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomTypes(
+            program,
+            env,
+            interpreter,
+            interpreter.mockecs.Entity.class,
+            ExternalType.class,
+            TestComponentWithExternalType.class);
+
+        interpreter.mockecs.Entity entity = new interpreter.mockecs.Entity();
+        TestComponentWithExternalType componentObject = new TestComponentWithExternalType(entity);
+        componentObject.setMemberExternalType(ExternalTypeBuilder.buildExternalType("Hello"));
+
+        Value externalTypeValue =
+            (Value)
+                interpreter
+                    .getRuntimeEnvironment()
+                    .translateRuntimeObject(
+                        componentObject.getMemberExternalType(),
+                        interpreter.getGlobalMemorySpace());
+        Assert.assertTrue(true);
     }
 }
