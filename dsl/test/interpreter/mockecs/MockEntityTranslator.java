@@ -1,8 +1,7 @@
 package interpreter.mockecs;
 
-import runtime.IObjectToValueTranslator;
-
 import runtime.*;
+import runtime.IObjectToValueTranslator;
 
 import semanticanalysis.IScope;
 import semanticanalysis.types.AggregateType;

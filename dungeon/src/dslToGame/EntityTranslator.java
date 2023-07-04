@@ -6,7 +6,6 @@ import runtime.*;
 
 import semanticanalysis.IScope;
 import semanticanalysis.types.AggregateType;
-import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 
 public class EntityTranslator implements IObjectToValueTranslator {

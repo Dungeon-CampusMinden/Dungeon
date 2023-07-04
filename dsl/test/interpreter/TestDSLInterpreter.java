@@ -616,7 +616,8 @@ public class TestDSLInterpreter {
 
         Value externalTypeMemberValue = component.getMemorySpace().resolve("member_external_type");
         Assert.assertNotEquals(externalTypeMemberValue, Value.NONE);
-        Assert.assertEquals(externalTypeMemberValue.getDataType().getTypeKind(), IType.Kind.PODAdapted);
+        Assert.assertEquals(
+                externalTypeMemberValue.getDataType().getTypeKind(), IType.Kind.PODAdapted);
 
         var internalObject = (TestComponentWithExternalType) component.getInternalValue();
         ExternalType externalTypeMember = internalObject.getMemberExternalType();
@@ -664,7 +665,8 @@ public class TestDSLInterpreter {
 
         Value externalTypeMemberValue = component.getMemorySpace().resolve("member_external_type");
         Assert.assertNotEquals(externalTypeMemberValue, Value.NONE);
-        Assert.assertEquals(externalTypeMemberValue.getDataType().getTypeKind(), IType.Kind.AggregateAdapted);
+        Assert.assertEquals(
+                externalTypeMemberValue.getDataType().getTypeKind(), IType.Kind.AggregateAdapted);
 
         var internalObject = (TestComponentWithExternalType) component.getInternalValue();
         ExternalType externalTypeMember = internalObject.getMemberExternalType();

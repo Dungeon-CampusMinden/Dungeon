@@ -1,7 +1,6 @@
 package runtime;
 
 import semanticanalysis.types.AggregateType;
-import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 
 import java.lang.reflect.Field;
@@ -33,7 +32,8 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
      *     (used for resolving member access)
      * @param parent the parent {@link IMemorySpace}
      */
-    public EncapsulatedObject(Object innerObject, AggregateType type, IMemorySpace parent, IEvironment environment) {
+    public EncapsulatedObject(
+            Object innerObject, AggregateType type, IMemorySpace parent, IEvironment environment) {
         super(type, innerObject);
         assert innerObject.getClass().equals(type.getOriginType());
 
@@ -92,11 +92,14 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                     // name is a member of the underlying object
                     returnValue = new EncapsulatedValue(type, correspondingField, this.object);
                 } else {
-                    returnValue = environment.getRuntimeObjectTranslator().translateRuntimeObject(
-                        fieldValue,
-                        environment.getGlobalScope(),
-                        this,
-                        this.environment);
+                    returnValue =
+                            environment
+                                    .getRuntimeObjectTranslator()
+                                    .translateRuntimeObject(
+                                            fieldValue,
+                                            environment.getGlobalScope(),
+                                            this,
+                                            this.environment);
                 }
                 // cache it
                 this.objectCache.put(name, returnValue);

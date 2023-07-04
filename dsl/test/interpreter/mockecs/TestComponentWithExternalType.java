@@ -12,7 +12,10 @@ public class TestComponentWithExternalType extends Component {
     public ExternalType getMemberExternalType() {
         return memberExternalType;
     }
-    public void setMemberExternalType(ExternalType value) { memberExternalType = value; }
+
+    public void setMemberExternalType(ExternalType value) {
+        memberExternalType = value;
+    }
 
     public TestComponentWithExternalType(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);

@@ -22,7 +22,10 @@ public class RuntimeObjectTranslator {
     }
 
     protected Value translateRuntimeObjectDefault(
-            Object object, IScope globalScope, IMemorySpace parentMemorySpace, IEvironment environment) {
+            Object object,
+            IScope globalScope,
+            IMemorySpace parentMemorySpace,
+            IEvironment environment) {
         Value returnValue = Value.NONE;
         var objectsClass = object.getClass();
         IType dslType = TypeBuilder.getDSLTypeForClass(objectsClass);
@@ -41,11 +44,13 @@ public class RuntimeObjectTranslator {
 
                     returnValue = new AggregateValue(aggregateType, parentMemorySpace, object);
                     var encapsulatedObject =
-                            new EncapsulatedObject(object, aggregateType, parentMemorySpace, environment);
+                            new EncapsulatedObject(
+                                    object, aggregateType, parentMemorySpace, environment);
                     ((AggregateValue) returnValue).setMemorySpace(encapsulatedObject);
-                } else if (typeKind == IType.Kind.PODAdapted ||
-                           typeKind == IType.Kind.AggregateAdapted) {
-                    // if the type is adapted, it is an external type and therefore should be represented as
+                } else if (typeKind == IType.Kind.PODAdapted
+                        || typeKind == IType.Kind.AggregateAdapted) {
+                    // if the type is adapted, it is an external type and therefore should be
+                    // represented as
                     // a non-complex Value
                     returnValue = new Value(dslType, object);
                 }
@@ -65,7 +70,9 @@ public class RuntimeObjectTranslator {
         var translator = this.translators.get(objectsClass);
         Value returnValue;
         if (translator == null) {
-            returnValue = translateRuntimeObjectDefault(object, globalScope, parentMemorySpace, environment);
+            returnValue =
+                    translateRuntimeObjectDefault(
+                            object, globalScope, parentMemorySpace, environment);
         } else {
             returnValue = translator.translate(object, globalScope, parentMemorySpace, environment);
         }

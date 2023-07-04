@@ -130,24 +130,24 @@ public class TestRuntimeObjectTranslator {
         env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
         var interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomTypes(
-            program,
-            env,
-            interpreter,
-            interpreter.mockecs.Entity.class,
-            ExternalType.class,
-            TestComponentWithExternalType.class);
+                program,
+                env,
+                interpreter,
+                interpreter.mockecs.Entity.class,
+                ExternalType.class,
+                TestComponentWithExternalType.class);
 
         interpreter.mockecs.Entity entity = new interpreter.mockecs.Entity();
         TestComponentWithExternalType componentObject = new TestComponentWithExternalType(entity);
         componentObject.setMemberExternalType(ExternalTypeBuilder.buildExternalType("Hello"));
 
         Value externalTypeValue =
-            (Value)
-                interpreter
-                    .getRuntimeEnvironment()
-                    .translateRuntimeObject(
-                        componentObject.getMemberExternalType(),
-                        interpreter.getGlobalMemorySpace());
+                (Value)
+                        interpreter
+                                .getRuntimeEnvironment()
+                                .translateRuntimeObject(
+                                        componentObject.getMemberExternalType(),
+                                        interpreter.getGlobalMemorySpace());
         Assert.assertTrue(true);
     }
 }
