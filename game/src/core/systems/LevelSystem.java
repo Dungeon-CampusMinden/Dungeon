@@ -67,7 +67,7 @@ public class LevelSystem extends System {
     }
 
     /**
-     * Load a new level with random size and the given desing
+     * Load a new level with random size and the given design
      *
      * @param designLabel The design that the level should have
      */
@@ -76,7 +76,7 @@ public class LevelSystem extends System {
     }
 
     /**
-     * Load a new level with the given size and a random desing
+     * Load a new level with the given size and a random design
      *
      * @param size wanted size of the level
      */
@@ -109,9 +109,9 @@ public class LevelSystem extends System {
         Map<String, PainterConfig> mapping = new HashMap<>();
 
         Tile[][] layout = currentLevel.layout();
-        for (int y = 0; y < layout.length; y++) {
+        for (Tile[] tiles : layout) {
             for (int x = 0; x < layout[0].length; x++) {
-                Tile t = layout[y][x];
+                Tile t = tiles[x];
                 if (t.levelElement() != LevelElement.SKIP) {
                     String texturePath = t.texturePath();
                     if (!mapping.containsKey(texturePath)) {
