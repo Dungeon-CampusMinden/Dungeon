@@ -12,7 +12,7 @@ public class RuntimeObjectTranslator {
     private HashMap<Class<?>, IObjectToValueTranslator> translators = new HashMap<>();
 
     // TODO: javadoc and rename
-    public void loadRuntimeTranslator(Class<?> clazz, IObjectToValueTranslator translator) {
+    public void loadObjectToValueTranslator(Class<?> clazz, IObjectToValueTranslator translator) {
         if (this.translators.containsKey(clazz)) {
             throw new RuntimeException(
                     "RuntimeObjectTranslator for class '" + clazz + "' is already registered");

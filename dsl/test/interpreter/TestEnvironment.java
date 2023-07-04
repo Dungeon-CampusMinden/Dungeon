@@ -41,7 +41,7 @@ public class TestEnvironment extends GameEnvironment {
 
     @Override
     protected void registerDefaultRuntimeObjectTranslators() {
-        this.runtimeObjectTranslator.loadRuntimeTranslator(
+        this.runtimeObjectTranslator.loadObjectToValueTranslator(
                 Entity.class, MockEntityTranslator.instance);
     }
 }
