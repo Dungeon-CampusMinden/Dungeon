@@ -41,9 +41,6 @@ public class EntityTranslator implements IObjectToValueTranslator {
                                                         value.getMemorySpace(),
                                                         environment);
 
-                                // translateComponent(component, globalScope,
-                                // value.getMemorySpace());
-
                                 if (aggregateMemberValue != Value.NONE) {
                                     String componentDSLName =
                                             TypeBuilder.getDSLName(component.getClass());
