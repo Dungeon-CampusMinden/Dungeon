@@ -31,7 +31,7 @@ public class QuizQuestionUI {
     public static Entity showQuizDialog(QuizQuestion question) {
         return showQuizDialog(
                 question,
-                formatStringForDialogWindow(question.question().content()),
+                formatStringForDialogWindow(question.task().content()),
                 core.hud.UITools.DEFAULT_DIALOG_CONFIRM,
                 core.hud.UITools.DEFAULT_DIALOG_TITLE);
     }

@@ -1,26 +1,24 @@
 package quest;
 
-import java.util.Set;
-
 public abstract class Quest {
-    private final Set<QuestContent> content;
-    private final String questText;
+    private final QuestContent[] content;
+    private final QuestContent task;
 
-    protected Quest(Set<QuestContent> content, String questText) {
+    protected Quest(QuestContent[] content, QuestContent task) {
         this.content = content;
-        this.questText = questText;
+        this.task = task;
     }
 
-    public Set<QuestContent> content() {
+    public QuestContent[] content() {
         return content;
     }
 
-    public String questText() {
-        return questText;
+    public QuestContent task() {
+        return task;
     }
 
     @Override
     public String toString() {
-        return questText;
+        return task.toString();
     }
 }

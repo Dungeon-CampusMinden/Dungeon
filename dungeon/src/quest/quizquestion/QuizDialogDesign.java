@@ -32,7 +32,7 @@ public class QuizDialogDesign {
                     case SINGLE_CHOICE -> skin.get("radio", CheckBox.CheckBoxStyle.class);
                     default -> skin.get("default", CheckBox.CheckBoxStyle.class);
                 };
-        Arrays.stream(quizQuestion.answers())
+        Arrays.stream(quizQuestion.content())
                 .filter(
                         answer ->
                                 answer.type() != QuizQuestionContent.QuizQuestionContentType.IMAGE)
@@ -50,7 +50,7 @@ public class QuizDialogDesign {
                         });
 
         switch (quizQuestion.type()) {
-            case MULTIPLE_CHOICE -> btnGroup.setMaxCheckCount(quizQuestion.answers().length);
+            case MULTIPLE_CHOICE -> btnGroup.setMaxCheckCount(quizQuestion.content().length);
             case SINGLE_CHOICE -> btnGroup.setMaxCheckCount(1);
         }
 
@@ -75,7 +75,11 @@ public class QuizDialogDesign {
         labelSolution.setColor(Color.GREEN);
         VerticalGroup vg = new VerticalGroup();
         vg.addActor(labelExercise);
-        vg.addActor(visualizeQuestionSection(quizQuestion.question().type(), skin, outputMsg));
+        vg.addActor(
+                visualizeQuestionSection(
+                        (QuizQuestionContent.QuizQuestionContentType) (quizQuestion.task().type()),
+                        skin,
+                        outputMsg));
         vg.addActor(labelSolution);
         vg.addActor(visualizeAnswerSection(quizQuestion, skin));
         vg.grow();
