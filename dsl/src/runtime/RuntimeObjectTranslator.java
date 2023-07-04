@@ -1,6 +1,4 @@
-package dslToGame;
-
-import runtime.*;
+package runtime;
 
 import semanticanalysis.IScope;
 import semanticanalysis.Symbol;
