@@ -631,7 +631,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     @Override
     public void render(float delta) {
         if (doSetup) onSetup();
-        batch.setProjectionMatrix(CameraSystem.camera().combined);
+        DrawSystem ds = (DrawSystem) systems.get(DrawSystem.class);
+        ds.getBatch().setProjectionMatrix(CameraSystem.camera().combined);
         onFrame();
         clearScreen();
         levelManager.update();
