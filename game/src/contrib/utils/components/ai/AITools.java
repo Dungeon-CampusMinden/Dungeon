@@ -72,7 +72,7 @@ public class AITools {
     /**
      * @param center center point
      * @param radius Search radius
-     * @return List of tiles in the given radius arround the center point
+     * @return List of tiles in the given radius around the center point
      */
     public static List<Tile> tilesInRange(final Point center, final float radius) {
         List<Tile> tiles = new ArrayList<>();
@@ -88,7 +88,7 @@ public class AITools {
     /**
      * @param center center point
      * @param radius Search radius
-     * @return List of accessible tiles in the given radius arround the center point
+     * @return List of accessible tiles in the given radius around the center point
      */
     public static List<Tile> accessibleTilesInRange(final Point center, final float radius) {
         List<Tile> tiles = tilesInRange(center, radius);
@@ -97,15 +97,20 @@ public class AITools {
     }
 
     /**
-     * @param center center point
-     * @param radius search radius
-     * @return random tile in given range
+     * Gets a random accessible tile coordinate within a specified range around a given center
+     * point. The range is determined by the provided radius.
+     *
+     * @param center The center point around which the tiles are considered.
+     * @param radius The radius within which the accessible tiles should be located.
+     * @return An Optional containing a random Coordinate object representing an accessible tile
+     *     within the range, or an empty Optional if no accessible tiles were found.
      */
-    public static Coordinate randomAccessibleTileCoordinateInRange(
+    public static Optional<Coordinate> randomAccessibleTileCoordinateInRange(
             final Point center, final float radius) {
         List<Tile> tiles = accessibleTilesInRange(center, radius);
+        if (tiles.isEmpty()) return Optional.empty();
         Coordinate newPosition = tiles.get(random.nextInt(tiles.size())).coordinate();
-        return newPosition;
+        return Optional.of(newPosition);
     }
 
     /**
@@ -130,13 +135,18 @@ public class AITools {
      * Finds the path to a random (accessible) tile in the given radius, starting from the given
      * center point
      *
+     * <p>If there is no accessible tile in the range, the path will be calculated from the given
+     * center point to the given center point. This is known misbehavior, see
+     * https://github.com/Programmiermethoden/Dungeon/issues/786
+     *
      * @param point Center point
      * @param radius Search radius
      * @return Path from the center point to the randomly selected tile
      */
     public static GraphPath<Tile> calculatePathToRandomTileInRange(
             final Point point, final float radius) {
-        Coordinate newPosition = randomAccessibleTileCoordinateInRange(point, radius);
+        Coordinate newPosition =
+                randomAccessibleTileCoordinateInRange(point, radius).orElse(point.toCoordinate());
         return calculatePath(point.toCoordinate(), newPosition);
     }
 
@@ -239,8 +249,7 @@ public class AITools {
     public static boolean playerInRange(final Entity entity, final float range) {
 
         Optional<Entity> hero = Game.hero();
-        if (hero.isPresent()) return entityInRange(entity, hero.get(), range);
-        else return false;
+        return hero.filter(value -> entityInRange(entity, value, range)).isPresent();
     }
 
     /**
