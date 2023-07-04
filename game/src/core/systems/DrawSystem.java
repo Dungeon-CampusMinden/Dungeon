@@ -1,5 +1,7 @@
 package core.systems;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
@@ -32,17 +34,18 @@ import java.util.Map;
 public final class DrawSystem extends System {
 
     private final Painter painter;
+    private final SpriteBatch batch;
     private final Map<String, PainterConfig> configs;
 
     /**
      * Create a new DrawSystem to draw entities.
      *
-     * @param painter The Painter to use for drawing.
      * @see Painter
      */
-    public DrawSystem(Painter painter) {
+    public DrawSystem() {
         super(DrawComponent.class, PositionComponent.class);
-        this.painter = painter;
+        this.batch = new SpriteBatch();
+        this.painter = new Painter(batch);
         configs = new HashMap<>();
     }
 
@@ -86,4 +89,12 @@ public final class DrawSystem extends System {
     }
 
     private record DSData(Entity e, DrawComponent ac, PositionComponent pc) {}
+
+    public Painter getPainter() {
+        return painter;
+    }
+
+    public SpriteBatch getBatch() {
+        return batch;
+    }
 }

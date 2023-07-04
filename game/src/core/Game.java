@@ -35,6 +35,7 @@ import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
+import core.utils.logging.CustomLogLevel;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -650,15 +651,14 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private void onSetup() {
         doSetup = false;
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
-        batch = new SpriteBatch();
-        painter = new Painter(batch);
         IGenerator generator = new RandomWalkGenerator();
         initBaseLogger();
+        createSystems();
+        DrawSystem ds = (DrawSystem) systems.get(DrawSystem.class);
         levelManager =
                 new LevelManager(
-                        batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
+                        ds.getBatch(), ds.getPainter(), new WallGenerator(new RandomWalkGenerator()), this);
         levelManager.loadLevel(LEVELSIZE);
-        createSystems();
 
         setupStage();
     }
@@ -798,7 +798,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private void createSystems() {
         addSystem(new CameraSystem());
         addSystem(new VelocitySystem());
-        addSystem(new DrawSystem(painter));
+        addSystem(new DrawSystem());
         addSystem(new PlayerSystem());
         addSystem(new HudSystem());
     }
