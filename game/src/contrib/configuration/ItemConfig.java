@@ -26,5 +26,5 @@ public class ItemConfig {
     public static final ConfigKey<String> TEXTURE =
             new ConfigKey<>(
                     new String[] {"texture"},
-                    new ConfigStringValue("animation/missingTexture.png"));
+                    new ConfigStringValue("animation/missing_texture.png"));
 }

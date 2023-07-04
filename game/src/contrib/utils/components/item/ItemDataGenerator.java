@@ -7,7 +7,7 @@ import java.util.Random;
 
 /** Generator which creates a random ItemData based on the Templates prepared. */
 public class ItemDataGenerator {
-    private static final List<String> missingTexture = List.of("animation/missingTexture.png");
+    private static final List<String> missingTexture = List.of("animation/missing_texture.png");
 
     private List<ItemData> templates =
             List.of(
