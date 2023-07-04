@@ -7,8 +7,6 @@ import semanticanalysis.types.TypeBuilder;
 
 import java.util.HashMap;
 
-// TODO: javadoc
-
 /**
  * This class performs conversions from "runtime objects", meaning Java-objects from the dungeon
  * context (Entity, Components) to DSL Values
@@ -17,8 +15,6 @@ public class RuntimeObjectTranslator {
     // used to store specific IObjectToValueTranslator instances for classes, which
     // require custom logic to translate into a DSL Value
     private final HashMap<Class<?>, IObjectToValueTranslator> translators = new HashMap<>();
-
-    // TODO: javadoc and rename
 
     /**
      * Register an IObjectToValueTranslator instance for a specific class
