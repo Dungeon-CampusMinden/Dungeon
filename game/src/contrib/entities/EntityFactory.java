@@ -30,6 +30,18 @@ import java.util.stream.IntStream;
  */
 public class EntityFactory {
     private static final Logger LOGGER = Logger.getLogger(EntityFactory.class.getName());
+    private static final Random RANDOM = new Random();
+    private static final String[] MONSTER_FILE_PATHS = {
+        "character/monster/chort", "character/monster/imp"
+    };
+
+    private static final int MIN_MONSTER_HEALTH = 2;
+
+    // NOTE: +1 for health as nextInt() is exclusive
+    private static final int MAX_MONSTER_HEALTH = 5 + 1;
+    private static final float MIN_MONSTER_SPEED = 0.1f;
+
+    private static final float MAX_MONSTER_SPEED = 0.25f;
 
     /**
      * Create a new Entity that can be used as a playable character. It will have a {@link
@@ -127,11 +139,10 @@ public class EntityFactory {
      * @return Created Entity
      */
     public static Entity newChest() throws IOException {
-        Random random = new Random();
         ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
 
         List<ItemData> itemData =
-                IntStream.range(0, random.nextInt(1, 3))
+                IntStream.range(0, RANDOM.nextInt(1, 3))
                         .mapToObj(i -> itemDataGenerator.generateItemData())
                         .toList();
         return newChest(itemData, Game.randomTile(LevelElement.FLOOR).position());
@@ -160,5 +171,70 @@ public class EntityFactory {
         dc.getAnimation(CoreAnimations.IDLE_RIGHT).ifPresent(a -> a.setLoop(false));
 
         return chest;
+    }
+
+    /**
+     * Create a new Entity that can be used as a Monster.
+     *
+     * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link AIComponent}
+     * with random AIs from the {@link AIFactory} class, {@link DrawComponent} with a randomly set
+     * Animation, {@link VelocityComponent}, {@link CollideComponent} and a 10% chance for an {@link
+     * InventoryComponent}. If it has an Inventory it will use the {@link DropItemsInteraction} on
+     * death.
+     *
+     * @return The generated "Monster".
+     */
+    public static Entity randomMonster() throws IOException {
+        return randomMonster(MONSTER_FILE_PATHS[RANDOM.nextInt(0, MONSTER_FILE_PATHS.length)]);
+    }
+
+    /**
+     * Create a new Entity that can be used as a Monster.
+     *
+     * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link AIComponent}
+     * with random AIs from the {@link AIFactory} class, {@link DrawComponent} with the Animations
+     * in the given path, {@link VelocityComponent}, {@link CollideComponent} and a 10% chance for
+     * an {@link InventoryComponent}. If it has an Inventory it will use the {@link
+     * DropItemsInteraction} on death.
+     *
+     * @param pathToTexture Path to the directory that contains the texture that should be used for
+     *     the created monster
+     * @return The generated "Monster".
+     * @see DrawComponent
+     */
+    public static Entity randomMonster(String pathToTexture) throws IOException {
+        int health = RANDOM.nextInt(MIN_MONSTER_HEALTH, MAX_MONSTER_HEALTH);
+        float speed = RANDOM.nextFloat(MIN_MONSTER_SPEED, MAX_MONSTER_SPEED);
+
+        Entity monster = new Entity("monster");
+
+        new PositionComponent(monster);
+
+        HealthComponent hc = new HealthComponent(monster);
+        hc.maximalHealthpoints(health);
+        hc.currentHealthpoints(health);
+
+        new AIComponent(
+                monster,
+                AIFactory.generateRandomFightAI(),
+                AIFactory.generateRandomIdleAI(),
+                AIFactory.generateRandomTransitionAI(monster));
+
+        new DrawComponent(monster, pathToTexture);
+
+        new VelocityComponent(monster, speed, speed);
+
+        new CollideComponent(monster);
+
+        int itemRoll = RANDOM.nextInt(0, 10);
+        if (itemRoll == 0) {
+            ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
+            ItemData item = itemDataGenerator.generateItemData();
+            InventoryComponent ic = new InventoryComponent(monster, 1);
+            ic.addItem(item);
+            hc.onDeath(new DropItemsInteraction());
+        }
+
+        return monster;
     }
 }

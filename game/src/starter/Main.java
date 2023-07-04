@@ -27,12 +27,15 @@ public class Main {
                 () -> {
                     try {
                         EntityFactory.newChest();
+                        for (int i = 0; i < 5; i++) {
+                            EntityFactory.randomMonster();
+                        }
                     } catch (IOException e) {
                         LOGGER.warning("Could not create new Chest: " + e.getMessage());
                         throw new RuntimeException();
                     }
                 });
-        Game.userOnFrame(() -> debugger.execute());
+        Game.userOnFrame(debugger::execute);
         Game.windowTitle("My Dungeon");
         Game.addSystem(new AISystem());
         Game.addSystem(new CollisionSystem());

@@ -734,6 +734,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
             LOGGER.warning(e.getMessage());
         }
         hero().ifPresent(Game::addEntity);
+
         userOnLevelLoad.execute();
     }
 
