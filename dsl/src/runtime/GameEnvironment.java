@@ -68,7 +68,8 @@ public class GameEnvironment implements IEvironment {
     }
 
     protected void registerDefaultRuntimeObjectTranslators() {
-        this.runtimeObjectTranslator.loadRuntimeTranslator(Entity.class, EntityTranslator.instance);
+        this.runtimeObjectTranslator.loadObjectToValueTranslator(
+                Entity.class, EntityTranslator.instance);
     }
 
     protected void bindBuiltIns() {

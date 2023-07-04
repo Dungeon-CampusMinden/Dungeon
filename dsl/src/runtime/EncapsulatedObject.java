@@ -95,11 +95,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                     returnValue =
                             environment
                                     .getRuntimeObjectTranslator()
-                                    .translateRuntimeObject(
-                                            fieldValue,
-                                            environment.getGlobalScope(),
-                                            this,
-                                            this.environment);
+                                    .translateRuntimeObject(fieldValue, this, this.environment);
                 }
                 // cache it
                 this.objectCache.put(name, returnValue);

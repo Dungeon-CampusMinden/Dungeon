@@ -3,7 +3,6 @@ package interpreter.mockecs;
 import runtime.*;
 import runtime.IObjectToValueTranslator;
 
-import semanticanalysis.IScope;
 import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.TypeBuilder;
 
@@ -13,14 +12,10 @@ public class MockEntityTranslator implements IObjectToValueTranslator {
     private MockEntityTranslator() {}
 
     @Override
-    public Value translate(
-            Object object,
-            IScope globalScope,
-            IMemorySpace parentMemorySpace,
-            IEvironment environment) {
+    public Value translate(Object object, IMemorySpace parentMemorySpace, IEvironment environment) {
         Entity entity = (Entity) object;
         // get datatype for entity
-        var entityType = globalScope.resolve("entity");
+        var entityType = environment.getGlobalScope().resolve("entity");
 
         if (!(entityType instanceof AggregateType)) {
             throw new RuntimeException("The resolved symbol for 'entity' is not an AggregateType!");
@@ -33,10 +28,7 @@ public class MockEntityTranslator implements IObjectToValueTranslator {
                         environment
                                 .getRuntimeObjectTranslator()
                                 .translateRuntimeObject(
-                                        component,
-                                        globalScope,
-                                        value.getMemorySpace(),
-                                        environment);
+                                        component, value.getMemorySpace(), environment);
                 if (aggregateMemberValue != Value.NONE) {
                     String componentDSLName = TypeBuilder.getDSLName(component.getClass());
                     value.getMemorySpace().bindValue(componentDSLName, aggregateMemberValue);

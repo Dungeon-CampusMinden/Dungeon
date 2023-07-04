@@ -104,7 +104,6 @@ public class RuntimeEnvironment implements IEvironment {
     }
 
     public Object translateRuntimeObject(Object object, IMemorySpace parentMemorySpace) {
-        return this.runtimeObjectTranslator.translateRuntimeObject(
-                object, this.getGlobalScope(), parentMemorySpace, this);
+        return this.runtimeObjectTranslator.translateRuntimeObject(object, parentMemorySpace, this);
     }
 }

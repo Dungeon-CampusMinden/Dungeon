@@ -1,6 +1,5 @@
 package runtime;
 
-import semanticanalysis.IScope;
 import semanticanalysis.Symbol;
 import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.IType;
@@ -22,10 +21,7 @@ public class RuntimeObjectTranslator {
     }
 
     protected Value translateRuntimeObjectDefault(
-            Object object,
-            IScope globalScope,
-            IMemorySpace parentMemorySpace,
-            IEvironment environment) {
+            Object object, IMemorySpace parentMemorySpace, IEvironment environment) {
         Value returnValue = Value.NONE;
         var objectsClass = object.getClass();
         IType dslType = TypeBuilder.getDSLTypeForClass(objectsClass);
@@ -35,7 +31,7 @@ public class RuntimeObjectTranslator {
             returnValue = new Value(dslType, object);
         } else {
             String dslTypeName = TypeBuilder.getDSLName(objectsClass);
-            Symbol dslTypeSymbol = globalScope.resolve(dslTypeName);
+            Symbol dslTypeSymbol = environment.getGlobalScope().resolve(dslTypeName);
             if (dslTypeSymbol != Symbol.NULL) {
                 dslType = (IType) dslTypeSymbol;
                 IType.Kind typeKind = dslType.getTypeKind();
@@ -61,20 +57,15 @@ public class RuntimeObjectTranslator {
 
     // TODO: javadoc
     public Value translateRuntimeObject(
-            Object object,
-            IScope globalScope,
-            IMemorySpace parentMemorySpace,
-            IEvironment environment) {
+            Object object, IMemorySpace parentMemorySpace, IEvironment environment) {
 
         var objectsClass = object.getClass();
         var translator = this.translators.get(objectsClass);
         Value returnValue;
         if (translator == null) {
-            returnValue =
-                    translateRuntimeObjectDefault(
-                            object, globalScope, parentMemorySpace, environment);
+            returnValue = translateRuntimeObjectDefault(object, parentMemorySpace, environment);
         } else {
-            returnValue = translator.translate(object, globalScope, parentMemorySpace, environment);
+            returnValue = translator.translate(object, parentMemorySpace, environment);
         }
         return returnValue;
     }

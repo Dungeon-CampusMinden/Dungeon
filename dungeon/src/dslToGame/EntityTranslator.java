@@ -4,7 +4,6 @@ import core.Entity;
 
 import runtime.*;
 
-import semanticanalysis.IScope;
 import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.TypeBuilder;
 
@@ -14,14 +13,10 @@ public class EntityTranslator implements IObjectToValueTranslator {
     private EntityTranslator() {}
 
     @Override
-    public Value translate(
-            Object object,
-            IScope globalScope,
-            IMemorySpace parentMemorySpace,
-            IEvironment environment) {
+    public Value translate(Object object, IMemorySpace parentMemorySpace, IEvironment environment) {
         var entity = (Entity) object;
         // get datatype for entity
-        var entityType = globalScope.resolve("entity");
+        var entityType = environment.getGlobalScope().resolve("entity");
 
         if (!(entityType instanceof AggregateType)) {
             throw new RuntimeException("The resolved symbol for 'entity' is not an AggregateType!");
@@ -37,7 +32,6 @@ public class EntityTranslator implements IObjectToValueTranslator {
                                                 .getRuntimeObjectTranslator()
                                                 .translateRuntimeObject(
                                                         component,
-                                                        globalScope,
                                                         value.getMemorySpace(),
                                                         environment);
 
