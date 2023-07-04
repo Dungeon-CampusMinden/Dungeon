@@ -35,7 +35,6 @@ import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
-import core.utils.logging.CustomLogLevel;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -657,7 +656,10 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         DrawSystem ds = (DrawSystem) systems.get(DrawSystem.class);
         levelManager =
                 new LevelManager(
-                        ds.getBatch(), ds.getPainter(), new WallGenerator(new RandomWalkGenerator()), this);
+                        ds.getBatch(),
+                        ds.getPainter(),
+                        new WallGenerator(new RandomWalkGenerator()),
+                        this);
         levelManager.loadLevel(LEVELSIZE);
 
         setupStage();

@@ -1,7 +1,7 @@
 package core.systems;
 
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
