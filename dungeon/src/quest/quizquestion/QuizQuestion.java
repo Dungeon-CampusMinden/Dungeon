@@ -1,4 +1,4 @@
-package quizquestion;
+package quest.quizquestion;
 
 /**
  * The QuizQuestion class represents a single quiz question, including the question itself, possible

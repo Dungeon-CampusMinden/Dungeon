@@ -1,4 +1,4 @@
-package quizquestion;
+package quest.quizquestion;
 
 /**
  * The QuizQuestionContent class represents the content of a quiz question, such as the question

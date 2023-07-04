@@ -1,4 +1,4 @@
-package quizquestion;
+package quest.quizquestion;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;

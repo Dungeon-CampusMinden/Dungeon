@@ -5,9 +5,9 @@ import com.badlogic.gdx.Input;
 
 import core.Game;
 
-import quizquestion.QuizQuestion;
-import quizquestion.QuizQuestionContent;
-import quizquestion.QuizQuestionUI;
+import quest.quizquestion.QuizQuestion;
+import quest.quizquestion.QuizQuestionContent;
+import quest.quizquestion.QuizQuestionUI;
 
 import java.util.ArrayList;
 import java.util.List;
