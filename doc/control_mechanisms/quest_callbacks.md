@@ -27,4 +27,48 @@ Das Component hilft dabei, eine Entität als "Quest-relevant" zu markieren, und 
 Die Entitäten werden dann nach Szenario um weitere Components ergänzt (z.B. dem `InteractionComponent`).
 
 In einigen Components können durch das umgesetzte Strategy-Pattern die Callback-Methoden aus der DSL angebunden werden. 
-Ein Parameter jeder Callback-Methode ist die Entität, welche das Component speichert. So kann über den Parameter der Callback-Methode auf die Entität, darüber auf das `TaskReferenceComponent` und so auf die `Quest` und die `QuestContent`-Objekte zugegriffen werden.
+Ein Parameter jeder Strategy-Pattern-Methode ist die Entität, welche das Component speichert. So kann über den Parameter der Strategy-Pattern-Methode auf die Entität, darüber auf das `TaskReferenceComponent` und so auf die `Quest` und die `QuestContent`-Objekte zugegriffen werden.
+
+
+## Callback: Quizfragen
+
+Im Folgenden ist ein Pseudo-DSL-Code angegeben, um den Verlauf eines Callbacks für eine Quizfrage darzustellen: 
+
+```
+//nur in der DSL bekannt
+function callback(Quest quest, QuestContent ... answers) {
+    //über quest ist sind die QuestConfigs und die TaskReferenceComponents und damit die Entitäten erreichbar
+    if(antwort==right)
+        DUNGEON.gib(schwert);
+        //Über Petri-Netze
+            //wizzard.remove(interaction_component);
+            //wizzard.add(new_interaction_component); // => Wizzard sagt "Du bist der größte" 
+    else
+        DUNGEON.killPlayer();
+}
+
+//frage definieren
+single_choice tolle_frage{
+    question: "Wie heißt du?"
+    anserwers: ["Andre","Malte","Nochmal Andre"]
+    correct_answer: 1
+}
+
+//verbindet eine strategy-pattern-methode mit dem callback der DSL
+function wizzard_interaction(Entity entity){
+    answers = DUNGEON.UITools.show(tolle_frage);   // HUD im Spiel geht auf. Wählt antwort(en) aus und drückt ok => return ausgewählte antworten `QuestContent ...`
+    callback(answers)
+}
+
+//erzeugt eine entität mit der interagiert werden kann
+entity wizzard {
+    position_component,
+    draw_component("/wizzard"),
+    ...
+    ...
+    interaction_component(wizzard_interaction)
+}
+
+//füge die Entität dem Spiel hinzu
+DUNGEON.add(wizzard);
+```
