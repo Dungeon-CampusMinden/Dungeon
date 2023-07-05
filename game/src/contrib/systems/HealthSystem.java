@@ -71,7 +71,7 @@ public final class HealthSystem extends System {
 
     private HSData activateDeathAnimation(HSData hsd) {
         // set DeathAnimation as active animation
-            hsd.dc.currentAnimation(AdditionalAnimations.DIE);
+        hsd.dc.currentAnimation(AdditionalAnimations.DIE);
 
         return hsd;
     }
