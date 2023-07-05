@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
- * Allow an associated entity to take damage and to die. *
+ * Allow an associated entity to take damage and to die.
  *
  * <p>The component also tracks the received damage via the {@link #receiveHit(Damage) receiveHit}
  * method. The damage is not applied immediately but is temporarily stored in an internal list until
