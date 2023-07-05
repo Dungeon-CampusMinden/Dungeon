@@ -103,15 +103,25 @@ public final class VelocitySystem extends System {
         }
 
         float x = vsd.vc.currentXVelocity();
+        float y = vsd.vc.currentYVelocity();
         if (x > 0) vsd.dc.currentAnimation(CoreAnimations.RUN_RIGHT);
         else if (x < 0) vsd.dc.currentAnimation(CoreAnimations.RUN_LEFT);
+        else if (y > 0) vsd.dc.currentAnimation(CoreAnimations.RUN_UP);
+        else if (y < 0) vsd.dc.currentAnimation(CoreAnimations.RUN_DOWN);
         // idle
         else {
-            // each drawcomponent has an idle animation, so no check is needed
+            // each drawComponent has an idle animation, so no check is needed
+            // private boolean idleLeft(dc)
             if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_LEFT)
                     || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_LEFT))
-                vsd.dc.currentAnimation(CoreAnimations.IDLE_LEFT);
-            else vsd.dc.currentAnimation(CoreAnimations.IDLE_RIGHT);
+                vsd.dc.currentAnimation(CoreAnimations.IDLE_LEFT, CoreAnimations.IDLE);
+            else if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_RIGHT)
+                    || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_RIGHT))
+                vsd.dc.currentAnimation(CoreAnimations.IDLE_RIGHT, CoreAnimations.IDLE);
+            else if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_UP)
+                    || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_DOWN))
+                vsd.dc.currentAnimation(CoreAnimations.IDLE_UP, CoreAnimations.IDLE);
+            else vsd.dc.currentAnimation(CoreAnimations.IDLE_DOWN, CoreAnimations.IDLE);
         }
     }
 

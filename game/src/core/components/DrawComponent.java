@@ -58,7 +58,8 @@ public final class DrawComponent extends Component {
      * <p>Will read in all subdirectories of the given path and use each file in the subdirectory to
      * create an animation. So each subdirectory should contain only the files for one animation.
      *
-     * <p>Will set the current animation to idle left
+     * <p>Will set the current animation to either idle down, idle left, idle right, idle up or
+     * idle, depending on which one of these animations exist.
      *
      * @param entity associated entity
      * @param path Path (as a string) to the directory in the assets folder where the subdirectories
@@ -76,7 +77,13 @@ public final class DrawComponent extends Component {
                     Arrays.stream(directory.listFiles())
                             .filter(File::isDirectory)
                             .collect(Collectors.toMap(File::getName, Animation::of));
-            currentAnimation(CoreAnimations.IDLE_LEFT);
+
+            currentAnimation(
+                    CoreAnimations.IDLE_DOWN,
+                    CoreAnimations.IDLE_LEFT,
+                    CoreAnimations.IDLE_RIGHT,
+                    CoreAnimations.IDLE_UP,
+                    CoreAnimations.IDLE);
         } catch (NullPointerException np) {
             // The component gets registered at the entity in super().
             // This means that if the files can't be loaded, the component is considered "defective"
@@ -130,17 +137,25 @@ public final class DrawComponent extends Component {
      * <p>If the given animation is not stored in this component, a warning is logged.
      *
      * @param animationName Path of the new current animation (this is the name of the directory).
+     *     If more than one path will be given, the first one that exists will be set as the new
+     *     current animation.
      * @see IPath
      */
-    public void currentAnimation(final IPath animationName) {
-        Animation animation = animationMap.get(animationName.pathString());
-        if (animation != null) this.currentAnimation = animation;
-        else
-            LOGGER.warning(
-                    "Animation "
-                            + animationName
-                            + " can not be set, because the given Animation could not be found for "
-                            + entity.toString());
+    public void currentAnimation(final IPath... animationName) {
+        Set<IPath> animations = Set.of(animationName);
+
+        for (IPath animationPath : animations) {
+            Animation animation = animationMap.get(animationPath.pathString());
+            if (animation != null) {
+                this.currentAnimation = animation;
+                return;
+            } else
+                LOGGER.warning(
+                        "Animation "
+                                + animationName
+                                + " can not be set, because the given Animation could not be found for "
+                                + entity.toString());
+        }
     }
 
     /**
