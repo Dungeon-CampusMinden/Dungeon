@@ -34,9 +34,11 @@ import java.util.stream.Stream;
 @DSLType(name = "entity")
 @DSLContextPush(name = "entity")
 public final class Entity implements Comparable<Entity> {
+    private static final int GLOBAL_ID_NOT_ASSIGNED = -1;
     private static final Logger LOGGER = Logger.getLogger(Entity.class.getName());
-    private static int nextId = 0;
-    private final int id;
+    private static int nextLocaleID = 0;
+    private final int localeID;
+    private int globalID;
     private final String name;
     private final HashMap<Class<? extends Component>, Component> components;
 
@@ -46,7 +48,8 @@ public final class Entity implements Comparable<Entity> {
      * @param name the name of the entity, used for better logging and debugging
      */
     public Entity(final String name) {
-        id = nextId++;
+        globalID = nextLocaleID;
+        localeID = nextLocaleID++;
         components = new HashMap<>();
         this.name = name;
         Game.addEntity(this);
@@ -59,20 +62,14 @@ public final class Entity implements Comparable<Entity> {
      * <p>The name of the entity will be its id
      */
     public Entity() {
-        this("_" + nextId);
+        this("_" + nextLocaleID);
     }
 
-
-    public Entity(final String name, boolean multiplayer){
-        this.name = name;
+    public Entity(final String name, final int localeID, final int globalID){
         components = new HashMap<>();
-        if (!multiplayer){
-            id = nextId++;
-            Game.addEntity(this);
-            LOGGER.info("The entity '" + name + "' was created.");
-        }else{
-            id = -1;
-        }
+        this.name = name;
+        this.localeID = localeID;
+        this.globalID = globalID;
     }
 
     /**
@@ -89,7 +86,7 @@ public final class Entity implements Comparable<Entity> {
     public void addComponent(final Component component) {
         components.put(component.getClass(), component);
         Game.informAboutChanges(this);
-        LOGGER.info(component.getClass().getName() + " Components from " + this + " was added.");
+//        LOGGER.info(component.getClass().getName() + " Components from " + this + " was added.");
     }
 
     /**
@@ -103,9 +100,11 @@ public final class Entity implements Comparable<Entity> {
     public void removeComponent(final Class<? extends Component> klass) {
         if (components.remove(klass) != null) {
             Game.informAboutChanges(this);
-            LOGGER.info(klass.getName() + " from " + name + " was removed.");
+//            LOGGER.info(klass.getName() + " from " + name + " was removed.");
         }
     }
+
+    public HashMap<Class<? extends Component>, Component> components() { return this.components; }
 
     /**
      * Get the component
@@ -132,18 +131,18 @@ public final class Entity implements Comparable<Entity> {
      * @return The id of this entity
      */
     public int id() {
-        return id;
+        return localeID;
     }
 
     @Override
     public String toString() {
-        if (name.contains("_" + id)) return name;
-        else return name + "_" + id;
+        if (name.contains("_" + localeID)) return name;
+        else return name + "_" + localeID;
     }
 
     @Override
     public int compareTo(Entity o) {
-        return id - o.id;
+        return localeID - o.localeID;
     }
 
     /**
@@ -158,4 +157,10 @@ public final class Entity implements Comparable<Entity> {
     public String name(){
         return name;
     }
+
+    public int localeID() { return localeID; }
+
+    public int globalID() { return globalID; }
+
+    public void globalID(final int globalID) { this.globalID = globalID; }
 }

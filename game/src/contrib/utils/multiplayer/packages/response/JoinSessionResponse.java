@@ -1,43 +1,37 @@
 package contrib.utils.multiplayer.packages.response;
 
 
-import core.level.elements.ILevel;
+import contrib.utils.multiplayer.packages.GameState;
 import core.utils.Point;
-
-import java.util.HashMap;
 
 import static java.util.Objects.requireNonNull;
 
 public class JoinSessionResponse {
 
     private final boolean isSucceed;
-    private final ILevel level;
-    private final Integer clientId;
-    private final HashMap<Integer, Point> heroPositionByClientId;
+    private final int heroGlobalID;
+    private final GameState gameState;
+    private final Point initialPosition;
 
     public JoinSessionResponse(
         final boolean isSucceed,
-        final ILevel level,
-        final Integer clientId,
-        final HashMap<Integer, Point> heroPositionByClientId) {
+        final int heroGlobalID,
+        final GameState gameState,
+        final Point initialPosition) {
 
         this.isSucceed = isSucceed;
-        this.level = requireNonNull(level);
-        this.clientId = requireNonNull(clientId);
-        this.heroPositionByClientId = requireNonNull(heroPositionByClientId);
+        this.heroGlobalID = requireNonNull(heroGlobalID);
+        this.gameState = requireNonNull(gameState);
+        this.initialPosition = requireNonNull(initialPosition);
     }
 
-    public boolean getIsSucceed() {
+    public boolean isSucceed() {
         return isSucceed;
     }
 
-    public ILevel getLevel() {
-        return level;
-    }
+    public Integer heroGlobalID() { return this.heroGlobalID; }
 
-    public HashMap<Integer, Point> getHeroPositionByClientId() {
-        return this.heroPositionByClientId;
-    }
+    public GameState gameState() { return this.gameState; }
 
-    public Integer getClientId() { return this.clientId; }
+    public Point initialPosition() { return this.initialPosition; }
 }

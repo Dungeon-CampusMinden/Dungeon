@@ -11,6 +11,8 @@ public class EntitySerializer extends Serializer<Entity> {
     @Override
     public void write(Kryo kryo, Output output, Entity object) {
         output.writeString(object.name());
+        output.writeInt(object.localeID());
+        output.writeInt(object.globalID());
         long size = object.componentStream().count();
         output.writeLong(size);
         object.componentStream().forEach((component) -> {
@@ -22,9 +24,12 @@ public class EntitySerializer extends Serializer<Entity> {
     @Override
     public Entity read(Kryo kryo, Input input, Class<Entity> type) {
         String name = input.readString();
+        int localeID = input.readInt();
+        int globalID = input.readInt();
         long size = input.readLong();
         //Todo - change between load map request and response so entities get created in the right way
-        Entity e = new Entity(name, true);
+        Entity e = new Entity(name, localeID, globalID);
+
         for (int i = 0; i < size; i++){
             Class <? extends Component> klass = kryo.readClass(input).getType();
             switch (klass.getSimpleName()){
@@ -36,9 +41,6 @@ public class EntitySerializer extends Serializer<Entity> {
                     break;
                 case "VelocityComponent":
                     kryo.readObject(input,klass,new VelocityComponentSerializer(e));
-                    break;
-                case "AIComponent":
-                    kryo.readObject(input,klass,new AIComponentSerializer(e));
                     break;
                 case "CollideComponent":
                     kryo.readObject(input,klass,new CollideComponentSerializer(e));

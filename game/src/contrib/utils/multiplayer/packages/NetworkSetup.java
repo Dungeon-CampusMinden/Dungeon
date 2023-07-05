@@ -56,11 +56,11 @@ public class NetworkSetup {
 
         kryo.register(PingRequest.class);
         kryo.register(PingResponse.class);
-        kryo.register(InitServerRequest.class);
+        kryo.register(InitServerRequest.class, new InitServerRequestSerializer());
         kryo.register(InitServerResponse.class, new InitServerResponseSerializer());
         kryo.register(LoadMapRequest.class, new LoadMapRequestSerializer());
         kryo.register(LoadMapResponse.class, new LoadMapResponseSerializer());
-        kryo.register(JoinSessionRequest.class);
+        kryo.register(JoinSessionRequest.class, new JoinSessionRequestSerializer());
         kryo.register(JoinSessionResponse.class, new JoinSessionResponseSerializer());
         kryo.register(ArrayList.class);
         kryo.register(Coordinate.class, new CoordinateSerializer());
@@ -78,10 +78,11 @@ public class NetworkSetup {
         kryo.register(SkipTile.class);
         kryo.register(DesignLabel.class);
         kryo.register(LevelElement.class);
-        kryo.register(UpdateOwnPositionRequest.class, new UpdateOwnPositionRequestSerializer());
+        kryo.register(UpdatePositionRequest.class, new UpdatePositionRequestSerializer());
         kryo.register(Class.class);
         kryo.register(HashMap.class);
-        kryo.register(Set.class, new SetSerializer());
+        kryo.register(Set.class);
+//        kryo.register(Set.class, new SetSerializer());
         kryo.register(HashSet.class);
         kryo.register(Entity.class, new EntitySerializer());
         kryo.register(Component.class);
@@ -160,9 +161,11 @@ public class NetworkSetup {
         kryo.register(ItemCollider.class, new ItemColliderSerializer());
 
         kryo.register(GameStateUpdateEvent.class, new GameStateUpdateEventSerializer());
+        kryo.register(GameStateUpdate.class, new GameStateUpdateSerializer());
         kryo.register(GameState.class, new GameStateSerializer());
-        kryo.register(UpdateOwnPositionResponse.class);
+        kryo.register(UpdatePositionResponse.class);
         kryo.register(ChangeMapRequest.class);
         kryo.register(ChangeMapResponse.class);
+        kryo.register(Version.class, new VersionSerializer());
     }
 }

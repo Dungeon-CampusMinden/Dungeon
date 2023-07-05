@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
+import contrib.entities.EntityFactory;
 import contrib.systems.MultiplayerSynchronizationSystem;
 import core.components.PositionComponent;
 import core.components.UIComponent;
@@ -36,10 +37,9 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import contrib.utils.multiplayer.IMultiplayer;
@@ -114,7 +114,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     private boolean doSetup = true;
     private boolean uiDebugFlag = false;
 
-    private static MultiplayerAPI multiplayerAPI;
+    private static MultiplayerAPI multiplayerAPI = new MultiplayerAPI(Game.getInstance());
 
     // for singleton
     private Game() {
@@ -196,7 +196,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     public static void informAboutChanges(Entity entity) {
         // Todo - is the next line necessary?
         //entities.add(entity);
-        LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
+//        LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
     }
 
     /**
@@ -249,28 +249,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         Game.hero = hero;
     }
 
-//<<<<<<< HEAD
-//     * set the reference of the playable character careful: old hero will not be removed from the
-//     * game
-//     *
-//         * @param hero new reference of hero
-//     */
-//    public static void setHero(Entity hero) {
-//        Game.hero = hero;
-//    }
-//
-//    private void setupCameras() {
-//        camera = new DungeonCamera(null, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
-//        camera.zoom = Constants.DEFAULT_ZOOM_FACTOR;
-//
-//        // See also:
-//        // https://stackoverflow.com/questions/52011592/libgdx-set-ortho-camera
-//    }
-//
-//
-//=======
-
-
     /**
      * Load the configuration from the given path. If the configuration has already been loaded, the
      * cached version will be used.
@@ -299,35 +277,25 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         }
     }
 
-    public static void sendPosition(){
-        if (hero().isPresent()) {
-            PositionComponent positionComponent =
-                (PositionComponent)
-                    hero()
-                        .get()
-                        .fetch(PositionComponent.class)
-                        .orElseThrow(
-                            () ->
-                                new MissingComponentException(
-                                    "PositionComponent"));
-            multiplayerAPI.updateOwnPosition(positionComponent.position());
-        } else {
-//            System.out.println("Hero position not sent. Hero not present/set.");
-        }
+    public static void sendPositionUpdate(final Entity entity){
+        PositionComponent positionComponent =
+            (PositionComponent)
+                entity
+                    .fetch(PositionComponent.class)
+                    .orElseThrow(
+                        () ->
+                            new MissingComponentException(
+                                "PositionComponent"));
+        multiplayerAPI.sendPositionUpdate(entity.globalID(), positionComponent.position());
     }
-
-
-    public void onSinglePlayerModeChosen() {
-        // Nothing to do for now. Everything ready for single player but for now just refresh level
-        levelManager.loadLevel(LEVELSIZE);
-//        hideMenu(startMenu);
-    }
-
 
     public void openToLan() {
         if (doSetup) onSetup();
         updateSystems();
         try {
+            if (hero == null) {
+                hero(EntityFactory.newHero());
+            }
             PositionComponent positionComponent =
                 hero()
                     .get()
@@ -346,8 +314,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
 
     public void joinMultiplayerSession(final String hostAddress, final Integer port) {
         if (doSetup) onSetup();
-
         try {
+            if (hero == null) {
+                hero(EntityFactory.newHero());
+            }
             multiplayerAPI.joinSession(hostAddress, port);
         } catch (Exception e) {
             // TODO: Nicer error handling
@@ -359,7 +329,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     @Override
     public void onMultiplayerSessionStarted(final boolean isSucceed) {
         if (isSucceed) {
-            multiplayerAPI.changeLevel(currentLevel, entities.stream());
+            final Set<Entity> entities = new HashSet<>();
+            entities.addAll(entityStream().collect(Collectors.toSet()));
+            multiplayerAPI.changeLevel(currentLevel, entities);
         } else {
             // TODO: error handling like popup menu with error message
 //            System.out.println("Server responded unsuccessful start");
@@ -369,7 +341,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     @Override
     public void onMultiplayerSessionJoined(final boolean isSucceed, final ILevel level) {
         if (isSucceed) {
-            levelManager.level(level);
+            try {
+                levelManager.level(level);
+            }
+            catch (Exception ex) {
+                ex.printStackTrace();
+            }
         } else {
             // TODO: error handling like popup menu with error message
 //            System.out.println("Cannot join multiplayer session");
@@ -385,7 +362,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     public void onChangeMapRequest() {
         if(multiplayerAPI.isHost()) {
             levelManager.loadLevel(LEVELSIZE);
-            multiplayerAPI.changeLevel(currentLevel, entities.stream());
+            multiplayerAPI.changeLevel(currentLevel, entities.stream().collect(Collectors.toSet()));
         }
     }
 
@@ -777,7 +754,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
                 if(multiplayerAPI.isHost()){
                     levelManager.loadLevel(LEVELSIZE);
                     ////todo - change level design for multiplayer
-                    multiplayerAPI.changeLevel(currentLevel, entities.stream());
+                    multiplayerAPI.changeLevel(currentLevel, entities.stream().collect(Collectors.toSet()));
                 } else {
                     //ask host to generate new map
                     multiplayerAPI.requestNewLevel();

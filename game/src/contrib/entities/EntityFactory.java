@@ -167,29 +167,6 @@ public class EntityFactory {
         return chest;
     }
 
-    /**
-     * Create a new Entity that represents multiplayer hero (not own). It will have a {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent},
-     * {@link CollideComponent}.
-     *
-     * @return Created Entity
-     */
-    public static Entity newHeroDummy(final int playerId) throws IOException{
-        final float xSpeed = 0.3f;
-        final float ySpeed = 0.3f;
-
-        Entity heroDummy = new Entity("heroDummy");
-        new PositionComponent(heroDummy);
-        new MultiplayerComponent(heroDummy, playerId);
-        new VelocityComponent(heroDummy, xSpeed, ySpeed);
-        new DrawComponent(heroDummy, "character/knight");
-        new CollideComponent(
-            heroDummy,
-            new DefaultCollider("heroDummyCollisionEnter"),
-            new DefaultCollider("heroDummyCollisionLeave"));
-
-        return heroDummy;
-    }
-
     // Todo - Adjust to changes
     public static Entity newMonster() throws IOException{
         return newMonster(Game.randomTilePoint(LevelElement.FLOOR));

@@ -54,12 +54,16 @@ public final class VelocitySystem extends System {
     }
 
     private void updatePosition(VSData vsd) {
+        Point oldPosition = new Point(vsd.pc.position().x, vsd.pc.position().y);
         float newX = vsd.pc.position().x + vsd.vc.currentXVelocity();
         float newY = vsd.pc.position().y + vsd.vc.currentYVelocity();
         Point newPosition = new Point(newX, newY);
         if (Game.tileAT(newPosition).isAccessible()) {
             vsd.pc.position(newPosition);
             movementAnimation(vsd);
+            if (newPosition.x != oldPosition.x ||newPosition.y != oldPosition.y){
+                Game.sendPositionUpdate(vsd.e());
+            }
         }
 
         // remove projectiles that hit the wall or other non-accessible

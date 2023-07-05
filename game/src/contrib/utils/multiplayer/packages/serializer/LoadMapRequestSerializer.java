@@ -10,15 +10,12 @@ import contrib.utils.multiplayer.packages.request.LoadMapRequest;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class LoadMapRequestSerializer extends Serializer<LoadMapRequest> {
     @Override
     public void write(Kryo kryo, Output output, LoadMapRequest object) {
-        kryo.writeObject(output, object.getLevel());
-        Stream<Entity> currentStream = object.getCurrentEntities();
-        Set<Entity> currentEntities = currentStream.collect(Collectors.toSet());
+        kryo.writeObject(output, object.level());
+        Set<Entity> currentEntities = object.entities();
         output.writeLong(currentEntities.size());
         currentEntities.forEach((entity) -> {
             kryo.writeObject(output, entity);
@@ -33,6 +30,6 @@ public class LoadMapRequestSerializer extends Serializer<LoadMapRequest> {
         for (int i = 0; i < size; i++){
             currentEntities.add(kryo.readObject(input, Entity.class));
         }
-        return new LoadMapRequest(level, currentEntities.stream());
+        return new LoadMapRequest(level, currentEntities);
     }
 }

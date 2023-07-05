@@ -29,4 +29,8 @@ public class Version implements Comparable<Version> {
         // compare patch versions
         return Integer.compare(this.patch, other.patch);
     }
+
+    public int major() { return this.major; }
+    public int minor() { return this.minor; }
+    public int patch() { return this.patch; }
 }

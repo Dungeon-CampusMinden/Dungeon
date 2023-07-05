@@ -3,8 +3,6 @@ package contrib.utils.multiplayer.client;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import core.level.elements.ILevel;
-import core.utils.Point;
 import contrib.utils.multiplayer.packages.GameState;
 import contrib.utils.multiplayer.packages.NetworkSetup;
 import contrib.utils.multiplayer.packages.response.*;
@@ -12,7 +10,6 @@ import contrib.utils.multiplayer.packages.event.GameStateUpdateEvent;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class MultiplayerClient extends Listener {
 
@@ -61,12 +58,11 @@ public class MultiplayerClient extends Listener {
             for (IMultiplayerClientObserver observer: observers){
                 observer.onInitServerResponseReceived(isSucceed, connection.getID());
             }
-        } else if (object instanceof LoadMapResponse initializeServerResponse) {
-            final boolean isSucceed = initializeServerResponse.getIsSucceed();
-            final ILevel level = initializeServerResponse.getLevel();
-            final HashMap<Integer, Point> heroPositionByClientId = initializeServerResponse.getHeroPositionByClientId();
+        } else if (object instanceof LoadMapResponse loadMapResponse) {
+            final boolean isSucceed = loadMapResponse.isSucceed();
+            final GameState gameState = loadMapResponse.gameState();
             for (IMultiplayerClientObserver observer : observers) {
-                observer.onLoadMapResponseReceived(isSucceed, level, heroPositionByClientId);
+                observer.onLoadMapResponseReceived(isSucceed, gameState);
             }
         } else if (object instanceof ChangeMapResponse){
             for (IMultiplayerClientObserver observer : observers){
@@ -75,18 +71,16 @@ public class MultiplayerClient extends Listener {
         } else if (object instanceof JoinSessionResponse response) {
             for (IMultiplayerClientObserver observer: observers) {
                 observer.onJoinSessionResponseReceived(
-                    response.getIsSucceed(),
-                    response.getLevel(),
-                    response.getClientId(),
-                    response.getHeroPositionByClientId()
+                    response.isSucceed(),
+                    response.heroGlobalID(),
+                    response.gameState()
                 );
             }
         } else if (object instanceof GameStateUpdateEvent gameStateUpdateEvent){
-            final GameState gameState = gameStateUpdateEvent.getGameState();
             for (IMultiplayerClientObserver observer: observers) {
-                observer.onGameStateUpdateEventReceived(gameState);
+                observer.onGameStateUpdateEventReceived(gameStateUpdateEvent.heroesByClientId(),gameStateUpdateEvent.entities());
             }
-        } else if (object instanceof UpdateOwnPositionResponse) {
+        } else if (object instanceof UpdatePositionResponse) {
             for (IMultiplayerClientObserver observer: observers){
                 observer.onUpdateOwnPositionResponseReceived();
             }

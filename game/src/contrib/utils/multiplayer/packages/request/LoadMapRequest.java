@@ -4,21 +4,20 @@ import core.Entity;
 import core.level.elements.ILevel;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class LoadMapRequest {
     private final ILevel level;
-    private final Set<Entity> currentEntities;
+    private final Set<Entity> entities;
 
-    public LoadMapRequest(final ILevel currentLevel, final Stream<Entity> currentEntities){
+    public LoadMapRequest(final ILevel currentLevel, final Set<Entity> entities){
         this.level = currentLevel;
-        this.currentEntities = currentEntities.collect(Collectors.toSet());
+        this.entities = entities;
     }
 
-    public ILevel getLevel() {
+    public ILevel level() {
         return this.level;
     }
 
-    public Stream<Entity> getCurrentEntities(){ return currentEntities.stream(); }
+    public Set<Entity> entities(){ return entities; }
 }

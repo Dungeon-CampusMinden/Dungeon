@@ -31,12 +31,12 @@ public abstract class Component {
         this.entity = entity;
         entity.addComponent(this);
         Logger componentLogger = Logger.getLogger(this.getClass().getName());
-        componentLogger.info(
-                "The component '"
-                        + this.getClass().getName()
-                        + "' was added to entity '"
-                        + entity
-                        + "'.");
+//        componentLogger.info(
+//                "The component '"
+//                        + this.getClass().getName()
+//                        + "' was added to entity '"
+//                        + entity
+//                        + "'.");
     }
 
     /**
@@ -44,5 +44,11 @@ public abstract class Component {
      */
     public Entity entity() {
         return entity;
+    }
+
+    /** Assign according entity. Used to copy entities for multiplayer. */
+    public void entity(final Entity entity) {
+        this.entity = entity;
+        entity.addComponent(this);
     }
 }

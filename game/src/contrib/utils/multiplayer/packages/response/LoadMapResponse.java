@@ -1,6 +1,8 @@
 package contrib.utils.multiplayer.packages.response;
 
 
+import contrib.utils.multiplayer.packages.GameState;
+import core.Entity;
 import core.level.elements.ILevel;
 import core.utils.Point;
 
@@ -11,23 +13,16 @@ import static java.util.Objects.requireNonNull;
 public class LoadMapResponse {
 
     private final boolean isSucceed;
-    private final HashMap<Integer, Point> heroPositionByClientId;
-    private final ILevel level;
+    private final GameState gameState;
 
-    public LoadMapResponse(final boolean isSucceed, final ILevel level, final HashMap<Integer, Point> heroPositionByClientId) {
-        requireNonNull(heroPositionByClientId);
+    public LoadMapResponse(final boolean isSucceed, final GameState gameState) {
         this.isSucceed = isSucceed;
-        this.level = level;
-        this.heroPositionByClientId = heroPositionByClientId;
+        this.gameState = requireNonNull(gameState);
     }
 
-    public boolean getIsSucceed() {
+    public boolean isSucceed() {
         return isSucceed;
     }
 
-    public HashMap<Integer, Point> getHeroPositionByClientId() {
-        return heroPositionByClientId;
-    }
-
-    public ILevel getLevel(){return level;}
+    public GameState gameState(){return gameState;}
 }

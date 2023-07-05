@@ -29,11 +29,11 @@ public class HealthComponentSerializer extends Serializer<HealthComponent> {
 
     @Override
     public HealthComponent read(Kryo kryo, Input input, Class<HealthComponent> type) {
-        int maximalHealthpoints = input.readInt();
-        int currentHealthpoints = input.readInt();
+        int maximalHealthPoints = input.readInt();
+        int currentHealthPoints = input.readInt();
         Consumer<Entity> onDeath = kryo.readObject(input, Consumer.class);
-        HealthComponent hc = new HealthComponent(entity, maximalHealthpoints, onDeath);
-        hc.currentHealthpoints(currentHealthpoints);
+        HealthComponent hc = new HealthComponent(entity, maximalHealthPoints, onDeath);
+        hc.currentHealthpoints(currentHealthPoints);
         return hc;
     }
 }

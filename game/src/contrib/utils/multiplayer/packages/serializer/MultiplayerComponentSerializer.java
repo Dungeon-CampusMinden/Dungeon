@@ -19,12 +19,10 @@ public class MultiplayerComponentSerializer extends Serializer<MultiplayerCompon
         entity = e;
     }
     @Override
-    public void write(Kryo kryo, Output output, MultiplayerComponent object) {
-        output.writeInt(object.getPlayerId());
-    }
+    public void write(Kryo kryo, Output output, MultiplayerComponent object) {}
 
     @Override
     public MultiplayerComponent read(Kryo kryo, Input input, Class<MultiplayerComponent> type) {
-        return new MultiplayerComponent(entity, input.readInt());
+        return new MultiplayerComponent(entity);
     }
 }
