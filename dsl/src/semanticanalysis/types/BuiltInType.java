@@ -15,11 +15,11 @@ public class BuiltInType extends Symbol implements IType {
 
     public static BuiltInType noType = new BuiltInType("none", Scope.NULL, (v) -> false);
     public static BuiltInType boolType =
-            new BuiltInType("bool", Scope.NULL, (v) -> (boolean) v.getInternalObject());
+            new BuiltInType("bool", Scope.NULL, (v) -> (boolean) v.getInternalValue());
     public static BuiltInType intType =
-            new BuiltInType("int", Scope.NULL, (v) -> (int) v.getInternalObject() != 0);
+            new BuiltInType("int", Scope.NULL, (v) -> (int) v.getInternalValue() != 0);
     public static BuiltInType floatType =
-            new BuiltInType("float", Scope.NULL, (v) -> (float) v.getInternalObject() != 0.0);
+            new BuiltInType("float", Scope.NULL, (v) -> (float) v.getInternalValue() != 0.0);
     public static BuiltInType stringType = new BuiltInType("string", Scope.NULL, (v) -> true);
     // TODO: this should not be a basic type
     public static BuiltInType graphType =
