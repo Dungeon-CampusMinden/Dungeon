@@ -34,7 +34,6 @@ import core.utils.DelayedSet;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Painter;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -133,14 +132,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private static Stage stage;
 
     private static LevelManager levelManager;
-
-    /**
-     * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
-     * batch.
-     */
-    private SpriteBatch batch;
-    /** Draws objects */
-    private Painter painter;
 
     private boolean doSetup = true;
     private boolean uiDebugFlag = false;
@@ -631,7 +622,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     @Override
     public void render(float delta) {
         if (doSetup) onSetup();
-        batch.setProjectionMatrix(CameraSystem.camera().combined);
+        DrawSystem ds = (DrawSystem) systems.get(DrawSystem.class);
+        ds.batch().setProjectionMatrix(CameraSystem.camera().combined);
         onFrame();
         clearScreen();
         levelManager.update();
@@ -650,15 +642,17 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private void onSetup() {
         doSetup = false;
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
-        batch = new SpriteBatch();
-        painter = new Painter(batch);
         IGenerator generator = new RandomWalkGenerator();
         initBaseLogger();
+        createSystems();
+        DrawSystem ds = (DrawSystem) systems.get(DrawSystem.class);
         levelManager =
                 new LevelManager(
-                        batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
+                        ds.batch(),
+                        ds.painter(),
+                        new WallGenerator(new RandomWalkGenerator()),
+                        this);
         levelManager.loadLevel(LEVELSIZE);
-        createSystems();
 
         setupStage();
     }
@@ -798,7 +792,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private void createSystems() {
         addSystem(new CameraSystem());
         addSystem(new VelocitySystem());
-        addSystem(new DrawSystem(painter));
+        addSystem(new DrawSystem());
         addSystem(new PlayerSystem());
         addSystem(new HudSystem());
     }
