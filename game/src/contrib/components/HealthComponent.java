@@ -22,20 +22,20 @@ import java.util.logging.Logger;
 
 /**
  * Allow an associated entity to take damage and to die.
+ **
+ * <p>The component also tracks the received damage via the {@link #receiveHit(Damage) receiveHit}
+ * method. The damage is not applied immediately but is temporarily stored in an internal list until
+ * it is applied, and can be retrieved via the {@link #calculateDamageOf(DamageType)
+ * calculateDamageOf} method.
  *
- * <p>The component keeps track of the current and maximum health points of the associated entity.
- *
- * <p>The component also keeps track of the damage received via the {@link #receiveHit(Damage)
- * receiveHit} method. The damage is stored in a list and can be retrieved via the {@link
- * #calculateDamageOf(DamageType) calculateDamageOf} method.
- *
- * <p>The {@link HealthSystem} will call {@link #calculateDamageOf(DamageType)} for each {@link
- * DamageType} and will calculate the sum of the damage. Then the {@link HealthSystem} will reduce
- * the {@link #currentHealthpoints} and calls {@link #clearDamage()}. If the health points go to 0
- * or less, the system will call {@link #triggerOnDeath()}.
+ * <p>To calculate the damage received, the {@link HealthSystem} calls the {@link
+ * #calculateDamageOf(DamageType)} method for each {@link DamageType} and calculates the sum of the
+ * damage. Next, the {@link HealthSystem} reduces the {@link #currentHealthpoints} by this value and
+ * calls {@link #clearDamage()} to clear the internal list afterwards. When the health points drop
+ * to 0 or less, the system calls {@link #triggerOnDeath()}.
  *
  * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
- */
+ */s
 @DSLType(name = "health_component")
 public final class HealthComponent extends Component {
     private final List<Damage> damageToGet;
