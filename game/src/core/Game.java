@@ -34,7 +34,7 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -48,7 +48,7 @@ public final class Game extends ScreenAdapter {
      *
      * <p>The Key-Value is the Class of the system
      */
-    private static final Map<Class<? extends System>, System> systems = new HashMap<>();
+    private static final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
     /** All entities that are currently active in the dungeon */
     private static final DelayedSet<Entity> entities = new DelayedSet<>();
 
@@ -139,7 +139,7 @@ public final class Game extends ScreenAdapter {
      * @return a copy of the map that stores all registered {@link System} in the game.
      */
     public static Map<Class<? extends System>, System> systems() {
-        return new HashMap<>(systems);
+        return new LinkedHashMap<>(systems);
     }
 
     /** Remove all registered systems from the game. */
@@ -630,11 +630,6 @@ public final class Game extends ScreenAdapter {
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
         initBaseLogger();
         createSystems();
-        DrawSystem ds = (DrawSystem) systems.get(DrawSystem.class);
-        levelSystem =
-                new LevelSystem(
-                        ds.painter(), new WallGenerator(new RandomWalkGenerator()), onLevelLoad);
-        levelSystem.loadLevel(LevelSystem.levelSize());
 
         setupStage();
     }

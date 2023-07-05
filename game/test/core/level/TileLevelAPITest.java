@@ -45,7 +45,6 @@ public class TileLevelAPITest {
 
     @Before
     public void setup() {
-        SpriteBatch batch = Mockito.mock(SpriteBatch.class);
 
         Texture texture = Mockito.mock(Texture.class);
         TextureMap textureMap = Mockito.mock(TextureMap.class);

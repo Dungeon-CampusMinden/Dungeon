@@ -46,6 +46,7 @@ public class LevelSystem extends System {
         this.gen = generator;
         this.painter = painter;
         this.onLevelLoader = onLevelLoader;
+        loadLevel(LEVELSIZE);
     }
 
     /**
@@ -165,8 +166,7 @@ public class LevelSystem extends System {
 
     @Override
     public void execute() {
-        java.lang.System.out.println("LEVEL!!!!!!!!!");
         drawLevel();
-        if (entityStream().anyMatch(this::isOnEndTile)) loadLevel(levelSize());
+        if (entityStream().anyMatch(this::isOnEndTile)) loadLevel(LEVELSIZE);
     }
 }
