@@ -21,6 +21,7 @@ import core.utils.components.draw.CoreAnimations;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
@@ -209,11 +210,6 @@ public class EntityFactory {
         Entity monster = new Entity("monster");
 
         new PositionComponent(monster);
-
-        HealthComponent hc = new HealthComponent(monster);
-        hc.maximalHealthpoints(health);
-        hc.currentHealthpoints(health);
-
         new AIComponent(
                 monster,
                 AIFactory.generateRandomFightAI(),
@@ -227,13 +223,15 @@ public class EntityFactory {
         new CollideComponent(monster);
 
         int itemRoll = RANDOM.nextInt(0, 10);
+        Consumer<Entity> onDeath = entity -> {};
         if (itemRoll == 0) {
             ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
             ItemData item = itemDataGenerator.generateItemData();
             InventoryComponent ic = new InventoryComponent(monster, 1);
             ic.addItem(item);
-            hc.onDeath(new DropItemsInteraction());
+            onDeath = new DropItemsInteraction();
         }
+        new HealthComponent(monster, health, onDeath);
 
         return monster;
     }
