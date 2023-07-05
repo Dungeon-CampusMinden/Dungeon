@@ -208,20 +208,6 @@ public class EntityFactory {
         float speed = RANDOM.nextFloat(MIN_MONSTER_SPEED, MAX_MONSTER_SPEED);
 
         Entity monster = new Entity("monster");
-
-        new PositionComponent(monster);
-        new AIComponent(
-                monster,
-                AIFactory.generateRandomFightAI(),
-                AIFactory.generateRandomIdleAI(),
-                AIFactory.generateRandomTransitionAI(monster));
-
-        new DrawComponent(monster, pathToTexture);
-
-        new VelocityComponent(monster, speed, speed);
-
-        new CollideComponent(monster);
-
         int itemRoll = RANDOM.nextInt(0, 10);
         Consumer<Entity> onDeath = entity -> {};
         if (itemRoll == 0) {
@@ -232,7 +218,15 @@ public class EntityFactory {
             onDeath = new DropItemsInteraction();
         }
         new HealthComponent(monster, health, onDeath);
-
+        new PositionComponent(monster);
+        new AIComponent(
+                monster,
+                AIFactory.generateRandomFightAI(),
+                AIFactory.generateRandomIdleAI(),
+                AIFactory.generateRandomTransitionAI(monster));
+        new DrawComponent(monster, pathToTexture);
+        new VelocityComponent(monster, speed, speed);
+        new CollideComponent(monster);
         return monster;
     }
 }
