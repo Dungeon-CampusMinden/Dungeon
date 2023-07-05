@@ -50,7 +50,8 @@ public class Node {
         Block,
         ConditionalStmtIf,
         Bool,
-        ConditionalStmtIfElse
+        ConditionalStmtIfElse,
+        ReturnMark
     }
 
     public static Node NONE = new Node(Type.NONE, new ArrayList<>());

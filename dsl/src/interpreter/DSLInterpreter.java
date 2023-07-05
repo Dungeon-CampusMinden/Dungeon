@@ -23,7 +23,9 @@ import semanticanalysis.*;
 import semanticanalysis.types.*;
 
 import java.util.ArrayDeque;
+import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.Objects;
 
 // TODO: specify EXACT semantics of value copying and setting
 
@@ -46,6 +48,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return this.memoryStack.peek();
     }
 
+    private final ArrayDeque<Node> statementStack;
+
     private static final String RETURN_VALUE_NAME = "$return_value$";
 
     // TODO: add entry-point for game-object traversal
@@ -54,6 +58,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public DSLInterpreter() {
         memoryStack = new ArrayDeque<>();
         globalSpace = new MemorySpace();
+        statementStack = new ArrayDeque<>();
         memoryStack.push(globalSpace);
     }
 
@@ -531,12 +536,26 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         // visit function AST
         var funcRootNode = symbol.getAstRootNode();
-        var stmtBlock = funcRootNode.getStmtBlock();
+        var stmtBlock = (StmtBlockNode)funcRootNode.getStmtBlock();
         if (stmtBlock != Node.NONE) {
             // reset return stmt flag
             this.hitReturnStmt = false;
-            stmtBlock.accept(this);
+            //stmtBlock.accept(this);
+            statementStack.addAll(stmtBlock.getStmts());
         }
+
+        statementStack.add(new Node(Node.Type.ReturnMark));
+
+        // the statements will be in forward order on the statement stack (first at head, last at tail)
+        // TODO: execute the statements
+        while (statementStack.peek() != null && statementStack.peek().type != Node.Type.ReturnMark) {
+            var stmt = statementStack.pop();
+            stmt.accept(this);
+        }
+
+        // pop the return mark
+        assert Objects.requireNonNull(statementStack.peek()).type == Node.Type.ReturnMark;
+        statementStack.pop();
 
         memoryStack.pop();
         if (functionType.getReturnType() != BuiltInType.noType) {
@@ -612,6 +631,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
             }
         }
 
+        // unroll the statement stack until we find a return mark
+        while (statementStack.peek() != null && statementStack.peek().type != Node.Type.ReturnMark) {
+            statementStack.pop();
+        }
+
         // signal, that a return statement was hit
         this.hitReturnStmt = true;
         return null;
@@ -632,8 +656,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
         Value conditionValue = (Value) node.getCondition().accept(this);
         if (isBooleanTrue(conditionValue)) {
             node.getIfStmt().accept(this);
+            // TODO: add statements to stack
         } else {
             node.getElseStmt().accept(this);
+            // TODO: add statements to stack
         }
 
         return null;
