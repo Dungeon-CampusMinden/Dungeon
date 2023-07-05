@@ -1,14 +1,27 @@
-<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>220</x><y>160</y><w>120</w><h>30</h></coordinates><panel_attributes>/Quest/</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>520</x><y>160</y><w>100</w><h>30</h></coordinates><panel_attributes>/QuestContent/</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>500</x><y>270</y><w>150</w><h>30</h></coordinates><panel_attributes>QuizQuestionContent</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>50</x><y>270</y><w>130</w><h>30</h></coordinates><panel_attributes>ReplacementQuest</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>190</x><y>50</y><w>170</w><h>30</h></coordinates><panel_attributes>TaskReferenceComponent</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>470</x><y>50</y><w>100</w><h>30</h></coordinates><panel_attributes>Entity</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>330</x><y>160</y><w>210</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;190;10</additional_attributes></element><element><id>Relation</id><coordinates><x>320</x><y>260</y><w>200</w><h>40</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
-Fragen/Antworten</panel_attributes><additional_attributes>10;20;180;20</additional_attributes></element><element><id>Relation</id><coordinates><x>560</x><y>180</y><w>30</w><h>110</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;90</additional_attributes></element><element><id>Relation</id><coordinates><x>100</x><y>160</y><w>140</w><h>130</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>120;10;10;10;10;110</additional_attributes></element><element><id>Relation</id><coordinates><x>270</x><y>180</y><w>30</w><h>110</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;90</additional_attributes></element><element><id>Relation</id><coordinates><x>350</x><y>50</y><w>140</w><h>50</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-&gt;&gt;&gt;&gt;
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>310</x><y>40</y><w>120</w><h>50</h></coordinates><panel_attributes>PetriNet
+--
+Node&lt;Task&gt; net</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>520</x><y>380</y><w>100</w><h>50</h></coordinates><panel_attributes>/TaskContent/
+--
+task: Task</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>500</x><y>530</y><w>150</w><h>30</h></coordinates><panel_attributes>QuizQuestionContent</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>160</x><y>460</y><w>130</w><h>30</h></coordinates><panel_attributes>ReplacementTask</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>740</x><y>380</y><w>170</w><h>80</h></coordinates><panel_attributes>TaskContentComponent
+--
+entity: Entity
+content: TaskContent[ ]</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>340</x><y>520</y><w>180</w><h>50</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-&gt;&gt;&gt;&gt;
+Fragen/Antworten
+m2=n
+m1=1</panel_attributes><additional_attributes>10;20;160;20</additional_attributes></element><element><id>Relation</id><coordinates><x>560</x><y>420</y><w>30</w><h>130</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>Relation</id><coordinates><x>610</x><y>390</y><w>150</w><h>40</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
 m1=1
-m2=1
-</panel_attributes><additional_attributes>10;20;120;20</additional_attributes></element><element><id>Relation</id><coordinates><x>270</x><y>70</y><w>30</w><h>110</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
-m1=?</panel_attributes><additional_attributes>10;10;10;90</additional_attributes></element><element><id>Relation</id><coordinates><x>270</x><y>70</y><w>320</w><h>110</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;50;300;50;300;90</additional_attributes></element><element><id>UMLClass</id><coordinates><x>230</x><y>270</y><w>100</w><h>30</h></coordinates><panel_attributes>QuizQuestion</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>490</x><y>290</y><w>110</w><h>140</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>90;10;90;120;10;120</additional_attributes></element><element><id>Relation</id><coordinates><x>270</x><y>290</y><w>110</w><h>90</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;10;10;70;90;70</additional_attributes></element><element><id>UMLNote</id><coordinates><x>360</x><y>350</y><w>140</w><h>110</h></coordinates><panel_attributes>_single_choice_
-
-{
-    ...
-    answers[1,2,3]
-}
-bg=blue
-
-</panel_attributes><additional_attributes></additional_attributes></element></diagram>
+m2=n</panel_attributes><additional_attributes>130;10;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>230</x><y>530</y><w>120</w><h>30</h></coordinates><panel_attributes>QuizQuestionTask</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>200</x><y>190</y><w>270</w><h>130</h></coordinates><panel_attributes>&lt;&lt;abstract / interface?&gt;&gt;
+Task
+--
+questStatus: StatusEnum
+questText: String
+starter: TaskManagmentComponent
+content: TaskContent[ ]</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>350</x><y>80</y><w>40</w><h>130</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=n
+</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>Relation</id><coordinates><x>300</x><y>310</y><w>30</w><h>240</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;10;10;220</additional_attributes></element><element><id>Relation</id><coordinates><x>220</x><y>310</y><w>30</w><h>170</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;10;10;150</additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>460</y><w>130</w><h>30</h></coordinates><panel_attributes>NullTask</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>40</x><y>240</y><w>180</w><h>240</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>160;10;10;10;10;220</additional_attributes></element><element><id>Relation</id><coordinates><x>400</x><y>310</y><w>140</w><h>120</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-&gt;&gt;&gt;&gt;
+m1=1
+m2=n</panel_attributes><additional_attributes>10;10;10;90;120;90</additional_attributes></element><element><id>UMLClass</id><coordinates><x>590</x><y>220</y><w>170</w><h>60</h></coordinates><panel_attributes>TaskManagerComponent
+--
+entity: Entity
+task: Task
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>460</x><y>240</y><w>150</w><h>30</h></coordinates><panel_attributes>lt=&lt;-&gt;</panel_attributes><additional_attributes>10;10;130;10</additional_attributes></element></diagram>
