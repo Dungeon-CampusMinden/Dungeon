@@ -71,9 +71,7 @@ public final class HealthSystem extends System {
 
     private HSData activateDeathAnimation(HSData hsd) {
         // set DeathAnimation as active animation
-        if (!hsd.dc.isCurrentAnimation(AdditionalAnimations.DIE)) {
             hsd.dc.currentAnimation(AdditionalAnimations.DIE);
-        }
 
         return hsd;
     }
@@ -136,7 +134,6 @@ public final class HealthSystem extends System {
     private void removeDeadEntities(HSData hsd) {
         // Entity appears to be dead, so let's clean up the mess
         hsd.hc.triggerOnDeath();
-        hsd.dc.currentAnimation(AdditionalAnimations.DIE);
         Game.removeEntity(hsd.hc.entity());
 
         // Add XP
