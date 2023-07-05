@@ -35,7 +35,7 @@ import java.util.logging.Logger;
  * to 0 or less, the system calls {@link #triggerOnDeath()}.
  *
  * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
- */s
+ */
 @DSLType(name = "health_component")
 public final class HealthComponent extends Component {
     private final List<Damage> damageToGet;
