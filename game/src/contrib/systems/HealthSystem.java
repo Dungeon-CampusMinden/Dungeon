@@ -48,7 +48,8 @@ public final class HealthSystem extends System {
      *
      * <p>Returns a corresponding Boolean value if the entity can be removed from the game. This is
      * the case if the entity does not have a death animation, or it has already finished. Also, if
-     * the entity has a death animation, and it is in loop mode, the entity will be marked for removal.
+     * the entity has a death animation, and it is in loop mode, the entity will be marked for
+     * removal.
      *
      * @param hsd HSData to check Animations in
      * @return true if Entity can be removed from the game
