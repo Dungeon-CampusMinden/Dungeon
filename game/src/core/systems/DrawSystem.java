@@ -51,8 +51,8 @@ public final class DrawSystem extends System {
      */
     public DrawSystem() {
         super(DrawComponent.class, PositionComponent.class);
-        this.batch = new SpriteBatch();
-        this.painter = new Painter(batch);
+        batch = new SpriteBatch();
+        painter = new Painter(batch);
         configs = new HashMap<>();
     }
 
@@ -97,11 +97,11 @@ public final class DrawSystem extends System {
 
     private record DSData(Entity e, DrawComponent ac, PositionComponent pc) {}
 
-    public Painter getPainter() {
+    public Painter painter() {
         return painter;
     }
 
-    public SpriteBatch getBatch() {
+    public SpriteBatch batch() {
         return batch;
     }
 }
