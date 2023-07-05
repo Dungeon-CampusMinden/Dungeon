@@ -12,7 +12,9 @@ import java.util.stream.Stream;
 
 public class GameState {
     private static ILevel level;
+    // Used to collect all entities except heroes
     private Set<Entity> entities = new HashSet<>();
+    // separate HashMap for hero entities for validation
     private HashMap<Integer, Entity> heroesByClientId = new HashMap<>();
 
     public GameState(){
@@ -49,5 +51,11 @@ public class GameState {
 
     public Set<Entity> entities() {
         return entities;
+    }
+
+    public void clear() {
+        level(null);
+        entities(null);
+        heroesByClientId(null);
     }
 }

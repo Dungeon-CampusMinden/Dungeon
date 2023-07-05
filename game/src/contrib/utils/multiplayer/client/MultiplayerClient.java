@@ -73,12 +73,13 @@ public class MultiplayerClient extends Listener {
                 observer.onJoinSessionResponseReceived(
                     response.isSucceed(),
                     response.heroGlobalID(),
-                    response.gameState()
+                    response.gameState(),
+                    response.initialPosition()
                 );
             }
         } else if (object instanceof GameStateUpdateEvent gameStateUpdateEvent){
             for (IMultiplayerClientObserver observer: observers) {
-                observer.onGameStateUpdateEventReceived(gameStateUpdateEvent.heroesByClientId(),gameStateUpdateEvent.entities());
+                observer.onGameStateUpdateEventReceived(gameStateUpdateEvent.entities());
             }
         } else if (object instanceof UpdatePositionResponse) {
             for (IMultiplayerClientObserver observer: observers){

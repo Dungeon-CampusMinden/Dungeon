@@ -17,14 +17,12 @@ public class GameStateUpdateEventSerializer extends Serializer<GameStateUpdateEv
 
     @Override
     public void write(Kryo kryo, Output output, GameStateUpdateEvent object) {
-        kryo.writeObject(output, object.heroesByClientId());
         kryo.writeObject(output, object.entities());
     }
 
     @Override
     public GameStateUpdateEvent read(Kryo kryo, Input input, Class<GameStateUpdateEvent> type) {
-        final HashMap<Integer, Entity> heroesByClientId = kryo.readObject(input, HashMap.class);
         final Set<Entity> entities = kryo.readObject(input, HashSet.class);
-        return new GameStateUpdateEvent(heroesByClientId, entities);
+        return new GameStateUpdateEvent(entities);
     }
 }

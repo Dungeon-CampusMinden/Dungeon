@@ -331,7 +331,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         if (isSucceed) {
             final Set<Entity> entities = new HashSet<>();
             entities.addAll(entityStream().collect(Collectors.toSet()));
-            multiplayerManager.changeLevel(currentLevel, entities);
+            multiplayerManager.changeLevel(currentLevel, entities, hero);
         } else {
             // TODO: error handling like popup menu with error message
 //            System.out.println("Server responded unsuccessful start");
@@ -362,7 +362,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     public void onChangeMapRequest() {
         if(multiplayerManager.isHost()) {
             levelManager.loadLevel(LEVELSIZE);
-            multiplayerManager.changeLevel(currentLevel, entities.stream().collect(Collectors.toSet()));
+            multiplayerManager.changeLevel(currentLevel, entities.stream().collect(Collectors.toSet()), hero);
         }
     }
 
@@ -754,7 +754,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
                 if(multiplayerManager.isHost()){
                     levelManager.loadLevel(LEVELSIZE);
                     ////todo - change level design for multiplayer
-                    multiplayerManager.changeLevel(currentLevel, entities.stream().collect(Collectors.toSet()));
+                    multiplayerManager.changeLevel(currentLevel, entities.stream().collect(Collectors.toSet()), hero);
                 } else {
                     //ask host to generate new map
                     multiplayerManager.requestNewLevel();

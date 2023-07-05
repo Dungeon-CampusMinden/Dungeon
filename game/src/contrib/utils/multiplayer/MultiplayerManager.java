@@ -5,6 +5,7 @@ import contrib.utils.multiplayer.packages.GameState;
 import contrib.utils.multiplayer.packages.Version;
 import core.Entity;
 import core.Game;
+import core.components.PositionComponent;
 import core.level.elements.ILevel;
 import core.utils.Point;
 import contrib.utils.multiplayer.client.IMultiplayerClientObserver;
@@ -68,7 +69,8 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
     public void onJoinSessionResponseReceived(
         final boolean isSucceed,
         final int heroGlobalID,
-        final GameState gameState) {
+        final GameState gameState,
+        final Point initialHeroPosition) {
         playerId = 0;
         if (isSucceed) {
             this.entities = requireNonNull(gameState.entities());
@@ -77,11 +79,11 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
 //            if (!Game.hero().get().fetch(MultiplayerComponent.class).isPresent()) {
 //                new MultiplayerComponent(Game.hero().get());
 //            }
-//            PositionComponent heroPositionComponent =
-//            (PositionComponent) Game.hero().get()
-//                .fetch(PositionComponent.class)
-//                .orElseThrow();
-//            heroPositionComponent.position(gameState.level().startTile().position());
+            PositionComponent heroPositionComponent =
+            (PositionComponent) Game.hero().get()
+                .fetch(PositionComponent.class)
+                .orElseThrow();
+            heroPositionComponent.position(initialHeroPosition);
         }
         multiplayer.onMultiplayerSessionJoined(isSucceed, gameState.level());
     }
@@ -92,7 +94,7 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
     }
 
     @Override
-    public void onGameStateUpdateEventReceived(final HashMap<Integer, Entity> heroesByClientId, Set<Entity> entities) {
+    public void onGameStateUpdateEventReceived(Set<Entity> entities) {
         this.entities = requireNonNull(entities);
     }
 
@@ -145,13 +147,13 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
 //        }
     }
 
-    public void changeLevel(final ILevel level, final Set<Entity> currentEntities){
+    public void changeLevel(final ILevel level, final Set<Entity> currentEntities, final Entity hero){
 //        currentEntities.forEach(entity -> {
 //            if (!entity.fetch(MultiplayerComponent.class).isPresent()) {
 //                new MultiplayerComponent(entity);
 //            }
 //        });
-        multiplayerClient.send(new LoadMapRequest(level, currentEntities));
+        multiplayerClient.send(new LoadMapRequest(level, currentEntities, hero));
     }
 
     public void requestNewLevel(){
@@ -195,6 +197,6 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
 
     private void stopEndpoints() {
         multiplayerClient.disconnect();
-        multiplayerServer.stop();
+        multiplayerServer.stopListening();
     }
 }

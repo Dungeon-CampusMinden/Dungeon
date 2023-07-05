@@ -16,6 +16,9 @@ import contrib.utils.multiplayer.packages.response.*;
 import core.utils.components.MissingComponentException;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +26,8 @@ import java.util.concurrent.TimeUnit;
 public class MultiplayerServer extends Listener {
 
     // TODO: Outsource config parameters
+    // Host is already the first client
+    private int connectionIdHostClient;
     public static final Version version = new Version(0, 0, 0);
     public static final Integer DEFAULT_TCP_PORT = 25444;
     public static final Integer DEFAULT_UDP_PORT = DEFAULT_TCP_PORT + 1;
@@ -32,16 +37,14 @@ public class MultiplayerServer extends Listener {
     private static final Integer writeBufferSize = maxObjectSizeExpected;
     private static final Integer objectBufferSize = maxObjectSizeExpected;
     private final Server server = new Server(writeBufferSize, objectBufferSize );
-   // private ILevel level;
     private final GameState gameState = new GameState();
     // Used to pretend initial position for joining clients
     private Point initialHeroPosition = new Point(0, 0);
-
     private static final int ticks = 128;
     private static final long nanosPerTick = 1000000000 / ticks;
     private ScheduledExecutorService scheduler;
     private boolean isInitialized = false;
-    private boolean isLoaded = false;
+    private boolean isMapLoaded = false;
 
     public MultiplayerServer() {
         server.addListener(this);
@@ -50,12 +53,17 @@ public class MultiplayerServer extends Listener {
 
     @Override
     public void connected(Connection connection) {
-//        System.out.println("Player " + connection.getID() + " connected with " + connection.getRemoteAddressTCP());
     }
 
     @Override
     public void disconnected(Connection connection) {
-//        gameState.heroesByClientId().remove(connection.getID());
+        final boolean isHost = connection.getID() == connectionIdHostClient;
+        if (isHost) {
+            clearSessionData();
+            stopListening();
+        } else {
+            gameState.heroesByClientId().remove(connection.getID());
+        }
     }
 
     @Override
@@ -67,55 +75,84 @@ public class MultiplayerServer extends Listener {
         } else if (object instanceof InitServerRequest initServerRequest){
             isInitialized = false;
             final Version clientVersion = initServerRequest.clientVersion();
-            if (version.compareTo(clientVersion) == 0) {
+            final boolean clientAndServerVersionAreEqual = version.compareTo(clientVersion) == 0;
+            if (clientAndServerVersionAreEqual) {
                 isInitialized = true;
+                connectionIdHostClient = connection.getID();
             }
             connection.sendTCP(new InitServerResponse(isInitialized));
         } else if (object instanceof LoadMapRequest loadMapRequest) {
-            isLoaded = false;
-            final boolean isHost = connection.getID() == 1;
+            isMapLoaded = false;
+            final boolean isHost = connection.getID() == connectionIdHostClient;
             if (!isHost || !isInitialized) {
-                // TODO unallow for not-hosts
+                server.sendToTCP(connection.getID(), new LoadMapResponse(false, new GameState()));
+                return;
+            }
+            // extract hero from entities
+            final Optional<Entity> heroInSendEntitiesSet =
+                loadMapRequest.entities().stream()
+                    .filter(x -> x.localeID() == loadMapRequest.hero().localeID())
+                    .findFirst();
+            if (heroInSendEntitiesSet.isPresent()) {
+                loadMapRequest.entities().remove(heroInSendEntitiesSet.get());
             }
             gameState.level(loadMapRequest.level());
             gameState.entities(loadMapRequest.entities());
-//            gameState.entities().forEach((e) -> {
-//                PositionComponent pc =
-//                    e.fetch(PositionComponent.class)
-//                        .orElseThrow(
-//                            () -> MissingComponentException.build(e, PositionComponent.class));
-//                pc.position(gameState.level().randomTilePoint());
-//            });
-//            server.sendToAllTCP(new LoadMapResponse(true, gameState));
+            gameState.heroesByClientId().put(connection.getID(), loadMapRequest.hero());
+            // Save new initial position for joining clients/heroes
+            initialHeroPosition = gameState.level().startTile().position();
+            gameState.heroesByClientId().values().forEach(entity -> {
+                PositionComponent pc =
+                    entity
+                        .fetch(PositionComponent.class)
+                        .orElseThrow(
+                            () -> MissingComponentException.build(entity, PositionComponent.class));
+                pc.position(initialHeroPosition);
+            });
             server.sendToAllExceptTCP(connection.getID(), new LoadMapResponse(true, gameState));
-            isLoaded = true;
+            isMapLoaded = true;
         } else if (object instanceof ChangeMapRequest){
-            // TODO just allow for host
-            server.sendToTCP(1, new ChangeMapResponse());
+            server.sendToTCP(connectionIdHostClient, new ChangeMapResponse());
         } else if (object instanceof JoinSessionRequest joinSessionRequest) {
             PositionComponent pc =
                 joinSessionRequest.hero()
                     .fetch(PositionComponent.class)
                     .orElseThrow(
                         () -> MissingComponentException.build(joinSessionRequest.hero(), PositionComponent.class));
-            pc.position(gameState.level().startTile().position());
+            pc.position(initialHeroPosition);
             final int entityGlobalID = determineNextGlobalID();
             joinSessionRequest.hero().globalID(entityGlobalID);
-//            gameState.heroesByClientId().put(clientId, joinSessionRequest.hero());
-            gameState.entities().add(joinSessionRequest.hero());
+            gameState.heroesByClientId().put(connection.getID(), joinSessionRequest.hero());
             JoinSessionResponse response = new JoinSessionResponse(true, entityGlobalID, gameState, initialHeroPosition);
             connection.sendTCP(response);
         } else if (object instanceof UpdatePositionRequest positionRequest) {
-            Entity hero = gameState.entities().stream()
+            boolean success = false;
+            Optional<Entity> hero = gameState.heroesByClientId().values().stream()
                 .filter(x -> x.globalID() == positionRequest.entityGlobalID())
-                .findFirst()
-                .orElse(null);
-            if (hero != null) {
+                .findFirst();
+
+            if (hero.isPresent()) {
                 PositionComponent pc =
-                    hero.fetch(PositionComponent.class)
+                    hero.get()
+                        .fetch(PositionComponent.class)
                         .orElseThrow(
-                            () -> MissingComponentException.build(hero, PositionComponent.class));
+                            () -> MissingComponentException.build(hero.get(), PositionComponent.class));
                 pc.position(positionRequest.position());
+                success = true;
+            } else {
+                // check if client which want to update monster position is host, otherwise not allowed
+                if (connection.getID() == connectionIdHostClient) {
+                    Optional<Entity> monster = gameState.entities().stream()
+                        .filter(x -> x.globalID() == positionRequest.entityGlobalID())
+                        .findFirst();
+                    PositionComponent pc =
+                        monster.get()
+                            .fetch(PositionComponent.class)
+                            .orElseThrow(
+                                () -> MissingComponentException.build(monster.get(), PositionComponent.class));
+                    pc.position(positionRequest.position());
+                    success = true;
+                }
             }
             //TODO: Look if in use, delete if not necessary (rename to event)
             // TODO send success so that other endpoint can recognize if received (???)
@@ -136,23 +173,27 @@ public class MultiplayerServer extends Listener {
         scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                if (isLoaded) {
-                    server.sendToAllTCP(new GameStateUpdateEvent(gameState.heroesByClientId(), gameState.entities()));
+                if (isMapLoaded) {
+                    // Combine hero entities and monster/item entities
+                    final Set<Entity> entities = new HashSet<>(gameState.entities());
+                    gameState.heroesByClientId().values().forEach(entity -> {
+                        entities.add(entity);
+                    });
+                    server.sendToAllTCP(new GameStateUpdateEvent(entities));
                 }
             }
         }, 0, nanosPerTick, TimeUnit.NANOSECONDS );
     }
 
     /**
-     * Closes ports and stops the server.
+     * Closes session and ports.
      */
-    public void stop() {
+    public void stopListening() {
         if (scheduler != null) {
             scheduler.shutdown();
         }
         if (server != null) {
             server.close();
-            server.stop();
         }
     }
 
@@ -164,5 +205,11 @@ public class MultiplayerServer extends Listener {
             }
         }
         return highestExistingID + 1;
+    }
+
+    private void clearSessionData() {
+        gameState.clear();
+        isInitialized = false;
+        isMapLoaded = false;
     }
 }
