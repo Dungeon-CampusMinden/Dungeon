@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import contrib.utils.multiplayer.IMultiplayer;
-import contrib.utils.multiplayer.MultiplayerAPI;
+import contrib.utils.multiplayer.MultiplayerManager;
 
 public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer {
 
@@ -114,7 +114,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     private boolean doSetup = true;
     private boolean uiDebugFlag = false;
 
-    private static MultiplayerAPI multiplayerAPI = new MultiplayerAPI(Game.getInstance());
+    private static MultiplayerManager multiplayerManager = new MultiplayerManager(Game.getInstance());
 
     // for singleton
     private Game() {
@@ -286,7 +286,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
                         () ->
                             new MissingComponentException(
                                 "PositionComponent"));
-        multiplayerAPI.sendPositionUpdate(entity.globalID(), positionComponent.position());
+        multiplayerManager.sendPositionUpdate(entity.globalID(), positionComponent.position());
     }
 
     public void openToLan() {
@@ -304,7 +304,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
                         () ->
                             new MissingComponentException(
                                 "PositionComponent"));
-            multiplayerAPI.startSession(currentLevel, positionComponent.position());
+            multiplayerManager.startSession(currentLevel, positionComponent.position());
         } catch (Exception e) {
             // TODO: Nicer error handling
 //            System.out.println("Multiplayer session failed to start.");
@@ -318,7 +318,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
             if (hero == null) {
                 hero(EntityFactory.newHero());
             }
-            multiplayerAPI.joinSession(hostAddress, port);
+            multiplayerManager.joinSession(hostAddress, port);
         } catch (Exception e) {
             // TODO: Nicer error handling
 //            System.out.println("Multiplayer session failed to join.");
@@ -331,7 +331,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         if (isSucceed) {
             final Set<Entity> entities = new HashSet<>();
             entities.addAll(entityStream().collect(Collectors.toSet()));
-            multiplayerAPI.changeLevel(currentLevel, entities);
+            multiplayerManager.changeLevel(currentLevel, entities);
         } else {
             // TODO: error handling like popup menu with error message
 //            System.out.println("Server responded unsuccessful start");
@@ -360,9 +360,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
 
     @Override
     public void onChangeMapRequest() {
-        if(multiplayerAPI.isHost()) {
+        if(multiplayerManager.isHost()) {
             levelManager.loadLevel(LEVELSIZE);
-            multiplayerAPI.changeLevel(currentLevel, entities.stream().collect(Collectors.toSet()));
+            multiplayerManager.changeLevel(currentLevel, entities.stream().collect(Collectors.toSet()));
         }
     }
 
@@ -375,7 +375,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
 
     @Override
     public void dispose() {
-        multiplayerAPI.stopSession();
+        multiplayerManager.stopSession();
     }
 
     /**
@@ -598,7 +598,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
                 new LevelManager(
                         batch, painter, new WallGenerator(generator), this);
         levelManager.loadLevel(LEVELSIZE);
-        multiplayerAPI = new MultiplayerAPI(this);
+        multiplayerManager = new MultiplayerManager(this);
         createSystems();
 
         setupStage();
@@ -748,16 +748,16 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
         if (!isOnEndTile(hero)) return;
 
-        if (!multiplayerAPI.isConnectedToSession()){
+        if (!multiplayerManager.isConnectedToSession()){
                 levelManager.loadLevel(LEVELSIZE);
             } else {
-                if(multiplayerAPI.isHost()){
+                if(multiplayerManager.isHost()){
                     levelManager.loadLevel(LEVELSIZE);
                     ////todo - change level design for multiplayer
-                    multiplayerAPI.changeLevel(currentLevel, entities.stream().collect(Collectors.toSet()));
+                    multiplayerManager.changeLevel(currentLevel, entities.stream().collect(Collectors.toSet()));
                 } else {
                     //ask host to generate new map
-                    multiplayerAPI.requestNewLevel();
+                    multiplayerManager.requestNewLevel();
                 }
             }
     }
@@ -860,7 +860,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         addSystem(new DrawSystem(painter));
         addSystem(new PlayerSystem());
         addSystem(new HudSystem());
-        addSystem(new MultiplayerSynchronizationSystem(multiplayerAPI));
+        addSystem(new MultiplayerSynchronizationSystem(multiplayerManager));
     }
 
     //    private void createSystems() {
@@ -883,7 +883,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         stage().ifPresent(x -> x.getViewport().update(width, height, true));
     }
 
-    public static MultiplayerAPI getMultiplayerAPI() {
-        return multiplayerAPI;
+    public static MultiplayerManager getMultiplayerAPI() {
+        return multiplayerManager;
     }
 }

@@ -6,7 +6,7 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.System;
-import contrib.utils.multiplayer.MultiplayerAPI;
+import contrib.utils.multiplayer.MultiplayerManager;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,20 +17,20 @@ import static java.util.Objects.requireNonNull;
 /** Used to synchronize multiplayer session state with local client state. */
 public final class MultiplayerSynchronizationSystem extends System {
 
-    private final MultiplayerAPI multiplayerAPI;
+    private final MultiplayerManager multiplayerManager;
 
     /**
-     * @param multiplayerAPI
+     * @param multiplayerManager
      */
-    public MultiplayerSynchronizationSystem(final MultiplayerAPI multiplayerAPI) {
+    public MultiplayerSynchronizationSystem(final MultiplayerManager multiplayerManager) {
         super(MultiplayerComponent.class);
-        this.multiplayerAPI = requireNonNull(multiplayerAPI);
+        this.multiplayerManager = requireNonNull(multiplayerManager);
     }
 
     @Override
     public void execute() {
-        if (multiplayerAPI.isConnectedToSession()) {
-            if (multiplayerAPI.entities() != null && multiplayerAPI.entities().stream().count() > 0) {
+        if (multiplayerManager.isConnectedToSession()) {
+            if (multiplayerManager.entities() != null && multiplayerManager.entities().stream().count() > 0) {
                 synchronizeAddedEntities();
                 synchronizeRemovedEntities();
                 synchronizePositions();
@@ -48,7 +48,7 @@ public final class MultiplayerSynchronizationSystem extends System {
                 .map(entity -> entity.globalID())
                 .collect(Collectors.toSet());
 
-        for (Entity multiplayerEntity : multiplayerAPI.entities()) {
+        for (Entity multiplayerEntity : multiplayerManager.entities()) {
             boolean isOwnHero = multiplayerEntity.globalID() == Game.hero().get().globalID();
             if (!isOwnHero) {
                 boolean isEntityNew = !currentLocalMultiplayerEntityIds.contains(multiplayerEntity.globalID());
@@ -70,7 +70,7 @@ public final class MultiplayerSynchronizationSystem extends System {
             .forEach(entity -> {
                 boolean isOwnHero = entity.globalID() == Game.hero().get().globalID();
                 boolean isEntityRemoved =
-                    !multiplayerAPI.entities().stream().anyMatch(x -> x.globalID() == entity.globalID());
+                    !multiplayerManager.entities().stream().anyMatch(x -> x.globalID() == entity.globalID());
                 if (!isOwnHero && isEntityRemoved) {
                     Game.removeEntity(entity);
                 }
@@ -88,7 +88,7 @@ public final class MultiplayerSynchronizationSystem extends System {
                         .fetch(PositionComponent.class)
                         .orElseThrow();
 
-                multiplayerAPI.entities().stream()
+                multiplayerManager.entities().stream()
                     .forEach(multiplayerEntityState -> {
                         if (multiplayerEntityState.globalID() == localeEntityState.globalID()) {
                             PositionComponent positionComponentMultiplayer =

@@ -1,12 +1,10 @@
 package contrib.utils.multiplayer;
 
 import com.badlogic.gdx.utils.Null;
-import contrib.components.MultiplayerComponent;
 import contrib.utils.multiplayer.packages.GameState;
 import contrib.utils.multiplayer.packages.Version;
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
 import core.level.elements.ILevel;
 import core.utils.Point;
 import contrib.utils.multiplayer.client.IMultiplayerClientObserver;
@@ -23,16 +21,16 @@ import java.util.concurrent.ThreadLocalRandom;
 import static java.util.Objects.requireNonNull;
 
 /** Used to handle multiplayer sessions. */
-public class MultiplayerAPI implements IMultiplayerClientObserver {
+public class MultiplayerManager implements IMultiplayerClientObserver {
 
     private final MultiplayerClient multiplayerClient;
     private final MultiplayerServer multiplayerServer;
     private final IMultiplayer multiplayer;
-    /* From server assigned unique client/player id. */
+    /* From server assigned unique player id. */
     private int playerId = 0;
     private Set<Entity> entities;
 
-    public MultiplayerAPI(IMultiplayer multiplayer) {
+    public MultiplayerManager(IMultiplayer multiplayer) {
         this.multiplayer = requireNonNull(multiplayer);
         this.multiplayerClient = new MultiplayerClient();
         this.multiplayerServer = new MultiplayerServer();
