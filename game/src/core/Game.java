@@ -623,7 +623,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     public void render(float delta) {
         if (doSetup) onSetup();
         DrawSystem ds = (DrawSystem) systems.get(DrawSystem.class);
-        ds.getBatch().setProjectionMatrix(CameraSystem.camera().combined);
+        ds.batch().setProjectionMatrix(CameraSystem.camera().combined);
         onFrame();
         clearScreen();
         levelManager.update();
@@ -648,8 +648,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
         DrawSystem ds = (DrawSystem) systems.get(DrawSystem.class);
         levelManager =
                 new LevelManager(
-                        ds.getBatch(),
-                        ds.getPainter(),
+                        ds.batch(),
+                        ds.painter(),
                         new WallGenerator(new RandomWalkGenerator()),
                         this);
         levelManager.loadLevel(LEVELSIZE);

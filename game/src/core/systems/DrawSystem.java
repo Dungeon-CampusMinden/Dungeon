@@ -97,10 +97,16 @@ public final class DrawSystem extends System {
 
     private record DSData(Entity e, DrawComponent ac, PositionComponent pc) {}
 
+    /**
+     * @return the {@link #painter} of the Drawsystem
+     */
     public Painter painter() {
         return painter;
     }
 
+    /**
+     * @return the {@link #batch} of the Drawsystem
+     */
     public SpriteBatch batch() {
         return batch;
     }
