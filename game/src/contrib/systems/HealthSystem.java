@@ -61,18 +61,9 @@ public final class HealthSystem extends System {
         // test if Animation has finished playing
         Predicate<DrawComponent> isAnimationFinished = DrawComponent::isCurrentAnimationFinished;
 
-        // if the DeathAnimation is a looping Animation remove the Entity, otherwise the Animation
-        // will play indefinitely
-        if (isAnimationLooping.test(dc)) {
-            LOGGER.log(
-                    CustomLogLevel.WARNING,
-                    "The Entity "
-                            + hsd.e.getClass().getSimpleName()
-                            + " has a looping death animation and will be removed before it can play!");
-            return true;
-        }
-
-        return !hasDeathAnimation.test(dc) || isAnimationFinished.test(dc);
+        return !hasDeathAnimation.test(dc)
+                || isAnimationLooping.test(dc)
+                || isAnimationFinished.test(dc);
     }
 
     private HSData activateDeathAnimation(HSData hsd) {
