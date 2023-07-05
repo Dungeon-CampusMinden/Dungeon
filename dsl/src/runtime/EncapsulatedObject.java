@@ -23,7 +23,6 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
     private IEvironment environment;
     private HashMap<String, Value> objectCache;
 
-    // TODO: rename -> this is an "encapsulatedComplexObject"
     /**
      * Constructor
      *
@@ -90,7 +89,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                     // NOTE: this behaviour differs from the default translation of the
                     // RuntimeObjectTranslator, because we know in this case, that the resolved
                     // name is a member of the underlying object
-                    returnValue = new EncapsulatedValue(type, correspondingField, this.object);
+                    returnValue = new EncapsulatedField(type, correspondingField, this.object);
                 } else {
                     returnValue =
                             environment
@@ -114,6 +113,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
     // TODO: define the semantics for this based on, if the value is a POD type or
     //  a complex type -> what happens, if we want to set a component of an
     //  entity or a complex datatype of a component (e.g. Point)?!
+    //  (will be done in https://github.com/Programmiermethoden/Dungeon/issues/156)
     @Override
     public boolean setValue(String name, Value value) {
         Field correspondingField = this.typeMemberToField.getOrDefault(name, null);

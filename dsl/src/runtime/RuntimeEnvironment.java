@@ -10,7 +10,6 @@ import java.util.HashMap;
 
 // this extends the normal IEnvironment definition by storing prototypes
 // which are basically evaluated type definitions (of game objects)
-// TODO: add runtime translator
 public class RuntimeEnvironment implements IEvironment {
     private final SymbolTable symbolTable;
     private final HashMap<String, Symbol> functions;

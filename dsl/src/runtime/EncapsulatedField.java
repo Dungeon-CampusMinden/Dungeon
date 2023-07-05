@@ -4,11 +4,10 @@ import semanticanalysis.types.IType;
 
 import java.lang.reflect.Field;
 
-public class EncapsulatedValue extends Value {
+public class EncapsulatedField extends Value {
     private final Field field;
 
-    // TODO: rename to EncapsulatedField
-    public EncapsulatedValue(IType type, Field field, Object object) {
+    public EncapsulatedField(IType type, Field field, Object object) {
         super(type, object, true);
         this.field = field;
     }
