@@ -613,7 +613,6 @@ public final class Game extends ScreenAdapter {
         ds.batch().setProjectionMatrix(CameraSystem.camera().combined);
         onFrame();
         clearScreen();
-        levelSystem.update();
         updateSystems();
         systems.values().stream().filter(System::isRunning).forEach(System::execute);
         CameraSystem.camera().update();
@@ -634,10 +633,7 @@ public final class Game extends ScreenAdapter {
         DrawSystem ds = (DrawSystem) systems.get(DrawSystem.class);
         levelSystem =
                 new LevelSystem(
-                        ds.batch(),
-                        ds.painter(),
-                        new WallGenerator(new RandomWalkGenerator()),
-                        onLevelLoad);
+                        ds.painter(), new WallGenerator(new RandomWalkGenerator()), onLevelLoad);
         levelSystem.loadLevel(LevelSystem.levelSize());
 
         setupStage();
@@ -650,11 +646,6 @@ public final class Game extends ScreenAdapter {
      * <p>This is the place to add basic logic that isn't part of any system.
      */
     private void onFrame() {
-        try {
-            hero().ifPresent(levelSystem::loadNextLevelIfEntityIsOnEndTile);
-        } catch (MissingComponentException e) {
-            LOGGER.warning(e.getMessage());
-        }
         debugKeys();
         fullscreenKey();
         userOnFrame.execute();
@@ -751,10 +742,7 @@ public final class Game extends ScreenAdapter {
         addSystem(ds);
         addSystem(
                 new LevelSystem(
-                        ds.batch(),
-                        ds.painter(),
-                        new WallGenerator(new RandomWalkGenerator()),
-                        onLevelLoad));
+                        ds.painter(), new WallGenerator(new RandomWalkGenerator()), onLevelLoad));
         addSystem(new VelocitySystem());
         addSystem(new PlayerSystem());
         addSystem(new HudSystem());

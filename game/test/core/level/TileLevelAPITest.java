@@ -57,7 +57,7 @@ public class TileLevelAPITest {
         generator = Mockito.mock(IGenerator.class);
         onLevelLoader = Mockito.mock(IVoidFunction.class);
         level = Mockito.mock(TileLevel.class);
-        api = new LevelSystem(batch, painter, generator, onLevelLoader);
+        api = new LevelSystem(painter, generator, onLevelLoader);
     }
 
     @Test
@@ -139,7 +139,7 @@ public class TileLevelAPITest {
         when(level.layout()).thenReturn(layout);
 
         api.level(level);
-        api.update();
+        api.execute();
 
         verify(level).layout();
         verifyNoMoreInteractions(level);

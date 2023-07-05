@@ -64,6 +64,7 @@ public final class DrawSystem extends System {
      */
     @Override
     public void execute() {
+        java.lang.System.out.println("DrawSystem!!!!!!!!!!!!!!!!!");
         entityStream().map(this::buildDataObject).forEach(this::draw);
     }
 

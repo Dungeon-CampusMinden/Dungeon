@@ -1,7 +1,5 @@
 package core.systems;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
 import core.Entity;
 import core.Game;
 import core.System;
@@ -24,7 +22,6 @@ import java.util.logging.Logger;
 
 /** Manages the level. */
 public class LevelSystem extends System {
-    private final SpriteBatch batch;
     private final Painter painter;
     private final IVoidFunction onLevelLoader;
     private IGenerator gen;
@@ -40,16 +37,13 @@ public class LevelSystem extends System {
     private final Logger levelAPI_logger = Logger.getLogger(this.getClass().getName());
 
     /**
-     * @param batch Batch on which to draw.
      * @param painter Who draws?
      * @param generator Level generator
      * @param onLevelLoader Object that implements the onLevelLoad method.
      */
-    public LevelSystem(
-            SpriteBatch batch, Painter painter, IGenerator generator, IVoidFunction onLevelLoader) {
+    public LevelSystem(Painter painter, IGenerator generator, IVoidFunction onLevelLoader) {
         super(PlayerComponent.class, PositionComponent.class);
         this.gen = generator;
-        this.batch = batch;
         this.painter = painter;
         this.onLevelLoader = onLevelLoader;
     }
@@ -87,11 +81,6 @@ public class LevelSystem extends System {
     /** Load a new level with random size and random design. */
     public void loadLevel() {
         loadLevel(LevelSize.randomSize(), DesignLabel.randomDesign());
-    }
-
-    /** Draw level */
-    public void update() {
-        drawLevel();
     }
 
     /**
@@ -150,17 +139,6 @@ public class LevelSystem extends System {
     }
 
     /**
-     * If the given entity is on the end-tile, load the new level
-     *
-     * @param hero entity to check for, normally this is the hero
-     */
-    public void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
-        if (isOnEndTile(hero)) {
-            loadLevel(LEVELSIZE);
-        }
-    }
-
-    /**
      * Check if the given en entity is on the end-tile
      *
      * @param entity entity to check for
@@ -187,7 +165,8 @@ public class LevelSystem extends System {
 
     @Override
     public void execute() {
+        java.lang.System.out.println("LEVEL!!!!!!!!!");
         drawLevel();
-        entityStream().forEach(this::loadNextLevelIfEntityIsOnEndTile);
+        if (entityStream().anyMatch(this::isOnEndTile)) loadLevel(levelSize());
     }
 }
