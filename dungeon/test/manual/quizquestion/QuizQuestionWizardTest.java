@@ -1,5 +1,12 @@
 package manual.quizquestion;
 
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
+import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
+import com.badlogic.gdx.utils.SnapshotArray;
 import contrib.components.InteractionComponent;
 import contrib.configuration.ItemConfig;
 import contrib.entities.EntityFactory;
@@ -10,6 +17,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.UIComponent;
+import core.hud.TextDialog;
 import core.hud.UITools;
 
 import quest.Quest;
@@ -20,7 +28,10 @@ import quest.quizquestion.QuizQuestionContent;
 import quest.quizquestion.QuizQuestionUI;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.function.Consumer;
+
+import static quest.quizquestion.QuizDialogDesign.ANSWERS_GROUP_NAME;
 
 public class QuizQuestionWizardTest {
 
@@ -46,12 +57,50 @@ public class QuizQuestionWizardTest {
                     QuizQuestion.QuizQuestionType.SINGLE_CHOICE);
     private static final Consumer<Entity> wizardConsumer =
             entity -> {
-                QuizQuestionContent answer = null;
-                // TODO answer=
-                QuizQuestionUI.showQuizDialog(SINGLE_CHOICE_QUESTION);
                 Quest quest = entity.fetch(TaskReferenceComponent.class).orElseThrow().quest();
-                callback(quest, answer);
+                // build GUI with its callback
+                QuizQuestionUI.showQuizDialog(SINGLE_CHOICE_QUESTION, (Entity entity1)->{
+
+                    // TODO answer=
+                   return (textDialog, id) -> {
+                        if (Objects.equals(id, core.hud.UITools.DEFAULT_DIALOG_CONFIRM)) {
+                            SnapshotArray<Actor> children = textDialog.getContentTable().getChildren();
+                            // find the answersection .added a name to it for easier search
+                            var answerSection = (VerticalGroup)children.select((actor) -> Objects.equals(actor.getName(), ANSWERS_GROUP_NAME)).iterator().next();
+
+                            // do some magic
+                            var answerText = switch ((QuizQuestion.QuizQuestionType)quest.type()){
+                                case SINGLE_CHOICE -> getSingleChoiceText(answerSection);
+                                case MULTIPLE_CHOICE -> "";
+                                case FREETEXT -> getFreeTextAnswer(answerSection);
+                            };
+
+
+
+                            QuizQuestionContent answer = null;
+                            answer = new QuizQuestionContent(QuizQuestionContent.QuizQuestionContentType.TEXT, answerText);
+                            callback(quest, answer);
+                            Game.removeEntity(entity);
+                            return true;
+                        }
+                        return false;
+
+                    };
+                });
+
             };
+
+    private static String getSingleChoiceText(VerticalGroup answerSection) {
+        return ((VerticalGroup)
+                ((ScrollPane) answerSection.getChildren().get(0))
+                        .getChildren().get(0)).getChildren().select((x) -> x instanceof CheckBox checkbox && checkbox.isChecked())
+                .iterator()
+                .next() instanceof CheckBox checked ? checked.getName() : "No Selection";
+    }
+
+    private static String getFreeTextAnswer(VerticalGroup answerSection) {
+        return ((TextArea) ((ScrollPane) answerSection.getChildren().get(0)).getChildren().get(0)).getText();
+    }
 
     public static void main(String[] args) throws IOException {
         // start the game

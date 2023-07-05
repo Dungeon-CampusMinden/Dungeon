@@ -4,10 +4,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import core.Entity;
+import core.Game;
 import core.hud.TextDialog;
 import core.hud.UITools;
+import core.utils.IVoidFunction;
 
+import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class QuizQuestionUI {
@@ -22,6 +26,17 @@ public class QuizQuestionUI {
     private static final int MAX_ROW_LENGTH = 40;
 
     /**
+     * zugang von außen ermöglicht
+     */
+    public static Entity showQuizDialog(QuizQuestion question, Function<Entity, BiFunction<TextDialog, String, Boolean>> resulthandlerLinker) {
+        return showQuizDialog(
+                question,
+                formatStringForDialogWindow(question.task().content()),
+                core.hud.UITools.DEFAULT_DIALOG_CONFIRM,
+                core.hud.UITools.DEFAULT_DIALOG_TITLE,
+                resulthandlerLinker);
+    }
+    /**
      * Display the Question-Content (Question and answer options (no pictures) as text, picture,
      * text and picture, single or multiple choice ) on the HUD.
      *
@@ -30,10 +45,7 @@ public class QuizQuestionUI {
      */
     public static Entity showQuizDialog(QuizQuestion question) {
         return showQuizDialog(
-                question,
-                formatStringForDialogWindow(question.task().content()),
-                core.hud.UITools.DEFAULT_DIALOG_CONFIRM,
-                core.hud.UITools.DEFAULT_DIALOG_TITLE);
+                question, (entity) -> createResultHandlerQuiz(entity,core.hud.UITools.DEFAULT_DIALOG_CONFIRM));
     }
 
     /**
@@ -46,7 +58,7 @@ public class QuizQuestionUI {
      * @param question Various question configurations
      */
     private static Entity showQuizDialog(
-            QuizQuestion question, String questionMsg, String buttonMsg, String dialogTitle) {
+            QuizQuestion question, String questionMsg, String buttonMsg, String dialogTitle, Function<Entity, BiFunction<TextDialog, String, Boolean>> resulthandlerLinker) {
         Entity entity = new Entity();
 
         core.hud.UITools.show(
@@ -61,7 +73,7 @@ public class QuizQuestionUI {
                                         questionMsg,
                                         buttonMsg,
                                         dialogTitle,
-                                        UITools.createResultHandler(entity, buttonMsg));
+                                        resulthandlerLinker.apply(entity));
                         UITools.centerActor(quizDialog);
                         return quizDialog;
                     }
@@ -122,5 +134,16 @@ public class QuizQuestionUI {
             }
         }
         return formattedMsg.toString().trim();
+    }
+
+    public static BiFunction<TextDialog, String, Boolean> createResultHandlerQuiz(
+            final Entity entity, final String closeButtonID) {
+        return (d, id) -> {
+            if (Objects.equals(id, closeButtonID)) {
+                Game.removeEntity(entity);
+                return true;
+            }
+            return false;
+        };
     }
 }

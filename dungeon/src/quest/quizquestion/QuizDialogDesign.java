@@ -12,6 +12,9 @@ import core.utils.Constants;
 import java.util.Arrays;
 
 public class QuizDialogDesign {
+
+    public static final String ANSWERS_GROUP_NAME = "Answers";
+
     /**
      * Creates a vertical Button Group based on the answers provided by the QuizQuestion
      *
@@ -159,6 +162,7 @@ public class QuizDialogDesign {
             default -> {}
         }
         vg.grow();
+        vg.setName(ANSWERS_GROUP_NAME);
         return vg;
     }
 }
