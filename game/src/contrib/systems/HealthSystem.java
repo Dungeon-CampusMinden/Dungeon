@@ -11,7 +11,6 @@ import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.utils.components.MissingComponentException;
-import core.utils.logging.CustomLogLevel;
 
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -46,8 +45,10 @@ public final class HealthSystem extends System {
 
     /**
      * Tests the existence and current status of the DeathAnimation of an entity.
-     * 
-     * <p>Returns a corresponding Boolean value if the entity can be removed from the game. This is the case if the entity does not have a death animation or it has already finished. Also, if the entity has a death animation and it is in loop mode, the entity is enabled for removal.
+     *
+     * <p>Returns a corresponding Boolean value if the entity can be removed from the game. This is
+     * the case if the entity does not have a death animation, or it has already finished. Also, if
+     * the entity has a death animation, and it is in loop mode, the entity is enabled for removal.
      *
      * @param hsd HSData to check Animations in
      * @return true if Entity can be removed from the game
