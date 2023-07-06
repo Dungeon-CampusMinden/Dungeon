@@ -839,8 +839,6 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
 
-        //var stream = outputStream.toString();
-
         assertEquals("branch2 stmt1\nother_func stmt1\nother_func stmt2\nhello\n", outputStream.toString());
     }
 }

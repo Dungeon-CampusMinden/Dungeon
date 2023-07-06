@@ -533,15 +533,16 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
 
         // visit function AST
+        statementStack.addFirst(new Node(Node.Type.ReturnMark));
+
         var funcRootNode = symbol.getAstRootNode();
         var stmtBlock = (StmtBlockNode)funcRootNode.getStmtBlock();
         if (stmtBlock != Node.NONE) {
             // reset return stmt flag
             this.hitReturnStmt = false;
-            statementStack.add(stmtBlock);
+            statementStack.addFirst(stmtBlock);
         }
 
-        statementStack.add(new Node(Node.Type.ReturnMark));
 
         // NOTES:
         // - statement execution is performed by popping the topmost (first) element of
