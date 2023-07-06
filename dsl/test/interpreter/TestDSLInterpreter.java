@@ -797,7 +797,50 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
 
-        assertTrue(outputStream.toString().contains("World"));
-        assertFalse(outputStream.toString().contains("!"));
+        assertTrue(outputStream.toString().contains("branch2 stmt1"));
+        assertTrue(outputStream.toString().contains("branch2 stmt2"));
+        assertFalse(outputStream.toString().contains("after return stmt"));
+        assertFalse(outputStream.toString().contains("branch1"));
+    }
+
+    @Test
+    public void testBranchingReturnNested() {
+        String program =
+            """
+        fn other_func() -> string {
+            print("other_func stmt1");
+            print("other_func stmt2");
+            return "hello" ;
+            print("other_func stmt3");
+        }
+
+        fn test_func() {
+            if false {
+                print("branch1");
+            } else {
+                print("branch2 stmt1");
+                print(other_func());
+                return;
+                print("after return stmt");
+            }
+        }
+
+        quest_config c {
+            test: test_func()
+        }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
+
+        //var stream = outputStream.toString();
+
+        assertEquals("branch2 stmt1\nother_func stmt1\nother_func stmt2\nhello\n", outputStream.toString());
     }
 }
