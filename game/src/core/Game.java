@@ -47,6 +47,7 @@ import contrib.utils.multiplayer.MultiplayerManager;
 
 public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer {
 
+    /* Used for singleton. */
     private static Game INSTANCE;
 
     /**
@@ -329,11 +330,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     }
 
     @Override
-    public void onMultiplayerSessionStarted(final boolean isSucceed) {
+    public void onMultiplayerServerInitialized(final boolean isSucceed) {
         if (isSucceed) {
-            final Set<Entity> entities = new HashSet<>();
-            entities.addAll(entityStream().collect(Collectors.toSet()));
-            multiplayerManager.changeLevel(currentLevel, entities, hero);
+            changeLevel();
         } else {
             final String message = "Server respond unsuccessful start.";
             LOGGER.warning(message);
@@ -371,7 +370,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     public void onChangeMapRequest() {
         if(multiplayerManager.isHost()) {
             levelManager.loadLevel(LEVELSIZE);
-            multiplayerManager.changeLevel(currentLevel, entities.stream().collect(Collectors.toSet()), hero);
+            changeLevel();
         }
     }
 
@@ -709,11 +708,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
 
         if (!multiplayerManager.isConnectedToSession()){
             levelManager.loadLevel(LEVELSIZE);
+            changeLevel();
         } else {
             if(multiplayerManager.isHost()){
                 levelManager.loadLevel(LEVELSIZE);
-                // Todo - change level design for multiplayer
-                multiplayerManager.changeLevel(currentLevel, entities.stream().collect(Collectors.toSet()), hero);
+                changeLevel();
             } else {
                 //ask host to generate new map
                 multiplayerManager.requestNewLevel();
@@ -784,5 +783,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
 
     public static MultiplayerManager multiplayerManager() {
         return multiplayerManager;
+    }
+
+    private void changeLevel() {
+        updateSystems();
+        multiplayerManager.changeLevel(currentLevel, entities.stream().collect(Collectors.toSet()), hero);
     }
 }

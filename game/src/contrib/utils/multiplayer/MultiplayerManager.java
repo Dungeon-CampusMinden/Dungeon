@@ -14,7 +14,6 @@ import contrib.utils.multiplayer.packages.request.*;
 import contrib.utils.multiplayer.server.MultiplayerServer;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
@@ -49,7 +48,7 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
         } else {
             playerId = 0;
         }
-        multiplayer.onMultiplayerSessionStarted(isSucceed);
+        multiplayer.onMultiplayerServerInitialized(isSucceed);
     }
 
     @Override

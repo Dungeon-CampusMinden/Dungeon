@@ -39,7 +39,6 @@ public class Dungeon extends Game implements IMenuScreenObserver {
      * <p>Manipulating this value will only result in changes before {@link Dungeon#run} was executed.
      */
     private static int WINDOW_WIDTH_MAX = 640;
-
     /**
      * Part of the pre-run configuration. The height of the game window in pixels.
      */
