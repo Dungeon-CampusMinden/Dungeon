@@ -531,18 +531,15 @@ public class DSLInterpreter implements AstVisitor<Object> {
             memoryStack.peek().bindValue(RETURN_VALUE_NAME, returnValue);
         }
 
-
-        // visit function AST
+        // add return mark
         statementStack.addFirst(new Node(Node.Type.ReturnMark));
 
+        // put statement block on statement stack
         var funcRootNode = symbol.getAstRootNode();
-        var stmtBlock = (StmtBlockNode)funcRootNode.getStmtBlock();
+        var stmtBlock = (StmtBlockNode) funcRootNode.getStmtBlock();
         if (stmtBlock != Node.NONE) {
-            // reset return stmt flag
-            this.hitReturnStmt = false;
             statementStack.addFirst(stmtBlock);
         }
-
 
         // NOTES:
         // - statement execution is performed by popping the topmost (first) element of
@@ -554,9 +551,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         //   - this requires consecutive calls to add first, in reverse order for all statements in
         //     the statementblock
 
-
-        // the statements will be in forward order on the statement stack (first at head, last at tail)
-        while (statementStack.peek() != null && statementStack.peek().type != Node.Type.ReturnMark) {
+        while (statementStack.peek() != null
+                && statementStack.peek().type != Node.Type.ReturnMark) {
             var stmt = statementStack.pop();
             stmt.accept(this);
         }
@@ -575,22 +571,14 @@ public class DSLInterpreter implements AstVisitor<Object> {
     @Override
     public Object visit(StmtBlockNode node) {
         ArrayList<Node> statements = node.getStmts();
+
+        // push statements in reverse order onto the statement stack
+        // (as execution is done by popping the topmost statement from the stack)
         var iter = statements.listIterator(statements.size());
         while (iter.hasPrevious()) {
             Node stmt = iter.previous();
             statementStack.addFirst(stmt);
         }
-
-        /*
-        for (var stmt : node.getStmts()) {
-            //stmt.accept(this);
-            // check, if a return statement was hit
-            // if so: stop function execution
-            if (hitReturnStmt) {
-                hitReturnStmt = false;
-                break;
-            }
-        }*/
         return null;
     }
 
@@ -649,7 +637,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
 
         // unroll the statement stack until we find a return mark
-        while (statementStack.peek() != null && statementStack.peek().type != Node.Type.ReturnMark) {
+        while (statementStack.peek() != null
+                && statementStack.peek().type != Node.Type.ReturnMark) {
             statementStack.pop();
         }
 
@@ -662,7 +651,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(ConditionalStmtNodeIf node) {
         Value conditionValue = (Value) node.getCondition().accept(this);
         if (isBooleanTrue(conditionValue)) {
-            //node.getIfStmt().accept(this);
             statementStack.addFirst(node.getIfStmt());
         }
 
@@ -673,12 +661,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(ConditionalStmtNodeIfElse node) {
         Value conditionValue = (Value) node.getCondition().accept(this);
         if (isBooleanTrue(conditionValue)) {
-            //node.getIfStmt().accept(this);
-            // TODO: add statements to stack
             statementStack.addFirst(node.getIfStmt());
         } else {
-            //node.getElseStmt().accept(this);
-            // TODO: add statements to stack
             statementStack.addFirst(node.getElseStmt());
         }
 

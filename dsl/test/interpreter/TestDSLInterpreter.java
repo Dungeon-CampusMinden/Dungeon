@@ -771,7 +771,7 @@ public class TestDSLInterpreter {
     @Test
     public void testBranchingReturn() {
         String program =
-            """
+                """
         fn test_func() {
             if false {
                 print("branch1");
@@ -806,7 +806,7 @@ public class TestDSLInterpreter {
     @Test
     public void testBranchingReturnNested() {
         String program =
-            """
+                """
         fn other_func() -> string {
             print("other_func stmt1");
             print("other_func stmt2");
@@ -839,6 +839,8 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
 
-        assertEquals("branch2 stmt1\nother_func stmt1\nother_func stmt2\nhello\n", outputStream.toString());
+        assertEquals(
+                "branch2 stmt1\nother_func stmt1\nother_func stmt2\nhello\n",
+                outputStream.toString());
     }
 }
