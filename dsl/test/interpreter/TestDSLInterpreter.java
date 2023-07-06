@@ -767,4 +767,37 @@ public class TestDSLInterpreter {
         assertTrue(outputStream.toString().contains("World"));
         assertFalse(outputStream.toString().contains("!"));
     }
+
+    @Test
+    public void testBranchingReturn() {
+        String program =
+            """
+        fn test_func() {
+            if false {
+                print("branch1");
+            } else {
+                print("branch2 stmt1");
+                print("branch2 stmt2");
+                return;
+                print("after return stmt");
+            }
+        }
+
+        quest_config c {
+            test: test_func()
+        }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
+
+        assertTrue(outputStream.toString().contains("World"));
+        assertFalse(outputStream.toString().contains("!"));
+    }
 }

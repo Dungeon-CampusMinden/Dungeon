@@ -22,10 +22,7 @@ import semanticanalysis.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import semanticanalysis.types.*;
 
-import java.util.ArrayDeque;
-import java.util.ConcurrentModificationException;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 // TODO: specify EXACT semantics of value copying and setting
 
@@ -534,20 +531,30 @@ public class DSLInterpreter implements AstVisitor<Object> {
             memoryStack.peek().bindValue(RETURN_VALUE_NAME, returnValue);
         }
 
+
         // visit function AST
         var funcRootNode = symbol.getAstRootNode();
         var stmtBlock = (StmtBlockNode)funcRootNode.getStmtBlock();
         if (stmtBlock != Node.NONE) {
             // reset return stmt flag
             this.hitReturnStmt = false;
-            //stmtBlock.accept(this);
-            statementStack.addAll(stmtBlock.getStmts());
+            statementStack.add(stmtBlock);
         }
 
         statementStack.add(new Node(Node.Type.ReturnMark));
 
+        // NOTES:
+        // - statement execution is performed by popping the topmost (first) element of
+        //   the statement stack
+        // - return statement will pop everything of the stack until we find the return mark
+        //   - this requires the return mark to be the last element
+        // - the statementblock will add all statements ON TOP of the stack, so at the head of
+        //   the dequeue
+        //   - this requires consecutive calls to add first, in reverse order for all statements in
+        //     the statementblock
+
+
         // the statements will be in forward order on the statement stack (first at head, last at tail)
-        // TODO: execute the statements
         while (statementStack.peek() != null && statementStack.peek().type != Node.Type.ReturnMark) {
             var stmt = statementStack.pop();
             stmt.accept(this);
@@ -566,16 +573,23 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(StmtBlockNode node) {
-        // execute function's statements one by one
+        ArrayList<Node> statements = node.getStmts();
+        var iter = statements.listIterator(statements.size());
+        while (iter.hasPrevious()) {
+            Node stmt = iter.previous();
+            statementStack.addFirst(stmt);
+        }
+
+        /*
         for (var stmt : node.getStmts()) {
-            stmt.accept(this);
+            //stmt.accept(this);
             // check, if a return statement was hit
             // if so: stop function execution
             if (hitReturnStmt) {
                 hitReturnStmt = false;
                 break;
             }
-        }
+        }*/
         return null;
     }
 
@@ -645,7 +659,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(ConditionalStmtNodeIf node) {
         Value conditionValue = (Value) node.getCondition().accept(this);
         if (isBooleanTrue(conditionValue)) {
-            node.getIfStmt().accept(this);
+            //node.getIfStmt().accept(this);
+            statementStack.addFirst(node.getIfStmt());
         }
 
         return null;
@@ -655,11 +670,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(ConditionalStmtNodeIfElse node) {
         Value conditionValue = (Value) node.getCondition().accept(this);
         if (isBooleanTrue(conditionValue)) {
-            node.getIfStmt().accept(this);
+            //node.getIfStmt().accept(this);
             // TODO: add statements to stack
+            statementStack.addFirst(node.getIfStmt());
         } else {
-            node.getElseStmt().accept(this);
+            //node.getElseStmt().accept(this);
             // TODO: add statements to stack
+            statementStack.addFirst(node.getElseStmt());
         }
 
         return null;
