@@ -35,7 +35,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
     private RuntimeEnvironment environment;
     private final ArrayDeque<IMemorySpace> memoryStack;
     private final IMemorySpace globalSpace;
-    private boolean hitReturnStmt;
 
     private SymbolTable symbolTable() {
         return environment.getSymbolTable();
@@ -501,7 +500,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     /**
-     * This handles parameter evaluation an binding and walking the AST of the function symbol
+     * This handles parameter evaluation and binding and setting up the statement stack
+     * for execution of the function's statements
      *
      * @param symbol The symbol corresponding to the function to call
      * @param parameterNodes The ASTNodes of the parameters of the function call
@@ -541,15 +541,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
             statementStack.addFirst(stmtBlock);
         }
 
-        // NOTES:
-        // - statement execution is performed by popping the topmost (first) element of
-        //   the statement stack
-        // - return statement will pop everything of the stack until we find the return mark
-        //   - this requires the return mark to be the last element
-        // - the statementblock will add all statements ON TOP of the stack, so at the head of
-        //   the dequeue
-        //   - this requires consecutive calls to add first, in reverse order for all statements in
-        //     the statementblock
 
         while (statementStack.peek() != null
                 && statementStack.peek().type != Node.Type.ReturnMark) {
@@ -642,8 +633,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
             statementStack.pop();
         }
 
-        // signal, that a return statement was hit
-        this.hitReturnStmt = true;
         return null;
     }
 
