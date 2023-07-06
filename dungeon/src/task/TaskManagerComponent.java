@@ -4,12 +4,15 @@ import core.Component;
 import core.Entity;
 
 public final class TaskManagerComponent extends Component {
-    /**
-     * Create a new component and add it to the associated entity
-     *
-     * @param entity associated entity
-     */
-    public TaskManagerComponent(Entity entity) {
+
+    private final Task task;
+
+    public TaskManagerComponent(Entity entity, Task task) {
         super(entity);
+        this.task = task;
+    }
+
+    public Task task() {
+        return task;
     }
 }
