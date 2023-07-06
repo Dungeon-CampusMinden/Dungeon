@@ -19,12 +19,14 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 /**
  * Example menu to demonstrate Multiplayer mode.
  */
 public class Menu extends ScreenAdapter {
 
+    private static final Logger LOGGER = Logger.getLogger("Menu");
     private static Menu INSTANCE;
     private final Stage stage;
     private final Skin skin;
@@ -208,7 +210,7 @@ public class Menu extends ScreenAdapter {
                 menuTypeCurrent = MenuType.MultiplayerStartOrJoinSession;
             }
             case MultiplayerJoinSession -> {
-                inputHostIpPort.setText(String.format("%s:%d", deviceIpAddress, 25444));
+                inputHostIpPort.setText(String.format("%s:%s", deviceIpAddress, "xxxxx"));
                 table.add(inputHostIpPort).fillX().uniformX();
                 table.row();
                 table.add(textInvalidAddress).fillX().uniformX();
@@ -221,7 +223,11 @@ public class Menu extends ScreenAdapter {
                 table.add(buttonNavigateBack).fillX().uniformX();
                 menuTypeCurrent = MenuType.MultiplayerJoinSession;
             }
-            default -> throw new RuntimeException("Invalid menu type");
+            default -> {
+                final String message = "Failed to switch menu elements. Invalid menu type given.";
+                LOGGER.severe(message);
+                throw new RuntimeException("Invalid menu type.");
+            }
         }
     }
 
