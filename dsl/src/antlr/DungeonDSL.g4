@@ -69,6 +69,7 @@ stmt
     : primary ';'
     | stmt_block
     | conditional_stmt
+    | return_stmt
     ;
 
 stmt_block
@@ -77,12 +78,11 @@ stmt_block
 
 stmt_list
     : stmt stmt_list
-    | return_stmt
     | stmt
     ;
 
 return_stmt
-    : 'return' primary ';'
+    : 'return' primary? ';'
     ;
 
 conditional_stmt
