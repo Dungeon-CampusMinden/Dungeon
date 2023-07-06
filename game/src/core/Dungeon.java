@@ -7,10 +7,7 @@ import contrib.configuration.ItemConfig;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
-import core.components.PositionComponent;
-import core.utils.components.MissingComponentException;
 
-import javax.swing.plaf.IconUIResource;
 import java.io.IOException;
 import java.util.logging.Logger;
 
@@ -104,11 +101,11 @@ public class Dungeon extends Game implements IMenuScreenObserver {
             core.Game.addSystem(new HealthSystem());
             core.Game.addSystem(new XPSystem());
             core.Game.addSystem(new ProjectileSystem());
-            core.Game.addSystem(new MultiplayerSynchronizationSystem(gameScreen.getMultiplayerAPI()));
+            core.Game.addSystem(new MultiplayerSynchronizationSystem(gameScreen.multiplayerManager()));
             gameScreen.stopSystems();
         }
         catch (Exception ex) {
-            LOGGER.warning("Failed to create game screen. " + ex.getMessage());
+            LOGGER.severe("Failed to create game screen. " + ex.getMessage());
         }
 
         setScreen(menuScreen);
