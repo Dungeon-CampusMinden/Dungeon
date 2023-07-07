@@ -2,6 +2,7 @@ package contrib.components;
 
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.stats.DamageModifier;
+
 import core.Component;
 import core.Entity;
 
@@ -37,20 +38,20 @@ public final class StatsComponent extends Component {
      *
      * @param type damage type
      * @return multiplier (1 is default, values greater than 1 increase damage, values less than 1
-     * decrease damage)
+     *     decrease damage)
      */
-    public float multiplierFor(DamageType type) {
+    public float multiplierFor(final DamageType type) {
         return damageModifier.multiplierFor(type);
     }
 
     /**
      * Set multiplier for a given damage type
      *
-     * @param type       damage type
+     * @param type damage type
      * @param multiplier multiplier (1 is default, values greater than 1 increase damage, values
-     *                   less than 1 decrease damage)
+     *     less than 1 decrease damage)
      */
-    public void multiplier(DamageType type, float multiplier) {
+    public void multiplier(final DamageType type, float multiplier) {
         damageModifier.setMultiplier(type, multiplier);
     }
 }
