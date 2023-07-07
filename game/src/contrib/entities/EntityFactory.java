@@ -165,7 +165,7 @@ public class EntityFactory {
         Entity chest = new Entity("chest");
         new PositionComponent(chest, position);
         InventoryComponent ic = new InventoryComponent(chest, itemData.size());
-        itemData.forEach(ic::addItem);
+        itemData.forEach(ic::add);
         new InteractionComponent(
                 chest, defaultInteractionRadius, false, new DropItemsInteraction());
         DrawComponent dc = new DrawComponent(chest, "objects/treasurechest");
@@ -214,7 +214,7 @@ public class EntityFactory {
             ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
             ItemData item = itemDataGenerator.generateItemData();
             InventoryComponent ic = new InventoryComponent(monster, 1);
-            ic.addItem(item);
+            ic.add(item);
             onDeath = new DropItemsInteraction();
         }
         new HealthComponent(monster, health, onDeath);

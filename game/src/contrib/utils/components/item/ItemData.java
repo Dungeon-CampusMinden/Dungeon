@@ -188,7 +188,7 @@ public final class ItemData {
      * @param item Item that is used
      */
     private static void defaultUseCallback(Entity e, ItemData item) {
-        e.fetch(InventoryComponent.class).ifPresent(component -> component.removeItem(item));
+        e.fetch(InventoryComponent.class).ifPresent(component -> component.remove(item));
         System.out.printf("Item \"%s\" used by entity %d\n", item.itemName(), e.id());
     }
 
@@ -226,7 +226,7 @@ public final class ItemData {
                                                 (x) -> {
                                                     // check if Item can be added to hero Inventory
                                                     if ((x)
-                                                            .addItem(
+                                                            .add(
                                                                     worldItem
                                                                             .fetch(
                                                                                     ItemComponent

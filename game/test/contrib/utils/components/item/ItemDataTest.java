@@ -102,7 +102,7 @@ public class ItemDataTest {
         ItemData item = new ItemData();
         Entity entity = new Entity();
         InventoryComponent inventoryComponent = new InventoryComponent(entity, 2);
-        inventoryComponent.addItem(item);
+        inventoryComponent.add(item);
         assertTrue(
                 "ItemActive needs to be in entities inventory.",
                 inventoryComponent.items().contains(item));
