@@ -49,16 +49,13 @@ public final class MultiplayerSynchronizationSystem extends System {
                 .collect(Collectors.toSet());
 
         for (Entity multiplayerEntity : multiplayerManager.entities()) {
-            boolean isOwnHero = multiplayerEntity.globalID() == Game.hero().get().globalID();
-            if (!isOwnHero) {
-                boolean isEntityNew = !currentLocalMultiplayerEntityIds.contains(multiplayerEntity.globalID());
-                if (isEntityNew) {
-                    Entity newEntity = new Entity(multiplayerEntity.name());
-                    newEntity.globalID(newEntity.globalID());
-                    multiplayerEntity.components().forEach((key, value) -> {
-                        value.entity(newEntity);
-                    });
-                }
+            boolean isEntityNew = !currentLocalMultiplayerEntityIds.contains(multiplayerEntity.globalID());
+            if (isEntityNew) {
+                Entity newEntity = new Entity(multiplayerEntity.name());
+                newEntity.globalID(multiplayerEntity.globalID());
+                multiplayerEntity.components().forEach((key, value) -> {
+                    value.entity(newEntity);
+                });
             }
         }
     }
@@ -68,10 +65,9 @@ public final class MultiplayerSynchronizationSystem extends System {
         Game.entityStream()
 //            .filter(entity -> entity.fetch(MultiplayerComponent.class).isPresent())
             .forEach(entity -> {
-                boolean isOwnHero = entity.globalID() == Game.hero().get().globalID();
                 boolean isEntityRemoved =
                     !multiplayerManager.entities().stream().anyMatch(x -> x.globalID() == entity.globalID());
-                if (!isOwnHero && isEntityRemoved) {
+                if (isEntityRemoved) {
                     Game.removeEntity(entity);
                 }
             });
