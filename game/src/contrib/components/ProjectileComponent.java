@@ -42,7 +42,7 @@ public final class ProjectileComponent extends Component {
     }
 
     /**
-     * Get goal location of the projectile
+     * Get goal location of the projectile.
      *
      * @return The point where the projectile should fly to.
      */
