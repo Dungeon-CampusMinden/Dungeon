@@ -4,46 +4,49 @@ import contrib.utils.components.item.ItemData;
 
 import core.Component;
 import core.Entity;
+import core.utils.TriConsumer;
 
 /**
- * A class that marks an entity as an Item and controls its {@link ItemData}
+ * Marks an entity as an Item.
  *
- * <p>It contains the {@link #itemData}, which contains all info about the Item.
+ * <p>It contains the {@link #itemData}, which contains all information about the Item.
+ *
+ * <p>An entity with an {@link ItemComponent} is not an item in an inventory, but an item that
+ * exists in the game world. Systems such as {@link contrib.systems.CollisionSystem CollisionSystem}
+ * or {@link InteractionComponent} utilize the {@link ItemData} stored in this component to place
+ * the item in the player's inventory upon collision or interaction. For this to work, the
+ * associated entity needs not only the corresponding components, but also needs to implement the
+ * callback functions (e.g., {@link CollideComponent#collideEnter(TriConsumer)}) of the respective
+ * components with the logic for collecting the item.
+ *
+ * <p>Some default callback functions are already implemented in {@link ItemData} and can be used.
+ *
+ * <p>The {@link contrib.entities.WorldItemBuilder WorldItemBuilder} demonstrates how to create an
+ * item entity.
+ *
+ * @see ItemData
+ * @see contrib.entities.WorldItemBuilder
  */
-public class ItemComponent extends Component {
-    private ItemData itemData;
+public final class ItemComponent extends Component {
+    private final ItemData itemData;
 
     /**
-     * Create a new component and add it to the associated entity
+     * Creates a new {@link ItemComponent} and adds it to the associated entity.
      *
-     * @param entity entity that will be marked as an Item
+     * @param entity The associated entity.
+     * @param itemData The data of the item to store in this component.
      */
-    public ItemComponent(Entity entity) {
-        super(entity);
-    }
-
-    /**
-     * Creates a new ItemComponent and adds it to the associated entity
-     *
-     * @param entity entity that will be marked as an Item
-     * @param itemData data of the item for the component
-     */
-    public ItemComponent(Entity entity, ItemData itemData) {
+    public ItemComponent(final Entity entity, ItemData itemData) {
         super(entity);
         this.itemData = itemData;
     }
 
     /**
-     * @return the ItemData
+     * Gets the {@link ItemData} of this component.
+     *
+     * @return The {@link ItemData} stored in this component.
      */
     public ItemData itemData() {
         return itemData;
-    }
-
-    /**
-     * @param itemData data of the item for the component
-     */
-    public void itemData(ItemData itemData) {
-        this.itemData = itemData;
     }
 }
