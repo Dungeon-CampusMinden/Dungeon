@@ -82,7 +82,7 @@ public class MemorySpace implements IMemorySpace {
         if (resolved.equals(Value.NONE)) {
             return false;
         }
-        resolved.setInternalValue(value.getInternalObject());
+        resolved.setInternalValue(value.getInternalValue());
         return true;
     }
 

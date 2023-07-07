@@ -7,6 +7,7 @@ import core.Entity;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
+import dslToGame.EntityTranslator;
 import dslToGame.QuestConfig;
 
 import runtime.nativefunctions.NativeInstantiate;
@@ -35,7 +36,9 @@ public class GameEnvironment implements IEvironment {
     protected final HashMap<String, Symbol> loadedFunctions = new HashMap<>();
     protected final SymbolTable symbolTable;
     protected final Scope globalScope;
+    protected final RuntimeObjectTranslator runtimeObjectTranslator = new RuntimeObjectTranslator();
 
+    @Override
     public TypeBuilder getTypeBuilder() {
         return typeBuilder;
     }
@@ -55,12 +58,18 @@ public class GameEnvironment implements IEvironment {
 
         bindBuiltIns();
         registerDefaultTypeAdapters();
+        registerDefaultRuntimeObjectTranslators();
     }
 
     protected void registerDefaultTypeAdapters() {
         /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
          * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
         // typeBuilder.registerTypeAdapter(AnimationBuilder.class, Scope.NULL);
+    }
+
+    protected void registerDefaultRuntimeObjectTranslators() {
+        this.runtimeObjectTranslator.loadObjectToValueTranslator(
+                Entity.class, EntityTranslator.instance);
     }
 
     protected void bindBuiltIns() {
@@ -145,6 +154,11 @@ public class GameEnvironment implements IEvironment {
     @Override
     public HashMap<Class<?>, IType> javaTypeToDSLTypeMap() {
         return typeBuilder.getJavaTypeToDSLTypeMap();
+    }
+
+    @Override
+    public RuntimeObjectTranslator getRuntimeObjectTranslator() {
+        return this.runtimeObjectTranslator;
     }
 
     private ArrayList<IType> buildBuiltInTypes() {

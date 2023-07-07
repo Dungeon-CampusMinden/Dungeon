@@ -268,7 +268,7 @@ public class TestDSLInterpreter {
                     """;
         DSLInterpreter interpreter = new DSLInterpreter();
         interpreter.getQuestConfig(program);
-        assertNotSame(42, Value.NONE.getInternalObject());
+        assertNotSame(42, Value.NONE.getInternalValue());
     }
 
     /**
@@ -397,12 +397,12 @@ public class TestDSLInterpreter {
         var member1Value = ((Prototype) firstCompWithDefaults).getDefaultValue("member1");
         assertNotEquals(Value.NONE, member1Value);
         assertEquals(BuiltInType.intType, member1Value.getDataType());
-        assertEquals(42, member1Value.getInternalObject());
+        assertEquals(42, member1Value.getInternalValue());
 
         var member2Value = ((Prototype) firstCompWithDefaults).getDefaultValue("member2");
         assertNotEquals(Value.NONE, member2Value);
         assertEquals(BuiltInType.stringType, member2Value.getDataType());
-        assertEquals("Hello, World!", member2Value.getInternalObject());
+        assertEquals("Hello, World!", member2Value.getInternalValue());
     }
 
     @Test
@@ -453,7 +453,7 @@ public class TestDSLInterpreter {
         assertNotEquals(Value.NONE, testComp1Value);
         var testComp1EncapsulatedObj =
                 (EncapsulatedObject) ((AggregateValue) testComp1Value).getMemorySpace();
-        var testComp1Internal = testComp1EncapsulatedObj.getInternalObject();
+        var testComp1Internal = testComp1EncapsulatedObj.getInternalValue();
         assertTrue(testComp1Internal instanceof TestComponent1);
 
         TestComponent1 testComp1 = (TestComponent1) testComp1Internal;
@@ -469,7 +469,7 @@ public class TestDSLInterpreter {
         assertNotEquals(Value.NONE, testComp2Value);
         var testComp2EncapsulatedObj =
                 (EncapsulatedObject) ((AggregateValue) testComp2Value).getMemorySpace();
-        var testComp2Internal = testComp2EncapsulatedObj.getInternalObject();
+        var testComp2Internal = testComp2EncapsulatedObj.getInternalValue();
         assertTrue(testComp2Internal instanceof TestComponent2);
 
         TestComponent2 testComp2 = (TestComponent2) testComp2Internal;
@@ -482,17 +482,74 @@ public class TestDSLInterpreter {
     }
 
     @Test
+    public void objectEncapsulation() {
+        String program =
+                """
+            entity_type my_obj {
+                test_component1 {
+                    member1: 42,
+                    member2: 12.34
+                },
+                test_component2 {
+                    member1: "Hallo",
+                    member2: 123
+                }
+            }
+
+            quest_config config {
+                entity: instantiate(my_obj),
+                second_entity: instantiate(my_obj)
+            }
+            """;
+
+        var env = new TestEnvironment();
+        var interpreter = new DSLInterpreter();
+        var questConfig =
+                Helpers.generateQuestConfigWithCustomTypes(
+                        program,
+                        env,
+                        interpreter,
+                        Entity.class,
+                        TestComponent1.class,
+                        TestComponent2.class);
+
+        var entity = ((CustomQuestConfig) questConfig).entity();
+        var rtEnv = interpreter.getRuntimeEnvironment();
+        var globalMs = interpreter.getGlobalMemorySpace();
+
+        // the config should contain the my_obj definition on the entity-value, which should
+        // encapsulate the actual
+        // test component instances
+        var config = (AggregateValue) (globalMs.resolve("config"));
+        var firstEntity = (AggregateValue) config.getMemorySpace().resolve("entity");
+        var secondEntity = (AggregateValue) config.getMemorySpace().resolve("second_entity");
+
+        // set values in the testComponent1 of firstEntity and check, that the members in
+        // second Entity stay the same
+        var firstEntitysComp1 =
+                (AggregateValue) firstEntity.getMemorySpace().resolve("test_component1");
+        var firstEntitysComp1Member1 = firstEntitysComp1.getMemorySpace().resolve("member1");
+        firstEntitysComp1Member1.setInternalValue(123);
+
+        var secondEntitysComp1 =
+                (AggregateValue) secondEntity.getMemorySpace().resolve("test_component1");
+        var secondEntitysComp1Member1 = secondEntitysComp1.getMemorySpace().resolve("member1");
+        var internalValue = secondEntitysComp1Member1.getInternalValue();
+        Assert.assertEquals(42, internalValue);
+    }
+
+    @Test
     public void aggregateTypeInstancingNonSupportedExternalType() {
         String program =
                 """
-                entity_type my_obj {
-                    component_with_external_type_member { }
-                }
+            entity_type my_obj {
+                component_with_external_type_member { }
+            }
 
-                quest_config config {
-                    entity: instantiate(my_obj)
-                }
-                """;
+            quest_config config {
+                entity: instantiate(my_obj)
+            }
+            """;
 
         var env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
@@ -511,7 +568,7 @@ public class TestDSLInterpreter {
                         .getMemorySpace()
                         .resolve("component_with_external_type_member");
         var encapsulatedObject = (EncapsulatedObject) ((AggregateValue) component).getMemorySpace();
-        var internalComponent = encapsulatedObject.getInternalObject();
+        var internalComponent = encapsulatedObject.getInternalValue();
 
         assertTrue(internalComponent instanceof ComponentWithExternalTypeMember);
         assertNull(((ComponentWithExternalTypeMember) internalComponent).point);
@@ -556,7 +613,13 @@ public class TestDSLInterpreter {
         AggregateValue component =
                 (AggregateValue)
                         myObj.getMemorySpace().resolve("test_component_with_external_type");
-        var internalObject = (TestComponentWithExternalType) component.getInternalObject();
+
+        Value externalTypeMemberValue = component.getMemorySpace().resolve("member_external_type");
+        Assert.assertNotEquals(externalTypeMemberValue, Value.NONE);
+        Assert.assertEquals(
+                externalTypeMemberValue.getDataType().getTypeKind(), IType.Kind.PODAdapted);
+
+        var internalObject = (TestComponentWithExternalType) component.getInternalValue();
         ExternalType externalTypeMember = internalObject.getMemberExternalType();
         Assert.assertEquals("Hello, World!", externalTypeMember.member3);
     }
@@ -599,7 +662,13 @@ public class TestDSLInterpreter {
         AggregateValue component =
                 (AggregateValue)
                         myObj.getMemorySpace().resolve("test_component_with_external_type");
-        var internalObject = (TestComponentWithExternalType) component.getInternalObject();
+
+        Value externalTypeMemberValue = component.getMemorySpace().resolve("member_external_type");
+        Assert.assertNotEquals(externalTypeMemberValue, Value.NONE);
+        Assert.assertEquals(
+                externalTypeMemberValue.getDataType().getTypeKind(), IType.Kind.AggregateAdapted);
+
+        var internalObject = (TestComponentWithExternalType) component.getInternalValue();
         ExternalType externalTypeMember = internalObject.getMemberExternalType();
         Assert.assertEquals("Hello, World!", externalTypeMember.member3);
         Assert.assertEquals(42, externalTypeMember.member1);

@@ -1,7 +1,6 @@
 package runtime;
 
 import semanticanalysis.types.AggregateType;
-import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 
 import java.lang.reflect.Field;
@@ -22,7 +21,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
     // TODO: should probably abstract all that away in a TypeFactory, which
     //  handles creation of encapsulated objects and other stuff
     private IEvironment environment;
-    private HashMap<String, EncapsulatedObject> objectCache;
+    private HashMap<String, Value> objectCache;
 
     /**
      * Constructor
@@ -31,7 +30,6 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
      * @param type {@link AggregateType} of the Value represented by the new EncapsulatedObject
      *     (used for resolving member access)
      * @param parent the parent {@link IMemorySpace}
-     * @param environment the environment, which is used to resolve type names
      */
     public EncapsulatedObject(
             Object innerObject, AggregateType type, IMemorySpace parent, IEvironment environment) {
@@ -40,6 +38,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
 
         this.parent = parent;
         this.type = type;
+        this.environment = environment;
         this.typeMemberToField = new HashMap<>();
         this.objectCache = new HashMap<>();
 
@@ -67,53 +66,43 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
 
     @Override
     public Value resolve(String name) {
+        Value returnValue = Value.NONE;
         if (objectCache.containsKey(name)) {
             return objectCache.get(name);
         }
 
         // lookup name
         Field correspondingField = this.typeMemberToField.getOrDefault(name, null);
-        if (correspondingField == null) {
-            return Value.NONE;
-        } else {
+        if (correspondingField != null) {
             // read field value
             correspondingField.setAccessible(true);
             try {
-                var value = correspondingField.get(this.getInternalObject());
+                var fieldValue = correspondingField.get(this.getInternalValue());
                 // convert the read field value to a DSL 'Value'
                 // this may require recursive creation of encapsulated objects,
                 // if the field is a component for example
-                var type = TypeBuilder.getDSLTypeForClass(value.getClass());
+                var type = TypeBuilder.getDSLTypeForClass(fieldValue.getClass());
                 if (type != null) {
-                    // TODO: create encapsulated value (because the field is a POD-field, or "basic
-                    // type")
-
+                    // create encapsulated value (because the field is a POD-field, or "basic
+                    // type") -> linking the value to the field is only required for setting the
+                    // internal value
+                    // NOTE: this behaviour differs from the default translation of the
+                    // RuntimeObjectTranslator, because we know in this case, that the resolved
+                    // name is a member of the underlying object
+                    returnValue = new EncapsulatedField(type, correspondingField, this.object);
                 } else {
-                    var dslTypeName = TypeBuilder.getDSLName(value.getClass());
-                    var typeFromGlobalScope =
-                            this.environment.getGlobalScope().resolve(dslTypeName);
-                    if (typeFromGlobalScope instanceof IType) {
-                        // TODO: test thins
-                        type = (IType) typeFromGlobalScope;
-                        assert type instanceof AggregateType;
-                        // if we reach this point, then the field in the actual java class
-                        // has a representation in the dsl type system, which means
-                        // that we should be able to just construct a new EncapsulatedObject
-                        // around it -> which should be cached;
-                        var encapsulatedObject =
-                                new EncapsulatedObject(
-                                        value, (AggregateType) type, this, this.environment);
-                        // cache it
-                        this.objectCache.put(name, encapsulatedObject);
-
-                        return encapsulatedObject;
-                    }
+                    returnValue =
+                            environment
+                                    .getRuntimeObjectTranslator()
+                                    .translateRuntimeObject(fieldValue, this, this.environment);
                 }
+                // cache it
+                this.objectCache.put(name, returnValue);
             } catch (IllegalAccessException e) {
                 // TODO: handle
             }
         }
-        return Value.NONE;
+        return returnValue;
     }
 
     @Override
@@ -121,6 +110,10 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
         return null;
     }
 
+    // TODO: define the semantics for this based on, if the value is a POD type or
+    //  a complex type -> what happens, if we want to set a component of an
+    //  entity or a complex datatype of a component (e.g. Point)?!
+    //  (will be done in https://github.com/Programmiermethoden/Dungeon/issues/156)
     @Override
     public boolean setValue(String name, Value value) {
         Field correspondingField = this.typeMemberToField.getOrDefault(name, null);
@@ -131,7 +124,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
             // read field value
             correspondingField.setAccessible(true);
             try {
-                correspondingField.set(this.getInternalObject(), value.getInternalObject());
+                correspondingField.set(this.getInternalValue(), value.getInternalValue());
             } catch (IllegalAccessException e) {
                 // TODO: handle
                 return false;
