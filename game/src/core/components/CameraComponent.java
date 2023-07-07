@@ -12,8 +12,7 @@ import core.Entity;
  * <p>Note: The associated entity also needs a {@link PositionComponent} for the {@link
  * core.systems.CameraSystem} to work.
  *
- * <p>Note: At the moment, there is no deterministic behavior for a game with multiple
- * CameraComponents.
+ * <p>Note: If there is more than one CameraComponent, i.e. if more than one entity is attached to a CameraComponent, the behaviour is undefined.
  */
 public final class CameraComponent extends Component {
 
