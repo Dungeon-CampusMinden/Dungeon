@@ -500,8 +500,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     /**
-     * This handles parameter evaluation and binding and setting up the statement stack
-     * for execution of the function's statements
+     * This handles parameter evaluation and binding and setting up the statement stack for
+     * execution of the function's statements
      *
      * @param symbol The symbol corresponding to the function to call
      * @param parameterNodes The ASTNodes of the parameters of the function call
@@ -540,7 +540,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
         if (stmtBlock != Node.NONE) {
             statementStack.addFirst(stmtBlock);
         }
-
 
         while (statementStack.peek() != null
                 && statementStack.peek().type != Node.Type.ReturnMark) {
