@@ -37,3 +37,4 @@ public class ConsumerFunctionTypeBuilder implements IFunctionTypeBuilder {
         return new FunctionType(BuiltInType.noType, parameterTypes);
     }
 }
+

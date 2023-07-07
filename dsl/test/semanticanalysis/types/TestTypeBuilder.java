@@ -6,7 +6,6 @@ import dslToGame.graph.Graph;
 
 import interpreter.mockecs.*;
 
-import interpreter.mockecs.TestComponentWithCallback;
 import org.junit.Test;
 
 import semanticanalysis.Scope;
@@ -195,7 +194,7 @@ public class TestTypeBuilder {
     }
 
     @Test
-    public void testCallback() {
+    public void testCallbackConsumer() {
         TypeBuilder tb = new TypeBuilder();
         // register Entity type (setup)
         var entityType = (AggregateType)

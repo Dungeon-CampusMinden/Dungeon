@@ -72,7 +72,8 @@ public class TypeBuilder {
                 || double.class.equals(type)
                 || Float.class.isAssignableFrom(type)) {
             return BuiltInType.floatType;
-        } else if (boolean.class.equals(type) || Boolean.class.isAssignableFrom(type)) {
+        } else if (boolean.class.equals(type)
+            || Boolean.class.isAssignableFrom(type)) {
             return BuiltInType.boolType;
         } else if (String.class.equals(type) || String.class.isAssignableFrom(type)) {
             return BuiltInType.stringType;
