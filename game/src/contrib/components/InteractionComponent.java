@@ -5,8 +5,24 @@ import core.Entity;
 
 import java.util.function.Consumer;
 
+/**
+ * Allows interaction with the associated entity.
+ *
+ * <p>An interaction can be triggered by the player character with a button press when in range.
+ *
+ * <p>What happens during an interaction is defined by the {@link Consumer<Entity>} {@link
+ * #onInteraction}.
+ *
+ * <p>An interaction can be repeatable, in which case it can be triggered multiple times. If an
+ * interaction is not repeatable, the {@link InteractionComponent} is removed from the associated
+ * entity after the interaction.
+ *
+ * <p>The interaction can be triggered using {@link #triggerInteraction()}.
+ *
+ * <p>The interaction radius can be queried with {@link #radius()}.
+ */
 public final class InteractionComponent extends Component {
-    public static final int DEFAULT_RADIUS = 5;
+    public static final int DEFAULT_INTERACTION_RADIUS = 5;
     public static final boolean DEFAULT_REPEATABLE = true;
 
     private static final Consumer<Entity> DEFAULT_INTERACTION = entity -> {};
@@ -15,12 +31,12 @@ public final class InteractionComponent extends Component {
     private final Consumer<Entity> onInteraction;
 
     /**
-     * complex ctor which allows the attributes to be configured
+     * Create a new {@link InteractionComponent} and adds it to the associated entity.
      *
-     * @param entity the entity to link to
-     * @param radius the radius in which an interaction can happen
-     * @param repeatable true if the interaction is repeatable, otherwise false
-     * @param onInteraction the strategy which should happen on an interaction
+     * @param entity The associated entity.
+     * @param radius The radius in which an interaction can happen.
+     * @param repeatable True if the interaction is repeatable, otherwise false.
+     * @param onInteraction The behavior that should happen on an interaction.
      */
     public InteractionComponent(
             final Entity entity,
@@ -34,22 +50,34 @@ public final class InteractionComponent extends Component {
     }
 
     /**
-     * simple ctor which sets all attributes to the default values
+     * Create a new {@link InteractionComponent} with default configuration and adds it to the
+     * associated entity.
      *
-     * @param entity the entity to link to
+     * <p>The interaction radius is {@link #DEFAULT_INTERACTION_RADIUS}.
+     *
+     * <p>The interaction callback is empty.
+     *
+     * @param entity The entity to link to.
      */
     public InteractionComponent(final Entity entity) {
-        this(entity, DEFAULT_RADIUS, DEFAULT_REPEATABLE, DEFAULT_INTERACTION);
+        this(entity, DEFAULT_INTERACTION_RADIUS, DEFAULT_REPEATABLE, DEFAULT_INTERACTION);
     }
 
-    /** triggers the interaction between hero and the Entity of the component */
+    /**
+     * Triggers the interaction callback.
+     *
+     * <p>The interaction is not repeatable. This component will be removed from the entity
+     * afterwards.
+     */
     public void triggerInteraction() {
         onInteraction.accept(entity);
         if (!repeatable) entity.removeComponent(InteractionComponent.class);
     }
 
     /**
-     * @return the radius in which an interaction can happen
+     * Gets the interaction radius.
+     *
+     * @return The radius in which an interaction can happen.
      */
     public float radius() {
         return radius;
