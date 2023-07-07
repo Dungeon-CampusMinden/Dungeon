@@ -6,6 +6,7 @@ import dslToGame.graph.Graph;
 
 import interpreter.mockecs.*;
 
+import interpreter.mockecs.TestComponentWithCallback;
 import org.junit.Test;
 
 import semanticanalysis.Scope;
@@ -194,13 +195,14 @@ public class TestTypeBuilder {
     }
 
     @Test
-    public void testCallbackConsumer() {
+    public void testCallback() {
         TypeBuilder tb = new TypeBuilder();
         // register Entity type (setup)
-        var entityType = (AggregateType) tb.createTypeFromClass(Scope.NULL, Entity.class);
+        var entityType = (AggregateType)
+            tb.createTypeFromClass(Scope.NULL, Entity.class);
 
-        var dslType =
-                (AggregateType) tb.createTypeFromClass(Scope.NULL, TestComponentWithCallback.class);
+        var dslType = (AggregateType)
+            tb.createTypeFromClass(Scope.NULL, TestComponentWithCallback.class);
         var callbackSymbol = dslType.resolve("on_interaction");
         assertNotEquals(Symbol.NULL, callbackSymbol);
         var symbolType = callbackSymbol.getDataType();

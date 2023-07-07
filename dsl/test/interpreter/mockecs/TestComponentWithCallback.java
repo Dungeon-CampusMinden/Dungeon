@@ -14,7 +14,8 @@ public class TestComponentWithCallback extends Component {
         return entity;
     }
 
-    @DSLCallback private Consumer<Entity> onInteraction;
+    @DSLCallback
+    private Consumer<Entity> onInteraction;
 
     public TestComponentWithCallback(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);
