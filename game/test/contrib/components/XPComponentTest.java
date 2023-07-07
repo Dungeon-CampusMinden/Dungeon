@@ -19,7 +19,7 @@ public class XPComponentTest {
 
         /* Test */
         assertEquals(0, xpComponent.currentXP());
-        assertEquals(0, xpComponent.currentLevel());
+        assertEquals(0, xpComponent.characterLevel());
     }
 
     /** Test if xp is added correctly. */
@@ -59,7 +59,7 @@ public class XPComponentTest {
 
         /* Test */
         xpComponent.addXP(10);
-        assertEquals(90, xpComponent.xpToNextLevel());
+        assertEquals(90, xpComponent.xpToNextCharacterLevel());
     }
 
     /** Tests if getXPToNextLevel() returns correct value if enough xp is added. */
@@ -72,7 +72,7 @@ public class XPComponentTest {
 
         /* Test */
         xpComponent.addXP(100);
-        assertEquals(0, xpComponent.xpToNextLevel());
+        assertEquals(0, xpComponent.xpToNextCharacterLevel());
     }
 
     /** Tests if getXPToNextLevel() returns correct value. If more xp is added than needed. */
@@ -85,6 +85,6 @@ public class XPComponentTest {
 
         /* Test */
         xpComponent.addXP(120);
-        assertEquals(-20, xpComponent.xpToNextLevel());
+        assertEquals(-20, xpComponent.xpToNextCharacterLevel());
     }
 }
