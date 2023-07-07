@@ -5,6 +5,9 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 
 public class ConsumerFunctionTypeBuilder implements IFunctionTypeBuilder {
+    public static ConsumerFunctionTypeBuilder instance = new ConsumerFunctionTypeBuilder();
+
+    private ConsumerFunctionTypeBuilder(){}
 
     @Override
     public FunctionType buildFunctionType(Field field, TypeBuilder typeBuilder) {
@@ -16,7 +19,10 @@ public class ConsumerFunctionTypeBuilder implements IFunctionTypeBuilder {
         // the parameters will be the arguments for the function
         ArrayList<IType> parameterTypes = new ArrayList<>(parameterizedType.getActualTypeArguments().length);
         for (var parameterType : parameterizedType.getActualTypeArguments()) {
-            IType dslType = typeMap.get(parameterType);
+            IType dslType = TypeBuilder.getDSLTypeForClass((Class<?>)parameterType);
+            if (null == dslType) {
+                dslType = typeMap.get(parameterType);
+            }
             if (null == dslType) {
                 throw new RuntimeException("Type of parameter of Consumer could not be translated");
             } else {
@@ -26,3 +32,4 @@ public class ConsumerFunctionTypeBuilder implements IFunctionTypeBuilder {
         return new FunctionType(BuiltInType.noType, parameterTypes);
     }
 }
+

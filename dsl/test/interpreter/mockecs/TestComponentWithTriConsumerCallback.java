@@ -5,10 +5,10 @@ import semanticanalysis.types.DSLCallback;
 import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
 
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 @DSLType
-public class TestComponentWithCallback extends Component {
+public class TestComponentWithTriConsumerCallback extends Component {
     private Entity entity;
 
     public Entity getEntity() {
@@ -16,9 +16,9 @@ public class TestComponentWithCallback extends Component {
     }
 
     @DSLCallback
-    private Consumer<Entity> onInteraction;
+    private TriConsumer<Entity, Entity, Boolean> onInteraction;
 
-    public TestComponentWithCallback(@DSLContextMember(name = "entity") Entity entity) {
+    public TestComponentWithTriConsumerCallback(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);
         this.entity = entity;
     }

@@ -1,5 +1,6 @@
 package semanticanalysis.types;
 
+import core.utils.TriConsumer;
 import dslToGame.graph.Graph;
 
 import semanticanalysis.*;
@@ -10,6 +11,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,7 +33,9 @@ public class TypeBuilder {
 
 
     private void setupFunctionTypeBuilders() {
-        functionTypeBuilders.put(Consumer.class, new ConsumerFunctionTypeBuilder());
+        functionTypeBuilders.put(Consumer.class, ConsumerFunctionTypeBuilder.instance);
+        functionTypeBuilders.put(TriConsumer.class, ConsumerFunctionTypeBuilder.instance);
+        functionTypeBuilders.put(Function.class, FunctionFunctionTypeBuilder.instance);
     }
 
     public HashMap<Class<?>, IType> getJavaTypeToDSLTypeMap() {
@@ -66,6 +70,9 @@ public class TypeBuilder {
                 || double.class.equals(type)
                 || Float.class.isAssignableFrom(type)) {
             return BuiltInType.floatType;
+        } else if (boolean.class.equals(type)
+            || Boolean.class.isAssignableFrom(type)) {
+            return BuiltInType.boolType;
         } else if (String.class.equals(type) || String.class.isAssignableFrom(type)) {
             return BuiltInType.stringType;
         } else if (Graph.class.equals(type) || Graph.class.isAssignableFrom(type)) {
