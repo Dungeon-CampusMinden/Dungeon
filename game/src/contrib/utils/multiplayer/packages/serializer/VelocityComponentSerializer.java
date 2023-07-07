@@ -22,12 +22,19 @@ public class VelocityComponentSerializer extends Serializer<VelocityComponent> {
     public void write(Kryo kryo, Output output, VelocityComponent object) {
         output.writeFloat(object.xVelocity());
         output.writeFloat(object.yVelocity());
+        output.writeFloat(object.currentXVelocity());
+        output.writeFloat(object.currentYVelocity());
     }
 
     @Override
     public VelocityComponent read(Kryo kryo, Input input, Class<VelocityComponent> type) {
-        float xVelocity = input.readFloat();
-        float YVelocity = input.readFloat();
-        return new VelocityComponent(entity, xVelocity, YVelocity);
+        final float xVelocity = input.readFloat();
+        final float YVelocity = input.readFloat();
+        final float currentXVelocity = input.readFloat();
+        final float currentYVelocity = input.readFloat();
+        final VelocityComponent velocityComponent = new VelocityComponent(entity, xVelocity, YVelocity);
+        velocityComponent.currentXVelocity(currentXVelocity);
+        velocityComponent.currentYVelocity(currentYVelocity);
+        return velocityComponent;
     }
 }
