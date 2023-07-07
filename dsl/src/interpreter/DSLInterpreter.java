@@ -595,7 +595,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             for (var ms : this.memoryStack) {
                 Value returnValue = ms.resolve(RETURN_VALUE_NAME);
                 if (returnValue != Value.NONE) {
-                    returnValue.setInternalValue(value.getInternalObject());
+                    returnValue.setInternalValue(value.getInternalValue());
                     break;
                 }
             }
