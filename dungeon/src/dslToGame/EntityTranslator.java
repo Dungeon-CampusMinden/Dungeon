@@ -7,21 +7,20 @@ import runtime.*;
 import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.TypeBuilder;
 
-/**
- * This class translates an {@link Entity}-Object into a DSL Value for
- */
+/** This class translates an {@link Entity}-Object into a DSL Value for */
 public class EntityTranslator implements IObjectToValueTranslator {
     public static EntityTranslator instance = new EntityTranslator();
 
     private EntityTranslator() {}
 
     /**
-     * Iterates over all components of the passed Entity, resolves the name of the component
-     * in passed IEnvironment, translates each component (for which the type can be resolved)
-     * into a DSL-Value and binds the Component-Value in the MemorySpace of the Entity-Value.
+     * Iterates over all components of the passed Entity, resolves the name of the component in
+     * passed IEnvironment, translates each component (for which the type can be resolved) into a
+     * DSL-Value and binds the Component-Value in the MemorySpace of the Entity-Value.
      *
      * @param object The {@link Entity} instance to translate
-     * @param parentMemorySpace The {@link IMemorySpace} in which the translated value should be created
+     * @param parentMemorySpace The {@link IMemorySpace} in which the translated value should be
+     *     created
      * @param environment The {@link IEvironment}, which will be used to resolve types
      * @return The translated value
      */
