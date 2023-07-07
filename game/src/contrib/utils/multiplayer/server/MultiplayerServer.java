@@ -154,7 +154,7 @@ public class MultiplayerServer extends Listener {
                     success = true;
                 }
             }
-            //TODO: Look if in use, delete if not necessary (rename to event)
+            // TODO: Look if in use, delete if not necessary (rename to event)
             // TODO send success so that other endpoint can recognize if received (???)
             connection.sendTCP(new UpdatePositionResponse());
         }

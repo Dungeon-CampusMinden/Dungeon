@@ -81,7 +81,7 @@ public final class MultiplayerSynchronizationSystem extends System {
     /* Synchronizes local positions with positions from multiplayer session. */
     private void synchronizePositions() {
         Game.entityStream()
-//            .filter(entity -> entity.fetch(MultiplayerComponent.class).isPresent())
+            .filter(entity -> entity.fetch(PositionComponent.class).isPresent())
             .forEach(localeEntityState -> {
                 PositionComponent positionComponentLocale =
                     (PositionComponent) localeEntityState
