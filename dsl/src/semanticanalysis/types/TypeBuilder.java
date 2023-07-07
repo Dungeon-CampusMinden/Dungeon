@@ -98,8 +98,8 @@ public class TypeBuilder {
      */
     public static String getDSLName(Class<?> clazz) {
         var classAnnotation = clazz.getAnnotation(DSLType.class);
-        return classAnnotation.name().equals("")
-                ? convertToDSLName(clazz.getName())
+        return classAnnotation == null || classAnnotation.name().equals("")
+                ? convertToDSLName(clazz.getSimpleName())
                 : classAnnotation.name();
     }
 

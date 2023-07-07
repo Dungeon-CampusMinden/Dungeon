@@ -6,4 +6,4 @@ import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;
 
 @DSLType(name = "quest_config")
-public record CustomQuestConfig(@DSLTypeMember Entity entity) {}
+public record CustomQuestConfig(@DSLTypeMember Entity entity, @DSLTypeMember Entity secondEntity) {}

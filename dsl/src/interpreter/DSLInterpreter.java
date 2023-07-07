@@ -32,7 +32,6 @@ import java.util.List;
 // will be high naturally
 @SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
 public class DSLInterpreter implements AstVisitor<Object> {
-
     private RuntimeEnvironment environment;
     private final ArrayDeque<IMemorySpace> memoryStack;
     private final IMemorySpace globalSpace;
@@ -42,7 +41,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return environment.getSymbolTable();
     }
 
-    private IMemorySpace currentMemorySpace() {
+    public IMemorySpace getCurrentMemorySpace() {
         return this.memoryStack.peek();
     }
 
@@ -182,7 +181,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             Object internalValue = Value.getDefaultValue(type);
             return new Value(type, internalValue);
         } else {
-            AggregateValue value = new AggregateValue(type, currentMemorySpace());
+            AggregateValue value = new AggregateValue(type, getCurrentMemorySpace());
 
             this.memoryStack.push(value.getMemorySpace());
             for (var member : ((AggregateType) type).getSymbols()) {
@@ -247,7 +246,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     protected Value instantiateDSLValue(AggregateType type) {
-        AggregateValue instance = new AggregateValue(type, currentMemorySpace());
+        AggregateValue instance = new AggregateValue(type, getCurrentMemorySpace());
 
         IMemorySpace memorySpace = instance.getMemorySpace();
         this.memoryStack.push(memorySpace);
@@ -269,7 +268,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
      */
     public Value instantiateDSLValue(Prototype prototype) {
         // create memory space to store the values in
-        AggregateValue instance = new AggregateValue(prototype, currentMemorySpace());
+        AggregateValue instance = new AggregateValue(prototype, getCurrentMemorySpace());
 
         // TODO: how to handle function calls here?
         //  we should evaluate functions as soon as possible, and only allow
@@ -346,12 +345,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
             typeInstantiator.pushContextMember(contextName, entityObject);
         }
 
-        AggregateValue entityValue = new AggregateValue(asType, currentMemorySpace(), entityObject);
-
         // an entity-object itself has no members, so add the components as "artificial members"
         // to the aggregate dsl value of the entity
         for (var memberEntry : dslValue.getValueSet()) {
-            String memberName = memberEntry.getKey();
             Value memberValue = memberEntry.getValue();
             if (memberValue instanceof AggregateValue) {
                 // TODO: this is needed, because Prototype does not extend AggregateType currently,
@@ -360,39 +356,18 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
 
                 // instantiate object as a new java Object
-                Object memberObject =
-                        typeInstantiator.instantiate(
-                                membersOriginalType,
-                                ((AggregateValue) memberValue).getMemorySpace());
-
-                // put the memberObject inside an encapsulated memory space
-                EncapsulatedObject encapsulatedObject =
-                        new EncapsulatedObject(
-                                memberObject,
-                                membersOriginalType,
-                                currentMemorySpace(),
-                                this.environment);
-
-                // add the memory space to an aggregateValue
-                AggregateValue aggregateMemberValue =
-                        new AggregateValue(
-                                memberValue.getDataType(), currentMemorySpace(), memberObject);
-
-                // TODO: this is a temporary fix; an AggregateValue with an encapsulated object as a
-                //  memory space should be a separate class
-                aggregateMemberValue.setMemorySpace(encapsulatedObject);
-
-                entityValue.getMemorySpace().bindValue(memberName, aggregateMemberValue);
+                typeInstantiator.instantiate(
+                        membersOriginalType, ((AggregateValue) memberValue).getMemorySpace());
             }
         }
-        return entityValue;
+        return entityObject;
     }
 
     @Override
     public Object visit(ObjectDefNode node) {
         // resolve name of object in memory space
         IMemorySpace ms;
-        var objectsValue = currentMemorySpace().resolve(node.getIdName());
+        var objectsValue = getCurrentMemorySpace().resolve(node.getIdName());
         if (objectsValue instanceof AggregateValue) {
             ms = ((AggregateValue) objectsValue).getMemorySpace();
         } else {
@@ -491,9 +466,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
         if (valueInMemorySpace instanceof AggregateValue) {
             AggregateValue valueToSet = (AggregateValue) value;
             ((AggregateValue) valueInMemorySpace).setMemorySpace(valueToSet.getMemorySpace());
-            valueInMemorySpace.setInternalValue(valueToSet.getInternalObject());
+            valueInMemorySpace.setInternalValue(valueToSet.getInternalValue());
         } else {
-            valueInMemorySpace.setInternalValue(((Value) value).getInternalObject());
+            valueInMemorySpace.setInternalValue(((Value) value).getInternalValue());
         }
         return true;
     }
@@ -607,7 +582,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         for (var ms : this.memoryStack) {
             Value returnValue = ms.resolve(RETURN_VALUE_NAME);
             if (returnValue != Value.NONE) {
-                returnValue.setInternalValue(value.getInternalObject());
+                returnValue.setInternalValue(value.getInternalValue());
                 break;
             }
         }

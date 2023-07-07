@@ -1,12 +1,21 @@
 package interpreter;
 
+import interpreter.mockecs.Entity;
+import interpreter.mockecs.MockEntityTranslator;
+
 import runtime.GameEnvironment;
 
 import semanticanalysis.Scope;
 import semanticanalysis.Symbol;
 import semanticanalysis.types.IType;
+import semanticanalysis.types.TypeBuilder;
 
 public class TestEnvironment extends GameEnvironment {
+
+    @Override
+    public TypeBuilder getTypeBuilder() {
+        return super.getTypeBuilder();
+    }
 
     public TestEnvironment() {
         super();
@@ -28,5 +37,11 @@ public class TestEnvironment extends GameEnvironment {
         for (Symbol func : NATIVE_FUNCTIONS) {
             globalScope.bind(func);
         }
+    }
+
+    @Override
+    protected void registerDefaultRuntimeObjectTranslators() {
+        this.runtimeObjectTranslator.loadObjectToValueTranslator(
+                Entity.class, MockEntityTranslator.instance);
     }
 }
