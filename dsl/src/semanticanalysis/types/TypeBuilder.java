@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,12 +17,21 @@ public class TypeBuilder {
     private final HashMap<Class<?>, Method> typeAdapters;
     private final HashMap<Class<?>, IType> javaTypeToDSLType;
     private final HashSet<Class<?>> currentLookedUpClasses;
+    private final HashMap<Class<?>, IFunctionTypeBuilder> functionTypeBuilders;
 
     /** Constructor */
     public TypeBuilder() {
         this.typeAdapters = new HashMap<>();
         this.javaTypeToDSLType = new HashMap<>();
         this.currentLookedUpClasses = new HashSet<>();
+        this.functionTypeBuilders = new HashMap<>();
+
+        setupFunctionTypeBuilders();
+    }
+
+
+    private void setupFunctionTypeBuilders() {
+        functionTypeBuilders.put(Consumer.class, new ConsumerFunctionTypeBuilder());
     }
 
     public HashMap<Class<?>, IType> getJavaTypeToDSLTypeMap() {
@@ -110,7 +120,7 @@ public class TypeBuilder {
      */
     public static String getDSLName(Field field) {
         var fieldAnnotation = field.getAnnotation(DSLTypeMember.class);
-        return fieldAnnotation.name().equals("")
+        return fieldAnnotation == null || fieldAnnotation.name().equals("")
                 ? convertToDSLName(field.getName())
                 : fieldAnnotation.name();
     }
@@ -122,7 +132,7 @@ public class TypeBuilder {
      */
     public static String getDSLName(Parameter parameter) {
         var parameterAnnotation = parameter.getAnnotation(DSLTypeMember.class);
-        return parameterAnnotation.name().equals("")
+        return parameterAnnotation == null || parameterAnnotation.name().equals("")
                 ? convertToDSLName(parameter.getName())
                 : parameterAnnotation.name();
     }
@@ -202,6 +212,19 @@ public class TypeBuilder {
         return this.typeAdapters.getOrDefault(clazz, null);
     }
 
+    protected Symbol createCallbackMemberSymbol(Field field, AggregateType parentType) {
+        String callbackName = getDSLName(field);
+
+        IType callbackType = BuiltInType.noType;
+        var fieldsClass = field.getType();
+        var functionTypeBuilder = functionTypeBuilders.get(fieldsClass);
+        if (functionTypeBuilder != null) {
+            callbackType = functionTypeBuilder.buildFunctionType(field, this);
+        }
+
+        return new Symbol(callbackName, parentType, callbackType);
+    }
+
     /**
      * Creates a DSL {@link AggregateType} from a java class. This requires the class to be marked
      * with the {@link DSLType} annotation. Each field marked with the {@link DSLTypeMember}
@@ -255,6 +278,10 @@ public class TypeBuilder {
 
                 var fieldSymbol = new Symbol(fieldName, type, memberDSLType);
                 type.bind(fieldSymbol);
+            }
+            if (field.isAnnotationPresent(DSLCallback.class)) {
+                var callbackSymbol = createCallbackMemberSymbol(field, type);
+                type.bind(callbackSymbol);
             }
         }
         this.javaTypeToDSLType.put(clazz, type);

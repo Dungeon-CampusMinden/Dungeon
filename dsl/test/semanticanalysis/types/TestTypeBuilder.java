@@ -4,9 +4,11 @@ import static org.junit.Assert.*;
 
 import dslToGame.graph.Graph;
 
+import interpreter.mockecs.Entity;
 import interpreter.mockecs.ExternalType;
 import interpreter.mockecs.ExternalTypeBuilderMultiParam;
 
+import interpreter.mockecs.TestComponentWithCallback;
 import org.junit.Test;
 
 import semanticanalysis.Scope;
@@ -192,5 +194,22 @@ public class TestTypeBuilder {
 
         assertNotSame(dslType, null);
         assertNotSame(dslType, Symbol.NULL);
+    }
+
+    @Test
+    public void testCallback() {
+        TypeBuilder tb = new TypeBuilder();
+        // register Entity type (setup)
+        var entityType = (AggregateType)
+            tb.createTypeFromClass(Scope.NULL, Entity.class);
+
+        var dslType = (AggregateType)
+            tb.createTypeFromClass(Scope.NULL, TestComponentWithCallback.class);
+        var callbackSymbol = dslType.resolve("on_interaction");
+        assertNotEquals(Symbol.NULL, callbackSymbol);
+        var symbolType = callbackSymbol.getDataType();
+        assertNotEquals(BuiltInType.noType, symbolType);
+        var functionType = (FunctionType) symbolType;
+        assertEquals(entityType, functionType.getParameterTypes().get(0));
     }
 }
