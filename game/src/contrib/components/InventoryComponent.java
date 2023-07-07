@@ -20,11 +20,11 @@ import java.util.logging.Logger;
  *
  * <p>Carried items can be retrieved using {@link #items() getItems}.
  *
- * <p>Items can be added via {@link #add(ItemData) addItem} and removed via {@link
- * #remove(ItemData) removeItem}.
+ * <p>Items can be added via {@link #add(ItemData) addItem} and removed via {@link #remove(ItemData)
+ * removeItem}.
  *
- * <p>The number of items in the inventory can be retrieved using {@link #count() filledSlots},
- * and the number of items that can still be added can be retrieved using {@link #freeSpace()
+ * <p>The number of items in the inventory can be retrieved using {@link #count() filledSlots}, and
+ * the number of items that can still be added can be retrieved using {@link #freeSpace()
  * emptySlots}. The maximum inventory size can also be retrieved using {@link #maxSize()
  * getMaxSize}.
  */
