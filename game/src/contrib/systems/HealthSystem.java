@@ -116,7 +116,7 @@ public final class HealthSystem extends System {
                 .mapToInt(
                         dt ->
                                 Math.round(
-                                        statsComponent.damageModifiers().multiplierFor(dt)
+                                        statsComponent.multiplierFor(dt)
                                                 * hsd.hc.calculateDamageOf(dt)))
                 .sum();
     }
