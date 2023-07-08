@@ -86,7 +86,7 @@ public final class Animation {
         List<String> fileNames =
                 Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
                         .filter(File::isFile)
-                        .map(File::getPath)
+                        .map(File::getName)
                         .collect(Collectors.toList());
 
         // sort the files in lexicographic order (like the most os)
@@ -106,6 +106,14 @@ public final class Animation {
      */
     public static Animation of(File subDir) {
         return Animation.of(subDir, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP);
+    }
+
+    public static Animation of(List<String> fileNamesRelativeToResources) {
+        return Animation.of(fileNamesRelativeToResources, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP);
+    }
+
+    public static Animation of(List<String> fileNamesRelativeToResources, int frameTime, boolean loop) {
+        return new Animation(fileNamesRelativeToResources, frameTime, loop);
     }
 
     /**

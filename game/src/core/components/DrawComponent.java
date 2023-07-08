@@ -9,6 +9,7 @@ import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.draw.IPath;
 
+import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -55,27 +56,35 @@ public final class DrawComponent extends Component {
     /**
      * Create a new DrawComponent and add it to the associated entity.
      *
-     * <p>Will read in all subdirectories of the given path and use each file in the subdirectory to
+     * <p>Will read in all subdirectories of the given pathRelativeToAssets and use each file in the subdirectory to
      * create an animation. So each subdirectory should contain only the files for one animation.
      *
      * <p>Will set the current animation to idle left
      *
      * @param entity associated entity
-     * @param path Path (as a string) to the directory in the assets folder where the subdirectories
+     * @param pathRelativeToAssets Path (as a string) to the directory in the assets folder where the subdirectories
      *     containing the animation files are stored. Example: "character/knight".
-     * @throws IOException if the given path does not exist
+     * @throws IOException if the given pathRelativeToAssets does not exist
      * @see Animation
      */
-    public DrawComponent(final Entity entity, final String path) throws IOException {
+    public DrawComponent(final Entity entity, final String pathRelativeToAssets) throws IOException {
         super(entity);
         // fetch available animations
         try {
             ClassLoader classLoader = getClass().getClassLoader();
-            File directory = new File(classLoader.getResource(path).getFile());
-            animationMap =
-                    Arrays.stream(directory.listFiles())
-                            .filter(File::isDirectory)
-                            .collect(Collectors.toMap(File::getName, Animation::of));
+            final String directoryPath = classLoader.getResource(pathRelativeToAssets).getFile();
+
+            File directory = new File(directoryPath);
+            animationMap = new HashMap<>();
+            for (File subdir : directory.listFiles()) {
+                final List<String> texturePaths = new ArrayList<>();
+                for (File file : subdir.listFiles()) {
+                    if (file.isFile()) {
+                        texturePaths.add(String.format("%s/%s/%s", pathRelativeToAssets, subdir.getName(), file.getName()));
+                    }
+                }
+                animationMap.put(subdir.getName(), Animation.of(texturePaths));
+            }
             currentAnimation(CoreAnimations.IDLE_LEFT);
         } catch (NullPointerException np) {
             // The component gets registered at the entity in super().
@@ -87,7 +96,7 @@ public final class DrawComponent extends Component {
             // reason for a NullPointerException is if the directory does not exist.
             throw new FileNotFoundException(
                     "Path "
-                            + path
+                            + pathRelativeToAssets
                             + " not found. DrawComponent was removed from Entity: "
                             + entity);
         }
