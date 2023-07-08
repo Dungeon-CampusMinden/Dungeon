@@ -72,31 +72,30 @@ beteiligt sind.
   - Warum ist das wichtig?
   - Wie sieht das in der DSL-Syntax aus?
 
-Konzepte gesammelt:
-- Graphdefintion
-  - Geplant: Attributierung von Knoten,Kanten
-- Game-Objekt definition
-- Funktionsdefinition
-- Objekt-Defintion
-  - Propertydefinition
-- Ausdrücke
-  - Number
-  - String
-  - FunctionAsValue
-- Level-Konfig / Quest-Konfig
+Konzepte gesammelt (und beschrieben):
 
-- **geplant, noch nicht realisiert:**
-  - Arrays
-  - control flow
-    - if/else
-    - while
-  - Variablen deklaration
-  - Instanziierung von Entities per nativem Funktionsaufruf (dng.xyz)
-  - Import von anderen DSL-Files (um Funktionen, Entity-Definition zu importieren)
-  - Task-Definition
-  - Enum-Variant Binding
-  - Member-Zugriff über `.`-Operator
-  - arithmetische, logische und vergleichende Operationen
+- [ ] Graphdefintion
+    - [ ] Geplant: Attributierung von Knoten, Kanten
+- [x] Game-Objekt definition
+- [x] Funktionsdefinition
+- [x] Objekt-Defintion
+    - [x] Propertydefinition
+- [x] Ausdrücke
+    - [x] Number
+    - [x] String
+    - [x] FunctionAsValue
+- [ ] Level-Konfig / Quest-Konfig -> was soll da genau alles rein?
+- [x] Arrays
+- [ ] control flow
+    - [x] if/else
+    - [ ] while
+- [x] Variablen deklaration
+- [x] ]Instanziierung von Entities per nativem Funktionsaufruf (dng.xyz)
+- [x] Import von anderen DSL-Files (um Funktionen, Entity-Definition zu importieren)
+- [x] Task-Definition
+- [ ] Enum-Variant Binding
+- [ ] Member-Zugriff über `.`-Operator
+- [ ] arithmetische, logische und vergleichende Operationen
 
 ### Kommentare
 
@@ -271,8 +270,6 @@ Implementierung ist DSL-Nutzenden nicht zugänglich.
 
 ### Objektdefinition
 
-Note: Geht aktuell nur für `quest_config`.
-
 Die Dungeon DSL erlaubt die Definition von Objekten. Dazu muss zuerst der Name des Objektdatentyps, anschließend
 der Name des erstellten Objekts und abschließend eine Liste von Eigenschaftsdefinitionen angegeben werden.
 Die Liste der Eigenschaftsdefinitionen muss von zwei geschweiften Klammern (`{` und `}`) umgeben sein und kann
@@ -313,7 +310,6 @@ der rechten Seite. Die linke und rechte Seite werden durch `:` getrennt.
 
 Auf der rechten Seite muss ein Ausdruck stehen, welcher vom `DSLInterpreter` zu einem Wert evaluiert
 werden kann (gültige Ausdrücke sind im Kapitel [Ausdrücke](#ausdrücke) dargestellt.)
-
 
 ### Ausdrücke
 
@@ -388,7 +384,27 @@ Es ist möglich, Objekte für komplexe Datentypen auf der rechten Seite einer
 Zuweisung zu erzeugen und den Eigenschaften so zuzuweisen:
 
 ```
-variable_with_complex_type = complex_type { string: "Hello, World!", number: 42 };
+variable_with_complex_type = complex_type { my_text: "Hello, World!", my_number: 42 };
+```
+
+**Member-Zugriff**
+
+Auf Member eines Objekts kann per `.`-Operator lesend und schreibend zugegriffen werden:
+
+```
+variable = complex_type { my_text: "Hello, World!", my_number: 42 };
+other_variable = variable.my_text;
+```
+
+Der Wert der Variable `other_variable` ist nach der Ausführung `"Hello, World!"`.
+
+**Member-Funktionen-Aufruf**
+
+Einige Datentypen definieren Member-Funktion, welcher ebenfalls per `.`-Operator aufgerufen werden können:
+
+```
+variable = type_with_member_func { /*...*/ };
+variable.func();
 ```
 
 ### Quest-Config
@@ -475,9 +491,7 @@ Sortierte Menge:
 
 ```
 replacement_task t {
-  elements: (
-    n1: ["elem1", "elem2"]
-  )
+  elements: ["elem1", "elem2"]
 }
 ```
 
@@ -491,13 +505,11 @@ Idee:
 **Frage:** Was macht hier wirklich den Unterschied aus? Eigentlich muss nur gespeichert im Datentyp
 gespeichert werden, ob die Reihenfolge relevant ist, oder nicht.
 
-Benannte sortierte Menge:
+Sortierte Menge mit benannten Elementen:
 
 ```
 replacement_task t {
-  elements: (
-    n1: ["elem1", "elem2"]
-  )
+  elements: [e1: "elem1", e2: "elem2"]
 }
 ```
 
@@ -505,43 +517,40 @@ Unsortierte Menge:
 
 ```
 replacement_task t {
-  elements: (
-    ("elem1", "elem3")
-  )
+  elements: ("elem1", "elem3")
 }
 ```
 
-Benannte unsortierte Menge:
+Unsortierte Menge mit benannten Elementen:
 
 ```
 replacement_task t {
-  elements: (
-    n2: ("elem1", "elem3")
-  )
+  elements: (n1: "elem1", n2: "elem3")
 }
 ```
 
 "Regel":
 
 ```
-rules: {
-  r1: n1 -> n3,
-}
+rules: (
+  r1: n1 -> n3
+)
 ```
 
 **Kombination**
 
 ```
 mapping_task t {
-  mapping: {
-  // Definition Zuordnung - (<term>, <definition>)
-  ["a", "b"],
+  mapping: (
+    // Definition Zuordnung - (<term>, <definition>)
+    ["a", "b"],
 
-  // Hinzufügen von zusätzlichem Term
-  ["c", _],
+    // Hinzufügen von zusätzlichem Term
+    ["c", _],
 
-  // Hinzufügen von zusätzlicher Definition
-  [_, "w"]
+    // Hinzufügen von zusätzlicher Definition
+    [_, "w"]
+  )
 }
 ```
 
@@ -632,7 +641,7 @@ von Typechecking hinzugefügt wird, oder nicht.
 
 ### Kontrollfluss-Steuerung
 
-**Konditionale Statements**
+**Konditionale Ausdrücke**
 
 Per `if` und `else`-Keywords können Anweisungen im Funktionsrumpf abhängig von einer Bedingung ausgeführt werden.
 Die Bedingung wird auf einen Wahrheitswert (`true` oder `false`) abgebildet. Falls die Bedingung `true` ist, werden
@@ -672,6 +681,19 @@ Nur falls `condition1` `false` ist, wird `condition2` überprüft und falls dies
 `"World"` ausgegeben. Nur wenn `condition1` und `condition2` `false` sind, wird die letzte `else` Anweisung
 ausgeführt und `"!"` wird ausgegeben.
 
+**Schleifen**
+
+Per Schleifendefinition können Anweisungen abhängig von einer Bedingung repetitiv ausgeführt werden:
+
+```
+while condition {
+  print("hello");
+  print("world");
+}
+```
+
+**TODO**: For-Loop für iteration über Elemente einer Menge/einer Liste
+
 ### Import aus anderen DSL-Files
 
 Per `#import`-Anweisung können Definition aus anderen DSL-Dateien in die aktuelle Datei integriert werden.
@@ -697,3 +719,14 @@ Aufgabe verwendet werden soll, muss die entsprechende Definition per `#import`-A
 
 ### Aufgabenabhängigkeiten
 
+Abhängigkeiten zwischen Aufgaben können ähnlich der Syntax eines dot-Graphen definiert werden:
+
+```
+task_dependency td {
+  t1 -> t2 [type=<dependency_type>]
+}
+```
+
+Eine Abhängigkeit zwischen zwei Aufgabendefinitionen `t1` und `t2` wird als gerichtete Kante `->` definiert, wobei
+das `type`-Attribut die Art der Abhängigkeit angibt. Alle verfügbaren Abhängigkeiten sind in der [Dokumentation zu
+Petri-Netzen](../control_mechanisms/petri_nets.md) aufgelistet.
