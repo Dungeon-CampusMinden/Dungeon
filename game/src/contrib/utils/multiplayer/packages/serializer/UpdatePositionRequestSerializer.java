@@ -12,12 +12,16 @@ public class UpdatePositionRequestSerializer extends Serializer<UpdatePositionRe
     public void write(Kryo kryo, Output output, UpdatePositionRequest object) {
         output.writeInt(object.entityGlobalID());
         kryo.writeObject(output, object.position());
+        output.writeFloat(object.xVelocity());
+        output.writeFloat(object.yVelocity());
     }
 
     @Override
     public UpdatePositionRequest read(Kryo kryo, Input input, Class<UpdatePositionRequest> type) {
-        int playerId = input.readInt();
-        Point position = kryo.readObject(input, Point.class);
-        return new UpdatePositionRequest(playerId, position);
+        final int playerId = input.readInt();
+        final Point position = kryo.readObject(input, Point.class);
+        final float xVelocity = input.readFloat();
+        final float yVelocity = input.readFloat();
+        return new UpdatePositionRequest(playerId, position, xVelocity, yVelocity);
     }
 }

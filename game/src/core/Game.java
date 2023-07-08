@@ -278,16 +278,20 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         }
     }
 
-    public static void sendPositionUpdate(final Entity entity){
-        PositionComponent positionComponent =
-            (PositionComponent)
-                entity
-                    .fetch(PositionComponent.class)
-                    .orElseThrow(
-                        () ->
-                            new MissingComponentException(
-                                "PositionComponent"));
-        multiplayerManager.sendPositionUpdate(entity.globalID(), positionComponent.position());
+//    public static void sendPositionUpdate(final Entity entity){
+//        PositionComponent positionComponent =
+//            (PositionComponent)
+//                entity
+//                    .fetch(PositionComponent.class)
+//                    .orElseThrow(
+//                        () ->
+//                            new MissingComponentException(
+//                                "PositionComponent"));
+//        multiplayerManager.sendPositionUpdate(entity.globalID(), positionComponent.position());
+//    }
+
+    public static void sendPositionUpdate(final int globalID, final Point newPosition, final float xVelocity, final float yVelocity){
+        multiplayerManager.sendPositionUpdate(globalID, newPosition, xVelocity, yVelocity);
     }
 
     public void openToLan() {

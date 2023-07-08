@@ -4,9 +4,12 @@ package contrib.systems;
 import contrib.components.MultiplayerComponent;
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.System;
 import contrib.utils.multiplayer.MultiplayerManager;
+import core.components.VelocityComponent;
+import core.utils.components.draw.CoreAnimations;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,6 +37,7 @@ public final class MultiplayerSynchronizationSystem extends System {
                 synchronizeAddedEntities();
                 synchronizeRemovedEntities();
                 synchronizePositions();
+                movementAnimation();
             }
         } else {
 //            removeMultiplayerEntities();
@@ -94,6 +98,47 @@ public final class MultiplayerSynchronizationSystem extends System {
                             positionComponentLocale.position(positionComponentMultiplayer.position());
                         }
                     });
+            });
+    }
+
+    private void movementAnimation() {
+        Game.entityStream()
+            .filter(entity -> entity.fetch(VelocityComponent.class).isPresent())
+            .forEach(localeEntityState -> {
+
+                multiplayerManager.entities().stream()
+                    .forEach(multiplayerEntityState -> {
+                        if (multiplayerEntityState.globalID() == localeEntityState.globalID()) {
+                            DrawComponent drawComponent =
+                                (DrawComponent) localeEntityState
+                                    .fetch(DrawComponent.class)
+                                    .orElseThrow();
+
+                            VelocityComponent velocityComponentMultiplayer =
+                                (VelocityComponent) multiplayerEntityState
+                                    .fetch(VelocityComponent.class)
+                                    .orElseThrow();
+
+                            float x = velocityComponentMultiplayer.currentXVelocity();
+                            if (x > 0) {
+                                drawComponent.currentAnimation(CoreAnimations.RUN_RIGHT);
+                            }
+                            else if (x < 0) {
+                                drawComponent.currentAnimation(CoreAnimations.RUN_LEFT);
+                            }
+                                // idle
+                            else {
+                                // each drawcomponent has an idle animation, so no check is needed
+                                if (drawComponent.isCurrentAnimation(CoreAnimations.IDLE_LEFT)
+                                    || drawComponent.isCurrentAnimation(CoreAnimations.RUN_LEFT))
+                                    drawComponent.currentAnimation(CoreAnimations.IDLE_LEFT);
+                                else drawComponent.currentAnimation(CoreAnimations.IDLE_RIGHT);
+                            }
+                        }
+                    });
+
+
+
             });
     }
 

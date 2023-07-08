@@ -8,6 +8,7 @@ import contrib.utils.multiplayer.packages.Version;
 import contrib.utils.multiplayer.packages.event.GameStateUpdateEvent;
 import core.Entity;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.utils.Point;
 import contrib.utils.multiplayer.packages.GameState;
 import contrib.utils.multiplayer.packages.NetworkSetup;
@@ -138,6 +139,15 @@ public class MultiplayerServer extends Listener {
                         .orElseThrow(
                             () -> MissingComponentException.build(hero.get(), PositionComponent.class));
                 pc.position(positionRequest.position());
+
+                VelocityComponent vc =
+                    hero.get()
+                        .fetch(VelocityComponent.class)
+                        .orElseThrow(
+                            () -> MissingComponentException.build(hero.get(), VelocityComponent.class));
+
+                vc.currentXVelocity(positionRequest.xVelocity());
+                vc.currentYVelocity(positionRequest.yVelocity());
                 success = true;
             } else {
                 // check if client which want to update monster position is host, otherwise not allowed
@@ -145,12 +155,25 @@ public class MultiplayerServer extends Listener {
                     Optional<Entity> monster = gameState.entities().stream()
                         .filter(x -> x.globalID() == positionRequest.entityGlobalID())
                         .findFirst();
-                    PositionComponent pc =
-                        monster.get()
-                            .fetch(PositionComponent.class)
-                            .orElseThrow(
-                                () -> MissingComponentException.build(monster.get(), PositionComponent.class));
-                    pc.position(positionRequest.position());
+
+                    if (monster.isPresent()) {
+                        PositionComponent pc =
+                            monster.get()
+                                .fetch(PositionComponent.class)
+                                .orElseThrow(
+                                    () -> MissingComponentException.build(monster.get(), PositionComponent.class));
+                        pc.position(positionRequest.position());
+
+                        VelocityComponent vc =
+                            monster.get()
+                                .fetch(VelocityComponent.class)
+                                .orElse(null);
+
+                        if (vc != null) {
+                            vc.currentXVelocity(positionRequest.xVelocity());
+                            vc.currentYVelocity(positionRequest.yVelocity());
+                        }
+                    }
                     success = true;
                 }
             }

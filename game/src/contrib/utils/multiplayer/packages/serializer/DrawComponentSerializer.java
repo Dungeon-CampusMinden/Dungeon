@@ -8,6 +8,8 @@ import core.Entity;
 import core.components.DrawComponent;
 import core.utils.components.draw.Animation;
 
+import java.util.HashMap;
+
 public class DrawComponentSerializer extends Serializer<DrawComponent> {
     private Entity entity;
 
@@ -19,14 +21,15 @@ public class DrawComponentSerializer extends Serializer<DrawComponent> {
         super();
         entity = e;
     }
+
     @Override
     public void write(Kryo kryo, Output output, DrawComponent object) {
-        kryo.writeObject(output, object.currentAnimation());
+        kryo.writeObject(output, object.animationMap());
     }
 
     @Override
     public DrawComponent read(Kryo kryo, Input input, Class<DrawComponent> type) {
-        Animation idle = kryo.readObject(input, Animation.class);
-        return new DrawComponent(entity, idle);
+        final HashMap<String, Animation> animationHashMap = kryo.readObject(input, HashMap.class);
+        return new DrawComponent(entity, animationHashMap);
     }
 }

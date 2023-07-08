@@ -49,6 +49,7 @@ import java.util.stream.Collectors;
  * @see IPath
  */
 public final class DrawComponent extends Component {
+
     private final Map<String, Animation> animationMap;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private Animation currentAnimation;
@@ -121,6 +122,12 @@ public final class DrawComponent extends Component {
         currentAnimation = idle;
     }
 
+    public DrawComponent(final Entity entity, final HashMap animationMap) {
+        super(entity);
+        this.animationMap = animationMap;
+        currentAnimation(CoreAnimations.IDLE_LEFT);
+    }
+
     /**
      * Get the current animation being displayed on the entity.
      *
@@ -189,4 +196,6 @@ public final class DrawComponent extends Component {
         LOGGER.warning("Animation " + path + " is not stored inside " + entity.toString());
         return false;
     }
+
+    public HashMap<String, Animation> animationMap() { return (HashMap<String, Animation>) this.animationMap; }
 }

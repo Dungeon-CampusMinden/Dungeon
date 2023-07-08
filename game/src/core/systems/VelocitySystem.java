@@ -62,7 +62,7 @@ public final class VelocitySystem extends System {
             vsd.pc.position(newPosition);
             movementAnimation(vsd);
             if (newPosition.x != oldPosition.x ||newPosition.y != oldPosition.y){
-                Game.sendPositionUpdate(vsd.e());
+                Game.sendPositionUpdate(vsd.e.globalID(), newPosition, vsd.vc.currentXVelocity(), vsd.vc.currentYVelocity());
             }
         }
 

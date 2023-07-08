@@ -177,8 +177,8 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
     }
 
     /** */
-    public void sendPositionUpdate(final int entityGlobalID, final Point newPosition) {
-        multiplayerClient.send(new UpdatePositionRequest(entityGlobalID, newPosition));
+    public void sendPositionUpdate(final int entityGlobalID, final Point newPosition, final float xVelocity, final float yVelocity) {
+        multiplayerClient.send(new UpdatePositionRequest(entityGlobalID, newPosition, xVelocity, yVelocity));
     }
 
     public boolean isConnectedToSession() {
