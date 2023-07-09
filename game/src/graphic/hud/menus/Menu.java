@@ -1,24 +1,27 @@
 package graphic.hud.menus;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+
+import core.Game;
+
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
-/**
- * Base class for the menus / container for the menu elements.
- *
- */
+/** Base class for the menus / container for the menu elements. */
 public class Menu {
-
+    // Tabelle für Design
     private Table container = new Table();
+    // Title
     private String headline;
-    private LinkedHashSet<IMenuItem> items;
-    private boolean isVisible = false;
-
+    // Alle sub elemente
+    private LinkedHashSet<Actor> items;
+    // logger xD
     private static final Logger menuLogger = Logger.getLogger(Menu.class.getName());
 
     /**
@@ -29,19 +32,7 @@ public class Menu {
      * @param title the menu headline
      * @param elements the set of elements that make up the menu screen
      */
-    public Menu(String title, LinkedHashSet<IMenuItem> elements) {
-        this(title, elements);
-    }
-
-    /**
-     * The Menu constructor. Builds a new menu screen from a given headline and a set of screen
-     * elements. Creates a Screencontroller with a ScalingViewport which stretches the
-     * ScreenElements on resize.
-     *
-     * @param title    the menu headline
-     * @param elements the set of elements that make up the menu screen
-     */
-    public Menu(String title, LinkedHashSet<IMenuItem> elements) {
+    public Menu(String title, LinkedHashSet<Actor> elements) {
 
         headline = title;
         items = elements;
@@ -52,84 +43,70 @@ public class Menu {
         container.add(setUpHeadline(headline)).spaceBottom(20.0f);
         container.row();
 
-        for (IMenuItem item : items) {
+        for (Actor item : items) {
             container.add(item).spaceBottom(10.0f);
             container.row();
         }
 
         container.center();
 
-        add( container);
-
-        hideMenu();
+        isVisible(false);
     }
+
+    public void isVisible(boolean visible){
+        container.setVisible(visible);
+    }
+
+
+
+    private Label setUpHeadline(String title) {
+        Label menuTitle = new Label(title, new Skin());
+
+        menuTitle.setFontScale(2.5f);
+
+        return menuTitle;
+    }
+
 
     /**
      * Generates all elements needed to build the Main Menu
      *
      * @return a set of elements that make up the main menu
      */
-    public static LinkedHashSet<IMenuItem> generateMainMenu() {
-        LinkedHashSet<IMenuItem> mainMenuItems = new LinkedHashSet<>();
+    public static LinkedHashSet<Actor> generateMainMenu() {
+        LinkedHashSet<Actor> mainMenuItems = new LinkedHashSet<>();
 
-        MenuButton startGameButton =
-                new MenuButton(
-                        "Start",
-                        new Point(0.0f, 0.0f),
-                        new TextButtonListener() {
-                            @Override
-                            public void clicked(InputEvent event, float x, float y) {}
+        TextButton startGameButton =
+                createMenuButton(
+                        "Start Game",
+                        (event) -> {
+                            menuLogger.info("Starting game ...");
+                            // hide MainMenu
+                            hideActiveMenu();
+                            // prepare the systems
+                            startGame();
+                            // not used at the moment
+                            return true;
                         });
 
-        startGameButton.getLabel().setFontScale(1.5f);
-        startGameButton.executeAction(
-                new TextButtonListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        menuLogger.info("Starting game ...");
-                        Game.getGame().toggleMainMenu();
-                        Game.toggleSystems();
-                    }
-                });
-
-        MenuButton optionsButton =
-                new MenuButton(
+        // change to optionsmenu
+        TextButton optionsButton =
+                createMenuButton(
                         "Options",
-                        new Point(0.0f, 0.0f),
-                        new TextButtonListener() {
-                            @Override
-                            public void clicked(InputEvent event, float x, float y) {}
+                        (event) -> {
+                            menuLogger.info("Closing main menu and opening options ...");
+                            changeMenu(MenueStates.Options);
+                            return true;
                         });
 
-        optionsButton.getLabel().setFontScale(1.5f);
-        optionsButton.executeAction(
-                new TextButtonListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        menuLogger.info("Closing main menu and opening options ...");
-                        Game.getGame().toggleMainMenu();
-                        Game.getGame().toggleOptions();
-                    }
-                });
-
-        MenuButton closeGameButton =
-                new MenuButton(
+        TextButton closeGameButton =
+                createMenuButton(
                         "Close",
-                        new Point(0.0f, 0.0f),
-                        new TextButtonListener() {
-                            @Override
-                            public void clicked(InputEvent event, float x, float y) {}
+                        (event) -> {
+                            menuLogger.info("Closing game ...");
+                            closeGame();
+                            return true;
                         });
-
-        closeGameButton.getLabel().setFontScale(1.5f);
-        closeGameButton.executeAction(
-                new TextButtonListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        menuLogger.info("Closing game ...");
-                        Gdx.app.exit();
-                    }
-                });
 
         mainMenuItems.add(startGameButton);
         mainMenuItems.add(optionsButton);
@@ -138,87 +115,52 @@ public class Menu {
         return mainMenuItems;
     }
 
+    private static void hideActiveMenu() {
+        activeMenu.isVisible(false);
+    }
+
     /**
      * Generates all elements needed to build the Options Menu
      *
      * @return a set of elements that make up the options menu
      */
-    public static LinkedHashSet<IMenuItem> generateOptionsMenu() {
-        LinkedHashSet<IMenuItem> optionsMenuItems = new LinkedHashSet<>();
+    public static LinkedHashSet<Actor> generateOptionsMenu() {
+        LinkedHashSet<Actor> optionsMenuItems = new LinkedHashSet<>();
 
-        MenuButton optionA =
-                new MenuButton(
+        TextButton optionA =
+                createMenuButton(
                         "Option A",
-                        new Point(0.0f, 0.0f),
-                        new TextButtonListener() {
-                            @Override
-                            public void clicked(InputEvent event, float x, float y) {}
+                        (event) -> {
+                            menuLogger.info("'Option A' button was clicked.");
+                            return false;
                         });
 
-        optionA.getLabel().setFontScale(1.5f);
-        optionA.executeAction(
-                new TextButtonListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        menuLogger.info("'Option A' button was clicked.");
-                    }
-                });
-
-        MenuButton optionB =
-                new MenuButton(
+        TextButton optionB =
+                createMenuButton(
                         "Option B",
-                        new Point(0.0f, 0.0f),
-                        new TextButtonListener() {
-                            @Override
-                            public void clicked(InputEvent event, float x, float y) {}
+                        (event) -> {
+                            menuLogger.info("'Option B' button was clicked.");
+
+                            return false;
                         });
 
-        optionB.getLabel().setFontScale(1.5f);
-        optionB.executeAction(
-                new TextButtonListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        menuLogger.info("'Option B' button was clicked.");
-                    }
-                });
-
-        MenuButton optionC =
-                new MenuButton(
+        TextButton optionC =
+                createMenuButton(
                         "Option C",
-                        new Point(0.0f, 0.0f),
-                        new TextButtonListener() {
-                            @Override
-                            public void clicked(InputEvent event, float x, float y) {}
+                        (event) -> {
+                            menuLogger.info("'Option C' button was clicked.");
+                            return false;
                         });
 
-        optionC.getLabel().setFontScale(1.5f);
-        optionC.executeAction(
-                new TextButtonListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        menuLogger.info("'Option C' button was clicked.");
-                    }
-                });
-
-        MenuButton backButton =
-                new MenuButton(
+        TextButton backButton =
+                createMenuButton(
                         "Back",
-                        new Point(0.0f, 0.0f),
-                        new TextButtonListener() {
-                            @Override
-                            public void clicked(InputEvent event, float x, float y) {}
-                        });
+                        inputEvent -> {
+                            menuLogger.info("Closing the options and opening the main menu ...");
+                            changeMenu(MenueStates.MainMenu);
 
-        backButton.getLabel().setFontScale(1.5f);
-        backButton.executeAction(
-                new TextButtonListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        menuLogger.info("Closing the options and opening the main menu ...");
-                        Game.getGame().toggleOptions();
-                        Game.getGame().toggleMainMenu();
-                    }
-                });
+                            return true;
+                        });
 
         optionsMenuItems.add(optionA);
         optionsMenuItems.add(optionB);
@@ -228,56 +170,45 @@ public class Menu {
         return optionsMenuItems;
     }
 
-    /** Makes all elements inside of a and thus the menu itself visible. */
-    public void showMenu() {
-        this.setVisible(true);
-        this.forEach((Actor s) -> s.setVisible(true));
+    private static HashMap<MenueStates, Menu> menues = new HashMap<>();
+    private static Menu activeMenu;
+
+
+    private static void startGame() {
+        // do more magic =)
+        Game.systems().forEach((k, v) -> v.run());
     }
 
-    /** Makes all elements inside of a and thus the menu itself invisible. */
-    public void hideMenu() {
-        this.setVisible(false);
-        this.forEach((Actor s) -> s.setVisible(false));
+    private static void closeGame() {
+        Gdx.app.exit();
     }
 
-    /**
-     * Returns if a menu is visible or not.
-     *
-     * @return visibility of the menu
-     */
-    public boolean isVisible() {
-        return isVisible;
+    private static void changeMenu(MenueStates state){
+        var newMenu = menues.get(state);
+        if(newMenu != null){
+            activeMenu.isVisible(false);
+            newMenu.isVisible(true);
+            activeMenu = newMenu;
+        }
     }
 
-    /**
-     * Sets a menu's visibility attribute.
-     *
-     * @param visible
-     */
-    public void setVisible(boolean visible) {
-        isVisible = visible;
+    public static TextButton createMenuButton(
+            String description, Function<InputEvent, Boolean> onClick) {
+        // TODO: Skinn anhängen
+        TextButton textButton = new TextButton(description, new Skin());
+        // allows defining button behaviour
+        textButton.addListener(createClickListener(onClick));
+
+        return textButton;
     }
 
-    private ScreenText setUpHeadline(String title) {
-        ScreenText menuTitle =
-                new ScreenText(
-                        title,
-                        new Point(0.0f, 0.0f),
-                        3,
-                        new LabelStyleBuilder((FontBuilder.DEFAULT_FONT))
-                                .setFontcolor(Color.RED)
-                                .build());
-
-        menuTitle.setFontScale(2.5f);
-
-        return menuTitle;
+    private static ClickListener createClickListener(Function<InputEvent, Boolean> onClick) {
+        return new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                onClick.apply(event);
+            }
+        };
     }
 
-    private void addItem(IMenuItem item) {
-        items.add(item);
-    }
-
-    private void removeItem(IMenuItem item) {
-        items.remove(item);
-    }
 }
