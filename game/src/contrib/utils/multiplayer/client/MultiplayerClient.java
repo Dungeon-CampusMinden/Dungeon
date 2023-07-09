@@ -11,21 +11,28 @@ import contrib.utils.multiplayer.packages.event.GameStateUpdateEvent;
 import java.io.*;
 import java.util.ArrayList;
 
+import static java.util.Objects.requireNonNull;
+
+/**
+ * Used to send/receive data to/from multiplayer server.
+ */
 public class MultiplayerClient extends Listener {
 
-    // TODO: Outsource config parameters
     // According to several tests, random generated level can have a maximum size of about 500k bytes
     // => set max expected size to double
-    private static final Integer maxObjectSizeExpected = 8000000;
-    private static final Integer writeBufferSize = maxObjectSizeExpected;
-    private static final Integer objectBufferSize = maxObjectSizeExpected;
-    private static final Integer connectionTimeout = 5000;
-    private static final Client client = new Client(writeBufferSize, objectBufferSize);
+    private static final int DEFAULT_MAX_OBJECT_SIZE_EXPECTED = 8000000;
+    private static final int DEFAULT_WRITE_BUFFER_SIZE = DEFAULT_MAX_OBJECT_SIZE_EXPECTED;
+    private static final int DEFAULT_OBJECT_BUFFER_SIZE = DEFAULT_MAX_OBJECT_SIZE_EXPECTED;
+    private static final int DEFAULT_CONNECTION_TIMEOUT = 5000;
+    private static final Client client = new Client(DEFAULT_WRITE_BUFFER_SIZE, DEFAULT_OBJECT_BUFFER_SIZE);
     private final ArrayList<IMultiplayerClientObserver> observers = new ArrayList<>();
 
+    /**
+     * Creates a new instance.
+     */
     public MultiplayerClient() {
         client.addListener(this);
-        NetworkSetup.register(client);
+        NetworkSetup.registerCommunicationClasses(client);
     }
 
     @Override
@@ -53,10 +60,10 @@ public class MultiplayerClient extends Listener {
 
         if (object instanceof PingResponse pingResponse) {
             System.out.println("Ping response received. Time: " + pingResponse.getTime());
-        } else if (object instanceof InitServerResponse initServerResponse){
+        } else if (object instanceof InitializeServerResponse initServerResponse){
             final boolean isSucceed = initServerResponse.isSucceed();
             for (IMultiplayerClientObserver observer: observers){
-                observer.onInitServerResponseReceived(isSucceed, connection.getID());
+                observer.onInitializeServerResponseReceived(isSucceed, connection.getID());
             }
         } else if (object instanceof LoadMapResponse loadMapResponse) {
             final boolean isSucceed = loadMapResponse.isSucceed();
@@ -81,21 +88,38 @@ public class MultiplayerClient extends Listener {
             for (IMultiplayerClientObserver observer: observers) {
                 observer.onGameStateUpdateEventReceived(gameStateUpdateEvent.entities());
             }
-        } else if (object instanceof UpdatePositionResponse) {
-            for (IMultiplayerClientObserver observer: observers){
-                observer.onUpdateOwnPositionResponseReceived();
-            }
         }
     }
 
-    public void send(Object object) {
-        client.sendTCP(object);
+    /**
+     * Send instance over TCP.
+     *
+     * @param object To be sent instance.
+     */
+    public void sendTCP(Object object) {
+        client.sendTCP(requireNonNull(object));
     }
 
+    /**
+     * Send instance over UDP.
+     *
+     * @param object To be sent instance.
+     */
+    public void sendUDP(Object object) {
+        client.sendUDP(requireNonNull(object));
+    }
+
+    /**
+     * Connect to a endpoint/device.
+     *
+     * @param address IP address of device to be connected to.
+     * @param port Port to be connected to. Will be used as TCP port. UDP port will be TCP port + 1;
+     * @return True, if connected successfully. False, otherwise.
+     */
     public boolean connectToHost(String address, int port) {
         try {
             client.start();
-            client.connect(connectionTimeout, address, port);
+            client.connect(DEFAULT_CONNECTION_TIMEOUT, address, port, port + 1);
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -103,12 +127,29 @@ public class MultiplayerClient extends Listener {
         }
     }
 
+    /**
+     * Disconnect from other endpoint.
+     * Messages can not be sent and received anymore until reconnect.
+     */
     public void disconnect() {
         client.close();
-        client.stop();
     }
 
-    public void addObserver(IMultiplayerClientObserver observer) {
+    /**
+     * Add observer to implement customized actions.
+     *
+     * @param observer Observer reference to be added.
+     */
+    public void addObserver(final IMultiplayerClientObserver observer) {
         observers.add(observer);
+    }
+
+    /**
+     * Remove observer.
+     *
+     * @param observer Observer reference to be removed.
+     */
+    public void removeObserver(final IMultiplayerClientObserver observer) {
+        observers.remove(observer);
     }
 }

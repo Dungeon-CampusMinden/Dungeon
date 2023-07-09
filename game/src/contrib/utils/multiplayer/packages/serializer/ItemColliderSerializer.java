@@ -6,7 +6,11 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import contrib.utils.components.collision.ItemCollider;
 import contrib.utils.components.item.ItemData;
+import core.utils.components.draw.Animation;
 
+/**
+ * Custom serializer to send and retrieve objects of {@link ItemCollider}.
+ */
 public class ItemColliderSerializer extends Serializer<ItemCollider> {
     @Override
     public void write(Kryo kryo, Output output, ItemCollider object) {

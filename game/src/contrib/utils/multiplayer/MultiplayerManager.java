@@ -3,6 +3,7 @@ package contrib.utils.multiplayer;
 import com.badlogic.gdx.utils.Null;
 import contrib.utils.multiplayer.packages.GameState;
 import contrib.utils.multiplayer.packages.Version;
+import contrib.utils.multiplayer.packages.event.MovementEvent;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -17,18 +18,24 @@ import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Logger;
 
 import static java.util.Objects.requireNonNull;
 
-/** Used to handle multiplayer sessions. */
+/**
+ * Used to handle multiplayer sessions.
+ */
 public class MultiplayerManager implements IMultiplayerClientObserver {
 
+    private static final Version VERSION = new Version(0, 0, 0);
     private final MultiplayerClient multiplayerClient;
     private final MultiplayerServer multiplayerServer;
     private final IMultiplayer multiplayer;
     /* From server assigned unique player id. */
     private int playerId = 0;
+    /* Global state of entities. Is updated on game actions, like clients joining session. */
     private Set<Entity> entities;
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     public MultiplayerManager(IMultiplayer multiplayer) {
         this.multiplayer = requireNonNull(multiplayer);
@@ -39,7 +46,7 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
     }
 
     @Override
-    public void onInitServerResponseReceived(
+    public void onInitializeServerResponseReceived(
         final boolean isSucceed,
         final int clientId) {
 
@@ -75,20 +82,30 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
             this.entities = requireNonNull(gameState.entities());
             playerId = heroGlobalID;
             Game.hero().get().globalID(heroGlobalID);
-//            if (!Game.hero().get().fetch(MultiplayerComponent.class).isPresent()) {
-//                new MultiplayerComponent(Game.hero().get());
+//            if (!Game.hero().get().fetch(MultiplayerSynchronizationComponent.class).isPresent()) {
+//                new MultiplayerSynchronizationComponent(Game.hero().get());
 //            }
             PositionComponent heroPositionComponent =
             (PositionComponent) Game.hero().get()
                 .fetch(PositionComponent.class)
                 .orElseThrow();
             heroPositionComponent.position(initialHeroPosition);
+
+            try {
+                Game.currentLevel(gameState.level());
+            }
+            catch (Exception ex) {
+                logger.warning(String.format("Failed to set received level from server.\n%s", ex.getMessage()));
+            }
+        } else {
+            logger.warning("Cannot join multiplayer session. Server responded unsuccessful.");
         }
+
         multiplayer.onMultiplayerSessionJoined(isSucceed, gameState.level());
     }
 
     @Override
-    public void onUpdateOwnPositionResponseReceived() {
+    public void onUpdatePositionResponseReceived() {
 
     }
 
@@ -99,18 +116,24 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
 
     @Override
     public void onConnected(@Null final InetAddress address) {
-        // For now no action needed when connected
     }
 
     @Override
     public void onDisconnected(@Null final InetAddress address) {
         clearSessionData();
-        multiplayer.onMultiplayerSessionLost();
+        multiplayer.onMultiplayerSessionConnectionLost();
     }
 
-    /** */
-    public void startSession(final ILevel level, @Null final Point ownHeroInitialPosition) throws IOException {
-        requireNonNull(level);
+    /**
+     * Hosting a multiplayer session, which other players can join.
+     *
+     * <p>Asks server to listen to random port.
+     * <p>To handle whether session started successfully or not, check {@link IMultiplayer}.
+     * <p>NOTE: After server started, level and entities has to be configured.
+     *
+     * @throws IOException if currently now free port found on device to host session. (should never occur)
+     */
+    public void startSession() throws IOException {
         clearSessionData();
         stopEndpoints();
         // Check whether which random port is not already in use and listen to this on serverside
@@ -130,42 +153,70 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
             }
         } while((generatePortTriesCount < generatePortTriesMaxCount) && isRandomPortAlreadyInUse);
 
-
         if (isRandomPortAlreadyInUse) {
             throw new IOException("No available port on device found");
         }
 
         multiplayerClient.connectToHost("127.0.0.1", serverPort);
-        // TODO replace with configured version
-        final Version clientVersion = new Version(0, 0, 0);
-        multiplayerClient.send(new InitServerRequest(clientVersion));
-//        if (ownHeroInitialPosition != null) {
-//            multiplayerClient.send(new LoadMapRequest(level, ownHeroInitialPosition));
-//        } else {
-//            multiplayerClient.send(new LoadMapRequest(level));
-//        }
+        multiplayerClient.sendTCP(new InitializeServerRequest(VERSION));
     }
 
-    public void changeLevel(final ILevel level, final Set<Entity> currentEntities, final Entity hero){
-//        currentEntities.forEach(entity -> {
-//            if (!entity.fetch(MultiplayerComponent.class).isPresent()) {
-//                new MultiplayerComponent(entity);
-//            }
-//        });
-        multiplayerClient.send(new LoadMapRequest(level, currentEntities, hero));
+    /**
+     * Used to init or change the multiplayer global state,
+     * including the level and entities, that should be part of the game.
+     *
+     * @param level
+     * @param currentEntities Entities that should be part of the level.
+     * @param hero Own hero.
+     */
+    public void loadLevel(
+        final ILevel level,
+        final Set<Entity> currentEntities,
+        final Entity hero){
+        if (isHost()) {
+//            currentEntities.forEach(entity -> {
+//                if (!entity.fetch(MultiplayerSynchronizationComponent.class).isPresent()) {
+//                    new MultiplayerSynchronizationComponent(entity);
+//                }
+//            });
+            multiplayerClient.sendTCP(new LoadMapRequest(
+                requireNonNull(level),
+                requireNonNull(currentEntities),
+                requireNonNull(hero)
+            ));
+        } else {
+            requestNewLevel();
+        }
     }
 
+    /**
+     * Used to request session to change the level.
+     *
+     * <p>Has to be used for scenarios where Not-Hosting-Client enters end tile of a level.
+     * Then the Host-Client will be asked to change the level
+     * (On server side, only Host-Clients are able to change level / set entities.)
+     */
     public void requestNewLevel(){
-        multiplayerClient.send(new ChangeMapRequest());
+        multiplayerClient.sendTCP(new ChangeMapRequest());
     }
 
-    /** */
+    /**
+     * Stops multiplayer session.
+     *
+     * <p>Global state will be cleared and all endpoints will be closed, so all player will be disconnected.
+     */
     public void stopSession() {
         clearSessionData();
         stopEndpoints();
     }
 
-    /** */
+    /**
+     * Join hosted session.
+     *
+     * @param address Address of the device that is hosting the session.
+     * @param port Port of the device to access the session.
+     * @throws IOException if the address or port is not accessible.
+     */
     public void joinSession(final String address, final int port) throws IOException {
         requireNonNull(address);
         clearSessionData();
@@ -173,20 +224,48 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
         if (!multiplayerClient.connectToHost(address, port)) {
             throw new IOException("No host found - invalid address or port");
         }
-        multiplayerClient.send(new JoinSessionRequest(Game.hero().get()));
+        multiplayerClient.sendTCP(new JoinSessionRequest(Game.hero().get(), VERSION));
     }
 
-    /** */
-    public void sendPositionUpdate(final int entityGlobalID, final Point newPosition, final float xVelocity, final float yVelocity) {
-        multiplayerClient.send(new UpdatePositionRequest(entityGlobalID, newPosition, xVelocity, yVelocity));
+    /**
+     * Used to store movement state globally, so that position and movement animation
+     * can be synchronized on each player device.
+     *
+     * @param entityGlobalID Global ID of entity that has been moved.
+     * @param newPosition New/current local position of the entity, after movement action.
+     * @param xVelocity X velocity of movement action.
+     * @param yVelocity Y velocity of movement action.
+     */
+    public void sendMovementUpdate(
+        final int entityGlobalID,
+        final Point newPosition,
+        final float xVelocity,
+        final float yVelocity) {
+        multiplayerClient.sendUDP(new MovementEvent(entityGlobalID, newPosition, xVelocity, yVelocity));
     }
 
+    /**
+     * Check whether local state is connected to multiplayer session or not.
+     *
+     * @return True, if connected to multiplayer session. False, otherwise.
+     */
     public boolean isConnectedToSession() {
         return playerId != 0;
     }
 
+    /**
+     * Check whether own device is host of multiplayer session or not.
+     * <p>Can be used to control request flows / game logic.
+     *
+     * @return True, if own device is host. False, otherwise.
+     */
     public boolean isHost() { return playerId == 1; }
 
+    /**
+     * Gets global state of entities.
+     *
+     * @return Global state of entities.
+     */
     public Set<Entity> entities() { return this.entities; }
 
     private void clearSessionData() {

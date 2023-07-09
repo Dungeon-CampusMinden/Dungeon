@@ -14,6 +14,9 @@ import core.utils.components.draw.Animation;
 
 import java.util.function.BiConsumer;
 
+/**
+ * Custom serializer to send and retrieve objects of {@link ItemData}.
+ */
 public class ItemDataSerializer extends Serializer<ItemData> {
     @Override
     public void write(Kryo kryo, Output output, ItemData object) {

@@ -11,6 +11,8 @@ import contrib.utils.components.Debugger;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import static core.System.LOGGER;
+
 /**
  * Main entry of the game.
  * Manages window and screens.
@@ -60,64 +62,30 @@ public class Dungeon extends Game implements IMenuScreenObserver {
      */
     private static String LOGO_PATH = "logo/CatLogo_35x35.png";
 
+    private static Logger logger = Logger.getLogger("Main");
+
     private Menu menuScreen;
     private core.Game gameScreen;
 
     @Override
     public void create() {
-        Logger LOGGER = Logger.getLogger("Main");
-        Debugger debugger = new Debugger();
-
         menuScreen = Menu.getInstance();
         menuScreen.addListener(this);
-
         gameScreen = core.Game.getInstance();
-        try {
-            core.Game.hero(EntityFactory.newHero());
-            core.Game.loadConfig(
-                "dungeon_config.json",
-                contrib.configuration.KeyboardConfig.class,
-                core.configuration.KeyboardConfig.class,
-                ItemConfig.class);
-            core.Game.userOnLevelLoad(
-                () -> {
-                    try {
-                        EntityFactory.newChest();
-                    } catch (IOException e) {
-                        LOGGER.warning("Could not create new Chest: " + e.getMessage());
-                        throw new RuntimeException();
-                    }
-                    try {
-                        EntityFactory.newMonster();
-                    } catch (IOException e) {
-                        LOGGER.warning("Could not create new Monster: " + e.getMessage());
-                        throw new RuntimeException();
-                    }
-                });
-            core.Game.userOnFrame(() -> debugger.execute());
-            core.Game.addSystem(new AISystem());
-            core.Game.addSystem(new CollisionSystem());
-            core.Game.addSystem(new HealthSystem());
-            core.Game.addSystem(new XPSystem());
-            core.Game.addSystem(new ProjectileSystem());
-            core.Game.addSystem(new MultiplayerSynchronizationSystem(gameScreen.multiplayerManager()));
-            gameScreen.stopSystems();
-        }
-        catch (Exception ex) {
-            LOGGER.severe("Failed to create game screen. " + ex.getMessage());
-        }
 
         setScreen(menuScreen);
     }
 
     @Override
     public void onSinglePlayerModeChosen() {
+        setupGame();
         setScreen(gameScreen);
         gameScreen.resumeSystems();
     }
 
     @Override
     public void onMultiPlayerHostModeChosen() {
+        setupGame();
         setScreen(gameScreen);
         gameScreen.resumeSystems();
         gameScreen.openToLan();
@@ -125,6 +93,7 @@ public class Dungeon extends Game implements IMenuScreenObserver {
 
     @Override
     public void onMultiPlayerClientModeChosen(final String hostAddress, final Integer port) {
+        setupGame();
         setScreen(gameScreen);
         gameScreen.resumeSystems();
         gameScreen.joinMultiplayerSession(hostAddress, port);
@@ -259,5 +228,48 @@ public class Dungeon extends Game implements IMenuScreenObserver {
         }
 
         new Lwjgl3Application(new Dungeon(), config);
+    }
+
+    /**
+     *  Used to configure game setup, like level and existing entities.
+     *
+     *  <p>Note: Systems should be stopped after initialization and only to be resumed when specified game mode started.
+     */
+    private void setupGame() {
+        Debugger debugger = new Debugger();
+        try {
+            core.Game.hero(EntityFactory.newHero());
+            core.Game.loadConfig(
+                "dungeon_config.json",
+                contrib.configuration.KeyboardConfig.class,
+                core.configuration.KeyboardConfig.class,
+                ItemConfig.class);
+            core.Game.userOnLevelLoad(
+                () -> {
+                    try {
+                        EntityFactory.newChest();
+                    } catch (IOException e) {
+                        LOGGER.warning("Could not create new Chest: " + e.getMessage());
+                        throw new RuntimeException();
+                    }
+                    try {
+                        EntityFactory.newMonster();
+                    } catch (IOException e) {
+                        LOGGER.warning("Could not create new Monster: " + e.getMessage());
+                        throw new RuntimeException();
+                    }
+                });
+            core.Game.userOnFrame(() -> debugger.execute());
+            core.Game.addSystem(new AISystem());
+            core.Game.addSystem(new CollisionSystem());
+            core.Game.addSystem(new HealthSystem());
+            core.Game.addSystem(new XPSystem());
+            core.Game.addSystem(new ProjectileSystem());
+            core.Game.addSystem(new MultiplayerSynchronizationSystem(gameScreen.multiplayerManager()));
+            gameScreen.stopSystems();
+        }
+        catch (Exception ex) {
+            LOGGER.severe("Failed to create game screen. " + ex.getMessage());
+        }
     }
 }

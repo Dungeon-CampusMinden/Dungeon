@@ -6,7 +6,11 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import core.Dungeon;
+import core.utils.components.draw.Animation;
 
+/**
+ * Custom serializer to send and retrieve objects of {@link RadiusWalk}.
+ */
 public class RadiusWalkSerializer extends Serializer<RadiusWalk> {
     @Override
     public void write(Kryo kryo, Output output, RadiusWalk object) {

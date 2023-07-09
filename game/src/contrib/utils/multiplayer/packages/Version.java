@@ -1,5 +1,8 @@
 package contrib.utils.multiplayer.packages;
 
+/**
+ * Used to handle different versions of client and server.
+ */
 public class Version implements Comparable<Version> {
 
     private final int major;

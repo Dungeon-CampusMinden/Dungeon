@@ -278,22 +278,14 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         }
     }
 
-//    public static void sendPositionUpdate(final Entity entity){
-//        PositionComponent positionComponent =
-//            (PositionComponent)
-//                entity
-//                    .fetch(PositionComponent.class)
-//                    .orElseThrow(
-//                        () ->
-//                            new MissingComponentException(
-//                                "PositionComponent"));
-//        multiplayerManager.sendPositionUpdate(entity.globalID(), positionComponent.position());
-//    }
-
     public static void sendPositionUpdate(final int globalID, final Point newPosition, final float xVelocity, final float yVelocity){
-        multiplayerManager.sendPositionUpdate(globalID, newPosition, xVelocity, yVelocity);
+        multiplayerManager.sendMovementUpdate(globalID, newPosition, xVelocity, yVelocity);
     }
 
+    /**
+     * Hosting multiplayer session with the current local game state (level, entities),
+     * so that other clients can join.
+     */
     public void openToLan() {
         if (doSetup) onSetup();
         updateSystems();
@@ -309,7 +301,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
                         () ->
                             new MissingComponentException(
                                 "PositionComponent"));
-            multiplayerManager.startSession(currentLevel, positionComponent.position());
+            multiplayerManager.startSession();
         } catch (Exception ex) {
             final String message = "Multiplayer session failed to start.";
             LOGGER.warning(String.format("%s\n%s", message, ex.getMessage()));
@@ -318,6 +310,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         }
     }
 
+    /**
+     * Join existing multiplayer session.
+     *
+     * @param hostAddress Address of host device.
+     * @param port Port that offers communication.
+     */
     public void joinMultiplayerSession(final String hostAddress, final Integer port) {
         if (doSetup) onSetup();
         try {
@@ -336,7 +334,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     @Override
     public void onMultiplayerServerInitialized(final boolean isSucceed) {
         if (isSucceed) {
-            changeLevel();
+            updateSystems(); // Needed to synchronize toAdd and toRemove entities into currentEntities
+            multiplayerManager.loadLevel(currentLevel, entities.stream().collect(Collectors.toSet()), hero);
         } else {
             final String message = "Server respond unsuccessful start.";
             LOGGER.warning(message);
@@ -374,12 +373,13 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     public void onChangeMapRequest() {
         if(multiplayerManager.isHost()) {
             levelManager.loadLevel(LEVELSIZE);
-            changeLevel();
+            updateSystems(); // Needed to synchronize toAdd and toRemove entities into currentEntities
+            multiplayerManager.loadLevel(currentLevel, entities.stream().collect(Collectors.toSet()), hero);
         }
     }
 
     @Override
-    public void onMultiplayerSessionLost() {
+    public void onMultiplayerSessionConnectionLost() {
         final String message = "Disconnected from multiplayer session.";
         LOGGER.info(message);
         Entity entity = UITools.generateNewTextDialog(message, "Ok", "Connection lost.");
@@ -639,11 +639,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         if (Gdx.input.isKeyJustPressed(Input.Keys.P) ){ //&& !startMenu.isVisible()) {
             // Text Dialogue (output of information texts)
             newPauseMenu();
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
-//            if (!startMenu.isVisible()) {
-//                startMenu.resetView();
-//                showMenu(startMenu);
-//            }
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
             // toggle UI "debug rendering"
             stage().ifPresent(x -> x.setDebugAll(uiDebugFlag = !uiDebugFlag));
@@ -710,13 +705,13 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
         if (!isOnEndTile(hero)) return;
 
-        if (!multiplayerManager.isConnectedToSession()){
-            levelManager.loadLevel(LEVELSIZE);
-            changeLevel();
-        } else {
-            if(multiplayerManager.isHost()){
+        levelManager.loadLevel(LEVELSIZE);
+
+        if (multiplayerManager.isConnectedToSession()){
+            if (multiplayerManager.isHost()){
                 levelManager.loadLevel(LEVELSIZE);
-                changeLevel();
+                updateSystems(); // Needed to synchronize toAdd and toRemove entities into currentEntities
+                multiplayerManager.loadLevel(currentLevel, entities.stream().collect(Collectors.toSet()), hero);
             } else {
                 //ask host to generate new map
                 multiplayerManager.requestNewLevel();
@@ -789,8 +784,5 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         return multiplayerManager;
     }
 
-    private void changeLevel() {
-        updateSystems();
-        multiplayerManager.changeLevel(currentLevel, entities.stream().collect(Collectors.toSet()), hero);
-    }
+    public static DelayedSet<Entity> entities() { return entities; }
 }

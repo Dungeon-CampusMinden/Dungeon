@@ -4,9 +4,13 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import core.utils.components.draw.Animation;
 
 import java.util.function.Consumer;
 
+/**
+ * Custom serializer to send and retrieve objects of {@link Consumer}.
+ */
 public class ConsumerSerializer extends Serializer<Consumer> {
     @Override
     public void write(Kryo kryo, Output output, Consumer object) {

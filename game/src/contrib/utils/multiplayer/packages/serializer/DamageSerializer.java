@@ -7,7 +7,11 @@ import com.esotericsoftware.kryo.io.Output;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
+import core.utils.components.draw.Animation;
 
+/**
+ * Custom serializer to send and retrieve objects of {@link Damage}.
+ */
 public class DamageSerializer extends Serializer<Damage> {
     @Override
     public void write(Kryo kryo, Output output, Damage object) {

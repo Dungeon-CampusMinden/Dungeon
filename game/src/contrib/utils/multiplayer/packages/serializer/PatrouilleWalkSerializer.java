@@ -5,7 +5,11 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import contrib.utils.components.ai.idle.PatrouilleWalk;
+import core.utils.components.draw.Animation;
 
+/**
+ * Custom serializer to send and retrieve objects of {@link PatrouilleWalk}.
+ */
 public class PatrouilleWalkSerializer extends Serializer<PatrouilleWalk> {
     @Override
     public void write(Kryo kryo, Output output, PatrouilleWalk object) {

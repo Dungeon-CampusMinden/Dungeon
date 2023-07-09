@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 /**
- * Example menu to demonstrate Multiplayer mode.
+ * Sample screen for demonstration and manual testing of multiplayer mode.
  */
 public class Menu extends ScreenAdapter {
 
@@ -43,7 +43,6 @@ public class Menu extends ScreenAdapter {
     private final ArrayList<IMenuScreenObserver> observers;
     private final String deviceIpAddress;
     private MenuType menuTypeCurrent;
-
     private enum MenuType {
         GameModeChoice,
         MultiplayerStartOrJoinSession,

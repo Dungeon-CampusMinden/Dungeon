@@ -5,7 +5,11 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import contrib.utils.components.item.DefaultCollect;
+import core.utils.components.draw.Animation;
 
+/**
+ * Custom serializer to send and retrieve objects of {@link DefaultCollect}.
+ */
 public class DefaultCollectSerializer extends Serializer<DefaultCollect> {
     @Override
     public void write(Kryo kryo, Output output, DefaultCollect object) {

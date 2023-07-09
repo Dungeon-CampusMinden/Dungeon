@@ -5,9 +5,13 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import contrib.utils.components.health.DefaultOnDeath;
+import core.utils.components.draw.Animation;
 
 import java.util.function.Consumer;
 
+/**
+ * Custom serializer to send and retrieve objects of {@link DefaultOnDeath}.
+ */
 public class DefaultOnDeathSerializer extends Serializer<DefaultOnDeath> {
     @Override
     public void write(Kryo kryo, Output output, DefaultOnDeath object) {

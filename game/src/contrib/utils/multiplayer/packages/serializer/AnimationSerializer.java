@@ -4,12 +4,16 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import core.Entity;
 import core.utils.components.draw.Animation;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Custom serializer to send and retrieve objects of {@link Animation}.
+ */
 public class AnimationSerializer extends Serializer<Animation> {
     @Override
     public void write(Kryo kryo, Output output, Animation object) {

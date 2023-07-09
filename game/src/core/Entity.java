@@ -34,10 +34,11 @@ import java.util.stream.Stream;
 @DSLType(name = "entity")
 @DSLContextPush(name = "entity")
 public final class Entity implements Comparable<Entity> {
-    private static final int GLOBAL_ID_NOT_ASSIGNED = -1;
     private static final Logger LOGGER = Logger.getLogger(Entity.class.getName());
     private static int nextLocaleID = 0;
-    private final int localeID;
+    /* ID that is unique on local game state. */
+    private final int localID;
+    /* ID that is unique on global/multiplayer game state. */
     private int globalID;
     private final String name;
     private final HashMap<Class<? extends Component>, Component> components;
@@ -49,7 +50,7 @@ public final class Entity implements Comparable<Entity> {
      */
     public Entity(final String name) {
         globalID = nextLocaleID;
-        localeID = nextLocaleID++;
+        localID = nextLocaleID++;
         components = new HashMap<>();
         this.name = name;
         Game.addEntity(this);
@@ -65,10 +66,18 @@ public final class Entity implements Comparable<Entity> {
         this("_" + nextLocaleID);
     }
 
+    /**
+     * Create a new Entity.
+     * <p> NOTE: Created instance will not be added to {@link Game}. Used for multiplayer state handling.
+     *
+     * @param name
+     * @param localeID
+     * @param globalID
+     */
     public Entity(final String name, final int localeID, final int globalID){
         components = new HashMap<>();
         this.name = name;
-        this.localeID = localeID;
+        this.localID = localeID;
         this.globalID = globalID;
     }
 
@@ -104,6 +113,9 @@ public final class Entity implements Comparable<Entity> {
         }
     }
 
+    /**
+     * @return Components of the entity.
+     */
     public HashMap<Class<? extends Component>, Component> components() { return this.components; }
 
     /**
@@ -131,18 +143,18 @@ public final class Entity implements Comparable<Entity> {
      * @return The id of this entity
      */
     public int id() {
-        return localeID;
+        return localID;
     }
 
     @Override
     public String toString() {
-        if (name.contains("_" + localeID)) return name;
-        else return name + "_" + localeID;
+        if (name.contains("_" + localID)) return name;
+        else return name + "_" + localID;
     }
 
     @Override
     public int compareTo(Entity o) {
-        return localeID - o.localeID;
+        return localID - o.localID;
     }
 
     /**
@@ -154,13 +166,28 @@ public final class Entity implements Comparable<Entity> {
         return components.values().stream();
     }
 
+    /**
+     * @return Name.
+     */
     public String name(){
         return name;
     }
 
-    public int localeID() { return localeID; }
+    /**
+     * @return Local ID.
+     */
+    public int localID() { return localID; }
 
+    /**
+     * @return Global ID.
+     */
     public int globalID() { return globalID; }
 
+    /**
+     * Set global ID at runtime. (Needed for multiplayer)
+     * <p>
+     *
+     * @param globalID To be set ID.
+     */
     public void globalID(final int globalID) { this.globalID = globalID; }
 }

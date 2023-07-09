@@ -1,7 +1,7 @@
 package contrib.systems;
 
 
-import contrib.components.MultiplayerComponent;
+import contrib.components.MultiplayerSynchronizationComponent;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -9,6 +9,7 @@ import core.components.PositionComponent;
 import core.System;
 import contrib.utils.multiplayer.MultiplayerManager;
 import core.components.VelocityComponent;
+import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 
 import java.util.Set;
@@ -16,17 +17,33 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
-// Todo - Adapt to new System change
-/** Used to synchronize multiplayer session state with local client state. */
+/**
+ * This system synchronizes multiplayer session entities state with local state.
+ *
+ * <p>Each entity with a {@link MultiplayerSynchronizationComponent} will be synchronized.
+ *
+ * <p>This system will compare entities of global/multiplayer state and local state and adds or/and
+ * remove entities to/from the local state in {@link Game}.
+ *
+ * <p>The system will get the current position and animation from the {@link PositionComponent} and
+ * {@link DrawComponent} of the global/multiplayer state and will update the current position and next
+ * animation frame from the {@link Animation} for the local state.
+ *
+ * @see MultiplayerSynchronizationComponent
+ */
 public final class MultiplayerSynchronizationSystem extends System {
 
+    /** Used to get global/multiplayer state. */
     private final MultiplayerManager multiplayerManager;
 
     /**
-     * @param multiplayerManager
+     * Create a new MultiplayerSynchronizationSystem to synchronize global and local state of entities.
+     *
+     * @param multiplayerManager The multiplayer instance that holds global state.
+     * @see MultiplayerManager
      */
     public MultiplayerSynchronizationSystem(final MultiplayerManager multiplayerManager) {
-        super(MultiplayerComponent.class);
+        super(MultiplayerSynchronizationComponent.class);
         this.multiplayerManager = requireNonNull(multiplayerManager);
     }
 
@@ -37,14 +54,12 @@ public final class MultiplayerSynchronizationSystem extends System {
                 synchronizeAddedEntities();
                 synchronizeRemovedEntities();
                 synchronizePositions();
-                movementAnimation();
+                synchronizeAnimation();
             }
-        } else {
-//            removeMultiplayerEntities();
         }
     }
 
-    /* Adds multiplayer entities to local state, that newly joined session. */
+    /** Adds multiplayer entities to local state, that newly joined session. */
     private void synchronizeAddedEntities() {
         final Set<Integer> currentLocalMultiplayerEntityIds =
             Game.entityStream()
@@ -56,6 +71,7 @@ public final class MultiplayerSynchronizationSystem extends System {
             boolean isEntityNew = !currentLocalMultiplayerEntityIds.contains(multiplayerEntity.globalID());
             if (isEntityNew) {
                 Entity newEntity = new Entity(multiplayerEntity.name());
+                /* Global ID has to be set so that each entity can be identified in multiplayer session. */
                 newEntity.globalID(multiplayerEntity.globalID());
                 multiplayerEntity.components().forEach((key, value) -> {
                     value.entity(newEntity);
@@ -64,7 +80,7 @@ public final class MultiplayerSynchronizationSystem extends System {
         }
     }
 
-    /* Removes multiplayer entities from local state, that are no longer part of multiplayer session. */
+    /** Removes multiplayer entities from local state, that are no longer part of multiplayer session. */
     private void synchronizeRemovedEntities() {
         Game.entityStream()
 //            .filter(entity -> entity.fetch(MultiplayerComponent.class).isPresent())
@@ -77,40 +93,47 @@ public final class MultiplayerSynchronizationSystem extends System {
             });
     }
 
-    // TODO: not synchronizing position - update velocity component instead for movement animation over velocity system
-    /* Synchronizes local positions with positions from multiplayer session. */
+    /** Synchronizes local positions with positions from global/multiplayer session. */
     private void synchronizePositions() {
         Game.entityStream()
             .filter(entity -> entity.fetch(PositionComponent.class).isPresent())
-            .forEach(localeEntityState -> {
-                PositionComponent positionComponentLocale =
-                    (PositionComponent) localeEntityState
+            .forEach(localEntityState -> {
+                PositionComponent positionComponentLocal =
+                    (PositionComponent) localEntityState
                         .fetch(PositionComponent.class)
                         .orElseThrow();
 
                 multiplayerManager.entities().stream()
                     .forEach(multiplayerEntityState -> {
-                        if (multiplayerEntityState.globalID() == localeEntityState.globalID()) {
+                        if (multiplayerEntityState.globalID() == localEntityState.globalID()) {
                             PositionComponent positionComponentMultiplayer =
                                 (PositionComponent) multiplayerEntityState
                                     .fetch(PositionComponent.class)
                                     .orElseThrow();
-                            positionComponentLocale.position(positionComponentMultiplayer.position());
+                            positionComponentLocal.position(positionComponentMultiplayer.position());
                         }
                     });
             });
     }
 
-    private void movementAnimation() {
+    /**
+     * Synchronizes animation of entities that are handled on other clients.
+     *
+     * It is needed for entities which are not handled on own device,
+     * like the animation of a hero played by another client.
+     *
+     * Animation update follows as in {@link core.systems.VelocitySystem}
+     */
+    private void synchronizeAnimation() {
         Game.entityStream()
             .filter(entity -> entity.fetch(VelocityComponent.class).isPresent())
-            .forEach(localeEntityState -> {
+            .forEach(localEntityState -> {
 
                 multiplayerManager.entities().stream()
                     .forEach(multiplayerEntityState -> {
-                        if (multiplayerEntityState.globalID() == localeEntityState.globalID()) {
+                        if (multiplayerEntityState.globalID() == localEntityState.globalID()) {
                             DrawComponent drawComponent =
-                                (DrawComponent) localeEntityState
+                                (DrawComponent) localEntityState
                                     .fetch(DrawComponent.class)
                                     .orElseThrow();
 
@@ -126,9 +149,9 @@ public final class MultiplayerSynchronizationSystem extends System {
                             else if (x < 0) {
                                 drawComponent.currentAnimation(CoreAnimations.RUN_LEFT);
                             }
-                                // idle
+                            // idle
                             else {
-                                // each drawcomponent has an idle animation, so no check is needed
+                                // each draw component has an idle animation, so no check is needed
                                 if (drawComponent.isCurrentAnimation(CoreAnimations.IDLE_LEFT)
                                     || drawComponent.isCurrentAnimation(CoreAnimations.RUN_LEFT))
                                     drawComponent.currentAnimation(CoreAnimations.IDLE_LEFT);
@@ -136,17 +159,14 @@ public final class MultiplayerSynchronizationSystem extends System {
                             }
                         }
                     });
-
-
-
             });
     }
 
-    /* Removes all entities that has been added due to multiplayer session from local state */
+    /** Removes all entities that has been marked as multiplayer entity. */
     private void removeMultiplayerEntities() {
         Game.entityStream()
             .forEach(entity -> {
-                if (entity.fetch(MultiplayerComponent.class).isPresent()) {
+                if (entity.fetch(MultiplayerSynchronizationComponent.class).isPresent()) {
                     Game.removeEntity(entity);
                 }
             });
