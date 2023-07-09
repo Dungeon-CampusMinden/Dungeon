@@ -142,9 +142,7 @@ public final class DrawComponent extends Component {
      * @see IPath
      */
     public void currentAnimation(final IPath... animationName) {
-        Set<IPath> animations = Set.of(animationName);
-
-        for (IPath animationPath : animations) {
+        for (IPath animationPath : animationName) {
             Animation animation = animationMap.get(animationPath.pathString());
             if (animation != null) {
                 this.currentAnimation = animation;
