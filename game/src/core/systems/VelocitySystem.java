@@ -111,7 +111,6 @@ public final class VelocitySystem extends System {
         // idle
         else {
             // each drawComponent has an idle animation, so no check is needed
-            // private boolean idleLeft(dc)
             if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_LEFT)
                     || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_LEFT))
                 vsd.dc.currentAnimation(CoreAnimations.IDLE_LEFT, CoreAnimations.IDLE);
