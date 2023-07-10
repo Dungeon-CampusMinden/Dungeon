@@ -1,7 +1,7 @@
 package contrib.utils.multiplayer.client;
 
 
-public interface IMultiplayerClient {
+public interface IClient {
 
     /**
      * Used to implement sending objects over TCP.
@@ -43,12 +43,12 @@ public interface IMultiplayerClient {
      *
      * @param observer Observer reference to be added.
      */
-    void addObserver(IMultiplayerClientObserver observer);
+    void addObserver(IClientObserver observer);
 
     /**
      * Remove observer.
      *
      * @param observer Observer reference to be removed.
      */
-    void removeObserver(IMultiplayerClientObserver observer);
+    void removeObserver(IClientObserver observer);
 }

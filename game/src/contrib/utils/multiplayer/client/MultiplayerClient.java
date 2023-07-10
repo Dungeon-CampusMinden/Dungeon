@@ -16,7 +16,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Used to send/receive data to/from multiplayer server.
  */
-public class MultiplayerClient extends Listener implements IMultiplayerClient {
+public class MultiplayerClient extends Listener implements IClient {
 
     // According to several tests, random generated level can have a maximum size of about 500k bytes
     // => set max expected size to double
@@ -25,10 +25,12 @@ public class MultiplayerClient extends Listener implements IMultiplayerClient {
     private static final int DEFAULT_OBJECT_BUFFER_SIZE = DEFAULT_MAX_OBJECT_SIZE_EXPECTED;
     private static final int DEFAULT_CONNECTION_TIMEOUT = 5000;
     private static final Client client = new Client(DEFAULT_WRITE_BUFFER_SIZE, DEFAULT_OBJECT_BUFFER_SIZE);
-    private final ArrayList<IMultiplayerClientObserver> observers = new ArrayList<>();
+    private final ArrayList<IClientObserver> observers = new ArrayList<>();
 
     /**
      * Creates a new instance.
+     *
+     * <p>To customize actions based on internal events. use {@link IClient#addObserver(IClientObserver)}.
      */
     public MultiplayerClient() {
         client.addListener(this);
@@ -37,21 +39,15 @@ public class MultiplayerClient extends Listener implements IMultiplayerClient {
 
     @Override
     public void connected(Connection connection) {
-        for (IMultiplayerClientObserver observer: observers) {
-            if (connection.getRemoteAddressTCP() != null)
-                observer.onConnected(connection.getRemoteAddressTCP().getAddress());
-            else
-                observer.onConnected(null);
+        for (IClientObserver observer: observers) {
+            observer.onConnectedToServer();
         }
     }
 
     @Override
     public void disconnected(Connection connection) {
-        for (IMultiplayerClientObserver observer: observers) {
-            if (connection.getRemoteAddressTCP() != null)
-                observer.onDisconnected(connection.getRemoteAddressTCP().getAddress());
-            else
-                observer.onDisconnected(null);
+        for (IClientObserver observer: observers) {
+            observer.onDisconnectedFromServer();
         }
     }
 
@@ -62,21 +58,21 @@ public class MultiplayerClient extends Listener implements IMultiplayerClient {
             System.out.println("Ping response received. Time: " + pingResponse.getTime());
         } else if (object instanceof InitializeServerResponse initServerResponse){
             final boolean isSucceed = initServerResponse.isSucceed();
-            for (IMultiplayerClientObserver observer: observers){
+            for (IClientObserver observer: observers){
                 observer.onInitializeServerResponseReceived(isSucceed, connection.getID());
             }
         } else if (object instanceof LoadMapResponse loadMapResponse) {
             final boolean isSucceed = loadMapResponse.isSucceed();
             final GameState gameState = loadMapResponse.gameState();
-            for (IMultiplayerClientObserver observer : observers) {
+            for (IClientObserver observer : observers) {
                 observer.onLoadMapResponseReceived(isSucceed, gameState);
             }
         } else if (object instanceof ChangeMapResponse){
-            for (IMultiplayerClientObserver observer : observers){
-                observer.onChangeMapRequest();
+            for (IClientObserver observer : observers){
+                observer.onChangeMapRequestReceived();
             }
         } else if (object instanceof JoinSessionResponse response) {
-            for (IMultiplayerClientObserver observer: observers) {
+            for (IClientObserver observer: observers) {
                 observer.onJoinSessionResponseReceived(
                     response.isSucceed(),
                     response.heroGlobalID(),
@@ -85,7 +81,7 @@ public class MultiplayerClient extends Listener implements IMultiplayerClient {
                 );
             }
         } else if (object instanceof GameStateUpdateEvent gameStateUpdateEvent){
-            for (IMultiplayerClientObserver observer: observers) {
+            for (IClientObserver observer: observers) {
                 observer.onGameStateUpdateEventReceived(gameStateUpdateEvent.entities());
             }
         }
@@ -96,8 +92,9 @@ public class MultiplayerClient extends Listener implements IMultiplayerClient {
      *
      * @param object To be sent instance.
      */
+    @Override
     public void sendTCP(Object object) {
-        client.sendTCP(requireNonNull(object));
+        client.sendTCP(object);
     }
 
     /**
@@ -105,8 +102,9 @@ public class MultiplayerClient extends Listener implements IMultiplayerClient {
      *
      * @param object To be sent instance.
      */
+    @Override
     public void sendUDP(Object object) {
-        client.sendUDP(requireNonNull(object));
+        client.sendUDP(object);
     }
 
     /**
@@ -116,6 +114,7 @@ public class MultiplayerClient extends Listener implements IMultiplayerClient {
      * @param port Port to be connected to. Will be used as TCP port. UDP port will be TCP port + 1;
      * @return True, if connected successfully. False, otherwise.
      */
+    @Override
     public boolean connectToHost(String address, int port) {
         try {
             client.start();
@@ -131,6 +130,7 @@ public class MultiplayerClient extends Listener implements IMultiplayerClient {
      * Disconnect from other endpoint.
      * Messages can not be sent and received anymore until reconnect.
      */
+    @Override
     public void disconnect() {
         client.close();
     }
@@ -149,7 +149,7 @@ public class MultiplayerClient extends Listener implements IMultiplayerClient {
      * @param observer Observer reference to be added.
      */
     @Override
-    public void addObserver(final IMultiplayerClientObserver observer) {
+    public void addObserver(final IClientObserver observer) {
         observers.add(requireNonNull(observer));
     }
 
@@ -159,7 +159,7 @@ public class MultiplayerClient extends Listener implements IMultiplayerClient {
      * @param observer Observer reference to be removed.
      */
     @Override
-    public void removeObserver(final IMultiplayerClientObserver observer) {
+    public void removeObserver(final IClientObserver observer) {
         observers.remove(requireNonNull(observer));
     }
 }
