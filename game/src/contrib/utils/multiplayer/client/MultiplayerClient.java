@@ -136,6 +136,13 @@ public class MultiplayerClient extends Listener {
     }
 
     /**
+     * @return True, if connected to an endpoint/server. False, otherwise.
+     */
+    public boolean isConnected() {
+        return client.isConnected();
+    }
+
+    /**
      * Add observer to implement customized actions.
      *
      * @param observer Observer reference to be added.
