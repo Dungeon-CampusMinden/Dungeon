@@ -11,10 +11,10 @@ import core.Entity;
  * the associated entity.
  *
  * <p>To set resistances and vulnerabilities for a damage type, use {@link #multiplier(DamageType,
- * float)}. For resistances, use a float less than 1, for vulnerabilities use a float greater than
- * 1.
+ * float)}. For resistances, use values less than 1.0, for vulnerabilities use values greater than
+ * 1.0.
  *
- * <p>The modifier values are taken into account by the {@link contrib.systems.HealthSystem} when
+ * <p>The modifier values are taken into account as multiplier by the {@link contrib.systems.HealthSystem} when
  * calculating damage, allowing for defining resistances and vulnerabilities for different damage
  * types.
  *
@@ -37,7 +37,7 @@ public final class StatsComponent extends Component {
      * Get multiplier for a given damage type
      *
      * @param type damage type
-     * @return multiplier (1 is default, values greater than 1 increase damage, values less than 1
+     * @return multiplier (1.0 is default, values greater than 1.0 increase damage, values less than 1.0
      *     decrease damage)
      */
     public float multiplierFor(final DamageType type) {
