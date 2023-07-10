@@ -19,7 +19,7 @@ public interface IMultiplayer {
      *
      * @param isSucceed True, if session successfully joined. False, otherwise.
      */
-    void onMultiplayerSessionJoined(boolean isSucceed, ILevel level);
+    void onMultiplayerSessionJoined(boolean isSucceed);
 
     /**
      * Called after the connection to multiplayer session is lost.

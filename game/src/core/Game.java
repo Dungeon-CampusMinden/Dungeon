@@ -354,18 +354,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     }
 
     @Override
-    public void onMultiplayerSessionJoined(final boolean isSucceed, final ILevel level) {
-        if (isSucceed) {
-            try {
-                levelManager.level(level);
-            }
-            catch (Exception ex) {
-                final String message = "Failed to set received level from server.";
-                LOGGER.warning(String.format("%s\n%s", message, ex.getMessage()));
-                Entity entity = UITools.generateNewTextDialog(message, "Ok", "Level error.");
-                entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
-            }
-        } else {
+    public void onMultiplayerSessionJoined(final boolean isSucceed) {
+        if (!isSucceed) {
             final String message = "Cannot join multiplayer session";
             LOGGER.warning(message);
             Entity entity = UITools.generateNewTextDialog(message, "Ok", "Connection failed.");

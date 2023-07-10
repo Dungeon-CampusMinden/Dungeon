@@ -82,9 +82,6 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
             this.entities = requireNonNull(gameState.entities());
             playerId = heroGlobalID;
             Game.hero().get().globalID(heroGlobalID);
-//            if (!Game.hero().get().fetch(MultiplayerSynchronizationComponent.class).isPresent()) {
-//                new MultiplayerSynchronizationComponent(Game.hero().get());
-//            }
             PositionComponent heroPositionComponent =
             (PositionComponent) Game.hero().get()
                 .fetch(PositionComponent.class)
@@ -101,7 +98,7 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
             logger.warning("Cannot join multiplayer session. Server responded unsuccessful.");
         }
 
-        multiplayer.onMultiplayerSessionJoined(isSucceed, gameState.level());
+        multiplayer.onMultiplayerSessionJoined(isSucceed);
     }
 
     @Override
@@ -174,11 +171,6 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
         final Set<Entity> currentEntities,
         final Entity hero){
         if (isHost()) {
-//            currentEntities.forEach(entity -> {
-//                if (!entity.fetch(MultiplayerSynchronizationComponent.class).isPresent()) {
-//                    new MultiplayerSynchronizationComponent(entity);
-//                }
-//            });
             multiplayerClient.sendTCP(new LoadMapRequest(
                 requireNonNull(level),
                 requireNonNull(currentEntities),
