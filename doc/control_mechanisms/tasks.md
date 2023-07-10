@@ -13,17 +13,15 @@ Diese Event-Handler-Methoden sollen genutzt werden, um beispielsweise die vom Sp
 *Anmerkung:* Das Konzept ist noch WiP und hier wird lediglich der aktuelle Stand festgehalten.
 
 Ein `Task` kann in unterschiedlichen Ausführungen existieren. Die einfache Form eines `Task` ist genau eine Aufgabe, zum Beispiel eine Single-Choice-Frage oder eine Replacement-Aufgabe.
-Sequenzen von `Task` können als `PetriNet` implementiert werden (mehr dazu [hier](./petri_nets.md)).
+Sequenzen von `Task` können als `PetriNet` implementiert werden (mehr dazu unter [PetriNets](petri_nets.md)).
 In den Stellen des `PetriNet` werden konkrete `Task` abgelegt.
-Zu beachten ist, dass ein `PetriNet` wiederum selbst ein `Task` ist und daher als Stelle eines übergeordneten `PetriNet` dienen kann.
+Dabei ist ein `PetriNet` wiederum selbst ein `Task` und kann daher als Stelle eines übergeordneten `PetriNet` dienen.
 
 ![Von der Quest zur Entität und wieder zurück.](img/quest.png)
 
-Das Diagramm zeigt, wie die `Task`s in Java umgesetzt werden.
+Jeder `Task` speichert eine Aufgabenbeschreibung (`taskText`) sowie einen Status (`state`). Dieser gibt an, ob ein Task (a) aktuell bearbeitet werden kann (`ACTIVE`), (b) aktuell nicht bearbeitet werden kann (`INACTIVE`) oder (c) bereits gelöst wurde und nicht mehr bearbeitet werden muss (`FINISHED`).
 
-Jeder `Task` speichert eine Aufgabenbeschreibung (`taskText`), einen Status (`state`), der angibt, ob ein Task aktuell bearbeitet werden kann (`ACTIVE`), aktuell nicht bearbeitet werden kann (`INACTIVE`) oder bereits gelöst wurde und nicht mehr bearbeitet werden muss (`FINISHED`).
-
-Zu jedem `Task` gehört zusätzlich ein `TaskComponent`, das als Manager-Instanz verwendet wird.
+Zu jedem `Task` gehört zusätzlich ein `TaskComponent`, das als Manager-Instanz verwendet wird und ausgewählten Entitäten hinzugefügt wird.
 Entitäten mit einem `TaskComponent` verwalten den Task. Sie können zum Beispiel den Status ändern, stellen jedoch kein Lösungselement dar.
 Beispiel: Ein Zauberer gibt dem Spieler die Aufgabe, etwas zu tun, und stellt den entsprechenden `Task` auf `ACTIVE`.
 
@@ -48,7 +46,7 @@ Consumer<Entity> sayHello = entity-> {
     };
 
 Entity wizzard = new Entity();
-wizzard.add(new InteractionComponent(wizzard,sayHello))
+wizzard.add(new InteractionComponent(wizzard, sayHello));
 ```
 
 Mithilfe des `TaskComponent` und `TaskContentComponent` können Callback-Methoden zur Bewertung von Aufgabenlösungen in der DSL definiert und im Spiel als Event-Handler ausgelöst werden.
