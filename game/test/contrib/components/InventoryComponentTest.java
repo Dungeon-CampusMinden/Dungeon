@@ -20,8 +20,6 @@ public class InventoryComponentTest {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(e, 1);
         assertEquals(0, ic.count());
-        assertEquals(1, ic.freeSpace());
-        assertEquals(1, ic.maxSize());
     }
 
     /** Adding one valid Item */
@@ -32,8 +30,6 @@ public class InventoryComponentTest {
         ItemData itemData = new ItemData();
         assertTrue(ic.add(itemData));
         assertEquals(1, ic.count());
-        assertEquals(0, ic.freeSpace());
-        assertEquals(1, ic.maxSize());
     }
 
     /**
@@ -47,8 +43,6 @@ public class InventoryComponentTest {
         assertTrue(ic.add(new ItemData()));
 
         assertEquals(2, ic.count());
-        assertEquals(1, ic.freeSpace());
-        assertEquals(3, ic.maxSize());
     }
 
     /** Adding two Items to an Inventory with a size of 1 should only add the first */
@@ -59,8 +53,6 @@ public class InventoryComponentTest {
         ic.add(new ItemData());
         assertFalse(ic.add(new ItemData()));
         assertEquals(1, ic.count());
-        assertEquals(0, ic.freeSpace());
-        assertEquals(1, ic.maxSize());
     }
 
     /** removing of an added Item */
@@ -73,8 +65,6 @@ public class InventoryComponentTest {
         assertTrue(ic.remove(itemData));
 
         assertEquals(0, ic.count());
-        assertEquals(1, ic.freeSpace());
-        assertEquals(1, ic.maxSize());
     }
 
     /** removing an Item which was already removed before */
@@ -88,8 +78,6 @@ public class InventoryComponentTest {
         assertFalse(ic.remove(itemData));
 
         assertEquals(0, ic.count());
-        assertEquals(1, ic.freeSpace());
-        assertEquals(1, ic.maxSize());
     }
 
     /** null should not remove any Item */
@@ -102,8 +90,6 @@ public class InventoryComponentTest {
         assertFalse(ic.remove(null));
 
         assertEquals(1, ic.count());
-        assertEquals(0, ic.freeSpace());
-        assertEquals(1, ic.maxSize());
     }
 
     /** empty inventory should return an empty List */

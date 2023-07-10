@@ -23,10 +23,7 @@ import java.util.logging.Logger;
  * <p>Items can be added via {@link #add(ItemData) addItem} and removed via {@link #remove(ItemData)
  * removeItem}.
  *
- * <p>The number of items in the inventory can be retrieved using {@link #count() filledSlots}, and
- * the number of items that can still be added can be retrieved using {@link #freeSpace()
- * emptySlots}. The maximum inventory size can also be retrieved using {@link #maxSize()
- * getMaxSize}.
+ * <p>The number of items in the inventory can be retrieved using {@link #count()}.
  */
 public final class InventoryComponent extends Component {
 
@@ -96,24 +93,6 @@ public final class InventoryComponent extends Component {
      */
     public int count() {
         return inventory.size();
-    }
-
-    /**
-     * Get the available number of items that can still be stored.
-     *
-     * @return The size of the available item space.
-     */
-    public int freeSpace() {
-        return maxSize - inventory.size();
-    }
-
-    /**
-     * Get the maximum number of items that can be stored in this component.
-     *
-     * @return The size of the inventory.
-     */
-    public int maxSize() {
-        return maxSize;
     }
 
     /**
