@@ -10,9 +10,9 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
 
-import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.stream.IntStream;
 
 /**
  * This class is a specific implementation of the {@link Consumer<Entity>} interface to use in the
@@ -60,17 +60,16 @@ public class DropItemsInteraction implements Consumer<Entity> {
                                 () ->
                                         MissingComponentException.build(
                                                 entity, PositionComponent.class));
-        List<ItemData> itemData = inventoryComponent.items();
+        Set<ItemData> itemData = inventoryComponent.items();
         double count = itemData.size();
-
-        IntStream.range(0, itemData.size())
-                .forEach(
-                        index ->
-                                itemData.get(index)
-                                        .triggerDrop(
-                                                entity,
-                                                calculateDropPosition(
-                                                        positionComponent, index / count)));
+        // used for calculation of drop position
+        AtomicInteger index = new AtomicInteger();
+        itemData.forEach(
+                item ->
+                        item.triggerDrop(
+                                entity,
+                                calculateDropPosition(
+                                        positionComponent, index.getAndIncrement() / count)));
 
         entity.fetch(DrawComponent.class)
                 .ifPresent(x -> x.currentAnimation(CoreAnimations.IDLE_RIGHT));

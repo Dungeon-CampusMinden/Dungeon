@@ -6,15 +6,15 @@ import core.Component;
 import core.Entity;
 import core.utils.logging.CustomLogLevel;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
  * Allows the entity to collect items in an inventory.
  *
- * <p>The component stores a collection of {@link ItemData} that are currently stored in the
- * associated entity.
+ * <p>The component stores a Set of {@link ItemData} that are currently stored in the associated
+ * entity.
  *
  * <p>Each inventory has a maximum number of items that can be carried.
  *
@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  */
 public final class InventoryComponent extends Component {
 
-    private final List<ItemData> inventory;
+    private final Set<ItemData> inventory;
     private final int maxSize;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
 
@@ -43,7 +43,7 @@ public final class InventoryComponent extends Component {
      */
     public InventoryComponent(final Entity entity, int maxSize) {
         super(entity);
-        inventory = new ArrayList<>(maxSize);
+        inventory = new HashSet<>(maxSize);
         this.maxSize = maxSize;
     }
 
@@ -112,11 +112,11 @@ public final class InventoryComponent extends Component {
     }
 
     /**
-     * Get a list of items stored in this component.
+     * Get a Set of items stored in this component.
      *
      * @return A copy of the inventory.
      */
-    public List<ItemData> items() {
-        return new ArrayList<>(inventory);
+    public Set<ItemData> items() {
+        return new HashSet<>(inventory);
     }
 }

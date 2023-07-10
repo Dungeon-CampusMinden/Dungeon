@@ -10,7 +10,7 @@ import core.Entity;
 
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Set;
 
 public class InventoryComponentTest {
     /** constructor should create the inventory with the given parameters. */
@@ -111,7 +111,7 @@ public class InventoryComponentTest {
     public void getAllItemsEmptyInventory() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(e, 0);
-        List<ItemData> list = ic.items();
+        Set<ItemData> list = ic.items();
         assertEquals("should have no Items", 0, list.size());
     }
 
@@ -122,7 +122,7 @@ public class InventoryComponentTest {
         InventoryComponent ic = new InventoryComponent(e, 1);
         ItemData itemData = new ItemData();
         ic.add(itemData);
-        List<ItemData> list = ic.items();
+        Set<ItemData> list = ic.items();
         assertEquals("should have one Item", 1, list.size());
         assertTrue("Item should be in returned List", list.contains(itemData));
     }
@@ -136,7 +136,7 @@ public class InventoryComponentTest {
         ic.add(itemData1);
         ItemData itemData2 = new ItemData();
         ic.add(itemData2);
-        List<ItemData> list = ic.items();
+        Set<ItemData> list = ic.items();
         assertEquals("should have two Items", 2, list.size());
         assertTrue("Item 1 should be in returned List", list.contains(itemData1));
         assertTrue("Item 2 should be in returned List", list.contains(itemData2));
@@ -148,7 +148,7 @@ public class InventoryComponentTest {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(e, 1);
         ItemData itemData = new ItemData();
-        List<ItemData> list = ic.items();
+        Set<ItemData> list = ic.items();
         assertEquals("should have no Items", 0, list.size());
         assertFalse("Item should be in returned List", list.contains(itemData));
     }
