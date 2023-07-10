@@ -7,9 +7,9 @@ import core.Entity;
 import core.utils.TriConsumer;
 
 /**
- * Marks an entity as an Item.
+ * Marks an entity as an item.
  *
- * <p>It contains the {@link #itemData}, which contains all information about the Item.
+ * <p>It contains the {@link #ItemData}, which contains all information about an item.
  *
  * <p>An entity with an {@link ItemComponent} is not an item in an inventory, but an item that
  * exists in the game world. Systems such as {@link contrib.systems.CollisionSystem CollisionSystem}
