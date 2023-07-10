@@ -150,6 +150,26 @@ interpreter.initializeRuntime(env);
 var questConfig = interpreter.generateQuestConfig(ast);
 ```
 
+### Callback-Methoden
+
+Einige Komponenten (z.B. `InteractionComponent`) definieren Callback-Methoden,
+welche per DSL-Funktionsdefinition implementiert werden können.
+Callback-Methoden werden z.B. über das `java.util.function.Function<T,R>` interface
+definiert. Dieses Interface muss in das DSL-Typsystem überführt werden. Hierzu
+wird die `DSLCallback`-Annotation verwendet:
+
+```java
+@DSLType
+public class TestComponentWithFunctionCallback extends Component {
+    // ...
+
+    @DSLCallback
+    private Function<Entity, Boolean> onInteraction;
+
+    // ...
+}
+```
+
 ### Einschränkungen
 
 Mit dem oben beschriebenen Mechanismus können DSL Datentypen aus Java-Klassen erstellt
