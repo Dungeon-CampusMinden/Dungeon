@@ -16,75 +16,25 @@ import java.util.stream.Stream;
  * <p>The internal collection can be queried as a stream using {@link #contentStream()}, and
  * manipulated using {@link #addContent(TaskContent)} and {@link #removeContent(TaskContent)}.
  *
- * <p>Each task is associated with a {@link task.TaskManagerComponent} that handles the meta-control
- * of the task.
+ * <p>Each task is associated with a {@link TaskComponent} that handles the meta-control of the
+ * task.
  */
 public abstract class Task {
     private static final String DEFAULT_TASK_TEXT = "No task description provided";
-    private static final TaskState DEFAULT_TASK_STATE = TaskState.DEACTIVATE;
+    private static final TaskState DEFAULT_TASK_STATE = TaskState.INACTIVE;
     private TaskState state;
     private String taskText;
-    private TaskManagerComponent managementComponent;
+    private TaskComponent managementComponent;
     private Set<TaskContent> content;
 
     /**
-     * Create a new Task
-     *
-     * @param state state in which the task should start in
-     * @param taskText description of the task, what is to do?
-     * @param component {@link TaskManagerComponent} that manages this task
-     * @param content collection of {@link TaskContent}s that are part of this task
-     */
-    public Task(
-            final TaskState state,
-            final String taskText,
-            final TaskManagerComponent component,
-            final Set<TaskContent> content) {
-        this.state = state;
-        this.taskText = taskText;
-        this.managementComponent = component;
-        this.content = content;
-    }
-
-    /**
-     * Create a new Task, with an empty content-collection.
-     *
-     * @param state state in which the task should start in
-     * @param taskText description of the task, what is to do?
-     * @param component {@link TaskManagerComponent} that manages this task
-     */
-    public Task(
-            final TaskState state, final String taskText, final TaskManagerComponent component) {
-        this(state, taskText, component, new HashSet<>());
-    }
-
-    /**
-     * Create a new Task, with an empty content-collection and without an {@link
-     * TaskManagerComponent}.
-     *
-     * @param state state in which the task should start in
-     * @param taskText description of the task, what is to do?
-     */
-    public Task(final TaskState state, final String taskText) {
-        this(state, taskText, null);
-    }
-
-    /**
-     * Create a new Task in the {@link #DEFAULT_TASK_STATE}, with an empty content-collection and
-     * without an {@link TaskManagerComponent}.
-     *
-     * @param taskText description of the task, what is to do?
-     */
-    public Task(final String taskText) {
-        this(DEFAULT_TASK_STATE, taskText);
-    }
-
-    /**
      * Create a new Task with the {@link #DEFAULT_TASK_TEXT} in the {@link #DEFAULT_TASK_STATE},
-     * with an empty content-collection and without an {@link TaskManagerComponent}.
+     * with an empty content-collection and without an {@link TaskComponent}.
      */
     public Task() {
-        this(DEFAULT_TASK_TEXT);
+        state = DEFAULT_TASK_STATE;
+        taskText = DEFAULT_TASK_TEXT;
+        content = new HashSet<>();
     }
 
     /**
@@ -124,20 +74,20 @@ public abstract class Task {
     }
 
     /**
-     * Get the current manager component
+     * Get the current task-component that manages this task.
      *
      * @return current manager component
      */
-    public TaskManagerComponent managerComponent() {
+    public TaskComponent managerComponent() {
         return managementComponent;
     }
 
     /**
-     * Set a new manager-component.
+     * Set a new task-component to manage this task.
      *
      * @param component new manager-component.
      */
-    public void managerComponent(final TaskManagerComponent component) {
+    public void managerComponent(final TaskComponent component) {
         this.managementComponent = component;
     }
 
@@ -193,7 +143,7 @@ public abstract class Task {
      */
     public enum TaskState {
         ACTIVE,
-        DEACTIVATE,
+        INACTIVE,
         FINISHED
     }
 }

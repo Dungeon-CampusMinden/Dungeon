@@ -12,9 +12,9 @@ import core.Entity;
  * <p>Example: A wizard who needs to be interacted with by the player to activate the task, and then
  * the solution item needs to be brought to them.
  *
- * <p>{@link TaskManagerComponent} stores a reference to the corresponding {@link Task}
+ * <p>{@link TaskComponent} stores a reference to the corresponding {@link Task}
  */
-public final class TaskManagerComponent extends Component {
+public final class TaskComponent extends Component {
 
     private final Task task;
 
@@ -24,7 +24,7 @@ public final class TaskManagerComponent extends Component {
      * @param entity associated entity
      * @param task the task this component manages
      */
-    public TaskManagerComponent(final Entity entity, final Task task) {
+    public TaskComponent(final Entity entity, final Task task) {
         super(entity);
         this.task = task;
     }
