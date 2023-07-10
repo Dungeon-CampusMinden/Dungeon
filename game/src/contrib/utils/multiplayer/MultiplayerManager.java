@@ -250,7 +250,7 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
      * @return True, if connected to multiplayer session. False, otherwise.
      */
     public boolean isConnectedToSession() {
-        return playerId != 0;
+        return multiplayerClient.isConnected();
     }
 
     /**
