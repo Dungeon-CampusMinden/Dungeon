@@ -33,6 +33,10 @@ import java.util.stream.IntStream;
 public class EntityFactory {
     private static final Logger LOGGER = Logger.getLogger(EntityFactory.class.getName());
     private static final Random RANDOM = new Random();
+    private static final String HERO_FILE_PATH = "character/knight";
+    private static final float X_SPEED_HERO = 0.3f;
+    private static final float Y_SPEED_HERO = 0.3f;
+    private static final int FIREBALL_COOL_DOWN = 2;
     private static final String[] MONSTER_FILE_PATHS = {
         "character/monster/chort", "character/monster/imp"
     };
@@ -42,7 +46,6 @@ public class EntityFactory {
     // NOTE: +1 for health as nextInt() is exclusive
     private static final int MAX_MONSTER_HEALTH = 5 + 1;
     private static final float MIN_MONSTER_SPEED = 0.1f;
-
     private static final float MAX_MONSTER_SPEED = 0.25f;
 
     /**
@@ -53,22 +56,18 @@ public class EntityFactory {
      * @return Created Entity
      */
     public static Entity newHero() throws IOException {
-        final int fireballCoolDown = 2;
-        final float xSpeed = 0.3f;
-        final float ySpeed = 0.3f;
-
         Entity hero = new Entity("hero");
         new CameraComponent(hero);
         new PositionComponent(hero);
-        new VelocityComponent(hero, xSpeed, ySpeed);
-        new DrawComponent(hero, "character/blue_knight");
+        new VelocityComponent(hero, X_SPEED_HERO, Y_SPEED_HERO);
+        new DrawComponent(hero, HERO_FILE_PATH);
         new CollideComponent(
                 hero,
                 (you, other, direction) -> System.out.println("heroCollisionEnter"),
                 (you, other, direction) -> System.out.println("heroCollisionLeave"));
         PlayerComponent pc = new PlayerComponent(hero);
         Skill fireball =
-                new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), fireballCoolDown);
+                new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
         // hero movement
         pc.registerCallback(

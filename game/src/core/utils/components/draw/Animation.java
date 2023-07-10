@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
  * @see IPath
  */
 public final class Animation {
+
+    private static final String MISSING_TEXTURE = "animation/missing_texture.png";
     private static final int DEFAULT_FRAME_TIME = 5;
     private static final boolean DEFAULT_IS_LOOP = true;
 
@@ -106,6 +108,16 @@ public final class Animation {
      */
     public static Animation of(File subDir) {
         return Animation.of(subDir, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP);
+    }
+
+    /**
+     * Create a new animation with default settings, and the missing_textures file as animation
+     * frames.
+     *
+     * @return missing texture animation
+     */
+    public static Animation defaultAnimation() {
+        return new Animation(Set.of(MISSING_TEXTURE), DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP);
     }
 
     /**
