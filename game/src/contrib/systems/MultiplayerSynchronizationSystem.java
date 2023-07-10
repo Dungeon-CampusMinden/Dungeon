@@ -56,6 +56,8 @@ public final class MultiplayerSynchronizationSystem extends System {
                 synchronizePositions();
                 synchronizeAnimation();
             }
+        } else {
+            removeMultiplayerEntities();
         }
     }
 
@@ -164,10 +166,11 @@ public final class MultiplayerSynchronizationSystem extends System {
 
     /** Removes all entities that has been marked as multiplayer entity. */
     private void removeMultiplayerEntities() {
-        Game.entityStream()
-            .forEach(entity -> {
-                if (entity.fetch(MultiplayerSynchronizationComponent.class).isPresent()) {
-                    Game.removeEntity(entity);
+        multiplayerManager.entities().stream()
+            .forEach(globalEntity -> {
+                Entity localEntity = Game.entityStream().filter(x -> x.globalID() == globalEntity.globalID()).findFirst().orElse(null);
+                if (localEntity != null) {
+                    Game.removeEntity(localEntity);
                 }
             });
     }
