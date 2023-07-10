@@ -7,7 +7,7 @@ import core.utils.Point;
 /**
  * Marks an entity as a projectile.
  *
- * <p>The Component stores a {@link #startPosition start} and a {@link #goalLocation goal}
+ * <p>The component stores a {@link #startPosition start} and a {@link #goalLocation goal} position.
  *
  * <p>The {@link contrib.systems.ProjectileSystem ProjectileSystem} will calculate a flight path
  * from the start to the goal and will then set the velocity of the entity accordingly. If the goal
@@ -15,7 +15,7 @@ import core.utils.Point;
  * core.components.VelocityComponent VelocityComponent} and {@link core.components.PositionComponent
  * PositionComponent} is needed as well.
  *
- * <p>Examples of projectiles are Fireballs or Arrows.
+ * <p>Examples of projectiles are fireballs or arrows.
  *
  * <p>The {@link #goalLocation()} method retrieves the goal position of the projectile. The {@link
  * #startPosition()} method retrieves the start position of the projectile.
@@ -42,7 +42,7 @@ public final class ProjectileComponent extends Component {
     }
 
     /**
-     * Get goal location of the projectile.
+     * Get the target position of the projectile.
      *
      * @return The point where the projectile should fly to.
      */
@@ -51,7 +51,7 @@ public final class ProjectileComponent extends Component {
     }
 
     /**
-     * Get start position of the projectile.
+     * Get the start position of the projectile.
      *
      * @return The point from which to start the calculation to the goal location
      */
