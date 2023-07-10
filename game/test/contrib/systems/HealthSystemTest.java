@@ -98,7 +98,7 @@ public class HealthSystemTest {
         Entity entity = new Entity();
         new DrawComponent(entity, ANIMATION_PATH);
         StatsComponent statsComponent = new StatsComponent(entity);
-        statsComponent.damageModifiers().setMultiplier(DamageType.PHYSICAL, 2);
+        statsComponent.multiplier(DamageType.PHYSICAL, 2);
 
         HealthComponent healthComponent = new HealthComponent(entity);
         healthComponent.maximalHealthpoints(100);
@@ -119,7 +119,7 @@ public class HealthSystemTest {
         Entity entity = new Entity();
         new DrawComponent(entity, ANIMATION_PATH);
         StatsComponent statsComponent = new StatsComponent(entity);
-        statsComponent.damageModifiers().setMultiplier(DamageType.PHYSICAL, -2);
+        statsComponent.multiplier(DamageType.PHYSICAL, -2);
 
         HealthComponent healthComponent = new HealthComponent(entity);
         healthComponent.maximalHealthpoints(200);
@@ -140,7 +140,7 @@ public class HealthSystemTest {
         Entity entity = new Entity();
         new DrawComponent(entity, ANIMATION_PATH);
         StatsComponent statsComponent = new StatsComponent(entity);
-        statsComponent.damageModifiers().setMultiplier(DamageType.PHYSICAL, 0);
+        statsComponent.multiplier(DamageType.PHYSICAL, 0);
 
         HealthComponent healthComponent = new HealthComponent(entity);
         healthComponent.maximalHealthpoints(200);
@@ -161,7 +161,7 @@ public class HealthSystemTest {
         Entity entity = new Entity();
         new DrawComponent(entity, ANIMATION_PATH);
         StatsComponent statsComponent = new StatsComponent(entity);
-        statsComponent.damageModifiers().setMultiplier(DamageType.PHYSICAL, 100);
+        statsComponent.multiplier(DamageType.PHYSICAL, 100);
 
         HealthComponent healthComponent = new HealthComponent(entity);
         healthComponent.maximalHealthpoints(200);
