@@ -1,6 +1,10 @@
 # global owner
 * @cagix
 
+# gradle
+build.gradle @Programmiermethoden/dungeon
+settings.gradle @Programmiermethoden/dungeon
+
 # game owner
 /game/ @AMatutat @Programmiermethoden/codrs
 
