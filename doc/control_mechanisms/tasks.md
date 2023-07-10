@@ -10,8 +10,6 @@ Diese Event-Handler-Methoden sollen genutzt werden, um beispielsweise die vom Sp
 
 ## Grundstruktur `Tasks`
 
-*Anmerkung:* Das Konzept ist noch WiP und hier wird lediglich der aktuelle Stand festgehalten.
-
 Ein `Task` kann in unterschiedlichen Ausführungen existieren. Die einfache Form eines `Task` ist genau eine Aufgabe, zum Beispiel eine Single-Choice-Frage oder eine Replacement-Aufgabe.
 Sequenzen von `Task` können als `PetriNet` implementiert werden (mehr dazu unter [PetriNets](petri_nets.md)).
 In den Stellen des `PetriNet` werden konkrete `Task` abgelegt.
