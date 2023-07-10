@@ -1,6 +1,5 @@
 package contrib.utils.components.skill;
 
-import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 
 import core.utils.Point;
@@ -14,13 +13,22 @@ import java.util.function.Supplier;
  * specific behavior of the fireball skill.
  */
 public class FireballSkill extends DamageProjectile {
+
+    private static final String PROJECTILE_TEXTURES = "skills/fireball";
+    private static final float PROJECTILE_SPEED = 0.5f;
+    private static final int DAMAGE_AMOUNT = 1;
+    private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
+    private static final Point HITBOX_SIZE = new Point(1, 1);
+    private static final float PROJECTILE_RANGE = 5f;
+
     public FireballSkill(Supplier<Point> targetSelection) {
         super(
-                "skills/fireball",
-                0.5f,
-                new Damage(1, DamageType.FIRE, null),
-                new Point(1, 1),
+                PROJECTILE_TEXTURES,
+                PROJECTILE_SPEED,
+                DAMAGE_AMOUNT,
+                DAMAGE_TYPE,
+                HITBOX_SIZE,
                 targetSelection,
-                5f);
+                PROJECTILE_RANGE);
     }
 }
