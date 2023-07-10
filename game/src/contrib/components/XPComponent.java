@@ -42,12 +42,12 @@ public final class XPComponent extends Component {
      * {@code LEVEL_1_XP}.
      */
     private static final Function<Long, Long> DEFAULT_LEVEL_UP_FORMULA =
-        level -> Math.round(FORMULA_SLOPE * Math.pow(level, 2) + NEEDED_XP_FOR_LEVEL_ONE);
+            level -> Math.round(FORMULA_SLOPE * Math.pow(level, 2) + NEEDED_XP_FOR_LEVEL_ONE);
 
-    private static final Consumer<Entity> DEFAULT_LEVEL_UP = entity1 -> {
-    };
+    private static final Consumer<Entity> DEFAULT_LEVEL_UP = entity1 -> {};
 
-    private static final Function<XPComponent, Long> DEFAULT_LOOT_XP_FUNCTION = xpComponent -> (long) (xpComponent.currentXP * 0.5f);
+    private static final Function<XPComponent, Long> DEFAULT_LOOT_XP_FUNCTION =
+            xpComponent -> (long) (xpComponent.currentXP * 0.5f);
 
     private Function<XPComponent, Long> lootXPFunction;
     private Function<Long, Long> levelUPFormula;
@@ -55,16 +55,15 @@ public final class XPComponent extends Component {
     private long characterLevel;
     private long currentXP;
 
-
     /**
      * Create a new XPComponent and add it to the associated entity.
      *
      * <p>Useful for entities that should collect XP to level up, such as the player character.
      *
-     * <p>The {@link #lootXPFunction} will always be half of {@link #currentXP}, dynamically adjusting as
+     * <p>The {@link #lootXP()} will always be half of {@link #currentXP}, dynamically adjusting as
      * this component collects more XP.
      *
-     * @param entity  the associated entity
+     * @param entity the associated entity
      * @param levelUp the callback for when the entity levels up
      */
     public XPComponent(final Entity entity, final Consumer<Entity> levelUp) {
@@ -81,7 +80,7 @@ public final class XPComponent extends Component {
      *
      * @param entity the associated entity
      * @param lootXP the amount of XP this entity drops if it dies (requires a {@link
-     *               HealthComponent}). If the value is negativ, XP are taken from the entity that is looting.</p>
+     *     HealthComponent}). If the value is negativ, XP are taken from the entity that is looting.
      */
     public XPComponent(final Entity entity, long lootXP) {
         super(entity);
@@ -179,21 +178,23 @@ public final class XPComponent extends Component {
     }
 
     /**
-     * Set the function to calculate the amount of XP that will be dropped when the associated entity dies.
+     * Set the function to calculate the amount of XP that will be dropped when the associated
+     * entity dies.
      *
-     * @param lootXPFunction Function that gets the {@link XPComponent} of the associated entity and returns the amount of XP to drop as {@link Long}. If the return value is negative, XP is taken from the entity that is looting.
+     * @param lootXPFunction Function that gets the {@link XPComponent} of the associated entity and
+     *     returns the amount of XP to drop as {@link Long}. If the return value is negative, XP is
+     *     taken from the entity that is looting.
      */
     public void lootXP(Function<XPComponent, Long> lootXPFunction) {
         this.lootXPFunction = lootXPFunction;
     }
-
 
     /**
      * Set the function to calculate the amount of XP that is missing to reach the next character
      * level.
      *
      * @param formula The new formula used to calculate the missing XP. (Function<Long, Long> where
-     *                the input is the character level and the output is the XP needed for the next level)
+     *     the input is the character level and the output is the XP needed for the next level)
      */
     public void levelUPFormula(Function<Long, Long> formula) {
         this.levelUPFormula = formula;
