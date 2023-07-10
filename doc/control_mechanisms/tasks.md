@@ -24,7 +24,7 @@ Das Diagramm zeigt, wie die `Task`s in Java umgesetzt werden.
 Jeder `Task` speichert eine Aufgabenbeschreibung (`taskText`), einen Status (`state`), der angibt, ob ein Task aktuell bearbeitet werden kann (`ACTIVE`), aktuell nicht bearbeitet werden kann (`INACTIVE`) oder bereits gelöst wurde und nicht mehr bearbeitet werden muss (`FINISHED`).
 
 Zu jedem `Task` gehört zusätzlich ein `TaskComponent`, das als Manager-Instanz verwendet wird.
-Entitäten mit einem `TaskComponent` verwalten den Task. Sie können zum Beispiel den Status ändern, gehören jedoch selbst nicht direkt zum Task (sie sind also keine Items, die zum Lösen benötigt werden).
+Entitäten mit einem `TaskComponent` verwalten den Task. Sie können zum Beispiel den Status ändern, stellen jedoch kein Lösungselement dar.
 Beispiel: Ein Zauberer gibt dem Spieler die Aufgabe, etwas zu tun, und stellt den entsprechenden `Task` auf `ACTIVE`.
 
 Die verschiedenen Inhalte eines `Task`, wie Antwortmöglichkeiten oder Ersetzungsregeln, werden als `TaskContent`-Objekte im `Task` gespeichert.
@@ -37,7 +37,7 @@ Eine in der DSL definierte Aufgabenstellung erzeugt beim Laden ein entsprechende
 ## Event-Handler und DSL-Callbacks
 
 Im Dungeon kann durch verschiedene Aktionen ein Event-Handler ausgelöst werden, zum Beispiel wenn eine Interaktion stattfindet.
-Die Event-Handler werden in den entsprechenden Komponenten gespeichert und sind in der Regel als `Consumer<Entity>` implementiert. Dabei ist die übergebene Entität immer die Entität, zu der das Komponent gehört.
+Die Event-Handler werden in den entsprechenden Komponenten gespeichert und sind in der Regel als `Consumer<Entity>` implementiert. Dabei ist die übergebene Entität immer die Entität, zu der die Komponente gehört.
 Über die Entität kann die Event-Handler-Methode dann auf die verschiedenen Komponenten der Entität zugreifen.
 
 Beispiel:
