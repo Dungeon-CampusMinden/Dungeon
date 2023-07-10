@@ -22,8 +22,7 @@ import semanticanalysis.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import semanticanalysis.types.*;
 
-import java.util.ArrayDeque;
-import java.util.List;
+import java.util.*;
 
 // TODO: specify EXACT semantics of value copying and setting
 
@@ -35,7 +34,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
     private RuntimeEnvironment environment;
     private final ArrayDeque<IMemorySpace> memoryStack;
     private final IMemorySpace globalSpace;
-    private boolean hitReturnStmt;
 
     private SymbolTable symbolTable() {
         return environment.getSymbolTable();
@@ -45,6 +43,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return this.memoryStack.peek();
     }
 
+    private final ArrayDeque<Node> statementStack;
+
     private static final String RETURN_VALUE_NAME = "$return_value$";
 
     // TODO: add entry-point for game-object traversal
@@ -53,6 +53,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public DSLInterpreter() {
         memoryStack = new ArrayDeque<>();
         globalSpace = new MemorySpace();
+        statementStack = new ArrayDeque<>();
         memoryStack.push(globalSpace);
     }
 
@@ -474,7 +475,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     /**
-     * This handles parameter evaluation an binding and walking the AST of the function symbol
+     * This handles parameter evaluation and binding and setting up the statement stack for
+     * execution of the function's statements
      *
      * @param symbol The symbol corresponding to the function to call
      * @param parameterNodes The ASTNodes of the parameters of the function call
@@ -504,14 +506,25 @@ public class DSLInterpreter implements AstVisitor<Object> {
             memoryStack.peek().bindValue(RETURN_VALUE_NAME, returnValue);
         }
 
-        // visit function AST
+        // add return mark
+        statementStack.addFirst(new Node(Node.Type.ReturnMark));
+
+        // put statement block on statement stack
         var funcRootNode = symbol.getAstRootNode();
-        var stmtBlock = funcRootNode.getStmtBlock();
+        var stmtBlock = (StmtBlockNode) funcRootNode.getStmtBlock();
         if (stmtBlock != Node.NONE) {
-            // reset return stmt flag
-            this.hitReturnStmt = false;
-            stmtBlock.accept(this);
+            statementStack.addFirst(stmtBlock);
         }
+
+        while (statementStack.peek() != null
+                && statementStack.peek().type != Node.Type.ReturnMark) {
+            var stmt = statementStack.pop();
+            stmt.accept(this);
+        }
+
+        // pop the return mark
+        assert Objects.requireNonNull(statementStack.peek()).type == Node.Type.ReturnMark;
+        statementStack.pop();
 
         memoryStack.pop();
         if (functionType.getReturnType() != BuiltInType.noType) {
@@ -522,15 +535,14 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(StmtBlockNode node) {
-        // execute function's statements one by one
-        for (var stmt : node.getStmts()) {
-            stmt.accept(this);
-            // check, if a return statement was hit
-            // if so: stop function execution
-            if (hitReturnStmt) {
-                hitReturnStmt = false;
-                break;
-            }
+        ArrayList<Node> statements = node.getStmts();
+
+        // push statements in reverse order onto the statement stack
+        // (as execution is done by popping the topmost statement from the stack)
+        var iter = statements.listIterator(statements.size());
+        while (iter.hasPrevious()) {
+            Node stmt = iter.previous();
+            statementStack.addFirst(stmt);
         }
         return null;
     }
@@ -577,18 +589,24 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(ReturnStmtNode node) {
         Value value = (Value) node.getInnerStmtNode().accept(this);
 
-        // walk the memorystack, find the first return value
-        // and set it according to the evaluated value
-        for (var ms : this.memoryStack) {
-            Value returnValue = ms.resolve(RETURN_VALUE_NAME);
-            if (returnValue != Value.NONE) {
-                returnValue.setInternalValue(value.getInternalValue());
-                break;
+        if (value != Value.NONE) {
+            // walk the memorystack, find the first return value
+            // and set it according to the evaluated value
+            for (var ms : this.memoryStack) {
+                Value returnValue = ms.resolve(RETURN_VALUE_NAME);
+                if (returnValue != Value.NONE) {
+                    returnValue.setInternalValue(value.getInternalValue());
+                    break;
+                }
             }
         }
 
-        // signal, that a return statement was hit
-        this.hitReturnStmt = true;
+        // unroll the statement stack until we find a return mark
+        while (statementStack.peek() != null
+                && statementStack.peek().type != Node.Type.ReturnMark) {
+            statementStack.pop();
+        }
+
         return null;
     }
 
@@ -596,7 +614,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(ConditionalStmtNodeIf node) {
         Value conditionValue = (Value) node.getCondition().accept(this);
         if (isBooleanTrue(conditionValue)) {
-            node.getIfStmt().accept(this);
+            statementStack.addFirst(node.getIfStmt());
         }
 
         return null;
@@ -606,9 +624,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(ConditionalStmtNodeIfElse node) {
         Value conditionValue = (Value) node.getCondition().accept(this);
         if (isBooleanTrue(conditionValue)) {
-            node.getIfStmt().accept(this);
+            statementStack.addFirst(node.getIfStmt());
         } else {
-            node.getElseStmt().accept(this);
+            statementStack.addFirst(node.getElseStmt());
         }
 
         return null;

@@ -136,7 +136,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     public void exitReturn_stmt(DungeonDSLParser.Return_stmtContext ctx) {
         // pop the inner statement
         assert astStack.size() > 0;
-        var innerStmt = astStack.pop();
+        var innerStmt = Node.NONE;
+        if (ctx.primary() != null) {
+            innerStmt = astStack.pop();
+        }
 
         var returnStmt = new ReturnStmtNode(innerStmt);
         astStack.push(returnStmt);

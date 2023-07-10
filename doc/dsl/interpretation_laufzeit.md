@@ -340,19 +340,33 @@ public Object call(DSLInterpreter interpreter, List<Node> parameters) {
 
 Das Sequenzdiagramm der Methode `executeUserDefinedFunction` ist unten dargestellt:
 
-![UML: executeUserDefinedFunction](img/execute_user_defined_function.png)
+![UML: executeUserDefinedFunction setup](img/execute_user_defined_function_setup.png)
 
-Für den Rückgabewert wird eine `Value`-Instanz im `MemorySpace` der Funktion gebunden. Der
-interne Wert dieser `Value`-Instanz wird durch während der Interpretation von
-`return`-Statements gesetzt. Ein `return`-Statement beendet die Ausführung der
-Funktionslogik.
+Alle Parameter werden als `Value`-Instnaz im `MemorySpace` der Funktion gebunden. Für den
+Rückgabewert wird ebenfalls eine `Value`-Instanz im `MemorySpace` der Funktion gebunden. Der
+interne Wert dieser `Value`-Instanz wird während der Interpretation von `return`-Statements
+gesetzt. Ein `return`-Statement beendet die Ausführung der Funktionslogik.
 
-Der `DSLInterpreter` verfügt hierfür über ein Flag, welches während der Interpretation eines
-`return`-Statements aktiv geschaltet wird. Nach der Interpretation eines Statements wird der
-Zustand des Flags überprüft und (falls aktiv) die Ausführung der nachfolgenden Statements
-übersprungen.
+Die Ausführung der Statements des Funktionsrumpfes ist im folgenden Sequenzdiagram
+dargestellt (durch “Ausführung der Statements” im obenstehenden Sequenzdiagram
+referenziert):
 
-Note: Dieser Flag-basierte Mechanismus ist ein Provisorium und ist bspw. für konditionale
-Statements zu kurz gedacht, liegt allerdings außerhalb des Scopes des PRs, der die
-Behandlung von `return`-Statements implementiert. Siehe dazu [Issue
-737](https://github.com/Programmiermethoden/Dungeon/issues/737).
+![UML: executeUserDefinedFunction Ausführung](img/execute_user_defined_function.png)
+
+Der `DSLInterpreter` verwendet einen Stack, um alle auszuführenden Statements zu verwalten.
+Zunächst wird auf diesen `StatementStack` eine Rücksprungmarke gelegt. Anschließend legt der
+`DSLInterpreter` die Statements des Funktionsrumpfes auf den Stack, sodass das erste
+Statement im Funktionsrumpf oben auf dem Stack liegt. Anschließend `pop`t der
+`DSLInterpreter` jeweils ein Statement vom `StatementStack` und führt es aus (indem die
+entsprechende Visitor-Methode aufgerufen wird). Konditionale Statements legen (falls die
+entsprechende Bedingung erfüllt ist) die Statements aus dem entsprechenden Zweig oben auf
+dem `StatementStack` ab. Ziel dieser Architektur ist es, dass ein `return`-Statement so
+lange Statements vom `StatementStack` entfernen kann, bis die Rücksprungmarke wieder als
+oberstes Statement auf dem Stack liegt.
+
+Im Gegensatz zum sonst verwendeten [Tree Walking Interpreter
+Ansatz](https://craftinginterpreters.com/a-tree-walk-interpreter.html) bietet diese
+Architektur den Vorteil, dass Return-Statements nicht durch Exceptions implementiert werden
+müssen vgl. [Return Statements - Crafting
+Interpreters](https://craftinginterpreters.com/functions.html#return-statements), um einen
+Sprung aus dem Funktionsrumpf an *beliebiger Stelle* zu realisieren.

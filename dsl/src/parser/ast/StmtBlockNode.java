@@ -1,9 +1,9 @@
 package parser.ast;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class StmtBlockNode extends Node {
-    public List<Node> getStmts() {
+    public ArrayList<Node> getStmts() {
         return this.getChild(0).getChildren();
     }
 
