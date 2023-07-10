@@ -64,13 +64,13 @@ public class TypeBuilder {
     protected static IType getBasicDSLType(Class<?> type) {
         // check for basic types
         if (int.class.equals(type)
-                || short.class.equals(type)
-                || long.class.equals(type)
-                || Integer.class.isAssignableFrom(type)) {
+            || short.class.equals(type)
+            || long.class.equals(type)
+            || Integer.class.isAssignableFrom(type)) {
             return BuiltInType.intType;
         } else if (float.class.equals(type)
-                || double.class.equals(type)
-                || Float.class.isAssignableFrom(type)) {
+            || double.class.equals(type)
+            || Float.class.isAssignableFrom(type)) {
             return BuiltInType.floatType;
         } else if (boolean.class.equals(type)
             || Boolean.class.isAssignableFrom(type)) {
@@ -302,7 +302,22 @@ public class TypeBuilder {
         for (Field field : clazz.getDeclaredFields()) {
             // bind new Symbol
             if (field.isAnnotationPresent(DSLTypeMember.class)) {
-                var fieldSymbol = createDataMemberSymbol(field, clazz, type);
+                String fieldName = getDSLFieldName(field);
+
+                // get datatype
+                var memberDSLType = getBasicDSLType(field.getType());
+                //var memberDSLType = getDSLTypeForClass(field.getType());
+                if (memberDSLType == null) {
+                    // lookup the type in already converted types
+                    // if it is not already in the converted types, try to convert it -> check for
+                    // DSLType
+                    // annotation
+                    this.currentLookedUpClasses.add(clazz);
+                    memberDSLType = createTypeFromClass(parentScope, field.getType());
+                    this.currentLookedUpClasses.remove(clazz);
+                }
+
+                var fieldSymbol = new Symbol(fieldName, type, memberDSLType);
                 type.bind(fieldSymbol);
             }
             if (field.isAnnotationPresent(DSLCallback.class)) {
