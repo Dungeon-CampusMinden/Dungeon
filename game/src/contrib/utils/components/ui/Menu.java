@@ -1,4 +1,4 @@
-package graphic.hud.menus;
+package contrib.utils.components.ui;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -6,7 +6,9 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
+import core.Entity;
 import core.Game;
+import core.components.UIComponent;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -15,32 +17,26 @@ import java.util.logging.Logger;
 
 /** Base class for the menus / container for the menu elements. */
 public class Menu {
-    // Tabelle für Design
-    private Table container = new Table();
-    // Title
-    private String headline;
-    // Alle sub elemente
-    private LinkedHashSet<Actor> items;
     // logger xD
     private static final Logger menuLogger = Logger.getLogger(Menu.class.getName());
 
-    /**
-     * The Menu constructor. Builds a new menu screen from a given headline and a set of screen
-     * elements. Creates a Screencontroller with a ScalingViewport which stretches the
-     * ScreenElements on resize.
-     *
-     * @param title the menu headline
-     * @param elements the set of elements that make up the menu screen
-     */
-    public Menu(String title, LinkedHashSet<Actor> elements) {
-
-        headline = title;
-        items = elements;
+    public static Entity createMenu(String title, LinkedHashSet<Actor> elements) {
+        Entity Menue = new Entity();
+        // Tabelle für Design
+        Table container = new Table();
+        // Title
+        String headline = title;
+        // Alle sub elemente
+        LinkedHashSet<Actor> items = elements;
 
         container.setFillParent(true);
         container.setRound(false);
 
-        container.add(setUpHeadline(headline)).spaceBottom(20.0f);
+        Label menuTitle = new Label(headline, new Skin());
+
+        menuTitle.setFontScale(2.5f);
+
+        container.add(menuTitle).spaceBottom(20.0f);
         container.row();
 
         for (Actor item : items) {
@@ -50,23 +46,11 @@ public class Menu {
 
         container.center();
 
-        isVisible(false);
+        container.setVisible(false);
+
+        new UIComponent(Menue, container, true);
+        return Menue;
     }
-
-    public void isVisible(boolean visible){
-        container.setVisible(visible);
-    }
-
-
-
-    private Label setUpHeadline(String title) {
-        Label menuTitle = new Label(title, new Skin());
-
-        menuTitle.setFontScale(2.5f);
-
-        return menuTitle;
-    }
-
 
     /**
      * Generates all elements needed to build the Main Menu
@@ -113,10 +97,6 @@ public class Menu {
         mainMenuItems.add(closeGameButton);
 
         return mainMenuItems;
-    }
-
-    private static void hideActiveMenu() {
-        activeMenu.isVisible(false);
     }
 
     /**
@@ -170,9 +150,8 @@ public class Menu {
         return optionsMenuItems;
     }
 
-    private static HashMap<MenueStates, Menu> menues = new HashMap<>();
-    private static Menu activeMenu;
-
+    private static HashMap<MenueStates, Entity> menues = new HashMap<>();
+    private static Entity activeMenu;
 
     private static void startGame() {
         // do more magic =)
@@ -183,18 +162,22 @@ public class Menu {
         Gdx.app.exit();
     }
 
-    private static void changeMenu(MenueStates state){
+    private static void changeMenu(MenueStates state) {
         var newMenu = menues.get(state);
-        if(newMenu != null){
-            activeMenu.isVisible(false);
-            newMenu.isVisible(true);
+        if (newMenu != null) {
+            hideActiveMenu();
+            newMenu.fetch(UIComponent.class).orElseThrow().dialog().setVisible(true);
             activeMenu = newMenu;
         }
     }
 
+    private static void hideActiveMenu() {
+        activeMenu.fetch(UIComponent.class).orElseThrow().dialog().setVisible(false);
+    }
+
     public static TextButton createMenuButton(
             String description, Function<InputEvent, Boolean> onClick) {
-        // TODO: Skinn anhängen
+        // TODO: Skin anhängen
         TextButton textButton = new TextButton(description, new Skin());
         // allows defining button behaviour
         textButton.addListener(createClickListener(onClick));
@@ -210,5 +193,4 @@ public class Menu {
             }
         };
     }
-
 }

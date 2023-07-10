@@ -1,4 +1,4 @@
-package graphic.hud.menus;
+package contrib.utils.components.ui;
 
 public enum MenueStates {
     MainMenu,
