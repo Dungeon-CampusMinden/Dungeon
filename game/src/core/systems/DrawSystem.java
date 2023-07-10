@@ -60,12 +60,14 @@ public final class DrawSystem extends System {
 
     private void draw(DSData dsd) {
         final Animation animation = dsd.ac.currentAnimation();
-        String currentAnimationTexture = animation.nextAnimationTexturePath();
-        if (!configs.containsKey(currentAnimationTexture)) {
-            configs.put(currentAnimationTexture, new PainterConfig(currentAnimationTexture));
+        if (animation != null) {
+            String currentAnimationTexture = animation.nextAnimationTexturePath();
+            if (currentAnimationTexture != null && !configs.containsKey(currentAnimationTexture)) {
+                configs.put(currentAnimationTexture, new PainterConfig(currentAnimationTexture));
+            }
+            painter.draw(
+                    dsd.pc.position(), currentAnimationTexture, configs.get(currentAnimationTexture));
         }
-        painter.draw(
-                dsd.pc.position(), currentAnimationTexture, configs.get(currentAnimationTexture));
     }
 
     private DSData buildDataObject(Entity e) {

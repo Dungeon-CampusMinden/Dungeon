@@ -1,7 +1,5 @@
 package core.utils;
 
-import core.Entity;
-
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -16,7 +14,7 @@ import java.util.stream.Stream;
  * set.
  *
  * <p>{@link #current} contains the current "active" objects of the collection. Use this set to
- * iterate over and work with. Use {@link #stream()} to get this set as a stream.
+ * iterate over and work with. Use {@link #currentStream()} to get this set as a stream.
  *
  * <p>Use {@link #add} to add the given object to {@link #toAdd}. After calling {@link #update()},
  * the objects inside this inner set will be added to {@link #current}.
@@ -34,9 +32,9 @@ import java.util.stream.Stream;
  */
 public final class DelayedSet<T> {
 
-    private final Set<T> current = new HashSet<>();
-    private final Set<T> toAdd = new HashSet<>();
-    private final Set<T> toRemove = new HashSet<>();
+    private final Set<T> current = Collections.synchronizedSet(new HashSet<>());
+    private final Set<T> toAdd = Collections.synchronizedSet(new HashSet<>());
+    private final Set<T> toRemove = Collections.synchronizedSet(new HashSet<>());
 
     /**
      * Update the {@link #current} set based on the elements in {@link #toAdd} and {@link
@@ -49,10 +47,16 @@ public final class DelayedSet<T> {
      * {@link #toRemove} will be removed.
      */
     public void update() {
-        current.addAll(toAdd);
-        current.removeAll(toRemove);
-        toAdd.clear();
-        toRemove.clear();
+        synchronized (current) {
+            synchronized (toAdd) {
+                synchronized (toRemove) {
+                    current.addAll(toAdd);
+                    current.removeAll(toRemove);
+                    toAdd.clear();
+                    toRemove.clear();
+                }
+            }
+        }
     }
 
     /**
@@ -106,8 +110,37 @@ public final class DelayedSet<T> {
     /**
      * @return {@link #current} as stream
      */
-    public Stream<T> stream() {
-        return current.stream();
+    public Stream<T> currentStream() {
+        synchronized (current) {
+            return new ArrayList<>(current).stream();
+        }
+    }
+
+    /**
+     * @return {@link #current}
+     */
+    public Set<T> current() {
+        synchronized (current) {
+            return new HashSet<>(current);
+        }
+    }
+
+    /**
+     * @return {@link #toAdd}
+     */
+    public Set<T> toAdd() {
+        synchronized (toAdd) {
+            return new HashSet<>(toAdd);
+        }
+    }
+
+    /**
+     * @return {@link #toRemove}
+     */
+    public Set<T> toRemove() {
+        synchronized (toRemove) {
+            return new HashSet<>(toRemove);
+        }
     }
 
     /**
@@ -115,9 +148,9 @@ public final class DelayedSet<T> {
      *
      * @param function Function to execute on each entity in the {@link #toAdd} set.
      */
-    public void foreachEntityInAddSet(Consumer<Entity> function) {
-        for (int i = 0; i < toAdd.size(); i++) {
-            function.accept((Entity)toAdd.toArray()[i]);
+    public void foreachEntityInAddSet(Consumer<T> function) {
+        synchronized (toAdd) {
+            toAdd.forEach(function);
         }
     }
 
@@ -126,9 +159,9 @@ public final class DelayedSet<T> {
      *
      * @param function Function to execute on each entity in the {@link #toRemove} set.
      */
-    public void foreachEntityInRemoveSet(Consumer<Entity> function) {
-        for (int i = 0; i < toRemove.size(); i++) {
-            function.accept((Entity)toRemove.toArray()[i]);
+    public void foreachEntityInRemoveSet(Consumer<T> function) {
+        synchronized (toRemove) {
+            toRemove.forEach(function);
         }
     }
 
@@ -138,8 +171,14 @@ public final class DelayedSet<T> {
      * <p>This method will immediately clear all internal sets.
      */
     public void clear() {
-        toAdd.clear();
-        toRemove.clear();
-        current.clear();
+        synchronized (current) {
+            synchronized (toAdd) {
+                synchronized (toRemove) {
+                    current.clear();
+                    toAdd.clear();
+                    toRemove.clear();
+                }
+            }
+        }
     }
 }

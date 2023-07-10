@@ -1,5 +1,6 @@
 package core;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -243,7 +244,7 @@ public abstract class System {
      * @return a stream of active entities that will be processed by the system
      */
     public final Stream<Entity> entityStream() {
-        return entities.stream();
+        return new ArrayList<>(entities).stream();
     }
 
     /**

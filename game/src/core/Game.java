@@ -229,7 +229,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      * @return a stream of all entities currently in the game
      */
     public static Stream<Entity> entityStream() {
-        return entities.stream();
+        return entities.currentStream();
     }
 
     /**
@@ -373,7 +373,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         if(multiplayerManager.isHost()) {
             levelManager.loadLevel(LEVELSIZE);
             updateSystems(); // Needed to synchronize toAdd and toRemove entities into currentEntities
-            multiplayerManager.loadLevel(currentLevel, entities.stream().collect(Collectors.toSet()), hero);
+            multiplayerManager.loadLevel(currentLevel, entities.current(), hero);
         }
     }
 
