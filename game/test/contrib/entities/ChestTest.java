@@ -16,8 +16,8 @@ import core.utils.Point;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class ChestTest {
 
@@ -30,7 +30,7 @@ public class ChestTest {
     @Test
     public void checkCreation() throws IOException {
         cleanup();
-        List<ItemData> itemData = List.of();
+        Set<ItemData> itemData = Set.of();
         Point position = new Point(0, 0);
         Entity c = null;
         c = EntityFactory.newChest(itemData, position);

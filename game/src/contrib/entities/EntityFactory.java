@@ -19,10 +19,11 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -142,10 +143,10 @@ public class EntityFactory {
     public static Entity newChest() throws IOException {
         ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
 
-        List<ItemData> itemData =
+        Set<ItemData> itemData =
                 IntStream.range(0, RANDOM.nextInt(1, 3))
                         .mapToObj(i -> itemDataGenerator.generateItemData())
-                        .toList();
+                        .collect(Collectors.toSet());
         return newChest(itemData, Game.randomTile(LevelElement.FLOOR).position());
     }
 
@@ -160,12 +161,12 @@ public class EntityFactory {
      * @param position The position of the chest.
      * @return Created Entity
      */
-    public static Entity newChest(List<ItemData> itemData, Point position) throws IOException {
+    public static Entity newChest(Set<ItemData> itemData, Point position) throws IOException {
         final float defaultInteractionRadius = 1f;
         Entity chest = new Entity("chest");
         new PositionComponent(chest, position);
         InventoryComponent ic = new InventoryComponent(chest, itemData.size());
-        itemData.forEach(ic::addItem);
+        itemData.forEach(ic::add);
         new InteractionComponent(
                 chest, defaultInteractionRadius, false, new DropItemsInteraction());
         DrawComponent dc = new DrawComponent(chest, "objects/treasurechest");
@@ -214,7 +215,7 @@ public class EntityFactory {
             ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
             ItemData item = itemDataGenerator.generateItemData();
             InventoryComponent ic = new InventoryComponent(monster, 1);
-            ic.addItem(item);
+            ic.add(item);
             onDeath = new DropItemsInteraction();
         }
         new HealthComponent(monster, health, onDeath);
