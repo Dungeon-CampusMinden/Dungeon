@@ -13,10 +13,10 @@ import java.util.logging.Logger;
 /**
  * Allows the entity to collect items in an inventory.
  *
- * <p>The component stores a Set of {@link ItemData} that are currently stored in the associated
- * entity.
+ * <p>The component stores a Set of {@link ItemData} that the associated entity has collected.
  *
- * <p>Each inventory has a maximum number of items that can be carried.
+ * <p>Each inventory has a maximum number of item instances (items do not get stacked) that can be
+ * carried.
  *
  * <p>Carried items can be retrieved using {@link #items() getItems}.
  *
@@ -51,6 +51,11 @@ public final class InventoryComponent extends Component {
      * Add the given item to the inventory.
      *
      * <p>Does not allow adding more items than the size of the inventory.
+     *
+     * <p>Items do not get stacked, so each instance will need space in the inventory.
+     *
+     * <p>Items are stored in a Set, so an item instance cannot be stored twice in the same
+     * inventory at the same time.
      *
      * @param itemData The item to be added.
      * @return True if the item was added, false if not.
