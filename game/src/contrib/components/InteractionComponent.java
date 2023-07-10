@@ -8,7 +8,9 @@ import java.util.function.Consumer;
 /**
  * Allows interaction with the associated entity.
  *
- * <p>An interaction can be triggered by the player character with a button press when in range.
+ * <p>An interaction can be triggered using {@link #triggerInteraction()}. This happens in the
+ * {@link core.systems.PlayerSystem} if the player presses the corresponding button on the keyboard
+ * and is in the interaction range of this component.
  *
  * <p>What happens during an interaction is defined by the {@link Consumer<Entity>} {@link
  * #onInteraction}.
@@ -16,8 +18,6 @@ import java.util.function.Consumer;
  * <p>An interaction can be repeatable, in which case it can be triggered multiple times. If an
  * interaction is not repeatable, the {@link InteractionComponent} is removed from the associated
  * entity after the interaction.
- *
- * <p>The interaction can be triggered using {@link #triggerInteraction()}.
  *
  * <p>The interaction radius can be queried with {@link #radius()}.
  */
