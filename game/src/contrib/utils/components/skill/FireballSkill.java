@@ -21,6 +21,13 @@ public class FireballSkill extends DamageProjectile {
     private static final Point HITBOX_SIZE = new Point(1, 1);
     private static final float PROJECTILE_RANGE = 5f;
 
+    /**
+     * Create a {@link DamageProjectile} that looks like a fireball and will cause fire damage.
+     *
+     * @param targetSelection A function used to select the point where the projectile should fly
+     *     to.
+     * @see DamageProjectile
+     */
     public FireballSkill(Supplier<Point> targetSelection) {
         super(
                 PROJECTILE_TEXTURES,

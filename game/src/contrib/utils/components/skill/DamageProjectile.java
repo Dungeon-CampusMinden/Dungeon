@@ -76,7 +76,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
      * <p>The projectile can not collide with the casting entity.
      *
      * <p>The cause for the damage will not be the projectile, but the entity that casts the
-     * projectile
+     * projectile.
      *
      * @param entity The entity that casts the projectile. The entity's position will be the start
      *     position for the projectile.
