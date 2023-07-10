@@ -908,10 +908,15 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
 
-
-
         assertEquals(
-                "branch2 stmt1"+ System.lineSeparator()+"other_func stmt1"+System.lineSeparator()+"other_func stmt2"+System.lineSeparator()+"hello"+System.lineSeparator(),
+                "branch2 stmt1"
+                        + System.lineSeparator()
+                        + "other_func stmt1"
+                        + System.lineSeparator()
+                        + "other_func stmt2"
+                        + System.lineSeparator()
+                        + "hello"
+                        + System.lineSeparator(),
                 outputStream.toString());
     }
 }
