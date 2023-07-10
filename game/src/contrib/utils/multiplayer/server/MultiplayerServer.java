@@ -26,7 +26,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
-public class MultiplayerServer extends Listener {
+public class MultiplayerServer extends Listener implements IMultiplayerServer {
     public static final Version VERSION = new Version(0, 0, 0);
     public static final int DEFAULT_TCP_PORT = 25444;
     public static final int DEFAULT_UDP_PORT = DEFAULT_TCP_PORT + 1;

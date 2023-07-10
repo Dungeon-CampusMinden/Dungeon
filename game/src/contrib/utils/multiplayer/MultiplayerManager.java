@@ -1,9 +1,11 @@
 package contrib.utils.multiplayer;
 
 import com.badlogic.gdx.utils.Null;
+import contrib.utils.multiplayer.client.IMultiplayerClient;
 import contrib.utils.multiplayer.packages.GameState;
 import contrib.utils.multiplayer.packages.Version;
 import contrib.utils.multiplayer.packages.event.MovementEvent;
+import contrib.utils.multiplayer.server.IMultiplayerServer;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -28,8 +30,10 @@ import static java.util.Objects.requireNonNull;
 public class MultiplayerManager implements IMultiplayerClientObserver {
 
     private static final Version VERSION = new Version(0, 0, 0);
-    private final MultiplayerClient multiplayerClient;
-    private final MultiplayerServer multiplayerServer;
+    private static final IMultiplayerClient DEFAULT_CLIENT = new MultiplayerClient();
+    private static final IMultiplayerServer DEFAULT_SERVER = new MultiplayerServer();
+    private final IMultiplayerClient client;
+    private final IMultiplayerServer server;
     private final IMultiplayer multiplayer;
     /* From server assigned unique player id. */
     private int playerId = 0;
@@ -37,11 +41,33 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
     private Set<Entity> entities;
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-    public MultiplayerManager(IMultiplayer multiplayer) {
+    /**
+     * Create new instance.
+     *
+     * <p>Will use default client {@link MultiplayerClient} for communication.
+     * <p>Will use default server {@link MultiplayerServer} for communication.
+     *
+     * @param multiplayer {@link IMultiplayer} to customize actions based on internal events.
+     */
+    public MultiplayerManager(final IMultiplayer multiplayer) {
+        this(multiplayer, DEFAULT_CLIENT, DEFAULT_SERVER);
+    }
+
+    /**
+     * Create a new instance.
+     *
+     * @param multiplayer Multiplayer to customize actions based on internal events.
+     * @param client Client that should be used for communication.
+     * @param server Server that should be used for communication.
+     */
+    public MultiplayerManager(
+        final IMultiplayer multiplayer,
+        final IMultiplayerClient client,
+        final IMultiplayerServer server) {
         this.multiplayer = requireNonNull(multiplayer);
-        this.multiplayerClient = new MultiplayerClient();
-        this.multiplayerServer = new MultiplayerServer();
-        this.multiplayerClient.addObserver(this);
+        this.client = requireNonNull(client);
+        this.server = requireNonNull(server);
+        this.client.addObserver(this);
         this.entities = new HashSet<>();
     }
 
@@ -143,7 +169,7 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
             // Create random 5 digit port
             serverPort = ThreadLocalRandom.current().nextInt(10000, 65535 + 1);
             try {
-                multiplayerServer.startListening(serverPort);
+                server.startListening(serverPort);
                 isRandomPortAlreadyInUse = false;
             } catch (Exception e) {
                 generatePortTriesCount++;
@@ -154,8 +180,8 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
             throw new IOException("No available port on device found");
         }
 
-        multiplayerClient.connectToHost("127.0.0.1", serverPort);
-        multiplayerClient.sendTCP(new InitializeServerRequest(VERSION));
+        client.connectToHost("127.0.0.1", serverPort);
+        client.sendTCP(new InitializeServerRequest(VERSION));
     }
 
     /**
@@ -171,7 +197,7 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
         final Set<Entity> currentEntities,
         final Entity hero){
         if (isHost()) {
-            multiplayerClient.sendTCP(new LoadMapRequest(
+            client.sendTCP(new LoadMapRequest(
                 requireNonNull(level),
                 requireNonNull(currentEntities),
                 requireNonNull(hero)
@@ -189,7 +215,7 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
      * (On server side, only Host-Clients are able to change level / set entities.)
      */
     public void requestNewLevel(){
-        multiplayerClient.sendTCP(new ChangeMapRequest());
+        client.sendTCP(new ChangeMapRequest());
     }
 
     /**
@@ -213,10 +239,10 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
         requireNonNull(address);
         clearSessionData();
         stopEndpoints();
-        if (!multiplayerClient.connectToHost(address, port)) {
+        if (!client.connectToHost(address, port)) {
             throw new IOException("No host found - invalid address or port");
         }
-        multiplayerClient.sendTCP(new JoinSessionRequest(Game.hero().get(), VERSION));
+        client.sendTCP(new JoinSessionRequest(Game.hero().get(), VERSION));
     }
 
     /**
@@ -233,7 +259,7 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
         final Point newPosition,
         final float xVelocity,
         final float yVelocity) {
-        multiplayerClient.sendUDP(new MovementEvent(entityGlobalID, newPosition, xVelocity, yVelocity));
+        client.sendUDP(new MovementEvent(entityGlobalID, newPosition, xVelocity, yVelocity));
     }
 
     /**
@@ -242,7 +268,7 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
      * @return True, if connected to multiplayer session. False, otherwise.
      */
     public boolean isConnectedToSession() {
-        return multiplayerClient.isConnected();
+        return client.isConnected();
     }
 
     /**
@@ -266,7 +292,7 @@ public class MultiplayerManager implements IMultiplayerClientObserver {
     }
 
     private void stopEndpoints() {
-        multiplayerClient.disconnect();
-        multiplayerServer.stopListening();
+        client.disconnect();
+        server.stopListening();
     }
 }

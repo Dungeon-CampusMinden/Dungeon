@@ -16,7 +16,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Used to send/receive data to/from multiplayer server.
  */
-public class MultiplayerClient extends Listener {
+public class MultiplayerClient extends Listener implements IMultiplayerClient {
 
     // According to several tests, random generated level can have a maximum size of about 500k bytes
     // => set max expected size to double
@@ -138,6 +138,7 @@ public class MultiplayerClient extends Listener {
     /**
      * @return True, if connected to an endpoint/server. False, otherwise.
      */
+    @Override
     public boolean isConnected() {
         return client.isConnected();
     }
@@ -147,8 +148,9 @@ public class MultiplayerClient extends Listener {
      *
      * @param observer Observer reference to be added.
      */
+    @Override
     public void addObserver(final IMultiplayerClientObserver observer) {
-        observers.add(observer);
+        observers.add(requireNonNull(observer));
     }
 
     /**
@@ -156,7 +158,8 @@ public class MultiplayerClient extends Listener {
      *
      * @param observer Observer reference to be removed.
      */
+    @Override
     public void removeObserver(final IMultiplayerClientObserver observer) {
-        observers.remove(observer);
+        observers.remove(requireNonNull(observer));
     }
 }
