@@ -197,11 +197,10 @@ public class TestTypeBuilder {
     public void testCallbackConsumer() {
         TypeBuilder tb = new TypeBuilder();
         // register Entity type (setup)
-        var entityType = (AggregateType)
-            tb.createTypeFromClass(Scope.NULL, Entity.class);
+        var entityType = (AggregateType) tb.createTypeFromClass(Scope.NULL, Entity.class);
 
-        var dslType = (AggregateType)
-            tb.createTypeFromClass(Scope.NULL, TestComponentWithCallback.class);
+        var dslType =
+                (AggregateType) tb.createTypeFromClass(Scope.NULL, TestComponentWithCallback.class);
         var callbackSymbol = dslType.resolve("on_interaction");
         assertNotEquals(Symbol.NULL, callbackSymbol);
         var symbolType = callbackSymbol.getDataType();

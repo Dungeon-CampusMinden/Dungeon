@@ -64,16 +64,15 @@ public class TypeBuilder {
     protected static IType getBasicDSLType(Class<?> type) {
         // check for basic types
         if (int.class.equals(type)
-            || short.class.equals(type)
-            || long.class.equals(type)
-            || Integer.class.isAssignableFrom(type)) {
+                || short.class.equals(type)
+                || long.class.equals(type)
+                || Integer.class.isAssignableFrom(type)) {
             return BuiltInType.intType;
         } else if (float.class.equals(type)
-            || double.class.equals(type)
-            || Float.class.isAssignableFrom(type)) {
+                || double.class.equals(type)
+                || Float.class.isAssignableFrom(type)) {
             return BuiltInType.floatType;
-        } else if (boolean.class.equals(type)
-            || Boolean.class.isAssignableFrom(type)) {
+        } else if (boolean.class.equals(type) || Boolean.class.isAssignableFrom(type)) {
             return BuiltInType.boolType;
         } else if (String.class.equals(type) || String.class.isAssignableFrom(type)) {
             return BuiltInType.stringType;
