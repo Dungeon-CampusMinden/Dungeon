@@ -115,6 +115,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     private boolean doSetup = true;
     private boolean uiDebugFlag = false;
 
+    private Optional<GameMode> currentGameMode;
     private static MultiplayerManager multiplayerManager = new MultiplayerManager(Game.getInstance());
 
     // for singleton
@@ -278,8 +279,13 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         }
     }
 
-    public static void sendPositionUpdate(final int globalID, final Point newPosition, final float xVelocity, final float yVelocity){
+    public static void sendMovementUpdate(final int globalID, final Point newPosition, final float xVelocity, final float yVelocity){
         multiplayerManager.sendMovementUpdate(globalID, newPosition, xVelocity, yVelocity);
+    }
+
+    public void runSinglePlayer() {
+        currentGameMode = Optional.of(GameMode.SinglePlayer);
+        resumeSystems();
     }
 
     /**
@@ -287,8 +293,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      * so that other clients can join.
      */
     public void openToLan() {
+        currentGameMode = Optional.of(GameMode.Multiplayer);
+        resumeSystems();
         if (doSetup) onSetup();
-        updateSystems();
         try {
             if (hero == null) {
                 hero(EntityFactory.newHero());
@@ -317,6 +324,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      * @param port Port that offers communication.
      */
     public void joinMultiplayerSession(final String hostAddress, final Integer port) {
+        currentGameMode = Optional.of(GameMode.Multiplayer);
+        resumeSystems();
         if (doSetup) onSetup();
         try {
             if (hero == null) {
@@ -334,8 +343,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     @Override
     public void onMultiplayerServerInitialized(final boolean isSucceed) {
         if (isSucceed) {
-            updateSystems(); // Needed to synchronize toAdd and toRemove entities into currentEntities
-            multiplayerManager.loadLevel(currentLevel, entities.stream().collect(Collectors.toSet()), hero);
+            updateSystems();
+            multiplayerManager.loadLevel(currentLevel, entityStream().collect(Collectors.toSet()), hero);
         } else {
             final String message = "Server respond unsuccessful start.";
             LOGGER.warning(message);
@@ -705,17 +714,26 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
         if (!isOnEndTile(hero)) return;
 
-        levelManager.loadLevel(LEVELSIZE);
-
-        if (multiplayerManager.isConnectedToSession()){
-            if (multiplayerManager.isHost()){
+        if (currentGameMode.isPresent()){
+            if (currentGameMode.get() == GameMode.SinglePlayer) {
                 levelManager.loadLevel(LEVELSIZE);
-                updateSystems(); // Needed to synchronize toAdd and toRemove entities into currentEntities
-                multiplayerManager.loadLevel(currentLevel, entities.stream().collect(Collectors.toSet()), hero);
             } else {
-                //ask host to generate new map
-                multiplayerManager.requestNewLevel();
+                if (multiplayerManager().isConnectedToSession()) {
+                    if (multiplayerManager.isHost()){
+                        // First create new leve locally and then force server to host new map for all.
+                        levelManager.loadLevel(LEVELSIZE);
+                        updateSystems();
+                        multiplayerManager.loadLevel(currentLevel, entityStream().collect(Collectors.toSet()), hero);
+                    } else {
+                        // Only host is allowed to load map, so force host to generate new map
+                        multiplayerManager.requestNewLevel();
+                    }
+                } else {
+                    LOGGER.severe("Entity on end tile and Multiplayer mode set but disconnected from session.");
+                }
             }
+        } else {
+            LOGGER.severe("Entity on end tile but game mode is not set to determine needed action.");
         }
     }
 
@@ -733,6 +751,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
                                         MissingComponentException.build(
                                                 entity, PositionComponent.class));
         Tile currentTile = tileAT(pc.position());
+        if (currentTile == null) {
+            return false;
+        }
         return currentTile.equals(endTile());
     }
 
