@@ -1,10 +1,8 @@
 package runtime;
 
-import semanticanalysis.Symbol;
 import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.IType;
-import semanticanalysis.types.TypeBuilder;
 
 import java.util.HashMap;
 
@@ -67,8 +65,8 @@ public class RuntimeObjectTranslator {
 
                     returnValue = new AggregateValue(aggregateType, parentMemorySpace, object);
                     var encapsulatedObject =
-                        new EncapsulatedObject(
-                            object, aggregateType, parentMemorySpace, environment);
+                            new EncapsulatedObject(
+                                    object, aggregateType, parentMemorySpace, environment);
                     ((AggregateValue) returnValue).setMemorySpace(encapsulatedObject);
                     break;
                 case FunctionType:

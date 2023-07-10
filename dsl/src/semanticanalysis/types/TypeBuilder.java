@@ -1,6 +1,7 @@
 package semanticanalysis.types;
 
 import core.utils.TriConsumer;
+
 import dslToGame.graph.Graph;
 
 import semanticanalysis.*;
@@ -31,7 +32,6 @@ public class TypeBuilder {
         setupFunctionTypeBuilders();
     }
 
-
     private void setupFunctionTypeBuilders() {
         functionTypeBuilders.put(Consumer.class, ConsumerFunctionTypeBuilder.instance);
         functionTypeBuilders.put(TriConsumer.class, ConsumerFunctionTypeBuilder.instance);
@@ -58,22 +58,21 @@ public class TypeBuilder {
 
     /**
      * @param type the class to get the corresponding {@link IType} for
-     * @return the corresponding {@link IType} for the passed type, or null, if
-     * the passed type does not correspond to a basic type
+     * @return the corresponding {@link IType} for the passed type, or null, if the passed type does
+     *     not correspond to a basic type
      */
     protected static IType getBasicDSLType(Class<?> type) {
         // check for basic types
         if (int.class.equals(type)
-            || short.class.equals(type)
-            || long.class.equals(type)
-            || Integer.class.isAssignableFrom(type)) {
+                || short.class.equals(type)
+                || long.class.equals(type)
+                || Integer.class.isAssignableFrom(type)) {
             return BuiltInType.intType;
         } else if (float.class.equals(type)
-            || double.class.equals(type)
-            || Float.class.isAssignableFrom(type)) {
+                || double.class.equals(type)
+                || Float.class.isAssignableFrom(type)) {
             return BuiltInType.floatType;
-        } else if (boolean.class.equals(type)
-            || Boolean.class.isAssignableFrom(type)) {
+        } else if (boolean.class.equals(type) || Boolean.class.isAssignableFrom(type)) {
             return BuiltInType.boolType;
         } else if (String.class.equals(type) || String.class.isAssignableFrom(type)) {
             return BuiltInType.stringType;
@@ -124,8 +123,8 @@ public class TypeBuilder {
         if (dslName.isEmpty()) {
             var classAnnotation = clazz.getAnnotation(DSLType.class);
             return classAnnotation == null || classAnnotation.name().equals("")
-                ? convertToDSLName(clazz.getSimpleName())
-                : classAnnotation.name();
+                    ? convertToDSLName(clazz.getSimpleName())
+                    : classAnnotation.name();
         } else {
             return dslName;
         }
@@ -246,12 +245,13 @@ public class TypeBuilder {
     }
 
     // create a symbol in parentType for given field, representing data in parentClass
-    protected Symbol createDataMemberSymbol(Field field, Class<?> parentClass, AggregateType parentType) {
+    protected Symbol createDataMemberSymbol(
+            Field field, Class<?> parentClass, AggregateType parentType) {
         String fieldName = getDSLFieldName(field);
 
         // get datatype
         var memberDSLType = getBasicDSLType(field.getType());
-        //var memberDSLType = getDSLTypeForClass(field.getType());
+        // var memberDSLType = getDSLTypeForClass(field.getType());
         if (memberDSLType == null) {
             // lookup the type in already converted types
             // if it is not already in the converted types, try to convert it -> check for

@@ -82,26 +82,27 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                 // convert the read field value to a DSL 'Value'
                 // this may require recursive creation of encapsulated objects,
                 // if the field is a component for example
-                //var type = this.environment.getTypeBuilder().getDSLTypeForClass(fieldValue.getClass());
                 var type = this.environment.getDSLTypeForClass(fieldValue.getClass());
                 if (type != BuiltInType.noType) {
                     switch (type.getTypeKind()) {
                         case Basic:
-                            // create encapsulated value (because the field is a POD-field, or "basic
-                            // type") -> linking the value to the field is only required for setting the
-                            // internal value
+                            // create encapsulated value (because the field is a POD-field, or
+                            // "basic type") -> linking the value to the field is only required
+                            // for setting the internal value
                             // NOTE: this behaviour differs from the default translation of the
-                            // RuntimeObjectTranslator, because we know in this case, that the resolved
-                            // name is a member of the underlying object
-                            returnValue = new EncapsulatedField(type, correspondingField, this.object);
+                            // RuntimeObjectTranslator, because we know in this case, that the
+                            // resolved name is a member of the underlying object
+                            returnValue =
+                                    new EncapsulatedField(type, correspondingField, this.object);
                             break;
                         case PODAdapted:
                         case AggregateAdapted:
                         case Aggregate:
                             returnValue =
-                                environment
-                                    .getRuntimeObjectTranslator()
-                                    .translateRuntimeObject(fieldValue, this, this.environment);
+                                    environment
+                                            .getRuntimeObjectTranslator()
+                                            .translateRuntimeObject(
+                                                    fieldValue, this, this.environment);
                             break;
                         case FunctionType:
                             break;

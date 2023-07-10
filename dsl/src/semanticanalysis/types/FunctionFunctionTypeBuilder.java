@@ -3,17 +3,15 @@ package semanticanalysis.types;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 
 /**
- * Builder for a {@link FunctionType} for a callback defined by the {@link java.util.function.Function}
- * interface
+ * Builder for a {@link FunctionType} for a callback defined by the {@link
+ * java.util.function.Function} interface
  */
 public class FunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
     public static FunctionFunctionTypeBuilder instance = new FunctionFunctionTypeBuilder();
 
-    private FunctionFunctionTypeBuilder() {
-    }
+    private FunctionFunctionTypeBuilder() {}
 
     @Override
     public FunctionType buildFunctionType(Field field, TypeBuilder typeBuilder) {

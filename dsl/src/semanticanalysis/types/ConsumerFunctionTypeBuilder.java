@@ -5,13 +5,13 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 
 /**
- * Builder for a {@link FunctionType} for a callback defined by the {@link java.util.function.Consumer}
- * interface
+ * Builder for a {@link FunctionType} for a callback defined by the {@link
+ * java.util.function.Consumer} interface
  */
 public class ConsumerFunctionTypeBuilder implements IFunctionTypeBuilder {
     public static ConsumerFunctionTypeBuilder instance = new ConsumerFunctionTypeBuilder();
 
-    private ConsumerFunctionTypeBuilder(){}
+    private ConsumerFunctionTypeBuilder() {}
 
     @Override
     public FunctionType buildFunctionType(Field field, TypeBuilder typeBuilder) {
@@ -19,11 +19,12 @@ public class ConsumerFunctionTypeBuilder implements IFunctionTypeBuilder {
 
         var typeMap = typeBuilder.getJavaTypeToDSLTypeMap();
 
-        var parameterizedType = (ParameterizedType)genericType;
+        var parameterizedType = (ParameterizedType) genericType;
         // the parameters will be the arguments for the function
-        ArrayList<IType> parameterTypes = new ArrayList<>(parameterizedType.getActualTypeArguments().length);
+        ArrayList<IType> parameterTypes =
+                new ArrayList<>(parameterizedType.getActualTypeArguments().length);
         for (var parameterType : parameterizedType.getActualTypeArguments()) {
-            IType dslType = TypeBuilder.getBasicDSLType((Class<?>)parameterType);
+            IType dslType = TypeBuilder.getBasicDSLType((Class<?>) parameterType);
             if (null == dslType) {
                 dslType = typeMap.get(parameterType);
             }
@@ -36,4 +37,3 @@ public class ConsumerFunctionTypeBuilder implements IFunctionTypeBuilder {
         return new FunctionType(BuiltInType.noType, parameterTypes);
     }
 }
-
