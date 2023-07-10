@@ -10,13 +10,13 @@ import helpers.Helpers;
 import interpreter.mockecs.*;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import parser.ast.Node;
 
 import runtime.*;
 
+import semanticanalysis.FunctionSymbol;
 import semanticanalysis.Scope;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
@@ -24,9 +24,11 @@ import semanticanalysis.types.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.function.Function;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
@@ -924,7 +926,7 @@ public class TestDSLInterpreter {
     @Test
     public void testFuncRefValue() {
         String program =
-            """
+                """
             entity_type my_type {
                 test_component_with_callback {
                     on_interaction: other_func
@@ -947,8 +949,63 @@ public class TestDSLInterpreter {
 
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
-        var config = Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter, Entity.class, TestComponentWithCallback.class);
+        var config =
+                Helpers.generateQuestConfigWithCustomTypes(
+                        program, env, interpreter, Entity.class, TestComponentWithCallback.class);
 
         Assert.assertTrue(true);
+    }
+
+    @Test
+    public void testCallback() {
+        String program =
+            """
+                fn other_func(entity my_entity) -> bool {
+                    return true;
+                }
+
+                quest_config c { }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        //var outputStream = new ByteArrayOutputStream();
+        //System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config =
+            Helpers.generateQuestConfigWithCustomTypes(
+                program, env, interpreter, Entity.class, TestComponentWithFunctionCallback.class);
+
+        var rtEnv = interpreter.getRuntimeEnvironment();
+
+        var entity = new Entity();
+        var object = new TestComponentWithFunctionCallback(entity);
+        Field field = null;
+        try {
+            field = TestComponentWithFunctionCallback.class.getDeclaredField("onInteraction");
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+        field.setAccessible(true);
+
+        // get function definition
+        var functionSymbol = (FunctionSymbol)rtEnv.getSymbolTable().getGlobalScope().resolve("other_func");
+
+        var callbackAdapter = (FunctionCallbackAdapter)FunctionFunctionTypeBuilder.instance.buildCallbackAdapter(rtEnv, (FunctionType) functionSymbol.getDataType(), functionSymbol.getAstRootNode(), interpreter.getGlobalMemorySpace(), interpreter);
+
+        //var testClassObject = new TestTypeBuilder.TestClass();
+        Function func = callbackAdapter::accept;
+
+        try {
+            field.set(object, func);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        var ret = object.getOnInteraction().apply(entity);
+
+        boolean b = true;
     }
 }

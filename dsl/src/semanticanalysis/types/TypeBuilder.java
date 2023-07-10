@@ -94,13 +94,8 @@ public class TypeBuilder {
         HashMap<String, String> map = new HashMap<>();
         for (Field field : clazz.getDeclaredFields()) {
             // bind new Symbol
-            if (field.isAnnotationPresent(DSLTypeMember.class)) {
-                var fieldAnnotation = field.getAnnotation(DSLTypeMember.class);
-                String fieldName =
-                        fieldAnnotation.name().equals("")
-                                ? convertToDSLName(field.getName())
-                                : fieldAnnotation.name();
-
+            if (field.isAnnotationPresent(DSLTypeMember.class) || field.isAnnotationPresent(DSLCallback.class)) {
+                String fieldName = getDSLFieldName(field);
                 map.put(fieldName, field.getName());
             }
         }

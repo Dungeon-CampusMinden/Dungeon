@@ -2,8 +2,6 @@ package semanticanalysis.types;
 
 import static org.junit.Assert.*;
 
-import contrib.utils.components.item.ItemData;
-import core.utils.Point;
 import dslToGame.graph.Graph;
 
 import interpreter.mockecs.*;
@@ -256,8 +254,10 @@ public class TestTypeBuilder {
     }
 
     public class TestClass {
-        public static Object accept(Object object) {
-            return 42;
+        boolean b = true;
+        public Object accept(Object object) {
+            Entity entity = (Entity)object;
+            return b;
         }
     }
 
@@ -269,9 +269,8 @@ public class TestTypeBuilder {
         var entityType = (AggregateType) tb.createTypeFromClass(Scope.NULL, Entity.class);
 
         var componentDSLType =
-            (AggregateType)
-                tb.createTypeFromClass(Scope.NULL, TestComponentWithFunctionCallback.class);
-
+                (AggregateType)
+                        tb.createTypeFromClass(Scope.NULL, TestComponentWithFunctionCallback.class);
 
         var entity = new Entity();
         var object = new TestComponentWithFunctionCallback(entity);
@@ -288,7 +287,7 @@ public class TestTypeBuilder {
         var ctors = functionClass.getConstructors();
 
         var testClassObject = new TestClass();
-        Function func = TestClass::accept;
+        Function func = testClassObject::accept;
 
         try {
             field.set(object, func);
@@ -296,7 +295,7 @@ public class TestTypeBuilder {
             throw new RuntimeException(e);
         }
 
-        object.getOnInteraction().apply(entity);
+        var ret = object.getOnInteraction().apply(entity);
 
         boolean b = true;
     }

@@ -22,9 +22,8 @@
 package semanticanalysis;
 
 import parser.ast.*;
-import runtime.nativefunctions.NativeFunction;
 
-import java.lang.annotation.Native;
+import runtime.nativefunctions.NativeFunction;
 
 public class FunctionCallResolver implements AstVisitor<Void> {
     SymbolTable symbolTable;
@@ -130,9 +129,8 @@ public class FunctionCallResolver implements AstVisitor<Void> {
     @Override
     public Void visit(IdNode node) {
         var funcSymbol = this.symbolTable.globalScope.resolve(node.getName());
-        if (funcSymbol.getSymbolType() == Symbol.Type.Scoped &&
-                (funcSymbol instanceof FunctionSymbol ||
-                        funcSymbol instanceof NativeFunction))  {
+        if (funcSymbol.getSymbolType() == Symbol.Type.Scoped
+                && (funcSymbol instanceof FunctionSymbol || funcSymbol instanceof NativeFunction)) {
             this.symbolTable.addSymbolNodeRelation(funcSymbol, node);
         }
 

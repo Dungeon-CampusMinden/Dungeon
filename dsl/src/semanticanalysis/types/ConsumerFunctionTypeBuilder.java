@@ -1,5 +1,12 @@
 package semanticanalysis.types;
 
+import interpreter.DSLInterpreter;
+import parser.ast.FuncDefNode;
+import runtime.IMemorySpace;
+import runtime.RuntimeEnvironment;
+import runtime.Value;
+import semanticanalysis.FunctionSymbol;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
@@ -9,6 +16,32 @@ import java.util.ArrayList;
  * java.util.function.Consumer} interface
  */
 public class ConsumerFunctionTypeBuilder implements IFunctionTypeBuilder {
+    // TODO: does not work
+    class ConsumerCallbackAdapter {
+        private RuntimeEnvironment rtEnv;
+        private FunctionType functionType;
+        private FuncDefNode funcDefNode;
+        private IMemorySpace parentMemorySpace;
+        private DSLInterpreter interpreter;
+
+        public ConsumerCallbackAdapter(RuntimeEnvironment rtEnv, FunctionType functionType, FuncDefNode funcDefNode, IMemorySpace parentMemorySpace, DSLInterpreter interpreter) {
+            this.rtEnv = rtEnv;
+            this.functionType = functionType;
+            this.funcDefNode = funcDefNode;
+            this.parentMemorySpace = parentMemorySpace;
+            this.interpreter = interpreter;
+        }
+
+        public Object call(Object param) {
+            // cast parameter
+            var paramObject = (Value)rtEnv.translateRuntimeObject(param, parentMemorySpace);
+            var functionSymbol = rtEnv.getSymbolTable().getSymbolsForAstNode(funcDefNode).get(0);
+            ArrayList<Value> params = new ArrayList<>();
+            params.add(paramObject);
+            var returnValue = (Value)interpreter.executeUserDefinedFunctionConcreteParameterValues((FunctionSymbol) functionSymbol, params);
+            return returnValue.getInternalValue();
+        }
+    }
     public static ConsumerFunctionTypeBuilder instance = new ConsumerFunctionTypeBuilder();
 
     private ConsumerFunctionTypeBuilder() {}
@@ -35,5 +68,10 @@ public class ConsumerFunctionTypeBuilder implements IFunctionTypeBuilder {
             }
         }
         return new FunctionType(BuiltInType.noType, parameterTypes);
+    }
+
+    @Override
+    public Object buildCallbackAdapter(RuntimeEnvironment environment, FunctionType functionType, FuncDefNode funcDefNode, IMemorySpace parentMemorySpace, DSLInterpreter interpreter ) {
+        return new ConsumerCallbackAdapter(environment, functionType, funcDefNode, parentMemorySpace, interpreter);
     }
 }

@@ -481,6 +481,65 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return true;
     }
 
+
+    /**
+     * This handles parameter evaluation and binding and setting up the statement stack for
+     * execution of the function's statements
+     *
+     * @param symbol The symbol corresponding to the function to call
+     * @param parameterValues The concrete Values of the parameters of the function call
+     * @return The return value of the function call
+     */
+    public Object executeUserDefinedFunctionConcreteParameterValues(FunctionSymbol symbol, List<Value> parameterValues) {
+        // push new memorySpace and parameters on spaceStack
+        var functionMemSpace = new MemorySpace(memoryStack.peek());
+        this.memoryStack.push(functionMemSpace);
+
+        // bind all parameter-symbols as values in the function's memory space and set their values
+        var parameterSymbols = symbol.getSymbols();
+        for (int i = 0; i < parameterValues.size(); i++) {
+            var parameterSymbol = parameterSymbols.get(i);
+            bindFromSymbol(parameterSymbol, memoryStack.peek());
+
+            Value paramValue = parameterValues.get(i);
+            setValue(parameterSymbol.getName(), paramValue);
+        }
+
+        // create and bind the return value
+        var functionType = (FunctionType) symbol.getDataType();
+        if (functionType.getReturnType() != BuiltInType.noType) {
+            var returnValue = createDefaultValue(functionType.getReturnType());
+            memoryStack.peek().bindValue(RETURN_VALUE_NAME, returnValue);
+        }
+
+        // add return mark
+        statementStack.addFirst(new Node(Node.Type.ReturnMark));
+
+        // put statement block on statement stack
+        var funcRootNode = symbol.getAstRootNode();
+        var stmtBlock = (StmtBlockNode) funcRootNode.getStmtBlock();
+        if (stmtBlock != Node.NONE) {
+            statementStack.addFirst(stmtBlock);
+        }
+
+        while (statementStack.peek() != null
+            && statementStack.peek().type != Node.Type.ReturnMark) {
+            var stmt = statementStack.pop();
+            stmt.accept(this);
+        }
+
+        // pop the return mark
+        assert Objects.requireNonNull(statementStack.peek()).type == Node.Type.ReturnMark;
+        statementStack.pop();
+
+        memoryStack.pop();
+        if (functionType.getReturnType() != BuiltInType.noType) {
+            return functionMemSpace.resolve(RETURN_VALUE_NAME);
+        }
+        return Value.NONE;
+    }
+
+
     /**
      * This handles parameter evaluation and binding and setting up the statement stack for
      * execution of the function's statements

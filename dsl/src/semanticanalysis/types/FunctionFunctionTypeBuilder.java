@@ -1,14 +1,24 @@
 package semanticanalysis.types;
 
+import interpreter.DSLInterpreter;
+import parser.ast.FuncDefNode;
+import runtime.IEvironment;
+import runtime.IMemorySpace;
+import runtime.RuntimeEnvironment;
+import runtime.Value;
+import semanticanalysis.FunctionSymbol;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 /**
  * Builder for a {@link FunctionType} for a callback defined by the {@link
  * java.util.function.Function} interface
  */
 public class FunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
+
     public static FunctionFunctionTypeBuilder instance = new FunctionFunctionTypeBuilder();
 
     private FunctionFunctionTypeBuilder() {}
@@ -42,5 +52,10 @@ public class FunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
             throw new RuntimeException("Returntype of Function could not be translated");
         }
         return new FunctionType(returnType, parameterType);
+    }
+
+    @Override
+    public Object buildCallbackAdapter(RuntimeEnvironment environment, FunctionType functionType, FuncDefNode funcDefNode, IMemorySpace parentMemorySpace, DSLInterpreter interpreter ) {
+        return  new FunctionCallbackAdapter(environment, functionType, funcDefNode, parentMemorySpace, interpreter);
     }
 }

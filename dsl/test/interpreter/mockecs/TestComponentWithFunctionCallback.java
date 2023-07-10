@@ -15,6 +15,7 @@ public class TestComponentWithFunctionCallback extends Component {
     }
 
     @DSLCallback private Function<Entity, Boolean> onInteraction;
+
     public Function<Entity, Boolean> getOnInteraction() {
         return onInteraction;
     }
