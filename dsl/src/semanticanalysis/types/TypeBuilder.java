@@ -231,6 +231,7 @@ public class TypeBuilder {
         return this.typeAdapters.getOrDefault(clazz, null);
     }
 
+    // create a symbol in parentType for given field, representing a callback
     protected Symbol createCallbackMemberSymbol(Field field, AggregateType parentType) {
         String callbackName = getDSLFieldName(field);
 
@@ -242,6 +243,26 @@ public class TypeBuilder {
         }
 
         return new Symbol(callbackName, parentType, callbackType);
+    }
+
+    // create a symbol in parentType for given field, representing data in parentClass
+    protected Symbol createDataMemberSymbol(Field field, Class<?> parentClass, AggregateType parentType) {
+        String fieldName = getDSLFieldName(field);
+
+        // get datatype
+        var memberDSLType = getBasicDSLType(field.getType());
+        //var memberDSLType = getDSLTypeForClass(field.getType());
+        if (memberDSLType == null) {
+            // lookup the type in already converted types
+            // if it is not already in the converted types, try to convert it -> check for
+            // DSLType
+            // annotation
+            this.currentLookedUpClasses.add(parentClass);
+            memberDSLType = createTypeFromClass(parentType, field.getType());
+            this.currentLookedUpClasses.remove(parentClass);
+        }
+
+        return new Symbol(fieldName, parentType, memberDSLType);
     }
 
     /**
@@ -276,27 +297,11 @@ public class TypeBuilder {
                         ? convertToDSLName(clazz.getSimpleName())
                         : annotation.name();
 
-        // TODO: refactor
         var type = new AggregateType(typeName, parentScope, clazz);
         for (Field field : clazz.getDeclaredFields()) {
             // bind new Symbol
             if (field.isAnnotationPresent(DSLTypeMember.class)) {
-                String fieldName = getDSLFieldName(field);
-
-                // get datatype
-                var memberDSLType = getBasicDSLType(field.getType());
-                //var memberDSLType = getDSLTypeForClass(field.getType());
-                if (memberDSLType == null) {
-                    // lookup the type in already converted types
-                    // if it is not already in the converted types, try to convert it -> check for
-                    // DSLType
-                    // annotation
-                    this.currentLookedUpClasses.add(clazz);
-                    memberDSLType = createTypeFromClass(parentScope, field.getType());
-                    this.currentLookedUpClasses.remove(clazz);
-                }
-
-                var fieldSymbol = new Symbol(fieldName, type, memberDSLType);
+                var fieldSymbol = createDataMemberSymbol(field, clazz, type);
                 type.bind(fieldSymbol);
             }
             if (field.isAnnotationPresent(DSLCallback.class)) {
