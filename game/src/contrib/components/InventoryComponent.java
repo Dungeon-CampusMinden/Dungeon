@@ -51,7 +51,7 @@ public final class InventoryComponent extends Component {
      *
      * <p>Items do not get stacked, so each instance will need space in the inventory.
      *
-     * <p>Items are stored in a Set, so an item instance cannot be stored twice in the same
+     * <p>Items are stored as a set, so an item instance cannot be stored twice in the same
      * inventory at the same time.
      *
      * @param itemData The item to be added.
