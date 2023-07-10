@@ -22,6 +22,9 @@
 package semanticanalysis;
 
 import parser.ast.*;
+import runtime.nativefunctions.NativeFunction;
+
+import java.lang.annotation.Native;
 
 public class FunctionCallResolver implements AstVisitor<Void> {
     SymbolTable symbolTable;
@@ -50,8 +53,31 @@ public class FunctionCallResolver implements AstVisitor<Void> {
     }
 
     @Override
+    public Void visit(ParamDefNode node) {
+        node.getIdNode().accept(this);
+        return null;
+    }
+
+    @Override
     public Void visit(FuncDefNode node) {
-        visitChildren(node);
+        for (var parameter : node.getParameters()) {
+            parameter.accept(this);
+        }
+        node.getStmtBlock().accept(this);
+        return null;
+    }
+
+    @Override
+    public Void visit(PrototypeDefinitionNode node) {
+        var componentDefinitionNode = node.getComponentDefinitionListNode();
+        visitChildren(componentDefinitionNode);
+        return null;
+    }
+
+    @Override
+    public Void visit(AggregateValueDefinitionNode node) {
+        var propertyDefinitionNode = node.getPropertyDefinitionListNode();
+        visitChildren(propertyDefinitionNode);
         return null;
     }
 
@@ -95,6 +121,19 @@ public class FunctionCallResolver implements AstVisitor<Void> {
 
         for (var parameter : funcCall.getParameters()) {
             parameter.accept(this);
+        }
+
+        return null;
+    }
+
+    // TODO: TEST THIS
+    @Override
+    public Void visit(IdNode node) {
+        var funcSymbol = this.symbolTable.globalScope.resolve(node.getName());
+        if (funcSymbol.getSymbolType() == Symbol.Type.Scoped &&
+                (funcSymbol instanceof FunctionSymbol ||
+                        funcSymbol instanceof NativeFunction))  {
+            this.symbolTable.addSymbolNodeRelation(funcSymbol, node);
         }
 
         return null;
