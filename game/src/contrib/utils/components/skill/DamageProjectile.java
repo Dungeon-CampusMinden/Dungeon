@@ -4,6 +4,7 @@ import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
 import contrib.utils.components.health.Damage;
+import contrib.utils.components.health.DamageType;
 
 import core.Entity;
 import core.Game;
@@ -29,21 +30,24 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     private float projectileSpeed;
 
     private float projectileRange;
-    private Damage projectileDamage;
+
+    private int damageAmount;
+    private DamageType damageType;
     private Point projectileHitboxSize;
 
     private Supplier<Point> selectionFunction;
 
     /**
      * The DamageProjectile constructor sets the path to the textures of the projectile, the speed
-     * of the projectile, the damage to be dealt, the size of the projectile's hitbox, the target
-     * selection function, and the range of the projectile.
+     * of the projectile, the damage amount and type to be dealt, the size of the projectile's
+     * hitbox, the target selection function, and the range of the projectile.
      *
      * <p>for specific implementation, see {@link contrib.utils.components.skill.FireballSkill}
      *
      * @param pathToTexturesOfProjectile path to the textures of the projectile
      * @param projectileSpeed speed of the projectile
-     * @param projectileDamage damage of the projectile
+     * @param damageAmount amount of damage to be dealt
+     * @param damageType type of damage to be dealt
      * @param projectileHitboxSize size of the Hitbox
      * @param selectionFunction specific functionality of the projectile
      * @param projectileRange range in which the projectile is effective
@@ -51,12 +55,14 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     public DamageProjectile(
             String pathToTexturesOfProjectile,
             float projectileSpeed,
-            Damage projectileDamage,
+            int damageAmount,
+            DamageType damageType,
             Point projectileHitboxSize,
             Supplier<Point> selectionFunction,
             float projectileRange) {
         this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
-        this.projectileDamage = projectileDamage;
+        this.damageAmount = damageAmount;
+        this.damageType = damageType;
         this.projectileSpeed = projectileSpeed;
         this.projectileRange = projectileRange;
         this.projectileHitboxSize = projectileHitboxSize;
@@ -67,7 +73,13 @@ public abstract class DamageProjectile implements Consumer<Entity> {
      * Performs the necessary actions to create and handle the damage projectile based on the
      * provided entity.
      *
-     * @param entity the entity on which the damage projectile will be applied
+     * <p>The projectile can not collide with the casting entity.
+     *
+     * <p>The cause for the damage will not be the projectile, but the entity that casts the
+     * projectile.
+     *
+     * @param entity The entity that casts the projectile. The entity's position will be the start
+     *     position for the projectile.
      * @throws MissingComponentException if the entity does not have a PositionComponent
      */
     @Override
@@ -115,7 +127,8 @@ public abstract class DamageProjectile implements Consumer<Entity> {
                                 .ifPresent(
                                         hc -> {
                                             // Apply the projectile damage to the collided entity
-                                            hc.receiveHit(projectileDamage);
+                                            hc.receiveHit(
+                                                    new Damage(damageAmount, damageType, entity));
 
                                             // Remove the projectile entity from the game
                                             Game.removeEntity(projectile);
