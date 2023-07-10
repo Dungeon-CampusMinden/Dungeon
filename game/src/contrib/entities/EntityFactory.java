@@ -32,6 +32,7 @@ import java.util.stream.IntStream;
 public class EntityFactory {
     private static final Logger LOGGER = Logger.getLogger(EntityFactory.class.getName());
     private static final Random RANDOM = new Random();
+    private static final String HERO_FILE_PATH = "character/knight";
     private static final float X_SPEED_HERO = 0.3f;
     private static final float Y_SPEED_HERO = 0.3f;
     private static final int FIREBALL_COOL_DOWN = 2;
@@ -44,7 +45,6 @@ public class EntityFactory {
     // NOTE: +1 for health as nextInt() is exclusive
     private static final int MAX_MONSTER_HEALTH = 5 + 1;
     private static final float MIN_MONSTER_SPEED = 0.1f;
-
     private static final float MAX_MONSTER_SPEED = 0.25f;
 
     /**
@@ -59,7 +59,7 @@ public class EntityFactory {
         new CameraComponent(hero);
         new PositionComponent(hero);
         new VelocityComponent(hero, X_SPEED_HERO, Y_SPEED_HERO);
-        new DrawComponent(hero, "character/knight");
+        new DrawComponent(hero, HERO_FILE_PATH);
         new CollideComponent(
                 hero,
                 (you, other, direction) -> System.out.println("heroCollisionEnter"),

@@ -61,6 +61,9 @@ public final class DrawComponent extends Component {
      * <p>Will set the current animation to either idle down, idle left, idle right, idle up or
      * idle, depending on which one of these animations exist.
      *
+     * <p>If no animations for any idle-state exist, {@link Animation#defaultAnimation()} for "IDLE"
+     * is set.
+     *
      * @param entity associated entity
      * @param path Path (as a string) to the directory in the assets folder where the subdirectories
      *     containing the animation files are stored. Example: "character/knight".
@@ -84,6 +87,12 @@ public final class DrawComponent extends Component {
                     CoreAnimations.IDLE_RIGHT,
                     CoreAnimations.IDLE_UP,
                     CoreAnimations.IDLE);
+
+            // if no idle animation exists, set the missing texture animation as idle
+            if (currentAnimation == null) {
+                animationMap.put(CoreAnimations.IDLE.pathString(), Animation.defaultAnimation());
+                currentAnimation(CoreAnimations.IDLE);
+            }
         } catch (NullPointerException np) {
             // The component gets registered at the entity in super().
             // This means that if the files can't be loaded, the component is considered "defective"
@@ -145,7 +154,7 @@ public final class DrawComponent extends Component {
         for (IPath animationPath : animationName) {
             Animation animation = animationMap.get(animationPath.pathString());
             if (animation != null) {
-                this.currentAnimation = animation;
+                currentAnimation = animation;
                 return;
             } else
                 LOGGER.warning(
