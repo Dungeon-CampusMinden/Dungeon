@@ -302,22 +302,7 @@ public class TypeBuilder {
         for (Field field : clazz.getDeclaredFields()) {
             // bind new Symbol
             if (field.isAnnotationPresent(DSLTypeMember.class)) {
-                String fieldName = getDSLFieldName(field);
-
-                // get datatype
-                var memberDSLType = getBasicDSLType(field.getType());
-                //var memberDSLType = getDSLTypeForClass(field.getType());
-                if (memberDSLType == null) {
-                    // lookup the type in already converted types
-                    // if it is not already in the converted types, try to convert it -> check for
-                    // DSLType
-                    // annotation
-                    this.currentLookedUpClasses.add(clazz);
-                    memberDSLType = createTypeFromClass(parentScope, field.getType());
-                    this.currentLookedUpClasses.remove(clazz);
-                }
-
-                var fieldSymbol = new Symbol(fieldName, type, memberDSLType);
+                var fieldSymbol = createDataMemberSymbol(field, clazz, type);
                 type.bind(fieldSymbol);
             }
             if (field.isAnnotationPresent(DSLCallback.class)) {
