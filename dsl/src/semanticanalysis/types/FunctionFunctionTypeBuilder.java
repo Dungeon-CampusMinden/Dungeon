@@ -21,9 +21,7 @@ public class FunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
         // the parameters will be the arguments for the function
         Type[] typeArray = parameterizedType.getActualTypeArguments();
 
-        // TODO: the code fragment below is used multiple times over in the interpreter
-        //  codebase and should be refactored
-        IType parameterType = TypeBuilder.getDSLTypeForClass((Class<?>) typeArray[0]);
+        IType parameterType = TypeBuilder.getBasicDSLType((Class<?>) typeArray[0]);
         if (null == parameterType) {
             parameterType = typeMap.get(typeArray[0]);
         }
@@ -31,7 +29,7 @@ public class FunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
             throw new RuntimeException("Type of parameter of Function could not be translated");
         }
 
-        IType returnType = TypeBuilder.getDSLTypeForClass((Class<?>) typeArray[1]);
+        IType returnType = TypeBuilder.getBasicDSLType((Class<?>) typeArray[1]);
         if (null == returnType) {
             returnType = typeMap.get(typeArray[1]);
         }

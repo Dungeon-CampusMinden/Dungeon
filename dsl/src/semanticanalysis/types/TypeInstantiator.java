@@ -168,7 +168,7 @@ public class TypeInstantiator {
 
                             var parameters = new ArrayList<>(method.getParameterCount());
                             for (var parameter : method.getParameters()) {
-                                var memberName = TypeBuilder.getDSLName(parameter);
+                                var memberName = TypeBuilder.getDSLParameterName(parameter);
                                 var memberValue =
                                         aggregateFieldValue.getMemorySpace().resolve(memberName);
                                 var internalObject = memberValue.getInternalValue();

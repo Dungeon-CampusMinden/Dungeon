@@ -30,7 +30,7 @@ public class MockEntityTranslator implements IObjectToValueTranslator {
                                 .translateRuntimeObject(
                                         component, value.getMemorySpace(), environment);
                 if (aggregateMemberValue != Value.NONE) {
-                    String componentDSLName = TypeBuilder.getDSLName(component.getClass());
+                    String componentDSLName = TypeBuilder.getDSLTypeName(component.getClass());
                     value.getMemorySpace().bindValue(componentDSLName, aggregateMemberValue);
                 }
             }

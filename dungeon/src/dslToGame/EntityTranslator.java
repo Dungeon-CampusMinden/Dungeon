@@ -49,7 +49,7 @@ public class EntityTranslator implements IObjectToValueTranslator {
 
                                 if (aggregateMemberValue != Value.NONE) {
                                     String componentDSLName =
-                                            TypeBuilder.getDSLName(component.getClass());
+                                            TypeBuilder.getDSLTypeName(component.getClass());
                                     value.getMemorySpace()
                                             .bindValue(componentDSLName, aggregateMemberValue);
                                 }
