@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 /**
  * Allows the entity to collect items in an inventory.
  *
- * <p>The component stores a Set of {@link ItemData} that the associated entity has collected.
+ * <p>The component stores a set of {@link ItemData} that the associated entity has collected.
  *
  * <p>Each inventory has a maximum number of item instances (items do not get stacked) that can be
  * carried.
