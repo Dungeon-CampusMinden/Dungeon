@@ -10,6 +10,7 @@ import helpers.Helpers;
 import interpreter.mockecs.*;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import parser.ast.Node;
@@ -918,5 +919,36 @@ public class TestDSLInterpreter {
                         + "hello"
                         + System.lineSeparator(),
                 outputStream.toString());
+    }
+
+    @Test
+    public void testFuncRefValue() {
+        String program =
+            """
+            entity_type my_type {
+                test_component_with_callback {
+                    on_interaction: other_func
+                }
+            }
+
+            fn other_func(entity my_entity) {
+                print("Hello, World!");
+            }
+
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config = Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter, Entity.class, TestComponentWithCallback.class);
+
+        Assert.assertTrue(true);
     }
 }

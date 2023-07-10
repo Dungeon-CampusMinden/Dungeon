@@ -449,6 +449,15 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     @Override
+    public Object visit(FuncDefNode node) {
+        // TODO: return function reference as value
+        var symbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
+
+        Value funcRefValue = Value.NONE;
+        return null;
+    }
+
+    @Override
     public Object visit(DotDefNode node) {
         Interpreter dotInterpreter = new Interpreter();
         var graph = dotInterpreter.getGraph(node);
