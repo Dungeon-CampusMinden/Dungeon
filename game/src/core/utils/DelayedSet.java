@@ -1,9 +1,8 @@
 package core.utils;
 
-import java.util.Collection;
-import java.util.ConcurrentModificationException;
-import java.util.HashSet;
-import java.util.Set;
+import core.Entity;
+
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -116,8 +115,10 @@ public final class DelayedSet<T> {
      *
      * @param function Function to execute on each entity in the {@link #toAdd} set.
      */
-    public void foreachEntityInAddSet(Consumer<T> function) {
-        toAdd.forEach(function);
+    public void foreachEntityInAddSet(Consumer<Entity> function) {
+        for (int i = 0; i < toAdd.size(); i++) {
+            function.accept((Entity)toAdd.toArray()[i]);
+        }
     }
 
     /**
@@ -125,8 +126,10 @@ public final class DelayedSet<T> {
      *
      * @param function Function to execute on each entity in the {@link #toRemove} set.
      */
-    public void foreachEntityInRemoveSet(Consumer<T> function) {
-        toRemove.forEach(function);
+    public void foreachEntityInRemoveSet(Consumer<Entity> function) {
+        for (int i = 0; i < toRemove.size(); i++) {
+            function.accept((Entity)toRemove.toArray()[i]);
+        }
     }
 
     /**
