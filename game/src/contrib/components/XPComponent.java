@@ -42,12 +42,7 @@ public final class XPComponent extends Component {
      * {@code LEVEL_1_XP}.
      */
     private static final Function<Long, Long> DEFAULT_LEVEL_UP_FORMULA =
-            new Function<Long, Long>() {
-                @Override
-                public Long apply(Long level) {
-                    return Math.round(FORMULA_SLOPE * Math.pow(level, 2) + NEEDED_XP_FOR_LEVEL_ONE);
-                }
-            };
+            level -> Math.round(FORMULA_SLOPE * Math.pow(level, 2) + NEEDED_XP_FOR_LEVEL_ONE);
 
     private static final float DEFAULT_LOOT_FACTOR = 0.5f;
     private static final Consumer<Entity> DEFAULT_LEVEL_UP = entity1 -> {};

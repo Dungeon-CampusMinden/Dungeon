@@ -38,6 +38,6 @@ public final class XPSystem extends System {
     private void performLevelUp(XPComponent comp, int xpLeft) {
         comp.characterLevel(comp.characterLevel() + 1);
         comp.currentXP(xpLeft * -1);
-        comp.levelUp();
+        comp.triggerLevelUpCallback();
     }
 }
