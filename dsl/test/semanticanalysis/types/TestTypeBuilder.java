@@ -2,6 +2,8 @@ package semanticanalysis.types;
 
 import static org.junit.Assert.*;
 
+import contrib.utils.components.item.ItemData;
+import core.utils.Point;
 import dslToGame.graph.Graph;
 
 import interpreter.mockecs.*;
@@ -11,7 +13,9 @@ import org.junit.Test;
 import semanticanalysis.Scope;
 import semanticanalysis.Symbol;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.function.Function;
 
 public class TestTypeBuilder {
     @Test
@@ -249,5 +253,51 @@ public class TestTypeBuilder {
 
         assertEquals(entityType, functionType.getParameterTypes().get(0));
         assertEquals(BuiltInType.boolType, functionType.getReturnType());
+    }
+
+    public class TestClass {
+        public static Object accept(Object object) {
+            return 42;
+        }
+    }
+
+    @Test
+    public void messAround() {
+        // setup typebuilder
+        TypeBuilder tb = new TypeBuilder();
+        // register Entity type (setup)
+        var entityType = (AggregateType) tb.createTypeFromClass(Scope.NULL, Entity.class);
+
+        var componentDSLType =
+            (AggregateType)
+                tb.createTypeFromClass(Scope.NULL, TestComponentWithFunctionCallback.class);
+
+
+        var entity = new Entity();
+        var object = new TestComponentWithFunctionCallback(entity);
+        Field field = null;
+        try {
+            field = TestComponentWithFunctionCallback.class.getDeclaredField("onInteraction");
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+        field.setAccessible(true);
+
+        var functionClass = Function.class;
+        var genericInterfaces = functionClass.getGenericInterfaces();
+        var ctors = functionClass.getConstructors();
+
+        var testClassObject = new TestClass();
+        Function func = TestClass::accept;
+
+        try {
+            field.set(object, func);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        object.getOnInteraction().apply(entity);
+
+        boolean b = true;
     }
 }

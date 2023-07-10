@@ -135,12 +135,9 @@ public class TypeInstantiator {
             // set values of the fields marked as DSLTypeMembers to corresponding values from
             // the memory space
             for (Field field : originalJavaClass.getDeclaredFields()) {
+                // TODO: handle function callback
                 if (field.isAnnotationPresent(DSLTypeMember.class)) {
-                    var fieldAnnotation = field.getAnnotation(DSLTypeMember.class);
-                    String fieldName =
-                            fieldAnnotation.name().equals("")
-                                    ? convertToDSLName(field.getName())
-                                    : fieldAnnotation.name();
+                    String fieldName = TypeBuilder.getDSLFieldName(field);
 
                     var fieldValue = ms.resolve(fieldName);
                     // we only should set the field value explicitly,
@@ -181,6 +178,10 @@ public class TypeInstantiator {
                         field.setAccessible(true);
                         field.set(instance, internalValue);
                     }
+                }
+                if (field.isAnnotationPresent(DSLCallback.class)) {
+                    // this is going to be fun
+
                 }
             }
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
