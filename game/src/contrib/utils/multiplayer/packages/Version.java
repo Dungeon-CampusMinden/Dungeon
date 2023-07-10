@@ -1,8 +1,6 @@
 package contrib.utils.multiplayer.packages;
 
-/**
- * Used to handle different versions of client and server.
- */
+/** Used to handle different versions of client and server. */
 public class Version implements Comparable<Version> {
 
     private final int major;
@@ -33,7 +31,15 @@ public class Version implements Comparable<Version> {
         return Integer.compare(this.patch, other.patch);
     }
 
-    public int major() { return this.major; }
-    public int minor() { return this.minor; }
-    public int patch() { return this.patch; }
+    public int major() {
+        return this.major;
+    }
+
+    public int minor() {
+        return this.minor;
+    }
+
+    public int patch() {
+        return this.patch;
+    }
 }

@@ -25,7 +25,6 @@ import core.utils.components.draw.CoreAnimations;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
@@ -168,12 +167,12 @@ public class EntityFactory {
     }
 
     // Todo - Adjust to changes
-    public static Entity newMonster() throws IOException{
+    public static Entity newMonster() throws IOException {
         return newMonster(Game.randomTilePoint(LevelElement.FLOOR));
     }
 
-    //Todo - Adjust to changes
-    public static Entity newMonster(Point position) throws IOException{
+    // Todo - Adjust to changes
+    public static Entity newMonster(Point position) throws IOException {
         Entity monster = new Entity("chort");
 
         // Add components to the monster entity
@@ -182,14 +181,11 @@ public class EntityFactory {
         new VelocityComponent(monster, 0.1f, 0.1f);
         new HealthComponent(monster);
         new CollideComponent(
-            monster,
-            new DefaultCollider("ChortCollisionEnter"),
-            new DefaultCollider("ChortCollisionLeave"));
+                monster,
+                new DefaultCollider("ChortCollisionEnter"),
+                new DefaultCollider("ChortCollisionLeave"));
         new AIComponent(
-            monster,
-            new CollideAI(1.0f),
-            new RadiusWalk(5, 1),
-            new SelfDefendTransition());
+                monster, new CollideAI(1.0f), new RadiusWalk(5, 1), new SelfDefendTransition());
 
         return monster;
     }

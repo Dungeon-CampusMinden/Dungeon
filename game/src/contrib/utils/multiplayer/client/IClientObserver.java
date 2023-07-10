@@ -1,26 +1,20 @@
 package contrib.utils.multiplayer.client;
 
-import core.Entity;
-import core.utils.Point;
 import contrib.utils.multiplayer.packages.GameState;
 import contrib.utils.multiplayer.packages.request.*;
 
+import core.Entity;
+import core.utils.Point;
+
 import java.util.Set;
 
-
-/**
- * Used to customize actions based on received multiplayer server messages.
- */
+/** Used to customize actions based on received multiplayer server messages. */
 public interface IClientObserver {
 
-    /**
-     * Called when successfully connected to server.
-     */
+    /** Called when successfully connected to server. */
     void onConnectedToServer();
 
-    /**
-     * Called when connection to server lost.
-     */
+    /** Called when connection to server lost. */
     void onDisconnectedFromServer();
 
     /**
@@ -39,9 +33,7 @@ public interface IClientObserver {
      */
     void onLoadMapResponseReceived(boolean isSucceed, GameState gameState);
 
-    /**
-     * Called when response of request {@link ChangeMapRequest} received from server.
-     */
+    /** Called when response of request {@link ChangeMapRequest} received from server. */
     void onChangeMapRequestReceived();
 
     /**
@@ -49,10 +41,13 @@ public interface IClientObserver {
      *
      * @param isSucceed State whether join request accepted or not.
      * @param clientId From server assigned client ID.
-     * @param gameState Server side current global game state. Has to be synchronized with local state.
-     * @param initialHeroPosition From server assigned start position of the hero. Has to be assigned locally.
+     * @param gameState Server side current global game state. Has to be synchronized with local
+     *     state.
+     * @param initialHeroPosition From server assigned start position of the hero. Has to be
+     *     assigned locally.
      */
-    void onJoinSessionResponseReceived(boolean isSucceed, int clientId, GameState gameState, Point initialHeroPosition);
+    void onJoinSessionResponseReceived(
+            boolean isSucceed, int clientId, GameState gameState, Point initialHeroPosition);
 
     /**
      * Called when game state update received from server.

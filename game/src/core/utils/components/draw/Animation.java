@@ -112,7 +112,8 @@ public final class Animation {
         return Animation.of(fileNamesRelativeToResources, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP);
     }
 
-    public static Animation of(List<String> fileNamesRelativeToResources, int frameTime, boolean loop) {
+    public static Animation of(
+            List<String> fileNamesRelativeToResources, int frameTime, boolean loop) {
         return new Animation(fileNamesRelativeToResources, frameTime, loop);
     }
 

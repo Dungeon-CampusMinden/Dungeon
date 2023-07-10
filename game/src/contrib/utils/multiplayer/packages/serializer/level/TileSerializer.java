@@ -4,7 +4,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import contrib.components.StatsComponent;
+
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
@@ -12,9 +12,7 @@ import core.level.utils.DesignLabel;
 
 import java.lang.reflect.Constructor;
 
-/**
- * Custom serializer to send and retrieve objects of {@link Tile}.
- */
+/** Custom serializer to send and retrieve objects of {@link Tile}. */
 public class TileSerializer extends Serializer<Tile> {
     @Override
     public void write(Kryo kryo, Output output, Tile object) {
@@ -32,12 +30,9 @@ public class TileSerializer extends Serializer<Tile> {
         Coordinate globalPosition = kryo.readObject(input, Coordinate.class);
         DesignLabel designLabel = DesignLabel.values()[input.readInt()];
         try {
-            Constructor<? extends Tile> constructor = concreteClass.getConstructor(
-                String.class,
-                Coordinate.class,
-                DesignLabel.class,
-                ILevel.class
-            );
+            Constructor<? extends Tile> constructor =
+                    concreteClass.getConstructor(
+                            String.class, Coordinate.class, DesignLabel.class, ILevel.class);
             Tile instance = constructor.newInstance(texturePath, globalPosition, designLabel, null);
             return instance;
         } catch (Exception e) {

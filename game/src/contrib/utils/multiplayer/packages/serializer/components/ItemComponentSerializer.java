@@ -4,25 +4,25 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+
 import contrib.components.ItemComponent;
 import contrib.utils.components.item.ItemData;
-import core.Entity;
-import core.utils.components.draw.Animation;
 
-/**
- * Custom serializer to send and retrieve objects of {@link ItemComponent}.
- */
+import core.Entity;
+
+/** Custom serializer to send and retrieve objects of {@link ItemComponent}. */
 public class ItemComponentSerializer extends Serializer<ItemComponent> {
     private Entity entity;
 
-    public ItemComponentSerializer(){
+    public ItemComponentSerializer() {
         super();
     }
 
-    public ItemComponentSerializer(Entity e){
+    public ItemComponentSerializer(Entity e) {
         super();
         entity = e;
     }
+
     @Override
     public void write(Kryo kryo, Output output, ItemComponent object) {
         kryo.writeObject(output, object.itemData());

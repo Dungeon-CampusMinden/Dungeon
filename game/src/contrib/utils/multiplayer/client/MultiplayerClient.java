@@ -1,36 +1,38 @@
 package contrib.utils.multiplayer.client;
 
+import static java.util.Objects.requireNonNull;
+
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+
 import contrib.utils.multiplayer.packages.GameState;
 import contrib.utils.multiplayer.packages.NetworkSetup;
-import contrib.utils.multiplayer.packages.response.*;
 import contrib.utils.multiplayer.packages.event.GameStateUpdateEvent;
+import contrib.utils.multiplayer.packages.response.*;
 
 import java.io.*;
 import java.util.ArrayList;
 
-import static java.util.Objects.requireNonNull;
-
-/**
- * Used to send/receive data to/from multiplayer server.
- */
+/** Used to send/receive data to/from multiplayer server. */
 public class MultiplayerClient extends Listener implements IClient {
 
-    // According to several tests, random generated level can have a maximum size of about 500k bytes
+    // According to several tests, random generated level can have a maximum size of about 500k
+    // bytes
     // => set max expected size to double
     private static final int DEFAULT_MAX_OBJECT_SIZE_EXPECTED = 8000000;
     private static final int DEFAULT_WRITE_BUFFER_SIZE = DEFAULT_MAX_OBJECT_SIZE_EXPECTED;
     private static final int DEFAULT_OBJECT_BUFFER_SIZE = DEFAULT_MAX_OBJECT_SIZE_EXPECTED;
     private static final int DEFAULT_CONNECTION_TIMEOUT = 5000;
-    private static final Client client = new Client(DEFAULT_WRITE_BUFFER_SIZE, DEFAULT_OBJECT_BUFFER_SIZE);
+    private static final Client client =
+            new Client(DEFAULT_WRITE_BUFFER_SIZE, DEFAULT_OBJECT_BUFFER_SIZE);
     private final ArrayList<IClientObserver> observers = new ArrayList<>();
 
     /**
      * Creates a new instance.
      *
-     * <p>To customize actions based on internal events. use {@link IClient#addObserver(IClientObserver)}.
+     * <p>To customize actions based on internal events. use {@link
+     * IClient#addObserver(IClientObserver)}.
      */
     public MultiplayerClient() {
         client.addListener(this);
@@ -39,14 +41,14 @@ public class MultiplayerClient extends Listener implements IClient {
 
     @Override
     public void connected(Connection connection) {
-        for (IClientObserver observer: observers) {
+        for (IClientObserver observer : observers) {
             observer.onConnectedToServer();
         }
     }
 
     @Override
     public void disconnected(Connection connection) {
-        for (IClientObserver observer: observers) {
+        for (IClientObserver observer : observers) {
             observer.onDisconnectedFromServer();
         }
     }
@@ -56,9 +58,9 @@ public class MultiplayerClient extends Listener implements IClient {
 
         if (object instanceof PingResponse pingResponse) {
             System.out.println("Ping response received. Time: " + pingResponse.getTime());
-        } else if (object instanceof InitializeServerResponse initServerResponse){
+        } else if (object instanceof InitializeServerResponse initServerResponse) {
             final boolean isSucceed = initServerResponse.isSucceed();
-            for (IClientObserver observer: observers){
+            for (IClientObserver observer : observers) {
                 observer.onInitializeServerResponseReceived(isSucceed, connection.getID());
             }
         } else if (object instanceof LoadMapResponse loadMapResponse) {
@@ -67,21 +69,20 @@ public class MultiplayerClient extends Listener implements IClient {
             for (IClientObserver observer : observers) {
                 observer.onLoadMapResponseReceived(isSucceed, gameState);
             }
-        } else if (object instanceof ChangeMapResponse){
-            for (IClientObserver observer : observers){
+        } else if (object instanceof ChangeMapResponse) {
+            for (IClientObserver observer : observers) {
                 observer.onChangeMapRequestReceived();
             }
         } else if (object instanceof JoinSessionResponse response) {
-            for (IClientObserver observer: observers) {
+            for (IClientObserver observer : observers) {
                 observer.onJoinSessionResponseReceived(
-                    response.isSucceed(),
-                    response.heroGlobalID(),
-                    response.gameState(),
-                    response.initialPosition()
-                );
+                        response.isSucceed(),
+                        response.heroGlobalID(),
+                        response.gameState(),
+                        response.initialPosition());
             }
-        } else if (object instanceof GameStateUpdateEvent gameStateUpdateEvent){
-            for (IClientObserver observer: observers) {
+        } else if (object instanceof GameStateUpdateEvent gameStateUpdateEvent) {
+            for (IClientObserver observer : observers) {
                 observer.onGameStateUpdateEventReceived(gameStateUpdateEvent.entities());
             }
         }
@@ -127,8 +128,8 @@ public class MultiplayerClient extends Listener implements IClient {
     }
 
     /**
-     * Disconnect from other endpoint.
-     * Messages can not be sent and received anymore until reconnect.
+     * Disconnect from other endpoint. Messages can not be sent and received anymore until
+     * reconnect.
      */
     @Override
     public void disconnect() {

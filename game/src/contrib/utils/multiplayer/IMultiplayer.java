@@ -1,10 +1,10 @@
 package contrib.utils.multiplayer;
 
-
 import core.level.elements.ILevel;
 
 /**
- * Used to customize actions and implement custom game logic based on event occurred in {@link MultiplayerManager}.
+ * Used to customize actions and implement custom game logic based on event occurred in {@link
+ * MultiplayerManager}.
  */
 public interface IMultiplayer {
     /**
@@ -21,9 +21,7 @@ public interface IMultiplayer {
      */
     void onMultiplayerSessionJoined(boolean isSucceed);
 
-    /**
-     * Called after the connection to multiplayer session is lost.
-     */
+    /** Called after the connection to multiplayer session is lost. */
     void onMultiplayerSessionConnectionLost();
 
     /**
@@ -33,8 +31,6 @@ public interface IMultiplayer {
      */
     void onMapLoad(ILevel level);
 
-    /**
-     *
-     */
+    /** */
     void onChangeMapRequest();
 }

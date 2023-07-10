@@ -4,12 +4,12 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import core.utils.Point;
+
 import contrib.utils.multiplayer.packages.event.MovementEvent;
 
-/**
- * Custom serializer to send and retrieve objects of {@link MovementEvent}.
- */
+import core.utils.Point;
+
+/** Custom serializer to send and retrieve objects of {@link MovementEvent}. */
 public class MovementEventSerializer extends Serializer<MovementEvent> {
     @Override
     public void write(Kryo kryo, Output output, MovementEvent object) {

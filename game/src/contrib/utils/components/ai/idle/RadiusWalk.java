@@ -45,6 +45,7 @@ public class RadiusWalk implements Consumer<Entity> {
     public float getRadius() {
         return radius;
     }
+
     public int getBreakTime() {
         return breakTime;
     }

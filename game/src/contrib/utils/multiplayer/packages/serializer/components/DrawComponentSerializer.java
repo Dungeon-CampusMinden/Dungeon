@@ -4,23 +4,22 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+
 import core.Entity;
 import core.components.DrawComponent;
 import core.utils.components.draw.Animation;
 
 import java.util.HashMap;
 
-/**
- * Custom serializer to send and retrieve objects of {@link DrawComponent}.
- */
+/** Custom serializer to send and retrieve objects of {@link DrawComponent}. */
 public class DrawComponentSerializer extends Serializer<DrawComponent> {
     private Entity entity;
 
-    public DrawComponentSerializer(){
+    public DrawComponentSerializer() {
         super();
     }
 
-    public DrawComponentSerializer(Entity e){
+    public DrawComponentSerializer(Entity e) {
         super();
         entity = e;
     }

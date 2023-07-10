@@ -178,8 +178,6 @@ public class PatrouilleWalk implements Consumer<Entity> {
         return numberCheckpoints;
     }
 
-
-
     public MODE mode() {
         return mode;
     }

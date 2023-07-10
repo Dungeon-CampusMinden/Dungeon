@@ -1,9 +1,7 @@
 package core.hud;
 
-
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import quizquestion.QuizQuestion;
 
 import java.util.function.BiFunction;
 
@@ -39,12 +37,12 @@ public final class TextDialog extends Dialog {
     }
 }
 
-//<<<<<<< HEAD
-//import com.badlogic.gdx.scenes.scene2d.ui.*;
+// <<<<<<< HEAD
+// import com.badlogic.gdx.scenes.scene2d.ui.*;
 //    import quizquestion.QuizQuestion;
 //
-///** Contains Constructor, which immediately creates the dialogue including all its elements. */
-//public final class TextDialog extends Dialog {
+/// ** Contains Constructor, which immediately creates the dialogue including all its elements. */
+// public final class TextDialog extends Dialog {
 //
 //    /** button ID (used when control is pressed) */
 //    private static final String BUTTON_ID = "confirm exit";
@@ -95,7 +93,7 @@ public final class TextDialog extends Dialog {
 //        button(buttonMsg, BUTTON_ID);
 //    }
 //
-///**
+/// **
 // * Provides information about the pressed Button
 // =======
 
@@ -107,8 +105,8 @@ public final class TextDialog extends Dialog {
 //     */
 //    @Override
 //    protected void result(final Object object) {
-//<<<<<<< HEAD
+// <<<<<<< HEAD
 //        if (object.toString().equals(BUTTON_ID)) {
 //            UITools.deleteDialogue(this);
 //        }
-//=======
+// =======

@@ -3,11 +3,13 @@ package core.utils.components.draw;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Files;
 import com.badlogic.gdx.utils.GdxNativesLoader;
-import java.io.IOException;
-import java.util.List;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.util.List;
 
 public class TextureHandlerTest {
     private static final String PLACEHOLDER_MIDDLE_PATH = "resources/main";

@@ -4,15 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
 import core.utils.Constants;
-import core.utils.Point;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -21,9 +19,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-/**
- * Sample screen for demonstration and manual testing of multiplayer mode.
- */
+/** Sample screen for demonstration and manual testing of multiplayer mode. */
 public class Menu extends ScreenAdapter {
 
     private static final Logger LOGGER = Logger.getLogger("Menu");
@@ -43,6 +39,7 @@ public class Menu extends ScreenAdapter {
     private final ArrayList<IMenuScreenObserver> observers;
     private final String deviceIpAddress;
     private MenuType menuTypeCurrent;
+
     private enum MenuType {
         GameModeChoice,
         MultiplayerStartOrJoinSession,
@@ -57,7 +54,7 @@ public class Menu extends ScreenAdapter {
         buttonStartNewSession = new TextButton("Start session", skin);
         buttonJoinExistingSession = new TextButton("Join session", skin);
         buttonExit = new TextButton("Exit", skin);
-        buttonNavigateBack  = new TextButton("Back", skin);
+        buttonNavigateBack = new TextButton("Back", skin);
         inputHostIpPort = new TextField("", skin);
         buttonJoin = new TextButton("Connect", skin);
         textInvalidAddress = new Label("Invalid Address", skin);
@@ -118,7 +115,7 @@ public class Menu extends ScreenAdapter {
     }
 
     public static Menu getInstance() {
-        if(INSTANCE == null) {
+        if (INSTANCE == null) {
             INSTANCE = new Menu();
         }
 
@@ -126,63 +123,76 @@ public class Menu extends ScreenAdapter {
     }
 
     private void registerListeners() {
-        buttonExit.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent  event, float x, float y) {
-                Gdx.app.exit();
-            }
-        });
+        buttonExit.addListener(
+                new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        Gdx.app.exit();
+                    }
+                });
 
-        buttonNavigateBack.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                navigateBack();
-            }
-        });
+        buttonNavigateBack.addListener(
+                new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        navigateBack();
+                    }
+                });
 
-        buttonSinglePlayer.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                observers.forEach((IMenuScreenObserver observer) -> observer.onSinglePlayerModeChosen());
-            }
-        });
+        buttonSinglePlayer.addListener(
+                new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        observers.forEach(
+                                (IMenuScreenObserver observer) ->
+                                        observer.onSinglePlayerModeChosen());
+                    }
+                });
 
-        buttonMultiPlayer.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent  event, float x, float y) {
-                setActiveMenu(MenuType.MultiplayerStartOrJoinSession);
-            }
-        });
+        buttonMultiPlayer.addListener(
+                new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        setActiveMenu(MenuType.MultiplayerStartOrJoinSession);
+                    }
+                });
 
-        buttonStartNewSession.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent  event, float x, float y) {
-                observers.forEach((IMenuScreenObserver observer) -> observer.onMultiPlayerHostModeChosen());
-            }
-        });
+        buttonStartNewSession.addListener(
+                new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        observers.forEach(
+                                (IMenuScreenObserver observer) ->
+                                        observer.onMultiPlayerHostModeChosen());
+                    }
+                });
 
-        buttonJoinExistingSession.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent  event, float x, float y) {
-                setActiveMenu(MenuType.MultiplayerJoinSession);
-            }
-        });
+        buttonJoinExistingSession.addListener(
+                new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        setActiveMenu(MenuType.MultiplayerJoinSession);
+                    }
+                });
 
-        buttonJoin.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                String[] temp = inputHostIpPort.getText().split(":");
-                try (Socket socket = new Socket()) {
-                    String address = temp[0];
-                    int port = Integer.parseInt(temp[1]);
-                    socket.connect(new InetSocketAddress(address, port), 1000);
-                    socket.close();
-                    observers.forEach((IMenuScreenObserver observer) -> observer.onMultiPlayerClientModeChosen(address, port));
-                } catch (Exception e) {
-                    textInvalidAddress.setVisible(true);
-                }
-            }
-        });
+        buttonJoin.addListener(
+                new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        String[] temp = inputHostIpPort.getText().split(":");
+                        try (Socket socket = new Socket()) {
+                            String address = temp[0];
+                            int port = Integer.parseInt(temp[1]);
+                            socket.connect(new InetSocketAddress(address, port), 1000);
+                            socket.close();
+                            observers.forEach(
+                                    (IMenuScreenObserver observer) ->
+                                            observer.onMultiPlayerClientModeChosen(address, port));
+                        } catch (Exception e) {
+                            textInvalidAddress.setVisible(true);
+                        }
+                    }
+                });
     }
 
     private void setActiveMenu(MenuType menuType) {
@@ -232,7 +242,7 @@ public class Menu extends ScreenAdapter {
 
     private void navigateBack() {
         switch (menuTypeCurrent) {
-            case MultiplayerStartOrJoinSession ->setActiveMenu(MenuType.GameModeChoice);
+            case MultiplayerStartOrJoinSession -> setActiveMenu(MenuType.GameModeChoice);
             case MultiplayerJoinSession -> setActiveMenu(MenuType.MultiplayerStartOrJoinSession);
         }
     }

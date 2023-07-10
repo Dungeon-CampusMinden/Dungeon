@@ -1,6 +1,5 @@
 package contrib.utils.multiplayer.client;
 
-
 public interface IClient {
 
     /**
@@ -26,9 +25,7 @@ public interface IClient {
      */
     boolean connectToHost(String address, int port);
 
-    /**
-     * Used to implement disconnecting from endpoint.
-     */
+    /** Used to implement disconnecting from endpoint. */
     void disconnect();
 
     /**

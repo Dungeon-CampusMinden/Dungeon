@@ -1,23 +1,26 @@
 package contrib.utils.multiplayer;
 
+import static java.util.Objects.requireNonNull;
+
 import contrib.utils.multiplayer.client.IClient;
+import contrib.utils.multiplayer.client.IClientObserver;
+import contrib.utils.multiplayer.client.MultiplayerClient;
 import contrib.utils.multiplayer.packages.GameState;
 import contrib.utils.multiplayer.packages.Version;
 import contrib.utils.multiplayer.packages.event.GameStateUpdateEvent;
 import contrib.utils.multiplayer.packages.event.MovementEvent;
+import contrib.utils.multiplayer.packages.request.*;
 import contrib.utils.multiplayer.packages.response.*;
 import contrib.utils.multiplayer.server.IServer;
 import contrib.utils.multiplayer.server.IServerObserver;
+import contrib.utils.multiplayer.server.MultiplayerServer;
+
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.elements.ILevel;
 import core.utils.Point;
-import contrib.utils.multiplayer.client.IClientObserver;
-import contrib.utils.multiplayer.client.MultiplayerClient;
-import contrib.utils.multiplayer.packages.request.*;
-import contrib.utils.multiplayer.server.MultiplayerServer;
 import core.utils.components.MissingComponentException;
 
 import java.io.IOException;
@@ -31,11 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import static java.util.Objects.requireNonNull;
-
-/**
- * Used to handle multiplayer sessions.
- */
+/** Used to handle multiplayer sessions. */
 public class MultiplayerManager implements IClientObserver, IServerObserver {
 
     private static final Version VERSION = new Version(0, 0, 0);
@@ -44,7 +43,8 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
     /* Ticks for sending game state update cyclically. */
     private static final int DEFAULT_TICKS_FOR_SCHEDULER = 128;
     /* Duration for sending game state update cyclically. */
-    private static final long DEFAULT_NANOS_PER_TICK_FOR_SCHEDULER = 1000000000 / DEFAULT_TICKS_FOR_SCHEDULER;
+    private static final long DEFAULT_NANOS_PER_TICK_FOR_SCHEDULER =
+            1000000000 / DEFAULT_TICKS_FOR_SCHEDULER;
     private final Logger logger = Logger.getLogger(this.getClass().getName());
     // Used to hold current level and entities.
     private final GameState globalState = new GameState();
@@ -67,6 +67,7 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
      * Create new instance.
      *
      * <p>Will use default client {@link MultiplayerClient} for communication.
+     *
      * <p>Will use default server {@link MultiplayerServer} for communication.
      *
      * @param multiplayer {@link IMultiplayer} to customize actions based on internal events.
@@ -83,9 +84,7 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
      * @param server Server that should be used for communication.
      */
     public MultiplayerManager(
-        final IMultiplayer multiplayer,
-        final IClient client,
-        final IServer server) {
+            final IMultiplayer multiplayer, final IClient client, final IServer server) {
         this.multiplayer = requireNonNull(multiplayer);
         this.client = requireNonNull(client);
         this.server = requireNonNull(server);
@@ -95,8 +94,7 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
     }
 
     @Override
-    public void onConnectedToServer() {
-    }
+    public void onConnectedToServer() {}
 
     @Override
     public void onDisconnectedFromServer() {
@@ -116,26 +114,26 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
 
     @Override
     public void onJoinSessionResponseReceived(
-        final boolean isSucceed,
-        final int heroGlobalID,
-        final GameState gameState,
-        final Point initialHeroPosition) {
+            final boolean isSucceed,
+            final int heroGlobalID,
+            final GameState gameState,
+            final Point initialHeroPosition) {
         clientID = 0;
         if (isSucceed) {
             this.entities = requireNonNull(gameState.entities());
             clientID = heroGlobalID;
             Game.hero().get().globalID(heroGlobalID);
             PositionComponent heroPositionComponent =
-                (PositionComponent) Game.hero().get()
-                    .fetch(PositionComponent.class)
-                    .orElseThrow();
+                    (PositionComponent)
+                            Game.hero().get().fetch(PositionComponent.class).orElseThrow();
             heroPositionComponent.position(initialHeroPosition);
 
             try {
                 Game.currentLevel(gameState.level());
-            }
-            catch (Exception ex) {
-                logger.warning(String.format("Failed to set received level from server.\n%s", ex.getMessage()));
+            } catch (Exception ex) {
+                logger.warning(
+                        String.format(
+                                "Failed to set received level from server.\n%s", ex.getMessage()));
             }
         } else {
             logger.warning("Cannot join multiplayer session. Server responded unsuccessful.");
@@ -163,9 +161,7 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
     }
 
     @Override
-    public void onClientConnected(final int clientID) {
-
-    }
+    public void onClientConnected(final int clientID) {}
 
     @Override
     public void onClientDisconnected(final int clientID) {
@@ -181,7 +177,8 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
     }
 
     @Override
-    public void onInitializeRequestReceived(final int clientID, final InitializeServerRequest initServerRequest) {
+    public void onInitializeRequestReceived(
+            final int clientID, final InitializeServerRequest initServerRequest) {
         isInitialized = false;
         final Version clientVersion = initServerRequest.clientVersion();
         final boolean clientAndServerVersionAreEqual = VERSION.compareTo(clientVersion) == 0;
@@ -193,33 +190,30 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
     }
 
     @Override
-    public void onJoinSessionRequestReceived(final int clientID, final JoinSessionRequest joinSessionRequest) {
+    public void onJoinSessionRequestReceived(
+            final int clientID, final JoinSessionRequest joinSessionRequest) {
         boolean isClientValid = VERSION.compareTo(joinSessionRequest.clientVersion()) == 0;
         if (!isClientValid) {
-            JoinSessionResponse response = new JoinSessionResponse(
-                false,
-                -1,
-                new GameState(),
-                initialHeroPosition
-            );
+            JoinSessionResponse response =
+                    new JoinSessionResponse(false, -1, new GameState(), initialHeroPosition);
             server.sendTCP(clientID, response);
             return;
         }
         PositionComponent pc =
-            joinSessionRequest.hero()
-                .fetch(PositionComponent.class)
-                .orElseThrow(
-                    () -> MissingComponentException.build(joinSessionRequest.hero(), PositionComponent.class));
+                joinSessionRequest
+                        .hero()
+                        .fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                joinSessionRequest.hero(),
+                                                PositionComponent.class));
         pc.position(initialHeroPosition);
         final int entityGlobalID = determineNextGlobalID();
         joinSessionRequest.hero().globalID(entityGlobalID);
         globalState.heroesByClientId().put(clientID, joinSessionRequest.hero());
-        JoinSessionResponse response = new JoinSessionResponse(
-            true,
-            entityGlobalID,
-            globalState,
-            initialHeroPosition
-        );
+        JoinSessionResponse response =
+                new JoinSessionResponse(true, entityGlobalID, globalState, initialHeroPosition);
         server.sendTCP(clientID, response);
     }
 
@@ -233,9 +227,9 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
         }
         // extract hero from entities
         final Optional<Entity> heroInSendEntitiesSet =
-            loadMapRequest.entities().stream()
-                .filter(x -> x.localID() == loadMapRequest.hero().localID())
-                .findFirst();
+                loadMapRequest.entities().stream()
+                        .filter(x -> x.localID() == loadMapRequest.hero().localID())
+                        .findFirst();
         if (heroInSendEntitiesSet.isPresent()) {
             loadMapRequest.entities().remove(heroInSendEntitiesSet.get());
         }
@@ -244,64 +238,78 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
         globalState.heroesByClientId().put(clientID, loadMapRequest.hero());
         // Save new initial position for joining clients/heroes
         initialHeroPosition = globalState.level().startTile().position();
-        globalState.heroesByClientId().values().forEach(entity -> {
-            PositionComponent pc =
-                entity
-                    .fetch(PositionComponent.class)
-                    .orElseThrow(
-                        () -> MissingComponentException.build(entity, PositionComponent.class));
-            pc.position(initialHeroPosition);
-        });
+        globalState
+                .heroesByClientId()
+                .values()
+                .forEach(
+                        entity -> {
+                            PositionComponent pc =
+                                    entity.fetch(PositionComponent.class)
+                                            .orElseThrow(
+                                                    () ->
+                                                            MissingComponentException.build(
+                                                                    entity,
+                                                                    PositionComponent.class));
+                            pc.position(initialHeroPosition);
+                        });
         server.sendToAllExceptTCP(clientID, new LoadMapResponse(true, globalState));
         isMapLoaded = true;
     }
 
     @Override
-    public void onChangeMapRequestReceived(final int clientID, final ChangeMapRequest changeMapRequest) {
+    public void onChangeMapRequestReceived(
+            final int clientID, final ChangeMapRequest changeMapRequest) {
         server.sendTCP(connectionIdHostClient, new ChangeMapResponse());
     }
 
     @Override
     public void onMovementEventReceived(final int clientID, final MovementEvent positionRequest) {
-        Optional<Entity> hero = globalState.heroesByClientId().values().stream()
-            .filter(x -> x.globalID() == positionRequest.entityGlobalID())
-            .findFirst();
+        Optional<Entity> hero =
+                globalState.heroesByClientId().values().stream()
+                        .filter(x -> x.globalID() == positionRequest.entityGlobalID())
+                        .findFirst();
 
         if (hero.isPresent()) {
             PositionComponent pc =
-                hero.get()
-                    .fetch(PositionComponent.class)
-                    .orElseThrow(
-                        () -> MissingComponentException.build(hero.get(), PositionComponent.class));
+                    hero.get()
+                            .fetch(PositionComponent.class)
+                            .orElseThrow(
+                                    () ->
+                                            MissingComponentException.build(
+                                                    hero.get(), PositionComponent.class));
             pc.position(positionRequest.position());
 
             VelocityComponent vc =
-                hero.get()
-                    .fetch(VelocityComponent.class)
-                    .orElseThrow(
-                        () -> MissingComponentException.build(hero.get(), VelocityComponent.class));
+                    hero.get()
+                            .fetch(VelocityComponent.class)
+                            .orElseThrow(
+                                    () ->
+                                            MissingComponentException.build(
+                                                    hero.get(), VelocityComponent.class));
 
             vc.currentXVelocity(positionRequest.xVelocity());
             vc.currentYVelocity(positionRequest.yVelocity());
         } else {
             // check if client which want to update monster position is host, otherwise not allowed
             if (isHost(clientID)) {
-                Optional<Entity> monster = globalState.entities().stream()
-                    .filter(x -> x.globalID() == positionRequest.entityGlobalID())
-                    .findFirst();
+                Optional<Entity> monster =
+                        globalState.entities().stream()
+                                .filter(x -> x.globalID() == positionRequest.entityGlobalID())
+                                .findFirst();
 
                 if (monster.isPresent()) {
                     PositionComponent pc =
-                        monster.get()
-                            .fetch(PositionComponent.class)
-                            .orElseThrow(
-                                () -> MissingComponentException.build(monster.get(), PositionComponent.class));
+                            monster.get()
+                                    .fetch(PositionComponent.class)
+                                    .orElseThrow(
+                                            () ->
+                                                    MissingComponentException.build(
+                                                            monster.get(),
+                                                            PositionComponent.class));
                     pc.position(positionRequest.position());
 
                     VelocityComponent vc =
-                        monster.get()
-                            .fetch(VelocityComponent.class)
-                            .orElse(null);
+                            monster.get().fetch(VelocityComponent.class).orElse(null);
 
                     if (vc != null) {
                         vc.currentXVelocity(positionRequest.xVelocity());
@@ -321,10 +329,13 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
      * Hosting a multiplayer session, which other players can join.
      *
      * <p>Asks server to listen to random port.
+     *
      * <p>To handle whether session started successfully or not, check {@link IMultiplayer}.
+     *
      * <p>NOTE: After server started, level and entities has to be configured.
      *
-     * @throws IOException if currently now free port found on device to host session. (should never occur)
+     * @throws IOException if currently now free port found on device to host session. (should never
+     *     occur)
      */
     public void startSession() throws IOException {
         clearLocalSessionData();
@@ -341,24 +352,33 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
             try {
                 server.startListening(serverPort);
                 scheduler = Executors.newSingleThreadScheduledExecutor();
-                scheduler.scheduleAtFixedRate(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (isMapLoaded) {
-                            // Combine hero entities and monster/item entities
-                            final Set<Entity> entities = new HashSet<>(globalState.entities());
-                            globalState.heroesByClientId().values().forEach(entity -> {
-                                entities.add(entity);
-                            });
-                            server.sendToAllUDP(new GameStateUpdateEvent(entities));
-                        }
-                    }
-                }, 0, DEFAULT_NANOS_PER_TICK_FOR_SCHEDULER, TimeUnit.NANOSECONDS );
+                scheduler.scheduleAtFixedRate(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                if (isMapLoaded) {
+                                    // Combine hero entities and monster/item entities
+                                    final Set<Entity> entities =
+                                            new HashSet<>(globalState.entities());
+                                    globalState
+                                            .heroesByClientId()
+                                            .values()
+                                            .forEach(
+                                                    entity -> {
+                                                        entities.add(entity);
+                                                    });
+                                    server.sendToAllUDP(new GameStateUpdateEvent(entities));
+                                }
+                            }
+                        },
+                        0,
+                        DEFAULT_NANOS_PER_TICK_FOR_SCHEDULER,
+                        TimeUnit.NANOSECONDS);
                 isRandomPortAlreadyInUse = false;
             } catch (Exception e) {
                 generatePortTriesCount++;
             }
-        } while((generatePortTriesCount < generatePortTriesMaxCount) && isRandomPortAlreadyInUse);
+        } while ((generatePortTriesCount < generatePortTriesMaxCount) && isRandomPortAlreadyInUse);
 
         if (isRandomPortAlreadyInUse) {
             throw new IOException("No available port on device found");
@@ -388,7 +408,8 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
     /**
      * Stops multiplayer session.
      *
-     * <p>Global state will be cleared and all endpoints will be closed, so all player will be disconnected.
+     * <p>Global state will be cleared and all endpoints will be closed, so all player will be
+     * disconnected.
      */
     public void stopSession() {
         clearLocalSessionData();
@@ -396,23 +417,21 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
     }
 
     /**
-     * Used to init or change the multiplayer global state,
-     * including the level and entities, that should be part of the game.
+     * Used to init or change the multiplayer global state, including the level and entities, that
+     * should be part of the game.
      *
      * @param level
      * @param currentEntities Entities that should be part of the level.
      * @param hero Own hero.
      */
     public void loadLevel(
-        final ILevel level,
-        final Set<Entity> currentEntities,
-        final Entity hero){
+            final ILevel level, final Set<Entity> currentEntities, final Entity hero) {
         if (isHost()) {
-            client.sendTCP(new LoadMapRequest(
-                requireNonNull(level),
-                requireNonNull(currentEntities),
-                requireNonNull(hero)
-            ));
+            client.sendTCP(
+                    new LoadMapRequest(
+                            requireNonNull(level),
+                            requireNonNull(currentEntities),
+                            requireNonNull(hero)));
         } else {
             requestNewLevel();
         }
@@ -421,17 +440,17 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
     /**
      * Used to request session to change the level.
      *
-     * <p>Has to be used for scenarios where Not-Hosting-Client enters end tile of a level.
-     * Then the Host-Client will be asked to change the level
-     * (On server side, only Host-Clients are able to change level / set entities.)
+     * <p>Has to be used for scenarios where Not-Hosting-Client enters end tile of a level. Then the
+     * Host-Client will be asked to change the level (On server side, only Host-Clients are able to
+     * change level / set entities.)
      */
-    public void requestNewLevel(){
+    public void requestNewLevel() {
         client.sendTCP(new ChangeMapRequest());
     }
 
     /**
-     * Used to store movement state globally, so that position and movement animation
-     * can be synchronized on each player device.
+     * Used to store movement state globally, so that position and movement animation can be
+     * synchronized on each player device.
      *
      * @param entityGlobalID Global ID of entity that has been moved.
      * @param newPosition New/current local position of the entity, after movement action.
@@ -439,10 +458,10 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
      * @param yVelocity Y velocity of movement action.
      */
     public void sendMovementUpdate(
-        final int entityGlobalID,
-        final Point newPosition,
-        final float xVelocity,
-        final float yVelocity) {
+            final int entityGlobalID,
+            final Point newPosition,
+            final float xVelocity,
+            final float yVelocity) {
         client.sendUDP(new MovementEvent(entityGlobalID, newPosition, xVelocity, yVelocity));
     }
 
@@ -457,26 +476,34 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
 
     /**
      * Check whether own device is host of multiplayer session or not.
+     *
      * <p>Can be used to control request flows / game logic.
      *
      * @return True, if own device is host. False, otherwise.
      */
-    public boolean isHost() { return isHost(this.clientID); }
+    public boolean isHost() {
+        return isHost(this.clientID);
+    }
 
     /**
      * Check whether given client is host of multiplayer session or not.
+     *
      * <p>Can be used to control request flows / game logic.
      *
      * @return True, if host. False, otherwise.
      */
-    public boolean isHost(final int clientID) { return clientID == connectionIdHostClient; }
+    public boolean isHost(final int clientID) {
+        return clientID == connectionIdHostClient;
+    }
 
     /**
      * Gets global state of entities.
      *
      * @return Global state of entities.
      */
-    public Stream<Entity> entityStream() { return this.entities.stream(); }
+    public Stream<Entity> entityStream() {
+        return this.entities.stream();
+    }
 
     private void stopEndpoints() {
         if (scheduler != null) {

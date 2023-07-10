@@ -15,6 +15,9 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
 import contrib.entities.EntityFactory;
 import contrib.systems.MultiplayerSynchronizationSystem;
+import contrib.utils.multiplayer.IMultiplayer;
+import contrib.utils.multiplayer.MultiplayerManager;
+
 import core.components.PositionComponent;
 import core.components.UIComponent;
 import core.configuration.Configuration;
@@ -42,9 +45,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import contrib.utils.multiplayer.IMultiplayer;
-import contrib.utils.multiplayer.MultiplayerManager;
-
 public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer {
 
     /* Used for singleton. */
@@ -70,12 +70,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     /**
      * The width of the game window in pixels.
      *
-     * <p>Manipulating this value will only result in changes before {@link Dungeon#run} was executed.
+     * <p>Manipulating this value will only result in changes before {@link Dungeon#run} was
+     * executed.
      */
     private static int WINDOW_WIDTH = 640;
-    /**
-     * Part of the pre-run configuration. The height of the game window in pixels.
-     */
+    /** Part of the pre-run configuration. The height of the game window in pixels. */
     private static int WINDOW_HEIGHT = 480;
 
     /** Currently used level-size configuration for generating new level */
@@ -116,11 +115,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     private boolean uiDebugFlag = false;
 
     private Optional<GameMode> currentGameMode;
-    private static MultiplayerManager multiplayerManager = new MultiplayerManager(Game.getInstance());
+    private static MultiplayerManager multiplayerManager =
+            new MultiplayerManager(Game.getInstance());
 
     // for singleton
-    private Game() {
-    }
+    private Game() {}
 
     /**
      * @return the currently loaded level
@@ -197,8 +196,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      */
     public static void informAboutChanges(Entity entity) {
         // Todo - is the next line necessary?
-        //entities.add(entity);
-//        LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
+        // entities.add(entity);
+        //        LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
     }
 
     /**
@@ -265,21 +264,27 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
 
     public void resumeSystems() {
         if (systems != null) {
-            systems.forEach((klass, system) -> {
-                system.run();
-            });
+            systems.forEach(
+                    (klass, system) -> {
+                        system.run();
+                    });
         }
     }
 
     public void stopSystems() {
         if (systems != null) {
-            systems.forEach((klass, system) -> {
-                system.stop();
-            });
+            systems.forEach(
+                    (klass, system) -> {
+                        system.stop();
+                    });
         }
     }
 
-    public static void sendMovementUpdate(final int globalID, final Point newPosition, final float xVelocity, final float yVelocity){
+    public static void sendMovementUpdate(
+            final int globalID,
+            final Point newPosition,
+            final float xVelocity,
+            final float yVelocity) {
         multiplayerManager.sendMovementUpdate(globalID, newPosition, xVelocity, yVelocity);
     }
 
@@ -289,8 +294,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     }
 
     /**
-     * Hosting multiplayer session with the current local game state (level, entities),
-     * so that other clients can join.
+     * Hosting multiplayer session with the current local game state (level, entities), so that
+     * other clients can join.
      */
     public void openToLan() {
         currentGameMode = Optional.of(GameMode.Multiplayer);
@@ -301,13 +306,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
                 hero(EntityFactory.newHero());
             }
             PositionComponent positionComponent =
-                hero()
-                    .get()
-                    .fetch(PositionComponent.class)
-                    .orElseThrow(
-                        () ->
-                            new MissingComponentException(
-                                "PositionComponent"));
+                    hero().get()
+                            .fetch(PositionComponent.class)
+                            .orElseThrow(() -> new MissingComponentException("PositionComponent"));
             multiplayerManager.startSession();
         } catch (Exception ex) {
             final String message = "Multiplayer session failed to start.";
@@ -344,7 +345,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     public void onMultiplayerServerInitialized(final boolean isSucceed) {
         if (isSucceed) {
             updateSystems();
-            multiplayerManager.loadLevel(currentLevel, entityStream().collect(Collectors.toSet()), hero);
+            multiplayerManager.loadLevel(
+                    currentLevel, entityStream().collect(Collectors.toSet()), hero);
         } else {
             final String message = "Server respond unsuccessful start.";
             LOGGER.warning(message);
@@ -370,9 +372,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
 
     @Override
     public void onChangeMapRequest() {
-        if(multiplayerManager.isHost()) {
+        if (multiplayerManager.isHost()) {
             levelManager.loadLevel(LEVELSIZE);
-            updateSystems(); // Needed to synchronize toAdd and toRemove entities into currentEntities
+            updateSystems(); // Needed to synchronize toAdd and toRemove entities into
+            // currentEntities
             multiplayerManager.loadLevel(currentLevel, entities.current(), hero);
         }
     }
@@ -566,9 +569,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
 
     private static void setupStage() {
         stage =
-            new Stage(
-                new ScalingViewport(Scaling.stretch, WINDOW_WIDTH, WINDOW_HEIGHT),
-                new SpriteBatch());
+                new Stage(
+                        new ScalingViewport(Scaling.stretch, WINDOW_WIDTH, WINDOW_HEIGHT),
+                        new SpriteBatch());
         Gdx.input.setInputProcessor(stage);
     }
 
@@ -606,9 +609,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         painter = new Painter(batch);
         IGenerator generator = new RandomWalkGenerator();
         initBaseLogger();
-        levelManager =
-                new LevelManager(
-                        batch, painter, new WallGenerator(generator), this);
+        levelManager = new LevelManager(batch, painter, new WallGenerator(generator), this);
         levelManager.loadLevel(LEVELSIZE);
         multiplayerManager = new MultiplayerManager(this);
         createSystems();
@@ -635,7 +636,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
 
     /** Just for debugging, remove later. */
     private void debugKeys() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P) ){ //&& !startMenu.isVisible()) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { // && !startMenu.isVisible()) {
             // Text Dialogue (output of information texts)
             newPauseMenu();
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
@@ -689,7 +690,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     }
 
     public static Game getInstance() {
-        if(INSTANCE == null) {
+        if (INSTANCE == null) {
             INSTANCE = new Game();
         }
 
@@ -704,26 +705,30 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
         if (!isOnEndTile(hero)) return;
 
-        if (currentGameMode.isPresent()){
+        if (currentGameMode.isPresent()) {
             if (currentGameMode.get() == GameMode.SinglePlayer) {
                 levelManager.loadLevel(LEVELSIZE);
             } else {
                 if (multiplayerManager().isConnectedToSession()) {
-                    if (multiplayerManager.isHost()){
-                        // First create new leve locally and then force server to host new map for all.
+                    if (multiplayerManager.isHost()) {
+                        // First create new leve locally and then force server to host new map for
+                        // all.
                         levelManager.loadLevel(LEVELSIZE);
                         updateSystems();
-                        multiplayerManager.loadLevel(currentLevel, entityStream().collect(Collectors.toSet()), hero);
+                        multiplayerManager.loadLevel(
+                                currentLevel, entityStream().collect(Collectors.toSet()), hero);
                     } else {
                         // Only host is allowed to load map, so force host to generate new map
                         multiplayerManager.requestNewLevel();
                     }
                 } else {
-                    LOGGER.severe("Entity on end tile and Multiplayer mode set but disconnected from session.");
+                    LOGGER.severe(
+                            "Entity on end tile and Multiplayer mode set but disconnected from session.");
                 }
             }
         } else {
-            LOGGER.severe("Entity on end tile but game mode is not set to determine needed action.");
+            LOGGER.severe(
+                    "Entity on end tile but game mode is not set to determine needed action.");
         }
     }
 
@@ -795,5 +800,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         return multiplayerManager;
     }
 
-    public static DelayedSet<Entity> entities() { return entities; }
+    public static DelayedSet<Entity> entities() {
+        return entities;
+    }
 }

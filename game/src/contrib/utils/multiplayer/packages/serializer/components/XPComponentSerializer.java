@@ -4,26 +4,26 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import contrib.components.StatsComponent;
+
 import contrib.components.XPComponent;
+
 import core.Entity;
 
 import java.util.function.LongConsumer;
 
-/**
- * Custom serializer to send and retrieve objects of {@link XPComponent}.
- */
+/** Custom serializer to send and retrieve objects of {@link XPComponent}. */
 public class XPComponentSerializer extends Serializer<XPComponent> {
     private Entity entity;
 
-    public XPComponentSerializer(){
+    public XPComponentSerializer() {
         super();
     }
 
-    public XPComponentSerializer(Entity e){
+    public XPComponentSerializer(Entity e) {
         super();
         entity = e;
     }
+
     @Override
     public void write(Kryo kryo, Output output, XPComponent object) {
         output.writeLong(object.currentLevel());

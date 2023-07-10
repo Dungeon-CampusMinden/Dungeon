@@ -1,12 +1,12 @@
 package contrib.components;
 
 import contrib.utils.components.collision.DefaultCollider;
+
 import core.Component;
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.utils.Point;
-
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
@@ -20,13 +20,13 @@ import java.util.logging.Logger;
 public final class CollideComponent extends Component {
     public static final Point DEFAULT_OFFSET = new Point(0.25f, 0.25f);
     public static final Point DEFAULT_SIZE = new Point(0.5f, 0.5f);
-    public static final TriConsumer<Entity, Entity, Tile.Direction> DEFAULT_COLLIDER = new DefaultCollider();
+    public static final TriConsumer<Entity, Entity, Tile.Direction> DEFAULT_COLLIDER =
+            new DefaultCollider();
     private final /*@DSLTypeMember(name="offset")*/ Point offset;
     private final /*@DSLTypeMember(name="size")*/ Point size;
     private TriConsumer<Entity, Entity, Tile.Direction> collideEnter;
     private TriConsumer<Entity, Entity, Tile.Direction> collideLeave;
     private final Logger hitboxLogger = Logger.getLogger(this.getClass().getName());
-
 
     /**
      * Creates A Hitbox
@@ -34,7 +34,6 @@ public final class CollideComponent extends Component {
      * @param entity associated entity
      * @param offset the offset for the hitbox to the position
      * @param size the size for the hitbox
-
      * @param collideEnter behaviour if a collision started
      * @param collideLeave behaviour if a collision stopped
      */

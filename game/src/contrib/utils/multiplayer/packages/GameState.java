@@ -1,18 +1,13 @@
 package contrib.utils.multiplayer.packages;
 
-
 import core.Entity;
 import core.level.elements.ILevel;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-/**
- * Used to hold current global/multiplayer game state.
- */
+/** Used to hold current global/multiplayer game state. */
 public class GameState {
     /* Used to collect current level. */
     private static ILevel level;
@@ -21,11 +16,8 @@ public class GameState {
     /* Separate HashMap to collect current 'hero' entities for validation processing. */
     private HashMap<Integer, Entity> heroesByClientId = new HashMap<>();
 
-    /**
-     * Creates a new GameState with no level and no heroes.
-     */
-    public GameState(){
-    }
+    /** Creates a new GameState with no level and no heroes. */
+    public GameState() {}
 
     /**
      * Creates a new Instance.
@@ -35,9 +27,9 @@ public class GameState {
      * @param heroesByClientId Current heroes according Client IDs.
      */
     public GameState(
-        final ILevel level,
-        final Set<Entity> entities,
-        final HashMap<Integer, Entity> heroesByClientId){
+            final ILevel level,
+            final Set<Entity> entities,
+            final HashMap<Integer, Entity> heroesByClientId) {
         this.level = level;
         this.entities = entities;
         this.heroesByClientId = heroesByClientId;
@@ -48,14 +40,14 @@ public class GameState {
      *
      * @param heroesByClientId To be set heroes.
      */
-    public void heroesByClientId(final HashMap<Integer, Entity> heroesByClientId){
+    public void heroesByClientId(final HashMap<Integer, Entity> heroesByClientId) {
         this.heroesByClientId = heroesByClientId;
     }
 
     /**
      * @return the currently existing heroes.
      */
-    public HashMap<Integer, Entity> heroesByClientId(){
+    public HashMap<Integer, Entity> heroesByClientId() {
         return heroesByClientId;
     }
 
@@ -91,9 +83,7 @@ public class GameState {
         return entities;
     }
 
-    /**
-     * Clear all game state identifiers - level and entities.
-     */
+    /** Clear all game state identifiers - level and entities. */
     public void clear() {
         level(null);
         entities(null);

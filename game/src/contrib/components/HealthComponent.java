@@ -5,8 +5,8 @@ import com.badlogic.gdx.utils.Null;
 import contrib.systems.HealthSystem;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
-
 import contrib.utils.components.health.DefaultOnDeath;
+
 import core.Component;
 import core.Entity;
 import core.utils.logging.CustomLogLevel;

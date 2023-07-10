@@ -3,6 +3,7 @@ package core;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+
 import contrib.configuration.ItemConfig;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
@@ -11,37 +12,31 @@ import contrib.utils.components.Debugger;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-/**
- * Main entry of the game.
- * Manages window and screens.
- */
+/** Main entry of the game. Manages window and screens. */
 public class Dungeon extends Game implements IMenuScreenObserver {
 
-    /**
-     * Part of the pre-run configuration. The fps of the game (frames per second)
-     */
+    /** Part of the pre-run configuration. The fps of the game (frames per second) */
     private static int FRAME_RATE = 30;
+
     private static String WINDOW_TITLE = "PM-Dungeon";
     /**
      * The width of the game window in pixels.
      *
-     * <p>Manipulating this value will only result in changes before {@link Dungeon#run} was executed.
+     * <p>Manipulating this value will only result in changes before {@link Dungeon#run} was
+     * executed.
      */
     private static int WINDOW_WIDTH = 640;
 
-    /**
-     * Part of the pre-run configuration. The height of the game window in pixels.
-     */
+    /** Part of the pre-run configuration. The height of the game window in pixels. */
     private static int WINDOW_HEIGHT = 480;
     /**
      * The width of the game window in pixels.
      *
-     * <p>Manipulating this value will only result in changes before {@link Dungeon#run} was executed.
+     * <p>Manipulating this value will only result in changes before {@link Dungeon#run} was
+     * executed.
      */
     private static int WINDOW_WIDTH_MAX = 640;
-    /**
-     * Part of the pre-run configuration. The height of the game window in pixels.
-     */
+    /** Part of the pre-run configuration. The height of the game window in pixels. */
     private static int WINDOW_HEIGHT_MAX = 480;
     /**
      * Part of the pre-run configuration. If this value is true, the game will be started in full
@@ -52,12 +47,11 @@ public class Dungeon extends Game implements IMenuScreenObserver {
      * Part of the pre-run configuration. If this value is true, the audio for the game will be
      * disabled.
      *
-     * <p>Manipulating this value will only result in changes before {@link Dungeon#run} was executed.
+     * <p>Manipulating this value will only result in changes before {@link Dungeon#run} was
+     * executed.
      */
     private static boolean DISABLE_AUDIO = false;
-    /**
-     * Part of the pre-run configuration. The path (as String) to the logo of the Game-Window.
-     */
+    /** Part of the pre-run configuration. The path (as String) to the logo of the Game-Window. */
     private static String LOGO_PATH = "logo/CatLogo_35x35.png";
 
     private Menu menuScreen;
@@ -75,35 +69,35 @@ public class Dungeon extends Game implements IMenuScreenObserver {
         try {
             core.Game.hero(EntityFactory.newHero());
             core.Game.loadConfig(
-                "dungeon_config.json",
-                contrib.configuration.KeyboardConfig.class,
-                core.configuration.KeyboardConfig.class,
-                ItemConfig.class);
+                    "dungeon_config.json",
+                    contrib.configuration.KeyboardConfig.class,
+                    core.configuration.KeyboardConfig.class,
+                    ItemConfig.class);
             core.Game.userOnLevelLoad(
-                () -> {
-                    try {
-                        EntityFactory.newChest();
-                    } catch (IOException e) {
-                        LOGGER.warning("Could not create new Chest: " + e.getMessage());
-                        throw new RuntimeException();
-                    }
-                    try {
-                        EntityFactory.newMonster();
-                    } catch (IOException e) {
-                        LOGGER.warning("Could not create new Monster: " + e.getMessage());
-                        throw new RuntimeException();
-                    }
-                });
+                    () -> {
+                        try {
+                            EntityFactory.newChest();
+                        } catch (IOException e) {
+                            LOGGER.warning("Could not create new Chest: " + e.getMessage());
+                            throw new RuntimeException();
+                        }
+                        try {
+                            EntityFactory.newMonster();
+                        } catch (IOException e) {
+                            LOGGER.warning("Could not create new Monster: " + e.getMessage());
+                            throw new RuntimeException();
+                        }
+                    });
             core.Game.userOnFrame(() -> debugger.execute());
             core.Game.addSystem(new AISystem());
             core.Game.addSystem(new CollisionSystem());
             core.Game.addSystem(new HealthSystem());
             core.Game.addSystem(new XPSystem());
             core.Game.addSystem(new ProjectileSystem());
-            core.Game.addSystem(new MultiplayerSynchronizationSystem(gameScreen.multiplayerManager()));
+            core.Game.addSystem(
+                    new MultiplayerSynchronizationSystem(gameScreen.multiplayerManager()));
             gameScreen.stopSystems();
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             LOGGER.severe("Failed to create game screen. " + ex.getMessage());
         }
 
@@ -144,6 +138,7 @@ public class Dungeon extends Game implements IMenuScreenObserver {
      * The frames per second of the game. The FPS determine in which interval the update cycle of
      * the systems is triggered. Each system is updated once per frame. With an FPS of 30, each
      * system is updated 30 times per second.
+     *
      * <p>Part of the pre-run configuration: Manipulating this value will only result in changes
      * before {@link core.Dungeon#run} was executed.
      *
@@ -239,7 +234,8 @@ public class Dungeon extends Game implements IMenuScreenObserver {
 
     public static void run() {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-        config.setWindowSizeLimits(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH_MAX, WINDOW_HEIGHT_MAX);
+        config.setWindowSizeLimits(
+                WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH_MAX, WINDOW_HEIGHT_MAX);
         // The third and fourth parameters ("maxWidth" and "maxHeight") affect the resizing
         // behavior
         // of the window. If the window is enlarged or maximized, then it can assume these

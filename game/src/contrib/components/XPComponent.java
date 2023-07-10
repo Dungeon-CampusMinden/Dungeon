@@ -40,7 +40,8 @@ public class XPComponent extends Component {
         this.callbackLevelUp = levelUp;
     }
 
-    public XPComponent(Entity entity, LongConsumer levelUp, long currentLevel, long currentXP, long lootXP){
+    public XPComponent(
+            Entity entity, LongConsumer levelUp, long currentLevel, long currentXP, long lootXP) {
         super(entity);
         this.entity = entity;
         this.callbackLevelUp = levelUp;

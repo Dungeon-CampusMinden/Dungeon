@@ -4,19 +4,17 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+
 import contrib.utils.components.interaction.DropItemsInteraction;
-import core.utils.components.draw.Animation;
 
 import java.util.function.Consumer;
 
-/**
- * Custom serializer to send and retrieve objects of {@link DropItemsInteraction}.
- */
+/** Custom serializer to send and retrieve objects of {@link DropItemsInteraction}. */
 public class DropItemsInteractionSerializer extends Serializer<DropItemsInteraction> {
     @Override
     public void write(Kryo kryo, Output output, DropItemsInteraction object) {
-            Class<? extends Consumer> concreteClass = object.getClass();
-            kryo.writeClass(output, concreteClass);
+        Class<? extends Consumer> concreteClass = object.getClass();
+        kryo.writeClass(output, concreteClass);
     }
 
     @Override

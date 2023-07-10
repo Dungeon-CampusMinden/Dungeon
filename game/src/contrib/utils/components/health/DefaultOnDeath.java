@@ -7,7 +7,5 @@ import java.util.function.Consumer;
 public class DefaultOnDeath implements Consumer<Entity> {
 
     @Override
-    public void accept(Entity entity) {
-
-    }
+    public void accept(Entity entity) {}
 }

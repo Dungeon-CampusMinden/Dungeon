@@ -1,7 +1,6 @@
 package core.utils;
 
 import core.Dungeon;
-import core.Game;
 
 import java.net.URISyntaxException;
 import java.net.URL;

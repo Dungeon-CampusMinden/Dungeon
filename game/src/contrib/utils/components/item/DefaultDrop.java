@@ -2,6 +2,7 @@ package contrib.utils.components.item;
 
 import contrib.components.CollideComponent;
 import contrib.utils.components.collision.ItemCollider;
+
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;

@@ -68,13 +68,15 @@ public final class Entity implements Comparable<Entity> {
 
     /**
      * Create a new Entity.
-     * <p> NOTE: Created instance will not be added to {@link Game}. Used for multiplayer state handling.
+     *
+     * <p>NOTE: Created instance will not be added to {@link Game}. Used for multiplayer state
+     * handling.
      *
      * @param name
      * @param localeID
      * @param globalID
      */
-    public Entity(final String name, final int localeID, final int globalID){
+    public Entity(final String name, final int localeID, final int globalID) {
         components = new HashMap<>();
         this.name = name;
         this.localID = localeID;
@@ -95,7 +97,8 @@ public final class Entity implements Comparable<Entity> {
     public void addComponent(final Component component) {
         components.put(component.getClass(), component);
         Game.informAboutChanges(this);
-//        LOGGER.info(component.getClass().getName() + " Components from " + this + " was added.");
+        //        LOGGER.info(component.getClass().getName() + " Components from " + this + " was
+        // added.");
     }
 
     /**
@@ -109,14 +112,16 @@ public final class Entity implements Comparable<Entity> {
     public void removeComponent(final Class<? extends Component> klass) {
         if (components.remove(klass) != null) {
             Game.informAboutChanges(this);
-//            LOGGER.info(klass.getName() + " from " + name + " was removed.");
+            //            LOGGER.info(klass.getName() + " from " + name + " was removed.");
         }
     }
 
     /**
      * @return Components of the entity.
      */
-    public HashMap<Class<? extends Component>, Component> components() { return this.components; }
+    public HashMap<Class<? extends Component>, Component> components() {
+        return this.components;
+    }
 
     /**
      * Get the component
@@ -169,25 +174,32 @@ public final class Entity implements Comparable<Entity> {
     /**
      * @return Name.
      */
-    public String name(){
+    public String name() {
         return name;
     }
 
     /**
      * @return Local ID.
      */
-    public int localID() { return localID; }
+    public int localID() {
+        return localID;
+    }
 
     /**
      * @return Global ID.
      */
-    public int globalID() { return globalID; }
+    public int globalID() {
+        return globalID;
+    }
 
     /**
      * Set global ID at runtime. (Needed for multiplayer)
+     *
      * <p>
      *
      * @param globalID To be set ID.
      */
-    public void globalID(final int globalID) { this.globalID = globalID; }
+    public void globalID(final int globalID) {
+        this.globalID = globalID;
+    }
 }

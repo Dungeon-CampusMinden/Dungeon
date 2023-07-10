@@ -1,13 +1,15 @@
 package contrib.utils.multiplayer.packages.request;
 
+import static java.util.Objects.requireNonNull;
+
 import contrib.utils.multiplayer.packages.Version;
 import contrib.utils.multiplayer.packages.response.JoinSessionResponse;
-import core.Entity;
 
-import static java.util.Objects.requireNonNull;
+import core.Entity;
 
 /**
  * Used to request joining multiplayer session.
+ *
  * <p>According response would be {@link JoinSessionResponse}
  */
 public class JoinSessionRequest {
@@ -28,10 +30,14 @@ public class JoinSessionRequest {
     /**
      * @return Client version.
      */
-    public Version clientVersion() {return this.clientVersion;}
+    public Version clientVersion() {
+        return this.clientVersion;
+    }
 
     /**
      * @return Playable hero.
      */
-    public Entity hero() { return this.hero;}
+    public Entity hero() {
+        return this.hero;
+    }
 }

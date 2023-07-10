@@ -4,12 +4,10 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import core.utils.Point;
-import core.utils.components.draw.Animation;
 
-/**
- * Custom serializer to send and retrieve objects of {@link Point}.
- */
+import core.utils.Point;
+
+/** Custom serializer to send and retrieve objects of {@link Point}. */
 public class PointSerializer extends Serializer<Point> {
     @Override
     public void write(Kryo kryo, Output output, Point object) {

@@ -70,14 +70,14 @@ public class DialogDesign extends VerticalGroup {
     }
 }
 
-//<<<<<<< HEAD
-//import com.badlogic.gdx.graphics.Color;
-//import com.badlogic.gdx.scenes.scene2d.ui.*;
-//import com.badlogic.gdx.utils.Align;
-//import core.utils.Constants;
-//import core.utils.Point;
-//import quizquestion.QuizQuestion;
-//import quizquestion.QuizQuestionContent;
+// <<<<<<< HEAD
+// import com.badlogic.gdx.graphics.Color;
+// import com.badlogic.gdx.scenes.scene2d.ui.*;
+// import com.badlogic.gdx.utils.Align;
+// import core.utils.Constants;
+// import core.utils.Point;
+// import quizquestion.QuizQuestion;
+// import quizquestion.QuizQuestionContent;
 //
 //    /** creates layout ot a dialog */
 //    public class DialogDesign extends Table {
@@ -88,23 +88,23 @@ public class DialogDesign extends VerticalGroup {
 //            setFillParent(true);
 //        }
 //
-///**
+/// **
 // * Constructor that allows text to be placed and does the layout for the text.
-//public void TextDialog(Skin skin, String outputMsg) {
+// public void TextDialog(Skin skin, String outputMsg) {
 //    add(new Scroller(skin, new NotEditableText(outputMsg, skin)))
 //    .size(
 //    Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
 //    Constants.WINDOW_HEIGHT - DIFFERENCE_MEASURE * 2f);
 //    }
 //
-///**
+/// **
 // * Presentation of the layouts of the questions and answers
 // *
 // * @param quizQuestion Various question configurations
 // * @param skin Skin for the dialogue (resources that can be used by UI widgets)
 // * @param outputMsg Content displayed in the scrollable label
 // */
-//public void QuizQuestion(QuizQuestion quizQuestion, Skin skin, String outputMsg) {
+// public void QuizQuestion(QuizQuestion quizQuestion, Skin skin, String outputMsg) {
 //    Label labelExercise = new Label(Constants.QUIZ_MESSAGE_TASK, skin);
 //    labelExercise.setColor(Color.YELLOW);
 //    add(labelExercise);
@@ -118,7 +118,7 @@ public class DialogDesign extends VerticalGroup {
 //    VisualizeAnswerSection(quizQuestion, skin);
 //    }
 //
-///**
+/// **
 // * Presentation of all possible variations of the questions as text, image or text and image
 // *
 // * @param questionContentType represents the different types of quiz questions that can be
@@ -126,7 +126,7 @@ public class DialogDesign extends VerticalGroup {
 // * @param skin Skin for the dialogue (resources that can be used by UI widgets)
 // * @param outputMsg Content displayed in the scrollable label
 // */
-//private void VisualizeQuestionSection(
+// private void VisualizeQuestionSection(
 //    QuizQuestionContent.QuizQuestionContentType questionContentType,
 //    Skin skin,
 //    String outputMsg) {
@@ -160,18 +160,18 @@ public class DialogDesign extends VerticalGroup {
 //    Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
 //    Constants.WINDOW_HEIGHT / 5f);
 //    }
-//default -> {}
+// default -> {}
 //    }
 //    }
 //
-///**
+/// **
 // * Representation of all possible answer options as Single-Choice, Multiple-Choice or as
 // * Freetext
 // *
 // * @param quizQuestion Various question configurations
 // * @param skin Skin for the dialogue (resources that can be used by UI widgets)
 // */
-//private void VisualizeAnswerSection(QuizQuestion quizQuestion, Skin skin) {
+// private void VisualizeAnswerSection(QuizQuestion quizQuestion, Skin skin) {
 //    switch (quizQuestion.type()) {
 //    case FREETEXT -> {
 //    Table scrollTable = new Table();
@@ -192,6 +192,6 @@ public class DialogDesign extends VerticalGroup {
 //    Constants.WINDOW_WIDTH - DIFFERENCE_MEASURE,
 //    Constants.WINDOW_HEIGHT / 7f);
 //    }
-//default -> {}
+// default -> {}
 //    }
 //    =======

@@ -4,11 +4,10 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+
 import contrib.utils.multiplayer.packages.response.InitializeServerResponse;
 
-/**
- * Custom serializer to send and retrieve objects of {@link InitializeServerResponse}.
- */
+/** Custom serializer to send and retrieve objects of {@link InitializeServerResponse}. */
 public class InitServerResponseSerializer extends Serializer<InitializeServerResponse> {
     @Override
     public void write(Kryo kryo, Output output, InitializeServerResponse initServerResponse) {
@@ -16,7 +15,8 @@ public class InitServerResponseSerializer extends Serializer<InitializeServerRes
     }
 
     @Override
-    public InitializeServerResponse read(Kryo kryo, Input input, Class<InitializeServerResponse> aClass) {
+    public InitializeServerResponse read(
+            Kryo kryo, Input input, Class<InitializeServerResponse> aClass) {
         return new InitializeServerResponse(input.readBoolean());
     }
 }

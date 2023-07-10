@@ -4,13 +4,13 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+
 import contrib.utils.multiplayer.packages.Version;
 import contrib.utils.multiplayer.packages.request.JoinSessionRequest;
+
 import core.Entity;
 
-/**
- * Custom serializer to send and retrieve objects of {@link JoinSessionRequest}.
- */
+/** Custom serializer to send and retrieve objects of {@link JoinSessionRequest}. */
 public class JoinSessionRequestSerializer extends Serializer<JoinSessionRequest> {
     @Override
     public void write(Kryo kryo, Output output, JoinSessionRequest object) {

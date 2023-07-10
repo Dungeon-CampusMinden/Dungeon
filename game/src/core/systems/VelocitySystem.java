@@ -61,8 +61,12 @@ public final class VelocitySystem extends System {
         if (Game.tileAT(newPosition) != null && Game.tileAT(newPosition).isAccessible()) {
             vsd.pc.position(newPosition);
             movementAnimation(vsd);
-            if (newPosition.x != oldPosition.x ||newPosition.y != oldPosition.y){
-                Game.sendMovementUpdate(vsd.e.globalID(), newPosition, vsd.vc.currentXVelocity(), vsd.vc.currentYVelocity());
+            if (newPosition.x != oldPosition.x || newPosition.y != oldPosition.y) {
+                Game.sendMovementUpdate(
+                        vsd.e.globalID(),
+                        newPosition,
+                        vsd.vc.currentXVelocity(),
+                        vsd.vc.currentYVelocity());
             }
         }
 

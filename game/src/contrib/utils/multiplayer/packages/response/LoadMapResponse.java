@@ -1,14 +1,11 @@
 package contrib.utils.multiplayer.packages.response;
 
+import static java.util.Objects.requireNonNull;
 
 import contrib.utils.multiplayer.packages.GameState;
 import contrib.utils.multiplayer.packages.request.LoadMapRequest;
 
-import static java.util.Objects.requireNonNull;
-
-/**
- * Response of {@link LoadMapRequest}
- */
+/** Response of {@link LoadMapRequest} */
 public class LoadMapResponse {
 
     private final boolean isSucceed;
@@ -29,5 +26,7 @@ public class LoadMapResponse {
         return isSucceed;
     }
 
-    public GameState gameState(){return gameState;}
+    public GameState gameState() {
+        return gameState;
+    }
 }

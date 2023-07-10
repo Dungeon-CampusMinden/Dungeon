@@ -31,12 +31,12 @@ public abstract class Component {
         this.entity = entity;
         entity.addComponent(this);
         Logger componentLogger = Logger.getLogger(this.getClass().getName());
-//        componentLogger.info(
-//                "The component '"
-//                        + this.getClass().getName()
-//                        + "' was added to entity '"
-//                        + entity
-//                        + "'.");
+        //        componentLogger.info(
+        //                "The component '"
+        //                        + this.getClass().getName()
+        //                        + "' was added to entity '"
+        //                        + entity
+        //                        + "'.");
     }
 
     /**

@@ -1,7 +1,6 @@
 package contrib.components;
 
 import contrib.systems.AISystem;
-
 import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;

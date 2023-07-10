@@ -192,7 +192,7 @@ public abstract class System {
      */
     public void run() {
         run = true;
-        //LOGGER.info(this.getClass().getName() + " is running");
+        // LOGGER.info(this.getClass().getName() + " is running");
     }
 
     /**

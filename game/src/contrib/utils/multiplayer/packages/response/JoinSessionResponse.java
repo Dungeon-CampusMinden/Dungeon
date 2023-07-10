@@ -1,15 +1,13 @@
 package contrib.utils.multiplayer.packages.response;
 
+import static java.util.Objects.requireNonNull;
 
 import contrib.utils.multiplayer.packages.GameState;
 import contrib.utils.multiplayer.packages.request.JoinSessionRequest;
+
 import core.utils.Point;
 
-import static java.util.Objects.requireNonNull;
-
-/**
- * Response of {@link JoinSessionRequest}
- */
+/** Response of {@link JoinSessionRequest} */
 public class JoinSessionResponse {
 
     private final boolean isSucceed;
@@ -23,13 +21,14 @@ public class JoinSessionResponse {
      * @param isSucceed State, whether server accepted join request or not.
      * @param heroGlobalID From server assigned global ID for playable hero.
      * @param gameState Game state when session joined.
-     * @param initialPosition From server assigned start position of playable hero. Has to be set locally.
+     * @param initialPosition From server assigned start position of playable hero. Has to be set
+     *     locally.
      */
     public JoinSessionResponse(
-        final boolean isSucceed,
-        final int heroGlobalID,
-        final GameState gameState,
-        final Point initialPosition) {
+            final boolean isSucceed,
+            final int heroGlobalID,
+            final GameState gameState,
+            final Point initialPosition) {
 
         this.isSucceed = isSucceed;
         this.heroGlobalID = requireNonNull(heroGlobalID);
@@ -47,15 +46,21 @@ public class JoinSessionResponse {
     /**
      * @return From server assigned global ID for playable hero.
      */
-    public Integer heroGlobalID() { return this.heroGlobalID; }
+    public Integer heroGlobalID() {
+        return this.heroGlobalID;
+    }
 
     /**
      * @return Game state when session joined.
      */
-    public GameState gameState() { return this.gameState; }
+    public GameState gameState() {
+        return this.gameState;
+    }
 
     /**
      * @return From server assigned start position of playable hero.
      */
-    public Point initialPosition() { return this.initialPosition; }
+    public Point initialPosition() {
+        return this.initialPosition;
+    }
 }

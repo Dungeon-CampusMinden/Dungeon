@@ -7,7 +7,6 @@ import dslToGame.graph.Graph;
 import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;
 
-
 // TODO: add more fields (entry-point for interpreter, QuestType, etc.)
 @DSLType
 public record QuestConfig(

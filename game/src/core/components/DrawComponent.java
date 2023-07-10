@@ -9,13 +9,11 @@ import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.draw.IPath;
 
-import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Store all {@link Animation}s for an entity.
@@ -57,18 +55,21 @@ public final class DrawComponent extends Component {
     /**
      * Create a new DrawComponent and add it to the associated entity.
      *
-     * <p>Will read in all subdirectories of the given pathRelativeToAssets and use each file in the subdirectory to
-     * create an animation. So each subdirectory should contain only the files for one animation.
+     * <p>Will read in all subdirectories of the given pathRelativeToAssets and use each file in the
+     * subdirectory to create an animation. So each subdirectory should contain only the files for
+     * one animation.
      *
      * <p>Will set the current animation to idle left
      *
      * @param entity associated entity
-     * @param pathRelativeToAssets Path (as a string) to the directory in the assets folder where the subdirectories
-     *     containing the animation files are stored. Example: "character/knight".
+     * @param pathRelativeToAssets Path (as a string) to the directory in the assets folder where
+     *     the subdirectories containing the animation files are stored. Example:
+     *     "character/knight".
      * @throws IOException if the given pathRelativeToAssets does not exist
      * @see Animation
      */
-    public DrawComponent(final Entity entity, final String pathRelativeToAssets) throws IOException {
+    public DrawComponent(final Entity entity, final String pathRelativeToAssets)
+            throws IOException {
         super(entity);
         // fetch available animations
         try {
@@ -81,7 +82,10 @@ public final class DrawComponent extends Component {
                 final List<String> texturePaths = new ArrayList<>();
                 for (File file : subdir.listFiles()) {
                     if (file.isFile()) {
-                        texturePaths.add(String.format("%s/%s/%s", pathRelativeToAssets, subdir.getName(), file.getName()));
+                        texturePaths.add(
+                                String.format(
+                                        "%s/%s/%s",
+                                        pathRelativeToAssets, subdir.getName(), file.getName()));
                     }
                 }
                 animationMap.put(subdir.getName(), Animation.of(texturePaths));
@@ -197,5 +201,7 @@ public final class DrawComponent extends Component {
         return false;
     }
 
-    public HashMap<String, Animation> animationMap() { return (HashMap<String, Animation>) this.animationMap; }
+    public HashMap<String, Animation> animationMap() {
+        return (HashMap<String, Animation>) this.animationMap;
+    }
 }

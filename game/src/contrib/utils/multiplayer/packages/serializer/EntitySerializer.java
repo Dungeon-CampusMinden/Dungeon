@@ -4,14 +4,14 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+
 import contrib.utils.multiplayer.packages.serializer.components.*;
 import contrib.utils.multiplayer.packages.serializer.components.ItemComponentSerializer;
+
 import core.Component;
 import core.Entity;
 
-/**
- * Custom serializer to send and retrieve objects of {@link Entity}.
- */
+/** Custom serializer to send and retrieve objects of {@link Entity}. */
 public class EntitySerializer extends Serializer<Entity> {
     @Override
     public void write(Kryo kryo, Output output, Entity object) {
@@ -20,10 +20,12 @@ public class EntitySerializer extends Serializer<Entity> {
         output.writeInt(object.globalID());
         final long size = object.componentStream().count();
         output.writeLong(size);
-        object.componentStream().forEach((component) -> {
-            kryo.writeClass(output, component.getClass());
-            kryo.writeObject(output, component);
-        });
+        object.componentStream()
+                .forEach(
+                        (component) -> {
+                            kryo.writeClass(output, component.getClass());
+                            kryo.writeObject(output, component);
+                        });
     }
 
     @Override
@@ -34,41 +36,41 @@ public class EntitySerializer extends Serializer<Entity> {
         final long size = input.readLong();
         final Entity e = new Entity(name, localeID, globalID);
 
-        for (int i = 0; i < size; i++){
-            Class <? extends Component> klass = kryo.readClass(input).getType();
-            switch (klass.getSimpleName()){
+        for (int i = 0; i < size; i++) {
+            Class<? extends Component> klass = kryo.readClass(input).getType();
+            switch (klass.getSimpleName()) {
                 case "DrawComponent":
-                    kryo.readObject(input,klass,new DrawComponentSerializer(e));
+                    kryo.readObject(input, klass, new DrawComponentSerializer(e));
                     break;
                 case "PositionComponent":
-                    kryo.readObject(input,klass,new PositionComponentSerializer(e));
+                    kryo.readObject(input, klass, new PositionComponentSerializer(e));
                     break;
                 case "VelocityComponent":
-                    kryo.readObject(input,klass,new VelocityComponentSerializer(e));
+                    kryo.readObject(input, klass, new VelocityComponentSerializer(e));
                     break;
                 case "CollideComponent":
-                    kryo.readObject(input,klass,new CollideComponentSerializer(e));
+                    kryo.readObject(input, klass, new CollideComponentSerializer(e));
                     break;
                 case "HealthComponent":
-                    kryo.readObject(input,klass,new HealthComponentSerializer(e));
+                    kryo.readObject(input, klass, new HealthComponentSerializer(e));
                     break;
                 case "InteractionComponent":
-                    kryo.readObject(input,klass,new InteractionComponentSerializer(e));
+                    kryo.readObject(input, klass, new InteractionComponentSerializer(e));
                     break;
                 case "InventoryComponent":
-                    kryo.readObject(input,klass,new InventoryComponentSerializer(e));
+                    kryo.readObject(input, klass, new InventoryComponentSerializer(e));
                     break;
                 case "ItemComponent":
-                    kryo.readObject(input,klass,new ItemComponentSerializer(e));
+                    kryo.readObject(input, klass, new ItemComponentSerializer(e));
                     break;
                 case "ProjectileComponent":
-                    kryo.readObject(input,klass,new ProjectileComponentSerializer(e));
+                    kryo.readObject(input, klass, new ProjectileComponentSerializer(e));
                     break;
                 case "StatsComponent":
-                    kryo.readObject(input,klass,new StatsComponentSerializer(e));
+                    kryo.readObject(input, klass, new StatsComponentSerializer(e));
                     break;
                 case "XPComponent":
-                    kryo.readObject(input,klass,new XPComponentSerializer(e));
+                    kryo.readObject(input, klass, new XPComponentSerializer(e));
                     break;
                 default:
                     break;

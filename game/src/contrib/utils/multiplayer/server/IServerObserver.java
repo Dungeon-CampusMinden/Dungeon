@@ -3,7 +3,6 @@ package contrib.utils.multiplayer.server;
 import contrib.utils.multiplayer.packages.event.MovementEvent;
 import contrib.utils.multiplayer.packages.request.*;
 
-
 public interface IServerObserver {
 
     /**

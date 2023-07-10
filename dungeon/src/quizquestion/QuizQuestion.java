@@ -11,7 +11,6 @@ package quizquestion;
 public record QuizQuestion(
         QuizQuestionContent question, QuizQuestionContent[] answers, QuizQuestionType type) {
 
-
     /**
      * The QuizQuestionType enum represents the different types of quiz questions that can be
      * created. The available types are SINGLE_CHOICE, MULTIPLE_CHOICE, and FREETEXT. SINGLE_CHOICE

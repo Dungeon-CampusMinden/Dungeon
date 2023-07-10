@@ -1,10 +1,11 @@
 package contrib.utils.multiplayer;
 
+import static org.mockito.Mockito.mock;
+
 import contrib.utils.multiplayer.client.IClient;
 import contrib.utils.multiplayer.server.IServer;
-import org.junit.Before;
 
-import static org.mockito.Mockito.mock;
+import org.junit.Before;
 
 public class MultiplayerManagerTest {
     private IMultiplayer multiplayer;

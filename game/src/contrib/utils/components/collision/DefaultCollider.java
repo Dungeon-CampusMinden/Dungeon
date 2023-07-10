@@ -8,11 +8,11 @@ public class DefaultCollider implements TriConsumer<Entity, Entity, Tile.Directi
 
     public String message;
 
-    public DefaultCollider(){
+    public DefaultCollider() {
         message = "Collide";
     }
 
-    public DefaultCollider(String message){
+    public DefaultCollider(String message) {
         this.message = message;
     }
 

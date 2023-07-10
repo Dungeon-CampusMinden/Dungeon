@@ -1,7 +1,6 @@
 package core.systems;
 
 import core.Entity;
-
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -66,7 +65,9 @@ public final class DrawSystem extends System {
                 configs.put(currentAnimationTexture, new PainterConfig(currentAnimationTexture));
             }
             painter.draw(
-                    dsd.pc.position(), currentAnimationTexture, configs.get(currentAnimationTexture));
+                    dsd.pc.position(),
+                    currentAnimationTexture,
+                    configs.get(currentAnimationTexture));
         }
     }
 

@@ -1,6 +1,7 @@
 package contrib.utils.components.item;
 
 import contrib.components.InventoryComponent;
+
 import core.Entity;
 
 import java.util.function.BiConsumer;

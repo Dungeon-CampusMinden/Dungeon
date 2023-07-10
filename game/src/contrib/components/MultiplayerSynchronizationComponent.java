@@ -1,9 +1,7 @@
 package contrib.components;
 
-
 import core.Component;
 import core.Entity;
-import core.utils.Point;
 
 /**
  * Marks an entity to be synchronized by the multiplayer session state.

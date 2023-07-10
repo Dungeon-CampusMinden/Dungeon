@@ -18,17 +18,17 @@ public interface IServer {
      */
     void startListening(@Null Integer port) throws IOException;
 
-    /**
-     * Used to implement closing session and ports.
-     */
+    /** Used to implement closing session and ports. */
     void stopListening();
 
     /**
      * Sending objects over TCP to single client.
      *
-     * <p>NOTE: Should be used for messages that are sent at low frequently and are sure to get to the client.
-     * <p>NOTE: For messages that should be sent high frequently and where package lost is not that bad, instead use
-     * {@link IServer#sendUDP(int, Object)}
+     * <p>NOTE: Should be used for messages that are sent at low frequently and are sure to get to
+     * the client.
+     *
+     * <p>NOTE: For messages that should be sent high frequently and where package lost is not that
+     * bad, instead use {@link IServer#sendUDP(int, Object)}
      *
      * @param clientID Unique client ID assigned from server.
      * @param object To be sent object.
@@ -38,9 +38,11 @@ public interface IServer {
     /**
      * Sending objects over UDP to single client.
      *
-     * <p>NOTE: Should be used for messages that are sent high frequently and do not need to arrive safely at the client.
-     * <p>NOTE: For messages that should be sent low frequently and where package lost is not acceptable, instead use
-     * {@link IServer#sendTCP(int, Object)}
+     * <p>NOTE: Should be used for messages that are sent high frequently and do not need to arrive
+     * safely at the client.
+     *
+     * <p>NOTE: For messages that should be sent low frequently and where package lost is not
+     * acceptable, instead use {@link IServer#sendTCP(int, Object)}
      *
      * @param clientID Unique client ID assigned from server.
      * @param object To be sent object.
@@ -50,9 +52,11 @@ public interface IServer {
     /**
      * Send object over TCP to all clients.
      *
-     * <p>NOTE: Should be used for messages that are sent at low frequently and are sure to get to the client.
-     * <p>NOTE: For messages that should be sent high frequently and where package lost is not that bad, instead use
-     * {@link IServer#sendToAllUDP(Object)}
+     * <p>NOTE: Should be used for messages that are sent at low frequently and are sure to get to
+     * the client.
+     *
+     * <p>NOTE: For messages that should be sent high frequently and where package lost is not that
+     * bad, instead use {@link IServer#sendToAllUDP(Object)}
      *
      * @param object To be sent object.
      */
@@ -61,9 +65,11 @@ public interface IServer {
     /**
      * Send object over UDP to all clients.
      *
-     * <p>NOTE: Should be used for messages that are sent high frequently and do not need to arrive safely at the client.
-     * <p>NOTE: For messages that should be sent low frequently and where package lost is not acceptable, instead use
-     * {@link IServer#sendToAllTCP(Object)}}
+     * <p>NOTE: Should be used for messages that are sent high frequently and do not need to arrive
+     * safely at the client.
+     *
+     * <p>NOTE: For messages that should be sent low frequently and where package lost is not
+     * acceptable, instead use {@link IServer#sendToAllTCP(Object)}}
      *
      * @param object To be sent object.
      */
@@ -72,9 +78,11 @@ public interface IServer {
     /**
      * Send object over TCP to all clients.
      *
-     * <p>NOTE: Should be used for messages that are sent at low frequently and are sure to get to the client.
-     * <p>NOTE: For messages that should be sent high frequently and where package lost is not that bad, instead use
-     * {@link IServer#sendToAllExceptUDP(int, Object)}
+     * <p>NOTE: Should be used for messages that are sent at low frequently and are sure to get to
+     * the client.
+     *
+     * <p>NOTE: For messages that should be sent high frequently and where package lost is not that
+     * bad, instead use {@link IServer#sendToAllExceptUDP(int, Object)}
      *
      * @param object To be sent object.
      */
@@ -83,9 +91,11 @@ public interface IServer {
     /**
      * Send object over UDP to all clients.
      *
-     * <p>NOTE: Should be used for messages that are sent high frequently and do not need to arrive safely at the client.
-     * <p>NOTE: For messages that should be sent low frequently and where package lost is not acceptable, instead use
-     * {@link IServer#sendToAllExceptTCP(int, Object)}
+     * <p>NOTE: Should be used for messages that are sent high frequently and do not need to arrive
+     * safely at the client.
+     *
+     * <p>NOTE: For messages that should be sent low frequently and where package lost is not
+     * acceptable, instead use {@link IServer#sendToAllExceptTCP(int, Object)}
      *
      * @param object To be sent object.
      */

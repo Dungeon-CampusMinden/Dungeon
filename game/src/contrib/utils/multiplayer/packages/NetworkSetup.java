@@ -2,6 +2,7 @@ package contrib.utils.multiplayer.packages;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.EndPoint;
+
 import contrib.components.*;
 import contrib.utils.components.ai.AITools;
 import contrib.utils.components.ai.fight.CollideAI;
@@ -19,10 +20,14 @@ import contrib.utils.components.interaction.*;
 import contrib.utils.components.item.*;
 import contrib.utils.components.skill.*;
 import contrib.utils.components.stats.DamageModifier;
+import contrib.utils.multiplayer.packages.event.GameStateUpdateEvent;
 import contrib.utils.multiplayer.packages.event.MovementEvent;
+import contrib.utils.multiplayer.packages.request.*;
+import contrib.utils.multiplayer.packages.response.*;
+import contrib.utils.multiplayer.packages.serializer.*;
+import contrib.utils.multiplayer.packages.serializer.ItemDataSerializer;
 import contrib.utils.multiplayer.packages.serializer.components.*;
 import contrib.utils.multiplayer.packages.serializer.components.ItemComponentSerializer;
-import contrib.utils.multiplayer.packages.serializer.ItemDataSerializer;
 import contrib.utils.multiplayer.packages.serializer.gamesession.*;
 import contrib.utils.multiplayer.packages.serializer.java.BiConsumerSerializer;
 import contrib.utils.multiplayer.packages.serializer.java.CoordinateSerializer;
@@ -31,6 +36,7 @@ import contrib.utils.multiplayer.packages.serializer.java.TriConsumerSerializer;
 import contrib.utils.multiplayer.packages.serializer.level.ILevelSerializer;
 import contrib.utils.multiplayer.packages.serializer.level.TileSerializer;
 import contrib.utils.multiplayer.packages.serializer.utils.PointSerializer;
+
 import core.Component;
 import core.Entity;
 import core.components.*;
@@ -45,10 +51,6 @@ import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.draw.*;
-import contrib.utils.multiplayer.packages.request.*;
-import contrib.utils.multiplayer.packages.response.*;
-import contrib.utils.multiplayer.packages.event.GameStateUpdateEvent;
-import contrib.utils.multiplayer.packages.serializer.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,22 +60,19 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-/**
- * Used to configure network endpoints (server and client).
- */
+/** Used to configure network endpoints (server and client). */
 public class NetworkSetup {
 
     /**
      * Register all Classes which should or might be sent and receive by the given endpoint.
      *
-     * <p> Note: For communication, both participants (client and server) must be configured in the same way.
-     * This function must be executed accordingly with both instances.
+     * <p>Note: For communication, both participants (client and server) must be configured in the
+     * same way. This function must be executed accordingly with both instances.
      *
-     * @param endPoint Endpoint that should be configured,
-     * like {@link com.esotericsoftware.kryonet.Client} and {@link com.esotericsoftware.kryonet.Server}.
-     *
-     * @See {@link com.esotericsoftware.kryonet.Client}
-     * @See {@link com.esotericsoftware.kryonet.Server}
+     * @param endPoint Endpoint that should be configured, like {@link
+     *     com.esotericsoftware.kryonet.Client} and {@link
+     *     com.esotericsoftware.kryonet.Server}. @See {@link
+     *     com.esotericsoftware.kryonet.Client} @See {@link com.esotericsoftware.kryonet.Server}
      */
     public static void registerCommunicationClasses(EndPoint endPoint) {
         final Kryo kryo = endPoint.getKryo();
@@ -128,7 +127,9 @@ public class NetworkSetup {
         kryo.register(InteractionComponent.class, new InteractionComponentSerializer());
         kryo.register(InventoryComponent.class, new InventoryComponentSerializer());
         kryo.register(ItemComponent.class, new ItemComponentSerializer());
-        kryo.register(MultiplayerSynchronizationComponent.class, new MultiplayerSynchronizationComponentSerializer());
+        kryo.register(
+                MultiplayerSynchronizationComponent.class,
+                new MultiplayerSynchronizationComponentSerializer());
         kryo.register(ProjectileComponent.class, new ProjectileComponentSerializer());
         kryo.register(StatsComponent.class, new StatsComponentSerializer());
         kryo.register(XPComponent.class, new XPComponentSerializer());
@@ -155,7 +156,7 @@ public class NetworkSetup {
         kryo.register(DefaultOnDeath.class);
         kryo.register(DropLoot.class, new DropLootSerializer());
         kryo.register(DefaultOnDeath.class, new DefaultOnDeathSerializer());
-        kryo.register(ControlPointReachable.class, new ControlPointReachableSerializer() );
+        kryo.register(ControlPointReachable.class, new ControlPointReachableSerializer());
         kryo.register(DropItemsInteraction.class, new DropItemsInteractionSerializer());
         kryo.register(DefaultInteraction.class, new DefaultInteractionSerializer());
         kryo.register(ItemData.class, new ItemDataSerializer());

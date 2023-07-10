@@ -1,6 +1,7 @@
 package contrib.components;
 
 import contrib.utils.components.interaction.DefaultInteraction;
+
 import core.Component;
 import core.Entity;
 
@@ -59,7 +60,10 @@ public class InteractionComponent extends Component {
     public float radius() {
         return radius;
     }
-    public boolean getRepeatable(){ return repeatable; }
+
+    public boolean getRepeatable() {
+        return repeatable;
+    }
 
     public Consumer<Entity> getOnInteraction() {
         return onInteraction;

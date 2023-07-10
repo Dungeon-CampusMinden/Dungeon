@@ -1,16 +1,14 @@
 package contrib.utils.multiplayer.packages.serializer.gamesession;
 
-
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+
 import contrib.utils.multiplayer.packages.GameState;
 import contrib.utils.multiplayer.packages.response.LoadMapResponse;
 
-/**
- * Custom serializer to send and retrieve objects of {@link LoadMapResponse}.
- */
+/** Custom serializer to send and retrieve objects of {@link LoadMapResponse}. */
 public class LoadMapResponseSerializer extends Serializer<LoadMapResponse> {
     @Override
     public void write(Kryo kryo, Output output, LoadMapResponse object) {

@@ -4,9 +4,11 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+
 import contrib.utils.components.item.ItemData;
 import contrib.utils.components.item.ItemType;
 import contrib.utils.components.stats.DamageModifier;
+
 import core.Entity;
 import core.utils.Point;
 import core.utils.TriConsumer;
@@ -14,9 +16,7 @@ import core.utils.components.draw.Animation;
 
 import java.util.function.BiConsumer;
 
-/**
- * Custom serializer to send and retrieve objects of {@link ItemData}.
- */
+/** Custom serializer to send and retrieve objects of {@link ItemData}. */
 public class ItemDataSerializer extends Serializer<ItemData> {
     @Override
     public void write(Kryo kryo, Output output, ItemData object) {
@@ -42,6 +42,15 @@ public class ItemDataSerializer extends Serializer<ItemData> {
         TriConsumer<Entity, ItemData, Point> onDrop = kryo.readObject(input, TriConsumer.class);
         BiConsumer<Entity, ItemData> onUse = kryo.readObject(input, BiConsumer.class);
         DamageModifier damageModifier = kryo.readObject(input, DamageModifier.class);
-        return new ItemData(itemType, inventoryTexture, worldTexture, itemName, description, onCollect, onDrop, onUse, damageModifier);
+        return new ItemData(
+                itemType,
+                inventoryTexture,
+                worldTexture,
+                itemName,
+                description,
+                onCollect,
+                onDrop,
+                onUse,
+                damageModifier);
     }
 }

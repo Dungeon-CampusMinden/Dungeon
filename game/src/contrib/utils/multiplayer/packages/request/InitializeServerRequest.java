@@ -5,6 +5,7 @@ import contrib.utils.multiplayer.packages.response.InitializeServerResponse;
 
 /**
  * Used to request server to initialize for hosting multiplayer session.
+ *
  * <p>According response would be {@link InitializeServerResponse}
  */
 public class InitializeServerRequest {
@@ -13,7 +14,8 @@ public class InitializeServerRequest {
     /**
      * Creates a new instance.
      *
-     * @param clientVersion Client version that want to host multiplayer session. Has to be same as server version.
+     * @param clientVersion Client version that want to host multiplayer session. Has to be same as
+     *     server version.
      */
     public InitializeServerRequest(final Version clientVersion) {
         this.clientVersion = clientVersion;
@@ -22,5 +24,7 @@ public class InitializeServerRequest {
     /**
      * @return Client version.
      */
-    public Version clientVersion() {return this.clientVersion;}
+    public Version clientVersion() {
+        return this.clientVersion;
+    }
 }
