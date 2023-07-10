@@ -66,7 +66,7 @@ public final class InteractionComponent extends Component {
     /**
      * Triggers the interaction callback.
      *
-     * <p>The interaction is not repeatable. This component will be removed from the entity
+     * <p>If the interaction is not repeatable, this component will be removed from the entity
      * afterwards.
      */
     public void triggerInteraction() {
