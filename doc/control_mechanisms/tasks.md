@@ -51,12 +51,10 @@ Entity wizzard = new Entity();
 wizzard.add(new InteractionComponent(wizzard,sayHello))
 ```
 
-Mithilfe des `TaskComponent` und `TaskContentComponent` können Callback-Methoden in der DSL definiert und im Spiel als Event-Handler ausgelöst werden.
-
-Diese Callback-Methoden können beispielsweise zum Bewerten der gegebenen Lösung verwendet werden.
+Mithilfe des `TaskComponent` und `TaskContentComponent` können Callback-Methoden zur Bewertung von Aufgabenlösungen in der DSL definiert und im Spiel als Event-Handler ausgelöst werden.
 Die Callback-Methoden können in den Event-Handlern der einzelnen Komponenten implementiert werden, z.B. als Interaktions-Event.
 
-Damit die Callback-Methoden in der DSL wissen, zu welchem Task eine Entität gehört, wird ein Weg von der `Entity` zum `Task` benötigt.
+Damit die Callback-Methoden für die Aufgabenbwertung in der DSL wissen, zu welchem Task eine Entität gehört, wird ein Weg von der `Entity` zum `Task` benötigt.
 Für Events, die von einer Entität ausgelöst werden, die ein `TaskContentComponent` besitzt, sieht der Weg wie folgt aus:
 `Entity` -> `TaskContentComponent` -> `TaskContent` -> `Task`.
 Für Events, die von einer Entität ausgelöst werden, die ein `TaskComponent` besitzt, sieht der Weg wie folgt aus:
