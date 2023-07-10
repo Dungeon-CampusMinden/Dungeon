@@ -17,20 +17,20 @@ import core.Entity;
  *
  * <p>The {@link contrib.entities.WorldItemBuilder WorldItemBuilder} demonstrates how to create an
  * item entity. You can use the {@link contrib.entities.WorldItemBuilder#buildWorldItem(ItemData)}
- * method to create a new Item-Entity from an {@link ItemData}.
+ * method to create a new item-entity from an {@link ItemData}.
  *
  * <p>The {@link contrib.entities.WorldItemBuilder} will create an entity with a {@link
  * ItemComponent}, {@link core.components.PositionComponent}, {@link core.components.DrawComponent},
  * and {@link CollideComponent}. The {@link contrib.entities.WorldItemBuilder} will configure the
- * collide-callback for the Item-Entity so that if it collides with the player character, the stored
+ * collide-callback for the item-entity so that if it collides with the player character, the stored
  * {@link ItemData} will be added to the {@link InventoryComponent} of the player, and the
  * item-entity will be removed from the game.
  *
- * <p>By default, an {@link ItemData} that is dropped from the inventory will be created as an
- * Item-Entity using the {@link contrib.entities.WorldItemBuilder}.
+ * <p>By default, an {@link ItemData} that is dropped from the inventory will be (re-) created as an
+ * item-entity using the {@link contrib.entities.WorldItemBuilder}.
  *
  * <p>Note that this component does not implement this behavior. This component only marks an entity
- * as an Item and is used to store the associated {@link ItemData}.
+ * as an item and is used to store the associated {@link ItemData}.
  *
  * @see ItemData
  * @see contrib.entities.WorldItemBuilder
