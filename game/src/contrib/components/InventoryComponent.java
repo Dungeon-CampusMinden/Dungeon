@@ -35,7 +35,7 @@ public final class InventoryComponent extends Component {
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
 
     /**
-     * Creates a new {@link InventoryComponent} with the given size and add it to the associated
+     * Create a new {@link InventoryComponent} with the given size and add it to the associated
      * entity.
      *
      * @param entity The associated entity.
@@ -48,7 +48,7 @@ public final class InventoryComponent extends Component {
     }
 
     /**
-     * Adds an item to the inventory.
+     * Add the given item to the inventory.
      *
      * <p>Does not allow adding more items than the size of the inventory.
      *
@@ -85,7 +85,7 @@ public final class InventoryComponent extends Component {
     }
 
     /**
-     * Gets the number of items stored.
+     * Get the number of items stored.
      *
      * @return The number of items that are stored in this component.
      */
@@ -94,7 +94,7 @@ public final class InventoryComponent extends Component {
     }
 
     /**
-     * Gets the available number of items that can still be stored.
+     * Get the available number of items that can still be stored.
      *
      * @return The size of the available item space.
      */
@@ -112,7 +112,7 @@ public final class InventoryComponent extends Component {
     }
 
     /**
-     * Gets a list of items stored in this component.
+     * Get a list of items stored in this component.
      *
      * @return A copy of the inventory.
      */
