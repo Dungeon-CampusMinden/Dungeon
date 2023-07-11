@@ -135,9 +135,9 @@ public final class DrawComponent extends Component {
      * String)} if possible.
      *
      * @param entity associated entity
-     * @param animationMap
+     * @param animationMap predefined animations.
      */
-    public DrawComponent(final Entity entity, final HashMap animationMap) {
+    public DrawComponent(final Entity entity, final HashMap<String, Animation> animationMap) {
         super(entity);
         this.animationMap = animationMap;
         currentAnimation(CoreAnimations.IDLE_LEFT);
