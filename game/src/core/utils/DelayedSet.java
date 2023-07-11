@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  * set.
  *
  * <p>{@link #current} contains the current "active" objects of the collection. Use this set to
- * iterate over and work with. Use {@link #currentStream()} to get this set as a stream.
+ * iterate over and work with. Use {@link #stream()} to get this set as a stream.
  *
  * <p>Use {@link #add} to add the given object to {@link #toAdd}. After calling {@link #update()},
  * the objects inside this inner set will be added to {@link #current}.
@@ -110,18 +110,9 @@ public final class DelayedSet<T> {
     /**
      * @return {@link #current} as stream
      */
-    public Stream<T> currentStream() {
+    public Stream<T> stream() {
         synchronized (current) {
             return new ArrayList<>(current).stream();
-        }
-    }
-
-    /**
-     * @return {@link #current}
-     */
-    public Set<T> current() {
-        synchronized (current) {
-            return new HashSet<>(current);
         }
     }
 

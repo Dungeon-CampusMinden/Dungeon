@@ -22,6 +22,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Observable;
 import java.util.Set;
 
 public class MultiplayerManagerTest {
@@ -49,7 +50,7 @@ public class MultiplayerManagerTest {
         assertFalse(multiplayerManager.isHost());
         assertFalse(multiplayerManager.isConnectedToSession());
         assertEquals(multiplayerManager.entityStream().count(), 0);
-        // Add your assertions or verifications here
+
     }
 
     // Write similar test methods for other methods in MultiplayerManager class

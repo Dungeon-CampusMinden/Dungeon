@@ -33,26 +33,20 @@ import java.util.stream.Collectors;
  */
 public final class MultiplayerSynchronizationSystem extends System {
 
-    /** Used to get global/multiplayer state. */
-    private final MultiplayerManager multiplayerManager;
 
     /**
      * Create a new MultiplayerSynchronizationSystem to synchronize global and local state of
      * entities.
-     *
-     * @param multiplayerManager The multiplayer instance that holds global state.
-     * @see MultiplayerManager
      */
-    public MultiplayerSynchronizationSystem(final MultiplayerManager multiplayerManager) {
+    public MultiplayerSynchronizationSystem() {
         super(MultiplayerSynchronizationComponent.class);
-        this.multiplayerManager = requireNonNull(multiplayerManager);
     }
 
     @Override
     public void execute() {
-        if (multiplayerManager.isConnectedToSession()) {
-            if (multiplayerManager.entityStream() != null
-                    && multiplayerManager.entityStream().findAny().isPresent()) {
+        if (Game.isMultiplayerMode()) {
+            if (Game.entityStreamGlobal() != null
+                    && Game.entityStreamGlobal().findAny().isPresent()) {
                 synchronizeAddedEntities();
                 synchronizeRemovedEntities();
                 synchronizePositions();
@@ -72,8 +66,7 @@ public final class MultiplayerSynchronizationSystem extends System {
                         .map(Entity::globalID)
                         .collect(Collectors.toSet());
 
-        multiplayerManager
-                .entityStream()
+        Game.entityStreamGlobal()
                 .forEach(
                         multiplayerEntity -> {
                             boolean isEntityNew =
@@ -101,8 +94,7 @@ public final class MultiplayerSynchronizationSystem extends System {
                 .forEach(
                         entity -> {
                             boolean isEntityRemoved =
-                                    multiplayerManager
-                                            .entityStream()
+                                    Game.entityStreamGlobal()
                                             .noneMatch(x -> x.globalID() == entity.globalID());
                             if (isEntityRemoved) {
                                 Game.removeEntity(entity);
@@ -119,8 +111,7 @@ public final class MultiplayerSynchronizationSystem extends System {
                             PositionComponent positionComponentLocal =
                                     localEntityState.fetch(PositionComponent.class).orElseThrow();
 
-                            multiplayerManager
-                                    .entityStream()
+                            Game.entityStreamGlobal()
                                     .forEach(
                                             multiplayerEntityState -> {
                                                 if (multiplayerEntityState.globalID()
@@ -153,8 +144,7 @@ public final class MultiplayerSynchronizationSystem extends System {
                 .filter(entity -> entity.fetch(VelocityComponent.class).isPresent())
                 .forEach(
                         localEntityState ->
-                                multiplayerManager
-                                        .entityStream()
+                                Game.entityStreamGlobal()
                                         .forEach(
                                                 multiplayerEntityState -> {
                                                     if (multiplayerEntityState.globalID()
@@ -208,8 +198,7 @@ public final class MultiplayerSynchronizationSystem extends System {
 
     /** Removes all entities that has been marked as multiplayer entity. */
     private void removeMultiplayerEntities() {
-        multiplayerManager
-                .entityStream()
+        Game.entityStreamGlobal()
                 .forEach(
                         globalEntity -> {
                             Game.entityStream()

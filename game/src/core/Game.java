@@ -120,7 +120,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     private boolean doSetup = true;
     private boolean uiDebugFlag = false;
 
-    private Optional<GameMode> currentGameMode;
+    private static Optional<GameMode> currentGameMode;
     private static MultiplayerManager multiplayerManager =
             new MultiplayerManager(Game.getInstance());
 
@@ -232,7 +232,16 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      * @return a stream of all entities currently in the game
      */
     public static Stream<Entity> entityStream() {
-        return ENTITIES.currentStream();
+        return ENTITIES.stream();
+    }
+
+    /**
+     * Use this stream if you want to iterate over all currently active GLOBAL entities.
+     *
+     * @return a stream of all GLOBAL entities.
+     */
+    public static Stream<Entity> entityStreamGlobal() {
+        return multiplayerManager.entityStream();
     }
 
     /**
@@ -321,7 +330,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
             if (hero == null) {
                 hero(EntityFactory.newHero());
             }
-            multiplayerManager.startSession();
+            multiplayerManager.hostSession();
         } catch (Exception ex) {
             final String message = "Multiplayer session failed to start.";
             LOGGER.warning(String.format("%s\n%s", message, ex.getMessage()));
@@ -411,7 +420,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
             levelManager.loadLevel(LEVELSIZE);
             // Needed to synchronize toAdd and toRemove entities into currentEntities
             updateSystems();
-            multiplayerManager.loadLevel(currentLevel, ENTITIES.current(), hero);
+            multiplayerManager.loadLevel(currentLevel, ENTITIES.stream().collect(Collectors.toSet()), hero);
         }
     }
 
@@ -745,7 +754,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
             if (currentGameMode.get() == GameMode.SinglePlayer) {
                 levelManager.loadLevel(LEVELSIZE);
             } else {
-                if (multiplayerManager().isConnectedToSession()) {
+                if (multiplayerManager.isConnectedToSession()) {
                     if (multiplayerManager.isHost()) {
                         // First create new leve locally and then force server to host new map for
                         // all.
@@ -823,7 +832,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         addSystem(new DrawSystem(painter));
         addSystem(new PlayerSystem());
         addSystem(new HudSystem());
-        addSystem(new MultiplayerSynchronizationSystem(multiplayerManager));
+        addSystem(new MultiplayerSynchronizationSystem());
     }
 
     @Override
@@ -832,11 +841,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         stage().ifPresent(x -> x.getViewport().update(width, height, true));
     }
 
-    public static MultiplayerManager multiplayerManager() {
-        return multiplayerManager;
-    }
-
-    public static DelayedSet<Entity> entities() {
-        return ENTITIES;
+    public static boolean isMultiplayerMode() {
+        return currentGameMode.isPresent() ? currentGameMode.get() != GameMode.SinglePlayer : false;
     }
 }

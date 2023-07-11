@@ -99,8 +99,7 @@ public class Dungeon extends Game implements IMenuScreenObserver {
             core.Game.addSystem(new HealthSystem());
             core.Game.addSystem(new XPSystem());
             core.Game.addSystem(new ProjectileSystem());
-            core.Game.addSystem(
-                    new MultiplayerSynchronizationSystem(gameScreen.multiplayerManager()));
+            core.Game.addSystem(new MultiplayerSynchronizationSystem());
             gameScreen.stopSystems();
         } catch (Exception ex) {
             LOGGER.severe("Failed to create game screen. " + ex.getMessage());

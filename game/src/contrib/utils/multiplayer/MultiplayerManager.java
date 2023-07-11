@@ -24,10 +24,7 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
@@ -35,8 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-/** Used to handle multiplayer sessions. */
-public class MultiplayerManager implements IClientObserver, IServerObserver {
+public class MultiplayerManager implements IMultiplayerManager, IClientObserver, IServerObserver {
 
     private static final Version VERSION = new Version(0, 0, 0);
     private static final int DEFAULT_CLIENT_ID_NOT_CONNECTED = -1;
@@ -107,6 +103,7 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
         this.entities = new HashSet<>();
     }
 
+    /* CLIENT SPECIFIC EVENT HANDLING */
     @Override
     public void onConnectedToServer() {}
 
@@ -159,6 +156,7 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
         this.entities = entities;
     }
 
+    /* CLIENT SPECIFIC EVENT HANDLING */
     @Override
     public void onClientConnected(final int clientID) {}
 
@@ -311,7 +309,7 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
      * @throws IOException if currently now free port found on device to host session. (should never
      *     occur)
      */
-    public void startSession() throws IOException {
+    public void hostSession() throws IOException {
         clearLocalSessionData();
         stopEndpoints();
         // Check whether which random port is not already in use and listen to this on serverside
@@ -369,7 +367,7 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
      * @param port Port through which other clients can join.
      * @throws IOException if port not accessible.
      */
-    public void startSession(final int port) throws IOException {
+    public void hostSession(final int port) throws IOException {
         clearLocalSessionData();
         stopEndpoints();
         server.startListening(port);
@@ -439,7 +437,9 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
      * @param hero Own hero.
      */
     public void loadLevel(
-            final ILevel level, final Set<Entity> currentEntities, final Entity hero) {
+            final ILevel level,
+            final Set<Entity> currentEntities,
+            final Entity hero) {
         if (isHost()) {
             client.sendTCP(
                     new LoadMapRequest(
@@ -514,10 +514,10 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
     /**
      * Gets global state of entities.
      *
-     * @return Global state of entities.
+     * @return (Copy) Global state of entities.
      */
     public Stream<Entity> entityStream() {
-        return this.entities.stream();
+        return new ArrayList<>(entities).stream();
     }
 
     private void stopEndpoints() {
