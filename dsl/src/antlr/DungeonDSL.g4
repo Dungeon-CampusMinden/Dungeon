@@ -66,11 +66,53 @@ fn_def
     ;
 
 stmt
-    : primary ';'
+    : expression ';'
     | stmt_block
     | conditional_stmt
     | return_stmt
     ;
+
+expression
+    : assignment
+    ;
+
+assignment
+    : ( func_call '.' )? ID '=' assignment
+    | logic_or
+    ;
+
+logic_or
+    : logic_and ( 'or' logic_and )*
+    ;
+
+logic_and
+    : equality ( 'and' equality )*
+    ;
+
+equality
+    : comparison ( ( '!=' | '==' ) comparison )*
+    ;
+
+comparison
+    : term ( ( '>' | '>=' | '<' | '<=' ) term )*
+    ;
+
+term
+    : factor ( ( '-' | '+' ) factor )*
+    ;
+
+factor
+    : unary ( ( '/' | '*' ) unary )*
+    ;
+
+unary
+    : ( '!' | '-' ) unary
+    | func_call
+    ;
+
+func_call
+        : primary ('(' param_list? ')' | '.' ID)*
+        ;
 
 stmt_block
     : '{' stmt_list? '}'
@@ -82,11 +124,11 @@ stmt_list
     ;
 
 return_stmt
-    : 'return' primary? ';'
+    : 'return' expression? ';'
     ;
 
 conditional_stmt
-    : 'if' primary stmt else_stmt?
+    : 'if' expression stmt else_stmt?
     ;
 
 else_stmt
@@ -129,20 +171,11 @@ property_def_list
         ;
 
 property_def
-        : ID ':' primary;
-
-func_call
-        : ID '(' param_list? ')'
-        ;
+        : ID ':' expression;
 
 param_list
-        : primary ',' param_list
-        | primary
-        ;
-
-member_access
-        : ID '.' (ID | func_call)
-        | member_access '.' (ID | func_call)
+        : expression ',' param_list
+        | expression
         ;
 
 primary : ID
@@ -151,9 +184,8 @@ primary : ID
         | FALSE
         | NUM
         | NUM_DEC
-        | func_call
         | aggregate_value_def
-        | member_access
+        | '(' expression ')'
         ;
 
 /*
