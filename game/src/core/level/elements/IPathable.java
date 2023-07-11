@@ -67,11 +67,7 @@ public interface IPathable extends IndexedGraph<Tile> {
      */
     default Point positionOf(Entity entity) {
         return entity.fetch(PositionComponent.class)
-                .orElseThrow(
-                        () ->
-                                new MissingComponentException(
-                                        entity.getClass().getName()
-                                                + "is missing PositionComponent"))
+                .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class))
                 .position();
     }
 }
