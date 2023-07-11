@@ -601,7 +601,7 @@ public final class Game extends ScreenAdapter {
      */
     public static void currentLevel(ILevel level) {
         LevelSystem levelSystem = (LevelSystem) systems.get(LevelSystem.class);
-        if (levelSystem != null) levelSystem.level(level);
+        if (levelSystem != null) levelSystem.loadLevel(level);
         else LOGGER.warning("Can not set Level because levelSystem is null.");
     }
 

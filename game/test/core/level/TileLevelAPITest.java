@@ -149,7 +149,7 @@ public class TileLevelAPITest {
 
         when(level.layout()).thenReturn(layout);
 
-        api.level(level);
+        api.loadLevel(level);
         api.execute();
 
         verify(level).layout();
@@ -219,7 +219,7 @@ public class TileLevelAPITest {
 
     @Test
     public void test_setLevel() {
-        api.level(level);
+        api.loadLevel(level);
         Mockito.verifyNoInteractions(generator);
         verify(onLevelLoader).execute();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
