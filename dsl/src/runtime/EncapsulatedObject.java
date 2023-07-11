@@ -1,6 +1,7 @@
 package runtime;
 
 import semanticanalysis.types.AggregateType;
+import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.TypeBuilder;
 
 import java.lang.reflect.Field;
@@ -81,23 +82,34 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                 // convert the read field value to a DSL 'Value'
                 // this may require recursive creation of encapsulated objects,
                 // if the field is a component for example
-                var type = TypeBuilder.getDSLTypeForClass(fieldValue.getClass());
-                if (type != null) {
-                    // create encapsulated value (because the field is a POD-field, or "basic
-                    // type") -> linking the value to the field is only required for setting the
-                    // internal value
-                    // NOTE: this behaviour differs from the default translation of the
-                    // RuntimeObjectTranslator, because we know in this case, that the resolved
-                    // name is a member of the underlying object
-                    returnValue = new EncapsulatedField(type, correspondingField, this.object);
-                } else {
-                    returnValue =
-                            environment
-                                    .getRuntimeObjectTranslator()
-                                    .translateRuntimeObject(fieldValue, this, this.environment);
+                var type = this.environment.getDSLTypeForClass(fieldValue.getClass());
+                if (type != BuiltInType.noType) {
+                    switch (type.getTypeKind()) {
+                        case Basic:
+                            // create encapsulated value (because the field is a POD-field, or
+                            // "basic type") -> linking the value to the field is only required
+                            // for setting the internal value
+                            // NOTE: this behaviour differs from the default translation of the
+                            // RuntimeObjectTranslator, because we know in this case, that the
+                            // resolved name is a member of the underlying object
+                            returnValue =
+                                    new EncapsulatedField(type, correspondingField, this.object);
+                            break;
+                        case PODAdapted:
+                        case AggregateAdapted:
+                        case Aggregate:
+                            returnValue =
+                                    environment
+                                            .getRuntimeObjectTranslator()
+                                            .translateRuntimeObject(
+                                                    fieldValue, this, this.environment);
+                            break;
+                        case FunctionType:
+                            break;
+                    }
+                    // cache it
+                    this.objectCache.put(name, returnValue);
                 }
-                // cache it
-                this.objectCache.put(name, returnValue);
             } catch (IllegalAccessException e) {
                 // TODO: handle
             }

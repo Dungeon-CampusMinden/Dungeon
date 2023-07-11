@@ -1,9 +1,8 @@
 package runtime;
 
-import semanticanalysis.Symbol;
 import semanticanalysis.types.AggregateType;
+import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.IType;
-import semanticanalysis.types.TypeBuilder;
 
 import java.util.HashMap;
 
@@ -51,19 +50,17 @@ public class RuntimeObjectTranslator {
     protected Value translateRuntimeObjectDefault(
             Object object, IMemorySpace parentMemorySpace, IEvironment environment) {
         Value returnValue = Value.NONE;
-        var objectsClass = object.getClass();
-        IType dslType = TypeBuilder.getDSLTypeForClass(objectsClass);
-
-        if (dslType != null) {
-            // create plain value
-            returnValue = new Value(dslType, object);
-        } else {
-            String dslTypeName = TypeBuilder.getDSLName(objectsClass);
-            Symbol dslTypeSymbol = environment.getGlobalScope().resolve(dslTypeName);
-            if (dslTypeSymbol != Symbol.NULL) {
-                dslType = (IType) dslTypeSymbol;
-                IType.Kind typeKind = dslType.getTypeKind();
-                if (typeKind == IType.Kind.Aggregate) {
+        IType dslType = environment.getDSLTypeForClass(object.getClass());
+        if (dslType != BuiltInType.noType) {
+            switch (dslType.getTypeKind()) {
+                case Basic:
+                case PODAdapted:
+                case AggregateAdapted:
+                    // if the type is adapted, it is an external type and therefore should be
+                    // represented as a non-complex Value
+                    returnValue = new Value(dslType, object);
+                    break;
+                case Aggregate:
                     var aggregateType = (AggregateType) dslType;
 
                     returnValue = new AggregateValue(aggregateType, parentMemorySpace, object);
@@ -71,13 +68,10 @@ public class RuntimeObjectTranslator {
                             new EncapsulatedObject(
                                     object, aggregateType, parentMemorySpace, environment);
                     ((AggregateValue) returnValue).setMemorySpace(encapsulatedObject);
-                } else if (typeKind == IType.Kind.PODAdapted
-                        || typeKind == IType.Kind.AggregateAdapted) {
-                    // if the type is adapted, it is an external type and therefore should be
-                    // represented as
-                    // a non-complex Value
-                    returnValue = new Value(dslType, object);
-                }
+                    break;
+                case FunctionType:
+                    // TODO
+                    break;
             }
         }
         return returnValue;

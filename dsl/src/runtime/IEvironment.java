@@ -1,6 +1,7 @@
 package runtime;
 
 import semanticanalysis.*;
+import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 
@@ -61,6 +62,16 @@ public interface IEvironment {
 
     default HashMap<Class<?>, IType> javaTypeToDSLTypeMap() {
         return new HashMap<>();
+    }
+
+    default IType getDSLTypeForClass(Class<?> clazz) {
+        IType dslType = BuiltInType.noType;
+        String dslTypeName = TypeBuilder.getDSLTypeName(clazz);
+        Symbol dslTypeSymbol = this.getGlobalScope().resolve(dslTypeName);
+        if (dslTypeSymbol != Symbol.NULL) {
+            dslType = (IType) dslTypeSymbol;
+        }
+        return dslType;
     }
 
     RuntimeObjectTranslator getRuntimeObjectTranslator();
