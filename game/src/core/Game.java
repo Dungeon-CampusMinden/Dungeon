@@ -327,6 +327,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
             LOGGER.warning(String.format("%s\n%s", message, ex.getMessage()));
             Entity entity = UITools.generateNewTextDialog(message, "Ok", "Error on session start.");
             entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+            stopSystems();
         }
     }
 
@@ -350,6 +351,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
             LOGGER.warning(String.format("%s\n%s", message, ex.getMessage()));
             Entity entity = UITools.generateNewTextDialog(message, "Ok", "Error on join.");
             entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+            stopSystems();
         }
     }
 
@@ -364,6 +366,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
             LOGGER.warning(message);
             Entity entity = UITools.generateNewTextDialog(message, "Ok", "Error session start.");
             entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+            stopSystems();
         }
     }
 
@@ -386,12 +389,14 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
                 LOGGER.warning(String.format("%s\n%s", message, ex.getMessage()));
                 Entity entity = UITools.generateNewTextDialog(message, "Ok", "Process failure");
                 entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+                stopSystems();
             }
         } else {
             final String message = "Cannot join multiplayer session";
             LOGGER.warning(message);
             Entity entity = UITools.generateNewTextDialog(message, "Ok", "Connection failed.");
             entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+            stopSystems();
         }
     }
 
@@ -404,8 +409,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     public void onChangeMapRequest() {
         if (multiplayerManager.isHost()) {
             levelManager.loadLevel(LEVELSIZE);
-            updateSystems(); // Needed to synchronize toAdd and toRemove entities into
-            // currentEntities
+            // Needed to synchronize toAdd and toRemove entities into currentEntities
+            updateSystems();
             multiplayerManager.loadLevel(currentLevel, ENTITIES.current(), hero);
         }
     }
@@ -416,6 +421,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         LOGGER.info(message);
         Entity entity = UITools.generateNewTextDialog(message, "Ok", "Connection lost.");
         entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+        stopSystems();
     }
 
     @Override
