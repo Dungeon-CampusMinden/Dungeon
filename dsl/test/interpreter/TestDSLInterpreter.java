@@ -21,7 +21,6 @@ import semanticanalysis.Scope;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
 import semanticanalysis.types.CallbackAdapter.ConsumerCallbackAdapterBuilder;
-import semanticanalysis.types.CallbackAdapter.FunctionCallbackAdapter;
 import semanticanalysis.types.CallbackAdapter.FunctionCallbackAdapterBuilder;
 
 import java.io.ByteArrayOutputStream;
@@ -1002,8 +1001,7 @@ public class TestDSLInterpreter {
         var functionSymbol =
                 (FunctionSymbol) rtEnv.getSymbolTable().getGlobalScope().resolve("other_func");
         FunctionCallbackAdapterBuilder builder = new FunctionCallbackAdapterBuilder(interpreter);
-        var callbackAdapter =
-            builder.buildAdapter( functionSymbol );
+        var callbackAdapter = builder.buildAdapter(functionSymbol);
 
         // var testClassObject = new TestTypeBuilder.TestClass();
         Function func = callbackAdapter::call;
@@ -1022,7 +1020,7 @@ public class TestDSLInterpreter {
     @Test
     public void testCallbackConsumer() {
         String program =
-            """
+                """
             fn other_func(entity my_entity) {
                 print("Inside DSL");
             }
@@ -1038,12 +1036,8 @@ public class TestDSLInterpreter {
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
         var config =
-            Helpers.generateQuestConfigWithCustomTypes(
-                program,
-                env,
-                interpreter,
-                Entity.class,
-                TestComponentWithCallback.class);
+                Helpers.generateQuestConfigWithCustomTypes(
+                        program, env, interpreter, Entity.class, TestComponentWithCallback.class);
 
         var rtEnv = interpreter.getRuntimeEnvironment();
 
@@ -1059,14 +1053,13 @@ public class TestDSLInterpreter {
 
         // get function definition
         var functionSymbol =
-            (FunctionSymbol) rtEnv.getSymbolTable().getGlobalScope().resolve("other_func");
+                (FunctionSymbol) rtEnv.getSymbolTable().getGlobalScope().resolve("other_func");
         var builder = new ConsumerCallbackAdapterBuilder(interpreter);
-        var callbackAdapter =
-            builder.buildAdapter( functionSymbol );
+        var callbackAdapter = builder.buildAdapter(functionSymbol);
 
         try {
             var c = field.getClass();
-            field.set(object, (Consumer)callbackAdapter::call);
+            field.set(object, (Consumer) callbackAdapter::call);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -1079,7 +1072,7 @@ public class TestDSLInterpreter {
     @Test
     public void testFuncRefValueCall() {
         String program =
-            """
+                """
             entity_type my_type {
                 test_component_with_string_consumer_callback {
                     on_interaction: other_func
@@ -1103,10 +1096,16 @@ public class TestDSLInterpreter {
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
         var config =
-            (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(
-                program, env, interpreter, Entity.class, TestComponentWithStringConsumerCallback.class);
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(
+                                program,
+                                env,
+                                interpreter,
+                                Entity.class,
+                                TestComponentWithStringConsumerCallback.class);
 
-        var testComponentWithCallback = (TestComponentWithStringConsumerCallback)config.entity().components.get(0);
+        var testComponentWithCallback =
+                (TestComponentWithStringConsumerCallback) config.entity().components.get(0);
         testComponentWithCallback.executeCallbackWithText("Moin");
         testComponentWithCallback.executeCallbackWithText("Tach och");
 
@@ -1118,7 +1117,7 @@ public class TestDSLInterpreter {
     @Test
     public void testFuncRefValueCallReturn() {
         String program =
-            """
+                """
             entity_type my_type {
                 test_component_with_string_function_callback {
                     on_interaction: other_func
@@ -1142,11 +1141,17 @@ public class TestDSLInterpreter {
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
         var config =
-            (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(
-                program, env, interpreter, Entity.class, TestComponentWithStringFunctionCallback.class);
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(
+                                program,
+                                env,
+                                interpreter,
+                                Entity.class,
+                                TestComponentWithStringFunctionCallback.class);
 
-        var testComponentWithCallback = (TestComponentWithStringFunctionCallback)config.entity().components.get(0);
-        var returnValue =  testComponentWithCallback.executeCallbackWithText("Moin");
+        var testComponentWithCallback =
+                (TestComponentWithStringFunctionCallback) config.entity().components.get(0);
+        var returnValue = testComponentWithCallback.executeCallbackWithText("Moin");
 
         Assert.assertTrue(returnValue.contains("Moin"));
     }

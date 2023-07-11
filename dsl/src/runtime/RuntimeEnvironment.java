@@ -1,7 +1,9 @@
 package runtime;
 
 import core.utils.TriConsumer;
+
 import interpreter.DSLInterpreter;
+
 import semanticanalysis.IScope;
 import semanticanalysis.Symbol;
 import semanticanalysis.SymbolTable;
@@ -123,8 +125,11 @@ public class RuntimeEnvironment implements IEvironment {
     }
 
     protected void setupCallbackAdapterBuilders() {
-        this.typeInstantiator.addCallbackAdapterBuilder(Function.class, new FunctionCallbackAdapterBuilder(this.interpreter));
-        this.typeInstantiator.addCallbackAdapterBuilder(Consumer.class, new ConsumerCallbackAdapterBuilder(this.interpreter));
-        this.typeInstantiator.addCallbackAdapterBuilder(TriConsumer.class, new ConsumerCallbackAdapterBuilder(this.interpreter));
+        this.typeInstantiator.addCallbackAdapterBuilder(
+                Function.class, new FunctionCallbackAdapterBuilder(this.interpreter));
+        this.typeInstantiator.addCallbackAdapterBuilder(
+                Consumer.class, new ConsumerCallbackAdapterBuilder(this.interpreter));
+        this.typeInstantiator.addCallbackAdapterBuilder(
+                TriConsumer.class, new ConsumerCallbackAdapterBuilder(this.interpreter));
     }
 }

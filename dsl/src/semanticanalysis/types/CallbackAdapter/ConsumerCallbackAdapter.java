@@ -1,14 +1,14 @@
 package semanticanalysis.types.CallbackAdapter;
 
 import interpreter.DSLInterpreter;
+
 import parser.ast.FuncDefNode;
-import runtime.IMemorySpace;
+
 import runtime.RuntimeEnvironment;
-import runtime.Value;
+
 import semanticanalysis.FunctionSymbol;
 import semanticanalysis.types.FunctionType;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ConsumerCallbackAdapter implements ICallbackAdapter {
@@ -18,9 +18,7 @@ public class ConsumerCallbackAdapter implements ICallbackAdapter {
     private DSLInterpreter interpreter;
 
     ConsumerCallbackAdapter(
-        RuntimeEnvironment rtEnv,
-        FunctionSymbol functionSymbol,
-        DSLInterpreter interpreter) {
+            RuntimeEnvironment rtEnv, FunctionSymbol functionSymbol, DSLInterpreter interpreter) {
         this.rtEnv = rtEnv;
         this.functionType = (FunctionType) functionSymbol.getDataType();
         this.funcDefNode = functionSymbol.getAstRootNode();
@@ -32,7 +30,7 @@ public class ConsumerCallbackAdapter implements ICallbackAdapter {
         // cast parameter
         var functionSymbol = rtEnv.getSymbolTable().getSymbolsForAstNode(funcDefNode).get(0);
         interpreter.executeUserDefinedFunctionRawParameters(
-                    (FunctionSymbol) functionSymbol, Arrays.stream(params).toList());
+                (FunctionSymbol) functionSymbol, Arrays.stream(params).toList());
         return null;
     }
 }

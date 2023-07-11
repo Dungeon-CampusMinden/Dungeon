@@ -1,10 +1,5 @@
 package semanticanalysis.types.CallbackAdapter;
 
-import interpreter.DSLInterpreter;
-
-import runtime.IMemorySpace;
-import runtime.RuntimeEnvironment;
-import semanticanalysis.FunctionSymbol;
 import semanticanalysis.types.FunctionType;
 import semanticanalysis.types.TypeBuilder;
 
@@ -20,6 +15,4 @@ public interface IFunctionTypeBuilder {
      * @return {@link FunctionType} corresponding to the callback signature
      */
     FunctionType buildFunctionType(Field field, TypeBuilder typeBuilder);
-
 }
-

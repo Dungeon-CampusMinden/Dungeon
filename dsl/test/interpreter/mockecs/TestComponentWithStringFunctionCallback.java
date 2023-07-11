@@ -14,10 +14,10 @@ public class TestComponentWithStringFunctionCallback extends Component {
         return entity;
     }
 
-    @DSLCallback
-    private Function<String, String> onInteraction;
+    @DSLCallback private Function<String, String> onInteraction;
 
-    public TestComponentWithStringFunctionCallback(@DSLContextMember(name = "entity") Entity entity) {
+    public TestComponentWithStringFunctionCallback(
+            @DSLContextMember(name = "entity") Entity entity) {
         super(entity);
         this.entity = entity;
     }

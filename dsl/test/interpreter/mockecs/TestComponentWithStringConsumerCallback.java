@@ -3,7 +3,6 @@ package interpreter.mockecs;
 import semanticanalysis.types.DSLCallback;
 import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
-import semanticanalysis.types.DSLTypeMember;
 
 import java.util.function.Consumer;
 
@@ -15,10 +14,10 @@ public class TestComponentWithStringConsumerCallback extends Component {
         return entity;
     }
 
-    @DSLCallback
-    private Consumer<String> onInteraction;
+    @DSLCallback private Consumer<String> onInteraction;
 
-    public TestComponentWithStringConsumerCallback(@DSLContextMember(name = "entity") Entity entity) {
+    public TestComponentWithStringConsumerCallback(
+            @DSLContextMember(name = "entity") Entity entity) {
         super(entity);
         this.entity = entity;
     }

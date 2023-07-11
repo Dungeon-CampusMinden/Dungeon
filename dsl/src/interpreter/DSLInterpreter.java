@@ -338,8 +338,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         var annot = asType.getOriginType().getAnnotation(DSLContextPush.class);
         String contextName = "";
         if (annot != null) {
-            contextName =
-                    annot.name().equals("") ? asType.getOriginType().getName() : annot.name();
+            contextName = annot.name().equals("") ? asType.getOriginType().getName() : annot.name();
             typeInstantiator.pushContextMember(contextName, entityObject);
         }
 
@@ -466,7 +465,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         var symbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
         // TODO: build callback-Adapter for setting in encapsulatedObject
         //  can't do that here, have to do it in the assignment..
-        //this.environment.getTypeBuilder().getFunctionTypeBuilder()
+        // this.environment.getTypeBuilder().getFunctionTypeBuilder()
         return new Value(symbol.getDataType(), symbol);
     }
 
@@ -518,7 +517,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
             bindFromSymbol(parameterSymbol, memoryStack.peek());
 
             Object parameterObject = parameterObjects.get(i);
-            Value paramValue = (Value) this.environment.translateRuntimeObject(parameterObject, functionMemSpace);
+            Value paramValue =
+                    (Value)
+                            this.environment.translateRuntimeObject(
+                                    parameterObject, functionMemSpace);
             setValue(parameterSymbol.getName(), paramValue);
         }
 

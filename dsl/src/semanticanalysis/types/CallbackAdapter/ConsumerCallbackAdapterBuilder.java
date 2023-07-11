@@ -1,7 +1,7 @@
 package semanticanalysis.types.CallbackAdapter;
 
 import interpreter.DSLInterpreter;
-import runtime.IMemorySpace;
+
 import semanticanalysis.FunctionSymbol;
 
 public class ConsumerCallbackAdapterBuilder implements ICallbackAdapterBuilder {
@@ -13,6 +13,7 @@ public class ConsumerCallbackAdapterBuilder implements ICallbackAdapterBuilder {
 
     @Override
     public ICallbackAdapter buildAdapter(FunctionSymbol functionSymbol) {
-        return new ConsumerCallbackAdapter(interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
+        return new ConsumerCallbackAdapter(
+                interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
     }
 }
