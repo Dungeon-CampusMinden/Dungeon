@@ -18,18 +18,19 @@ public class MovementEvent {
      * Create a new instance.
      *
      * @param entityGlobalID Global ID of entity that has been moved.
-     * @param position New position of the entity.
+     * @param newPosition New position of the entity calculated by the client. Needs for validation
+     *     on server side.
      * @param xVelocity X velocity the entity has on movement.
      * @param yVelocity Y velocity the entity has on movement.
      */
     public MovementEvent(
             final int entityGlobalID,
-            final Point position,
+            final Point newPosition,
             final float xVelocity,
             final float yVelocity) {
-        requireNonNull(position);
+        requireNonNull(newPosition);
         this.entityGlobalID = entityGlobalID;
-        this.position = position;
+        this.position = newPosition;
         this.xVelocity = xVelocity;
         this.yVelocity = yVelocity;
     }

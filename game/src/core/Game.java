@@ -201,7 +201,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      * @param entity the entity that has changes in its Component Collection
      */
     public static void informAboutChanges(Entity entity) {
-//        LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
+        //        LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
     }
 
     /**
@@ -369,14 +369,14 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
 
     @Override
     public void onMultiplayerSessionJoined(
-        final boolean isSucceed,
-        final int heroGlobalID,
-        final ILevel level,
-        final Point initialHeroPosition) {
+            final boolean isSucceed,
+            final int heroGlobalID,
+            final ILevel level,
+            final Point initialHeroPosition) {
         if (isSucceed) {
             hero().get().globalID(heroGlobalID);
             PositionComponent heroPositionComponent =
-                Game.hero().get().fetch(PositionComponent.class).orElseThrow();
+                    Game.hero().get().fetch(PositionComponent.class).orElseThrow();
             heroPositionComponent.position(initialHeroPosition);
 
             try {

@@ -1,35 +1,33 @@
 package contrib.utils.multiplayer;
 
-import contrib.utils.multiplayer.packages.event.MovementEvent;
-import contrib.utils.multiplayer.packages.request.ChangeMapRequest;
-import contrib.utils.multiplayer.packages.request.JoinSessionRequest;
-import contrib.utils.multiplayer.packages.request.LoadMapRequest;
-import core.Entity;
-import core.Game;
-import core.level.elements.ILevel;
-import core.utils.Point;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import contrib.utils.multiplayer.client.IClient;
+import contrib.utils.multiplayer.packages.event.MovementEvent;
+import contrib.utils.multiplayer.packages.request.ChangeMapRequest;
+import contrib.utils.multiplayer.packages.request.JoinSessionRequest;
+import contrib.utils.multiplayer.packages.request.LoadMapRequest;
 import contrib.utils.multiplayer.server.IServer;
+
+import core.Entity;
+import core.Game;
+import core.level.elements.ILevel;
+import core.utils.Point;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
 public class MultiplayerManagerTest {
-    @Mock
-    private IMultiplayer multiplayer;
-    @Mock
-    private IClient client;
-    @Mock
-    private IServer server;
+    @Mock private IMultiplayer multiplayer;
+    @Mock private IClient client;
+    @Mock private IServer server;
 
     private MultiplayerManager multiplayerManager;
 

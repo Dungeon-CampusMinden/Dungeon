@@ -16,7 +16,6 @@ import contrib.utils.multiplayer.server.IServerObserver;
 import contrib.utils.multiplayer.server.MultiplayerServer;
 
 import core.Entity;
-import core.Game;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
@@ -26,9 +25,9 @@ import core.utils.components.MissingComponentException;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
-import java.util.NoSuchElementException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
@@ -131,11 +130,7 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
         }
 
         multiplayer.onMultiplayerSessionJoined(
-            isSucceed,
-            heroGlobalID,
-            gameState.level(),
-            initialHeroPosition
-        );
+                isSucceed, heroGlobalID, gameState.level(), initialHeroPosition);
     }
 
     @Override
@@ -264,8 +259,10 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
                         .findFirst();
 
         if (heroInGlobalState.isPresent()) {
-            determineNewPosition(heroInGlobalState.get(), movementEvent.xVelocity(), movementEvent.yVelocity());
-            setVelocity(heroInGlobalState.get(), movementEvent.xVelocity(), movementEvent.yVelocity());
+            determineNewPosition(
+                    heroInGlobalState.get(), movementEvent.xVelocity(), movementEvent.yVelocity());
+            setVelocity(
+                    heroInGlobalState.get(), movementEvent.xVelocity(), movementEvent.yVelocity());
         } else {
             // check if client which want to update monster position is host, otherwise not allowed
             if (isHost(clientID)) {
@@ -275,8 +272,14 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
                                 .findFirst();
 
                 if (monsterInGlobalState.isPresent()) {
-                    determineNewPosition(monsterInGlobalState.get(), movementEvent.xVelocity(), movementEvent.yVelocity());
-                    setVelocity(monsterInGlobalState.get(), movementEvent.xVelocity(), movementEvent.yVelocity());
+                    determineNewPosition(
+                            monsterInGlobalState.get(),
+                            movementEvent.xVelocity(),
+                            movementEvent.yVelocity());
+                    setVelocity(
+                            monsterInGlobalState.get(),
+                            movementEvent.xVelocity(),
+                            movementEvent.yVelocity());
                 }
             }
         }
@@ -294,8 +297,8 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
      *
      * <p>To handle whether session started successfully or not, check {@link IMultiplayer}.
      *
-     * <p>NOTE: After server started, level and hero position has to be set up
-     * by the use of {@link #loadLevel(ILevel, Set, Entity)}.
+     * <p>NOTE: After server started, level and hero position has to be set up by the use of {@link
+     * #loadLevel(ILevel, Set, Entity)}.
      *
      * @throws IOException if currently now free port found on device to host session. (should never
      *     occur)
@@ -352,8 +355,8 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
      *
      * <p>To handle whether session started successfully or not, check {@link IMultiplayer}.
      *
-     * <p>NOTE: After server started, level and hero position has to be set up
-     * by the use of {@link #loadLevel(ILevel, Set, Entity)}.
+     * <p>NOTE: After server started, level and hero position has to be set up by the use of {@link
+     * #loadLevel(ILevel, Set, Entity)}.
      *
      * @param port Port through which other clients can join.
      * @throws IOException if port not accessible.
@@ -364,23 +367,23 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
         server.startListening(port);
         scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(
-            () -> {
-                if (isMapLoaded) {
-                    // Combine hero entities and monster/item entities
-                    final Set<Entity> entities = new HashSet<>(globalState.entities());
-                    globalState
-                        .heroesByClientId()
-                        .values()
-                        .forEach(
-                            entity -> {
-                                entities.add(entity);
-                            });
-                    server.sendToAllUDP(new GameStateUpdateEvent(entities));
-                }
-            },
-            0,
-            DEFAULT_NANOS_PER_TICK_FOR_SCHEDULER,
-            TimeUnit.NANOSECONDS);
+                () -> {
+                    if (isMapLoaded) {
+                        // Combine hero entities and monster/item entities
+                        final Set<Entity> entities = new HashSet<>(globalState.entities());
+                        globalState
+                                .heroesByClientId()
+                                .values()
+                                .forEach(
+                                        entity -> {
+                                            entities.add(entity);
+                                        });
+                        server.sendToAllUDP(new GameStateUpdateEvent(entities));
+                    }
+                },
+                0,
+                DEFAULT_NANOS_PER_TICK_FOR_SCHEDULER,
+                TimeUnit.NANOSECONDS);
 
         client.connectToHost("127.0.0.1", port);
         client.sendTCP(new InitializeServerRequest(VERSION));
@@ -395,10 +398,8 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
      * @throws IOException if the address or port is not accessible.
      * @throws NoSuchElementException if {@link PlayerComponent} is not present for playable.
      */
-    public void joinSession(
-        final String address,
-        final int port,
-        final Entity playable) throws IOException, NoSuchElementException {
+    public void joinSession(final String address, final int port, final Entity playable)
+            throws IOException, NoSuchElementException {
         requireNonNull(address);
         requireNonNull(playable);
         playable.fetch(PlayerComponent.class).orElseThrow();
@@ -430,9 +431,7 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
      * @param hero Own hero.
      */
     public void loadLevel(
-            final ILevel level,
-            final Set<Entity> currentEntities,
-            final Entity hero) {
+            final ILevel level, final Set<Entity> currentEntities, final Entity hero) {
         if (isHost()) {
             client.sendTCP(
                     new LoadMapRequest(
@@ -460,7 +459,8 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
      * synchronized on each player device.
      *
      * @param entityGlobalID Global ID of entity that has been moved.
-     * @param newPosition New/current local position of the entity, after movement action.
+     * @param newPosition New/current local position of the entity, after movement action. Needed
+     *     for validation process.
      * @param xVelocity X velocity of movement action.
      * @param yVelocity Y velocity of movement action.
      */
@@ -530,7 +530,8 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
         return highestExistingID + 1;
     }
 
-    private void determineNewPosition(final Entity entity, final float xVelocity, final float yVelocity) {
+    private void determineNewPosition(
+            final Entity entity, final float xVelocity, final float yVelocity) {
         requireNonNull(entity);
         Optional<PositionComponent> pc = entity.fetch(PositionComponent.class);
 
@@ -538,8 +539,8 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
             final float xNew = pc.get().position().x + xVelocity;
             final float yNew = pc.get().position().y + yVelocity;
             final Point newPosition = new Point(xNew, yNew);
-            if (globalState.level().tileAt(newPosition) != null &&
-                globalState.level().tileAt(newPosition).isAccessible()) {
+            if (globalState.level().tileAt(newPosition) != null
+                    && globalState.level().tileAt(newPosition).isAccessible()) {
                 pc.get().position(newPosition);
             }
         }
