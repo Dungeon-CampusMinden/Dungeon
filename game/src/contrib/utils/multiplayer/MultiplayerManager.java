@@ -105,12 +105,8 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
     }
 
     @Override
-    public void onInitializeServerResponseReceived(final boolean isSucceed, final int clientId) {
-        if (isSucceed) {
-            clientID = clientId;
-        } else {
-            clientID = DEFAULT_CLIENT_ID_NOT_CONNECTED;
-        }
+    public void onInitializeServerResponseReceived(final boolean isSucceed, final int clientID) {
+        this.clientID = isSucceed ? clientID : DEFAULT_CLIENT_ID_NOT_CONNECTED;
         multiplayer.onMultiplayerServerInitialized(isSucceed);
     }
 
@@ -120,17 +116,17 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
             final int heroGlobalID,
             final GameState gameState,
             final Point initialHeroPosition) {
-        if (isSucceed) {
-            entities = requireNonNull(gameState.entities());
-            clientID = heroGlobalID;
-        } else {
-            clientID = DEFAULT_CLIENT_ID_NOT_CONNECTED;
-            entities = new HashSet<>();
+        entities = isSucceed ? requireNonNull(gameState.entities()) : new HashSet<>();
+        clientID = isSucceed ? heroGlobalID : DEFAULT_CLIENT_ID_NOT_CONNECTED;
+        if (!isSucceed)
             logger.warning("Cannot join multiplayer session. Server responded unsuccessful.");
-        }
 
         multiplayer.onMultiplayerSessionJoined(
-                isSucceed, heroGlobalID, gameState.level(), initialHeroPosition);
+            isSucceed,
+            heroGlobalID,
+            gameState.level(),
+            initialHeroPosition
+        );
     }
 
     @Override
