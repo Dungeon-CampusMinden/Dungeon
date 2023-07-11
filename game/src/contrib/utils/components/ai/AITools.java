@@ -70,8 +70,11 @@ public class AITools {
     }
 
     /**
-     * Get all tile coordinates within a specified range around a given center point. The range is
-     * determined by the provided radius.
+     * Get all tiles within a specified range around a given center point.
+     *
+     * <p>The range is determined by the provided radius.
+     *
+     * <p>The tile at the given point will be part of the list as well.
      *
      * @param center The center point around which the tiles are considered.
      * @param radius The radius within which the tiles should be located.
@@ -89,8 +92,11 @@ public class AITools {
     }
 
     /**
-     * Get all accessible tile coordinates within a specified range around a given center point. The
-     * range is determined by the provided radius.
+     * Get all accessible tiles within a specified range around a given center point.
+     *
+     * <p>The range is determined by the provided radius.
+     *
+     * <p>The tile at the given point will be part of the list as well, if it is accessible.
      *
      * @param center The center point around which the tiles are considered.
      * @param radius The radius within which the accessible tiles should be located.
@@ -104,7 +110,10 @@ public class AITools {
 
     /**
      * Get a random accessible tile coordinate within a specified range around a given center point.
-     * The range is determined by the provided radius.
+     *
+     * <p>The range is determined by the provided radius.
+     *
+     * <p>The tile at the given point can be the return value as well, if it is accessible.
      *
      * @param center The center point around which the tiles are considered.
      * @param radius The radius within which the accessible tiles should be located.
@@ -122,7 +131,7 @@ public class AITools {
     /**
      * Finds the path from the given point to another given point.
      *
-     * <p>Throws an IllegalArgumentException if 'from' or 'to' is non-accessible.
+     * <p>Throws an IllegalArgumentException if the tile at 'from' or 'to' is non-accessible.
      *
      * @param from The start point.
      * @param to The end point.
@@ -135,7 +144,7 @@ public class AITools {
     /**
      * Finds the path from the given coordinate to another given coordinate.
      *
-     * <p>Throws an IllegalArgumentException if start or end is non-accessible.
+     * <p>Throws an IllegalArgumentException if the tile at the start or end is non-accessible.
      *
      * @param from The start coordinate.
      * @param to The end coordinate.
@@ -147,15 +156,14 @@ public class AITools {
 
     /**
      * Finds the path to a random (accessible) tile in the given radius, starting from the given
-     * center point
+     * point
      *
      * <p>If there is no accessible tile in the range, the path will be calculated from the given
-     * center point to the given center point. This is known misbehavior, see <a
-     * href="https://github.com/Programmiermethoden/Dungeon/issues/786">...</a>
+     * start point to the given start point.
      *
-     * <p>Throws an IllegalArgumentException if start or end is non-accessible.
+     * <p>Throws an IllegalArgumentException if the tile at the start point is non-accessible.
      *
-     * @param point The center point.
+     * @param point The start point.
      * @param radius Radius in which the tiles are to be considered.
      * @return Path from the center point to the randomly selected tile.
      */
@@ -170,7 +178,10 @@ public class AITools {
      * Finds the path to a random (accessible) tile in the given radius, starting from the position
      * of the given entity.
      *
-     * <p>Throws an IllegalArgumentException if start or end is non-accessible.
+     * <p>If there is no accessible tile in the range, the path will be calculated from the given
+     * start point to the given start point.
+     *
+     * <p>Throws an IllegalArgumentException if the entities position is on a non-accessible tile.
      *
      * @param entity Entity whose position is the center point.
      * @param radius Radius in which the tiles are to be considered.
@@ -191,7 +202,7 @@ public class AITools {
     /**
      * Finds the path from the position of one entity to the position of another entity.
      *
-     * <p>Throws an IllegalArgumentException if start or end is non-accessible.
+     * <p>Throws an IllegalArgumentException if one of the entities position is non-accessible.
      *
      * @param from Entity whose position is the start point.
      * @param to Entity whose position is the goal point.
@@ -214,7 +225,10 @@ public class AITools {
     /**
      * Finds the path from the position of one entity to the position of the hero.
      *
-     * <p>Throws an IllegalArgumentException if start or end is non-accessible.
+     * <p>If no hero exist in the game, the path will be calculated from the given entity to the
+     * given entity.
+     *
+     * <p>Throws an IllegalArgumentException if one of the entities position is non-accessible.
      *
      * @param entity Entity from which the path to the hero is calculated.
      * @return Path from the entity to the hero, if there is no hero, path from the entity to
@@ -224,18 +238,6 @@ public class AITools {
         Optional<Entity> hero = Game.hero();
         if (hero.isPresent()) return calculatePath(entity, hero.get());
         else return calculatePath(entity, entity);
-    }
-
-    /**
-     * Check if two points are positioned in a specified range from each other.
-     *
-     * @param p1 The first point which is considered.
-     * @param p2 The second point which is considered.
-     * @param range The range in which the two points are positioned from each other.
-     * @return True if the distance between the two points is within the radius, else false.
-     */
-    public static boolean inRange(final Point p1, final Point p2, final float range) {
-        return Point.calculateDistance(p1, p2) <= range;
     }
 
     /**
@@ -263,7 +265,7 @@ public class AITools {
                                         MissingComponentException.build(
                                                 entity2, PositionComponent.class))
                         .position();
-        return inRange(entity1Position, entity2Position, range);
+        return Point.inRange(entity1Position, entity2Position, range);
     }
 
     /**
