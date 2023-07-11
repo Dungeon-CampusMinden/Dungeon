@@ -19,8 +19,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class TypeInstantiator {
-    private HashMap<String, Object> context = new HashMap<>();
-    private HashMap<Class<?>, ICallbackAdapterBuilder> callbackAdapterBuilders = new HashMap<>();
+    private final HashMap<String, Object> context = new HashMap<>();
+    private final HashMap<Class<?>, ICallbackAdapterBuilder> callbackAdapterBuilders = new HashMap<>();
 
     public TypeInstantiator() {}
 
