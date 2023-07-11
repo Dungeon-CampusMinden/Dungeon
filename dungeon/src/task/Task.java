@@ -96,40 +96,12 @@ public abstract class Task {
     }
 
     /**
-     * Set the internal collection to a copy of the given one.
-     *
-     * @param content new {@link TaskContent}s collection
-     */
-    public void content(final Set<TaskContent> content) {
-        this.content = new HashSet<>(content);
-    }
-
-    /**
      * Add given element to the internal {@link #content} collection.
      *
      * @param content element to add to the internal collection
      */
     public void addContent(final TaskContent content) {
         this.content.add(content);
-    }
-
-    /**
-     * Remove given element from the internal {@link #content} collection.
-     *
-     * @param content element to remove from the internal collection
-     */
-    public void removeContent(final TaskContent content) {
-        this.content.remove(content);
-    }
-
-    /**
-     * Check if the internal collection contains the given element
-     *
-     * @param content element to check for
-     * @return true if the element is in the internal collection, false if not
-     */
-    public boolean hasContent(final TaskContent content) {
-        return this.content.contains(content);
     }
 
     /**
