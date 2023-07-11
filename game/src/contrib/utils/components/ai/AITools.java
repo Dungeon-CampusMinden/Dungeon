@@ -156,7 +156,7 @@ public class AITools {
 
     /**
      * Finds the path to a random (accessible) tile in the given radius, starting from the given
-     * point
+     * point.
      *
      * <p>If there is no accessible tile in the range, the path will be calculated from the given
      * start point to the given start point.
