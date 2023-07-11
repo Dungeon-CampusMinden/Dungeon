@@ -321,9 +321,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     // this is the evaluation side of things
     //
-    // TODO: implicitly creating an entity from an entity_type does not
-    //  seem such a good idea, because it entails so much hidden logic
-    //  ...rather do it explicitly somehow
     @Override
     public Object visit(PrototypeDefinitionNode node) {
         return this.environment.lookupPrototype(node.getIdName());
@@ -361,6 +358,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         membersOriginalType, ((AggregateValue) memberValue).getMemorySpace());
             }
         }
+        // TODO: translate the value and set the callbackAdadpter (as PoC)
+
         return entityObject;
     }
 
@@ -452,6 +451,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(FuncDefNode node) {
         // return function reference as value
         var symbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
+        // TODO: build callback-Adapter for setting in encapsulatedObject
+        //  can't do that here, have to do it in the assignment..
+        //this.environment.getTypeBuilder().getFunctionTypeBuilder()
         return new Value(symbol.getDataType(), symbol);
     }
 
@@ -481,7 +483,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return true;
     }
 
-
     /**
      * This handles parameter evaluation and binding and setting up the statement stack for
      * execution of the function's statements
@@ -490,7 +491,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param parameterValues The concrete Values of the parameters of the function call
      * @return The return value of the function call
      */
-    public Object executeUserDefinedFunctionConcreteParameterValues(FunctionSymbol symbol, List<Value> parameterValues) {
+    public Object executeUserDefinedFunctionConcreteParameterValues(
+            FunctionSymbol symbol, List<Value> parameterValues) {
         // push new memorySpace and parameters on spaceStack
         var functionMemSpace = new MemorySpace(memoryStack.peek());
         this.memoryStack.push(functionMemSpace);
@@ -523,7 +525,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
 
         while (statementStack.peek() != null
-            && statementStack.peek().type != Node.Type.ReturnMark) {
+                && statementStack.peek().type != Node.Type.ReturnMark) {
             var stmt = statementStack.pop();
             stmt.accept(this);
         }
@@ -538,7 +540,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
         return Value.NONE;
     }
-
 
     /**
      * This handles parameter evaluation and binding and setting up the statement stack for

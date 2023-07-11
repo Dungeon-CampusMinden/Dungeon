@@ -255,8 +255,9 @@ public class TestTypeBuilder {
 
     public class TestClass {
         boolean b = true;
+
         public Object accept(Object object) {
-            Entity entity = (Entity)object;
+            Entity entity = (Entity) object;
             return b;
         }
     }

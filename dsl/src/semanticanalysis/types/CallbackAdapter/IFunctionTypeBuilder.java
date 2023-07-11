@@ -1,10 +1,12 @@
-package semanticanalysis.types;
+package semanticanalysis.types.CallbackAdapter;
 
 import interpreter.DSLInterpreter;
-import parser.ast.FuncDefNode;
-import runtime.IEvironment;
+
 import runtime.IMemorySpace;
 import runtime.RuntimeEnvironment;
+import semanticanalysis.FunctionSymbol;
+import semanticanalysis.types.FunctionType;
+import semanticanalysis.types.TypeBuilder;
 
 import java.lang.reflect.Field;
 
@@ -19,5 +21,5 @@ public interface IFunctionTypeBuilder {
      */
     FunctionType buildFunctionType(Field field, TypeBuilder typeBuilder);
 
-    Object buildCallbackAdapter(RuntimeEnvironment environment, FunctionType functionType, FuncDefNode funcDefNode, IMemorySpace parentMemorySpace, DSLInterpreter interpreter);
 }
+

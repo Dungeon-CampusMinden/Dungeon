@@ -17,6 +17,30 @@ import java.util.HashMap;
 public class TypeInstantiator {
     private HashMap<String, Object> context = new HashMap<>();
 
+    public TypeInstantiator() {}
+
+    /**
+     * Instantiate a new Object corresponding to an {@link AggregateType} with an {@link
+     * IMemorySpace} containing all needed values. This requires the passed {@link AggregateType} to
+     * have an origin java class
+     *
+     * @param type the type to instantiate
+     * @param ms the memory space containing the values
+     * @return the instantiated object
+     */
+    public Object instantiate(AggregateType type, IMemorySpace ms) {
+        var originalJavaClass = type.getOriginType();
+        if (null == originalJavaClass) {
+            return null;
+        }
+
+        if (originalJavaClass.isRecord()) {
+            return instantiateRecord(originalJavaClass, ms);
+        } else {
+            return instantiateClass(originalJavaClass, ms);
+        }
+    }
+
     /**
      * Push an object as part of the context (so it can be looked up, if it is referenced by {@link
      * DSLContextMember} by a constructor parameter)
@@ -136,6 +160,7 @@ public class TypeInstantiator {
             // the memory space
             for (Field field : originalJavaClass.getDeclaredFields()) {
                 // TODO: handle function callback
+                // TODO: this whole thing could potentially be done after the instantiation itself
                 if (field.isAnnotationPresent(DSLTypeMember.class)) {
                     String fieldName = TypeBuilder.getDSLFieldName(field);
 
@@ -180,8 +205,15 @@ public class TypeInstantiator {
                     }
                 }
                 if (field.isAnnotationPresent(DSLCallback.class)) {
-                    // this is going to be fun
+                    // Doing this here requires to much information to be passed to the typeInstantiator... rather set
+                    // the internal value already correctly and just set the value here
+                    // TODO: get IFunctionTypeBuilder for specific interface
+                    var fieldsClass = field.getType();
 
+                    // TODO: build a callback adapter
+                    //  this requires access to the
+
+                    // TODO: set the field
                 }
             }
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
@@ -208,27 +240,5 @@ public class TypeInstantiator {
         }
 
         return ctor;
-    }
-
-    /**
-     * Instantiate a new Object corresponding to an {@link AggregateType} with an {@link
-     * IMemorySpace} containing all needed values. This requires the passed {@link AggregateType} to
-     * have an origin java class
-     *
-     * @param type the type to instantiate
-     * @param ms the memory space containing the values
-     * @return the instantiated object
-     */
-    public Object instantiate(AggregateType type, IMemorySpace ms) {
-        var originalJavaClass = type.getOriginType();
-        if (null == originalJavaClass) {
-            return null;
-        }
-
-        if (originalJavaClass.isRecord()) {
-            return instantiateRecord(originalJavaClass, ms);
-        } else {
-            return instantiateClass(originalJavaClass, ms);
-        }
     }
 }

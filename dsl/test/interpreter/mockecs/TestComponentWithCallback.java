@@ -5,6 +5,7 @@ import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 @DSLType
 public class TestComponentWithCallback extends Component {
@@ -15,6 +16,10 @@ public class TestComponentWithCallback extends Component {
     }
 
     @DSLCallback private Consumer<Entity> onInteraction;
+
+    public Consumer<Entity> getOnInteraction() {
+        return onInteraction;
+    }
 
     public TestComponentWithCallback(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);
