@@ -336,8 +336,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
         //  store multiple builder-methods for one type, distinguished by their
         //  signature
         var annot = asType.getOriginType().getAnnotation(DSLContextPush.class);
+        String contextName = "";
         if (annot != null) {
-            String contextName =
+            contextName =
                     annot.name().equals("") ? asType.getOriginType().getName() : annot.name();
             typeInstantiator.pushContextMember(contextName, entityObject);
         }
@@ -356,6 +357,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 typeInstantiator.instantiate(
                         membersOriginalType, ((AggregateValue) memberValue).getMemorySpace());
             }
+        }
+
+        if (annot != null) {
+            typeInstantiator.removeContextMember(contextName);
         }
 
         return entityObject;
