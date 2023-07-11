@@ -88,7 +88,9 @@ public final class DrawComponent extends Component {
                                         pathRelativeToAssets, subdir.getName(), file.getName()));
                     }
                 }
-                animationMap.put(subdir.getName(), Animation.of(texturePaths));
+                if (texturePaths.stream().findAny().isPresent()) {
+                    animationMap.put(subdir.getName(), Animation.of(texturePaths));
+                }
             }
             currentAnimation(CoreAnimations.IDLE_LEFT);
         } catch (NullPointerException np) {
