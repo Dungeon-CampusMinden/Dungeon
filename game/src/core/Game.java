@@ -19,10 +19,8 @@ import core.components.PositionComponent;
 import core.components.UIComponent;
 import core.configuration.Configuration;
 import core.hud.UITools;
-import core.level.IOnLevelLoader;
 import core.level.Tile;
 import core.level.elements.ILevel;
-import core.level.generator.IGenerator;
 import core.level.generator.postGeneration.WallGenerator;
 import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.level.utils.Coordinate;
@@ -36,32 +34,25 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /** The heart of the framework. From here all strings are pulled. */
-public final class Game extends ScreenAdapter implements IOnLevelLoader {
+public final class Game extends ScreenAdapter {
 
     /**
      * A Map with each {@link System} in the game.
      *
      * <p>The Key-Value is the Class of the system
      */
-    private static final Map<Class<? extends System>, System> systems = new HashMap<>();
+    private static final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
     /** All entities that are currently active in the dungeon */
     private static final DelayedSet<Entity> entities = new DelayedSet<>();
 
     private static final Logger LOGGER = Logger.getLogger("Game");
-    /**
-     * The currently loaded level of the game.
-     *
-     * @see ILevel
-     * @see LevelManager
-     */
-    private static ILevel currentLevel;
     /**
      * The width of the game window in pixels.
      *
@@ -101,8 +92,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
      */
     private static String LOGO_PATH = "logo/cat_logo_35x35.png";
-    /** Currently used level-size configuration for generating new level */
-    private static LevelSize LEVELSIZE = LevelSize.SMALL;
     /**
      * Part of the pre-run configuration.
      * This function will be called at each frame.
@@ -130,8 +119,22 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private static Entity hero;
 
     private static Stage stage;
-
-    private static LevelManager levelManager;
+    /**
+     * Sets {@link #currentLevel} to the new level and removes all entities.
+     *
+     * <p>Will re-add the hero if he exists.
+     */
+    private final IVoidFunction onLevelLoad =
+            () -> {
+                removeAllEntities();
+                try {
+                    hero().ifPresent(this::placeOnLevelStart);
+                } catch (MissingComponentException e) {
+                    LOGGER.warning(e.getMessage());
+                }
+                hero().ifPresent(Game::addEntity);
+                userOnLevelLoad.execute();
+            };
 
     private boolean doSetup = true;
     private boolean uiDebugFlag = false;
@@ -143,14 +146,14 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @return the currently loaded level
      */
     public static ILevel currentLevel() {
-        return currentLevel;
+        return LevelSystem.level();
     }
 
     /**
      * @return a copy of the map that stores all registered {@link System} in the game.
      */
     public static Map<Class<? extends System>, System> systems() {
-        return new HashMap<>(systems);
+        return new LinkedHashMap<>(systems);
     }
 
     /** Remove all registered systems from the game. */
@@ -204,7 +207,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @return currently set level-Size.
      */
     public static LevelSize levelSize() {
-        return LEVELSIZE;
+        return LevelSystem.levelSize();
     }
 
     /**
@@ -284,7 +287,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @param levelSize Size of the next level.
      */
     public static void levelSize(LevelSize levelSize) {
-        Game.LEVELSIZE = levelSize;
+        LevelSystem.levelSize(levelSize);
     }
 
     /**
@@ -491,7 +494,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @return the tile at the given point.
      */
     public static Tile tileAT(Point p) {
-        return currentLevel.tileAt(p);
+        return currentLevel().tileAt(p);
     }
 
     /**
@@ -501,14 +504,14 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @return the tile at the given coordinate.
      */
     public static Tile tileAT(Coordinate c) {
-        return currentLevel.tileAt(c);
+        return currentLevel().tileAt(c);
     }
 
     /**
      * @return a random Tile in the Level
      */
     public static Tile randomTile() {
-        return currentLevel.randomTile();
+        return currentLevel().randomTile();
     }
 
     /**
@@ -517,7 +520,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @return The end tile.
      */
     public static Tile endTile() {
-        return currentLevel.endTile();
+        return currentLevel().endTile();
     }
 
     /**
@@ -526,7 +529,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @return The start tile.
      */
     public static Tile startTile() {
-        return currentLevel.startTile();
+        return currentLevel().startTile();
     }
 
     /**
@@ -536,7 +539,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @return tile at the coordinate of the entity
      */
     public static Tile tileAtEntity(Entity entity) {
-        return currentLevel.tileAtEntity(entity);
+        return currentLevel().tileAtEntity(entity);
     }
 
     /**
@@ -546,7 +549,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @return A random Tile of the given Type
      */
     public static Tile randomTile(LevelElement elementType) {
-        return currentLevel.randomTile(elementType);
+        return currentLevel().randomTile(elementType);
     }
 
     /**
@@ -555,7 +558,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @return Position of the Tile as Point
      */
     public static Point randomTilePoint() {
-        return currentLevel.randomTilePoint();
+        return currentLevel().randomTilePoint();
     }
 
     /**
@@ -565,7 +568,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @return Position of the Tile as Point
      */
     public static Point randomTilePoint(LevelElement elementTyp) {
-        return currentLevel.randomTilePoint(elementTyp);
+        return currentLevel().randomTilePoint(elementTyp);
     }
 
     /**
@@ -576,7 +579,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @return Generated path
      */
     public static GraphPath<Tile> findPath(Tile start, Tile end) {
-        return currentLevel.findPath(start, end);
+        return currentLevel().findPath(start, end);
     }
 
     /**
@@ -586,7 +589,7 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * @return Position of the given entity.
      */
     public static Point positionOf(Entity entity) {
-        return currentLevel.positionOf(entity);
+        return currentLevel().positionOf(entity);
     }
 
     /**
@@ -594,13 +597,12 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      *
      * <p>This method is for testing and debugging purposes.
      *
-     * <p>Will trigger {@link #onLevelLoad() if a {@link LevelManager} is active.}
-     *
      * @param level New level
      */
     public static void currentLevel(ILevel level) {
-        if (levelManager != null) levelManager.level(level);
-        currentLevel = level;
+        LevelSystem levelSystem = (LevelSystem) systems.get(LevelSystem.class);
+        if (levelSystem != null) levelSystem.loadLevel(level);
+        else LOGGER.warning("Can not set Level because levelSystem is null.");
     }
 
     private static void setupStage() {
@@ -622,11 +624,9 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     @Override
     public void render(float delta) {
         if (doSetup) onSetup();
-        DrawSystem ds = (DrawSystem) systems.get(DrawSystem.class);
-        ds.batch().setProjectionMatrix(CameraSystem.camera().combined);
+        DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined);
         onFrame();
         clearScreen();
-        levelManager.update();
         updateSystems();
         systems.values().stream().filter(System::isRunning).forEach(System::execute);
         CameraSystem.camera().update();
@@ -642,18 +642,8 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     private void onSetup() {
         doSetup = false;
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
-        IGenerator generator = new RandomWalkGenerator();
         initBaseLogger();
         createSystems();
-        DrawSystem ds = (DrawSystem) systems.get(DrawSystem.class);
-        levelManager =
-                new LevelManager(
-                        ds.batch(),
-                        ds.painter(),
-                        new WallGenerator(new RandomWalkGenerator()),
-                        this);
-        levelManager.loadLevel(LEVELSIZE);
-
         setupStage();
     }
 
@@ -664,11 +654,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
      * <p>This is the place to add basic logic that isn't part of any system.
      */
     private void onFrame() {
-        try {
-            hero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
-        } catch (MissingComponentException e) {
-            LOGGER.warning(e.getMessage());
-        }
         debugKeys();
         fullscreenKey();
         userOnFrame.execute();
@@ -714,53 +699,6 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     }
 
     /**
-     * Sets {@link #currentLevel} to the new level and removes all entities.
-     *
-     * <p>Will re-add the hero if he exists.
-     */
-    @Override
-    public void onLevelLoad() {
-        currentLevel = levelManager.currentLevel();
-        removeAllEntities();
-        try {
-            hero().ifPresent(this::placeOnLevelStart);
-        } catch (MissingComponentException e) {
-            LOGGER.warning(e.getMessage());
-        }
-        hero().ifPresent(Game::addEntity);
-
-        userOnLevelLoad.execute();
-    }
-
-    /**
-     * If the given entity is on the end-tile, load the new level
-     *
-     * @param hero entity to check for, normally this is the hero
-     */
-    private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
-        if (isOnEndTile(hero)) {
-            levelManager.loadLevel(LEVELSIZE);
-        }
-    }
-
-    /**
-     * Check if the given en entity is on the end-tile
-     *
-     * @param entity entity to check for
-     * @return true if the entity is on the end-tile, false if not
-     */
-    private boolean isOnEndTile(Entity entity) {
-        PositionComponent pc =
-                entity.fetch(PositionComponent.class)
-                        .orElseThrow(
-                                () ->
-                                        MissingComponentException.build(
-                                                entity, PositionComponent.class));
-        Tile currentTile = tileAT(pc.position());
-        return currentTile.equals(endTile());
-    }
-
-    /**
      * Set the position of the given entity to the position of the level-start.
      *
      * <p>A {@link PositionComponent} is needed.
@@ -791,8 +729,13 @@ public final class Game extends ScreenAdapter implements IOnLevelLoader {
     /** Create the systems. */
     private void createSystems() {
         addSystem(new CameraSystem());
-        addSystem(new VelocitySystem());
+        addSystem(
+                new LevelSystem(
+                        DrawSystem.painter(),
+                        new WallGenerator(new RandomWalkGenerator()),
+                        onLevelLoad));
         addSystem(new DrawSystem());
+        addSystem(new VelocitySystem());
         addSystem(new PlayerSystem());
         addSystem(new HudSystem());
     }

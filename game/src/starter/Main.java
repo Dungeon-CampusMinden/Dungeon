@@ -6,6 +6,7 @@ import contrib.systems.*;
 import contrib.utils.components.Debugger;
 
 import core.Game;
+import core.level.utils.LevelSize;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -34,6 +35,7 @@ public class Main {
                         LOGGER.warning("Could not create new Chest: " + e.getMessage());
                         throw new RuntimeException();
                     }
+                    Game.levelSize(LevelSize.randomSize());
                 });
         Game.userOnFrame(debugger::execute);
         Game.windowTitle("My Dungeon");

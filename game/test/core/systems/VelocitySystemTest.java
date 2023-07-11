@@ -14,6 +14,7 @@ import core.level.elements.ILevel;
 import core.utils.Point;
 import core.utils.components.draw.CoreAnimations;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -22,14 +23,13 @@ import java.io.IOException;
 
 public class VelocitySystemTest {
 
-    private VelocitySystem velocitySystem;
     private final ILevel level = Mockito.mock(ILevel.class);
     private final Tile tile = Mockito.mock(Tile.class);
-
     private final float xVelocity = 1f;
     private final float yVelocity = 2f;
     private final float startXPosition = 2f;
     private final float startYPosition = 4f;
+    private VelocitySystem velocitySystem;
     private PositionComponent positionComponent;
     private VelocityComponent velocityComponent;
 
@@ -38,9 +38,9 @@ public class VelocitySystemTest {
 
     @Before
     public void setup() throws IOException {
+        new LevelSystem(null, null, () -> {});
         Game.currentLevel(level);
         Mockito.when(level.tileAt((Point) Mockito.any())).thenReturn(tile);
-        Game.removeEntity(entity);
         entity = new Entity();
         velocitySystem = new VelocitySystem();
         velocityComponent = new VelocityComponent(entity, xVelocity, yVelocity);
@@ -48,6 +48,12 @@ public class VelocitySystemTest {
                 new PositionComponent(entity, new Point(startXPosition, startYPosition));
         animationComponent = new DrawComponent(entity, "character/blue_knight");
         velocitySystem.showEntity(entity);
+    }
+
+    @After
+    public void cleanup() {
+        Game.removeAllEntities();
+        Game.removeAllSystems();
     }
 
     @Test
