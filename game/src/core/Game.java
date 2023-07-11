@@ -201,9 +201,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      * @param entity the entity that has changes in its Component Collection
      */
     public static void informAboutChanges(Entity entity) {
-        // Todo - is the next line necessary?
-        // entities.add(entity);
-        //        LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
+//        LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
     }
 
     /**
