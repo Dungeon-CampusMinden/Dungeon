@@ -166,12 +166,10 @@ public class EntityFactory {
         return chest;
     }
 
-    // Todo - Adjust to changes
     public static Entity newMonster() throws IOException {
-        return newMonster(Game.randomTilePoint(LevelElement.FLOOR));
+        return newMonster(Game.randomTile(LevelElement.FLOOR).position());
     }
 
-    // Todo - Adjust to changes
     public static Entity newMonster(Point position) throws IOException {
         Entity monster = new Entity("chort");
 

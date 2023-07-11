@@ -17,6 +17,7 @@ import contrib.utils.multiplayer.server.MultiplayerServer;
 
 import core.Entity;
 import core.Game;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.elements.ILevel;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.NoSuchElementException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
@@ -38,6 +40,7 @@ import java.util.stream.Stream;
 public class MultiplayerManager implements IClientObserver, IServerObserver {
 
     private static final Version VERSION = new Version(0, 0, 0);
+    private static final int DEFAULT_CLIENT_ID_NOT_CONNECTED = -1;
     private static final IClient DEFAULT_CLIENT = new MultiplayerClient();
     private static final IServer DEFAULT_SERVER = new MultiplayerServer();
     /* Ticks for sending game state update cyclically. */
@@ -52,7 +55,7 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
     private final IServer server;
     private final IMultiplayer multiplayer;
     /* From server assigned unique player id. */
-    private int clientID = 0;
+    private int clientID = DEFAULT_CLIENT_ID_NOT_CONNECTED;
     /* Global state of entities. Is updated on game actions, like clients joining session. */
     private Set<Entity> entities;
     /* Separate scheduler for sending game state update cyclically and on another thread. */
@@ -107,7 +110,7 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
         if (isSucceed) {
             clientID = clientId;
         } else {
-            clientID = 0;
+            clientID = DEFAULT_CLIENT_ID_NOT_CONNECTED;
         }
         multiplayer.onMultiplayerServerInitialized(isSucceed);
     }
@@ -118,34 +121,28 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
             final int heroGlobalID,
             final GameState gameState,
             final Point initialHeroPosition) {
-        clientID = 0;
         if (isSucceed) {
-            this.entities = requireNonNull(gameState.entities());
+            entities = requireNonNull(gameState.entities());
             clientID = heroGlobalID;
-            Game.hero().get().globalID(heroGlobalID);
-            PositionComponent heroPositionComponent =
-                    Game.hero().get().fetch(PositionComponent.class).orElseThrow();
-            heroPositionComponent.position(initialHeroPosition);
-
-            try {
-                Game.currentLevel(gameState.level());
-            } catch (Exception ex) {
-                logger.warning(
-                        String.format(
-                                "Failed to set received level from server.\n%s", ex.getMessage()));
-            }
         } else {
+            clientID = DEFAULT_CLIENT_ID_NOT_CONNECTED;
+            entities = new HashSet<>();
             logger.warning("Cannot join multiplayer session. Server responded unsuccessful.");
         }
 
-        multiplayer.onMultiplayerSessionJoined(isSucceed);
+        multiplayer.onMultiplayerSessionJoined(
+            isSucceed,
+            heroGlobalID,
+            gameState.level(),
+            initialHeroPosition
+        );
     }
 
     @Override
     public void onLoadMapResponseReceived(final boolean isSucceed, final GameState gameState) {
         if (!isSucceed) return;
 
-        this.entities = gameState.entities();
+        entities = gameState.entities();
         multiplayer.onMapLoad(gameState.level());
     }
 
@@ -386,16 +383,23 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
      *
      * @param address Address of the device that is hosting the session.
      * @param port Port of the device to access the session.
+     * @param playable Own playable entity.
      * @throws IOException if the address or port is not accessible.
+     * @throws NoSuchElementException if {@link PlayerComponent} is not present for playable.
      */
-    public void joinSession(final String address, final int port) throws IOException {
+    public void joinSession(
+        final String address,
+        final int port,
+        final Entity playable) throws IOException, NoSuchElementException {
         requireNonNull(address);
+        requireNonNull(playable);
+        playable.fetch(PlayerComponent.class).orElseThrow();
         clearLocalSessionData();
         stopEndpoints();
         if (!client.connectToHost(address, port)) {
             throw new IOException("No host found - invalid address or port");
         }
-        client.sendTCP(new JoinSessionRequest(Game.hero().get(), VERSION));
+        client.sendTCP(new JoinSessionRequest(playable, VERSION));
     }
 
     /**
@@ -418,7 +422,9 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
      * @param hero Own hero.
      */
     public void loadLevel(
-            final ILevel level, final Set<Entity> currentEntities, final Entity hero) {
+            final ILevel level,
+            final Set<Entity> currentEntities,
+            final Entity hero) {
         if (isHost()) {
             client.sendTCP(
                     new LoadMapRequest(
@@ -523,7 +529,7 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
     }
 
     private void clearLocalSessionData() {
-        clientID = 0;
+        clientID = DEFAULT_CLIENT_ID_NOT_CONNECTED;
         entities.clear();
     }
 }

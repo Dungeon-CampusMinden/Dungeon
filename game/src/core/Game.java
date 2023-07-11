@@ -344,7 +344,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
             if (hero == null) {
                 hero(EntityFactory.newHero());
             }
-            multiplayerManager.joinSession(hostAddress, port);
+            multiplayerManager.joinSession(hostAddress, port, hero);
         } catch (Exception ex) {
             final String message = "Multiplayer session failed to join.";
             LOGGER.warning(String.format("%s\n%s", message, ex.getMessage()));
@@ -368,8 +368,26 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     }
 
     @Override
-    public void onMultiplayerSessionJoined(final boolean isSucceed) {
-        if (!isSucceed) {
+    public void onMultiplayerSessionJoined(
+        final boolean isSucceed,
+        final int heroGlobalID,
+        final ILevel level,
+        final Point initialHeroPosition) {
+        if (isSucceed) {
+            hero().get().globalID(heroGlobalID);
+            PositionComponent heroPositionComponent =
+                Game.hero().get().fetch(PositionComponent.class).orElseThrow();
+            heroPositionComponent.position(initialHeroPosition);
+
+            try {
+                currentLevel(level);
+            } catch (Exception ex) {
+                final String message = "Session successfully joined but level can not be set.";
+                LOGGER.warning(String.format("%s\n%s", message, ex.getMessage()));
+                Entity entity = UITools.generateNewTextDialog(message, "Ok", "Process failure");
+                entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+            }
+        } else {
             final String message = "Cannot join multiplayer session";
             LOGGER.warning(message);
             Entity entity = UITools.generateNewTextDialog(message, "Ok", "Connection failed.");
