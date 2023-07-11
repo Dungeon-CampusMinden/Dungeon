@@ -303,6 +303,72 @@ public class TileLevelTest {
     }
 
     @Test
+    public void test_findPath_startPositionNotAccessible() {
+        Tile[][] layout = new Tile[3][3];
+        for (int x = 0; x < 3; x++) {
+            for (int y = 0; y < 3; y++) {
+                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT, null);
+            }
+        }
+        layout[0][1] = new WallTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null);
+        TileLevel tileLevel = new TileLevel(layout);
+        var start = tileLevel.tileAt(layout[0][1].coordinate());
+        var end = tileLevel.tileAt(layout[2][1].coordinate());
+
+        Exception e =
+                assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(start, end));
+        String actualErrorMsg = e.getMessage();
+        String expectedErrorMsg =
+                "Can not calculate Path because the start point is non-accessible.";
+
+        assertTrue(actualErrorMsg.contains(expectedErrorMsg));
+    }
+
+    @Test
+    public void test_findPath_endPositionNotAccessible() {
+        Tile[][] layout = new Tile[3][3];
+        for (int x = 0; x < 3; x++) {
+            for (int y = 0; y < 3; y++) {
+                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT, null);
+            }
+        }
+        layout[2][1] = new WallTile("", new Coordinate(1, 2), DesignLabel.DEFAULT, null);
+        TileLevel tileLevel = new TileLevel(layout);
+        var start = tileLevel.tileAt(layout[0][1].coordinate());
+        var end = tileLevel.tileAt(layout[2][1].coordinate());
+
+        Exception e =
+                assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(start, end));
+        String actualErrorMsg = e.getMessage();
+        String expectedErrorMsg = "Can not calculate Path because the end point is non-accessible.";
+
+        assertTrue(actualErrorMsg.contains(expectedErrorMsg));
+    }
+
+    @Test
+    public void test_findPath_startAndEndPositionNotAccessible() {
+        Tile[][] layout = new Tile[3][3];
+        for (int x = 0; x < 3; x++) {
+            for (int y = 0; y < 3; y++) {
+                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT, null);
+            }
+        }
+        layout[0][1] = new WallTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null);
+        layout[2][1] = new WallTile("", new Coordinate(1, 2), DesignLabel.DEFAULT, null);
+        TileLevel tileLevel = new TileLevel(layout);
+        var start = tileLevel.tileAt(layout[0][1].coordinate());
+        var end = tileLevel.tileAt(layout[2][1].coordinate());
+
+        Exception e =
+                assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(start, end));
+        String actualErrorMsg = e.getMessage();
+        String expectedErrorMsg =
+                "Can not calculate Path because the start point is non-accessible.";
+
+        assertTrue(actualErrorMsg.contains(expectedErrorMsg));
+    }
+
+    @Test
     public void test_getTileAt() {
         var levelLayout = new LevelElement[3][3];
 
@@ -397,10 +463,10 @@ public class TileLevelTest {
         var level = new TileLevel(tileLayout, DesignLabel.DEFAULT);
         StringBuilder compareString = new StringBuilder();
         for (LevelElement[] tiles : tileLayout) {
-            for (int x = 0; x < tiles.length; x++) {
-                if (tiles[x] == LevelElement.FLOOR) {
+            for (LevelElement tile : tiles) {
+                if (tile == LevelElement.FLOOR) {
                     compareString.append("F");
-                } else if (tiles[x] == LevelElement.WALL) {
+                } else if (tile == LevelElement.WALL) {
                     compareString.append("W");
                 } else {
                     compareString.append("E");
