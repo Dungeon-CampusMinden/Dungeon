@@ -1,6 +1,6 @@
 package contrib.entities;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
@@ -13,18 +13,26 @@ import core.components.PositionComponent;
 import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.systems.LevelSystem;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Optional;
 
 public class MonsterTest {
+    @Before
+    public void setup() {
+        new LevelSystem(null, null, () -> {});
+    }
 
     @After
     public void cleanup() {
         Game.removeAllEntities();
+        Game.currentLevel(null);
+        Game.removeAllSystems();
     }
 
     @Test

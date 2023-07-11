@@ -21,10 +21,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /** Manages the level. */
-public class LevelSystem extends System {
-    private final Painter painter;
-    private final IVoidFunction onLevelLoader;
-    private IGenerator gen;
+public final class LevelSystem extends System {
     /** Currently used level-size configuration for generating new level */
     private static LevelSize LEVELSIZE = LevelSize.SMALL;
     /**
@@ -34,19 +31,35 @@ public class LevelSystem extends System {
      */
     private static ILevel currentLevel;
 
+    private final IVoidFunction onLevelLoader;
+    private final Painter painter;
     private final Logger levelAPI_logger = Logger.getLogger(this.getClass().getName());
+    private IGenerator gen;
 
     /**
-     * @param painter Who draws?
      * @param generator Level generator
      * @param onLevelLoader Object that implements the onLevelLoad method.
      */
     public LevelSystem(Painter painter, IGenerator generator, IVoidFunction onLevelLoader) {
         super(PlayerComponent.class, PositionComponent.class);
         this.gen = generator;
-        this.painter = painter;
         this.onLevelLoader = onLevelLoader;
-        loadLevel(LEVELSIZE);
+        this.painter = painter;
+    }
+
+    /**
+     * @return The currently loaded level.
+     */
+    public static ILevel level() {
+        return currentLevel;
+    }
+
+    public static LevelSize levelSize() {
+        return LEVELSIZE;
+    }
+
+    public static void levelSize(LevelSize levelSize) {
+        LEVELSIZE = levelSize;
     }
 
     /**
@@ -84,18 +97,7 @@ public class LevelSystem extends System {
         loadLevel(LevelSize.randomSize(), DesignLabel.randomDesign());
     }
 
-    /**
-     * @return The currently loaded level.
-     */
-    public static ILevel currentLevel() {
-        return currentLevel;
-    }
-
-    public static void currentLevel(ILevel level) {
-        currentLevel = level;
-    }
-
-    protected void drawLevel() {
+    private void drawLevel() {
         Map<String, PainterConfig> mapping = new HashMap<>();
 
         Tile[][] layout = currentLevel.layout();
@@ -156,17 +158,10 @@ public class LevelSystem extends System {
         return currentTile.equals(Game.endTile());
     }
 
-    public static LevelSize levelSize() {
-        return LEVELSIZE;
-    }
-
-    public static void levelSize(LevelSize levelSize) {
-        LEVELSIZE = levelSize;
-    }
-
     @Override
     public void execute() {
+        if (currentLevel == null) loadLevel(LEVELSIZE);
+        else if (entityStream().anyMatch(this::isOnEndTile)) loadLevel(LEVELSIZE);
         drawLevel();
-        if (entityStream().anyMatch(this::isOnEndTile)) loadLevel(LEVELSIZE);
     }
 }

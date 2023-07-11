@@ -33,14 +33,14 @@ import java.util.Map;
  */
 public final class DrawSystem extends System {
 
-    /** Draws objects */
-    private final Painter painter;
-
     /**
      * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
      * batch.
      */
-    private final SpriteBatch batch;
+    private static final SpriteBatch batch = new SpriteBatch();
+
+    /** Draws objects */
+    private static final Painter painter = new Painter(batch);
 
     private final Map<String, PainterConfig> configs;
 
@@ -51,8 +51,6 @@ public final class DrawSystem extends System {
      */
     public DrawSystem() {
         super(DrawComponent.class, PositionComponent.class);
-        batch = new SpriteBatch();
-        painter = new Painter(batch);
         configs = new HashMap<>();
     }
 
@@ -100,14 +98,14 @@ public final class DrawSystem extends System {
     /**
      * @return the {@link #painter} of the Drawsystem
      */
-    public Painter painter() {
+    public static Painter painter() {
         return painter;
     }
 
     /**
      * @return the {@link #batch} of the Drawsystem
      */
-    public SpriteBatch batch() {
+    public static SpriteBatch batch() {
         return batch;
     }
 }

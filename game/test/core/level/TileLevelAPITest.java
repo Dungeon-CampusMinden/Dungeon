@@ -1,17 +1,17 @@
 package core.level;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import contrib.entities.EntityFactory;
+
+import core.Entity;
+import core.Game;
+import core.components.PositionComponent;
 import core.level.elements.ILevel;
 import core.level.generator.IGenerator;
 import core.level.utils.Coordinate;
@@ -25,6 +25,7 @@ import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 import core.utils.components.draw.TextureMap;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +33,8 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.io.IOException;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({TextureMap.class})
@@ -59,15 +62,24 @@ public class TileLevelAPITest {
         api = new LevelSystem(painter, generator, onLevelLoader);
     }
 
+    @After
+    public void cleanup() {
+        Game.currentLevel(null);
+        Game.removeAllEntities();
+        Game.removeAllSystems();
+    }
+
     @Test
     public void test_loadLevel() {
         when(generator.level(Mockito.any(), Mockito.any())).thenReturn(level);
-        api.loadLevel(LevelSize.SMALL, DesignLabel.DEFAULT);
-        verify(generator).level(DesignLabel.DEFAULT, LevelSize.SMALL);
-        Mockito.verifyNoMoreInteractions(generator);
+        api.loadLevel(LevelSize.MEDIUM, DesignLabel.DEFAULT);
+        verify(generator).level(eq(DesignLabel.DEFAULT), eq(LevelSize.MEDIUM));
         verify(onLevelLoader).execute();
+
+        Mockito.verifyNoMoreInteractions(generator);
         Mockito.verifyNoMoreInteractions(onLevelLoader);
-        assertEquals(level, LevelSystem.currentLevel());
+
+        assertEquals(level, LevelSystem.level());
     }
 
     @Test
@@ -78,7 +90,7 @@ public class TileLevelAPITest {
         Mockito.verifyNoMoreInteractions(generator);
         verify(onLevelLoader).execute();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
-        assertEquals(level, LevelSystem.currentLevel());
+        assertEquals(level, LevelSystem.level());
     }
 
     @Test
@@ -89,7 +101,7 @@ public class TileLevelAPITest {
         Mockito.verifyNoMoreInteractions(generator);
         verify(onLevelLoader).execute();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
-        assertEquals(level, LevelSystem.currentLevel());
+        assertEquals(level, LevelSystem.level());
     }
 
     @Test
@@ -100,11 +112,11 @@ public class TileLevelAPITest {
         Mockito.verifyNoMoreInteractions(generator);
         verify(onLevelLoader).execute();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
-        assertEquals(level, LevelSystem.currentLevel());
+        assertEquals(level, LevelSystem.level());
     }
 
     @Test
-    public void test_update() {
+    public void test_execute_draw() {
         String textureT1 = "dummyPath1";
         String textureT2 = "dummyPath2";
         String textureT3 = "dummyPath3";
@@ -173,11 +185,44 @@ public class TileLevelAPITest {
     }
 
     @Test
+    public void test_execute_noLevel() {
+        assertNull(LevelSystem.level());
+        when(generator.level(any(), Mockito.any())).thenReturn(level);
+        Tile[][] layout = new Tile[0][0];
+        when(level.layout()).thenReturn(layout);
+        // should load a new level if currentLevel==null
+        api.execute();
+        verify(onLevelLoader, times(1)).execute();
+    }
+
+    @Test
+    public void test_execute_heroOnEndTile() throws IOException {
+        when(generator.level(any(), Mockito.any())).thenReturn(level);
+        api.loadLevel();
+        Entity hero = EntityFactory.newHero();
+        api.showEntity(hero);
+
+        Tile end = Mockito.mock(Tile.class);
+        Point p = new Point(3, 3);
+        when(end.position()).thenReturn(p);
+        when(level.tileAt(p)).thenReturn(end);
+        Mockito.when(level.endTile()).thenReturn(end);
+
+        hero.fetch(PositionComponent.class).get().position(end);
+
+        Tile[][] layout = new Tile[0][0];
+        when(level.layout()).thenReturn(layout);
+        api.execute();
+        // first on loadLevel(), second on execute()
+        verify(onLevelLoader, times(2)).execute();
+    }
+
+    @Test
     public void test_setLevel() {
         api.level(level);
         Mockito.verifyNoInteractions(generator);
         verify(onLevelLoader).execute();
         Mockito.verifyNoMoreInteractions(onLevelLoader);
-        assertEquals(level, LevelSystem.currentLevel());
+        assertEquals(level, LevelSystem.level());
     }
 }

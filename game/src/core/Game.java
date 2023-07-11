@@ -120,8 +120,6 @@ public final class Game extends ScreenAdapter {
 
     private static Stage stage;
 
-    private static LevelSystem levelSystem;
-
     private boolean doSetup = true;
     private boolean uiDebugFlag = false;
 
@@ -132,7 +130,7 @@ public final class Game extends ScreenAdapter {
      * @return the currently loaded level
      */
     public static ILevel currentLevel() {
-        return LevelSystem.currentLevel();
+        return LevelSystem.level();
     }
 
     /**
@@ -586,8 +584,8 @@ public final class Game extends ScreenAdapter {
      * @param level New level
      */
     public static void currentLevel(ILevel level) {
+        LevelSystem levelSystem = (LevelSystem) systems.get(LevelSystem.class);
         if (levelSystem != null) levelSystem.level(level);
-        LevelSystem.currentLevel(level);
     }
 
     private static void setupStage() {
@@ -630,7 +628,6 @@ public final class Game extends ScreenAdapter {
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
         initBaseLogger();
         createSystems();
-
         setupStage();
     }
 
@@ -733,11 +730,12 @@ public final class Game extends ScreenAdapter {
     /** Create the systems. */
     private void createSystems() {
         addSystem(new CameraSystem());
-        DrawSystem ds = new DrawSystem();
-        addSystem(ds);
         addSystem(
                 new LevelSystem(
-                        ds.painter(), new WallGenerator(new RandomWalkGenerator()), onLevelLoad));
+                        DrawSystem.painter(),
+                        new WallGenerator(new RandomWalkGenerator()),
+                        onLevelLoad));
+        addSystem(new DrawSystem());
         addSystem(new VelocitySystem());
         addSystem(new PlayerSystem());
         addSystem(new HudSystem());
