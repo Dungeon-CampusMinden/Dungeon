@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 /** Manages the level. */
 public final class LevelSystem extends System {
     /** Currently used level-size configuration for generating new level */
-    private static LevelSize LEVELSIZE = LevelSize.SMALL;
+    private static LevelSize levelSize = LevelSize.SMALL;
     /**
      * The currently loaded level of the game.
      *
@@ -31,19 +31,19 @@ public final class LevelSystem extends System {
      */
     private static ILevel currentLevel;
 
-    private final IVoidFunction onLevelLoader;
+    private final IVoidFunction onLevelLoad;
     private final Painter painter;
     private final Logger levelAPI_logger = Logger.getLogger(this.getClass().getName());
     private IGenerator gen;
 
     /**
      * @param generator Level generator
-     * @param onLevelLoader Object that implements the onLevelLoad method.
+     * @param onLevelLoad Object that implements the onLevelLoad method.
      */
-    public LevelSystem(Painter painter, IGenerator generator, IVoidFunction onLevelLoader) {
+    public LevelSystem(Painter painter, IGenerator generator, IVoidFunction onLevelLoad) {
         super(PlayerComponent.class, PositionComponent.class);
         this.gen = generator;
-        this.onLevelLoader = onLevelLoader;
+        this.onLevelLoad = onLevelLoad;
         this.painter = painter;
     }
 
@@ -55,11 +55,11 @@ public final class LevelSystem extends System {
     }
 
     public static LevelSize levelSize() {
-        return LEVELSIZE;
+        return levelSize;
     }
 
     public static void levelSize(LevelSize levelSize) {
-        LEVELSIZE = levelSize;
+        LevelSystem.levelSize = levelSize;
     }
 
     /**
@@ -70,7 +70,7 @@ public final class LevelSystem extends System {
      */
     public void loadLevel(LevelSize size, DesignLabel label) {
         currentLevel = gen.level(label, size);
-        onLevelLoader.execute();
+        onLevelLoad.execute();
         levelAPI_logger.info("A new level was loaded.");
     }
 
@@ -138,7 +138,7 @@ public final class LevelSystem extends System {
      */
     public void level(ILevel level) {
         currentLevel = level;
-        onLevelLoader.execute();
+        onLevelLoad.execute();
     }
 
     /**
@@ -160,8 +160,8 @@ public final class LevelSystem extends System {
 
     @Override
     public void execute() {
-        if (currentLevel == null) loadLevel(LEVELSIZE);
-        else if (entityStream().anyMatch(this::isOnEndTile)) loadLevel(LEVELSIZE);
+        if (currentLevel == null) loadLevel(levelSize);
+        else if (entityStream().anyMatch(this::isOnEndTile)) loadLevel(levelSize);
         drawLevel();
     }
 }

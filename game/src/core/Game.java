@@ -119,6 +119,22 @@ public final class Game extends ScreenAdapter {
     private static Entity hero;
 
     private static Stage stage;
+    /**
+     * Sets {@link #currentLevel} to the new level and removes all entities.
+     *
+     * <p>Will re-add the hero if he exists.
+     */
+    private final IVoidFunction onLevelLoad =
+            () -> {
+                removeAllEntities();
+                try {
+                    hero().ifPresent(this::placeOnLevelStart);
+                } catch (MissingComponentException e) {
+                    LOGGER.warning(e.getMessage());
+                }
+                hero().ifPresent(Game::addEntity);
+                userOnLevelLoad.execute();
+            };
 
     private boolean doSetup = true;
     private boolean uiDebugFlag = false;
@@ -586,6 +602,7 @@ public final class Game extends ScreenAdapter {
     public static void currentLevel(ILevel level) {
         LevelSystem levelSystem = (LevelSystem) systems.get(LevelSystem.class);
         if (levelSystem != null) levelSystem.level(level);
+        else LOGGER.warning("Can not set Level because levelSystem is null.");
     }
 
     private static void setupStage() {
@@ -607,8 +624,7 @@ public final class Game extends ScreenAdapter {
     @Override
     public void render(float delta) {
         if (doSetup) onSetup();
-        DrawSystem ds = (DrawSystem) systems.get(DrawSystem.class);
-        ds.batch().setProjectionMatrix(CameraSystem.camera().combined);
+        DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined);
         onFrame();
         clearScreen();
         updateSystems();
@@ -681,23 +697,6 @@ public final class Game extends ScreenAdapter {
         }
         entities.update();
     }
-
-    /**
-     * Sets {@link #currentLevel} to the new level and removes all entities.
-     *
-     * <p>Will re-add the hero if he exists.
-     */
-    private final IVoidFunction onLevelLoad =
-            () -> {
-                removeAllEntities();
-                try {
-                    hero().ifPresent(this::placeOnLevelStart);
-                } catch (MissingComponentException e) {
-                    LOGGER.warning(e.getMessage());
-                }
-                hero().ifPresent(Game::addEntity);
-                userOnLevelLoad.execute();
-            };
 
     /**
      * Set the position of the given entity to the position of the level-start.
