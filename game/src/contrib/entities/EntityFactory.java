@@ -44,8 +44,8 @@ public class EntityFactory {
      */
     public static Entity newHero() throws IOException {
         final int fireballCoolDown = 2;
-        final float xSpeed = 0.3f;
-        final float ySpeed = 0.3f;
+        final float xSpeed = 0.1f;
+        final float ySpeed = 0.1f;
 
         Entity hero = new Entity("hero");
         new CameraComponent(hero);

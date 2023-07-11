@@ -257,58 +257,26 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
     }
 
     @Override
-    public void onMovementEventReceived(final int clientID, final MovementEvent positionRequest) {
-        Optional<Entity> hero =
+    public void onMovementEventReceived(final int clientID, final MovementEvent movementEvent) {
+        Optional<Entity> heroInGlobalState =
                 globalState.heroesByClientId().values().stream()
-                        .filter(x -> x.globalID() == positionRequest.entityGlobalID())
+                        .filter(x -> x.globalID() == movementEvent.entityGlobalID())
                         .findFirst();
 
-        if (hero.isPresent()) {
-            PositionComponent pc =
-                    hero.get()
-                            .fetch(PositionComponent.class)
-                            .orElseThrow(
-                                    () ->
-                                            MissingComponentException.build(
-                                                    hero.get(), PositionComponent.class));
-            pc.position(positionRequest.position());
-
-            VelocityComponent vc =
-                    hero.get()
-                            .fetch(VelocityComponent.class)
-                            .orElseThrow(
-                                    () ->
-                                            MissingComponentException.build(
-                                                    hero.get(), VelocityComponent.class));
-
-            vc.currentXVelocity(positionRequest.xVelocity());
-            vc.currentYVelocity(positionRequest.yVelocity());
+        if (heroInGlobalState.isPresent()) {
+            determineNewPosition(heroInGlobalState.get(), movementEvent.xVelocity(), movementEvent.yVelocity());
+            setVelocity(heroInGlobalState.get(), movementEvent.xVelocity(), movementEvent.yVelocity());
         } else {
             // check if client which want to update monster position is host, otherwise not allowed
             if (isHost(clientID)) {
-                Optional<Entity> monster =
+                Optional<Entity> monsterInGlobalState =
                         globalState.entities().stream()
-                                .filter(x -> x.globalID() == positionRequest.entityGlobalID())
+                                .filter(x -> x.globalID() == movementEvent.entityGlobalID())
                                 .findFirst();
 
-                if (monster.isPresent()) {
-                    PositionComponent pc =
-                            monster.get()
-                                    .fetch(PositionComponent.class)
-                                    .orElseThrow(
-                                            () ->
-                                                    MissingComponentException.build(
-                                                            monster.get(),
-                                                            PositionComponent.class));
-                    pc.position(positionRequest.position());
-
-                    VelocityComponent vc =
-                            monster.get().fetch(VelocityComponent.class).orElse(null);
-
-                    if (vc != null) {
-                        vc.currentXVelocity(positionRequest.xVelocity());
-                        vc.currentYVelocity(positionRequest.yVelocity());
-                    }
+                if (monsterInGlobalState.isPresent()) {
+                    determineNewPosition(monsterInGlobalState.get(), movementEvent.xVelocity(), movementEvent.yVelocity());
+                    setVelocity(monsterInGlobalState.get(), movementEvent.xVelocity(), movementEvent.yVelocity());
                 }
             }
         }
@@ -560,6 +528,31 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
             }
         }
         return highestExistingID + 1;
+    }
+
+    private void determineNewPosition(final Entity entity, final float xVelocity, final float yVelocity) {
+        requireNonNull(entity);
+        Optional<PositionComponent> pc = entity.fetch(PositionComponent.class);
+
+        if (pc.isPresent()) {
+            final float xNew = pc.get().position().x + xVelocity;
+            final float yNew = pc.get().position().y + yVelocity;
+            final Point newPosition = new Point(xNew, yNew);
+            if (globalState.level().tileAt(newPosition) != null &&
+                globalState.level().tileAt(newPosition).isAccessible()) {
+                pc.get().position(newPosition);
+            }
+        }
+    }
+
+    private void setVelocity(final Entity entity, final float xVelocity, final float yVelocity) {
+        requireNonNull(entity);
+        Optional<VelocityComponent> vc = entity.fetch(VelocityComponent.class);
+
+        if (vc.isPresent()) {
+            vc.get().currentXVelocity(xVelocity);
+            vc.get().currentYVelocity(yVelocity);
+        }
     }
 
     private void clearGlobalState() {
