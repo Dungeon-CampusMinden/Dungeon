@@ -11,14 +11,14 @@ public interface IServer {
     int DEFAULT_UDP_PORT = DEFAULT_TCP_PORT + 1;
 
     /**
-     * Used to implement inherited instances to listen on connections.
+     * Begin listen on connections.
      *
      * @param port A preconfigured TCP port.
      * @throws IOException Should throw IOException if port can not be used.
      */
     void startListening(@Null Integer port) throws IOException;
 
-    /** Used to implement closing session and ports. */
+    /** Closing session and ports. */
     void stopListening();
 
     /**

@@ -126,6 +126,15 @@ public final class DrawComponent extends Component {
         currentAnimation = idle;
     }
 
+    /**
+     * Create a new DrawComponent with a specific animation map.
+     *
+     * <p>This constructor is for special case only (multiplayer). Use {@link DrawComponent(Entity,
+     * String)} if possible.
+     *
+     * @param entity associated entity
+     * @param animationMap
+     */
     public DrawComponent(final Entity entity, final HashMap animationMap) {
         super(entity);
         this.animationMap = animationMap;

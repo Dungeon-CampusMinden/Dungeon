@@ -25,7 +25,6 @@ public class Menu extends ScreenAdapter {
     private static final Logger LOGGER = Logger.getLogger("Menu");
     private static Menu INSTANCE;
     private final Stage stage;
-    private final Skin skin;
     private final Table table;
     private final TextButton buttonSinglePlayer;
     private final TextButton buttonMultiPlayer;
@@ -46,8 +45,9 @@ public class Menu extends ScreenAdapter {
         MultiplayerJoinSession
     }
 
+    /** Private constructor for singleton. */
     private Menu() {
-        skin = new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG));
+        Skin skin = new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG));
         stage = new Stage(new ScreenViewport());
         buttonSinglePlayer = new TextButton("SinglePlayer", skin);
         buttonMultiPlayer = new TextButton("MultiPlayer", skin);
@@ -106,14 +106,27 @@ public class Menu extends ScreenAdapter {
         stage.dispose();
     }
 
+    /**
+     * Add observer to customize event handling.
+     *
+     * @param observer Observer to be added.
+     */
     public void addListener(IMenuScreenObserver observer) {
         observers.add(observer);
     }
 
+    /**
+     * Remove observer.
+     *
+     * @param observer Observer to be removed.
+     */
     public void removeListener(IMenuScreenObserver observer) {
         observers.remove(observer);
     }
 
+    /**
+     * @return Singleton instance.
+     */
     public static Menu getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new Menu();
@@ -143,9 +156,7 @@ public class Menu extends ScreenAdapter {
                 new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
-                        observers.forEach(
-                                (IMenuScreenObserver observer) ->
-                                        observer.onSinglePlayerModeChosen());
+                        observers.forEach(IMenuScreenObserver::onSinglePlayerModeChosen);
                     }
                 });
 
@@ -161,9 +172,7 @@ public class Menu extends ScreenAdapter {
                 new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
-                        observers.forEach(
-                                (IMenuScreenObserver observer) ->
-                                        observer.onMultiPlayerHostModeChosen());
+                        observers.forEach(IMenuScreenObserver::onMultiPlayerHostModeChosen);
                     }
                 });
 

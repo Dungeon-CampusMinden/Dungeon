@@ -52,7 +52,7 @@ public final class MultiplayerSynchronizationSystem extends System {
     public void execute() {
         if (multiplayerManager.isConnectedToSession()) {
             if (multiplayerManager.entityStream() != null
-                    && multiplayerManager.entityStream().count() > 0) {
+                    && multiplayerManager.entityStream().findAny().isPresent()) {
                 synchronizeAddedEntities();
                 synchronizeRemovedEntities();
                 synchronizePositions();
@@ -69,7 +69,7 @@ public final class MultiplayerSynchronizationSystem extends System {
                 Game.entityStream()
                         //                .filter(entity ->
                         // entity.fetch(MultiplayerComponent.class).isPresent())
-                        .map(entity -> entity.globalID())
+                        .map(Entity::globalID)
                         .collect(Collectors.toSet());
 
         multiplayerManager
@@ -85,10 +85,7 @@ public final class MultiplayerSynchronizationSystem extends System {
                                 newEntity.globalID(multiplayerEntity.globalID());
                                 multiplayerEntity
                                         .components()
-                                        .forEach(
-                                                (key, value) -> {
-                                                    value.entity(newEntity);
-                                                });
+                                        .forEach((key, value) -> value.entity(newEntity));
                             }
                         });
     }
@@ -104,9 +101,9 @@ public final class MultiplayerSynchronizationSystem extends System {
                 .forEach(
                         entity -> {
                             boolean isEntityRemoved =
-                                    !multiplayerManager
+                                    multiplayerManager
                                             .entityStream()
-                                            .anyMatch(x -> x.globalID() == entity.globalID());
+                                            .noneMatch(x -> x.globalID() == entity.globalID());
                             if (isEntityRemoved) {
                                 Game.removeEntity(entity);
                             }
@@ -120,10 +117,7 @@ public final class MultiplayerSynchronizationSystem extends System {
                 .forEach(
                         localEntityState -> {
                             PositionComponent positionComponentLocal =
-                                    (PositionComponent)
-                                            localEntityState
-                                                    .fetch(PositionComponent.class)
-                                                    .orElseThrow();
+                                    localEntityState.fetch(PositionComponent.class).orElseThrow();
 
                             multiplayerManager
                                     .entityStream()
@@ -158,56 +152,58 @@ public final class MultiplayerSynchronizationSystem extends System {
         Game.entityStream()
                 .filter(entity -> entity.fetch(VelocityComponent.class).isPresent())
                 .forEach(
-                        localEntityState -> {
-                            multiplayerManager
-                                    .entityStream()
-                                    .forEach(
-                                            multiplayerEntityState -> {
-                                                if (multiplayerEntityState.globalID()
-                                                        == localEntityState.globalID()) {
-                                                    DrawComponent drawComponent =
-                                                            (DrawComponent)
-                                                                    localEntityState
-                                                                            .fetch(
-                                                                                    DrawComponent
-                                                                                            .class)
-                                                                            .orElseThrow();
+                        localEntityState ->
+                                multiplayerManager
+                                        .entityStream()
+                                        .forEach(
+                                                multiplayerEntityState -> {
+                                                    if (multiplayerEntityState.globalID()
+                                                            == localEntityState.globalID()) {
+                                                        DrawComponent drawComponent =
+                                                                (DrawComponent)
+                                                                        localEntityState
+                                                                                .fetch(
+                                                                                        DrawComponent
+                                                                                                .class)
+                                                                                .orElseThrow();
 
-                                                    VelocityComponent velocityComponentMultiplayer =
-                                                            (VelocityComponent)
-                                                                    multiplayerEntityState
-                                                                            .fetch(
-                                                                                    VelocityComponent
-                                                                                            .class)
-                                                                            .orElseThrow();
+                                                        VelocityComponent
+                                                                velocityComponentMultiplayer =
+                                                                        multiplayerEntityState
+                                                                                .fetch(
+                                                                                        VelocityComponent
+                                                                                                .class)
+                                                                                .orElseThrow();
 
-                                                    float x =
-                                                            velocityComponentMultiplayer
-                                                                    .currentXVelocity();
-                                                    if (x > 0) {
-                                                        drawComponent.currentAnimation(
-                                                                CoreAnimations.RUN_RIGHT);
-                                                    } else if (x < 0) {
-                                                        drawComponent.currentAnimation(
-                                                                CoreAnimations.RUN_LEFT);
-                                                    }
-                                                    // idle
-                                                    else {
-                                                        // each draw component has an idle
-                                                        // animation, so no check is needed
-                                                        if (drawComponent.isCurrentAnimation(
-                                                                        CoreAnimations.IDLE_LEFT)
-                                                                || drawComponent.isCurrentAnimation(
-                                                                        CoreAnimations.RUN_LEFT))
+                                                        float x =
+                                                                velocityComponentMultiplayer
+                                                                        .currentXVelocity();
+                                                        if (x > 0) {
                                                             drawComponent.currentAnimation(
-                                                                    CoreAnimations.IDLE_LEFT);
-                                                        else
+                                                                    CoreAnimations.RUN_RIGHT);
+                                                        } else if (x < 0) {
                                                             drawComponent.currentAnimation(
-                                                                    CoreAnimations.IDLE_RIGHT);
+                                                                    CoreAnimations.RUN_LEFT);
+                                                        }
+                                                        // idle
+                                                        else {
+                                                            // each draw component has an idle
+                                                            // animation, so no check is needed
+                                                            if (drawComponent.isCurrentAnimation(
+                                                                            CoreAnimations
+                                                                                    .IDLE_LEFT)
+                                                                    || drawComponent
+                                                                            .isCurrentAnimation(
+                                                                                    CoreAnimations
+                                                                                            .RUN_LEFT))
+                                                                drawComponent.currentAnimation(
+                                                                        CoreAnimations.IDLE_LEFT);
+                                                            else
+                                                                drawComponent.currentAnimation(
+                                                                        CoreAnimations.IDLE_RIGHT);
+                                                        }
                                                     }
-                                                }
-                                            });
-                        });
+                                                }));
     }
 
     /** Removes all entities that has been marked as multiplayer entity. */
@@ -216,14 +212,10 @@ public final class MultiplayerSynchronizationSystem extends System {
                 .entityStream()
                 .forEach(
                         globalEntity -> {
-                            Entity localEntity =
-                                    Game.entityStream()
-                                            .filter(x -> x.globalID() == globalEntity.globalID())
-                                            .findFirst()
-                                            .orElse(null);
-                            if (localEntity != null) {
-                                Game.removeEntity(localEntity);
-                            }
+                            Game.entityStream()
+                                    .filter(x -> x.globalID() == globalEntity.globalID())
+                                    .findFirst()
+                                    .ifPresent(Game::removeEntity);
                         });
     }
 }

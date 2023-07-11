@@ -10,14 +10,18 @@ import com.esotericsoftware.kryonet.Server;
 import contrib.utils.multiplayer.packages.NetworkSetup;
 import contrib.utils.multiplayer.packages.Version;
 import contrib.utils.multiplayer.packages.event.MovementEvent;
-import contrib.utils.multiplayer.packages.request.*;
+import contrib.utils.multiplayer.packages.request.ChangeMapRequest;
+import contrib.utils.multiplayer.packages.request.InitializeServerRequest;
+import contrib.utils.multiplayer.packages.request.JoinSessionRequest;
+import contrib.utils.multiplayer.packages.request.LoadMapRequest;
+import contrib.utils.multiplayer.packages.request.PingRequest;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 /** Concrete implementation of {@link IServer} to send */
 public class MultiplayerServer extends Listener implements IServer {
-    public static final Version version = new Version(0, 0, 0);
+    public static final Version VERSION = new Version(0, 0, 0);
     // According to several tests, random generated level is the largest object to be sent
     // and can have a maximum size of about 500k bytes
     // => set max expected size to double
@@ -77,8 +81,6 @@ public class MultiplayerServer extends Listener implements IServer {
     }
 
     /**
-     * Starts listening for connections.
-     *
      * @param port a preconfigured TCP port. UDP port will be TCP port + 1. If null, default ports
      *     are used.
      */
@@ -91,9 +93,7 @@ public class MultiplayerServer extends Listener implements IServer {
 
     @Override
     public void stopListening() {
-        if (server != null) {
-            server.close();
-        }
+        server.close();
     }
 
     @Override
@@ -126,21 +126,11 @@ public class MultiplayerServer extends Listener implements IServer {
         server.sendToAllExceptUDP(clientID, object);
     }
 
-    /**
-     * Add observer to implement customized actions.
-     *
-     * @param observer Observer reference to be added.
-     */
     @Override
     public void addObserver(final IServerObserver observer) {
         observers.add(requireNonNull(observer));
     }
 
-    /**
-     * Remove observer.
-     *
-     * @param observer Observer reference to be removed.
-     */
     @Override
     public void removeObserver(final IServerObserver observer) {
         observers.remove(requireNonNull(observer));

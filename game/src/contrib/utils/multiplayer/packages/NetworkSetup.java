@@ -1,5 +1,7 @@
 package contrib.utils.multiplayer.packages;
 
+import static java.util.Objects.requireNonNull;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.EndPoint;
 
@@ -20,22 +22,16 @@ import contrib.utils.components.interaction.*;
 import contrib.utils.components.item.*;
 import contrib.utils.components.skill.*;
 import contrib.utils.components.stats.DamageModifier;
-import contrib.utils.multiplayer.packages.event.GameStateUpdateEvent;
-import contrib.utils.multiplayer.packages.event.MovementEvent;
+import contrib.utils.multiplayer.packages.event.*;
 import contrib.utils.multiplayer.packages.request.*;
 import contrib.utils.multiplayer.packages.response.*;
 import contrib.utils.multiplayer.packages.serializer.*;
 import contrib.utils.multiplayer.packages.serializer.ItemDataSerializer;
 import contrib.utils.multiplayer.packages.serializer.components.*;
-import contrib.utils.multiplayer.packages.serializer.components.ItemComponentSerializer;
 import contrib.utils.multiplayer.packages.serializer.gamesession.*;
-import contrib.utils.multiplayer.packages.serializer.java.BiConsumerSerializer;
-import contrib.utils.multiplayer.packages.serializer.java.CoordinateSerializer;
-import contrib.utils.multiplayer.packages.serializer.java.FunctionSerializer;
-import contrib.utils.multiplayer.packages.serializer.java.TriConsumerSerializer;
-import contrib.utils.multiplayer.packages.serializer.level.ILevelSerializer;
-import contrib.utils.multiplayer.packages.serializer.level.TileSerializer;
-import contrib.utils.multiplayer.packages.serializer.utils.PointSerializer;
+import contrib.utils.multiplayer.packages.serializer.java.*;
+import contrib.utils.multiplayer.packages.serializer.level.*;
+import contrib.utils.multiplayer.packages.serializer.utils.*;
 
 import core.Component;
 import core.Entity;
@@ -77,11 +73,29 @@ public class NetworkSetup {
     public static void registerCommunicationClasses(EndPoint endPoint) {
         final Kryo kryo = endPoint.getKryo();
 
-        /* DEFAULT SERIALIZER */
+        registerDefaultSerializer(kryo);
+        registerJavaUtils(kryo);
+        registerComponentSerializer(kryo);
+        registerMapSpecifics(kryo);
+        registerEntityGenerals(kryo);
+        registerGameLogicSpecifics(kryo);
+        registerAiSpecifics(kryo);
+        registerInteractionSpecifics(kryo);
+
+        /* TODO: not implemented yet because of cyclic dependencies
+         * kryo.register(ProtectOnApproach.class, new ProtectOnApproachSerializer());
+         * kryo.register(ProtectOnAttack.class, new ProtectOnAttackSerializer());
+         */
+    }
+
+    private static void registerDefaultSerializer(final Kryo kryo) {
+        requireNonNull(kryo);
         kryo.addDefaultSerializer(Tile.class, new TileSerializer());
         kryo.addDefaultSerializer(ILevel.class, new ILevelSerializer());
+    }
 
-        /* JAVA (UTILS) */
+    private static void registerJavaUtils(final Kryo kryo) {
+        requireNonNull(kryo);
         kryo.register(Class.class);
         kryo.register(HashMap.class);
         kryo.register(Set.class);
@@ -91,35 +105,10 @@ public class NetworkSetup {
         kryo.register(BiConsumer.class, new BiConsumerSerializer());
         kryo.register(TriConsumer.class, new TriConsumerSerializer());
         kryo.register(Function.class, new FunctionSerializer());
+    }
 
-        /* LEVEL */
-        kryo.register(Coordinate.class, new CoordinateSerializer());
-        kryo.register(Point.class, new PointSerializer());
-        kryo.register(ILevel.class);
-        kryo.register(Tile[].class);
-        kryo.register(Tile[][].class);
-        kryo.register(TileLevel.class);
-        kryo.register(TileHeuristic.class);
-        kryo.register(ExitTile.class);
-        kryo.register(DoorTile.class);
-        kryo.register(FloorTile.class);
-        kryo.register(WallTile.class);
-        kryo.register(HoleTile.class);
-        kryo.register(SkipTile.class);
-        kryo.register(DesignLabel.class);
-        kryo.register(LevelElement.class);
-
-        /* DRAW */
-        kryo.register(Painter.class);
-        kryo.register(PainterConfig.class);
-        kryo.register(TextureHandler.class);
-        kryo.register(TextureMap.class);
-        kryo.register(Animation.class, new AnimationSerializer());
-
-        /* ENTITY GENERAL */
-        kryo.register(Entity.class, new EntitySerializer());
-
-        /* COMPONENTS */
+    private static void registerComponentSerializer(final Kryo kryo) {
+        requireNonNull(kryo);
         kryo.register(Component.class);
         kryo.register(AIComponent.class, new AIComponentSerializer());
         kryo.register(CollideComponent.class, new CollideComponentSerializer());
@@ -138,8 +127,59 @@ public class NetworkSetup {
         kryo.register(PlayerComponent.class, new PlayerComponentSerializer());
         kryo.register(PositionComponent.class, new PositionComponentSerializer());
         kryo.register(VelocityComponent.class, new VelocityComponentSerializer());
+    }
 
-        /* AI SPECIFIC */
+    private static void registerMapSpecifics(final Kryo kryo) {
+        requireNonNull(kryo);
+        kryo.register(Coordinate.class, new CoordinateSerializer());
+        kryo.register(Point.class, new PointSerializer());
+        kryo.register(ILevel.class);
+        kryo.register(Tile[].class);
+        kryo.register(Tile[][].class);
+        kryo.register(TileLevel.class);
+        kryo.register(TileHeuristic.class);
+        kryo.register(ExitTile.class);
+        kryo.register(DoorTile.class);
+        kryo.register(FloorTile.class);
+        kryo.register(WallTile.class);
+        kryo.register(HoleTile.class);
+        kryo.register(SkipTile.class);
+        kryo.register(DesignLabel.class);
+        kryo.register(LevelElement.class);
+
+        kryo.register(Painter.class);
+        kryo.register(PainterConfig.class);
+        kryo.register(TextureHandler.class);
+        kryo.register(TextureMap.class);
+        kryo.register(Animation.class, new AnimationSerializer());
+    }
+
+    private static void registerEntityGenerals(final Kryo kryo) {
+        requireNonNull(kryo);
+        kryo.register(Entity.class, new EntitySerializer());
+    }
+
+    private static void registerGameLogicSpecifics(final Kryo kryo) {
+        requireNonNull(kryo);
+        kryo.register(PingRequest.class);
+        kryo.register(PingResponse.class);
+        kryo.register(InitializeServerRequest.class, new InitServerRequestSerializer());
+        kryo.register(InitializeServerResponse.class, new InitServerResponseSerializer());
+        kryo.register(LoadMapRequest.class, new LoadMapRequestSerializer());
+        kryo.register(LoadMapResponse.class, new LoadMapResponseSerializer());
+        kryo.register(JoinSessionRequest.class, new JoinSessionRequestSerializer());
+        kryo.register(JoinSessionResponse.class, new JoinSessionResponseSerializer());
+        kryo.register(GameStateUpdateEvent.class, new GameStateUpdateEventSerializer());
+        kryo.register(GameStateUpdate.class, new GameStateUpdateSerializer());
+        kryo.register(GameState.class, new GameStateSerializer());
+        kryo.register(MovementEvent.class, new MovementEventSerializer());
+        kryo.register(ChangeMapRequest.class);
+        kryo.register(ChangeMapResponse.class);
+        kryo.register(Version.class, new VersionSerializer());
+    }
+
+    private static void registerAiSpecifics(final Kryo kryo) {
+        requireNonNull(kryo);
         kryo.register(AITools.class);
         kryo.register(CollideAI.class, new CollideAISerializer());
         kryo.register(MeleeAI.class, new MeleeAISerializer());
@@ -147,8 +187,10 @@ public class NetworkSetup {
         kryo.register(PatrouilleWalk.class, new PatrouilleWalkSerializer());
         kryo.register(RadiusWalk.class, new RadiusWalkSerializer());
         kryo.register(StaticRadiusWalk.class, new StaticRadiusWalkSerializer());
+    }
 
-        /* ACTIONS */
+    private static void registerInteractionSpecifics(final Kryo kryo) {
+        requireNonNull(kryo);
         kryo.register(RangeTransition.class, new RangeTransitionSerializer());
         kryo.register(SelfDefendTransition.class, new SelfDefendTransitionSerializer());
         kryo.register(Damage.class, new DamageSerializer());
@@ -170,27 +212,5 @@ public class NetworkSetup {
         kryo.register(DamageModifier.class);
         kryo.register(DefaultCollider.class, new DefaultColliderSerializer());
         kryo.register(ItemCollider.class, new ItemColliderSerializer());
-
-        /* GAME LOGIC */
-        kryo.register(PingRequest.class);
-        kryo.register(PingResponse.class);
-        kryo.register(InitializeServerRequest.class, new InitServerRequestSerializer());
-        kryo.register(InitializeServerResponse.class, new InitServerResponseSerializer());
-        kryo.register(LoadMapRequest.class, new LoadMapRequestSerializer());
-        kryo.register(LoadMapResponse.class, new LoadMapResponseSerializer());
-        kryo.register(JoinSessionRequest.class, new JoinSessionRequestSerializer());
-        kryo.register(JoinSessionResponse.class, new JoinSessionResponseSerializer());
-        kryo.register(GameStateUpdateEvent.class, new GameStateUpdateEventSerializer());
-        kryo.register(GameStateUpdate.class, new GameStateUpdateSerializer());
-        kryo.register(GameState.class, new GameStateSerializer());
-        kryo.register(MovementEvent.class, new MovementEventSerializer());
-        kryo.register(ChangeMapRequest.class);
-        kryo.register(ChangeMapResponse.class);
-        kryo.register(Version.class, new VersionSerializer());
-
-        /* TODO: not implemented yet because of cyclic dependencies
-         * kryo.register(ProtectOnApproach.class, new ProtectOnApproachSerializer());
-         * kryo.register(ProtectOnAttack.class, new ProtectOnAttackSerializer());
-         */
     }
 }

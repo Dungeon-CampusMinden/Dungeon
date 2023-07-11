@@ -31,7 +31,7 @@ public class JoinSessionResponse {
             final Point initialPosition) {
 
         this.isSucceed = isSucceed;
-        this.heroGlobalID = requireNonNull(heroGlobalID);
+        this.heroGlobalID = heroGlobalID;
         this.gameState = requireNonNull(gameState);
         this.initialPosition = requireNonNull(initialPosition);
     }

@@ -31,7 +31,11 @@ import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
-import core.systems.*;
+import core.systems.CameraSystem;
+import core.systems.DrawSystem;
+import core.systems.HudSystem;
+import core.systems.PlayerSystem;
+import core.systems.VelocitySystem;
 import core.utils.Constants;
 import core.utils.DelayedSet;
 import core.utils.IVoidFunction;
@@ -40,7 +44,9 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -55,9 +61,9 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      *
      * <p>The Key-Value is the Class of the system
      */
-    private static final Map<Class<? extends System>, System> systems = new HashMap<>();
+    private static final Map<Class<? extends System>, System> SYSTEMS = new HashMap<>();
     /** All entities that are currently active in the dungeon */
-    private static final DelayedSet<Entity> entities = new DelayedSet<>();
+    private static final DelayedSet<Entity> ENTITIES = new DelayedSet<>();
 
     private static final Logger LOGGER = Logger.getLogger("Game");
     /**
@@ -132,12 +138,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      * @return a copy of the map that stores all registered {@link System} in the game.
      */
     public static Map<Class<? extends System>, System> systems() {
-        return new HashMap<>(systems);
+        return new HashMap<>(SYSTEMS);
     }
 
     /** Remove all registered systems from the game. */
     public static void removeAllSystems() {
-        systems.clear();
+        SYSTEMS.clear();
     }
 
     /**
@@ -207,7 +213,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      * @see DelayedSet
      */
     public static void addEntity(Entity entity) {
-        entities.add(entity);
+        ENTITIES.add(entity);
         LOGGER.info("Entity: " + entity + " will be added to the Game.");
     }
 
@@ -218,7 +224,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      * @see DelayedSet
      */
     public static void removeEntity(Entity entity) {
-        entities.remove(entity);
+        ENTITIES.remove(entity);
         LOGGER.info("Entity: " + entity + " will be removed from the Game.");
     }
 
@@ -228,7 +234,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      * @return a stream of all entities currently in the game
      */
     public static Stream<Entity> entityStream() {
-        return entities.currentStream();
+        return ENTITIES.currentStream();
     }
 
     /**
@@ -262,32 +268,44 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         Configuration.loadAndGetConfiguration(pathAsString, klass);
     }
 
+    /** Forces all systems to run. */
     public void resumeSystems() {
-        if (systems != null) {
-            systems.forEach(
+        if (SYSTEMS != null) {
+            SYSTEMS.forEach(
                     (klass, system) -> {
                         system.run();
                     });
         }
     }
 
+    /** Forces all systems to stop. */
     public void stopSystems() {
-        if (systems != null) {
-            systems.forEach(
+        if (SYSTEMS != null) {
+            SYSTEMS.forEach(
                     (klass, system) -> {
                         system.stop();
                     });
         }
     }
 
+    /**
+     * Has to be called whenever an entity is moved, so that it can be synchronized with global
+     * state.
+     *
+     * @param entityGlobalID Global ID of the entity.
+     * @param newPosition New position of the entity.
+     * @param xVelocity X velocity while moving.
+     * @param yVelocity Y velocity while moving.
+     */
     public static void sendMovementUpdate(
-            final int globalID,
+            final int entityGlobalID,
             final Point newPosition,
             final float xVelocity,
             final float yVelocity) {
-        multiplayerManager.sendMovementUpdate(globalID, newPosition, xVelocity, yVelocity);
+        multiplayerManager.sendMovementUpdate(entityGlobalID, newPosition, xVelocity, yVelocity);
     }
 
+    /** Has to be called to play in single player mode. */
     public void runSinglePlayer() {
         currentGameMode = Optional.of(GameMode.SinglePlayer);
         resumeSystems();
@@ -305,10 +323,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
             if (hero == null) {
                 hero(EntityFactory.newHero());
             }
-            PositionComponent positionComponent =
-                    hero().get()
-                            .fetch(PositionComponent.class)
-                            .orElseThrow(() -> new MissingComponentException("PositionComponent"));
             multiplayerManager.startSession();
         } catch (Exception ex) {
             final String message = "Multiplayer session failed to start.";
@@ -376,7 +390,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
             levelManager.loadLevel(LEVELSIZE);
             updateSystems(); // Needed to synchronize toAdd and toRemove entities into
             // currentEntities
-            multiplayerManager.loadLevel(currentLevel, entities.current(), hero);
+            multiplayerManager.loadLevel(currentLevel, ENTITIES.current(), hero);
         }
     }
 
@@ -411,8 +425,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      * @see Optional
      */
     public static Optional<System> addSystem(System system) {
-        System currentSystem = systems.get(system.getClass());
-        systems.put(system.getClass(), system);
+        System currentSystem = SYSTEMS.get(system.getClass());
+        SYSTEMS.put(system.getClass(), system);
         LOGGER.info("A new " + system.getClass().getName() + " was added to the game");
         return Optional.ofNullable(currentSystem);
     }
@@ -423,7 +437,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      * @param system the class of the system to remove
      */
     public static void removeSystem(Class<? extends System> system) {
-        systems.remove(system);
+        SYSTEMS.remove(system);
     }
 
     /**
@@ -432,8 +446,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      * <p>This will also remove all entities from each system.
      */
     public static void removeAllEntities() {
-        systems.values().forEach(System::clearEntities);
-        entities.clear();
+        SYSTEMS.values().forEach(System::clearEntities);
+        ENTITIES.clear();
         LOGGER.info("All entities will be removed from the game.");
     }
 
@@ -591,7 +605,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         clearScreen();
         levelManager.update();
         updateSystems();
-        systems.values().stream().filter(System::isRunning).forEach(System::execute);
+        SYSTEMS.values().stream().filter(System::isRunning).forEach(System::execute);
         CameraSystem.camera().update();
         // stage logic
         Game.stage().ifPresent(Game::updateStage);
@@ -662,13 +676,13 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         return entity;
     }
 
-    /** Will update the entity sets of each system and {@link Game#entities}. */
+    /** Will update the entity sets of each system and {@link Game#ENTITIES}. */
     private void updateSystems() {
-        for (System system : systems.values()) {
-            entities.foreachEntityInAddSet(system::showEntity);
-            entities.foreachEntityInRemoveSet(system::removeEntity);
+        for (System system : SYSTEMS.values()) {
+            ENTITIES.foreachEntityInAddSet(system::showEntity);
+            ENTITIES.foreachEntityInRemoveSet(system::removeEntity);
         }
-        entities.update();
+        ENTITIES.update();
     }
 
     /**
@@ -760,7 +774,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      * @param entity entity to set on the start of the level, normally this is the hero.
      */
     private void placeOnLevelStart(Entity entity) {
-        entities.add(entity);
+        ENTITIES.add(entity);
         PositionComponent pc =
                 entity.fetch(PositionComponent.class)
                         .orElseThrow(
@@ -801,6 +815,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     }
 
     public static DelayedSet<Entity> entities() {
-        return entities;
+        return ENTITIES;
     }
 }

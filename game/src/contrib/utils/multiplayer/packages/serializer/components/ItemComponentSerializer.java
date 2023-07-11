@@ -14,12 +14,18 @@ import core.Entity;
 public class ItemComponentSerializer extends Serializer<ItemComponent> {
     private Entity entity;
 
+    /** Create new serializer for {@link ItemComponent}. */
     public ItemComponentSerializer() {
         super();
     }
 
+    /**
+     * Create new serializer for {@link ItemComponent}.
+     *
+     * @param e Entity which component should be assigned to.
+     */
     public ItemComponentSerializer(Entity e) {
-        super();
+        this();
         entity = e;
     }
 

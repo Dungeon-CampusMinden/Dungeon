@@ -10,7 +10,7 @@ import java.util.Set;
 /** Used to hold current global/multiplayer game state. */
 public class GameState {
     /* Used to collect current level. */
-    private static ILevel level;
+    private ILevel level;
     /* Used to collect current entities except heroes. */
     private Set<Entity> entities = new HashSet<>();
     /* Separate HashMap to collect current 'hero' entities for validation processing. */

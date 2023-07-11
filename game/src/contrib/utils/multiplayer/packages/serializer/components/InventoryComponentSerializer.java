@@ -16,12 +16,18 @@ import java.util.List;
 public class InventoryComponentSerializer extends Serializer<InventoryComponent> {
     private Entity entity;
 
+    /** Create new serializer for {@link InventoryComponent}. */
     public InventoryComponentSerializer() {
         super();
     }
 
+    /**
+     * Create new serializer for {@link InventoryComponent}.
+     *
+     * @param e Entity which component should be assigned to.
+     */
     public InventoryComponentSerializer(Entity e) {
-        super();
+        this();
         entity = e;
     }
 

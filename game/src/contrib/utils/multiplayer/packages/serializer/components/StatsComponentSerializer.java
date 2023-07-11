@@ -13,12 +13,18 @@ import core.Entity;
 public class StatsComponentSerializer extends Serializer<StatsComponent> {
     private Entity entity;
 
+    /** Create new serializer for {@link StatsComponent}. */
     public StatsComponentSerializer() {
         super();
     }
 
+    /**
+     * Create new serializer for {@link StatsComponent}.
+     *
+     * @param e Entity which component should be assigned to.
+     */
     public StatsComponentSerializer(Entity e) {
-        super();
+        this();
         entity = e;
     }
 

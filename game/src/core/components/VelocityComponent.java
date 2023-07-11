@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  */
 @DSLType(name = "velocity_component")
 public final class VelocityComponent extends Component {
-    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
     private float currentXVelocity;
     private float currentYVelocity;
     private @DSLTypeMember(name = "x_velocity") float xVelocity;
@@ -128,7 +128,7 @@ public final class VelocityComponent extends Component {
      * @return velocity with which the entity should move on the x-axis
      */
     public float xVelocity() {
-        LOGGER.log(
+        logger.log(
                 CustomLogLevel.DEBUG,
                 "Fetching x-velocity for entity '"
                         + entity.getClass().getSimpleName()
@@ -156,7 +156,7 @@ public final class VelocityComponent extends Component {
      * @return velocity with which the entity should move on the y-axis
      */
     public float yVelocity() {
-        LOGGER.log(
+        logger.log(
                 CustomLogLevel.DEBUG,
                 "Fetching y-velocity for entity '"
                         + entity.getClass().getSimpleName()

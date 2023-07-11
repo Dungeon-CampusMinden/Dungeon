@@ -124,8 +124,7 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
             clientID = heroGlobalID;
             Game.hero().get().globalID(heroGlobalID);
             PositionComponent heroPositionComponent =
-                    (PositionComponent)
-                            Game.hero().get().fetch(PositionComponent.class).orElseThrow();
+                    Game.hero().get().fetch(PositionComponent.class).orElseThrow();
             heroPositionComponent.position(initialHeroPosition);
 
             try {
@@ -230,9 +229,7 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
                 loadMapRequest.entities().stream()
                         .filter(x -> x.localID() == loadMapRequest.hero().localID())
                         .findFirst();
-        if (heroInSendEntitiesSet.isPresent()) {
-            loadMapRequest.entities().remove(heroInSendEntitiesSet.get());
-        }
+        heroInSendEntitiesSet.ifPresent(entity -> loadMapRequest.entities().remove(entity));
         globalState.level(loadMapRequest.level());
         globalState.entities(loadMapRequest.entities());
         globalState.heroesByClientId().put(clientID, loadMapRequest.hero());
@@ -353,22 +350,18 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
                 server.startListening(serverPort);
                 scheduler = Executors.newSingleThreadScheduledExecutor();
                 scheduler.scheduleAtFixedRate(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                if (isMapLoaded) {
-                                    // Combine hero entities and monster/item entities
-                                    final Set<Entity> entities =
-                                            new HashSet<>(globalState.entities());
-                                    globalState
-                                            .heroesByClientId()
-                                            .values()
-                                            .forEach(
-                                                    entity -> {
-                                                        entities.add(entity);
-                                                    });
-                                    server.sendToAllUDP(new GameStateUpdateEvent(entities));
-                                }
+                        () -> {
+                            if (isMapLoaded) {
+                                // Combine hero entities and monster/item entities
+                                final Set<Entity> entities = new HashSet<>(globalState.entities());
+                                globalState
+                                        .heroesByClientId()
+                                        .values()
+                                        .forEach(
+                                                entity -> {
+                                                    entities.add(entity);
+                                                });
+                                server.sendToAllUDP(new GameStateUpdateEvent(entities));
                             }
                         },
                         0,
@@ -420,7 +413,7 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
      * Used to init or change the multiplayer global state, including the level and entities, that
      * should be part of the game.
      *
-     * @param level
+     * @param level Level that should be used for session.
      * @param currentEntities Entities that should be part of the level.
      * @param hero Own hero.
      */

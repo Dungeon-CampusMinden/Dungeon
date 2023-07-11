@@ -14,12 +14,18 @@ import core.utils.Point;
 public class ProjectileComponentSerializer extends Serializer<ProjectileComponent> {
     private Entity entity;
 
+    /** Create new serializer for {@link ProjectileComponent}. */
     public ProjectileComponentSerializer() {
         super();
     }
 
+    /**
+     * Create new serializer for {@link ProjectileComponent}.
+     *
+     * @param e Entity which component should be assigned to.
+     */
     public ProjectileComponentSerializer(Entity e) {
-        super();
+        this();
         entity = e;
     }
 

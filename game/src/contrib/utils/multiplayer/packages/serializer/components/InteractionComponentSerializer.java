@@ -15,12 +15,18 @@ import java.util.function.Consumer;
 public class InteractionComponentSerializer extends Serializer<InteractionComponent> {
     private Entity entity;
 
+    /** Create new serializer for {@link InteractionComponent}. */
     public InteractionComponentSerializer() {
         super();
     }
 
+    /**
+     * Create new serializer for {@link InteractionComponent}.
+     *
+     * @param e Entity which component should be assigned to.
+     */
     public InteractionComponentSerializer(Entity e) {
-        super();
+        this();
         entity = e;
     }
 

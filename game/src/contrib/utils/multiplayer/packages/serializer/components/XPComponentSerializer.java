@@ -15,12 +15,18 @@ import java.util.function.LongConsumer;
 public class XPComponentSerializer extends Serializer<XPComponent> {
     private Entity entity;
 
+    /** Create new serializer for {@link XPComponent}. */
     public XPComponentSerializer() {
         super();
     }
 
+    /**
+     * Create new serializer for {@link XPComponent}.
+     *
+     * @param e Entity which component should be assigned to.
+     */
     public XPComponentSerializer(Entity e) {
-        super();
+        this();
         entity = e;
     }
 

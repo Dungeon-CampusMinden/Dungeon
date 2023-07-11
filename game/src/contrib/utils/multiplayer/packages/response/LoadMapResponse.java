@@ -22,10 +22,16 @@ public class LoadMapResponse {
         this.gameState = requireNonNull(gameState);
     }
 
+    /**
+     * @return State whether loading map successes or not.
+     */
     public boolean isSucceed() {
         return isSucceed;
     }
 
+    /**
+     * @return Game state.
+     */
     public GameState gameState() {
         return gameState;
     }

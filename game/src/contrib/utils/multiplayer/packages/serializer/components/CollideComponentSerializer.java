@@ -12,16 +12,22 @@ import core.level.Tile;
 import core.utils.Point;
 import core.utils.TriConsumer;
 
-/** Custom serializer to send and retrieve objects of {@link core.components.CameraComponent}. */
+/** Custom serializer to send and retrieve objects of {@link CollideComponent}. */
 public class CollideComponentSerializer extends Serializer<CollideComponent> {
     private Entity entity;
 
+    /** Create new serializer for {@link CollideComponent}. */
     public CollideComponentSerializer() {
         super();
     }
 
+    /**
+     * Create new serializer for {@link CollideComponent}.
+     *
+     * @param e Entity which component should be assigned to.
+     */
     public CollideComponentSerializer(Entity e) {
-        super();
+        this();
         entity = e;
     }
 

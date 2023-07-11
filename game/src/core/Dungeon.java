@@ -6,7 +6,12 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 
 import contrib.configuration.ItemConfig;
 import contrib.entities.EntityFactory;
-import contrib.systems.*;
+import contrib.systems.AISystem;
+import contrib.systems.CollisionSystem;
+import contrib.systems.HealthSystem;
+import contrib.systems.MultiplayerSynchronizationSystem;
+import contrib.systems.ProjectileSystem;
+import contrib.systems.XPSystem;
 import contrib.utils.components.Debugger;
 
 import java.io.IOException;

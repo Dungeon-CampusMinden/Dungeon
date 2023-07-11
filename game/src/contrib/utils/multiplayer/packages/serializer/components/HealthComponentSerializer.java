@@ -15,12 +15,18 @@ import java.util.function.Consumer;
 public class HealthComponentSerializer extends Serializer<HealthComponent> {
     private Entity entity;
 
+    /** Create new serializer for {@link HealthComponent}. */
     public HealthComponentSerializer() {
         super();
     }
 
+    /**
+     * Create new serializer for {@link HealthComponent}.
+     *
+     * @param e Entity which component should be assigned to.
+     */
     public HealthComponentSerializer(Entity e) {
-        super();
+        this();
         entity = e;
     }
 

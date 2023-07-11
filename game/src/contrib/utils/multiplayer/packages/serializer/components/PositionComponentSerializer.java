@@ -13,12 +13,18 @@ import core.utils.Point;
 public class PositionComponentSerializer extends Serializer<PositionComponent> {
     private Entity entity;
 
+    /** Create new serializer for {@link PositionComponent}. */
     public PositionComponentSerializer() {
         super();
     }
 
+    /**
+     * Create new serializer for {@link PositionComponent}.
+     *
+     * @param e Entity which component should be assigned to.
+     */
     public PositionComponentSerializer(Entity e) {
-        super();
+        this();
         entity = e;
     }
 

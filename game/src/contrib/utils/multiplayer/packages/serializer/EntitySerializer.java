@@ -5,8 +5,17 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
-import contrib.utils.multiplayer.packages.serializer.components.*;
+import contrib.utils.multiplayer.packages.serializer.components.CollideComponentSerializer;
+import contrib.utils.multiplayer.packages.serializer.components.DrawComponentSerializer;
+import contrib.utils.multiplayer.packages.serializer.components.HealthComponentSerializer;
+import contrib.utils.multiplayer.packages.serializer.components.InteractionComponentSerializer;
+import contrib.utils.multiplayer.packages.serializer.components.InventoryComponentSerializer;
 import contrib.utils.multiplayer.packages.serializer.components.ItemComponentSerializer;
+import contrib.utils.multiplayer.packages.serializer.components.PositionComponentSerializer;
+import contrib.utils.multiplayer.packages.serializer.components.ProjectileComponentSerializer;
+import contrib.utils.multiplayer.packages.serializer.components.StatsComponentSerializer;
+import contrib.utils.multiplayer.packages.serializer.components.VelocityComponentSerializer;
+import contrib.utils.multiplayer.packages.serializer.components.XPComponentSerializer;
 
 import core.Component;
 import core.Entity;

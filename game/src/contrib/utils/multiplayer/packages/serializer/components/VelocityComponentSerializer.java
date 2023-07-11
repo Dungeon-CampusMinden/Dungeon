@@ -12,12 +12,22 @@ import core.components.VelocityComponent;
 public class VelocityComponentSerializer extends Serializer<VelocityComponent> {
     private Entity entity;
 
+    /**
+     * Create new serializer for {@link VelocityComponent}.
+     *
+     * @param e Entity which component should be assigned to.
+     */
     public VelocityComponentSerializer() {
         super();
     }
 
+    /**
+     * Create new serializer for {@link VelocityComponent}.
+     *
+     * @param e Entity which component should be assigned to.
+     */
     public VelocityComponentSerializer(Entity e) {
-        super();
+        this();
         entity = e;
     }
 

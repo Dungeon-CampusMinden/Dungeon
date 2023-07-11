@@ -16,12 +16,18 @@ public class MultiplayerSynchronizationComponentSerializer
         extends Serializer<MultiplayerSynchronizationComponent> {
     private Entity entity;
 
+    /** Create new serializer for {@link MultiplayerSynchronizationComponent}. */
     public MultiplayerSynchronizationComponentSerializer() {
         super();
     }
 
+    /**
+     * Create new serializer for {@link MultiplayerSynchronizationComponent}.
+     *
+     * @param e Entity which component should be assigned to.
+     */
     public MultiplayerSynchronizationComponentSerializer(Entity e) {
-        super();
+        this();
         entity = e;
     }
 

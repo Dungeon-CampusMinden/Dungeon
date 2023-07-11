@@ -15,12 +15,18 @@ import java.util.HashMap;
 public class DrawComponentSerializer extends Serializer<DrawComponent> {
     private Entity entity;
 
+    /** Create new serializer for {@link DrawComponent}. */
     public DrawComponentSerializer() {
         super();
     }
 
+    /**
+     * Create new serializer for {@link DrawComponent}.
+     *
+     * @param e Entity which component should be assigned to.
+     */
     public DrawComponentSerializer(Entity e) {
-        super();
+        this();
         entity = e;
     }
 
