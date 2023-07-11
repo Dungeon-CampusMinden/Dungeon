@@ -45,9 +45,7 @@ import java.util.logging.Logger;
  * onLevelLoad callback.
  */
 public final class LevelSystem extends System {
-    /**
-     * Currently used level-size configuration for generating new level.
-     */
+    /** Currently used level-size configuration for generating new level. */
     private static LevelSize levelSize = LevelSize.MEDIUM;
     /**
      * The currently loaded level of the game.
@@ -68,8 +66,8 @@ public final class LevelSystem extends System {
      * DesignLabel)} if you want to trigger the load of a level manually, otherwise the first level
      * will be loaded if this system {@link #execute()} is executed.
      *
-     * @param painter     The {@link Painter} to use to draw the level.
-     * @param generator   Level generator to use to generate level.
+     * @param painter The {@link Painter} to use to draw the level.
+     * @param generator Level generator to use to generate level.
      * @param onLevelLoad Callback-function that is called if a new level was loaded.
      */
     public LevelSystem(Painter painter, IGenerator generator, IVoidFunction onLevelLoad) {
@@ -107,11 +105,23 @@ public final class LevelSystem extends System {
     }
 
     /**
+     * Set the current level to the given level.
+     *
+     * <p>Will trigger the onLevelLoad callback.
+     *
+     * @param level The level to be set.
+     */
+    public void loadLevel(ILevel level) {
+        currentLevel = level;
+        onLevelLoad.execute();
+    }
+
+    /**
      * Load a new level.
      *
      * <p>Will trigger the onLevelLoad callback.
      *
-     * @param size  The wanted size of the new level.
+     * @param size The wanted size of the new level.
      * @param label The wanted design of the new level.
      */
     public void loadLevel(LevelSize size, DesignLabel label) {
@@ -185,18 +195,6 @@ public final class LevelSystem extends System {
      */
     public void generator(IGenerator generator) {
         gen = generator;
-    }
-
-    /**
-     * Set the current level to the given level.
-     *
-     * <p>Will trigger the onLevelLoad callback.
-     *
-     * @param level The level to be set.
-     */
-    public void loadLevel(ILevel level) {
-        currentLevel = level;
-        onLevelLoad.execute();
     }
 
     /**
