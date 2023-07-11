@@ -326,7 +326,8 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
      *
      * <p>To handle whether session started successfully or not, check {@link IMultiplayer}.
      *
-     * <p>NOTE: After server started, level and entities has to be configured.
+     * <p>NOTE: After server started, level and hero position has to be set up
+     * by the use of {@link #loadLevel(ILevel, Set, Entity)}.
      *
      * @throws IOException if currently now free port found on device to host session. (should never
      *     occur)
@@ -375,6 +376,45 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
         }
 
         client.connectToHost("127.0.0.1", serverPort);
+        client.sendTCP(new InitializeServerRequest(VERSION));
+    }
+
+    /**
+     * Hosting a multiplayer session, which other players can join.
+     *
+     * <p>To handle whether session started successfully or not, check {@link IMultiplayer}.
+     *
+     * <p>NOTE: After server started, level and hero position has to be set up
+     * by the use of {@link #loadLevel(ILevel, Set, Entity)}.
+     *
+     * @param port Port through which other clients can join.
+     * @throws IOException if port not accessible.
+     */
+    public void startSession(final int port) throws IOException {
+        clearLocalSessionData();
+        stopEndpoints();
+        server.startListening(port);
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(
+            () -> {
+                if (isMapLoaded) {
+                    // Combine hero entities and monster/item entities
+                    final Set<Entity> entities = new HashSet<>(globalState.entities());
+                    globalState
+                        .heroesByClientId()
+                        .values()
+                        .forEach(
+                            entity -> {
+                                entities.add(entity);
+                            });
+                    server.sendToAllUDP(new GameStateUpdateEvent(entities));
+                }
+            },
+            0,
+            DEFAULT_NANOS_PER_TICK_FOR_SCHEDULER,
+            TimeUnit.NANOSECONDS);
+
+        client.connectToHost("127.0.0.1", port);
         client.sendTCP(new InitializeServerRequest(VERSION));
     }
 
