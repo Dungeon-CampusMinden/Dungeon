@@ -491,6 +491,16 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
+    public void enterMember_access(DungeonDSLParser.Member_accessContext ctx) {
+
+    }
+
+    @Override
+    public void exitMember_access(DungeonDSLParser.Member_accessContext ctx) {
+
+    }
+
+    @Override
     public void enterPrimary(DungeonDSLParser.PrimaryContext ctx) {}
 
     @Override

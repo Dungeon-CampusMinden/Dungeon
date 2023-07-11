@@ -48,7 +48,7 @@ fragment STRING_ESCAPE_SEQ
 
 // TODO:
 // - expression grammar
-// - proper stmt definition
+// - proper stmt =efinition
 
 program : definition* EOF
         //| stmt
@@ -140,6 +140,11 @@ param_list
         | primary
         ;
 
+member_access
+        : ID '.' (ID | func_call)
+        | member_access '.' (ID | func_call)
+        ;
+
 primary : ID
         | STRING_LITERAL
         | TRUE
@@ -148,6 +153,7 @@ primary : ID
         | NUM_DEC
         | func_call
         | aggregate_value_def
+        | member_access
         ;
 
 /*
