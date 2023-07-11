@@ -26,3 +26,4 @@ public class TestComponentWithCallback extends Component {
         this.entity = entity;
     }
 }
+

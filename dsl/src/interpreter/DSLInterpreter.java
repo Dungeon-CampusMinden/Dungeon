@@ -143,7 +143,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param environment The environment to bind the functions, objects and data types from.
      */
     public void initializeRuntime(IEvironment environment) {
-        this.environment = new RuntimeEnvironment(environment);
+        this.environment = new RuntimeEnvironment(environment, this);
 
         // bind all function definition and object definition symbols to objects
         // in global memorySpace
@@ -328,12 +328,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     public Object instantiateRuntimeValue(AggregateValue dslValue, AggregateType asType) {
         // instantiate entity_type
-        TypeInstantiator typeInstantiator = new TypeInstantiator();
+        var typeInstantiator = this.environment.getTypeInstantiator();
         var entityObject = typeInstantiator.instantiate(asType, dslValue.getMemorySpace());
 
         // TODO: substitute the whole DSLContextMember-stuff with Builder-Methods, which would
-        // enable
-        //  creation of components with different parameters -> requires the ability to
+        //  enable creation of components with different parameters -> requires the ability to
         //  store multiple builder-methods for one type, distinguished by their
         //  signature
         var annot = asType.getOriginType().getAnnotation(DSLContextPush.class);
@@ -358,7 +357,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         membersOriginalType, ((AggregateValue) memberValue).getMemorySpace());
             }
         }
-        // TODO: translate the value and set the callbackAdadpter (as PoC)
 
         return entityObject;
     }
@@ -388,7 +386,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     private Object createObjectFromMemorySpace(IMemorySpace ms, IType type) {
         if (type.getName().equals("quest_config")) {
-            TypeInstantiator ti = new TypeInstantiator();
+            TypeInstantiator ti = this.environment.getTypeInstantiator();
             return ti.instantiate((AggregateType) type, ms);
         }
         return null;
@@ -441,10 +439,20 @@ public class DSLInterpreter implements AstVisitor<Object> {
     // this is used for resolving object references
     @Override
     public Object visit(IdNode node) {
+        // TODO: this does not work for resolving parameters in a function
         var symbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
         var creationASTNode = this.symbolTable().getCreationAstNode(symbol);
 
-        return creationASTNode.accept(this);
+        // if the creationASTNode does not equal the node we are currently interpreting,
+        // then the IdNode is just a reference node to some other structure
+        if (creationASTNode != node) {
+            return creationASTNode.accept(this);
+        } else {
+            // if the creationASTNode of the resolved symbol is the currently interpreted
+            // IdNode, then we have to resolve the IdNode in the current memory space,
+            // because it is used in an expression
+            return this.getCurrentMemorySpace().resolve(node.getName(), true);
+        }
     }
 
     @Override
@@ -483,27 +491,29 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return true;
     }
 
+    // TODO: update javadoc
     /**
      * This handles parameter evaluation and binding and setting up the statement stack for
      * execution of the function's statements
      *
      * @param symbol The symbol corresponding to the function to call
-     * @param parameterValues The concrete Values of the parameters of the function call
+     * @param parameterObjects The concrete raw objects to use as parameters of the function call
      * @return The return value of the function call
      */
-    public Object executeUserDefinedFunctionConcreteParameterValues(
-            FunctionSymbol symbol, List<Value> parameterValues) {
+    public Object executeUserDefinedFunctionRawParameters(
+            FunctionSymbol symbol, List<Object> parameterObjects) {
         // push new memorySpace and parameters on spaceStack
         var functionMemSpace = new MemorySpace(memoryStack.peek());
         this.memoryStack.push(functionMemSpace);
 
         // bind all parameter-symbols as values in the function's memory space and set their values
         var parameterSymbols = symbol.getSymbols();
-        for (int i = 0; i < parameterValues.size(); i++) {
+        for (int i = 0; i < parameterObjects.size(); i++) {
             var parameterSymbol = parameterSymbols.get(i);
             bindFromSymbol(parameterSymbol, memoryStack.peek());
 
-            Value paramValue = parameterValues.get(i);
+            Object parameterObject = parameterObjects.get(i);
+            Value paramValue = (Value) this.environment.translateRuntimeObject(parameterObject, functionMemSpace);
             setValue(parameterSymbol.getName(), paramValue);
         }
 

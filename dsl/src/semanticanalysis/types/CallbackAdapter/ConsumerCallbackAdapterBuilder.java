@@ -12,7 +12,7 @@ public class ConsumerCallbackAdapterBuilder implements ICallbackAdapterBuilder {
     }
 
     @Override
-    public ICallbackAdapter buildAdapter(FunctionSymbol functionSymbol, IMemorySpace parentMemorySpace) {
-        return new ConsumerCallbackAdapter(interpreter.getRuntimeEnvironment(), functionSymbol, parentMemorySpace, interpreter);
+    public ICallbackAdapter buildAdapter(FunctionSymbol functionSymbol) {
+        return new ConsumerCallbackAdapter(interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
     }
 }

@@ -12,7 +12,7 @@ public class FunctionCallbackAdapterBuilder implements ICallbackAdapterBuilder {
     }
 
     @Override
-    public ICallbackAdapter buildAdapter(FunctionSymbol functionSymbol, IMemorySpace parentMemorySpace) {
-        return new FunctionCallbackAdapter(interpreter.getRuntimeEnvironment(), functionSymbol, parentMemorySpace, interpreter);
+    public ICallbackAdapter buildAdapter(FunctionSymbol functionSymbol) {
+        return new FunctionCallbackAdapter(interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
     }
 }
