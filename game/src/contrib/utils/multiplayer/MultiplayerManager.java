@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class MultiplayerManager implements IMultiplayerManager, IClientObserver, IServerObserver {
+public class MultiplayerManager implements IClientObserver, IServerObserver {
 
     private static final Version VERSION = new Version(0, 0, 0);
     private static final int DEFAULT_CLIENT_ID_NOT_CONNECTED = -1;
