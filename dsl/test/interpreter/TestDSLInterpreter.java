@@ -1080,20 +1080,20 @@ public class TestDSLInterpreter {
     public void testFuncRefValueCall() {
         String program =
             """
-        entity_type my_type {
-            test_component_with_string_consumer_callback {
-                on_interaction: other_func
+            entity_type my_type {
+                test_component_with_string_consumer_callback {
+                    on_interaction: other_func
+                }
             }
-        }
 
-        fn other_func(string text) {
-            print(text);
-        }
+            fn other_func(string text) {
+                print(text);
+            }
 
-        quest_config c {
-            entity: instantiate(my_type)
-        }
-    """;
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+        """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1113,5 +1113,41 @@ public class TestDSLInterpreter {
         String output = outputStream.toString();
         Assert.assertTrue(output.contains("Moin"));
         Assert.assertTrue(output.contains("Tach och"));
+    }
+
+    @Test
+    public void testFuncRefValueCallReturn() {
+        String program =
+            """
+            entity_type my_type {
+                test_component_with_string_function_callback {
+                    on_interaction: other_func
+                }
+            }
+
+            fn other_func(string text) -> string {
+                return text;
+            }
+
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config =
+            (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(
+                program, env, interpreter, Entity.class, TestComponentWithStringFunctionCallback.class);
+
+        var testComponentWithCallback = (TestComponentWithStringFunctionCallback)config.entity().components.get(0);
+        var returnValue =  testComponentWithCallback.executeCallbackWithText("Moin");
+
+        Assert.assertTrue(returnValue.contains("Moin"));
     }
 }
