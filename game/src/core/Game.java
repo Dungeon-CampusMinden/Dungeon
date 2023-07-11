@@ -574,6 +574,8 @@ public final class Game extends ScreenAdapter {
     /**
      * Starts the indexed A* pathfinding algorithm a returns a path
      *
+     * <p>Throws an IllegalArgumentException if start or end is non-accessible.
+     *
      * @param start Start tile
      * @param end End tile
      * @return Generated path

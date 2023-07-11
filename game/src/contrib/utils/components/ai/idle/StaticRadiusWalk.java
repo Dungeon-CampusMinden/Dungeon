@@ -16,8 +16,8 @@ import java.util.function.Consumer;
 
 public class StaticRadiusWalk implements Consumer<Entity> {
     private final float radius;
-    private GraphPath<Tile> path;
     private final int breakTime;
+    private GraphPath<Tile> path;
     private int currentBreak = 0;
     private Point center;
     private Point currentPosition;
@@ -60,6 +60,8 @@ public class StaticRadiusWalk implements Consumer<Entity> {
                 newEndTile =
                         AITools.randomAccessibleTileCoordinateInRange(center, radius)
                                 .map(Coordinate::toPoint)
+                                // center is the start position of the entity, so it must be
+                                // accessible
                                 .orElse(center);
                 path = AITools.calculatePath(currentPosition, newEndTile);
                 accept(entity);
