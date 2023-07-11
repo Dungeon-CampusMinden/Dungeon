@@ -48,21 +48,33 @@ public class MultiplayerManager implements IClientObserver, IServerObserver {
     private static final long DEFAULT_NANOS_PER_TICK_FOR_SCHEDULER =
             1000000000 / DEFAULT_TICKS_FOR_SCHEDULER;
     private final Logger logger = Logger.getLogger(this.getClass().getName());
-    // Used to hold current level and entities.
+    /**
+     * HOSTING DEPENDENT: Used to hold global state based when acting as host.
+     * NOTE: When acting only as client (not as host at the same time), this field is never changed/necessary.
+     * But because every client can be client and host at the same time, it is listed.
+     */
     private final GameState globalState = new GameState();
+    /**
+     * Used to hold global state when acting as client.
+     * Is updated on incoming messages from server.
+     */
+    private Set<Entity> entities;
+    /** Used to send/receive messages to/from other endpoint/server. */
     private final IClient client;
+    /** Used to send/receive messages to/from other endpoints/clients. */
     private final IServer server;
     private final IMultiplayer multiplayer;
-    /* From server assigned unique player id. */
+    /** From server assigned unique id. */
     private int clientID = DEFAULT_CLIENT_ID_NOT_CONNECTED;
-    /* Global state of entities. Is updated on game actions, like clients joining session. */
-    private Set<Entity> entities;
-    /* Separate scheduler for sending game state update cyclically and on another thread. */
+    /** Separate scheduler for sending game state update tick wise through separate thread. */
     private ScheduledExecutorService scheduler;
-    private boolean isInitialized = false;
+    /** Used to save id of host, to determine if own client is host. */
     private int connectionIdHostClient;
+    /** Used to notice if server is initialized. Just for own game logic. */
+    private boolean isInitialized = false;
+    /** Used to notice when map set up to send game state update tick wise when acting as server. */
     private boolean isMapLoaded = false;
-    // Used to pretend initial position for joining clients
+    /** Used to pretend initial position for joining clients when acting as client. */
     private Point initialHeroPosition = new Point(0, 0);
 
     /**
