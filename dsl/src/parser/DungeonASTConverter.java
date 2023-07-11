@@ -116,6 +116,96 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
+    public void enterExpression(DungeonDSLParser.ExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitExpression(DungeonDSLParser.ExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void enterAssignment(DungeonDSLParser.AssignmentContext ctx) {
+
+    }
+
+    @Override
+    public void exitAssignment(DungeonDSLParser.AssignmentContext ctx) {
+
+    }
+
+    @Override
+    public void enterLogic_or(DungeonDSLParser.Logic_orContext ctx) {
+
+    }
+
+    @Override
+    public void exitLogic_or(DungeonDSLParser.Logic_orContext ctx) {
+
+    }
+
+    @Override
+    public void enterLogic_and(DungeonDSLParser.Logic_andContext ctx) {
+
+    }
+
+    @Override
+    public void exitLogic_and(DungeonDSLParser.Logic_andContext ctx) {
+
+    }
+
+    @Override
+    public void enterEquality(DungeonDSLParser.EqualityContext ctx) {
+
+    }
+
+    @Override
+    public void exitEquality(DungeonDSLParser.EqualityContext ctx) {
+
+    }
+
+    @Override
+    public void enterComparison(DungeonDSLParser.ComparisonContext ctx) {
+
+    }
+
+    @Override
+    public void exitComparison(DungeonDSLParser.ComparisonContext ctx) {
+
+    }
+
+    @Override
+    public void enterTerm(DungeonDSLParser.TermContext ctx) {
+
+    }
+
+    @Override
+    public void exitTerm(DungeonDSLParser.TermContext ctx) {
+
+    }
+
+    @Override
+    public void enterFactor(DungeonDSLParser.FactorContext ctx) {
+
+    }
+
+    @Override
+    public void exitFactor(DungeonDSLParser.FactorContext ctx) {
+
+    }
+
+    @Override
+    public void enterUnary(DungeonDSLParser.UnaryContext ctx) {
+
+    }
+
+    @Override
+    public void exitUnary(DungeonDSLParser.UnaryContext ctx) {
+
+    }
+
+    @Override
     public void enterStmt_block(DungeonDSLParser.Stmt_blockContext ctx) {}
 
     @Override
@@ -137,7 +227,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         // pop the inner statement
         assert astStack.size() > 0;
         var innerStmt = Node.NONE;
-        if (ctx.primary() != null) {
+        if (ctx.expression() != null) {
             innerStmt = astStack.pop();
         }
 
@@ -488,16 +578,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             var paramList = new Node(Node.Type.ParamList, childList);
             astStack.push(paramList);
         }
-    }
-
-    @Override
-    public void enterMember_access(DungeonDSLParser.Member_accessContext ctx) {
-
-    }
-
-    @Override
-    public void exitMember_access(DungeonDSLParser.Member_accessContext ctx) {
-
     }
 
     @Override
