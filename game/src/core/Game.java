@@ -58,13 +58,13 @@ public final class Game extends ScreenAdapter {
      *
      * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
      */
-    private static int WINDOW_WIDTH = 640;
+    private static int WINDOW_WIDTH = 1280;
     /**
      * Part of the pre-run configuration. The height of the game window in pixels.
      *
      * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
      */
-    private static int WINDOW_HEIGHT = 480;
+    private static int WINDOW_HEIGHT = 720;
     /**
      * Part of the pre-run configuration. The fps of the game (frames per second)
      *
