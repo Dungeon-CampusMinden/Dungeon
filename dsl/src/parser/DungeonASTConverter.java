@@ -116,12 +116,32 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterExpression(DungeonDSLParser.ExpressionContext ctx) {
+    public void enterMethod_call_expression(DungeonDSLParser.Method_call_expressionContext ctx) {
 
     }
 
     @Override
-    public void exitExpression(DungeonDSLParser.ExpressionContext ctx) {
+    public void exitMethod_call_expression(DungeonDSLParser.Method_call_expressionContext ctx) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void enterMember_access_expression(DungeonDSLParser.Member_access_expressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitMember_access_expression(DungeonDSLParser.Member_access_expressionContext ctx) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void enterAssignment_expression(DungeonDSLParser.Assignment_expressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitAssignment_expression(DungeonDSLParser.Assignment_expressionContext ctx) {
         throw new UnsupportedOperationException();
     }
 
@@ -544,7 +564,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     @Override
     public void exitFunc_call(DungeonDSLParser.Func_callContext ctx) {
 
-        // TODO: test this
         // if there are parameters, a paramList will be on stack
         var paramList = Node.NONE;
         if (ctx.param_list() != null) {
@@ -560,6 +579,16 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         astStack.push(funcCallNode);
 
         // TODO: modify this for grammar changes, until then, it is unsupported
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void enterQualified_name(DungeonDSLParser.Qualified_nameContext ctx) {
+
+    }
+
+    @Override
+    public void exitQualified_name(DungeonDSLParser.Qualified_nameContext ctx) {
         throw new UnsupportedOperationException();
     }
 
@@ -589,6 +618,17 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             var paramList = new Node(Node.Type.ParamList, childList);
             astStack.push(paramList);
         }
+    }
+
+    @Override
+    public void enterGrouped_expression(DungeonDSLParser.Grouped_expressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitGrouped_expression(DungeonDSLParser.Grouped_expressionContext ctx) {
+        throw new UnsupportedOperationException();
+
     }
 
     @Override

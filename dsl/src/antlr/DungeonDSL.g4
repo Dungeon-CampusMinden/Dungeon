@@ -73,7 +73,9 @@ stmt
     ;
 
 expression
-    : assignment
+    : assignment                #assignment_expression
+    | expression '.' func_call  #method_call_expression
+    | expression '.' ID         #member_access_expression
     ;
 
 assignment
@@ -82,37 +84,49 @@ assignment
     ;
 
 logic_or
-    : logic_and ( 'or' logic_and )*
+
+    : logic_or ( 'or' logic_and )
+    | logic_and
     ;
 
 logic_and
-    : equality ( 'and' equality )*
+    : logic_and ( 'and' equality )
+    | equality
     ;
 
 equality
-    : comparison ( ( '!=' | '==' ) comparison )*
+    : equality ( ( '!=' | '==' ) comparison )
+    | comparison
     ;
 
 comparison
-    : term ( ( '>' | '>=' | '<' | '<=' ) term )*
+    : comparison ( ( '>' | '>=' | '<' | '<=' ) term )
+    | term
     ;
 
 term
-    : factor ( ( '-' | '+' ) factor )*
+    : term ( ( '-' | '+' ) factor )
+    | factor
     ;
 
 factor
-    : unary ( ( '/' | '*' ) unary )*
+    : factor ( ( '/' | '*' ) unary )
+    | unary
     ;
 
 unary
     : ( '!' | '-' ) unary
-    | func_call
+    | primary
     ;
 
 func_call
-        : primary ('(' param_list? ')' | '.' ID)*
+        : ID ('(' param_list? ')')
         ;
+
+qualified_name
+        : ID ('.' qualified_name)?
+        ;
+
 
 stmt_block
     : '{' stmt_list? '}'
@@ -190,6 +204,7 @@ primary : ID
         | NUM_DEC
         | aggregate_value_def
         | grouped_expression
+        | func_call
         ;
 
 /*
