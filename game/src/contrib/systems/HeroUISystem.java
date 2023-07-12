@@ -35,19 +35,20 @@ public final class HeroUISystem extends System {
     private void update(Entity x) {
         XPComponent xc = x.fetch(XPComponent.class).orElseThrow();
         HeroUI ui = map.get(x);
-        ui.level.setText("Level: " + xc.currentLevel());
+        ui.level.setText("Level: " + xc.characterLevel());
         ui.pb.setValue(calculatePercentage(xc));
     }
 
     private static float calculatePercentage(XPComponent xc) {
-        return (float) xc.currentXP() / ((float) xc.xpToNextLevel() + xc.currentXP());
+        return (float) xc.currentXP() / ((float) xc.xpToNextCharacterLevel() + xc.currentXP());
     }
 
     private HeroUI createNewHeroUI(Entity e) {
         XPComponent xc = e.fetch(XPComponent.class).orElseThrow();
         float xpPercentage = calculatePercentage(xc);
-        long level = xc.currentLevel();
+        long level = xc.characterLevel();
         Entity entity = new Entity();
+        // TODO: positionieren
         HeroUI ui =
                 new HeroUI(
                         new ProgressBar(0f, 1f, 0.01f, false, UITools.DEFAULT_SKIN, "experience"),

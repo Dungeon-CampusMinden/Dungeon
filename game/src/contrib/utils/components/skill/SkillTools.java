@@ -43,18 +43,6 @@ public class SkillTools {
     }
 
     /**
-     * Gets the current position of the hero as a Point.
-     *
-     * @return hero position as a Point
-     */
-    public static Point getHeroPosition() {
-        Entity hero = Game.hero().orElseThrow();
-        PositionComponent pc =
-                (PositionComponent) hero.fetch(PositionComponent.class).orElseThrow();
-        return pc.position();
-    }
-
-    /**
      * Calculates the velocity vector to move from the start point to the goal point with the given
      * speed.
      *
