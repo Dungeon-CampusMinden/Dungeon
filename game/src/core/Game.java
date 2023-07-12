@@ -325,6 +325,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      * other clients can join.
      */
     public void openToLan() {
+        boolean isFailed = true;
+        String errorMessage = "Something failed";
         currentGameMode = Optional.of(GameMode.Multiplayer);
         resumeSystems();
         if (doSetup) onSetup();
@@ -347,28 +349,24 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
 
             if (isServerStarted) {
                 if (!clientManager.connect("127.0.0.1", serverPort)) {
-                    final String message = "Server started but client failed to connect.";
-                    LOGGER.severe(message);
-                    Entity entity = UITools.generateNewTextDialog(message, "Ok", "Server error.");
-                    entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
-                    stopSystems();
+                    errorMessage = "Server started but client failed to connect.";
                 } else {
+                    isFailed = false;
                     /* Need to synchronize toAdd and toRemove into current entities. */
                     updateSystems();
                     clientManager.loadLevel(
                             currentLevel(), entityStream().collect(Collectors.toSet()), hero);
                 }
             } else {
-                final String message = "Server can not be started.";
-                LOGGER.severe(message);
-                Entity entity = UITools.generateNewTextDialog(message, "Ok", "Server error.");
-                entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
-                stopSystems();
+                errorMessage = "Server can not be started.";
             }
         } catch (Exception ex) {
-            final String message = "Multiplayer session failed to start.";
-            LOGGER.severe(String.format("%s\n%s", message, ex.getMessage()));
-            Entity entity = UITools.generateNewTextDialog(message, "Ok", "Error on session start.");
+            final String message = "Multiplayer session failed to start.\n" + ex.getMessage();
+        }
+
+        if (isFailed) {
+            LOGGER.severe(errorMessage);
+            Entity entity = UITools.generateNewTextDialog(errorMessage, "Ok", "Error");
             entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
             stopSystems();
         }
