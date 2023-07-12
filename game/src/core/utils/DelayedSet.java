@@ -35,9 +35,9 @@ import java.util.stream.Stream;
  */
 public final class DelayedSet<T> {
 
-    private final Set<T> current = new HashSet<>();
-    private final Set<T> toAdd = new HashSet<>();
-    private final Set<T> toRemove = new HashSet<>();
+    public final Set<T> current = new HashSet<>();
+    public final Set<T> toAdd = new HashSet<>();
+    public final Set<T> toRemove = new HashSet<>();
 
     /**
      * Update the {@link #current} set based on the elements in {@link #toAdd} and {@link
