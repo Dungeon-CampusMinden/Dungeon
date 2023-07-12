@@ -51,7 +51,16 @@ public class Node {
         ConditionalStmtIf,
         Bool,
         ConditionalStmtIfElse,
-        ReturnMark
+        ReturnMark,
+        Assignment,
+        LogicOr,
+        LogicAnd,
+        Equality,
+        Comparison,
+        Term,
+        Factor,
+        Unary,
+        MemberAccess
     }
 
     public static Node NONE = new Node(Type.NONE, new ArrayList<>());
