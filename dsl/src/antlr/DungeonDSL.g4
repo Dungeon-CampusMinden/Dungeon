@@ -178,6 +178,10 @@ param_list
         | expression
         ;
 
+grouped_expression
+    : '(' expression ')'
+    ;
+
 primary : ID
         | STRING_LITERAL
         | TRUE
@@ -185,7 +189,7 @@ primary : ID
         | NUM
         | NUM_DEC
         | aggregate_value_def
-        | '(' expression ')'
+        | grouped_expression
         ;
 
 /*

@@ -60,7 +60,8 @@ public class Node {
         Term,
         Factor,
         Unary,
-        MemberAccess
+        MemberAccess,
+        GroupedExpression
     }
 
     public static Node NONE = new Node(Type.NONE, new ArrayList<>());
