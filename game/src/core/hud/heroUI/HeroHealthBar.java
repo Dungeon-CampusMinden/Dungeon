@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import contrib.components.HealthComponent;
 
 import core.Game;
+import core.hud.UITools;
 
 /** This class represents the HealthBar of the Hero */
 public class HeroHealthBar extends ProgressBar {
@@ -34,7 +35,7 @@ public class HeroHealthBar extends ProgressBar {
      * @param hpChange the amount of HP to display
      */
     public void createHPPopup(int hpChange) {
-        Label hpPopup = new Label("%+d HP".formatted(hpChange), new Skin());
+        Label hpPopup = new Label("%+d HP".formatted(hpChange), UITools.DEFAULT_SKIN);
         hpPopup.addAction(Actions.sequence(Actions.moveBy(0, 50, 1), Actions.removeActor()));
         Game.stage().get().addActor(hpPopup);
     }
