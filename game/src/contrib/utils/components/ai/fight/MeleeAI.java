@@ -8,6 +8,7 @@ import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
 import core.level.Tile;
+import core.level.utils.LevelUtils;
 
 import java.util.function.Consumer;
 
@@ -36,7 +37,7 @@ public class MeleeAI implements Consumer<Entity> {
             fightSkill.execute(entity);
         } else {
             if (timeSinceLastUpdate >= delay) {
-                path = AITools.calculatePathToHero(entity);
+                path = LevelUtils.calculatePathToHero(entity);
                 timeSinceLastUpdate = -1;
             }
             timeSinceLastUpdate++;

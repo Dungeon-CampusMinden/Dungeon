@@ -10,6 +10,7 @@ import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
 import core.level.Tile;
+import core.level.utils.LevelUtils;
 import core.utils.Point;
 
 import java.util.List;
@@ -57,20 +58,20 @@ public final class RangeAI implements Consumer<Entity> {
                 for (Tile tile : tiles) {
                     Point newPosition = tile.position();
                     if (!Point.inRange(newPosition, positionHero, distance)) {
-                        path = AITools.calculatePath(positionEntity, newPosition);
+                        path = LevelUtils.calculatePath(positionEntity, newPosition);
                         newPositionFound = true;
                         break;
                     }
                 }
                 if (!newPositionFound) {
-                    path = AITools.calculatePathToRandomTileInRange(entity, 2 * attackRange);
+                    path = LevelUtils.calculatePathToRandomTileInRange(entity, 2 * attackRange);
                 }
                 AITools.move(entity, path);
             } else {
                 skill.execute(entity);
             }
         } else {
-            path = AITools.calculatePathToHero(entity);
+            path = LevelUtils.calculatePathToHero(entity);
             AITools.move(entity, path);
         }
     }

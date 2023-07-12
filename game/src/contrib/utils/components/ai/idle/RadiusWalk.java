@@ -7,6 +7,7 @@ import contrib.utils.components.ai.AITools;
 import core.Entity;
 import core.Game;
 import core.level.Tile;
+import core.level.utils.LevelUtils;
 
 import java.util.function.Consumer;
 
@@ -33,7 +34,7 @@ public class RadiusWalk implements Consumer<Entity> {
         if (path == null || AITools.pathFinishedOrLeft(entity, path)) {
             if (currentBreak >= breakTime) {
                 currentBreak = 0;
-                path = AITools.calculatePathToRandomTileInRange(entity, radius);
+                path = LevelUtils.calculatePathToRandomTileInRange(entity, radius);
                 accept(entity);
             }
 

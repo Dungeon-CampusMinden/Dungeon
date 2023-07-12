@@ -9,6 +9,7 @@ import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.Coordinate;
+import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
@@ -63,7 +64,7 @@ public class StaticRadiusWalk implements Consumer<Entity> {
                                 // center is the start position of the entity, so it must be
                                 // accessible
                                 .orElse(center);
-                path = AITools.calculatePath(currentPosition, newEndTile);
+                path = LevelUtils.calculatePath(currentPosition, newEndTile);
                 accept(entity);
             }
             currentBreak++;
