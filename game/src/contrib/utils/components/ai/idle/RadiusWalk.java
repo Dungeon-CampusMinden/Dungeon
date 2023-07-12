@@ -2,7 +2,7 @@ package contrib.utils.components.ai.idle;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
-import contrib.utils.components.ai.AITools;
+import contrib.utils.components.ai.AIUtils;
 
 import core.Entity;
 import core.Game;
@@ -31,7 +31,7 @@ public class RadiusWalk implements Consumer<Entity> {
 
     @Override
     public void accept(final Entity entity) {
-        if (path == null || AITools.pathFinishedOrLeft(entity, path)) {
+        if (path == null || AIUtils.pathFinishedOrLeft(entity, path)) {
             if (currentBreak >= breakTime) {
                 currentBreak = 0;
                 path = LevelUtils.calculatePathToRandomTileInRange(entity, radius);
@@ -40,6 +40,6 @@ public class RadiusWalk implements Consumer<Entity> {
 
             currentBreak++;
 
-        } else AITools.move(entity, path);
+        } else AIUtils.move(entity, path);
     }
 }

@@ -1,10 +1,10 @@
 package contrib.utils.components.ai.fight;
 
-import static contrib.utils.components.ai.AITools.accessibleTilesInRange;
+import static core.level.utils.LevelUtils.accessibleTilesInRange;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
-import contrib.utils.components.ai.AITools;
+import contrib.utils.components.ai.AIUtils;
 import contrib.utils.components.skill.Skill;
 
 import core.Entity;
@@ -46,8 +46,8 @@ public final class RangeAI implements Consumer<Entity> {
 
     @Override
     public void accept(final Entity entity) {
-        boolean playerInDistanceRange = AITools.playerInRange(entity, distance);
-        boolean playerInAttackRange = AITools.playerInRange(entity, attackRange);
+        boolean playerInDistanceRange = LevelUtils.playerInRange(entity, distance);
+        boolean playerInAttackRange = LevelUtils.playerInRange(entity, attackRange);
 
         if (playerInAttackRange) {
             if (playerInDistanceRange) {
@@ -66,13 +66,13 @@ public final class RangeAI implements Consumer<Entity> {
                 if (!newPositionFound) {
                     path = LevelUtils.calculatePathToRandomTileInRange(entity, 2 * attackRange);
                 }
-                AITools.move(entity, path);
+                AIUtils.move(entity, path);
             } else {
                 skill.execute(entity);
             }
         } else {
             path = LevelUtils.calculatePathToHero(entity);
-            AITools.move(entity, path);
+            AIUtils.move(entity, path);
         }
     }
 }

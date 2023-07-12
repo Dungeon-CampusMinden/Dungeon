@@ -2,7 +2,7 @@ package contrib.utils.components.ai.fight;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
-import contrib.utils.components.ai.AITools;
+import contrib.utils.components.ai.AIUtils;
 
 import core.Entity;
 import core.Game;
@@ -29,10 +29,10 @@ public class CollideAI implements Consumer<Entity> {
 
     @Override
     public void accept(final Entity entity) {
-        if (AITools.playerInRange(entity, rushRange)) {
+        if (LevelUtils.playerInRange(entity, rushRange)) {
             // the faster pathing once a certain range is reached
             path = LevelUtils.calculatePathToHero(entity);
-            AITools.move(entity, path);
+            AIUtils.move(entity, path);
             timeSinceLastUpdate = delay;
         } else {
             // check if new pathing update
@@ -41,7 +41,7 @@ public class CollideAI implements Consumer<Entity> {
                 timeSinceLastUpdate = -1;
             }
             timeSinceLastUpdate++;
-            AITools.move(entity, path);
+            AIUtils.move(entity, path);
         }
     }
 }

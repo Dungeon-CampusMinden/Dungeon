@@ -1,8 +1,7 @@
 package contrib.utils.components.ai.transition;
 
-import contrib.utils.components.ai.AITools;
-
 import core.Entity;
+import core.level.utils.LevelUtils;
 
 import java.util.function.Function;
 
@@ -40,7 +39,7 @@ public class ProtectOnApproach implements Function<Entity, Boolean> {
     public Boolean apply(final Entity entity) {
         if (isInFight) return true;
 
-        isInFight = AITools.playerInRange(toProtect, range);
+        isInFight = LevelUtils.playerInRange(toProtect, range);
 
         return isInFight;
     }

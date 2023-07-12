@@ -2,7 +2,7 @@ package contrib.utils.components.ai.fight;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
-import contrib.utils.components.ai.AITools;
+import contrib.utils.components.ai.AIUtils;
 import contrib.utils.components.skill.Skill;
 
 import core.Entity;
@@ -33,7 +33,7 @@ public class MeleeAI implements Consumer<Entity> {
 
     @Override
     public void accept(final Entity entity) {
-        if (AITools.playerInRange(entity, attackRange)) {
+        if (LevelUtils.playerInRange(entity, attackRange)) {
             fightSkill.execute(entity);
         } else {
             if (timeSinceLastUpdate >= delay) {
@@ -41,7 +41,7 @@ public class MeleeAI implements Consumer<Entity> {
                 timeSinceLastUpdate = -1;
             }
             timeSinceLastUpdate++;
-            AITools.move(entity, path);
+            AIUtils.move(entity, path);
         }
     }
 }
