@@ -428,7 +428,19 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
 
     @Override
     public void onMapLoad(ILevel level) {
-        levelManager.level(level);
+        if (level == null) {
+            final String message = "Level failed to load. Is null.";
+            LOGGER.warning(message);
+            Entity entity = UITools.generateNewTextDialog(message, "Ok", "No map loaded.");
+            entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+            stopSystems();
+            return;
+        }
+
+        /* Only set received level for Not-Hosts, because host has set the level. */
+        if (!serverManager.isHost(clientManager.clientID())) {
+            levelManager.level(level);
+        }
     }
 
     @Override

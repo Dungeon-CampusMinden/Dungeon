@@ -23,7 +23,7 @@ public interface IMultiplayer {
     /**
      * Called after request to load new map is processed.
      *
-     * @param level Level that has been set as level for multiplayer session.
+     * @param level Level that has been set as level for multiplayer session. May be null.
      */
     void onMapLoad(ILevel level);
 

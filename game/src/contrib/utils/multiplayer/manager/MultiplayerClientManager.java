@@ -85,8 +85,6 @@ public class MultiplayerClientManager implements IClientObserver {
 
     @Override
     public void onLoadMapResponseReceived(final boolean isSucceed, final GameState gameState) {
-        if (!isSucceed) return;
-
         entities = gameState.entities();
         multiplayer.onMapLoad(gameState.level());
     }
