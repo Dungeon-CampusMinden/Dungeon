@@ -122,7 +122,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitExpression(DungeonDSLParser.ExpressionContext ctx) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -132,6 +132,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitAssignment(DungeonDSLParser.AssignmentContext ctx) {
+        throw new UnsupportedOperationException();
 
     }
 
@@ -142,6 +143,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitLogic_or(DungeonDSLParser.Logic_orContext ctx) {
+        throw new UnsupportedOperationException();
 
     }
 
@@ -152,6 +154,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitLogic_and(DungeonDSLParser.Logic_andContext ctx) {
+        throw new UnsupportedOperationException();
 
     }
 
@@ -162,6 +165,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitEquality(DungeonDSLParser.EqualityContext ctx) {
+        throw new UnsupportedOperationException();
 
     }
 
@@ -172,6 +176,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitComparison(DungeonDSLParser.ComparisonContext ctx) {
+        throw new UnsupportedOperationException();
 
     }
 
@@ -182,6 +187,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitTerm(DungeonDSLParser.TermContext ctx) {
+        throw new UnsupportedOperationException();
 
     }
 
@@ -192,6 +198,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitFactor(DungeonDSLParser.FactorContext ctx) {
+        throw new UnsupportedOperationException();
 
     }
 
@@ -202,7 +209,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitUnary(DungeonDSLParser.UnaryContext ctx) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -536,6 +543,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitFunc_call(DungeonDSLParser.Func_callContext ctx) {
+
         // TODO: test this
         // if there are parameters, a paramList will be on stack
         var paramList = Node.NONE;
@@ -550,6 +558,9 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
         var funcCallNode = new FuncCallNode(funcId, paramList);
         astStack.push(funcCallNode);
+
+        // TODO: modify this for grammar changes, until then, it is unsupported
+        throw new UnsupportedOperationException();
     }
 
     @Override
