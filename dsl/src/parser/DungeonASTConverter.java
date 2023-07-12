@@ -666,6 +666,16 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
+    public void enterQualified_name(DungeonDSLParser.Qualified_nameContext ctx) {
+
+    }
+
+    @Override
+    public void exitQualified_name(DungeonDSLParser.Qualified_nameContext ctx) {
+
+    }
+
+    @Override
     public void enterParam_list(DungeonDSLParser.Param_listContext ctx) {}
 
     @Override
