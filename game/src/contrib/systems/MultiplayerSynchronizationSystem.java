@@ -1,9 +1,6 @@
 package contrib.systems;
 
-import static java.util.Objects.requireNonNull;
-
 import contrib.components.MultiplayerSynchronizationComponent;
-import contrib.utils.multiplayer.MultiplayerManager;
 
 import core.Entity;
 import core.Game;
@@ -32,7 +29,6 @@ import java.util.stream.Collectors;
  * @see MultiplayerSynchronizationComponent
  */
 public final class MultiplayerSynchronizationSystem extends System {
-
 
     /**
      * Create a new MultiplayerSynchronizationSystem to synchronize global and local state of

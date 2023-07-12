@@ -15,8 +15,9 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
 import contrib.entities.EntityFactory;
 import contrib.systems.MultiplayerSynchronizationSystem;
-import contrib.utils.multiplayer.IMultiplayer;
-import contrib.utils.multiplayer.MultiplayerManager;
+import contrib.utils.multiplayer.manager.IMultiplayer;
+import contrib.utils.multiplayer.manager.MultiplayerClientManager;
+import contrib.utils.multiplayer.manager.MultiplayerServerManager;
 
 import core.components.PositionComponent;
 import core.components.UIComponent;
@@ -47,6 +48,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -121,8 +123,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
     private boolean uiDebugFlag = false;
 
     private static Optional<GameMode> currentGameMode;
-    private static MultiplayerManager multiplayerManager =
-            new MultiplayerManager(Game.getInstance());
+    private static MultiplayerClientManager clientManager;
+    private static MultiplayerServerManager serverManager;
 
     // for singleton
     private Game() {}
@@ -241,7 +243,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
      * @return a stream of all GLOBAL entities.
      */
     public static Stream<Entity> entityStreamGlobal() {
-        return multiplayerManager.entityStream();
+        return clientManager.entityStream();
     }
 
     /**
@@ -309,7 +311,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
             final Point newPosition,
             final float xVelocity,
             final float yVelocity) {
-        multiplayerManager.sendMovementUpdate(entityGlobalID, newPosition, xVelocity, yVelocity);
+        clientManager.sendMovementUpdate(entityGlobalID, newPosition, xVelocity, yVelocity);
     }
 
     /** Has to be called to play in single player mode. */
@@ -330,10 +332,42 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
             if (hero == null) {
                 hero(EntityFactory.newHero());
             }
-            multiplayerManager.hostSession();
+            // Check whether which random port is not already in use and listen to this on
+            // serverside
+            // it's unlikely that no port is free but to not run into infinite loop, limit tries.
+            int generatePortTriesMaxCount = 20;
+            int generatePortTriesCount = 0;
+            boolean isServerStarted = false;
+            int serverPort;
+            do {
+                // Create random 5 digit port
+                serverPort = ThreadLocalRandom.current().nextInt(10000, 65535 + 1);
+                isServerStarted = serverManager.start(serverPort);
+            } while ((generatePortTriesCount < generatePortTriesMaxCount) && !isServerStarted);
+
+            if (isServerStarted) {
+                if (!clientManager.connect("127.0.0.1", serverPort)) {
+                    final String message = "Server started but client failed to connect.";
+                    LOGGER.severe(message);
+                    Entity entity = UITools.generateNewTextDialog(message, "Ok", "Server error.");
+                    entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+                    stopSystems();
+                } else {
+                    /* Need to synchronize toAdd and toRemove into current entities. */
+                    updateSystems();
+                    clientManager.loadLevel(
+                            currentLevel(), entityStream().collect(Collectors.toSet()), hero);
+                }
+            } else {
+                final String message = "Server can not be started.";
+                LOGGER.severe(message);
+                Entity entity = UITools.generateNewTextDialog(message, "Ok", "Server error.");
+                entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+                stopSystems();
+            }
         } catch (Exception ex) {
             final String message = "Multiplayer session failed to start.";
-            LOGGER.warning(String.format("%s\n%s", message, ex.getMessage()));
+            LOGGER.severe(String.format("%s\n%s", message, ex.getMessage()));
             Entity entity = UITools.generateNewTextDialog(message, "Ok", "Error on session start.");
             entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
             stopSystems();
@@ -354,26 +388,11 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
             if (hero == null) {
                 hero(EntityFactory.newHero());
             }
-            multiplayerManager.joinSession(hostAddress, port, hero);
+            clientManager.joinSession(hostAddress, port, hero);
         } catch (Exception ex) {
             final String message = "Multiplayer session failed to join.";
             LOGGER.warning(String.format("%s\n%s", message, ex.getMessage()));
             Entity entity = UITools.generateNewTextDialog(message, "Ok", "Error on join.");
-            entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
-            stopSystems();
-        }
-    }
-
-    @Override
-    public void onMultiplayerServerInitialized(final boolean isSucceed) {
-        if (isSucceed) {
-            updateSystems();
-            multiplayerManager.loadLevel(
-                    currentLevel, entityStream().collect(Collectors.toSet()), hero);
-        } else {
-            final String message = "Server respond unsuccessful start.";
-            LOGGER.warning(message);
-            Entity entity = UITools.generateNewTextDialog(message, "Ok", "Error session start.");
             entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
             stopSystems();
         }
@@ -416,11 +435,12 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
 
     @Override
     public void onChangeMapRequest() {
-        if (multiplayerManager.isHost()) {
+        if (serverManager.isHost(clientManager.clientID())) {
             levelManager.loadLevel(LEVELSIZE);
             // Needed to synchronize toAdd and toRemove entities into currentEntities
             updateSystems();
-            multiplayerManager.loadLevel(currentLevel, ENTITIES.stream().collect(Collectors.toSet()), hero);
+            clientManager.loadLevel(
+                    currentLevel, ENTITIES.stream().collect(Collectors.toSet()), hero);
         }
     }
 
@@ -435,7 +455,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
 
     @Override
     public void dispose() {
-        multiplayerManager.stopSession();
+        clientManager.disconnect();
+        serverManager.stop();
     }
 
     /**
@@ -656,7 +677,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         initBaseLogger();
         levelManager = new LevelManager(batch, painter, new WallGenerator(generator), this);
         levelManager.loadLevel(LEVELSIZE);
-        multiplayerManager = new MultiplayerManager(this);
+        clientManager = new MultiplayerClientManager(this);
+        serverManager = new MultiplayerServerManager();
         createSystems();
 
         setupStage();
@@ -754,17 +776,17 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
             if (currentGameMode.get() == GameMode.SinglePlayer) {
                 levelManager.loadLevel(LEVELSIZE);
             } else {
-                if (multiplayerManager.isConnectedToSession()) {
-                    if (multiplayerManager.isHost()) {
+                if (clientManager.isConnectedToSession()) {
+                    if (serverManager.isHost(clientManager.clientID())) {
                         // First create new leve locally and then force server to host new map for
                         // all.
                         levelManager.loadLevel(LEVELSIZE);
                         updateSystems();
-                        multiplayerManager.loadLevel(
+                        clientManager.loadLevel(
                                 currentLevel, entityStream().collect(Collectors.toSet()), hero);
                     } else {
                         // Only host is allowed to load map, so force host to generate new map
-                        multiplayerManager.requestNewLevel();
+                        clientManager.requestNewLevel();
                     }
                 } else {
                     LOGGER.severe(
