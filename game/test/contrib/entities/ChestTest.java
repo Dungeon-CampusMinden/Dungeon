@@ -1,36 +1,41 @@
 package contrib.entities;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import contrib.components.InventoryComponent;
 import contrib.utils.components.item.ItemData;
 
 import core.Entity;
 import core.Game;
-import core.components.*;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
 import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.systems.LevelSystem;
 import core.utils.Point;
 
+import org.junit.After;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class ChestTest {
 
-    /** Helper cleans up class attributes used by Chest Initializes the Item#ITEM_REGISTER */
-    private static void cleanup() {
+    @After
+    public void cleanup() {
         Game.removeAllEntities();
+        Game.currentLevel(null);
+        Game.removeAllSystems();
     }
 
     /** checks the correct creation of the Chest */
     @Test
     public void checkCreation() throws IOException {
-        cleanup();
-        List<ItemData> itemData = List.of();
+        Set<ItemData> itemData = Set.of();
         Point position = new Point(0, 0);
         Entity c = null;
         c = EntityFactory.newChest(itemData, position);
@@ -52,7 +57,6 @@ public class ChestTest {
                 "Position should be equal to the given Position",
                 position,
                 positionComponent.map(PositionComponent.class::cast).get().position());
-        cleanup();
     }
 
     /**
@@ -63,7 +67,6 @@ public class ChestTest {
      */
     /* @Test
     public void checkInteractionDroppingItems() {
-        cleanup();
         List<ItemData> itemData = List.of(new ItemDataGenerator().generateItemData());
         Point position = new Point(0, 0);
         Entity c = EntityFactory.getChest(itemData, position);
@@ -74,8 +77,6 @@ public class ChestTest {
                 .get()
                 .triggerInteraction();
        // assertEquals(2, Game.getEntitiesStream().count());
-
-        cleanup();
     }*/
 
     /**
@@ -86,7 +87,6 @@ public class ChestTest {
      */
     /* @Test
     public void checkInteractionOnDroppedItems() {
-        cleanup();
         List<ItemData> itemData = List.of(new ItemDataGenerator().generateItemData());
         Point position = new Point(0, 0);
         Entity c = EntityFactory.getChest(itemData, position);
@@ -103,13 +103,11 @@ public class ChestTest {
                         .getComponent(CollideComponent.class)
                         .map(CollideComponent.class::cast)
                         .isPresent());
-
-        cleanup();
     }*/
-
     @Test
     public void checkGeneratorMethod() throws IOException {
-        cleanup();
+        new LevelSystem(null, null, () -> {});
+
         Game.currentLevel(
                 new TileLevel(
                         new LevelElement[][] {
@@ -118,7 +116,6 @@ public class ChestTest {
                             }
                         },
                         DesignLabel.DEFAULT));
-
         Entity newChest = EntityFactory.newChest();
 
         // assertTrue("Chest is added to Game", Game.getEntitiesStream().anyMatch(e -> e ==
@@ -149,6 +146,5 @@ public class ChestTest {
                         .position()
                         .y,
                 0.00001f);
-        cleanup();
     }
 }

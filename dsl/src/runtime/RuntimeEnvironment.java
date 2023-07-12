@@ -4,6 +4,7 @@ import semanticanalysis.IScope;
 import semanticanalysis.Symbol;
 import semanticanalysis.SymbolTable;
 import semanticanalysis.types.IType;
+import semanticanalysis.types.TypeBuilder;
 
 import java.util.HashMap;
 
@@ -15,6 +16,12 @@ public class RuntimeEnvironment implements IEvironment {
     private final HashMap<String, IType> types;
     private final HashMap<String, Prototype> prototypes;
     private final HashMap<Class<?>, IType> javaTypeToDSLType;
+    private final RuntimeObjectTranslator runtimeObjectTranslator;
+    private final TypeBuilder typeBuilder;
+
+    public RuntimeObjectTranslator getRuntimeObjectTranslator() {
+        return runtimeObjectTranslator;
+    }
 
     /**
      * Constructor. Create new runtime environment from an existing environment and add all type
@@ -24,6 +31,7 @@ public class RuntimeEnvironment implements IEvironment {
      */
     public RuntimeEnvironment(IEvironment other) {
         this.symbolTable = other.getSymbolTable();
+        this.typeBuilder = other.getTypeBuilder();
 
         var functions = other.getFunctions();
         this.functions = new HashMap<>();
@@ -40,6 +48,8 @@ public class RuntimeEnvironment implements IEvironment {
         this.prototypes = new HashMap<>();
 
         this.javaTypeToDSLType = other.javaTypeToDSLTypeMap();
+
+        this.runtimeObjectTranslator = other.getRuntimeObjectTranslator();
     }
 
     /**
@@ -68,6 +78,11 @@ public class RuntimeEnvironment implements IEvironment {
     }
 
     @Override
+    public TypeBuilder getTypeBuilder() {
+        return this.typeBuilder;
+    }
+
+    @Override
     public IType[] getTypes() {
         return this.types.values().toArray(new IType[0]);
     }
@@ -85,5 +100,9 @@ public class RuntimeEnvironment implements IEvironment {
     @Override
     public HashMap<Class<?>, IType> javaTypeToDSLTypeMap() {
         return this.javaTypeToDSLType;
+    }
+
+    public Object translateRuntimeObject(Object object, IMemorySpace parentMemorySpace) {
+        return this.runtimeObjectTranslator.translateRuntimeObject(object, parentMemorySpace, this);
     }
 }

@@ -12,10 +12,10 @@ import semanticanalysis.types.IType;
  * value and a dataType (defined by {@link IType}
  */
 public class Value implements IClonable {
-    public static Value NONE = new Value(null, null, false);
+    public static Value NONE = new Value(BuiltInType.noType, null, false);
 
     protected IType dataType;
-    protected Object value;
+    protected Object object;
     protected final boolean isMutable;
     protected boolean dirty;
 
@@ -39,8 +39,8 @@ public class Value implements IClonable {
      *
      * @return internal, underlying value
      */
-    public Object getInternalObject() {
-        return value;
+    public Object getInternalValue() {
+        return object;
     }
 
     /**
@@ -64,7 +64,7 @@ public class Value implements IClonable {
     public boolean setInternalValue(Object internalValue) {
         // TODO: should this check for datatype compatibility?
         if (isMutable) {
-            this.value = internalValue;
+            this.object = internalValue;
 
             this.dirty = true;
             return true;
@@ -81,7 +81,7 @@ public class Value implements IClonable {
      *     the {@link semanticanalysis.Symbol} this Value corresponds to
      */
     public Value(IType dataType, Object internalValue) {
-        this.value = internalValue;
+        this.object = internalValue;
         this.dataType = dataType;
         this.isMutable = true;
 
@@ -96,7 +96,7 @@ public class Value implements IClonable {
      *     the {@link semanticanalysis.Symbol} this Value corresponds to
      */
     public Value(IType dataType, Object internalValue, boolean isMutable) {
-        this.value = internalValue;
+        this.object = internalValue;
         this.dataType = dataType;
         this.isMutable = isMutable;
 
@@ -130,7 +130,7 @@ public class Value implements IClonable {
 
     @Override
     public Object clone() {
-        var cloned = new Value(this.dataType, this.value, this.isMutable);
+        var cloned = new Value(this.dataType, this.object, this.isMutable);
         cloned.dirty = this.dirty;
         return cloned;
     }

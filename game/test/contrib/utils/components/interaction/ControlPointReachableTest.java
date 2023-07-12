@@ -10,8 +10,11 @@ import core.components.PositionComponent;
 import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.systems.LevelSystem;
 import core.utils.Point;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import testingUtils.SimpleCounter;
@@ -19,25 +22,13 @@ import testingUtils.SimpleCounter;
 import java.util.function.Function;
 
 public class ControlPointReachableTest {
-    private record PreparedEntityWithCounter(
-            Entity e, SimpleCounter sc, PositionComponent pc, InteractionComponent ic) {}
-
-    private static PreparedEntityWithCounter getEntityCounter(Point e1Point) {
-        SimpleCounter s1 = new SimpleCounter();
-        Entity e1 = new Entity();
-        PositionComponent e1PC = new PositionComponent(e1, e1Point);
-        InteractionComponent e1IC = new InteractionComponent(e1, 3, false, (e) -> s1.inc());
-        PreparedEntityWithCounter first = new PreparedEntityWithCounter(e1, s1, e1PC, e1IC);
-        return first;
-    }
-
     /**
      * testlayout for the Level this Reach check uses the currentLevel to check for walls or not
      * accessible Tiles
      *
      * <p>All normal Floors except the second column which has from row 2-4 Walls
      */
-    private LevelElement[][] testLayout =
+    private final LevelElement[][] testLayout =
             new LevelElement[][] {
                 new LevelElement[] {
                     LevelElement.FLOOR,
@@ -76,21 +67,31 @@ public class ControlPointReachableTest {
                 }
             };
 
-    private void cleanup() {
-        Game.currentLevel(null);
-        Game.removeAllEntities();
+    private static PreparedEntityWithCounter getEntityCounter(Point e1Point) {
+        SimpleCounter s1 = new SimpleCounter();
+        Entity e1 = new Entity();
+        PositionComponent e1PC = new PositionComponent(e1, e1Point);
+        InteractionComponent e1IC = new InteractionComponent(e1, 3, false, (e) -> s1.inc());
+        PreparedEntityWithCounter first = new PreparedEntityWithCounter(e1, s1, e1PC, e1IC);
+        return first;
     }
 
-    private void setup() {
-        cleanup();
+    @Before
+    public void setup() {
+        new LevelSystem(null, null, () -> {});
         Game.currentLevel(new TileLevel(testLayout, DesignLabel.DEFAULT));
+    }
+
+    @After
+    public void cleanup() {
+        Game.currentLevel(null);
+        Game.removeAllEntities();
+        Game.removeAllSystems();
     }
 
     /** Check when the Entities are on top of each other */
     @Test
     public void controlDefault() {
-        setup();
-
         Function<InteractionData, Boolean> i = new ControlPointReachable();
 
         Point e1Point = new Point(0, 0);
@@ -109,15 +110,11 @@ public class ControlPointReachableTest {
         assertEquals(0, first.sc.getCount());
         assertEquals(0, second.sc.getCount());
         assertTrue("should be true the Points are on the same Tile.", reachable);
-
-        cleanup();
     }
 
     /** Check when the Entities are in a straight line without anything between */
     @Test
     public void controlStraightNotBlocked() {
-        setup();
-
         Function<InteractionData, Boolean> i = new ControlPointReachable();
 
         Point e1Point = new Point(0, 0);
@@ -141,8 +138,6 @@ public class ControlPointReachableTest {
     /** check if the Entities are diagonal of each other */
     @Test
     public void controlsDiagonalNotBlocked() {
-        setup();
-
         Function<InteractionData, Boolean> i = new ControlPointReachable();
 
         Point e1Point = new Point(2, 0);
@@ -161,14 +156,11 @@ public class ControlPointReachableTest {
         assertEquals(0, first.sc.getCount());
         assertEquals(0, second.sc.getCount());
         assertTrue("Distance is close enough and the Points have a line of sight", reachable);
-        cleanup();
     }
 
     /** check if the return value is false when between the Entities is a nonAccessible Tile */
     @Test
     public void controlDiagonalBlocked() {
-        setup();
-
         Function<InteractionData, Boolean> i = new ControlPointReachable();
 
         Point e1Point = new Point(0, 0);
@@ -187,14 +179,11 @@ public class ControlPointReachableTest {
         assertEquals(0, first.sc.getCount());
         assertEquals(0, second.sc.getCount());
         assertFalse("Distance is close enough but there is a Wall between the Points", reachable);
-        cleanup();
     }
 
     /** check if the return value is false when between the Entities is a nonAccessible Tile */
     @Test
     public void controlStraightBlocked() {
-        setup();
-
         Function<InteractionData, Boolean> i = new ControlPointReachable();
 
         Point e1Point = new Point(0, 1);
@@ -213,7 +202,6 @@ public class ControlPointReachableTest {
         assertEquals(0, first.sc.getCount());
         assertEquals(0, second.sc.getCount());
         assertFalse("Distance is close enough but there is a Wall between the Points", reachable);
-        cleanup();
     }
 
     /**
@@ -222,7 +210,6 @@ public class ControlPointReachableTest {
      */
     @Test
     public void controlStraightBlockedOutOfRadius() {
-        setup();
 
         Function<InteractionData, Boolean> i = new ControlPointReachable();
 
@@ -242,7 +229,6 @@ public class ControlPointReachableTest {
         assertEquals(0, first.sc.getCount());
         assertEquals(0, second.sc.getCount());
         assertFalse("Distance not close enough and no line of sight.", reachable);
-        cleanup();
     }
 
     /**
@@ -251,8 +237,6 @@ public class ControlPointReachableTest {
      */
     @Test
     public void controlStraightNotBlockedOutOfRAnge() {
-        setup();
-
         Function<InteractionData, Boolean> i = new ControlPointReachable();
 
         Point e1Point = new Point(0, 0);
@@ -272,4 +256,7 @@ public class ControlPointReachableTest {
         assertEquals(0, second.sc.getCount());
         assertFalse(reachable);
     }
+
+    private record PreparedEntityWithCounter(
+            Entity e, SimpleCounter sc, PositionComponent pc, InteractionComponent ic) {}
 }

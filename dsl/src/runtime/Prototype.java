@@ -14,7 +14,7 @@ import java.util.Set;
 // TODO: add class description
 public class Prototype extends Value implements IType {
     public static Prototype NONE = new Prototype(new AggregateType("NO_TYPE_NAME", Scope.NULL));
-    public static BuiltInType PROTOTYPE = new BuiltInType("prototype", Scope.NULL);
+    public static BuiltInType PROTOTYPE = new BuiltInType("prototype", Scope.NULL, (v) -> false);
     private final HashMap<String, Value> defaultValues;
 
     private final AggregateType internalType;

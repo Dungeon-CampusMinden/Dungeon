@@ -17,7 +17,7 @@ public class InteractionComponentTest {
     public void createSimpleConstructor() {
         Entity e = new Entity();
         InteractionComponent component = new InteractionComponent(e);
-        assertEquals(InteractionComponent.DEFAULT_RADIUS, component.radius(), 0.0001);
+        assertEquals(InteractionComponent.DEFAULT_INTERACTION_RADIUS, component.radius(), 0.0001);
     }
 
     /** Tests if the complex Constructor sets the attributes to the parameter */

@@ -5,7 +5,7 @@ import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;
 
 @DSLType
-public class TestComponent2 {
+public class TestComponent2 extends Component {
     private Entity entity;
 
     public Entity getEntity() {
@@ -17,6 +17,7 @@ public class TestComponent2 {
     @DSLTypeMember private String member3;
 
     public TestComponent2(@DSLContextMember(name = "entity") Entity entity) {
+        super(entity);
         this.entity = entity;
         member3 = "DEFAULT VALUE";
     }

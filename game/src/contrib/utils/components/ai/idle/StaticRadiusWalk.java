@@ -8,6 +8,7 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.utils.Coordinate;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
@@ -15,8 +16,8 @@ import java.util.function.Consumer;
 
 public class StaticRadiusWalk implements Consumer<Entity> {
     private final float radius;
-    private GraphPath<Tile> path;
     private final int breakTime;
+    private GraphPath<Tile> path;
     private int currentBreak = 0;
     private Point center;
     private Point currentPosition;
@@ -57,7 +58,11 @@ public class StaticRadiusWalk implements Consumer<Entity> {
                                                         entity, PositionComponent.class));
                 currentPosition = pc2.position();
                 newEndTile =
-                        AITools.randomAccessibleTileCoordinateInRange(center, radius).toPoint();
+                        AITools.randomAccessibleTileCoordinateInRange(center, radius)
+                                .map(Coordinate::toPoint)
+                                // center is the start position of the entity, so it must be
+                                // accessible
+                                .orElse(center);
                 path = AITools.calculatePath(currentPosition, newEndTile);
                 accept(entity);
             }

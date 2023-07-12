@@ -22,9 +22,11 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -33,6 +35,21 @@ import java.util.stream.IntStream;
  */
 public class EntityFactory {
     private static final Logger LOGGER = Logger.getLogger(EntityFactory.class.getName());
+    private static final Random RANDOM = new Random();
+    private static final String HERO_FILE_PATH = "character/knight";
+    private static final float X_SPEED_HERO = 0.3f;
+    private static final float Y_SPEED_HERO = 0.3f;
+    private static final int FIREBALL_COOL_DOWN = 2;
+    private static final String[] MONSTER_FILE_PATHS = {
+        "character/monster/chort", "character/monster/imp"
+    };
+
+    private static final int MIN_MONSTER_HEALTH = 2;
+
+    // NOTE: +1 for health as nextInt() is exclusive
+    private static final int MAX_MONSTER_HEALTH = 5 + 1;
+    private static final float MIN_MONSTER_SPEED = 0.1f;
+    private static final float MAX_MONSTER_SPEED = 0.25f;
 
     /**
      * Create a new Entity that can be used as a playable character. It will have a {@link
@@ -43,24 +60,18 @@ public class EntityFactory {
      * @return Created Entity
      */
     public static Entity newHero() throws IOException {
-        final int fireballCoolDown = 2;
-        final float xSpeed = 0.3f;
-        final float ySpeed = 0.3f;
-
         Entity hero = new Entity("hero");
         new CameraComponent(hero);
         new PositionComponent(hero);
-        new HealthComponent(hero, 20);
-        new XPComponent(hero);
-        new VelocityComponent(hero, xSpeed, ySpeed);
-        new DrawComponent(hero, "character/knight");
+        new VelocityComponent(hero, X_SPEED_HERO, Y_SPEED_HERO);
+        new DrawComponent(hero, HERO_FILE_PATH);
         new CollideComponent(
                 hero,
                 (you, other, direction) -> System.out.println("heroCollisionEnter"),
                 (you, other, direction) -> System.out.println("heroCollisionLeave"));
         PlayerComponent pc = new PlayerComponent(hero);
         Skill fireball =
-                new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), fireballCoolDown);
+                new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
         // hero movement
         pc.registerCallback(
@@ -133,13 +144,12 @@ public class EntityFactory {
      * @return Created Entity
      */
     public static Entity newChest() throws IOException {
-        Random random = new Random();
         ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
 
-        List<ItemData> itemData =
-                IntStream.range(0, random.nextInt(1, 3))
+        Set<ItemData> itemData =
+                IntStream.range(0, RANDOM.nextInt(1, 3))
                         .mapToObj(i -> itemDataGenerator.generateItemData())
-                        .toList();
+                        .collect(Collectors.toSet());
         return newChest(itemData, Game.randomTile(LevelElement.FLOOR).position());
     }
 
@@ -154,12 +164,12 @@ public class EntityFactory {
      * @param position The position of the chest.
      * @return Created Entity
      */
-    public static Entity newChest(List<ItemData> itemData, Point position) throws IOException {
+    public static Entity newChest(Set<ItemData> itemData, Point position) throws IOException {
         final float defaultInteractionRadius = 1f;
         Entity chest = new Entity("chest");
         new PositionComponent(chest, position);
         InventoryComponent ic = new InventoryComponent(chest, itemData.size());
-        itemData.forEach(ic::addItem);
+        itemData.forEach(ic::add);
         new InteractionComponent(
                 chest, defaultInteractionRadius, false, new DropItemsInteraction());
         DrawComponent dc = new DrawComponent(chest, "objects/treasurechest");
@@ -169,31 +179,58 @@ public class EntityFactory {
     }
 
     /**
-     * Create a new monster.
+     * Create a new Entity that can be used as a Monster.
      *
-     * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link DrawComponent},
-     * {@link VelocityComponent}, {@link XPComponent}, {@link CollideComponent}, {@link
-     * AIComponent}.
+     * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link AIComponent}
+     * with random AIs from the {@link AIFactory} class, {@link DrawComponent} with a randomly set
+     * Animation, {@link VelocityComponent}, {@link CollideComponent} and a 10% chance for an {@link
+     * InventoryComponent}. If it has an Inventory it will use the {@link DropItemsInteraction} on
+     * death.
      *
-     * <p>{@link RangeAI} is used to attack the hero if he is in range. {@link RadiusWalk} is used
-     * to walk around in a radius. {@link RangeTransition} is used to transition between the two
-     * states.
-     *
-     * @return Created Entity
+     * @return The generated "Monster".
      */
-    public static Entity getMonster() throws IOException {
-        Entity imp = new Entity();
-        new PositionComponent(imp);
-        new HealthComponent(imp, 3);
-        new DrawComponent(imp, "character/monster/imp");
-        new VelocityComponent(imp, 0.1f, 0.1f);
-        new XPComponent(imp, null, 10);
-        new CollideComponent(imp);
+    public static Entity randomMonster() throws IOException {
+        return randomMonster(MONSTER_FILE_PATHS[RANDOM.nextInt(0, MONSTER_FILE_PATHS.length)]);
+    }
+
+    /**
+     * Create a new Entity that can be used as a Monster.
+     *
+     * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link AIComponent}
+     * with random AIs from the {@link AIFactory} class, {@link DrawComponent} with the Animations
+     * in the given path, {@link VelocityComponent}, {@link CollideComponent} and a 10% chance for
+     * an {@link InventoryComponent}. If it has an Inventory it will use the {@link
+     * DropItemsInteraction} on death.
+     *
+     * @param pathToTexture Path to the directory that contains the texture that should be used for
+     *     the created monster
+     * @return The generated "Monster".
+     * @see DrawComponent
+     */
+    public static Entity randomMonster(String pathToTexture) throws IOException {
+        int health = RANDOM.nextInt(MIN_MONSTER_HEALTH, MAX_MONSTER_HEALTH);
+        float speed = RANDOM.nextFloat(MIN_MONSTER_SPEED, MAX_MONSTER_SPEED);
+
+        Entity monster = new Entity("monster");
+        int itemRoll = RANDOM.nextInt(0, 10);
+        Consumer<Entity> onDeath = entity -> {};
+        if (itemRoll == 0) {
+            ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
+            ItemData item = itemDataGenerator.generateItemData();
+            InventoryComponent ic = new InventoryComponent(monster, 1);
+            ic.add(item);
+            onDeath = new DropItemsInteraction();
+        }
+        new HealthComponent(monster, health, onDeath);
+        new PositionComponent(monster);
         new AIComponent(
-                imp,
-                new RangeAI(3, 1, new Skill(new FireballSkill(SkillTools::getHeroPosition), 2)),
-                new RadiusWalk(1, 1),
-                new RangeTransition(3));
-        return imp;
+                monster,
+                AIFactory.generateRandomFightAI(),
+                AIFactory.generateRandomIdleAI(),
+                AIFactory.generateRandomTransitionAI(monster));
+        new DrawComponent(monster, pathToTexture);
+        new VelocityComponent(monster, speed, speed);
+        new CollideComponent(monster);
+        return monster;
     }
 }

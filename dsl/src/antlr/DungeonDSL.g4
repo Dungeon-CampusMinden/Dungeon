@@ -15,8 +15,10 @@ TYPE_SPECIFIER
 DOUBLE_LINE : '--';
 ARROW       : '->';
 
+TRUE : 'true';
+FALSE: 'false';
 ID  : [_a-zA-Z][a-zA-Z0-9_]*;
-NUM : [1-9][0-9]*;
+NUM : ([0-9]|[1-9][0-9]*);
 NUM_DEC: [0-9]+'.'[0-9]+;
 WS  : [ \t\r\n]+ -> skip;
 
@@ -60,21 +62,35 @@ definition
         ;
 
 fn_def
-    : 'fn' ID '(' param_def_list? ')' ret_type_def? '{' stmt_list? '}'
+    : 'fn' ID '(' param_def_list? ')' ret_type_def? stmt_block
     ;
 
 stmt
     : primary ';'
+    | stmt_block
+    | conditional_stmt
+    | return_stmt
     ;
 
-return_stmt
-    : 'return' primary ';'
+stmt_block
+    : '{' stmt_list? '}'
     ;
 
 stmt_list
     : stmt stmt_list
-    | return_stmt
     | stmt
+    ;
+
+return_stmt
+    : 'return' primary? ';'
+    ;
+
+conditional_stmt
+    : 'if' primary stmt else_stmt?
+    ;
+
+else_stmt
+    : 'else' stmt
     ;
 
 ret_type_def
@@ -126,6 +142,8 @@ param_list
 
 primary : ID
         | STRING_LITERAL
+        | TRUE
+        | FALSE
         | NUM
         | NUM_DEC
         | func_call

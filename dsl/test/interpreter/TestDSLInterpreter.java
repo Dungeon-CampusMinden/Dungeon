@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
@@ -149,12 +150,71 @@ public class TestDSLInterpreter {
     public void funcCallReturnUserFunc() {
         String program =
                 """
-                fn ret_string() -> string {
-                    return "Hello, World!";
+            fn ret_string() -> string {
+                return "Hello, World!";
+            }
+
+            quest_config c {
+                test: print(ret_string())
+            }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(
+                program, env, interpreter, TestFunctionReturnHelloWorld.func);
+
+        assertTrue(outputStream.toString().contains("Hello, World!"));
+    }
+
+    @Test
+    public void funcCallReturnUserFuncNestedBlock() {
+        String program =
+                """
+            fn ret_string() -> string {
+                {
+                    {
+                        return "Hello, World!";
+                    }
+                }
+            }
+
+            quest_config c {
+                test: print(ret_string())
+            }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
+
+        assertTrue(outputStream.toString().contains("Hello, World!"));
+    }
+
+    @Test
+    public void funcCallNestedStmtBlock() {
+        String program =
+                """
+                fn print_string() {
+                    {
+                        {
+                            print("Hello, World!");
+                        }
+                    }
                 }
 
                 quest_config c {
-                    test: print(ret_string())
+                    test: print_string()
                 }
             """;
 
@@ -208,7 +268,7 @@ public class TestDSLInterpreter {
                     """;
         DSLInterpreter interpreter = new DSLInterpreter();
         interpreter.getQuestConfig(program);
-        assertNotSame(42, Value.NONE.getInternalObject());
+        assertNotSame(42, Value.NONE.getInternalValue());
     }
 
     /**
@@ -337,12 +397,12 @@ public class TestDSLInterpreter {
         var member1Value = ((Prototype) firstCompWithDefaults).getDefaultValue("member1");
         assertNotEquals(Value.NONE, member1Value);
         assertEquals(BuiltInType.intType, member1Value.getDataType());
-        assertEquals(42, member1Value.getInternalObject());
+        assertEquals(42, member1Value.getInternalValue());
 
         var member2Value = ((Prototype) firstCompWithDefaults).getDefaultValue("member2");
         assertNotEquals(Value.NONE, member2Value);
         assertEquals(BuiltInType.stringType, member2Value.getDataType());
-        assertEquals("Hello, World!", member2Value.getInternalObject());
+        assertEquals("Hello, World!", member2Value.getInternalValue());
     }
 
     @Test
@@ -393,7 +453,7 @@ public class TestDSLInterpreter {
         assertNotEquals(Value.NONE, testComp1Value);
         var testComp1EncapsulatedObj =
                 (EncapsulatedObject) ((AggregateValue) testComp1Value).getMemorySpace();
-        var testComp1Internal = testComp1EncapsulatedObj.getInternalObject();
+        var testComp1Internal = testComp1EncapsulatedObj.getInternalValue();
         assertTrue(testComp1Internal instanceof TestComponent1);
 
         TestComponent1 testComp1 = (TestComponent1) testComp1Internal;
@@ -409,7 +469,7 @@ public class TestDSLInterpreter {
         assertNotEquals(Value.NONE, testComp2Value);
         var testComp2EncapsulatedObj =
                 (EncapsulatedObject) ((AggregateValue) testComp2Value).getMemorySpace();
-        var testComp2Internal = testComp2EncapsulatedObj.getInternalObject();
+        var testComp2Internal = testComp2EncapsulatedObj.getInternalValue();
         assertTrue(testComp2Internal instanceof TestComponent2);
 
         TestComponent2 testComp2 = (TestComponent2) testComp2Internal;
@@ -422,17 +482,74 @@ public class TestDSLInterpreter {
     }
 
     @Test
+    public void objectEncapsulation() {
+        String program =
+                """
+            entity_type my_obj {
+                test_component1 {
+                    member1: 42,
+                    member2: 12.34
+                },
+                test_component2 {
+                    member1: "Hallo",
+                    member2: 123
+                }
+            }
+
+            quest_config config {
+                entity: instantiate(my_obj),
+                second_entity: instantiate(my_obj)
+            }
+            """;
+
+        var env = new TestEnvironment();
+        var interpreter = new DSLInterpreter();
+        var questConfig =
+                Helpers.generateQuestConfigWithCustomTypes(
+                        program,
+                        env,
+                        interpreter,
+                        Entity.class,
+                        TestComponent1.class,
+                        TestComponent2.class);
+
+        var entity = ((CustomQuestConfig) questConfig).entity();
+        var rtEnv = interpreter.getRuntimeEnvironment();
+        var globalMs = interpreter.getGlobalMemorySpace();
+
+        // the config should contain the my_obj definition on the entity-value, which should
+        // encapsulate the actual
+        // test component instances
+        var config = (AggregateValue) (globalMs.resolve("config"));
+        var firstEntity = (AggregateValue) config.getMemorySpace().resolve("entity");
+        var secondEntity = (AggregateValue) config.getMemorySpace().resolve("second_entity");
+
+        // set values in the testComponent1 of firstEntity and check, that the members in
+        // second Entity stay the same
+        var firstEntitysComp1 =
+                (AggregateValue) firstEntity.getMemorySpace().resolve("test_component1");
+        var firstEntitysComp1Member1 = firstEntitysComp1.getMemorySpace().resolve("member1");
+        firstEntitysComp1Member1.setInternalValue(123);
+
+        var secondEntitysComp1 =
+                (AggregateValue) secondEntity.getMemorySpace().resolve("test_component1");
+        var secondEntitysComp1Member1 = secondEntitysComp1.getMemorySpace().resolve("member1");
+        var internalValue = secondEntitysComp1Member1.getInternalValue();
+        Assert.assertEquals(42, internalValue);
+    }
+
+    @Test
     public void aggregateTypeInstancingNonSupportedExternalType() {
         String program =
                 """
-                entity_type my_obj {
-                    component_with_external_type_member { }
-                }
+            entity_type my_obj {
+                component_with_external_type_member { }
+            }
 
-                quest_config config {
-                    entity: instantiate(my_obj)
-                }
-                """;
+            quest_config config {
+                entity: instantiate(my_obj)
+            }
+            """;
 
         var env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
@@ -451,7 +568,7 @@ public class TestDSLInterpreter {
                         .getMemorySpace()
                         .resolve("component_with_external_type_member");
         var encapsulatedObject = (EncapsulatedObject) ((AggregateValue) component).getMemorySpace();
-        var internalComponent = encapsulatedObject.getInternalObject();
+        var internalComponent = encapsulatedObject.getInternalValue();
 
         assertTrue(internalComponent instanceof ComponentWithExternalTypeMember);
         assertNull(((ComponentWithExternalTypeMember) internalComponent).point);
@@ -496,7 +613,13 @@ public class TestDSLInterpreter {
         AggregateValue component =
                 (AggregateValue)
                         myObj.getMemorySpace().resolve("test_component_with_external_type");
-        var internalObject = (TestComponentWithExternalType) component.getInternalObject();
+
+        Value externalTypeMemberValue = component.getMemorySpace().resolve("member_external_type");
+        Assert.assertNotEquals(externalTypeMemberValue, Value.NONE);
+        Assert.assertEquals(
+                externalTypeMemberValue.getDataType().getTypeKind(), IType.Kind.PODAdapted);
+
+        var internalObject = (TestComponentWithExternalType) component.getInternalValue();
         ExternalType externalTypeMember = internalObject.getMemberExternalType();
         Assert.assertEquals("Hello, World!", externalTypeMember.member3);
     }
@@ -539,9 +662,261 @@ public class TestDSLInterpreter {
         AggregateValue component =
                 (AggregateValue)
                         myObj.getMemorySpace().resolve("test_component_with_external_type");
-        var internalObject = (TestComponentWithExternalType) component.getInternalObject();
+
+        Value externalTypeMemberValue = component.getMemorySpace().resolve("member_external_type");
+        Assert.assertNotEquals(externalTypeMemberValue, Value.NONE);
+        Assert.assertEquals(
+                externalTypeMemberValue.getDataType().getTypeKind(), IType.Kind.AggregateAdapted);
+
+        var internalObject = (TestComponentWithExternalType) component.getInternalValue();
         ExternalType externalTypeMember = internalObject.getMemberExternalType();
         Assert.assertEquals("Hello, World!", externalTypeMember.member3);
         Assert.assertEquals(42, externalTypeMember.member1);
+    }
+
+    @Test
+    public void testIsBoolean() {
+        Assert.assertFalse(DSLInterpreter.isBooleanTrue(Value.NONE));
+
+        var boolFalse = new Value(BuiltInType.boolType, false);
+        Assert.assertFalse(DSLInterpreter.isBooleanTrue(boolFalse));
+
+        var boolTrue = new Value(BuiltInType.boolType, true);
+        Assert.assertTrue(DSLInterpreter.isBooleanTrue(boolTrue));
+
+        var zeroIntValue = new Value(BuiltInType.intType, 0);
+        Assert.assertFalse(DSLInterpreter.isBooleanTrue(zeroIntValue));
+
+        var nonZeroIntValue = new Value(BuiltInType.intType, 42);
+        Assert.assertTrue(DSLInterpreter.isBooleanTrue(nonZeroIntValue));
+
+        var zeroFloatValue = new Value(BuiltInType.floatType, 0.0f);
+        Assert.assertFalse(DSLInterpreter.isBooleanTrue(zeroFloatValue));
+
+        var nonZeroFloatValue = new Value(BuiltInType.floatType, 3.14f);
+        Assert.assertTrue(DSLInterpreter.isBooleanTrue(nonZeroFloatValue));
+
+        var stringValue = new Value(BuiltInType.stringType, "");
+        Assert.assertTrue(DSLInterpreter.isBooleanTrue(stringValue));
+
+        var graphValue =
+                new Value(
+                        BuiltInType.graphType,
+                        new Graph<String>(new ArrayList<>(), new ArrayList<>()));
+        Assert.assertTrue(DSLInterpreter.isBooleanTrue(graphValue));
+    }
+
+    @Test
+    public void testIfStmtFalse() {
+        String program =
+                """
+            fn test_func() {
+                if 0 print("Hello, World!");
+            }
+
+            quest_config c {
+                test: test_func()
+            }
+                """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
+
+        assertFalse(outputStream.toString().contains("Hello, World!"));
+    }
+
+    @Test
+    public void testIfStmtTrue() {
+        String program =
+                """
+            fn test_func() {
+                if 1 print("Hello, World!");
+            }
+
+            quest_config c {
+                test: test_func()
+            }
+                """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
+
+        assertTrue(outputStream.toString().contains("Hello, World!"));
+    }
+
+    @Test
+    public void testElseStmt() {
+        String program =
+                """
+            fn test_func() {
+                if 0 print("Hello");
+                else print ("World");
+            }
+
+            quest_config c {
+                test: test_func()
+            }
+                """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
+
+        assertTrue(outputStream.toString().contains("World"));
+    }
+
+    @Test
+    public void testIfElseStmt() {
+        String program =
+                """
+            fn test_func() {
+                if 0 print("Hello");
+                else if 0 print ("World");
+                else print("!");
+            }
+
+            quest_config c {
+                test: test_func()
+            }
+                """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
+
+        assertTrue(outputStream.toString().contains("!"));
+    }
+
+    @Test
+    public void testIfElseStmtSecondIf() {
+        String program =
+                """
+            fn test_func() {
+                if false print("Hello");
+                else if true print ("World");
+                else print("!");
+            }
+
+            quest_config c {
+                test: test_func()
+            }
+                """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
+
+        assertTrue(outputStream.toString().contains("World"));
+        assertFalse(outputStream.toString().contains("!"));
+    }
+
+    @Test
+    public void testBranchingReturn() {
+        String program =
+                """
+        fn test_func() {
+            if false {
+                print("branch1");
+            } else {
+                print("branch2 stmt1");
+                print("branch2 stmt2");
+                return;
+                print("after return stmt");
+            }
+        }
+
+        quest_config c {
+            test: test_func()
+        }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
+
+        assertTrue(outputStream.toString().contains("branch2 stmt1"));
+        assertTrue(outputStream.toString().contains("branch2 stmt2"));
+        assertFalse(outputStream.toString().contains("after return stmt"));
+        assertFalse(outputStream.toString().contains("branch1"));
+    }
+
+    @Test
+    public void testBranchingReturnNested() {
+        String program =
+                """
+        fn other_func() -> string {
+            print("other_func stmt1");
+            print("other_func stmt2");
+            return "hello" ;
+            print("other_func stmt3");
+        }
+
+        fn test_func() {
+            if false {
+                print("branch1");
+            } else {
+                print("branch2 stmt1");
+                print(other_func());
+                return;
+                print("after return stmt");
+            }
+        }
+
+        quest_config c {
+            test: test_func()
+        }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        Helpers.generateQuestConfigWithCustomFunctions(program, env, interpreter);
+
+        assertEquals(
+                "branch2 stmt1"
+                        + System.lineSeparator()
+                        + "other_func stmt1"
+                        + System.lineSeparator()
+                        + "other_func stmt2"
+                        + System.lineSeparator()
+                        + "hello"
+                        + System.lineSeparator(),
+                outputStream.toString());
     }
 }
