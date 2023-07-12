@@ -139,7 +139,7 @@ public class MultiplayerClientManager implements IClientObserver {
      * @param currentEntities Entities that should be part of the level.
      * @param hero Own hero.
      */
-    public void loadLevel(
+    public void loadMap(
             final ILevel level, final Set<Entity> currentEntities, final Entity hero) {
         client.sendTCP(
                 new LoadMapRequest(

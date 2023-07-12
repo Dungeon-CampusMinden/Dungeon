@@ -354,7 +354,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
                     isFailed = false;
                     /* Need to synchronize toAdd and toRemove into current entities. */
                     updateSystems();
-                    clientManager.loadLevel(
+                    clientManager.loadMap(
                             currentLevel(), entityStream().collect(Collectors.toSet()), hero);
                 }
             } else {
@@ -437,7 +437,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
             levelManager.loadLevel(LEVELSIZE);
             // Needed to synchronize toAdd and toRemove entities into currentEntities
             updateSystems();
-            clientManager.loadLevel(
+            clientManager.loadMap(
                     currentLevel, ENTITIES.stream().collect(Collectors.toSet()), hero);
         }
     }
@@ -780,7 +780,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
                         // all.
                         levelManager.loadLevel(LEVELSIZE);
                         updateSystems();
-                        clientManager.loadLevel(
+                        clientManager.loadMap(
                                 currentLevel, entityStream().collect(Collectors.toSet()), hero);
                     } else {
                         // Only host is allowed to load map, so force host to generate new map
