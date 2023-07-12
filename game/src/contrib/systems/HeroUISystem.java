@@ -51,7 +51,7 @@ public final class HeroUISystem extends System {
         Entity entity = new Entity();
         HeroUI ui =
                 new HeroUI(
-                        new ProgressBar(0f, 1f, 0.01f, false, UITools.DEFAULT_SKIN),
+                        new ProgressBar(0f, 1f, 0.01f, false, UITools.DEFAULT_SKIN, "experience"),
                         new Label("Level: " + level, UITools.DEFAULT_SKIN),
                         entity);
         ui.pb.setValue(xpPercentage);

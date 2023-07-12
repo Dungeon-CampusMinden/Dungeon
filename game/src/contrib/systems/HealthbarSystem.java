@@ -69,7 +69,7 @@ public final class HealthbarSystem extends System {
     }
 
     private ProgressBar createNewHealthbar(PositionComponent pc) {
-        ProgressBar progressBar = new ProgressBar(0, 100, 10, false, UITools.DEFAULT_SKIN);
+        ProgressBar progressBar = new ProgressBar(0, 100, 10, false, UITools.DEFAULT_SKIN, "health");
         progressBar.setAnimateDuration(0.1f);
         progressBar.setSize(35, 10);
         progressBar.setVisible(true);
