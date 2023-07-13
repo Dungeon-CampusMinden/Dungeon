@@ -240,7 +240,7 @@ public class MultiplayerServerManager implements IServerObserver {
                                             entity -> {
                                                 entities.add(entity);
                                             });
-                            server.sendToAllUDP(new GameStateUpdateEvent(entities));
+                            server.sendToAllTCP(new GameStateUpdateEvent(entities));
                         }
                     },
                     0,
