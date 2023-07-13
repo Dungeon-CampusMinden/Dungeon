@@ -3,7 +3,7 @@ package contrib.utils.multiplayer.manager;
 import core.level.elements.ILevel;
 import core.utils.Point;
 
-public interface IMultiplayer {
+public interface IMultiplayerClientManagerObserver {
     /**
      * Called after request to join a multiplayer session is processed.
      *

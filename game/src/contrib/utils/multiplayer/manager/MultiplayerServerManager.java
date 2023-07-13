@@ -25,24 +25,25 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+/**
+ * Inherits logic to host und manage multiplayer session.
+ */
 public class MultiplayerServerManager implements IServerObserver {
     private static final Version VERSION = new Version(0, 0, 0);
     private static final int DEFAULT_HOST_ID_NOT_SET = -1;
     private static final IServer DEFAULT_SERVER = new MultiplayerServer();
-    /* Ticks for sending game state update cyclically. */
+    /** Ticks for sending game state update cyclically. */
     private static final int DEFAULT_TICKS_FOR_SCHEDULER = 128;
-    /* Duration for sending game state update cyclically. */
+    /** Duration for sending game state update cyclically. */
     private static final long DEFAULT_NANOS_PER_TICK_FOR_SCHEDULER =
             1000000000 / DEFAULT_TICKS_FOR_SCHEDULER;
     private final Logger logger = Logger.getLogger(this.getClass().getName());
-    /**
-     * HOSTING DEPENDENT: Used to hold global state based when acting as host. NOTE: When acting
-     * only as client (not as host at the same time), this field is never changed/necessary. But
-     * because every client can be client and host at the same time, it is listed.
-     */
+    /** Used to hold global state based when acting as host. */
     private final GameState globalState = new GameState();
     /** Used to send/receive messages to/from other endpoints/clients. */
     private final IServer server;
+    private final Set<Integer> authorizedClientIDs = new HashSet<>();
+    private final IMultiplayerServerManagerObserver observer;
     /** From server assigned unique id. */
     /** Separate scheduler for sending game state update tick wise through separate thread. */
     private ScheduledExecutorService scheduler;
@@ -53,15 +54,27 @@ public class MultiplayerServerManager implements IServerObserver {
     /** Used to pretend initial position for joining clients when acting as client. */
     private Point initialHeroPosition = new Point(0, 0);
 
-    private final Set<Integer> authorizedClientIDs = new HashSet<>();
-
-    public MultiplayerServerManager() {
-        this(DEFAULT_SERVER);
+    /**
+     * Create new server manager.
+     *
+     * <p>Will use default server {@link #DEFAULT_SERVER} to send and receive messages.
+     *
+     * @param observer Observer for custom event handling.
+     */
+    public MultiplayerServerManager(final IMultiplayerServerManagerObserver observer) {
+        this(observer, DEFAULT_SERVER);
     }
 
-    public MultiplayerServerManager(final IServer server) {
+    /**
+     * Create new server manager.
+     *
+     * @param observer Observer for custom event handling.
+     * @param server Server to send and receive messages over TCP/UDP.
+     */
+    public MultiplayerServerManager(final IMultiplayerServerManagerObserver observer, final IServer server) {
         this.server = requireNonNull(server);
         server.addObserver(this);
+        this.observer = requireNonNull(observer);
     }
 
     @Override
@@ -201,7 +214,7 @@ public class MultiplayerServerManager implements IServerObserver {
     /**
      * Hosting a multiplayer session, which other players can join.
      *
-     * <p>To handle whether session started successfully or not, check {@link IMultiplayer}.
+     * <p>To handle whether session started successfully or not, check {@link IMultiplayerClientManagerObserver}.
      *
      * <p>NOTE: After server started, level and hero position has to be set up.
      *

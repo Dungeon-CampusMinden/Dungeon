@@ -15,7 +15,8 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
 import contrib.entities.EntityFactory;
 import contrib.systems.MultiplayerSynchronizationSystem;
-import contrib.utils.multiplayer.manager.IMultiplayer;
+import contrib.utils.multiplayer.manager.IMultiplayerClientManagerObserver;
+import contrib.utils.multiplayer.manager.IMultiplayerServerManagerObserver;
 import contrib.utils.multiplayer.manager.MultiplayerClientManager;
 import contrib.utils.multiplayer.manager.MultiplayerServerManager;
 
@@ -53,7 +54,9 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer {
+public class Game
+    extends ScreenAdapter
+    implements IOnLevelLoader, IMultiplayerClientManagerObserver, IMultiplayerServerManagerObserver {
 
     /* Used for singleton. */
     private static Game INSTANCE;
@@ -688,7 +691,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader, IMultiplayer 
         levelManager = new LevelManager(batch, painter, new WallGenerator(generator), this);
         levelManager.loadLevel(LEVELSIZE);
         clientManager = new MultiplayerClientManager(this);
-        serverManager = new MultiplayerServerManager();
+        serverManager = new MultiplayerServerManager(this);
         createSystems();
 
         setupStage();

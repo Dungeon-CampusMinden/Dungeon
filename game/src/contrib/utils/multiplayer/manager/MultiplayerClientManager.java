@@ -23,27 +23,48 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+/**
+ * Inherits logic to join multiplayer sessions.
+ * <p>Saves current state of entities and level received from server.
+ * <p>To join sessions, see {@link #joinSession(String, int, Entity)}
+ * <p>To inform server about entity movement, see {@link #sendMovementUpdate(int, Point, float, float)}
+ * <p>To force loading a map as host client, see {@link #loadMap(ILevel, Set, Entity)}
+ * <p>To request changing the level as not-host client, see {@link #requestNewLevel()}
+ */
 public class MultiplayerClientManager implements IClientObserver {
     public static final int DEFAULT_CLIENT_ID_NOT_CONNECTED = -1;
     private static final Version VERSION = new Version(0, 0, 0);
     private static final IClient DEFAULT_CLIENT = new MultiplayerClient();
     private final Logger logger = Logger.getLogger(this.getClass().getName());
-    private final IMultiplayer multiplayer;
-    /**
-     * Used to hold global state when acting as client. Is updated on incoming messages from server.
-     */
+    private final IMultiplayerClientManagerObserver observer;
+    /** Used to hold global state of entities. Is updated on incoming messages from server. */
     private Set<Entity> entities;
+    /** Used to hold global level. Is updated on incoming messages from server. */
+    private ILevel level;
     /** Used to send/receive messages to/from other endpoint/server. */
     private final IClient client;
     /** From server assigned unique id. */
     private int clientID = DEFAULT_CLIENT_ID_NOT_CONNECTED;
 
-    public MultiplayerClientManager(final IMultiplayer multiplayer) {
-        this(multiplayer, DEFAULT_CLIENT);
+    /**
+     * Create new client manager.
+     *
+     * <p>Will use default client {@link #DEFAULT_CLIENT} to send and receive messages.
+     *
+     * @param observer Observer for custom event handling.
+     */
+    public MultiplayerClientManager(final IMultiplayerClientManagerObserver observer) {
+        this(observer, DEFAULT_CLIENT);
     }
 
-    public MultiplayerClientManager(final IMultiplayer multiplayer, final IClient client) {
-        this.multiplayer = multiplayer;
+    /**
+     * Create new client manager.
+     *
+     * @param observer Observer for custom event handling.
+     * @param client Client that would be used to send and receive messages.
+     */
+    public MultiplayerClientManager(final IMultiplayerClientManagerObserver observer, final IClient client) {
+        this.observer = observer;
         this.client = requireNonNull(client);
         client.addObserver(this);
         entities = new HashSet<>();
@@ -55,7 +76,7 @@ public class MultiplayerClientManager implements IClientObserver {
     @Override
     public void onDisconnectedFromServer() {
         clearState();
-        multiplayer.onMultiplayerSessionConnectionLost();
+        observer.onMultiplayerSessionConnectionLost();
     }
 
     @Override
@@ -74,24 +95,26 @@ public class MultiplayerClientManager implements IClientObserver {
             final int heroGlobalID,
             final GameState gameState,
             final Point initialHeroPosition) {
+        level = isSucceed ? requireNonNull(gameState.level()) : null;
         entities = isSucceed ? requireNonNull(gameState.entities()) : new HashSet<>();
         clientID = isSucceed ? heroGlobalID : DEFAULT_CLIENT_ID_NOT_CONNECTED;
         if (!isSucceed)
             logger.warning("Cannot join multiplayer session. Server responded unsuccessful.");
 
-        multiplayer.onMultiplayerSessionJoined(
+        observer.onMultiplayerSessionJoined(
                 isSucceed, heroGlobalID, gameState.level(), initialHeroPosition);
     }
 
     @Override
     public void onLoadMapResponseReceived(final boolean isSucceed, final GameState gameState) {
+        level = gameState.level();
         entities = gameState.entities();
-        multiplayer.onMapLoad(gameState.level());
+        observer.onMapLoad(gameState.level());
     }
 
     @Override
     public void onChangeMapRequestReceived() {
-        multiplayer.onChangeMapRequest();
+        observer.onChangeMapRequest();
     }
 
     @Override
@@ -185,12 +208,17 @@ public class MultiplayerClientManager implements IClientObserver {
     }
 
     /**
-     * Gets global state of entities.
-     *
      * @return (Copy) Global state of entities.
      */
     public Stream<Entity> entityStream() {
         return new ArrayList<>(entities).stream();
+    }
+
+    /**
+     * @return Global active level.
+     */
+    public ILevel level() {
+        return level;
     }
 
     /**

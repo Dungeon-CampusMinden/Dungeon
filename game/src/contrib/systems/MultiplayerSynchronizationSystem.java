@@ -11,6 +11,7 @@ import core.components.VelocityComponent;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -137,7 +138,6 @@ public final class MultiplayerSynchronizationSystem extends System {
      */
     private void synchronizeAnimation() {
         Game.entityStream()
-                .filter(entity -> entity.fetch(VelocityComponent.class).isPresent())
                 .forEach(
                         localEntityState ->
                                 Game.entityStreamGlobal()
@@ -153,40 +153,41 @@ public final class MultiplayerSynchronizationSystem extends System {
                                                                                                 .class)
                                                                                 .orElseThrow();
 
-                                                        VelocityComponent
+                                                        Optional<VelocityComponent>
                                                                 velocityComponentMultiplayer =
                                                                         multiplayerEntityState
                                                                                 .fetch(
                                                                                         VelocityComponent
-                                                                                                .class)
-                                                                                .orElseThrow();
+                                                                                                .class);
 
-                                                        float x =
-                                                                velocityComponentMultiplayer
-                                                                        .currentXVelocity();
-                                                        if (x > 0) {
-                                                            drawComponent.currentAnimation(
-                                                                    CoreAnimations.RUN_RIGHT);
-                                                        } else if (x < 0) {
-                                                            drawComponent.currentAnimation(
-                                                                    CoreAnimations.RUN_LEFT);
-                                                        }
-                                                        // idle
-                                                        else {
-                                                            // each draw component has an idle
-                                                            // animation, so no check is needed
-                                                            if (drawComponent.isCurrentAnimation(
-                                                                            CoreAnimations
-                                                                                    .IDLE_LEFT)
-                                                                    || drawComponent
-                                                                            .isCurrentAnimation(
-                                                                                    CoreAnimations
-                                                                                            .RUN_LEFT))
+                                                        if (velocityComponentMultiplayer.isPresent()) {
+                                                            float x =
+                                                                    velocityComponentMultiplayer
+                                                                        .get().currentXVelocity();
+                                                            if (x > 0) {
                                                                 drawComponent.currentAnimation(
-                                                                        CoreAnimations.IDLE_LEFT);
-                                                            else
+                                                                        CoreAnimations.RUN_RIGHT);
+                                                            } else if (x < 0) {
                                                                 drawComponent.currentAnimation(
-                                                                        CoreAnimations.IDLE_RIGHT);
+                                                                        CoreAnimations.RUN_LEFT);
+                                                            }
+                                                            // idle
+                                                            else {
+                                                                // each draw component has an idle
+                                                                // animation, so no check is needed
+                                                                if (drawComponent.isCurrentAnimation(
+                                                                                CoreAnimations
+                                                                                        .IDLE_LEFT)
+                                                                        || drawComponent
+                                                                                .isCurrentAnimation(
+                                                                                        CoreAnimations
+                                                                                                .RUN_LEFT))
+                                                                    drawComponent.currentAnimation(
+                                                                            CoreAnimations.IDLE_LEFT);
+                                                                else
+                                                                    drawComponent.currentAnimation(
+                                                                            CoreAnimations.IDLE_RIGHT);
+                                                            }
                                                         }
                                                     }
                                                 }));
