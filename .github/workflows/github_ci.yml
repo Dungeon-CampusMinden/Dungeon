@@ -35,11 +35,11 @@ jobs:
         id: check_files
         run: |
           git diff --name-only HEAD^ HEAD > files.txt
-          echo "run_job=false" >> $GITHUB_STATE/check_job_state.env
+          echo "{changes}={false}" >> $GITHUB_OUTPUT
           while IFS= read -r file; do
             if [[ $file == */test/* ]]; then
               echo $file
-              echo "run_job=true" >> $GITHUB_STATE/check_job_state.env
+              echo "{changes}={true}" >> $GITHUB_OUTPUT
               break
             fi
           done < files.txt
@@ -47,7 +47,7 @@ jobs:
   junit_test_changed:
     name: JUnit if test changed
     needs: [build, check]
-    if: env.check_job_state == 'true'
+    if: $GITHUB_OUTPUT == true
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -67,7 +67,7 @@ jobs:
   junit:
     name: JUnit if test not changed
     needs: [build, check]
-    if: env.check_job_state == 'false'
+    if: $GITHUB_OUTPUT == false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
