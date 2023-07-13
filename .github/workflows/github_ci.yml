@@ -25,6 +25,8 @@ jobs:
 
   check:
     name: Check files
+    outputs:
+        run_job: ${{ steps.check_files.outputs.run_job }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
