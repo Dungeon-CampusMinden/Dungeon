@@ -38,6 +38,7 @@ jobs:
           echo "::set-output name=run_job::false"
           while IFS= read -r file; do
             if [[ $file == */test/* ]]; then
+              echo $file
               echo "::set-output name=run_job::true"
               break
             fi
