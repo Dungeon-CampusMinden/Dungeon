@@ -27,7 +27,6 @@ jobs:
     name: Check files
     outputs:
         r: ${{steps.check_files.outputs.r}}
-    id: check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
