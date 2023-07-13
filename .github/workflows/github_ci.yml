@@ -35,6 +35,7 @@ jobs:
         id: check_files
         run: |
           git diff --name-only HEAD^ HEAD > files.txt
+          echo "::set-output name=run_job::false"
           while IFS= read -r file; do
             if [[ $file == */test/* ]]; then
               echo "::set-output name=run_job::true"
