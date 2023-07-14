@@ -1,4 +1,4 @@
-package quizquestion;
+package task.quizquestion;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -8,8 +8,6 @@ import com.badlogic.gdx.utils.Align;
 
 import core.hud.DialogDesign;
 import core.utils.Constants;
-
-import java.util.Arrays;
 
 public class QuizDialogDesign {
     /**
@@ -32,10 +30,10 @@ public class QuizDialogDesign {
                     case SINGLE_CHOICE -> skin.get("radio", CheckBox.CheckBoxStyle.class);
                     default -> skin.get("default", CheckBox.CheckBoxStyle.class);
                 };
-        Arrays.stream(quizQuestion.answers())
-                .filter(
-                        answer ->
-                                answer.type() != QuizQuestionContent.QuizQuestionContentType.IMAGE)
+        quizQuestion
+                .contentStream()
+                .map(answer -> (QuizQuestion.QuizContent) answer)
+                .filter(answer -> answer.type() != QuizQuestion.QuizContentType.IMAGE)
                 .map(
                         answer ->
                                 new CheckBox(
@@ -50,7 +48,8 @@ public class QuizDialogDesign {
                         });
 
         switch (quizQuestion.type()) {
-            case MULTIPLE_CHOICE -> btnGroup.setMaxCheckCount(quizQuestion.answers().length);
+            case MULTIPLE_CHOICE -> btnGroup.setMaxCheckCount(
+                    (int) quizQuestion.contentStream().count());
             case SINGLE_CHOICE -> btnGroup.setMaxCheckCount(1);
         }
 
@@ -96,9 +95,7 @@ public class QuizDialogDesign {
      * @param outputMsg Content displayed in the scrollable label
      */
     private static Group visualizeQuestionSection(
-            QuizQuestionContent.QuizQuestionContentType questionContentType,
-            Skin skin,
-            String outputMsg) {
+            QuizQuestion.QuizContentType questionContentType, Skin skin, String outputMsg) {
 
         VerticalGroup vg = new VerticalGroup();
 

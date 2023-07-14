@@ -1,4 +1,4 @@
-package quizquestion;
+package task.quizquestion;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -31,7 +31,7 @@ public class QuizQuestionUI {
     public static Entity showQuizDialog(QuizQuestion question) {
         return showQuizDialog(
                 question,
-                formatStringForDialogWindow(question.question().content()),
+                formatStringForDialogWindow(question.taskText()),
                 core.hud.UITools.DEFAULT_DIALOG_CONFIRM,
                 core.hud.UITools.DEFAULT_DIALOG_TITLE);
     }
