@@ -46,7 +46,7 @@ jobs:
           done < files.txt
 
   junit_test_changed:
-    name: JUnit if test changed
+    name: JUnit (matrix build)
     needs: [build, check]
     if: ${{needs.check.outputs.r == 'true'}}
     strategy:
@@ -66,7 +66,7 @@ jobs:
         run: ./gradlew test
 
   junit:
-    name: JUnit if test not changed
+    name: JUnit
     needs: [build, check]
     if: ${{needs.check.outputs.r == 'false'}}
     runs-on: ubuntu-latest
