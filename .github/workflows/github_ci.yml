@@ -26,7 +26,7 @@ jobs:
   check:
     name: Check files
     outputs:
-        r: ${{ steps.check_files.outputs.r }}
+        tests_changed: ${{ steps.check_files.outputs.tests_changed }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -37,10 +37,10 @@ jobs:
         id: check_files
         run: |
           git diff --name-only HEAD^ HEAD > files.txt
-          echo "r=false" >> $GITHUB_OUTPUT
+          echo "tests_changed=false" >> $GITHUB_OUTPUT
           while IFS= read -r file; do
             if [[ $file == */test/* ]]; then
-          echo "r=true" >> $GITHUB_OUTPUT
+          echo "tests_changed=true" >> $GITHUB_OUTPUT
               break
             fi
           done < files.txt
@@ -48,7 +48,7 @@ jobs:
   junit_test_changed:
     name: JUnit (matrix build)
     needs: [build, check]
-    if: ${{ needs.check.outputs.r == 'true' }}
+    if: ${{ needs.check.outputs.tests_changed == 'true' }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -68,7 +68,7 @@ jobs:
   junit:
     name: JUnit
     needs: [build, check]
-    if: ${{ needs.check.outputs.r == 'false' }}
+    if: ${{ needs.check.outputs.tests_changed == 'false' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
