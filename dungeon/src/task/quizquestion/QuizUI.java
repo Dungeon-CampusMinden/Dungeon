@@ -10,7 +10,7 @@ import core.hud.UITools;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-public class QuizQuestionUI {
+public class QuizUI {
 
     /**
      * Limits the length of the string to 40 characters, after which a line break occurs

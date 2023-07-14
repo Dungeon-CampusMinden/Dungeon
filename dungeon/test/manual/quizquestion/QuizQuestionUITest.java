@@ -6,7 +6,7 @@ import com.badlogic.gdx.Input;
 import core.Game;
 
 import task.quizquestion.QuizQuestion;
-import task.quizquestion.QuizQuestionUI;
+import task.quizquestion.QuizUI;
 
 import java.util.Random;
 
@@ -26,7 +26,7 @@ public class QuizQuestionUITest {
                         // Dialogue for quiz questions (display of quiz questions and the answer
                         // area in test
                         // mode)
-                        QuizQuestionUI.showQuizDialog(DummyQuizQuestionList.getRandomQuestion());
+                        QuizUI.showQuizDialog(DummyQuizQuestionList.getRandomQuestion());
                     }
                 });
 

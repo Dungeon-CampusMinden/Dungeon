@@ -37,8 +37,7 @@ public class QuizDialogDesign {
                 .map(
                         answer ->
                                 new CheckBox(
-                                        QuizQuestionUI.formatStringForDialogWindow(
-                                                answer.content()),
+                                        QuizUI.formatStringForDialogWindow(answer.content()),
                                         style))
                 .forEach(
                         checkBox -> {
