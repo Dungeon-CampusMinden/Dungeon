@@ -32,18 +32,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Check modified files
         id: check_files
         run: |
-          git diff --name-only HEAD^ HEAD > files.txt
-          echo "tests_changed=false" >> $GITHUB_OUTPUT
+          git diff --name-only origin/master HEAD > files.txt
+          tests_changed=false
           while IFS= read -r file; do
             if [[ $file == */test/* ]]; then
-          echo "tests_changed=true" >> $GITHUB_OUTPUT
+              tests_changed=true
               break
             fi
           done < files.txt
+          echo "tests_changed=$tests_changed" >> $GITHUB_OUTPUT
 
   junit_test_changed:
     name: JUnit (matrix build)
