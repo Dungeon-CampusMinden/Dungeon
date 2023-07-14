@@ -106,9 +106,9 @@ public class QuizQuestion extends Task {
      *
      * <p>Is used as answer and question for a {@link QuizQuestion}.
      *
-     * <p>Stores a String with the question/answer text and {@link QuizContentType} which definies
-     * if the String is just Text or contains an path to an image or both. The type is used by the
-     * {@link QuizUI} to configurate the ui if the question is asked via the ui.
+     * <p>Stores a String with the question/answer text and {@link QuizContentType} which defines if
+     * the String is just Text or contains a path to an image or both. The type is used by the
+     * {@link QuizUI} to configure the ui if the question is asked via the ui.
      */
     public static class QuizContent extends TaskContent {
 
