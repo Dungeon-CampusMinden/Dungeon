@@ -96,9 +96,9 @@ public abstract class Task {
     }
 
     /**
-     * Add given elements to the internal {@link #content} collection.
+     * Add given element to the internal {@link #content} collection.
      *
-     * @param content elements to add to the internal collection
+     * @param content element to add to the internal collection
      */
     public void addContent(final TaskContent content) {
         this.content.add(content);
