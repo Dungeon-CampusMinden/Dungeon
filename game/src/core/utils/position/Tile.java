@@ -7,11 +7,11 @@ public class Tile implements Position {
     private int y;
 
     // direct access to x and y
-    int x() {
+    public int x() {
         return x;
     }
 
-    int y() {
+    public int y() {
         return y;
     }
 
