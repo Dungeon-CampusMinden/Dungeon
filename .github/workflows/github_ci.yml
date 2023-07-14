@@ -48,7 +48,7 @@ jobs:
   junit_test_changed:
     name: JUnit if test changed
     needs: [build, check]
-    if: needs.check.outputs.r=="true"
+    if: ${{needs.check.outputs.r == 'true'}}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -68,7 +68,7 @@ jobs:
   junit:
     name: JUnit if test not changed
     needs: [build, check]
-    if: needs.check.outputs.r=="false"
+    if: ${{needs.check.outputs.r == 'false'}}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
