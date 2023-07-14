@@ -21,9 +21,9 @@ import core.level.utils.Coordinate;
 import core.level.utils.LevelSize;
 import core.systems.CameraSystem;
 import core.utils.IVoidFunction;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
+import core.utils.position.Position;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -105,7 +105,7 @@ public class Debugger {
      *
      * @param targetLocation the location to teleport to
      */
-    public static void TELEPORT(Point targetLocation) {
+    public static void TELEPORT(Position targetLocation) {
         if (Game.hero().isPresent()) {
             PositionComponent pc =
                     Game.hero()
@@ -155,7 +155,7 @@ public class Debugger {
      *
      * @param position The location to spawn the monster on.
      */
-    public static void SPAWN_MONSTER(Point position) {
+    public static void SPAWN_MONSTER(Position position) {
         // Get the tile at the given position
         Tile tile = null;
         try {

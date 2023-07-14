@@ -1,6 +1,6 @@
 package semanticanalysis.types;
 
-import core.utils.Point;
+import core.utils.position.Position;
 
 import interpreter.mockecs.Component;
 import interpreter.mockecs.Entity;
@@ -11,5 +11,5 @@ public class ComponentWithExternalTypeMember extends Component {
         super(entity);
     }
 
-    @DSLTypeMember public Point point;
+    @DSLTypeMember public Position position;
 }

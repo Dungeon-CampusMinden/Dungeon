@@ -2,7 +2,7 @@ package contrib.components;
 
 import core.Component;
 import core.Entity;
-import core.utils.Point;
+import core.utils.position.Position;
 
 /**
  * Marks an entity as a projectile.
@@ -28,8 +28,8 @@ import core.utils.Point;
  */
 public final class ProjectileComponent extends Component {
 
-    private final Point goalLocation;
-    private final Point startPosition;
+    private final Position goalLocation;
+    private final Position startPosition;
 
     /**
      * Create a new ProjectileComponent and add it to the associated entity.
@@ -39,7 +39,7 @@ public final class ProjectileComponent extends Component {
      * @param goalLocation The point where the projectile should fly to.
      */
     public ProjectileComponent(
-            final Entity entity, final Point startPosition, final Point goalLocation) {
+            final Entity entity, final Position startPosition, final Position goalLocation) {
         super(entity);
         this.goalLocation = goalLocation;
         this.startPosition = startPosition;
@@ -50,7 +50,7 @@ public final class ProjectileComponent extends Component {
      *
      * @return The point where the projectile should fly to.
      */
-    public Point goalLocation() {
+    public Position goalLocation() {
         return goalLocation;
     }
 
@@ -59,7 +59,7 @@ public final class ProjectileComponent extends Component {
      *
      * @return The point from which to start the calculation to the goal location
      */
-    public Point startPosition() {
+    public Position startPosition() {
         return startPosition;
     }
 }

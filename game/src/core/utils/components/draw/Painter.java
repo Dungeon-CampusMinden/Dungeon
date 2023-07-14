@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import core.systems.CameraSystem;
-import core.utils.Point;
+import core.utils.position.Position;
 
 /** Uses LibGDX to draw sprites on the various <code>SpriteBatch</code>es. */
 public class Painter {
@@ -15,7 +15,7 @@ public class Painter {
         this.batch = batch;
     }
 
-    public void draw(Point position, String texturePath, PainterConfig config) {
+    public void draw(Position position, String texturePath, PainterConfig config) {
         if (CameraSystem.isPointInFrustum(position.x, position.y)) {
             Sprite sprite = new Sprite(TextureMap.instance().textureAt(texturePath));
             // set up scaling of textures

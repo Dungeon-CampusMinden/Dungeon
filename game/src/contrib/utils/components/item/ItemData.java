@@ -10,10 +10,10 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
+import core.utils.position.Position;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -38,7 +38,7 @@ public final class ItemData {
     private final String description;
 
     private BiConsumer<Entity, Entity> onCollect;
-    private TriConsumer<Entity, ItemData, Point> onDrop;
+    private TriConsumer<Entity, ItemData, Position> onDrop;
     // active
     private BiConsumer<Entity, ItemData> onUse;
 
@@ -65,7 +65,7 @@ public final class ItemData {
             final String itemName,
             final String description,
             final BiConsumer<Entity, Entity> onCollect,
-            final TriConsumer<Entity, ItemData, Point> onDrop,
+            final TriConsumer<Entity, ItemData, Position> onDrop,
             final BiConsumer<Entity, ItemData> onUse,
             final DamageModifier damageModifier) {
         this.itemType = itemType;
@@ -131,7 +131,7 @@ public final class ItemData {
      *
      * @param position the location of the drop
      */
-    public void triggerDrop(final Entity e, final Point position) {
+    public void triggerDrop(final Entity e, final Position position) {
         if (onDrop() != null) onDrop().accept(e, this, position);
     }
 
@@ -199,7 +199,7 @@ public final class ItemData {
      * @param which Item that is being dropped.
      * @param position Position where to drop the item.
      */
-    private static void defaultDrop(Entity who, ItemData which, Point position) {
+    private static void defaultDrop(Entity who, ItemData which, Position position) {
         Entity droppedItem = new Entity();
         new PositionComponent(droppedItem, position);
         new DrawComponent(droppedItem, which.worldTexture());
@@ -266,7 +266,7 @@ public final class ItemData {
     /**
      * @return The callback function to drop the item.
      */
-    public TriConsumer<Entity, ItemData, Point> onDrop() {
+    public TriConsumer<Entity, ItemData, Position> onDrop() {
         return onDrop;
     }
 
@@ -275,7 +275,7 @@ public final class ItemData {
      *
      * @param onDrop New drop callback.
      */
-    public void onDrop(TriConsumer<Entity, ItemData, Point> onDrop) {
+    public void onDrop(TriConsumer<Entity, ItemData, Position> onDrop) {
         this.onDrop = onDrop;
     }
 

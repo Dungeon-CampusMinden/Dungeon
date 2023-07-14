@@ -5,8 +5,9 @@ import core.Entity;
 import core.Game;
 import core.level.Tile;
 import core.level.utils.LevelElement;
-import core.utils.Point;
 import core.utils.logging.CustomLogLevel;
+import core.utils.position.Point;
+import core.utils.position.Position;
 
 import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
@@ -22,13 +23,13 @@ import java.util.logging.Logger;
  * position of an entity. See <a
  * href="https://github.com/Programmiermethoden/Dungeon/tree/master/doc/ecs/systems">System-Overview</a>.
  *
- * @see Point
+ * @see Position
  */
 @DSLType(name = "position_component")
 public final class PositionComponent extends Component {
 
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
-    private Point position;
+    private Position position;
 
     /**
      * Create a new PositionComponent with given position and add it to the associated entity.
@@ -38,7 +39,7 @@ public final class PositionComponent extends Component {
      * @param entity The associated entity.
      * @param position The position of the entity in the level.
      */
-    public PositionComponent(final Entity entity, final Point position) {
+    public PositionComponent(final Entity entity, final Position position) {
         super(entity);
         this.position = position;
     }
@@ -80,15 +81,15 @@ public final class PositionComponent extends Component {
      *
      * @return The position of the associated entity.
      */
-    public Point position() {
+    public Position position() {
         LOGGER.log(
                 CustomLogLevel.DEBUG,
                 "Fetching position for entity '"
                         + entity
                         + "': x = "
-                        + position.x
+                        + position.point().x()
                         + " --- y = "
-                        + position.y);
+                        + position.point().y());
         return position;
     }
 
@@ -97,7 +98,7 @@ public final class PositionComponent extends Component {
      *
      * @param position new Position of the associated entity
      */
-    public void position(final Point position) {
+    public void position(final Position position) {
         this.position = position;
     }
 

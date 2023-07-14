@@ -10,7 +10,7 @@ import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
-import core.utils.Point;
+import core.utils.position.Position;
 
 import org.junit.After;
 import org.junit.Before;
@@ -20,11 +20,11 @@ import org.mockito.Mockito;
 
 public class CameraSystemTest {
 
-    private static final Point testPoint = new Point(3, 3);
+    private static final Position TEST_POSITION = new Position(3, 3);
     private final ILevel level = Mockito.mock(ILevel.class);
     private final Tile startTile = Mockito.mock(Tile.class);
     private CameraSystem cameraSystem;
-    private Point expectedFocusPoint;
+    private Position expectedFocusPosition;
 
     @BeforeClass
     public static void initGDX() {
@@ -34,8 +34,8 @@ public class CameraSystemTest {
     @Before
     public void setup() {
         cameraSystem = new CameraSystem();
-        Mockito.when(startTile.position()).thenReturn(testPoint);
-        Mockito.when(level.randomTilePoint(Mockito.any())).thenReturn(testPoint);
+        Mockito.when(startTile.position()).thenReturn(TEST_POSITION);
+        Mockito.when(level.randomTilePoint(Mockito.any())).thenReturn(TEST_POSITION);
         Mockito.when(level.startTile()).thenReturn(startTile);
         new LevelSystem(null, null, () -> {});
     }
@@ -53,32 +53,32 @@ public class CameraSystemTest {
         PositionComponent positionComponent = new PositionComponent(entity);
         new CameraComponent(entity);
 
-        expectedFocusPoint = positionComponent.position();
+        expectedFocusPosition = positionComponent.position();
 
         cameraSystem.execute();
-        assertEquals(expectedFocusPoint.x, CameraSystem.camera().position.x, 0.001);
-        assertEquals(expectedFocusPoint.y, CameraSystem.camera().position.y, 0.001);
+        assertEquals(expectedFocusPosition.x, CameraSystem.camera().position.x, 0.001);
+        assertEquals(expectedFocusPosition.y, CameraSystem.camera().position.y, 0.001);
     }
 
     @Test
     public void executeWithoutEntity() {
         Game.currentLevel(level);
 
-        expectedFocusPoint = level.startTile().position();
+        expectedFocusPosition = level.startTile().position();
 
         cameraSystem.execute();
 
-        assertEquals(expectedFocusPoint.x, CameraSystem.camera().position.x, 0.001);
-        assertEquals(expectedFocusPoint.y, CameraSystem.camera().position.y, 0.001);
+        assertEquals(expectedFocusPosition.x, CameraSystem.camera().position.x, 0.001);
+        assertEquals(expectedFocusPosition.y, CameraSystem.camera().position.y, 0.001);
     }
 
     @Test
     public void executeWithoutLevel() {
         Game.currentLevel(null);
-        Point expectedFocusPoint = new Point(0, 0);
+        Position expectedFocusPosition = new Position(0, 0);
         cameraSystem.execute();
-        assertEquals(expectedFocusPoint.x, CameraSystem.camera().position.x, 0.001);
-        assertEquals(expectedFocusPoint.y, CameraSystem.camera().position.y, 0.001);
+        assertEquals(expectedFocusPosition.x, CameraSystem.camera().position.x, 0.001);
+        assertEquals(expectedFocusPosition.y, CameraSystem.camera().position.y, 0.001);
     }
 
     @Test

@@ -9,7 +9,7 @@ import contrib.utils.components.ai.transition.RangeTransition;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
-import core.utils.Point;
+import core.utils.position.Position;
 
 import org.junit.Before;
 
@@ -18,7 +18,7 @@ public class ProtectOnApproachTest {
     private AIComponent entityAI;
     private Entity protectedEntity;
     private Entity hero;
-    private final Point pointOfProtect = new Point(0, 0);
+    private final Position positionOfProtect = new Position(0, 0);
 
     @Before
     public void setup() {
@@ -35,7 +35,7 @@ public class ProtectOnApproachTest {
                         new RangeTransition(2));
 
         // Add Position Component
-        new PositionComponent(protectedEntity, pointOfProtect);
+        new PositionComponent(protectedEntity, positionOfProtect);
 
         // Protecting Entity
         entity = new Entity();
@@ -49,7 +49,7 @@ public class ProtectOnApproachTest {
                         new ProtectOnApproach(2f, protectedEntity));
 
         // Add Position Component
-        new PositionComponent(entity, new Point(0f, 0f));
+        new PositionComponent(entity, new Position(0f, 0f));
 
         // Hero
         hero = Game.hero().orElse(new Entity());

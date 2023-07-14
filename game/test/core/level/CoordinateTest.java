@@ -3,7 +3,7 @@ package core.level;
 import static org.junit.Assert.*;
 
 import core.level.utils.Coordinate;
-import core.utils.Point;
+import core.utils.position.Position;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,8 +26,8 @@ public class CoordinateTest {
 
     @Test
     public void test_toPoint() {
-        Point point = coordinate.toPoint();
-        assertEquals((float) coordinate.x, point.x, 0.0f);
-        assertEquals((float) coordinate.y, point.y, 0.0f);
+        Position position = coordinate.toPoint();
+        assertEquals((float) coordinate.x, position.x, 0.0f);
+        assertEquals((float) coordinate.y, position.y, 0.0f);
     }
 }

@@ -14,7 +14,7 @@ import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
-import core.utils.Point;
+import core.utils.position.Position;
 
 import org.junit.After;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class ChestTest {
     @Test
     public void checkCreation() throws IOException {
         Set<ItemData> itemData = Set.of();
-        Point position = new Point(0, 0);
+        Position position = new Position(0, 0);
         Entity c = null;
         c = EntityFactory.newChest(itemData, position);
 
@@ -68,7 +68,7 @@ public class ChestTest {
     /* @Test
     public void checkInteractionDroppingItems() {
         List<ItemData> itemData = List.of(new ItemDataGenerator().generateItemData());
-        Point position = new Point(0, 0);
+        Position position = new Position(0, 0);
         Entity c = EntityFactory.getChest(itemData, position);
 
        // assertEquals(1, Game.getEntitiesStream().count());
@@ -88,7 +88,7 @@ public class ChestTest {
     /* @Test
     public void checkInteractionOnDroppedItems() {
         List<ItemData> itemData = List.of(new ItemDataGenerator().generateItemData());
-        Point position = new Point(0, 0);
+        Position position = new Position(0, 0);
         Entity c = EntityFactory.getChest(itemData, position);
         c.getComponent(InteractionComponent.class)
                 .map(InteractionComponent.class::cast)

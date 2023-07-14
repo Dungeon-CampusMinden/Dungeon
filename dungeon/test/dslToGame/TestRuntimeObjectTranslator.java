@@ -6,7 +6,7 @@ import core.Entity;
 import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.utils.Point;
+import core.utils.position.Position;
 
 import helpers.Helpers;
 
@@ -28,7 +28,7 @@ public class TestRuntimeObjectTranslator {
     public void testEntityTranslation() {
         var entity = new Entity();
         entity.addComponent(new CameraComponent(entity));
-        entity.addComponent(new PositionComponent(entity, new Point(0, 0)));
+        entity.addComponent(new PositionComponent(entity, new Position(0, 0)));
         entity.addComponent(new VelocityComponent(entity));
         entity.addComponent(new HealthComponent(entity));
 
@@ -59,7 +59,7 @@ public class TestRuntimeObjectTranslator {
     public void testIsolatedComponentTranslation() {
         var entity = new Entity();
         entity.addComponent(new CameraComponent(entity));
-        entity.addComponent(new PositionComponent(entity, new Point(0, 0)));
+        entity.addComponent(new PositionComponent(entity, new Position(0, 0)));
         entity.addComponent(new VelocityComponent(entity));
         entity.addComponent(new HealthComponent(entity));
 

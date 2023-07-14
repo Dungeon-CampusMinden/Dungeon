@@ -11,8 +11,8 @@ import core.System;
 import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.utils.Constants;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Position;
 
 /**
  * The CameraSystem sets the focus point of the game. It is responsible for what is visible on
@@ -50,10 +50,10 @@ public final class CameraSystem extends System {
     }
 
     private void focus() {
-        Point focusPoint;
-        if (Game.currentLevel() == null) focusPoint = new Point(0, 0);
-        else focusPoint = Game.startTile().position();
-        focus(focusPoint);
+        Position focusPosition;
+        if (Game.currentLevel() == null) focusPosition = new Position(0, 0);
+        else focusPosition = Game.startTile().position();
+        focus(focusPosition);
     }
 
     private void focus(Entity entity) {
@@ -66,8 +66,8 @@ public final class CameraSystem extends System {
         focus(pc.position());
     }
 
-    private void focus(Point point) {
-        CAMERA.position.set(point.x, point.y, 0);
+    private void focus(Position position) {
+        CAMERA.position.set(position.x, position.y, 0);
     }
 
     /**

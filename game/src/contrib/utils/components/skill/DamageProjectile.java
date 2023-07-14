@@ -10,9 +10,9 @@ import core.Entity;
 import core.Game;
 import core.components.*;
 import core.level.Tile;
-import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Position;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -33,9 +33,9 @@ public abstract class DamageProjectile implements Consumer<Entity> {
 
     private int damageAmount;
     private DamageType damageType;
-    private Point projectileHitboxSize;
+    private Position projectileHitboxSize;
 
-    private Supplier<Point> selectionFunction;
+    private Supplier<Position> selectionFunction;
 
     /**
      * The DamageProjectile constructor sets the path to the textures of the projectile, the speed
@@ -57,8 +57,8 @@ public abstract class DamageProjectile implements Consumer<Entity> {
             float projectileSpeed,
             int damageAmount,
             DamageType damageType,
-            Point projectileHitboxSize,
-            Supplier<Point> selectionFunction,
+            Position projectileHitboxSize,
+            Supplier<Position> selectionFunction,
             float projectileRange) {
         this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
         this.damageAmount = damageAmount;
@@ -106,18 +106,19 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         }
 
         // Get the target point based on the selection function and projectile range
-        Point aimedOn = selectionFunction.get();
-        Point targetPoint =
+        Position aimedOn = selectionFunction.get();
+        Position targetPosition =
                 SkillTools.calculateLastPositionInRange(epc.position(), aimedOn, projectileRange);
 
         // Calculate the velocity of the projectile
-        Point velocity = SkillTools.calculateVelocity(epc.position(), targetPoint, projectileSpeed);
+        Position velocity =
+                SkillTools.calculateVelocity(epc.position(), targetPosition, projectileSpeed);
 
         // Add the VelocityComponent to the projectile
         VelocityComponent vc = new VelocityComponent(projectile, velocity.x, velocity.y);
 
         // Add the ProjectileComponent with the initial and target positions to the projectile
-        new ProjectileComponent(projectile, epc.position(), targetPoint);
+        new ProjectileComponent(projectile, epc.position(), targetPosition);
 
         // Create a collision handler for the projectile
         TriConsumer<Entity, Entity, Tile.Direction> collide =
@@ -139,6 +140,6 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         // Add the CollideComponent with the appropriate hitbox size and collision handler to the
         // projectile
         new CollideComponent(
-                projectile, new Point(0.25f, 0.25f), projectileHitboxSize, collide, null);
+                projectile, new Position(0.25f, 0.25f), projectileHitboxSize, collide, null);
     }
 }

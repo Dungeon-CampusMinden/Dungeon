@@ -9,8 +9,8 @@ import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.Coordinate;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Position;
 
 import java.util.function.Consumer;
 
@@ -19,9 +19,9 @@ public class StaticRadiusWalk implements Consumer<Entity> {
     private final int breakTime;
     private GraphPath<Tile> path;
     private int currentBreak = 0;
-    private Point center;
-    private Point currentPosition;
-    private Point newEndTile;
+    private Position center;
+    private Position currentPosition;
+    private Position newEndTile;
 
     /**
      * Finds a point in the radius and then moves there. When the point has been reached, a new

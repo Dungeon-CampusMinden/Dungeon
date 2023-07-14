@@ -8,8 +8,8 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.Coordinate;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Position;
 
 import java.util.*;
 
@@ -80,11 +80,11 @@ public class AITools {
      * @param radius The radius within which the tiles should be located.
      * @return List of tiles in the given radius around the center point.
      */
-    public static List<Tile> tilesInRange(final Point center, final float radius) {
+    public static List<Tile> tilesInRange(final Position center, final float radius) {
         List<Tile> tiles = new ArrayList<>();
         for (float x = center.x - radius; x <= center.x + radius; x++) {
             for (float y = center.y - radius; y <= center.y + radius; y++) {
-                tiles.add(Game.tileAT(new Point(x, y)));
+                tiles.add(Game.tileAT(new Position(x, y)));
             }
         }
         tiles.removeIf(Objects::isNull);
@@ -102,7 +102,7 @@ public class AITools {
      * @param radius The radius within which the accessible tiles should be located.
      * @return List of accessible tiles in the given radius around the center point.
      */
-    public static List<Tile> accessibleTilesInRange(final Point center, final float radius) {
+    public static List<Tile> accessibleTilesInRange(final Position center, final float radius) {
         List<Tile> tiles = tilesInRange(center, radius);
         tiles.removeIf(tile -> !tile.isAccessible());
         return tiles;
@@ -121,7 +121,7 @@ public class AITools {
      *     within the range, or an empty Optional if no accessible tiles were found.
      */
     public static Optional<Coordinate> randomAccessibleTileCoordinateInRange(
-            final Point center, final float radius) {
+            final Position center, final float radius) {
         List<Tile> tiles = accessibleTilesInRange(center, radius);
         if (tiles.isEmpty()) return Optional.empty();
         Coordinate newPosition = tiles.get(random.nextInt(tiles.size())).coordinate();
@@ -137,7 +137,7 @@ public class AITools {
      * @param to The end point.
      * @return Path from the start point to the end point.
      */
-    public static GraphPath<Tile> calculatePath(final Point from, final Point to) {
+    public static GraphPath<Tile> calculatePath(final Position from, final Position to) {
         return calculatePath(from.toCoordinate(), to.toCoordinate());
     }
 
@@ -156,22 +156,23 @@ public class AITools {
 
     /**
      * Finds the path to a random (accessible) tile in the given radius, starting from the given
-     * point.
+     * position.
      *
      * <p>If there is no accessible tile in the range, the path will be calculated from the given
-     * start point to the given start point.
+     * start position to the given start position.
      *
-     * <p>Throws an IllegalArgumentException if the tile at the start point is non-accessible.
+     * <p>Throws an IllegalArgumentException if the tile at the start position is non-accessible.
      *
-     * @param point The start point.
+     * @param position The start position.
      * @param radius Radius in which the tiles are to be considered.
-     * @return Path from the center point to the randomly selected tile.
+     * @return Path from the center position to the randomly selected tile.
      */
     public static GraphPath<Tile> calculatePathToRandomTileInRange(
-            final Point point, final float radius) {
+            final Position position, final float radius) {
         Coordinate newPosition =
-                randomAccessibleTileCoordinateInRange(point, radius).orElse(point.toCoordinate());
-        return calculatePath(point.toCoordinate(), newPosition);
+                randomAccessibleTileCoordinateInRange(position, radius)
+                        .orElse(position.toCoordinate());
+        return calculatePath(position.toCoordinate(), newPosition);
     }
 
     /**
@@ -189,14 +190,14 @@ public class AITools {
      */
     public static GraphPath<Tile> calculatePathToRandomTileInRange(
             final Entity entity, final float radius) {
-        Point point =
+        Position position =
                 entity.fetch(PositionComponent.class)
                         .orElseThrow(
                                 () ->
                                         MissingComponentException.build(
                                                 entity, PositionComponent.class))
                         .position();
-        return calculatePathToRandomTileInRange(point, radius);
+        return calculatePathToRandomTileInRange(position, radius);
     }
 
     /**
@@ -251,21 +252,21 @@ public class AITools {
     public static boolean entityInRange(
             final Entity entity1, final Entity entity2, final float range) {
 
-        Point entity1Position =
+        Position entity1Position =
                 entity1.fetch(PositionComponent.class)
                         .orElseThrow(
                                 () ->
                                         MissingComponentException.build(
                                                 entity1, PositionComponent.class))
                         .position();
-        Point entity2Position =
+        Position entity2Position =
                 entity2.fetch(PositionComponent.class)
                         .orElseThrow(
                                 () ->
                                         MissingComponentException.build(
                                                 entity2, PositionComponent.class))
                         .position();
-        return Point.inRange(entity1Position, entity2Position, range);
+        return Position.inRange(entity1Position, entity2Position, range);
     }
 
     /**

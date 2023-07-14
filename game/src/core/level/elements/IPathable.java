@@ -11,8 +11,8 @@ import core.Entity;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.astar.TileHeuristic;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Position;
 
 public interface IPathable extends IndexedGraph<Tile> {
 
@@ -65,7 +65,7 @@ public interface IPathable extends IndexedGraph<Tile> {
      * @param entity Entity to get the current position from (needs a {@link PositionComponent}
      * @return Position of the given entity.
      */
-    default Point positionOf(Entity entity) {
+    default Position positionOf(Entity entity) {
         return entity.fetch(PositionComponent.class)
                 .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class))
                 .position();

@@ -8,8 +8,8 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.utils.Point;
 import core.utils.TriConsumer;
+import core.utils.position.Position;
 
 import org.junit.Test;
 
@@ -45,12 +45,12 @@ public class CollisionSystemTest {
     /**
      * Helper to create an Entity and keep Testcode a bit more clean
      *
-     * @param point1 Position of the newly created Entity
+     * @param position1 Position of the newly created Entity
      * @return thr configured Entity
      */
-    private static Entity prepareEntityWithPosition(Point point1) {
+    private static Entity prepareEntityWithPosition(Position position1) {
         Entity e1 = new Entity();
-        new PositionComponent(e1, point1);
+        new PositionComponent(e1, position1);
         return e1;
     }
 
@@ -63,17 +63,19 @@ public class CollisionSystemTest {
     public void checkForCollisionRight() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Point offset = new Point(0, 0);
-        Point size = new Point(1, 1);
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Position offset = new Position(0, 0);
+        Position size = new Position(1, 1);
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(
+                        e1, new Position(offset), new Position(size), collider, collider);
 
-        Entity e2 = prepareEntityWithPosition(new Point(.5f, 0));
+        Entity e2 = prepareEntityWithPosition(new Position(.5f, 0));
 
         CollideComponent hb2 =
-                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(
+                        e2, new Position(offset), new Position(size), collider, collider);
 
         cs.showEntity(e1);
         cs.showEntity(e2);
@@ -93,18 +95,20 @@ public class CollisionSystemTest {
     public void checkForCollisionRightNoIntersection() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Point offset = new Point(0, 0);
-        Point size = new Point(1, 1);
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Position offset = new Position(0, 0);
+        Position size = new Position(1, 1);
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
 
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(
+                        e1, new Position(offset), new Position(size), collider, collider);
 
-        Entity e2 = prepareEntityWithPosition(new Point(1.5f, 0));
+        Entity e2 = prepareEntityWithPosition(new Position(1.5f, 0));
 
         CollideComponent hb2 =
-                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(
+                        e2, new Position(offset), new Position(size), collider, collider);
 
         cs.showEntity(e1);
         cs.showEntity(e2);
@@ -123,16 +127,18 @@ public class CollisionSystemTest {
     public void checkForCollisionLeft() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Point offset = new Point(0, 0);
-        Point size = new Point(1, 1);
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Position offset = new Position(0, 0);
+        Position size = new Position(1, 1);
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(
+                        e1, new Position(offset), new Position(size), collider, collider);
 
-        Entity e2 = prepareEntityWithPosition(new Point(-.5f, 0));
+        Entity e2 = prepareEntityWithPosition(new Position(-.5f, 0));
         CollideComponent hb2 =
-                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(
+                        e2, new Position(offset), new Position(size), collider, collider);
 
         cs.showEntity(e1);
         cs.showEntity(e2);
@@ -153,18 +159,20 @@ public class CollisionSystemTest {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
 
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
 
-        Point offset = new Point(0, 0);
-        Point size = new Point(1, 1);
+        Position offset = new Position(0, 0);
+        Position size = new Position(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(
+                        e1, new Position(offset), new Position(size), collider, collider);
 
-        Entity e2 = prepareEntityWithPosition(new Point(-1.5f, 0));
+        Entity e2 = prepareEntityWithPosition(new Position(-1.5f, 0));
 
         CollideComponent hb2 =
-                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(
+                        e2, new Position(offset), new Position(size), collider, collider);
 
         cs.showEntity(e1);
         cs.showEntity(e2);
@@ -182,16 +190,18 @@ public class CollisionSystemTest {
     public void checkForCollisionBottomWithIntersection() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Point offset = new Point(0, 0);
-        Point size = new Point(1, 1);
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Position offset = new Position(0, 0);
+        Position size = new Position(1, 1);
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(
+                        e1, new Position(offset), new Position(size), collider, collider);
 
-        Entity e2 = prepareEntityWithPosition(new Point(0, .5f));
+        Entity e2 = prepareEntityWithPosition(new Position(0, .5f));
         CollideComponent hb2 =
-                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(
+                        e2, new Position(offset), new Position(size), collider, collider);
 
         cs.showEntity(e1);
         cs.showEntity(e2);
@@ -210,16 +220,18 @@ public class CollisionSystemTest {
     public void checkForCollisionBottomWithNoIntersection() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Point offset = new Point(0, 0);
-        Point size = new Point(1, 1);
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Position offset = new Position(0, 0);
+        Position size = new Position(1, 1);
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(
+                        e1, new Position(offset), new Position(size), collider, collider);
 
-        Entity e2 = prepareEntityWithPosition(new Point(0, 1.5f));
+        Entity e2 = prepareEntityWithPosition(new Position(0, 1.5f));
         CollideComponent hb2 =
-                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(
+                        e2, new Position(offset), new Position(size), collider, collider);
 
         cs.showEntity(e1);
         cs.showEntity(e2);
@@ -237,16 +249,18 @@ public class CollisionSystemTest {
     public void checkForCollisionTopWithIntersection() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Point offset = new Point(0, 0);
-        Point size = new Point(1, 1);
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Position offset = new Position(0, 0);
+        Position size = new Position(1, 1);
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(
+                        e1, new Position(offset), new Position(size), collider, collider);
 
-        Entity e2 = prepareEntityWithPosition(new Point(0, -0.5f));
+        Entity e2 = prepareEntityWithPosition(new Position(0, -0.5f));
         CollideComponent hb2 =
-                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(
+                        e2, new Position(offset), new Position(size), collider, collider);
 
         cs.showEntity(e1);
         cs.showEntity(e2);
@@ -265,16 +279,18 @@ public class CollisionSystemTest {
     public void checkForCollisionTopNoIntersection() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Point offset = new Point(0, 0);
-        Point size = new Point(1, 1);
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Position offset = new Position(0, 0);
+        Position size = new Position(1, 1);
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(
+                        e1, new Position(offset), new Position(size), collider, collider);
 
-        Entity e2 = prepareEntityWithPosition(new Point(0, -1.5f));
+        Entity e2 = prepareEntityWithPosition(new Position(0, -1.5f));
         CollideComponent hb2 =
-                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(
+                        e2, new Position(offset), new Position(size), collider, collider);
 
         cs.showEntity(e1);
         cs.showEntity(e2);
@@ -291,22 +307,22 @@ public class CollisionSystemTest {
     public void checkForCollisionBoxAAroundB() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Entity e1 = prepareEntityWithPosition(new Point(-.1f, -.1f));
+        Entity e1 = prepareEntityWithPosition(new Position(-.1f, -.1f));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
                 new CollideComponent(
                         e1,
-                        new Point(new Point(0, 0)),
-                        new Point(new Point(1.2f, 1.2f)),
+                        new Position(new Position(0, 0)),
+                        new Position(new Position(1.2f, 1.2f)),
                         collider,
                         collider);
 
-        Entity e2 = prepareEntityWithPosition(new Point(0, 0f));
+        Entity e2 = prepareEntityWithPosition(new Position(0, 0f));
         CollideComponent hb2 =
                 new CollideComponent(
                         e2,
-                        new Point(new Point(0, 0)),
-                        new Point(new Point(1, 1)),
+                        new Position(new Position(0, 0)),
+                        new Position(new Position(1, 1)),
                         collider,
                         collider);
 
@@ -324,22 +340,22 @@ public class CollisionSystemTest {
     public void checkForCollisionBoxBAroundA() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
                 new CollideComponent(
                         e1,
-                        new Point(new Point(0, 0)),
-                        new Point(new Point(1, 1)),
+                        new Position(new Position(0, 0)),
+                        new Position(new Position(1, 1)),
                         collider,
                         collider);
 
-        Entity e2 = prepareEntityWithPosition(new Point(-.1f, -.1f));
+        Entity e2 = prepareEntityWithPosition(new Position(-.1f, -.1f));
         CollideComponent hb2 =
                 new CollideComponent(
                         e2,
-                        new Point(new Point(0, 0)),
-                        new Point(new Point(1.2f, 1.2f)),
+                        new Position(new Position(0, 0)),
+                        new Position(new Position(1.2f, 1.2f)),
                         collider,
                         collider);
 
@@ -395,7 +411,7 @@ public class CollisionSystemTest {
     public void checkUpdateNoEntitiesWithHitboxComponent() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        prepareEntityWithPosition(new Point(0, 0));
+        prepareEntityWithPosition(new Position(0, 0));
         cs.execute();
         cleanUpEnvironment();
     }
@@ -407,13 +423,13 @@ public class CollisionSystemTest {
     public void checkUpdateOneEntityWithHitboxComponent() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
         new CollideComponent(
                 e1,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc1OnEnter.inc(),
                 (a, b, c) -> sc1OnLeave.inc());
         cs.execute();
@@ -427,22 +443,22 @@ public class CollisionSystemTest {
     public void checkUpdateTwoEntitiesWithHitboxComponentNonColliding() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
         new CollideComponent(
                 e1,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc1OnEnter.inc(),
                 (a, b, c) -> sc1OnLeave.inc());
-        Entity e2 = prepareEntityWithPosition(new Point(1, 1));
+        Entity e2 = prepareEntityWithPosition(new Position(1, 1));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
         new CollideComponent(
                 e2,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc2OnEnter.inc(),
                 (a, b, c) -> sc2OnLeave.inc());
         cs.execute();
@@ -466,31 +482,31 @@ public class CollisionSystemTest {
     public void checkUpdateTwoEntitiesWithHitboxComponentColliding() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
         new CollideComponent(
                 e1,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc1OnEnter.inc(),
                 (a, b, c) -> sc1OnLeave.inc());
-        Entity e2 = prepareEntityWithPosition(new Point(0, 0));
+        Entity e2 = prepareEntityWithPosition(new Position(0, 0));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
         new CollideComponent(
                 e2,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc2OnEnter.inc(),
                 (a, b, c) -> sc2OnLeave.inc());
-        Entity e3 = prepareEntityWithPosition(new Point(1, 2));
+        Entity e3 = prepareEntityWithPosition(new Position(1, 2));
         SimpleCounter sc3OnEnter = new SimpleCounter();
         SimpleCounter sc3OnLeave = new SimpleCounter();
         new CollideComponent(
                 e3,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
@@ -523,31 +539,31 @@ public class CollisionSystemTest {
     public void checkUpdateTwoEntitiesWithHitboxComponentCollidingOnlyOnce() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
         new CollideComponent(
                 e1,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc1OnEnter.inc(),
                 (a, b, c) -> sc1OnLeave.inc());
-        Entity e2 = prepareEntityWithPosition(new Point(0, 0));
+        Entity e2 = prepareEntityWithPosition(new Position(0, 0));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
         new CollideComponent(
                 e2,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc2OnEnter.inc(),
                 (a, b, c) -> sc2OnLeave.inc());
-        Entity e3 = prepareEntityWithPosition(new Point(1, 2));
+        Entity e3 = prepareEntityWithPosition(new Position(1, 2));
         SimpleCounter sc3OnEnter = new SimpleCounter();
         SimpleCounter sc3OnLeave = new SimpleCounter();
         new CollideComponent(
                 e3,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
@@ -575,31 +591,31 @@ public class CollisionSystemTest {
     public void checkUpdateTwoEntitiesWithHitboxComponentNoLongerColliding() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
         new CollideComponent(
                 e1,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc1OnEnter.inc(),
                 (a, b, c) -> sc1OnLeave.inc());
-        Entity e2 = prepareEntityWithPosition(new Point(0, 0));
+        Entity e2 = prepareEntityWithPosition(new Position(0, 0));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
         new CollideComponent(
                 e2,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc2OnEnter.inc(),
                 (a, b, c) -> sc2OnLeave.inc());
-        Entity e3 = prepareEntityWithPosition(new Point(1, 2));
+        Entity e3 = prepareEntityWithPosition(new Position(1, 2));
         SimpleCounter sc3OnEnter = new SimpleCounter();
         SimpleCounter sc3OnLeave = new SimpleCounter();
         new CollideComponent(
                 e3,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
         cs.showEntity(e1);
@@ -632,31 +648,31 @@ public class CollisionSystemTest {
     public void checkUpdateTwoEntitiesWithHitboxComponentNoLongerCollidingOnlyOnce() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
         new CollideComponent(
                 e1,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc1OnEnter.inc(),
                 (a, b, c) -> sc1OnLeave.inc());
-        Entity e2 = prepareEntityWithPosition(new Point(0, 0));
+        Entity e2 = prepareEntityWithPosition(new Position(0, 0));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
         new CollideComponent(
                 e2,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc2OnEnter.inc(),
                 (a, b, c) -> sc2OnLeave.inc());
-        Entity e3 = prepareEntityWithPosition(new Point(1, 2));
+        Entity e3 = prepareEntityWithPosition(new Position(1, 2));
         SimpleCounter sc3OnEnter = new SimpleCounter();
         SimpleCounter sc3OnLeave = new SimpleCounter();
         new CollideComponent(
                 e3,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
@@ -692,31 +708,31 @@ public class CollisionSystemTest {
     public void checkUpdateCollisionNotBlockingOtherCollisions() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
         new CollideComponent(
                 e1,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc1OnEnter.inc(),
                 (a, b, c) -> sc1OnLeave.inc());
-        Entity e2 = prepareEntityWithPosition(new Point(.7f, 0));
+        Entity e2 = prepareEntityWithPosition(new Position(.7f, 0));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
         new CollideComponent(
                 e2,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc2OnEnter.inc(),
                 (a, b, c) -> sc2OnLeave.inc());
-        Entity e3 = prepareEntityWithPosition(new Point(-.7f, 0));
+        Entity e3 = prepareEntityWithPosition(new Position(-.7f, 0));
         SimpleCounter sc3OnEnter = new SimpleCounter();
         SimpleCounter sc3OnLeave = new SimpleCounter();
         new CollideComponent(
                 e3,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
@@ -748,31 +764,31 @@ public class CollisionSystemTest {
     public void checkUpdateCollisionNotCallingEveryOnLeaveCollider() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
         new CollideComponent(
                 e1,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc1OnEnter.inc(),
                 (a, b, c) -> sc1OnLeave.inc());
-        Entity e2 = prepareEntityWithPosition(new Point(.7f, 0));
+        Entity e2 = prepareEntityWithPosition(new Position(.7f, 0));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
         new CollideComponent(
                 e2,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc2OnEnter.inc(),
                 (a, b, c) -> sc2OnLeave.inc());
-        Entity e3 = prepareEntityWithPosition(new Point(-.7f, 0));
+        Entity e3 = prepareEntityWithPosition(new Position(-.7f, 0));
         SimpleCounter sc3OnEnter = new SimpleCounter();
         SimpleCounter sc3OnLeave = new SimpleCounter();
         new CollideComponent(
                 e3,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
@@ -804,31 +820,31 @@ public class CollisionSystemTest {
     public void checkUpdateCollisionCallingEveryOnLeaveCollider() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+        Entity e1 = prepareEntityWithPosition(new Position(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
         new CollideComponent(
                 e1,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc1OnEnter.inc(),
                 (a, b, c) -> sc1OnLeave.inc());
-        Entity e2 = prepareEntityWithPosition(new Point(.7f, 0));
+        Entity e2 = prepareEntityWithPosition(new Position(.7f, 0));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
         new CollideComponent(
                 e2,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc2OnEnter.inc(),
                 (a, b, c) -> sc2OnLeave.inc());
-        Entity e3 = prepareEntityWithPosition(new Point(-.7f, 0));
+        Entity e3 = prepareEntityWithPosition(new Position(-.7f, 0));
         SimpleCounter sc3OnEnter = new SimpleCounter();
         SimpleCounter sc3OnLeave = new SimpleCounter();
         new CollideComponent(
                 e3,
-                new Point(0, 0),
-                new Point(1, 1),
+                new Position(0, 0),
+                new Position(1, 1),
                 (a, b, c) -> sc3OnEnter.inc(),
                 (a, b, c) -> sc3OnLeave.inc());
 
