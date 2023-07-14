@@ -26,7 +26,7 @@ jobs:
   check:
     name: Check files
     outputs:
-        r: ${{steps.check_files.outputs.r}}
+        r: ${{ steps.check_files.outputs.r }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -48,7 +48,7 @@ jobs:
   junit_test_changed:
     name: JUnit (matrix build)
     needs: [build, check]
-    if: ${{needs.check.outputs.r == 'true'}}
+    if: ${{ needs.check.outputs.r == 'true' }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -68,7 +68,7 @@ jobs:
   junit:
     name: JUnit
     needs: [build, check]
-    if: ${{needs.check.outputs.r == 'false'}}
+    if: ${{ needs.check.outputs.r == 'false' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
