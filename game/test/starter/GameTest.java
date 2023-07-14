@@ -29,7 +29,7 @@ class GameTest {
     @Before
     public void setup() throws Exception {
         /*
-        game = Mockito.spy(Game.class);
+        game = Mockito.spy(Game.class);CHANGE
         batch = Mockito.mock(SpriteBatch.class);
         Whitebox.setInternalState(Gdx.class, "gl", Mockito.mock(GL20.class));
         PowerMockito.whenNew(Painter.class)
