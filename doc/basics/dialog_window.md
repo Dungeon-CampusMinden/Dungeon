@@ -2,7 +2,7 @@
 title: "Informations-Dialog für GUI"
 ---
 
-Zur Darstellung der Inhalte für das Spiel wird mithilfe der Widgets aus der `libgdx` und des `scene2d.ui`-Pakets ein Dialog erstellt. Der Dialog wurde dafür erstellt um Inhalte auf dem Spielbildschirm anzeigen zu können, sowie das Spiel und alle seine Systeme, ausgenommen von `DrawSystem` pausieren zu können. Mit dem Klick auf den Button „Ok“ kann das Spiel fortgesetzt werden indem alle Systeme wieder aktiviert werden. CHANGE IN DEPHT 2
+Zur Darstellung der Inhalte für das Spiel wird mithilfe der Widgets aus der `libgdx` und des `scene2d.ui`-Pakets ein Dialog erstellt. Der Dialog wurde dafür erstellt um Inhalte auf dem Spielbildschirm anzeigen zu können, sowie das Spiel und alle seine Systeme, ausgenommen von `DrawSystem` pausieren zu können. Mit dem Klick auf den Button „Ok“ kann das Spiel fortgesetzt werden indem alle Systeme wieder aktiviert werden. CHANGE IN DEPHT 2 DEPTH 3
 
 ![DialogWindow](img/text_dialog.png)
 
