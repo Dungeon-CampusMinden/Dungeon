@@ -6,9 +6,9 @@ import contrib.utils.components.item.ItemData;
 
 import core.Entity;
 import core.components.*;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
+import core.utils.position.Position;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -80,10 +80,11 @@ public class DropItemsInteraction implements Consumer<Entity> {
      *
      * @param positionComponent The PositionComponent of the Chest
      * @param radian of the current Item
-     * @return a Point in a unit Vector around the Chest
+     * @return a Position in a unit Vector around the Chest
      */
-    private static Point calculateDropPosition(PositionComponent positionComponent, double radian) {
-        return new Point(
+    private static Position calculateDropPosition(
+            PositionComponent positionComponent, double radian) {
+        return new Position(
                 (float) Math.cos(radian * Math.PI) + positionComponent.position().x,
                 (float) Math.sin(radian * Math.PI) + positionComponent.position().y);
     }

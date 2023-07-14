@@ -5,7 +5,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
-import core.utils.Point;
+import core.utils.position.Position;
 
 import java.util.Random;
 
@@ -35,13 +35,13 @@ public interface ITileable extends IPathable {
     /**
      * Get the tile at the given position.
      *
-     * <p>Will use {@link Point#toCoordinate} to convert the point into a coordinate.
+     * <p>Will use {@link Position#toCoordinate} to convert the position into a coordinate.
      *
-     * @param point Position form where to get the tile.
-     * @return The tile on that point. null if there is no Tile or the Coordinate is out of bound
+     * @param position Position form where to get the tile.
+     * @return The tile on that position. null if there is no Tile or the Coordinate is out of bound
      */
-    default Tile tileAt(Point point) {
-        return tileAt(point.toCoordinate());
+    default Tile tileAt(Position position) {
+        return tileAt(position.toCoordinate());
     }
 
     /**
@@ -85,21 +85,21 @@ public interface ITileable extends IPathable {
     Tile randomTile(LevelElement elementType);
 
     /**
-     * Get the position of a random Tile as Point
+     * Get the position of a random Tile as Position
      *
-     * @return Position of the Tile as Point
+     * @return Position of the Tile as Position
      */
-    default Point randomTilePoint() {
+    default Position randomTilePoint() {
         return randomTile().position();
     }
 
     /**
-     * Get the position of a random Tile as Point
+     * Get the position of a random Tile as Position
      *
      * @param elementTyp Type of the Tile
-     * @return Position of the Tile as Point
+     * @return Position of the Tile as Position
      */
-    default Point randomTilePoint(LevelElement elementTyp) {
+    default Position randomTilePoint(LevelElement elementTyp) {
         return randomTile(elementTyp).position();
     }
 }

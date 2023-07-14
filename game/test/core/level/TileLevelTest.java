@@ -12,7 +12,7 @@ import core.level.elements.tile.WallTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.utils.Point;
+import core.utils.position.Position;
 
 import org.junit.Test;
 
@@ -319,7 +319,7 @@ public class TileLevelTest {
                 assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(start, end));
         String actualErrorMsg = e.getMessage();
         String expectedErrorMsg =
-                "Can not calculate Path because the start point is non-accessible.";
+                "Can not calculate Path because the start position is non-accessible.";
 
         assertTrue(actualErrorMsg.contains(expectedErrorMsg));
     }
@@ -340,7 +340,8 @@ public class TileLevelTest {
         Exception e =
                 assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(start, end));
         String actualErrorMsg = e.getMessage();
-        String expectedErrorMsg = "Can not calculate Path because the end point is non-accessible.";
+        String expectedErrorMsg =
+                "Can not calculate Path because the end position is non-accessible.";
 
         assertTrue(actualErrorMsg.contains(expectedErrorMsg));
     }
@@ -363,7 +364,7 @@ public class TileLevelTest {
                 assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(start, end));
         String actualErrorMsg = e.getMessage();
         String expectedErrorMsg =
-                "Can not calculate Path because the start point is non-accessible.";
+                "Can not calculate Path because the start position is non-accessible.";
 
         assertTrue(actualErrorMsg.contains(expectedErrorMsg));
     }
@@ -406,9 +407,9 @@ public class TileLevelTest {
 
         TileLevel tileLevel = new TileLevel(layout, DesignLabel.DEFAULT);
 
-        Point randomWallPoint = tileLevel.randomTilePoint(LevelElement.WALL);
-        assertNotNull(randomWallPoint);
-        Tile randomWall = tileLevel.tileAt(randomWallPoint.toCoordinate());
+        Position randomWallPosition = tileLevel.randomTilePoint(LevelElement.WALL);
+        assertNotNull(randomWallPosition);
+        Tile randomWall = tileLevel.tileAt(randomWallPosition.toCoordinate());
         assertNotNull(randomWall);
         assertEquals(LevelElement.WALL, randomWall.levelElement());
     }
@@ -420,9 +421,9 @@ public class TileLevelTest {
             Arrays.fill(levelLayout[y], LevelElement.FLOOR);
         }
         var level = new TileLevel(levelLayout, DesignLabel.randomDesign());
-        Point randomPoint = level.randomTilePoint();
-        assertNotNull(randomPoint);
-        assertNotNull(level.tileAt(randomPoint.toCoordinate()));
+        Position randomPosition = level.randomTilePoint();
+        assertNotNull(randomPosition);
+        assertNotNull(level.tileAt(randomPosition.toCoordinate()));
     }
 
     @Test
@@ -441,10 +442,10 @@ public class TileLevelTest {
 
         TileLevel tileLevel = new TileLevel(layout, DesignLabel.DEFAULT);
 
-        Point randomWallPoint = tileLevel.randomTilePoint(LevelElement.WALL);
-        Point randomFloorPoint = tileLevel.randomTilePoint(LevelElement.FLOOR);
-        Tile randomWall = tileLevel.tileAt(randomWallPoint.toCoordinate());
-        Tile randomFloor = tileLevel.tileAt(randomFloorPoint.toCoordinate());
+        Position randomWallPosition = tileLevel.randomTilePoint(LevelElement.WALL);
+        Position randomFloorPosition = tileLevel.randomTilePoint(LevelElement.FLOOR);
+        Tile randomWall = tileLevel.tileAt(randomWallPosition.toCoordinate());
+        Tile randomFloor = tileLevel.tileAt(randomFloorPosition.toCoordinate());
         assertEquals(LevelElement.WALL, randomWall.levelElement());
         assertEquals(LevelElement.FLOOR, randomFloor.levelElement());
     }

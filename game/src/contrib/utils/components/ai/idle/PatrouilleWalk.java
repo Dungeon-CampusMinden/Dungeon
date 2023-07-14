@@ -11,6 +11,7 @@ import core.level.Tile;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Position;
 
 import java.util.ArrayList;
 import java.util.List;

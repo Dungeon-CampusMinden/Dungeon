@@ -61,13 +61,13 @@ public class ItemDataTest {
         public void onDropCheckEntity() {
 
             ItemData itemData = new ItemData();
-            Point point = new Point(0, 0);
-            itemData.triggerDrop(null, point);
+            Position position = new Position(0, 0);
+            itemData.triggerDrop(null, position);
             Entity e = Game.getEntitiesStream().iterator().next();
             PositionComponent pc =
                     (PositionComponent) e.getComponent(PositionComponent.class).orElseThrow();
-            assertEquals(point.x, pc.getPosition().x, 0.001);
-            assertEquals(point.y, pc.getPosition().y, 0.001);
+            assertEquals(position.x, pc.getPosition().x, 0.001);
+            assertEquals(position.y, pc.getPosition().y, 0.001);
             DrawComponent ac = (DrawComponent) e.getComponent(DrawComponent.class).orElseThrow();
             // assertEquals(ItemData.DEFAULT_WORLD_ANIMATION, ac.getCurrentAnimation());
 

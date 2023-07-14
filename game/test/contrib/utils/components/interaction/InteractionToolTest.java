@@ -13,8 +13,8 @@ import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Position;
 
 import org.junit.Test;
 
@@ -41,7 +41,7 @@ public class InteractionToolTest {
      */
     private static Entity testHero(boolean havingPositionComponent) {
         Entity hero = new Entity();
-        if (havingPositionComponent) new PositionComponent(hero, new Point(0, 0));
+        if (havingPositionComponent) new PositionComponent(hero, new Position(0, 0));
         return hero;
     }
 
@@ -103,7 +103,7 @@ public class InteractionToolTest {
         Game.currentLevel(prepareLevel());
 
         Entity e = new Entity();
-        new PositionComponent(e, new Point(10, 10));
+        new PositionComponent(e, new Position(10, 10));
 
         SimpleCounter sc_e = new SimpleCounter();
         new InteractionComponent(e, 5f, false, (x) -> sc_e.inc());
@@ -128,7 +128,7 @@ public class InteractionToolTest {
         Game.currentLevel = prepareLevel();
 
         Entity e = new Entity();
-        new PositionComponent(e, new Point(3, 0));
+        new PositionComponent(e, new Position(3, 0));
 
         SimpleCounter sc_e = new SimpleCounter();
         new InteractionComponent(e, 5f, false, (x) -> sc_e.inc());
@@ -191,14 +191,14 @@ public class InteractionToolTest {
         Game.currentLevel = prepareLevel();
         // distance 2
         Entity eClose = new Entity();
-        new PositionComponent(eClose, new Point(2, 0));
+        new PositionComponent(eClose, new Position(2, 0));
 
         SimpleCounter sc_eClose = new SimpleCounter();
         new InteractionComponent(eClose, 5f, false, (x) -> sc_eClose.inc());
 
         // distance 3
         Entity eFar = new Entity();
-        new PositionComponent(eFar, new Point(3, 0));
+        new PositionComponent(eFar, new Position(3, 0));
 
         SimpleCounter sc_eFar = new SimpleCounter();
         new InteractionComponent(eFar, 5f, false, (x) -> sc_eFar.inc());
@@ -225,14 +225,14 @@ public class InteractionToolTest {
 
         // distance 3
         Entity eFar = new Entity();
-        PositionComponent pc2 = new PositionComponent(eFar, new Point(3, 0));
+        PositionComponent pc2 = new PositionComponent(eFar, new Position(3, 0));
 
         SimpleCounter sc_eFar = new SimpleCounter();
         new InteractionComponent(eFar, 5f, false, (x) -> sc_eFar.inc());
 
         // distance 2
         Entity eClose = new Entity();
-        PositionComponent pc = new PositionComponent(eClose, new Point(2, 0));
+        PositionComponent pc = new PositionComponent(eClose, new Position(2, 0));
 
         SimpleCounter sc_eClose = new SimpleCounter();
         new InteractionComponent(eClose, 5f, false, (x) -> sc_eClose.inc());

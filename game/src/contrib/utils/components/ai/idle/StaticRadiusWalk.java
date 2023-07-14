@@ -12,6 +12,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Position;
 
 import java.util.function.Consumer;
 

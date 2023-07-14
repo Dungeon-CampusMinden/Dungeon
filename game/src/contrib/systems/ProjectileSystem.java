@@ -7,8 +7,8 @@ import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Position;
 
 /**
  * The ProjectileSystem class represents a system responsible for managing {@link
@@ -84,13 +84,13 @@ public class ProjectileSystem extends System {
      * @return true if the endpoint was reached or passed, else false
      */
     private boolean hasReachedEndpoint(PSData psd) {
-        Point start = psd.prc.startPosition();
-        Point end = psd.prc.goalLocation();
-        Point current = psd.pc.position();
+        Position start = psd.prc.startPosition();
+        Position end = psd.prc.goalLocation();
+        Position current = psd.pc.position();
 
-        double distanceToStart = Point.calculateDistance(start, current);
+        double distanceToStart = Position.calculateDistance(start, current);
 
-        double totalDistance = Point.calculateDistance(start, end);
+        double totalDistance = Position.calculateDistance(start, end);
 
         return distanceToStart > totalDistance;
     }

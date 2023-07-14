@@ -559,7 +559,7 @@ public class TestDSLInterpreter {
         var globalMs = interpreter.getGlobalMemorySpace();
 
         // check, if the component was instantiated and the
-        // Point member is set to null, because the Point type is not supported
+        // Position member is set to null, because the Position type is not supported
         // by the Typesystem
         var config = (AggregateValue) (globalMs.resolve("config"));
         var myObj = config.getMemorySpace().resolve("entity");
@@ -571,7 +571,7 @@ public class TestDSLInterpreter {
         var internalComponent = encapsulatedObject.getInternalValue();
 
         assertTrue(internalComponent instanceof ComponentWithExternalTypeMember);
-        assertNull(((ComponentWithExternalTypeMember) internalComponent).point);
+        assertNull(((ComponentWithExternalTypeMember) internalComponent).position);
     }
 
     // TODO: should test resolving of member_external_type in the instantiated object

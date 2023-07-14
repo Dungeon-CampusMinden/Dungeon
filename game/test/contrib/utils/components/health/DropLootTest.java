@@ -7,8 +7,8 @@ import contrib.components.InventoryComponent;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Position;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class DropLootTest {
     public void entityInventoryComponentEmpty() {
         DropLoot dropLoot = new DropLoot();
         Entity entity = new Entity();
-        new PositionComponent(entity, new Point(1, 2));
+        new PositionComponent(entity, new Position(1, 2));
         new InventoryComponent(entity, 10);
         dropLoot.accept(entity);
         Game.removeEntity(entity);
@@ -61,7 +61,7 @@ public class DropLootTest {
     public void entityInventoryComponentOneItem() {
         DropLoot dropLoot = new DropLoot();
         Entity entity = new Entity();
-        Point entityPosition = new Point(1, 2);
+        Position entityPosition = new Position(1, 2);
         new PositionComponent(entity, entityPosition);
         InventoryComponent inventoryComponent = new InventoryComponent(entity, 10);
         inventoryComponent.addItem(new ItemData());
@@ -92,7 +92,7 @@ public class DropLootTest {
         public void entityInventoryComponentMultipleItems() {
             DropLoot dropLoot = new DropLoot();
             Entity entity = new Entity();
-            Point entityPosition = new Point(1, 2);
+            Position entityPosition = new Position(1, 2);
             new PositionComponent(entity, entityPosition);
             InventoryComponent inventoryComponent = new InventoryComponent(entity, 10);
             inventoryComponent.addItem(new ItemData());
@@ -122,8 +122,8 @@ public class DropLootTest {
      * @param entityPosition the Position of the Entity itself
      * @return a function which returns true when the Points are equal, otherwise false
      */
-    private static boolean isPointEqual(Point entityPosition, PositionComponent component) {
-        Point a = component.position();
+    private static boolean isPointEqual(Position entityPosition, PositionComponent component) {
+        Position a = component.position();
         return a.x == entityPosition.x && a.y == entityPosition.y;
     }
 }

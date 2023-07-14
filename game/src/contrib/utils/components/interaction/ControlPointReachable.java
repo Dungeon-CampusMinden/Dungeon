@@ -2,7 +2,7 @@ package contrib.utils.components.interaction;
 
 import core.Game;
 import core.level.utils.Coordinate;
-import core.utils.Point;
+import core.utils.position.Position;
 
 import java.util.function.Function;
 
@@ -15,7 +15,7 @@ public class ControlPointReachable implements Function<InteractionData, Boolean>
         if ((interactionData.ic().radius() - interactionData.dist()) > 0) {
             reachable = true;
             // check path
-            Point dirvec = interactionData.unitDir();
+            Position dirvec = interactionData.unitDir();
             for (int i = 1; i < interactionData.dist(); i++) {
                 if (!Game.tileAT(
                                 new Coordinate(

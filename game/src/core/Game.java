@@ -30,8 +30,8 @@ import core.systems.*;
 import core.utils.Constants;
 import core.utils.DelayedSet;
 import core.utils.IVoidFunction;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Position;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -488,12 +488,12 @@ public final class Game extends ScreenAdapter {
     /**
      * Get the tile at the given point in the level
      *
-     * <p>{@link Point#toCoordinate} will be used, to convert the point into a coordinate.
+     * <p>{@link Position#toCoordinate} will be used, to convert the point into a coordinate.
      *
-     * @param p Point from where to get the tile
+     * @param p Position from where to get the tile
      * @return the tile at the given point.
      */
-    public static Tile tileAT(Point p) {
+    public static Tile tileAT(Position p) {
         return currentLevel().tileAt(p);
     }
 
@@ -553,21 +553,21 @@ public final class Game extends ScreenAdapter {
     }
 
     /**
-     * Get the position of a random Tile as Point
+     * Get the position of a random Tile as Position
      *
-     * @return Position of the Tile as Point
+     * @return Position of the Tile as Position
      */
-    public static Point randomTilePoint() {
+    public static Position randomTilePoint() {
         return currentLevel().randomTilePoint();
     }
 
     /**
-     * Get the position of a random Tile as Point
+     * Get the position of a random Tile as Position
      *
      * @param elementTyp Type of the Tile
-     * @return Position of the Tile as Point
+     * @return Position of the Tile as Position
      */
-    public static Point randomTilePoint(LevelElement elementTyp) {
+    public static Position randomTilePoint(LevelElement elementTyp) {
         return currentLevel().randomTilePoint(elementTyp);
     }
 
@@ -590,7 +590,7 @@ public final class Game extends ScreenAdapter {
      * @param entity Entity to get the current position from (needs a {@link PositionComponent}
      * @return Position of the given entity.
      */
-    public static Point positionOf(Entity entity) {
+    public static Position positionOf(Entity entity) {
         return currentLevel().positionOf(entity);
     }
 

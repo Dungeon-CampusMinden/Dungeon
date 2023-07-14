@@ -1,6 +1,6 @@
 package core.level.utils;
 
-import core.utils.Point;
+import core.utils.position.Position;
 
 /** Coordinate in the dungeon, based on array index. */
 public class Coordinate {
@@ -17,6 +17,16 @@ public class Coordinate {
     public Coordinate(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    /**
+     * Create a new Coordinate from a given Position
+     *
+     * @param source Position to convert to Coordinate
+     */
+    public Coordinate(Position source) {
+        this.x = (int) source.x;
+        this.y = (int) source.y;
     }
 
     /**
@@ -45,11 +55,11 @@ public class Coordinate {
     }
 
     /**
-     * Convert Coordinate to Point
+     * Convert Coordinate to Position
      *
      * @return
      */
-    public Point toPoint() {
-        return new Point(x, y);
+    public Position toPoint() {
+        return new Position(x, y);
     }
 }

@@ -14,9 +14,9 @@ import core.Entity;
 import core.Game;
 import core.components.*;
 import core.level.utils.LevelElement;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
+import core.utils.position.Position;
 
 import java.io.IOException;
 import java.util.Random;
@@ -160,7 +160,7 @@ public class EntityFactory {
      * @param position The position of the chest.
      * @return Created Entity
      */
-    public static Entity newChest(Set<ItemData> itemData, Point position) throws IOException {
+    public static Entity newChest(Set<ItemData> itemData, Position position) throws IOException {
         final float defaultInteractionRadius = 1f;
         Entity chest = new Entity("chest");
         new PositionComponent(chest, position);

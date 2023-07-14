@@ -5,8 +5,8 @@ import contrib.components.InteractionComponent;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Position;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -54,7 +54,7 @@ public class InteractionTool {
                 entity,
                 pc,
                 ic,
-                Point.calculateDistance(heroPosition.position(), pc.position()),
-                Point.unitDirectionalVector(heroPosition.position(), pc.position()));
+                Position.calculateDistance(heroPosition.position(), pc.position()),
+                Position.unitDirectionalVector(heroPosition.position(), pc.position()));
     }
 }

@@ -2,7 +2,7 @@ package contrib.utils.components.skill;
 
 import contrib.utils.components.health.DamageType;
 
-import core.utils.Point;
+import core.utils.position.Position;
 
 import java.util.function.Supplier;
 
@@ -18,7 +18,7 @@ public class FireballSkill extends DamageProjectile {
     private static final float PROJECTILE_SPEED = 0.5f;
     private static final int DAMAGE_AMOUNT = 1;
     private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
-    private static final Point HITBOX_SIZE = new Point(1, 1);
+    private static final Position HITBOX_SIZE = new Position(1, 1);
     private static final float PROJECTILE_RANGE = 5f;
 
     /**
@@ -28,7 +28,7 @@ public class FireballSkill extends DamageProjectile {
      *     to.
      * @see DamageProjectile
      */
-    public FireballSkill(Supplier<Point> targetSelection) {
+    public FireballSkill(Supplier<Position> targetSelection) {
         super(
                 PROJECTILE_TEXTURES,
                 PROJECTILE_SPEED,

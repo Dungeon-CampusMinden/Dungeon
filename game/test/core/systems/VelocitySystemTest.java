@@ -11,8 +11,8 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
-import core.utils.Point;
 import core.utils.components.draw.CoreAnimations;
+import core.utils.position.Position;
 
 import org.junit.After;
 import org.junit.Before;
@@ -40,12 +40,12 @@ public class VelocitySystemTest {
     public void setup() throws IOException {
         new LevelSystem(null, null, () -> {});
         Game.currentLevel(level);
-        Mockito.when(level.tileAt((Point) Mockito.any())).thenReturn(tile);
+        Mockito.when(level.tileAt((Position) Mockito.any())).thenReturn(tile);
         entity = new Entity();
         velocitySystem = new VelocitySystem();
         velocityComponent = new VelocityComponent(entity, xVelocity, yVelocity);
         positionComponent =
-                new PositionComponent(entity, new Point(startXPosition, startYPosition));
+                new PositionComponent(entity, new Position(startXPosition, startYPosition));
         animationComponent = new DrawComponent(entity, "character/blue_knight");
         velocitySystem.showEntity(entity);
     }
@@ -62,7 +62,7 @@ public class VelocitySystemTest {
         velocityComponent.currentXVelocity(xVelocity);
         velocityComponent.currentYVelocity(yVelocity);
         velocitySystem.execute();
-        Point position = positionComponent.position();
+        Position position = positionComponent.position();
         assertEquals(startXPosition + xVelocity, position.x, 0.001);
         assertEquals(startYPosition + yVelocity, position.y, 0.001);
         assertEquals(0, velocityComponent.currentXVelocity(), 0.001);
@@ -75,7 +75,7 @@ public class VelocitySystemTest {
         velocityComponent.currentXVelocity(-4);
         velocityComponent.currentYVelocity(-8);
         velocitySystem.execute();
-        Point position = positionComponent.position();
+        Position position = positionComponent.position();
         assertEquals(startXPosition - 4, position.x, 0.001);
         assertEquals(startYPosition - 8, position.y, 0.001);
         assertEquals(0, velocityComponent.currentXVelocity(), 0.001);
@@ -88,7 +88,7 @@ public class VelocitySystemTest {
         velocityComponent.currentXVelocity(xVelocity);
         velocityComponent.currentYVelocity(yVelocity);
         velocitySystem.execute();
-        Point position = positionComponent.position();
+        Position position = positionComponent.position();
         assertEquals(startXPosition, position.x, 0.001);
         assertEquals(startYPosition, position.y, 0.001);
         assertEquals(0, velocityComponent.currentXVelocity(), 0.001);
@@ -101,7 +101,7 @@ public class VelocitySystemTest {
         velocityComponent.currentXVelocity(-4);
         velocityComponent.currentYVelocity(-8);
         velocitySystem.execute();
-        Point position = positionComponent.position();
+        Position position = positionComponent.position();
         assertEquals(startXPosition, position.x, 0.001);
         assertEquals(startYPosition, position.y, 0.001);
         assertEquals(0, velocityComponent.currentXVelocity(), 0.001);

@@ -4,10 +4,10 @@ import core.Component;
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
+import core.utils.position.Position;
 
 import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
@@ -43,13 +43,13 @@ import java.util.logging.Logger;
  */
 @DSLType(name = "hitbox_component")
 public final class CollideComponent extends Component {
-    public static final Point DEFAULT_OFFSET = new Point(0.25f, 0.25f);
-    public static final Point DEFAULT_SIZE = new Point(0.5f, 0.5f);
+    public static final Position DEFAULT_OFFSET = new Position(0.25f, 0.25f);
+    public static final Position DEFAULT_SIZE = new Position(0.5f, 0.5f);
     public static final TriConsumer<Entity, Entity, Tile.Direction> DEFAULT_COLLIDER =
             (a, b, c) -> {};
 
-    private final Point offset;
-    private final Point size;
+    private final Position offset;
+    private final Position size;
     private TriConsumer<Entity, Entity, Tile.Direction> collideEnter;
     private TriConsumer<Entity, Entity, Tile.Direction> collideLeave;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
@@ -68,8 +68,8 @@ public final class CollideComponent extends Component {
      */
     public CollideComponent(
             final Entity entity,
-            final Point offset,
-            final Point size,
+            final Position offset,
+            final Position size,
             final TriConsumer<Entity, Entity, Tile.Direction> collideEnter,
             final TriConsumer<Entity, Entity, Tile.Direction> collideLeave) {
         super(entity);
@@ -141,14 +141,14 @@ public final class CollideComponent extends Component {
      *
      * @return Bottom-left point of the entity's hitbox
      */
-    public Point bottomLeft() {
+    public Position bottomLeft() {
         PositionComponent pc =
                 entity().fetch(PositionComponent.class)
                         .orElseThrow(
                                 () ->
                                         MissingComponentException.build(
                                                 entity(), PositionComponent.class));
-        return new Point(pc.position().x + offset.x, pc.position().y + offset.y);
+        return new Position(pc.position().x + offset.x, pc.position().y + offset.y);
     }
 
     /**
@@ -156,14 +156,15 @@ public final class CollideComponent extends Component {
      *
      * @return Top-right point of the entity's hitbox
      */
-    public Point topRight() {
+    public Position topRight() {
         PositionComponent pc =
                 entity().fetch(PositionComponent.class)
                         .orElseThrow(
                                 () ->
                                         MissingComponentException.build(
                                                 entity(), PositionComponent.class));
-        return new Point(pc.position().x + offset.x + size.x, pc.position().y + offset.y + size.y);
+        return new Position(
+                pc.position().x + offset.x + size.x, pc.position().y + offset.y + size.y);
     }
 
     /**
@@ -171,14 +172,14 @@ public final class CollideComponent extends Component {
      *
      * @return Center point of the entity's hitbox
      */
-    public Point center() {
+    public Position center() {
         PositionComponent pc =
                 entity().fetch(PositionComponent.class)
                         .orElseThrow(
                                 () ->
                                         MissingComponentException.build(
                                                 entity(), PositionComponent.class));
-        return new Point(
+        return new Position(
                 pc.position().x + offset.x + size.x / 2, pc.position().y + offset.y + size.y / 2);
     }
 

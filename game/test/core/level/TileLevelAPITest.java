@@ -20,10 +20,10 @@ import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
-import core.utils.Point;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 import core.utils.components.draw.TextureMap;
+import core.utils.position.Position;
 
 import org.junit.After;
 import org.junit.Before;
@@ -160,7 +160,7 @@ public class TileLevelAPITest {
         verify(layout[0][0]).position();
         // for some reason mockito.verify can't compare the points of the tile correctly
         verify(painter, times(3))
-                .draw(any(Point.class), any(String.class), any(PainterConfig.class));
+                .draw(any(Position.class), any(String.class), any(PainterConfig.class));
         verifyNoMoreInteractions(layout[0][0]);
 
         verify(layout[0][1]).levelElement();
@@ -168,14 +168,14 @@ public class TileLevelAPITest {
         verify(layout[0][1]).position();
         // for some reason mockito.verify can't compare the points of the tile correctly
         verify(painter, times(3))
-                .draw(any(Point.class), any(String.class), any(PainterConfig.class));
+                .draw(any(Position.class), any(String.class), any(PainterConfig.class));
         verifyNoMoreInteractions(layout[0][1]);
         verify(layout[1][0]).levelElement();
         verify(layout[1][0]).texturePath();
         verify(layout[1][0]).position();
         // for some reason mockito.verify can't compare the points of the tile correctly
         verify(painter, times(3))
-                .draw(any(Point.class), any(String.class), any(PainterConfig.class));
+                .draw(any(Position.class), any(String.class), any(PainterConfig.class));
         verifyNoMoreInteractions(layout[1][0]);
 
         // do not draw skip tiles
@@ -203,7 +203,7 @@ public class TileLevelAPITest {
         api.showEntity(hero);
 
         Tile end = Mockito.mock(Tile.class);
-        Point p = new Point(3, 3);
+        Position p = new Position(3, 3);
         when(end.position()).thenReturn(p);
         when(level.tileAt(p)).thenReturn(end);
         Mockito.when(level.endTile()).thenReturn(end);
