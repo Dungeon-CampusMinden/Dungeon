@@ -7,9 +7,9 @@ import task.TaskContent;
  * Represents a single quiz question, including the question itself, possible answer choices, and
  * the type of question.
  *
- * <p>A {@link Quiz} can be a Single-Choice, a Multiple-Choice, or a Free-text question. The
- * type is stored as a {@link QuizType}. If the question is asked via the UI, the {@link QuizUI}
- * will configure the UI for the question based on that type. The type can be accessed via {@link
+ * <p>A {@link Quiz} can be a Single-Choice, a Multiple-Choice, or a Free-text question. The type is
+ * stored as a {@link QuizType}. If the question is asked via the UI, the {@link QuizUI} will
+ * configure the UI for the question based on that type. The type can be accessed via {@link
  * #type()}.
  *
  * <p>Add a {@link QuizContent} answer by using the {@link #addAnswer(QuizContentType, String)}
@@ -36,8 +36,7 @@ public class Quiz extends Task {
      *     image, or both text and a path to an image?
      * @param questionText The question itself (can contain a path to images).
      */
-    public Quiz(
-            final QuizType type, QuizContentType questionContentType, String questionText) {
+    public Quiz(final QuizType type, QuizContentType questionContentType, String questionText) {
         super();
         this.type = type;
         taskText(questionText);

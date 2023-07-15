@@ -30,8 +30,7 @@ public class QuizDialogDesign {
                     case SINGLE_CHOICE -> skin.get("radio", CheckBox.CheckBoxStyle.class);
                     default -> skin.get("default", CheckBox.CheckBoxStyle.class);
                 };
-        quiz
-                .contentStream()
+        quiz.contentStream()
                 .map(answer -> (Quiz.QuizContent) answer)
                 .filter(answer -> answer.type() != Quiz.QuizContentType.IMAGE)
                 .map(
@@ -47,8 +46,7 @@ public class QuizDialogDesign {
                         });
 
         switch (quiz.type()) {
-            case MULTIPLE_CHOICE -> btnGroup.setMaxCheckCount(
-                    (int) quiz.contentStream().count());
+            case MULTIPLE_CHOICE -> btnGroup.setMaxCheckCount((int) quiz.contentStream().count());
             case SINGLE_CHOICE -> btnGroup.setMaxCheckCount(1);
         }
 

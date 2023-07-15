@@ -50,10 +50,8 @@ public class QuizQuestionUITest {
                             Quiz.QuizContentType.TEXT,
                             "Was ist kein Ziel von Refactoring?");
             question.addAnswer(Quiz.QuizContentType.TEXT, "Lesbarkeit von Code verbessern");
-            question.addAnswer(
-                    Quiz.QuizContentType.TEXT, "Verständlichkeit von Code verbessern");
-            question.addAnswer(
-                    Quiz.QuizContentType.TEXT, "Wartbarkeit von Code verbessern");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "Verständlichkeit von Code verbessern");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "Wartbarkeit von Code verbessern");
             question.addAnswer(Quiz.QuizContentType.TEXT, "Fehler im Code ausmerzen");
             return question;
         }
@@ -81,11 +79,9 @@ public class QuizQuestionUITest {
                             Quiz.QuizContentType.TEXT,
                             "Welche Methode/n muss der Observer mindestens implementieren?");
             question.addAnswer(
-                    Quiz.QuizContentType.TEXT,
-                    "Eine update-Methode und eine register-Methode");
+                    Quiz.QuizContentType.TEXT, "Eine update-Methode und eine register-Methode");
             question.addAnswer(
-                    Quiz.QuizContentType.TEXT,
-                    "Eine notify-Methode und eine register-Methode");
+                    Quiz.QuizContentType.TEXT, "Eine notify-Methode und eine register-Methode");
             question.addAnswer(Quiz.QuizContentType.TEXT, "Eine notify-Methode");
             question.addAnswer(Quiz.QuizContentType.TEXT, "Eine register-Methode");
             question.addAnswer(Quiz.QuizContentType.TEXT, "Eine update-Methode");
