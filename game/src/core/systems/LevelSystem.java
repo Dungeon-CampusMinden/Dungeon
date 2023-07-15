@@ -228,4 +228,10 @@ public final class LevelSystem extends System {
         else if (entityStream().anyMatch(this::isOnEndTile)) loadLevel(levelSize);
         drawLevel();
     }
+
+    /** LevelSystem can't be paused. If it is paused, the level will not be shown anymore. */
+    @Override
+    public void stop() {
+        run = true;
+    }
 }
