@@ -16,9 +16,9 @@ public class QuizDialogDesign {
      * <p>currently does not support Image answers.
      *
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
-     * @param quizQuestion Various question configurations
+     * @param quiz Various question configurations
      */
-    public static VerticalGroup createAnswerButtons(Skin skin, QuizQuestion quizQuestion) {
+    public static VerticalGroup createAnswerButtons(Skin skin, Quiz quiz) {
         VerticalGroup answerButtons = new VerticalGroup();
 
         ButtonGroup<CheckBox> btnGroup = new ButtonGroup<>();
@@ -26,14 +26,14 @@ public class QuizDialogDesign {
         btnGroup.uncheckAll();
 
         final CheckBox.CheckBoxStyle style =
-                switch (quizQuestion.type()) {
+                switch (quiz.type()) {
                     case SINGLE_CHOICE -> skin.get("radio", CheckBox.CheckBoxStyle.class);
                     default -> skin.get("default", CheckBox.CheckBoxStyle.class);
                 };
-        quizQuestion
+        quiz
                 .contentStream()
-                .map(answer -> (QuizQuestion.QuizContent) answer)
-                .filter(answer -> answer.type() != QuizQuestion.QuizContentType.IMAGE)
+                .map(answer -> (Quiz.QuizContent) answer)
+                .filter(answer -> answer.type() != Quiz.QuizContentType.IMAGE)
                 .map(
                         answer ->
                                 new CheckBox(
@@ -46,9 +46,9 @@ public class QuizDialogDesign {
                             checkBox.left();
                         });
 
-        switch (quizQuestion.type()) {
+        switch (quiz.type()) {
             case MULTIPLE_CHOICE -> btnGroup.setMaxCheckCount(
-                    (int) quizQuestion.contentStream().count());
+                    (int) quiz.contentStream().count());
             case SINGLE_CHOICE -> btnGroup.setMaxCheckCount(1);
         }
 
@@ -62,20 +62,20 @@ public class QuizDialogDesign {
     /**
      * Creates a UI for a Quizquestion
      *
-     * @param quizQuestion Various question configurations
+     * @param quiz Various question configurations
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
      * @param outputMsg Content displayed in the scrollable label
      */
-    public static Group createQuizQuestion(QuizQuestion quizQuestion, Skin skin, String outputMsg) {
+    public static Group createQuizQuestion(Quiz quiz, Skin skin, String outputMsg) {
         Label labelExercise = new Label(Constants.QUIZ_MESSAGE_TASK, skin);
         labelExercise.setColor(Color.YELLOW);
         Label labelSolution = new Label(Constants.QUIZ_MESSAGE_SOLUTION, skin);
         labelSolution.setColor(Color.GREEN);
         VerticalGroup vg = new VerticalGroup();
         vg.addActor(labelExercise);
-        vg.addActor(visualizeQuestionSection(quizQuestion.question().type(), skin, outputMsg));
+        vg.addActor(visualizeQuestionSection(quiz.question().type(), skin, outputMsg));
         vg.addActor(labelSolution);
-        vg.addActor(visualizeAnswerSection(quizQuestion, skin));
+        vg.addActor(visualizeAnswerSection(quiz, skin));
         vg.grow();
         return vg;
     }
@@ -94,7 +94,7 @@ public class QuizDialogDesign {
      * @param outputMsg Content displayed in the scrollable label
      */
     private static Group visualizeQuestionSection(
-            QuizQuestion.QuizContentType questionContentType, Skin skin, String outputMsg) {
+            Quiz.QuizContentType questionContentType, Skin skin, String outputMsg) {
 
         VerticalGroup vg = new VerticalGroup();
 
@@ -128,14 +128,14 @@ public class QuizDialogDesign {
      * Representation of all possible answer options as Single-Choice, Multiple-Choice or as
      * Freetext
      *
-     * @param quizQuestion Various question configurations
+     * @param quiz Various question configurations
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
      */
-    private static Group visualizeAnswerSection(QuizQuestion quizQuestion, Skin skin) {
+    private static Group visualizeAnswerSection(Quiz quiz, Skin skin) {
 
         VerticalGroup vg = new VerticalGroup();
 
-        switch (quizQuestion.type()) {
+        switch (quiz.type()) {
             case FREETEXT -> {
                 ScrollPane scroller = new ScrollPane(DialogDesign.createEditableText(skin), skin);
                 scroller.setFadeScrollBars(false);
@@ -143,7 +143,7 @@ public class QuizDialogDesign {
                 vg.addActor(scroller);
             }
             case MULTIPLE_CHOICE, SINGLE_CHOICE -> {
-                VerticalGroup btnGrp = createAnswerButtons(skin, quizQuestion);
+                VerticalGroup btnGrp = createAnswerButtons(skin, quiz);
                 btnGrp.fill();
                 btnGrp.left();
                 vg.addActor(DialogDesign.createScrollPane(skin, btnGrp));

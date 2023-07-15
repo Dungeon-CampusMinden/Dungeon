@@ -28,7 +28,7 @@ public class QuizUI {
      * @param question Question to show on the HUD
      * @return the Entity that stores the {@link core.components.UIComponent} with the UI-Elements.
      */
-    public static Entity showQuizDialog(QuizQuestion question) {
+    public static Entity showQuizDialog(Quiz question) {
         return showQuizDialog(
                 question,
                 formatStringForDialogWindow(question.taskText()),
@@ -46,7 +46,7 @@ public class QuizUI {
      * @param question Various question configurations
      */
     private static Entity showQuizDialog(
-            QuizQuestion question, String questionMsg, String buttonMsg, String dialogTitle) {
+            Quiz question, String questionMsg, String buttonMsg, String dialogTitle) {
         Entity entity = new Entity();
 
         core.hud.UITools.show(
@@ -75,7 +75,7 @@ public class QuizUI {
      * Factory for a generic Quizquestion.
      *
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
-     * @param quizQuestion Various question configurations
+     * @param quiz Various question configurations
      * @param outputMsg Content displayed in the scrollable label
      * @param buttonMsg text for the button
      * @param title Title of the dialogue
@@ -84,7 +84,7 @@ public class QuizUI {
      */
     private static Dialog createQuizDialog(
             Skin skin,
-            QuizQuestion quizQuestion,
+            Quiz quiz,
             String outputMsg,
             String buttonMsg,
             String title,
@@ -92,7 +92,7 @@ public class QuizUI {
         Dialog textDialog = new TextDialog(title, skin, resultHandler);
         textDialog
                 .getContentTable()
-                .add(QuizDialogDesign.createQuizQuestion(quizQuestion, skin, outputMsg))
+                .add(QuizDialogDesign.createQuizQuestion(quiz, skin, outputMsg))
                 .grow()
                 .fill(); // changes size based on childrens;
         textDialog.button(buttonMsg, buttonMsg);

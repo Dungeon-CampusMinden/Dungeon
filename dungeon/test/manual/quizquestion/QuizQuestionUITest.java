@@ -5,7 +5,7 @@ import com.badlogic.gdx.Input;
 
 import core.Game;
 
-import task.quizquestion.QuizQuestion;
+import task.quizquestion.Quiz;
 import task.quizquestion.QuizUI;
 
 import java.util.Random;
@@ -39,141 +39,141 @@ public class QuizQuestionUITest {
      * Text. It can be used for testing as long as the QuizQuestion can not be loaded over the dsl
      * input Use {@code DummyQuizQuestionList.getRandomQuestion} to get a random QuizQuestion.
      *
-     * @see QuizQuestion
+     * @see Quiz
      */
     public static class DummyQuizQuestionList {
 
-        public static QuizQuestion singleChoiceDummy() {
-            QuizQuestion question =
-                    new QuizQuestion(
-                            QuizQuestion.QuizType.SINGLE_CHOICE,
-                            QuizQuestion.QuizContentType.TEXT,
+        public static Quiz singleChoiceDummy() {
+            Quiz question =
+                    new Quiz(
+                            Quiz.QuizType.SINGLE_CHOICE,
+                            Quiz.QuizContentType.TEXT,
                             "Was ist kein Ziel von Refactoring?");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "Lesbarkeit von Code verbessern");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "Lesbarkeit von Code verbessern");
             question.addAnswer(
-                    QuizQuestion.QuizContentType.TEXT, "Verständlichkeit von Code verbessern");
+                    Quiz.QuizContentType.TEXT, "Verständlichkeit von Code verbessern");
             question.addAnswer(
-                    QuizQuestion.QuizContentType.TEXT, "Wartbarkeit von Code verbessern");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "Fehler im Code ausmerzen");
+                    Quiz.QuizContentType.TEXT, "Wartbarkeit von Code verbessern");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "Fehler im Code ausmerzen");
             return question;
         }
 
-        public static QuizQuestion multipleChoiceDummy() {
-            QuizQuestion question =
-                    new QuizQuestion(
-                            QuizQuestion.QuizType.MULTIPLE_CHOICE,
-                            QuizQuestion.QuizContentType.TEXT,
+        public static Quiz multipleChoiceDummy() {
+            Quiz question =
+                    new Quiz(
+                            Quiz.QuizType.MULTIPLE_CHOICE,
+                            Quiz.QuizContentType.TEXT,
                             "Welche der hier genannten Komponenten sind \"atomare Komponenten\"?");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "Buttons");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "Frames");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "Label");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "Panels");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "Groups");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "EventListener");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "Events");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "Buttons");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "Frames");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "Label");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "Panels");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "Groups");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "EventListener");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "Events");
             return question;
         }
 
-        public static QuizQuestion singleChoiceDummy2() {
-            QuizQuestion question =
-                    new QuizQuestion(
-                            QuizQuestion.QuizType.SINGLE_CHOICE,
-                            QuizQuestion.QuizContentType.TEXT,
+        public static Quiz singleChoiceDummy2() {
+            Quiz question =
+                    new Quiz(
+                            Quiz.QuizType.SINGLE_CHOICE,
+                            Quiz.QuizContentType.TEXT,
                             "Welche Methode/n muss der Observer mindestens implementieren?");
             question.addAnswer(
-                    QuizQuestion.QuizContentType.TEXT,
+                    Quiz.QuizContentType.TEXT,
                     "Eine update-Methode und eine register-Methode");
             question.addAnswer(
-                    QuizQuestion.QuizContentType.TEXT,
+                    Quiz.QuizContentType.TEXT,
                     "Eine notify-Methode und eine register-Methode");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "Eine notify-Methode");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "Eine register-Methode");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "Eine update-Methode");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "Eine notify-Methode");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "Eine register-Methode");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "Eine update-Methode");
             return question;
         }
 
-        public static QuizQuestion freeTextDummy() {
-            return new QuizQuestion(
-                    QuizQuestion.QuizType.FREETEXT,
-                    QuizQuestion.QuizContentType.TEXT,
+        public static Quiz freeTextDummy() {
+            return new Quiz(
+                    Quiz.QuizType.FREETEXT,
+                    Quiz.QuizContentType.TEXT,
                     "Mit welchem Befehl kann man sich Dateien in der Working copy anzeigen lassen, die unversioniert sind oder in denen es Änderungen seit dem letzten Commit gab?");
         }
 
-        public static QuizQuestion imageFreeTextDummy() {
-            return new QuizQuestion(
-                    QuizQuestion.QuizType.FREETEXT,
-                    QuizQuestion.QuizContentType.IMAGE,
+        public static Quiz imageFreeTextDummy() {
+            return new Quiz(
+                    Quiz.QuizType.FREETEXT,
+                    Quiz.QuizContentType.IMAGE,
                     "dungeon/assets/image_quiz/dummy.png");
         }
 
-        public static QuizQuestion singleChoiceDummy3() {
-            QuizQuestion question =
-                    new QuizQuestion(
-                            QuizQuestion.QuizType.SINGLE_CHOICE,
-                            QuizQuestion.QuizContentType.TEXT,
+        public static Quiz singleChoiceDummy3() {
+            Quiz question =
+                    new Quiz(
+                            Quiz.QuizType.SINGLE_CHOICE,
+                            Quiz.QuizContentType.TEXT,
                             "Was ist 'Game Loop' in LibGDX und was macht diese?");
             question.addAnswer(
-                    QuizQuestion.QuizContentType.TEXT,
+                    Quiz.QuizContentType.TEXT,
                     "Launcher ruft abwechselnd die Methoden update und render auf.");
             question.addAnswer(
-                    QuizQuestion.QuizContentType.TEXT,
+                    Quiz.QuizContentType.TEXT,
                     "Durch Vererbung erzeugte Objekte werden über eine Game-Loop verwaltet.");
             question.addAnswer(
-                    QuizQuestion.QuizContentType.TEXT,
+                    Quiz.QuizContentType.TEXT,
                     "ECS ist ein Software Architektur Pattern, das vor allem in der Spieleprogrammierung Anwendung findet.");
             question.addAnswer(
-                    QuizQuestion.QuizContentType.TEXT,
+                    Quiz.QuizContentType.TEXT,
                     "ECS folgt dem Komposition über Vererbung - Prinzip.");
             question.addAnswer(
-                    QuizQuestion.QuizContentType.TEXT,
+                    Quiz.QuizContentType.TEXT,
                     "Alle ECS funktionieren mit einer Engine (Haupteinheit), bei der Entitäten und Systeme registriert werden.");
             return question;
         }
 
-        public static QuizQuestion singleChoiceDummy4() {
-            QuizQuestion question =
-                    new QuizQuestion(
-                            QuizQuestion.QuizType.SINGLE_CHOICE,
-                            QuizQuestion.QuizContentType.TEXT,
+        public static Quiz singleChoiceDummy4() {
+            Quiz question =
+                    new Quiz(
+                            Quiz.QuizType.SINGLE_CHOICE,
+                            Quiz.QuizContentType.TEXT,
                             "Mit git log kann man sich eine Liste aller Commits anzeigen lassen.");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "Wahr");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "Falsch");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "Wahr");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "Falsch");
             return question;
         }
 
-        public static QuizQuestion singleChoiceDummy5() {
-            QuizQuestion question =
-                    new QuizQuestion(
-                            QuizQuestion.QuizType.SINGLE_CHOICE,
-                            QuizQuestion.QuizContentType.TEXT,
+        public static Quiz singleChoiceDummy5() {
+            Quiz question =
+                    new Quiz(
+                            Quiz.QuizType.SINGLE_CHOICE,
+                            Quiz.QuizContentType.TEXT,
                             "Über welche Methode kann ein Thread thread1 darauf warten, dass ein anderer Thread thread2 ihn über ein Objekt obj benachrichtigt?");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "obj.wait()");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "obj.wait(otherThread)");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "obj.waitFor(otherThread)");
-            question.addAnswer(QuizQuestion.QuizContentType.TEXT, "Thread.wait(obj, otherThread)");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "obj.wait()");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "obj.wait(otherThread)");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "obj.waitFor(otherThread)");
+            question.addAnswer(Quiz.QuizContentType.TEXT, "Thread.wait(obj, otherThread)");
             return question;
         }
 
-        public static QuizQuestion singleChoiceDummy6() {
-            QuizQuestion question =
-                    new QuizQuestion(
-                            QuizQuestion.QuizType.SINGLE_CHOICE,
-                            QuizQuestion.QuizContentType.TEXT,
+        public static Quiz singleChoiceDummy6() {
+            Quiz question =
+                    new Quiz(
+                            Quiz.QuizType.SINGLE_CHOICE,
+                            Quiz.QuizContentType.TEXT,
                             "Was macht die notify()-Methode?");
             question.addAnswer(
-                    QuizQuestion.QuizContentType.TEXT,
+                    Quiz.QuizContentType.TEXT,
                     "Sie benachrichtigt alle Threads, die \"auf\" einem Objekt warten");
             question.addAnswer(
-                    QuizQuestion.QuizContentType.TEXT,
+                    Quiz.QuizContentType.TEXT,
                     "Sie benachrichtigt einen Thread, der \"auf\" einem Objekt wartet");
             question.addAnswer(
-                    QuizQuestion.QuizContentType.TEXT,
+                    Quiz.QuizContentType.TEXT,
                     "Sie benachrichtigt ein Objekt über den Zugriff eines Threads");
             question.addAnswer(
-                    QuizQuestion.QuizContentType.TEXT,
+                    Quiz.QuizContentType.TEXT,
                     "Sie benachrichtigt ein Objekt über Zustandsänderungen in einem anderen Objekt");
             question.addAnswer(
-                    QuizQuestion.QuizContentType.TEXT,
+                    Quiz.QuizContentType.TEXT,
                     "Sie benachrichtigt den ersten Thread in der Warteliste auf einem Objekt");
             return question;
         }
@@ -185,7 +185,7 @@ public class QuizQuestionUITest {
          * @apiNote Use this method when you want to retrieve a QuizQuestion at random from the list
          *     of questions.
          */
-        public static QuizQuestion getRandomQuestion() {
+        public static Quiz getRandomQuestion() {
             Random rnd = new Random();
             int random = rnd.nextInt(9);
             switch (random) {

@@ -7,7 +7,7 @@ import task.TaskContent;
  * Represents a single quiz question, including the question itself, possible answer choices, and
  * the type of question.
  *
- * <p>A {@link QuizQuestion} can be a Single-Choice, a Multiple-Choice, or a Free-text question. The
+ * <p>A {@link Quiz} can be a Single-Choice, a Multiple-Choice, or a Free-text question. The
  * type is stored as a {@link QuizType}. If the question is asked via the UI, the {@link QuizUI}
  * will configure the UI for the question based on that type. The type can be accessed via {@link
  * #type()}.
@@ -18,17 +18,17 @@ import task.TaskContent;
  * <p>The question will be stored as {@link QuizContent} and can be accessed via {@link
  * #question()}.
  */
-public class QuizQuestion extends Task {
+public class Quiz extends Task {
 
     private final QuizType type;
     private final QuizContent question;
 
     /**
-     * Create a new {@link QuizQuestion} with the given configuration.
+     * Create a new {@link Quiz} with the given configuration.
      *
      * <p>This will create a new {@link QuizContent} instance as the question reference.
      *
-     * <p>The {@link QuizQuestion} will not have any answers, use {@link #addAnswer(QuizContentType,
+     * <p>The {@link Quiz} will not have any answers, use {@link #addAnswer(QuizContentType,
      * String)} to add possible answers to the question.
      *
      * @param type Type of the question (e.g., single-choice)
@@ -36,7 +36,7 @@ public class QuizQuestion extends Task {
      *     image, or both text and a path to an image?
      * @param questionText The question itself (can contain a path to images).
      */
-    public QuizQuestion(
+    public Quiz(
             final QuizType type, QuizContentType questionContentType, String questionText) {
         super();
         this.type = type;
@@ -102,9 +102,9 @@ public class QuizQuestion extends Task {
     }
 
     /**
-     * Content for a {@link QuizQuestion}-
+     * Content for a {@link Quiz}-
      *
-     * <p>Is used as answer and question for a {@link QuizQuestion}.
+     * <p>Is used as answer and question for a {@link Quiz}.
      *
      * <p>Stores a String with the question/answer text and {@link QuizContentType} which defines if
      * the String is just Text or contains a path to an image or both. The type is used by the
