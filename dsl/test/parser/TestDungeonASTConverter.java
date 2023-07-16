@@ -577,4 +577,124 @@ public class TestDungeonASTConverter {
         var elseStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getElseStmt();
         Assert.assertEquals(Node.Type.Block, elseStmt.type);
     }
+
+    @Test
+    public void testUnary() {
+        String program =
+                """
+                fn test_func() {
+                    !true;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+        var unaryStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Unary, unaryStmt.type);
+    }
+
+    @Test
+    public void testFactor() {
+        String program =
+                """
+                fn test_func() {
+                    !true;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        Assert.assertTrue(false);
+    }
+
+    @Test
+    public void testTerm() {
+        String program =
+                """
+                fn test_func() {
+                    !true;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        Assert.assertTrue(false);
+    }
+
+    @Test
+    public void testEquality() {
+        String program =
+                """
+                fn test_func() {
+                    !true;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        Assert.assertTrue(false);
+    }
+
+    @Test
+    public void testLogicAnd() {
+        String program =
+                """
+                fn test_func() {
+                    !true;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        Assert.assertTrue(false);
+    }
+
+    @Test
+    public void testLogicOr() {
+        String program =
+                """
+                fn test_func() {
+                    !true;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        Assert.assertTrue(false);
+    }
+
+    @Test
+    public void testAssignment() {
+        String program =
+                """
+                fn test_func() {
+                    !true;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        Assert.assertTrue(false);
+    }
+
+    @Test
+    public void testMethodCallExpression() {
+        String program =
+                """
+                fn test_func() {
+                    !true;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        Assert.assertTrue(false);
+    }
+
+    @Test
+    public void testMemberAccessExpression() {
+        String program =
+                """
+                fn test_func() {
+                    !true;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        Assert.assertTrue(false);
+    }
 }

@@ -1,16 +1,23 @@
 package parser.ast;
 
-public class UnaryNode extends BinaryNode {
-    enum UnaryType {
+import java.util.ArrayList;
+
+public class UnaryNode extends Node {
+    public enum UnaryType {
         not,
         minus
     }
 
+    public Node getInnerNode() {
+        return this.getChild(0);
+    }
+
     private final UnaryType unaryType;
 
-    public UnaryNode(UnaryType type, Node lhs, Node rhs) {
-        super(Type.Factor, lhs, rhs);
+    public UnaryNode(UnaryType type, Node inner) {
+        super(Type.Unary, new ArrayList<>(1));
         this.unaryType = type;
+        this.children.add(inner);
     }
 
     @Override

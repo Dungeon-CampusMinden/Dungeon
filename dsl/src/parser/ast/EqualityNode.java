@@ -1,7 +1,7 @@
 package parser.ast;
 
 public class EqualityNode extends BinaryNode {
-    enum EqualityType {
+    public enum EqualityType {
         equals,
         notEquals
     }
@@ -18,5 +18,3 @@ public class EqualityNode extends BinaryNode {
         return visitor.visit(this);
     }
 }
-
-

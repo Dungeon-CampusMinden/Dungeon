@@ -1,7 +1,7 @@
 package parser.ast;
 
 public class ComparisonNode extends BinaryNode {
-    enum ComparisonType {
+    public enum ComparisonType {
         greaterThan,
         greaterEquals,
         lessThan,
@@ -20,4 +20,3 @@ public class ComparisonNode extends BinaryNode {
         return visitor.visit(this);
     }
 }
-

@@ -1,7 +1,7 @@
 package parser.ast;
 
 public class FactorNode extends BinaryNode {
-    enum FactorType {
+    public enum FactorType {
         divide,
         multiply
     }
@@ -18,4 +18,3 @@ public class FactorNode extends BinaryNode {
         return visitor.visit(this);
     }
 }
-

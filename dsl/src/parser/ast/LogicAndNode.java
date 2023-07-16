@@ -11,4 +11,3 @@ public class LogicAndNode extends BinaryNode {
         return visitor.visit(this);
     }
 }
-

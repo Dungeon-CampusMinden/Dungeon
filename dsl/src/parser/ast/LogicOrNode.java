@@ -10,4 +10,3 @@ public class LogicOrNode extends BinaryNode {
         return visitor.visit(this);
     }
 }
-

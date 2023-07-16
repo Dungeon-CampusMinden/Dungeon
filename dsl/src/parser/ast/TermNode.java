@@ -1,7 +1,7 @@
 package parser.ast;
 
 public class TermNode extends BinaryNode {
-    enum TermType {
+    public enum TermType {
         plus,
         minus
     }
@@ -18,4 +18,3 @@ public class TermNode extends BinaryNode {
         return visitor.visit(this);
     }
 }
-

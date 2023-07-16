@@ -85,37 +85,37 @@ assignment
 
 logic_or
 
-    : logic_or ( 'or' logic_and )
+    : logic_or ( or='or' logic_and )
     | logic_and
     ;
 
 logic_and
-    : logic_and ( 'and' equality )
+    : logic_and ( and='and' equality )
     | equality
     ;
 
 equality
-    : equality ( ( '!=' | '==' ) comparison )
+    : equality ( ( neq='!=' | eq='==' ) comparison )
     | comparison
     ;
 
 comparison
-    : comparison ( ( '>' | '>=' | '<' | '<=' ) term )
+    : comparison ( ( gt='>' | geq='>=' | lt='<' | leq='<=' ) term )
     | term
     ;
 
 term
-    : term ( ( '-' | '+' ) factor )
+    : term ( ( minus='-' | plus='+' ) factor )
     | factor
     ;
 
 factor
-    : factor ( ( '/' | '*' ) unary )
+    : factor ( ( div='/' | mult='*' ) unary )
     | unary
     ;
 
 unary
-    : ( '!' | '-' ) unary
+    : ( bang='!' | minus='-' ) unary
     | primary
     ;
 

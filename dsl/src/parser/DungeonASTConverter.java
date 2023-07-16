@@ -116,9 +116,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterMethod_call_expression(DungeonDSLParser.Method_call_expressionContext ctx) {
-
-    }
+    public void enterMethod_call_expression(DungeonDSLParser.Method_call_expressionContext ctx) {}
 
     @Override
     public void exitMethod_call_expression(DungeonDSLParser.Method_call_expressionContext ctx) {
@@ -126,9 +124,8 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterMember_access_expression(DungeonDSLParser.Member_access_expressionContext ctx) {
-
-    }
+    public void enterMember_access_expression(
+            DungeonDSLParser.Member_access_expressionContext ctx) {}
 
     @Override
     public void exitMember_access_expression(DungeonDSLParser.Member_access_expressionContext ctx) {
@@ -136,9 +133,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterAssignment_expression(DungeonDSLParser.Assignment_expressionContext ctx) {
-
-    }
+    public void enterAssignment_expression(DungeonDSLParser.Assignment_expressionContext ctx) {}
 
     @Override
     public void exitAssignment_expression(DungeonDSLParser.Assignment_expressionContext ctx) {
@@ -146,90 +141,147 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterAssignment(DungeonDSLParser.AssignmentContext ctx) {
-
-    }
+    public void enterAssignment(DungeonDSLParser.AssignmentContext ctx) {}
 
     @Override
     public void exitAssignment(DungeonDSLParser.AssignmentContext ctx) {
-        throw new UnsupportedOperationException();
-
+        if (ctx.ID() != null) {
+            if (ctx.func_call() != null) {
+                // - member access on left
+            } else {
+                // - simple ID assignment
+            }
+        }
+        // - trivial case
     }
 
     @Override
-    public void enterLogic_or(DungeonDSLParser.Logic_orContext ctx) {
-
-    }
+    public void enterLogic_or(DungeonDSLParser.Logic_orContext ctx) {}
 
     @Override
     public void exitLogic_or(DungeonDSLParser.Logic_orContext ctx) {
-        throw new UnsupportedOperationException();
-
+        Node rhs = astStack.pop();
+        Node lhs;
+        Node logicOrNode = rhs;
+        if (ctx.or != null) {
+            lhs = astStack.pop();
+            logicOrNode =
+                new LogicOrNode(lhs, rhs);
+        }
+        astStack.push(logicOrNode);
     }
 
     @Override
-    public void enterLogic_and(DungeonDSLParser.Logic_andContext ctx) {
-
-    }
+    public void enterLogic_and(DungeonDSLParser.Logic_andContext ctx) {}
 
     @Override
     public void exitLogic_and(DungeonDSLParser.Logic_andContext ctx) {
-        throw new UnsupportedOperationException();
-
+        Node rhs = astStack.pop();
+        Node lhs;
+        Node logicAndNode = rhs;
+        if (ctx.and != null) {
+            lhs = astStack.pop();
+            logicAndNode =
+                new LogicAndNode(lhs, rhs);
+        }
+        astStack.push(logicAndNode);
     }
 
     @Override
-    public void enterEquality(DungeonDSLParser.EqualityContext ctx) {
-
-    }
+    public void enterEquality(DungeonDSLParser.EqualityContext ctx) {}
 
     @Override
     public void exitEquality(DungeonDSLParser.EqualityContext ctx) {
-        throw new UnsupportedOperationException();
-
+        Node rhs = astStack.pop();
+        Node lhs;
+        Node equalityNode = rhs;
+        if (ctx.eq != null) {
+            lhs = astStack.pop();
+            equalityNode =
+                new EqualityNode(EqualityNode.EqualityType.equals, lhs, rhs);
+        } else if (ctx.neq != null) {
+            lhs = astStack.pop();
+            equalityNode =
+                new EqualityNode(EqualityNode.EqualityType.notEquals, lhs, rhs);
+        }
+        astStack.push(equalityNode);
     }
 
     @Override
-    public void enterComparison(DungeonDSLParser.ComparisonContext ctx) {
-
-    }
+    public void enterComparison(DungeonDSLParser.ComparisonContext ctx) {}
 
     @Override
     public void exitComparison(DungeonDSLParser.ComparisonContext ctx) {
-        throw new UnsupportedOperationException();
-
+        Node rhs = astStack.pop();
+        Node lhs;
+        Node comparisonNode = rhs;
+        if (ctx.gt != null) {
+            lhs = astStack.pop();
+            comparisonNode =
+                    new ComparisonNode(ComparisonNode.ComparisonType.greaterThan, lhs, rhs);
+        } else if (ctx.geq != null) {
+            lhs = astStack.pop();
+            comparisonNode =
+                    new ComparisonNode(ComparisonNode.ComparisonType.greaterEquals, lhs, rhs);
+        } else if (ctx.lt != null) {
+            lhs = astStack.pop();
+            comparisonNode = new ComparisonNode(ComparisonNode.ComparisonType.lessThan, lhs, rhs);
+        } else if (ctx.leq != null) {
+            lhs = astStack.pop();
+            comparisonNode = new ComparisonNode(ComparisonNode.ComparisonType.lessEquals, lhs, rhs);
+        }
+        astStack.push(comparisonNode);
     }
 
     @Override
-    public void enterTerm(DungeonDSLParser.TermContext ctx) {
-
-    }
+    public void enterTerm(DungeonDSLParser.TermContext ctx) {}
 
     @Override
     public void exitTerm(DungeonDSLParser.TermContext ctx) {
-        throw new UnsupportedOperationException();
-
+        Node rhs = astStack.pop();
+        Node lhs;
+        Node termNode = rhs;
+        if (ctx.minus != null) {
+            lhs = astStack.pop();
+            termNode = new TermNode(TermNode.TermType.plus, lhs, rhs);
+        } else if (ctx.plus != null) {
+            lhs = astStack.pop();
+            termNode = new TermNode(TermNode.TermType.minus, lhs, rhs);
+        }
+        astStack.push(termNode);
     }
 
     @Override
-    public void enterFactor(DungeonDSLParser.FactorContext ctx) {
-
-    }
+    public void enterFactor(DungeonDSLParser.FactorContext ctx) {}
 
     @Override
     public void exitFactor(DungeonDSLParser.FactorContext ctx) {
-        throw new UnsupportedOperationException();
-
+        Node rhs = astStack.pop();
+        Node lhs;
+        Node factorNode = rhs;
+        if (ctx.div != null) {
+            lhs = astStack.pop();
+            factorNode = new FactorNode(FactorNode.FactorType.divide, lhs, rhs);
+        } else if (ctx.mult != null) {
+            lhs = astStack.pop();
+            factorNode = new FactorNode(FactorNode.FactorType.multiply, lhs, rhs);
+        }
+        astStack.push(factorNode);
     }
 
     @Override
-    public void enterUnary(DungeonDSLParser.UnaryContext ctx) {
-
-    }
+    public void enterUnary(DungeonDSLParser.UnaryContext ctx) {}
 
     @Override
     public void exitUnary(DungeonDSLParser.UnaryContext ctx) {
-        throw new UnsupportedOperationException();
+        Node innerNode = astStack.pop();
+        Node unaryNode = innerNode;
+        if (ctx.bang != null) {
+            unaryNode = new UnaryNode(UnaryNode.UnaryType.not, innerNode);
+        } else if (ctx.minus != null) {
+            unaryNode = new UnaryNode(UnaryNode.UnaryType.minus, innerNode);
+        }
+        astStack.push(unaryNode);
     }
 
     @Override
@@ -583,9 +635,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterQualified_name(DungeonDSLParser.Qualified_nameContext ctx) {
-
-    }
+    public void enterQualified_name(DungeonDSLParser.Qualified_nameContext ctx) {}
 
     @Override
     public void exitQualified_name(DungeonDSLParser.Qualified_nameContext ctx) {
@@ -621,14 +671,11 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterGrouped_expression(DungeonDSLParser.Grouped_expressionContext ctx) {
-
-    }
+    public void enterGrouped_expression(DungeonDSLParser.Grouped_expressionContext ctx) {}
 
     @Override
     public void exitGrouped_expression(DungeonDSLParser.Grouped_expressionContext ctx) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
