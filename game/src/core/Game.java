@@ -339,19 +339,18 @@ public class Game
 //            // Check whether which random port is not already in use and listen to this on
 //            // serverside
 //            // it's unlikely that no port is free but to not run into infinite loop, limit tries.
-//            int generatePortTriesMaxCount = 20;
-//            int generatePortTriesCount = 0;
-//            boolean isServerStarted = false;
-//            int serverPort;
-//            do {
-//                // Create random 5 digit port
-//                serverPort = ThreadLocalRandom.current().nextInt(10000, 65535 + 1);
-//                isServerStarted = serverManager.start(serverPort);
-//            } while ((generatePortTriesCount < generatePortTriesMaxCount) && !isServerStarted);
+            int generatePortTriesMaxCount = 20;
+            int generatePortTriesCount = 0;
+            boolean isServerStarted = false;
+            int serverPort;
+            do {
+                // Create random 5 digit port
+                serverPort = ThreadLocalRandom.current().nextInt(10000, 65535 + 1);
+                isServerStarted = serverManager.start(serverPort);
+            } while ((generatePortTriesCount < generatePortTriesMaxCount) && !isServerStarted);
 
-            boolean isServerStarted = serverManager.start(12345);
             if (isServerStarted) {
-                if (!clientManager.connect("127.0.0.1", 12345)) {
+                if (!clientManager.connect("127.0.0.1", serverPort)) {
                     errorMessage = "Server started but client failed to connect.";
                 } else {
                     isFailed = false;
