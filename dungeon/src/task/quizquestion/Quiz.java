@@ -12,8 +12,8 @@ import task.TaskContent;
  * configure the UI for the question based on that type. The type can be accessed via {@link
  * #type()}.
  *
- * <p>Add a {@link QuizContent} answer by using the {@link #addAnswer(QuizContentType, String)}
- * method. Use the {@link #contentStream()} method to get the answers as a stream.
+ * <p>Add a {@link QuizContent} answer by using the {@link #addAnswer(QuizContent.QuizContentType,
+ * String)} method. Use the {@link #contentStream()} method to get the answers as a stream.
  *
  * <p>The question will be stored as {@link QuizContent} and can be accessed via {@link
  * #question()}.
@@ -28,15 +28,18 @@ public class Quiz extends Task {
      *
      * <p>This will create a new {@link QuizContent} instance as the question reference.
      *
-     * <p>The {@link Quiz} will not have any answers, use {@link #addAnswer(QuizContentType,
-     * String)} to add possible answers to the question.
+     * <p>The {@link Quiz} will not have any answers, use {@link
+     * #addAnswer(QuizContent.QuizContentType, String)} to add possible answers to the question.
      *
      * @param type Type of the question (e.g., single-choice)
      * @param questionContentType What does the question contain? Just text, just a path to an
      *     image, or both text and a path to an image?
      * @param questionText The question itself (can contain a path to images).
      */
-    public Quiz(final QuizType type, QuizContentType questionContentType, String questionText) {
+    public Quiz(
+            final QuizType type,
+            QuizContent.QuizContentType questionContentType,
+            String questionText) {
         super();
         this.type = type;
         taskText(questionText);
@@ -60,7 +63,7 @@ public class Quiz extends Task {
      *     and a path to an image?
      * @param content The answer itself (can contain a path to images).
      */
-    public void addAnswer(QuizContentType type, String content) {
+    public void addAnswer(QuizContent.QuizContentType type, String content) {
         addContent(new QuizContent(this, type, content));
     }
 
@@ -71,19 +74,6 @@ public class Quiz extends Task {
      */
     public QuizContent question() {
         return question;
-    }
-
-    /**
-     * The QuizQuestionContentType enum represents the different types of content that can be
-     * associated with a quiz question. The available types are TEXT, IMAGE, and TEXT_AND_IMAGE.
-     * TEXT represents a question or answer choice as text. IMAGE represents a question or answer
-     * choice as an image. TEXT_AND_IMAGE represents a question or answer choice as both text and an
-     * image.
-     */
-    public enum QuizContentType {
-        TEXT,
-        IMAGE,
-        TEXT_AND_IMAGE
     }
 
     /**
@@ -125,7 +115,7 @@ public class Quiz extends Task {
          *     text and a path to an image?
          * @param content The answer itself (can contain a path to images).
          */
-        private QuizContent(Task task, QuizContentType type, String content) {
+        private QuizContent(Quiz task, QuizContentType type, String content) {
             super(task);
             this.type = type;
             this.content = content;
@@ -147,6 +137,19 @@ public class Quiz extends Task {
          */
         public QuizContentType type() {
             return type;
+        }
+
+        /**
+         * The QuizQuestionContentType enum represents the different types of content that can be
+         * associated with a quiz question. The available types are TEXT, IMAGE, and TEXT_AND_IMAGE.
+         * TEXT represents a question or answer choice as text. IMAGE represents a question or
+         * answer choice as an image. TEXT_AND_IMAGE represents a question or answer choice as both
+         * text and an image.
+         */
+        public enum QuizContentType {
+            TEXT,
+            IMAGE,
+            TEXT_AND_IMAGE
         }
     }
 }

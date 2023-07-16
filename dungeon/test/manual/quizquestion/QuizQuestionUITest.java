@@ -47,12 +47,15 @@ public class QuizQuestionUITest {
             Quiz question =
                     new Quiz(
                             Quiz.QuizType.SINGLE_CHOICE,
-                            Quiz.QuizContentType.TEXT,
+                            Quiz.QuizContent.QuizContentType.TEXT,
                             "Was ist kein Ziel von Refactoring?");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "Lesbarkeit von Code verbessern");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "Verständlichkeit von Code verbessern");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "Wartbarkeit von Code verbessern");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "Fehler im Code ausmerzen");
+            question.addAnswer(
+                    Quiz.QuizContent.QuizContentType.TEXT, "Lesbarkeit von Code verbessern");
+            question.addAnswer(
+                    Quiz.QuizContent.QuizContentType.TEXT, "Verständlichkeit von Code verbessern");
+            question.addAnswer(
+                    Quiz.QuizContent.QuizContentType.TEXT, "Wartbarkeit von Code verbessern");
+            question.addAnswer(Quiz.QuizContent.QuizContentType.TEXT, "Fehler im Code ausmerzen");
             return question;
         }
 
@@ -60,15 +63,15 @@ public class QuizQuestionUITest {
             Quiz question =
                     new Quiz(
                             Quiz.QuizType.MULTIPLE_CHOICE,
-                            Quiz.QuizContentType.TEXT,
+                            Quiz.QuizContent.QuizContentType.TEXT,
                             "Welche der hier genannten Komponenten sind \"atomare Komponenten\"?");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "Buttons");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "Frames");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "Label");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "Panels");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "Groups");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "EventListener");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "Events");
+            question.addAnswer(Quiz.QuizContent.QuizContentType.TEXT, "Buttons");
+            question.addAnswer(Quiz.QuizContent.QuizContentType.TEXT, "Frames");
+            question.addAnswer(Quiz.QuizContent.QuizContentType.TEXT, "Label");
+            question.addAnswer(Quiz.QuizContent.QuizContentType.TEXT, "Panels");
+            question.addAnswer(Quiz.QuizContent.QuizContentType.TEXT, "Groups");
+            question.addAnswer(Quiz.QuizContent.QuizContentType.TEXT, "EventListener");
+            question.addAnswer(Quiz.QuizContent.QuizContentType.TEXT, "Events");
             return question;
         }
 
@@ -76,29 +79,31 @@ public class QuizQuestionUITest {
             Quiz question =
                     new Quiz(
                             Quiz.QuizType.SINGLE_CHOICE,
-                            Quiz.QuizContentType.TEXT,
+                            Quiz.QuizContent.QuizContentType.TEXT,
                             "Welche Methode/n muss der Observer mindestens implementieren?");
             question.addAnswer(
-                    Quiz.QuizContentType.TEXT, "Eine update-Methode und eine register-Methode");
+                    Quiz.QuizContent.QuizContentType.TEXT,
+                    "Eine update-Methode und eine register-Methode");
             question.addAnswer(
-                    Quiz.QuizContentType.TEXT, "Eine notify-Methode und eine register-Methode");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "Eine notify-Methode");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "Eine register-Methode");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "Eine update-Methode");
+                    Quiz.QuizContent.QuizContentType.TEXT,
+                    "Eine notify-Methode und eine register-Methode");
+            question.addAnswer(Quiz.QuizContent.QuizContentType.TEXT, "Eine notify-Methode");
+            question.addAnswer(Quiz.QuizContent.QuizContentType.TEXT, "Eine register-Methode");
+            question.addAnswer(Quiz.QuizContent.QuizContentType.TEXT, "Eine update-Methode");
             return question;
         }
 
         public static Quiz freeTextDummy() {
             return new Quiz(
                     Quiz.QuizType.FREETEXT,
-                    Quiz.QuizContentType.TEXT,
+                    Quiz.QuizContent.QuizContentType.TEXT,
                     "Mit welchem Befehl kann man sich Dateien in der Working copy anzeigen lassen, die unversioniert sind oder in denen es Änderungen seit dem letzten Commit gab?");
         }
 
         public static Quiz imageFreeTextDummy() {
             return new Quiz(
                     Quiz.QuizType.FREETEXT,
-                    Quiz.QuizContentType.IMAGE,
+                    Quiz.QuizContent.QuizContentType.IMAGE,
                     "dungeon/assets/image_quiz/dummy.png");
         }
 
@@ -106,22 +111,22 @@ public class QuizQuestionUITest {
             Quiz question =
                     new Quiz(
                             Quiz.QuizType.SINGLE_CHOICE,
-                            Quiz.QuizContentType.TEXT,
+                            Quiz.QuizContent.QuizContentType.TEXT,
                             "Was ist 'Game Loop' in LibGDX und was macht diese?");
             question.addAnswer(
-                    Quiz.QuizContentType.TEXT,
+                    Quiz.QuizContent.QuizContentType.TEXT,
                     "Launcher ruft abwechselnd die Methoden update und render auf.");
             question.addAnswer(
-                    Quiz.QuizContentType.TEXT,
+                    Quiz.QuizContent.QuizContentType.TEXT,
                     "Durch Vererbung erzeugte Objekte werden über eine Game-Loop verwaltet.");
             question.addAnswer(
-                    Quiz.QuizContentType.TEXT,
+                    Quiz.QuizContent.QuizContentType.TEXT,
                     "ECS ist ein Software Architektur Pattern, das vor allem in der Spieleprogrammierung Anwendung findet.");
             question.addAnswer(
-                    Quiz.QuizContentType.TEXT,
+                    Quiz.QuizContent.QuizContentType.TEXT,
                     "ECS folgt dem Komposition über Vererbung - Prinzip.");
             question.addAnswer(
-                    Quiz.QuizContentType.TEXT,
+                    Quiz.QuizContent.QuizContentType.TEXT,
                     "Alle ECS funktionieren mit einer Engine (Haupteinheit), bei der Entitäten und Systeme registriert werden.");
             return question;
         }
@@ -130,10 +135,10 @@ public class QuizQuestionUITest {
             Quiz question =
                     new Quiz(
                             Quiz.QuizType.SINGLE_CHOICE,
-                            Quiz.QuizContentType.TEXT,
+                            Quiz.QuizContent.QuizContentType.TEXT,
                             "Mit git log kann man sich eine Liste aller Commits anzeigen lassen.");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "Wahr");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "Falsch");
+            question.addAnswer(Quiz.QuizContent.QuizContentType.TEXT, "Wahr");
+            question.addAnswer(Quiz.QuizContent.QuizContentType.TEXT, "Falsch");
             return question;
         }
 
@@ -141,12 +146,13 @@ public class QuizQuestionUITest {
             Quiz question =
                     new Quiz(
                             Quiz.QuizType.SINGLE_CHOICE,
-                            Quiz.QuizContentType.TEXT,
+                            Quiz.QuizContent.QuizContentType.TEXT,
                             "Über welche Methode kann ein Thread thread1 darauf warten, dass ein anderer Thread thread2 ihn über ein Objekt obj benachrichtigt?");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "obj.wait()");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "obj.wait(otherThread)");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "obj.waitFor(otherThread)");
-            question.addAnswer(Quiz.QuizContentType.TEXT, "Thread.wait(obj, otherThread)");
+            question.addAnswer(Quiz.QuizContent.QuizContentType.TEXT, "obj.wait()");
+            question.addAnswer(Quiz.QuizContent.QuizContentType.TEXT, "obj.wait(otherThread)");
+            question.addAnswer(Quiz.QuizContent.QuizContentType.TEXT, "obj.waitFor(otherThread)");
+            question.addAnswer(
+                    Quiz.QuizContent.QuizContentType.TEXT, "Thread.wait(obj, otherThread)");
             return question;
         }
 
@@ -154,22 +160,22 @@ public class QuizQuestionUITest {
             Quiz question =
                     new Quiz(
                             Quiz.QuizType.SINGLE_CHOICE,
-                            Quiz.QuizContentType.TEXT,
+                            Quiz.QuizContent.QuizContentType.TEXT,
                             "Was macht die notify()-Methode?");
             question.addAnswer(
-                    Quiz.QuizContentType.TEXT,
+                    Quiz.QuizContent.QuizContentType.TEXT,
                     "Sie benachrichtigt alle Threads, die \"auf\" einem Objekt warten");
             question.addAnswer(
-                    Quiz.QuizContentType.TEXT,
+                    Quiz.QuizContent.QuizContentType.TEXT,
                     "Sie benachrichtigt einen Thread, der \"auf\" einem Objekt wartet");
             question.addAnswer(
-                    Quiz.QuizContentType.TEXT,
+                    Quiz.QuizContent.QuizContentType.TEXT,
                     "Sie benachrichtigt ein Objekt über den Zugriff eines Threads");
             question.addAnswer(
-                    Quiz.QuizContentType.TEXT,
+                    Quiz.QuizContent.QuizContentType.TEXT,
                     "Sie benachrichtigt ein Objekt über Zustandsänderungen in einem anderen Objekt");
             question.addAnswer(
-                    Quiz.QuizContentType.TEXT,
+                    Quiz.QuizContent.QuizContentType.TEXT,
                     "Sie benachrichtigt den ersten Thread in der Warteliste auf einem Objekt");
             return question;
         }
