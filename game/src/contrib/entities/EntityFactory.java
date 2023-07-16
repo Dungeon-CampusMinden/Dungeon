@@ -2,6 +2,7 @@ package contrib.entities;
 
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
+import contrib.utils.components.health.DefaultOnDeath;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.item.ItemData;
@@ -61,10 +62,7 @@ public class EntityFactory {
         new PositionComponent(hero);
         new VelocityComponent(hero, X_SPEED_HERO, Y_SPEED_HERO);
         new DrawComponent(hero, HERO_FILE_PATH);
-        new CollideComponent(
-                hero,
-                (you, other, direction) -> System.out.println("heroCollisionEnter"),
-                (you, other, direction) -> System.out.println("heroCollisionLeave"));
+        new CollideComponent(hero);
         PlayerComponent pc = new PlayerComponent(hero);
         Skill fireball =
                 new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
@@ -209,7 +207,7 @@ public class EntityFactory {
 
         Entity monster = new Entity("monster");
         int itemRoll = RANDOM.nextInt(0, 10);
-        Consumer<Entity> onDeath = entity -> {};
+        Consumer<Entity> onDeath = new DefaultOnDeath();
         if (itemRoll == 0) {
             ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
             ItemData item = itemDataGenerator.generateItemData();

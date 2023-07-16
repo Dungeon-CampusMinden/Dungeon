@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.Null;
 import contrib.systems.HealthSystem;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
+import contrib.utils.components.health.DefaultOnDeath;
 
 import core.Component;
 import core.Entity;
@@ -70,7 +71,7 @@ public final class HealthComponent extends Component {
      * @param entity associated entity
      */
     public HealthComponent(@DSLContextMember(name = "entity") final Entity entity) {
-        this(entity, 1, onDeath -> {});
+        this(entity, 1, new DefaultOnDeath());
     }
 
     /**
@@ -183,5 +184,9 @@ public final class HealthComponent extends Component {
      */
     public boolean isDead() {
         return currentHealthpoints <= 0;
+    }
+
+    public Consumer<Entity> onDeath() {
+        return onDeath;
     }
 }

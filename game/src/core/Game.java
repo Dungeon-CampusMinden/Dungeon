@@ -8,12 +8,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.ai.pfa.GraphPath;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
+
+import contrib.entities.EntityFactory;
+import contrib.systems.MultiplayerSynchronizationSystem;
+import contrib.utils.multiplayer.manager.IMultiplayerClientManagerObserver;
+import contrib.utils.multiplayer.manager.IMultiplayerServerManagerObserver;
+import contrib.utils.multiplayer.manager.MultiplayerClientManager;
+import contrib.utils.multiplayer.manager.MultiplayerServerManager;
 
 import core.components.PositionComponent;
 import core.components.UIComponent;
@@ -26,7 +31,12 @@ import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
-import core.systems.*;
+import core.systems.CameraSystem;
+import core.systems.DrawSystem;
+import core.systems.HudSystem;
+import core.systems.PlayerSystem;
+import core.systems.VelocitySystem;
+import core.systems.LevelSystem;
 import core.utils.Constants;
 import core.utils.DelayedSet;
 import core.utils.IVoidFunction;
@@ -37,61 +47,40 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/** The heart of the framework. From here all strings are pulled. */
-public final class Game extends ScreenAdapter {
+public class Game
+    extends ScreenAdapter
+    implements IMultiplayerClientManagerObserver, IMultiplayerServerManagerObserver {
+
+    /* Used for singleton. */
+    private static Game INSTANCE;
 
     /**
      * A Map with each {@link System} in the game.
      *
      * <p>The Key-Value is the Class of the system
      */
-    private static final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
+    private static final Map<Class<? extends System>, System> SYSTEMS = new LinkedHashMap<>();
     /** All entities that are currently active in the dungeon */
-    private static final DelayedSet<Entity> entities = new DelayedSet<>();
+    private static final DelayedSet<Entity> ENTITIES = new DelayedSet<>();
 
     private static final Logger LOGGER = Logger.getLogger("Game");
     /**
      * The width of the game window in pixels.
      *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
+     * <p>Manipulating this value will only result in changes before {@link Dungeon#run} was
+     * executed.
      */
     private static int WINDOW_WIDTH = 1280;
-    /**
-     * Part of the pre-run configuration. The height of the game window in pixels.
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
+    /** Part of the pre-run configuration. The height of the game window in pixels. */
     private static int WINDOW_HEIGHT = 720;
-    /**
-     * Part of the pre-run configuration. The fps of the game (frames per second)
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
-    private static int FRAME_RATE = 30;
 
-    /**
-     * Part of the pre-run configuration. If this value is true, the game will be started in full
-     * screen mode.
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
-    private static boolean FULL_SCREEN = false;
-
-    /**
-     * Part of the pre-run configuration. The title of the Game-Window.
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
-    private static String WINDOW_TITLE = "PM-Dungeon";
-    /**
-     * Part of the pre-run configuration. The path (as String) to the logo of the Game-Window.
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
-    private static String LOGO_PATH = "logo/cat_logo_35x35.png";
+    /** Currently used level-size configuration for generating new level */
+    private static LevelSize LEVELSIZE = LevelSize.SMALL;
     /**
      * Part of the pre-run configuration.
      * This function will be called at each frame.
@@ -108,13 +97,6 @@ public final class Game extends ScreenAdapter {
      * <p>Will not replace {@link #onLevelLoad}
      */
     private static IVoidFunction userOnLevelLoad = () -> {};
-    /**
-     * Part of the pre-run configuration. If this value is true, the audio for the game will be
-     * disabled.
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
-    private static boolean DISABLE_AUDIO = false;
 
     private static Entity hero;
 
@@ -139,6 +121,10 @@ public final class Game extends ScreenAdapter {
     private boolean doSetup = true;
     private boolean uiDebugFlag = false;
 
+    private static Optional<GameMode> currentGameMode;
+    private static MultiplayerClientManager clientManager;
+    private static MultiplayerServerManager serverManager;
+
     // for singleton
     private Game() {}
 
@@ -153,48 +139,12 @@ public final class Game extends ScreenAdapter {
      * @return a copy of the map that stores all registered {@link System} in the game.
      */
     public static Map<Class<? extends System>, System> systems() {
-        return new LinkedHashMap<>(systems);
+        return new LinkedHashMap<>(SYSTEMS);
     }
 
     /** Remove all registered systems from the game. */
     public static void removeAllSystems() {
-        systems.clear();
-    }
-
-    /**
-     * Width of the game-window in pixel
-     *
-     * @return the width of the game-window im pixel
-     */
-    public static int windowWidth() {
-        return WINDOW_WIDTH;
-    }
-
-    /**
-     * Height of the game-window in pixel
-     *
-     * @return the height of the game-window im pixel
-     */
-    public static int windowHeight() {
-        return WINDOW_HEIGHT;
-    }
-
-    /**
-     * Get the current frame rate of the game
-     *
-     * @return current frame rate of the game
-     */
-    public static int frameRate() {
-        return FRAME_RATE;
-    }
-
-    /**
-     * Get if the game is currently in full screen mode
-     *
-     * @return true if the game is currently in full screen mode
-     */
-    public static boolean fullScreen() {
-        return FULL_SCREEN;
+        SYSTEMS.clear();
     }
 
     /**
@@ -207,78 +157,7 @@ public final class Game extends ScreenAdapter {
      * @return currently set level-Size.
      */
     public static LevelSize levelSize() {
-        return LevelSystem.levelSize();
-    }
-
-    /**
-     * Set the width of the game window in pixels.
-     *
-     * <p>Part of the pre-run configuration: Manipulating this value will only result in changes
-     * before {@link Game#run} was executed.
-     *
-     * @param windowWidth: the new width of the game window in pixels.
-     */
-    public static void windowWidth(int windowWidth) {
-        WINDOW_WIDTH = windowWidth;
-    }
-
-    /**
-     * Set the height of the game window in pixels.
-     *
-     * <p>Part of the pre-run configuration: Manipulating this value will only result in changes
-     * before {@link Game#run} was executed.
-     *
-     * @param windowHeight: the new height of the game window in pixels.
-     */
-    public static void windowHeight(int windowHeight) {
-        WINDOW_HEIGHT = windowHeight;
-    }
-
-    /**
-     * The frames per second of the game. The FPS determine in which interval the update cycle of
-     * the systems is triggered. Each system is updated once per frame. With an FPS of 30, each
-     * system is updated 30 times per second.
-     *
-     * <p>Part of the pre-run configuration: Manipulating this value will only result in changes
-     * before {@link Game#run} was executed.
-     *
-     * @param frameRate: the new fps of the game
-     */
-    public static void frameRate(int frameRate) {
-        FRAME_RATE = frameRate;
-    }
-
-    /**
-     * Set the window to fullscreen mode or windowed mode.
-     *
-     * @param fullscreen true for fullscreen, false for windowed
-     */
-    public static void fullScreen(boolean fullscreen) {
-        FULL_SCREEN = fullscreen;
-    }
-
-    /**
-     * Set the title of the game window.
-     *
-     * <p>Part of the pre-run configuration: Manipulating this value will only result in changes
-     * before {@link Game#run} was executed.
-     *
-     * @param windowTitle: new title
-     */
-    public static void windowTitle(String windowTitle) {
-        WINDOW_TITLE = windowTitle;
-    }
-
-    /**
-     * Set the path to the logo of the game window.
-     *
-     * <p>Part of the pre-run configuration: Manipulating this value will only result in changes
-     * before {@link Game#run} was executed.
-     *
-     * @param logoPath: path to the nwe logo as String
-     */
-    public static void logoPath(String logoPath) {
-        LOGO_PATH = logoPath;
+        return LEVELSIZE;
     }
 
     /**
@@ -317,26 +196,13 @@ public final class Game extends ScreenAdapter {
     }
 
     /**
-     * Set if you want to disable or enable the audi of the game.
-     *
-     * <p>Part of the pre-run configuration: Manipulating this value will only result in changes
-     * before {@link Game#run} was executed.
-     *
-     * @param disableAudio true if you want to disable the audio, false (default) if not.
-     */
-    public static void disableAudio(boolean disableAudio) {
-        DISABLE_AUDIO = disableAudio;
-    }
-
-    /**
      * In the next frame, each system will be informed that the given entity has changes in its
      * Component Collection.
      *
      * @param entity the entity that has changes in its Component Collection
      */
     public static void informAboutChanges(Entity entity) {
-        entities.add(entity);
-        LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
+        //        LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
     }
 
     /**
@@ -346,7 +212,7 @@ public final class Game extends ScreenAdapter {
      * @see DelayedSet
      */
     public static void addEntity(Entity entity) {
-        entities.add(entity);
+        ENTITIES.add(entity);
         LOGGER.info("Entity: " + entity + " will be added to the Game.");
     }
 
@@ -357,7 +223,7 @@ public final class Game extends ScreenAdapter {
      * @see DelayedSet
      */
     public static void removeEntity(Entity entity) {
-        entities.remove(entity);
+        ENTITIES.remove(entity);
         LOGGER.info("Entity: " + entity + " will be removed from the Game.");
     }
 
@@ -367,7 +233,16 @@ public final class Game extends ScreenAdapter {
      * @return a stream of all entities currently in the game
      */
     public static Stream<Entity> entityStream() {
-        return entities.stream();
+        return ENTITIES.stream();
+    }
+
+    /**
+     * Use this stream if you want to iterate over all currently active GLOBAL entities.
+     *
+     * @return a stream of all GLOBAL entities.
+     */
+    public static Stream<Entity> entityStreamGlobal() {
+        return clientManager.entityStream();
     }
 
     /**
@@ -401,35 +276,202 @@ public final class Game extends ScreenAdapter {
         Configuration.loadAndGetConfiguration(pathAsString, klass);
     }
 
-    /** Starts the dungeon and requires a {@link Game}. */
-    public static void run() {
-        Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-        config.setWindowSizeLimits(WINDOW_WIDTH, WINDOW_HEIGHT, 9999, 9999);
-        // The third and fourth parameters ("maxWidth" and "maxHeight") affect the resizing
-        // behavior
-        // of the window. If the window is enlarged or maximized, then it can assume these
-        // dimensions at maximum. If you have a larger screen resolution than 9999x9999 pixels,
-        // increase these parameters.
-        config.setForegroundFPS(FRAME_RATE);
-        config.setTitle(WINDOW_TITLE);
-        config.setWindowIcon(LOGO_PATH);
-        config.disableAudio(DISABLE_AUDIO);
+    /** Forces all systems to run. */
+    public void resumeSystems() {
+        if (SYSTEMS != null) {
+            SYSTEMS.forEach(
+                    (klass, system) -> {
+                        system.run();
+                    });
+        }
+    }
 
-        if (FULL_SCREEN) {
-            config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
-        } else {
-            config.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
+    /** Forces all systems to stop. */
+    public void stopSystems() {
+        if (SYSTEMS != null) {
+            SYSTEMS.forEach(
+                    (klass, system) -> {
+                        system.stop();
+                    });
+        }
+    }
+
+    /**
+     * Has to be called whenever an entity is moved, so that it can be synchronized with global
+     * state.
+     *
+     * @param entityGlobalID Global ID of the entity.
+     * @param newPosition New position of the entity.
+     * @param xVelocity X velocity while moving.
+     * @param yVelocity Y velocity while moving.
+     */
+    public static void sendMovementUpdate(
+            final int entityGlobalID,
+            final Point newPosition,
+            final float xVelocity,
+            final float yVelocity) {
+        clientManager.sendMovementUpdate(entityGlobalID, newPosition, xVelocity, yVelocity);
+    }
+
+    /** Has to be called to play in single player mode. */
+    public void runSinglePlayer() {
+        currentGameMode = Optional.of(GameMode.SinglePlayer);
+        resumeSystems();
+    }
+
+    /**
+     * Hosting multiplayer session with the current local game state (level, entities), so that
+     * other clients can join.
+     */
+    public void openToLan() {
+        boolean isFailed = true;
+        String errorMessage = "Something failed";
+        currentGameMode = Optional.of(GameMode.Multiplayer);
+        resumeSystems();
+        if (doSetup) onSetup();
+        try {
+            if (hero == null) {
+                hero(EntityFactory.newHero());
+            }
+            if (currentLevel() == null) {
+                currentLevel(LevelSize.SMALL);
+            }
+//            // Check whether which random port is not already in use and listen to this on
+//            // serverside
+//            // it's unlikely that no port is free but to not run into infinite loop, limit tries.
+//            int generatePortTriesMaxCount = 20;
+//            int generatePortTriesCount = 0;
+//            boolean isServerStarted = false;
+//            int serverPort;
+//            do {
+//                // Create random 5 digit port
+//                serverPort = ThreadLocalRandom.current().nextInt(10000, 65535 + 1);
+//                isServerStarted = serverManager.start(serverPort);
+//            } while ((generatePortTriesCount < generatePortTriesMaxCount) && !isServerStarted);
+
+            boolean isServerStarted = serverManager.start(12345);
+            if (isServerStarted) {
+                if (!clientManager.connect("127.0.0.1", 12345)) {
+                    errorMessage = "Server started but client failed to connect.";
+                } else {
+                    isFailed = false;
+                    /* Need to synchronize toAdd and toRemove into current entities. */
+                    updateSystems();
+                    clientManager.loadMap(
+                            currentLevel(), entityStream().collect(Collectors.toSet()), hero);
+                }
+            } else {
+                errorMessage = "Server can not be started.";
+            }
+        } catch (Exception ex) {
+            final String message = "Multiplayer session failed to start.\n" + ex.getMessage();
         }
 
-        // uncomment this if you wish no audio
-        new Lwjgl3Application(
-                new com.badlogic.gdx.Game() {
-                    @Override
-                    public void create() {
-                        setScreen(new Game());
-                    }
-                },
-                config);
+        if (isFailed) {
+            LOGGER.severe(errorMessage);
+            Entity entity = UITools.generateNewTextDialog(errorMessage, "Ok", "Error");
+            entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+            stopSystems();
+        }
+    }
+
+    /**
+     * Join existing multiplayer session.
+     *
+     * @param hostAddress Address of host device.
+     * @param port Port that offers communication.
+     */
+    public void joinMultiplayerSession(final String hostAddress, final Integer port) {
+        currentGameMode = Optional.of(GameMode.Multiplayer);
+        resumeSystems();
+        if (doSetup) onSetup();
+        try {
+            if (hero == null) {
+                hero(EntityFactory.newHero());
+            }
+            clientManager.joinSession(hostAddress, port, hero);
+        } catch (Exception ex) {
+            final String message = "Multiplayer session failed to join.";
+            LOGGER.warning(String.format("%s\n%s", message, ex.getMessage()));
+            Entity entity = UITools.generateNewTextDialog(message, "Ok", "Error on join.");
+            entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+            stopSystems();
+        }
+    }
+
+    @Override
+    public void onMultiplayerSessionJoined(
+            final boolean isSucceed,
+            final int heroGlobalID,
+            final ILevel level,
+            final Point initialHeroPosition) {
+        if (isSucceed) {
+            hero().get().globalID(heroGlobalID);
+            PositionComponent heroPositionComponent =
+                    Game.hero().get().fetch(PositionComponent.class).orElseThrow();
+            heroPositionComponent.position(initialHeroPosition);
+
+            try {
+                currentLevel(level);
+                updateSystems();
+            } catch (Exception ex) {
+                final String message = "Session successfully joined but level can not be set.";
+                LOGGER.warning(String.format("%s\n%s", message, ex.getMessage()));
+//                Entity entity = UITools.generateNewTextDialog(message, "Ok", "Process failure");
+//                entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+                stopSystems();
+            }
+        } else {
+            final String message = "Cannot join multiplayer session";
+            LOGGER.warning(message);
+//            Entity entity = UITools.generateNewTextDialog(message, "Ok", "Connection failed.");
+//            entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+            stopSystems();
+        }
+    }
+
+    @Override
+    public void onMapLoad(ILevel level) {
+        if (level == null) {
+            final String message = "Level failed to load. Is null.";
+            LOGGER.warning(message);
+//            Entity entity = UITools.generateNewTextDialog(message, "Ok", "No map loaded.");
+//            entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+            stopSystems();
+            return;
+        }
+
+        /* Only set received level for Not-Hosts, because host has set the level. */
+        if (!serverManager.isHost(clientManager.clientID())) {
+            currentLevel(level);
+            updateSystems();
+        }
+    }
+
+    @Override
+    public void onChangeMapRequest() {
+        if (serverManager.isHost(clientManager.clientID())) {
+            currentLevel(LEVELSIZE);
+            // Needed to synchronize toAdd and toRemove entities into currentEntities
+            updateSystems();
+            clientManager.loadMap(
+                    currentLevel(), ENTITIES.stream().collect(Collectors.toSet()), hero);
+        }
+    }
+
+    @Override
+    public void onMultiplayerSessionConnectionLost() {
+        final String message = "Disconnected from multiplayer session.";
+        LOGGER.info(message);
+//        Entity entity = UITools.generateNewTextDialog(message, "Ok", "Connection lost.");
+//        entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+        stopSystems();
+    }
+
+    @Override
+    public void dispose() {
+        clientManager.disconnect();
+        serverManager.stop();
     }
 
     /**
@@ -450,8 +492,8 @@ public final class Game extends ScreenAdapter {
      * @see Optional
      */
     public static Optional<System> addSystem(System system) {
-        System currentSystem = systems.get(system.getClass());
-        systems.put(system.getClass(), system);
+        System currentSystem = SYSTEMS.get(system.getClass());
+        SYSTEMS.put(system.getClass(), system);
         LOGGER.info("A new " + system.getClass().getName() + " was added to the game");
         return Optional.ofNullable(currentSystem);
     }
@@ -462,7 +504,7 @@ public final class Game extends ScreenAdapter {
      * @param system the class of the system to remove
      */
     public static void removeSystem(Class<? extends System> system) {
-        systems.remove(system);
+        SYSTEMS.remove(system);
     }
 
     /**
@@ -471,8 +513,8 @@ public final class Game extends ScreenAdapter {
      * <p>This will also remove all entities from each system.
      */
     public static void removeAllEntities() {
-        systems.values().forEach(System::clearEntities);
-        entities.clear();
+        SYSTEMS.values().forEach(System::clearEntities);
+        ENTITIES.clear();
         LOGGER.info("All entities will be removed from the game.");
     }
 
@@ -602,8 +644,19 @@ public final class Game extends ScreenAdapter {
      * @param level New level
      */
     public static void currentLevel(ILevel level) {
-        LevelSystem levelSystem = (LevelSystem) systems.get(LevelSystem.class);
+        LevelSystem levelSystem = (LevelSystem) SYSTEMS.get(LevelSystem.class);
         if (levelSystem != null) levelSystem.loadLevel(level);
+        else LOGGER.warning("Can not set Level because levelSystem is null.");
+    }
+
+    /**
+     * Set the current level.
+     *
+     * @param levelSize predefined level size of the level to be generated.
+     */
+    public static void currentLevel(LevelSize levelSize) {
+        LevelSystem levelSystem = (LevelSystem) SYSTEMS.get(LevelSystem.class);
+        if (levelSystem != null) levelSystem.loadLevel(levelSize);
         else LOGGER.warning("Can not set Level because levelSystem is null.");
     }
 
@@ -630,7 +683,7 @@ public final class Game extends ScreenAdapter {
         onFrame();
         clearScreen();
         updateSystems();
-        systems.values().stream().filter(System::isRunning).forEach(System::execute);
+        SYSTEMS.values().stream().filter(System::isRunning).forEach(System::execute);
         CameraSystem.camera().update();
         // stage logic
         Game.stage().ifPresent(Game::updateStage);
@@ -646,6 +699,8 @@ public final class Game extends ScreenAdapter {
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
         initBaseLogger();
         createSystems();
+        clientManager = new MultiplayerClientManager(this);
+        serverManager = new MultiplayerServerManager(this);
         setupStage();
     }
 
@@ -665,9 +720,7 @@ public final class Game extends ScreenAdapter {
     private void debugKeys() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             // Text Dialogue (output of information texts)
-
             newPauseMenu();
-
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
             // toggle UI "debug rendering"
             stage().ifPresent(x -> x.setDebugAll(uiDebugFlag = !uiDebugFlag));
@@ -691,13 +744,21 @@ public final class Game extends ScreenAdapter {
         return entity;
     }
 
-    /** Will update the entity sets of each system and {@link Game#entities}. */
-    private void updateSystems() {
-        for (System system : systems.values()) {
-            entities.foreachEntityInAddSet(system::showEntity);
-            entities.foreachEntityInRemoveSet(system::removeEntity);
+    /** Will update the entity sets of each system and {@link Game#ENTITIES}. */
+    private static void updateSystems() {
+        for (System system : SYSTEMS.values()) {
+            ENTITIES.foreachEntityInAddSet(system::showEntity);
+            ENTITIES.foreachEntityInRemoveSet(system::removeEntity);
         }
-        entities.update();
+        ENTITIES.update();
+    }
+
+    public static Game getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new Game();
+        }
+
+        return INSTANCE;
     }
 
     /**
@@ -708,7 +769,7 @@ public final class Game extends ScreenAdapter {
      * @param entity entity to set on the start of the level, normally this is the hero.
      */
     private void placeOnLevelStart(Entity entity) {
-        entities.add(entity);
+        ENTITIES.add(entity);
         PositionComponent pc =
                 entity.fetch(PositionComponent.class)
                         .orElseThrow(
@@ -740,11 +801,46 @@ public final class Game extends ScreenAdapter {
         addSystem(new VelocitySystem());
         addSystem(new PlayerSystem());
         addSystem(new HudSystem());
+        addSystem(new MultiplayerSynchronizationSystem());
     }
 
     @Override
     public void resize(int width, int height) {
         super.resize(width, height);
         stage().ifPresent(x -> x.getViewport().update(width, height, true));
+    }
+
+    public static boolean isMultiplayerMode() {
+        return currentGameMode.isPresent() ? currentGameMode.get() != GameMode.SinglePlayer : false;
+    }
+
+    public static void handleHeroOnEndTile() {
+        LevelSystem levelSystem = (LevelSystem) SYSTEMS.get(LevelSystem.class);
+
+        if (currentGameMode.isPresent()) {
+            if (currentGameMode.get() == GameMode.SinglePlayer) {
+                levelSystem.loadLevel(LEVELSIZE);
+            } else {
+                if (clientManager.isConnectedToSession()) {
+                    if (serverManager.isHost(clientManager.clientID())) {
+                        // First create new leve locally and then force server to host new map for
+                        // all.
+                        levelSystem.loadLevel(LevelSize.SMALL);
+                        updateSystems();
+                        clientManager.loadMap(
+                            currentLevel(), entityStream().collect(Collectors.toSet()), hero);
+                    } else {
+                        // Only host is allowed to load map, so force host to generate new map
+                        clientManager.requestNewLevel();
+                    }
+                } else {
+                    LOGGER.severe(
+                        "Entity on end tile and Multiplayer mode set but disconnected from session.");
+                }
+            }
+        } else {
+            LOGGER.severe(
+                "Entity on end tile but game mode is not set to determine needed action.");
+        }
     }
 }

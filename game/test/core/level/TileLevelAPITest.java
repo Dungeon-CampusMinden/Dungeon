@@ -64,7 +64,7 @@ public class TileLevelAPITest {
 
     @After
     public void cleanup() {
-        Game.currentLevel(null);
+        Game.currentLevel((ILevel) null);
         Game.removeAllEntities();
         Game.removeAllSystems();
     }

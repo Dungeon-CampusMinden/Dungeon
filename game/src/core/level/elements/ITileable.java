@@ -64,7 +64,6 @@ public interface ITileable extends IPathable {
      * @return The start tile.
      */
     Tile startTile();
-
     /**
      * Returns the tile the given entity is standing on.
      *

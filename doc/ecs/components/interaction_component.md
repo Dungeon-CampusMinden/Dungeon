@@ -11,6 +11,7 @@ Abhandeln des Geschehens.
 ## Aufbau
 
 To-do: nach Besprechung von Umfang UMLs besprechen.
+
 ![](img/interaction_component.png)
 
 Die Interaktionskomponente besitzt die grundlegenden Informationen wie und wann interagiert werden darf.

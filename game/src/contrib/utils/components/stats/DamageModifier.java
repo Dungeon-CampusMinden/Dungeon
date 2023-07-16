@@ -30,4 +30,8 @@ public class DamageModifier {
     public void setMultiplier(DamageType type, float multiplier) {
         this.damageMultipliers.put(type, multiplier);
     }
+
+    public Map<DamageType, Float> getDamageMultipliers() {
+        return damageMultipliers;
+    }
 }

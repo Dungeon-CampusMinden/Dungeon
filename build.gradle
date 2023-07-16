@@ -45,6 +45,9 @@ dependencies {
 
     // ANTLR version 4 for DSL Grammar
     antlr "org.antlr:antlr4:4.11.1"
+
+    // Kryonet for network communication
+    implementation "com.esotericsoftware:kryonet:2.22.0-RC1"
 }
 
 sourceCompatibility = 17

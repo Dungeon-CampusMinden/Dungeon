@@ -65,6 +65,7 @@ public class SkillTools {
         return new Point(velocityX, velocityY);
     }
 
+    // TODO - duplicate code here and in CursorPositionTargetSelection
     /**
      * Gets the current cursor position as Point. The cursor is used to aim.
      *

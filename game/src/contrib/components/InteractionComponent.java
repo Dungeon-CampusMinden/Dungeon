@@ -1,5 +1,7 @@
 package contrib.components;
 
+import contrib.utils.components.interaction.DefaultInteraction;
+
 import core.Component;
 import core.Entity;
 
@@ -25,7 +27,7 @@ public final class InteractionComponent extends Component {
     public static final int DEFAULT_INTERACTION_RADIUS = 5;
     public static final boolean DEFAULT_REPEATABLE = true;
 
-    private static final Consumer<Entity> DEFAULT_INTERACTION = entity -> {};
+    private static final Consumer<Entity> DEFAULT_INTERACTION = entity -> new DefaultInteraction();
     private final float radius;
     private final boolean repeatable;
     private final Consumer<Entity> onInteraction;
@@ -59,8 +61,8 @@ public final class InteractionComponent extends Component {
      *
      * @param entity The entity to link to.
      */
-    public InteractionComponent(final Entity entity) {
-        this(entity, DEFAULT_INTERACTION_RADIUS, DEFAULT_REPEATABLE, DEFAULT_INTERACTION);
+    public InteractionComponent(Entity entity) {
+        this(entity, DEFAULT_INTERACTION_RADIUS, DEFAULT_REPEATABLE, new DefaultInteraction());
     }
 
     /**
@@ -81,5 +83,13 @@ public final class InteractionComponent extends Component {
      */
     public float radius() {
         return radius;
+    }
+
+    public boolean getRepeatable() {
+        return repeatable;
+    }
+
+    public Consumer<Entity> getOnInteraction() {
+        return onInteraction;
     }
 }

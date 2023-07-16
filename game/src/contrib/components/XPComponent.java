@@ -42,12 +42,12 @@ public final class XPComponent extends Component {
      * {@code LEVEL_1_XP}.
      */
     private static final Function<Long, Long> DEFAULT_LEVEL_UP_FORMULA =
-            level -> Math.round(FORMULA_SLOPE * Math.pow(level, 2) + NEEDED_XP_FOR_LEVEL_ONE);
+        level -> Math.round(FORMULA_SLOPE * Math.pow(level, 2) + NEEDED_XP_FOR_LEVEL_ONE);
 
     private static final Consumer<Entity> DEFAULT_LEVEL_UP = entity1 -> {};
 
     private static final Function<XPComponent, Long> DEFAULT_LOOT_XP_FUNCTION =
-            xpComponent -> (long) (xpComponent.currentXP * 0.5f);
+        xpComponent -> (long)(xpComponent.currentXP() * 0.5f);
 
     private Function<XPComponent, Long> lootXPFunction;
     private Function<Long, Long> levelUPFormula;

@@ -35,8 +35,11 @@ import java.util.stream.Stream;
 @DSLContextPush(name = "entity")
 public final class Entity implements Comparable<Entity> {
     private static final Logger LOGGER = Logger.getLogger(Entity.class.getName());
-    private static int nextId = 0;
-    private final int id;
+    private static int nextLocaleID = 0;
+    /* ID that is unique on local game state. */
+    private final int localID;
+    /* ID that is unique on global/multiplayer game state. */
+    private int globalID;
     private final String name;
     private final HashMap<Class<? extends Component>, Component> components;
 
@@ -46,7 +49,8 @@ public final class Entity implements Comparable<Entity> {
      * @param name the name of the entity, used for better logging and debugging
      */
     public Entity(final String name) {
-        id = nextId++;
+        globalID = nextLocaleID;
+        localID = nextLocaleID++;
         components = new HashMap<>();
         this.name = name;
         Game.addEntity(this);
@@ -59,7 +63,24 @@ public final class Entity implements Comparable<Entity> {
      * <p>The name of the entity will be its id
      */
     public Entity() {
-        this("_" + nextId);
+        this("_" + nextLocaleID);
+    }
+
+    /**
+     * Create a new Entity.
+     *
+     * <p>NOTE: Created instance will not be added to {@link Game}. Used for multiplayer state
+     * handling.
+     *
+     * @param name
+     * @param localeID
+     * @param globalID
+     */
+    public Entity(final String name, final int localeID, final int globalID) {
+        components = new HashMap<>();
+        this.name = name;
+        this.localID = localeID;
+        this.globalID = globalID;
     }
 
     /**
@@ -76,7 +97,8 @@ public final class Entity implements Comparable<Entity> {
     public void addComponent(final Component component) {
         components.put(component.getClass(), component);
         Game.informAboutChanges(this);
-        LOGGER.info(component.getClass().getName() + " Components from " + this + " was added.");
+        //        LOGGER.info(component.getClass().getName() + " Components from " + this + " was
+        // added.");
     }
 
     /**
@@ -90,8 +112,15 @@ public final class Entity implements Comparable<Entity> {
     public void removeComponent(final Class<? extends Component> klass) {
         if (components.remove(klass) != null) {
             Game.informAboutChanges(this);
-            LOGGER.info(klass.getName() + " from " + name + " was removed.");
+            //            LOGGER.info(klass.getName() + " from " + name + " was removed.");
         }
+    }
+
+    /**
+     * @return Components of the entity.
+     */
+    public HashMap<Class<? extends Component>, Component> components() {
+        return this.components;
     }
 
     /**
@@ -119,18 +148,18 @@ public final class Entity implements Comparable<Entity> {
      * @return The id of this entity
      */
     public int id() {
-        return id;
+        return localID;
     }
 
     @Override
     public String toString() {
-        if (name.contains("_" + id)) return name;
-        else return name + "_" + id;
+        if (name.contains("_" + localID)) return name;
+        else return name + "_" + localID;
     }
 
     @Override
     public int compareTo(Entity o) {
-        return id - o.id;
+        return localID - o.localID;
     }
 
     /**
@@ -140,5 +169,37 @@ public final class Entity implements Comparable<Entity> {
      */
     public Stream<Component> componentStream() {
         return components.values().stream();
+    }
+
+    /**
+     * @return Name.
+     */
+    public String name() {
+        return name;
+    }
+
+    /**
+     * @return Local ID.
+     */
+    public int localID() {
+        return localID;
+    }
+
+    /**
+     * @return Global ID.
+     */
+    public int globalID() {
+        return globalID;
+    }
+
+    /**
+     * Set global ID at runtime. (Needed for multiplayer)
+     *
+     * <p>
+     *
+     * @param globalID To be set ID.
+     */
+    public void globalID(final int globalID) {
+        this.globalID = globalID;
     }
 }

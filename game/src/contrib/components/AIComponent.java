@@ -81,4 +81,16 @@ public final class AIComponent extends Component {
         if (shouldFight.apply(entity)) fightBehavior.accept(entity);
         else idleBehavior.accept(entity);
     }
+
+    public Consumer<Entity> fightBehavior() {
+        return fightBehavior;
+    }
+
+    public Consumer<Entity> idleBehavior() {
+        return idleBehavior;
+    }
+
+    public Function<Entity, Boolean> shouldFight() {
+        return shouldFight;
+    }
 }

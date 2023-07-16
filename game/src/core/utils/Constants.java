@@ -1,6 +1,6 @@
 package core.utils;
 
-import core.Game;
+import core.Dungeon;
 
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -16,7 +16,7 @@ public final class Constants {
      * @return width of the viewport
      */
     public static float viewportWidth() {
-        return Game.windowWidth() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+        return Dungeon.windowWidth() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
     }
 
     /**
@@ -25,7 +25,7 @@ public final class Constants {
      * @return height of the viewport
      */
     public static float viewportHeight() {
-        return Game.windowHeight() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+        return Dungeon.windowHeight() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
     }
 
     /** 200% zoom. */
@@ -47,6 +47,9 @@ public final class Constants {
 
     public static final String QUIZ_MESSAGE_SOLUTION = "Lösung";
 
+    public static final String EMPTY_MESSAGE = "";
+
+    public static final String TEST_IMAGE_PATH_FOR_DIALOG = "image_quiz/dummy.png";
     /**
      * @param path the relative path to the resource
      * @return the absolute path of the internal resource

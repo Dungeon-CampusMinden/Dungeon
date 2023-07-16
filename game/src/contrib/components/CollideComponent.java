@@ -1,5 +1,7 @@
 package contrib.components;
 
+import contrib.utils.components.collision.DefaultCollider;
+
 import core.Component;
 import core.Entity;
 import core.components.PositionComponent;
@@ -46,8 +48,7 @@ public final class CollideComponent extends Component {
     public static final Point DEFAULT_OFFSET = new Point(0.25f, 0.25f);
     public static final Point DEFAULT_SIZE = new Point(0.5f, 0.5f);
     public static final TriConsumer<Entity, Entity, Tile.Direction> DEFAULT_COLLIDER =
-            (a, b, c) -> {};
-
+            new DefaultCollider();
     private final Point offset;
     private final Point size;
     private TriConsumer<Entity, Entity, Tile.Direction> collideEnter;
@@ -198,5 +199,21 @@ public final class CollideComponent extends Component {
      */
     public void collideLeave(TriConsumer<Entity, Entity, Tile.Direction> collideLeave) {
         this.collideLeave = collideLeave;
+    }
+
+    public Point offset() {
+        return offset;
+    }
+
+    public Point size() {
+        return size;
+    }
+
+    public TriConsumer<Entity, Entity, Tile.Direction> collideEnter() {
+        return collideEnter;
+    }
+
+    public TriConsumer<Entity, Entity, Tile.Direction> collideLeave() {
+        return collideLeave;
     }
 }

@@ -178,6 +178,7 @@ public class GameEnvironment implements IEvironment {
         var entityComponentType = typeBuilder.createTypeFromClass(Scope.NULL, Entity.class);
         var positionComponentType =
                 typeBuilder.createTypeFromClass(Scope.NULL, PositionComponent.class);
+
         /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
          * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
         // var animationComponentType =

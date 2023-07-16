@@ -11,6 +11,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.TileLevel;
+import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
@@ -28,7 +29,7 @@ public class ChestTest {
     @After
     public void cleanup() {
         Game.removeAllEntities();
-        Game.currentLevel(null);
+        Game.currentLevel((ILevel) null);
         Game.removeAllSystems();
     }
 
@@ -82,7 +83,7 @@ public class ChestTest {
     /**
      * checks the dropped Item
      *
-     * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
+     * <p>Since we cant update the {@link Game#ENTITIES} from outside the gameloop, this is testcase
      * cant be tested.
      */
     /* @Test

@@ -14,7 +14,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Store all {@link Animation}s for an entity.
@@ -55,8 +54,9 @@ public final class DrawComponent extends Component {
     /**
      * Create a new DrawComponent and add it to the associated entity.
      *
-     * <p>Will read in all subdirectories of the given path and use each file in the subdirectory to
-     * create an animation. So each subdirectory should contain only the files for one animation.
+     * <p>Will read in all subdirectories of the given pathRelativeToAssets and use each file in the
+     * subdirectory to create an animation. So each subdirectory should contain only the files for
+     * one animation.
      *
      * <p>Will set the current animation to either idle down, idle left, idle right, idle up or
      * idle, depending on which one of these animations exist.
@@ -65,28 +65,42 @@ public final class DrawComponent extends Component {
      * is set.
      *
      * @param entity associated entity
-     * @param path Path (as a string) to the directory in the assets folder where the subdirectories
-     *     containing the animation files are stored. Example: "character/knight".
-     * @throws IOException if the given path does not exist
+     * @param pathRelativeToAssets Path (as a string) to the directory in the assets folder where
+     *     the subdirectories containing the animation files are stored. Example:
+     *     "character/knight".
+     * @throws IOException if the given pathRelativeToAssets does not exist
      * @see Animation
      */
-    public DrawComponent(final Entity entity, final String path) throws IOException {
+    public DrawComponent(final Entity entity, final String pathRelativeToAssets)
+            throws IOException {
         super(entity);
         // fetch available animations
         try {
             ClassLoader classLoader = getClass().getClassLoader();
-            File directory = new File(classLoader.getResource(path).getFile());
-            animationMap =
-                    Arrays.stream(directory.listFiles())
-                            .filter(File::isDirectory)
-                            .collect(Collectors.toMap(File::getName, Animation::of));
+            final String directoryPath = classLoader.getResource(pathRelativeToAssets).getFile();
 
+            File directory = new File(directoryPath);
+            animationMap = new HashMap<>();
+            for (File subdir : directory.listFiles()) {
+                final List<String> texturePaths = new ArrayList<>();
+                for (File file : subdir.listFiles()) {
+                    if (file.isFile()) {
+                        texturePaths.add(
+                                String.format(
+                                        "%s/%s/%s",
+                                        pathRelativeToAssets, subdir.getName(), file.getName()));
+                    }
+                }
+                if (texturePaths.stream().findAny().isPresent()) {
+                    animationMap.put(subdir.getName(), Animation.of(texturePaths));
+                }
+            }
             currentAnimation(
-                    CoreAnimations.IDLE_DOWN,
-                    CoreAnimations.IDLE_LEFT,
-                    CoreAnimations.IDLE_RIGHT,
-                    CoreAnimations.IDLE_UP,
-                    CoreAnimations.IDLE);
+                CoreAnimations.IDLE_DOWN,
+                CoreAnimations.IDLE_LEFT,
+                CoreAnimations.IDLE_RIGHT,
+                CoreAnimations.IDLE_UP,
+                CoreAnimations.IDLE);
 
             // if no idle animation exists, set the missing texture animation as idle
             if (currentAnimation == null) {
@@ -103,7 +117,7 @@ public final class DrawComponent extends Component {
             // reason for a NullPointerException is if the directory does not exist.
             throw new FileNotFoundException(
                     "Path "
-                            + path
+                            + pathRelativeToAssets
                             + " not found. DrawComponent was removed from Entity: "
                             + entity);
         }
@@ -126,6 +140,21 @@ public final class DrawComponent extends Component {
         animationMap.put(CoreAnimations.IDLE_LEFT.pathString(), idle);
         animationMap.put(CoreAnimations.IDLE_RIGHT.pathString(), idle);
         currentAnimation = idle;
+    }
+
+    /**
+     * Create a new DrawComponent with a specific animation map.
+     *
+     * <p>This constructor is for special case only (multiplayer). Use {@link DrawComponent(Entity,
+     * String)} if possible.
+     *
+     * @param entity associated entity
+     * @param animationMap predefined animations.
+     */
+    public DrawComponent(final Entity entity, final HashMap<String, Animation> animationMap) {
+        super(entity);
+        this.animationMap = animationMap;
+        currentAnimation(CoreAnimations.IDLE_LEFT);
     }
 
     /**
@@ -156,12 +185,13 @@ public final class DrawComponent extends Component {
             if (animation != null) {
                 currentAnimation = animation;
                 return;
-            } else
-                LOGGER.warning(
-                        "Animation "
-                                + animationName
-                                + " can not be set, because the given Animation could not be found for "
-                                + entity.toString());
+            } else {
+//                LOGGER.warning(
+//                        "Animation "
+//                                + animationName
+//                                + " can not be set, because the given Animation could not be found for "
+//                                + entity.toString());
+            }
         }
     }
 
@@ -199,7 +229,7 @@ public final class DrawComponent extends Component {
     public boolean isCurrentAnimation(final IPath path) {
         Optional<Animation> animation = getAnimation(path);
         if (animation.isPresent()) return animation.get() == currentAnimation;
-        LOGGER.warning("Animation " + path + " is not stored inside " + entity.toString());
+//        LOGGER.warning("Animation " + path + " is not stored inside " + entity.toString());
         return false;
     }
 
@@ -219,5 +249,9 @@ public final class DrawComponent extends Component {
      */
     public boolean isCurrentAnimationFinished() {
         return currentAnimation.isFinished();
+    }
+
+    public HashMap<String, Animation> animationMap() {
+        return (HashMap<String, Animation>) this.animationMap;
     }
 }

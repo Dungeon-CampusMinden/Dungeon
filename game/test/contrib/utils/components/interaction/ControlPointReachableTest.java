@@ -8,6 +8,7 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.TileLevel;
+import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
@@ -84,7 +85,7 @@ public class ControlPointReachableTest {
 
     @After
     public void cleanup() {
-        Game.currentLevel(null);
+        Game.currentLevel((ILevel) null);
         Game.removeAllEntities();
         Game.removeAllSystems();
     }

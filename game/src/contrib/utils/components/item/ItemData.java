@@ -100,9 +100,9 @@ public final class ItemData {
                 worldTexture,
                 itemName,
                 description,
-                ItemData::defaultCollect,
-                ItemData::defaultDrop,
-                ItemData::defaultUseCallback,
+                new DefaultCollect(),
+                new DefaultDrop(),
+                new DefaultUseCallback(),
                 new DamageModifier());
     }
 
@@ -293,5 +293,9 @@ public final class ItemData {
      */
     public void onUse(BiConsumer<Entity, ItemData> onUse) {
         this.onUse = onUse;
+    }
+
+    public DamageModifier damageModifier() {
+        return damageModifier;
     }
 }

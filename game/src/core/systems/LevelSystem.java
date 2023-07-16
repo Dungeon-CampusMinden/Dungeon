@@ -211,7 +211,7 @@ public final class LevelSystem extends System {
                                         MissingComponentException.build(
                                                 entity, PositionComponent.class));
         Tile currentTile = Game.tileAT(pc.position());
-        return currentTile.equals(Game.endTile());
+        return currentTile != null ? currentTile.equals(Game.endTile()) : false;
     }
 
     /**
@@ -225,7 +225,7 @@ public final class LevelSystem extends System {
     @Override
     public void execute() {
         if (currentLevel == null) loadLevel(levelSize);
-        else if (entityStream().anyMatch(this::isOnEndTile)) loadLevel(levelSize);
+        else if (entityStream().anyMatch(this::isOnEndTile)) Game.handleHeroOnEndTile();
         drawLevel();
     }
 
