@@ -31,8 +31,8 @@ public class QuizDialogDesign {
                     default -> skin.get("default", CheckBox.CheckBoxStyle.class);
                 };
         quiz.contentStream()
-                .map(answer -> (Quiz.QuizContent) answer)
-                .filter(answer -> answer.type() != Quiz.QuizContent.QuizContentType.IMAGE)
+                .map(answer -> (Quiz.Content) answer)
+                .filter(answer -> answer.type() != Quiz.Content.Type.IMAGE)
                 .map(
                         answer ->
                                 new CheckBox(
@@ -92,7 +92,7 @@ public class QuizDialogDesign {
      * @param outputMsg Content displayed in the scrollable label
      */
     private static Group visualizeQuestionSection(
-            Quiz.QuizContent.QuizContentType questionContentType, Skin skin, String outputMsg) {
+            Quiz.Content.Type questionContentType, Skin skin, String outputMsg) {
 
         VerticalGroup vg = new VerticalGroup();
 
