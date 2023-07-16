@@ -1,7 +1,6 @@
 package parser.ast;
 
 public class TermNode extends BinaryNode {
-
     public enum TermType {
         plus,
         minus

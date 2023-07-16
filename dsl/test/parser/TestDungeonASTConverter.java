@@ -578,8 +578,6 @@ public class TestDungeonASTConverter {
         Assert.assertEquals(Node.Type.Block, elseStmt.type);
     }
 
-    // TODO: tests for complex expressions
-
     @Test
     public void testUnary() {
         String program =
