@@ -6,7 +6,6 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.EndPoint;
 
 import contrib.components.*;
-import contrib.utils.components.ai.AITools;
 import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.fight.MeleeAI;
 import contrib.utils.components.ai.fight.RangeAI;
@@ -187,7 +186,6 @@ public class NetworkSetup {
 
     private static void registerAiSpecifics(final Kryo kryo) {
         requireNonNull(kryo);
-        kryo.register(AITools.class);
         kryo.register(CollideAI.class, new CollideAISerializer());
         kryo.register(MeleeAI.class, new MeleeAISerializer());
         kryo.register(RangeAI.class, new RangeAiSerializer());

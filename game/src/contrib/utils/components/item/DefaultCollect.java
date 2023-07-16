@@ -24,7 +24,7 @@ public class DefaultCollect implements BiConsumer<Entity, Entity> {
                                                 (x) -> {
                                                     // check if Item can be added to hero Inventory
                                                     if ((x)
-                                                            .addItem(
+                                                        .add(
                                                                     worldItem
                                                                             .fetch(
                                                                                     ItemComponent

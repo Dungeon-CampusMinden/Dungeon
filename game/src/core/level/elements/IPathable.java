@@ -24,13 +24,21 @@ public interface IPathable extends IndexedGraph<Tile> {
     int getNodeCount();
 
     /**
-     * Starts the indexed A* pathfinding algorithm a returns a path
+     * Starts the indexed A* pathfinding algorithm a returns a path.
+     *
+     * <p>Throws an IllegalArgumentException if start or end is non-accessible.
      *
      * @param start Start tile
      * @param end End tile
      * @return Generated path
      */
     default GraphPath<Tile> findPath(Tile start, Tile end) {
+        if (!start.isAccessible())
+            throw new IllegalArgumentException(
+                    "Can not calculate Path because the start point is non-accessible.");
+        if (!end.isAccessible())
+            throw new IllegalArgumentException(
+                    "Can not calculate Path because the end point is non-accessible.");
         GraphPath<Tile> path = new DefaultGraphPath<>();
         new IndexedAStarPathFinder<>(this).searchNodePath(start, end, tileHeuristic(), path);
         return path;
@@ -58,13 +66,8 @@ public interface IPathable extends IndexedGraph<Tile> {
      * @return Position of the given entity.
      */
     default Point positionOf(Entity entity) {
-        return ((PositionComponent)
-                        entity.fetch(PositionComponent.class)
-                                .orElseThrow(
-                                        () ->
-                                                new MissingComponentException(
-                                                        entity.getClass().getName()
-                                                                + "is missing PositionComponent")))
+        return entity.fetch(PositionComponent.class)
+                .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class))
                 .position();
     }
 }

@@ -12,6 +12,7 @@ import core.System;
 import core.components.DrawComponent;
 import core.utils.components.MissingComponentException;
 
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -28,26 +29,51 @@ public final class HealthSystem extends System {
     public void execute() {
         entityStream()
                 // Consider only entities that have a HealthComponent
-                // Form triples (e, hc, ac)
+                // Form triples (e, hc, dc)
                 .map(this::buildDataObject)
                 // Apply damage
                 .map(this::applyDamage)
                 // Filter all dead entities
                 .filter(hsd -> hsd.hc.isDead())
-                .filter(
-                        hsd -> {
-                            if (!hsd.ac.hasAnimation(AdditionalAnimations.DIE)
-                                    || hsd.ac
-                                            .getAnimation(AdditionalAnimations.DIE)
-                                            .get()
-                                            .isLooping()) return true;
-                            if (!hsd.ac.isCurrentAnimation(AdditionalAnimations.DIE)) {
-                                hsd.ac.currentAnimation(AdditionalAnimations.DIE);
-                            }
-                            return hsd.ac.currentAnimation().isFinished();
-                        })
+                // Set DeathAnimation if possible and not yet set
+                .map(this::activateDeathAnimation)
+                // Filter by state of animation
+                .filter(this::testDeathAnimationStatus)
                 // Remove all dead entities
                 .forEach(this::removeDeadEntities);
+    }
+
+    /**
+     * Tests the existence and current status of the DeathAnimation of an entity.
+     *
+     * <p>Returns a corresponding Boolean value if the entity can be removed from the game. This is
+     * the case if the entity does not have a death animation, or it has already finished. Also, if
+     * the entity has a death animation, and it is in loop mode, the entity will be marked for
+     * removal.
+     *
+     * @param hsd HSData to check Animations in
+     * @return true if Entity can be removed from the game
+     */
+    private boolean testDeathAnimationStatus(HSData hsd) {
+        DrawComponent dc = hsd.dc;
+        // test if hsd has a DeathAnimation
+        Predicate<DrawComponent> hasDeathAnimation =
+                (drawComponent) -> drawComponent.hasAnimation(AdditionalAnimations.DIE);
+        // test if Animation is looping
+        Predicate<DrawComponent> isAnimationLooping = DrawComponent::isCurrentAnimationLooping;
+        // test if Animation has finished playing
+        Predicate<DrawComponent> isAnimationFinished = DrawComponent::isCurrentAnimationFinished;
+
+        return !hasDeathAnimation.test(dc)
+                || isAnimationLooping.test(dc)
+                || isAnimationFinished.test(dc);
+    }
+
+    private HSData activateDeathAnimation(HSData hsd) {
+        // set DeathAnimation as active animation
+        hsd.dc.currentAnimation(AdditionalAnimations.DIE);
+
+        return hsd;
     }
 
     private HSData buildDataObject(Entity entity) {
@@ -90,7 +116,7 @@ public final class HealthSystem extends System {
                 .mapToInt(
                         dt ->
                                 Math.round(
-                                        statsComponent.damageModifiers().multiplierFor(dt)
+                                        statsComponent.multiplierFor(dt)
                                                 * hsd.hc.calculateDamageOf(dt)))
                 .sum();
     }
@@ -98,7 +124,7 @@ public final class HealthSystem extends System {
     private void doDamageAndAnimation(HSData hsd, int dmgAmount) {
         if (dmgAmount > 0) {
             // we have some damage - let's show a little dance
-            hsd.ac.currentAnimation(AdditionalAnimations.HIT);
+            hsd.dc.currentAnimation(AdditionalAnimations.HIT);
         }
         // reset all damage objects in health component and apply damage
         hsd.hc.clearDamage();
@@ -108,7 +134,6 @@ public final class HealthSystem extends System {
     private void removeDeadEntities(HSData hsd) {
         // Entity appears to be dead, so let's clean up the mess
         hsd.hc.triggerOnDeath();
-        hsd.ac.currentAnimation(AdditionalAnimations.DIE);
         Game.removeEntity(hsd.hc.entity());
 
         // Add XP
@@ -123,5 +148,5 @@ public final class HealthSystem extends System {
     }
 
     // private record to hold all data during streaming
-    private record HSData(Entity e, HealthComponent hc, DrawComponent ac) {}
+    private record HSData(Entity e, HealthComponent hc, DrawComponent dc) {}
 }

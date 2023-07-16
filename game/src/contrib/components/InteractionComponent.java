@@ -7,23 +7,44 @@ import core.Entity;
 
 import java.util.function.Consumer;
 
-public class InteractionComponent extends Component {
-    public static final int DEFAULT_RADIUS = 5;
+/**
+ * Allows interaction with the associated entity.
+ *
+ * <p>An interaction can be triggered using {@link #triggerInteraction()}. This happens in the
+ * {@link core.systems.PlayerSystem} if the player presses the corresponding button on the keyboard
+ * and is in the interaction range of this component.
+ *
+ * <p>What happens during an interaction is defined by the {@link Consumer<Entity>} {@link
+ * #onInteraction}.
+ *
+ * <p>An interaction can be repeatable, in which case it can be triggered multiple times. If an
+ * interaction is not repeatable, the {@link InteractionComponent} is removed from the associated
+ * entity after the interaction.
+ *
+ * <p>The interaction radius can be queried with {@link #radius()}.
+ */
+public final class InteractionComponent extends Component {
+    public static final int DEFAULT_INTERACTION_RADIUS = 5;
     public static final boolean DEFAULT_REPEATABLE = true;
-    private float radius;
-    private boolean repeatable;
-    private Consumer<Entity> onInteraction;
+
+    private static final Consumer<Entity> DEFAULT_INTERACTION = entity -> new DefaultInteraction();
+    private final float radius;
+    private final boolean repeatable;
+    private final Consumer<Entity> onInteraction;
 
     /**
-     * complex ctor which allows the attributes to be configured
+     * Create a new {@link InteractionComponent} and adds it to the associated entity.
      *
-     * @param entity the entity to link to
-     * @param radius the radius in which an interaction can happen
-     * @param repeatable true if the interaction is repeatable, otherwise false
-     * @param onInteraction the strategy which should happen on an interaction
+     * @param entity The associated entity.
+     * @param radius The radius in which an interaction can happen.
+     * @param repeatable True if the interaction is repeatable, otherwise false.
+     * @param onInteraction The behavior that should happen on an interaction.
      */
     public InteractionComponent(
-            Entity entity, float radius, boolean repeatable, Consumer<Entity> onInteraction) {
+            final Entity entity,
+            float radius,
+            boolean repeatable,
+            final Consumer<Entity> onInteraction) {
         super(entity);
         this.radius = radius;
         this.repeatable = repeatable;
@@ -31,31 +52,34 @@ public class InteractionComponent extends Component {
     }
 
     /**
-     * simple ctor which sets all attributes to the default values
+     * Create a new {@link InteractionComponent} with default configuration and adds it to the
+     * associated entity.
      *
-     * @param entity the entity to link to
+     * <p>The interaction radius is {@link #DEFAULT_INTERACTION_RADIUS}.
+     *
+     * <p>The interaction callback is empty.
+     *
+     * @param entity The entity to link to.
      */
     public InteractionComponent(Entity entity) {
-        this(entity, DEFAULT_RADIUS, DEFAULT_REPEATABLE, new DefaultInteraction());
+        this(entity, DEFAULT_INTERACTION_RADIUS, DEFAULT_REPEATABLE, new DefaultInteraction());
     }
 
-    /** triggers the interaction between hero and the Entity of the component */
+    /**
+     * Triggers the interaction callback.
+     *
+     * <p>If the interaction is not repeatable, this component will be removed from the entity
+     * afterwards.
+     */
     public void triggerInteraction() {
         onInteraction.accept(entity);
         if (!repeatable) entity.removeComponent(InteractionComponent.class);
     }
 
     /**
-     * simple default interaction which helps to get started
+     * Gets the interaction radius.
      *
-     * @param e the Entity which interacts with the current
-     */
-    public static void DefaultInteraction(Entity e) {
-        System.out.println(e.id() + " did use the DefaultInteraction");
-    }
-
-    /**
-     * @return the radius in which an interaction can happen
+     * @return The radius in which an interaction can happen.
      */
     public float radius() {
         return radius;

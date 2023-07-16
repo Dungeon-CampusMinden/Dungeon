@@ -24,10 +24,8 @@ import core.components.PositionComponent;
 import core.components.UIComponent;
 import core.configuration.Configuration;
 import core.hud.UITools;
-import core.level.IOnLevelLoader;
 import core.level.Tile;
 import core.level.elements.ILevel;
-import core.level.generator.IGenerator;
 import core.level.generator.postGeneration.WallGenerator;
 import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.level.utils.Coordinate;
@@ -38,15 +36,15 @@ import core.systems.DrawSystem;
 import core.systems.HudSystem;
 import core.systems.PlayerSystem;
 import core.systems.VelocitySystem;
+import core.systems.LevelSystem;
 import core.utils.Constants;
 import core.utils.DelayedSet;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Painter;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -56,7 +54,7 @@ import java.util.stream.Stream;
 
 public class Game
     extends ScreenAdapter
-    implements IOnLevelLoader, IMultiplayerClientManagerObserver, IMultiplayerServerManagerObserver {
+    implements IMultiplayerClientManagerObserver, IMultiplayerServerManagerObserver {
 
     /* Used for singleton. */
     private static Game INSTANCE;
@@ -66,27 +64,20 @@ public class Game
      *
      * <p>The Key-Value is the Class of the system
      */
-    private static final Map<Class<? extends System>, System> SYSTEMS = new HashMap<>();
+    private static final Map<Class<? extends System>, System> SYSTEMS = new LinkedHashMap<>();
     /** All entities that are currently active in the dungeon */
     private static final DelayedSet<Entity> ENTITIES = new DelayedSet<>();
 
     private static final Logger LOGGER = Logger.getLogger("Game");
-    /**
-     * The currently loaded level of the game.
-     *
-     * @see ILevel
-     * @see LevelManager
-     */
-    private static ILevel currentLevel;
     /**
      * The width of the game window in pixels.
      *
      * <p>Manipulating this value will only result in changes before {@link Dungeon#run} was
      * executed.
      */
-    private static int WINDOW_WIDTH = 640;
+    private static int WINDOW_WIDTH = 1280;
     /** Part of the pre-run configuration. The height of the game window in pixels. */
-    private static int WINDOW_HEIGHT = 480;
+    private static int WINDOW_HEIGHT = 720;
 
     /** Currently used level-size configuration for generating new level */
     private static LevelSize LEVELSIZE = LevelSize.SMALL;
@@ -110,17 +101,22 @@ public class Game
     private static Entity hero;
 
     private static Stage stage;
-
-    private static LevelManager levelManager;
-
     /**
-     * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
-     * batch.
+     * Sets {@link #currentLevel} to the new level and removes all entities.
+     *
+     * <p>Will re-add the hero if he exists.
      */
-    protected SpriteBatch batch;
-
-    /** Draws objects */
-    protected Painter painter;
+    private final IVoidFunction onLevelLoad =
+            () -> {
+                removeAllEntities();
+                try {
+                    hero().ifPresent(this::placeOnLevelStart);
+                } catch (MissingComponentException e) {
+                    LOGGER.warning(e.getMessage());
+                }
+                hero().ifPresent(Game::addEntity);
+                userOnLevelLoad.execute();
+            };
 
     private boolean doSetup = true;
     private boolean uiDebugFlag = false;
@@ -136,14 +132,14 @@ public class Game
      * @return the currently loaded level
      */
     public static ILevel currentLevel() {
-        return currentLevel;
+        return LevelSystem.level();
     }
 
     /**
      * @return a copy of the map that stores all registered {@link System} in the game.
      */
     public static Map<Class<? extends System>, System> systems() {
-        return new HashMap<>(SYSTEMS);
+        return new LinkedHashMap<>(SYSTEMS);
     }
 
     /** Remove all registered systems from the game. */
@@ -170,7 +166,7 @@ public class Game
      * @param levelSize Size of the next level.
      */
     public static void levelSize(LevelSize levelSize) {
-        Game.LEVELSIZE = levelSize;
+        LevelSystem.levelSize(levelSize);
     }
 
     /**
@@ -337,21 +333,25 @@ public class Game
             if (hero == null) {
                 hero(EntityFactory.newHero());
             }
-            // Check whether which random port is not already in use and listen to this on
-            // serverside
-            // it's unlikely that no port is free but to not run into infinite loop, limit tries.
-            int generatePortTriesMaxCount = 20;
-            int generatePortTriesCount = 0;
-            boolean isServerStarted = false;
-            int serverPort;
-            do {
-                // Create random 5 digit port
-                serverPort = ThreadLocalRandom.current().nextInt(10000, 65535 + 1);
-                isServerStarted = serverManager.start(serverPort);
-            } while ((generatePortTriesCount < generatePortTriesMaxCount) && !isServerStarted);
+            if (currentLevel() == null) {
+                currentLevel(LevelSize.SMALL);
+            }
+//            // Check whether which random port is not already in use and listen to this on
+//            // serverside
+//            // it's unlikely that no port is free but to not run into infinite loop, limit tries.
+//            int generatePortTriesMaxCount = 20;
+//            int generatePortTriesCount = 0;
+//            boolean isServerStarted = false;
+//            int serverPort;
+//            do {
+//                // Create random 5 digit port
+//                serverPort = ThreadLocalRandom.current().nextInt(10000, 65535 + 1);
+//                isServerStarted = serverManager.start(serverPort);
+//            } while ((generatePortTriesCount < generatePortTriesMaxCount) && !isServerStarted);
 
+            boolean isServerStarted = serverManager.start(12345);
             if (isServerStarted) {
-                if (!clientManager.connect("127.0.0.1", serverPort)) {
+                if (!clientManager.connect("127.0.0.1", 12345)) {
                     errorMessage = "Server started but client failed to connect.";
                 } else {
                     isFailed = false;
@@ -413,18 +413,19 @@ public class Game
 
             try {
                 currentLevel(level);
+                updateSystems();
             } catch (Exception ex) {
                 final String message = "Session successfully joined but level can not be set.";
                 LOGGER.warning(String.format("%s\n%s", message, ex.getMessage()));
-                Entity entity = UITools.generateNewTextDialog(message, "Ok", "Process failure");
-                entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+//                Entity entity = UITools.generateNewTextDialog(message, "Ok", "Process failure");
+//                entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
                 stopSystems();
             }
         } else {
             final String message = "Cannot join multiplayer session";
             LOGGER.warning(message);
-            Entity entity = UITools.generateNewTextDialog(message, "Ok", "Connection failed.");
-            entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+//            Entity entity = UITools.generateNewTextDialog(message, "Ok", "Connection failed.");
+//            entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
             stopSystems();
         }
     }
@@ -434,26 +435,27 @@ public class Game
         if (level == null) {
             final String message = "Level failed to load. Is null.";
             LOGGER.warning(message);
-            Entity entity = UITools.generateNewTextDialog(message, "Ok", "No map loaded.");
-            entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+//            Entity entity = UITools.generateNewTextDialog(message, "Ok", "No map loaded.");
+//            entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
             stopSystems();
             return;
         }
 
         /* Only set received level for Not-Hosts, because host has set the level. */
         if (!serverManager.isHost(clientManager.clientID())) {
-            levelManager.level(level);
+            currentLevel(level);
+            updateSystems();
         }
     }
 
     @Override
     public void onChangeMapRequest() {
         if (serverManager.isHost(clientManager.clientID())) {
-            levelManager.loadLevel(LEVELSIZE);
+            currentLevel(LEVELSIZE);
             // Needed to synchronize toAdd and toRemove entities into currentEntities
             updateSystems();
             clientManager.loadMap(
-                    currentLevel, ENTITIES.stream().collect(Collectors.toSet()), hero);
+                    currentLevel(), ENTITIES.stream().collect(Collectors.toSet()), hero);
         }
     }
 
@@ -461,8 +463,8 @@ public class Game
     public void onMultiplayerSessionConnectionLost() {
         final String message = "Disconnected from multiplayer session.";
         LOGGER.info(message);
-        Entity entity = UITools.generateNewTextDialog(message, "Ok", "Connection lost.");
-        entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+//        Entity entity = UITools.generateNewTextDialog(message, "Ok", "Connection lost.");
+//        entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
         stopSystems();
     }
 
@@ -534,7 +536,7 @@ public class Game
      * @return the tile at the given point.
      */
     public static Tile tileAT(Point p) {
-        return currentLevel.tileAt(p);
+        return currentLevel().tileAt(p);
     }
 
     /**
@@ -544,14 +546,14 @@ public class Game
      * @return the tile at the given coordinate.
      */
     public static Tile tileAT(Coordinate c) {
-        return currentLevel.tileAt(c);
+        return currentLevel().tileAt(c);
     }
 
     /**
      * @return a random Tile in the Level
      */
     public static Tile randomTile() {
-        return currentLevel.randomTile();
+        return currentLevel().randomTile();
     }
 
     /**
@@ -560,7 +562,7 @@ public class Game
      * @return The end tile.
      */
     public static Tile endTile() {
-        return currentLevel.endTile();
+        return currentLevel().endTile();
     }
 
     /**
@@ -569,7 +571,7 @@ public class Game
      * @return The start tile.
      */
     public static Tile startTile() {
-        return currentLevel.startTile();
+        return currentLevel().startTile();
     }
 
     /**
@@ -579,7 +581,7 @@ public class Game
      * @return tile at the coordinate of the entity
      */
     public static Tile tileAtEntity(Entity entity) {
-        return currentLevel.tileAtEntity(entity);
+        return currentLevel().tileAtEntity(entity);
     }
 
     /**
@@ -589,7 +591,7 @@ public class Game
      * @return A random Tile of the given Type
      */
     public static Tile randomTile(LevelElement elementType) {
-        return currentLevel.randomTile(elementType);
+        return currentLevel().randomTile(elementType);
     }
 
     /**
@@ -598,7 +600,7 @@ public class Game
      * @return Position of the Tile as Point
      */
     public static Point randomTilePoint() {
-        return currentLevel.randomTilePoint();
+        return currentLevel().randomTilePoint();
     }
 
     /**
@@ -608,18 +610,20 @@ public class Game
      * @return Position of the Tile as Point
      */
     public static Point randomTilePoint(LevelElement elementTyp) {
-        return currentLevel.randomTilePoint(elementTyp);
+        return currentLevel().randomTilePoint(elementTyp);
     }
 
     /**
      * Starts the indexed A* pathfinding algorithm a returns a path
+     *
+     * <p>Throws an IllegalArgumentException if start or end is non-accessible.
      *
      * @param start Start tile
      * @param end End tile
      * @return Generated path
      */
     public static GraphPath<Tile> findPath(Tile start, Tile end) {
-        return currentLevel.findPath(start, end);
+        return currentLevel().findPath(start, end);
     }
 
     /**
@@ -629,7 +633,7 @@ public class Game
      * @return Position of the given entity.
      */
     public static Point positionOf(Entity entity) {
-        return currentLevel.positionOf(entity);
+        return currentLevel().positionOf(entity);
     }
 
     /**
@@ -637,13 +641,23 @@ public class Game
      *
      * <p>This method is for testing and debugging purposes.
      *
-     * <p>Will trigger {@link #onLevelLoad() if a {@link LevelManager} is active.}
-     *
      * @param level New level
      */
     public static void currentLevel(ILevel level) {
-        if (levelManager != null) levelManager.level(level);
-        currentLevel = level;
+        LevelSystem levelSystem = (LevelSystem) SYSTEMS.get(LevelSystem.class);
+        if (levelSystem != null) levelSystem.loadLevel(level);
+        else LOGGER.warning("Can not set Level because levelSystem is null.");
+    }
+
+    /**
+     * Set the current level.
+     *
+     * @param levelSize predefined level size of the level to be generated.
+     */
+    public static void currentLevel(LevelSize levelSize) {
+        LevelSystem levelSystem = (LevelSystem) SYSTEMS.get(LevelSystem.class);
+        if (levelSystem != null) levelSystem.loadLevel(levelSize);
+        else LOGGER.warning("Can not set Level because levelSystem is null.");
     }
 
     private static void setupStage() {
@@ -665,10 +679,9 @@ public class Game
     @Override
     public void render(float delta) {
         if (doSetup) onSetup();
-        batch.setProjectionMatrix(CameraSystem.camera().combined);
+        DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined);
         onFrame();
         clearScreen();
-        levelManager.update();
         updateSystems();
         SYSTEMS.values().stream().filter(System::isRunning).forEach(System::execute);
         CameraSystem.camera().update();
@@ -684,16 +697,10 @@ public class Game
     private void onSetup() {
         doSetup = false;
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
-        batch = new SpriteBatch();
-        painter = new Painter(batch);
-        IGenerator generator = new RandomWalkGenerator();
         initBaseLogger();
-        levelManager = new LevelManager(batch, painter, new WallGenerator(generator), this);
-        levelManager.loadLevel(LEVELSIZE);
+        createSystems();
         clientManager = new MultiplayerClientManager(this);
         serverManager = new MultiplayerServerManager(this);
-        createSystems();
-
         setupStage();
     }
 
@@ -704,11 +711,6 @@ public class Game
      * <p>This is the place to add basic logic that isn't part of any system.
      */
     private void onFrame() {
-        try {
-            hero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
-        } catch (MissingComponentException e) {
-            LOGGER.warning(e.getMessage());
-        }
         debugKeys();
         fullscreenKey();
         userOnFrame.execute();
@@ -716,7 +718,7 @@ public class Game
 
     /** Just for debugging, remove later. */
     private void debugKeys() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) { // && !startMenu.isVisible()) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             // Text Dialogue (output of information texts)
             newPauseMenu();
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
@@ -743,30 +745,12 @@ public class Game
     }
 
     /** Will update the entity sets of each system and {@link Game#ENTITIES}. */
-    private void updateSystems() {
+    private static void updateSystems() {
         for (System system : SYSTEMS.values()) {
             ENTITIES.foreachEntityInAddSet(system::showEntity);
             ENTITIES.foreachEntityInRemoveSet(system::removeEntity);
         }
         ENTITIES.update();
-    }
-
-    /**
-     * Sets {@link #currentLevel} to the new level and removes all entities.
-     *
-     * <p>Will re-add the hero if he exists.
-     */
-    @Override
-    public void onLevelLoad() {
-        currentLevel = levelManager.currentLevel();
-        removeAllEntities();
-        try {
-            hero().ifPresent(this::placeOnLevelStart);
-        } catch (MissingComponentException e) {
-            LOGGER.warning(e.getMessage());
-        }
-        hero().ifPresent(Game::addEntity);
-        userOnLevelLoad.execute();
     }
 
     public static Game getInstance() {
@@ -775,61 +759,6 @@ public class Game
         }
 
         return INSTANCE;
-    }
-
-    /**
-     * If the given entity is on the end-tile, load the new level
-     *
-     * @param hero entity to check for, normally this is the hero
-     */
-    private void loadNextLevelIfEntityIsOnEndTile(Entity hero) {
-        if (!isOnEndTile(hero)) return;
-
-        if (currentGameMode.isPresent()) {
-            if (currentGameMode.get() == GameMode.SinglePlayer) {
-                levelManager.loadLevel(LEVELSIZE);
-            } else {
-                if (clientManager.isConnectedToSession()) {
-                    if (serverManager.isHost(clientManager.clientID())) {
-                        // First create new leve locally and then force server to host new map for
-                        // all.
-                        levelManager.loadLevel(LEVELSIZE);
-                        updateSystems();
-                        clientManager.loadMap(
-                                currentLevel, entityStream().collect(Collectors.toSet()), hero);
-                    } else {
-                        // Only host is allowed to load map, so force host to generate new map
-                        clientManager.requestNewLevel();
-                    }
-                } else {
-                    LOGGER.severe(
-                            "Entity on end tile and Multiplayer mode set but disconnected from session.");
-                }
-            }
-        } else {
-            LOGGER.severe(
-                    "Entity on end tile but game mode is not set to determine needed action.");
-        }
-    }
-
-    /**
-     * Check if the given en entity is on the end-tile
-     *
-     * @param entity entity to check for
-     * @return true if the entity is on the end-tile, false if not
-     */
-    private boolean isOnEndTile(Entity entity) {
-        PositionComponent pc =
-                entity.fetch(PositionComponent.class)
-                        .orElseThrow(
-                                () ->
-                                        MissingComponentException.build(
-                                                entity, PositionComponent.class));
-        Tile currentTile = tileAT(pc.position());
-        if (currentTile == null) {
-            return false;
-        }
-        return currentTile.equals(endTile());
     }
 
     /**
@@ -863,8 +792,13 @@ public class Game
     /** Create the systems. */
     private void createSystems() {
         addSystem(new CameraSystem());
+        addSystem(
+                new LevelSystem(
+                        DrawSystem.painter(),
+                        new WallGenerator(new RandomWalkGenerator()),
+                        onLevelLoad));
+        addSystem(new DrawSystem());
         addSystem(new VelocitySystem());
-        addSystem(new DrawSystem(painter));
         addSystem(new PlayerSystem());
         addSystem(new HudSystem());
         addSystem(new MultiplayerSynchronizationSystem());
@@ -878,5 +812,35 @@ public class Game
 
     public static boolean isMultiplayerMode() {
         return currentGameMode.isPresent() ? currentGameMode.get() != GameMode.SinglePlayer : false;
+    }
+
+    public static void handleHeroOnEndTile() {
+        LevelSystem levelSystem = (LevelSystem) SYSTEMS.get(LevelSystem.class);
+
+        if (currentGameMode.isPresent()) {
+            if (currentGameMode.get() == GameMode.SinglePlayer) {
+                levelSystem.loadLevel(LEVELSIZE);
+            } else {
+                if (clientManager.isConnectedToSession()) {
+                    if (serverManager.isHost(clientManager.clientID())) {
+                        // First create new leve locally and then force server to host new map for
+                        // all.
+                        levelSystem.loadLevel(LevelSize.SMALL);
+                        updateSystems();
+                        clientManager.loadMap(
+                            currentLevel(), entityStream().collect(Collectors.toSet()), hero);
+                    } else {
+                        // Only host is allowed to load map, so force host to generate new map
+                        clientManager.requestNewLevel();
+                    }
+                } else {
+                    LOGGER.severe(
+                        "Entity on end tile and Multiplayer mode set but disconnected from session.");
+                }
+            }
+        } else {
+            LOGGER.severe(
+                "Entity on end tile but game mode is not set to determine needed action.");
+        }
     }
 }

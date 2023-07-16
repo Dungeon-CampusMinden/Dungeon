@@ -450,4 +450,27 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         node.getInnerStmtNode().accept(this);
         return null;
     }
+
+    @Override
+    public Void visit(StmtBlockNode node) {
+        var blockScope = new Scope(scopeStack.peek());
+        scopeStack.push(blockScope);
+        for (var stmt : node.getStmts()) {
+            stmt.accept(this);
+        }
+        scopeStack.pop();
+        return null;
+    }
+
+    @Override
+    public Void visit(ConditionalStmtNodeIf node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(ConditionalStmtNodeIfElse node) {
+        visitChildren(node);
+        return null;
+    }
 }

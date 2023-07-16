@@ -1,15 +1,16 @@
 package contrib.utils.components.ai.fight;
 
-import static contrib.utils.components.ai.AITools.accessibleTilesInRange;
+import static core.level.utils.LevelUtils.accessibleTilesInRange;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
-import contrib.utils.components.ai.AITools;
+import contrib.utils.components.ai.AIUtils;
 import contrib.utils.components.skill.Skill;
 
 import core.Entity;
 import core.Game;
 import core.level.Tile;
+import core.level.utils.LevelUtils;
 import core.utils.Point;
 
 import java.util.List;
@@ -45,8 +46,8 @@ public final class RangeAI implements Consumer<Entity> {
 
     @Override
     public void accept(final Entity entity) {
-        boolean playerInDistanceRange = AITools.playerInRange(entity, distance);
-        boolean playerInAttackRange = AITools.playerInRange(entity, attackRange);
+        boolean playerInDistanceRange = LevelUtils.playerInRange(entity, distance);
+        boolean playerInAttackRange = LevelUtils.playerInRange(entity, attackRange);
 
         if (playerInAttackRange) {
             if (playerInDistanceRange) {
@@ -56,22 +57,22 @@ public final class RangeAI implements Consumer<Entity> {
                 boolean newPositionFound = false;
                 for (Tile tile : tiles) {
                     Point newPosition = tile.position();
-                    if (!AITools.inRange(newPosition, positionHero, distance)) {
-                        path = AITools.calculatePath(positionEntity, newPosition);
+                    if (!Point.inRange(newPosition, positionHero, distance)) {
+                        path = LevelUtils.calculatePath(positionEntity, newPosition);
                         newPositionFound = true;
                         break;
                     }
                 }
                 if (!newPositionFound) {
-                    path = AITools.calculatePathToRandomTileInRange(entity, 2 * attackRange);
+                    path = LevelUtils.calculatePathToRandomTileInRange(entity, 2 * attackRange);
                 }
-                AITools.move(entity, path);
+                AIUtils.move(entity, path);
             } else {
                 skill.execute(entity);
             }
         } else {
-            path = AITools.calculatePathToHero(entity);
-            AITools.move(entity, path);
+            path = LevelUtils.calculatePathToHero(entity);
+            AIUtils.move(entity, path);
         }
     }
 

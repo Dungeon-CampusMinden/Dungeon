@@ -46,7 +46,12 @@ public class Node {
         StmtList,
         FuncDef,
         ParamDef,
-        ReturnStmt
+        ReturnStmt,
+        Block,
+        ConditionalStmtIf,
+        Bool,
+        ConditionalStmtIfElse,
+        ReturnMark
     }
 
     public static Node NONE = new Node(Type.NONE, new ArrayList<>());

@@ -186,6 +186,46 @@ public interface AstVisitor<T> {
     }
 
     /**
+     * Visitor method for ConditionStmtNodeIfs
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(ConditionalStmtNodeIf node) {
+        return null;
+    }
+
+    /**
+     * Visitor method for ConditionalStmtNodeIfElses
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(ConditionalStmtNodeIfElse node) {
+        return null;
+    }
+
+    /**
+     * Visitor method for StmtBlockNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(StmtBlockNode node) {
+        return null;
+    }
+
+    /**
+     * Visitor method for BoolNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(BoolNode node) {
+        return null;
+    }
+
+    /**
      * Visit all children of the passed node
      *
      * @param node The node to visit all children of

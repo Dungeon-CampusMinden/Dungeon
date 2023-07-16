@@ -1,70 +1,116 @@
 name: Java CI
 
-on: [ pull_request, workflow_dispatch ]
+on:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
+  build:
+    name: Build
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      - name: Build with Gradle
+        run: ./gradlew assemble
 
-    build:
-        name: Build
-        strategy:
-            matrix:
-                os: [ ubuntu-latest, windows-latest, macos-latest ]
-        runs-on: ${{ matrix.os }}
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v3
-            -   name: Set up JDK 17
-                uses: actions/setup-java@v3
-                with:
-                    java-version: '17'
-                    distribution: 'temurin'
-                    cache: gradle
-            -   name: Build with Gradle
-                run: ./gradlew assemble
-    junit:
-        needs: build
-        name: JUnit
-        runs-on: ubuntu-latest
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v3
-            -   name: Set up JDK 17
-                uses: actions/setup-java@v3
-                with:
-                    java-version: '17'
-                    distribution: 'temurin'
-                    cache: gradle
-            -   name: JUnit
-                run: ./gradlew test
+  check:
+    name: Check files
+    outputs:
+        tests_changed: ${{ steps.check_files.outputs.tests_changed }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Check modified files
+        id: check_files
+        run: |
+          git diff --name-only origin/master HEAD > files.txt
+          tests_changed=false
+          while IFS= read -r file; do
+            if [[ $file == */test/* ]]; then
+              tests_changed=true
+              break
+            fi
+          done < files.txt
+          echo "tests_changed=$tests_changed" >> $GITHUB_OUTPUT
 
-    checkstyle:
-        needs: build
-        name: Checkstyle
-        runs-on: ubuntu-latest
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v3
-            -   name: Set up JDK 17
-                uses: actions/setup-java@v3
-                with:
-                    java-version: '17'
-                    distribution: 'temurin'
-                    cache: gradle
-            -   name: Checkstyle
-                run: ./gradlew checkstyleMain
+  junit_test_changed:
+    name: JUnit (matrix build)
+    needs: [build, check]
+    if: ${{ needs.check.outputs.tests_changed == 'true' }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      - name: JUnit
+        run: ./gradlew test
 
-    spotless-java-format:
-        needs: build
-        name: Spotless
-        runs-on: ubuntu-latest
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v3
-            -   name: Set up JDK 17
-                uses: actions/setup-java@v3
-                with:
-                    java-version: '17'
-                    distribution: 'temurin'
-                    cache: gradle
-            -   name: Spotless
-                run: ./gradlew spotlessJavaCheck
+  junit:
+    name: JUnit
+    needs: [build, check]
+    if: ${{ needs.check.outputs.tests_changed == 'false' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      - name: JUnit
+        run: ./gradlew test
+
+  checkstyle:
+    name: Checkstyle
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      - name: Checkstyle
+        run: ./gradlew checkstyleMain
+
+  spotless-java-format:
+    name: Spotless
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      - name: Spotless
+        run: ./gradlew spotlessJavaCheck

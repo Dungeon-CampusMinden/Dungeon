@@ -6,52 +6,60 @@ import core.Component;
 import core.Entity;
 import core.utils.logging.CustomLogLevel;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
- * This Component marks an {@link Entity} as having an inventory
+ * Allows the entity to collect items in an inventory.
  *
- * <p>It keeps track of the currently carried items in the list {@link #inventory} and the size of
- * the inventory in {@link #maxSize}. Carried items can be retrieved by using {@link #items()
- * getItems}. List elements can be added via {@link #addItem(ItemData) addItem} and removed via
- * {@link #removeItem(ItemData) removeItem}.
+ * <p>The component stores a set of {@link ItemData} that the associated entity has collected.
  *
- * <p>The number of filled slots can be retrieved via {@link #filledSlots() filledSlots} and the
- * number of empty slots via {@link #emptySlots() emptySlots}. The maximum inventory size can also
- * be retrieved via {@link #maxSize() getMaxSize}.
+ * <p>Each inventory has a maximum number of item instances (items do not get stacked) that can be
+ * carried.
+ *
+ * <p>Carried items can be retrieved using {@link #items() getItems}.
+ *
+ * <p>Items can be added via {@link #add(ItemData) addItem} and removed via {@link #remove(ItemData)
+ * removeItem}.
+ *
+ * <p>The number of items in the inventory can be retrieved using {@link #count()}.
  */
-public class InventoryComponent extends Component {
+public final class InventoryComponent extends Component {
 
-    private List<ItemData> inventory;
-    private int maxSize;
-    private final transient Logger inventoryLogger = Logger.getLogger(this.getClass().getName());
+    private final Set<ItemData> inventory;
+    private final int maxSize;
+    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
 
     /**
-     * Creates a new InventoryComponent
+     * Create a new {@link InventoryComponent} with the given size and add it to the associated
+     * entity.
      *
-     * <p>Create a new InventoryComponent by explicitly setting the maximum inventory size.
-     *
-     * @param entity the Entity which will have the inventory added
-     * @param maxSize the maximal size of the inventory
+     * @param entity The associated entity.
+     * @param maxSize The number of items that can be stored in the inventory.
      */
-    public InventoryComponent(Entity entity, int maxSize) {
+    public InventoryComponent(final Entity entity, int maxSize) {
         super(entity);
-        inventory = new ArrayList<>(maxSize);
+        inventory = new HashSet<>(maxSize);
         this.maxSize = maxSize;
     }
 
     /**
-     * Adding an Element to the Inventory does not allow adding more items than the size of the
-     * Inventory.
+     * Add the given item to the inventory.
      *
-     * @param itemData the item which should be added
-     * @return true if the item was added, otherwise false
+     * <p>Does not allow adding more items than the size of the inventory.
+     *
+     * <p>Items do not get stacked, so each instance will need space in the inventory.
+     *
+     * <p>Items are stored as a set, so an item instance cannot be stored twice in the same
+     * inventory at the same time.
+     *
+     * @param itemData The item to be added.
+     * @return True if the item was added, false if not.
      */
-    public boolean addItem(ItemData itemData) {
+    public boolean add(final ItemData itemData) {
         if (inventory.size() >= maxSize) return false;
-        inventoryLogger.log(
+        LOGGER.log(
                 CustomLogLevel.DEBUG,
                 "Item '"
                         + this.getClass().getSimpleName()
@@ -62,13 +70,13 @@ public class InventoryComponent extends Component {
     }
 
     /**
-     * removes the given Item from the inventory
+     * Remove the given item from the inventory.
      *
-     * @param itemData the item which should be removed
-     * @return true if the element was removed, otherwise false
+     * @param itemData The item to be removed.
+     * @return True if the item was removed, false otherwise.
      */
-    public boolean removeItem(ItemData itemData) {
-        inventoryLogger.log(
+    public boolean remove(final ItemData itemData) {
+        LOGGER.log(
                 CustomLogLevel.DEBUG,
                 "Removing item '"
                         + this.getClass().getSimpleName()
@@ -79,30 +87,20 @@ public class InventoryComponent extends Component {
     }
 
     /**
-     * @return the number of slots already filled with items
+     * Get the number of items stored.
+     *
+     * @return The number of items that are stored in this component.
      */
-    public int filledSlots() {
+    public int count() {
         return inventory.size();
     }
 
     /**
-     * @return the number of slots still empty
+     * Get a Set of items stored in this component.
+     *
+     * @return A copy of the inventory.
      */
-    public int emptySlots() {
-        return maxSize - inventory.size();
-    }
-
-    /**
-     * @return the size of the inventory
-     */
-    public int maxSize() {
-        return maxSize;
-    }
-
-    /**
-     * @return a copy of the inventory
-     */
-    public List<ItemData> items() {
-        return new ArrayList<>(inventory);
+    public Set<ItemData> items() {
+        return new HashSet<>(inventory);
     }
 }

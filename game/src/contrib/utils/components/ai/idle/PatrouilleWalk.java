@@ -2,13 +2,14 @@ package contrib.utils.components.ai.idle;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
-import contrib.utils.components.ai.AITools;
+import contrib.utils.components.ai.AIUtils;
 
 import core.Dungeon;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
@@ -78,7 +79,7 @@ public class PatrouilleWalk implements Consumer<Entity> {
             return;
         }
 
-        List<Tile> accessibleTiles = AITools.accessibleTilesInRange(center, radius);
+        List<Tile> accessibleTiles = LevelUtils.accessibleTilesInRange(center, radius);
 
         if (accessibleTiles.isEmpty()) {
             return;
@@ -107,18 +108,18 @@ public class PatrouilleWalk implements Consumer<Entity> {
                                         MissingComponentException.build(
                                                 entity, PositionComponent.class));
 
-        if (currentPath != null && !AITools.pathFinished(entity, currentPath)) {
-            if (AITools.pathLeft(entity, currentPath)) {
+        if (currentPath != null && !AIUtils.pathFinished(entity, currentPath)) {
+            if (AIUtils.pathLeft(entity, currentPath)) {
                 currentPath =
-                        AITools.calculatePath(
+                        LevelUtils.calculatePath(
                                 position.position(),
                                 this.checkpoints.get(currentCheckpoint).position());
             }
-            AITools.move(entity, currentPath);
+            AIUtils.move(entity, currentPath);
             return;
         }
 
-        if (currentPath != null && AITools.pathFinished(entity, currentPath)) {
+        if (currentPath != null && AIUtils.pathFinished(entity, currentPath)) {
             frameCounter = 0;
             currentPath = null;
             return;
@@ -136,14 +137,14 @@ public class PatrouilleWalk implements Consumer<Entity> {
                 Random rnd = new Random();
                 currentCheckpoint = rnd.nextInt(checkpoints.size());
                 currentPath =
-                        AITools.calculatePath(
+                        LevelUtils.calculatePath(
                                 position.position(),
                                 this.checkpoints.get(currentCheckpoint).position());
             }
             case LOOP -> {
                 currentCheckpoint = (currentCheckpoint + 1) % checkpoints.size();
                 currentPath =
-                        AITools.calculatePath(
+                        LevelUtils.calculatePath(
                                 position.position(),
                                 this.checkpoints.get(currentCheckpoint).position());
             }
@@ -162,7 +163,7 @@ public class PatrouilleWalk implements Consumer<Entity> {
                     }
                 }
                 currentPath =
-                        AITools.calculatePath(
+                        LevelUtils.calculatePath(
                                 position.position(),
                                 this.checkpoints.get(currentCheckpoint).position());
             }

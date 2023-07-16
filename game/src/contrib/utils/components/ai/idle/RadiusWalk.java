@@ -2,11 +2,12 @@ package contrib.utils.components.ai.idle;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
-import contrib.utils.components.ai.AITools;
+import contrib.utils.components.ai.AIUtils;
 
 import core.Dungeon;
 import core.Entity;
 import core.level.Tile;
+import core.level.utils.LevelUtils;
 
 import java.util.function.Consumer;
 
@@ -30,16 +31,16 @@ public class RadiusWalk implements Consumer<Entity> {
 
     @Override
     public void accept(final Entity entity) {
-        if (path == null || AITools.pathFinishedOrLeft(entity, path)) {
+        if (path == null || AIUtils.pathFinishedOrLeft(entity, path)) {
             if (currentBreak >= breakTime) {
                 currentBreak = 0;
-                path = AITools.calculatePathToRandomTileInRange(entity, radius);
+                path = LevelUtils.calculatePathToRandomTileInRange(entity, radius);
                 accept(entity);
             }
 
             currentBreak++;
 
-        } else AITools.move(entity, path);
+        } else AIUtils.move(entity, path);
     }
 
     public float getRadius() {

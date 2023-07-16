@@ -57,7 +57,7 @@ public class Dungeon extends Game implements IMenuScreenObserver {
      */
     private static boolean DISABLE_AUDIO = false;
     /** Part of the pre-run configuration. The path (as String) to the logo of the Game-Window. */
-    private static String LOGO_PATH = "logo/CatLogo_35x35.png";
+    private static String LOGO_PATH = "logo/cat_logo_35x35.png";
 
     private Menu menuScreen;
     private core.Game gameScreen;
@@ -82,14 +82,11 @@ public class Dungeon extends Game implements IMenuScreenObserver {
                     () -> {
                         try {
                             EntityFactory.newChest();
+                            for (int i = 0; i < 5; i++) {
+                                EntityFactory.randomMonster();
+                            }
                         } catch (IOException e) {
                             LOGGER.warning("Could not create new Chest: " + e.getMessage());
-                            throw new RuntimeException();
-                        }
-                        try {
-                            EntityFactory.newMonster();
-                        } catch (IOException e) {
-                            LOGGER.warning("Could not create new Monster: " + e.getMessage());
                             throw new RuntimeException();
                         }
                     });

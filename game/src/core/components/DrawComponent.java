@@ -47,7 +47,6 @@ import java.util.logging.Logger;
  * @see IPath
  */
 public final class DrawComponent extends Component {
-
     private final Map<String, Animation> animationMap;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private Animation currentAnimation;
@@ -59,7 +58,11 @@ public final class DrawComponent extends Component {
      * subdirectory to create an animation. So each subdirectory should contain only the files for
      * one animation.
      *
-     * <p>Will set the current animation to idle left
+     * <p>Will set the current animation to either idle down, idle left, idle right, idle up or
+     * idle, depending on which one of these animations exist.
+     *
+     * <p>If no animations for any idle-state exist, {@link Animation#defaultAnimation()} for "IDLE"
+     * is set.
      *
      * @param entity associated entity
      * @param pathRelativeToAssets Path (as a string) to the directory in the assets folder where
@@ -92,7 +95,18 @@ public final class DrawComponent extends Component {
                     animationMap.put(subdir.getName(), Animation.of(texturePaths));
                 }
             }
-            currentAnimation(CoreAnimations.IDLE_LEFT);
+            currentAnimation(
+                CoreAnimations.IDLE_DOWN,
+                CoreAnimations.IDLE_LEFT,
+                CoreAnimations.IDLE_RIGHT,
+                CoreAnimations.IDLE_UP,
+                CoreAnimations.IDLE);
+
+            // if no idle animation exists, set the missing texture animation as idle
+            if (currentAnimation == null) {
+                animationMap.put(CoreAnimations.IDLE.pathString(), Animation.defaultAnimation());
+                currentAnimation(CoreAnimations.IDLE);
+            }
         } catch (NullPointerException np) {
             // The component gets registered at the entity in super().
             // This means that if the files can't be loaded, the component is considered "defective"
@@ -161,17 +175,24 @@ public final class DrawComponent extends Component {
      * <p>If the given animation is not stored in this component, a warning is logged.
      *
      * @param animationName Path of the new current animation (this is the name of the directory).
+     *     If more than one path will be given, the first one that exists will be set as the new
+     *     current animation.
      * @see IPath
      */
-    public void currentAnimation(final IPath animationName) {
-        Animation animation = animationMap.get(animationName.pathString());
-        if (animation != null) this.currentAnimation = animation;
-        else
-            LOGGER.warning(
-                    "Animation "
-                            + animationName
-                            + " can not be set, because the given Animation could not be found for "
-                            + entity.toString());
+    public void currentAnimation(final IPath... animationName) {
+        for (IPath animationPath : animationName) {
+            Animation animation = animationMap.get(animationPath.pathString());
+            if (animation != null) {
+                currentAnimation = animation;
+                return;
+            } else {
+//                LOGGER.warning(
+//                        "Animation "
+//                                + animationName
+//                                + " can not be set, because the given Animation could not be found for "
+//                                + entity.toString());
+            }
+        }
     }
 
     /**
@@ -208,8 +229,26 @@ public final class DrawComponent extends Component {
     public boolean isCurrentAnimation(final IPath path) {
         Optional<Animation> animation = getAnimation(path);
         if (animation.isPresent()) return animation.get() == currentAnimation;
-        LOGGER.warning("Animation " + path + " is not stored inside " + entity.toString());
+//        LOGGER.warning("Animation " + path + " is not stored inside " + entity.toString());
         return false;
+    }
+
+    /**
+     * Check if the current animation is a looping animation
+     *
+     * @return true if the current animation is looping
+     */
+    public boolean isCurrentAnimationLooping() {
+        return currentAnimation.isLooping();
+    }
+
+    /**
+     * Check if the current animation has finished playing
+     *
+     * @return true if the current animation has finished playing
+     */
+    public boolean isCurrentAnimationFinished() {
+        return currentAnimation.isFinished();
     }
 
     public HashMap<String, Animation> animationMap() {

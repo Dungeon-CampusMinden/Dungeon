@@ -2,12 +2,14 @@ package contrib.utils.components.ai.idle;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
-import contrib.utils.components.ai.AITools;
+import contrib.utils.components.ai.AIUtils;
 
 import core.Dungeon;
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.utils.Coordinate;
+import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
@@ -15,8 +17,8 @@ import java.util.function.Consumer;
 
 public class StaticRadiusWalk implements Consumer<Entity> {
     private final float radius;
-    private GraphPath<Tile> path;
     private final int breakTime;
+    private GraphPath<Tile> path;
     private int currentBreak = 0;
     private Point center;
     private Point currentPosition;
@@ -36,7 +38,7 @@ public class StaticRadiusWalk implements Consumer<Entity> {
 
     @Override
     public void accept(final Entity entity) {
-        if (path == null || AITools.pathFinishedOrLeft(entity, path)) {
+        if (path == null || AIUtils.pathFinishedOrLeft(entity, path)) {
             if (center == null) {
                 PositionComponent pc =
                         entity.fetch(PositionComponent.class)
@@ -57,13 +59,17 @@ public class StaticRadiusWalk implements Consumer<Entity> {
                                                         entity, PositionComponent.class));
                 currentPosition = pc2.position();
                 newEndTile =
-                        AITools.randomAccessibleTileCoordinateInRange(center, radius).toPoint();
-                path = AITools.calculatePath(currentPosition, newEndTile);
+                        LevelUtils.randomAccessibleTileCoordinateInRange(center, radius)
+                                .map(Coordinate::toPoint)
+                                // center is the start position of the entity, so it must be
+                                // accessible
+                                .orElse(center);
+                path = LevelUtils.calculatePath(currentPosition, newEndTile);
                 accept(entity);
             }
             currentBreak++;
 
-        } else AITools.move(entity, path);
+        } else AIUtils.move(entity, path);
     }
 
     public float getRadius() {

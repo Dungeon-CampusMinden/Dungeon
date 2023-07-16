@@ -2,11 +2,12 @@ package contrib.utils.components.ai.fight;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 
-import contrib.utils.components.ai.AITools;
+import contrib.utils.components.ai.AIUtils;
 
 import core.Dungeon;
 import core.Entity;
 import core.level.Tile;
+import core.level.utils.LevelUtils;
 
 import java.util.function.Consumer;
 
@@ -28,19 +29,19 @@ public class CollideAI implements Consumer<Entity> {
 
     @Override
     public void accept(final Entity entity) {
-        if (AITools.playerInRange(entity, rushRange)) {
+        if (LevelUtils.playerInRange(entity, rushRange)) {
             // the faster pathing once a certain range is reached
-            path = AITools.calculatePathToHero(entity);
-            AITools.move(entity, path);
+            path = LevelUtils.calculatePathToHero(entity);
+            AIUtils.move(entity, path);
             timeSinceLastUpdate = delay;
         } else {
             // check if new pathing update
             if (timeSinceLastUpdate >= delay) {
-                path = AITools.calculatePathToHero(entity);
+                path = LevelUtils.calculatePathToHero(entity);
                 timeSinceLastUpdate = -1;
             }
             timeSinceLastUpdate++;
-            AITools.move(entity, path);
+            AIUtils.move(entity, path);
         }
     }
 

@@ -4,8 +4,7 @@ import static org.junit.Assert.*;
 
 import dslToGame.graph.Graph;
 
-import interpreter.mockecs.ExternalType;
-import interpreter.mockecs.ExternalTypeBuilderMultiParam;
+import interpreter.mockecs.*;
 
 import org.junit.Test;
 
@@ -192,5 +191,63 @@ public class TestTypeBuilder {
 
         assertNotSame(dslType, null);
         assertNotSame(dslType, Symbol.NULL);
+    }
+
+    @Test
+    public void testCallbackConsumer() {
+        TypeBuilder tb = new TypeBuilder();
+        // register Entity type (setup)
+        var entityType = (AggregateType) tb.createTypeFromClass(Scope.NULL, Entity.class);
+
+        var dslType =
+                (AggregateType) tb.createTypeFromClass(Scope.NULL, TestComponentWithCallback.class);
+        var callbackSymbol = dslType.resolve("on_interaction");
+        assertNotEquals(Symbol.NULL, callbackSymbol);
+        var symbolType = callbackSymbol.getDataType();
+        assertNotEquals(BuiltInType.noType, symbolType);
+        var functionType = (FunctionType) symbolType;
+        assertEquals(entityType, functionType.getParameterTypes().get(0));
+    }
+
+    @Test
+    public void testCallbackTriConsumer() {
+        TypeBuilder tb = new TypeBuilder();
+        // register Entity type (setup)
+        var entityType = (AggregateType) tb.createTypeFromClass(Scope.NULL, Entity.class);
+
+        var dslType =
+                (AggregateType)
+                        tb.createTypeFromClass(
+                                Scope.NULL, TestComponentWithTriConsumerCallback.class);
+        var callbackSymbol = dslType.resolve("on_interaction");
+
+        assertNotEquals(Symbol.NULL, callbackSymbol);
+        var symbolType = callbackSymbol.getDataType();
+        assertNotEquals(BuiltInType.noType, symbolType);
+        var functionType = (FunctionType) symbolType;
+
+        assertEquals(entityType, functionType.getParameterTypes().get(0));
+        assertEquals(entityType, functionType.getParameterTypes().get(1));
+        assertEquals(BuiltInType.boolType, functionType.getParameterTypes().get(2));
+    }
+
+    @Test
+    public void testCallbackFunction() {
+        TypeBuilder tb = new TypeBuilder();
+        // register Entity type (setup)
+        var entityType = (AggregateType) tb.createTypeFromClass(Scope.NULL, Entity.class);
+
+        var dslType =
+                (AggregateType)
+                        tb.createTypeFromClass(Scope.NULL, TestComponentWithFunctionCallback.class);
+        var callbackSymbol = dslType.resolve("on_interaction");
+
+        assertNotEquals(Symbol.NULL, callbackSymbol);
+        var symbolType = callbackSymbol.getDataType();
+        assertNotEquals(BuiltInType.noType, symbolType);
+        var functionType = (FunctionType) symbolType;
+
+        assertEquals(entityType, functionType.getParameterTypes().get(0));
+        assertEquals(BuiltInType.boolType, functionType.getReturnType());
     }
 }

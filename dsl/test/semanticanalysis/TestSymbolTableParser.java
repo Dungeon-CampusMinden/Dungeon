@@ -10,8 +10,7 @@ import interpreter.TestEnvironment;
 import org.junit.Assert;
 import org.junit.Test;
 
-import parser.ast.Node;
-import parser.ast.PrototypeDefinitionNode;
+import parser.ast.*;
 
 import runtime.GameEnvironment;
 import runtime.nativefunctions.NativePrint;
@@ -273,7 +272,8 @@ public class TestSymbolTableParser {
         var symtableResult = Helpers.getSymtableForAST(ast);
 
         var funcDefNode = ast.getChild(0);
-        var stmtList = funcDefNode.getChild(3);
+        var stmtBlock = funcDefNode.getChild(3);
+        var stmtList = stmtBlock.getChild(0);
         var funcCallStmt = stmtList.getChild(0);
         var paramList = funcCallStmt.getChild(1);
         var firstParam = paramList.getChild(0);
@@ -381,5 +381,90 @@ public class TestSymbolTableParser {
                 dummyFunc1Sym.getDataType().hashCode(), dummyFunc2Sym.getDataType().hashCode());
         Assert.assertEquals(
                 dummyFunc1Sym.getDataType().hashCode(), testFunc1.getDataType().hashCode());
+    }
+
+    /** Test, if a native function call is correctly resolved in nested stmt blocks */
+    @Test
+    public void funcDefNestedBlocks() {
+        String program =
+                """
+            fn test_func(int param1, float param2, string param3) -> int
+            {
+                {
+                    {
+                        print(param1);
+                    }
+                }
+            }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var result = Helpers.getSymtableForAST(ast);
+
+        FuncDefNode funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmtList = funcDefNode.getStmts();
+        Assert.assertEquals(1, stmtList.size());
+
+        Node outerStmtBlock = funcDefNode.getStmtBlock();
+        Node outerBlocksStmtList = outerStmtBlock.getChild(0);
+        Node middleStmtBlock = outerBlocksStmtList.getChild(0);
+        Node middleBlocksStmtList = middleStmtBlock.getChild(0);
+        Node innerStmtBlock = middleBlocksStmtList.getChild(0);
+        Node funcCallStmt = ((StmtBlockNode) innerStmtBlock).getStmts().get(0);
+        var funcCallNode = (FuncCallNode) funcCallStmt;
+
+        var funcCallSymbol = result.symbolTable.getSymbolsForAstNode(funcCallNode).get(0);
+        Assert.assertEquals(NativePrint.func, funcCallSymbol);
+    }
+
+    /** Test, if a native function call is correctly resolved in nested stmt blocks */
+    @Test
+    public void funcDefIfElse() {
+        String program =
+                """
+            fn test_func(int param1, float param2, string param3) -> int
+            {
+                if print() {
+                    print();
+                } else if print() {
+                    print();
+                } else {
+                    print();
+                }
+            }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var result = Helpers.getSymtableForAST(ast);
+
+        FuncDefNode funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmtList = funcDefNode.getStmts();
+        var conditionalStmt = stmtList.get(0);
+        var outerCondition = ((ConditionalStmtNodeIfElse) conditionalStmt).getCondition();
+        var outerConditionAsFuncCall = (FuncCallNode) outerCondition;
+
+        var funcCallSymbol =
+                result.symbolTable.getSymbolsForAstNode(outerConditionAsFuncCall).get(0);
+        Assert.assertEquals(NativePrint.func, funcCallSymbol);
+
+        var ifStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getIfStmt();
+        var ifStmtFuncCall = ((StmtBlockNode) ifStmt).getStmts().get(0);
+        funcCallSymbol = result.symbolTable.getSymbolsForAstNode(ifStmtFuncCall).get(0);
+        Assert.assertEquals(NativePrint.func, funcCallSymbol);
+
+        var elseIfStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getElseStmt();
+        var elseIfCondition = ((ConditionalStmtNodeIfElse) elseIfStmt).getCondition();
+        funcCallSymbol = result.symbolTable.getSymbolsForAstNode(elseIfCondition).get(0);
+        Assert.assertEquals(NativePrint.func, funcCallSymbol);
+
+        var elseIfStmtBlock = ((ConditionalStmtNodeIfElse) elseIfStmt).getIfStmt();
+        var elseIfStmtBlockFuncCall = ((StmtBlockNode) elseIfStmtBlock).getStmts().get(0);
+        funcCallSymbol = result.symbolTable.getSymbolsForAstNode(elseIfStmtBlockFuncCall).get(0);
+        Assert.assertEquals(NativePrint.func, funcCallSymbol);
+
+        var elseStmt = ((ConditionalStmtNodeIfElse) elseIfStmt).getElseStmt();
+        var elseStmtBlockFuncCall = ((StmtBlockNode) elseStmt).getStmts().get(0);
+        funcCallSymbol = result.symbolTable.getSymbolsForAstNode(elseStmtBlockFuncCall).get(0);
+        Assert.assertEquals(NativePrint.func, funcCallSymbol);
     }
 }

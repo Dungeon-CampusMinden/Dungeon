@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotEquals;
 
 import helpers.Helpers;
 
+import org.junit.Assert;
 import org.junit.Test;
 // CHECKSTYLE:OFF: AvoidStarImport
 
@@ -372,5 +373,208 @@ public class TestDungeonASTConverter {
 
         var innerStmt = ((ReturnStmtNode) returnStmt).getInnerStmtNode();
         assertEquals(Node.Type.Number, innerStmt.type);
+    }
+
+    @Test
+    public void nestedBlocks() {
+        String program =
+                """
+            fn test_func(int param1, float param2, string param3) -> int
+            {
+                {
+                    {
+                        print(param1);
+                    }
+                }
+            }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+
+        FuncDefNode funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmtList = funcDefNode.getStmts();
+        Assert.assertEquals(1, stmtList.size());
+
+        Node outerStmtBlock = funcDefNode.getStmtBlock();
+        Assert.assertEquals(Node.Type.Block, outerStmtBlock.type);
+        Node outerBlocksStmtList = outerStmtBlock.getChild(0);
+        Assert.assertEquals(Node.Type.StmtList, outerBlocksStmtList.type);
+        Node middleStmtBlock = outerBlocksStmtList.getChild(0);
+        Assert.assertEquals(Node.Type.Block, middleStmtBlock.type);
+        Node middleBlocksStmtList = middleStmtBlock.getChild(0);
+        Assert.assertEquals(Node.Type.StmtList, middleBlocksStmtList.type);
+        Node innerStmtBlock = middleBlocksStmtList.getChild(0);
+        Assert.assertEquals(Node.Type.Block, innerStmtBlock.type);
+        Node funcCallStmt = ((StmtBlockNode) innerStmtBlock).getStmts().get(0);
+    }
+
+    @Test
+    public void ifStmt() {
+        String program =
+                """
+            fn test_func() {
+                if expr {
+                    print("hello");
+                }
+            }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var conditionalIfStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.ConditionalStmtIf, conditionalIfStmt.type);
+
+        var condition = ((ConditionalStmtNodeIf) conditionalIfStmt).getCondition();
+        Assert.assertEquals(Node.Type.Identifier, condition.type);
+        Assert.assertEquals("expr", ((IdNode) condition).getName());
+
+        var stmt = ((ConditionalStmtNodeIf) conditionalIfStmt).getIfStmt();
+        Assert.assertEquals(Node.Type.Block, stmt.type);
+    }
+
+    @Test
+    public void ifElseStmt() {
+        String program =
+                """
+            fn test_func() {
+                if expr {
+                    print("hello");
+                } else
+                  print("world");
+            }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var conditionalStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.ConditionalStmtIfElse, conditionalStmt.type);
+
+        var condition = ((ConditionalStmtNodeIfElse) conditionalStmt).getCondition();
+        Assert.assertEquals(Node.Type.Identifier, condition.type);
+        Assert.assertEquals("expr", ((IdNode) condition).getName());
+
+        var ifStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getIfStmt();
+        Assert.assertEquals(Node.Type.Block, ifStmt.type);
+
+        var elseStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getElseStmt();
+        Assert.assertEquals(Node.Type.FuncCall, elseStmt.type);
+    }
+
+    @Test
+    public void elseIfStmt() {
+        String program =
+                """
+            fn test_func() {
+                if expr {
+                    print("hello");
+                } else if other_expr
+                  print("world");
+            }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var conditionalStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.ConditionalStmtIfElse, conditionalStmt.type);
+
+        var condition = ((ConditionalStmtNodeIfElse) conditionalStmt).getCondition();
+        Assert.assertEquals(Node.Type.Identifier, condition.type);
+        Assert.assertEquals("expr", ((IdNode) condition).getName());
+
+        var ifStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getIfStmt();
+        Assert.assertEquals(Node.Type.Block, ifStmt.type);
+
+        var elseIfStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getElseStmt();
+        Assert.assertEquals(Node.Type.ConditionalStmtIf, elseIfStmt.type);
+
+        var elseIfStmtCondition = ((ConditionalStmtNodeIf) elseIfStmt).getCondition();
+        Assert.assertEquals(Node.Type.Identifier, elseIfStmtCondition.type);
+        Assert.assertEquals("other_expr", ((IdNode) elseIfStmtCondition).getName());
+    }
+
+    @Test
+    public void elseIfElseStmt() {
+        String program =
+                """
+            fn test_func() {
+                if expr {
+                    print("hello");
+                } else if other_expr {
+                  print("world");
+                } else {
+                  print("!");
+                }
+            }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var conditionalStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.ConditionalStmtIfElse, conditionalStmt.type);
+
+        var condition = ((ConditionalStmtNodeIfElse) conditionalStmt).getCondition();
+        Assert.assertEquals(Node.Type.Identifier, condition.type);
+        Assert.assertEquals("expr", ((IdNode) condition).getName());
+
+        var ifStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getIfStmt();
+        Assert.assertEquals(Node.Type.Block, ifStmt.type);
+
+        var elseIfStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getElseStmt();
+        Assert.assertEquals(Node.Type.ConditionalStmtIfElse, elseIfStmt.type);
+
+        var elseIfStmtCondition = ((ConditionalStmtNodeIfElse) elseIfStmt).getCondition();
+        Assert.assertEquals(Node.Type.Identifier, elseIfStmtCondition.type);
+        Assert.assertEquals("other_expr", ((IdNode) elseIfStmtCondition).getName());
+
+        var elseStmt = ((ConditionalStmtNodeIfElse) elseIfStmt).getElseStmt();
+        Assert.assertEquals(Node.Type.Block, elseStmt.type);
+    }
+
+    @Test
+    public void nestedIfElseStmts() {
+        String program =
+                """
+            fn test_func() {
+                if outer_expr {
+                  if inner_expr {
+                    print("hello");
+                  } else if inner_else_if_expr {
+                    print("moin");
+                  }
+                } else {
+                  print("world");
+                }
+            }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var conditionalStmt = stmts.get(0);
+        var outerCondition = ((ConditionalStmtNodeIfElse) conditionalStmt).getCondition();
+        Assert.assertEquals("outer_expr", ((IdNode) outerCondition).getName());
+
+        var ifStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getIfStmt();
+        var innerConditionalStmt = ((StmtBlockNode) ifStmt).getStmts().get(0);
+        Assert.assertEquals(Node.Type.ConditionalStmtIfElse, innerConditionalStmt.type);
+
+        var innerIfCondition = ((ConditionalStmtNodeIfElse) innerConditionalStmt).getCondition();
+        Assert.assertEquals("inner_expr", ((IdNode) innerIfCondition).getName());
+
+        var innerElseStmt = ((ConditionalStmtNodeIfElse) innerConditionalStmt).getElseStmt();
+        var innerElseIfCondition = ((ConditionalStmtNodeIf) innerElseStmt).getCondition();
+        Assert.assertEquals("inner_else_if_expr", ((IdNode) innerElseIfCondition).getName());
+
+        var elseStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getElseStmt();
+        Assert.assertEquals(Node.Type.Block, elseStmt.type);
     }
 }

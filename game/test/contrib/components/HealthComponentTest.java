@@ -102,15 +102,4 @@ public class HealthComponentTest {
         hc.triggerOnDeath();
         Mockito.verify(onDeathFunction, times(1)).accept(entity);
     }
-
-    @Test
-    public void setOnDeathFunction() {
-        Game.removeAllEntities();
-        Entity entity = new Entity();
-        HealthComponent hc = new HealthComponent(entity);
-        Consumer<Entity> function = Mockito.mock(Consumer.class);
-        hc.onDeath(function);
-        hc.triggerOnDeath();
-        Mockito.verify(function, times(1)).accept(entity);
-    }
 }

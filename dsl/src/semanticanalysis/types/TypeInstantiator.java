@@ -73,7 +73,7 @@ public class TypeInstantiator {
                                         + field.getName()
                                         + " cannot be resolved in the supplied memory space");
                     } else {
-                        var internalValue = fieldValue.getInternalObject();
+                        var internalValue = fieldValue.getInternalValue();
 
                         if (fieldValue.getDataType().getTypeKind().equals(IType.Kind.PODAdapted)) {
                             // call builder -> the type instantiator needs a reference to the
@@ -146,7 +146,7 @@ public class TypeInstantiator {
                     // we only should set the field value explicitly,
                     // if it was set in the program (indicated by the dirty-flag)
                     if (fieldValue != Value.NONE && fieldValue.isDirty()) {
-                        var internalValue = fieldValue.getInternalObject();
+                        var internalValue = fieldValue.getInternalValue();
 
                         var fieldsDataType = fieldValue.getDataType();
                         if (fieldsDataType.getTypeKind().equals(IType.Kind.PODAdapted)) {
@@ -168,10 +168,10 @@ public class TypeInstantiator {
 
                             var parameters = new ArrayList<>(method.getParameterCount());
                             for (var parameter : method.getParameters()) {
-                                var memberName = TypeBuilder.getDSLName(parameter);
+                                var memberName = TypeBuilder.getDSLParameterName(parameter);
                                 var memberValue =
                                         aggregateFieldValue.getMemorySpace().resolve(memberName);
-                                var internalObject = memberValue.getInternalObject();
+                                var internalObject = memberValue.getInternalValue();
                                 parameters.add(internalObject);
                             }
 

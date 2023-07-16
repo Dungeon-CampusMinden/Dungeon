@@ -10,7 +10,7 @@ import core.Game;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.function.LongConsumer;
+import java.util.function.Consumer;
 
 public class XPSystemTest {
 
@@ -21,15 +21,15 @@ public class XPSystemTest {
         Game.removeAllEntities();
 
         Entity entity = new Entity();
-        LongConsumer levelUp = Mockito.mock(LongConsumer.class);
+        Consumer<Entity> levelUp = Mockito.mock(Consumer.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
         xpSystem.showEntity(entity);
         assertEquals(0, xpComponent.currentXP());
-        assertEquals(0, xpComponent.currentLevel());
+        assertEquals(0, xpComponent.characterLevel());
         xpSystem.execute();
         assertEquals(0, xpComponent.currentXP());
-        assertEquals(0, xpComponent.currentLevel());
+        assertEquals(0, xpComponent.characterLevel());
     }
 
     /** Test if level up is not triggered if the xp is not enough. */
@@ -39,14 +39,14 @@ public class XPSystemTest {
         Game.removeAllEntities();
         Entity entity = new Entity();
 
-        LongConsumer levelUp = Mockito.mock(LongConsumer.class);
+        Consumer<Entity> levelUp = Mockito.mock(Consumer.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
         xpSystem.showEntity(entity);
         /* Test */
         xpComponent.addXP(99); // First level is reached with 100 XP
         xpSystem.execute();
-        assertEquals(0, xpComponent.currentLevel());
+        assertEquals(0, xpComponent.characterLevel());
     }
 
     /** Test if level up is triggered if the xp is exact the needed amount. */
@@ -56,7 +56,7 @@ public class XPSystemTest {
         Game.removeAllEntities();
         Entity entity = new Entity();
 
-        LongConsumer levelUp = Mockito.mock(LongConsumer.class);
+        Consumer<Entity> levelUp = Mockito.mock(Consumer.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
         xpSystem.showEntity(entity);
@@ -64,7 +64,7 @@ public class XPSystemTest {
         xpComponent.addXP(100); // First level is reached with 100 XP
 
         xpSystem.execute();
-        assertEquals(1, xpComponent.currentLevel());
+        assertEquals(1, xpComponent.characterLevel());
         assertEquals(0, xpComponent.currentXP());
     }
 
@@ -75,14 +75,14 @@ public class XPSystemTest {
         Game.removeAllEntities();
         Entity entity = new Entity();
 
-        LongConsumer levelUp = Mockito.mock(LongConsumer.class);
+        Consumer<Entity> levelUp = Mockito.mock(Consumer.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
         xpSystem.showEntity(entity);
         /* Test */
         xpComponent.addXP(120); // First level is reached with 100 XP
         xpSystem.execute();
-        assertEquals(1, xpComponent.currentLevel());
+        assertEquals(1, xpComponent.characterLevel());
         assertEquals(20, xpComponent.currentXP());
     }
 
@@ -96,7 +96,7 @@ public class XPSystemTest {
         Game.removeAllEntities();
         Entity entity = new Entity();
 
-        LongConsumer levelUp = Mockito.mock(LongConsumer.class);
+        Consumer<Entity> levelUp = Mockito.mock(Consumer.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
         xpSystem.showEntity(entity);
@@ -105,7 +105,7 @@ public class XPSystemTest {
         xpSystem.showEntity(entity);
 
         xpSystem.execute();
-        assertEquals(2, xpComponent.currentLevel());
+        assertEquals(2, xpComponent.characterLevel());
         assertEquals(0, xpComponent.currentXP());
     }
 
@@ -119,7 +119,7 @@ public class XPSystemTest {
         Game.removeAllEntities();
         Entity entity = new Entity();
 
-        LongConsumer levelUp = Mockito.mock(LongConsumer.class);
+        Consumer<Entity> levelUp = Mockito.mock(Consumer.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
         xpSystem.showEntity(entity);
@@ -127,7 +127,7 @@ public class XPSystemTest {
 
         xpComponent.addXP(221);
         xpSystem.execute();
-        assertEquals(2, xpComponent.currentLevel());
+        assertEquals(2, xpComponent.characterLevel());
         assertEquals(20, xpComponent.currentXP());
     }
 
@@ -138,7 +138,7 @@ public class XPSystemTest {
         Game.removeAllEntities();
         Entity entity = new Entity();
 
-        LongConsumer levelUp = Mockito.mock(LongConsumer.class);
+        Consumer<Entity> levelUp = Mockito.mock(Consumer.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
         xpSystem.showEntity(entity);
