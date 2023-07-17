@@ -49,6 +49,29 @@ public class WizardQuizTest {
         return question;
     }
 
+    public static Quiz multipleChoiceDummy() {
+        Quiz question =
+                new Quiz(
+                        Quiz.Type.MULTIPLE_CHOICE,
+                        Quiz.Content.Type.TEXT,
+                        "Welche der hier genannten Komponenten sind \"atomare Komponenten\"?");
+        question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Buttons"));
+        question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Frames"));
+        question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Label"));
+        question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Panels"));
+        question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Groups"));
+        question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "EventListener"));
+        question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Events"));
+        return question;
+    }
+
+    public static Quiz freeTextDummy() {
+        return new Quiz(
+                Quiz.Type.FREETEXT,
+                Quiz.Content.Type.TEXT,
+                "Mit welchem Befehl kann man sich Dateien in der Working copy anzeigen lassen, die unversioniert sind oder in denen es Änderungen seit dem letzten Commit gab?");
+    }
+
     private static final Consumer<Entity> wizardInteractionCallback =
             wizzard -> {
                 System.out.println("INTERACTION");
@@ -151,7 +174,9 @@ public class WizardQuizTest {
         Entity wizard = new Entity("Quest Wizard");
         new PositionComponent(wizard);
         new DrawComponent(wizard, "character/wizard");
-        new TaskComponent(wizard, singleChoiceDummy());
+        new TaskComponent(wizard, TEST_QUIZ);
         new InteractionComponent(wizard, 1, false, wizardInteractionCallback);
     }
+
+    public static final Quiz TEST_QUIZ = freeTextDummy();
 }
