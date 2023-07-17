@@ -495,128 +495,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return true;
     }
 
-    // TODO: update javadoc
-    /**
-     * This handles parameter evaluation and binding and setting up the statement stack for
-     * execution of the function's statements
-     *
-     * @param symbol The symbol corresponding to the function to call
-     * @param parameterObjects The concrete raw objects to use as parameters of the function call
-     * @return The return value of the function call
-     */
-    public Object executeUserDefinedFunctionRawParameters(
-            FunctionSymbol symbol, List<Object> parameterObjects) {
-        // push new memorySpace and parameters on spaceStack
-        var functionMemSpace = new MemorySpace(memoryStack.peek());
-        this.memoryStack.push(functionMemSpace);
-
-        // bind all parameter-symbols as values in the function's memory space and set their values
-        var parameterSymbols = symbol.getSymbols();
-        for (int i = 0; i < parameterObjects.size(); i++) {
-            var parameterSymbol = parameterSymbols.get(i);
-            bindFromSymbol(parameterSymbol, memoryStack.peek());
-
-            Object parameterObject = parameterObjects.get(i);
-            Value paramValue =
-                    (Value)
-                            this.environment.translateRuntimeObject(
-                                    parameterObject, functionMemSpace);
-            setValue(parameterSymbol.getName(), paramValue);
-        }
-
-        // create and bind the return value
-        var functionType = (FunctionType) symbol.getDataType();
-        if (functionType.getReturnType() != BuiltInType.noType) {
-            var returnValue = createDefaultValue(functionType.getReturnType());
-            memoryStack.peek().bindValue(RETURN_VALUE_NAME, returnValue);
-        }
-
-        // add return mark
-        statementStack.addFirst(new Node(Node.Type.ReturnMark));
-
-        // put statement block on statement stack
-        var funcRootNode = symbol.getAstRootNode();
-        var stmtBlock = (StmtBlockNode) funcRootNode.getStmtBlock();
-        if (stmtBlock != Node.NONE) {
-            statementStack.addFirst(stmtBlock);
-        }
-
-        while (statementStack.peek() != null
-                && statementStack.peek().type != Node.Type.ReturnMark) {
-            var stmt = statementStack.pop();
-            stmt.accept(this);
-        }
-
-        // pop the return mark
-        assert Objects.requireNonNull(statementStack.peek()).type == Node.Type.ReturnMark;
-        statementStack.pop();
-
-        memoryStack.pop();
-        if (functionType.getReturnType() != BuiltInType.noType) {
-            return functionMemSpace.resolve(RETURN_VALUE_NAME);
-        }
-        return Value.NONE;
-    }
-
-    /**
-     * This handles parameter evaluation and binding and setting up the statement stack for
-     * execution of the function's statements
-     *
-     * @param symbol The symbol corresponding to the function to call
-     * @param parameterNodes The ASTNodes of the parameters of the function call
-     * @return The return value of the function call
-     */
-    public Object executeUserDefinedFunction(FunctionSymbol symbol, List<Node> parameterNodes) {
-        // push new memorySpace and parameters on spaceStack
-        var functionMemSpace = new MemorySpace(memoryStack.peek());
-        this.memoryStack.push(functionMemSpace);
-
-        // bind all parameter-symbols as values in the function's memory space and set their values
-        var parameterSymbols = symbol.getSymbols();
-        for (int i = 0; i < parameterNodes.size(); i++) {
-            var parameterSymbol = parameterSymbols.get(i);
-            bindFromSymbol(parameterSymbol, memoryStack.peek());
-
-            var paramValueNode = parameterNodes.get(i);
-            var paramValue = paramValueNode.accept(this);
-
-            setValue(parameterSymbol.getName(), paramValue);
-        }
-
-        // create and bind the return value
-        var functionType = (FunctionType) symbol.getDataType();
-        if (functionType.getReturnType() != BuiltInType.noType) {
-            var returnValue = createDefaultValue(functionType.getReturnType());
-            memoryStack.peek().bindValue(RETURN_VALUE_NAME, returnValue);
-        }
-
-        // add return mark
-        statementStack.addFirst(new Node(Node.Type.ReturnMark));
-
-        // put statement block on statement stack
-        var funcRootNode = symbol.getAstRootNode();
-        var stmtBlock = (StmtBlockNode) funcRootNode.getStmtBlock();
-        if (stmtBlock != Node.NONE) {
-            statementStack.addFirst(stmtBlock);
-        }
-
-        while (statementStack.peek() != null
-                && statementStack.peek().type != Node.Type.ReturnMark) {
-            var stmt = statementStack.pop();
-            stmt.accept(this);
-        }
-
-        // pop the return mark
-        assert Objects.requireNonNull(statementStack.peek()).type == Node.Type.ReturnMark;
-        statementStack.pop();
-
-        memoryStack.pop();
-        if (functionType.getReturnType() != BuiltInType.noType) {
-            return functionMemSpace.resolve(RETURN_VALUE_NAME);
-        }
-        return Value.NONE;
-    }
-
     @Override
     public Object visit(StmtBlockNode node) {
         ArrayList<Node> statements = node.getStmts();
@@ -716,4 +594,151 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(BoolNode node) {
         return new Value(BuiltInType.boolType, node.getValue());
     }
+
+    //region user defined function execution
+
+    /**
+     * This implements a call to a user defined dsl-function
+     *
+     * @param symbol The symbol corresponding to the function to call
+     * @param parameterObjects The concrete raw objects to use as parameters of the function call
+     * @return The return value of the function call
+     */
+    public Object executeUserDefinedFunctionRawParameters(
+        FunctionSymbol symbol, List<Object> parameterObjects) {
+        IMemorySpace functionMemorySpace = createFunctionMemorySpace(symbol);
+        this.memoryStack.push(functionMemorySpace);
+
+        setupFunctionParametersRaw(symbol, parameterObjects);
+        executeUserDefinedFunctionBody(symbol);
+
+        functionMemorySpace = memoryStack.pop();
+        return getReturnValueFromMemorySpace(functionMemorySpace);
+    }
+
+    /**
+     * This implements a call to a user defined dsl-function
+     *
+     * @param symbol The symbol corresponding to the function to call
+     * @param parameterNodes The ASTNodes of the parameters of the function call
+     * @return The return value of the function call
+     */
+    public Object executeUserDefinedFunction(FunctionSymbol symbol, List<Node> parameterNodes) {
+        IMemorySpace functionMemorySpace = createFunctionMemorySpace(symbol);
+        this.memoryStack.push(functionMemorySpace);
+
+        setupFunctionParameters(symbol, parameterNodes);
+        executeUserDefinedFunctionBody(symbol);
+
+        functionMemorySpace = memoryStack.pop();
+        return getReturnValueFromMemorySpace(functionMemorySpace);
+    }
+
+    /**
+     * This function translates all passed parameters into DSL-Values and binds
+     * them as parameters in the current memory space
+     *
+     * @param functionSymbol The symbol corresponding to the function definition
+     * @param parameterObjects Raw objects to use as values for the function's parameters
+     */
+    private void setupFunctionParametersRaw(FunctionSymbol functionSymbol, List<Object> parameterObjects) {
+        var currentMemorySpace = getCurrentMemorySpace();
+        // bind all parameter-symbols as values in the function's memory space and set their values
+        var parameterSymbols = functionSymbol.getSymbols();
+        for (int i = 0; i < parameterObjects.size(); i++) {
+            var parameterSymbol = parameterSymbols.get(i);
+            bindFromSymbol(parameterSymbol, memoryStack.peek());
+
+            Object parameterObject = parameterObjects.get(i);
+            Value paramValue =
+                (Value)
+                    this.environment.translateRuntimeObject(
+                        parameterObject, currentMemorySpace);
+            setValue(parameterSymbol.getName(), paramValue);
+        }
+    }
+
+    /**
+     * This function evaluates all passed nodes as values and binds
+     * them as parameters in the current memory space
+     *
+     * @param functionSymbol The symbol corresponding to the function definition
+     * @param parameterNodes AST-Nodes representing the passed parameters
+     */
+    private void setupFunctionParameters(FunctionSymbol functionSymbol, List<Node> parameterNodes) {
+        // bind all parameter-symbols as values in the function's memory space and set their values
+        var parameterSymbols = functionSymbol.getSymbols();
+        for (int i = 0; i < parameterNodes.size(); i++) {
+            var parameterSymbol = parameterSymbols.get(i);
+            bindFromSymbol(parameterSymbol, memoryStack.peek());
+
+            var paramValueNode = parameterNodes.get(i);
+            var paramValue = paramValueNode.accept(this);
+
+            setValue(parameterSymbol.getName(), paramValue);
+        }
+    }
+
+    /**
+     * Create a new IMemorySpace for a function call and bind the return Value,
+     * if the function has a return type
+     *
+     * @param functionSymbol The Symbol representing the function definition
+     * @return The created IMemorySpace
+     */
+    private IMemorySpace createFunctionMemorySpace(FunctionSymbol functionSymbol) {
+        // push new memorySpace and parameters on spaceStack
+        var functionMemSpace = new MemorySpace(memoryStack.peek());
+
+        // create and bind the return value
+        var functionType = (FunctionType) functionSymbol.getDataType();
+        if (functionType.getReturnType() != BuiltInType.noType) {
+            var returnValue = createDefaultValue(functionType.getReturnType());
+            functionMemSpace.bindValue(RETURN_VALUE_NAME, returnValue);
+        }
+        return functionMemSpace;
+    }
+
+    /**
+     * Extract a return value from a IMemorySpace
+     *
+     * @param ms The given memorySpace to resolve the return value in
+     * @return The resolved return value
+     */
+    private Value getReturnValueFromMemorySpace(IMemorySpace ms)  {
+        // only lookup the return value in the current memory space,
+        // if a function does not define a return value, we don't want to
+        // walk up into other memory spaces and falsely return a return value
+        // defined by another function further up in the callstack
+        return ms.resolve(RETURN_VALUE_NAME, false);
+    }
+
+    /**
+     * Execute Statements in a functions body
+     *
+     * @param symbol The symbol representing the function definition
+     */
+    private void executeUserDefinedFunctionBody(FunctionSymbol symbol) {
+        // add return mark
+        statementStack.addFirst(new Node(Node.Type.ReturnMark));
+
+        // put statement block on statement stack
+        var funcRootNode = symbol.getAstRootNode();
+        var stmtBlock = (StmtBlockNode) funcRootNode.getStmtBlock();
+        if (stmtBlock != Node.NONE) {
+            statementStack.addFirst(stmtBlock);
+        }
+
+        while (statementStack.peek() != null
+            && statementStack.peek().type != Node.Type.ReturnMark) {
+            var stmt = statementStack.pop();
+            stmt.accept(this);
+        }
+
+        // pop the return mark
+        assert Objects.requireNonNull(statementStack.peek()).type == Node.Type.ReturnMark;
+        statementStack.pop();
+    }
+
+    //endregion
 }
