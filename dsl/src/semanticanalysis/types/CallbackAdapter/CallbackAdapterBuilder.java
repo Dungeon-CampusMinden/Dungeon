@@ -5,9 +5,8 @@ import interpreter.DSLInterpreter;
 import semanticanalysis.FunctionSymbol;
 
 /**
- * Builder class for {@link CallbackAdapter}. Stores a reference to
- * the DSLInterpreter, because it is needed to actually perform the
- * execution of a callback defined in the DSL.
+ * Builder class for {@link CallbackAdapter}. Stores a reference to the {@link DSLInterpreter},
+ * because it is needed to actually perform the execution of a callback defined in the DSL.
  */
 public class CallbackAdapterBuilder {
     DSLInterpreter interpreter;
@@ -17,8 +16,8 @@ public class CallbackAdapterBuilder {
     }
 
     /**
-     * Build a {@link CallbackAdapter} for a concrete DSL function for assigning
-     * to a callback-Field in a Component of the Dungeons ECS.
+     * Build a {@link CallbackAdapter} for a concrete DSL function for assigning to a callback-Field
+     * in a Component of the Dungeons ECS.
      *
      * @param functionSymbol The Symbol representing the function definition
      * @return The created {@link CallbackAdapter}
