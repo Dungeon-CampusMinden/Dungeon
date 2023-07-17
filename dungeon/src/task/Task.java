@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  * #content} collection.
  *
  * <p>The internal collection can be queried as a stream using {@link #contentStream()}, and
- * manipulated using {@link #addContent(TaskContent)} and {@link #removeContent(TaskContent)}.
+ * manipulated using {@link #addContent(TaskContent)}.
  *
  * <p>Each task is associated with a {@link TaskComponent} that handles the meta-control of the
  * task.

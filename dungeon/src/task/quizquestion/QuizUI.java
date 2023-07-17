@@ -1,4 +1,4 @@
-package quizquestion;
+package task.quizquestion;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -10,7 +10,7 @@ import core.hud.UITools;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-public class QuizQuestionUI {
+public class QuizUI {
 
     /**
      * Limits the length of the string to 40 characters, after which a line break occurs
@@ -28,10 +28,10 @@ public class QuizQuestionUI {
      * @param question Question to show on the HUD
      * @return the Entity that stores the {@link core.components.UIComponent} with the UI-Elements.
      */
-    public static Entity showQuizDialog(QuizQuestion question) {
+    public static Entity showQuizDialog(Quiz question) {
         return showQuizDialog(
                 question,
-                formatStringForDialogWindow(question.question().content()),
+                formatStringForDialogWindow(question.taskText()),
                 core.hud.UITools.DEFAULT_DIALOG_CONFIRM,
                 core.hud.UITools.DEFAULT_DIALOG_TITLE);
     }
@@ -46,7 +46,7 @@ public class QuizQuestionUI {
      * @param question Various question configurations
      */
     private static Entity showQuizDialog(
-            QuizQuestion question, String questionMsg, String buttonMsg, String dialogTitle) {
+            Quiz question, String questionMsg, String buttonMsg, String dialogTitle) {
         Entity entity = new Entity();
 
         core.hud.UITools.show(
@@ -75,7 +75,7 @@ public class QuizQuestionUI {
      * Factory for a generic Quizquestion.
      *
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
-     * @param quizQuestion Various question configurations
+     * @param quiz Various question configurations
      * @param outputMsg Content displayed in the scrollable label
      * @param buttonMsg text for the button
      * @param title Title of the dialogue
@@ -84,7 +84,7 @@ public class QuizQuestionUI {
      */
     private static Dialog createQuizDialog(
             Skin skin,
-            QuizQuestion quizQuestion,
+            Quiz quiz,
             String outputMsg,
             String buttonMsg,
             String title,
@@ -92,7 +92,7 @@ public class QuizQuestionUI {
         Dialog textDialog = new TextDialog(title, skin, resultHandler);
         textDialog
                 .getContentTable()
-                .add(QuizDialogDesign.createQuizQuestion(quizQuestion, skin, outputMsg))
+                .add(QuizDialogDesign.createQuizQuestion(quiz, skin, outputMsg))
                 .grow()
                 .fill(); // changes size based on childrens;
         textDialog.button(buttonMsg, buttonMsg);
