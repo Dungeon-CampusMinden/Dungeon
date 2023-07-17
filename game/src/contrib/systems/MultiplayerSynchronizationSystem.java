@@ -57,9 +57,7 @@ public final class MultiplayerSynchronizationSystem extends System {
     /** Adds multiplayer entities to local state, that newly joined session. */
     private void synchronizeAddedEntities() {
         final Set<Integer> currentLocalMultiplayerEntityIds =
-                Game.entityStream()
-                        .map(Entity::globalID)
-                        .collect(Collectors.toSet());
+                Game.entityStream().map(Entity::globalID).collect(Collectors.toSet());
 
         Game.entityStreamGlobal()
                 .forEach(
@@ -110,11 +108,9 @@ public final class MultiplayerSynchronizationSystem extends System {
                                                 if (multiplayerEntityState.globalID()
                                                         == localEntityState.globalID()) {
                                                     PositionComponent positionComponentMultiplayer =
-                                                                    multiplayerEntityState
-                                                                            .fetch(
-                                                                                    PositionComponent
-                                                                                            .class)
-                                                                            .orElseThrow();
+                                                            multiplayerEntityState
+                                                                    .fetch(PositionComponent.class)
+                                                                    .orElseThrow();
                                                     positionComponentLocal.position(
                                                             positionComponentMultiplayer
                                                                     .position());
@@ -141,11 +137,9 @@ public final class MultiplayerSynchronizationSystem extends System {
                                                     if (multiplayerEntityState.globalID()
                                                             == localEntityState.globalID()) {
                                                         DrawComponent drawComponent =
-                                                                        localEntityState
-                                                                                .fetch(
-                                                                                        DrawComponent
-                                                                                                .class)
-                                                                                .orElseThrow();
+                                                                localEntityState
+                                                                        .fetch(DrawComponent.class)
+                                                                        .orElseThrow();
 
                                                         Optional<VelocityComponent>
                                                                 velocityComponentMultiplayer =
@@ -154,10 +148,12 @@ public final class MultiplayerSynchronizationSystem extends System {
                                                                                         VelocityComponent
                                                                                                 .class);
 
-                                                        if (velocityComponentMultiplayer.isPresent()) {
+                                                        if (velocityComponentMultiplayer
+                                                                .isPresent()) {
                                                             float x =
                                                                     velocityComponentMultiplayer
-                                                                        .get().currentXVelocity();
+                                                                            .get()
+                                                                            .currentXVelocity();
                                                             if (x > 0) {
                                                                 drawComponent.currentAnimation(
                                                                         CoreAnimations.RUN_RIGHT);
@@ -169,18 +165,21 @@ public final class MultiplayerSynchronizationSystem extends System {
                                                             else {
                                                                 // each draw component has an idle
                                                                 // animation, so no check is needed
-                                                                if (drawComponent.isCurrentAnimation(
-                                                                                CoreAnimations
-                                                                                        .IDLE_LEFT)
+                                                                if (drawComponent
+                                                                                .isCurrentAnimation(
+                                                                                        CoreAnimations
+                                                                                                .IDLE_LEFT)
                                                                         || drawComponent
                                                                                 .isCurrentAnimation(
                                                                                         CoreAnimations
                                                                                                 .RUN_LEFT))
                                                                     drawComponent.currentAnimation(
-                                                                            CoreAnimations.IDLE_LEFT);
+                                                                            CoreAnimations
+                                                                                    .IDLE_LEFT);
                                                                 else
                                                                     drawComponent.currentAnimation(
-                                                                            CoreAnimations.IDLE_RIGHT);
+                                                                            CoreAnimations
+                                                                                    .IDLE_RIGHT);
                                                             }
                                                         }
                                                     }

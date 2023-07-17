@@ -25,9 +25,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-/**
- * Inherits logic to host und manage multiplayer session.
- */
+/** Inherits logic to host und manage multiplayer session. */
 public class MultiplayerServerManager implements IServerObserver {
     private static final Version VERSION = new Version(0, 0, 0);
     private static final int DEFAULT_HOST_ID_NOT_SET = -1;
@@ -37,11 +35,13 @@ public class MultiplayerServerManager implements IServerObserver {
     /** Duration for sending game state update cyclically. */
     private static final long DEFAULT_NANOS_PER_TICK_FOR_SCHEDULER =
             1000000000 / DEFAULT_TICKS_FOR_SCHEDULER;
+
     private final Logger logger = Logger.getLogger(this.getClass().getName());
     /** Used to hold global state based when acting as host. */
     private final GameState globalState = new GameState();
     /** Used to send/receive messages to/from other endpoints/clients. */
     private final IServer server;
+
     private final Set<Integer> authorizedClientIDs = new HashSet<>();
     private final IMultiplayerServerManagerObserver observer;
     /** From server assigned unique id. */
@@ -71,7 +71,8 @@ public class MultiplayerServerManager implements IServerObserver {
      * @param observer Observer for custom event handling.
      * @param server Server to send and receive messages over TCP/UDP.
      */
-    public MultiplayerServerManager(final IMultiplayerServerManagerObserver observer, final IServer server) {
+    public MultiplayerServerManager(
+            final IMultiplayerServerManagerObserver observer, final IServer server) {
         this.server = requireNonNull(server);
         server.addObserver(this);
         this.observer = requireNonNull(observer);
@@ -214,7 +215,8 @@ public class MultiplayerServerManager implements IServerObserver {
     /**
      * Hosting a multiplayer session, which other players can join.
      *
-     * <p>To handle whether session started successfully or not, check {@link IMultiplayerClientManagerObserver}.
+     * <p>To handle whether session started successfully or not, check {@link
+     * IMultiplayerClientManagerObserver}.
      *
      * <p>NOTE: After server started, level and hero position has to be set up.
      *

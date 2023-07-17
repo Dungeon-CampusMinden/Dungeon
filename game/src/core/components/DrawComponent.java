@@ -187,11 +187,12 @@ public final class DrawComponent extends Component {
                 return;
             } else {
                 // Disabled log because currently it overfills console
-//                LOGGER.warning(
-//                        "Animation "
-//                                + animationName
-//                                + " can not be set, because the given Animation could not be found for "
-//                                + entity.toString());
+                //                LOGGER.warning(
+                //                        "Animation "
+                //                                + animationName
+                //                                + " can not be set, because the given Animation
+                // could not be found for "
+                //                                + entity.toString());
             }
         }
     }
@@ -231,7 +232,8 @@ public final class DrawComponent extends Component {
         Optional<Animation> animation = getAnimation(path);
         if (animation.isPresent()) return animation.get() == currentAnimation;
         // Disabled log because currently it overfills console
-//        LOGGER.warning("Animation " + path + " is not stored inside " + entity.toString());
+        //        LOGGER.warning("Animation " + path + " is not stored inside " +
+        // entity.toString());
         return false;
     }
 

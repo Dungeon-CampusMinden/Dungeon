@@ -34,9 +34,9 @@ import core.level.utils.LevelSize;
 import core.systems.CameraSystem;
 import core.systems.DrawSystem;
 import core.systems.HudSystem;
+import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
 import core.systems.VelocitySystem;
-import core.systems.LevelSystem;
 import core.utils.Constants;
 import core.utils.DelayedSet;
 import core.utils.IVoidFunction;
@@ -52,9 +52,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Game
-    extends ScreenAdapter
-    implements IMultiplayerClientManagerObserver, IMultiplayerServerManagerObserver {
+public class Game extends ScreenAdapter
+        implements IMultiplayerClientManagerObserver, IMultiplayerServerManagerObserver {
 
     /* Used for singleton. */
     private static Game INSTANCE;
@@ -336,9 +335,11 @@ public class Game
             if (currentLevel() == null) {
                 currentLevel(LevelSize.SMALL);
             }
-//            // Check whether which random port is not already in use and listen to this on
-//            // serverside
-//            // it's unlikely that no port is free but to not run into infinite loop, limit tries.
+            //            // Check whether which random port is not already in use and listen to
+            // this on
+            //            // serverside
+            //            // it's unlikely that no port is free but to not run into infinite loop,
+            // limit tries.
             int generatePortTriesMaxCount = 20;
             int generatePortTriesCount = 0;
             boolean isServerStarted = false;
@@ -416,15 +417,19 @@ public class Game
             } catch (Exception ex) {
                 final String message = "Session successfully joined but level can not be set.";
                 LOGGER.warning(String.format("%s\n%s", message, ex.getMessage()));
-//                Entity entity = UITools.generateNewTextDialog(message, "Ok", "Process failure");
-//                entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+                //                Entity entity = UITools.generateNewTextDialog(message, "Ok",
+                // "Process failure");
+                //                entity.fetch(UIComponent.class).ifPresent(y ->
+                // y.dialog().setVisible(true));
                 stopSystems();
             }
         } else {
             final String message = "Cannot join multiplayer session";
             LOGGER.warning(message);
-//            Entity entity = UITools.generateNewTextDialog(message, "Ok", "Connection failed.");
-//            entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+            //            Entity entity = UITools.generateNewTextDialog(message, "Ok", "Connection
+            // failed.");
+            //            entity.fetch(UIComponent.class).ifPresent(y ->
+            // y.dialog().setVisible(true));
             stopSystems();
         }
     }
@@ -434,8 +439,10 @@ public class Game
         if (level == null) {
             final String message = "Level failed to load. Is null.";
             LOGGER.warning(message);
-//            Entity entity = UITools.generateNewTextDialog(message, "Ok", "No map loaded.");
-//            entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+            //            Entity entity = UITools.generateNewTextDialog(message, "Ok", "No map
+            // loaded.");
+            //            entity.fetch(UIComponent.class).ifPresent(y ->
+            // y.dialog().setVisible(true));
             stopSystems();
             return;
         }
@@ -462,8 +469,8 @@ public class Game
     public void onMultiplayerSessionConnectionLost() {
         final String message = "Disconnected from multiplayer session.";
         LOGGER.info(message);
-//        Entity entity = UITools.generateNewTextDialog(message, "Ok", "Connection lost.");
-//        entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+        //        Entity entity = UITools.generateNewTextDialog(message, "Ok", "Connection lost.");
+        //        entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
         stopSystems();
     }
 
@@ -827,19 +834,19 @@ public class Game
                         levelSystem.loadLevel(LevelSize.SMALL);
                         updateSystems();
                         clientManager.loadMap(
-                            currentLevel(), entityStream().collect(Collectors.toSet()), hero);
+                                currentLevel(), entityStream().collect(Collectors.toSet()), hero);
                     } else {
                         // Only host is allowed to load map, so force host to generate new map
                         clientManager.requestNewLevel();
                     }
                 } else {
                     LOGGER.severe(
-                        "Entity on end tile and Multiplayer mode set but disconnected from session.");
+                            "Entity on end tile and Multiplayer mode set but disconnected from session.");
                 }
             }
         } else {
             LOGGER.severe(
-                "Entity on end tile but game mode is not set to determine needed action.");
+                    "Entity on end tile but game mode is not set to determine needed action.");
         }
     }
 }

@@ -49,7 +49,7 @@ public class InteractionToolTest {
     private static void cleanup() {
         Game.removeAllEntities();
         Game.hero(null);
-        Game.currentLevel((ILevel)null);
+        Game.currentLevel((ILevel) null);
     }
 
     /** Tests the functionality when the Hero does not have the PositionComponent */

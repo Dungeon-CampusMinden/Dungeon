@@ -25,10 +25,16 @@ import java.util.stream.Stream;
 
 /**
  * Inherits logic to join multiplayer sessions.
+ *
  * <p>Saves current state of entities and level received from server.
+ *
  * <p>To join sessions, see {@link #joinSession(String, int, Entity)}
- * <p>To inform server about entity movement, see {@link #sendMovementUpdate(int, Point, float, float)}
+ *
+ * <p>To inform server about entity movement, see {@link #sendMovementUpdate(int, Point, float,
+ * float)}
+ *
  * <p>To force loading a map as host client, see {@link #loadMap(ILevel, Set, Entity)}
+ *
  * <p>To request changing the level as not-host client, see {@link #requestNewLevel()}
  */
 public class MultiplayerClientManager implements IClientObserver {
@@ -63,7 +69,8 @@ public class MultiplayerClientManager implements IClientObserver {
      * @param observer Observer for custom event handling.
      * @param client Client that would be used to send and receive messages.
      */
-    public MultiplayerClientManager(final IMultiplayerClientManagerObserver observer, final IClient client) {
+    public MultiplayerClientManager(
+            final IMultiplayerClientManagerObserver observer, final IClient client) {
         this.observer = observer;
         this.client = requireNonNull(client);
         client.addObserver(this);
@@ -160,8 +167,7 @@ public class MultiplayerClientManager implements IClientObserver {
      * @param currentEntities Entities that should be part of the level.
      * @param hero Own hero.
      */
-    public void loadMap(
-            final ILevel level, final Set<Entity> currentEntities, final Entity hero) {
+    public void loadMap(final ILevel level, final Set<Entity> currentEntities, final Entity hero) {
         client.sendTCP(
                 new LoadMapRequest(
                         requireNonNull(level),

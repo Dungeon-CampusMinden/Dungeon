@@ -74,7 +74,7 @@ public class CameraSystemTest {
 
     @Test
     public void executeWithoutLevel() {
-        Game.currentLevel((ILevel)null);
+        Game.currentLevel((ILevel) null);
         Point expectedFocusPoint = new Point(0, 0);
         cameraSystem.execute();
         assertEquals(expectedFocusPoint.x, CameraSystem.camera().position.x, 0.001);

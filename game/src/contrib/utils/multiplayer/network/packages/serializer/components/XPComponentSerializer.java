@@ -9,8 +9,6 @@ import contrib.components.XPComponent;
 
 import core.Entity;
 
-import java.util.function.LongConsumer;
-
 /** Custom serializer to send and retrieve objects of {@link XPComponent}. */
 public class XPComponentSerializer extends Serializer<XPComponent> {
     private Entity entity;
@@ -32,17 +30,17 @@ public class XPComponentSerializer extends Serializer<XPComponent> {
 
     @Override
     public void write(Kryo kryo, Output output, XPComponent object) {
-//        output.writeLong(object.currentXP());
-//        output.writeLong(object.lootXP());
+        //        output.writeLong(object.currentXP());
+        //        output.writeLong(object.lootXP());
     }
 
     @Override
     public XPComponent read(Kryo kryo, Input input, Class<XPComponent> type) {
         return null;
-//        long currentXP = input.readLong();
-//        long lootXP = input.readLong();
-//        XPComponent xpc = new XPComponent(entity, lootXP);
-//        xpc.currentXP(currentXP);
-//        return xpc;
+        //        long currentXP = input.readLong();
+        //        long lootXP = input.readLong();
+        //        XPComponent xpc = new XPComponent(entity, lootXP);
+        //        xpc.currentXP(currentXP);
+        //        return xpc;
     }
 }

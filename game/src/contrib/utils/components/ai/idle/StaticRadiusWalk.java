@@ -73,7 +73,7 @@ public class StaticRadiusWalk implements Consumer<Entity> {
     }
 
     /**
-     * @return  radius.
+     * @return radius.
      */
     public float radius() {
         return radius;

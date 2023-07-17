@@ -193,7 +193,7 @@ public abstract class System {
     public void run() {
         run = true;
         // Disabled log because currently it overfills console
-//        LOGGER.info(this.getClass().getName() + " is running");
+        //        LOGGER.info(this.getClass().getName() + " is running");
     }
 
     /**

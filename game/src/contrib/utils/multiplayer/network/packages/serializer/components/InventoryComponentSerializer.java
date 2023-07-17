@@ -10,7 +10,6 @@ import contrib.utils.components.item.ItemData;
 
 import core.Entity;
 
-import java.util.List;
 import java.util.Set;
 
 /** Custom serializer to send and retrieve objects of {@link InventoryComponent}. */

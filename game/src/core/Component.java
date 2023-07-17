@@ -33,12 +33,12 @@ public abstract class Component {
         Logger componentLogger = Logger.getLogger(this.getClass().getName());
         // Disabled log because currently it overfills console because constructor
         // is called each time multiplayer server sends game state update
-//                componentLogger.info(
-//                        "The component '"
-//                                + this.getClass().getName()
-//                                + "' was added to entity '"
-//                                + entity
-//                                + "'.");
+        //                componentLogger.info(
+        //                        "The component '"
+        //                                + this.getClass().getName()
+        //                                + "' was added to entity '"
+        //                                + entity
+        //                                + "'.");
     }
 
     /**

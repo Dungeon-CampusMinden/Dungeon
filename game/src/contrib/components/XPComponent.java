@@ -47,7 +47,7 @@ public final class XPComponent extends Component {
     private static final Consumer<Entity> DEFAULT_LEVEL_UP = entity1 -> {};
 
     private static final Function<XPComponent, Long> DEFAULT_LOOT_XP_FUNCTION =
-            xpComponent -> (long)(xpComponent.currentXP() * 0.5f);
+            xpComponent -> (long) (xpComponent.currentXP() * 0.5f);
 
     private Function<XPComponent, Long> lootXPFunction;
     private Function<Long, Long> levelUPFormula;
