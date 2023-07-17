@@ -1,21 +1,15 @@
 package runtime;
 
-import core.utils.TriConsumer;
-
 import interpreter.DSLInterpreter;
 
 import semanticanalysis.IScope;
 import semanticanalysis.Symbol;
 import semanticanalysis.SymbolTable;
-import semanticanalysis.types.CallbackAdapter.ConsumerCallbackAdapterBuilder;
-import semanticanalysis.types.CallbackAdapter.FunctionCallbackAdapterBuilder;
 import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 import semanticanalysis.types.TypeInstantiator;
 
 import java.util.HashMap;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 // this extends the normal IEnvironment definition by storing prototypes
 // which are basically evaluated type definitions (of game objects)
@@ -62,8 +56,7 @@ public class RuntimeEnvironment implements IEvironment {
         this.javaTypeToDSLType = other.javaTypeToDSLTypeMap();
 
         this.runtimeObjectTranslator = other.getRuntimeObjectTranslator();
-        this.typeInstantiator = new TypeInstantiator();
-        this.setupCallbackAdapterBuilders();
+        this.typeInstantiator = new TypeInstantiator(interpreter);
     }
 
     /**
@@ -122,14 +115,5 @@ public class RuntimeEnvironment implements IEvironment {
 
     public TypeInstantiator getTypeInstantiator() {
         return this.typeInstantiator;
-    }
-
-    protected void setupCallbackAdapterBuilders() {
-        this.typeInstantiator.addCallbackAdapterBuilder(
-                Function.class, new FunctionCallbackAdapterBuilder(this.interpreter));
-        this.typeInstantiator.addCallbackAdapterBuilder(
-                Consumer.class, new ConsumerCallbackAdapterBuilder(this.interpreter));
-        this.typeInstantiator.addCallbackAdapterBuilder(
-                TriConsumer.class, new ConsumerCallbackAdapterBuilder(this.interpreter));
     }
 }

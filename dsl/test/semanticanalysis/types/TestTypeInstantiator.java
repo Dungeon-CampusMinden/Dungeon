@@ -5,6 +5,7 @@ import dslToGame.graph.Graph;
 
 import helpers.Helpers;
 
+import interpreter.DSLInterpreter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -54,7 +55,8 @@ public class TestTypeInstantiator {
             memberCounter++;
         }
 
-        TypeInstantiator ti = new TypeInstantiator();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        TypeInstantiator ti = new TypeInstantiator(interpreter);
         var instance = ti.instantiate(type, ms);
 
         // check, that all values originally only set in the memory space match the
@@ -111,7 +113,8 @@ public class TestTypeInstantiator {
             memberCounter++;
         }
 
-        TypeInstantiator ti = new TypeInstantiator();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        TypeInstantiator ti = new TypeInstantiator(interpreter);
         var instance = ti.instantiate(type, ms);
 
         // check, that all values originally only set in the memory space match the

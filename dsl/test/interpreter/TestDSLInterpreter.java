@@ -20,8 +20,8 @@ import semanticanalysis.FunctionSymbol;
 import semanticanalysis.Scope;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
-import semanticanalysis.types.CallbackAdapter.ConsumerCallbackAdapterBuilder;
-import semanticanalysis.types.CallbackAdapter.FunctionCallbackAdapterBuilder;
+import semanticanalysis.types.CallbackAdapter.CallbackAdapter;
+import semanticanalysis.types.CallbackAdapter.CallbackAdapterBuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -1000,7 +1000,7 @@ public class TestDSLInterpreter {
         // get function definition
         var functionSymbol =
                 (FunctionSymbol) rtEnv.getSymbolTable().getGlobalScope().resolve("other_func");
-        FunctionCallbackAdapterBuilder builder = new FunctionCallbackAdapterBuilder(interpreter);
+        var builder = new CallbackAdapterBuilder(interpreter);
         var callbackAdapter = builder.buildAdapter(functionSymbol);
 
         // var testClassObject = new TestTypeBuilder.TestClass();
@@ -1054,12 +1054,12 @@ public class TestDSLInterpreter {
         // get function definition
         var functionSymbol =
                 (FunctionSymbol) rtEnv.getSymbolTable().getGlobalScope().resolve("other_func");
-        var builder = new ConsumerCallbackAdapterBuilder(interpreter);
+        var builder = new CallbackAdapterBuilder(interpreter);
         var callbackAdapter = builder.buildAdapter(functionSymbol);
 
         try {
             var c = field.getClass();
-            field.set(object, (Consumer) callbackAdapter::call);
+            field.set(object, callbackAdapter);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }

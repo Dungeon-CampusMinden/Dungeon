@@ -4,11 +4,14 @@ import static semanticanalysis.types.TypeBuilder.convertToDSLName;
 
 import core.utils.TriConsumer;
 
+import interpreter.DSLInterpreter;
 import runtime.AggregateValue;
 import runtime.IMemorySpace;
 import runtime.Value;
 
 import semanticanalysis.FunctionSymbol;
+import semanticanalysis.types.CallbackAdapter.CallbackAdapter;
+import semanticanalysis.types.CallbackAdapter.CallbackAdapterBuilder;
 import semanticanalysis.types.CallbackAdapter.ICallbackAdapter;
 import semanticanalysis.types.CallbackAdapter.ICallbackAdapterBuilder;
 
@@ -17,32 +20,21 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.Optional;
 
 public class TypeInstantiator {
     private final HashMap<String, Object> context = new HashMap<>();
-    private final HashMap<Class<?>, ICallbackAdapterBuilder> callbackAdapterBuilders =
-            new HashMap<>();
+    private final CallbackAdapterBuilder callbackAdapterBuilder;
 
-    public TypeInstantiator() {}
-
-    public void addCallbackAdapterBuilder(Class<?> clazz, ICallbackAdapterBuilder builder) {
-        callbackAdapterBuilders.put(clazz, builder);
+    public TypeInstantiator(DSLInterpreter interpreter) {
+        callbackAdapterBuilder = new CallbackAdapterBuilder(interpreter);
     }
 
     public void setFieldToFunctionalInterface(
-            Field field, Object objectWithField, ICallbackAdapter adapter) {
-        var clazz = field.getType();
-        field.setAccessible(true);
+            Field field, Object objectWithField, CallbackAdapter adapter) {
         try {
-            if (Consumer.class.isAssignableFrom(clazz)) {
-                field.set(objectWithField, (Consumer) adapter::call);
-            } else if (TriConsumer.class.isAssignableFrom(clazz)) {
-                field.set(objectWithField, (TriConsumer) adapter::call);
-            } else if (Function.class.isAssignableFrom(clazz)) {
-                field.set(objectWithField, (Function) adapter::call);
-            }
+            field.setAccessible(true);
+            field.set(objectWithField, adapter);
         } catch (IllegalAccessException ex) {
             throw new RuntimeException(ex);
         }
@@ -238,18 +230,12 @@ public class TypeInstantiator {
                     // the internal value already correctly and just set the value here
                     // TODO: get IFunctionTypeBuilder for specific interface
                     var fieldsClass = field.getType();
-                    var builder = this.callbackAdapterBuilders.get(fieldsClass);
-                    if (builder == null) {
-                        throw new RuntimeException(
-                                "Can't find callback builder for functional interface "
-                                        + fieldsClass);
-                    }
 
                     assert fieldValue.getDataType().getTypeKind() == IType.Kind.FunctionType;
                     assert fieldValue.getInternalValue() instanceof FunctionSymbol;
 
-                    ICallbackAdapter adapter =
-                            builder.buildAdapter((FunctionSymbol) fieldValue.getInternalValue());
+                    CallbackAdapter adapter =
+                            callbackAdapterBuilder.buildAdapter((FunctionSymbol) fieldValue.getInternalValue());
                     setFieldToFunctionalInterface(field, instance, adapter);
                 }
             }
