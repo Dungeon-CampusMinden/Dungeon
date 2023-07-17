@@ -26,16 +26,6 @@ public class TypeInstantiator {
         callbackAdapterBuilder = new CallbackAdapterBuilder(interpreter);
     }
 
-    public void setFieldToFunctionalInterface(
-            Field field, Object objectWithField, CallbackAdapter adapter) {
-        try {
-            field.setAccessible(true);
-            field.set(objectWithField, adapter);
-        } catch (IllegalAccessException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
     /**
      * Instantiate a new Object corresponding to an {@link AggregateType} with an {@link
      * IMemorySpace} containing all needed values. This requires the passed {@link AggregateType} to
@@ -221,19 +211,14 @@ public class TypeInstantiator {
                     }
                 }
                 if (field.isAnnotationPresent(DSLCallback.class)) {
-                    // Doing this here requires to much information to be passed to the
-                    // typeInstantiator... rather set
-                    // the internal value already correctly and just set the value here
-                    // TODO: get IFunctionTypeBuilder for specific interface
-                    var fieldsClass = field.getType();
-
                     assert fieldValue.getDataType().getTypeKind() == IType.Kind.FunctionType;
                     assert fieldValue.getInternalValue() instanceof FunctionSymbol;
 
                     CallbackAdapter adapter =
                             callbackAdapterBuilder.buildAdapter(
                                     (FunctionSymbol) fieldValue.getInternalValue());
-                    setFieldToFunctionalInterface(field, instance, adapter);
+                    field.setAccessible(true);
+                    field.set(instance, adapter);
                 }
             }
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
