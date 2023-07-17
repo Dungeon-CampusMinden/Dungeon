@@ -18,6 +18,7 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.hud.UITools;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 
@@ -49,18 +50,23 @@ public class WizardQuizTest {
     }
 
     private static final Consumer<Entity> wizardInteractionCallback =
-            entity -> {
-                Task quest = entity.fetch(TaskComponent.class).orElseThrow().task();
+            wizzard -> {
+                System.out.println("INTERACTION");
+                Task quest = wizzard.fetch(TaskComponent.class).orElseThrow().task();
                 // build GUI with its callback
                 QuizUI.showQuizDialog(
                         (Quiz) quest,
-                        (Entity wizard) -> {
-                            System.out.println("DEBUG WIZARD: 58");
+                        (Entity hudEntity) -> {
                             // TODO answer=
                             return (textDialog, id) -> {
                                 if (Objects.equals(id, core.hud.UITools.DEFAULT_DIALOG_CONFIRM)) {
                                     SnapshotArray<Actor> children =
-                                            textDialog.getContentTable().getChildren();
+                                            ((VerticalGroup)
+                                                            textDialog
+                                                                    .getContentTable()
+                                                                    .getChildren()
+                                                                    .get(0))
+                                                    .getChildren();
                                     // find the answersection .added a name to it for easier search
                                     var answerSection =
                                             (VerticalGroup)
@@ -71,7 +77,6 @@ public class WizardQuizTest {
                                                                                     ANSWERS_GROUP_NAME))
                                                             .iterator()
                                                             .next();
-                                    System.out.println("DEBUG WIZARD: 65" + answerSection);
                                     // do some magic
                                     var answerText =
                                             switch (((Quiz) quest).type()) {
@@ -80,12 +85,10 @@ public class WizardQuizTest {
                                                 case MULTIPLE_CHOICE -> ""; // TODO ???
                                                 case FREETEXT -> getFreeTextAnswer(answerSection);
                                             };
-                                    System.out.println("DEBUG WIZARD: 70");
-                                    // antwort steht in answerText
-                                    // UITools.generateNewTextDialog(answerText,"Ok","The answer
-                                    // was");
-                                    System.out.println(answerText);
-                                    Game.removeEntity(entity);
+                                    Game.removeEntity(hudEntity);
+                                    UITools.generateNewTextDialog(
+                                            answerText, "Ok", "The answer was");
+
                                     return true;
                                 }
                                 return false;
@@ -106,7 +109,7 @@ public class WizardQuizTest {
                                 .iterator()
                                 .next()
                         instanceof CheckBox checked
-                ? checked.getName()
+                ? checked.getText().toString()
                 : "No Selection";
     }
 
@@ -149,6 +152,6 @@ public class WizardQuizTest {
         new PositionComponent(wizard);
         new DrawComponent(wizard, "character/wizard");
         new TaskComponent(wizard, singleChoiceDummy());
-        new InteractionComponent(wizard, 1, true, wizardInteractionCallback);
+        new InteractionComponent(wizard, 1, false, wizardInteractionCallback);
     }
 }
