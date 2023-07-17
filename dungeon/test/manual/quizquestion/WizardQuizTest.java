@@ -28,7 +28,11 @@ import task.quizquestion.Quiz;
 import task.quizquestion.QuizUI;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class WizardQuizTest {
@@ -101,16 +105,34 @@ public class WizardQuizTest {
                                                             .iterator()
                                                             .next();
                                     // do some magic
-                                    var answerText =
-                                            switch (((Quiz) quest).type()) {
-                                                case SINGLE_CHOICE -> getSingleChoiceText(
-                                                        answerSection);
-                                                case MULTIPLE_CHOICE -> ""; // TODO ???
-                                                case FREETEXT -> getFreeTextAnswer(answerSection);
-                                            };
+                                    switch (((Quiz) quest).type()) {
+                                        case SINGLE_CHOICE -> UITools.generateNewTextDialog(
+                                                getSingleChoiceAnswer(answerSection),
+                                                "Ok",
+                                                "The answer was");
+                                        case MULTIPLE_CHOICE -> {
+                                            Set<String> answers =
+                                                    getMultipleChoiceAnswer(answerSection);
+                                            System.out.println("DEBUG " + answers.size());
+                                            AtomicReference<String> antworten =
+                                                    new AtomicReference<>("");
+                                            answers.forEach(
+                                                    s ->
+                                                            antworten.set(
+                                                                    antworten.get()
+                                                                            + s
+                                                                            + System
+                                                                                    .lineSeparator()));
+                                            UITools.generateNewTextDialog(
+                                                    antworten.get(), "Ok", "The answer was");
+                                        }
+                                        case FREETEXT -> UITools.generateNewTextDialog(
+                                                getFreeTextAnswer(answerSection),
+                                                "Ok",
+                                                "The answer was");
+                                    }
+                                    ;
                                     Game.removeEntity(hudEntity);
-                                    UITools.generateNewTextDialog(
-                                            answerText, "Ok", "The answer was");
 
                                     return true;
                                 }
@@ -119,7 +141,7 @@ public class WizardQuizTest {
                         });
             };
 
-    private static String getSingleChoiceText(VerticalGroup answerSection) {
+    private static String getSingleChoiceAnswer(VerticalGroup answerSection) {
         return ((VerticalGroup)
                                         ((ScrollPane) answerSection.getChildren().get(0))
                                                 .getChildren()
@@ -134,6 +156,25 @@ public class WizardQuizTest {
                         instanceof CheckBox checked
                 ? checked.getText().toString()
                 : "No Selection";
+    }
+
+    private static Set<String> getMultipleChoiceAnswer(VerticalGroup answerSection) {
+        Set<String> answers = new HashSet<>();
+
+        Iterator iterator =
+                ((VerticalGroup)
+                                ((ScrollPane) answerSection.getChildren().get(0))
+                                        .getChildren()
+                                        .get(0))
+                        .getChildren()
+                        .select((x) -> x instanceof CheckBox checkbox && checkbox.isChecked())
+                        .iterator();
+
+        while (iterator.hasNext())
+            if (iterator.next() instanceof CheckBox checked)
+                answers.add(checked.getText().toString());
+        if (answers.size() == 0) answers.add("No Selection");
+        return answers;
     }
 
     private static String getFreeTextAnswer(VerticalGroup answerSection) {
@@ -178,5 +219,5 @@ public class WizardQuizTest {
         new InteractionComponent(wizard, 1, false, wizardInteractionCallback);
     }
 
-    public static final Quiz TEST_QUIZ = freeTextDummy();
+    public static final Quiz TEST_QUIZ = multipleChoiceDummy();
 }
