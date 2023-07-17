@@ -43,11 +43,17 @@ public class RadiusWalk implements Consumer<Entity> {
         } else AIUtils.move(entity, path);
     }
 
-    public float getRadius() {
+    /**
+     * @return radius.
+     */
+    public float radius() {
         return radius;
     }
 
-    public int getBreakTime() {
+    /**
+     * @return break time.
+     */
+    public int breakTime() {
         return breakTime;
     }
 }

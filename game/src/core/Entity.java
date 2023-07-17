@@ -193,9 +193,9 @@ public final class Entity implements Comparable<Entity> {
     }
 
     /**
-     * Set global ID at runtime. (Needed for multiplayer)
+     * Set global ID at runtime.
      *
-     * <p>
+     * <p>Used for multiplayer mode, to synchronize global IDs between local and global state.
      *
      * @param globalID To be set ID.
      */

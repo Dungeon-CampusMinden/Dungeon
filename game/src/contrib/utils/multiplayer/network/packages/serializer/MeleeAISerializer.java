@@ -13,8 +13,8 @@ public class MeleeAISerializer extends Serializer<MeleeAI> {
     @Override
     public void write(Kryo kryo, Output output, MeleeAI object) {
         kryo.writeClass(output, object.getClass());
-        output.writeFloat(object.getAttackRange());
-        kryo.writeObject(output, object.getFightSkill());
+        output.writeFloat(object.attackRange());
+        kryo.writeObject(output, object.fightSkill());
     }
 
     @Override

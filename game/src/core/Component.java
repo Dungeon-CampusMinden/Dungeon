@@ -31,12 +31,14 @@ public abstract class Component {
         this.entity = entity;
         entity.addComponent(this);
         Logger componentLogger = Logger.getLogger(this.getClass().getName());
-        //        componentLogger.info(
-        //                "The component '"
-        //                        + this.getClass().getName()
-        //                        + "' was added to entity '"
-        //                        + entity
-        //                        + "'.");
+        // Disabled log because currently it overfills console because constructor
+        // is called each time multiplayer server sends game state update
+//                componentLogger.info(
+//                        "The component '"
+//                                + this.getClass().getName()
+//                                + "' was added to entity '"
+//                                + entity
+//                                + "'.");
     }
 
     /**
@@ -46,7 +48,7 @@ public abstract class Component {
         return entity;
     }
 
-    /** Assign according entity. Used to copy entities for multiplayer. */
+    /** Assign according entity. NOTE: USED for multiplayer feature. */
     public void entity(final Entity entity) {
         this.entity = entity;
         entity.addComponent(this);

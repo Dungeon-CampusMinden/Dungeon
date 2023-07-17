@@ -12,7 +12,7 @@ public class CollideAISerializer extends Serializer<CollideAI> {
     @Override
     public void write(Kryo kryo, Output output, CollideAI object) {
         kryo.writeClass(output, object.getClass());
-        output.writeFloat(object.getRushRange());
+        output.writeFloat(object.rushRange());
     }
 
     @Override

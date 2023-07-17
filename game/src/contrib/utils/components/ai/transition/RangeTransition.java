@@ -23,7 +23,10 @@ public class RangeTransition implements Function<Entity, Boolean> {
         return LevelUtils.playerInRange(entity, range);
     }
 
-    public float getRange() {
+    /**
+     * @return range.
+     */
+    public float range() {
         return range;
     }
 }

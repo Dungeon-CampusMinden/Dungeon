@@ -76,14 +76,23 @@ public final class RangeAI implements Consumer<Entity> {
         }
     }
 
+    /**
+     * @return attack range.
+     */
     public float attackRange() {
         return attackRange;
     }
 
+    /**
+     * @return distance.
+     */
     public float distance() {
         return distance;
     }
 
+    /**
+     * @return skill.
+     */
     public Skill skill() {
         return skill;
     }

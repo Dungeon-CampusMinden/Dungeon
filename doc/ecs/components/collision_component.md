@@ -10,6 +10,8 @@ Sowie das Verhalten welches die aktuelle Entität haben soll wenn es zu einer Ko
 
 ![Collision component uml](img/collision_component.png)
 
+
+
 ## Wie nutzt man es
 
 Parameter

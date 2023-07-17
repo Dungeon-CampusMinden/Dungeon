@@ -96,11 +96,11 @@ public final class DrawComponent extends Component {
                 }
             }
             currentAnimation(
-                CoreAnimations.IDLE_DOWN,
-                CoreAnimations.IDLE_LEFT,
-                CoreAnimations.IDLE_RIGHT,
-                CoreAnimations.IDLE_UP,
-                CoreAnimations.IDLE);
+                    CoreAnimations.IDLE_DOWN,
+                    CoreAnimations.IDLE_LEFT,
+                    CoreAnimations.IDLE_RIGHT,
+                    CoreAnimations.IDLE_UP,
+                    CoreAnimations.IDLE);
 
             // if no idle animation exists, set the missing texture animation as idle
             if (currentAnimation == null) {
@@ -186,6 +186,7 @@ public final class DrawComponent extends Component {
                 currentAnimation = animation;
                 return;
             } else {
+                // Disabled log because currently it overfills console
 //                LOGGER.warning(
 //                        "Animation "
 //                                + animationName
@@ -229,6 +230,7 @@ public final class DrawComponent extends Component {
     public boolean isCurrentAnimation(final IPath path) {
         Optional<Animation> animation = getAnimation(path);
         if (animation.isPresent()) return animation.get() == currentAnimation;
+        // Disabled log because currently it overfills console
 //        LOGGER.warning("Animation " + path + " is not stored inside " + entity.toString());
         return false;
     }
@@ -251,6 +253,9 @@ public final class DrawComponent extends Component {
         return currentAnimation.isFinished();
     }
 
+    /**
+     * @return animation map.
+     */
     public HashMap<String, Animation> animationMap() {
         return (HashMap<String, Animation>) this.animationMap;
     }

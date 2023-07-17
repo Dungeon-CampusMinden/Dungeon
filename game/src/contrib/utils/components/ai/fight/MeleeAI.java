@@ -45,11 +45,17 @@ public class MeleeAI implements Consumer<Entity> {
         }
     }
 
-    public float getAttackRange() {
+    /**
+     * @return attack range.
+     */
+    public float attackRange() {
         return attackRange;
     }
 
-    public Skill getFightSkill() {
+    /**
+     * @return fight skill.
+     */
+    public Skill fightSkill() {
         return fightSkill;
     }
 }

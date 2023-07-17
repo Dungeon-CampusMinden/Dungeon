@@ -12,7 +12,7 @@ public class RangeTransitionSerializer extends Serializer<RangeTransition> {
     @Override
     public void write(Kryo kryo, Output output, RangeTransition object) {
         kryo.writeClass(output, object.getClass());
-        output.writeFloat(object.getRange());
+        output.writeFloat(object.range());
     }
 
     @Override

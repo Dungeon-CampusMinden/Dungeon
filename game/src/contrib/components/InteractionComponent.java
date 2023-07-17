@@ -85,11 +85,17 @@ public final class InteractionComponent extends Component {
         return radius;
     }
 
-    public boolean getRepeatable() {
+    /**
+     * @return state whether interaction is repeatable or not.
+     */
+    public boolean repeatable() {
         return repeatable;
     }
 
-    public Consumer<Entity> getOnInteraction() {
+    /**
+     * @return on interaction behaviour.
+     */
+    public Consumer<Entity> onInteraction() {
         return onInteraction;
     }
 }

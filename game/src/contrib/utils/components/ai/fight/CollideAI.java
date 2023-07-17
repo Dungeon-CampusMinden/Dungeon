@@ -45,7 +45,10 @@ public class CollideAI implements Consumer<Entity> {
         }
     }
 
-    public float getRushRange() {
+    /**
+     * @return rush range.
+     */
+    public float rushRange() {
         return rushRange;
     }
 }

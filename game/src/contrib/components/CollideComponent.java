@@ -201,18 +201,30 @@ public final class CollideComponent extends Component {
         this.collideLeave = collideLeave;
     }
 
+    /**
+     * @return offset.
+     */
     public Point offset() {
         return offset;
     }
 
+    /**
+     * @return size.
+     */
     public Point size() {
         return size;
     }
 
+    /**
+     * @return collide enter behaviour.
+     */
     public TriConsumer<Entity, Entity, Tile.Direction> collideEnter() {
         return collideEnter;
     }
 
+    /**
+     * @return collide leave behaviour.
+     */
     public TriConsumer<Entity, Entity, Tile.Direction> collideLeave() {
         return collideLeave;
     }

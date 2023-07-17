@@ -33,8 +33,8 @@ public class InteractionComponentSerializer extends Serializer<InteractionCompon
     @Override
     public void write(Kryo kryo, Output output, InteractionComponent object) {
         output.writeFloat(object.radius());
-        output.writeBoolean(object.getRepeatable());
-        kryo.writeObject(output, object.getOnInteraction());
+        output.writeBoolean(object.repeatable());
+        kryo.writeObject(output, object.onInteraction());
     }
 
     @Override

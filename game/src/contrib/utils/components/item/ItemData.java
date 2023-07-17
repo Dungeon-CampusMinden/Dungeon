@@ -295,6 +295,9 @@ public final class ItemData {
         this.onUse = onUse;
     }
 
+    /**
+     * @return damange modifier.
+     */
     public DamageModifier damageModifier() {
         return damageModifier;
     }

@@ -192,7 +192,8 @@ public abstract class System {
      */
     public void run() {
         run = true;
-        // LOGGER.info(this.getClass().getName() + " is running");
+        // Disabled log because currently it overfills console
+//        LOGGER.info(this.getClass().getName() + " is running");
     }
 
     /**
@@ -241,7 +242,7 @@ public abstract class System {
      * Use this Stream to iterate over all active entities for this system in the {@link #execute}
      * method.
      *
-     * @return a stream of active entities that will be processed by the system
+     * @return a stream of active entities (! copied !) that will be processed by the system
      */
     public final Stream<Entity> entityStream() {
         return new ArrayList<>(entities).stream();

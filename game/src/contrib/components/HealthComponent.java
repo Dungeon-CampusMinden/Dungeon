@@ -186,6 +186,9 @@ public final class HealthComponent extends Component {
         return currentHealthpoints <= 0;
     }
 
+    /**
+     * @return on death behaviour.
+     */
     public Consumer<Entity> onDeath() {
         return onDeath;
     }

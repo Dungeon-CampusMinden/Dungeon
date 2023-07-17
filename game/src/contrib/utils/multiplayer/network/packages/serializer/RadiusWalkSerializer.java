@@ -14,8 +14,8 @@ public class RadiusWalkSerializer extends Serializer<RadiusWalk> {
     @Override
     public void write(Kryo kryo, Output output, RadiusWalk object) {
         kryo.writeClass(output, object.getClass());
-        output.writeFloat(object.getRadius());
-        output.writeInt(object.getBreakTime());
+        output.writeFloat(object.radius());
+        output.writeInt(object.breakTime());
     }
 
     @Override

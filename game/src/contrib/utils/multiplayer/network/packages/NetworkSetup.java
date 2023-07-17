@@ -154,7 +154,6 @@ public class NetworkSetup {
 
         kryo.register(Painter.class);
         kryo.register(PainterConfig.class);
-        kryo.register(TextureHandler.class);
         kryo.register(TextureMap.class);
         kryo.register(Animation.class, new AnimationSerializer());
     }

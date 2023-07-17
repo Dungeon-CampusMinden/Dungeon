@@ -58,8 +58,6 @@ public final class MultiplayerSynchronizationSystem extends System {
     private void synchronizeAddedEntities() {
         final Set<Integer> currentLocalMultiplayerEntityIds =
                 Game.entityStream()
-                        //                .filter(entity ->
-                        // entity.fetch(MultiplayerComponent.class).isPresent())
                         .map(Entity::globalID)
                         .collect(Collectors.toSet());
 
@@ -86,8 +84,6 @@ public final class MultiplayerSynchronizationSystem extends System {
      */
     private void synchronizeRemovedEntities() {
         Game.entityStream()
-                //            .filter(entity ->
-                // entity.fetch(MultiplayerComponent.class).isPresent())
                 .forEach(
                         entity -> {
                             boolean isEntityRemoved =
@@ -114,7 +110,6 @@ public final class MultiplayerSynchronizationSystem extends System {
                                                 if (multiplayerEntityState.globalID()
                                                         == localEntityState.globalID()) {
                                                     PositionComponent positionComponentMultiplayer =
-                                                            (PositionComponent)
                                                                     multiplayerEntityState
                                                                             .fetch(
                                                                                     PositionComponent
@@ -146,7 +141,6 @@ public final class MultiplayerSynchronizationSystem extends System {
                                                     if (multiplayerEntityState.globalID()
                                                             == localEntityState.globalID()) {
                                                         DrawComponent drawComponent =
-                                                                (DrawComponent)
                                                                         localEntityState
                                                                                 .fetch(
                                                                                         DrawComponent

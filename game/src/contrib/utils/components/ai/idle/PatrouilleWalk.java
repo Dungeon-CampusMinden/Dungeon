@@ -171,18 +171,30 @@ public class PatrouilleWalk implements Consumer<Entity> {
         }
     }
 
+    /**
+     * @return radius.
+     */
     public float radius() {
         return radius;
     }
 
+    /**
+     * @return number of checkpoints.
+     */
     public int numberCheckpoints() {
         return numberCheckpoints;
     }
 
+    /**
+     * @return mode.
+     */
     public MODE mode() {
         return mode;
     }
 
+    /**
+     * @return pause time.
+     */
     public int pauseTime() {
         return pauseTime;
     }
