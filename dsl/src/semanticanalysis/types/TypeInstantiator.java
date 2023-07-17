@@ -83,16 +83,8 @@ public class TypeInstantiator {
             ArrayList<Object> parameters = new ArrayList<>(ctor.getParameters().length);
             for (var param : ctor.getParameters()) {
                 var field = originalJavaClass.getDeclaredField(param.getName());
-                if (!field.isAnnotationPresent(DSLTypeMember.class)) {
-                    throw new RuntimeException(
-                            "Instantiating a record using the TypeInstantiator requires that all "
-                                    + "record members must be marked with @DSLTypeMember. Otherwise, no constructor invocation is possible");
-                } else {
-                    var fieldAnnotation = field.getAnnotation(DSLTypeMember.class);
-                    String fieldName =
-                            fieldAnnotation.name().equals("")
-                                    ? convertToDSLName(field.getName())
-                                    : fieldAnnotation.name();
+                if (field.isAnnotationPresent(DSLTypeMember.class)) {
+                    String fieldName = TypeBuilder.getDSLFieldName(field);
 
                     var fieldValue = ms.resolve(fieldName);
 
@@ -117,6 +109,21 @@ public class TypeInstantiator {
                         }
                         parameters.add(internalValue);
                     }
+                } else if (field.isAnnotationPresent(DSLCallback.class)) {
+                    String fieldName = TypeBuilder.getDSLFieldName(field);
+                    var fieldValue = ms.resolve(fieldName);
+
+                    assert fieldValue.getDataType().getTypeKind() == IType.Kind.FunctionType;
+                    assert fieldValue.getInternalValue() instanceof FunctionSymbol;
+
+                    CallbackAdapter adapter =
+                        callbackAdapterBuilder.buildAdapter(
+                            (FunctionSymbol) fieldValue.getInternalValue());
+                    parameters.add(adapter);
+                } else {
+                    throw new RuntimeException(
+                            "Instantiating a record using the TypeInstantiator requires that all "
+                                    + "record members must be marked with @DSLTypeMember. Otherwise, no constructor invocation is possible");
                 }
             }
             ctor.setAccessible(true);
@@ -166,8 +173,6 @@ public class TypeInstantiator {
             // set values of the fields marked as DSLTypeMembers to corresponding values from
             // the memory space
             for (Field field : originalJavaClass.getDeclaredFields()) {
-                // TODO: handle function callback
-                // TODO: this whole thing could potentially be done after the instantiation itself
                 String fieldName = TypeBuilder.getDSLFieldName(field);
                 var fieldValue = ms.resolve(fieldName);
                 if (field.isAnnotationPresent(DSLTypeMember.class)) {
