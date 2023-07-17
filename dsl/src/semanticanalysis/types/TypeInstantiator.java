@@ -1,7 +1,5 @@
 package semanticanalysis.types;
 
-import static semanticanalysis.types.TypeBuilder.convertToDSLName;
-
 import interpreter.DSLInterpreter;
 
 import runtime.AggregateValue;
@@ -117,8 +115,8 @@ public class TypeInstantiator {
                     assert fieldValue.getInternalValue() instanceof FunctionSymbol;
 
                     CallbackAdapter adapter =
-                        callbackAdapterBuilder.buildAdapter(
-                            (FunctionSymbol) fieldValue.getInternalValue());
+                            callbackAdapterBuilder.buildAdapter(
+                                    (FunctionSymbol) fieldValue.getInternalValue());
                     parameters.add(adapter);
                 } else {
                     throw new RuntimeException(

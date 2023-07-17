@@ -16,20 +16,16 @@ import parser.ast.Node;
 
 import runtime.*;
 
-import semanticanalysis.FunctionSymbol;
 import semanticanalysis.Scope;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
-import semanticanalysis.types.CallbackAdapter.CallbackAdapterBuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.function.Function;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
