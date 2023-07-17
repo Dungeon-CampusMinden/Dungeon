@@ -11,8 +11,8 @@ import task.TaskContent;
  * stored as a {@link Type}. If the question is asked via the UI, the {@link QuizUI} will configure
  * the UI for the question based on that type. The type can be accessed via {@link #type()}.
  *
- * <p>Add a {@link Content} answer by using the {@link #addAnswer(Content.Type, String)} method. Use
- * the {@link #contentStream()} method to get the answers as a stream.
+ * <p>Add a {@link Content} answer by using the {@link #addAnswer(Quiz.Content)} method. Use the
+ * {@link #contentStream()} method to get the answers as a stream.
  *
  * <p>The question will be stored as {@link Content} and can be accessed via {@link #question()}.
  */
@@ -26,8 +26,8 @@ public class Quiz extends Task {
      *
      * <p>This will create a new {@link Content} instance as the question reference.
      *
-     * <p>The {@link Quiz} will not have any answers, use {@link #addAnswer(Content.Type, String)}
-     * to add possible answers to the question.
+     * <p>The {@link Quiz} will not have any answers, use {@link #addAnswer(Quiz.Content)} to add
+     * possible answers to the question.
      *
      * @param type Type of the question (e.g., single-choice)
      * @param questionContentType What does the question contain? Just text, just a path to an
@@ -38,7 +38,8 @@ public class Quiz extends Task {
         super();
         this.type = type;
         taskText(questionText);
-        question = new Content(this, questionContentType, questionText);
+        question = new Content(questionContentType, questionText);
+        question.task(this);
     }
 
     /**
@@ -51,15 +52,21 @@ public class Quiz extends Task {
     }
 
     /**
-     * Create a {@link Content} answer instance with the given configuration as a possible answer
-     * for this question.
+     * Add a {@link Content} answer instance as a possible answer for this question.
      *
-     * @param type What does the answer contain? Just text, just a path to an image, or both text
-     *     and a path to an image?
-     * @param content The answer itself (can contain a path to images).
+     * <p>If the answer has no task reference yet, the reference will be set to this task and the
+     * answer will be added to this task's content. If the answer already has a task reference, the
+     * answer will not be added to this task's content.
+     *
+     * @param answer The answer (can contain a path to images).
+     * @return true if the answer was added to this task's content, false if not.
      */
-    public void addAnswer(Content.Type type, String content) {
-        addContent(new Content(this, type, content));
+    public boolean addAnswer(Quiz.Content answer) {
+        if (answer.task(this)) {
+            addContent(answer);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -102,15 +109,12 @@ public class Quiz extends Task {
         /**
          * Creates a new {@link Content}.
          *
-         * <p>Use {@link Content#addAnswer(Type, String)} to create an instance of this.
-         *
-         * @param task Task to which this content belongs.
          * @param type What does the answer contain? Just text, just a path to an image, or both
          *     text and a path to an image?
          * @param content The answer itself (can contain a path to images).
          */
-        private Content(Quiz task, Type type, String content) {
-            super(task);
+        public Content(Type type, String content) {
+            super();
             this.type = type;
             this.content = content;
         }

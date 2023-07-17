@@ -49,10 +49,15 @@ public class QuizQuestionUITest {
                             Quiz.Type.SINGLE_CHOICE,
                             Quiz.Content.Type.TEXT,
                             "Was ist kein Ziel von Refactoring?");
-            question.addAnswer(Quiz.Content.Type.TEXT, "Lesbarkeit von Code verbessern");
-            question.addAnswer(Quiz.Content.Type.TEXT, "Verständlichkeit von Code verbessern");
-            question.addAnswer(Quiz.Content.Type.TEXT, "Wartbarkeit von Code verbessern");
-            question.addAnswer(Quiz.Content.Type.TEXT, "Fehler im Code ausmerzen");
+            question.addAnswer(
+                    new Quiz.Content(Quiz.Content.Type.TEXT, "Lesbarkeit von Code verbessern"));
+            question.addAnswer(
+                    new Quiz.Content(
+                            Quiz.Content.Type.TEXT, "Verständlichkeit von Code verbessern"));
+            question.addAnswer(
+                    new Quiz.Content(Quiz.Content.Type.TEXT, "Wartbarkeit von Code verbessern"));
+            question.addAnswer(
+                    new Quiz.Content(Quiz.Content.Type.TEXT, "Fehler im Code ausmerzen"));
             return question;
         }
 
@@ -62,13 +67,13 @@ public class QuizQuestionUITest {
                             Quiz.Type.MULTIPLE_CHOICE,
                             Quiz.Content.Type.TEXT,
                             "Welche der hier genannten Komponenten sind \"atomare Komponenten\"?");
-            question.addAnswer(Quiz.Content.Type.TEXT, "Buttons");
-            question.addAnswer(Quiz.Content.Type.TEXT, "Frames");
-            question.addAnswer(Quiz.Content.Type.TEXT, "Label");
-            question.addAnswer(Quiz.Content.Type.TEXT, "Panels");
-            question.addAnswer(Quiz.Content.Type.TEXT, "Groups");
-            question.addAnswer(Quiz.Content.Type.TEXT, "EventListener");
-            question.addAnswer(Quiz.Content.Type.TEXT, "Events");
+            question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Buttons"));
+            question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Frames"));
+            question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Label"));
+            question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Panels"));
+            question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Groups"));
+            question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "EventListener"));
+            question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Events"));
             return question;
         }
 
@@ -79,12 +84,16 @@ public class QuizQuestionUITest {
                             Quiz.Content.Type.TEXT,
                             "Welche Methode/n muss der Observer mindestens implementieren?");
             question.addAnswer(
-                    Quiz.Content.Type.TEXT, "Eine update-Methode und eine register-Methode");
+                    new Quiz.Content(
+                            Quiz.Content.Type.TEXT,
+                            "Eine update-Methode und eine register-Methode"));
             question.addAnswer(
-                    Quiz.Content.Type.TEXT, "Eine notify-Methode und eine register-Methode");
-            question.addAnswer(Quiz.Content.Type.TEXT, "Eine notify-Methode");
-            question.addAnswer(Quiz.Content.Type.TEXT, "Eine register-Methode");
-            question.addAnswer(Quiz.Content.Type.TEXT, "Eine update-Methode");
+                    new Quiz.Content(
+                            Quiz.Content.Type.TEXT,
+                            "Eine notify-Methode und eine register-Methode"));
+            question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Eine notify-Methode"));
+            question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Eine register-Methode"));
+            question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Eine update-Methode"));
             return question;
         }
 
@@ -109,19 +118,25 @@ public class QuizQuestionUITest {
                             Quiz.Content.Type.TEXT,
                             "Was ist 'Game Loop' in LibGDX und was macht diese?");
             question.addAnswer(
-                    Quiz.Content.Type.TEXT,
-                    "Launcher ruft abwechselnd die Methoden update und render auf.");
+                    new Quiz.Content(
+                            Quiz.Content.Type.TEXT,
+                            "Launcher ruft abwechselnd die Methoden update und render auf."));
             question.addAnswer(
-                    Quiz.Content.Type.TEXT,
-                    "Durch Vererbung erzeugte Objekte werden über eine Game-Loop verwaltet.");
+                    new Quiz.Content(
+                            Quiz.Content.Type.TEXT,
+                            "Durch Vererbung erzeugte Objekte werden über eine Game-Loop verwaltet."));
             question.addAnswer(
-                    Quiz.Content.Type.TEXT,
-                    "ECS ist ein Software Architektur Pattern, das vor allem in der Spieleprogrammierung Anwendung findet.");
+                    new Quiz.Content(
+                            Quiz.Content.Type.TEXT,
+                            "ECS ist ein Software Architektur Pattern, das vor allem in der Spieleprogrammierung Anwendung findet."));
             question.addAnswer(
-                    Quiz.Content.Type.TEXT, "ECS folgt dem Komposition über Vererbung - Prinzip.");
+                    new Quiz.Content(
+                            Quiz.Content.Type.TEXT,
+                            "ECS folgt dem Komposition über Vererbung - Prinzip."));
             question.addAnswer(
-                    Quiz.Content.Type.TEXT,
-                    "Alle ECS funktionieren mit einer Engine (Haupteinheit), bei der Entitäten und Systeme registriert werden.");
+                    new Quiz.Content(
+                            Quiz.Content.Type.TEXT,
+                            "Alle ECS funktionieren mit einer Engine (Haupteinheit), bei der Entitäten und Systeme registriert werden."));
             return question;
         }
 
@@ -131,8 +146,8 @@ public class QuizQuestionUITest {
                             Quiz.Type.SINGLE_CHOICE,
                             Quiz.Content.Type.TEXT,
                             "Mit git log kann man sich eine Liste aller Commits anzeigen lassen.");
-            question.addAnswer(Quiz.Content.Type.TEXT, "Wahr");
-            question.addAnswer(Quiz.Content.Type.TEXT, "Falsch");
+            question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Wahr"));
+            question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Falsch"));
             return question;
         }
 
@@ -142,10 +157,12 @@ public class QuizQuestionUITest {
                             Quiz.Type.SINGLE_CHOICE,
                             Quiz.Content.Type.TEXT,
                             "Über welche Methode kann ein Thread thread1 darauf warten, dass ein anderer Thread thread2 ihn über ein Objekt obj benachrichtigt?");
-            question.addAnswer(Quiz.Content.Type.TEXT, "obj.wait()");
-            question.addAnswer(Quiz.Content.Type.TEXT, "obj.wait(otherThread)");
-            question.addAnswer(Quiz.Content.Type.TEXT, "obj.waitFor(otherThread)");
-            question.addAnswer(Quiz.Content.Type.TEXT, "Thread.wait(obj, otherThread)");
+            question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "obj.wait()"));
+            question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "obj.wait(otherThread)"));
+            question.addAnswer(
+                    new Quiz.Content(Quiz.Content.Type.TEXT, "obj.waitFor(otherThread)"));
+            question.addAnswer(
+                    new Quiz.Content(Quiz.Content.Type.TEXT, "Thread.wait(obj, otherThread)"));
             return question;
         }
 
@@ -156,20 +173,25 @@ public class QuizQuestionUITest {
                             Quiz.Content.Type.TEXT,
                             "Was macht die notify()-Methode?");
             question.addAnswer(
-                    Quiz.Content.Type.TEXT,
-                    "Sie benachrichtigt alle Threads, die \"auf\" einem Objekt warten");
+                    new Quiz.Content(
+                            Quiz.Content.Type.TEXT,
+                            "Sie benachrichtigt alle Threads, die \"auf\" einem Objekt warten"));
             question.addAnswer(
-                    Quiz.Content.Type.TEXT,
-                    "Sie benachrichtigt einen Thread, der \"auf\" einem Objekt wartet");
+                    new Quiz.Content(
+                            Quiz.Content.Type.TEXT,
+                            "Sie benachrichtigt einen Thread, der \"auf\" einem Objekt wartet"));
             question.addAnswer(
-                    Quiz.Content.Type.TEXT,
-                    "Sie benachrichtigt ein Objekt über den Zugriff eines Threads");
+                    new Quiz.Content(
+                            Quiz.Content.Type.TEXT,
+                            "Sie benachrichtigt ein Objekt über den Zugriff eines Threads"));
             question.addAnswer(
-                    Quiz.Content.Type.TEXT,
-                    "Sie benachrichtigt ein Objekt über Zustandsänderungen in einem anderen Objekt");
+                    new Quiz.Content(
+                            Quiz.Content.Type.TEXT,
+                            "Sie benachrichtigt ein Objekt über Zustandsänderungen in einem anderen Objekt"));
             question.addAnswer(
-                    Quiz.Content.Type.TEXT,
-                    "Sie benachrichtigt den ersten Thread in der Warteliste auf einem Objekt");
+                    new Quiz.Content(
+                            Quiz.Content.Type.TEXT,
+                            "Sie benachrichtigt den ersten Thread in der Warteliste auf einem Objekt"));
             return question;
         }
 
