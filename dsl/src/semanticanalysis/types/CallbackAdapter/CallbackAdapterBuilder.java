@@ -13,6 +13,6 @@ public class CallbackAdapterBuilder {
 
     public CallbackAdapter buildAdapter(FunctionSymbol functionSymbol) {
         return new CallbackAdapter(
-            interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
+                interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
     }
 }

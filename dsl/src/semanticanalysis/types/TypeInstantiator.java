@@ -2,9 +2,8 @@ package semanticanalysis.types;
 
 import static semanticanalysis.types.TypeBuilder.convertToDSLName;
 
-import core.utils.TriConsumer;
-
 import interpreter.DSLInterpreter;
+
 import runtime.AggregateValue;
 import runtime.IMemorySpace;
 import runtime.Value;
@@ -12,15 +11,12 @@ import runtime.Value;
 import semanticanalysis.FunctionSymbol;
 import semanticanalysis.types.CallbackAdapter.CallbackAdapter;
 import semanticanalysis.types.CallbackAdapter.CallbackAdapterBuilder;
-import semanticanalysis.types.CallbackAdapter.ICallbackAdapter;
-import semanticanalysis.types.CallbackAdapter.ICallbackAdapterBuilder;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Optional;
 
 public class TypeInstantiator {
     private final HashMap<String, Object> context = new HashMap<>();
@@ -235,7 +231,8 @@ public class TypeInstantiator {
                     assert fieldValue.getInternalValue() instanceof FunctionSymbol;
 
                     CallbackAdapter adapter =
-                            callbackAdapterBuilder.buildAdapter((FunctionSymbol) fieldValue.getInternalValue());
+                            callbackAdapterBuilder.buildAdapter(
+                                    (FunctionSymbol) fieldValue.getInternalValue());
                     setFieldToFunctionalInterface(field, instance, adapter);
                 }
             }

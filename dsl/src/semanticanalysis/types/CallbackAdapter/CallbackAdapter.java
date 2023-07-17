@@ -1,10 +1,14 @@
 package semanticanalysis.types.CallbackAdapter;
 
 import core.utils.TriConsumer;
+
 import interpreter.DSLInterpreter;
+
 import parser.ast.FuncDefNode;
+
 import runtime.RuntimeEnvironment;
 import runtime.Value;
+
 import semanticanalysis.FunctionSymbol;
 import semanticanalysis.types.FunctionType;
 
@@ -20,7 +24,7 @@ public class CallbackAdapter implements Function, Consumer, TriConsumer {
     private DSLInterpreter interpreter;
 
     CallbackAdapter(
-        RuntimeEnvironment rtEnv, FunctionSymbol functionSymbol, DSLInterpreter interpreter) {
+            RuntimeEnvironment rtEnv, FunctionSymbol functionSymbol, DSLInterpreter interpreter) {
         this.rtEnv = rtEnv;
         this.functionType = (FunctionType) functionSymbol.getDataType();
         this.funcDefNode = functionSymbol.getAstRootNode();
@@ -30,9 +34,9 @@ public class CallbackAdapter implements Function, Consumer, TriConsumer {
     public Object call(Object... params) {
         var functionSymbol = rtEnv.getSymbolTable().getSymbolsForAstNode(funcDefNode).get(0);
         var returnValue =
-            (Value)
-                interpreter.executeUserDefinedFunctionRawParameters(
-                    (FunctionSymbol) functionSymbol, Arrays.stream(params).toList());
+                (Value)
+                        interpreter.executeUserDefinedFunctionRawParameters(
+                                (FunctionSymbol) functionSymbol, Arrays.stream(params).toList());
 
         return returnValue.getInternalValue();
     }

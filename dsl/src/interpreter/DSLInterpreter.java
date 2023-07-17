@@ -595,7 +595,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return new Value(BuiltInType.boolType, node.getValue());
     }
 
-    //region user defined function execution
+    // region user defined function execution
 
     /**
      * This implements a call to a user defined dsl-function
@@ -605,7 +605,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @return The return value of the function call
      */
     public Object executeUserDefinedFunctionRawParameters(
-        FunctionSymbol symbol, List<Object> parameterObjects) {
+            FunctionSymbol symbol, List<Object> parameterObjects) {
         IMemorySpace functionMemorySpace = createFunctionMemorySpace(symbol);
         this.memoryStack.push(functionMemorySpace);
 
@@ -635,13 +635,14 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     /**
-     * This function translates all passed parameters into DSL-Values and binds
-     * them as parameters in the current memory space
+     * This function translates all passed parameters into DSL-Values and binds them as parameters
+     * in the current memory space
      *
      * @param functionSymbol The symbol corresponding to the function definition
      * @param parameterObjects Raw objects to use as values for the function's parameters
      */
-    private void setupFunctionParametersRaw(FunctionSymbol functionSymbol, List<Object> parameterObjects) {
+    private void setupFunctionParametersRaw(
+            FunctionSymbol functionSymbol, List<Object> parameterObjects) {
         var currentMemorySpace = getCurrentMemorySpace();
         // bind all parameter-symbols as values in the function's memory space and set their values
         var parameterSymbols = functionSymbol.getSymbols();
@@ -651,16 +652,16 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
             Object parameterObject = parameterObjects.get(i);
             Value paramValue =
-                (Value)
-                    this.environment.translateRuntimeObject(
-                        parameterObject, currentMemorySpace);
+                    (Value)
+                            this.environment.translateRuntimeObject(
+                                    parameterObject, currentMemorySpace);
             setValue(parameterSymbol.getName(), paramValue);
         }
     }
 
     /**
-     * This function evaluates all passed nodes as values and binds
-     * them as parameters in the current memory space
+     * This function evaluates all passed nodes as values and binds them as parameters in the
+     * current memory space
      *
      * @param functionSymbol The symbol corresponding to the function definition
      * @param parameterNodes AST-Nodes representing the passed parameters
@@ -680,8 +681,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     /**
-     * Create a new IMemorySpace for a function call and bind the return Value,
-     * if the function has a return type
+     * Create a new IMemorySpace for a function call and bind the return Value, if the function has
+     * a return type
      *
      * @param functionSymbol The Symbol representing the function definition
      * @return The created IMemorySpace
@@ -705,7 +706,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param ms The given memorySpace to resolve the return value in
      * @return The resolved return value
      */
-    private Value getReturnValueFromMemorySpace(IMemorySpace ms)  {
+    private Value getReturnValueFromMemorySpace(IMemorySpace ms) {
         // only lookup the return value in the current memory space,
         // if a function does not define a return value, we don't want to
         // walk up into other memory spaces and falsely return a return value
@@ -730,7 +731,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
 
         while (statementStack.peek() != null
-            && statementStack.peek().type != Node.Type.ReturnMark) {
+                && statementStack.peek().type != Node.Type.ReturnMark) {
             var stmt = statementStack.pop();
             stmt.accept(this);
         }
@@ -740,5 +741,5 @@ public class DSLInterpreter implements AstVisitor<Object> {
         statementStack.pop();
     }
 
-    //endregion
+    // endregion
 }

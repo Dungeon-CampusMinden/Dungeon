@@ -20,7 +20,6 @@ import semanticanalysis.FunctionSymbol;
 import semanticanalysis.Scope;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
-import semanticanalysis.types.CallbackAdapter.CallbackAdapter;
 import semanticanalysis.types.CallbackAdapter.CallbackAdapterBuilder;
 
 import java.io.ByteArrayOutputStream;
@@ -30,7 +29,6 @@ import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class TestDSLInterpreter {
