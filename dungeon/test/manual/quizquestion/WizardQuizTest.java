@@ -76,11 +76,13 @@ public class WizardQuizTest {
                 "Mit welchem Befehl kann man sich Dateien in der Working copy anzeigen lassen, die unversioniert sind oder in denen es Änderungen seit dem letzten Commit gab?");
     }
 
+    //todo extract
     private static final Consumer<Entity> wizardInteractionCallback =
             wizzard -> {
                 System.out.println("INTERACTION");
                 Task quest = wizzard.fetch(TaskComponent.class).orElseThrow().task();
                 // build GUI with its callback
+                //todo extract
                 QuizUI.showQuizDialog(
                         (Quiz) quest,
                         (Entity hudEntity) -> {
@@ -104,7 +106,7 @@ public class WizardQuizTest {
                                                                                     ANSWERS_GROUP_NAME))
                                                             .iterator()
                                                             .next();
-                                    // do some magic
+                                    // do some magic    //todo extract
                                     switch (((Quiz) quest).type()) {
                                         case SINGLE_CHOICE -> UITools.generateNewTextDialog(
                                                 getSingleChoiceAnswer(answerSection),
@@ -141,6 +143,8 @@ public class WizardQuizTest {
                         });
             };
 
+
+    //todo extract
     private static String getSingleChoiceAnswer(VerticalGroup answerSection) {
         return ((VerticalGroup)
                                         ((ScrollPane) answerSection.getChildren().get(0))
@@ -158,6 +162,7 @@ public class WizardQuizTest {
                 : "No Selection";
     }
 
+    //todo extract
     private static Set<String> getMultipleChoiceAnswer(VerticalGroup answerSection) {
         Set<String> answers = new HashSet<>();
 
@@ -176,11 +181,15 @@ public class WizardQuizTest {
         if (answers.size() == 0) answers.add("No Selection");
         return answers;
     }
+    //todo extract
 
     private static String getFreeTextAnswer(VerticalGroup answerSection) {
         return ((TextArea) ((ScrollPane) answerSection.getChildren().get(0)).getChildren().get(0))
                 .getText();
     }
+
+
+
 
     public static void main(String[] args) throws IOException {
         // start the game
