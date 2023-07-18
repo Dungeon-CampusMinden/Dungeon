@@ -9,7 +9,6 @@ import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.position.Position;
 
@@ -70,7 +69,7 @@ public class PatrouilleWalk implements Consumer<Entity> {
                                 () ->
                                         MissingComponentException.build(
                                                 entity, PositionComponent.class));
-        Point center = position.position();
+        Position center = position.position();
         Tile tile = Game.tileAT(position.position());
 
         if (tile == null) {
