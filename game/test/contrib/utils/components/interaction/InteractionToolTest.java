@@ -15,7 +15,6 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.MissingComponentException;
 import core.utils.position.Point;
-import core.utils.position.Position;
 
 import org.junit.Test;
 

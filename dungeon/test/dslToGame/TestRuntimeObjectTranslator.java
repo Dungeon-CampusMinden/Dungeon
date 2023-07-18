@@ -7,7 +7,6 @@ import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.position.Point;
-import core.utils.position.Position;
 
 import helpers.Helpers;
 

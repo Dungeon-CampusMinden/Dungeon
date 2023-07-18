@@ -15,6 +15,7 @@ public class Point implements Position {
         x = oldPoint.point().x;
         y = oldPoint.point().y;
     }
+
     @Override
     public Optional<Coordinate> coordinate() {
         return Optional.of(new Coordinate(x, y));
