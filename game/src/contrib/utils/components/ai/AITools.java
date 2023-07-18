@@ -83,8 +83,8 @@ public class AITools {
      */
     public static List<Tile> tilesInRange(final Position center, final float radius) {
         List<Tile> tiles = new ArrayList<>();
-        for (float x = center.point().x() - radius; x <= center.point().x() + radius; x++) {
-            for (float y = center.point().y() - radius; y <= center.point().y() + radius; y++) {
+        for (float x = center.point().x - radius; x <= center.point().x + radius; x++) {
+            for (float y = center.point().y - radius; y <= center.point().y + radius; y++) {
                 tiles.add(Game.tileAT(new Point(x, y)));
             }
         }

@@ -87,9 +87,9 @@ public final class PositionComponent extends Component {
                 "Fetching position for entity '"
                         + entity
                         + "': x = "
-                        + position.point().x()
+                        + position.point().x
                         + " --- y = "
-                        + position.point().y());
+                        + position.point().y);
         return position;
     }
 

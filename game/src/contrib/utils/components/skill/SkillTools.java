@@ -28,8 +28,8 @@ public class SkillTools {
             Position startPosition, Position aimPosition, float range) {
 
         // calculate distance from startPosition to aimPosition
-        float dx = aimPosition.point().x() - startPosition.point().x();
-        float dy = aimPosition.point().y() - startPosition.point().y();
+        float dx = aimPosition.point().x - startPosition.point().x;
+        float dy = aimPosition.point().y - startPosition.point().y;
 
         // vector from startPosition to aimPosition
         Vector2 scv = new Vector2(dx, dy);
@@ -40,7 +40,7 @@ public class SkillTools {
         // resize the vector to the length of the range
         scv.scl(range);
 
-        return new Point(startPosition.point().x() + scv.x, startPosition.point().y() + scv.y);
+        return new Point(startPosition.point().x + scv.x, startPosition.point().y + scv.y);
     }
 
     /**
@@ -53,10 +53,10 @@ public class SkillTools {
      * @return the velocity vector as a Position object
      */
     public static Position calculateVelocity(Position start, Position goal, float speed) {
-        float x1 = start.point().x();
-        float y1 = start.point().y();
-        float x2 = goal.point().x();
-        float y2 = goal.point().y();
+        float x1 = start.point().x;
+        float y1 = start.point().y;
+        float x2 = goal.point().x;
+        float y2 = goal.point().y;
 
         float dx = x2 - x1;
         float dy = y2 - y1;
