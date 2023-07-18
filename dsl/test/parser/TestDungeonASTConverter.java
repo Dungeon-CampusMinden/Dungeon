@@ -578,20 +578,32 @@ public class TestDungeonASTConverter {
         Assert.assertEquals(Node.Type.Block, elseStmt.type);
     }
 
+
     @Test
     public void testUnary() {
         String program =
                 """
                 fn test_func() {
                     !true;
+                    -4;
                 }
             """;
 
         var ast = Helpers.getASTFromString(program);
         var funcDefNode = (FuncDefNode) ast.getChild(0);
         var stmts = funcDefNode.getStmts();
+
+        // first statement
         var unaryStmt = stmts.get(0);
         Assert.assertEquals(Node.Type.Unary, unaryStmt.type);
+        var unaryNode = (UnaryNode) unaryStmt;
+        Assert.assertEquals(UnaryNode.UnaryType.not, unaryNode.getUnaryType());
+
+        // second statement
+        unaryStmt = stmts.get(1);
+        Assert.assertEquals(Node.Type.Unary, unaryStmt.type);
+        unaryNode = (UnaryNode) unaryStmt;
+        Assert.assertEquals(UnaryNode.UnaryType.minus, unaryNode.getUnaryType());
     }
 
     @Test
