@@ -293,7 +293,6 @@ genutzt werden.
 ## Funktionsaufrufe
 
 TODO (sobald Implementierung dafür auch steht)
-- wie funktioniert die Funktionsschnittstelle für Event-Handler DSL-Funktionen, die der Dungeon aufrufen kann ([Issue #97](https://github.com/Programmiermethoden/Dungeon/issues/97))
 - Wie funktionieren die Builder-Funktionen, um Tasks zu definieren? ([Issue #197](https://github.com/Programmiermethoden/Dungeon/issues/197))
 
 Funktionen sind `ICallable`-Instanzen, wodurch sie eine `call()`-Methode implementieren.
