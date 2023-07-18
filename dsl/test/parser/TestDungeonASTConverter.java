@@ -880,12 +880,24 @@ public class TestDungeonASTConverter {
         String program =
                 """
                 fn test_func() {
-                    !true;
+                    test = expr.func();
                 }
             """;
 
         var ast = Helpers.getASTFromString(program);
-        Assert.assertTrue(false);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var assignmentStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Assignment, assignmentStmt.type);
+
+        AssignmentNode assignmentNode = (AssignmentNode) assignmentStmt;
+        var rhs = assignmentNode.getRhs();
+        Assert.assertEquals(Node.Type.MemberAccess, rhs.type);
+
+        MemberAccessNode memberAccessNode = (MemberAccessNode) rhs;
+        Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getLhs().type);
+        Assert.assertEquals(Node.Type.FuncCall, memberAccessNode.getRhs().type);
     }
 
     @Test
@@ -893,11 +905,23 @@ public class TestDungeonASTConverter {
         String program =
                 """
                 fn test_func() {
-                    !true;
+                    test = expr.identifier;
                 }
             """;
 
         var ast = Helpers.getASTFromString(program);
-        Assert.assertTrue(false);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var assignmentStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Assignment, assignmentStmt.type);
+
+        AssignmentNode assignmentNode = (AssignmentNode) assignmentStmt;
+        var rhs = assignmentNode.getRhs();
+        Assert.assertEquals(Node.Type.MemberAccess, rhs.type);
+
+        MemberAccessNode memberAccessNode = (MemberAccessNode) rhs;
+        Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getLhs().type);
+        Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getRhs().type);
     }
 }
