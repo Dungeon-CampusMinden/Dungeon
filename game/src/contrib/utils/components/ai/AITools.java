@@ -8,6 +8,8 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Coordinate;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 import java.util.*;
@@ -81,9 +83,9 @@ public class AITools {
      */
     public static List<Tile> tilesInRange(final Position center, final float radius) {
         List<Tile> tiles = new ArrayList<>();
-        for (float x = center.x - radius; x <= center.x + radius; x++) {
-            for (float y = center.y - radius; y <= center.y + radius; y++) {
-                tiles.add(Game.tileAT(new Position(x, y)));
+        for (float x = center.point().x() - radius; x <= center.point().x() + radius; x++) {
+            for (float y = center.point().y() - radius; y <= center.point().y() + radius; y++) {
+                tiles.add(Game.tileAT(new Point(x, y)));
             }
         }
         tiles.removeIf(Objects::isNull);
@@ -137,7 +139,7 @@ public class AITools {
      * @return Path from the start point to the end point.
      */
     public static GraphPath<Tile> calculatePath(final Position from, final Position to) {
-        return calculatePath(from.toCoordinate(), to.toCoordinate());
+        return calculatePath(from.coordinate().get(), to.coordinate().get());
     }
 
     /**

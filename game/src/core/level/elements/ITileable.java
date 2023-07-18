@@ -26,7 +26,7 @@ public interface ITileable extends IPathable {
      */
     default Tile tileAt(Coordinate coordinate) {
         try {
-            return layout()[coordinate.y()][coordinate.x()];
+            return layout()[coordinate.y][coordinate.x];
         } catch (IndexOutOfBoundsException e) {
             return null;
         }
