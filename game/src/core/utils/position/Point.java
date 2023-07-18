@@ -19,6 +19,7 @@ public class Point implements Position {
         this.y = y.floatValue();
     }
 
+
     @Override
     public Optional<Coordinate> coordinate() {
         return Optional.of(new Coordinate(x(), y()));

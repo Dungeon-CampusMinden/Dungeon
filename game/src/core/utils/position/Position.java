@@ -101,4 +101,16 @@ public interface Position {
         float yDiff = p1.point().y() - p2.point().y();
         return (float) Math.sqrt(xDiff * xDiff + yDiff * yDiff);
     }
+
+    /**
+     * Check if two points are positioned in a specified range from each other.
+     *
+     * @param p1 The first point which is considered.
+     * @param p2 The second point which is considered.
+     * @param range The range in which the two points are positioned from each other.
+     * @return True if the distance between the two points is within the radius, else false.
+     */
+    static boolean inRange(final Position p1, final Position p2, final float range) {
+        return calculateDistance(p1, p2) <= range;
+    }
 }
