@@ -79,6 +79,7 @@ expression
     ;
 
 assignment
+        // TODO: this should be an expression
     : ( func_call '.' )? ID '=' assignment
     | logic_or
     ;
