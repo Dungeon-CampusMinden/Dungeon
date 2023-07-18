@@ -9,6 +9,7 @@ import core.components.PositionComponent;
 import core.systems.CameraSystem;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 /** SkillTools is a collection of helper methods used for skills. */
@@ -27,8 +28,8 @@ public class SkillTools {
             Position startPosition, Position aimPosition, float range) {
 
         // calculate distance from startPosition to aimPosition
-        float dx = aimPosition.x - startPosition.x;
-        float dy = aimPosition.y - startPosition.y;
+        float dx = aimPosition.point().x() - startPosition.point().x();
+        float dy = aimPosition.point().y() - startPosition.point().y();
 
         // vector from startPosition to aimPosition
         Vector2 scv = new Vector2(dx, dy);
@@ -39,7 +40,7 @@ public class SkillTools {
         // resize the vector to the length of the range
         scv.scl(range);
 
-        return new Position(startPosition.x + scv.x, startPosition.y + scv.y);
+        return new Point(startPosition.point().x() + scv.x, startPosition.point().y() + scv.y);
     }
 
     /**
@@ -52,17 +53,17 @@ public class SkillTools {
      * @return the velocity vector as a Position object
      */
     public static Position calculateVelocity(Position start, Position goal, float speed) {
-        float x1 = start.x;
-        float y1 = start.y;
-        float x2 = goal.x;
-        float y2 = goal.y;
+        float x1 = start.point().x();
+        float y1 = start.point().y();
+        float x2 = goal.point().x();
+        float y2 = goal.point().y();
 
         float dx = x2 - x1;
         float dy = y2 - y1;
         float distance = (float) Math.sqrt(dx * dx + dy * dy);
         float velocityX = dx / distance * speed;
         float velocityY = dy / distance * speed;
-        return new Position(velocityX, velocityY);
+        return new Point(velocityX, velocityY);
     }
 
     /**
@@ -73,7 +74,7 @@ public class SkillTools {
     public static Position cursorPositionAsPoint() {
         Vector3 mousePosition =
                 CameraSystem.camera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
-        return new Position(mousePosition.x, mousePosition.y);
+        return new Point(mousePosition.x, mousePosition.y);
     }
 
     public static Position heroPositionAsPoint() {
