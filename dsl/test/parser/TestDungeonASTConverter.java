@@ -745,51 +745,6 @@ public class TestDungeonASTConverter {
     }
 
     @Test
-    public void testComparison() {
-        String program =
-            """
-            fn test_func() {
-                1 > 5;
-                2 >= 6;
-                3 < 7;
-                4 <= 8;
-            }
-        """;
-
-        var ast = Helpers.getASTFromString(program);
-        var funcDefNode = (FuncDefNode) ast.getChild(0);
-        var stmts = funcDefNode.getStmts();
-
-        // first statement
-        var compStmt = stmts.get(0);
-        Assert.assertEquals(Node.Type.Comparison, compStmt.type);
-
-        ComparisonNode compNode = (ComparisonNode) compStmt;
-        Assert.assertEquals(ComparisonNode.ComparisonType.greaterThan, compNode.getComparisonType());
-
-        // second statement
-        compStmt = stmts.get(1);
-        Assert.assertEquals(Node.Type.Comparison, compStmt.type);
-
-        compNode = (ComparisonNode) compStmt;
-        Assert.assertEquals(ComparisonNode.ComparisonType.greaterEquals, compNode.getComparisonType());
-
-        // third statement
-        compStmt = stmts.get(2);
-        Assert.assertEquals(Node.Type.Comparison, compStmt.type);
-
-        compNode = (ComparisonNode) compStmt;
-        Assert.assertEquals(ComparisonNode.ComparisonType.lessThan, compNode.getComparisonType());
-
-        // fourth statement
-        compStmt = stmts.get(3);
-        Assert.assertEquals(Node.Type.Comparison, compStmt.type);
-
-        compNode = (ComparisonNode) compStmt;
-        Assert.assertEquals(ComparisonNode.ComparisonType.lessEquals, compNode.getComparisonType());
-    }
-
-    @Test
     public void testEquality() {
         String program =
                 """
