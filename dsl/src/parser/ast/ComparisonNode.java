@@ -10,8 +10,12 @@ public class ComparisonNode extends BinaryNode {
 
     private final ComparisonType comparisonType;
 
+    public ComparisonType getComparisonType() {
+        return comparisonType;
+    }
+
     public ComparisonNode(ComparisonType type, Node lhs, Node rhs) {
-        super(Type.Equality, lhs, rhs);
+        super(Type.Comparison, lhs, rhs);
         this.comparisonType = type;
     }
 
