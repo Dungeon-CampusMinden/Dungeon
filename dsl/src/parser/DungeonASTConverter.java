@@ -147,19 +147,47 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     public void exitAssignment(DungeonDSLParser.AssignmentContext ctx) {
         // pop the inner node
         Node assignment = astStack.pop();
-        if (ctx.ID() != null) {
-            Node identifier = astStack.pop();
-            if (ctx.func_call() != null) {
-                // member access on left
-                Node funcCall = astStack.pop();
-                Node memberAccess = new MemberAccessNode(funcCall, identifier);
-                assignment = new AssignmentNode(memberAccess, assignment);
-            } else {
-                // simple ID assignment
-                assignment = new AssignmentNode(identifier, assignment);
-            }
+        if (ctx.assignee() != null) {
+            Node assignee = astStack.pop();
+            assignment = new AssignmentNode(assignee, assignment);
         }
         astStack.push(assignment);
+    }
+
+    @Override
+    public void enterAssignee_func_call(DungeonDSLParser.Assignee_func_callContext ctx) {
+
+    }
+
+    @Override
+    public void exitAssignee_func_call(DungeonDSLParser.Assignee_func_callContext ctx) {
+        Node rhs = astStack.pop();
+        Node funcCall = astStack.pop();
+        Node assignee = new MemberAccessNode(funcCall, rhs);
+        astStack.push(assignee);
+    }
+
+    @Override
+    public void enterAssignee_qualified_name(DungeonDSLParser.Assignee_qualified_nameContext ctx) {
+
+    }
+
+    @Override
+    public void exitAssignee_qualified_name(DungeonDSLParser.Assignee_qualified_nameContext ctx) {
+        Node rhs = astStack.pop();
+        Node identifier = astStack.pop();
+        Node assignee = new MemberAccessNode(identifier, rhs);
+        astStack.push(assignee);
+    }
+
+    @Override
+    public void enterAssignee_identifier(DungeonDSLParser.Assignee_identifierContext ctx) {
+
+    }
+
+    @Override
+    public void exitAssignee_identifier(DungeonDSLParser.Assignee_identifierContext ctx) {
+        // just let it bubble up, nothing to do
     }
 
     @Override
@@ -636,17 +664,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
         var funcCallNode = new FuncCallNode(funcId, paramList);
         astStack.push(funcCallNode);
-
-        // TODO: modify this for grammar changes, until then, it is unsupported
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void enterQualified_name(DungeonDSLParser.Qualified_nameContext ctx) {}
-
-    @Override
-    public void exitQualified_name(DungeonDSLParser.Qualified_nameContext ctx) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
