@@ -5,6 +5,9 @@ import core.utils.TriConsumer;
 import dslToGame.graph.Graph;
 
 import semanticanalysis.*;
+import semanticanalysis.types.CallbackAdapter.ConsumerFunctionTypeBuilder;
+import semanticanalysis.types.CallbackAdapter.FunctionFunctionTypeBuilder;
+import semanticanalysis.types.CallbackAdapter.IFunctionTypeBuilder;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -43,6 +46,11 @@ public class TypeBuilder {
         return new HashMap<>(javaTypeToDSLType);
     }
 
+    public IFunctionTypeBuilder getFunctionTypeBuilder(Class<?> callbackClass) {
+        // create copy of the hashmap
+        return this.functionTypeBuilders.get(callbackClass);
+    }
+
     /**
      * Replaces all small letters followed by a capital letter in small letters spaced by '_'
      *
@@ -61,7 +69,7 @@ public class TypeBuilder {
      * @return the corresponding {@link IType} for the passed type, or null, if the passed type does
      *     not correspond to a basic type
      */
-    protected static IType getBasicDSLType(Class<?> type) {
+    public static IType getBasicDSLType(Class<?> type) {
         // check for basic types
         if (int.class.equals(type)
                 || short.class.equals(type)
@@ -94,13 +102,9 @@ public class TypeBuilder {
         HashMap<String, String> map = new HashMap<>();
         for (Field field : clazz.getDeclaredFields()) {
             // bind new Symbol
-            if (field.isAnnotationPresent(DSLTypeMember.class)) {
-                var fieldAnnotation = field.getAnnotation(DSLTypeMember.class);
-                String fieldName =
-                        fieldAnnotation.name().equals("")
-                                ? convertToDSLName(field.getName())
-                                : fieldAnnotation.name();
-
+            if (field.isAnnotationPresent(DSLTypeMember.class)
+                    || field.isAnnotationPresent(DSLCallback.class)) {
+                String fieldName = getDSLFieldName(field);
                 map.put(fieldName, field.getName());
             }
         }

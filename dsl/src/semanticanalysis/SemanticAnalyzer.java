@@ -440,6 +440,9 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
                 stmt.accept(this);
             }
 
+            // create symbol table entry
+            symbolTable.addSymbolNodeRelation(funcSymbol, node);
+
             scopeStack.pop();
         }
         return null;

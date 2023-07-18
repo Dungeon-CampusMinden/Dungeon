@@ -1,10 +1,13 @@
 package runtime;
 
+import interpreter.DSLInterpreter;
+
 import semanticanalysis.IScope;
 import semanticanalysis.Symbol;
 import semanticanalysis.SymbolTable;
 import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
+import semanticanalysis.types.TypeInstantiator;
 
 import java.util.HashMap;
 
@@ -18,6 +21,8 @@ public class RuntimeEnvironment implements IEvironment {
     private final HashMap<Class<?>, IType> javaTypeToDSLType;
     private final RuntimeObjectTranslator runtimeObjectTranslator;
     private final TypeBuilder typeBuilder;
+    private final TypeInstantiator typeInstantiator;
+    private final DSLInterpreter interpreter;
 
     public RuntimeObjectTranslator getRuntimeObjectTranslator() {
         return runtimeObjectTranslator;
@@ -29,7 +34,8 @@ public class RuntimeEnvironment implements IEvironment {
      *
      * @param other the other environment to create a new RuntimeEnvironment from
      */
-    public RuntimeEnvironment(IEvironment other) {
+    public RuntimeEnvironment(IEvironment other, DSLInterpreter interpreter) {
+        this.interpreter = interpreter;
         this.symbolTable = other.getSymbolTable();
         this.typeBuilder = other.getTypeBuilder();
 
@@ -50,6 +56,7 @@ public class RuntimeEnvironment implements IEvironment {
         this.javaTypeToDSLType = other.javaTypeToDSLTypeMap();
 
         this.runtimeObjectTranslator = other.getRuntimeObjectTranslator();
+        this.typeInstantiator = new TypeInstantiator(interpreter);
     }
 
     /**
@@ -104,5 +111,9 @@ public class RuntimeEnvironment implements IEvironment {
 
     public Object translateRuntimeObject(Object object, IMemorySpace parentMemorySpace) {
         return this.runtimeObjectTranslator.translateRuntimeObject(object, parentMemorySpace, this);
+    }
+
+    public TypeInstantiator getTypeInstantiator() {
+        return this.typeInstantiator;
     }
 }

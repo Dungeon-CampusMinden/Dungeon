@@ -1,4 +1,8 @@
-package semanticanalysis.types;
+package semanticanalysis.types.CallbackAdapter;
+
+import semanticanalysis.types.FunctionType;
+import semanticanalysis.types.IType;
+import semanticanalysis.types.TypeBuilder;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -9,6 +13,7 @@ import java.lang.reflect.Type;
  * java.util.function.Function} interface
  */
 public class FunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
+
     public static FunctionFunctionTypeBuilder instance = new FunctionFunctionTypeBuilder();
 
     private FunctionFunctionTypeBuilder() {}

@@ -1,4 +1,9 @@
-package semanticanalysis.types;
+package semanticanalysis.types.CallbackAdapter;
+
+import semanticanalysis.types.BuiltInType;
+import semanticanalysis.types.FunctionType;
+import semanticanalysis.types.IType;
+import semanticanalysis.types.TypeBuilder;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -9,6 +14,7 @@ import java.util.ArrayList;
  * java.util.function.Consumer} interface
  */
 public class ConsumerFunctionTypeBuilder implements IFunctionTypeBuilder {
+
     public static ConsumerFunctionTypeBuilder instance = new ConsumerFunctionTypeBuilder();
 
     private ConsumerFunctionTypeBuilder() {}
