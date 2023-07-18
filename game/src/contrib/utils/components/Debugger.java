@@ -22,6 +22,7 @@ import core.systems.CameraSystem;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
+import core.utils.position.Coordinate;
 import core.utils.position.Position;
 
 import java.io.IOException;
@@ -118,7 +119,7 @@ public class Debugger {
             // Attempt to teleport to targetLocation
             LOGGER.log(
                     CustomLogLevel.DEBUG,
-                    "Trying to teleport to " + targetLocation.x + ":" + targetLocation.y);
+                    "Trying to teleport to " + targetLocation.point().x + ":" + targetLocation.point().y);
             Tile t = Game.tileAT(targetLocation);
             if (t == null || !t.isAccessible()) {
                 LOGGER.info("Cannot teleport to non-existing or non-accessible tile");

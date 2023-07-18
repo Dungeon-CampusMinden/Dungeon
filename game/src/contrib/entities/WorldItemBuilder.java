@@ -7,6 +7,7 @@ import contrib.utils.components.item.ItemData;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 /** Class which creates all needed Components for a basic WorldItem */
@@ -20,7 +21,7 @@ public class WorldItemBuilder {
      */
     public static Entity buildWorldItem(ItemData itemData) {
         Entity droppedItem = new Entity();
-        new PositionComponent(droppedItem, new Position(0, 0));
+        new PositionComponent(droppedItem, new Point(0, 0));
         new DrawComponent(droppedItem, itemData.worldTexture());
         new ItemComponent(droppedItem, itemData);
         CollideComponent component = new CollideComponent(droppedItem);
