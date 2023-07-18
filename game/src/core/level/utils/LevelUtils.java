@@ -26,8 +26,8 @@ public class LevelUtils {
      * @param to The end point.
      * @return Path from the start point to the end point.
      */
-    public static GraphPath<Tile> calculatePath(final Point from, final Point to) {
-        return calculatePath(from.toCoordinate(), to.toCoordinate());
+    public static GraphPath<Tile> calculatePath(final Position from, final Position to) {
+        return calculatePath(from.coordinate().get(), to.coordinate().get());
     }
 
     /**
@@ -45,16 +45,16 @@ public class LevelUtils {
 
     /**
      * Finds the path to a random (accessible) tile in the given radius, starting from the given
-     * point.
+     * position.
      *
      * <p>If there is no accessible tile in the range, the path will be calculated from the given
-     * start point to the given start point.
+     * start position to the given start position.
      *
-     * <p>Throws an IllegalArgumentException if the tile at the start point is non-accessible.
+     * <p>Throws an IllegalArgumentException if the tile at the start position is non-accessible.
      *
-     * @param point The start point.
+     * @param position The start position.
      * @param radius Radius in which the tiles are to be considered.
-     * @return Path from the center point to the randomly selected tile.
+     * @return Path from the center position to the randomly selected tile.
      */
     public static GraphPath<Tile> calculatePathToRandomTileInRange(
             final Position position, final float radius) {
