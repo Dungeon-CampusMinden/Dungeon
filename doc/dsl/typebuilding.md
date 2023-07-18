@@ -370,10 +370,6 @@ entity_type my_obj {
 }
 ```
 
-## Callback-Methoden
-
-TODO
-
 ## Implementierung
 
 ### Typebuilding
@@ -448,3 +444,11 @@ Das folgende UML Diagramm zeigt, in welcher Beziehung die beiden Adapterklassen
 `AdaptedType` und `AggregateTypeAdapter` zum Rest des Typsystems stehen:
 
 ![UML: Adapterklassen und Typsystem](img/adapter_typesystem.png)
+
+### Callback-Methoden
+
+Mit `@DSLCallback` markierte funktionale Interfaces werden in Instanzen der `FunctionType`-Klasse
+überführt. Hierzu werden die `IFunctionTypeBuilder`-Klassen die Typargumente der Felder in den
+Java-Klassen aus, sodass die Signatur-Informationen während des Typecheckings verwendet werden können.
+So kann überprüft werden, ob eine DSL-Funktion als Event-Handler-Funktion für eine bestimmte
+Komponente auch tatsächlich verwendet werden kann.
