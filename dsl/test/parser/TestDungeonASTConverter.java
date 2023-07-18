@@ -747,12 +747,28 @@ public class TestDungeonASTConverter {
         String program =
                 """
                 fn test_func() {
-                    !true;
+                    test == other_test;
+                    test != other_test;
                 }
             """;
 
         var ast = Helpers.getASTFromString(program);
-        Assert.assertTrue(false);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        // first statement
+        var equalityStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Equality, equalityStmt.type);
+
+        EqualityNode equalityNode = (EqualityNode) equalityStmt;
+        Assert.assertEquals(EqualityNode.EqualityType.equals, equalityNode.getEqualityType());
+
+        // second statement
+        equalityStmt = stmts.get(1);
+        Assert.assertEquals(Node.Type.Equality, equalityStmt.type);
+
+        equalityNode = (EqualityNode) equalityStmt;
+        Assert.assertEquals(EqualityNode.EqualityType.notEquals, equalityNode.getEqualityType());
     }
 
     @Test
@@ -760,12 +776,16 @@ public class TestDungeonASTConverter {
         String program =
                 """
                 fn test_func() {
-                    !true;
+                    lhs and rhs;
                 }
             """;
 
         var ast = Helpers.getASTFromString(program);
-        Assert.assertTrue(false);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var andStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.LogicAnd, andStmt.type);
     }
 
     @Test
@@ -773,25 +793,56 @@ public class TestDungeonASTConverter {
         String program =
                 """
                 fn test_func() {
-                    !true;
+                    lhs or rhs;
                 }
             """;
 
         var ast = Helpers.getASTFromString(program);
-        Assert.assertTrue(false);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var orStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.LogicOr, orStmt.type);
     }
 
     @Test
-    public void testAssignment() {
+    public void testAssignmentId() {
+        String program =
+            """
+            fn test_func() {
+                my_var = 4;
+            }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var assignmentStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Assignment, assignmentStmt.type);
+
+        AssignmentNode assignmentNode = (AssignmentNode) assignmentStmt;
+        Assert.assertEquals(Node.Type.Identifier, assignmentNode.getLhs().type);
+    }
+
+    @Test
+    public void testAssignmentMemberAccess() {
         String program =
                 """
                 fn test_func() {
-                    !true;
+                    my_var = 4;
                 }
             """;
 
         var ast = Helpers.getASTFromString(program);
-        Assert.assertTrue(false);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var assignmentStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Assignment, assignmentStmt.type);
+
+        AssignmentNode assignmentNode = (AssignmentNode) assignmentStmt;
+        Assert.assertEquals(Node.Type.Identifier, assignmentNode.getLhs().type);
     }
 
     @Test
