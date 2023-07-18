@@ -1,5 +1,7 @@
 package core.level.generator.perlinNoise;
 
+import core.utils.position.Coordinate;
+
 /**
  * This class serves as a configuration class for the {@link NoiseArea} class.
  *
