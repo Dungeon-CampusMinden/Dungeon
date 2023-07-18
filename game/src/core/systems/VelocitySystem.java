@@ -55,8 +55,8 @@ public final class VelocitySystem extends System {
     }
 
     private void updatePosition(VSData vsd) {
-        float newX = vsd.pc.position().point().x() + vsd.vc.currentXVelocity();
-        float newY = vsd.pc.position().point().y() + vsd.vc.currentYVelocity();
+        float newX = vsd.pc.position().point().x + vsd.vc.currentXVelocity();
+        float newY = vsd.pc.position().point().y + vsd.vc.currentYVelocity();
         Position newPosition = new Point(newX, newY);
         if (Game.tileAT(newPosition).isAccessible()) {
             vsd.pc.position(newPosition);

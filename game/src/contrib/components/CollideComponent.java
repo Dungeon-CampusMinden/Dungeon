@@ -149,7 +149,7 @@ public final class CollideComponent extends Component {
                                 () ->
                                         MissingComponentException.build(
                                                 entity(), PositionComponent.class));
-        return new Point(pc.position().point().x() + offset.point().x(), pc.position().point().y() + offset.point().y());
+        return new Point(pc.position().point().x + offset.point().x, pc.position().point().y + offset.point().y);
     }
 
     /**
@@ -165,7 +165,7 @@ public final class CollideComponent extends Component {
                                         MissingComponentException.build(
                                                 entity(), PositionComponent.class));
         return new Point(
-                pc.position().point().x() + offset.point().x() + size.point().x(), pc.position().point().y() + offset.point().y() + size.point().y());
+                pc.position().point().x + offset.point().x + size.point().x, pc.position().point().y + offset.point().y + size.point().y);
     }
 
     /**
@@ -181,7 +181,7 @@ public final class CollideComponent extends Component {
                                         MissingComponentException.build(
                                                 entity(), PositionComponent.class));
         return new Point(
-                pc.position().point().x() + offset.point().x() + size.point().x() / 2, pc.position().point().y() + offset.point().y() + size.point().y() / 2);
+                pc.position().point().x + offset.point().x + size.point().x / 2, pc.position().point().y + offset.point().y + size.point().y / 2);
     }
 
     /**
