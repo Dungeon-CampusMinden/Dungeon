@@ -120,6 +120,27 @@ public final class Animation {
     }
 
     /**
+     * Create an animation from single frame and the default configuration.
+     *
+     * @param fileName path to the frame
+     * @return The created Animation instance
+     */
+    public static Animation of(String fileName) {
+        return new Animation(List.of(fileName), DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP);
+    }
+
+    /**
+     * Create an animation from single frame and the given configuration.
+     *
+     * @param fileName path to the frame
+     * @param frameTime How many frames to wait, before switching to the next texture?
+     * @return The created Animation instance
+     */
+    public static Animation of(String fileName, int frameTime) {
+        return new Animation(List.of(fileName), frameTime, DEFAULT_IS_LOOP);
+    }
+
+    /**
      * Create a new animation with default settings, and the missing_textures file as animation
      * frames.
      *

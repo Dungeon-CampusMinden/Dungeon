@@ -30,9 +30,22 @@ public class WorldItemBuilder {
                 Constants.DEFAULT_ITEM_PICKUP_RADIUS,
                 false,
                 e -> {
-                    Game.hero().ifPresent(hero -> itemData.triggerCollect(hero, droppedItem));
+                    Game.hero().ifPresent(hero -> itemData.triggerCollect(e, hero));
                 });
 
+        return droppedItem;
+    }
+
+    /**
+     * Creates an Entity which then can be added to the game
+     *
+     * @param itemData the Data which should be given to the world Item
+     * @param position the position where the item should be placed
+     * @return the newly created Entity
+     */
+    public static Entity buildWorldItem(ItemData itemData, Point position) {
+        Entity droppedItem = buildWorldItem(itemData);
+        droppedItem.fetch(PositionComponent.class).ifPresent(pc -> pc.position(position));
         return droppedItem;
     }
 }
