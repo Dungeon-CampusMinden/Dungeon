@@ -14,6 +14,10 @@ public class UnaryNode extends Node {
 
     private final UnaryType unaryType;
 
+    public UnaryType getUnaryType() {
+        return unaryType;
+    }
+
     public UnaryNode(UnaryType type, Node inner) {
         super(Type.Unary, new ArrayList<>(1));
         this.unaryType = type;
