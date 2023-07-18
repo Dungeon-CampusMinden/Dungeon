@@ -11,6 +11,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -54,9 +55,9 @@ public final class VelocitySystem extends System {
     }
 
     private void updatePosition(VSData vsd) {
-        float newX = vsd.pc.position().x + vsd.vc.currentXVelocity();
-        float newY = vsd.pc.position().y + vsd.vc.currentYVelocity();
-        Position newPosition = new Position(newX, newY);
+        float newX = vsd.pc.position().point().x() + vsd.vc.currentXVelocity();
+        float newY = vsd.pc.position().point().y() + vsd.vc.currentYVelocity();
+        Position newPosition = new Point(newX, newY);
         if (Game.tileAT(newPosition).isAccessible()) {
             vsd.pc.position(newPosition);
             movementAnimation(vsd);

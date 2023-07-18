@@ -10,6 +10,7 @@ import core.level.levelgraph.LevelNode;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+import core.utils.position.Coordinate;
 
 import java.util.ArrayList;
 import java.util.Random;
