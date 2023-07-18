@@ -16,12 +16,12 @@ public class Painter {
     }
 
     public void draw(Position position, String texturePath, PainterConfig config) {
-        if (CameraSystem.isPointInFrustum(position.x, position.y)) {
+        if (CameraSystem.isPointInFrustum(position.point().x(), position.point().y())) {
             Sprite sprite = new Sprite(TextureMap.instance().textureAt(texturePath));
             // set up scaling of textures
             sprite.setSize(config.xScaling, config.yScaling);
             // where to draw the sprite
-            sprite.setPosition(position.x + config.xOffset, position.y + config.yOffset);
+            sprite.setPosition(position.point().x() + config.xOffset, position.point().y() + config.yOffset);
 
             // need to be called before drawing
             batch.begin();

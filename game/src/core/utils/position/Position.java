@@ -88,4 +88,17 @@ public interface Position {
 
     // pixel-perfect access
     Point point();
+
+    /**
+     * calculates the distance between two points
+     *
+     * @param p1 Position A
+     * @param p2 Position B
+     * @return the Distance between the two points
+     */
+    static float calculateDistance(Position p1, Position p2) {
+        float xDiff = p1.point().x() - p2.point().x();
+        float yDiff = p1.point().y() - p2.point().y();
+        return (float) Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+    }
 }
