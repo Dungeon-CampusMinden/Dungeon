@@ -57,7 +57,7 @@ public class MonsterTest {
         PositionComponent pc = positionComponent.get();
         assertTrue(
                 "Entity needs to spawn somewhere accessible",
-                Game.currentLevel().tileAt(pc.position().toCoordinate()).isAccessible());
+                Game.currentLevel().tileAt(pc.position().coordinate().get()).isAccessible());
 
         Optional<HealthComponent> HealthComponent = m.fetch(HealthComponent.class);
         assertTrue("Entity needs the HealthComponent to take damage", HealthComponent.isPresent());

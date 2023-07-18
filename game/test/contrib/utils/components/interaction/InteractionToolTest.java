@@ -14,6 +14,7 @@ import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 import org.junit.Test;
@@ -41,7 +42,7 @@ public class InteractionToolTest {
      */
     private static Entity testHero(boolean havingPositionComponent) {
         Entity hero = new Entity();
-        if (havingPositionComponent) new PositionComponent(hero, new Position(0, 0));
+        if (havingPositionComponent) new PositionComponent(hero, new Point(0, 0));
         return hero;
     }
 
@@ -103,7 +104,7 @@ public class InteractionToolTest {
         Game.currentLevel(prepareLevel());
 
         Entity e = new Entity();
-        new PositionComponent(e, new Position(10, 10));
+        new PositionComponent(e, new Point(10, 10));
 
         SimpleCounter sc_e = new SimpleCounter();
         new InteractionComponent(e, 5f, false, (x) -> sc_e.inc());

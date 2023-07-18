@@ -14,6 +14,7 @@ import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 import org.junit.After;
@@ -36,7 +37,7 @@ public class ChestTest {
     @Test
     public void checkCreation() throws IOException {
         Set<ItemData> itemData = Set.of();
-        Position position = new Position(0, 0);
+        Position position = new Point(0, 0);
         Entity c = null;
         c = EntityFactory.newChest(itemData, position);
 
@@ -135,6 +136,7 @@ public class ChestTest {
                         .map(PositionComponent.class::cast)
                         .get()
                         .position()
+                        .point()
                         .x,
                 0.00001f);
         assertEquals(
@@ -144,6 +146,7 @@ public class ChestTest {
                         .map(PositionComponent.class::cast)
                         .get()
                         .position()
+                        .point()
                         .y,
                 0.00001f);
     }
