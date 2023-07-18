@@ -826,11 +826,36 @@ public class TestDungeonASTConverter {
     }
 
     @Test
+    public void testAssignmentMemberAccessWithCall() {
+        String program =
+            """
+            fn test_func() {
+                my_func().test = 4;
+            }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var assignmentStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Assignment, assignmentStmt.type);
+
+        AssignmentNode assignmentNode = (AssignmentNode) assignmentStmt;
+        Assert.assertEquals(Node.Type.MemberAccess, assignmentNode.getLhs().type);
+        Assert.assertEquals(Node.Type.Number, assignmentNode.getRhs().type);
+
+        MemberAccessNode memberAccessNode = (MemberAccessNode) assignmentNode.getLhs();
+        Assert.assertEquals(Node.Type.FuncCall, memberAccessNode.getLhs().type);
+        Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getRhs().type);
+    }
+
+    @Test
     public void testAssignmentMemberAccess() {
         String program =
                 """
                 fn test_func() {
-                    my_var = 4;
+                    my_var.test = 4;
                 }
             """;
 
@@ -842,7 +867,12 @@ public class TestDungeonASTConverter {
         Assert.assertEquals(Node.Type.Assignment, assignmentStmt.type);
 
         AssignmentNode assignmentNode = (AssignmentNode) assignmentStmt;
-        Assert.assertEquals(Node.Type.Identifier, assignmentNode.getLhs().type);
+        Assert.assertEquals(Node.Type.MemberAccess, assignmentNode.getLhs().type);
+        Assert.assertEquals(Node.Type.Number, assignmentNode.getRhs().type);
+
+        MemberAccessNode memberAccessNode = (MemberAccessNode) assignmentNode.getLhs();
+        Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getLhs().type);
+        Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getRhs().type);
     }
 
     @Test
