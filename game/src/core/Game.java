@@ -31,6 +31,7 @@ import core.utils.DelayedSet;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import core.utils.position.Position;
+import core.utils.position.Coordinate;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -487,7 +488,7 @@ public final class Game extends ScreenAdapter {
     /**
      * Get the tile at the given point in the level
      *
-     * <p>{@link Position#toCoordinate} will be used, to convert the point into a coordinate.
+     * <p>{@link Position#coordinate} will be used, to convert the point into a coordinate.
      *
      * @param p Position from where to get the tile
      * @return the tile at the given point.
