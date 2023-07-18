@@ -79,7 +79,7 @@ expression
     ;
 
 assignment
-    : assignee '=' assignment
+    : assignee '=' expression
     | logic_or
     ;
 
