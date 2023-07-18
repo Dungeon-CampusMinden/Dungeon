@@ -97,8 +97,8 @@ public interface Position {
      * @return the Distance between the two points
      */
     static float calculateDistance(Position p1, Position p2) {
-        float xDiff = p1.point().x() - p2.point().x();
-        float yDiff = p1.point().y() - p2.point().y();
+        float xDiff = p1.point().x - p2.point().x;
+        float yDiff = p1.point().y - p2.point().y;
         return (float) Math.sqrt(xDiff * xDiff + yDiff * yDiff);
     }
 
@@ -112,5 +112,23 @@ public interface Position {
      */
     static boolean inRange(final Position p1, final Position p2, final float range) {
         return calculateDistance(p1, p2) <= range;
+    }
+
+    /**
+     * Creates the unit vector between point a and b
+     *
+     * @param a Position A
+     * @param b Position B
+     * @return the unit vector
+     */
+    public static Position unitDirectionalVector(Position b, Position a) {
+        Point interactionDir = new Point(b.point().x, b.point().y);
+        // (interactable - a) / len(interactable - a)
+        interactionDir.x -= a.point().x;
+        interactionDir.y -= a.point().y;
+        double vecLength = calculateDistance(a, b);
+        interactionDir.x /= vecLength;
+        interactionDir.y /= vecLength;
+        return interactionDir;
     }
 }
