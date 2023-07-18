@@ -1,7 +1,11 @@
 package task.quizquestion;
 
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+
 import task.Task;
 import task.TaskContent;
+
+import java.util.Optional;
 
 /**
  * Represents a single quiz question, including the question itself, possible answer choices, and
@@ -30,16 +34,30 @@ public class Quiz extends Task {
      * possible answers to the question.
      *
      * @param type Type of the question (e.g., single-choice)
-     * @param questionContentType What does the question contain? Just text, just a path to an
-     *     image, or both text and a path to an image?
      * @param questionText The question itself (can contain a path to images).
+     * @param image The image if this question contains one.
      */
-    public Quiz(final Type type, Content.Type questionContentType, String questionText) {
+    public Quiz(final Type type, String questionText, Image image) {
         super();
         this.type = type;
         taskText(questionText);
-        question = new Content(questionContentType, questionText);
+        question = new Content(questionText, image);
         question.task(this);
+    }
+
+    /**
+     * Create a new {@link Quiz} with the given configuration.
+     *
+     * <p>This will create a new {@link Content} instance as the question reference.
+     *
+     * <p>The {@link Quiz} will not have any answers, use {@link #addAnswer(Quiz.Content)} to add
+     * possible answers to the question.
+     *
+     * @param type Type of the question (e.g., single-choice)
+     * @param questionText The question itself (can contain a path to images).
+     */
+    public Quiz(final Type type, String questionText) {
+        this(type, questionText, null);
     }
 
     /**
@@ -96,27 +114,36 @@ public class Quiz extends Task {
      * Content for a {@link Quiz}-
      *
      * <p>Is used as answer and question for a {@link Quiz}.
-     *
-     * <p>Stores a String with the question/answer text and {@link Type} which defines if the String
-     * is just Text or contains a path to an image or both. The type is used by the {@link QuizUI}
-     * to configure the ui if the question is asked via the ui.
      */
     public static class Content extends TaskContent {
 
-        private final Type type;
+        private final Image image;
         private final String content;
+
+        private final Type type;
 
         /**
          * Creates a new {@link Content}.
          *
-         * @param type What does the answer contain? Just text, just a path to an image, or both
-         *     text and a path to an image?
+         * @param content The answer itself (can contain a path to images).
+         * @param image Image if this content contains one.
+         */
+        public Content(String content, Image image) {
+            super();
+            this.image = image;
+            this.content = content;
+            if (image == null) type = Type.TEXT;
+            else if (!content.equals("")) type = Type.TEXT_AND_IMAGE;
+            else type = Type.IMAGE;
+        }
+
+        /**
+         * Creates a new {@link Content}.
+         *
          * @param content The answer itself (can contain a path to images).
          */
-        public Content(Type type, String content) {
-            super();
-            this.type = type;
-            this.content = content;
+        public Content(String content) {
+            this(content, null);
         }
 
         /**
@@ -126,6 +153,16 @@ public class Quiz extends Task {
          */
         public String content() {
             return content;
+        }
+
+        /**
+         * Get the image associated with this content, if available.
+         *
+         * @return an {@link Optional} containing the image, or an empty {@link Optional} if this
+         *     task does not contain an image.
+         */
+        public Optional<Image> image() {
+            return Optional.ofNullable(image);
         }
 
         /**
