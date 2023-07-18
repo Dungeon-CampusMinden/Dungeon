@@ -8,7 +8,6 @@ import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.position.Point;
-import core.utils.position.Position;
 
 /** Class which creates all needed Components for a basic WorldItem */
 public class WorldItemBuilder {

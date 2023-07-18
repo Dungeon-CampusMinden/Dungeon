@@ -6,8 +6,6 @@ import contrib.utils.components.item.ItemData;
 import core.Entity;
 import core.components.PositionComponent;
 import core.utils.components.MissingComponentException;
-import core.utils.position.Point;
-import core.utils.position.Position;
 
 import java.util.function.Consumer;
 

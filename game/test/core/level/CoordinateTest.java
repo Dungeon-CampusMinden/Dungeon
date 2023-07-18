@@ -1,14 +1,13 @@
 package core.level;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
 import core.utils.position.Coordinate;
 import core.utils.position.Point;
-import core.utils.position.Position;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 
 public class CoordinateTest {
 
