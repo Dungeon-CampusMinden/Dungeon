@@ -3,16 +3,8 @@ package core.utils.position;
 import java.util.Optional;
 
 public class Point implements Position {
-    private float x;
-    private float y;
-
-    public float x() {
-        return x;
-    }
-
-    public float y() {
-        return y;
-    }
+    public float x;
+    public float y;
 
     public Point(Number x, Number y) {
         this.x = x.floatValue();
@@ -22,7 +14,7 @@ public class Point implements Position {
 
     @Override
     public Optional<Coordinate> coordinate() {
-        return Optional.of(new Coordinate(x(), y()));
+        return Optional.of(new Coordinate(x, y));
     }
 
     @Override

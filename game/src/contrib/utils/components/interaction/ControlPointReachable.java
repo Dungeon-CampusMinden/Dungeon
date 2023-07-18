@@ -1,6 +1,7 @@
 package contrib.utils.components.interaction;
 
 import core.Game;
+import core.utils.position.Coordinate;
 import core.utils.position.Position;
 
 import java.util.function.Function;
@@ -18,8 +19,8 @@ public class ControlPointReachable implements Function<InteractionData, Boolean>
             for (int i = 1; i < interactionData.dist(); i++) {
                 if (!Game.tileAT(
                                 new Coordinate(
-                                        (int) (dirvec.x * i + interactionData.pc().position().x),
-                                        (int) (dirvec.y * i + interactionData.pc().position().y)))
+                                        (int) (dirvec.point().x() * i + interactionData.pc().position().point().x()),
+                                        (int) (dirvec.point().y() * i + interactionData.pc().position().point().y())))
                         .isAccessible()) {
                     pathBlocked = true;
                     break;
