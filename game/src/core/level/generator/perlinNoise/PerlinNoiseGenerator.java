@@ -6,6 +6,7 @@ import core.level.generator.IGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+import core.utils.position.Coordinate;
 
 import java.util.Random;
 
