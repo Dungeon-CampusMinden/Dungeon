@@ -8,6 +8,7 @@ import core.Entity;
 import core.components.*;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 import java.util.Set;
@@ -84,8 +85,8 @@ public class DropItemsInteraction implements Consumer<Entity> {
      */
     private static Position calculateDropPosition(
             PositionComponent positionComponent, double radian) {
-        return new Position(
-                (float) Math.cos(radian * Math.PI) + positionComponent.position().x,
-                (float) Math.sin(radian * Math.PI) + positionComponent.position().y);
+        return new Point(
+                (float) Math.cos(radian * Math.PI) + positionComponent.position().point().x,
+                (float) Math.sin(radian * Math.PI) + positionComponent.position().point().y);
     }
 }
