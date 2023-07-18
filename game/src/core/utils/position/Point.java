@@ -28,4 +28,5 @@ public class Point implements Position {
     public Point point() {
         return this;
     }
+
 }
