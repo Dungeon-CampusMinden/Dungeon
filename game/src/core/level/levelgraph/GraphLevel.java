@@ -6,6 +6,7 @@ import core.level.room.IRoom;
 import core.level.room.RoomGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
+import core.utils.position.Coordinate;
 
 import java.util.LinkedHashSet;
 
@@ -107,13 +108,13 @@ public class GraphLevel {
 
             switch (direction) {
                 case UP:
-                    return layout[c.y + 1][c.x].isAccessible();
+                    return layout[c.y() + 1][c.x()].isAccessible();
                 case DOWN:
-                    return layout[c.y - 1][c.x].isAccessible();
+                    return layout[c.y() - 1][c.x()].isAccessible();
                 case LEFT:
-                    return layout[c.y][c.x - 1].isAccessible();
+                    return layout[c.y()][c.x() - 1].isAccessible();
                 case RIGHT:
-                    return layout[c.y][c.x + 1].isAccessible();
+                    return layout[c.y()][c.x() + 1].isAccessible();
                 default:
                     return false;
             }
@@ -128,16 +129,16 @@ public class GraphLevel {
         Tile[][] layout = room.layout();
         switch (direction) {
             case UP:
-                doorstep = layout[doorCoordinate.y - 1][doorCoordinate.x];
+                doorstep = layout[doorCoordinate.y() - 1][doorCoordinate.x()];
                 break;
             case RIGHT:
-                doorstep = layout[doorCoordinate.y][doorCoordinate.x - 1];
+                doorstep = layout[doorCoordinate.y()][doorCoordinate.x() - 1];
                 break;
             case LEFT:
-                doorstep = layout[doorCoordinate.y][doorCoordinate.x + 1];
+                doorstep = layout[doorCoordinate.y()][doorCoordinate.x() + 1];
                 break;
             case DOWN:
-                doorstep = layout[doorCoordinate.y + 1][doorCoordinate.x];
+                doorstep = layout[doorCoordinate.y() + 1][doorCoordinate.x()];
                 break;
         }
         if (doorstep == null) throw new NullPointerException("DoorStep not found");
