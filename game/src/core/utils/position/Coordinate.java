@@ -18,4 +18,13 @@ public class Coordinate implements Position {
     public Point point() {
         return new Point(x, y);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Coordinate)) {
+            return false;
+        }
+        Coordinate other = (Coordinate) o;
+        return x == other.x && y == other.y;
+    }
 }
