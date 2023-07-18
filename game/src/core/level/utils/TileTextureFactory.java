@@ -1,6 +1,7 @@
 package core.level.utils;
 
 import core.level.Tile;
+import core.utils.position.Coordinate;
 
 public class TileTextureFactory {
     /**
