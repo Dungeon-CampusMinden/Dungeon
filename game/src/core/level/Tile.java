@@ -169,14 +169,14 @@ public abstract class Tile {
      */
     public Direction[] directionTo(Tile goal) {
         List<Direction> directions = new ArrayList<>();
-        if (globalPosition.x() < goal.coordinate().x()) {
+        if (globalPosition.x < goal.coordinate().x) {
             directions.add(Direction.E);
-        } else if (globalPosition.x() > goal.coordinate().x()) {
+        } else if (globalPosition.x > goal.coordinate().x) {
             directions.add(Direction.W);
         }
-        if (globalPosition.y() < goal.coordinate().y()) {
+        if (globalPosition.y < goal.coordinate().y) {
             directions.add(Direction.N);
-        } else if (globalPosition.y() > goal.coordinate().y()) {
+        } else if (globalPosition.y > goal.coordinate().y) {
             directions.add(Direction.S);
         }
         return directions.toArray(new Direction[0]);
