@@ -79,9 +79,14 @@ expression
     ;
 
 assignment
-        // TODO: this should be an expression
-    : ( func_call '.' )? ID '=' assignment
+    : assignee '=' assignment
     | logic_or
+    ;
+
+assignee
+    : func_call '.' assignee    #assignee_func_call
+    | ID '.' assignee           #assignee_qualified_name
+    | ID                        #assignee_identifier
     ;
 
 logic_or
@@ -121,13 +126,8 @@ unary
     ;
 
 func_call
-        : ID ('(' param_list? ')')
+        : ID '(' param_list? ')'
         ;
-
-qualified_name
-        : ID ('.' qualified_name)?
-        ;
-
 
 stmt_block
     : '{' stmt_list? '}'
