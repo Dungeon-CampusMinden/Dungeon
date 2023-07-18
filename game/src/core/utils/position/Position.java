@@ -1,7 +1,5 @@
 package core.utils.position;
 
-import org.stringtemplate.v4.misc.Coordinate;
-
 import java.util.Optional;
 
 public interface Position {

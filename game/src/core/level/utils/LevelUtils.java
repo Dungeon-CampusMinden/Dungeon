@@ -59,7 +59,7 @@ public class LevelUtils {
     public static GraphPath<Tile> calculatePathToRandomTileInRange(
             final Position position, final float radius) {
         Coordinate newPosition =
-                randomAccessibleTileCoordinateInRange(position, radius)
+                randomAccessibleTileCoordinateInRange(position.point(), radius)
                         .orElse(position.coordinate().get());
         return calculatePath(position.coordinate().get(), newPosition);
     }

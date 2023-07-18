@@ -76,7 +76,7 @@ public class PatrouilleWalk implements Consumer<Entity> {
             return;
         }
 
-        List<Tile> accessibleTiles = LevelUtils.accessibleTilesInRange(center, radius);
+        List<Tile> accessibleTiles = LevelUtils.accessibleTilesInRange(center.point(), radius);
 
         if (accessibleTiles.isEmpty()) {
             return;

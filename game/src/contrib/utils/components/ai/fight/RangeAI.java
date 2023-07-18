@@ -11,7 +11,6 @@ import core.Entity;
 import core.Game;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
-import core.utils.Point;
 import core.utils.position.Position;
 
 import java.util.List;
@@ -54,7 +53,7 @@ public final class RangeAI implements Consumer<Entity> {
             if (playerInDistanceRange) {
                 Position positionHero = Game.positionOf(Game.hero().orElseThrow());
                 Position positionEntity = Game.positionOf(entity);
-                List<Tile> tiles = accessibleTilesInRange(positionEntity, attackRange - distance);
+                List<Tile> tiles = accessibleTilesInRange(positionEntity.point(), attackRange - distance);
                 boolean newPositionFound = false;
                 for (Tile tile : tiles) {
                     Position newPosition = tile.position();

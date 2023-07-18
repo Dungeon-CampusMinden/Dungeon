@@ -8,6 +8,7 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.utils.LevelUtils;
 import core.utils.components.MissingComponentException;
 import core.utils.position.Coordinate;
 import core.utils.position.Position;
@@ -58,7 +59,7 @@ public class StaticRadiusWalk implements Consumer<Entity> {
                                                         entity, PositionComponent.class));
                 currentPosition = pc2.position();
                 newEndTile =
-                        LevelUtils.randomAccessibleTileCoordinateInRange(center, radius)
+                        LevelUtils.randomAccessibleTileCoordinateInRange(center.point(), radius)
                                 .map(Coordinate::point)
                                 // center is the start position of the entity, so it must be
                                 // accessible
