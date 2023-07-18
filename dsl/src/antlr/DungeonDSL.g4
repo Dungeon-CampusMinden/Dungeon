@@ -129,11 +129,6 @@ func_call
         : ID '(' param_list? ')'
         ;
 
-qualified_name
-        : ID ('.' qualified_name)?
-        ;
-
-
 stmt_block
     : '{' stmt_list? '}'
     ;
