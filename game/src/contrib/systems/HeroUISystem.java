@@ -57,8 +57,14 @@ public final class HeroUISystem extends System {
         ui.pb.setValue(xpPercentage);
         Group uiGroup = new Group();
         uiGroup.addActor(ui.pb);
+        ui.pb.setPosition(calculateCenterX(ui.pb.getWidth()), 40 );
         uiGroup.addActor(ui.level);
+        ui.level.setPosition(calculateCenterX(ui.level.getWidth()), 60);
         new UIComponent(entity, uiGroup, false);
         return ui;
+    }
+
+    private float calculateCenterX(float elementWidth){
+        return (Game.windowWidth() - elementWidth)/ 2f;
     }
 }
