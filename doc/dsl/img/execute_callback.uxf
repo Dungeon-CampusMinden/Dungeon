@@ -1,0 +1,34 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>13</zoom_level><element><id>Relation</id><coordinates><x>624</x><y>208</y><w>39</w><h>65</h></coordinates><panel_attributes>lt=.
+layer=3</panel_attributes><additional_attributes>10;30;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>364</x><y>182</y><w>182</w><h>39</h></coordinates><panel_attributes>InteractionComponent</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>442</x><y>208</y><w>39</w><h>65</h></coordinates><panel_attributes>lt=.
+layer=-1</panel_attributes><additional_attributes>10;10;10;30</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>442</x><y>247</y><w>26</w><h>507</h></coordinates><panel_attributes>fg=BLACK
+layer=-1
+bg=WHITE</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>234</x><y>247</y><w>234</w><h>65</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+Auslöser für
+onInteraction-Event</panel_attributes><additional_attributes>160;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>455</x><y>702</y><w>195</w><h>65</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+Rückgabe-Objekt
+(falls benötigt)</panel_attributes><additional_attributes>10;20;130;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>559</x><y>182</y><w>156</w><h>39</h></coordinates><panel_attributes>CallbackAdapter</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>624</x><y>247</y><w>26</w><h>507</h></coordinates><panel_attributes>fg=BLACK
+layer=-1
+bg=WHITE</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>455</x><y>273</y><w>195</w><h>52</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+call()</panel_attributes><additional_attributes>130;20;10;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>780</x><y>182</y><w>156</w><h>39</h></coordinates><panel_attributes>DSLInterpreter</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>845</x><y>208</y><w>39</w><h>65</h></coordinates><panel_attributes>lt=.
+layer=-1</panel_attributes><additional_attributes>10;10;10;30</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>845</x><y>247</y><w>26</w><h>507</h></coordinates><panel_attributes>fg=BLACK
+layer=-1
+bg=WHITE</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>637</x><y>676</y><w>234</w><h>52</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+Rückgabe-Value</panel_attributes><additional_attributes>10;20;160;20</additional_attributes></element><element><id>Relation</id><coordinates><x>637</x><y>299</y><w>234</w><h>65</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+Funktionssymbol 
++ Parameter-Objekte</panel_attributes><additional_attributes>160;20;10;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>949</x><y>182</y><w>182</w><h>39</h></coordinates><panel_attributes>RuntimeEnvironment</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1027</x><y>208</y><w>39</w><h>65</h></coordinates><panel_attributes>lt=.
+layer=-1</panel_attributes><additional_attributes>10;10;10;30</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>1027</x><y>247</y><w>26</w><h>507</h></coordinates><panel_attributes>fg=BLACK
+layer=-1
+bg=WHITE</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>858</x><y>390</y><w>195</w><h>65</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+Objekt in Value
+übersetzen</panel_attributes><additional_attributes>130;20;10;20</additional_attributes></element><element><id>UMLFrame</id><coordinates><x>806</x><y>351</y><w>286</w><h>195</h></coordinates><panel_attributes>loop: Parameter-Objekte
+layer=0</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>858</x><y>455</y><w>143</w><h>91</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+Value 
+binden</panel_attributes><additional_attributes>10;50;50;50;50;10;10;10</additional_attributes></element><element><id>UMLFrame</id><coordinates><x>806</x><y>585</y><w>286</w><h>78</h></coordinates><panel_attributes>ref
+layer=0</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>871</x><y>598</y><w>156</w><h>52</h></coordinates><panel_attributes>Ausführung der 
+Statements
+style=wordwrap
+layer=1</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>442</x><y>741</y><w>39</w><h>65</h></coordinates><panel_attributes>lt=.
+layer=3</panel_attributes><additional_attributes>10;30;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>624</x><y>741</y><w>39</w><h>65</h></coordinates><panel_attributes>lt=.
+layer=3</panel_attributes><additional_attributes>10;30;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>845</x><y>741</y><w>39</w><h>65</h></coordinates><panel_attributes>lt=.
+layer=3</panel_attributes><additional_attributes>10;30;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1027</x><y>741</y><w>39</w><h>65</h></coordinates><panel_attributes>lt=.
+layer=3</panel_attributes><additional_attributes>10;30;10;10</additional_attributes></element></diagram>

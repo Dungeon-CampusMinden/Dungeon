@@ -428,3 +428,10 @@ Für die Zuweisung `on_interaction: my_interaction_func` wird eine `CallbackAdap
 welche das `FunctionSymbol` der Definition von `my_interaction_func` speichert und eine Referenz auf den `DSLInterpreter`
 hält. Die Instanz der `CallbackAdapter`-Klasse wird während der [Instanziierung](#typinstanziierung) dem
 `on_interaction`-Field des `InteractionComponent` zugewiesen.
+
+Die Ausführung einer DSL-Event-Handler-Funktion folgt diesem Sequenzdiagramm:
+
+![UML: Ausführung DSL-Event-Handler-Funktion](img/execute_callback.png)
+
+Die Ausführung der Anweisungen erfolgt nach dem gleichen Muster, wie in [Per DSL definierte Funktionen](#per-dsl-definierte-funktionen)
+dargestellt.
