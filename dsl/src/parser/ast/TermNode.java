@@ -1,12 +1,17 @@
 package parser.ast;
 
 public class TermNode extends BinaryNode {
+
     public enum TermType {
         plus,
         minus
     }
 
     private final TermType termType;
+
+    public TermType getTermType() {
+        return termType;
+    }
 
     public TermNode(TermType type, Node lhs, Node rhs) {
         super(Type.Term, lhs, rhs);
