@@ -43,8 +43,9 @@ public final class UIAnswerCallback {
      */
     public static Consumer<Entity> askOnInteraction(
             Quiz quiz, Consumer<Set<Quiz.Content>> dslCallback) {
-        return questGiver -> QuizUI.showQuizDialog(
-                quiz, (Entity hudEntity) -> uiCallback(quiz, hudEntity, dslCallback));
+        return questGiver ->
+                QuizUI.showQuizDialog(
+                        quiz, (Entity hudEntity) -> uiCallback(quiz, hudEntity, dslCallback));
     }
 
     /**
@@ -75,10 +76,11 @@ public final class UIAnswerCallback {
     }
 
     private static Set<Quiz.Content> getAnswer(Quiz quiz, VerticalGroup answerSection) {
-        if (Objects.requireNonNull(quiz.type()) == Quiz.Type.FREETEXT) {
+        if (quiz.type() == Quiz.Type.FREETEXT) {
             // todo is this the way? malte-r?
             Quiz.Content content =
                     new Quiz.Content(Quiz.Content.Type.TEXT, freeTextAnswer(answerSection));
+            quiz.addAnswer(content);
             return Set.of(content);
         } else return stringToContent(quiz, checkboxAnswers(answerSection));
     }
