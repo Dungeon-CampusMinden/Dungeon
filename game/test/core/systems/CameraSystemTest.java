@@ -10,6 +10,7 @@ import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 import org.junit.After;
@@ -20,7 +21,7 @@ import org.mockito.Mockito;
 
 public class CameraSystemTest {
 
-    private static final Position TEST_POSITION = new Position(3, 3);
+    private static final Position TEST_POSITION = new Point(3, 3);
     private final ILevel level = Mockito.mock(ILevel.class);
     private final Tile startTile = Mockito.mock(Tile.class);
     private CameraSystem cameraSystem;
@@ -56,8 +57,8 @@ public class CameraSystemTest {
         expectedFocusPosition = positionComponent.position();
 
         cameraSystem.execute();
-        assertEquals(expectedFocusPosition.x, CameraSystem.camera().position.x, 0.001);
-        assertEquals(expectedFocusPosition.y, CameraSystem.camera().position.y, 0.001);
+        assertEquals(expectedFocusPosition.point().x, CameraSystem.camera().position.x, 0.001);
+        assertEquals(expectedFocusPosition.point().y, CameraSystem.camera().position.y, 0.001);
     }
 
     @Test
@@ -68,17 +69,17 @@ public class CameraSystemTest {
 
         cameraSystem.execute();
 
-        assertEquals(expectedFocusPosition.x, CameraSystem.camera().position.x, 0.001);
-        assertEquals(expectedFocusPosition.y, CameraSystem.camera().position.y, 0.001);
+        assertEquals(expectedFocusPosition.point().x, CameraSystem.camera().position.x, 0.001);
+        assertEquals(expectedFocusPosition.point().y, CameraSystem.camera().position.y, 0.001);
     }
 
     @Test
     public void executeWithoutLevel() {
         Game.currentLevel(null);
-        Position expectedFocusPosition = new Position(0, 0);
+        Position expectedFocusPosition = new Point(0, 0);
         cameraSystem.execute();
-        assertEquals(expectedFocusPosition.x, CameraSystem.camera().position.x, 0.001);
-        assertEquals(expectedFocusPosition.y, CameraSystem.camera().position.y, 0.001);
+        assertEquals(expectedFocusPosition.point().x, CameraSystem.camera().position.x, 0.001);
+        assertEquals(expectedFocusPosition.point().y, CameraSystem.camera().position.y, 0.001);
     }
 
     @Test

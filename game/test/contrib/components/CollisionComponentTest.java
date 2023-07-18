@@ -7,6 +7,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 import org.junit.Test;
@@ -152,8 +153,8 @@ public class CollisionComponentTest {
         CollideComponent hb =
                 new CollideComponent(
                         e,
-                        new Position(0, 0),
-                        new Position(0, 0),
+                        new Point(0, 0),
+                        new Point(0, 0),
                         (a, b, c) -> {},
                         (a, b, c) -> {});
         MissingComponentException missingComponentException =
@@ -175,96 +176,96 @@ public class CollisionComponentTest {
     @Test
     public void getCenterFirst() {
         Entity e = new Entity();
-        Position position = new Position(0, 0);
-        Position offset = new Position(0, 0);
-        Position size = new Position(1, 1);
+        Position position = new Point(0, 0);
+        Position offset = new Point(0, 0);
+        Position size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
         CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
 
         Position center = hb.center();
-        assertEquals(0.5f, center.x, DELTA);
-        assertEquals(0.5f, center.y, DELTA);
+        assertEquals(0.5f, center.point().x, DELTA);
+        assertEquals(0.5f, center.point().y, DELTA);
     }
 
     /** check Center for position(1, 1), offset(0, 0), size(1, 1), result(1.5f, 1.5f) */
     @Test
     public void getCenterSecond() {
         Entity e = new Entity();
-        Position position = new Position(1, 1);
-        Position offset = new Position(0, 0);
-        Position size = new Position(1, 1);
+        Position position = new Point(1, 1);
+        Position offset = new Point(0, 0);
+        Position size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
         CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
 
         Position center = hb.center();
-        assertEquals(1.5f, center.x, DELTA);
-        assertEquals(1.5f, center.y, DELTA);
+        assertEquals(1.5f, center.point().x, DELTA);
+        assertEquals(1.5f, center.point().y, DELTA);
     }
 
     /** check Center for position(-1, -1), offset(0, 0), size(1, 1), result(-.5f, -.5f) */
     @Test
     public void getCenterThird() {
         Entity e = new Entity();
-        Position position = new Position(-1, -1);
-        Position offset = new Position(0, 0);
-        Position size = new Position(1, 1);
+        Position position = new Point(-1, -1);
+        Position offset = new Point(0, 0);
+        Position size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
         CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Position center = hb.center();
 
-        assertEquals(-.5f, center.x, DELTA);
-        assertEquals(-.5f, center.y, DELTA);
+        assertEquals(-.5f, center.point().x, DELTA);
+        assertEquals(-.5f, center.point().y, DELTA);
     }
 
     /** check Center for position(.5f, .5f), offset(0, 0), size(1, 1), result(1, 1) */
     @Test
     public void getCenterFourth() {
         Entity e = new Entity();
-        Position position = new Position(.5f, .5f);
-        Position offset = new Position(0, 0);
-        Position size = new Position(1, 1);
+        Position position = new Point(.5f, .5f);
+        Position offset = new Point(0, 0);
+        Position size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
         CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Position center = hb.center();
 
-        assertEquals(1, center.x, DELTA);
-        assertEquals(1, center.y, DELTA);
+        assertEquals(1, center.point().x, DELTA);
+        assertEquals(1, center.point().y, DELTA);
     }
 
     /** check Center for position(.5f, .5f), offset(-1, -1), size(1, 1), result(0, 0) */
     @Test
     public void getCenterFifth() {
         Entity e = new Entity();
-        Position position = new Position(.5f, .5f);
-        Position offset = new Position(-1, -1);
-        Position size = new Position(1, 1);
+        Position position = new Point(.5f, .5f);
+        Position offset = new Point(-1, -1);
+        Position size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
         CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Position center = hb.center();
 
-        assertEquals(0, center.x, DELTA);
-        assertEquals(0, center.y, DELTA);
+        assertEquals(0, center.point().x, DELTA);
+        assertEquals(0, center.point().y, DELTA);
     }
 
     /** check Center for position(-.5, .5), offset(0, 0), size(2,2), result(.5, 1.5) */
     @Test
     public void getCenterSixth() {
         Entity e = new Entity();
-        Position position = new Position(-.5f, .5f);
-        Position offset = new Position(0, 0);
-        Position size = new Position(2, 2);
+        Position position = new Point(-.5f, .5f);
+        Position offset = new Point(0, 0);
+        Position size = new Point(2, 2);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
         CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Position center = hb.center();
 
-        assertEquals(.5, center.x, DELTA);
-        assertEquals(1.5, center.y, DELTA);
+        assertEquals(.5, center.point().x, DELTA);
+        assertEquals(1.5, center.point().y, DELTA);
     }
 
     /** Missing Position Component when calling getBottomLeft should throw an exception */
@@ -282,96 +283,96 @@ public class CollisionComponentTest {
     @Test
     public void getTopRightOrigin() {
         Entity e = new Entity();
-        Position position = new Position(0, 0);
-        Position offset = new Position(0, 0);
-        Position size = new Position(1, 1);
+        Position position = new Point(0, 0);
+        Position offset = new Point(0, 0);
+        Position size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
         CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Position center = hb.topRight();
 
-        assertEquals(1, center.x, DELTA);
-        assertEquals(1, center.y, DELTA);
+        assertEquals(1, center.point().x, DELTA);
+        assertEquals(1, center.point().y, DELTA);
     }
 
     /** Position and offset stay in origin (0,0) size changed to(2,2) */
     @Test
     public void getTopRightOriginSizeChange() {
         Entity e = new Entity();
-        Position position = new Position(0, 0);
-        Position offset = new Position(0, 0);
-        Position size = new Position(2, 2);
+        Position position = new Point(0, 0);
+        Position offset = new Point(0, 0);
+        Position size = new Point(2, 2);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
         CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Position center = hb.topRight();
 
-        assertEquals(2, center.x, DELTA);
-        assertEquals(2, center.y, DELTA);
+        assertEquals(2, center.point().x, DELTA);
+        assertEquals(2, center.point().y, DELTA);
     }
 
     /** Position moved to (2,1) offset is still (0,0) */
     @Test
     public void getTopRightPositionMoved() {
         Entity e = new Entity();
-        Position position = new Position(2, 1);
-        Position offset = new Position(0, 0);
-        Position size = new Position(1, 1);
+        Position position = new Point(2, 1);
+        Position offset = new Point(0, 0);
+        Position size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
         CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Position center = hb.topRight();
 
-        assertEquals(3, center.x, DELTA);
-        assertEquals(2, center.y, DELTA);
+        assertEquals(3, center.point().x, DELTA);
+        assertEquals(2, center.point().y, DELTA);
     }
 
     /** Position in origin (0,0) and offset moved to (1,2) */
     @Test
     public void getTopRightOriginOffsetMoved() {
         Entity e = new Entity();
-        Position position = new Position(0, 0);
-        Position offset = new Position(1, 2);
-        Position size = new Position(1, 1);
+        Position position = new Point(0, 0);
+        Position offset = new Point(1, 2);
+        Position size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
         CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Position center = hb.topRight();
 
-        assertEquals(2, center.x, DELTA);
-        assertEquals(3, center.y, DELTA);
+        assertEquals(2, center.point().x, DELTA);
+        assertEquals(3, center.point().y, DELTA);
     }
 
     /** Position moved to (3,1) and offset moved to(2,4) */
     @Test
     public void getTopRightPositionMovedOffsetMoved() {
         Entity e = new Entity();
-        Position position = new Position(3, 1);
-        Position offset = new Position(2, 4);
-        Position size = new Position(1, 1);
+        Position position = new Point(3, 1);
+        Position offset = new Point(2, 4);
+        Position size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
         CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Position center = hb.topRight();
 
-        assertEquals(6, center.x, DELTA);
-        assertEquals(6, center.y, DELTA);
+        assertEquals(6, center.point().x, DELTA);
+        assertEquals(6, center.point().y, DELTA);
     }
 
     /** Position moved to (3,1) and offset moved to(2,4) size changed to (3,3) */
     @Test
     public void getTopRightPositionMovedOffsetMovedSizeIncrease() {
         Entity e = new Entity();
-        Position position = new Position(3, 1);
-        Position offset = new Position(2, 4);
-        Position size = new Position(3, 3);
+        Position position = new Point(3, 1);
+        Position offset = new Point(2, 4);
+        Position size = new Point(3, 3);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
         CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Position center = hb.topRight();
 
-        assertEquals(8, center.x, DELTA);
-        assertEquals(8, center.y, DELTA);
+        assertEquals(8, center.point().x, DELTA);
+        assertEquals(8, center.point().y, DELTA);
     }
 
     /** Missing Position Component when calling getBottomLeft should throw an exception */
@@ -389,63 +390,63 @@ public class CollisionComponentTest {
     @Test
     public void getBottomLeftOrigin() {
         Entity e = new Entity();
-        Position position = new Position(0, 0);
-        Position offset = new Position(0, 0);
-        Position size = new Position(1, 1);
+        Position position = new Point(0, 0);
+        Position offset = new Point(0, 0);
+        Position size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
         CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Position center = hb.bottomLeft();
 
-        assertEquals(0, center.x, DELTA);
-        assertEquals(0, center.y, DELTA);
+        assertEquals(0, center.point().x, DELTA);
+        assertEquals(0, center.point().y, DELTA);
     }
 
     /** Position moved to (2,1) offset is still (0,0) */
     @Test
     public void getBottomLeftPositionMoved() {
         Entity e = new Entity();
-        Position position = new Position(2, 1);
-        Position offset = new Position(0, 0);
-        Position size = new Position(1, 1);
+        Position position = new Point(2, 1);
+        Position offset = new Point(0, 0);
+        Position size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
         CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Position center = hb.bottomLeft();
 
-        assertEquals(2, center.x, DELTA);
-        assertEquals(1, center.y, DELTA);
+        assertEquals(2, center.point().x, DELTA);
+        assertEquals(1, center.point().y, DELTA);
     }
 
     /** Position in origin (0,0) and offset moved to (1,2) */
     @Test
     public void getBottomLeftOriginOffsetMoved() {
         Entity e = new Entity();
-        Position position = new Position(0, 0);
-        Position offset = new Position(1, 2);
-        Position size = new Position(1, 1);
+        Position position = new Point(0, 0);
+        Position offset = new Point(1, 2);
+        Position size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
         CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Position center = hb.bottomLeft();
 
-        assertEquals(1, center.x, DELTA);
-        assertEquals(2, center.y, DELTA);
+        assertEquals(1, center.point().x, DELTA);
+        assertEquals(2, center.point().y, DELTA);
     }
 
     /** Position moved to (3,1) and offset moved to(2,4) */
     @Test
     public void getBottomLeftPositionMovedOffsetMoved() {
         Entity e = new Entity();
-        Position position = new Position(3, 1);
-        Position offset = new Position(2, 4);
-        Position size = new Position(1, 1);
+        Position position = new Point(3, 1);
+        Position offset = new Point(2, 4);
+        Position size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
         new PositionComponent(e, position);
         CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
         Position center = hb.bottomLeft();
 
-        assertEquals(5, center.x, DELTA);
-        assertEquals(5, center.y, DELTA);
+        assertEquals(5, center.point().x, DELTA);
+        assertEquals(5, center.point().y, DELTA);
     }
 }

@@ -22,6 +22,8 @@ import core.utils.IVoidFunction;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 import core.utils.components.draw.TextureMap;
+import core.utils.position.Coordinate;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 import org.junit.After;
@@ -132,19 +134,19 @@ public class TileLevelAPITest {
         layout[0][0] = Mockito.mock(Tile.class);
         when(layout[0][0].levelElement()).thenReturn(elementT1);
         when(layout[0][0].texturePath()).thenReturn(textureT1);
-        when(layout[0][0].position()).thenReturn(coordinateT1.toPoint());
+        when(layout[0][0].position()).thenReturn(coordinateT1.point());
         layout[0][1] = Mockito.mock(Tile.class);
         when(layout[0][1].levelElement()).thenReturn(elementT2);
         when(layout[0][1].texturePath()).thenReturn(textureT2);
-        when(layout[0][1].position()).thenReturn(coordinateT2.toPoint());
+        when(layout[0][1].position()).thenReturn(coordinateT2.point());
         layout[1][0] = Mockito.mock(Tile.class);
         when(layout[1][0].levelElement()).thenReturn(elementT3);
         when(layout[1][0].texturePath()).thenReturn(textureT3);
-        when(layout[1][0].position()).thenReturn(coordinateT3.toPoint());
+        when(layout[1][0].position()).thenReturn(coordinateT3.point());
         layout[1][1] = Mockito.mock(Tile.class);
         when(layout[1][1].levelElement()).thenReturn(elementT4);
         when(layout[1][1].texturePath()).thenReturn(textureT4);
-        when(layout[1][1].position()).thenReturn(coordinateT4.toPoint());
+        when(layout[1][1].position()).thenReturn(coordinateT4.point());
 
         when(level.layout()).thenReturn(layout);
 
@@ -202,7 +204,7 @@ public class TileLevelAPITest {
         api.showEntity(hero);
 
         Tile end = Mockito.mock(Tile.class);
-        Position p = new Position(3, 3);
+        Position p = new Point(3, 3);
         when(end.position()).thenReturn(p);
         when(level.tileAt(p)).thenReturn(end);
         Mockito.when(level.endTile()).thenReturn(end);
