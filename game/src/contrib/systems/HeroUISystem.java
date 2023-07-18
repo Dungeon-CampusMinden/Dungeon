@@ -1,8 +1,11 @@
 package contrib.systems;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import contrib.components.XPComponent;
 
@@ -48,23 +51,45 @@ public final class HeroUISystem extends System {
         float xpPercentage = calculatePercentage(xc);
         long level = xc.characterLevel();
         Entity entity = new Entity();
-        // TODO: positionieren
+
+        ProgressBar.ProgressBarStyle experienceStyle =
+                createNewPBStyleWhichShouldBeInAtlasAndIsAToDoYesItIsUglyToAnnoyAll(Color.GREEN);
+
         HeroUI ui =
                 new HeroUI(
-                        new ProgressBar(0f, 1f, 0.01f, false, UITools.DEFAULT_SKIN, "experience"),
+                        new ProgressBar(0f, 1f, 0.01f, false, experienceStyle),
                         new Label("Level: " + level, UITools.DEFAULT_SKIN),
                         entity);
         ui.pb.setValue(xpPercentage);
         Group uiGroup = new Group();
         uiGroup.addActor(ui.pb);
-        ui.pb.setPosition(calculateCenterX(ui.pb.getWidth()), 40 );
+        ui.pb.setPosition(calculateCenterX(ui.pb.getWidth()), 40);
         uiGroup.addActor(ui.level);
         ui.level.setPosition(calculateCenterX(ui.level.getWidth()), 60);
         new UIComponent(entity, uiGroup, false);
         return ui;
     }
 
-    private float calculateCenterX(float elementWidth){
-        return (Game.windowWidth() - elementWidth)/ 2f;
+    public static ProgressBar.ProgressBarStyle
+            createNewPBStyleWhichShouldBeInAtlasAndIsAToDoYesItIsUglyToAnnoyAll(Color color) {
+        // TODO: temporary addon so no changes needed in skin which will always conflict
+        var pbstyle =
+                UITools.DEFAULT_SKIN.get("default-horizontal", ProgressBar.ProgressBarStyle.class);
+        // copy for experience
+        var experiencepbStyle = new ProgressBar.ProgressBarStyle(pbstyle);
+        experiencepbStyle.background =
+                new NinePatchDrawable((NinePatchDrawable) experiencepbStyle.background);
+        experiencepbStyle.knobBefore =
+                ((TextureRegionDrawable) experiencepbStyle.knobBefore).tint(color);
+        ((NinePatchDrawable) experiencepbStyle.background).getPatch().scale(0.2f, 0.2f);
+        experiencepbStyle.background.setMinWidth(1);
+        experiencepbStyle.background.setMinHeight(12);
+        experiencepbStyle.knobBefore.setMinWidth(1);
+        experiencepbStyle.knobBefore.setMinHeight(10);
+        return experiencepbStyle;
+    }
+
+    private float calculateCenterX(float elementWidth) {
+        return (Game.windowWidth() - elementWidth) / 2f;
     }
 }

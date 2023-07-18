@@ -66,11 +66,13 @@ public class EntityFactory {
                 hero,
                 (you, other, direction) -> System.out.println("heroCollisionEnter"),
                 (you, other, direction) -> System.out.println("heroCollisionLeave"));
-        new HealthComponent(hero,200, (E)-> {
-            Game.removeEntity(E);
-
-        });
-        new XPComponent(hero, (e)-> {});
+        new HealthComponent(
+                hero,
+                200,
+                (E) -> {
+                    Game.removeEntity(E);
+                });
+        new XPComponent(hero, (e) -> {});
         PlayerComponent pc = new PlayerComponent(hero);
         Skill fireball =
                 new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);

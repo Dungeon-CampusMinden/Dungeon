@@ -1,5 +1,6 @@
 package contrib.systems;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
@@ -10,7 +11,6 @@ import core.Entity;
 import core.System;
 import core.components.PositionComponent;
 import core.components.UIComponent;
-import core.hud.UITools;
 import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.logging.CustomLogLevel;
@@ -69,8 +69,11 @@ public final class HealthbarSystem extends System {
     }
 
     private ProgressBar createNewHealthbar(PositionComponent pc) {
-        ProgressBar progressBar =
-                new ProgressBar(0, 100, 10, false, UITools.DEFAULT_SKIN, "health");
+        ProgressBar.ProgressBarStyle healthstyle =
+                HeroUISystem.createNewPBStyleWhichShouldBeInAtlasAndIsAToDoYesItIsUglyToAnnoyAll(
+                        Color.RED);
+
+        ProgressBar progressBar = new ProgressBar(0, 100, 10, false, healthstyle);
         progressBar.setAnimateDuration(0.1f);
         progressBar.setSize(35, 10);
         progressBar.setVisible(true);
