@@ -8,6 +8,7 @@ import core.level.elements.ILevel;
 import core.level.elements.astar.TileConnection;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.position.Coordinate;
 import core.utils.position.Position;
 
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public abstract class Tile {
      * @return The global coordinate of the tile as point.
      */
     public Position position() {
-        return coordinate().toPoint();
+        return coordinate().point();
     }
 
     /**
@@ -154,7 +155,7 @@ public abstract class Tile {
     /**
      * Used by libGDX pathfinding
      *
-     * @return all connections to other tile
+     * @return all connections to other tiles
      */
     public Array<Connection<Tile>> connections() {
         return connections;
@@ -168,14 +169,14 @@ public abstract class Tile {
      */
     public Direction[] directionTo(Tile goal) {
         List<Direction> directions = new ArrayList<>();
-        if (globalPosition.x < goal.coordinate().x) {
+        if (globalPosition.x() < goal.coordinate().x()) {
             directions.add(Direction.E);
-        } else if (globalPosition.x > goal.coordinate().x) {
+        } else if (globalPosition.x() > goal.coordinate().x()) {
             directions.add(Direction.W);
         }
-        if (globalPosition.y < goal.coordinate().y) {
+        if (globalPosition.y() < goal.coordinate().y()) {
             directions.add(Direction.N);
-        } else if (globalPosition.y > goal.coordinate().y) {
+        } else if (globalPosition.y() > goal.coordinate().y()) {
             directions.add(Direction.S);
         }
         return directions.toArray(new Direction[0]);
