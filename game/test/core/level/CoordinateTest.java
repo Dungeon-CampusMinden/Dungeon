@@ -1,9 +1,14 @@
 package core.level;
 
+import core.utils.position.Coordinate;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class CoordinateTest {
 
@@ -23,8 +28,8 @@ public class CoordinateTest {
 
     @Test
     public void test_toPoint() {
-        Position position = coordinate.toPoint();
-        assertEquals((float) coordinate.x, position.x, 0.0f);
-        assertEquals((float) coordinate.y, position.y, 0.0f);
+        Point point = coordinate.point();
+        assertEquals((float) coordinate.x(), point.x(), 0.0f);
+        assertEquals((float) coordinate.y(), point.y(), 0.0f);
     }
 }
