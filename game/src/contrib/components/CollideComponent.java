@@ -7,6 +7,7 @@ import core.level.Tile;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 import semanticanalysis.types.DSLContextMember;
@@ -43,8 +44,8 @@ import java.util.logging.Logger;
  */
 @DSLType(name = "hitbox_component")
 public final class CollideComponent extends Component {
-    public static final Position DEFAULT_OFFSET = new Position(0.25f, 0.25f);
-    public static final Position DEFAULT_SIZE = new Position(0.5f, 0.5f);
+    public static final Position DEFAULT_OFFSET = new Point(0.25f, 0.25f);
+    public static final Position DEFAULT_SIZE = new Point(0.5f, 0.5f);
     public static final TriConsumer<Entity, Entity, Tile.Direction> DEFAULT_COLLIDER =
             (a, b, c) -> {};
 
@@ -148,7 +149,7 @@ public final class CollideComponent extends Component {
                                 () ->
                                         MissingComponentException.build(
                                                 entity(), PositionComponent.class));
-        return new Position(pc.position().x + offset.x, pc.position().y + offset.y);
+        return new Point(pc.position().point().x() + offset.point().x(), pc.position().point().y() + offset.point().y());
     }
 
     /**
@@ -163,8 +164,8 @@ public final class CollideComponent extends Component {
                                 () ->
                                         MissingComponentException.build(
                                                 entity(), PositionComponent.class));
-        return new Position(
-                pc.position().x + offset.x + size.x, pc.position().y + offset.y + size.y);
+        return new Point(
+                pc.position().point().x() + offset.point().x() + size.point().x(), pc.position().point().y() + offset.point().y() + size.point().y());
     }
 
     /**
@@ -179,8 +180,8 @@ public final class CollideComponent extends Component {
                                 () ->
                                         MissingComponentException.build(
                                                 entity(), PositionComponent.class));
-        return new Position(
-                pc.position().x + offset.x + size.x / 2, pc.position().y + offset.y + size.y / 2);
+        return new Point(
+                pc.position().point().x() + offset.point().x() + size.point().x() / 2, pc.position().point().y() + offset.point().y() + size.point().y() / 2);
     }
 
     /**
