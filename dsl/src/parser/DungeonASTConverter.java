@@ -145,14 +145,21 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitAssignment(DungeonDSLParser.AssignmentContext ctx) {
+        // pop the inner node
+        Node assignment = astStack.pop();
         if (ctx.ID() != null) {
+            Node identifier = astStack.pop();
             if (ctx.func_call() != null) {
-                // - member access on left
+                // member access on left
+                Node funcCall = astStack.pop();
+                Node memberAccess = new MemberAccessNode(funcCall, identifier);
+                assignment = new AssignmentNode(memberAccess, assignment);
             } else {
-                // - simple ID assignment
+                // simple ID assignment
+                assignment = new AssignmentNode(identifier, assignment);
             }
         }
-        // - trivial case
+        astStack.push(assignment);
     }
 
     @Override
