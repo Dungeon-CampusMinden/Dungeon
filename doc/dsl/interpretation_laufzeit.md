@@ -302,6 +302,7 @@ interpretieren soll, und eine `List`, welche die AST-Knoten für die Parameter d
 Funktionsaufrufs enthalten. Diese Informationen sucht der `DSLInterpreter` in der
 `visit`-Methode für `FuncCallNode`-AST Knoten zusammen.
 
+
 ### Native Funktionen
 
 Native Funktionen (also alle Funktionen, die nicht per DSL definiert werden, sondern
@@ -372,3 +373,58 @@ Architektur den Vorteil, dass Return-Statements nicht durch Exceptions implement
 müssen vgl. [Return Statements - Crafting
 Interpreters](https://craftinginterpreters.com/functions.html#return-statements), um einen
 Sprung aus dem Funktionsrumpf an *beliebiger Stelle* zu realisieren.
+
+### Event-Handler Callback-Funktionen
+
+Per DSL können Event-Handler Callback-Funktionen für bestimmte Events im Kontext von
+`Component`s definiert werden. Dafür nutzen die `Component`s funktionale Java-Interfaces
+(z.B. `Function`, `Consumer` und `TriConsumer`).
+
+Folgende Snippets sollen hier als Beispiel dienen:
+
+``` java
+public final class InteractionComponent extends Component {
+    // other code...
+
+    @DSLCallback private final Consumer<Entity> onInteraction;
+
+    // other code...
+}
+```
+Die `InteractionComponent`-Klasse definiert eine `onInteraction`-Callback-Funktion.
+
+Per DSL-Eingabe kann dieser Callback-Funktion eine DSL-Funktion zugewiesen werden:
+
+```
+fn my_interaction_func(entity my_entity) {
+    print("Hello, you interacted with the entity");
+}
+
+entity_type my_entity_type {
+    interaction_component {
+        on_interaction: my_interaction_func
+    },
+    // other components
+}
+```
+
+Falls `my_entity_type` instanziiert wird, und per Spielendenaktion im Dungeon mit der entsprechenden
+`Entity` interagiert wird, wird `my_interaction_func` mit der `Entität` als Parameter aufgerufen, mit
+welcher interagiert wurde.
+
+Hierfür sind zwei Dinge nötig:
+
+1. Alle an die DSL Funktion übergebenen Parameter müssen in das DSL-Typsystem [übersetzt](typsystem.md#übersetzung-von-java-objekt-in-dsl-typsystem)
+   werden.
+2. Die Anweisungen im Rumpf der DSL-Funktion müssen ausgeführt werden.
+
+Um beide Anforderungen zu erfüllen, wird die Instanz des `DSLInterpreter`s benötigt, welcher das `RuntimeEnvironment`
+enthält und für die Interpretation genutzt wird.
+Die `CallbackAdapter`-Klasse bildet die Zwischenschicht, in der die Referenz auf den `DSLInterpreter` gespeichert wird.
+Diese Klasse implementiert sämtliche funktionale Interfaces, welche in den Komponenten des ECS für Callback-Funktionen
+verwendet werden. Zusätzlich speichert die Klasse das `FunctionSymbol` der jeweiligen DSL-Definition der Funktion, die
+als Callback verwendet werden soll.
+Für die Zuweisung `on_interaction: my_interaction_func` wird eine `CallbackAdapter`-Instanz erzeugt,
+welche das `FunctionSymbol` der Definition von `my_interaction_func` speichert und eine Referenz auf den `DSLInterpreter`
+hält. Die Instanz der `CallbackAdapter`-Klasse wird während der [Instanziierung](#typinstanziierung) dem
+`on_interaction`-Field des `InteractionComponent` zugewiesen.
