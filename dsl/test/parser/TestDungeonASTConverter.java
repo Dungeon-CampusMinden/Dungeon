@@ -599,12 +599,44 @@ public class TestDungeonASTConverter {
         String program =
                 """
                 fn test_func() {
-                    !true;
+                    4 * 2;
+                    3 / 1;
                 }
             """;
 
         var ast = Helpers.getASTFromString(program);
-        Assert.assertTrue(false);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        // first statement
+        var factorStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Factor, factorStmt.type);
+
+        FactorNode factorNode = (FactorNode) factorStmt;
+        Assert.assertEquals(FactorNode.FactorType.multiply, factorNode.getFactorType());
+
+        var lhs = factorNode.getLhs();
+        Assert.assertEquals(Node.Type.Number, lhs.type);
+        Assert.assertEquals(4, ((NumNode)lhs).getValue());
+
+        var rhs = factorNode.getRhs();
+        Assert.assertEquals(Node.Type.Number, rhs.type);
+        Assert.assertEquals(2, ((NumNode)rhs).getValue());
+
+        // seconds statement
+        factorStmt = stmts.get(1);
+        Assert.assertEquals(Node.Type.Factor, factorStmt.type);
+
+        factorNode = (FactorNode) factorStmt;
+        Assert.assertEquals(FactorNode.FactorType.divide, factorNode.getFactorType());
+
+        lhs = factorNode.getLhs();
+        Assert.assertEquals(Node.Type.Number, lhs.type);
+        Assert.assertEquals(3, ((NumNode)lhs).getValue());
+
+        rhs = factorNode.getRhs();
+        Assert.assertEquals(Node.Type.Number, rhs.type);
+        Assert.assertEquals(1, ((NumNode)rhs).getValue());
     }
 
     @Test
