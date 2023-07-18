@@ -49,7 +49,7 @@ public final class UIAnswerCallback {
     }
 
     /**
-     * Callback after the answers where confirmed.
+     * Callback after the answers were confirmed.
      *
      * @see UITools
      */
