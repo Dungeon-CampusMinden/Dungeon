@@ -1,14 +1,5 @@
 package manual.quizquestion;
 
-import static task.quizquestion.QuizDialogDesign.ANSWERS_GROUP_NAME;
-
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
-import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
-import com.badlogic.gdx.utils.SnapshotArray;
-
 import contrib.components.InteractionComponent;
 import contrib.configuration.ItemConfig;
 import contrib.entities.EntityFactory;
@@ -18,22 +9,14 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.hud.UITools;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 
-import task.Task;
 import task.TaskComponent;
 import task.quizquestion.Quiz;
-import task.quizquestion.QuizUI;
+import task.quizquestion.UIAnswerCallback;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 public class WizardQuizTest {
 
@@ -76,120 +59,7 @@ public class WizardQuizTest {
                 "Mit welchem Befehl kann man sich Dateien in der Working copy anzeigen lassen, die unversioniert sind oder in denen es Änderungen seit dem letzten Commit gab?");
     }
 
-    //todo extract
-    private static final Consumer<Entity> wizardInteractionCallback =
-            wizzard -> {
-                System.out.println("INTERACTION");
-                Task quest = wizzard.fetch(TaskComponent.class).orElseThrow().task();
-                // build GUI with its callback
-                //todo extract
-                QuizUI.showQuizDialog(
-                        (Quiz) quest,
-                        (Entity hudEntity) -> {
-                            // TODO answer=
-                            return (textDialog, id) -> {
-                                if (Objects.equals(id, core.hud.UITools.DEFAULT_DIALOG_CONFIRM)) {
-                                    SnapshotArray<Actor> children =
-                                            ((VerticalGroup)
-                                                            textDialog
-                                                                    .getContentTable()
-                                                                    .getChildren()
-                                                                    .get(0))
-                                                    .getChildren();
-                                    // find the answersection .added a name to it for easier search
-                                    var answerSection =
-                                            (VerticalGroup)
-                                                    children.select(
-                                                                    (actor) ->
-                                                                            Objects.equals(
-                                                                                    actor.getName(),
-                                                                                    ANSWERS_GROUP_NAME))
-                                                            .iterator()
-                                                            .next();
-                                    // do some magic    //todo extract
-                                    switch (((Quiz) quest).type()) {
-                                        case SINGLE_CHOICE -> UITools.generateNewTextDialog(
-                                                getSingleChoiceAnswer(answerSection),
-                                                "Ok",
-                                                "The answer was");
-                                        case MULTIPLE_CHOICE -> {
-                                            Set<String> answers =
-                                                    getMultipleChoiceAnswer(answerSection);
-                                            System.out.println("DEBUG " + answers.size());
-                                            AtomicReference<String> antworten =
-                                                    new AtomicReference<>("");
-                                            answers.forEach(
-                                                    s ->
-                                                            antworten.set(
-                                                                    antworten.get()
-                                                                            + s
-                                                                            + System
-                                                                                    .lineSeparator()));
-                                            UITools.generateNewTextDialog(
-                                                    antworten.get(), "Ok", "The answer was");
-                                        }
-                                        case FREETEXT -> UITools.generateNewTextDialog(
-                                                getFreeTextAnswer(answerSection),
-                                                "Ok",
-                                                "The answer was");
-                                    }
-                                    ;
-                                    Game.removeEntity(hudEntity);
-
-                                    return true;
-                                }
-                                return false;
-                            };
-                        });
-            };
-
-
-    //todo extract
-    private static String getSingleChoiceAnswer(VerticalGroup answerSection) {
-        return ((VerticalGroup)
-                                        ((ScrollPane) answerSection.getChildren().get(0))
-                                                .getChildren()
-                                                .get(0))
-                                .getChildren()
-                                .select(
-                                        (x) ->
-                                                x instanceof CheckBox checkbox
-                                                        && checkbox.isChecked())
-                                .iterator()
-                                .next()
-                        instanceof CheckBox checked
-                ? checked.getText().toString()
-                : "No Selection";
-    }
-
-    //todo extract
-    private static Set<String> getMultipleChoiceAnswer(VerticalGroup answerSection) {
-        Set<String> answers = new HashSet<>();
-
-        Iterator iterator =
-                ((VerticalGroup)
-                                ((ScrollPane) answerSection.getChildren().get(0))
-                                        .getChildren()
-                                        .get(0))
-                        .getChildren()
-                        .select((x) -> x instanceof CheckBox checkbox && checkbox.isChecked())
-                        .iterator();
-
-        while (iterator.hasNext())
-            if (iterator.next() instanceof CheckBox checked)
-                answers.add(checked.getText().toString());
-        if (answers.size() == 0) answers.add("No Selection");
-        return answers;
-    }
-    //todo extract
-
-    private static String getFreeTextAnswer(VerticalGroup answerSection) {
-        return ((TextArea) ((ScrollPane) answerSection.getChildren().get(0)).getChildren().get(0))
-                .getText();
-    }
-
-
-
+    // todo extract
 
     public static void main(String[] args) throws IOException {
         // start the game
@@ -225,7 +95,15 @@ public class WizardQuizTest {
         new PositionComponent(wizard);
         new DrawComponent(wizard, "character/wizard");
         new TaskComponent(wizard, TEST_QUIZ);
-        new InteractionComponent(wizard, 1, false, wizardInteractionCallback);
+        new InteractionComponent(
+                wizard,
+                1,
+                false,
+                UIAnswerCallback.askOnInteraction(
+                        TEST_QUIZ,
+                        taskContents ->
+                                taskContents.forEach(
+                                        t -> System.out.println("Answer " + t.content()))));
     }
 
     public static final Quiz TEST_QUIZ = multipleChoiceDummy();
