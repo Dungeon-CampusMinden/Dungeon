@@ -12,6 +12,7 @@ import core.components.*;
 import core.level.Tile;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 import java.io.IOException;
@@ -115,7 +116,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
                 SkillTools.calculateVelocity(epc.position(), targetPosition, projectileSpeed);
 
         // Add the VelocityComponent to the projectile
-        VelocityComponent vc = new VelocityComponent(projectile, velocity.x, velocity.y);
+        VelocityComponent vc = new VelocityComponent(projectile, velocity.point().x(), velocity.point().y());
 
         // Add the ProjectileComponent with the initial and target positions to the projectile
         new ProjectileComponent(projectile, epc.position(), targetPosition);
@@ -140,6 +141,6 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         // Add the CollideComponent with the appropriate hitbox size and collision handler to the
         // projectile
         new CollideComponent(
-                projectile, new Position(0.25f, 0.25f), projectileHitboxSize, collide, null);
+                projectile, new Point(0.25f, 0.25f), projectileHitboxSize, collide, null);
     }
 }
