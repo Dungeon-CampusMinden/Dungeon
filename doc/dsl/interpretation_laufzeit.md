@@ -175,6 +175,8 @@ In der `AggregateValue`-Instanz sind neben den konfigurierten Defaultwerten aus 
 der dem `AggregateValue` zugrunde liegt. Wie die Typinstanziierung genau abläuft, wird im
 folgenden Kapitel erläutert.
 
+TODO: Function-Reference
+
 ## Typinstanziierung
 
 Der Begriff “Typinstanziierung” beschreibt zwei Prozesse:

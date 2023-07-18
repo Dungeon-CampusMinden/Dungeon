@@ -370,6 +370,9 @@ entity_type my_obj {
 }
 ```
 
+## Callback-Methoden
+
+TODO
 
 ## Implementierung
 
