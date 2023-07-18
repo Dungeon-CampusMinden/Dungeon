@@ -20,8 +20,8 @@ public class Point implements Position {
     }
 
     @Override
-    public Optional<Tile> tile() {
-        return Optional.of(new Tile(x(), y()));
+    public Optional<Coordinate> coordinate() {
+        return Optional.of(new Coordinate(x(), y()));
     }
 
     @Override

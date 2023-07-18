@@ -7,7 +7,6 @@ import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.levelgraph.DoorDirection;
 import core.level.levelgraph.LevelNode;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;

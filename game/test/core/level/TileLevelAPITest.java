@@ -14,7 +14,6 @@ import core.Game;
 import core.components.PositionComponent;
 import core.level.elements.ILevel;
 import core.level.generator.IGenerator;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;

@@ -84,7 +84,7 @@ import java.util.Optional;
 
 public interface Position {
     // tile-based access
-    Optional<Tile> tile();
+    Optional<Coordinate> coordinate();
 
     // pixel-perfect access
     Point point();

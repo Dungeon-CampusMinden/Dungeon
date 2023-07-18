@@ -7,7 +7,6 @@ import core.Game;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
-import core.level.utils.Coordinate;
 import core.utils.components.MissingComponentException;
 import core.utils.position.Position;
 

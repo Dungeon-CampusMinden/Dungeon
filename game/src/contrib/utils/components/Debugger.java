@@ -17,7 +17,6 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
-import core.level.utils.Coordinate;
 import core.level.utils.LevelSize;
 import core.systems.CameraSystem;
 import core.utils.IVoidFunction;

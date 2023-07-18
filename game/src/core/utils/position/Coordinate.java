@@ -2,7 +2,7 @@ package core.utils.position;
 
 import java.util.Optional;
 
-public class Tile implements Position {
+public class Coordinate implements Position {
     private int x;
     private int y;
 
@@ -15,12 +15,12 @@ public class Tile implements Position {
         return y;
     }
 
-    public Tile(Number x, Number y) {
+    public Coordinate(Number x, Number y) {
         this.x = x.intValue();
         this.y = y.intValue();
     }
 
-    public Optional<Tile> tile() {
+    public Optional<Coordinate> coordinate() {
         return Optional.of(this);
     }
 

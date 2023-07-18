@@ -9,7 +9,6 @@ import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.FloorTile;
 import core.level.elements.tile.TileFactory;
 import core.level.elements.tile.WallTile;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.position.Position;

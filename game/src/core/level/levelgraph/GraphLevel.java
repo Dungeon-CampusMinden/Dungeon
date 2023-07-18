@@ -4,7 +4,6 @@ import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.room.IRoom;
 import core.level.room.RoomGenerator;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 

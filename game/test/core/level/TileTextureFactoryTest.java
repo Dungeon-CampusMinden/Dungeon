@@ -2,7 +2,6 @@ package core.level;
 
 import static org.junit.Assert.assertEquals;
 
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;

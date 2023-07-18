@@ -4,7 +4,6 @@ import core.level.elements.ILevel;
 import core.level.elements.astar.TileConnection;
 import core.level.elements.astar.TileHeuristic;
 import core.level.elements.tile.*;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;

@@ -2,7 +2,6 @@ package core.level.elements.tile;
 
 import core.level.Tile;
 import core.level.elements.ILevel;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 
