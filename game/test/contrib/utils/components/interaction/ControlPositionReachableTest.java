@@ -11,6 +11,7 @@ import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 import org.junit.After;
@@ -94,10 +95,10 @@ public class ControlPositionReachableTest {
     public void controlDefault() {
         Function<InteractionData, Boolean> i = new ControlPointReachable();
 
-        Position e1Position = new Position(0, 0);
+        Position e1Position = new Point(0, 0);
         PreparedEntityWithCounter first = getEntityCounter(e1Position);
 
-        Position e2Position = new Position(0, 0);
+        Position e2Position = new Point(0, 0);
         PreparedEntityWithCounter second = getEntityCounter(e2Position);
 
         Position unitDirectionalVector =
@@ -117,10 +118,10 @@ public class ControlPositionReachableTest {
     public void controlStraightNotBlocked() {
         Function<InteractionData, Boolean> i = new ControlPointReachable();
 
-        Position e1Position = new Position(0, 0);
+        Position e1Position = new Point(0, 0);
         PreparedEntityWithCounter first = getEntityCounter(e1Position);
 
-        Position e2Position = new Position(2, 0);
+        Position e2Position = new Point(2, 0);
         PreparedEntityWithCounter second = getEntityCounter(e2Position);
 
         Position unitDirectionalVector =
@@ -140,10 +141,10 @@ public class ControlPositionReachableTest {
     public void controlsDiagonalNotBlocked() {
         Function<InteractionData, Boolean> i = new ControlPointReachable();
 
-        Position e1Position = new Position(2, 0);
+        Position e1Position = new Point(2, 0);
         PreparedEntityWithCounter first = getEntityCounter(e1Position);
 
-        Position e2Position = new Position(4, 2);
+        Position e2Position = new Point(4, 2);
         PreparedEntityWithCounter second = getEntityCounter(e2Position);
 
         Position unitDirectionalVector =
@@ -163,10 +164,10 @@ public class ControlPositionReachableTest {
     public void controlDiagonalBlocked() {
         Function<InteractionData, Boolean> i = new ControlPointReachable();
 
-        Position e1Position = new Position(0, 0);
+        Position e1Position = new Point(0, 0);
         PreparedEntityWithCounter first = getEntityCounter(e1Position);
 
-        Position e2Position = new Position(2, 2);
+        Position e2Position = new Point(2, 2);
         PreparedEntityWithCounter second = getEntityCounter(e2Position);
 
         Position unitDirectionalVector =
@@ -186,10 +187,10 @@ public class ControlPositionReachableTest {
     public void controlStraightBlocked() {
         Function<InteractionData, Boolean> i = new ControlPointReachable();
 
-        Position e1Position = new Position(0, 1);
+        Position e1Position = new Point(0, 1);
         PreparedEntityWithCounter first = getEntityCounter(e1Position);
 
-        Position e2Position = new Position(2, 1);
+        Position e2Position = new Point(2, 1);
         PreparedEntityWithCounter second = getEntityCounter(e2Position);
 
         Position unitDirectionalVector =
@@ -213,10 +214,10 @@ public class ControlPositionReachableTest {
 
         Function<InteractionData, Boolean> i = new ControlPointReachable();
 
-        Position e1Position = new Position(0, 1);
+        Position e1Position = new Point(0, 1);
         PreparedEntityWithCounter first = getEntityCounter(e1Position);
 
-        Position e2Position = new Position(4, 1);
+        Position e2Position = new Point(4, 1);
         PreparedEntityWithCounter second = getEntityCounter(e2Position);
 
         Position unitDirectionalVector =
@@ -239,10 +240,10 @@ public class ControlPositionReachableTest {
     public void controlStraightNotBlockedOutOfRAnge() {
         Function<InteractionData, Boolean> i = new ControlPointReachable();
 
-        Position e1Position = new Position(0, 0);
+        Position e1Position = new Point(0, 0);
         PreparedEntityWithCounter first = getEntityCounter(e1Position);
 
-        Position e2Position = new Position(4, 0);
+        Position e2Position = new Point(4, 0);
         PreparedEntityWithCounter second = getEntityCounter(e2Position);
 
         Position unitDirectionalVector =

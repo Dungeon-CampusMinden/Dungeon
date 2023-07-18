@@ -8,6 +8,7 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 import org.junit.Before;
@@ -44,7 +45,7 @@ public class DropLootTest {
     public void entityInventoryComponentEmpty() {
         DropLoot dropLoot = new DropLoot();
         Entity entity = new Entity();
-        new PositionComponent(entity, new Position(1, 2));
+        new PositionComponent(entity, new Point(1, 2));
         new InventoryComponent(entity, 10);
         dropLoot.accept(entity);
         Game.removeEntity(entity);
@@ -124,6 +125,6 @@ public class DropLootTest {
      */
     private static boolean isPointEqual(Position entityPosition, PositionComponent component) {
         Position a = component.position();
-        return a.x == entityPosition.x && a.y == entityPosition.y;
+        return a.point().x == entityPosition.point().x && a.point().y == entityPosition.point().y;
     }
 }
