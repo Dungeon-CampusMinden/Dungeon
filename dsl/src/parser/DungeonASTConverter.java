@@ -120,7 +120,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitMethod_call_expression(DungeonDSLParser.Method_call_expressionContext ctx) {
-        throw new UnsupportedOperationException();
+        Node funcCall = astStack.pop();
+        Node innerExpression = astStack.pop();
+        Node expression = new MemberAccessNode(innerExpression, funcCall);
+        astStack.push(expression);
     }
 
     @Override
@@ -129,7 +132,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitMember_access_expression(DungeonDSLParser.Member_access_expressionContext ctx) {
-        throw new UnsupportedOperationException();
+        Node identifier = astStack.pop();
+        Node innerExpression = astStack.pop();
+        Node expression = new MemberAccessNode(innerExpression, identifier);
+        astStack.push(expression);
     }
 
     @Override
