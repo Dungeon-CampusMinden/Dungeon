@@ -4,6 +4,7 @@ import core.Entity;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
+import core.utils.position.Coordinate;
 import core.utils.position.Position;
 
 import java.util.Random;
@@ -19,13 +20,13 @@ public interface ITileable extends IPathable {
     /**
      * Get the tile at the given position.
      *
-     * @param coordinate Position form where to get the tile.
+     * @param coordinate Position from where to get the tile.
      * @return The tile on that coordinate. null if there is no Tile or the Coordinate is out of
      *     bound
      */
     default Tile tileAt(Coordinate coordinate) {
         try {
-            return layout()[coordinate.y][coordinate.x];
+            return layout()[coordinate.y()][coordinate.x()];
         } catch (IndexOutOfBoundsException e) {
             return null;
         }
@@ -34,13 +35,13 @@ public interface ITileable extends IPathable {
     /**
      * Get the tile at the given position.
      *
-     * <p>Will use {@link Position#toCoordinate} to convert the position into a coordinate.
+     * <p>Will use {@link Position#coordinate} to convert the position into a coordinate.
      *
      * @param position Position form where to get the tile.
      * @return The tile on that position. null if there is no Tile or the Coordinate is out of bound
      */
     default Tile tileAt(Position position) {
-        return tileAt(position.toCoordinate());
+        return tileAt(position.coordinate().get());
     }
 
     /**
@@ -72,7 +73,7 @@ public interface ITileable extends IPathable {
      */
     default Tile tileAtEntity(Entity entity) {
         PositionComponent pc = (PositionComponent) entity.fetch(PositionComponent.class).get();
-        return tileAt(pc.position().toCoordinate());
+        return tileAt(pc.position().coordinate().get());
     }
 
     /**
