@@ -636,7 +636,7 @@ public class TestDungeonASTConverter {
         Assert.assertEquals(Node.Type.Number, rhs.type);
         Assert.assertEquals(2, ((NumNode)rhs).getValue());
 
-        // seconds statement
+        // second statement
         factorStmt = stmts.get(1);
         Assert.assertEquals(Node.Type.Factor, factorStmt.type);
 
@@ -657,12 +657,44 @@ public class TestDungeonASTConverter {
         String program =
                 """
                 fn test_func() {
-                    !true;
+                    4 + 2;
+                    3 - 1;
                 }
             """;
 
         var ast = Helpers.getASTFromString(program);
-        Assert.assertTrue(false);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        // first statement
+        var termStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Term, termStmt.type);
+
+        TermNode termNode = (TermNode) termStmt;
+        Assert.assertEquals(TermNode.TermType.plus, termNode.getTermType());
+
+        var lhs = termNode.getLhs();
+        Assert.assertEquals(Node.Type.Number, lhs.type);
+        Assert.assertEquals(4, ((NumNode)lhs).getValue());
+
+        var rhs = termNode.getRhs();
+        Assert.assertEquals(Node.Type.Number, rhs.type);
+        Assert.assertEquals(2, ((NumNode)rhs).getValue());
+
+        // second statement
+        termStmt = stmts.get(1);
+        Assert.assertEquals(Node.Type.Term, termStmt.type);
+
+        termNode = (TermNode) termStmt;
+        Assert.assertEquals(TermNode.TermType.minus, termNode.getTermType());
+
+        lhs = termNode.getLhs();
+        Assert.assertEquals(Node.Type.Number, lhs.type);
+        Assert.assertEquals(3, ((NumNode)lhs).getValue());
+
+        rhs = termNode.getRhs();
+        Assert.assertEquals(Node.Type.Number, rhs.type);
+        Assert.assertEquals(1, ((NumNode)rhs).getValue());
     }
 
     @Test
