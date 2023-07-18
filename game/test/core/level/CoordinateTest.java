@@ -1,8 +1,5 @@
 package core.level;
 
-import static org.junit.Assert.*;
-
-import core.level.utils.Coordinate;
 import core.utils.position.Position;
 
 import org.junit.Before;

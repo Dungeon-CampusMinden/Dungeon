@@ -3,7 +3,6 @@ package core.level.elements.tile;
 import static org.junit.Assert.*;
 
 import core.level.Tile;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 

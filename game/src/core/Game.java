@@ -23,7 +23,6 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.generator.postGeneration.WallGenerator;
 import core.level.generator.randomwalk.RandomWalkGenerator;
-import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 import core.systems.*;

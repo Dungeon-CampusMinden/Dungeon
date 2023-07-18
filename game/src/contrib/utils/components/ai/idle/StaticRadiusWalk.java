@@ -21,9 +21,9 @@ public class StaticRadiusWalk implements Consumer<Entity> {
     private final int breakTime;
     private GraphPath<Tile> path;
     private int currentBreak = 0;
-    private Point center;
-    private Point currentPosition;
-    private Point newEndTile;
+    private Position center;
+    private Position currentPosition;
+    private Position newEndTile;
 
     /**
      * Finds a point in the radius and then moves there. When the point has been reached, a new

@@ -57,10 +57,11 @@ public class LevelUtils {
      * @return Path from the center point to the randomly selected tile.
      */
     public static GraphPath<Tile> calculatePathToRandomTileInRange(
-            final Point point, final float radius) {
+            final Position position, final float radius) {
         Coordinate newPosition =
-                randomAccessibleTileCoordinateInRange(point, radius).orElse(point.toCoordinate());
-        return calculatePath(point.toCoordinate(), newPosition);
+                randomAccessibleTileCoordinateInRange(position, radius)
+                        .orElse(position.toCoordinate());
+        return calculatePath(position.toCoordinate(), newPosition);
     }
 
     /**
@@ -78,14 +79,14 @@ public class LevelUtils {
      */
     public static GraphPath<Tile> calculatePathToRandomTileInRange(
             final Entity entity, final float radius) {
-        Point point =
+        Position position =
                 entity.fetch(PositionComponent.class)
                         .orElseThrow(
                                 () ->
                                         MissingComponentException.build(
                                                 entity, PositionComponent.class))
                         .position();
-        return calculatePathToRandomTileInRange(point, radius);
+        return calculatePathToRandomTileInRange(position, radius);
     }
 
     /**
@@ -210,21 +211,21 @@ public class LevelUtils {
     public static boolean entityInRange(
             final Entity entity1, final Entity entity2, final float range) {
 
-        Point entity1Position =
+        Position entity1Position =
                 entity1.fetch(PositionComponent.class)
                         .orElseThrow(
                                 () ->
                                         MissingComponentException.build(
                                                 entity1, PositionComponent.class))
                         .position();
-        Point entity2Position =
+        Position entity2Position =
                 entity2.fetch(PositionComponent.class)
                         .orElseThrow(
                                 () ->
                                         MissingComponentException.build(
                                                 entity2, PositionComponent.class))
                         .position();
-        return Point.inRange(entity1Position, entity2Position, range);
+        return Position.inRange(entity1Position, entity2Position, range);
     }
 
     /**

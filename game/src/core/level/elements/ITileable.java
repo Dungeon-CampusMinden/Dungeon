@@ -3,7 +3,6 @@ package core.level.elements;
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.position.Position;
 
