@@ -5,6 +5,7 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.position.Coordinate;
 
 public class FloorTile extends Tile {
 
@@ -17,7 +18,7 @@ public class FloorTile extends Tile {
      * @param level The level this Tile belongs to
      */
     public FloorTile(
-            String texturePath, Coordinate globalPosition, DesignLabel designLabel, ILevel level) {
+        String texturePath, Coordinate globalPosition, DesignLabel designLabel, ILevel level) {
         super(texturePath, globalPosition, designLabel, level);
         levelElement = LevelElement.FLOOR;
     }
