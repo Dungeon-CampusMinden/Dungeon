@@ -144,10 +144,10 @@ public final class CollisionSystem extends System {
      * @return true if intersection exists otherwise false
      */
     protected boolean checkForCollision(CollideComponent hitbox1, CollideComponent hitbox2) {
-        return hitbox1.bottomLeft().x < hitbox2.topRight().x
-                && hitbox1.topRight().x > hitbox2.bottomLeft().x
-                && hitbox1.bottomLeft().y < hitbox2.topRight().y
-                && hitbox1.topRight().y > hitbox2.bottomLeft().y;
+        return hitbox1.bottomLeft().point().x() < hitbox2.topRight().point().x()
+                && hitbox1.topRight().point().x() > hitbox2.bottomLeft().point().x()
+                && hitbox1.bottomLeft().point().y() < hitbox2.topRight().point().y()
+                && hitbox1.topRight().point().y() > hitbox2.bottomLeft().point().y();
     }
 
     /**
@@ -159,8 +159,8 @@ public final class CollisionSystem extends System {
      */
     protected Tile.Direction checkDirectionOfCollision(
             CollideComponent hitbox1, CollideComponent hitbox2) {
-        float y = hitbox2.center().y - hitbox1.center().y;
-        float x = hitbox2.center().x - hitbox1.center().x;
+        float y = hitbox2.center().point().y() - hitbox1.center().point().y();
+        float x = hitbox2.center().point().x() - hitbox1.center().point().x();
         float rads = (float) Math.atan2(y, x);
         double piQuarter = Math.PI / 4;
         if (rads < 3 * -piQuarter) {
