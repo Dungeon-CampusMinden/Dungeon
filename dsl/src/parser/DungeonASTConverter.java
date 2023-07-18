@@ -137,7 +137,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitAssignment_expression(DungeonDSLParser.Assignment_expressionContext ctx) {
-        throw new UnsupportedOperationException();
+        // just let it bubble up, nothing to do
     }
 
     @Override
