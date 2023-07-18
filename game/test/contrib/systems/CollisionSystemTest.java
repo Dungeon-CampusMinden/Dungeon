@@ -69,14 +69,12 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(
-                        e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(.5f, 0));
 
         CollideComponent hb2 =
-                new CollideComponent(
-                        e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
         cs.showEntity(e1);
         cs.showEntity(e2);
@@ -102,14 +100,12 @@ public class CollisionSystemTest {
 
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(
-                        e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(1.5f, 0));
 
         CollideComponent hb2 =
-                new CollideComponent(
-                        e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
         cs.showEntity(e1);
         cs.showEntity(e2);
@@ -133,13 +129,11 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(
-                        e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(-.5f, 0));
         CollideComponent hb2 =
-                new CollideComponent(
-                        e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
         cs.showEntity(e1);
         cs.showEntity(e2);
@@ -166,14 +160,12 @@ public class CollisionSystemTest {
         Position size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(
-                        e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(-1.5f, 0));
 
         CollideComponent hb2 =
-                new CollideComponent(
-                        e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
         cs.showEntity(e1);
         cs.showEntity(e2);
@@ -196,13 +188,11 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(
-                        e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(0, .5f));
         CollideComponent hb2 =
-                new CollideComponent(
-                        e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
         cs.showEntity(e1);
         cs.showEntity(e2);
@@ -226,13 +216,11 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(
-                        e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(0, 1.5f));
         CollideComponent hb2 =
-                new CollideComponent(
-                        e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
         cs.showEntity(e1);
         cs.showEntity(e2);
@@ -255,13 +243,11 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(
-                        e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(0, -0.5f));
         CollideComponent hb2 =
-                new CollideComponent(
-                        e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
         cs.showEntity(e1);
         cs.showEntity(e2);
@@ -285,13 +271,11 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(
-                        e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(0, -1.5f));
         CollideComponent hb2 =
-                new CollideComponent(
-                        e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
 
         cs.showEntity(e1);
         cs.showEntity(e2);

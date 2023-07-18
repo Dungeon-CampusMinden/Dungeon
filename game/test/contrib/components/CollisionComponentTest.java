@@ -152,11 +152,7 @@ public class CollisionComponentTest {
         Entity e = new Entity();
         CollideComponent hb =
                 new CollideComponent(
-                        e,
-                        new Point(0, 0),
-                        new Point(0, 0),
-                        (a, b, c) -> {},
-                        (a, b, c) -> {});
+                        e, new Point(0, 0), new Point(0, 0), (a, b, c) -> {}, (a, b, c) -> {});
         MissingComponentException missingComponentException =
                 assertThrows(MissingComponentException.class, hb::center);
         assertTrue(

@@ -340,8 +340,7 @@ public class TileLevelTest {
         Exception e =
                 assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(start, end));
         String actualErrorMsg = e.getMessage();
-        String expectedErrorMsg =
-                "Can not calculate Path because the end point is non-accessible.";
+        String expectedErrorMsg = "Can not calculate Path because the end point is non-accessible.";
 
         assertTrue(actualErrorMsg.contains(expectedErrorMsg));
     }
