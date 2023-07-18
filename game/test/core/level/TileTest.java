@@ -3,8 +3,8 @@ package core.level;
 import static org.junit.Assert.*;
 
 import core.level.elements.tile.*;
-import core.utils.position.Coordinate;
 import core.level.utils.DesignLabel;
+import core.utils.position.Coordinate;
 
 import org.junit.Test;
 

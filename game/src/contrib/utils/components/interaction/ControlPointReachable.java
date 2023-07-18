@@ -19,8 +19,20 @@ public class ControlPointReachable implements Function<InteractionData, Boolean>
             for (int i = 1; i < interactionData.dist(); i++) {
                 if (!Game.tileAT(
                                 new Coordinate(
-                                        (int) (dirvec.point().x * i + interactionData.pc().position().point().x),
-                                        (int) (dirvec.point().y * i + interactionData.pc().position().point().y)))
+                                        (int)
+                                                (dirvec.point().x * i
+                                                        + interactionData
+                                                                .pc()
+                                                                .position()
+                                                                .point()
+                                                                .x),
+                                        (int)
+                                                (dirvec.point().y * i
+                                                        + interactionData
+                                                                .pc()
+                                                                .position()
+                                                                .point()
+                                                                .y)))
                         .isAccessible()) {
                     pathBlocked = true;
                     break;

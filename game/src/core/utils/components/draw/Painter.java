@@ -21,7 +21,8 @@ public class Painter {
             // set up scaling of textures
             sprite.setSize(config.xScaling, config.yScaling);
             // where to draw the sprite
-            sprite.setPosition(position.point().x + config.xOffset, position.point().y + config.yOffset);
+            sprite.setPosition(
+                    position.point().x + config.xOffset, position.point().y + config.yOffset);
 
             // need to be called before drawing
             batch.begin();

@@ -6,7 +6,6 @@ public class Coordinate implements Position {
     public int x;
     public int y;
 
-
     public Coordinate(Number x, Number y) {
         this.x = x.intValue();
         this.y = y.intValue();

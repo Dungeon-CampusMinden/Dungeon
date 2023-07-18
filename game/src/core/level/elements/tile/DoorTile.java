@@ -29,7 +29,7 @@ public class DoorTile extends Tile {
      * @param level The level this Tile belongs to
      */
     public DoorTile(
-        String texturePath, Coordinate globalPosition, DesignLabel designLabel, ILevel level) {
+            String texturePath, Coordinate globalPosition, DesignLabel designLabel, ILevel level) {
         super(texturePath, globalPosition, designLabel, level);
         levelElement = LevelElement.DOOR;
     }
