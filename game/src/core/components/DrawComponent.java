@@ -159,7 +159,7 @@ public final class DrawComponent extends Component {
             } else
                 LOGGER.warning(
                         "Animation "
-                                + animationName
+                                + animationPath
                                 + " can not be set, because the given Animation could not be found for "
                                 + entity.toString());
         }
