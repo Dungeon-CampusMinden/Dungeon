@@ -115,7 +115,6 @@ public class FunctionCallResolver implements AstVisitor<Void> {
 
         assert funcSymbol.getSymbolType() == Symbol.Type.Scoped;
 
-        // TODO: or link to ID?
         this.symbolTable.addSymbolNodeRelation(funcSymbol, funcCall);
 
         for (var parameter : funcCall.getParameters()) {
@@ -125,7 +124,6 @@ public class FunctionCallResolver implements AstVisitor<Void> {
         return null;
     }
 
-    // TODO: TEST THIS
     @Override
     public Void visit(IdNode node) {
         var funcSymbol = this.symbolTable.globalScope.resolve(node.getName());

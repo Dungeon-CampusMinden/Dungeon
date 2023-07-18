@@ -47,8 +47,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     private static final String RETURN_VALUE_NAME = "$return_value$";
 
-    // TODO: add entry-point for game-object traversal
-
     /** Constructor. */
     public DSLInterpreter() {
         memoryStack = new ArrayDeque<>();
@@ -443,7 +441,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
     // this is used for resolving object references
     @Override
     public Object visit(IdNode node) {
-        // TODO: this does not work for resolving parameters in a function
         var symbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
         var creationASTNode = this.symbolTable().getCreationAstNode(symbol);
 
@@ -463,9 +460,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(FuncDefNode node) {
         // return function reference as value
         var symbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
-        // TODO: build callback-Adapter for setting in encapsulatedObject
-        //  can't do that here, have to do it in the assignment..
-        // this.environment.getTypeBuilder().getFunctionTypeBuilder()
         return new Value(symbol.getDataType(), symbol);
     }
 
