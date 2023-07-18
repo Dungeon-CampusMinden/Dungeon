@@ -2,7 +2,7 @@
 
 One of the best things about writing and publishing a lecture online is that
 people like you have the opportunity to give us feedback and ask questions or
-position out typos or find other errors or ambiguities in the text.
+point out typos or find other errors or ambiguities in the text.
 
 ## Questions, Bugs or Feature Requests
 
