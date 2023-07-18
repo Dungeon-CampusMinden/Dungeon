@@ -6,6 +6,7 @@ import contrib.utils.components.item.ItemData;
 import core.Entity;
 import core.components.PositionComponent;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 import java.util.function.Consumer;
@@ -56,7 +57,7 @@ public final class DropLoot implements Consumer<Entity> {
      * @param d the needed Data for dropping an Item
      */
     private void dropItem(DLData d) {
-        d.i.triggerDrop(d.e, new Position(d.dlc.pc.position()));
+        d.i.triggerDrop(d.e, d.dlc.pc.position().point());
         d.dlc.ic.remove(d.i);
     }
 }

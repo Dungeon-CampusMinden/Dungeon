@@ -13,6 +13,7 @@ import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.position.Position;
+import core.utils.position.Coordinate;
 
 import java.util.function.Consumer;
 
@@ -61,10 +62,10 @@ public class StaticRadiusWalk implements Consumer<Entity> {
                 currentPosition = pc2.position();
                 newEndTile =
                         LevelUtils.randomAccessibleTileCoordinateInRange(center, radius)
-                                .map(Coordinate::toPoint)
+                                .map(Coordinate::point)
                                 // center is the start position of the entity, so it must be
                                 // accessible
-                                .orElse(center);
+                                .orElse(center.point());
                 path = LevelUtils.calculatePath(currentPosition, newEndTile);
                 accept(entity);
             }

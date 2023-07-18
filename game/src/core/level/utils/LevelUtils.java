@@ -60,8 +60,8 @@ public class LevelUtils {
             final Position position, final float radius) {
         Coordinate newPosition =
                 randomAccessibleTileCoordinateInRange(position, radius)
-                        .orElse(position.toCoordinate());
-        return calculatePath(position.toCoordinate(), newPosition);
+                        .orElse(position.coordinate().get());
+        return calculatePath(position.coordinate().get(), newPosition);
     }
 
     /**
