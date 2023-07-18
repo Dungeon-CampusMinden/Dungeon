@@ -77,6 +77,7 @@ public final class UIAnswerCallback {
 
     private static Set<Quiz.Content> getAnswer(Quiz quiz, VerticalGroup answerSection) {
         if (quiz.type() == Quiz.Type.FREETEXT) {
+            // make the answer to a task content object
             // todo is this the way? malte-r?
             Quiz.Content content =
                     new Quiz.Content(Quiz.Content.Type.TEXT, freeTextAnswer(answerSection));
@@ -86,9 +87,11 @@ public final class UIAnswerCallback {
     }
 
     private static Set<Quiz.Content> stringToContent(Quiz quiz, Set<String> answers) {
-        // todo
         Set<Quiz.Content> contentSet = new HashSet<>();
-        answers.forEach(a -> contentSet.add(new Quiz.Content(Quiz.Content.Type.TEXT, a) {}));
+        quiz.contentStream()
+                .map(answer -> (Quiz.Content) answer)
+                .filter(answer -> answers.contains(answer.content()))
+                .forEach(contentSet::add);
         return contentSet;
     }
 
