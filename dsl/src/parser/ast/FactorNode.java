@@ -8,6 +8,10 @@ public class FactorNode extends BinaryNode {
 
     private final FactorType factorType;
 
+    public FactorType getFactorType() {
+        return factorType;
+    }
+
     public FactorNode(FactorType type, Node lhs, Node rhs) {
         super(Type.Factor, lhs, rhs);
         this.factorType = type;
