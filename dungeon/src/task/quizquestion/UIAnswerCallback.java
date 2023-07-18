@@ -14,8 +14,11 @@ import core.Game;
 import core.hud.TextDialog;
 import core.hud.UITools;
 
+<<<<<<< HEAD
 import task.TaskContent;
 
+=======
+>>>>>>> 9844289 (extract answer callback, cleanup code)
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -44,6 +47,7 @@ public final class UIAnswerCallback {
      * @return Consumer to use as a callback for the interaction component.
      */
     public static Consumer<Entity> askOnInteraction(
+<<<<<<< HEAD
             Quiz quiz, Consumer<Set<TaskContent>> dslCallback) {
         return questGiver ->
                 QuizUI.showQuizDialog(
@@ -52,11 +56,24 @@ public final class UIAnswerCallback {
 
     /**
      * Callback after the answers were confirmed.
+=======
+            Quiz quiz, Consumer<Set<Quiz.Content>> dslCallback) {
+        return questGiver -> QuizUI.showQuizDialog(
+                quiz, (Entity hudEntity) -> uiCallback(quiz, hudEntity, dslCallback));
+    }
+
+    /**
+     * Callback after the answers where confirmed.
+>>>>>>> 9844289 (extract answer callback, cleanup code)
      *
      * @see UITools
      */
     private static BiFunction<TextDialog, String, Boolean> uiCallback(
+<<<<<<< HEAD
             Quiz quest, Entity hudEntity, Consumer<Set<TaskContent>> dslCallback) {
+=======
+            Quiz quest, Entity hudEntity, Consumer<Set<Quiz.Content>> dslCallback) {
+>>>>>>> 9844289 (extract answer callback, cleanup code)
         return (textDialog, id) -> {
             if (Objects.equals(id, UITools.DEFAULT_DIALOG_CONFIRM)) {
                 dslCallback.accept(getAnswer(quest, answerSection(textDialog)));
@@ -77,6 +94,7 @@ public final class UIAnswerCallback {
                         .next();
     }
 
+<<<<<<< HEAD
     private static Set<TaskContent> getAnswer(Quiz quiz, VerticalGroup answerSection) {
         if (quiz.type() == Quiz.Type.FREETEXT) {
             // make the answer to a task content object
@@ -84,16 +102,30 @@ public final class UIAnswerCallback {
             Quiz.Content content =
                     new Quiz.Content(Quiz.Content.Type.TEXT, freeTextAnswer(answerSection));
             quiz.addAnswer(content);
+=======
+    private static Set<Quiz.Content> getAnswer(Quiz quiz, VerticalGroup answerSection) {
+        if (Objects.requireNonNull(quiz.type()) == Quiz.Type.FREETEXT) {
+            // todo is this the way? malte-r?
+            Quiz.Content content =
+                    new Quiz.Content(Quiz.Content.Type.TEXT, freeTextAnswer(answerSection));
+>>>>>>> 9844289 (extract answer callback, cleanup code)
             return Set.of(content);
         } else return stringToContent(quiz, checkboxAnswers(answerSection));
     }
 
+<<<<<<< HEAD
     private static Set<TaskContent> stringToContent(Quiz quiz, Set<String> answers) {
         Set<TaskContent> contentSet = new HashSet<>();
         quiz.contentStream()
                 .map(answer -> (Quiz.Content) answer)
                 .filter(answer -> answers.contains(answer.content()))
                 .forEach(contentSet::add);
+=======
+    private static Set<Quiz.Content> stringToContent(Quiz quiz, Set<String> answers) {
+        // todo
+        Set<Quiz.Content> contentSet = new HashSet<>();
+        answers.forEach(a -> contentSet.add(new Quiz.Content(Quiz.Content.Type.TEXT, a) {}));
+>>>>>>> 9844289 (extract answer callback, cleanup code)
         return contentSet;
     }
 
