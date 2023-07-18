@@ -250,10 +250,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         Node termNode = rhs;
         if (ctx.minus != null) {
             lhs = astStack.pop();
-            termNode = new TermNode(TermNode.TermType.plus, lhs, rhs);
+            termNode = new TermNode(TermNode.TermType.minus, lhs, rhs);
         } else if (ctx.plus != null) {
             lhs = astStack.pop();
-            termNode = new TermNode(TermNode.TermType.minus, lhs, rhs);
+            termNode = new TermNode(TermNode.TermType.plus, lhs, rhs);
         }
         astStack.push(termNode);
     }
