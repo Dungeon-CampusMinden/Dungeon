@@ -7,8 +7,8 @@ import runtime.IMemorySpace;
 import runtime.Value;
 
 import semanticanalysis.FunctionSymbol;
-import semanticanalysis.types.CallbackAdapter.CallbackAdapter;
-import semanticanalysis.types.CallbackAdapter.CallbackAdapterBuilder;
+import semanticanalysis.types.callbackadapter.CallbackAdapter;
+import semanticanalysis.types.callbackadapter.CallbackAdapterBuilder;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
