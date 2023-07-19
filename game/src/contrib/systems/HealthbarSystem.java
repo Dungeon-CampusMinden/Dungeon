@@ -11,6 +11,7 @@ import core.Entity;
 import core.System;
 import core.components.PositionComponent;
 import core.components.UIComponent;
+import contrib.hud.heroUI.HeroUITools;
 import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.logging.CustomLogLevel;
@@ -19,9 +20,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+/**
+ * The HealthbarSystem creates a Progressbar which follows the associated Entity and shows the
+ * current healthPercentage.
+ */
 public final class HealthbarSystem extends System {
     private static final Logger LOGGER = Logger.getLogger(HealthbarSystem.class.getSimpleName());
 
+    /** Mapping from actual Entity and Healthbar of this Entity */
     private final Map<Integer, ProgressBar> healthbarMapping = new HashMap<>();
 
     public HealthbarSystem() {
@@ -70,7 +76,7 @@ public final class HealthbarSystem extends System {
 
     private ProgressBar createNewHealthbar(PositionComponent pc) {
         ProgressBar.ProgressBarStyle healthstyle =
-                HeroUISystem.createNewPBStyleWhichShouldBeInAtlasAndIsAToDoYesItIsUglyToAnnoyAll(
+                HeroUITools.createNewPBStyleWhichShouldBeInAtlasAndIsAToDoYesItIsUglyToAnnoyAll(
                         Color.RED);
 
         ProgressBar progressBar = new ProgressBar(0, 100, 10, false, healthstyle);
@@ -81,6 +87,7 @@ public final class HealthbarSystem extends System {
         return progressBar;
     }
 
+    /** moves the Progressbar to follow the Entity */
     private void updatePosition(ProgressBar pb, PositionComponent pc) {
         Point position = pc.position();
         Vector3 screenPosition =

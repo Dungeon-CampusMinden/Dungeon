@@ -4,8 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
-import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import contrib.components.XPComponent;
 
@@ -15,9 +13,14 @@ import core.System;
 import core.components.PlayerComponent;
 import core.components.UIComponent;
 import core.hud.UITools;
+import contrib.hud.heroUI.HeroUITools;
 
 import java.util.HashMap;
 
+/**
+ * creates an experience bar and Level for a playable Entity with an XPComponent. They are placed at
+ * the Center of the window.
+ */
 public final class HeroUISystem extends System {
     private final HashMap<Entity, HeroUI> map;
 
@@ -53,7 +56,8 @@ public final class HeroUISystem extends System {
         Entity entity = new Entity();
 
         ProgressBar.ProgressBarStyle experienceStyle =
-                createNewPBStyleWhichShouldBeInAtlasAndIsAToDoYesItIsUglyToAnnoyAll(Color.GREEN);
+                HeroUITools.createNewPBStyleWhichShouldBeInAtlasAndIsAToDoYesItIsUglyToAnnoyAll(
+                        Color.GREEN);
 
         HeroUI ui =
                 new HeroUI(
@@ -68,25 +72,6 @@ public final class HeroUISystem extends System {
         ui.level.setPosition(calculateCenterX(ui.level.getWidth()), 60);
         new UIComponent(entity, uiGroup, false);
         return ui;
-    }
-
-    public static ProgressBar.ProgressBarStyle
-            createNewPBStyleWhichShouldBeInAtlasAndIsAToDoYesItIsUglyToAnnoyAll(Color color) {
-        // TODO: temporary addon so no changes needed in skin which will always conflict
-        var pbstyle =
-                UITools.DEFAULT_SKIN.get("default-horizontal", ProgressBar.ProgressBarStyle.class);
-        // copy for experience
-        var experiencepbStyle = new ProgressBar.ProgressBarStyle(pbstyle);
-        experiencepbStyle.background =
-                new NinePatchDrawable((NinePatchDrawable) experiencepbStyle.background);
-        experiencepbStyle.knobBefore =
-                ((TextureRegionDrawable) experiencepbStyle.knobBefore).tint(color);
-        ((NinePatchDrawable) experiencepbStyle.background).getPatch().scale(0.2f, 0.2f);
-        experiencepbStyle.background.setMinWidth(1);
-        experiencepbStyle.background.setMinHeight(12);
-        experiencepbStyle.knobBefore.setMinWidth(1);
-        experiencepbStyle.knobBefore.setMinHeight(10);
-        return experiencepbStyle;
     }
 
     private float calculateCenterX(float elementWidth) {
