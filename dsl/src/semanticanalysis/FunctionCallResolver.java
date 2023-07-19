@@ -207,7 +207,7 @@ public class FunctionCallResolver implements AstVisitor<Void> {
         return null;
     }
 
-    //region ASTVisitor implementation for nodes unrelated to function call resolution
+    // region ASTVisitor implementation for nodes unrelated to function call resolution
     @Override
     public Void visit(DecNumNode node) {
         return null;
@@ -247,5 +247,5 @@ public class FunctionCallResolver implements AstVisitor<Void> {
     public Void visit(BoolNode node) {
         return null;
     }
-    //endregion
+    // endregion
 }

@@ -531,8 +531,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         throw new UnsupportedOperationException();
     }
 
-
-    //region ASTVisitor implementation for nodes unrelated to semantic analysis
+    // region ASTVisitor implementation for nodes unrelated to semantic analysis
     @Override
     public Void visit(DecNumNode node) {
         return null;
@@ -572,5 +571,5 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     public Void visit(BoolNode node) {
         return null;
     }
-    //endregion
+    // endregion
 }

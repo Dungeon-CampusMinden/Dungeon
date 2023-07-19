@@ -86,7 +86,7 @@ public class TypeBinder implements AstVisitor<Object> {
         return typeSymbol;
     }
 
-    //region ASTVisitor implementation for nodes unrelated to type binding
+    // region ASTVisitor implementation for nodes unrelated to type binding
     @Override
     public Object visit(Node node) {
         return null;
@@ -231,5 +231,5 @@ public class TypeBinder implements AstVisitor<Object> {
     public Object visit(AssignmentNode node) {
         return null;
     }
-    //endregion
+    // endregion
 }

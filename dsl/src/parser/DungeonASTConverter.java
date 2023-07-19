@@ -161,9 +161,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterAssignee_func_call(DungeonDSLParser.Assignee_func_callContext ctx) {
-
-    }
+    public void enterAssignee_func_call(DungeonDSLParser.Assignee_func_callContext ctx) {}
 
     @Override
     public void exitAssignee_func_call(DungeonDSLParser.Assignee_func_callContext ctx) {
@@ -174,9 +172,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterAssignee_qualified_name(DungeonDSLParser.Assignee_qualified_nameContext ctx) {
-
-    }
+    public void enterAssignee_qualified_name(DungeonDSLParser.Assignee_qualified_nameContext ctx) {}
 
     @Override
     public void exitAssignee_qualified_name(DungeonDSLParser.Assignee_qualified_nameContext ctx) {
@@ -187,9 +183,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterAssignee_identifier(DungeonDSLParser.Assignee_identifierContext ctx) {
-
-    }
+    public void enterAssignee_identifier(DungeonDSLParser.Assignee_identifierContext ctx) {}
 
     @Override
     public void exitAssignee_identifier(DungeonDSLParser.Assignee_identifierContext ctx) {
@@ -206,8 +200,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         Node logicOrNode = rhs;
         if (ctx.or != null) {
             lhs = astStack.pop();
-            logicOrNode =
-                new LogicOrNode(lhs, rhs);
+            logicOrNode = new LogicOrNode(lhs, rhs);
         }
         astStack.push(logicOrNode);
     }
@@ -222,8 +215,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         Node logicAndNode = rhs;
         if (ctx.and != null) {
             lhs = astStack.pop();
-            logicAndNode =
-                new LogicAndNode(lhs, rhs);
+            logicAndNode = new LogicAndNode(lhs, rhs);
         }
         astStack.push(logicAndNode);
     }
@@ -238,12 +230,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         Node equalityNode = rhs;
         if (ctx.eq != null) {
             lhs = astStack.pop();
-            equalityNode =
-                new EqualityNode(EqualityNode.EqualityType.equals, lhs, rhs);
+            equalityNode = new EqualityNode(EqualityNode.EqualityType.equals, lhs, rhs);
         } else if (ctx.neq != null) {
             lhs = astStack.pop();
-            equalityNode =
-                new EqualityNode(EqualityNode.EqualityType.notEquals, lhs, rhs);
+            equalityNode = new EqualityNode(EqualityNode.EqualityType.notEquals, lhs, rhs);
         }
         astStack.push(equalityNode);
     }

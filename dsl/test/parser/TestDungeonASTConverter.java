@@ -630,11 +630,11 @@ public class TestDungeonASTConverter {
 
         var lhs = factorNode.getLhs();
         Assert.assertEquals(Node.Type.Number, lhs.type);
-        Assert.assertEquals(4, ((NumNode)lhs).getValue());
+        Assert.assertEquals(4, ((NumNode) lhs).getValue());
 
         var rhs = factorNode.getRhs();
         Assert.assertEquals(Node.Type.Number, rhs.type);
-        Assert.assertEquals(2, ((NumNode)rhs).getValue());
+        Assert.assertEquals(2, ((NumNode) rhs).getValue());
 
         // second statement
         factorStmt = stmts.get(1);
@@ -645,11 +645,11 @@ public class TestDungeonASTConverter {
 
         lhs = factorNode.getLhs();
         Assert.assertEquals(Node.Type.Number, lhs.type);
-        Assert.assertEquals(3, ((NumNode)lhs).getValue());
+        Assert.assertEquals(3, ((NumNode) lhs).getValue());
 
         rhs = factorNode.getRhs();
         Assert.assertEquals(Node.Type.Number, rhs.type);
-        Assert.assertEquals(1, ((NumNode)rhs).getValue());
+        Assert.assertEquals(1, ((NumNode) rhs).getValue());
     }
 
     @Test
@@ -675,11 +675,11 @@ public class TestDungeonASTConverter {
 
         var lhs = termNode.getLhs();
         Assert.assertEquals(Node.Type.Number, lhs.type);
-        Assert.assertEquals(4, ((NumNode)lhs).getValue());
+        Assert.assertEquals(4, ((NumNode) lhs).getValue());
 
         var rhs = termNode.getRhs();
         Assert.assertEquals(Node.Type.Number, rhs.type);
-        Assert.assertEquals(2, ((NumNode)rhs).getValue());
+        Assert.assertEquals(2, ((NumNode) rhs).getValue());
 
         // second statement
         termStmt = stmts.get(1);
@@ -690,17 +690,17 @@ public class TestDungeonASTConverter {
 
         lhs = termNode.getLhs();
         Assert.assertEquals(Node.Type.Number, lhs.type);
-        Assert.assertEquals(3, ((NumNode)lhs).getValue());
+        Assert.assertEquals(3, ((NumNode) lhs).getValue());
 
         rhs = termNode.getRhs();
         Assert.assertEquals(Node.Type.Number, rhs.type);
-        Assert.assertEquals(1, ((NumNode)rhs).getValue());
+        Assert.assertEquals(1, ((NumNode) rhs).getValue());
     }
 
     @Test
     public void testComparison() {
         String program =
-            """
+                """
             fn test_func() {
                 1 > 5;
                 2 >= 6;
@@ -718,14 +718,16 @@ public class TestDungeonASTConverter {
         Assert.assertEquals(Node.Type.Comparison, compStmt.type);
 
         ComparisonNode compNode = (ComparisonNode) compStmt;
-        Assert.assertEquals(ComparisonNode.ComparisonType.greaterThan, compNode.getComparisonType());
+        Assert.assertEquals(
+                ComparisonNode.ComparisonType.greaterThan, compNode.getComparisonType());
 
         // second statement
         compStmt = stmts.get(1);
         Assert.assertEquals(Node.Type.Comparison, compStmt.type);
 
         compNode = (ComparisonNode) compStmt;
-        Assert.assertEquals(ComparisonNode.ComparisonType.greaterEquals, compNode.getComparisonType());
+        Assert.assertEquals(
+                ComparisonNode.ComparisonType.greaterEquals, compNode.getComparisonType());
 
         // third statement
         compStmt = stmts.get(2);
@@ -808,7 +810,7 @@ public class TestDungeonASTConverter {
     @Test
     public void testAssignmentId() {
         String program =
-            """
+                """
             fn test_func() {
                 my_var = 4;
             }
@@ -828,7 +830,7 @@ public class TestDungeonASTConverter {
     @Test
     public void testAssignmentMemberAccessWithCall() {
         String program =
-            """
+                """
             fn test_func() {
                 my_func().test = 4;
             }

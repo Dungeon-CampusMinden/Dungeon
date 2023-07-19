@@ -168,7 +168,7 @@ public class VariableBinder implements AstVisitor<Void> {
         throw new UnsupportedOperationException();
     }
 
-    //region ASTVisitor implementation of Nodes unrelated to variable binding
+    // region ASTVisitor implementation of Nodes unrelated to variable binding
     @Override
     public Void visit(DecNumNode node) {
         return null;
@@ -268,5 +268,5 @@ public class VariableBinder implements AstVisitor<Void> {
     public Void visit(UnaryNode node) {
         return null;
     }
-    //endregion
+    // endregion
 }

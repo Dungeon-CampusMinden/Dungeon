@@ -788,9 +788,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
         assert Objects.requireNonNull(statementStack.peek()).type == Node.Type.ReturnMark;
         statementStack.pop();
     }
-    //endregion
+    // endregion
 
-    //region ASTVisitor implementation for nodes which do not need to be interpreted
+    // region ASTVisitor implementation for nodes which do not need to be interpreted
     @Override
     public Object visit(Node node) {
         return null;
@@ -820,7 +820,5 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(ParamDefNode node) {
         return null;
     }
-
-
-    //endregion
+    // endregion
 }
