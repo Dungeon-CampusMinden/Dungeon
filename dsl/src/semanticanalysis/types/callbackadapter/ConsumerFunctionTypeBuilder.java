@@ -1,4 +1,4 @@
-package semanticanalysis.types.CallbackAdapter;
+package semanticanalysis.types.callbackadapter;
 
 import semanticanalysis.Scope;
 import semanticanalysis.types.BuiltInType;

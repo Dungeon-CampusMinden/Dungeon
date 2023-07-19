@@ -5,9 +5,9 @@ import core.utils.TriConsumer;
 import dslToGame.graph.Graph;
 
 import semanticanalysis.*;
-import semanticanalysis.types.CallbackAdapter.ConsumerFunctionTypeBuilder;
-import semanticanalysis.types.CallbackAdapter.FunctionFunctionTypeBuilder;
-import semanticanalysis.types.CallbackAdapter.IFunctionTypeBuilder;
+import semanticanalysis.types.callbackadapter.ConsumerFunctionTypeBuilder;
+import semanticanalysis.types.callbackadapter.FunctionFunctionTypeBuilder;
+import semanticanalysis.types.callbackadapter.IFunctionTypeBuilder;
 
 import java.lang.reflect.*;
 import java.util.*;
