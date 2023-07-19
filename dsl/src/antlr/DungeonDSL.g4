@@ -188,6 +188,7 @@ property_def_list
 property_def
         : ID ':' expression;
 
+// TODO: rename to 'expression_list'
 param_list
         : expression ',' param_list
         | expression
@@ -197,6 +198,14 @@ grouped_expression
     : '(' expression ')'
     ;
 
+list_definition
+    : '[' param_list? ']'
+    ;
+
+set_definition
+    : '<' param_list? '>'
+    ;
+
 primary : ID
         | STRING_LITERAL
         | TRUE
@@ -204,8 +213,10 @@ primary : ID
         | NUM
         | NUM_DEC
         | aggregate_value_def
+        | set_definition
         | grouped_expression
         | func_call
+        | list_definition
         ;
 
 /*
