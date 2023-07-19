@@ -17,4 +17,17 @@ public class HeroUITools {
         xpPopup.addAction(Actions.sequence(Actions.moveBy(0, 50, 1), Actions.removeActor()));
         Game.stage().get().addActor(xpPopup);
     }
+
+
+
+    /**
+     * Creates a popup on the screen with how much hp the hero lost or gained
+     *
+     * @param hpChange the amount of HP to display
+     */
+    public void createHPPopup(int hpChange) {
+        Label hpPopup = new Label("%+d HP".formatted(hpChange), UITools.DEFAULT_SKIN);
+        hpPopup.addAction(Actions.sequence(Actions.moveBy(0, 50, 1), Actions.removeActor()));
+        Game.stage().get().addActor(hpPopup);
+    }
 }
