@@ -45,7 +45,10 @@ public final class HealthbarSystem extends System {
                     LOGGER.log(CustomLogLevel.TRACE, "created a new Healthbar");
                     Entity e = new Entity("Healthbar");
                     LOGGER.log(CustomLogLevel.TRACE, "created a new Entity for the Healthbar");
-                    new UIComponent(e, new Container<>(newHealthbar), false);
+                    Container<ProgressBar> group = new Container<>(newHealthbar);
+                    // disabling layout enforcing from parent
+                    group.setLayoutEnabled(false);
+                    new UIComponent(e, group, false);
                     LOGGER.log(CustomLogLevel.TRACE, "created a new UIComponent for the Healthbar");
                     healthbarMapping.put(x.id(), newHealthbar);
                     LOGGER.log(CustomLogLevel.TRACE, "HealthbarSystem added to temporary mapping");
@@ -85,7 +88,7 @@ public final class HealthbarSystem extends System {
 
         ProgressBar progressBar = new ProgressBar(MIN, MAX, STEP_SIZE, false, healthstyle);
         progressBar.setAnimateDuration(0.1f);
-        progressBar.setSize(35, 10);
+        progressBar.setSize(50, 10);
         progressBar.setVisible(true);
         updatePosition(progressBar, pc);
         return progressBar;
