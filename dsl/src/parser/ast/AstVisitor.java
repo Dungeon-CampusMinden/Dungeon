@@ -316,6 +316,27 @@ public interface AstVisitor<T> {
     }
 
     /**
+     * Visitor method for ListDefinitionNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(ListDefinitionNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for SetDefinitionNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(SetDefinitionNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+
+    /**
      * Visit all children of the passed node
      *
      * @param node The node to visit all children of

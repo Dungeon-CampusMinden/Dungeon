@@ -699,6 +699,36 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
+    public void enterList_definition(DungeonDSLParser.List_definitionContext ctx) {
+
+    }
+
+    @Override
+    public void exitList_definition(DungeonDSLParser.List_definitionContext ctx) {
+        // pop expression list
+        Node expressionList = astStack.pop();
+        assert expressionList.type == Node.Type.ParamList;
+
+        Node listDefinitionNode = new ListDefinitionNode(expressionList) ;
+        astStack.push(listDefinitionNode);
+    }
+
+    @Override
+    public void enterSet_definition(DungeonDSLParser.Set_definitionContext ctx) {
+
+    }
+
+    @Override
+    public void exitSet_definition(DungeonDSLParser.Set_definitionContext ctx) {
+        // pop expression list
+        Node expressionList = astStack.pop();
+        assert expressionList.type == Node.Type.ParamList;
+
+        Node setDefinitionNode = new SetDefinitionNode(expressionList) ;
+        astStack.push(setDefinitionNode);
+    }
+
+    @Override
     public void enterPrimary(DungeonDSLParser.PrimaryContext ctx) {}
 
     @Override

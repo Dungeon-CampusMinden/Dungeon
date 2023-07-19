@@ -61,7 +61,9 @@ public class Node {
         Factor,
         Unary,
         MemberAccess,
-        GroupedExpression
+        GroupedExpression,
+        ListDefinitionNode,
+        SetDefinitionNode
     }
 
     public static Node NONE = new Node(Type.NONE, new ArrayList<>());
@@ -179,3 +181,4 @@ public class Node {
         return visitor.visit(this);
     }
 }
+
