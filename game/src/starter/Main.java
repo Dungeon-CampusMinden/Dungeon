@@ -45,6 +45,7 @@ public class Main {
         Game.addSystem(new XPSystem());
         Game.addSystem(new ProjectileSystem());
         Game.addSystem(new HealthbarSystem());
+        Game.addSystem(new HeroUISystem());
         // build and start game
         Game.run();
     }
