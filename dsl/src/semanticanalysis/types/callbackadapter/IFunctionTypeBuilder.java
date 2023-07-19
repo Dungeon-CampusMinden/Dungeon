@@ -1,4 +1,4 @@
-package semanticanalysis.types.CallbackAdapter;
+package semanticanalysis.types.callbackadapter;
 
 import semanticanalysis.types.FunctionType;
 import semanticanalysis.types.TypeBuilder;
