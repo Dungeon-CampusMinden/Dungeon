@@ -6,12 +6,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 
 import contrib.components.HealthComponent;
+import contrib.hud.heroUI.HeroUITools;
 
 import core.Entity;
 import core.System;
 import core.components.PositionComponent;
 import core.components.UIComponent;
-import contrib.hud.heroUI.HeroUITools;
 import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.logging.CustomLogLevel;
@@ -38,7 +38,7 @@ public final class HealthbarSystem extends System {
                     ProgressBar newHealthbar =
                             createNewHealthbar(x.fetch(PositionComponent.class).orElseThrow());
                     LOGGER.log(CustomLogLevel.TRACE, "created a new Healthbar");
-                    Entity e = new Entity();
+                    Entity e = new Entity("Healthbar");
                     LOGGER.log(CustomLogLevel.TRACE, "created a new Entity for the Healthbar");
                     new UIComponent(e, new Container<>(newHealthbar), false);
                     LOGGER.log(CustomLogLevel.TRACE, "created a new UIComponent for the Healthbar");
@@ -57,10 +57,9 @@ public final class HealthbarSystem extends System {
     }
 
     private void update(EnemyData ed) {
-        // entferne wenn tod
         if (ed.hc.currentHealthpoints() <= 0) ed.pb.remove();
         // set visible only if entity lost health
-        // ed.pb.setVisible(ed.hc.currentHealthpoints() != ed.hc.maximalHealthpoints());
+        ed.pb.setVisible(ed.hc.currentHealthpoints() != ed.hc.maximalHealthpoints());
         updatePosition(ed.pb, ed.pc);
 
         // set value to health percent
