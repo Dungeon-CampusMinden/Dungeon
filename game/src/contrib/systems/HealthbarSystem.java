@@ -25,6 +25,11 @@ import java.util.logging.Logger;
  * current healthPercentage.
  */
 public final class HealthbarSystem extends System {
+    // well percentage =)
+    private static final float MIN = 0;
+    private static final float MAX = 1;
+    // bar percentage precision
+    private static final float STEP_SIZE = 0.01f;
     private static final Logger LOGGER = Logger.getLogger(HealthbarSystem.class.getSimpleName());
 
     /** Mapping from actual Entity and Healthbar of this Entity */
@@ -63,7 +68,7 @@ public final class HealthbarSystem extends System {
         updatePosition(ed.pb, ed.pc);
 
         // set value to health percent
-        ed.pb.setValue((float) ed.hc.currentHealthpoints() / ed.hc.maximalHealthpoints() * 100);
+        ed.pb.setValue((float) ed.hc.currentHealthpoints() / ed.hc.maximalHealthpoints());
     }
 
     private EnemyData buildDataObject(Entity entity) {
@@ -78,7 +83,7 @@ public final class HealthbarSystem extends System {
                 HeroUITools.createNewPBStyleWhichShouldBeInAtlasAndIsAToDoYesItIsUglyToAnnoyAll(
                         Color.RED);
 
-        ProgressBar progressBar = new ProgressBar(0, 100, 10, false, healthstyle);
+        ProgressBar progressBar = new ProgressBar(MIN, MAX, STEP_SIZE, false, healthstyle);
         progressBar.setAnimateDuration(0.1f);
         progressBar.setSize(35, 10);
         progressBar.setVisible(true);
