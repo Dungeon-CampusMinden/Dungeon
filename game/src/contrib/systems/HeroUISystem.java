@@ -14,6 +14,7 @@ import core.System;
 import core.components.PlayerComponent;
 import core.components.UIComponent;
 import core.hud.UITools;
+import core.utils.components.MissingComponentException;
 
 import java.util.HashMap;
 
@@ -38,9 +39,12 @@ public final class HeroUISystem extends System {
         entityStream().forEach(this::update);
     }
 
-    private void update(Entity x) {
-        XPComponent xc = x.fetch(XPComponent.class).orElseThrow();
-        HeroUI ui = map.get(x);
+    private void update(Entity entity) {
+        XPComponent xc =
+                entity.fetch(XPComponent.class)
+                        .orElseThrow(
+                                () -> MissingComponentException.build(entity, XPComponent.class));
+        HeroUI ui = map.get(entity);
         ui.level.setText("Level: " + xc.characterLevel());
         ui.pb.setValue(calculatePercentage(xc));
     }
@@ -50,7 +54,9 @@ public final class HeroUISystem extends System {
     }
 
     private HeroUI createNewHeroUI(Entity e) {
-        XPComponent xc = e.fetch(XPComponent.class).orElseThrow();
+        XPComponent xc =
+                e.fetch(XPComponent.class)
+                        .orElseThrow(() -> MissingComponentException.build(e, XPComponent.class));
         float xpPercentage = calculatePercentage(xc);
         long level = xc.characterLevel();
         Entity entity = new Entity();
