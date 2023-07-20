@@ -2,6 +2,7 @@ package core.utils.components;
 
 import core.Entity;
 import core.utils.logging.CustomLogLevel;
+import core.utils.logging.LoggerConfig;
 
 import java.util.logging.Logger;
 
@@ -20,7 +21,7 @@ public final class MissingComponentException extends NullPointerException {
      */
     public MissingComponentException(final String message) {
         super("Missing Component:" + message);
-        Logger exceptionLogger = Logger.getLogger(this.getClass().getName());
+        Logger exceptionLogger = LoggerConfig.getLogger(this.getClass().getName());
         exceptionLogger.log(CustomLogLevel.FATAL, "Missing Component: " + message);
     }
 

@@ -13,6 +13,7 @@ import core.level.Tile;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
+import core.utils.logging.LoggerConfig;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -25,7 +26,7 @@ import java.util.logging.Logger;
  * entity as a parameter.
  */
 public abstract class DamageProjectile implements Consumer<Entity> {
-    private static final Logger LOGGER = Logger.getLogger(DamageProjectile.class.getName());
+    private static final Logger LOGGER = LoggerConfig.getLogger(DamageProjectile.class.getName());
     private String pathToTexturesOfProjectile;
     private float projectileSpeed;
 

@@ -15,6 +15,7 @@ import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
+import core.utils.logging.LoggerConfig;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,7 +57,7 @@ public final class LevelSystem extends System {
 
     private final IVoidFunction onLevelLoad;
     private final Painter painter;
-    private final Logger levelAPI_logger = Logger.getLogger(this.getClass().getName());
+    private final Logger LOGGER = LoggerConfig.getLogger(this.getClass().getName());
     private IGenerator gen;
 
     /**
@@ -127,7 +128,7 @@ public final class LevelSystem extends System {
     public void loadLevel(LevelSize size, DesignLabel label) {
         currentLevel = gen.level(label, size);
         onLevelLoad.execute();
-        levelAPI_logger.info("A new level was loaded.");
+        LOGGER.info("A new level was loaded.");
     }
 
     /**

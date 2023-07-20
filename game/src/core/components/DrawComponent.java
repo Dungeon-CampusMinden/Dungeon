@@ -8,6 +8,7 @@ import core.systems.VelocitySystem;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.draw.IPath;
+import core.utils.logging.LoggerConfig;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -49,7 +50,7 @@ import java.util.stream.Collectors;
  */
 public final class DrawComponent extends Component {
     private final Map<String, Animation> animationMap;
-    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+    private final Logger LOGGER = LoggerConfig.getLogger(this.getClass().getName());
     private Animation currentAnimation;
 
     /**

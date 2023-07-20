@@ -3,6 +3,7 @@ package core.components;
 import core.Component;
 import core.Entity;
 import core.utils.logging.CustomLogLevel;
+import core.utils.logging.LoggerConfig;
 
 import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
@@ -30,7 +31,7 @@ import java.util.logging.Logger;
  */
 @DSLType(name = "velocity_component")
 public final class VelocityComponent extends Component {
-    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+    private final Logger LOGGER = LoggerConfig.getLogger(this.getClass().getName());
     private float currentXVelocity;
     private float currentYVelocity;
     private @DSLTypeMember(name = "x_velocity") float xVelocity;

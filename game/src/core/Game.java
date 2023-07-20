@@ -32,6 +32,7 @@ import core.utils.DelayedSet;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.logging.LoggerConfig;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -52,7 +53,7 @@ public final class Game extends ScreenAdapter {
     /** All entities that are currently active in the dungeon */
     private static final DelayedSet<Entity> entities = new DelayedSet<>();
 
-    private static final Logger LOGGER = Logger.getLogger("Game");
+    private static final Logger LOGGER = LoggerConfig.getLogger("Game");
     /**
      * The width of the game window in pixels.
      *

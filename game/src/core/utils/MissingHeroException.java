@@ -1,6 +1,7 @@
 package core.utils;
 
 import core.utils.logging.CustomLogLevel;
+import core.utils.logging.LoggerConfig;
 
 import java.util.logging.Logger;
 
@@ -14,14 +15,14 @@ public final class MissingHeroException extends NullPointerException {
      */
     public MissingHeroException(final String message) {
         super("There is no hero: " + message);
-        Logger exceptionLogger = Logger.getLogger(this.getClass().getName());
+        Logger exceptionLogger = LoggerConfig.getLogger(this.getClass().getName());
         exceptionLogger.log(CustomLogLevel.FATAL, "There is no hero: " + message);
     }
 
     /** Constructs a new MissingHeroException with default message. */
     public MissingHeroException() {
         super("There is no hero!");
-        Logger exceptionLogger = Logger.getLogger(this.getClass().getName());
+        Logger exceptionLogger = LoggerConfig.getLogger(this.getClass().getName());
         exceptionLogger.log(CustomLogLevel.FATAL, "There is no hero!");
     }
 }

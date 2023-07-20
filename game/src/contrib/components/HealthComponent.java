@@ -9,6 +9,7 @@ import contrib.utils.components.health.DamageType;
 import core.Component;
 import core.Entity;
 import core.utils.logging.CustomLogLevel;
+import core.utils.logging.LoggerConfig;
 
 import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
@@ -40,7 +41,7 @@ import java.util.logging.Logger;
 public final class HealthComponent extends Component {
     private final List<Damage> damageToGet;
     private @DSLTypeMember(name = "on_death_function") final Consumer<Entity> onDeath;
-    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+    private final Logger LOGGER = LoggerConfig.getLogger(this.getClass().getName());
     private @DSLTypeMember(name = "maximal_health_points") int maximalHealthpoints;
     private int currentHealthpoints;
     private @Null Entity lastCause = null;

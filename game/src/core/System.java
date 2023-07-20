@@ -1,5 +1,7 @@
 package core;
 
+import core.utils.logging.LoggerConfig;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -29,7 +31,7 @@ import java.util.stream.Stream;
  * @see Component
  */
 public abstract class System {
-    protected static Logger LOGGER = Logger.getLogger("System");
+    protected static Logger LOGGER = LoggerConfig.getLogger("System");
     private final Set<Entity> entities;
     private final Class<? extends Component> keyComponent;
     private final Set<Class<? extends Component>> additionalComponents;

@@ -8,6 +8,7 @@ import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
+import core.utils.logging.LoggerConfig;
 
 import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
@@ -52,7 +53,7 @@ public final class CollideComponent extends Component {
     private final Point size;
     private TriConsumer<Entity, Entity, Tile.Direction> collideEnter;
     private TriConsumer<Entity, Entity, Tile.Direction> collideLeave;
-    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+    private final Logger LOGGER = LoggerConfig.getLogger(this.getClass().getName());
 
     /**
      * Create a new CollisionComponent and add it to the associated entity.

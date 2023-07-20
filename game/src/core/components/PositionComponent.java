@@ -7,6 +7,7 @@ import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.logging.CustomLogLevel;
+import core.utils.logging.LoggerConfig;
 
 import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
@@ -27,7 +28,7 @@ import java.util.logging.Logger;
 @DSLType(name = "position_component")
 public final class PositionComponent extends Component {
 
-    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+    private final Logger LOGGER = LoggerConfig.getLogger(this.getClass().getName());
     private Point position;
 
     /**

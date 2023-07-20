@@ -1,5 +1,7 @@
 package core;
 
+import core.utils.logging.LoggerConfig;
+
 import semanticanalysis.types.DSLContextPush;
 import semanticanalysis.types.DSLType;
 
@@ -34,7 +36,7 @@ import java.util.stream.Stream;
 @DSLType(name = "entity")
 @DSLContextPush(name = "entity")
 public final class Entity implements Comparable<Entity> {
-    private static final Logger LOGGER = Logger.getLogger(Entity.class.getName());
+    private static final Logger LOGGER = LoggerConfig.getLogger(Entity.class.getName());
     private static int nextId = 0;
     private final int id;
     private final String name;

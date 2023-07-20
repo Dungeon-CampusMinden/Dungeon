@@ -24,6 +24,7 @@ import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
+import core.utils.logging.LoggerConfig;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -41,7 +42,7 @@ import java.util.logging.Logger;
  */
 public class Debugger {
 
-    private static final Logger LOGGER = Logger.getLogger(Debugger.class.getName());
+    private static final Logger LOGGER = LoggerConfig.getLogger(Debugger.class.getName());
 
     /**
      * Zooms the camera in or out by the given amount.

@@ -5,6 +5,7 @@ import contrib.utils.components.item.ItemData;
 import core.Component;
 import core.Entity;
 import core.utils.logging.CustomLogLevel;
+import core.utils.logging.LoggerConfig;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -29,7 +30,7 @@ public final class InventoryComponent extends Component {
 
     private final Set<ItemData> inventory;
     private final int maxSize;
-    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+    private final Logger LOGGER = LoggerConfig.getLogger(this.getClass().getName());
 
     /**
      * Create a new {@link InventoryComponent} with the given size and add it to the associated

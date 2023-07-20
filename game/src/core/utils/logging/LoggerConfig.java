@@ -41,8 +41,16 @@ public class LoggerConfig {
     public static void initBaseLogger() {
         baseLogger = Logger.getLogger("");
         baseLogger.setLevel(Level.ALL);
+        baseLogger.removeHandler(baseLogger.getHandlers()[0]);
         createCustomFileHandler();
-
         baseLogger.addHandler(customFileHandler);
+    }
+
+    public static Logger getLogger(String name) {
+        // If initBaseLogger() hasn't been called yet, call it now
+        if (baseLogger == null) {
+            initBaseLogger();
+        }
+        return Logger.getLogger(name);
     }
 }

@@ -17,6 +17,7 @@ import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
+import core.utils.logging.LoggerConfig;
 
 import java.io.IOException;
 import java.util.Random;
@@ -31,7 +32,7 @@ import java.util.stream.IntStream;
  * static methods to construct various types of entities with different components.
  */
 public class EntityFactory {
-    private static final Logger LOGGER = Logger.getLogger(EntityFactory.class.getName());
+    private static final Logger LOGGER = LoggerConfig.getLogger(EntityFactory.class.getName());
     private static final Random RANDOM = new Random();
     private static final String HERO_FILE_PATH = "character/knight";
     private static final float X_SPEED_HERO = 0.3f;

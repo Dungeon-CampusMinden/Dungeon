@@ -1,5 +1,7 @@
 package core;
 
+import core.utils.logging.LoggerConfig;
+
 import java.util.logging.Logger;
 
 /**
@@ -30,7 +32,7 @@ public abstract class Component {
     public Component(Entity entity) {
         this.entity = entity;
         entity.addComponent(this);
-        Logger componentLogger = Logger.getLogger(this.getClass().getName());
+        Logger componentLogger = LoggerConfig.getLogger(this.getClass().getName());
         componentLogger.info(
                 "The component '"
                         + this.getClass().getName()
