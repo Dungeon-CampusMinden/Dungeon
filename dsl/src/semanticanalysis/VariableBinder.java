@@ -268,5 +268,16 @@ public class VariableBinder implements AstVisitor<Void> {
     public Void visit(UnaryNode node) {
         return null;
     }
+
+    @Override
+    public Void visit(ListDefinitionNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(SetDefinitionNode node) {
+        return null;
+    }
+
     // endregion
 }

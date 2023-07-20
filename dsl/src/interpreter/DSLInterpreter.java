@@ -643,6 +643,18 @@ public class DSLInterpreter implements AstVisitor<Object> {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public Object visit(ListDefinitionNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(SetDefinitionNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
     // region user defined function execution
 
     /**
