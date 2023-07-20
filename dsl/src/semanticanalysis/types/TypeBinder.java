@@ -242,5 +242,5 @@ public class TypeBinder implements AstVisitor<Object> {
         return null;
     }
 
-// endregion
+    // endregion
 }

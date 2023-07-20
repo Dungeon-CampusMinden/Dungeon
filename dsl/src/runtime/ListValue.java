@@ -10,10 +10,10 @@ public class ListValue extends Value {
     }
 
     public void addValue(Value value) {
-        ((ArrayList<Value>)this.object).add(value);
+        ((ArrayList<Value>) this.object).add(value);
     }
 
     public Value getValue(int index) {
-        return ((ArrayList<Value>)this.object).get(index);
+        return ((ArrayList<Value>) this.object).get(index);
     }
 }

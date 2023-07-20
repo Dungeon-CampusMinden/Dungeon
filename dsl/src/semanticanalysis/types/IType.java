@@ -7,7 +7,8 @@ public interface IType {
         PODAdapted,
         AggregateAdapted,
         FunctionType,
-        SetType, ListType
+        SetType,
+        ListType
     }
 
     /**

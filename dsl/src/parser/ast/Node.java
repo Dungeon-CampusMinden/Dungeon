@@ -181,4 +181,3 @@ public class Node {
         return visitor.visit(this);
     }
 }
-

@@ -247,7 +247,7 @@ public class TypeBuilder {
 
     protected IType createSetType(ParameterizedType setType) {
         var elementType = setType.getActualTypeArguments()[0];
-        IType elementDSLType = this.createTypeFromClass(Scope.NULL, (Class<?>)elementType);
+        IType elementDSLType = this.createTypeFromClass(Scope.NULL, (Class<?>) elementType);
 
         if (javaTypeToDSLType.get(setType) == null) {
             IType dslSetType = new SetType(elementDSLType, Scope.NULL);
@@ -258,7 +258,7 @@ public class TypeBuilder {
 
     protected IType createListType(ParameterizedType listType) {
         var elementType = listType.getActualTypeArguments()[0];
-        IType elementDSLType = this.createTypeFromClass(Scope.NULL, (Class<?>)elementType);
+        IType elementDSLType = this.createTypeFromClass(Scope.NULL, (Class<?>) elementType);
 
         if (javaTypeToDSLType.get(listType) == null) {
             IType dslListType = new ListType(elementDSLType, Scope.NULL);

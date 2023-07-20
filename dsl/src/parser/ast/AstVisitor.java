@@ -335,7 +335,6 @@ public interface AstVisitor<T> {
         throw new UnsupportedOperationException();
     }
 
-
     /**
      * Visit all children of the passed node
      *
