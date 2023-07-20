@@ -30,7 +30,7 @@ public class ConsumerFunctionTypeBuilder implements IFunctionTypeBuilder {
         ArrayList<IType> parameterTypes =
                 new ArrayList<>(parameterizedType.getActualTypeArguments().length);
         for (var parameterType : parameterizedType.getActualTypeArguments()) {
-            IType dslType = TypeBuilder.getBasicDSLType((Class<?>) parameterType);
+            IType dslType = TypeBuilder.getBuiltInDSLType((Class<?>) parameterType);
             if (null == dslType) {
                 dslType = typeMap.get(parameterType);
             }

@@ -29,7 +29,7 @@ public class FunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
 
         // the first type parameter of the Function<T,R> interface will correspond to
         // the type of the single parameter of the function
-        IType parameterType = TypeBuilder.getBasicDSLType((Class<?>) typeArray[0]);
+        IType parameterType = TypeBuilder.getBuiltInDSLType((Class<?>) typeArray[0]);
         if (null == parameterType) {
             parameterType = typeMap.get(typeArray[0]);
         }
@@ -39,7 +39,7 @@ public class FunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
 
         // the second type parameter of the Function<T,R> interface will correspond to
         // the return type of the function
-        IType returnType = TypeBuilder.getBasicDSLType((Class<?>) typeArray[1]);
+        IType returnType = TypeBuilder.getBuiltInDSLType((Class<?>) typeArray[1]);
         if (null == returnType) {
             returnType = typeMap.get(typeArray[1]);
         }

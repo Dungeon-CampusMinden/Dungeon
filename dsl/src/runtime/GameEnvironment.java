@@ -18,6 +18,7 @@ import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -152,7 +153,7 @@ public class GameEnvironment implements IEvironment {
     }
 
     @Override
-    public HashMap<Class<?>, IType> javaTypeToDSLTypeMap() {
+    public HashMap<Type, IType> javaTypeToDSLTypeMap() {
         return typeBuilder.getJavaTypeToDSLTypeMap();
     }
 

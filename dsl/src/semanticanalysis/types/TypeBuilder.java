@@ -9,10 +9,7 @@ import semanticanalysis.types.callbackadapter.ConsumerFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.FunctionFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.IFunctionTypeBuilder;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -21,7 +18,7 @@ import java.util.regex.Pattern;
 
 public class TypeBuilder {
     private final HashMap<Class<?>, Method> typeAdapters;
-    private final HashMap<Class<?>, IType> javaTypeToDSLType;
+    private final HashMap<Type, IType> javaTypeToDSLType;
     private final HashSet<Class<?>> currentLookedUpClasses;
     private final HashMap<Class<?>, IFunctionTypeBuilder> functionTypeBuilders;
 
@@ -41,7 +38,7 @@ public class TypeBuilder {
         functionTypeBuilders.put(Function.class, FunctionFunctionTypeBuilder.instance);
     }
 
-    public HashMap<Class<?>, IType> getJavaTypeToDSLTypeMap() {
+    public HashMap<Type, IType> getJavaTypeToDSLTypeMap() {
         // create copy of the hashmap
         return new HashMap<>(javaTypeToDSLType);
     }
@@ -69,7 +66,7 @@ public class TypeBuilder {
      * @return the corresponding {@link IType} for the passed type, or null, if the passed type does
      *     not correspond to a basic type
      */
-    public static IType getBasicDSLType(Class<?> type) {
+    public static IType getBuiltInDSLType(Class<?> type) {
         // check for basic types
         if (int.class.equals(type)
                 || short.class.equals(type)
@@ -112,7 +109,7 @@ public class TypeBuilder {
     }
 
     protected static String getDSLNameOfBasicType(Class<?> clazz) {
-        var basicType = getBasicDSLType(clazz);
+        var basicType = getBuiltInDSLType(clazz);
         return basicType != null ? basicType.getName() : "";
     }
 
@@ -203,7 +200,7 @@ public class TypeBuilder {
         if (adapterMethod.getParameterCount() == 1) {
             var paramType = adapterMethod.getParameterTypes()[0];
             // TODO: how to handle non-builtIn types here?
-            var paramDSLType = getBasicDSLType(paramType);
+            var paramDSLType = getBuiltInDSLType(paramType);
             return new AdaptedType(
                     dslTypeName, parentScope, forType, (BuiltInType) paramDSLType, adapterMethod);
         } else {
@@ -213,7 +210,7 @@ public class TypeBuilder {
             for (var parameter : adapterMethod.getParameters()) {
                 String parameterName = getDSLParameterName(parameter);
                 // TODO: how to handle non-builtin types here?
-                IType paramDSLType = getBasicDSLType(parameter.getType());
+                IType paramDSLType = getBuiltInDSLType(parameter.getType());
                 if (null == paramDSLType) {
                     currentLookedUpClasses.add(forType);
                     paramDSLType = createTypeFromClass(parentScope, forType);
@@ -248,21 +245,52 @@ public class TypeBuilder {
         return new Symbol(callbackName, parentType, callbackType);
     }
 
+    protected IType createSetType(ParameterizedType setType) {
+        var elementType = setType.getActualTypeArguments()[0];
+        IType elementDSLType = this.createTypeFromClass(Scope.NULL, (Class<?>)elementType);
+
+        if (javaTypeToDSLType.get(setType) == null) {
+            IType dslSetType = new SetType(elementDSLType, Scope.NULL);
+            javaTypeToDSLType.put(setType, dslSetType);
+        }
+        return javaTypeToDSLType.get(setType);
+    }
+
+    protected IType createListType(ParameterizedType listType) {
+        var elementType = listType.getActualTypeArguments()[0];
+        IType elementDSLType = this.createTypeFromClass(Scope.NULL, (Class<?>)elementType);
+
+        if (javaTypeToDSLType.get(listType) == null) {
+            IType dslListType = new ListType(elementDSLType, Scope.NULL);
+            javaTypeToDSLType.put(listType, dslListType);
+        }
+        return javaTypeToDSLType.get(listType);
+    }
+
     // create a symbol in parentType for given field, representing data in parentClass
     protected Symbol createDataMemberSymbol(
             Field field, Class<?> parentClass, AggregateType parentType) {
         String fieldName = getDSLFieldName(field);
 
+        Class<?> fieldsType = field.getType();
+
         // get datatype
-        var memberDSLType = getBasicDSLType(field.getType());
-        // var memberDSLType = getDSLTypeForClass(field.getType());
+        var memberDSLType = getBuiltInDSLType(fieldsType);
+        if (memberDSLType == null) {
+            // is list or set?
+            if (List.class.isAssignableFrom(fieldsType)) {
+                memberDSLType = createListType((ParameterizedType) field.getGenericType());
+            } else if (Set.class.isAssignableFrom(fieldsType)) {
+                memberDSLType = createSetType((ParameterizedType) field.getGenericType());
+            }
+        }
         if (memberDSLType == null) {
             // lookup the type in already converted types
             // if it is not already in the converted types, try to convert it -> check for
             // DSLType
             // annotation
             this.currentLookedUpClasses.add(parentClass);
-            memberDSLType = createTypeFromClass(parentType, field.getType());
+            memberDSLType = createTypeFromClass(parentType, fieldsType);
             this.currentLookedUpClasses.remove(parentClass);
         }
 
@@ -284,6 +312,11 @@ public class TypeBuilder {
     public IType createTypeFromClass(IScope parentScope, Class<?> clazz) {
         if (this.javaTypeToDSLType.containsKey(clazz)) {
             return this.javaTypeToDSLType.get(clazz);
+        }
+
+        var builtInType = getBuiltInDSLType(clazz);
+        if (builtInType != null) {
+            return builtInType;
         }
 
         if (!clazz.isAnnotationPresent(DSLType.class)) {
