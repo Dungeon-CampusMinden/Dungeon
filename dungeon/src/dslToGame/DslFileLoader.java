@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,10 +15,7 @@ public class DslFileLoader {
     public static Set<File> dslFiles() {
         ClassLoader classLoader = DslFileLoader.class.getClassLoader();
 
-        // todo find correct path
         File directory = new File(classLoader.getResource(SCRIPT_FOLDER).getFile());
-        System.out.println("PATH " + directory.getPath());
-        Arrays.stream(directory.listFiles()).forEach(s -> System.out.println(s));
         Set<File> files = new HashSet<>();
 
         // Recursively find files with the specified file ending
@@ -36,11 +32,9 @@ public class DslFileLoader {
             if (allFiles != null) {
                 // Iterate through the files
                 for (File file : allFiles) {
-                    System.out.println("FILE " + file.getPath());
                     if (file.isFile() && file.getName().endsWith(DSL_FILE_ENDING)) {
                         files.add(file);
                     } else if (file.isDirectory()) {
-                        // If it's a subdirectory, recursively search for files inside it
                         findFilesWithEnding(file, files);
                     }
                 }

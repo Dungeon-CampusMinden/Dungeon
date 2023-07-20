@@ -44,7 +44,6 @@ public class DslFileReaderTest {
                         UITools.generateNewTextDialog(f.get(), "Ok", "Files");
 
                         // for the start: print on console
-                        System.out.println("READ IN STARTPOINTS");
                         configs.forEach(map -> map.values().forEach(System.out::println));
                     }
                 });
