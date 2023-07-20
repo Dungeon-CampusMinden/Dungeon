@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import dslToGame.graph.Graph;
 
+import interpreter.CustomQuestConfigWithListMember;
 import interpreter.mockecs.*;
 
 import org.junit.Test;
@@ -268,35 +269,7 @@ public class TestTypeBuilder {
         TypeBuilder tb = new TypeBuilder();
         // register Entity type (setup)
         var entityType = (AggregateType) tb.createTypeFromClass(Scope.NULL, Entity.class);
-
-        var componentDSLType =
-                (AggregateType)
-                        tb.createTypeFromClass(Scope.NULL, TestComponentWithFunctionCallback.class);
-
-        var entity = new Entity();
-        var object = new TestComponentWithFunctionCallback(entity);
-        Field field = null;
-        try {
-            field = TestComponentWithFunctionCallback.class.getDeclaredField("onInteraction");
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        }
-        field.setAccessible(true);
-
-        var functionClass = Function.class;
-        var genericInterfaces = functionClass.getGenericInterfaces();
-        var ctors = functionClass.getConstructors();
-
-        var testClassObject = new TestClass();
-        Function func = testClassObject::accept;
-
-        try {
-            field.set(object, func);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-
-        var ret = object.getOnInteraction().apply(entity);
+        var questConfigType = (AggregateType) tb.createTypeFromClass(Scope.NULL, CustomQuestConfigWithListMember.class);
 
         boolean b = true;
     }
