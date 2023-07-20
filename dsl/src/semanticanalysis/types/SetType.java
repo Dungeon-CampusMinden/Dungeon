@@ -10,7 +10,7 @@ public class SetType extends Symbol implements IType {
     }
 
     public static String getSetTypeName(IType elementType) {
-        return elementType.getName() + "[]";
+        return elementType.getName() + "<>";
     }
 
     public SetType(IType elementType, IScope parentScope) {
