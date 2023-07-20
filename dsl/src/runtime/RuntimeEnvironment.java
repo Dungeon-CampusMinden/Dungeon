@@ -9,6 +9,7 @@ import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 import semanticanalysis.types.TypeInstantiator;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 
 // this extends the normal IEnvironment definition by storing prototypes
@@ -18,7 +19,7 @@ public class RuntimeEnvironment implements IEvironment {
     private final HashMap<String, Symbol> functions;
     private final HashMap<String, IType> types;
     private final HashMap<String, Prototype> prototypes;
-    private final HashMap<Class<?>, IType> javaTypeToDSLType;
+    private final HashMap<Type, IType> javaTypeToDSLType;
     private final RuntimeObjectTranslator runtimeObjectTranslator;
     private final TypeBuilder typeBuilder;
     private final TypeInstantiator typeInstantiator;
@@ -105,7 +106,7 @@ public class RuntimeEnvironment implements IEvironment {
     }
 
     @Override
-    public HashMap<Class<?>, IType> javaTypeToDSLTypeMap() {
+    public HashMap<Type, IType> javaTypeToDSLTypeMap() {
         return this.javaTypeToDSLType;
     }
 
