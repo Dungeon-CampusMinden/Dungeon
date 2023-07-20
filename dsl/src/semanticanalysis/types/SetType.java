@@ -4,7 +4,7 @@ import semanticanalysis.IScope;
 import semanticanalysis.Symbol;
 
 public class SetType extends Symbol implements IType {
-    //private final IType elementType;
+    // private final IType elementType;
     public IType getElementType() {
         return this.dataType;
     }

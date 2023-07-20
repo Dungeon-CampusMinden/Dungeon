@@ -179,9 +179,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
         if (type.getTypeKind().equals(IType.Kind.Basic)) {
             Object internalValue = Value.getDefaultValue(type);
             return new Value(type, internalValue);
-        } else if (type.getTypeKind().equals(IType.Kind.Aggregate) ||
-                   type.getTypeKind().equals(IType.Kind.PODAdapted) ||
-                   type.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
+        } else if (type.getTypeKind().equals(IType.Kind.Aggregate)
+                || type.getTypeKind().equals(IType.Kind.PODAdapted)
+                || type.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
             AggregateValue value = new AggregateValue(type, getCurrentMemorySpace());
 
             this.memoryStack.push(value.getMemorySpace());
@@ -191,10 +191,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
             this.memoryStack.pop();
 
             return value;
-        } else if (type.getTypeKind().equals(IType.Kind.ListType)){
-            return new ListValue((ListType)type);
+        } else if (type.getTypeKind().equals(IType.Kind.ListType)) {
+            return new ListValue((ListType) type);
         } else if (type.getTypeKind().equals(IType.Kind.SetType)) {
-            return new SetValue((SetType)type);
+            return new SetValue((SetType) type);
         }
         return Value.NONE;
     }

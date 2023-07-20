@@ -4,7 +4,7 @@ import semanticanalysis.IScope;
 import semanticanalysis.Symbol;
 
 public class ListType extends Symbol implements IType {
-    //private final IType elementType;
+    // private final IType elementType;
     public IType getElementType() {
         return this.dataType;
     }
@@ -24,4 +24,3 @@ public class ListType extends Symbol implements IType {
         return Kind.ListType;
     }
 }
-

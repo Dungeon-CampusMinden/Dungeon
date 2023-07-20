@@ -18,4 +18,3 @@ public class ListDefinitionNode extends Node {
         return visitor.visit(this);
     }
 }
-
