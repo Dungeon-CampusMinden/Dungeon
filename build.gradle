@@ -100,6 +100,7 @@ task runManualQuizTest(dependsOn: classes, type: JavaExec) {
     }
 }
 
+
 task runCallbackTest(dependsOn: classes, type: JavaExec) {
     mainClass = "manual.quizquestion.WizardQuizTest"
     classpath = sourceSets.test.runtimeClasspath
