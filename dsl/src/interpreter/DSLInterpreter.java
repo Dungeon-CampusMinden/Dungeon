@@ -589,6 +589,60 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return new Value(BuiltInType.boolType, node.getValue());
     }
 
+    @Override
+    public Object visit(MemberAccessNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(LogicOrNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(LogicAndNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(EqualityNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(ComparisonNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(TermNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(FactorNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(UnaryNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(AssignmentNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
     // region user defined function execution
 
     /**
@@ -734,6 +788,37 @@ public class DSLInterpreter implements AstVisitor<Object> {
         assert Objects.requireNonNull(statementStack.peek()).type == Node.Type.ReturnMark;
         statementStack.pop();
     }
+    // endregion
 
+    // region ASTVisitor implementation for nodes which do not need to be interpreted
+    @Override
+    public Object visit(Node node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(BinaryNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(EdgeRhsNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(EdgeStmtNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(EdgeOpNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(ParamDefNode node) {
+        return null;
+    }
     // endregion
 }

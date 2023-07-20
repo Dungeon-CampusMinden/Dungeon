@@ -161,4 +161,112 @@ public class VariableBinder implements AstVisitor<Void> {
         }
         return null;
     }
+
+    @Override
+    public Void visit(AssignmentNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    // region ASTVisitor implementation of Nodes unrelated to variable binding
+    @Override
+    public Void visit(DecNumNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(NumNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(EdgeRhsNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(EdgeStmtNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(EdgeOpNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(PropertyDefNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(FuncCallNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(AggregateValueDefinitionNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(ParamDefNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(PrototypeDefinitionNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(ReturnStmtNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(BoolNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(MemberAccessNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(LogicOrNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(LogicAndNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(EqualityNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(ComparisonNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(TermNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(FactorNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(UnaryNode node) {
+        return null;
+    }
+    // endregion
 }

@@ -146,4 +146,106 @@ public class FunctionCallResolver implements AstVisitor<Void> {
         visitChildren(node);
         return null;
     }
+
+    @Override
+    public Void visit(BinaryNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(MemberAccessNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(LogicOrNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(LogicAndNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(EqualityNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(ComparisonNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(TermNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(FactorNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(UnaryNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(AssignmentNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    // region ASTVisitor implementation for nodes unrelated to function call resolution
+    @Override
+    public Void visit(DecNumNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(NumNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(StringNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(DotDefNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(EdgeRhsNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(EdgeStmtNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(EdgeOpNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(BoolNode node) {
+        return null;
+    }
+    // endregion
 }

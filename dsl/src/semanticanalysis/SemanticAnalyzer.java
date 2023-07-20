@@ -476,4 +476,100 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         visitChildren(node);
         return null;
     }
+
+    @Override
+    public Void visit(MemberAccessNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Void visit(LogicOrNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Void visit(LogicAndNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Void visit(EqualityNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Void visit(ComparisonNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Void visit(TermNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Void visit(FactorNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Void visit(UnaryNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Void visit(AssignmentNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    // region ASTVisitor implementation for nodes unrelated to semantic analysis
+    @Override
+    public Void visit(DecNumNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(NumNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(StringNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(DotDefNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(EdgeRhsNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(EdgeStmtNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(EdgeOpNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(BoolNode node) {
+        return null;
+    }
+    // endregion
 }
