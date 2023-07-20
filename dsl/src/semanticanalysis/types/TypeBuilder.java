@@ -328,11 +328,7 @@ public class TypeBuilder {
             throw new RuntimeException("RECURSIVE TYPE DEF");
         }
 
-        var annotation = clazz.getAnnotation(DSLType.class);
-        String typeName =
-                annotation.name().equals("")
-                        ? convertToDSLName(clazz.getSimpleName())
-                        : annotation.name();
+        String typeName = getDSLTypeName(clazz);
 
         var type = new AggregateType(typeName, parentScope, clazz);
         for (Field field : clazz.getDeclaredFields()) {
