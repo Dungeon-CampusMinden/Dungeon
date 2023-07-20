@@ -1039,4 +1039,30 @@ public class TestDSLInterpreter {
 
         Assert.assertTrue(returnValue.contains("Moin"));
     }
+
+    @Test
+    public void registerListAndSetTypesInEnvironment() {
+        String program =
+            """
+                quest_config c { }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config =
+            (CustomQuestConfig)
+                Helpers.generateQuestConfigWithCustomTypes(
+                    program,
+                    env,
+                    interpreter,
+                    Entity.class
+                    );
+
+        Assert.assertTrue(false);
+    }
 }
