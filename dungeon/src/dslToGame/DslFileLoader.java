@@ -10,7 +10,7 @@ import java.util.Set;
 public class DslFileLoader {
 
     private static final String DSL_FILE_ENDING = "dng";
-    private static final String SCRIPT_FOLDER = "script";
+    private static final String SCRIPT_FOLDER = "scripts";
 
     public static Set<File> dslFiles() {
         ClassLoader classLoader = DslFileLoader.class.getClassLoader();
