@@ -2,9 +2,7 @@ package semanticanalysis.types;
 
 import interpreter.DSLInterpreter;
 
-import runtime.AggregateValue;
-import runtime.IMemorySpace;
-import runtime.Value;
+import runtime.*;
 
 import semanticanalysis.FunctionSymbol;
 import semanticanalysis.types.callbackadapter.CallbackAdapter;
@@ -15,6 +13,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class TypeInstantiator {
     private final HashMap<String, Object> context = new HashMap<>();
@@ -44,6 +45,24 @@ public class TypeInstantiator {
         } else {
             return instantiateClass(originalJavaClass, ms);
         }
+    }
+
+    public List<?> instantiateList(ListValue listValue) {
+        ArrayList arrayListInstance = new ArrayList<>();
+        for (Value entryValue : (ArrayList<Value>)listValue.getInternalValue()) {
+            // TODO: this also probably requires type instantiation, if the element type is not basic
+            arrayListInstance.add(entryValue.getInternalValue());
+        }
+        return arrayListInstance;
+    }
+
+    public Set<?> instantiateSet(SetValue setValue) {
+        HashSet hashSetInstance = new HashSet<>();
+        for (Value entryValue : (HashSet<Value>)setValue.getInternalValue()) {
+            // TODO: this also probably requires type instantiation, if the element type is not basic
+            hashSetInstance.add(entryValue.getInternalValue());
+        }
+        return hashSetInstance;
     }
 
     /**
@@ -83,7 +102,6 @@ public class TypeInstantiator {
                 var field = originalJavaClass.getDeclaredField(param.getName());
                 if (field.isAnnotationPresent(DSLTypeMember.class)) {
                     String fieldName = TypeBuilder.getDSLFieldName(field);
-
                     var fieldValue = ms.resolve(fieldName);
 
                     // if a certain value is not found in the memory space,
@@ -104,8 +122,12 @@ public class TypeInstantiator {
                             var method = adaptedType.getBuilderMethod();
 
                             internalValue = method.invoke(null, internalValue);
+                        } else if (fieldValue.getDataType().getTypeKind().equals(IType.Kind.ListType)) {
+                            internalValue = instantiateList((ListValue)fieldValue);
+                        } else if (fieldValue.getDataType().getTypeKind().equals(IType.Kind.SetType)) {
+                            internalValue = instantiateSet((SetValue)fieldValue);
                         }
-                        parameters.add(internalValue);
+                    parameters.add(internalValue);
                     }
                 } else if (field.isAnnotationPresent(DSLCallback.class)) {
                     String fieldName = TypeBuilder.getDSLFieldName(field);
