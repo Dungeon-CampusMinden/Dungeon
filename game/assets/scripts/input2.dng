@@ -1,9 +1,0 @@
-graph t {
-                        G -- T -- Q -- D
-                        Q -- F
-                        T -- X -- S
-                        G -- W -- E
-                        W -- C -- U
-                        C -- N
-                  }
-
