@@ -44,10 +44,10 @@ public final class UIAnswerCallback {
      * @return Consumer to use as a callback for the interaction component.
      */
     public static Consumer<Entity> askOnInteraction(
-        Quiz quiz, Consumer<Set<TaskContent>> dslCallback) {
+            Quiz quiz, Consumer<Set<TaskContent>> dslCallback) {
         return questGiver ->
-            QuizUI.showQuizDialog(
-                quiz, (Entity hudEntity) -> uiCallback(quiz, hudEntity, dslCallback));
+                QuizUI.showQuizDialog(
+                        quiz, (Entity hudEntity) -> uiCallback(quiz, hudEntity, dslCallback));
     }
 
     /**
@@ -56,7 +56,7 @@ public final class UIAnswerCallback {
      * @see UITools
      */
     private static BiFunction<TextDialog, String, Boolean> uiCallback(
-        Quiz quest, Entity hudEntity, Consumer<Set<TaskContent>> dslCallback) {
+            Quiz quest, Entity hudEntity, Consumer<Set<TaskContent>> dslCallback) {
         return (textDialog, id) -> {
             if (Objects.equals(id, UITools.DEFAULT_DIALOG_CONFIRM)) {
                 dslCallback.accept(getAnswer(quest, answerSection(textDialog)));
@@ -69,12 +69,12 @@ public final class UIAnswerCallback {
 
     private static VerticalGroup answerSection(TextDialog textDialog) {
         SnapshotArray<Actor> children =
-            ((VerticalGroup) textDialog.getContentTable().getChildren().get(0)).getChildren();
+                ((VerticalGroup) textDialog.getContentTable().getChildren().get(0)).getChildren();
         // find the answer section
         return (VerticalGroup)
-            children.select((actor) -> Objects.equals(actor.getName(), ANSWERS_GROUP_NAME))
-                .iterator()
-                .next();
+                children.select((actor) -> Objects.equals(actor.getName(), ANSWERS_GROUP_NAME))
+                        .iterator()
+                        .next();
     }
 
     private static Set<TaskContent> getAnswer(Quiz quiz, VerticalGroup answerSection) {
@@ -90,9 +90,9 @@ public final class UIAnswerCallback {
     private static Set<TaskContent> stringToContent(Quiz quiz, Set<String> answers) {
         Set<TaskContent> contentSet = new HashSet<>();
         quiz.contentStream()
-            .map(answer -> (Quiz.Content) answer)
-            .filter(answer -> answers.contains(answer.content()))
-            .forEach(contentSet::add);
+                .map(answer -> (Quiz.Content) answer)
+                .filter(answer -> answers.contains(answer.content()))
+                .forEach(contentSet::add);
         return contentSet;
     }
 
@@ -100,12 +100,12 @@ public final class UIAnswerCallback {
         Set<String> answers = new HashSet<>();
 
         for (Actor actor :
-            ((VerticalGroup)
-                ((ScrollPane) answerSection.getChildren().get(0))
-                    .getChildren()
-                    .get(0))
-                .getChildren()
-                .select((x) -> x instanceof CheckBox checkbox && checkbox.isChecked()))
+                ((VerticalGroup)
+                                ((ScrollPane) answerSection.getChildren().get(0))
+                                        .getChildren()
+                                        .get(0))
+                        .getChildren()
+                        .select((x) -> x instanceof CheckBox checkbox && checkbox.isChecked()))
             if (actor instanceof CheckBox checked) answers.add(checked.getText().toString());
         if (answers.size() == 0) answers.add("No Selection");
         return answers;
@@ -113,6 +113,6 @@ public final class UIAnswerCallback {
 
     private static String freeTextAnswer(VerticalGroup answerSection) {
         return ((TextArea) ((ScrollPane) answerSection.getChildren().get(0)).getChildren().get(0))
-            .getText();
+                .getText();
     }
 }
