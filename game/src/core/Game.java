@@ -79,7 +79,7 @@ public class Game extends ScreenAdapter
     private static int WINDOW_HEIGHT = 720;
 
     /** Currently used level-size configuration for generating new level */
-    private static LevelSize LEVELSIZE = LevelSize.SMALL;
+    private static LevelSize LEVELSIZE = LevelSize.LARGE;
     /**
      * Part of the pre-run configuration.
      * This function will be called at each frame.
@@ -333,7 +333,7 @@ public class Game extends ScreenAdapter
                 hero(EntityFactory.newHero());
             }
             if (currentLevel() == null) {
-                currentLevel(LevelSize.SMALL);
+                currentLevel(LevelSize.LARGE);
             }
             //            // Check whether which random port is not already in use and listen to
             // this on
@@ -343,12 +343,15 @@ public class Game extends ScreenAdapter
             int generatePortTriesMaxCount = 20;
             int generatePortTriesCount = 0;
             boolean isServerStarted = false;
-            int serverPort;
-            do {
-                // Create random 5 digit port
-                serverPort = ThreadLocalRandom.current().nextInt(10000, 65535 + 1);
-                isServerStarted = serverManager.start(serverPort);
-            } while ((generatePortTriesCount < generatePortTriesMaxCount) && !isServerStarted);
+            int serverPort = 12345;
+//            int serverPort;
+//            do {
+//                // Create random 5 digit port
+//                serverPort = ThreadLocalRandom.current().nextInt(10000, 65535 + 1);
+//                isServerStarted = serverManager.start(serverPort);
+//            } while ((generatePortTriesCount < generatePortTriesMaxCount) && !isServerStarted);
+
+            isServerStarted = serverManager.start(serverPort);
 
             if (isServerStarted) {
                 if (!clientManager.connect("127.0.0.1", serverPort)) {

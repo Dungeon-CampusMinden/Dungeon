@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  */
 public final class LevelSystem extends System {
     /** Currently used level-size configuration for generating new level. */
-    private static LevelSize levelSize = LevelSize.MEDIUM;
+    private static LevelSize levelSize = LevelSize.LARGE;
     /**
      * The currently loaded level of the game.
      *
