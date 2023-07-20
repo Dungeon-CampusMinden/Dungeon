@@ -17,6 +17,7 @@ import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 
 import task.TaskComponent;
+import task.TaskContent;
 import task.quizquestion.Quiz;
 import task.quizquestion.UIAnswerCallback;
 
@@ -25,6 +26,18 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+/**
+ * Test scenario for the UI Callbacks.
+ *
+ * <p>Will spawn a Wizard in each level that will ask you a question on the HUD and will show the
+ * selected answers in the next HUD windows.
+ *
+ * <p>You have to interact with the wizard; you can only interact with the wizard once per level.
+ *
+ * <p>Press V to switch the question type that will be asked in the next level.
+ *
+ * <p>Start the test with gradle runCallbackTest.
+ */
 public class WizardQuizTest {
     private static Quiz question = multipleChoiceDummy();
 
@@ -78,11 +91,13 @@ public class WizardQuizTest {
                 wizard, 1, false, UIAnswerCallback.askOnInteraction(question, showAnswersOnHud()));
     }
 
-    private static Consumer<Set<Quiz.Content>> showAnswersOnHud() {
+    private static Consumer<Set<TaskContent>> showAnswersOnHud() {
         return taskContents -> {
             AtomicReference<String> answers = new AtomicReference<>("");
-            taskContents.forEach(
-                    t -> answers.set(answers.get() + t.content() + System.lineSeparator()));
+            taskContents.stream()
+                    .map(t -> (Quiz.Content) t)
+                    .forEach(
+                            t -> answers.set(answers.get() + t.content() + System.lineSeparator()));
             UITools.generateNewTextDialog(answers.get(), "Ok", "Given answer");
         };
     }
