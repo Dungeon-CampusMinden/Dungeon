@@ -99,9 +99,9 @@ public final class UIAnswerCallback {
 
         for (Actor actor :
                 ((VerticalGroup)
-                        ((ScrollPane) answerSection.getChildren().get(0))
-                                .getChildren()
-                                .get(0))
+                                ((ScrollPane) answerSection.getChildren().get(0))
+                                        .getChildren()
+                                        .get(0))
                         .getChildren()
                         .select((x) -> x instanceof CheckBox checkbox && checkbox.isChecked()))
             if (actor instanceof CheckBox checked) answers.add(checked.getText().toString());
