@@ -652,8 +652,31 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(ListDefinitionNode node) {
-        // TODO: implement
-        throw new UnsupportedOperationException();
+        // collect evaluated Values in an ArrayList
+        ArrayList<Value> entries = new ArrayList<>(node.getEntries().size());
+        for (Node expressionNode : node.getEntries()) {
+            Value value = (Value)expressionNode.accept(this);
+            entries.add(value);
+        }
+
+        // TODO: this is a temporary solution
+        IType entryType = BuiltInType.noType;
+        if (entries.size() != 0) {
+            entryType = entries.get(0).getDataType();
+        }
+        // create list type
+        String listTypeName = ListType.getListTypeName(entryType);
+        // TODO: list_type is not properly put in environment beforehand..
+        Symbol listType = this.environment.resolveInGlobalScope(listTypeName);
+        if (listType == Symbol.NULL) {
+            listType = new ListType(entryType, this.environment.getGlobalScope());
+            this.environment.getGlobalScope().bind(listType);
+        }
+        ListValue listValue = new ListValue((ListType)listType);
+        for (Value listEntry : entries) {
+            listValue.addValue(listEntry);
+        }
+        return listValue;
     }
 
     @Override

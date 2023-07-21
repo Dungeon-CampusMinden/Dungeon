@@ -533,14 +533,14 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(ListDefinitionNode node) {
-        // TODO: implement
-        throw new UnsupportedOperationException();
+        visitChildren(node);
+        return null;
     }
 
     @Override
     public Void visit(SetDefinitionNode node) {
-        // TODO: implement
-        throw new UnsupportedOperationException();
+        visitChildren(node);
+        return null;
     }
 
     // region ASTVisitor implementation for nodes unrelated to semantic analysis
