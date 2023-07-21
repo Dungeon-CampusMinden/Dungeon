@@ -744,7 +744,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             Value paramValue =
                     (Value)
                             this.environment.translateRuntimeObject(
-                                    parameterObject, currentMemorySpace);
+                                    parameterObject, currentMemorySpace, parameterSymbol.getDataType());
             setValue(parameterSymbol.getName(), paramValue);
         }
     }
