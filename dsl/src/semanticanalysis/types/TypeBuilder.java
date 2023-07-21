@@ -66,22 +66,32 @@ public class TypeBuilder {
      * @return the corresponding {@link IType} for the passed type, or null, if the passed type does
      *     not correspond to a basic type
      */
-    public static IType getBuiltInDSLType(Class<?> type) {
+    public static IType getBuiltInDSLType(Type type) {
+        boolean canBeCastToClass = true;
+        Class<?> clazz = null;
+        try {
+            clazz = (Class<?>) type;
+        } catch (ClassCastException ex) {
+            canBeCastToClass = false;
+        }
+        if (!canBeCastToClass) {
+            return null;
+        }
         // check for basic types
-        if (int.class.equals(type)
-                || short.class.equals(type)
-                || long.class.equals(type)
-                || Integer.class.isAssignableFrom(type)) {
+        if (int.class.equals(clazz)
+                || short.class.equals(clazz)
+                || long.class.equals(clazz)
+                || Integer.class.isAssignableFrom(clazz)) {
             return BuiltInType.intType;
-        } else if (float.class.equals(type)
-                || double.class.equals(type)
-                || Float.class.isAssignableFrom(type)) {
+        } else if (float.class.equals(clazz)
+                || double.class.equals(clazz)
+                || Float.class.isAssignableFrom(clazz)) {
             return BuiltInType.floatType;
-        } else if (boolean.class.equals(type) || Boolean.class.isAssignableFrom(type)) {
+        } else if (boolean.class.equals(clazz) || Boolean.class.isAssignableFrom(clazz)) {
             return BuiltInType.boolType;
-        } else if (String.class.equals(type) || String.class.isAssignableFrom(type)) {
+        } else if (String.class.equals(clazz) || String.class.isAssignableFrom(clazz)) {
             return BuiltInType.stringType;
-        } else if (Graph.class.equals(type) || Graph.class.isAssignableFrom(type)) {
+        } else if (Graph.class.equals(clazz) || Graph.class.isAssignableFrom(clazz)) {
             return BuiltInType.graphType;
         }
 
@@ -245,9 +255,9 @@ public class TypeBuilder {
         return new Symbol(callbackName, parentType, callbackType);
     }
 
-    protected IType createSetType(ParameterizedType setType) {
+    public IType createSetType(ParameterizedType setType) {
         var elementType = setType.getActualTypeArguments()[0];
-        IType elementDSLType = this.createTypeFromClass(Scope.NULL, (Class<?>) elementType);
+        IType elementDSLType = this.createTypeFromClass(Scope.NULL, elementType);
 
         if (javaTypeToDSLType.get(setType) == null) {
             IType dslSetType = new SetType(elementDSLType, Scope.NULL);
@@ -256,9 +266,9 @@ public class TypeBuilder {
         return javaTypeToDSLType.get(setType);
     }
 
-    protected IType createListType(ParameterizedType listType) {
+    public IType createListType(ParameterizedType listType) {
         var elementType = listType.getActualTypeArguments()[0];
-        IType elementDSLType = this.createTypeFromClass(Scope.NULL, (Class<?>) elementType);
+        IType elementDSLType = this.createTypeFromClass(Scope.NULL, elementType);
 
         if (javaTypeToDSLType.get(listType) == null) {
             IType dslListType = new ListType(elementDSLType, Scope.NULL);
@@ -305,44 +315,69 @@ public class TypeBuilder {
      * types declared in {@link BuiltInType} or another class marked with {@link DSLType}.
      *
      * @param parentScope the scope in which to create the new type
-     * @param clazz the class to create a type for
+     * @param type the class to create a type for
      * @return a new {@link AggregateType}, if the passed Class could be converted to a DSL type;
      *     null otherwise
      */
-    public IType createTypeFromClass(IScope parentScope, Class<?> clazz) {
-        if (this.javaTypeToDSLType.containsKey(clazz)) {
-            return this.javaTypeToDSLType.get(clazz);
+    public IType createTypeFromClass(IScope parentScope, Type type) {
+        if (this.javaTypeToDSLType.containsKey(type)) {
+            return this.javaTypeToDSLType.get(type);
         }
 
-        var builtInType = getBuiltInDSLType(clazz);
+        var builtInType = getBuiltInDSLType(type);
         if (builtInType != null) {
             return builtInType;
         }
+
+        Class<?> clazz = null;
+
+        // TODO: refactor
+        try {
+            clazz = (Class<?>)type;
+        } catch (ClassCastException ex) {
+            if (type instanceof ParameterizedType parameterizedType) {
+                var rawType = parameterizedType.getRawType();
+                try {
+                    clazz = (Class<?>)rawType;
+                } catch (ClassCastException exc) {
+                    throw new UnsupportedOperationException("The TypeBuilder does not support conversion of type " + type);
+                }
+
+                // if the cast fails, the type may be a parameterized type (e.g. list or set)
+                if (List.class.isAssignableFrom(clazz)) {
+                    return createListType((ParameterizedType) type);
+                } else if (Set.class.isAssignableFrom(clazz)) {
+                    return createSetType((ParameterizedType) type);
+                }
+            }
+        }
+
+
 
         if (!clazz.isAnnotationPresent(DSLType.class)) {
             return null;
         }
 
         // catch recursion
-        if (this.currentLookedUpClasses.contains(clazz)) {
+        if (this.currentLookedUpClasses.contains(type)) {
             throw new RuntimeException("RECURSIVE TYPE DEF");
         }
 
         String typeName = getDSLTypeName(clazz);
 
-        var type = new AggregateType(typeName, parentScope, clazz);
+        var aggregateType = new AggregateType(typeName, parentScope, clazz);
         for (Field field : clazz.getDeclaredFields()) {
             // bind new Symbol
             if (field.isAnnotationPresent(DSLTypeMember.class)) {
-                var fieldSymbol = createDataMemberSymbol(field, clazz, type);
-                type.bind(fieldSymbol);
+                var fieldSymbol = createDataMemberSymbol(field, clazz, aggregateType);
+                aggregateType.bind(fieldSymbol);
             }
             if (field.isAnnotationPresent(DSLCallback.class)) {
-                var callbackSymbol = createCallbackMemberSymbol(field, type);
-                type.bind(callbackSymbol);
+                var callbackSymbol = createCallbackMemberSymbol(field, aggregateType);
+                aggregateType.bind(callbackSymbol);
             }
         }
-        this.javaTypeToDSLType.put(clazz, type);
-        return type;
+        this.javaTypeToDSLType.put(type, aggregateType);
+        return aggregateType;
     }
 }
