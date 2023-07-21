@@ -175,19 +175,21 @@ public class GameEnvironment implements IEvironment {
 
         registerDefaultTypeAdapters();
 
-        var questConfigType = typeBuilder.createTypeFromClass(Scope.NULL, QuestConfig.class);
-        var entityComponentType = typeBuilder.createTypeFromClass(Scope.NULL, Entity.class);
+        // TODO: this may also create other types (like function types and list-types, which should be
+        //  stored properly in the environment
+        var questConfigType = typeBuilder.createTypeFromClass(this.globalScope, QuestConfig.class);
+        var entityComponentType = typeBuilder.createTypeFromClass(this.globalScope, Entity.class);
         var positionComponentType =
-                typeBuilder.createTypeFromClass(Scope.NULL, PositionComponent.class);
+                typeBuilder.createTypeFromClass(this.globalScope, PositionComponent.class);
         /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
          * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
         // var animationComponentType =
         //      typeBuilder.createTypeFromClass(Scope.NULL, DrawComponent.class);
         var velocityComponentType =
-                typeBuilder.createTypeFromClass(Scope.NULL, VelocityComponent.class);
+                typeBuilder.createTypeFromClass(this.globalScope, VelocityComponent.class);
         var aiComponentType = typeBuilder.createTypeFromClass(Scope.NULL, AIComponent.class);
         var hitboxComponentType =
-                typeBuilder.createTypeFromClass(Scope.NULL, CollideComponent.class);
+                typeBuilder.createTypeFromClass(this.globalScope, CollideComponent.class);
         types.add(questConfigType);
         types.add(entityComponentType);
         types.add(positionComponentType);

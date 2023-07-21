@@ -242,7 +242,7 @@ public class TypeBuilder {
     }
 
     // create a symbol in parentType for given field, representing a callback
-    protected Symbol createCallbackMemberSymbol(Field field, AggregateType parentType) {
+    protected Symbol createCallbackMemberSymbol(Field field, AggregateType parentType, IScope parentScope) {
         String callbackName = getDSLFieldName(field);
 
         IType callbackType = BuiltInType.noType;
@@ -291,7 +291,7 @@ public class TypeBuilder {
 
     // create a symbol in parentType for given field, representing data in parentClass
     protected Symbol createDataMemberSymbol(
-            Field field, Class<?> parentClass, AggregateType parentType) {
+        Field field, Class<?> parentClass, AggregateType parentType, IScope parentScope) {
         String fieldName = getDSLFieldName(field);
 
         Class<?> fieldsType = field.getType();
@@ -380,11 +380,11 @@ public class TypeBuilder {
         for (Field field : clazz.getDeclaredFields()) {
             // bind new Symbol
             if (field.isAnnotationPresent(DSLTypeMember.class)) {
-                var fieldSymbol = createDataMemberSymbol(field, clazz, aggregateType);
+                var fieldSymbol = createDataMemberSymbol(field, clazz, aggregateType, parentScope);
                 aggregateType.bind(fieldSymbol);
             }
             if (field.isAnnotationPresent(DSLCallback.class)) {
-                var callbackSymbol = createCallbackMemberSymbol(field, aggregateType);
+                var callbackSymbol = createCallbackMemberSymbol(field, aggregateType, parentScope);
                 aggregateType.bind(callbackSymbol);
             }
         }
