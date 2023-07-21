@@ -72,6 +72,14 @@ public class RuntimeObjectTranslator {
                 case FunctionType:
                     // TODO
                     break;
+                case ListType:
+                    // calculate list type
+
+                    break;
+                case SetType:
+                    // TODO
+                    boolean c = true;
+                    break;
             }
         }
         return returnValue;
