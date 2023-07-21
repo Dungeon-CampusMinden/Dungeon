@@ -1098,4 +1098,46 @@ public class TestDSLInterpreter {
         Assert.assertEquals("World", config.stringList().get(1));
         Assert.assertEquals("!", config.stringList().get(2));
     }
+
+    @Test
+    public void passListValueToFunc() {
+        String program = """
+                fn test_func(entity[] my_entities) -> bool {
+                    return true;
+                }
+
+                entity_type my_type{
+                    test_component_list_callback{
+                        on_interaction: test_func
+                    }
+                }
+
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config =
+            (CustomQuestConfig)
+                Helpers.generateQuestConfigWithCustomTypes(
+                    program, env, interpreter, Entity.class, TestComponentListCallback.class, TestComponentListOfListsCallback.class);
+
+        var testComponentWithCallback =
+            (TestComponentListCallback) config.entity().components.get(0);
+
+        ArrayList<Entity> entities = new ArrayList<>();
+        entities.add(new Entity());
+        entities.add(new Entity());
+        entities.add(new Entity());
+
+        boolean returnValue = testComponentWithCallback.executeCallbackWithText(entities);
+        Assert.assertTrue(returnValue);
+    }
 }
