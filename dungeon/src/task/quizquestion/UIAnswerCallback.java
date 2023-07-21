@@ -14,6 +14,8 @@ import core.Game;
 import core.hud.TextDialog;
 import core.hud.UITools;
 
+import task.TaskContent;
+
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -42,7 +44,7 @@ public final class UIAnswerCallback {
      * @return Consumer to use as a callback for the interaction component.
      */
     public static Consumer<Entity> askOnInteraction(
-            Quiz quiz, Consumer<Set<Quiz.Content>> dslCallback) {
+            Quiz quiz, Consumer<Set<TaskContent>> dslCallback) {
         return questGiver ->
                 QuizUI.showQuizDialog(
                         quiz, (Entity hudEntity) -> uiCallback(quiz, hudEntity, dslCallback));
@@ -54,7 +56,7 @@ public final class UIAnswerCallback {
      * @see UITools
      */
     private static BiFunction<TextDialog, String, Boolean> uiCallback(
-            Quiz quest, Entity hudEntity, Consumer<Set<Quiz.Content>> dslCallback) {
+            Quiz quest, Entity hudEntity, Consumer<Set<TaskContent>> dslCallback) {
         return (textDialog, id) -> {
             if (Objects.equals(id, UITools.DEFAULT_DIALOG_CONFIRM)) {
                 dslCallback.accept(getAnswer(quest, answerSection(textDialog)));
@@ -75,7 +77,7 @@ public final class UIAnswerCallback {
                         .next();
     }
 
-    private static Set<Quiz.Content> getAnswer(Quiz quiz, VerticalGroup answerSection) {
+    private static Set<TaskContent> getAnswer(Quiz quiz, VerticalGroup answerSection) {
         if (quiz.type() == Quiz.Type.FREETEXT) {
             // make the answer to a task content object
             // todo is this the way? malte-r?
@@ -85,8 +87,8 @@ public final class UIAnswerCallback {
         } else return stringToContent(quiz, checkboxAnswers(answerSection));
     }
 
-    private static Set<Quiz.Content> stringToContent(Quiz quiz, Set<String> answers) {
-        Set<Quiz.Content> contentSet = new HashSet<>();
+    private static Set<TaskContent> stringToContent(Quiz quiz, Set<String> answers) {
+        Set<TaskContent> contentSet = new HashSet<>();
         quiz.contentStream()
                 .map(answer -> (Quiz.Content) answer)
                 .filter(answer -> answers.contains(answer.content()))
