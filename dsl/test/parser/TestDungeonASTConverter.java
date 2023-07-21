@@ -11,8 +11,6 @@ import org.junit.Test;
 
 import parser.ast.*;
 
-import java.util.List;
-import java.util.Set;
 // CHECKSTYLE:ON: AvoidStarImport
 
 public class TestDungeonASTConverter {
@@ -933,7 +931,7 @@ public class TestDungeonASTConverter {
     @Test
     public void testListDefinition() {
         String program =
-            """
+                """
             fn test_func() {
                 [1,2,3];
             }
@@ -946,17 +944,17 @@ public class TestDungeonASTConverter {
         var listDefinitionStmt = stmts.get(0);
         Assert.assertEquals(Node.Type.ListDefinitionNode, listDefinitionStmt.type);
 
-        ListDefinitionNode listDefinitionNode = (ListDefinitionNode)listDefinitionStmt;
+        ListDefinitionNode listDefinitionNode = (ListDefinitionNode) listDefinitionStmt;
 
-        Assert.assertEquals(1, ((NumNode)listDefinitionNode.getEntries().get(0)).getValue());
-        Assert.assertEquals(2, ((NumNode)listDefinitionNode.getEntries().get(1)).getValue());
-        Assert.assertEquals(3, ((NumNode)listDefinitionNode.getEntries().get(2)).getValue());
+        Assert.assertEquals(1, ((NumNode) listDefinitionNode.getEntries().get(0)).getValue());
+        Assert.assertEquals(2, ((NumNode) listDefinitionNode.getEntries().get(1)).getValue());
+        Assert.assertEquals(3, ((NumNode) listDefinitionNode.getEntries().get(2)).getValue());
     }
 
     @Test
     public void testSetDefinition() {
         String program =
-            """
+                """
             fn test_func() {
                 <1,2,3>;
             }
@@ -971,8 +969,8 @@ public class TestDungeonASTConverter {
 
         SetDefinitionNode setDefinitionNode = (SetDefinitionNode) setDefinitionStmt;
 
-        Assert.assertEquals(1, ((NumNode)setDefinitionNode.getEntries().get(0)).getValue());
-        Assert.assertEquals(2, ((NumNode)setDefinitionNode.getEntries().get(1)).getValue());
-        Assert.assertEquals(3, ((NumNode)setDefinitionNode.getEntries().get(2)).getValue());
+        Assert.assertEquals(1, ((NumNode) setDefinitionNode.getEntries().get(0)).getValue());
+        Assert.assertEquals(2, ((NumNode) setDefinitionNode.getEntries().get(1)).getValue());
+        Assert.assertEquals(3, ((NumNode) setDefinitionNode.getEntries().get(2)).getValue());
     }
 }
