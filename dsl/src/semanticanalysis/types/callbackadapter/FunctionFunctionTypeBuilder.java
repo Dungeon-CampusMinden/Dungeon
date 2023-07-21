@@ -1,5 +1,6 @@
 package semanticanalysis.types.callbackadapter;
 
+import semanticanalysis.Scope;
 import semanticanalysis.types.FunctionType;
 import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
@@ -22,30 +23,25 @@ public class FunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
     public FunctionType buildFunctionType(Field field, TypeBuilder typeBuilder) {
         var genericType = field.getGenericType();
 
-        var typeMap = typeBuilder.getJavaTypeToDSLTypeMap();
-
         var parameterizedType = (ParameterizedType) genericType;
         Type[] typeArray = parameterizedType.getActualTypeArguments();
 
         // the first type parameter of the Function<T,R> interface will correspond to
         // the type of the single parameter of the function
-        IType parameterType = TypeBuilder.getBuiltInDSLType((Class<?>) typeArray[0]);
-        if (null == parameterType) {
-            parameterType = typeMap.get(typeArray[0]);
-        }
-        if (null == parameterType) {
+        Type parameterType = typeArray[0];
+        IType parameterDSLType = typeBuilder.createTypeFromClass(Scope.NULL, parameterType);
+        if (null == parameterDSLType) {
             throw new RuntimeException("Type of parameter of Function could not be translated");
         }
 
         // the second type parameter of the Function<T,R> interface will correspond to
         // the return type of the function
-        IType returnType = TypeBuilder.getBuiltInDSLType((Class<?>) typeArray[1]);
-        if (null == returnType) {
-            returnType = typeMap.get(typeArray[1]);
-        }
-        if (null == returnType) {
+        Type returnType = typeArray[1];
+        IType returnDSLType = typeBuilder.createTypeFromClass(Scope.NULL, returnType);
+
+        if (null == returnDSLType) {
             throw new RuntimeException("Returntype of Function could not be translated");
         }
-        return new FunctionType(returnType, parameterType);
+        return new FunctionType(returnDSLType, parameterDSLType);
     }
 }
