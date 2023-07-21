@@ -155,7 +155,17 @@ ret_type_def
     ;
 
 param_def
-    : typde_id=ID param_id=ID
+    : type_id=param_type param_id=ID
+    ;
+
+list_or_set_type
+    : ID '['list_or_set_type?']'
+    | ID '<'list_or_set_type?'>'
+    ;
+
+param_type
+    : list_or_set_type
+    | ID
     ;
 
 param_def_list
