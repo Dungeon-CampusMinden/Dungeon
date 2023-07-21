@@ -103,18 +103,11 @@ public class WizardQuizTest {
     }
 
     public static Quiz singleChoiceDummy() {
-        Quiz question =
-                new Quiz(
-                        Quiz.Type.SINGLE_CHOICE,
-                        Quiz.Content.Type.TEXT,
-                        "Was ist kein Ziel von Refactoring?");
-        question.addAnswer(
-                new Quiz.Content(Quiz.Content.Type.TEXT, "Lesbarkeit von Code verbessern"));
-        question.addAnswer(
-                new Quiz.Content(Quiz.Content.Type.TEXT, "Verständlichkeit von Code verbessern"));
-        question.addAnswer(
-                new Quiz.Content(Quiz.Content.Type.TEXT, "Wartbarkeit von Code verbessern"));
-        question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Fehler im Code ausmerzen"));
+        Quiz question = new Quiz(Quiz.Type.SINGLE_CHOICE, "Was ist kein Ziel von Refactoring?");
+        question.addAnswer(new Quiz.Content("Lesbarkeit von Code verbessern"));
+        question.addAnswer(new Quiz.Content("Verständlichkeit von Code verbessern"));
+        question.addAnswer(new Quiz.Content("Wartbarkeit von Code verbessern"));
+        question.addAnswer(new Quiz.Content("Fehler im Code ausmerzen"));
         return question;
     }
 
@@ -122,22 +115,20 @@ public class WizardQuizTest {
         Quiz question =
                 new Quiz(
                         Quiz.Type.MULTIPLE_CHOICE,
-                        Quiz.Content.Type.TEXT,
                         "Welche der hier genannten Komponenten sind \"atomare Komponenten\"?");
-        question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Buttons"));
-        question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Frames"));
-        question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Label"));
-        question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Panels"));
-        question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Groups"));
-        question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "EventListener"));
-        question.addAnswer(new Quiz.Content(Quiz.Content.Type.TEXT, "Events"));
+        question.addAnswer(new Quiz.Content("Buttons"));
+        question.addAnswer(new Quiz.Content("Frames"));
+        question.addAnswer(new Quiz.Content("Label"));
+        question.addAnswer(new Quiz.Content("Panels"));
+        question.addAnswer(new Quiz.Content("Groups"));
+        question.addAnswer(new Quiz.Content("EventListener"));
+        question.addAnswer(new Quiz.Content("Events"));
         return question;
     }
 
     public static Quiz freeTextDummy() {
         return new Quiz(
                 Quiz.Type.FREETEXT,
-                Quiz.Content.Type.TEXT,
                 "Mit welchem Befehl kann man sich Dateien in der Working copy anzeigen lassen, die unversioniert sind oder in denen es Änderungen seit dem letzten Commit gab?");
     }
 }

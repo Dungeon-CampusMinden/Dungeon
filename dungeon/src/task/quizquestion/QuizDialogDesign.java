@@ -76,7 +76,7 @@ public class QuizDialogDesign {
         labelSolution.setColor(Color.GREEN);
         VerticalGroup vg = new VerticalGroup();
         vg.addActor(labelExercise);
-        vg.addActor(visualizeQuestionSection(quizQuestion.question().type(), skin, outputMsg));
+        vg.addActor(visualizeQuestionSection(quizQuestion.question(), skin));
         vg.addActor(labelSolution);
         vg.addActor(visualizeAnswerSection(quizQuestion, skin));
         vg.grow();
@@ -87,39 +87,42 @@ public class QuizDialogDesign {
      * creates needed UI Elements to visualize all Question types.
      *
      * <p>QuestionType.TEXT will be shown on a Label, QuestionType.IMAGE will be shown on a Image
-     * and QuestionType.TEXT_AND_IMAGE will show the whole Text and then the Image. The Image needs
-     * to be loaded from the Filesystem so there could be a IOException thrown if the path is not
-     * correct in the Question.
+     * and QuestionType.TEXT_AND_IMAGE will show the whole Text and then the Image.
      *
-     * @param questionContentType represents the different types of quiz questions that can be
-     *     created. The available types are SINGLE_CHOICE, MULTIPLE_CHOICE, and FREETEXT.
+     * @param questionContent the {@link Quiz.Content} to show on the hud.
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
-     * @param outputMsg Content displayed in the scrollable label
      */
-    private static Group visualizeQuestionSection(
-            Quiz.Content.Type questionContentType, Skin skin, String outputMsg) {
+    private static Group visualizeQuestionSection(Quiz.Content questionContent, Skin skin) {
 
         VerticalGroup vg = new VerticalGroup();
 
-        switch (questionContentType) {
+        switch (questionContent.type()) {
             case TEXT -> vg.addActor(
-                    DialogDesign.createScrollPane(skin, new Label(outputMsg, skin)));
+                    DialogDesign.createScrollPane(
+                            skin, new Label(questionContent.content(), skin)));
             case IMAGE -> vg.addActor(
                     DialogDesign.createScrollPane(
                             skin,
-                            new Image(
-                                    new Texture(
-                                            DialogDesign.imagePathExtractor(outputMsg).get()))));
+                            questionContent
+                                    .image()
+                                    .orElse(
+                                            new Image(
+                                                    new Texture(
+                                                            "animation/missing_texture.png")))));
 
             case TEXT_AND_IMAGE -> {
-                vg.addActor(DialogDesign.createScrollPane(skin, new Label(outputMsg, skin)));
+                vg.addActor(
+                        DialogDesign.createScrollPane(
+                                skin, new Label(questionContent.content(), skin)));
                 vg.addActor(
                         DialogDesign.createScrollPane(
                                 skin,
-                                new Image(
-                                        new Texture(
-                                                DialogDesign.imagePathExtractor(outputMsg)
-                                                        .get()))));
+                                questionContent
+                                        .image()
+                                        .orElse(
+                                                new Image(
+                                                        new Texture(
+                                                                "animation/missing_texture.png")))));
             }
             default -> {}
         }

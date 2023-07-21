@@ -81,8 +81,7 @@ public final class UIAnswerCallback {
         if (quiz.type() == Quiz.Type.FREETEXT) {
             // make the answer to a task content object
             // todo is this the way? malte-r?
-            Quiz.Content content =
-                    new Quiz.Content(Quiz.Content.Type.TEXT, freeTextAnswer(answerSection));
+            Quiz.Content content = new Quiz.Content(freeTextAnswer(answerSection));
             quiz.addAnswer(content);
             return Set.of(content);
         } else return stringToContent(quiz, checkboxAnswers(answerSection));
