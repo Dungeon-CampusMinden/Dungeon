@@ -113,6 +113,19 @@ task runCallbackTest(dependsOn: classes, type: JavaExec) {
     }
 }
 
+task runLoaderTest(dependsOn: classes, type: JavaExec) {
+    mainClass = "manual.dslFileReader.DslFileReaderTest"
+    classpath = sourceSets.test.runtimeClasspath
+    standardInput = System.in
+    ignoreExitValue = true
+    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        allJvmArgs += ["-XstartOnFirstThread"]
+    }
+    doFirst {
+        println(DefaultNativePlatform.currentOperatingSystem)
+    }
+}
+
 test {
     testLogging {
         events "passed", "skipped", "failed"
