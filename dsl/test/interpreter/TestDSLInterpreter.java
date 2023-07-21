@@ -1042,9 +1042,11 @@ public class TestDSLInterpreter {
 
     @Test
     public void registerListAndSetTypesInEnvironment() {
-        String program =
-            """
-                quest_config c { }
+        String program = """
+                quest_config c {
+                    int_list: [1,2,3],
+                    string_list: ["Hello", "World", "!"]
+                }
             """;
 
         // print currently just prints to system.out, so we need to
@@ -1055,13 +1057,11 @@ public class TestDSLInterpreter {
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
         var config =
-            (CustomQuestConfig)
-                Helpers.generateQuestConfigWithCustomTypes(
-                    program,
-                    env,
-                    interpreter,
-                    Entity.class
-                    );
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(
+                                program, env, interpreter, Entity.class);
+
+        var rtEnv = interpreter.getRuntimeEnvironment();
 
         Assert.assertTrue(false);
     }
