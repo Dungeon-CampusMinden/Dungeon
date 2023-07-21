@@ -158,14 +158,10 @@ param_def
     : type_id=param_type param_id=ID
     ;
 
-list_or_set_type
-    : ID '['list_or_set_type?']'
-    | ID '<'list_or_set_type?'>'
-    ;
-
 param_type
-    : list_or_set_type
-    | ID
+    : param_type '<>'   #set_param_type
+    | param_type '[]'   #list_param_type
+    | ID                #id_param_type
     ;
 
 param_def_list

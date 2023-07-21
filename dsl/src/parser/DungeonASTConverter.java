@@ -437,29 +437,34 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterList_or_set_type(DungeonDSLParser.List_or_set_typeContext ctx) {
+    public void enterId_param_type(DungeonDSLParser.Id_param_typeContext ctx) {
 
     }
 
     @Override
-    public void exitList_or_set_type(DungeonDSLParser.List_or_set_typeContext ctx) {
+    public void exitId_param_type(DungeonDSLParser.Id_param_typeContext ctx) {
+        // nothing to do
+    }
+
+    @Override
+    public void enterList_param_type(DungeonDSLParser.List_param_typeContext ctx) {
+    }
+
+    @Override
+    public void exitList_param_type(DungeonDSLParser.List_param_typeContext ctx) {
         // TODO: implement
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void enterParam_type(DungeonDSLParser.Param_typeContext ctx) {
+    public void enterSet_param_type(DungeonDSLParser.Set_param_typeContext ctx) {
 
     }
 
     @Override
-    public void exitParam_type(DungeonDSLParser.Param_typeContext ctx) {
-        if (ctx.list_or_set_type() != null) {
-            // TODO: implement
-            throw new UnsupportedOperationException();
-        } else {
-            // nothing to do
-        }
+    public void exitSet_param_type(DungeonDSLParser.Set_param_typeContext ctx) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
     }
 
     @Override
