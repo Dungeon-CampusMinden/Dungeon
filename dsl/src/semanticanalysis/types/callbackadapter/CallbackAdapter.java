@@ -38,6 +38,9 @@ public class CallbackAdapter implements Function, Consumer, TriConsumer {
 
     public Object call(Object... params) {
         var functionSymbol = rtEnv.getSymbolTable().getSymbolsForAstNode(funcDefNode).get(0);
+
+        // TODO: handle encapsulated values (which should just be "unpacked" e.g. unencapsulated)
+        // TODO: handle list- and set-types
         var returnValue =
                 (Value)
                         interpreter.executeUserDefinedFunctionRawParameters(
