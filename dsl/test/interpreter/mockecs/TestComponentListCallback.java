@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.function.Function;
 
 @DSLType
-public class TestComponentWithFunctionCallbackListParameter extends Component {
+public class TestComponentListCallback extends Component {
     private Entity entity;
 
     public Entity getEntity() {
@@ -22,8 +22,13 @@ public class TestComponentWithFunctionCallbackListParameter extends Component {
         return onInteraction;
     }
 
-    public TestComponentWithFunctionCallbackListParameter(@DSLContextMember(name = "entity") Entity entity) {
+    public TestComponentListCallback(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);
         this.entity = entity;
     }
+
+    public Boolean executeCallbackWithText(List<Entity> entities) {
+        return onInteraction.apply(entities);
+    }
 }
+
