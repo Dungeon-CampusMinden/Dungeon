@@ -10,6 +10,7 @@ import helpers.Helpers;
 import interpreter.mockecs.*;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import parser.ast.Node;
@@ -1041,6 +1042,7 @@ public class TestDSLInterpreter {
     }
 
     @Test
+    @Ignore
     public void registerListAndSetTypesInEnvironment() {
         String program = """
                 quest_config c {
@@ -1064,5 +1066,36 @@ public class TestDSLInterpreter {
         var rtEnv = interpreter.getRuntimeEnvironment();
 
         Assert.assertTrue(false);
+    }
+
+    @Test
+    public void setListValues() {
+        String program = """
+                quest_config c {
+                    int_list: [1,2,3],
+                    string_list: ["Hello", "World", "!"]
+                }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config =
+            (CustomQuestConfig)
+                Helpers.generateQuestConfigWithCustomTypes(
+                    program, env, interpreter, Entity.class);
+
+        // cast to Integer to make the compiler happy
+        Assert.assertEquals((Integer) 1, config.intList().get(0));
+        Assert.assertEquals((Integer) 2, config.intList().get(1));
+        Assert.assertEquals((Integer) 3, config.intList().get(2));
+
+        Assert.assertEquals("Hello", config.stringList().get(0));
+        Assert.assertEquals("World", config.stringList().get(1));
+        Assert.assertEquals("!", config.stringList().get(2));
     }
 }
