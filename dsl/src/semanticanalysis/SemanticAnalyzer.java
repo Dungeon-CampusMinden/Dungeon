@@ -221,7 +221,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
                             + " at: "
                             + node.getSourceFileReference()
                             + "\n");
-        } else if (!(symbol instanceof IType)) {
+        } else {
             var astNodeForSymbol = symbolTable.getCreationAstNode(symbol);
             var symDefLineNumber = astNodeForSymbol.getSourceFileReference().getLine();
 
