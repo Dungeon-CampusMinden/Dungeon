@@ -151,16 +151,16 @@ else_stmt
     ;
 
 ret_type_def
-    : ARROW type_id=ID
+    : ARROW type_id=type_decl
     ;
 
 param_def
-    : type_id=param_type param_id=ID
+    : type_id=type_decl param_id=ID
     ;
 
-param_type
-    : param_type '<>'   #set_param_type
-    | param_type '[]'   #list_param_type
+type_decl
+    : type_decl '<>'   #set_param_type
+    | type_decl '[]'   #list_param_type
     | ID                #id_param_type
     ;
 
