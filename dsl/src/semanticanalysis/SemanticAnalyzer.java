@@ -400,7 +400,14 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         } else {
             // resolve return value (if one was defined)
             IType returnType = BuiltInType.noType;
-            if (node.getRetTypeId() != Node.NONE) {
+            Node returnTypeIdNode = node.getRetTypeId();
+            if (returnTypeIdNode != Node.NONE) {
+                if (returnTypeIdNode.type != Node.Type.Identifier) {
+                    // the type is either a list type or set type, which may
+                    // require type creation
+                    returnTypeIdNode.accept(this);
+                }
+
                 String returnTypeName = node.getRetTypeName();
                 returnType = resolveType(returnTypeName);
                 if (returnType == null) {
