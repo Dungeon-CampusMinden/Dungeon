@@ -27,6 +27,7 @@ import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
@@ -1139,5 +1140,49 @@ public class TestDSLInterpreter {
 
         boolean returnValue = testComponentWithCallback.executeCallbackWithText(entities);
         Assert.assertTrue(returnValue);
+    }
+
+    @Test
+    public void passListValueThroughFunc() {
+        String program = """
+                fn test_func(entity[] my_entities) -> entity[] {
+                    return my_entities;
+                }
+
+                entity_type my_type{
+                    test_component_list_pass_through_callback{
+                        on_interaction: test_func
+                    }
+                }
+
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config =
+            (CustomQuestConfig)
+                Helpers.generateQuestConfigWithCustomTypes(
+                    program, env, interpreter, Entity.class, TestComponentListCallback.class, TestComponentListPassThroughCallback.class);
+
+        var testComponentWithCallback =
+            (TestComponentListPassThroughCallback) config.entity().components.get(0);
+
+        ArrayList<Entity> entities = new ArrayList<>();
+        entities.add(new Entity());
+        entities.add(new Entity());
+        entities.add(new Entity());
+
+        List<Entity> returnedEntities = testComponentWithCallback.executeCallback(entities);
+        Assert.assertEquals(entities.get(0), returnedEntities.get(0));
+        Assert.assertEquals(entities.get(1), returnedEntities.get(1));
+        Assert.assertEquals(entities.get(2), returnedEntities.get(2));
     }
 }
