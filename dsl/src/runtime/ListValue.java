@@ -3,6 +3,7 @@ package runtime;
 import semanticanalysis.types.ListType;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ListValue extends Value {
     public ListValue(ListType dataType) {
@@ -15,5 +16,9 @@ public class ListValue extends Value {
 
     public Value getValue(int index) {
         return ((ArrayList<Value>) this.object).get(index);
+    }
+
+    public List<Value> getValues() {
+        return (List<Value>) this.object;
     }
 }
