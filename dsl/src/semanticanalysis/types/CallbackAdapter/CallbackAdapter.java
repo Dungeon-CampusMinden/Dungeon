@@ -6,12 +6,15 @@ import interpreter.DSLInterpreter;
 
 import parser.ast.FuncDefNode;
 
+import runtime.ListValue;
+import runtime.Prototype;
 import runtime.RuntimeEnvironment;
 import runtime.Value;
 
 import semanticanalysis.FunctionSymbol;
 import semanticanalysis.types.FunctionType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -46,7 +49,38 @@ public class CallbackAdapter implements Function, Consumer, TriConsumer {
                         interpreter.executeUserDefinedFunctionRawParameters(
                                 (FunctionSymbol) functionSymbol, Arrays.stream(params).toList());
 
-        return returnValue.getInternalValue();
+        return convertValueToObject(returnValue);
+    }
+
+    protected Object convertValueToObject(Value value) {
+        var valuesType = value.getDataType();
+        switch (valuesType.getTypeKind()) {
+            case Basic:
+                if (valuesType.equals(Prototype.PROTOTYPE)) {
+                    throw new RuntimeException("Can't convert prototype to object");
+                }
+                return value.getInternalValue();
+            case Aggregate:
+            case PODAdapted:
+            case AggregateAdapted:
+                // TODO: does this always work?
+                return value.getInternalValue();
+            case FunctionType:
+                // TODO: convert to callback adapter?
+                break;
+            case SetType:
+                // TODO
+                break;
+            case ListType:
+                var list = new ArrayList<>();
+                ListValue listValue = (ListValue) value;
+                for (var entry : listValue.getValues()) {
+                    Object entryObject = convertValueToObject(entry);
+                    list.add(entryObject);
+                }
+                return list;
+        }
+        return null;
     }
 
     // region interface implementation
