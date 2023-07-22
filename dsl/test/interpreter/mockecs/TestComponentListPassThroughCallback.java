@@ -22,6 +22,10 @@ public class TestComponentListPassThroughCallback extends Component {
         return onInteraction;
     }
 
+    public List<Entity> executeCallback(List<Entity> entities) {
+        return onInteraction.apply(entities);
+    }
+
     public TestComponentListPassThroughCallback(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);
         this.entity = entity;
