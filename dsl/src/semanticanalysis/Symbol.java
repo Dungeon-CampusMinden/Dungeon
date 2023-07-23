@@ -103,10 +103,6 @@ public class Symbol {
         this.name = symbolName;
         this.dataType = dataType;
         this.symbolType = Type.Base;
-
-        if (this.scope != null && this.scope != Scope.NULL) {
-            this.scope.bind(this);
-        }
     }
 
     /** Constructor */
