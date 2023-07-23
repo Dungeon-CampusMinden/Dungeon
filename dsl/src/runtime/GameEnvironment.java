@@ -93,19 +93,6 @@ public class GameEnvironment implements IEvironment {
     }
 
     @Override
-    // TODO: remove?
-    public IType[] getTypes() {
-        var combinedList = new ArrayList<IType>();
-        for (Symbol symbol : this.globalScope.getSymbols()) {
-            if (symbol instanceof IType) {
-                combinedList.add((IType) symbol);
-            }
-        }
-        var typesArray = new IType[combinedList.size()];
-        return combinedList.toArray(typesArray);
-    }
-
-    @Override
     public Symbol[] getFunctions() {
         var funcArray = new Symbol[NATIVE_FUNCTIONS.size() + loadedFunctions.size()];
         var combinedList = new ArrayList<Symbol>();
