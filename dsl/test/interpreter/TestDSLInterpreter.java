@@ -10,7 +10,6 @@ import helpers.Helpers;
 import interpreter.mockecs.*;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import parser.ast.Node;
@@ -1043,7 +1042,6 @@ public class TestDSLInterpreter {
     }
 
     @Test
-    @Ignore
     public void registerListAndSetTypesInEnvironment() {
         String program = """
                 quest_config c {
@@ -1065,8 +1063,15 @@ public class TestDSLInterpreter {
                                 program, env, interpreter, Entity.class);
 
         var rtEnv = interpreter.getRuntimeEnvironment();
+        IType intListType = (IType) rtEnv.getGlobalScope().resolve("int[]");
+        Assert.assertNotEquals(null, intListType);
+        Assert.assertEquals(IType.Kind.ListType, intListType.getTypeKind());
+        Assert.assertEquals(BuiltInType.intType, ((ListType)intListType).getElementType());
 
-        Assert.assertTrue(false);
+        IType stringListType = (IType) rtEnv.getGlobalScope().resolve("string[]");
+        Assert.assertNotEquals(null, stringListType);
+        Assert.assertEquals(IType.Kind.ListType, stringListType.getTypeKind());
+        Assert.assertEquals(BuiltInType.stringType, ((ListType)stringListType).getElementType());
     }
 
     @Test
