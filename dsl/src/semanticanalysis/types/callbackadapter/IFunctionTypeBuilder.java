@@ -1,5 +1,6 @@
 package semanticanalysis.types.callbackadapter;
 
+import semanticanalysis.IScope;
 import semanticanalysis.types.FunctionType;
 import semanticanalysis.types.TypeBuilder;
 

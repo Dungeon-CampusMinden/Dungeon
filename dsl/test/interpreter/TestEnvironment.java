@@ -31,7 +31,7 @@ public class TestEnvironment extends GameEnvironment {
         }
 
         var questConfigType =
-                this.getTypeBuilder().createTypeFromClass(Scope.NULL, CustomQuestConfig.class);
+                this.getTypeBuilder().createDSLTypeForJavaTypeInScope(Scope.NULL, CustomQuestConfig.class);
         loadTypes(questConfigType);
 
         for (Symbol func : NATIVE_FUNCTIONS) {

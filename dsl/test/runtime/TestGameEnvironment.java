@@ -16,16 +16,16 @@ public class TestGameEnvironment {
         // OtherExternalType to be references as 'external_type`) -> this should trigger an
         // exception
         env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
-        var adapterType = env.getTypeBuilder().createTypeFromClass(Scope.NULL, ExternalType.class);
+        var adapterType = env.getTypeBuilder().createDSLTypeForJavaTypeInScope(Scope.NULL, ExternalType.class);
 
         env.getTypeBuilder()
                 .registerTypeAdapter(OtherExternalTypeBuilderMultiParam.class, Scope.NULL);
         var otherAdapterType =
-                env.getTypeBuilder().createTypeFromClass(Scope.NULL, OtherExternalType.class);
+                env.getTypeBuilder().createDSLTypeForJavaTypeInScope(Scope.NULL, OtherExternalType.class);
 
         var externalComponentType =
                 env.getTypeBuilder()
-                        .createTypeFromClass(Scope.NULL, TestComponentWithExternalType.class);
+                        .createDSLTypeForJavaTypeInScope(Scope.NULL, TestComponentWithExternalType.class);
         env.loadTypes(externalComponentType, adapterType, otherAdapterType);
     }
 }
