@@ -2,17 +2,13 @@ package semanticanalysis.types;
 
 import static org.junit.Assert.*;
 
-import com.badlogic.gdx.Game;
 import dslToGame.graph.Graph;
 
-import interpreter.CustomQuestConfigWithListMember;
-import interpreter.CustomQuestConfigWithSetMember;
 import interpreter.TestEnvironment;
 import interpreter.mockecs.*;
 
 import org.junit.Test;
 
-import runtime.GameEnvironment;
 import semanticanalysis.Scope;
 import semanticanalysis.Symbol;
 
@@ -216,14 +212,14 @@ public class TestTypeBuilder {
 
     @Test
     public void testCallbackTriConsumer() {
-        TypeBuilder tb = new TypeBuilder();
+        TestEnvironment env = new TestEnvironment();
+        //TypeBuilder tb = new TypeBuilder();
         // register Entity type (setup)
-        var entityType = (AggregateType) tb.createDSLTypeForJavaTypeInScope(Scope.NULL, Entity.class);
+        var entityType = (AggregateType) env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
 
         var dslType =
                 (AggregateType)
-                        tb.createDSLTypeForJavaTypeInScope(
-                                Scope.NULL, TestComponentWithTriConsumerCallback.class);
+                        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponentWithTriConsumerCallback.class);
         var callbackSymbol = dslType.resolve("on_interaction");
 
         assertNotEquals(Symbol.NULL, callbackSymbol);
@@ -238,13 +234,14 @@ public class TestTypeBuilder {
 
     @Test
     public void testCallbackFunction() {
-        TypeBuilder tb = new TypeBuilder();
+        TestEnvironment env = new TestEnvironment();
+        //TypeBuilder tb = new TypeBuilder();
         // register Entity type (setup)
-        var entityType = (AggregateType) tb.createDSLTypeForJavaTypeInScope(Scope.NULL, Entity.class);
+        var entityType = (AggregateType) env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
 
         var dslType =
                 (AggregateType)
-                        tb.createDSLTypeForJavaTypeInScope(Scope.NULL, TestComponentWithFunctionCallback.class);
+                        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponentWithFunctionCallback.class);
         var callbackSymbol = dslType.resolve("on_interaction");
 
         assertNotEquals(Symbol.NULL, callbackSymbol);
@@ -267,12 +264,10 @@ public class TestTypeBuilder {
 
     @Test
     public void testListMember() {
-        // setup typebuilder
-        Scope scope = new Scope();
-        TypeBuilder tb = new TypeBuilder();
+        TestEnvironment env = new TestEnvironment();
         var questConfigType =
                 (AggregateType)
-                        tb.createDSLTypeForJavaTypeInScope(scope, CustomQuestConfigWithListMember.class);
+                        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponentWithListMember.class);
 
         Symbol intListSymbol = questConfigType.resolve("int_list");
         assertEquals("int[]", intListSymbol.getDataType().getName());
@@ -287,12 +282,10 @@ public class TestTypeBuilder {
 
     @Test
     public void testSetMember() {
-        Scope scope = new Scope();
-        // setup typebuilder
-        TypeBuilder tb = new TypeBuilder();
+        TestEnvironment env = new TestEnvironment();
         var questConfigType =
                 (AggregateType)
-                        tb.createDSLTypeForJavaTypeInScope(scope, CustomQuestConfigWithSetMember.class);
+                        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponentWithSetMember.class);
         Symbol intSetSymbol = questConfigType.resolve("int_set");
         assertEquals("int<>", intSetSymbol.getDataType().getName());
         SetType setType = (SetType) intSetSymbol.getDataType();
