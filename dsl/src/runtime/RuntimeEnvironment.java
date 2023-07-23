@@ -17,7 +17,7 @@ import java.util.HashMap;
 public class RuntimeEnvironment implements IEvironment {
     private final SymbolTable symbolTable;
     private final HashMap<String, Symbol> functions;
-    private final HashMap<String, IType> types;
+    //private final HashMap<String, IType> types;
     private final HashMap<String, Prototype> prototypes;
     private final HashMap<Type, IType> javaTypeToDSLType;
     private final RuntimeObjectTranslator runtimeObjectTranslator;
@@ -46,11 +46,11 @@ public class RuntimeEnvironment implements IEvironment {
             this.functions.put(function.getName(), function);
         }
 
-        var types = other.getTypes();
-        this.types = new HashMap<>();
-        for (var type : types) {
-            this.types.put(type.getName(), type);
-        }
+        //var types = other.getTypes();
+        //this.types = new HashMap<>();
+        //for (var type : types) {
+        //    this.types.put(type.getName(), type);
+        //}
 
         this.prototypes = new HashMap<>();
 
@@ -88,11 +88,6 @@ public class RuntimeEnvironment implements IEvironment {
     @Override
     public TypeBuilder getTypeBuilder() {
         return this.typeBuilder;
-    }
-
-    @Override
-    public IType[] getTypes() {
-        return this.types.values().toArray(new IType[0]);
     }
 
     @Override

@@ -6,6 +6,7 @@ import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,7 +19,14 @@ public interface IEvironment {
      * @return all available types of the environment
      */
     default IType[] getTypes() {
-        return new IType[0];
+        ArrayList<IType> types = new ArrayList<>();
+
+        for (Symbol symbol : this.getGlobalScope().getSymbols()) {
+            if (symbol instanceof IType) {
+                types.add((IType) symbol);
+            }
+        }
+        return types.toArray(new IType[0]);
     }
 
     // default Symbol lookupType(String name) { return Symbol.NULL; }
