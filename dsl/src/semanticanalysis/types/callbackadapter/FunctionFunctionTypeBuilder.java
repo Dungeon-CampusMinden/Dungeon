@@ -1,5 +1,6 @@
 package semanticanalysis.types.callbackadapter;
 
+import semanticanalysis.IScope;
 import semanticanalysis.Scope;
 import semanticanalysis.types.FunctionType;
 import semanticanalysis.types.IType;
@@ -20,7 +21,7 @@ public class FunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
     private FunctionFunctionTypeBuilder() {}
 
     @Override
-    public FunctionType buildFunctionType(Field field, TypeBuilder typeBuilder) {
+    public FunctionType buildFunctionType(Field field, TypeBuilder typeBuilder, IScope globalScope) {
         var genericType = field.getGenericType();
 
         var parameterizedType = (ParameterizedType) genericType;
@@ -29,7 +30,7 @@ public class FunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
         // the first type parameter of the Function<T,R> interface will correspond to
         // the type of the single parameter of the function
         Type parameterType = typeArray[0];
-        IType parameterDSLType = typeBuilder.createTypeFromClass(Scope.NULL, parameterType);
+        IType parameterDSLType = typeBuilder.createDSLTypeForJavaTypeInScope(globalScope, parameterType);
         if (null == parameterDSLType) {
             throw new RuntimeException("Type of parameter of Function could not be translated");
         }
@@ -37,7 +38,7 @@ public class FunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
         // the second type parameter of the Function<T,R> interface will correspond to
         // the return type of the function
         Type returnType = typeArray[1];
-        IType returnDSLType = typeBuilder.createTypeFromClass(Scope.NULL, returnType);
+        IType returnDSLType = typeBuilder.createDSLTypeForJavaTypeInScope(globalScope, returnType);
 
         if (null == returnDSLType) {
             throw new RuntimeException("Returntype of Function could not be translated");

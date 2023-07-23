@@ -15,5 +15,5 @@ public interface IFunctionTypeBuilder {
      * @param typeBuilder {@link TypeBuilder} instance to lookup parameter types
      * @return {@link FunctionType} corresponding to the callback signature
      */
-    FunctionType buildFunctionType(Field field, TypeBuilder typeBuilder);
+    FunctionType buildFunctionType(Field field, TypeBuilder typeBuilder, IScope globalScope);
 }
