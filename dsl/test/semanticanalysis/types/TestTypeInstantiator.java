@@ -29,7 +29,7 @@ public class TestTypeInstantiator {
         HashMap<String, Object> setValues = new HashMap<>();
 
         TypeBuilder tb = new TypeBuilder();
-        var type = (AggregateType) tb.createTypeFromClass(Scope.NULL, QuestConfig.class);
+        var type = (AggregateType) tb.createDSLTypeForJavaTypeInScope(Scope.NULL, QuestConfig.class);
 
         // the fieldName does not necessary match the member name in the created DSLType, so store a
         // map from member to
@@ -88,7 +88,7 @@ public class TestTypeInstantiator {
         HashMap<String, Object> setValues = new HashMap<>();
 
         TypeBuilder tb = new TypeBuilder();
-        var type = (AggregateType) tb.createTypeFromClass(Scope.NULL, TestClassOuter.class);
+        var type = (AggregateType) tb.createDSLTypeForJavaTypeInScope(Scope.NULL, TestClassOuter.class);
 
         // the fieldName does not necessary match the member name in the created DSLType, so store a
         // map from member to

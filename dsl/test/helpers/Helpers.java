@@ -120,7 +120,7 @@ public class Helpers {
             Class<?>... classesToLoadAsTypes) {
 
         for (var clazz : classesToLoadAsTypes) {
-            var type = environment.getTypeBuilder().createTypeFromClass(new Scope(), clazz);
+            var type = environment.getTypeBuilder().createDSLTypeForJavaTypeInScope(new Scope(), clazz);
             environment.loadTypes(type);
         }
 
