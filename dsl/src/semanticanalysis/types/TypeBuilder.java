@@ -269,7 +269,7 @@ public class TypeBuilder {
         var functionTypeBuilder = functionTypeBuilders.get(fieldsClass);
 
         if (functionTypeBuilder != null) {
-            callbackType = functionTypeBuilder.buildFunctionType(field, this);
+            callbackType = functionTypeBuilder.buildFunctionType(field, this, globalScope);
             callbackType = bindOrResolveTypeInScope(callbackType, globalScope);
         }
 
