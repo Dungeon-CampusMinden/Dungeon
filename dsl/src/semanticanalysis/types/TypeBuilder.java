@@ -255,6 +255,12 @@ public class TypeBuilder {
         return new Symbol(callbackName, parentType, callbackType);
     }
 
+    /**
+     * Create a new {@link SetType} from the passed {@link ParameterizedType}.
+     *
+     * @param setType the {@link ParameterizedType} to convert into a {@link SetType}
+     * @return the created type
+     */
     public IType createSetType(ParameterizedType setType) {
         var elementType = setType.getActualTypeArguments()[0];
         IType elementDSLType = this.createTypeFromClass(Scope.NULL, elementType);
@@ -266,6 +272,12 @@ public class TypeBuilder {
         return javaTypeToDSLType.get(setType);
     }
 
+    /**
+     * Create a new {@link ListType} from the passed {@link ParameterizedType}.
+     *
+     * @param listType the {@link ParameterizedType} to convert into a {@link ListType}
+     * @return the created type
+     */
     public IType createListType(ParameterizedType listType) {
         var elementType = listType.getActualTypeArguments()[0];
         IType elementDSLType = this.createTypeFromClass(Scope.NULL, elementType);
@@ -329,6 +341,9 @@ public class TypeBuilder {
             return builtInType;
         }
 
+        // Try to cast the passed Type to Class<?> (needed for further operations).
+        // The passed Type will be either a Class<?> or a ParameterizedType (used to
+        // create List- and Set-Types).
         Class<?> clazz = null;
         try {
             clazz = (Class<?>)type;
