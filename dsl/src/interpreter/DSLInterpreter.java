@@ -660,14 +660,16 @@ public class DSLInterpreter implements AstVisitor<Object> {
             entries.add(value);
         }
 
-        // TODO: this is a temporary solution
+        // TODO: this is a temporary solution, once Typechecking is implemented, the type would be
+        //  inferred before this
         IType entryType = BuiltInType.noType;
         if (entries.size() != 0) {
             entryType = entries.get(0).getDataType();
         }
         // create list type
         String listTypeName = ListType.getListTypeName(entryType);
-        // TODO: list_type is not properly put in environment beforehand..
+        // TODO: list_type is not properly put in environment beforehand, requires changing of
+        //  environment<->typebuilder interaction
         Symbol listType = this.environment.resolveInGlobalScope(listTypeName);
         if (listType == Symbol.NULL) {
             listType = new ListType(entryType, this.environment.getGlobalScope());
@@ -689,7 +691,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
             entries.add(value);
         }
 
-        // TODO: this is a temporary solution
+        // TODO: this is a temporary solution, once Typechecking is implemented, the type would be
+        //  inferred before this
         IType entryType = BuiltInType.noType;
         if (entries.size() != 0) {
             entryType = entries.get(0).getDataType();
@@ -697,7 +700,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         // create list type
         String setTypeName = SetType.getSetTypeName(entryType);
-        // TODO: list_type is not properly put in environment beforehand..
+        // TODO: list_type is not properly put in environment beforehand, requires changing of
+        //  environment<->typebuilder interaction
         Symbol setType = this.environment.resolveInGlobalScope(setTypeName);
         if (setType == Symbol.NULL) {
             setType = new SetType(entryType, this.environment.getGlobalScope());
