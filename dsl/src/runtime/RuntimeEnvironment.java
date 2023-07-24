@@ -46,12 +46,6 @@ public class RuntimeEnvironment implements IEvironment {
             this.functions.put(function.getName(), function);
         }
 
-        //var types = other.getTypes();
-        //this.types = new HashMap<>();
-        //for (var type : types) {
-        //    this.types.put(type.getName(), type);
-        //}
-
         this.prototypes = new HashMap<>();
 
         this.javaTypeToDSLType = other.javaTypeToDSLTypeMap();
