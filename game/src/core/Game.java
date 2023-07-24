@@ -33,9 +33,12 @@ import core.utils.components.MissingComponentException;
 import core.utils.logging.LoggerConfig;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -700,11 +703,23 @@ public final class Game extends ScreenAdapter {
 
     /** Will update the entity sets of each system and {@link Game#entities}. */
     private void updateSystems() {
-        for (System system : systems.values()) {
-            entities.foreachEntityInAddSet(system::showEntity);
-            entities.foreachEntityInRemoveSet(system::removeEntity);
+        Collection<System> systemsColl = systems.values();
+        Queue<Entity> q = new ArrayDeque<>(entities.toAdd());
+        entities.toAdd().clear();
+        while (q.size() > 0) {
+            Entity curr = q.remove();
+            systemsColl.forEach(x -> x.showEntity(curr));
+            // update add logic
+            entities.current().add(curr);
         }
-        entities.update();
+        q = new ArrayDeque<>(entities.toRemove());
+        entities.toRemove().clear();
+        while (q.size() > 0) {
+            Entity curr = q.remove();
+            systemsColl.forEach(x -> x.removeEntity(curr));
+            // update remove logic
+            entities.current().remove(curr);
+        }
     }
 
     /**

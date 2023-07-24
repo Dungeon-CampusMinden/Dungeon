@@ -165,7 +165,7 @@ public abstract class System {
      * @see java.util.ConcurrentModificationException
      */
     public final void clearEntities() {
-        entities.clear();
+        new HashSet<>(entities).forEach(this::removeEntity);
         LOGGER.info("All entities from " + this.getClass().getName() + " were removed");
     }
 
