@@ -1,6 +1,5 @@
 package semanticanalysis.types;
 
-import semanticanalysis.IScope;
 import semanticanalysis.Scope;
 import semanticanalysis.Symbol;
 
@@ -37,7 +36,8 @@ public class FunctionType extends Symbol implements IType {
     public FunctionType(IType returnType, IType... parameterTypes) {
         super(
                 calculateTypeName(returnType, new ArrayList<>(List.of(parameterTypes))),
-                Scope.NULL, null);
+                Scope.NULL,
+                null);
         this.returnType = returnType;
         this.parameterTypes = new ArrayList<>(List.of(parameterTypes));
     }

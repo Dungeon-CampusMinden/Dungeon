@@ -46,7 +46,15 @@ public class GameEnvironment implements IEvironment {
     // var animationComponentType =
     //      typeBuilder.createTypeFromClass(Scope.NULL, DrawComponent.class);
     public Class<?>[] getBuiltInAggregateTypeClasses() {
-        return (Class<?>[]) new Class[] { QuestConfig.class, Entity.class, PositionComponent.class, VelocityComponent.class, AIComponent.class, CollideComponent.class };
+        return (Class<?>[])
+                new Class[] {
+                    QuestConfig.class,
+                    Entity.class,
+                    PositionComponent.class,
+                    VelocityComponent.class,
+                    AIComponent.class,
+                    CollideComponent.class
+                };
     }
 
     @Override

@@ -250,8 +250,10 @@ public class TypeBuilder {
             } else {
                 // symbol with the name of the function type is already bound in
                 // global scope but not a type
-                throw new RuntimeException("A symbol with the name " + type.getName() +
-                    " is already bound in the global scope but is not a type");
+                throw new RuntimeException(
+                        "A symbol with the name "
+                                + type.getName()
+                                + " is already bound in the global scope but is not a type");
             }
         } else {
             // bind newly created function type in the global scope
@@ -261,7 +263,8 @@ public class TypeBuilder {
     }
 
     // create a symbol in parentType for given field, representing a callback
-    protected Symbol createCallbackMemberSymbol(Field field, AggregateType parentType, IScope globalScope) {
+    protected Symbol createCallbackMemberSymbol(
+            Field field, AggregateType parentType, IScope globalScope) {
         String callbackName = getDSLFieldName(field);
 
         IType callbackType = BuiltInType.noType;
@@ -324,9 +327,11 @@ public class TypeBuilder {
         if (memberDSLType == null) {
             // is list or set?
             if (List.class.isAssignableFrom(fieldsType)) {
-                memberDSLType = createListType((ParameterizedType) field.getGenericType(), globalScope);
+                memberDSLType =
+                        createListType((ParameterizedType) field.getGenericType(), globalScope);
             } else if (Set.class.isAssignableFrom(fieldsType)) {
-                memberDSLType = createSetType((ParameterizedType) field.getGenericType(), globalScope);
+                memberDSLType =
+                        createSetType((ParameterizedType) field.getGenericType(), globalScope);
             }
         }
         if (memberDSLType == null) {
@@ -343,19 +348,17 @@ public class TypeBuilder {
     }
 
     /**
-     * Creates a DSL {@link IType} from a java {@link Type}.
-     * Based on the kind of passed {@link Type}, different kinds of {@link IType} will be created.
-     * The most common scenario is the creation of an {@link AggregateType} from a class or a record.
-     * This requires the class to be marked * with the {@link DSLType} annotation. Each field marked
-     * with the {@link DSLTypeMember}
-     * annotation will be converted to a member of the created {@link AggregateType}, if the field's
-     * type can be mapped to a DSL data type. This requires the field's type to be either one of the
-     * types declared in {@link BuiltInType} or another class marked with {@link DSLType}.
-     * If the passed {@link Type} implements {@link ParameterizedType}, it will either be converted
-     * into a {@link ListType} or {@link SetType}, if it assignable to {@link List} or {@link Set}
-     * respectively.
-     * If the name of the newly created type can be resolved in the passed {@link IScope}, the
-     * resolved {@link IType} will be returned.
+     * Creates a DSL {@link IType} from a java {@link Type}. Based on the kind of passed {@link
+     * Type}, different kinds of {@link IType} will be created. The most common scenario is the
+     * creation of an {@link AggregateType} from a class or a record. This requires the class to be
+     * marked * with the {@link DSLType} annotation. Each field marked with the {@link
+     * DSLTypeMember} annotation will be converted to a member of the created {@link AggregateType},
+     * if the field's type can be mapped to a DSL data type. This requires the field's type to be
+     * either one of the types declared in {@link BuiltInType} or another class marked with {@link
+     * DSLType}. If the passed {@link Type} implements {@link ParameterizedType}, it will either be
+     * converted into a {@link ListType} or {@link SetType}, if it assignable to {@link List} or
+     * {@link Set} respectively. If the name of the newly created type can be resolved in the passed
+     * {@link IScope}, the resolved {@link IType} will be returned.
      *
      * @param globalScope the global scope to use for resolving any DSL datatype
      * @param type the java {@link Type} to create a DSL {@link IType} from
@@ -403,8 +406,11 @@ public class TypeBuilder {
             } else {
                 // symbol with the typename is already bound in the global scope
                 // but is not a type
-                throw new RuntimeException("Symbol with name " + typeName + " is already bound in global scope, " +
-                    "but not a type");
+                throw new RuntimeException(
+                        "Symbol with name "
+                                + typeName
+                                + " is already bound in global scope, "
+                                + "but not a type");
             }
         }
 

@@ -4,8 +4,6 @@ import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;
 
-import java.util.Set;
-
 @DSLType
 public class TestComponent1 extends Component {
     private Entity entity;
@@ -36,5 +34,3 @@ public class TestComponent1 extends Component {
         return member3;
     }
 }
-
-

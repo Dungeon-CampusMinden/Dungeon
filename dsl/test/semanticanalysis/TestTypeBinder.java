@@ -119,7 +119,9 @@ public class TestTypeBinder {
         var env = new GameEnvironment();
 
         env.getTypeBuilder().registerTypeAdapter(RecordBuilder.class, Scope.NULL);
-        var type = env.getTypeBuilder().createDSLTypeForJavaTypeInScope(new Scope(), TestRecordUser.class);
+        var type =
+                env.getTypeBuilder()
+                        .createDSLTypeForJavaTypeInScope(new Scope(), TestRecordUser.class);
 
         env.loadTypes(type);
         symTableParser.setup(env);

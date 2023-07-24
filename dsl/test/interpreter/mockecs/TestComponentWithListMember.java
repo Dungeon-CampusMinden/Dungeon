@@ -14,10 +14,8 @@ public class TestComponentWithListMember extends Component {
         return entity;
     }
 
-    @DSLTypeMember
-    List<Integer> intList;
-    @DSLTypeMember
-    List<Float> floatList;
+    @DSLTypeMember List<Integer> intList;
+    @DSLTypeMember List<Float> floatList;
 
     public TestComponentWithListMember(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);

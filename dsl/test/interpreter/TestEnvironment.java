@@ -23,7 +23,7 @@ public class TestEnvironment extends GameEnvironment {
 
     @Override
     public Class<?>[] getBuiltInAggregateTypeClasses() {
-        return new Class[]{CustomQuestConfig.class};
+        return new Class[] {CustomQuestConfig.class};
     }
 
     @Override

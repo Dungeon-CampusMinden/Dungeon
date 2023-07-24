@@ -1,7 +1,6 @@
 package semanticanalysis.types.callbackadapter;
 
 import semanticanalysis.IScope;
-import semanticanalysis.Scope;
 import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.FunctionType;
 import semanticanalysis.types.IType;
@@ -22,7 +21,8 @@ public class ConsumerFunctionTypeBuilder implements IFunctionTypeBuilder {
     private ConsumerFunctionTypeBuilder() {}
 
     @Override
-    public FunctionType buildFunctionType(Field field, TypeBuilder typeBuilder, IScope globalScope) {
+    public FunctionType buildFunctionType(
+            Field field, TypeBuilder typeBuilder, IScope globalScope) {
         var genericType = field.getGenericType();
 
         var parameterizedType = (ParameterizedType) genericType;

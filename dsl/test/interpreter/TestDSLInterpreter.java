@@ -1069,12 +1069,12 @@ public class TestDSLInterpreter {
         IType intListType = (IType) rtEnv.getGlobalScope().resolve("int[]");
         Assert.assertNotEquals(null, intListType);
         Assert.assertEquals(IType.Kind.ListType, intListType.getTypeKind());
-        Assert.assertEquals(BuiltInType.intType, ((ListType)intListType).getElementType());
+        Assert.assertEquals(BuiltInType.intType, ((ListType) intListType).getElementType());
 
         IType stringListType = (IType) rtEnv.getGlobalScope().resolve("string[]");
         Assert.assertNotEquals(null, stringListType);
         Assert.assertEquals(IType.Kind.ListType, stringListType.getTypeKind());
-        Assert.assertEquals(BuiltInType.stringType, ((ListType)stringListType).getElementType());
+        Assert.assertEquals(BuiltInType.stringType, ((ListType) stringListType).getElementType());
     }
 
     @Test
