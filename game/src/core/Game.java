@@ -697,21 +697,21 @@ public final class Game extends ScreenAdapter {
     /** Will update the entity sets of each system and {@link Game#entities}. */
     private void updateSystems() {
         Collection<System> systemsColl = systems.values();
-        Queue<Entity> q = new ArrayDeque<>(entities.toAdd);
-        entities.toAdd.clear();
+        Queue<Entity> q = new ArrayDeque<>(entities.toAdd());
+        entities.toAdd().clear();
         while (q.size() > 0) {
             Entity curr = q.remove();
             systemsColl.forEach(x -> x.showEntity(curr));
             // update add logic
-            entities.current.add(curr);
+            entities.current().add(curr);
         }
-        q = new ArrayDeque<>(entities.toRemove);
-        entities.toRemove.clear();
+        q = new ArrayDeque<>(entities.toRemove());
+        entities.toRemove().clear();
         while (q.size() > 0) {
             Entity curr = q.remove();
             systemsColl.forEach(x -> x.removeEntity(curr));
             // update remove logic
-            entities.current.remove(curr);
+            entities.current().remove(curr);
         }
     }
 

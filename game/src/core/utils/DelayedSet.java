@@ -35,9 +35,9 @@ import java.util.stream.Stream;
  */
 public final class DelayedSet<T> {
 
-    public final Set<T> current = new HashSet<>();
-    public final Set<T> toAdd = new HashSet<>();
-    public final Set<T> toRemove = new HashSet<>();
+    private final Set<T> current = new HashSet<>();
+    private final Set<T> toAdd = new HashSet<>();
+    private final Set<T> toRemove = new HashSet<>();
 
     /**
      * Update the {@link #current} set based on the elements in {@link #toAdd} and {@link
@@ -138,5 +138,17 @@ public final class DelayedSet<T> {
         toAdd.clear();
         toRemove.clear();
         current.clear();
+    }
+
+    public Set<T> current() {
+        return current;
+    }
+
+    public Set<T> toAdd() {
+        return toAdd;
+    }
+
+    public Set<T> toRemove() {
+        return toRemove;
     }
 }
