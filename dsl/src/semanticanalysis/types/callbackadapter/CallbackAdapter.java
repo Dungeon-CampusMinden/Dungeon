@@ -6,16 +6,14 @@ import interpreter.DSLInterpreter;
 
 import parser.ast.FuncDefNode;
 
-import runtime.ListValue;
-import runtime.Prototype;
-import runtime.RuntimeEnvironment;
-import runtime.Value;
+import runtime.*;
 
 import semanticanalysis.FunctionSymbol;
 import semanticanalysis.types.FunctionType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -69,8 +67,13 @@ public class CallbackAdapter implements Function, Consumer, TriConsumer {
                 // TODO: convert to callback adapter?
                 break;
             case SetType:
-                // TODO
-                break;
+                var set = new HashSet<>();
+                SetValue setValue = (SetValue) value;
+                for (var entry : setValue.getValues()) {
+                    Object entryObject = convertValueToObject(entry);
+                    set.add(entryObject);
+                }
+                return set;
             case ListType:
                 var list = new ArrayList<>();
                 ListValue listValue = (ListValue) value;

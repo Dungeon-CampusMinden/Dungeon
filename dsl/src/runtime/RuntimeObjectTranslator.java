@@ -1,12 +1,10 @@
 package runtime;
 
-import semanticanalysis.types.AggregateType;
-import semanticanalysis.types.BuiltInType;
-import semanticanalysis.types.IType;
-import semanticanalysis.types.ListType;
+import semanticanalysis.types.*;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This class performs conversions from "runtime objects", meaning Java-objects from the dungeon
@@ -92,7 +90,17 @@ public class RuntimeObjectTranslator {
                     returnValue = listValue;
                     break;
                 case SetType:
-                    // TODO
+                    SetType setType = (SetType) dslType;
+                    // create new list value
+                    SetValue setValue = new SetValue((SetType)dslType);
+
+                    // translate each element to target type
+                    Set<?> passedSet = (Set<?>) object;
+                    for (Object element : passedSet) {
+                        Value elementValue = translateRuntimeObject(element, parentMemorySpace, environment, setType.getElementType());
+                        setValue.addValue(elementValue);
+                    }
+                    returnValue = setValue;
                     boolean c = true;
                     break;
             }
