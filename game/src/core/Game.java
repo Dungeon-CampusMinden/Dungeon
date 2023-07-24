@@ -2,8 +2,6 @@ package core;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
-import static core.utils.logging.LoggerConfig.initBaseLogger;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
@@ -32,6 +30,7 @@ import core.utils.DelayedSet;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.logging.LoggerConfig;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -326,6 +325,15 @@ public final class Game extends ScreenAdapter {
      */
     public static void disableAudio(boolean disableAudio) {
         DISABLE_AUDIO = disableAudio;
+    }
+
+    /**
+     * Initialize the base logger.
+     *
+     * <p>Will remove the console handler and put all log messages in the log files.
+     */
+    public static void initBaseLogger() {
+        LoggerConfig.initBaseLogger();
     }
 
     /**
@@ -644,7 +652,6 @@ public final class Game extends ScreenAdapter {
     private void onSetup() {
         doSetup = false;
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
-        initBaseLogger();
         createSystems();
         setupStage();
     }

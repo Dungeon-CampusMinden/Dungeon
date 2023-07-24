@@ -42,6 +42,7 @@ public class WizardQuizTest {
     private static Quiz question = multipleChoiceDummy();
 
     private static void toggleQuiz() {
+        Game.initBaseLogger();
         switch (question.type()) {
             case FREETEXT -> question = singleChoiceDummy();
             case SINGLE_CHOICE -> question = multipleChoiceDummy();

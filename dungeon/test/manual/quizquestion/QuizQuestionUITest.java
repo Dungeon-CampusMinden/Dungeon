@@ -22,6 +22,7 @@ import java.util.Random;
 public class QuizQuestionUITest {
 
     public static void main(String[] args) {
+        Game.initBaseLogger();
         Game.userOnFrame(
                 () -> {
                     if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
