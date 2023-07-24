@@ -126,7 +126,7 @@ unary
     ;
 
 func_call
-        : ID '(' param_list? ')'
+        : ID '(' expression_list? ')'
         ;
 
 stmt_block
@@ -194,9 +194,8 @@ property_def_list
 property_def
         : ID ':' expression;
 
-// TODO: rename to 'expression_list'
-param_list
-        : expression ',' param_list
+expression_list
+        : expression ',' expression_list
         | expression
         ;
 
@@ -205,11 +204,11 @@ grouped_expression
     ;
 
 list_definition
-    : '[' param_list? ']'
+    : '[' expression_list? ']'
     ;
 
 set_definition
-    : '<' param_list? '>'
+    : '<' expression_list? '>'
     ;
 
 primary : ID

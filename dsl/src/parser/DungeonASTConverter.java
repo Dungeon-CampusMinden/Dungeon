@@ -684,7 +684,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
         // if there are parameters, a paramList will be on stack
         var paramList = Node.NONE;
-        if (ctx.param_list() != null) {
+        if (ctx.expression_list() != null) {
             paramList = astStack.pop();
             assert paramList.type == Node.Type.ParamList;
         }
@@ -698,11 +698,11 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterParam_list(DungeonDSLParser.Param_listContext ctx) {}
+    public void enterExpression_list(DungeonDSLParser.Expression_listContext ctx) {}
 
     @Override
-    public void exitParam_list(DungeonDSLParser.Param_listContext ctx) {
-        if (ctx.param_list() == null) {
+    public void exitExpression_list(DungeonDSLParser.Expression_listContext ctx) {
+        if (ctx.expression_list() == null) {
             // trivial param
             var innerParam = astStack.pop();
             var list = new ArrayList<Node>(1);
