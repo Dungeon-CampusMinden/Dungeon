@@ -48,7 +48,10 @@ public class RuntimeObjectTranslator {
      * @return the translated Value
      */
     protected Value translateRuntimeObjectDefault(
-            Object object, IMemorySpace parentMemorySpace, IEvironment environment, IType targetType) {
+            Object object,
+            IMemorySpace parentMemorySpace,
+            IEvironment environment,
+            IType targetType) {
         Value returnValue = Value.NONE;
 
         IType dslType = targetType;
@@ -79,12 +82,17 @@ public class RuntimeObjectTranslator {
                 case ListType:
                     ListType listType = (ListType) dslType;
                     // create new list value
-                    ListValue listValue = new ListValue((ListType)dslType);
+                    ListValue listValue = new ListValue((ListType) dslType);
 
                     // translate each element to target type
                     List<?> passedList = (List<?>) object;
                     for (Object element : passedList) {
-                        Value elementValue = translateRuntimeObject(element, parentMemorySpace, environment, listType.getElementType());
+                        Value elementValue =
+                                translateRuntimeObject(
+                                        element,
+                                        parentMemorySpace,
+                                        environment,
+                                        listType.getElementType());
                         listValue.addValue(elementValue);
                     }
                     returnValue = listValue;
@@ -92,12 +100,17 @@ public class RuntimeObjectTranslator {
                 case SetType:
                     SetType setType = (SetType) dslType;
                     // create new list value
-                    SetValue setValue = new SetValue((SetType)dslType);
+                    SetValue setValue = new SetValue((SetType) dslType);
 
                     // translate each element to target type
                     Set<?> passedSet = (Set<?>) object;
                     for (Object element : passedSet) {
-                        Value elementValue = translateRuntimeObject(element, parentMemorySpace, environment, setType.getElementType());
+                        Value elementValue =
+                                translateRuntimeObject(
+                                        element,
+                                        parentMemorySpace,
+                                        environment,
+                                        setType.getElementType());
                         setValue.addValue(elementValue);
                     }
                     returnValue = setValue;
@@ -109,7 +122,7 @@ public class RuntimeObjectTranslator {
     }
 
     public Value translateRuntimeObject(
-        Object object, IMemorySpace parentMemorySpace, IEvironment environment) {
+            Object object, IMemorySpace parentMemorySpace, IEvironment environment) {
         return translateRuntimeObject(object, parentMemorySpace, environment, null);
     }
 
@@ -123,13 +136,18 @@ public class RuntimeObjectTranslator {
      * @return The translated Value
      */
     public Value translateRuntimeObject(
-            Object object, IMemorySpace parentMemorySpace, IEvironment environment, IType targetType) {
+            Object object,
+            IMemorySpace parentMemorySpace,
+            IEvironment environment,
+            IType targetType) {
 
         var objectsClass = object.getClass();
         var translator = this.translators.get(objectsClass);
         Value returnValue;
         if (translator == null) {
-            returnValue = translateRuntimeObjectDefault(object, parentMemorySpace, environment, targetType);
+            returnValue =
+                    translateRuntimeObjectDefault(
+                            object, parentMemorySpace, environment, targetType);
         } else {
             returnValue = translator.translate(object, parentMemorySpace, environment);
         }

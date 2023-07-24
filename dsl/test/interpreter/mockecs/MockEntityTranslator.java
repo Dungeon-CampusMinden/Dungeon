@@ -39,7 +39,7 @@ public class MockEntityTranslator implements IObjectToValueTranslator {
             try {
                 Field field = Entity.class.getDeclaredField("idx");
                 String fieldTypeName = TypeBuilder.getDSLTypeName(field.getType());
-                IType type = (IType)environment.resolveInGlobalScope(fieldTypeName);
+                IType type = (IType) environment.resolveInGlobalScope(fieldTypeName);
                 EncapsulatedField encapsulatedField = new EncapsulatedField(type, field, object);
                 value.getMemorySpace().bindValue("idx", encapsulatedField);
             } catch (NoSuchFieldException e) {

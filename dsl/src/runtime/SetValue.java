@@ -5,9 +5,7 @@ import semanticanalysis.types.SetType;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Implements a set value
- */
+/** Implements a set value */
 public class SetValue extends Value {
 
     // stores the internal values of the Value-instances in order to ensure,
@@ -24,9 +22,8 @@ public class SetValue extends Value {
     }
 
     /**
-     * Add a Value to the set. The Value will only be added to the set,
-     * if no other Value with the same internal value of the passed Value
-     * is already stored in this set.
+     * Add a Value to the set. The Value will only be added to the set, if no other Value with the
+     * same internal value of the passed Value is already stored in this set.
      *
      * @param value the Value to store in the set
      * @return true, if the Value was added, false otherwise
@@ -37,7 +34,7 @@ public class SetValue extends Value {
             return false;
         }
         internalValueSet.add(object);
-        ((HashSet<Value>)this.object).add(value);
+        ((HashSet<Value>) this.object).add(value);
         return true;
     }
 
@@ -45,6 +42,6 @@ public class SetValue extends Value {
      * @return all stored values
      */
     public Set<Value> getValues() {
-        return (Set<Value>)this.object;
+        return (Set<Value>) this.object;
     }
 }

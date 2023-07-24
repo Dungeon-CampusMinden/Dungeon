@@ -346,14 +346,15 @@ public class TypeBuilder {
         // create List- and Set-Types).
         Class<?> clazz = null;
         try {
-            clazz = (Class<?>)type;
+            clazz = (Class<?>) type;
         } catch (ClassCastException ex) {
             if (type instanceof ParameterizedType parameterizedType) {
                 var rawType = parameterizedType.getRawType();
                 try {
-                    clazz = (Class<?>)rawType;
+                    clazz = (Class<?>) rawType;
                 } catch (ClassCastException exc) {
-                    throw new UnsupportedOperationException("The TypeBuilder does not support conversion of type " + type);
+                    throw new UnsupportedOperationException(
+                            "The TypeBuilder does not support conversion of type " + type);
                 }
 
                 // if the cast fails, the type may be a parameterized type (e.g. list or set)

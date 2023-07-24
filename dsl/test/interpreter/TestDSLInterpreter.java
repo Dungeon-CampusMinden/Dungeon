@@ -1047,7 +1047,8 @@ public class TestDSLInterpreter {
     @Test
     @Ignore
     public void registerListAndSetTypesInEnvironment() {
-        String program = """
+        String program =
+                """
                 quest_config c {
                     int_list: [1,2,3],
                     string_list: ["Hello", "World", "!"]
@@ -1073,7 +1074,8 @@ public class TestDSLInterpreter {
 
     @Test
     public void setListValues() {
-        String program = """
+        String program =
+                """
                 quest_config c {
                     int_list: [1,2,3],
                     string_list: ["Hello", "World", "!"]
@@ -1088,9 +1090,9 @@ public class TestDSLInterpreter {
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
         var config =
-            (CustomQuestConfig)
-                Helpers.generateQuestConfigWithCustomTypes(
-                    program, env, interpreter, Entity.class);
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(
+                                program, env, interpreter, Entity.class);
 
         // cast to Integer to make the compiler happy
         Assert.assertEquals((Integer) 1, config.intList().get(0));
@@ -1104,7 +1106,8 @@ public class TestDSLInterpreter {
 
     @Test
     public void setSetValues() {
-        String program = """
+        String program =
+                """
                 quest_config c {
                     float_set: <1.2,2.3,3.0,3.0>,
                     string_set: <"Hello", "Hello", "World", "!">
@@ -1119,9 +1122,9 @@ public class TestDSLInterpreter {
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
         var config =
-            (CustomQuestConfig)
-                Helpers.generateQuestConfigWithCustomTypes(
-                    program, env, interpreter, Entity.class);
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(
+                                program, env, interpreter, Entity.class);
 
         Set<Float> floatSet = config.floatSet();
         Assert.assertEquals(3, floatSet.size());
@@ -1138,7 +1141,8 @@ public class TestDSLInterpreter {
 
     @Test
     public void passListValueToFunc() {
-        String program = """
+        String program =
+                """
                 fn test_func(entity[] my_entities) -> bool {
                     return true;
                 }
@@ -1162,12 +1166,17 @@ public class TestDSLInterpreter {
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
         var config =
-            (CustomQuestConfig)
-                Helpers.generateQuestConfigWithCustomTypes(
-                    program, env, interpreter, Entity.class, TestComponentListCallback.class, TestComponentListOfListsCallback.class);
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(
+                                program,
+                                env,
+                                interpreter,
+                                Entity.class,
+                                TestComponentListCallback.class,
+                                TestComponentListOfListsCallback.class);
 
         var testComponentWithCallback =
-            (TestComponentListCallback) config.entity().components.get(0);
+                (TestComponentListCallback) config.entity().components.get(0);
 
         ArrayList<Entity> entities = new ArrayList<>();
         entities.add(new Entity());
@@ -1180,7 +1189,8 @@ public class TestDSLInterpreter {
 
     @Test
     public void passListValueThroughFunc() {
-        String program = """
+        String program =
+                """
                 fn test_func(entity[] my_entities) -> entity[] {
                     return my_entities;
                 }
@@ -1204,12 +1214,17 @@ public class TestDSLInterpreter {
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
         var config =
-            (CustomQuestConfig)
-                Helpers.generateQuestConfigWithCustomTypes(
-                    program, env, interpreter, Entity.class, TestComponentListCallback.class, TestComponentListPassThroughCallback.class);
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(
+                                program,
+                                env,
+                                interpreter,
+                                Entity.class,
+                                TestComponentListCallback.class,
+                                TestComponentListPassThroughCallback.class);
 
         var testComponentWithCallback =
-            (TestComponentListPassThroughCallback) config.entity().components.get(0);
+                (TestComponentListPassThroughCallback) config.entity().components.get(0);
 
         ArrayList<Entity> entities = new ArrayList<>();
         entities.add(new Entity());
@@ -1224,7 +1239,8 @@ public class TestDSLInterpreter {
 
     @Test
     public void passSetValueThroughFunc() {
-        String program = """
+        String program =
+                """
                 fn test_func(entity<> my_entities) -> entity<> {
                     return my_entities;
                 }
@@ -1248,12 +1264,16 @@ public class TestDSLInterpreter {
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
         var config =
-            (CustomQuestConfig)
-                Helpers.generateQuestConfigWithCustomTypes(
-                    program, env, interpreter, Entity.class, TestComponentSetPassThroughCallback.class);
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(
+                                program,
+                                env,
+                                interpreter,
+                                Entity.class,
+                                TestComponentSetPassThroughCallback.class);
 
         var testComponentWithCallback =
-            (TestComponentSetPassThroughCallback) config.entity().components.get(0);
+                (TestComponentSetPassThroughCallback) config.entity().components.get(0);
 
         HashSet<Entity> entities = new HashSet<>();
         entities.add(new Entity());

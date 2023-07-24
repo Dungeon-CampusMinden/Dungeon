@@ -15,8 +15,7 @@ public class TestComponentListPassThroughCallback extends Component {
         return entity;
     }
 
-    @DSLCallback
-    private Function<List<Entity>, List<Entity>> onInteraction;
+    @DSLCallback private Function<List<Entity>, List<Entity>> onInteraction;
 
     public Function<List<Entity>, List<Entity>> getOnInteraction() {
         return onInteraction;

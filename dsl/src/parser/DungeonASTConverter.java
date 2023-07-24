@@ -12,7 +12,6 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 // CHECKSTYLE:OFF: AvoidStarImport
 
 import parser.ast.*;
-import semanticanalysis.types.ListType;
 // CHECKSTYLE:ON: AvoidStarImport
 
 import java.util.ArrayList;
@@ -438,9 +437,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterId_param_type(DungeonDSLParser.Id_param_typeContext ctx) {
-
-    }
+    public void enterId_param_type(DungeonDSLParser.Id_param_typeContext ctx) {}
 
     @Override
     public void exitId_param_type(DungeonDSLParser.Id_param_typeContext ctx) {
@@ -448,26 +445,24 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterList_param_type(DungeonDSLParser.List_param_typeContext ctx) {
-    }
+    public void enterList_param_type(DungeonDSLParser.List_param_typeContext ctx) {}
 
     @Override
     public void exitList_param_type(DungeonDSLParser.List_param_typeContext ctx) {
         Node innerTypeNode = astStack.pop();
-        ListTypeIdentifierNode listTypeIdentifierNode = new ListTypeIdentifierNode((IdNode)innerTypeNode);
+        ListTypeIdentifierNode listTypeIdentifierNode =
+                new ListTypeIdentifierNode((IdNode) innerTypeNode);
         astStack.push(listTypeIdentifierNode);
-
     }
 
     @Override
-    public void enterSet_param_type(DungeonDSLParser.Set_param_typeContext ctx) {
-
-    }
+    public void enterSet_param_type(DungeonDSLParser.Set_param_typeContext ctx) {}
 
     @Override
     public void exitSet_param_type(DungeonDSLParser.Set_param_typeContext ctx) {
         Node innerTypeNode = astStack.pop();
-        SetTypeIdentifierNode setTypeIdentifierNode = new SetTypeIdentifierNode((IdNode)innerTypeNode);
+        SetTypeIdentifierNode setTypeIdentifierNode =
+                new SetTypeIdentifierNode((IdNode) innerTypeNode);
         astStack.push(setTypeIdentifierNode);
     }
 

@@ -75,7 +75,9 @@ public interface IEvironment {
         return dslType;
     }
 
-    default Symbol resolveInGlobalScope(String name) {return this.getGlobalScope().resolve(name);}
+    default Symbol resolveInGlobalScope(String name) {
+        return this.getGlobalScope().resolve(name);
+    }
 
     RuntimeObjectTranslator getRuntimeObjectTranslator();
 }

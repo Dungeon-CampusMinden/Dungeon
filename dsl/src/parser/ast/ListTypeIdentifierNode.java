@@ -8,7 +8,10 @@ public class ListTypeIdentifierNode extends IdNode {
      * @param innerTypeNode the inner type of the list type
      */
     public ListTypeIdentifierNode(IdNode innerTypeNode) {
-        super(Type.ListTypeIdentifierNode, innerTypeNode.getName() + "[]", innerTypeNode.getSourceFileReference());
+        super(
+                Type.ListTypeIdentifierNode,
+                innerTypeNode.getName() + "[]",
+                innerTypeNode.getSourceFileReference());
         this.children.add(innerTypeNode);
     }
 

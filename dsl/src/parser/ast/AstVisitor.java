@@ -1,7 +1,5 @@
 package parser.ast;
 
-import semanticanalysis.types.ListType;
-
 // we need to provide visitor methods for many node classes, so the method count and the class data
 // abstraction coupling
 // will be high naturally
@@ -337,7 +335,6 @@ public interface AstVisitor<T> {
         throw new UnsupportedOperationException();
     }
 
-
     /**
      * Visitor method for ListTYpeIdentifierNodes
      *
@@ -347,7 +344,6 @@ public interface AstVisitor<T> {
     default T visit(ListTypeIdentifierNode node) {
         throw new UnsupportedOperationException();
     }
-
 
     /**
      * Visitor method for SetTypeIdentifierNodes

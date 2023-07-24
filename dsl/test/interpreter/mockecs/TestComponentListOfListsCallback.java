@@ -15,8 +15,7 @@ public class TestComponentListOfListsCallback extends Component {
         return entity;
     }
 
-    @DSLCallback
-    private Function<List<List<Entity>>, Boolean> onInteraction;
+    @DSLCallback private Function<List<List<Entity>>, Boolean> onInteraction;
 
     public Function<List<List<Entity>>, Boolean> getOnInteraction() {
         return onInteraction;

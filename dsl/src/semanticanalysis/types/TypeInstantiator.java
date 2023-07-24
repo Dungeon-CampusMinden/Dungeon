@@ -48,8 +48,8 @@ public class TypeInstantiator {
     }
 
     /**
-     * Instantiate a {@link List} instance from a {@link ListValue}. Convert every entry
-     * of the {@link ListValue} into an Object.
+     * Instantiate a {@link List} instance from a {@link ListValue}. Convert every entry of the
+     * {@link ListValue} into an Object.
      *
      * @param listValue The ListValue to convert
      * @return the converted List
@@ -64,8 +64,8 @@ public class TypeInstantiator {
     }
 
     /**
-     * Instantiate a {@link Set} instance from a {@link SetValue}. Convert every entry
-     * of the {@link SetValue} into an Object.
+     * Instantiate a {@link Set} instance from a {@link SetValue}. Convert every entry of the {@link
+     * SetValue} into an Object.
      *
      * @param setValue The SetValue to convert
      * @return the converted Set
@@ -100,8 +100,8 @@ public class TypeInstantiator {
     }
 
     /**
-     * Converts a {@link Value} to a regular Java Object. The conversion is
-     * dependent on the kind of datatype of the {@link Value} instance.
+     * Converts a {@link Value} to a regular Java Object. The conversion is dependent on the kind of
+     * datatype of the {@link Value} instance.
      *
      * @param value the Value to convert
      * @return the converted Object

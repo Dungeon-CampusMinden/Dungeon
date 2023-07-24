@@ -656,7 +656,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // collect evaluated Values in an ArrayList
         ArrayList<Value> entries = new ArrayList<>(node.getEntries().size());
         for (Node expressionNode : node.getEntries()) {
-            Value value = (Value)expressionNode.accept(this);
+            Value value = (Value) expressionNode.accept(this);
             entries.add(value);
         }
 
@@ -675,7 +675,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             listType = new ListType(entryType, this.environment.getGlobalScope());
             this.environment.getGlobalScope().bind(listType);
         }
-        ListValue listValue = new ListValue((ListType)listType);
+        ListValue listValue = new ListValue((ListType) listType);
         for (Value listEntry : entries) {
             listValue.addValue(listEntry);
         }
@@ -687,7 +687,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // collect evaluated Values in an ArrayList
         ArrayList<Value> entries = new ArrayList<>(node.getEntries().size());
         for (Node expressionNode : node.getEntries()) {
-            Value value = (Value)expressionNode.accept(this);
+            Value value = (Value) expressionNode.accept(this);
             entries.add(value);
         }
 
@@ -707,13 +707,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
             setType = new SetType(entryType, this.environment.getGlobalScope());
             this.environment.getGlobalScope().bind(setType);
         }
-        SetValue setValue = new SetValue((SetType)setType);
+        SetValue setValue = new SetValue((SetType) setType);
         for (Value setEntry : entries) {
             setValue.addValue(setEntry);
         }
         return setValue;
-
-
     }
 
     // region user defined function execution
@@ -775,7 +773,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
             Value paramValue =
                     (Value)
                             this.environment.translateRuntimeObject(
-                                    parameterObject, currentMemorySpace, parameterSymbol.getDataType());
+                                    parameterObject,
+                                    currentMemorySpace,
+                                    parameterSymbol.getDataType());
             setValue(parameterSymbol.getName(), paramValue);
         }
     }

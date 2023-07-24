@@ -411,7 +411,11 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
                 String returnTypeName = node.getRetTypeName();
                 returnType = resolveType(returnTypeName);
                 if (returnType == null) {
-                    throw new RuntimeException("Could not resolve return type " + returnTypeName + " of function " + funcName);
+                    throw new RuntimeException(
+                            "Could not resolve return type "
+                                    + returnTypeName
+                                    + " of function "
+                                    + funcName);
                 }
             }
 
@@ -419,7 +423,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
             ArrayList<IType> parameterTypes = new ArrayList<>(node.getParameters().size());
             for (Node paramDefNode : node.getParameters()) {
                 // if the parameters type is a list or set type, the datatype must be created
-                ((ParamDefNode)paramDefNode).getTypeIdNode().accept(this);
+                ((ParamDefNode) paramDefNode).getTypeIdNode().accept(this);
 
                 var paramTypeName = ((ParamDefNode) paramDefNode).getTypeName();
                 IType paramType = resolveType(paramTypeName);
@@ -556,7 +560,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
             if (innerTypeNode.type != Node.Type.Identifier) {
                 innerTypeNode.accept(this);
             }
-            var innerType = (IType)this.environment.resolveInGlobalScope(innerTypeNode.getName());
+            var innerType = (IType) this.environment.resolveInGlobalScope(innerTypeNode.getName());
             ListType listType = new ListType(innerType, this.globalScope());
             this.globalScope().bind(listType);
         }
@@ -575,7 +579,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
             if (innerTypeNode.type != Node.Type.Identifier) {
                 innerTypeNode.accept(this);
             }
-            var innerType = (IType)this.environment.resolveInGlobalScope(innerTypeNode.getName());
+            var innerType = (IType) this.environment.resolveInGlobalScope(innerTypeNode.getName());
             SetType setType = new SetType(innerType, this.globalScope());
             this.globalScope().bind(setType);
         }

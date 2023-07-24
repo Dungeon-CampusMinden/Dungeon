@@ -114,8 +114,10 @@ public class RuntimeEnvironment implements IEvironment {
         return this.runtimeObjectTranslator.translateRuntimeObject(object, parentMemorySpace, this);
     }
 
-    public Object translateRuntimeObject(Object object, IMemorySpace parentMemorySpace, IType targetType) {
-        return this.runtimeObjectTranslator.translateRuntimeObject(object, parentMemorySpace, this, targetType);
+    public Object translateRuntimeObject(
+            Object object, IMemorySpace parentMemorySpace, IType targetType) {
+        return this.runtimeObjectTranslator.translateRuntimeObject(
+                object, parentMemorySpace, this, targetType);
     }
 
     public TypeInstantiator getTypeInstantiator() {

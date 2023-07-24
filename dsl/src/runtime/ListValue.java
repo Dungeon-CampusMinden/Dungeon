@@ -5,9 +5,7 @@ import semanticanalysis.types.ListType;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Implements a list value.
- */
+/** Implements a list value. */
 public class ListValue extends Value {
     /**
      * Constructor

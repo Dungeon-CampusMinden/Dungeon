@@ -15,8 +15,7 @@ public class TestComponentSetPassThroughCallback extends Component {
         return entity;
     }
 
-    @DSLCallback
-    private Function<Set<Entity>, Set<Entity>> onInteraction;
+    @DSLCallback private Function<Set<Entity>, Set<Entity>> onInteraction;
 
     public Function<Set<Entity>, Set<Entity>> getOnInteraction() {
         return onInteraction;
