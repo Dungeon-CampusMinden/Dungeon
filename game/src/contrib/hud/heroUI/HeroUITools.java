@@ -10,6 +10,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import core.Game;
 import core.hud.UITools;
 
+/**
+ * Collection of Utility Methods for popups
+ */
 public class HeroUITools {
     /**
      * Creates a popup on the screen with how much xp the hero lost or gained
