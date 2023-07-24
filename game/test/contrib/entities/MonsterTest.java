@@ -25,7 +25,7 @@ import java.util.Optional;
 public class MonsterTest {
     @Before
     public void setup() {
-        new LevelSystem(null, null, () -> {});
+        Game.addSystem(new LevelSystem(null, null, () -> {}));
     }
 
     @After

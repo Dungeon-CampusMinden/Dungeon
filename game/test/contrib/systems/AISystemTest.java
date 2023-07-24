@@ -7,6 +7,7 @@ import contrib.components.AIComponent;
 import core.Entity;
 import core.Game;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,6 +22,7 @@ public class AISystemTest {
         Game.removeAllEntities();
         Game.removeAllSystems();
         system = new AISystem();
+        Game.addSystem(system);
         entity = new Entity();
         new AIComponent(
                 entity,
@@ -32,6 +34,13 @@ public class AISystemTest {
                 });
 
         updateCounter = 0;
+    }
+
+    @After
+    public void cleanup() {
+        Game.removeAllEntities();
+        Game.currentLevel(null);
+        Game.removeAllSystems();
     }
 
     @Test

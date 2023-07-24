@@ -38,11 +38,12 @@ public class VelocitySystemTest {
 
     @Before
     public void setup() throws IOException {
-        new LevelSystem(null, null, () -> {});
+        Game.addSystem(new LevelSystem(null, null, () -> {}));
         Game.currentLevel(level);
         Mockito.when(level.tileAt((Point) Mockito.any())).thenReturn(tile);
         entity = new Entity();
         velocitySystem = new VelocitySystem();
+        Game.addSystem(velocitySystem);
         velocityComponent = new VelocityComponent(entity, xVelocity, yVelocity);
         positionComponent =
                 new PositionComponent(entity, new Point(startXPosition, startYPosition));
@@ -53,6 +54,7 @@ public class VelocitySystemTest {
     @After
     public void cleanup() {
         Game.removeAllEntities();
+        Game.currentLevel(null);
         Game.removeAllSystems();
     }
 

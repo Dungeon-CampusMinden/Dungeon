@@ -7,12 +7,20 @@ import contrib.components.XPComponent;
 import core.Entity;
 import core.Game;
 
+import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.function.Consumer;
 
 public class XPSystemTest {
+
+    @After
+    public void cleanup() {
+        Game.removeAllEntities();
+        Game.currentLevel(null);
+        Game.removeAllSystems();
+    }
 
     /** Test if the xp component ist initialized with zero xp and level zero. */
     @Test
@@ -24,6 +32,7 @@ public class XPSystemTest {
         Consumer<Entity> levelUp = Mockito.mock(Consumer.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
+        Game.addSystem(xpSystem);
         xpSystem.showEntity(entity);
         assertEquals(0, xpComponent.currentXP());
         assertEquals(0, xpComponent.characterLevel());
@@ -42,6 +51,7 @@ public class XPSystemTest {
         Consumer<Entity> levelUp = Mockito.mock(Consumer.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
+        Game.addSystem(xpSystem);
         xpSystem.showEntity(entity);
         /* Test */
         xpComponent.addXP(99); // First level is reached with 100 XP
@@ -59,6 +69,7 @@ public class XPSystemTest {
         Consumer<Entity> levelUp = Mockito.mock(Consumer.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
+        Game.addSystem(xpSystem);
         xpSystem.showEntity(entity);
         /* Test */
         xpComponent.addXP(100); // First level is reached with 100 XP
@@ -78,6 +89,7 @@ public class XPSystemTest {
         Consumer<Entity> levelUp = Mockito.mock(Consumer.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
+        Game.addSystem(xpSystem);
         xpSystem.showEntity(entity);
         /* Test */
         xpComponent.addXP(120); // First level is reached with 100 XP
@@ -99,6 +111,7 @@ public class XPSystemTest {
         Consumer<Entity> levelUp = Mockito.mock(Consumer.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
+        Game.addSystem(xpSystem);
         xpSystem.showEntity(entity);
         /* Test */
         xpComponent.addXP(201);
@@ -122,6 +135,7 @@ public class XPSystemTest {
         Consumer<Entity> levelUp = Mockito.mock(Consumer.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
+        Game.addSystem(xpSystem);
         xpSystem.showEntity(entity);
         /* Test */
 
@@ -141,6 +155,7 @@ public class XPSystemTest {
         Consumer<Entity> levelUp = Mockito.mock(Consumer.class);
         XPComponent xpComponent = new XPComponent(entity, levelUp);
         XPSystem xpSystem = new XPSystem();
+        Game.addSystem(xpSystem);
         xpSystem.showEntity(entity);
         /* Test */
         xpComponent.addXP(-1);
