@@ -27,6 +27,7 @@ import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -1219,5 +1220,50 @@ public class TestDSLInterpreter {
         Assert.assertEquals(entities.get(0), returnedEntities.get(0));
         Assert.assertEquals(entities.get(1), returnedEntities.get(1));
         Assert.assertEquals(entities.get(2), returnedEntities.get(2));
+    }
+
+    @Test
+    public void passSetValueThroughFunc() {
+        String program = """
+                fn test_func(entity<> my_entities) -> entity<> {
+                    return my_entities;
+                }
+
+                entity_type my_type{
+                    test_component_set_pass_through_callback{
+                        on_interaction: test_func
+                    }
+                }
+
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config =
+            (CustomQuestConfig)
+                Helpers.generateQuestConfigWithCustomTypes(
+                    program, env, interpreter, Entity.class, TestComponentSetPassThroughCallback.class);
+
+        var testComponentWithCallback =
+            (TestComponentSetPassThroughCallback) config.entity().components.get(0);
+
+        HashSet<Entity> entities = new HashSet<>();
+        entities.add(new Entity());
+        entities.add(new Entity());
+        entities.add(new Entity());
+
+        Set<Entity> returnedEntities = testComponentWithCallback.executeCallback(entities);
+        Assert.assertEquals(3, returnedEntities.size());
+        for (var entity : entities) {
+            Assert.assertTrue(returnedEntities.contains(entity));
+        }
     }
 }
