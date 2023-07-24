@@ -31,6 +31,12 @@ public final class HealthbarSystem extends System {
     // bar percentage precision
     private static final float STEP_SIZE = 0.01f;
     private static final Logger LOGGER = Logger.getLogger(HealthbarSystem.class.getSimpleName());
+    // how long the change to the Healthbar should take in seconds
+    private static final float HEALTHBAR_UPDATE_DURATION = 0.1f;
+    // the height of the healthbar which can´t be smaller than the nineslicedrawable
+    private static final int HEALTHBAR_HEIGHT = 10;
+    // the width of the healthbar which can´t be smaller than the nineslicedrawable
+    private static final int HEALTHBAR_WIDTH = 50;
 
     /** Mapping from actual Entity and Healthbar of this Entity */
     private final Map<Integer, ProgressBar> healthbarMapping = new HashMap<>();
@@ -87,8 +93,8 @@ public final class HealthbarSystem extends System {
                         Color.RED);
 
         ProgressBar progressBar = new ProgressBar(MIN, MAX, STEP_SIZE, false, healthstyle);
-        progressBar.setAnimateDuration(0.1f);
-        progressBar.setSize(50, 10);
+        progressBar.setAnimateDuration(HEALTHBAR_UPDATE_DURATION);
+        progressBar.setSize(HEALTHBAR_WIDTH, HEALTHBAR_HEIGHT);
         progressBar.setVisible(true);
         updatePosition(progressBar, pc);
         return progressBar;
