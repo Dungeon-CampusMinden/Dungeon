@@ -695,17 +695,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
         var funcCallNode = new FuncCallNode(funcId, paramList);
         astStack.push(funcCallNode);
-
-        // TODO: modify this for grammar changes, until then, it is unsupported
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void enterQualified_name(DungeonDSLParser.Qualified_nameContext ctx) {}
-
-    @Override
-    public void exitQualified_name(DungeonDSLParser.Qualified_nameContext ctx) {
-
     }
 
     @Override
