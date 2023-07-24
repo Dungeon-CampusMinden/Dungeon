@@ -491,6 +491,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             ((AggregateValue) valueInMemorySpace).setMemorySpace(valueToSet.getMemorySpace());
             valueInMemorySpace.setInternalValue(valueToSet.getInternalValue());
         } else {
+            // TODO: handle Lists and sets
             valueInMemorySpace.setInternalValue(((Value) value).getInternalValue());
         }
         return true;
@@ -681,8 +682,34 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(SetDefinitionNode node) {
-        // TODO: implement
-        throw new UnsupportedOperationException();
+        // collect evaluated Values in an ArrayList
+        ArrayList<Value> entries = new ArrayList<>(node.getEntries().size());
+        for (Node expressionNode : node.getEntries()) {
+            Value value = (Value)expressionNode.accept(this);
+            entries.add(value);
+        }
+
+        // TODO: this is a temporary solution
+        IType entryType = BuiltInType.noType;
+        if (entries.size() != 0) {
+            entryType = entries.get(0).getDataType();
+        }
+
+        // create list type
+        String setTypeName = SetType.getSetTypeName(entryType);
+        // TODO: list_type is not properly put in environment beforehand..
+        Symbol setType = this.environment.resolveInGlobalScope(setTypeName);
+        if (setType == Symbol.NULL) {
+            setType = new SetType(entryType, this.environment.getGlobalScope());
+            this.environment.getGlobalScope().bind(setType);
+        }
+        SetValue setValue = new SetValue((SetType)setType);
+        for (Value setEntry : entries) {
+            setValue.addValue(setEntry);
+        }
+        return setValue;
+
+
     }
 
     // region user defined function execution

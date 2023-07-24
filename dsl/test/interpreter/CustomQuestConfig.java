@@ -14,4 +14,5 @@ public record CustomQuestConfig(
         @DSLTypeMember Entity secondEntity,
         @DSLTypeMember List<Integer> intList,
         @DSLTypeMember Set<Float> floatSet,
+        @DSLTypeMember Set<String> stringSet,
         @DSLTypeMember List<String> stringList) {}

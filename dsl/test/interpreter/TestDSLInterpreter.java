@@ -28,6 +28,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
@@ -1098,6 +1099,40 @@ public class TestDSLInterpreter {
         Assert.assertEquals("Hello", config.stringList().get(0));
         Assert.assertEquals("World", config.stringList().get(1));
         Assert.assertEquals("!", config.stringList().get(2));
+    }
+
+    @Test
+    public void setSetValues() {
+        String program = """
+                quest_config c {
+                    float_set: <1.2,2.3,3.0,3.0>,
+                    string_set: <"Hello", "Hello", "World", "!">
+                }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config =
+            (CustomQuestConfig)
+                Helpers.generateQuestConfigWithCustomTypes(
+                    program, env, interpreter, Entity.class);
+
+        Set<Float> floatSet = config.floatSet();
+        Assert.assertEquals(3, floatSet.size());
+        Assert.assertTrue(floatSet.contains(1.2f));
+        Assert.assertTrue(floatSet.contains(2.3f));
+        Assert.assertTrue(floatSet.contains(3.0f));
+
+        Set<String> stringSet = config.stringSet();
+        Assert.assertEquals(3, stringSet.size());
+        Assert.assertTrue(stringSet.contains("Hello"));
+        Assert.assertTrue(stringSet.contains("World"));
+        Assert.assertTrue(stringSet.contains("!"));
     }
 
     @Test
