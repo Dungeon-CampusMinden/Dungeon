@@ -34,15 +34,17 @@ public class CameraSystemTest {
     @Before
     public void setup() {
         cameraSystem = new CameraSystem();
+        Game.addSystem(cameraSystem);
         Mockito.when(startTile.position()).thenReturn(testPoint);
         Mockito.when(level.randomTilePoint(Mockito.any())).thenReturn(testPoint);
         Mockito.when(level.startTile()).thenReturn(startTile);
-        new LevelSystem(null, null, () -> {});
+        Game.addSystem(new LevelSystem(null, null, () -> {}));
     }
 
     @After
     public void cleanup() {
         Game.removeAllEntities();
+        Game.currentLevel(null);
         Game.removeAllSystems();
     }
 
