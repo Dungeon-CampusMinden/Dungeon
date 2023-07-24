@@ -343,11 +343,22 @@ public class TypeBuilder {
     }
 
     /**
-     * Creates a DSL {@link AggregateType} from a java class. This requires the class to be marked
-     * with the {@link DSLType} annotation. Each field marked with the {@link DSLTypeMember}
+     * Creates a DSL {@link IType} from a java {@link Type}.
+     * Based on the kind of passed {@link Type}, different kinds of {@link IType} will be created.
+     * The most common scenario is the creation of an {@link AggregateType} from a class or a record.
+     * This requires the class to be marked * with the {@link DSLType} annotation. Each field marked
+     * with the {@link DSLTypeMember}
      * annotation will be converted to a member of the created {@link AggregateType}, if the field's
      * type can be mapped to a DSL data type. This requires the field's type to be either one of the
      * types declared in {@link BuiltInType} or another class marked with {@link DSLType}.
+     * If the passed {@link Type} implements {@link ParameterizedType}, it will either be converted
+     * into a {@link ListType} or {@link SetType}, if it assignable to {@link List} or {@link Set}
+     * respectively.
+     * If the name of the newly created type can be resolved in the passed {@link IScope}, the
+     * resolved {@link IType} will be returned.
+     *
+     * @param globalScope the global scope to use for resolving any DSL datatype
+     * @param type the java {@link Type} to create a DSL {@link IType} from
      */
     public IType createDSLTypeForJavaTypeInScope(IScope globalScope, Type type) {
         if (this.javaTypeToDSLType.containsKey(type)) {
