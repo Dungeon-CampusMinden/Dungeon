@@ -50,10 +50,6 @@ public class TypeInstantiator {
     public List<?> instantiateList(ListValue listValue) {
         ArrayList arrayListInstance = new ArrayList<>();
         for (Value entryValue : (ArrayList<Value>) listValue.getInternalValue()) {
-
-            // TODO: this also probably requires type instantiation, if the element type is not
-            // basic
-
             var convertedEntryValue = convertValueToObject(entryValue);
             arrayListInstance.add(convertedEntryValue);
         }
@@ -63,9 +59,6 @@ public class TypeInstantiator {
     public Set<?> instantiateSet(SetValue setValue) {
         HashSet hashSetInstance = new HashSet<>();
         for (Value entryValue : (HashSet<Value>) setValue.getInternalValue()) {
-            // TODO: this also probably requires type instantiation, if the element type is not
-            // basic
-
             var convertedEntryValue = convertValueToObject(entryValue);
             hashSetInstance.add(convertedEntryValue);
         }

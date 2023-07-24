@@ -330,8 +330,6 @@ public class TypeBuilder {
         }
 
         Class<?> clazz = null;
-
-        // TODO: refactor
         try {
             clazz = (Class<?>)type;
         } catch (ClassCastException ex) {
@@ -352,8 +350,6 @@ public class TypeBuilder {
             }
         }
 
-
-
         if (!clazz.isAnnotationPresent(DSLType.class)) {
             return null;
         }
@@ -364,7 +360,6 @@ public class TypeBuilder {
         }
 
         String typeName = getDSLTypeName(clazz);
-
         var aggregateType = new AggregateType(typeName, parentScope, clazz);
         for (Field field : clazz.getDeclaredFields()) {
             // bind new Symbol

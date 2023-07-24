@@ -730,7 +730,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
         executeUserDefinedFunctionBody(symbol);
 
         functionMemorySpace = memoryStack.pop();
-        // TODO: translate the Value back to a runtime value? (this is nontrivial for list- and set-types)
         return getReturnValueFromMemorySpace(functionMemorySpace);
     }
 
