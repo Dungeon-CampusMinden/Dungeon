@@ -25,11 +25,11 @@ import java.util.HashMap;
 import java.util.List;
 
 public class GameEnvironment implements IEvironment {
-    // TODO: the type builder should also be part of some 'type factory' to
-    //  avoid having only one builder for game Environments
     // TODO: the TypeBuilder should be completely encapsulated, so that types can only
     //  be created via the environment, so that the global scope of the environment is
-    //  always passed correctly to the TypeBuilder
+    //  always passed correctly to the TypeBuilder; this has some major implications for
+    //  RuntimeEnvironment and GameEnvironment and depends on the implementation of
+    //  typechecking, which is not yet implemented
     protected final TypeBuilder typeBuilder;
 
     // TODO: also make HashMaps
