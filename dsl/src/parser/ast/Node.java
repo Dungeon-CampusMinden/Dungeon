@@ -61,7 +61,11 @@ public class Node {
         Factor,
         Unary,
         MemberAccess,
-        GroupedExpression
+        GroupedExpression,
+        ListDefinitionNode,
+        SetDefinitionNode,
+        ListTypeIdentifierNode,
+        SetTypeIdentifierNode
     }
 
     public static Node NONE = new Node(Type.NONE, new ArrayList<>());

@@ -2,9 +2,7 @@ package semanticanalysis.types;
 
 import interpreter.DSLInterpreter;
 
-import runtime.AggregateValue;
-import runtime.IMemorySpace;
-import runtime.Value;
+import runtime.*;
 
 import semanticanalysis.FunctionSymbol;
 import semanticanalysis.types.callbackadapter.CallbackAdapter;
@@ -15,6 +13,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class TypeInstantiator {
     private final HashMap<String, Object> context = new HashMap<>();
@@ -47,6 +48,38 @@ public class TypeInstantiator {
     }
 
     /**
+     * Instantiate a {@link List} instance from a {@link ListValue}. Convert every entry of the
+     * {@link ListValue} into an Object.
+     *
+     * @param listValue The ListValue to convert
+     * @return the converted List
+     */
+    public List<?> instantiateList(ListValue listValue) {
+        ArrayList arrayListInstance = new ArrayList<>();
+        for (Value entryValue : (ArrayList<Value>) listValue.getInternalValue()) {
+            var convertedEntryValue = convertValueToObject(entryValue);
+            arrayListInstance.add(convertedEntryValue);
+        }
+        return arrayListInstance;
+    }
+
+    /**
+     * Instantiate a {@link Set} instance from a {@link SetValue}. Convert every entry of the {@link
+     * SetValue} into an Object.
+     *
+     * @param setValue The SetValue to convert
+     * @return the converted Set
+     */
+    public Set<?> instantiateSet(SetValue setValue) {
+        HashSet hashSetInstance = new HashSet<>();
+        for (Value entryValue : (HashSet<Value>) setValue.getInternalValue()) {
+            var convertedEntryValue = convertValueToObject(entryValue);
+            hashSetInstance.add(convertedEntryValue);
+        }
+        return hashSetInstance;
+    }
+
+    /**
      * Push an object as part of the context (so it can be looked up, if it is referenced by {@link
      * DSLContextMember} by a constructor parameter)
      *
@@ -66,6 +99,52 @@ public class TypeInstantiator {
         context.remove(name);
     }
 
+    /**
+     * Converts a {@link Value} to a regular Java Object. The conversion is dependent on the kind of
+     * datatype of the {@link Value} instance.
+     *
+     * @param value the Value to convert
+     * @return the converted Object
+     */
+    private Object convertValueToObject(Value value) {
+        Object convertedObject = value.getInternalValue();
+        try {
+            var fieldsDataType = value.getDataType();
+            if (fieldsDataType.getTypeKind().equals(IType.Kind.PODAdapted)) {
+                // call builder -> the type instantiator needs a reference to the
+                // builder or to the
+                // builder methods
+                var adaptedType = (AdaptedType) value.getDataType();
+                var method = adaptedType.getBuilderMethod();
+
+                convertedObject = method.invoke(null, convertedObject);
+            } else if (fieldsDataType.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
+                // call builder -> store values from memory space in order of parameters
+                // of builder-method
+                var adaptedType = (AggregateTypeAdapter) fieldsDataType;
+                var method = adaptedType.getBuilderMethod();
+                var aggregateFieldValue = (AggregateValue) value;
+
+                var parameters = new ArrayList<>(method.getParameterCount());
+                for (var parameter : method.getParameters()) {
+                    var memberName = TypeBuilder.getDSLParameterName(parameter);
+                    var memberValue = aggregateFieldValue.getMemorySpace().resolve(memberName);
+                    var internalObject = memberValue.getInternalValue();
+                    parameters.add(internalObject);
+                }
+
+                convertedObject = method.invoke(null, parameters.toArray());
+            } else if (value.getDataType().getTypeKind().equals(IType.Kind.ListType)) {
+                convertedObject = instantiateList((ListValue) value);
+            } else if (value.getDataType().getTypeKind().equals(IType.Kind.SetType)) {
+                convertedObject = instantiateSet((SetValue) value);
+            }
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+        return convertedObject;
+    }
+
     private Object instantiateRecord(Class<?> originalJavaClass, IMemorySpace ms) {
 
         Constructor<?> ctor = getConstructor(originalJavaClass);
@@ -83,7 +162,6 @@ public class TypeInstantiator {
                 var field = originalJavaClass.getDeclaredField(param.getName());
                 if (field.isAnnotationPresent(DSLTypeMember.class)) {
                     String fieldName = TypeBuilder.getDSLFieldName(field);
-
                     var fieldValue = ms.resolve(fieldName);
 
                     // if a certain value is not found in the memory space,
@@ -94,17 +172,7 @@ public class TypeInstantiator {
                                         + field.getName()
                                         + " cannot be resolved in the supplied memory space");
                     } else {
-                        var internalValue = fieldValue.getInternalValue();
-
-                        if (fieldValue.getDataType().getTypeKind().equals(IType.Kind.PODAdapted)) {
-                            // call builder -> the type instantiator needs a reference to the
-                            // builder or to the
-                            // builder methods
-                            var adaptedType = (AdaptedType) fieldValue.getDataType();
-                            var method = adaptedType.getBuilderMethod();
-
-                            internalValue = method.invoke(null, internalValue);
-                        }
+                        Object internalValue = convertValueToObject(fieldValue);
                         parameters.add(internalValue);
                     }
                 } else if (field.isAnnotationPresent(DSLCallback.class)) {
@@ -177,37 +245,7 @@ public class TypeInstantiator {
                     // we only should set the field value explicitly,
                     // if it was set in the program (indicated by the dirty-flag)
                     if (fieldValue != Value.NONE && fieldValue.isDirty()) {
-                        var internalValue = fieldValue.getInternalValue();
-
-                        var fieldsDataType = fieldValue.getDataType();
-                        if (fieldsDataType.getTypeKind().equals(IType.Kind.PODAdapted)) {
-                            // call builder -> the type instantiator needs a reference to the
-                            // builder or to the
-                            // builder methods
-                            var adaptedType = (AdaptedType) fieldValue.getDataType();
-                            var method = adaptedType.getBuilderMethod();
-
-                            internalValue = method.invoke(null, internalValue);
-                        } else if (fieldsDataType
-                                .getTypeKind()
-                                .equals(IType.Kind.AggregateAdapted)) {
-                            // call builder -> store values from memory space in order of parameters
-                            // of builder-method
-                            var adaptedType = (AggregateTypeAdapter) fieldsDataType;
-                            var method = adaptedType.getBuilderMethod();
-                            var aggregateFieldValue = (AggregateValue) fieldValue;
-
-                            var parameters = new ArrayList<>(method.getParameterCount());
-                            for (var parameter : method.getParameters()) {
-                                var memberName = TypeBuilder.getDSLParameterName(parameter);
-                                var memberValue =
-                                        aggregateFieldValue.getMemorySpace().resolve(memberName);
-                                var internalObject = memberValue.getInternalValue();
-                                parameters.add(internalObject);
-                            }
-
-                            internalValue = method.invoke(null, parameters.toArray());
-                        }
+                        Object internalValue = convertValueToObject(fieldValue);
 
                         field.setAccessible(true);
                         field.set(instance, internalValue);

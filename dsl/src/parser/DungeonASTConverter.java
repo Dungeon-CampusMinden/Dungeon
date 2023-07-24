@@ -430,10 +430,40 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
         // after that: type id
         var typeId = astStack.pop();
-        assert typeId.type == Node.Type.Identifier;
+        assert typeId instanceof IdNode;
 
         var paramNode = new ParamDefNode(typeId, id);
         astStack.push(paramNode);
+    }
+
+    @Override
+    public void enterId_param_type(DungeonDSLParser.Id_param_typeContext ctx) {}
+
+    @Override
+    public void exitId_param_type(DungeonDSLParser.Id_param_typeContext ctx) {
+        // nothing to do
+    }
+
+    @Override
+    public void enterList_param_type(DungeonDSLParser.List_param_typeContext ctx) {}
+
+    @Override
+    public void exitList_param_type(DungeonDSLParser.List_param_typeContext ctx) {
+        Node innerTypeNode = astStack.pop();
+        ListTypeIdentifierNode listTypeIdentifierNode =
+                new ListTypeIdentifierNode((IdNode) innerTypeNode);
+        astStack.push(listTypeIdentifierNode);
+    }
+
+    @Override
+    public void enterSet_param_type(DungeonDSLParser.Set_param_typeContext ctx) {}
+
+    @Override
+    public void exitSet_param_type(DungeonDSLParser.Set_param_typeContext ctx) {
+        Node innerTypeNode = astStack.pop();
+        SetTypeIdentifierNode setTypeIdentifierNode =
+                new SetTypeIdentifierNode((IdNode) innerTypeNode);
+        astStack.push(setTypeIdentifierNode);
     }
 
     @Override
@@ -649,7 +679,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
         // if there are parameters, a paramList will be on stack
         var paramList = Node.NONE;
-        if (ctx.param_list() != null) {
+        if (ctx.expression_list() != null) {
             paramList = astStack.pop();
             assert paramList.type == Node.Type.ParamList;
         }
@@ -663,11 +693,11 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterParam_list(DungeonDSLParser.Param_listContext ctx) {}
+    public void enterExpression_list(DungeonDSLParser.Expression_listContext ctx) {}
 
     @Override
-    public void exitParam_list(DungeonDSLParser.Param_listContext ctx) {
-        if (ctx.param_list() == null) {
+    public void exitExpression_list(DungeonDSLParser.Expression_listContext ctx) {
+        if (ctx.expression_list() == null) {
             // trivial param
             var innerParam = astStack.pop();
             var list = new ArrayList<Node>(1);
@@ -696,6 +726,32 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     @Override
     public void exitGrouped_expression(DungeonDSLParser.Grouped_expressionContext ctx) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void enterList_definition(DungeonDSLParser.List_definitionContext ctx) {}
+
+    @Override
+    public void exitList_definition(DungeonDSLParser.List_definitionContext ctx) {
+        // pop expression list
+        Node expressionList = astStack.pop();
+        assert expressionList.type == Node.Type.ParamList;
+
+        Node listDefinitionNode = new ListDefinitionNode(expressionList);
+        astStack.push(listDefinitionNode);
+    }
+
+    @Override
+    public void enterSet_definition(DungeonDSLParser.Set_definitionContext ctx) {}
+
+    @Override
+    public void exitSet_definition(DungeonDSLParser.Set_definitionContext ctx) {
+        // pop expression list
+        Node expressionList = astStack.pop();
+        assert expressionList.type == Node.Type.ParamList;
+
+        Node setDefinitionNode = new SetDefinitionNode(expressionList);
+        astStack.push(setDefinitionNode);
     }
 
     @Override

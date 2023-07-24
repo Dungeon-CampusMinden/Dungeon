@@ -207,6 +207,18 @@ public class FunctionCallResolver implements AstVisitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(ListDefinitionNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(SetDefinitionNode node) {
+        visitChildren(node);
+        return null;
+    }
+
     // region ASTVisitor implementation for nodes unrelated to function call resolution
     @Override
     public Void visit(DecNumNode node) {

@@ -10,6 +10,7 @@ import helpers.Helpers;
 import interpreter.mockecs.*;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import parser.ast.Node;
@@ -26,6 +27,9 @@ import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
@@ -1038,5 +1042,248 @@ public class TestDSLInterpreter {
         var returnValue = testComponentWithCallback.executeCallbackWithText("Moin");
 
         Assert.assertTrue(returnValue.contains("Moin"));
+    }
+
+    @Test
+    @Ignore
+    public void registerListAndSetTypesInEnvironment() {
+        String program =
+                """
+                quest_config c {
+                    int_list: [1,2,3],
+                    string_list: ["Hello", "World", "!"]
+                }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config =
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(
+                                program, env, interpreter, Entity.class);
+
+        var rtEnv = interpreter.getRuntimeEnvironment();
+
+        Assert.assertTrue(false);
+    }
+
+    @Test
+    public void setListValues() {
+        String program =
+                """
+                quest_config c {
+                    int_list: [1,2,3],
+                    string_list: ["Hello", "World", "!"]
+                }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config =
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(
+                                program, env, interpreter, Entity.class);
+
+        // cast to Integer to make the compiler happy
+        Assert.assertEquals((Integer) 1, config.intList().get(0));
+        Assert.assertEquals((Integer) 2, config.intList().get(1));
+        Assert.assertEquals((Integer) 3, config.intList().get(2));
+
+        Assert.assertEquals("Hello", config.stringList().get(0));
+        Assert.assertEquals("World", config.stringList().get(1));
+        Assert.assertEquals("!", config.stringList().get(2));
+    }
+
+    @Test
+    public void setSetValues() {
+        String program =
+                """
+                quest_config c {
+                    float_set: <1.2,2.3,3.0,3.0>,
+                    string_set: <"Hello", "Hello", "World", "!">
+                }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config =
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(
+                                program, env, interpreter, Entity.class);
+
+        Set<Float> floatSet = config.floatSet();
+        Assert.assertEquals(3, floatSet.size());
+        Assert.assertTrue(floatSet.contains(1.2f));
+        Assert.assertTrue(floatSet.contains(2.3f));
+        Assert.assertTrue(floatSet.contains(3.0f));
+
+        Set<String> stringSet = config.stringSet();
+        Assert.assertEquals(3, stringSet.size());
+        Assert.assertTrue(stringSet.contains("Hello"));
+        Assert.assertTrue(stringSet.contains("World"));
+        Assert.assertTrue(stringSet.contains("!"));
+    }
+
+    @Test
+    public void passListValueToFunc() {
+        String program =
+                """
+                fn test_func(entity[] my_entities) -> bool {
+                    return true;
+                }
+
+                entity_type my_type{
+                    test_component_list_callback{
+                        on_interaction: test_func
+                    }
+                }
+
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config =
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(
+                                program,
+                                env,
+                                interpreter,
+                                Entity.class,
+                                TestComponentListCallback.class,
+                                TestComponentListOfListsCallback.class);
+
+        var testComponentWithCallback =
+                (TestComponentListCallback) config.entity().components.get(0);
+
+        ArrayList<Entity> entities = new ArrayList<>();
+        entities.add(new Entity());
+        entities.add(new Entity());
+        entities.add(new Entity());
+
+        boolean returnValue = testComponentWithCallback.executeCallbackWithText(entities);
+        Assert.assertTrue(returnValue);
+    }
+
+    @Test
+    public void passListValueThroughFunc() {
+        String program =
+                """
+                fn test_func(entity[] my_entities) -> entity[] {
+                    return my_entities;
+                }
+
+                entity_type my_type{
+                    test_component_list_pass_through_callback{
+                        on_interaction: test_func
+                    }
+                }
+
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config =
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(
+                                program,
+                                env,
+                                interpreter,
+                                Entity.class,
+                                TestComponentListCallback.class,
+                                TestComponentListPassThroughCallback.class);
+
+        var testComponentWithCallback =
+                (TestComponentListPassThroughCallback) config.entity().components.get(0);
+
+        ArrayList<Entity> entities = new ArrayList<>();
+        entities.add(new Entity());
+        entities.add(new Entity());
+        entities.add(new Entity());
+
+        List<Entity> returnedEntities = testComponentWithCallback.executeCallback(entities);
+        Assert.assertEquals(entities.get(0), returnedEntities.get(0));
+        Assert.assertEquals(entities.get(1), returnedEntities.get(1));
+        Assert.assertEquals(entities.get(2), returnedEntities.get(2));
+    }
+
+    @Test
+    public void passSetValueThroughFunc() {
+        String program =
+                """
+                fn test_func(entity<> my_entities) -> entity<> {
+                    return my_entities;
+                }
+
+                entity_type my_type{
+                    test_component_set_pass_through_callback{
+                        on_interaction: test_func
+                    }
+                }
+
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config =
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(
+                                program,
+                                env,
+                                interpreter,
+                                Entity.class,
+                                TestComponentSetPassThroughCallback.class);
+
+        var testComponentWithCallback =
+                (TestComponentSetPassThroughCallback) config.entity().components.get(0);
+
+        HashSet<Entity> entities = new HashSet<>();
+        entities.add(new Entity());
+        entities.add(new Entity());
+        entities.add(new Entity());
+
+        Set<Entity> returnedEntities = testComponentWithCallback.executeCallback(entities);
+        Assert.assertEquals(3, returnedEntities.size());
+        for (var entity : entities) {
+            Assert.assertTrue(returnedEntities.contains(entity));
+        }
     }
 }

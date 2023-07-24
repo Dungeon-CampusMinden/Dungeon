@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import dslToGame.graph.Graph;
 
+import interpreter.CustomQuestConfigWithListMember;
+import interpreter.CustomQuestConfigWithSetMember;
 import interpreter.mockecs.*;
 
 import org.junit.Test;
@@ -11,9 +13,7 @@ import org.junit.Test;
 import semanticanalysis.Scope;
 import semanticanalysis.Symbol;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.function.Function;
 
 public class TestTypeBuilder {
     @Test
@@ -263,40 +263,39 @@ public class TestTypeBuilder {
     }
 
     @Test
-    public void messAround() {
+    public void testListMember() {
         // setup typebuilder
         TypeBuilder tb = new TypeBuilder();
-        // register Entity type (setup)
-        var entityType = (AggregateType) tb.createTypeFromClass(Scope.NULL, Entity.class);
-
-        var componentDSLType =
+        var questConfigType =
                 (AggregateType)
-                        tb.createTypeFromClass(Scope.NULL, TestComponentWithFunctionCallback.class);
+                        tb.createTypeFromClass(Scope.NULL, CustomQuestConfigWithListMember.class);
+        Symbol intListSymbol = questConfigType.resolve("int_list");
+        assertEquals("int[]", intListSymbol.getDataType().getName());
+        ListType listType = (ListType) intListSymbol.getDataType();
+        assertEquals(BuiltInType.intType, listType.getElementType());
 
-        var entity = new Entity();
-        var object = new TestComponentWithFunctionCallback(entity);
-        Field field = null;
-        try {
-            field = TestComponentWithFunctionCallback.class.getDeclaredField("onInteraction");
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        }
-        field.setAccessible(true);
+        Symbol floatListSymbol = questConfigType.resolve("float_list");
+        assertEquals("float[]", floatListSymbol.getDataType().getName());
+        listType = (ListType) floatListSymbol.getDataType();
+        assertEquals(BuiltInType.floatType, listType.getElementType());
+    }
 
-        var functionClass = Function.class;
-        var genericInterfaces = functionClass.getGenericInterfaces();
-        var ctors = functionClass.getConstructors();
+    @Test
+    public void testSetMember() {
+        // setup typebuilder
+        TypeBuilder tb = new TypeBuilder();
+        var questConfigType =
+                (AggregateType)
+                        tb.createTypeFromClass(Scope.NULL, CustomQuestConfigWithSetMember.class);
+        Symbol intSetSymbol = questConfigType.resolve("int_set");
+        assertEquals("int<>", intSetSymbol.getDataType().getName());
+        SetType setType = (SetType) intSetSymbol.getDataType();
+        assertEquals(BuiltInType.intType, setType.getElementType());
 
-        var testClassObject = new TestClass();
-        Function func = testClassObject::accept;
-
-        try {
-            field.set(object, func);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-
-        var ret = object.getOnInteraction().apply(entity);
+        Symbol floatSetSymbol = questConfigType.resolve("float_set");
+        assertEquals("float<>", floatSetSymbol.getDataType().getName());
+        setType = (SetType) floatSetSymbol.getDataType();
+        assertEquals(BuiltInType.floatType, setType.getElementType());
 
         boolean b = true;
     }

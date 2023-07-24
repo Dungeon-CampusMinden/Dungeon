@@ -231,5 +231,16 @@ public class TypeBinder implements AstVisitor<Object> {
     public Object visit(AssignmentNode node) {
         return null;
     }
+
+    @Override
+    public Object visit(ListDefinitionNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(SetDefinitionNode node) {
+        return null;
+    }
+
     // endregion
 }

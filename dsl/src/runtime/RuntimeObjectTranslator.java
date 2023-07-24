@@ -1,10 +1,10 @@
 package runtime;
 
-import semanticanalysis.types.AggregateType;
-import semanticanalysis.types.BuiltInType;
-import semanticanalysis.types.IType;
+import semanticanalysis.types.*;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This class performs conversions from "runtime objects", meaning Java-objects from the dungeon
@@ -48,9 +48,16 @@ public class RuntimeObjectTranslator {
      * @return the translated Value
      */
     protected Value translateRuntimeObjectDefault(
-            Object object, IMemorySpace parentMemorySpace, IEvironment environment) {
+            Object object,
+            IMemorySpace parentMemorySpace,
+            IEvironment environment,
+            IType targetType) {
         Value returnValue = Value.NONE;
-        IType dslType = environment.getDSLTypeForClass(object.getClass());
+
+        IType dslType = targetType;
+        if (dslType == null) {
+            dslType = environment.getDSLTypeForClass(object.getClass());
+        }
         if (dslType != BuiltInType.noType) {
             switch (dslType.getTypeKind()) {
                 case Basic:
@@ -72,9 +79,51 @@ public class RuntimeObjectTranslator {
                 case FunctionType:
                     // TODO
                     break;
+                case ListType:
+                    ListType listType = (ListType) dslType;
+                    // create new list value
+                    ListValue listValue = new ListValue((ListType) dslType);
+
+                    // translate each element to target type
+                    List<?> passedList = (List<?>) object;
+                    for (Object element : passedList) {
+                        Value elementValue =
+                                translateRuntimeObject(
+                                        element,
+                                        parentMemorySpace,
+                                        environment,
+                                        listType.getElementType());
+                        listValue.addValue(elementValue);
+                    }
+                    returnValue = listValue;
+                    break;
+                case SetType:
+                    SetType setType = (SetType) dslType;
+                    // create new list value
+                    SetValue setValue = new SetValue((SetType) dslType);
+
+                    // translate each element to target type
+                    Set<?> passedSet = (Set<?>) object;
+                    for (Object element : passedSet) {
+                        Value elementValue =
+                                translateRuntimeObject(
+                                        element,
+                                        parentMemorySpace,
+                                        environment,
+                                        setType.getElementType());
+                        setValue.addValue(elementValue);
+                    }
+                    returnValue = setValue;
+                    boolean c = true;
+                    break;
             }
         }
         return returnValue;
+    }
+
+    public Value translateRuntimeObject(
+            Object object, IMemorySpace parentMemorySpace, IEvironment environment) {
+        return translateRuntimeObject(object, parentMemorySpace, environment, null);
     }
 
     /**
@@ -87,13 +136,18 @@ public class RuntimeObjectTranslator {
      * @return The translated Value
      */
     public Value translateRuntimeObject(
-            Object object, IMemorySpace parentMemorySpace, IEvironment environment) {
+            Object object,
+            IMemorySpace parentMemorySpace,
+            IEvironment environment,
+            IType targetType) {
 
         var objectsClass = object.getClass();
         var translator = this.translators.get(objectsClass);
         Value returnValue;
         if (translator == null) {
-            returnValue = translateRuntimeObjectDefault(object, parentMemorySpace, environment);
+            returnValue =
+                    translateRuntimeObjectDefault(
+                            object, parentMemorySpace, environment, targetType);
         } else {
             returnValue = translator.translate(object, parentMemorySpace, environment);
         }

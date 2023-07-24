@@ -5,6 +5,7 @@ import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 
@@ -60,7 +61,7 @@ public interface IEvironment {
      */
     IScope getGlobalScope();
 
-    default HashMap<Class<?>, IType> javaTypeToDSLTypeMap() {
+    default HashMap<Type, IType> javaTypeToDSLTypeMap() {
         return new HashMap<>();
     }
 
@@ -72,6 +73,10 @@ public interface IEvironment {
             dslType = (IType) dslTypeSymbol;
         }
         return dslType;
+    }
+
+    default Symbol resolveInGlobalScope(String name) {
+        return this.getGlobalScope().resolve(name);
     }
 
     RuntimeObjectTranslator getRuntimeObjectTranslator();

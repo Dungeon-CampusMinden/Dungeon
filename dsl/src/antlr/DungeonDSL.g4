@@ -126,7 +126,7 @@ unary
     ;
 
 func_call
-        : ID '(' param_list? ')'
+        : ID '(' expression_list? ')'
         ;
 
 stmt_block
@@ -151,11 +151,17 @@ else_stmt
     ;
 
 ret_type_def
-    : ARROW type_id=ID
+    : ARROW type_id=type_decl
     ;
 
 param_def
-    : typde_id=ID param_id=ID
+    : type_id=type_decl param_id=ID
+    ;
+
+type_decl
+    : type_decl '<>'   #set_param_type
+    | type_decl '[]'   #list_param_type
+    | ID                #id_param_type
     ;
 
 param_def_list
@@ -188,13 +194,21 @@ property_def_list
 property_def
         : ID ':' expression;
 
-param_list
-        : expression ',' param_list
+expression_list
+        : expression ',' expression_list
         | expression
         ;
 
 grouped_expression
     : '(' expression ')'
+    ;
+
+list_definition
+    : '[' expression_list? ']'
+    ;
+
+set_definition
+    : '<' expression_list? '>'
     ;
 
 primary : ID
@@ -204,8 +218,10 @@ primary : ID
         | NUM
         | NUM_DEC
         | aggregate_value_def
+        | set_definition
         | grouped_expression
         | func_call
+        | list_definition
         ;
 
 /*

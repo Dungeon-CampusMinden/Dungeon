@@ -400,14 +400,31 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         } else {
             // resolve return value (if one was defined)
             IType returnType = BuiltInType.noType;
-            if (node.getRetTypeId() != Node.NONE) {
+            Node returnTypeIdNode = node.getRetTypeId();
+            if (returnTypeIdNode != Node.NONE) {
+                if (returnTypeIdNode.type != Node.Type.Identifier) {
+                    // the type is either a list type or set type, which may
+                    // require type creation
+                    returnTypeIdNode.accept(this);
+                }
+
                 String returnTypeName = node.getRetTypeName();
                 returnType = resolveType(returnTypeName);
+                if (returnType == null) {
+                    throw new RuntimeException(
+                            "Could not resolve return type "
+                                    + returnTypeName
+                                    + " of function "
+                                    + funcName);
+                }
             }
 
             // get types of parameters
             ArrayList<IType> parameterTypes = new ArrayList<>(node.getParameters().size());
-            for (var paramDefNode : node.getParameters()) {
+            for (Node paramDefNode : node.getParameters()) {
+                // if the parameters type is a list or set type, the datatype must be created
+                ((ParamDefNode) paramDefNode).getTypeIdNode().accept(this);
+
                 var paramTypeName = ((ParamDefNode) paramDefNode).getTypeName();
                 IType paramType = resolveType(paramTypeName);
                 parameterTypes.add(paramType);
@@ -529,6 +546,56 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     public Void visit(AssignmentNode node) {
         // TODO: implement
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Void visit(ListTypeIdentifierNode node) {
+        String typeName = node.getName();
+        Symbol resolvedType = this.environment.resolveInGlobalScope(typeName);
+
+        // construct a new ListType for the node, if it was not previously created
+        if (resolvedType == Symbol.NULL) {
+            // create inner type node
+            IdNode innerTypeNode = node.getInnerTypeNode();
+            if (innerTypeNode.type != Node.Type.Identifier) {
+                innerTypeNode.accept(this);
+            }
+            var innerType = (IType) this.environment.resolveInGlobalScope(innerTypeNode.getName());
+            ListType listType = new ListType(innerType, this.globalScope());
+            this.globalScope().bind(listType);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visit(SetTypeIdentifierNode node) {
+        String typeName = node.getName();
+        Symbol resolvedType = this.environment.resolveInGlobalScope(typeName);
+
+        // construct a new ListType for the node, if it was not previously created
+        if (resolvedType == Symbol.NULL) {
+            // create inner type node
+            IdNode innerTypeNode = node.getInnerTypeNode();
+            if (innerTypeNode.type != Node.Type.Identifier) {
+                innerTypeNode.accept(this);
+            }
+            var innerType = (IType) this.environment.resolveInGlobalScope(innerTypeNode.getName());
+            SetType setType = new SetType(innerType, this.globalScope());
+            this.globalScope().bind(setType);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visit(ListDefinitionNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(SetDefinitionNode node) {
+        visitChildren(node);
+        return null;
     }
 
     // region ASTVisitor implementation for nodes unrelated to semantic analysis
