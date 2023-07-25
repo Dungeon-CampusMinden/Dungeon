@@ -124,7 +124,7 @@ public class ItemData {
         e.fetch(InventoryComponent.class)
                 .ifPresent(
                         component -> {
-                            component.removeItem(itemData);
+                            component.remove(itemData);
                         });
         System.out.printf("Item \"%s\" used by entity %d\n", itemData.item().displayName(), e.id());
     }
@@ -161,10 +161,9 @@ public class ItemData {
                                 // check if Hero has an Inventory Component
                                 hero.fetch(InventoryComponent.class)
                                         .ifPresent(
-                                                (x) -> {
+                                                (invComp) -> {
                                                     // check if Item can be added to hero Inventory
-                                                    if (((InventoryComponent) x)
-                                                            .addItem(itemComp.get().itemData()))
+                                                    if (invComp.add(itemComp.get().itemData()))
                                                         // if added to hero Inventory
                                                         // remove Item from World
                                                         Game.removeEntity(worldItem);

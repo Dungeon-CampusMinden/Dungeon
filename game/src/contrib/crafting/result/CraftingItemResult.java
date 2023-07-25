@@ -65,7 +65,7 @@ public class CraftingItemResult extends CraftingResult {
                                         MissingComponentException.build(
                                                 entity, InventoryComponent.class));
         for (int i = 0; i < this.count; i++) {
-            ic.addItem(new ItemData(this.item));
+            ic.add(new ItemData(this.item));
         }
     }
 

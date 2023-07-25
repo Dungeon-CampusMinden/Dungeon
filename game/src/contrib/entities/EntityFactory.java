@@ -61,8 +61,8 @@ public class EntityFactory {
         Entity hero = new Entity("hero");
         new CameraComponent(hero);
         new PositionComponent(hero);
-        new VelocityComponent(hero, xSpeed, ySpeed);
-        new DrawComponent(hero, "character/knight");
+        new VelocityComponent(hero, X_SPEED_HERO, Y_SPEED_HERO);
+        new DrawComponent(hero, HERO_FILE_PATH);
         new InventoryComponent(hero, Constants.DEFAULT_INVENTORY_SIZE);
         new CollideComponent(
                 hero,
