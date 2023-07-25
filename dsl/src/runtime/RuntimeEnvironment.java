@@ -17,13 +17,11 @@ import java.util.HashMap;
 public class RuntimeEnvironment implements IEvironment {
     private final SymbolTable symbolTable;
     private final HashMap<String, Symbol> functions;
-    private final HashMap<String, IType> types;
     private final HashMap<String, Prototype> prototypes;
     private final HashMap<Type, IType> javaTypeToDSLType;
     private final RuntimeObjectTranslator runtimeObjectTranslator;
     private final TypeBuilder typeBuilder;
     private final TypeInstantiator typeInstantiator;
-    private final DSLInterpreter interpreter;
 
     public RuntimeObjectTranslator getRuntimeObjectTranslator() {
         return runtimeObjectTranslator;
@@ -36,7 +34,6 @@ public class RuntimeEnvironment implements IEvironment {
      * @param other the other environment to create a new RuntimeEnvironment from
      */
     public RuntimeEnvironment(IEvironment other, DSLInterpreter interpreter) {
-        this.interpreter = interpreter;
         this.symbolTable = other.getSymbolTable();
         this.typeBuilder = other.getTypeBuilder();
 
@@ -44,12 +41,6 @@ public class RuntimeEnvironment implements IEvironment {
         this.functions = new HashMap<>();
         for (var function : functions) {
             this.functions.put(function.getName(), function);
-        }
-
-        var types = other.getTypes();
-        this.types = new HashMap<>();
-        for (var type : types) {
-            this.types.put(type.getName(), type);
         }
 
         this.prototypes = new HashMap<>();
@@ -88,11 +79,6 @@ public class RuntimeEnvironment implements IEvironment {
     @Override
     public TypeBuilder getTypeBuilder() {
         return this.typeBuilder;
-    }
-
-    @Override
-    public IType[] getTypes() {
-        return this.types.values().toArray(new IType[0]);
     }
 
     @Override

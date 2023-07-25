@@ -75,7 +75,8 @@ public class TestSymbolTableParser {
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
 
         TypeBuilder tb = new TypeBuilder();
-        var testComponentType = tb.createTypeFromClass(Scope.NULL, TestComponent.class);
+        Scope scope = new Scope();
+        var testComponentType = tb.createDSLTypeForJavaTypeInScope(scope, TestComponent.class);
 
         var env = new GameEnvironment();
         env.loadTypes(testComponentType);

@@ -1,6 +1,6 @@
 package semanticanalysis.types.callbackadapter;
 
-import semanticanalysis.Scope;
+import semanticanalysis.IScope;
 import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.FunctionType;
 import semanticanalysis.types.IType;
@@ -21,7 +21,8 @@ public class ConsumerFunctionTypeBuilder implements IFunctionTypeBuilder {
     private ConsumerFunctionTypeBuilder() {}
 
     @Override
-    public FunctionType buildFunctionType(Field field, TypeBuilder typeBuilder) {
+    public FunctionType buildFunctionType(
+            Field field, TypeBuilder typeBuilder, IScope globalScope) {
         var genericType = field.getGenericType();
 
         var parameterizedType = (ParameterizedType) genericType;
@@ -29,7 +30,7 @@ public class ConsumerFunctionTypeBuilder implements IFunctionTypeBuilder {
         ArrayList<IType> parameterTypes =
                 new ArrayList<>(parameterizedType.getActualTypeArguments().length);
         for (var parameterType : parameterizedType.getActualTypeArguments()) {
-            IType dslType = typeBuilder.createTypeFromClass(Scope.NULL, parameterType);
+            IType dslType = typeBuilder.createDSLTypeForJavaTypeInScope(globalScope, parameterType);
             if (null == dslType) {
                 throw new RuntimeException("Type of parameter of Consumer could not be translated");
             } else {

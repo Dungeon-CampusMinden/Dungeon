@@ -25,12 +25,14 @@ import java.util.HashMap;
 import java.util.List;
 
 public class GameEnvironment implements IEvironment {
-    // TODO: the type builder should also be part of some 'type factory' to
-    //  avoid having only one builder for game Environments
+    // TODO: the TypeBuilder should be completely encapsulated, so that types can only
+    //  be created via the environment, so that the global scope of the environment is
+    //  always passed correctly to the TypeBuilder; this has some major implications for
+    //  RuntimeEnvironment and GameEnvironment and depends on the implementation of
+    //  typechecking, which is not yet implemented
     protected final TypeBuilder typeBuilder;
 
     // TODO: also make HashMaps
-    protected final ArrayList<IType> BUILT_IN_TYPES;
     protected final ArrayList<Symbol> NATIVE_FUNCTIONS;
 
     protected final HashMap<String, IType> loadedTypes = new HashMap<>();
@@ -38,6 +40,22 @@ public class GameEnvironment implements IEvironment {
     protected final SymbolTable symbolTable;
     protected final Scope globalScope;
     protected final RuntimeObjectTranslator runtimeObjectTranslator = new RuntimeObjectTranslator();
+
+    /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
+     * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
+    // var animationComponentType =
+    //      typeBuilder.createTypeFromClass(Scope.NULL, DrawComponent.class);
+    public Class<?>[] getBuiltInAggregateTypeClasses() {
+        return (Class<?>[])
+                new Class[] {
+                    QuestConfig.class,
+                    Entity.class,
+                    PositionComponent.class,
+                    VelocityComponent.class,
+                    AIComponent.class,
+                    CollideComponent.class
+                };
+    }
 
     @Override
     public TypeBuilder getTypeBuilder() {
@@ -54,12 +72,15 @@ public class GameEnvironment implements IEvironment {
         this.symbolTable = new SymbolTable(this.globalScope);
 
         // create built in types and native functions
-        this.BUILT_IN_TYPES = buildBuiltInTypes();
         this.NATIVE_FUNCTIONS = buildNativeFunctions();
 
-        bindBuiltIns();
+        bindBuiltInTypes();
+
         registerDefaultTypeAdapters();
         registerDefaultRuntimeObjectTranslators();
+        bindBuiltInAggregateTypes();
+
+        bindNativeFunctions();
     }
 
     protected void registerDefaultTypeAdapters() {
@@ -73,23 +94,10 @@ public class GameEnvironment implements IEvironment {
                 Entity.class, EntityTranslator.instance);
     }
 
-    protected void bindBuiltIns() {
-        for (IType type : BUILT_IN_TYPES) {
-            globalScope.bind((Symbol) type);
-        }
-
+    protected void bindNativeFunctions() {
         for (Symbol func : NATIVE_FUNCTIONS) {
             globalScope.bind(func);
         }
-    }
-
-    @Override
-    public IType[] getTypes() {
-        var typesArray = new IType[BUILT_IN_TYPES.size() + loadedTypes.size()];
-        var combinedList = new ArrayList<IType>();
-        combinedList.addAll(BUILT_IN_TYPES);
-        combinedList.addAll(loadedTypes.values());
-        return combinedList.toArray(typesArray);
     }
 
     @Override
@@ -162,43 +170,20 @@ public class GameEnvironment implements IEvironment {
         return this.runtimeObjectTranslator;
     }
 
-    private ArrayList<IType> buildBuiltInTypes() {
-        ArrayList<IType> types = new ArrayList<>();
+    protected void bindBuiltInAggregateTypes() {
+        for (Class<?> clazz : getBuiltInAggregateTypeClasses()) {
+            this.typeBuilder.createDSLTypeForJavaTypeInScope(this.globalScope, clazz);
+        }
+    }
 
-        types.add(BuiltInType.noType);
-        types.add(BuiltInType.boolType);
-        types.add(BuiltInType.intType);
-        types.add(BuiltInType.floatType);
-        types.add(BuiltInType.stringType);
-        types.add(BuiltInType.graphType);
-        types.add(Prototype.PROTOTYPE);
-
-        registerDefaultTypeAdapters();
-
-        var questConfigType = typeBuilder.createTypeFromClass(Scope.NULL, QuestConfig.class);
-        var entityComponentType = typeBuilder.createTypeFromClass(Scope.NULL, Entity.class);
-        var positionComponentType =
-                typeBuilder.createTypeFromClass(Scope.NULL, PositionComponent.class);
-        /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
-         * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
-        // var animationComponentType =
-        //      typeBuilder.createTypeFromClass(Scope.NULL, DrawComponent.class);
-        var velocityComponentType =
-                typeBuilder.createTypeFromClass(Scope.NULL, VelocityComponent.class);
-        var aiComponentType = typeBuilder.createTypeFromClass(Scope.NULL, AIComponent.class);
-        var hitboxComponentType =
-                typeBuilder.createTypeFromClass(Scope.NULL, CollideComponent.class);
-        types.add(questConfigType);
-        types.add(entityComponentType);
-        types.add(positionComponentType);
-        /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
-         * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
-        // types.add(animationComponentType);
-        types.add(velocityComponentType);
-        types.add(aiComponentType);
-        types.add(hitboxComponentType);
-
-        return types;
+    private void bindBuiltInTypes() {
+        this.globalScope.bind(BuiltInType.noType);
+        this.globalScope.bind(BuiltInType.boolType);
+        this.globalScope.bind(BuiltInType.intType);
+        this.globalScope.bind(BuiltInType.floatType);
+        this.globalScope.bind(BuiltInType.stringType);
+        this.globalScope.bind(BuiltInType.graphType);
+        this.globalScope.bind(Prototype.PROTOTYPE);
     }
 
     private static ArrayList<Symbol> buildNativeFunctions() {

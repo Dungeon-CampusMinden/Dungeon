@@ -15,7 +15,6 @@ import runtime.GameEnvironment;
 import runtime.MemorySpace;
 import runtime.Value;
 
-import semanticanalysis.Scope;
 import semanticanalysis.ScopedSymbol;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.Symbol;
@@ -120,7 +119,10 @@ public class Helpers {
             Class<?>... classesToLoadAsTypes) {
 
         for (var clazz : classesToLoadAsTypes) {
-            var type = environment.getTypeBuilder().createTypeFromClass(new Scope(), clazz);
+            var type =
+                    environment
+                            .getTypeBuilder()
+                            .createDSLTypeForJavaTypeInScope(environment.getGlobalScope(), clazz);
             environment.loadTypes(type);
         }
 
