@@ -29,8 +29,9 @@ public class TestTypeInstantiator {
         HashMap<String, Object> setValues = new HashMap<>();
 
         TypeBuilder tb = new TypeBuilder();
+        Scope scope = new Scope();
         var type =
-                (AggregateType) tb.createDSLTypeForJavaTypeInScope(Scope.NULL, QuestConfig.class);
+                (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, QuestConfig.class);
 
         // the fieldName does not necessary match the member name in the created DSLType, so store a
         // map from member to
@@ -89,9 +90,10 @@ public class TestTypeInstantiator {
         HashMap<String, Object> setValues = new HashMap<>();
 
         TypeBuilder tb = new TypeBuilder();
+        Scope scope = new Scope();
         var type =
                 (AggregateType)
-                        tb.createDSLTypeForJavaTypeInScope(Scope.NULL, TestClassOuter.class);
+                        tb.createDSLTypeForJavaTypeInScope(scope, TestClassOuter.class);
 
         // the fieldName does not necessary match the member name in the created DSLType, so store a
         // map from member to
