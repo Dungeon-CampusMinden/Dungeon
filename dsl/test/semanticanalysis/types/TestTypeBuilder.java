@@ -208,13 +208,11 @@ public class TestTypeBuilder {
         TypeBuilder tb = new TypeBuilder();
         Scope scope = new Scope();
         // register Entity type (setup)
-        var entityType =
-                (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, Entity.class);
+        var entityType = (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, Entity.class);
 
         var dslType =
                 (AggregateType)
-                        tb.createDSLTypeForJavaTypeInScope(
-                                scope, TestComponentWithCallback.class);
+                        tb.createDSLTypeForJavaTypeInScope(scope, TestComponentWithCallback.class);
         var callbackSymbol = dslType.resolve("on_interaction");
         assertNotEquals(Symbol.NULL, callbackSymbol);
         var symbolType = callbackSymbol.getDataType();
