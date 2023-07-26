@@ -1,5 +1,7 @@
 package contrib.utils.components.interaction;
 
+import com.badlogic.gdx.utils.Null;
+
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.utils.components.item.ItemData;
@@ -12,6 +14,7 @@ import core.utils.components.draw.CoreAnimations;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -30,7 +33,7 @@ import java.util.function.Consumer;
  * core.utils.components.draw.CoreAnimations#IDLE_RIGHT} animation will be set as the current
  * animation.
  */
-public class DropItemsInteraction implements Consumer<Entity> {
+public class DropItemsInteraction implements BiConsumer<Entity, Entity> {
 
     /**
      * Will drop all the items inside the {@link InventoryComponent} of the associated entity on the
@@ -46,8 +49,9 @@ public class DropItemsInteraction implements Consumer<Entity> {
      * animation.
      *
      * @param entity associated entity
+     * @param who The entity that triggered the interaction (may be null)
      */
-    public void accept(final Entity entity) {
+    public void accept(final Entity entity, final @Null Entity who) {
         InventoryComponent inventoryComponent =
                 entity.fetch(InventoryComponent.class)
                         .orElseThrow(

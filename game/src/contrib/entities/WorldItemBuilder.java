@@ -5,7 +5,6 @@ import contrib.components.ItemComponent;
 import contrib.utils.components.item.ItemData;
 
 import core.Entity;
-import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Constants;
@@ -26,12 +25,7 @@ public class WorldItemBuilder {
         new DrawComponent(droppedItem, itemData.item().worldAnimation());
         new ItemComponent(droppedItem, itemData);
         new InteractionComponent(
-                droppedItem,
-                Constants.DEFAULT_ITEM_PICKUP_RADIUS,
-                false,
-                e -> {
-                    Game.hero().ifPresent(hero -> itemData.triggerCollect(e, hero));
-                });
+                droppedItem, Constants.DEFAULT_ITEM_PICKUP_RADIUS, false, itemData.onCollect());
 
         return droppedItem;
     }

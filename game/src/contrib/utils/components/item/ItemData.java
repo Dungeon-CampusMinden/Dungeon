@@ -12,7 +12,6 @@ import contrib.utils.components.stats.DamageModifier;
 
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
