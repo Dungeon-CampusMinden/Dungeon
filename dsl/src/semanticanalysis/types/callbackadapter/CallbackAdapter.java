@@ -1,4 +1,4 @@
-package semanticanalysis.types.CallbackAdapter;
+package semanticanalysis.types.callbackadapter;
 
 import core.utils.TriConsumer;
 
@@ -6,13 +6,14 @@ import interpreter.DSLInterpreter;
 
 import parser.ast.FuncDefNode;
 
-import runtime.RuntimeEnvironment;
-import runtime.Value;
+import runtime.*;
 
 import semanticanalysis.FunctionSymbol;
 import semanticanalysis.types.FunctionType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -38,12 +39,49 @@ public class CallbackAdapter implements Function, Consumer, TriConsumer {
 
     public Object call(Object... params) {
         var functionSymbol = rtEnv.getSymbolTable().getSymbolsForAstNode(funcDefNode).get(0);
+
         var returnValue =
                 (Value)
                         interpreter.executeUserDefinedFunctionRawParameters(
                                 (FunctionSymbol) functionSymbol, Arrays.stream(params).toList());
 
-        return returnValue.getInternalValue();
+        return convertValueToObject(returnValue);
+    }
+
+    protected Object convertValueToObject(Value value) {
+        var valuesType = value.getDataType();
+        switch (valuesType.getTypeKind()) {
+            case Basic:
+                if (valuesType.equals(Prototype.PROTOTYPE)) {
+                    throw new RuntimeException("Can't convert prototype to object");
+                }
+                return value.getInternalValue();
+            case Aggregate:
+            case PODAdapted:
+            case AggregateAdapted:
+                // TODO: does this always work?
+                return value.getInternalValue();
+            case FunctionType:
+                // TODO: convert to callback adapter?
+                break;
+            case SetType:
+                var set = new HashSet<>();
+                SetValue setValue = (SetValue) value;
+                for (var entry : setValue.getValues()) {
+                    Object entryObject = convertValueToObject(entry);
+                    set.add(entryObject);
+                }
+                return set;
+            case ListType:
+                var list = new ArrayList<>();
+                ListValue listValue = (ListValue) value;
+                for (var entry : listValue.getValues()) {
+                    Object entryObject = convertValueToObject(entry);
+                    list.add(entryObject);
+                }
+                return list;
+        }
+        return null;
     }
 
     // region interface implementation

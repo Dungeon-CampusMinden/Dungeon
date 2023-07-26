@@ -179,7 +179,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
         if (type.getTypeKind().equals(IType.Kind.Basic)) {
             Object internalValue = Value.getDefaultValue(type);
             return new Value(type, internalValue);
-        } else {
+        } else if (type.getTypeKind().equals(IType.Kind.Aggregate)
+                || type.getTypeKind().equals(IType.Kind.PODAdapted)
+                || type.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
             AggregateValue value = new AggregateValue(type, getCurrentMemorySpace());
 
             this.memoryStack.push(value.getMemorySpace());
@@ -189,7 +191,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
             this.memoryStack.pop();
 
             return value;
+        } else if (type.getTypeKind().equals(IType.Kind.ListType)) {
+            return new ListValue((ListType) type);
+        } else if (type.getTypeKind().equals(IType.Kind.SetType)) {
+            return new SetValue((SetType) type);
         }
+        return Value.NONE;
     }
 
     /**
@@ -484,6 +491,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             ((AggregateValue) valueInMemorySpace).setMemorySpace(valueToSet.getMemorySpace());
             valueInMemorySpace.setInternalValue(valueToSet.getInternalValue());
         } else {
+            // TODO: handle Lists and sets
             valueInMemorySpace.setInternalValue(((Value) value).getInternalValue());
         }
         return true;
@@ -589,6 +597,123 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return new Value(BuiltInType.boolType, node.getValue());
     }
 
+    @Override
+    public Object visit(MemberAccessNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(LogicOrNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(LogicAndNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(EqualityNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(ComparisonNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(TermNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(FactorNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(UnaryNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(AssignmentNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(ListDefinitionNode node) {
+        // collect evaluated Values in an ArrayList
+        ArrayList<Value> entries = new ArrayList<>(node.getEntries().size());
+        for (Node expressionNode : node.getEntries()) {
+            Value value = (Value) expressionNode.accept(this);
+            entries.add(value);
+        }
+
+        // TODO: this is a temporary solution, once Typechecking is implemented, the type would be
+        //  inferred before this
+        IType entryType = BuiltInType.noType;
+        if (entries.size() != 0) {
+            entryType = entries.get(0).getDataType();
+        }
+        // create list type
+        String listTypeName = ListType.getListTypeName(entryType);
+        // TODO: list_type is not properly put in environment beforehand, requires changing of
+        //  environment<->typebuilder interaction
+        Symbol listType = this.environment.resolveInGlobalScope(listTypeName);
+        if (listType == Symbol.NULL) {
+            listType = new ListType(entryType, this.environment.getGlobalScope());
+            this.environment.getGlobalScope().bind(listType);
+        }
+        ListValue listValue = new ListValue((ListType) listType);
+        for (Value listEntry : entries) {
+            listValue.addValue(listEntry);
+        }
+        return listValue;
+    }
+
+    @Override
+    public Object visit(SetDefinitionNode node) {
+        // collect evaluated Values in an ArrayList
+        ArrayList<Value> entries = new ArrayList<>(node.getEntries().size());
+        for (Node expressionNode : node.getEntries()) {
+            Value value = (Value) expressionNode.accept(this);
+            entries.add(value);
+        }
+
+        // TODO: this is a temporary solution, once Typechecking is implemented, the type would be
+        //  inferred before this
+        IType entryType = BuiltInType.noType;
+        if (entries.size() != 0) {
+            entryType = entries.get(0).getDataType();
+        }
+
+        // create list type
+        String setTypeName = SetType.getSetTypeName(entryType);
+        // TODO: list_type is not properly put in environment beforehand, requires changing of
+        //  environment<->typebuilder interaction
+        Symbol setType = this.environment.resolveInGlobalScope(setTypeName);
+        if (setType == Symbol.NULL) {
+            setType = new SetType(entryType, this.environment.getGlobalScope());
+            this.environment.getGlobalScope().bind(setType);
+        }
+        SetValue setValue = new SetValue((SetType) setType);
+        for (Value setEntry : entries) {
+            setValue.addValue(setEntry);
+        }
+        return setValue;
+    }
+
     // region user defined function execution
 
     /**
@@ -648,7 +773,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
             Value paramValue =
                     (Value)
                             this.environment.translateRuntimeObject(
-                                    parameterObject, currentMemorySpace);
+                                    parameterObject,
+                                    currentMemorySpace,
+                                    parameterSymbol.getDataType());
             setValue(parameterSymbol.getName(), paramValue);
         }
     }
@@ -734,6 +861,37 @@ public class DSLInterpreter implements AstVisitor<Object> {
         assert Objects.requireNonNull(statementStack.peek()).type == Node.Type.ReturnMark;
         statementStack.pop();
     }
+    // endregion
 
+    // region ASTVisitor implementation for nodes which do not need to be interpreted
+    @Override
+    public Object visit(Node node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(BinaryNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(EdgeRhsNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(EdgeStmtNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(EdgeOpNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(ParamDefNode node) {
+        return null;
+    }
     // endregion
 }

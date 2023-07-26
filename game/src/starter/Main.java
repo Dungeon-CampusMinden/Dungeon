@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 public class Main {
     public static void main(String[] args) throws IOException {
+        Game.initBaseLogger();
         Logger LOGGER = Logger.getLogger("Main");
         Debugger debugger = new Debugger();
         // start the game
@@ -44,7 +45,8 @@ public class Main {
         Game.addSystem(new HealthSystem());
         Game.addSystem(new XPSystem());
         Game.addSystem(new ProjectileSystem());
-
+        Game.addSystem(new HealthbarSystem());
+        Game.addSystem(new HeroUISystem());
         // build and start game
         Game.run();
     }

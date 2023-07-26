@@ -1,9 +1,6 @@
 package semanticanalysis.types;
 
-import parser.ast.AggregateValueDefinitionNode;
-import parser.ast.AstVisitor;
-import parser.ast.Node;
-import parser.ast.PrototypeDefinitionNode;
+import parser.ast.*;
 
 import runtime.IEvironment;
 
@@ -88,4 +85,162 @@ public class TypeBinder implements AstVisitor<Object> {
         }
         return typeSymbol;
     }
+
+    // region ASTVisitor implementation for nodes unrelated to type binding
+    @Override
+    public Object visit(Node node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(IdNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(DecNumNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(NumNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(StringNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(BinaryNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(DotDefNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(EdgeRhsNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(EdgeStmtNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(EdgeOpNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(PropertyDefNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(ObjectDefNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(FuncCallNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(FuncDefNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(ParamDefNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(ReturnStmtNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(ConditionalStmtNodeIf node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(ConditionalStmtNodeIfElse node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(StmtBlockNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(BoolNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(MemberAccessNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(LogicOrNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(LogicAndNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(EqualityNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(ComparisonNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(TermNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(FactorNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(UnaryNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(AssignmentNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(ListDefinitionNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(SetDefinitionNode node) {
+        return null;
+    }
+
+    // endregion
 }

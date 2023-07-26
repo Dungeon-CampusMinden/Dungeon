@@ -12,7 +12,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(Node node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -22,7 +22,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(IdNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -32,7 +32,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(DecNumNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -42,7 +42,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(NumNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -52,7 +52,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(StringNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -62,7 +62,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(BinaryNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -72,7 +72,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(DotDefNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -82,7 +82,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(EdgeRhsNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -92,7 +92,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(EdgeStmtNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -102,7 +102,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(EdgeOpNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -112,7 +112,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(PropertyDefNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -122,7 +122,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(ObjectDefNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -132,7 +132,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(FuncCallNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -142,7 +142,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(AggregateValueDefinitionNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -152,7 +152,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(FuncDefNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -162,7 +162,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(ParamDefNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -172,7 +172,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(PrototypeDefinitionNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -182,7 +182,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(ReturnStmtNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -192,7 +192,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(ConditionalStmtNodeIf node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -202,7 +202,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(ConditionalStmtNodeIfElse node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -212,7 +212,7 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(StmtBlockNode node) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -222,7 +222,137 @@ public interface AstVisitor<T> {
      * @return T
      */
     default T visit(BoolNode node) {
-        return null;
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for MemberAccessNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(MemberAccessNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for LogicOrNode
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(LogicOrNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for LogicAndNode
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(LogicAndNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for EqualityNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(EqualityNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for ComparisonNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(ComparisonNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for TermNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(TermNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for FactorNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(FactorNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for UnaryNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(UnaryNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for AssignmentNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(AssignmentNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for ListDefinitionNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(ListDefinitionNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for SetDefinitionNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(SetDefinitionNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for ListTYpeIdentifierNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(ListTypeIdentifierNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for SetTypeIdentifierNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(SetTypeIdentifierNode node) {
+        throw new UnsupportedOperationException();
     }
 
     /**

@@ -60,6 +60,7 @@ public class TileLevelAPITest {
         onLevelLoader = Mockito.mock(IVoidFunction.class);
         level = Mockito.mock(TileLevel.class);
         api = new LevelSystem(painter, generator, onLevelLoader);
+        Game.addSystem(api);
     }
 
     @After

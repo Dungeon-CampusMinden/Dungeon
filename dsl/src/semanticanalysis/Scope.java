@@ -55,6 +55,9 @@ public class Scope implements IScope {
      * @return True, if no symbol with the same name exists in this scope, false otherwise
      */
     public boolean bind(Symbol symbol) {
+        if (this == NULL) {
+            throw new RuntimeException("Binding in NULL scope!");
+        }
         var name = symbol.getName();
         if (symbols.containsKey(name)) {
             return false;

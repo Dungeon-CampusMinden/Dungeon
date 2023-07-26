@@ -5,14 +5,11 @@ import core.utils.TriConsumer;
 import dslToGame.graph.Graph;
 
 import semanticanalysis.*;
-import semanticanalysis.types.CallbackAdapter.ConsumerFunctionTypeBuilder;
-import semanticanalysis.types.CallbackAdapter.FunctionFunctionTypeBuilder;
-import semanticanalysis.types.CallbackAdapter.IFunctionTypeBuilder;
+import semanticanalysis.types.callbackadapter.ConsumerFunctionTypeBuilder;
+import semanticanalysis.types.callbackadapter.FunctionFunctionTypeBuilder;
+import semanticanalysis.types.callbackadapter.IFunctionTypeBuilder;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -21,7 +18,7 @@ import java.util.regex.Pattern;
 
 public class TypeBuilder {
     private final HashMap<Class<?>, Method> typeAdapters;
-    private final HashMap<Class<?>, IType> javaTypeToDSLType;
+    private final HashMap<Type, IType> javaTypeToDSLType;
     private final HashSet<Class<?>> currentLookedUpClasses;
     private final HashMap<Class<?>, IFunctionTypeBuilder> functionTypeBuilders;
 
@@ -41,7 +38,7 @@ public class TypeBuilder {
         functionTypeBuilders.put(Function.class, FunctionFunctionTypeBuilder.instance);
     }
 
-    public HashMap<Class<?>, IType> getJavaTypeToDSLTypeMap() {
+    public HashMap<Type, IType> getJavaTypeToDSLTypeMap() {
         // create copy of the hashmap
         return new HashMap<>(javaTypeToDSLType);
     }
@@ -69,22 +66,32 @@ public class TypeBuilder {
      * @return the corresponding {@link IType} for the passed type, or null, if the passed type does
      *     not correspond to a basic type
      */
-    public static IType getBasicDSLType(Class<?> type) {
+    public static IType getBuiltInDSLType(Type type) {
+        boolean canBeCastToClass = true;
+        Class<?> clazz = null;
+        try {
+            clazz = (Class<?>) type;
+        } catch (ClassCastException ex) {
+            canBeCastToClass = false;
+        }
+        if (!canBeCastToClass) {
+            return null;
+        }
         // check for basic types
-        if (int.class.equals(type)
-                || short.class.equals(type)
-                || long.class.equals(type)
-                || Integer.class.isAssignableFrom(type)) {
+        if (int.class.equals(clazz)
+                || short.class.equals(clazz)
+                || long.class.equals(clazz)
+                || Integer.class.isAssignableFrom(clazz)) {
             return BuiltInType.intType;
-        } else if (float.class.equals(type)
-                || double.class.equals(type)
-                || Float.class.isAssignableFrom(type)) {
+        } else if (float.class.equals(clazz)
+                || double.class.equals(clazz)
+                || Float.class.isAssignableFrom(clazz)) {
             return BuiltInType.floatType;
-        } else if (boolean.class.equals(type) || Boolean.class.isAssignableFrom(type)) {
+        } else if (boolean.class.equals(clazz) || Boolean.class.isAssignableFrom(clazz)) {
             return BuiltInType.boolType;
-        } else if (String.class.equals(type) || String.class.isAssignableFrom(type)) {
+        } else if (String.class.equals(clazz) || String.class.isAssignableFrom(clazz)) {
             return BuiltInType.stringType;
-        } else if (Graph.class.equals(type) || Graph.class.isAssignableFrom(type)) {
+        } else if (Graph.class.equals(clazz) || Graph.class.isAssignableFrom(clazz)) {
             return BuiltInType.graphType;
         }
 
@@ -112,7 +119,7 @@ public class TypeBuilder {
     }
 
     protected static String getDSLNameOfBasicType(Class<?> clazz) {
-        var basicType = getBasicDSLType(clazz);
+        var basicType = getBuiltInDSLType(clazz);
         return basicType != null ? basicType.getName() : "";
     }
 
@@ -203,7 +210,7 @@ public class TypeBuilder {
         if (adapterMethod.getParameterCount() == 1) {
             var paramType = adapterMethod.getParameterTypes()[0];
             // TODO: how to handle non-builtIn types here?
-            var paramDSLType = getBasicDSLType(paramType);
+            var paramDSLType = getBuiltInDSLType(paramType);
             return new AdaptedType(
                     dslTypeName, parentScope, forType, (BuiltInType) paramDSLType, adapterMethod);
         } else {
@@ -213,10 +220,10 @@ public class TypeBuilder {
             for (var parameter : adapterMethod.getParameters()) {
                 String parameterName = getDSLParameterName(parameter);
                 // TODO: how to handle non-builtin types here?
-                IType paramDSLType = getBasicDSLType(parameter.getType());
+                IType paramDSLType = getBuiltInDSLType(parameter.getType());
                 if (null == paramDSLType) {
                     currentLookedUpClasses.add(forType);
-                    paramDSLType = createTypeFromClass(parentScope, forType);
+                    paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, forType);
                     currentLookedUpClasses.remove(forType);
                 }
                 Symbol parameterSymbol = new Symbol(parameterName, typeAdapter, paramDSLType);
@@ -234,35 +241,106 @@ public class TypeBuilder {
         return this.typeAdapters.getOrDefault(clazz, null);
     }
 
+    protected IType bindOrResolveTypeInScope(IType type, IScope scope) {
+        IType returnedType = type;
+        Symbol resolvedType = scope.resolve(type.getName());
+        if (resolvedType != Symbol.NULL) {
+            if (resolvedType instanceof IType) {
+                returnedType = (IType) resolvedType;
+            } else {
+                // symbol with the name of the function type is already bound in
+                // global scope but not a type
+                throw new RuntimeException(
+                        "A symbol with the name "
+                                + type.getName()
+                                + " is already bound in the global scope but is not a type");
+            }
+        } else {
+            // bind newly created function type in the global scope
+            scope.bind((Symbol) type);
+        }
+        return returnedType;
+    }
+
     // create a symbol in parentType for given field, representing a callback
-    protected Symbol createCallbackMemberSymbol(Field field, AggregateType parentType) {
+    protected Symbol createCallbackMemberSymbol(
+            Field field, AggregateType parentType, IScope globalScope) {
         String callbackName = getDSLFieldName(field);
 
         IType callbackType = BuiltInType.noType;
         var fieldsClass = field.getType();
         var functionTypeBuilder = functionTypeBuilders.get(fieldsClass);
+
         if (functionTypeBuilder != null) {
-            callbackType = functionTypeBuilder.buildFunctionType(field, this);
+            callbackType = functionTypeBuilder.buildFunctionType(field, this, globalScope);
+            callbackType = bindOrResolveTypeInScope(callbackType, globalScope);
         }
 
         return new Symbol(callbackName, parentType, callbackType);
     }
 
+    /**
+     * Create a new {@link SetType} from the passed {@link ParameterizedType}.
+     *
+     * @param setType the {@link ParameterizedType} to convert into a {@link SetType}
+     * @return the created type
+     */
+    public IType createSetType(ParameterizedType setType, IScope globalScope) {
+        var elementType = setType.getActualTypeArguments()[0];
+        IType elementDSLType = this.createDSLTypeForJavaTypeInScope(globalScope, elementType);
+
+        if (javaTypeToDSLType.get(setType) == null) {
+            IType dslSetType = new SetType(elementDSLType, globalScope);
+            dslSetType = bindOrResolveTypeInScope(dslSetType, globalScope);
+            javaTypeToDSLType.put(setType, dslSetType);
+        }
+        return javaTypeToDSLType.get(setType);
+    }
+
+    /**
+     * Create a new {@link ListType} from the passed {@link ParameterizedType}.
+     *
+     * @param listType the {@link ParameterizedType} to convert into a {@link ListType}
+     * @return the created type
+     */
+    public IType createListType(ParameterizedType listType, IScope globalScope) {
+        var elementType = listType.getActualTypeArguments()[0];
+        IType elementDSLType = this.createDSLTypeForJavaTypeInScope(globalScope, elementType);
+
+        if (javaTypeToDSLType.get(listType) == null) {
+            IType dslListType = new ListType(elementDSLType, globalScope);
+            dslListType = bindOrResolveTypeInScope(dslListType, globalScope);
+            javaTypeToDSLType.put(listType, dslListType);
+        }
+        return javaTypeToDSLType.get(listType);
+    }
+
     // create a symbol in parentType for given field, representing data in parentClass
     protected Symbol createDataMemberSymbol(
-            Field field, Class<?> parentClass, AggregateType parentType) {
+            Field field, Class<?> parentClass, AggregateType parentType, IScope globalScope) {
         String fieldName = getDSLFieldName(field);
 
+        Class<?> fieldsType = field.getType();
+
         // get datatype
-        var memberDSLType = getBasicDSLType(field.getType());
-        // var memberDSLType = getDSLTypeForClass(field.getType());
+        var memberDSLType = getBuiltInDSLType(fieldsType);
+        if (memberDSLType == null) {
+            // is list or set?
+            if (List.class.isAssignableFrom(fieldsType)) {
+                memberDSLType =
+                        createListType((ParameterizedType) field.getGenericType(), globalScope);
+            } else if (Set.class.isAssignableFrom(fieldsType)) {
+                memberDSLType =
+                        createSetType((ParameterizedType) field.getGenericType(), globalScope);
+            }
+        }
         if (memberDSLType == null) {
             // lookup the type in already converted types
             // if it is not already in the converted types, try to convert it -> check for
             // DSLType
             // annotation
             this.currentLookedUpClasses.add(parentClass);
-            memberDSLType = createTypeFromClass(parentType, field.getType());
+            memberDSLType = createDSLTypeForJavaTypeInScope(globalScope, field.getType());
             this.currentLookedUpClasses.remove(parentClass);
         }
 
@@ -270,20 +348,70 @@ public class TypeBuilder {
     }
 
     /**
-     * Creates a DSL {@link AggregateType} from a java class. This requires the class to be marked
-     * with the {@link DSLType} annotation. Each field marked with the {@link DSLTypeMember}
-     * annotation will be converted to a member of the created {@link AggregateType}, if the field's
-     * type can be mapped to a DSL data type. This requires the field's type to be either one of the
-     * types declared in {@link BuiltInType} or another class marked with {@link DSLType}.
+     * Creates a DSL {@link IType} from a java {@link Type}. Based on the kind of passed {@link
+     * Type}, different kinds of {@link IType} will be created. The most common scenario is the
+     * creation of an {@link AggregateType} from a class or a record. This requires the class to be
+     * marked * with the {@link DSLType} annotation. Each field marked with the {@link
+     * DSLTypeMember} annotation will be converted to a member of the created {@link AggregateType},
+     * if the field's type can be mapped to a DSL data type. This requires the field's type to be
+     * either one of the types declared in {@link BuiltInType} or another class marked with {@link
+     * DSLType}. If the passed {@link Type} implements {@link ParameterizedType}, it will either be
+     * converted into a {@link ListType} or {@link SetType}, if it assignable to {@link List} or
+     * {@link Set} respectively. If the name of the newly created type can be resolved in the passed
+     * {@link IScope}, the resolved {@link IType} will be returned.
      *
-     * @param parentScope the scope in which to create the new type
-     * @param clazz the class to create a type for
-     * @return a new {@link AggregateType}, if the passed Class could be converted to a DSL type;
-     *     null otherwise
+     * @param globalScope the global scope to use for resolving any DSL datatype
+     * @param type the java {@link Type} to create a DSL {@link IType} from
      */
-    public IType createTypeFromClass(IScope parentScope, Class<?> clazz) {
-        if (this.javaTypeToDSLType.containsKey(clazz)) {
-            return this.javaTypeToDSLType.get(clazz);
+    public IType createDSLTypeForJavaTypeInScope(IScope globalScope, Type type) {
+        if (this.javaTypeToDSLType.containsKey(type)) {
+            return this.javaTypeToDSLType.get(type);
+        }
+
+        var builtInType = getBuiltInDSLType(type);
+        if (builtInType != null) {
+            return builtInType;
+        }
+
+        // Try to cast the passed Type to Class<?> (needed for further operations).
+        // The passed Type will be either a Class<?> or a ParameterizedType (used to
+        // create List- and Set-Types).
+        Class<?> clazz = null;
+        try {
+            clazz = (Class<?>) type;
+        } catch (ClassCastException ex) {
+            if (type instanceof ParameterizedType parameterizedType) {
+                var rawType = parameterizedType.getRawType();
+                try {
+                    clazz = (Class<?>) rawType;
+                } catch (ClassCastException exc) {
+                    throw new UnsupportedOperationException(
+                            "The TypeBuilder does not support conversion of type " + type);
+                }
+
+                // if the cast fails, the type may be a parameterized type (e.g. list or set)
+                if (List.class.isAssignableFrom(clazz)) {
+                    return createListType((ParameterizedType) type, globalScope);
+                } else if (Set.class.isAssignableFrom(clazz)) {
+                    return createSetType((ParameterizedType) type, globalScope);
+                }
+            }
+        }
+
+        String typeName = getDSLTypeName(clazz);
+        Symbol resolved = globalScope.resolve(typeName);
+        if (resolved != Symbol.NULL) {
+            if (resolved instanceof IType) {
+                return (IType) resolved;
+            } else {
+                // symbol with the typename is already bound in the global scope
+                // but is not a type
+                throw new RuntimeException(
+                        "Symbol with name "
+                                + typeName
+                                + " is already bound in global scope, "
+                                + "but not a type");
+            }
         }
 
         if (!clazz.isAnnotationPresent(DSLType.class)) {
@@ -291,29 +419,25 @@ public class TypeBuilder {
         }
 
         // catch recursion
-        if (this.currentLookedUpClasses.contains(clazz)) {
+        if (this.currentLookedUpClasses.contains(type)) {
             throw new RuntimeException("RECURSIVE TYPE DEF");
         }
 
-        var annotation = clazz.getAnnotation(DSLType.class);
-        String typeName =
-                annotation.name().equals("")
-                        ? convertToDSLName(clazz.getSimpleName())
-                        : annotation.name();
-
-        var type = new AggregateType(typeName, parentScope, clazz);
+        var aggregateType = new AggregateType(typeName, globalScope, clazz);
         for (Field field : clazz.getDeclaredFields()) {
             // bind new Symbol
             if (field.isAnnotationPresent(DSLTypeMember.class)) {
-                var fieldSymbol = createDataMemberSymbol(field, clazz, type);
-                type.bind(fieldSymbol);
+                var fieldSymbol = createDataMemberSymbol(field, clazz, aggregateType, globalScope);
+                aggregateType.bind(fieldSymbol);
             }
             if (field.isAnnotationPresent(DSLCallback.class)) {
-                var callbackSymbol = createCallbackMemberSymbol(field, type);
-                type.bind(callbackSymbol);
+                var callbackSymbol = createCallbackMemberSymbol(field, aggregateType, globalScope);
+                aggregateType.bind(callbackSymbol);
             }
         }
-        this.javaTypeToDSLType.put(clazz, type);
-        return type;
+
+        this.javaTypeToDSLType.put(clazz, aggregateType);
+        globalScope.bind(aggregateType);
+        return aggregateType;
     }
 }

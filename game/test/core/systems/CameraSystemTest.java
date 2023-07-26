@@ -11,7 +11,6 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.utils.position.Point;
-import core.utils.position.Position;
 
 import org.junit.After;
 import org.junit.Before;
@@ -21,11 +20,11 @@ import org.mockito.Mockito;
 
 public class CameraSystemTest {
 
-    private static final Position TEST_POSITION = new Point(3, 3);
+    private static final Point testPoint = new Point(3, 3);
     private final ILevel level = Mockito.mock(ILevel.class);
     private final Tile startTile = Mockito.mock(Tile.class);
     private CameraSystem cameraSystem;
-    private Position expectedFocusPosition;
+    private Point expectedFocusPosition;
 
     @BeforeClass
     public static void initGDX() {
@@ -35,15 +34,17 @@ public class CameraSystemTest {
     @Before
     public void setup() {
         cameraSystem = new CameraSystem();
-        Mockito.when(startTile.position()).thenReturn(TEST_POSITION);
-        Mockito.when(level.randomTilePoint(Mockito.any())).thenReturn(TEST_POSITION);
+        Game.addSystem(cameraSystem);
+        Mockito.when(startTile.position()).thenReturn(testPoint);
+        Mockito.when(level.randomTilePoint(Mockito.any())).thenReturn(testPoint);
         Mockito.when(level.startTile()).thenReturn(startTile);
-        new LevelSystem(null, null, () -> {});
+        Game.addSystem(new LevelSystem(null, null, () -> {}));
     }
 
     @After
     public void cleanup() {
         Game.removeAllEntities();
+        Game.currentLevel(null);
         Game.removeAllSystems();
     }
 

@@ -21,7 +21,7 @@ public class TestTypeBinder {
     @Test
     public void testAggregateTypeBinding() {
         TypeBuilder tb = new TypeBuilder();
-        var testCompType = tb.createTypeFromClass(new Scope(), TestComponent.class);
+        var testCompType = tb.createDSLTypeForJavaTypeInScope(new Scope(), TestComponent.class);
 
         String program =
                 """
@@ -64,7 +64,7 @@ public class TestTypeBinder {
     @Test
     public void testAggregateTypeBindingAstNodeRelation() {
         TypeBuilder tb = new TypeBuilder();
-        var testCompType = tb.createTypeFromClass(new Scope(), TestComponent.class);
+        var testCompType = tb.createDSLTypeForJavaTypeInScope(new Scope(), TestComponent.class);
 
         String program =
                 """
@@ -119,7 +119,9 @@ public class TestTypeBinder {
         var env = new GameEnvironment();
 
         env.getTypeBuilder().registerTypeAdapter(RecordBuilder.class, Scope.NULL);
-        var type = env.getTypeBuilder().createTypeFromClass(new Scope(), TestRecordUser.class);
+        var type =
+                env.getTypeBuilder()
+                        .createDSLTypeForJavaTypeInScope(new Scope(), TestRecordUser.class);
 
         env.loadTypes(type);
         symTableParser.setup(env);

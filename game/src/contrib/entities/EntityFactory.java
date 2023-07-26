@@ -51,7 +51,8 @@ public class EntityFactory {
     /**
      * Create a new Entity that can be used as a playable character. It will have a {@link
      * CameraComponent}, {@link PlayerComponent}. {@link PositionComponent}, {@link
-     * VelocityComponent} {@link DrawComponent}, {@link CollideComponent}.
+     * VelocityComponent} {@link DrawComponent}, {@link CollideComponent}, {@link HealthComponent}
+     * and {@link XPComponent}.
      *
      * @return Created Entity
      */
@@ -65,6 +66,8 @@ public class EntityFactory {
                 hero,
                 (you, other, direction) -> System.out.println("heroCollisionEnter"),
                 (you, other, direction) -> System.out.println("heroCollisionLeave"));
+        new HealthComponent(hero, 200, Game::removeEntity);
+        new XPComponent(hero, (e) -> {});
         PlayerComponent pc = new PlayerComponent(hero);
         Skill fireball =
                 new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);

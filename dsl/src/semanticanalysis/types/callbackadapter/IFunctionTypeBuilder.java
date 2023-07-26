@@ -1,5 +1,6 @@
-package semanticanalysis.types.CallbackAdapter;
+package semanticanalysis.types.callbackadapter;
 
+import semanticanalysis.IScope;
 import semanticanalysis.types.FunctionType;
 import semanticanalysis.types.TypeBuilder;
 
@@ -14,5 +15,5 @@ public interface IFunctionTypeBuilder {
      * @param typeBuilder {@link TypeBuilder} instance to lookup parameter types
      * @return {@link FunctionType} corresponding to the callback signature
      */
-    FunctionType buildFunctionType(Field field, TypeBuilder typeBuilder);
+    FunctionType buildFunctionType(Field field, TypeBuilder typeBuilder, IScope globalScope);
 }

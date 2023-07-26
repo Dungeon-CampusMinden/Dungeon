@@ -48,7 +48,7 @@ fragment STRING_ESCAPE_SEQ
 
 // TODO:
 // - expression grammar
-// - proper stmt definition
+// - proper stmt =efinition
 
 program : definition* EOF
         //| stmt
@@ -66,11 +66,68 @@ fn_def
     ;
 
 stmt
-    : primary ';'
+    : expression ';'
     | stmt_block
     | conditional_stmt
     | return_stmt
     ;
+
+expression
+    : assignment                #assignment_expression
+    | expression '.' func_call  #method_call_expression
+    | expression '.' ID         #member_access_expression
+    ;
+
+assignment
+    : assignee '=' expression
+    | logic_or
+    ;
+
+assignee
+    : func_call '.' assignee    #assignee_func_call
+    | ID '.' assignee           #assignee_qualified_name
+    | ID                        #assignee_identifier
+    ;
+
+logic_or
+
+    : logic_or ( or='or' logic_and )
+    | logic_and
+    ;
+
+logic_and
+    : logic_and ( and='and' equality )
+    | equality
+    ;
+
+equality
+    : equality ( ( neq='!=' | eq='==' ) comparison )
+    | comparison
+    ;
+
+comparison
+    : comparison ( ( gt='>' | geq='>=' | lt='<' | leq='<=' ) term )
+    | term
+    ;
+
+term
+    : term ( ( minus='-' | plus='+' ) factor )
+    | factor
+    ;
+
+factor
+    : factor ( ( div='/' | mult='*' ) unary )
+    | unary
+    ;
+
+unary
+    : ( bang='!' | minus='-' ) unary
+    | primary
+    ;
+
+func_call
+        : ID '(' expression_list? ')'
+        ;
 
 stmt_block
     : '{' stmt_list? '}'
@@ -82,11 +139,11 @@ stmt_list
     ;
 
 return_stmt
-    : 'return' primary? ';'
+    : 'return' expression? ';'
     ;
 
 conditional_stmt
-    : 'if' primary stmt else_stmt?
+    : 'if' expression stmt else_stmt?
     ;
 
 else_stmt
@@ -94,11 +151,17 @@ else_stmt
     ;
 
 ret_type_def
-    : ARROW type_id=ID
+    : ARROW type_id=type_decl
     ;
 
 param_def
-    : typde_id=ID param_id=ID
+    : type_id=type_decl param_id=ID
+    ;
+
+type_decl
+    : type_decl '<>'   #set_param_type
+    | type_decl '[]'   #list_param_type
+    | ID                #id_param_type
     ;
 
 param_def_list
@@ -129,16 +192,24 @@ property_def_list
         ;
 
 property_def
-        : ID ':' primary;
+        : ID ':' expression;
 
-func_call
-        : ID '(' param_list? ')'
+expression_list
+        : expression ',' expression_list
+        | expression
         ;
 
-param_list
-        : primary ',' param_list
-        | primary
-        ;
+grouped_expression
+    : '(' expression ')'
+    ;
+
+list_definition
+    : '[' expression_list? ']'
+    ;
+
+set_definition
+    : '<' expression_list? '>'
+    ;
 
 primary : ID
         | STRING_LITERAL
@@ -146,8 +217,11 @@ primary : ID
         | FALSE
         | NUM
         | NUM_DEC
-        | func_call
         | aggregate_value_def
+        | set_definition
+        | grouped_expression
+        | func_call
+        | list_definition
         ;
 
 /*

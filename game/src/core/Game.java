@@ -2,8 +2,6 @@ package core;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
-import static core.utils.logging.LoggerConfig.initBaseLogger;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
@@ -30,13 +28,17 @@ import core.utils.Constants;
 import core.utils.DelayedSet;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
+import core.utils.logging.LoggerConfig;
 import core.utils.position.Point;
 import core.utils.position.Position;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -329,6 +331,15 @@ public final class Game extends ScreenAdapter {
     }
 
     /**
+     * Initialize the base logger.
+     *
+     * <p>Will remove the console handler and put all log messages in the log files.
+     */
+    public static void initBaseLogger() {
+        LoggerConfig.initBaseLogger();
+    }
+
+    /**
      * In the next frame, each system will be informed that the given entity has changes in its
      * Component Collection.
      *
@@ -488,13 +499,13 @@ public final class Game extends ScreenAdapter {
     /**
      * Get the tile at the given point in the level
      *
-     * <p>{@link Position#coordinate} will be used, to convert the point into a coordinate.
+     * <p>{@link Point#point} will be used, to convert the point into a coordinate.
      *
-     * @param p Position from where to get the tile
+     * @param p Point from where to get the tile
      * @return the tile at the given point.
      */
     public static Tile tileAT(Position p) {
-        return currentLevel().tileAt(p);
+        return currentLevel().tileAt(p.point());
     }
 
     /**
@@ -562,13 +573,13 @@ public final class Game extends ScreenAdapter {
     }
 
     /**
-     * Get the position of a random Tile as Position
+     * Get the position of a random Tile as Point
      *
      * @param elementTyp Type of the Tile
-     * @return Position of the Tile as Position
+     * @return Position of the Tile as Point
      */
-    public static Position randomTilePoint(LevelElement elementTyp) {
-        return currentLevel().randomTilePoint(elementTyp);
+    public static Point randomTilePoint(LevelElement elementTyp) {
+        return currentLevel().randomTilePoint(elementTyp).point();
     }
 
     /**
@@ -644,7 +655,6 @@ public final class Game extends ScreenAdapter {
     private void onSetup() {
         doSetup = false;
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
-        initBaseLogger();
         createSystems();
         setupStage();
     }
@@ -693,11 +703,23 @@ public final class Game extends ScreenAdapter {
 
     /** Will update the entity sets of each system and {@link Game#entities}. */
     private void updateSystems() {
-        for (System system : systems.values()) {
-            entities.foreachEntityInAddSet(system::showEntity);
-            entities.foreachEntityInRemoveSet(system::removeEntity);
+        Collection<System> systemsColl = systems.values();
+        Queue<Entity> q = new ArrayDeque<>(entities.toAdd());
+        entities.toAdd().clear();
+        while (q.size() > 0) {
+            Entity curr = q.remove();
+            systemsColl.forEach(x -> x.showEntity(curr));
+            // update add logic
+            entities.current().add(curr);
         }
-        entities.update();
+        q = new ArrayDeque<>(entities.toRemove());
+        entities.toRemove().clear();
+        while (q.size() > 0) {
+            Entity curr = q.remove();
+            systemsColl.forEach(x -> x.removeEntity(curr));
+            // update remove logic
+            entities.current().remove(curr);
+        }
     }
 
     /**

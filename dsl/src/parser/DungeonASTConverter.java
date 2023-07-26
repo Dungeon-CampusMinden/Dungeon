@@ -116,6 +116,206 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
+    public void enterMethod_call_expression(DungeonDSLParser.Method_call_expressionContext ctx) {}
+
+    @Override
+    public void exitMethod_call_expression(DungeonDSLParser.Method_call_expressionContext ctx) {
+        Node funcCall = astStack.pop();
+        Node innerExpression = astStack.pop();
+        Node expression = new MemberAccessNode(innerExpression, funcCall);
+        astStack.push(expression);
+    }
+
+    @Override
+    public void enterMember_access_expression(
+            DungeonDSLParser.Member_access_expressionContext ctx) {}
+
+    @Override
+    public void exitMember_access_expression(DungeonDSLParser.Member_access_expressionContext ctx) {
+        Node identifier = astStack.pop();
+        Node innerExpression = astStack.pop();
+        Node expression = new MemberAccessNode(innerExpression, identifier);
+        astStack.push(expression);
+    }
+
+    @Override
+    public void enterAssignment_expression(DungeonDSLParser.Assignment_expressionContext ctx) {}
+
+    @Override
+    public void exitAssignment_expression(DungeonDSLParser.Assignment_expressionContext ctx) {
+        // just let it bubble up, nothing to do
+    }
+
+    @Override
+    public void enterAssignment(DungeonDSLParser.AssignmentContext ctx) {}
+
+    @Override
+    public void exitAssignment(DungeonDSLParser.AssignmentContext ctx) {
+        // pop the inner node
+        Node assignment = astStack.pop();
+        if (ctx.assignee() != null) {
+            Node assignee = astStack.pop();
+            assignment = new AssignmentNode(assignee, assignment);
+        }
+        astStack.push(assignment);
+    }
+
+    @Override
+    public void enterAssignee_func_call(DungeonDSLParser.Assignee_func_callContext ctx) {}
+
+    @Override
+    public void exitAssignee_func_call(DungeonDSLParser.Assignee_func_callContext ctx) {
+        Node rhs = astStack.pop();
+        Node funcCall = astStack.pop();
+        Node assignee = new MemberAccessNode(funcCall, rhs);
+        astStack.push(assignee);
+    }
+
+    @Override
+    public void enterAssignee_qualified_name(DungeonDSLParser.Assignee_qualified_nameContext ctx) {}
+
+    @Override
+    public void exitAssignee_qualified_name(DungeonDSLParser.Assignee_qualified_nameContext ctx) {
+        Node rhs = astStack.pop();
+        Node identifier = astStack.pop();
+        Node assignee = new MemberAccessNode(identifier, rhs);
+        astStack.push(assignee);
+    }
+
+    @Override
+    public void enterAssignee_identifier(DungeonDSLParser.Assignee_identifierContext ctx) {}
+
+    @Override
+    public void exitAssignee_identifier(DungeonDSLParser.Assignee_identifierContext ctx) {
+        // just let it bubble up, nothing to do
+    }
+
+    @Override
+    public void enterLogic_or(DungeonDSLParser.Logic_orContext ctx) {}
+
+    @Override
+    public void exitLogic_or(DungeonDSLParser.Logic_orContext ctx) {
+        Node rhs = astStack.pop();
+        Node lhs;
+        Node logicOrNode = rhs;
+        if (ctx.or != null) {
+            lhs = astStack.pop();
+            logicOrNode = new LogicOrNode(lhs, rhs);
+        }
+        astStack.push(logicOrNode);
+    }
+
+    @Override
+    public void enterLogic_and(DungeonDSLParser.Logic_andContext ctx) {}
+
+    @Override
+    public void exitLogic_and(DungeonDSLParser.Logic_andContext ctx) {
+        Node rhs = astStack.pop();
+        Node lhs;
+        Node logicAndNode = rhs;
+        if (ctx.and != null) {
+            lhs = astStack.pop();
+            logicAndNode = new LogicAndNode(lhs, rhs);
+        }
+        astStack.push(logicAndNode);
+    }
+
+    @Override
+    public void enterEquality(DungeonDSLParser.EqualityContext ctx) {}
+
+    @Override
+    public void exitEquality(DungeonDSLParser.EqualityContext ctx) {
+        Node rhs = astStack.pop();
+        Node lhs;
+        Node equalityNode = rhs;
+        if (ctx.eq != null) {
+            lhs = astStack.pop();
+            equalityNode = new EqualityNode(EqualityNode.EqualityType.equals, lhs, rhs);
+        } else if (ctx.neq != null) {
+            lhs = astStack.pop();
+            equalityNode = new EqualityNode(EqualityNode.EqualityType.notEquals, lhs, rhs);
+        }
+        astStack.push(equalityNode);
+    }
+
+    @Override
+    public void enterComparison(DungeonDSLParser.ComparisonContext ctx) {}
+
+    @Override
+    public void exitComparison(DungeonDSLParser.ComparisonContext ctx) {
+        Node rhs = astStack.pop();
+        Node lhs;
+        Node comparisonNode = rhs;
+        if (ctx.gt != null) {
+            lhs = astStack.pop();
+            comparisonNode =
+                    new ComparisonNode(ComparisonNode.ComparisonType.greaterThan, lhs, rhs);
+        } else if (ctx.geq != null) {
+            lhs = astStack.pop();
+            comparisonNode =
+                    new ComparisonNode(ComparisonNode.ComparisonType.greaterEquals, lhs, rhs);
+        } else if (ctx.lt != null) {
+            lhs = astStack.pop();
+            comparisonNode = new ComparisonNode(ComparisonNode.ComparisonType.lessThan, lhs, rhs);
+        } else if (ctx.leq != null) {
+            lhs = astStack.pop();
+            comparisonNode = new ComparisonNode(ComparisonNode.ComparisonType.lessEquals, lhs, rhs);
+        }
+        astStack.push(comparisonNode);
+    }
+
+    @Override
+    public void enterTerm(DungeonDSLParser.TermContext ctx) {}
+
+    @Override
+    public void exitTerm(DungeonDSLParser.TermContext ctx) {
+        Node rhs = astStack.pop();
+        Node lhs;
+        Node termNode = rhs;
+        if (ctx.minus != null) {
+            lhs = astStack.pop();
+            termNode = new TermNode(TermNode.TermType.minus, lhs, rhs);
+        } else if (ctx.plus != null) {
+            lhs = astStack.pop();
+            termNode = new TermNode(TermNode.TermType.plus, lhs, rhs);
+        }
+        astStack.push(termNode);
+    }
+
+    @Override
+    public void enterFactor(DungeonDSLParser.FactorContext ctx) {}
+
+    @Override
+    public void exitFactor(DungeonDSLParser.FactorContext ctx) {
+        Node rhs = astStack.pop();
+        Node lhs;
+        Node factorNode = rhs;
+        if (ctx.div != null) {
+            lhs = astStack.pop();
+            factorNode = new FactorNode(FactorNode.FactorType.divide, lhs, rhs);
+        } else if (ctx.mult != null) {
+            lhs = astStack.pop();
+            factorNode = new FactorNode(FactorNode.FactorType.multiply, lhs, rhs);
+        }
+        astStack.push(factorNode);
+    }
+
+    @Override
+    public void enterUnary(DungeonDSLParser.UnaryContext ctx) {}
+
+    @Override
+    public void exitUnary(DungeonDSLParser.UnaryContext ctx) {
+        Node innerNode = astStack.pop();
+        Node unaryNode = innerNode;
+        if (ctx.bang != null) {
+            unaryNode = new UnaryNode(UnaryNode.UnaryType.not, innerNode);
+        } else if (ctx.minus != null) {
+            unaryNode = new UnaryNode(UnaryNode.UnaryType.minus, innerNode);
+        }
+        astStack.push(unaryNode);
+    }
+
+    @Override
     public void enterStmt_block(DungeonDSLParser.Stmt_blockContext ctx) {}
 
     @Override
@@ -137,7 +337,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         // pop the inner statement
         assert astStack.size() > 0;
         var innerStmt = Node.NONE;
-        if (ctx.primary() != null) {
+        if (ctx.expression() != null) {
             innerStmt = astStack.pop();
         }
 
@@ -230,10 +430,40 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
         // after that: type id
         var typeId = astStack.pop();
-        assert typeId.type == Node.Type.Identifier;
+        assert typeId instanceof IdNode;
 
         var paramNode = new ParamDefNode(typeId, id);
         astStack.push(paramNode);
+    }
+
+    @Override
+    public void enterId_param_type(DungeonDSLParser.Id_param_typeContext ctx) {}
+
+    @Override
+    public void exitId_param_type(DungeonDSLParser.Id_param_typeContext ctx) {
+        // nothing to do
+    }
+
+    @Override
+    public void enterList_param_type(DungeonDSLParser.List_param_typeContext ctx) {}
+
+    @Override
+    public void exitList_param_type(DungeonDSLParser.List_param_typeContext ctx) {
+        Node innerTypeNode = astStack.pop();
+        ListTypeIdentifierNode listTypeIdentifierNode =
+                new ListTypeIdentifierNode((IdNode) innerTypeNode);
+        astStack.push(listTypeIdentifierNode);
+    }
+
+    @Override
+    public void enterSet_param_type(DungeonDSLParser.Set_param_typeContext ctx) {}
+
+    @Override
+    public void exitSet_param_type(DungeonDSLParser.Set_param_typeContext ctx) {
+        Node innerTypeNode = astStack.pop();
+        SetTypeIdentifierNode setTypeIdentifierNode =
+                new SetTypeIdentifierNode((IdNode) innerTypeNode);
+        astStack.push(setTypeIdentifierNode);
     }
 
     @Override
@@ -446,10 +676,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitFunc_call(DungeonDSLParser.Func_callContext ctx) {
-        // TODO: test this
+
         // if there are parameters, a paramList will be on stack
         var paramList = Node.NONE;
-        if (ctx.param_list() != null) {
+        if (ctx.expression_list() != null) {
             paramList = astStack.pop();
             assert paramList.type == Node.Type.ParamList;
         }
@@ -463,11 +693,11 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterParam_list(DungeonDSLParser.Param_listContext ctx) {}
+    public void enterExpression_list(DungeonDSLParser.Expression_listContext ctx) {}
 
     @Override
-    public void exitParam_list(DungeonDSLParser.Param_listContext ctx) {
-        if (ctx.param_list() == null) {
+    public void exitExpression_list(DungeonDSLParser.Expression_listContext ctx) {
+        if (ctx.expression_list() == null) {
             // trivial param
             var innerParam = astStack.pop();
             var list = new ArrayList<Node>(1);
@@ -488,6 +718,40 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             var paramList = new Node(Node.Type.ParamList, childList);
             astStack.push(paramList);
         }
+    }
+
+    @Override
+    public void enterGrouped_expression(DungeonDSLParser.Grouped_expressionContext ctx) {}
+
+    @Override
+    public void exitGrouped_expression(DungeonDSLParser.Grouped_expressionContext ctx) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void enterList_definition(DungeonDSLParser.List_definitionContext ctx) {}
+
+    @Override
+    public void exitList_definition(DungeonDSLParser.List_definitionContext ctx) {
+        // pop expression list
+        Node expressionList = astStack.pop();
+        assert expressionList.type == Node.Type.ParamList;
+
+        Node listDefinitionNode = new ListDefinitionNode(expressionList);
+        astStack.push(listDefinitionNode);
+    }
+
+    @Override
+    public void enterSet_definition(DungeonDSLParser.Set_definitionContext ctx) {}
+
+    @Override
+    public void exitSet_definition(DungeonDSLParser.Set_definitionContext ctx) {
+        // pop expression list
+        Node expressionList = astStack.pop();
+        assert expressionList.type == Node.Type.ParamList;
+
+        Node setDefinitionNode = new SetDefinitionNode(expressionList);
+        astStack.push(setDefinitionNode);
     }
 
     @Override

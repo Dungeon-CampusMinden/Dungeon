@@ -9,6 +9,8 @@ import java.util.stream.Stream;
 /**
  * A System implements a specific game logic (a gameplay mechanic).
  *
+ * <p>A System needs to be registered with the Game via {@link Game#addSystem(System)}.
+ *
  * <p>This class is the abstract base class for each system. It implements the basic functionality
  * each system has. For example, it allows the system to be paused and unpause.
  *
@@ -69,7 +71,9 @@ public abstract class System {
     protected Consumer<Entity> onEntityShow = (e) -> {};
 
     /**
-     * Create a new system and add it to the game. {@link Game#addSystem}
+     * Create a new system.
+     *
+     * <p>A System needs to be registered with the Game via {@link Game#addSystem(System)}.
      *
      * <p>For each already existing entity in the game, check if the entity is accepted by {@link
      * #accept} and add it to the local set if so.
@@ -86,7 +90,6 @@ public abstract class System {
         if (additionalComponents != null) this.additionalComponents = Set.of(additionalComponents);
         else this.additionalComponents = new HashSet<>();
         entities = new HashSet<>();
-        Game.addSystem(this);
         Game.entityStream().forEach(this::showEntity);
         run = true;
         LOGGER.info("A new " + this.getClass().getName() + " was created");
@@ -165,7 +168,7 @@ public abstract class System {
      * @see java.util.ConcurrentModificationException
      */
     public final void clearEntities() {
-        entities.clear();
+        new HashSet<>(entities).forEach(this::removeEntity);
         LOGGER.info("All entities from " + this.getClass().getName() + " were removed");
     }
 
@@ -190,8 +193,8 @@ public abstract class System {
      * <p>A running system will be executed.
      */
     public void run() {
+        if (!run) LOGGER.info(this.getClass().getName() + " is running");
         run = true;
-        LOGGER.info(this.getClass().getName() + " is running");
     }
 
     /**
@@ -203,8 +206,8 @@ public abstract class System {
      * processed when the system is running.
      */
     public void stop() {
+        if (run) LOGGER.info(this.getClass().getName() + " is paused");
         run = false;
-        LOGGER.info(this.getClass().getName() + " is paused");
     }
 
     /**

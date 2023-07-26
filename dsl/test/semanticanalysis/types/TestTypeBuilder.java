@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import dslToGame.graph.Graph;
 
+import interpreter.TestEnvironment;
 import interpreter.mockecs.*;
 
 import org.junit.Test;
@@ -11,9 +12,7 @@ import org.junit.Test;
 import semanticanalysis.Scope;
 import semanticanalysis.Symbol;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.function.Function;
 
 public class TestTypeBuilder {
     @Test
@@ -49,7 +48,9 @@ public class TestTypeBuilder {
     public void testSimpleClass() {
         TypeBuilder typeBuilder = new TypeBuilder();
         Scope scope = new Scope();
-        var dslType = (AggregateType) typeBuilder.createTypeFromClass(scope, TestComponent.class);
+        var dslType =
+                (AggregateType)
+                        typeBuilder.createDSLTypeForJavaTypeInScope(scope, TestComponent.class);
 
         var stringMember = dslType.resolve("string_member");
         assertNotSame(stringMember, Symbol.NULL);
@@ -68,7 +69,9 @@ public class TestTypeBuilder {
     public void testChainedClass() {
         TypeBuilder typeBuilder = new TypeBuilder();
         Scope scope = new Scope();
-        var dslType = (AggregateType) typeBuilder.createTypeFromClass(scope, ChainClass.class);
+        var dslType =
+                (AggregateType)
+                        typeBuilder.createDSLTypeForJavaTypeInScope(scope, ChainClass.class);
 
         var testComponentMember = dslType.resolve("test_component_member");
         assertNotSame(testComponentMember, Symbol.NULL);
@@ -85,7 +88,9 @@ public class TestTypeBuilder {
     public void testRecord() {
         TypeBuilder typeBuilder = new TypeBuilder();
         Scope scope = new Scope();
-        var dslType = (AggregateType) typeBuilder.createTypeFromClass(scope, TestRecord.class);
+        var dslType =
+                (AggregateType)
+                        typeBuilder.createDSLTypeForJavaTypeInScope(scope, TestRecord.class);
 
         var comp1 = dslType.resolve("comp1");
         assertNotSame(comp1, Symbol.NULL);
@@ -140,7 +145,7 @@ public class TestTypeBuilder {
     public void testAggregateTypeAdapterCreation() {
         TypeBuilder tb = new TypeBuilder();
         tb.registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
-        var adapterType = tb.createTypeFromClass(Scope.NULL, ExternalType.class);
+        var adapterType = tb.createDSLTypeForJavaTypeInScope(Scope.NULL, ExternalType.class);
 
         assertNotNull(adapterType);
         var symbols = ((AggregateTypeAdapter) adapterType).getSymbols();
@@ -163,8 +168,9 @@ public class TestTypeBuilder {
     @Test
     public void testAdapterUsage() {
         TypeBuilder tb = new TypeBuilder();
-        tb.registerTypeAdapter(RecordBuilder.class, Scope.NULL);
-        var type = tb.createTypeFromClass(Scope.NULL, TestRecordUser.class);
+        Scope scope = new Scope();
+        tb.registerTypeAdapter(RecordBuilder.class, scope);
+        var type = tb.createDSLTypeForJavaTypeInScope(scope, TestRecordUser.class);
         var memberSymbol = ((AggregateType) type).resolve("component_member");
         assertNotEquals(Symbol.NULL, memberSymbol);
         var membersDatatype = memberSymbol.getDataType();
@@ -174,10 +180,11 @@ public class TestTypeBuilder {
     @Test
     public void testExternalTypeMember() {
         TypeBuilder typeBuilder = new TypeBuilder();
+        Scope scope = new Scope();
         var dslType =
                 (AggregateType)
-                        typeBuilder.createTypeFromClass(
-                                Scope.NULL, ComponentWithExternalTypeMember.class);
+                        typeBuilder.createDSLTypeForJavaTypeInScope(
+                                scope, ComponentWithExternalTypeMember.class);
 
         assertNotSame(dslType, null);
         assertNotSame(dslType, Symbol.NULL);
@@ -186,10 +193,11 @@ public class TestTypeBuilder {
     @Test
     public void testInterfaceMember() {
         TypeBuilder typeBuilder = new TypeBuilder();
+        Scope scope = new Scope();
         var dslType =
                 (AggregateType)
-                        typeBuilder.createTypeFromClass(
-                                Scope.NULL, ComponentWithInterfaceMember.class);
+                        typeBuilder.createDSLTypeForJavaTypeInScope(
+                                scope, ComponentWithInterfaceMember.class);
 
         assertNotSame(dslType, null);
         assertNotSame(dslType, Symbol.NULL);
@@ -198,11 +206,13 @@ public class TestTypeBuilder {
     @Test
     public void testCallbackConsumer() {
         TypeBuilder tb = new TypeBuilder();
+        Scope scope = new Scope();
         // register Entity type (setup)
-        var entityType = (AggregateType) tb.createTypeFromClass(Scope.NULL, Entity.class);
+        var entityType = (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, Entity.class);
 
         var dslType =
-                (AggregateType) tb.createTypeFromClass(Scope.NULL, TestComponentWithCallback.class);
+                (AggregateType)
+                        tb.createDSLTypeForJavaTypeInScope(scope, TestComponentWithCallback.class);
         var callbackSymbol = dslType.resolve("on_interaction");
         assertNotEquals(Symbol.NULL, callbackSymbol);
         var symbolType = callbackSymbol.getDataType();
@@ -213,14 +223,21 @@ public class TestTypeBuilder {
 
     @Test
     public void testCallbackTriConsumer() {
-        TypeBuilder tb = new TypeBuilder();
+        TestEnvironment env = new TestEnvironment();
+        // TypeBuilder tb = new TypeBuilder();
         // register Entity type (setup)
-        var entityType = (AggregateType) tb.createTypeFromClass(Scope.NULL, Entity.class);
+        var entityType =
+                (AggregateType)
+                        env.getTypeBuilder()
+                                .createDSLTypeForJavaTypeInScope(
+                                        env.getGlobalScope(), Entity.class);
 
         var dslType =
                 (AggregateType)
-                        tb.createTypeFromClass(
-                                Scope.NULL, TestComponentWithTriConsumerCallback.class);
+                        env.getTypeBuilder()
+                                .createDSLTypeForJavaTypeInScope(
+                                        env.getGlobalScope(),
+                                        TestComponentWithTriConsumerCallback.class);
         var callbackSymbol = dslType.resolve("on_interaction");
 
         assertNotEquals(Symbol.NULL, callbackSymbol);
@@ -235,13 +252,21 @@ public class TestTypeBuilder {
 
     @Test
     public void testCallbackFunction() {
-        TypeBuilder tb = new TypeBuilder();
+        TestEnvironment env = new TestEnvironment();
+        // TypeBuilder tb = new TypeBuilder();
         // register Entity type (setup)
-        var entityType = (AggregateType) tb.createTypeFromClass(Scope.NULL, Entity.class);
+        var entityType =
+                (AggregateType)
+                        env.getTypeBuilder()
+                                .createDSLTypeForJavaTypeInScope(
+                                        env.getGlobalScope(), Entity.class);
 
         var dslType =
                 (AggregateType)
-                        tb.createTypeFromClass(Scope.NULL, TestComponentWithFunctionCallback.class);
+                        env.getTypeBuilder()
+                                .createDSLTypeForJavaTypeInScope(
+                                        env.getGlobalScope(),
+                                        TestComponentWithFunctionCallback.class);
         var callbackSymbol = dslType.resolve("on_interaction");
 
         assertNotEquals(Symbol.NULL, callbackSymbol);
@@ -263,40 +288,42 @@ public class TestTypeBuilder {
     }
 
     @Test
-    public void messAround() {
-        // setup typebuilder
-        TypeBuilder tb = new TypeBuilder();
-        // register Entity type (setup)
-        var entityType = (AggregateType) tb.createTypeFromClass(Scope.NULL, Entity.class);
-
-        var componentDSLType =
+    public void testListMember() {
+        TestEnvironment env = new TestEnvironment();
+        var questConfigType =
                 (AggregateType)
-                        tb.createTypeFromClass(Scope.NULL, TestComponentWithFunctionCallback.class);
+                        env.getTypeBuilder()
+                                .createDSLTypeForJavaTypeInScope(
+                                        env.getGlobalScope(), TestComponentWithListMember.class);
 
-        var entity = new Entity();
-        var object = new TestComponentWithFunctionCallback(entity);
-        Field field = null;
-        try {
-            field = TestComponentWithFunctionCallback.class.getDeclaredField("onInteraction");
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        }
-        field.setAccessible(true);
+        Symbol intListSymbol = questConfigType.resolve("int_list");
+        assertEquals("int[]", intListSymbol.getDataType().getName());
+        ListType listType = (ListType) intListSymbol.getDataType();
+        assertEquals(BuiltInType.intType, listType.getElementType());
 
-        var functionClass = Function.class;
-        var genericInterfaces = functionClass.getGenericInterfaces();
-        var ctors = functionClass.getConstructors();
+        Symbol floatListSymbol = questConfigType.resolve("float_list");
+        assertEquals("float[]", floatListSymbol.getDataType().getName());
+        listType = (ListType) floatListSymbol.getDataType();
+        assertEquals(BuiltInType.floatType, listType.getElementType());
+    }
 
-        var testClassObject = new TestClass();
-        Function func = testClassObject::accept;
+    @Test
+    public void testSetMember() {
+        TestEnvironment env = new TestEnvironment();
+        var questConfigType =
+                (AggregateType)
+                        env.getTypeBuilder()
+                                .createDSLTypeForJavaTypeInScope(
+                                        env.getGlobalScope(), TestComponentWithSetMember.class);
+        Symbol intSetSymbol = questConfigType.resolve("int_set");
+        assertEquals("int<>", intSetSymbol.getDataType().getName());
+        SetType setType = (SetType) intSetSymbol.getDataType();
+        assertEquals(BuiltInType.intType, setType.getElementType());
 
-        try {
-            field.set(object, func);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-
-        var ret = object.getOnInteraction().apply(entity);
+        Symbol floatSetSymbol = questConfigType.resolve("float_set");
+        assertEquals("float<>", floatSetSymbol.getDataType().getName());
+        setType = (SetType) floatSetSymbol.getDataType();
+        assertEquals(BuiltInType.floatType, setType.getElementType());
 
         boolean b = true;
     }

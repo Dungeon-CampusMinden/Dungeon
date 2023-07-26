@@ -139,4 +139,16 @@ public final class DelayedSet<T> {
         toRemove.clear();
         current.clear();
     }
+
+    public Set<T> current() {
+        return current;
+    }
+
+    public Set<T> toAdd() {
+        return toAdd;
+    }
+
+    public Set<T> toRemove() {
+        return toRemove;
+    }
 }

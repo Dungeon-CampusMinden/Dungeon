@@ -10,6 +10,7 @@ import org.junit.Test;
 // CHECKSTYLE:OFF: AvoidStarImport
 
 import parser.ast.*;
+
 // CHECKSTYLE:ON: AvoidStarImport
 
 public class TestDungeonASTConverter {
@@ -576,5 +577,400 @@ public class TestDungeonASTConverter {
 
         var elseStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getElseStmt();
         Assert.assertEquals(Node.Type.Block, elseStmt.type);
+    }
+
+    // TODO: tests for complex expressions
+
+    @Test
+    public void testUnary() {
+        String program =
+                """
+                fn test_func() {
+                    !true;
+                    -4;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        // first statement
+        var unaryStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Unary, unaryStmt.type);
+        var unaryNode = (UnaryNode) unaryStmt;
+        Assert.assertEquals(UnaryNode.UnaryType.not, unaryNode.getUnaryType());
+
+        // second statement
+        unaryStmt = stmts.get(1);
+        Assert.assertEquals(Node.Type.Unary, unaryStmt.type);
+        unaryNode = (UnaryNode) unaryStmt;
+        Assert.assertEquals(UnaryNode.UnaryType.minus, unaryNode.getUnaryType());
+    }
+
+    @Test
+    public void testFactor() {
+        String program =
+                """
+                fn test_func() {
+                    4 * 2;
+                    3 / 1;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        // first statement
+        var factorStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Factor, factorStmt.type);
+
+        FactorNode factorNode = (FactorNode) factorStmt;
+        Assert.assertEquals(FactorNode.FactorType.multiply, factorNode.getFactorType());
+
+        var lhs = factorNode.getLhs();
+        Assert.assertEquals(Node.Type.Number, lhs.type);
+        Assert.assertEquals(4, ((NumNode) lhs).getValue());
+
+        var rhs = factorNode.getRhs();
+        Assert.assertEquals(Node.Type.Number, rhs.type);
+        Assert.assertEquals(2, ((NumNode) rhs).getValue());
+
+        // second statement
+        factorStmt = stmts.get(1);
+        Assert.assertEquals(Node.Type.Factor, factorStmt.type);
+
+        factorNode = (FactorNode) factorStmt;
+        Assert.assertEquals(FactorNode.FactorType.divide, factorNode.getFactorType());
+
+        lhs = factorNode.getLhs();
+        Assert.assertEquals(Node.Type.Number, lhs.type);
+        Assert.assertEquals(3, ((NumNode) lhs).getValue());
+
+        rhs = factorNode.getRhs();
+        Assert.assertEquals(Node.Type.Number, rhs.type);
+        Assert.assertEquals(1, ((NumNode) rhs).getValue());
+    }
+
+    @Test
+    public void testTerm() {
+        String program =
+                """
+                fn test_func() {
+                    4 + 2;
+                    3 - 1;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        // first statement
+        var termStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Term, termStmt.type);
+
+        TermNode termNode = (TermNode) termStmt;
+        Assert.assertEquals(TermNode.TermType.plus, termNode.getTermType());
+
+        var lhs = termNode.getLhs();
+        Assert.assertEquals(Node.Type.Number, lhs.type);
+        Assert.assertEquals(4, ((NumNode) lhs).getValue());
+
+        var rhs = termNode.getRhs();
+        Assert.assertEquals(Node.Type.Number, rhs.type);
+        Assert.assertEquals(2, ((NumNode) rhs).getValue());
+
+        // second statement
+        termStmt = stmts.get(1);
+        Assert.assertEquals(Node.Type.Term, termStmt.type);
+
+        termNode = (TermNode) termStmt;
+        Assert.assertEquals(TermNode.TermType.minus, termNode.getTermType());
+
+        lhs = termNode.getLhs();
+        Assert.assertEquals(Node.Type.Number, lhs.type);
+        Assert.assertEquals(3, ((NumNode) lhs).getValue());
+
+        rhs = termNode.getRhs();
+        Assert.assertEquals(Node.Type.Number, rhs.type);
+        Assert.assertEquals(1, ((NumNode) rhs).getValue());
+    }
+
+    @Test
+    public void testComparison() {
+        String program =
+                """
+            fn test_func() {
+                1 > 5;
+                2 >= 6;
+                3 < 7;
+                4 <= 8;
+            }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        // first statement
+        var compStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Comparison, compStmt.type);
+
+        ComparisonNode compNode = (ComparisonNode) compStmt;
+        Assert.assertEquals(
+                ComparisonNode.ComparisonType.greaterThan, compNode.getComparisonType());
+
+        // second statement
+        compStmt = stmts.get(1);
+        Assert.assertEquals(Node.Type.Comparison, compStmt.type);
+
+        compNode = (ComparisonNode) compStmt;
+        Assert.assertEquals(
+                ComparisonNode.ComparisonType.greaterEquals, compNode.getComparisonType());
+
+        // third statement
+        compStmt = stmts.get(2);
+        Assert.assertEquals(Node.Type.Comparison, compStmt.type);
+
+        compNode = (ComparisonNode) compStmt;
+        Assert.assertEquals(ComparisonNode.ComparisonType.lessThan, compNode.getComparisonType());
+
+        // fourth statement
+        compStmt = stmts.get(3);
+        Assert.assertEquals(Node.Type.Comparison, compStmt.type);
+
+        compNode = (ComparisonNode) compStmt;
+        Assert.assertEquals(ComparisonNode.ComparisonType.lessEquals, compNode.getComparisonType());
+    }
+
+    @Test
+    public void testEquality() {
+        String program =
+                """
+                fn test_func() {
+                    test == other_test;
+                    test != other_test;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        // first statement
+        var equalityStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Equality, equalityStmt.type);
+
+        EqualityNode equalityNode = (EqualityNode) equalityStmt;
+        Assert.assertEquals(EqualityNode.EqualityType.equals, equalityNode.getEqualityType());
+
+        // second statement
+        equalityStmt = stmts.get(1);
+        Assert.assertEquals(Node.Type.Equality, equalityStmt.type);
+
+        equalityNode = (EqualityNode) equalityStmt;
+        Assert.assertEquals(EqualityNode.EqualityType.notEquals, equalityNode.getEqualityType());
+    }
+
+    @Test
+    public void testLogicAnd() {
+        String program =
+                """
+                fn test_func() {
+                    lhs and rhs;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var andStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.LogicAnd, andStmt.type);
+    }
+
+    @Test
+    public void testLogicOr() {
+        String program =
+                """
+                fn test_func() {
+                    lhs or rhs;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var orStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.LogicOr, orStmt.type);
+    }
+
+    @Test
+    public void testAssignmentId() {
+        String program =
+                """
+            fn test_func() {
+                my_var = 4;
+            }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var assignmentStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Assignment, assignmentStmt.type);
+
+        AssignmentNode assignmentNode = (AssignmentNode) assignmentStmt;
+        Assert.assertEquals(Node.Type.Identifier, assignmentNode.getLhs().type);
+    }
+
+    @Test
+    public void testAssignmentMemberAccessWithCall() {
+        String program =
+                """
+            fn test_func() {
+                my_func().test = 4;
+            }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var assignmentStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Assignment, assignmentStmt.type);
+
+        AssignmentNode assignmentNode = (AssignmentNode) assignmentStmt;
+        Assert.assertEquals(Node.Type.MemberAccess, assignmentNode.getLhs().type);
+        Assert.assertEquals(Node.Type.Number, assignmentNode.getRhs().type);
+
+        MemberAccessNode memberAccessNode = (MemberAccessNode) assignmentNode.getLhs();
+        Assert.assertEquals(Node.Type.FuncCall, memberAccessNode.getLhs().type);
+        Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getRhs().type);
+    }
+
+    @Test
+    public void testAssignmentMemberAccess() {
+        String program =
+                """
+                fn test_func() {
+                    my_var.test = 4;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var assignmentStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Assignment, assignmentStmt.type);
+
+        AssignmentNode assignmentNode = (AssignmentNode) assignmentStmt;
+        Assert.assertEquals(Node.Type.MemberAccess, assignmentNode.getLhs().type);
+        Assert.assertEquals(Node.Type.Number, assignmentNode.getRhs().type);
+
+        MemberAccessNode memberAccessNode = (MemberAccessNode) assignmentNode.getLhs();
+        Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getLhs().type);
+        Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getRhs().type);
+    }
+
+    @Test
+    public void testMethodCallExpression() {
+        String program =
+                """
+                fn test_func() {
+                    test = expr.func();
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var assignmentStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Assignment, assignmentStmt.type);
+
+        AssignmentNode assignmentNode = (AssignmentNode) assignmentStmt;
+        var rhs = assignmentNode.getRhs();
+        Assert.assertEquals(Node.Type.MemberAccess, rhs.type);
+
+        MemberAccessNode memberAccessNode = (MemberAccessNode) rhs;
+        Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getLhs().type);
+        Assert.assertEquals(Node.Type.FuncCall, memberAccessNode.getRhs().type);
+    }
+
+    @Test
+    public void testMemberAccessExpression() {
+        String program =
+                """
+                fn test_func() {
+                    test = expr.identifier;
+                }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var assignmentStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.Assignment, assignmentStmt.type);
+
+        AssignmentNode assignmentNode = (AssignmentNode) assignmentStmt;
+        var rhs = assignmentNode.getRhs();
+        Assert.assertEquals(Node.Type.MemberAccess, rhs.type);
+
+        MemberAccessNode memberAccessNode = (MemberAccessNode) rhs;
+        Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getLhs().type);
+        Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getRhs().type);
+    }
+
+    @Test
+    public void testListDefinition() {
+        String program =
+                """
+            fn test_func() {
+                [1,2,3];
+            }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var listDefinitionStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.ListDefinitionNode, listDefinitionStmt.type);
+
+        ListDefinitionNode listDefinitionNode = (ListDefinitionNode) listDefinitionStmt;
+
+        Assert.assertEquals(1, ((NumNode) listDefinitionNode.getEntries().get(0)).getValue());
+        Assert.assertEquals(2, ((NumNode) listDefinitionNode.getEntries().get(1)).getValue());
+        Assert.assertEquals(3, ((NumNode) listDefinitionNode.getEntries().get(2)).getValue());
+    }
+
+    @Test
+    public void testSetDefinition() {
+        String program =
+                """
+            fn test_func() {
+                <1,2,3>;
+            }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var setDefinitionStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.SetDefinitionNode, setDefinitionStmt.type);
+
+        SetDefinitionNode setDefinitionNode = (SetDefinitionNode) setDefinitionStmt;
+
+        Assert.assertEquals(1, ((NumNode) setDefinitionNode.getEntries().get(0)).getValue());
+        Assert.assertEquals(2, ((NumNode) setDefinitionNode.getEntries().get(1)).getValue());
+        Assert.assertEquals(3, ((NumNode) setDefinitionNode.getEntries().get(2)).getValue());
     }
 }
