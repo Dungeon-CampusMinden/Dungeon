@@ -4,7 +4,6 @@ import core.Entity;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
-import core.utils.position.Coordinate;
 import core.utils.position.Position;
 
 import java.util.Random;

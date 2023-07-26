@@ -22,7 +22,6 @@ import core.utils.IVoidFunction;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 import core.utils.components.draw.TextureMap;
-import core.utils.position.Coordinate;
 import core.utils.position.Point;
 import core.utils.position.Position;
 

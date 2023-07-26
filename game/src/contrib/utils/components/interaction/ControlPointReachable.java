@@ -1,7 +1,6 @@
 package contrib.utils.components.interaction;
 
 import core.Game;
-import core.utils.position.Coordinate;
 import core.utils.position.Position;
 
 import java.util.function.Function;

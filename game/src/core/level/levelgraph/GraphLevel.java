@@ -6,7 +6,6 @@ import core.level.room.IRoom;
 import core.level.room.RoomGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
-import core.utils.position.Coordinate;
 
 import java.util.LinkedHashSet;
 

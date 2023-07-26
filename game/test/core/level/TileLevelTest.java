@@ -11,7 +11,6 @@ import core.level.elements.tile.TileFactory;
 import core.level.elements.tile.WallTile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.utils.position.Coordinate;
 import core.utils.position.Position;
 
 import org.junit.Test;

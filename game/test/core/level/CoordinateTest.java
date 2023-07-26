@@ -3,7 +3,6 @@ package core.level;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import core.utils.position.Coordinate;
 import core.utils.position.Point;
 
 import org.junit.Before;

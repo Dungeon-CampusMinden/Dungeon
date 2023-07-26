@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import core.level.Tile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.utils.position.Coordinate;
 
 import org.junit.Test;
 

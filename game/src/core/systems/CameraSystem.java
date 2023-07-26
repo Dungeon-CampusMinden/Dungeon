@@ -12,7 +12,6 @@ import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.utils.Constants;
 import core.utils.components.MissingComponentException;
-import core.utils.position.Coordinate;
 import core.utils.position.Position;
 
 /**

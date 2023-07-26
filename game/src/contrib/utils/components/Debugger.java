@@ -22,7 +22,6 @@ import core.systems.CameraSystem;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
-import core.utils.position.Coordinate;
 import core.utils.position.Position;
 
 import java.io.IOException;
