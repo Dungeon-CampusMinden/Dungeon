@@ -13,7 +13,7 @@ import core.System;
 import core.components.PositionComponent;
 import core.components.UIComponent;
 import core.systems.CameraSystem;
-import core.utils.Point;
+import core.utils.position.Point;
 import core.utils.logging.CustomLogLevel;
 
 import java.util.HashMap;
@@ -102,7 +102,7 @@ public final class HealthbarSystem extends System {
 
     /** moves the Progressbar to follow the Entity */
     private void updatePosition(ProgressBar pb, PositionComponent pc) {
-        Point position = pc.position();
+        Point position = pc.position().point();
         Vector3 screenPosition =
                 CameraSystem.camera().project(new Vector3(position.x, position.y, 0));
         pb.setPosition(screenPosition.x, screenPosition.y);

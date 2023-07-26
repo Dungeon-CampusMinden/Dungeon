@@ -12,6 +12,7 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.utils.position.Point;
 
+import core.utils.position.Position;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -24,7 +25,7 @@ public class CameraSystemTest {
     private final ILevel level = Mockito.mock(ILevel.class);
     private final Tile startTile = Mockito.mock(Tile.class);
     private CameraSystem cameraSystem;
-    private Point expectedFocusPosition;
+    private Position expectedFocusPosition;
 
     @BeforeClass
     public static void initGDX() {
