@@ -74,6 +74,15 @@ public final class Animation {
     }
 
     /**
+     * Creates an animation containing only one frame. repeats forever
+     *
+     * @param animationFrame The texture that builds the animation.
+     */
+    public Animation(String animationFrame) {
+        this(Set.of(animationFrame), 1, true);
+    }
+
+    /**
      * Create an animation from the files in the given path and the given configuration.
      *
      * <p>Will sort the the textures in lexicographic order. This is the order in which the

@@ -4,8 +4,6 @@ import contrib.configuration.ItemConfig;
 
 import core.utils.components.draw.Animation;
 
-import java.util.List;
-
 /**
  * This is an enum that represents all items in the game.
  *
@@ -19,56 +17,56 @@ public enum Item {
             "Wasserflasche",
             "Eine Flasche gefüllt mit Wasser.",
             ItemCategory.BASIC,
-            new Animation(List.of("item/water_bottle.png"), 1),
-            new Animation(List.of("item/water_bottle.png"), 1)),
+            new Animation("item/water_bottle.png"),
+            new Animation("item/water_bottle.png")),
     MUSHROOM_RED(
             "Roter Pilz",
             "Ein ganz normaler, roter Pilz.",
             ItemCategory.BASIC,
-            new Animation(List.of("item/mushroom_red.png"), 1),
-            new Animation(List.of("item/mushroom_red.png"), 1)),
+            new Animation("item/mushroom_red.png"),
+            new Animation("item/mushroom_red.png")),
     MUSHROOM_BROWN(
             "Brauner Pilz",
             "Ein ganz normaler, brauner Pilz.",
             ItemCategory.BASIC,
-            new Animation(List.of("item/mushroom_brown.png"), 1),
-            new Animation(List.of("item/mushroom_brown.png"), 1)),
+            new Animation("item/mushroom_brown.png"),
+            new Animation("item/mushroom_brown.png")),
     STONE(
             "Stein",
             "Ein ganz normaler, grauer Stein.",
             ItemCategory.BASIC,
-            new Animation(List.of("item/stone.png"), 1),
-            new Animation(List.of("item/stone.png"), 1)),
+            new Animation("item/stone.png"),
+            new Animation("item/stone.png")),
     FLOWER_RED(
             "Rote Blume",
             "Eine rote Blume. Man erzählt sie hätte heilende Kräfte.",
             ItemCategory.BASIC,
-            new Animation(List.of("item/flower_red.png"), 1),
-            new Animation(List.of("item/flower_red.png"), 1)),
+            new Animation("item/flower_red.png"),
+            new Animation("item/flower_red.png")),
     LEATHER(
             "Leder",
             "Ein Stück Leder.",
             ItemCategory.BASIC,
-            new Animation(List.of("item/leather.png"), 1),
-            new Animation(List.of("item/leather.png"), 1)),
+            new Animation("item/leather.png"),
+            new Animation("item/leather.png")),
     STICK(
             "Stock",
             "Ein Stock.",
             ItemCategory.BASIC,
-            new Animation(List.of("item/stick.png"), 1),
-            new Animation(List.of("item/stick.png"), 1)),
+            new Animation("item/stick.png"),
+            new Animation("item/stick.png")),
     IRON_ORE(
             "Eisenerz",
             "Ein Stück Eisenerz. Daraus lassen sich sicherlich nützliche Dinge herstellen.",
             ItemCategory.BASIC,
-            new Animation(List.of("item/iron_ore.png"), 1),
-            new Animation(List.of("item/iron_ore.png"), 1)),
+            new Animation("item/iron_ore.png"),
+            new Animation("item/iron_ore.png")),
     HEALTH_POTION(
             "Heiltrank",
             "Ein Heiltrank. Er regeneriert 10 Lebenspunkte.",
             ItemCategory.ACTIVE,
-            new Animation(List.of("item/health_potion.png"), 1),
-            new Animation(List.of("item/health_potion.png"), 1));
+            new Animation("item/health_potion.png"),
+            new Animation("item/health_potion.png"));
     private String name, description;
     private Animation inventoryAnimation, worldAnimation;
 
@@ -79,8 +77,8 @@ public enum Item {
                 name,
                 description,
                 category,
-                new Animation(List.of(ItemConfig.TEXTURE.value()), 1),
-                new Animation(List.of(ItemConfig.TEXTURE.value()), 1));
+                new Animation(ItemConfig.TEXTURE.value()),
+                new Animation(ItemConfig.TEXTURE.value()));
     }
 
     Item(
