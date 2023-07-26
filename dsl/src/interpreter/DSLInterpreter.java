@@ -423,7 +423,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(PropertyDefNode node) {
         var value = (Value) node.getStmtNode().accept(this);
         var propertyName = node.getIdName();
-        boolean setValue = setValue(propertyName, value);
+        Value assigneeValue = getCurrentMemorySpace().resolve(propertyName);
+        boolean setValue = setValue(assigneeValue, value);
         if (!setValue) {
             // TODO: handle, errormsg
         }
@@ -478,21 +479,82 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     // TODO: this should probably check for type compatibility
-    private boolean setValue(String name, Object value) {
-        var ms = memoryStack.peek();
-        var valueInMemorySpace = ms.resolve(name);
-        if (valueInMemorySpace == Value.NONE) {
+    private boolean setValue(Value assignee, Value valueToAssign) {
+        if (assignee == Value.NONE) {
             return false;
         }
         // if the lhs is a pod, set the internal value, otherwise, set the MemorySpace of the
         // returned value
-        if (valueInMemorySpace instanceof AggregateValue) {
-            AggregateValue valueToSet = (AggregateValue) value;
-            ((AggregateValue) valueInMemorySpace).setMemorySpace(valueToSet.getMemorySpace());
-            valueInMemorySpace.setInternalValue(valueToSet.getInternalValue());
+        if (assignee instanceof AggregateValue aggregateAssignee) {
+            if (!(valueToAssign instanceof AggregateValue aggregateValueToAssign)) {
+                // if the value to assign is not an aggregate value, we might have
+                // the case, where we wan't to assign a basic Value to a Content object
+
+                IType assigneesType = assignee.getDataType();
+                if (assigneesType.getName().equals("content")) {
+                    // TODO: just making it work for now...
+                    String stringValue = valueToAssign.getInternalValue().toString();
+                    Quiz.Content content = new Quiz.Content(stringValue);
+                    EncapsulatedObject encapsulatedObject =
+                            new EncapsulatedObject(
+                                    content, (AggregateType) assigneesType, this.environment);
+
+                    aggregateAssignee.setMemorySpace(encapsulatedObject);
+                    aggregateAssignee.setInternalValue(content);
+                } else {
+                    throw new RuntimeException(
+                            "Can't assign Value of type "
+                                    + valueToAssign.getDataType()
+                                    + " to Value of "
+                                    + assigneesType);
+                }
+            } else {
+                aggregateAssignee.setMemorySpace(aggregateValueToAssign.getMemorySpace());
+                aggregateAssignee.setInternalValue(aggregateValueToAssign.getInternalValue());
+            }
+        } else if (assignee instanceof ListValue assigneeListValue) {
+            if (!(valueToAssign instanceof ListValue listValueToAssign)) {
+                throw new RuntimeException(
+                        "Can't assign value "
+                                + valueToAssign
+                                + " to ListValue, it is not a ListValue itself!");
+            }
+
+            assigneeListValue.clearList();
+
+            IType entryType = assigneeListValue.getDataType().getElementType();
+            for (var valueToAdd : listValueToAssign.getValues()) {
+                Value entryAssigneeValue = createDefaultValue(entryType);
+
+                // we cannot directly set the entryValueToAssign, because we potentially
+                // have to do type conversions (convert a String into a Content-Object)
+                setValue(entryAssigneeValue, valueToAdd);
+
+                assigneeListValue.addValue(entryAssigneeValue);
+            }
+        } else if (assignee instanceof SetValue assigneeSetValue) {
+            if (!(valueToAssign instanceof SetValue setValueToAssign)) {
+                throw new RuntimeException(
+                        "Can't assign value "
+                                + valueToAssign
+                                + " to SetValue, it is not a SetValue itself!");
+            }
+
+            assigneeSetValue.clearSet();
+
+            IType entryType = assigneeSetValue.getDataType().getElementType();
+            Set<Value> valuesToAdd = setValueToAssign.getValues();
+            for (Value valueToAdd : valuesToAdd) {
+                Value entryAssigneeValue = createDefaultValue(entryType);
+
+                // we cannot directly set the entryValueToAssign, because we potentially
+                // have to do type conversions (convert a String into a Content-Object)
+                setValue(entryAssigneeValue, valueToAdd);
+
+                assigneeSetValue.addValue(entryAssigneeValue);
+            }
         } else {
-            // TODO: handle Lists and sets
-            valueInMemorySpace.setInternalValue(((Value) value).getInternalValue());
+            assignee.setInternalValue(valueToAssign.getInternalValue());
         }
         return true;
     }
@@ -776,7 +838,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
                                     parameterObject,
                                     currentMemorySpace,
                                     parameterSymbol.getDataType());
-            setValue(parameterSymbol.getName(), paramValue);
+            Value assigneeValue = currentMemorySpace.resolve(parameterSymbol.getName());
+            setValue(assigneeValue, paramValue);
         }
     }
 
@@ -795,9 +858,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
             bindFromSymbol(parameterSymbol, memoryStack.peek());
 
             var paramValueNode = parameterNodes.get(i);
-            var paramValue = paramValueNode.accept(this);
+            Value paramValue = (Value) paramValueNode.accept(this);
 
-            setValue(parameterSymbol.getName(), paramValue);
+            Value assigneeValue = getCurrentMemorySpace().resolve(parameterSymbol.getName());
+            setValue(assigneeValue, paramValue);
         }
     }
 
