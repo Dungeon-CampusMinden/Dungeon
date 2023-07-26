@@ -2,6 +2,7 @@ package dslToGame.taskdsltypes;
 
 import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;
+
 import task.quizquestion.Quiz;
 
 import java.util.ArrayList;

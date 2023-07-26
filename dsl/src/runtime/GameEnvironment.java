@@ -9,8 +9,8 @@ import core.components.VelocityComponent;
 
 import dslToGame.EntityTranslator;
 import dslToGame.QuestConfig;
-
 import dslToGame.taskdsltypes.SingleChoiceTask;
+
 import runtime.nativefunctions.NativeInstantiate;
 import runtime.nativefunctions.NativePrint;
 
@@ -18,6 +18,7 @@ import semanticanalysis.*;
 import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
+
 import task.Task;
 import task.quizquestion.Quiz;
 

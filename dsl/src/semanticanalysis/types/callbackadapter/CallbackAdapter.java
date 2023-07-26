@@ -14,9 +14,7 @@ import semanticanalysis.types.FunctionType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Encapsulates the {@link RuntimeEnvironment} and {@link DSLInterpreter} needed to execute a
@@ -97,4 +95,3 @@ public class CallbackAdapter implements Consumer, TriConsumer {
     }
     // endregion
 }
-

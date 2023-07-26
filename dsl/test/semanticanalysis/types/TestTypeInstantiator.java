@@ -62,7 +62,7 @@ public class TestTypeInstantiator {
             memberCounter++;
         }
 
-        //DSLInterpreter interpreter = new DSLInterpreter();
+        // DSLInterpreter interpreter = new DSLInterpreter();
         TypeInstantiator ti = new TypeInstantiator(interpreter);
         var instance = ti.instantiate(type, ms);
 
@@ -122,7 +122,7 @@ public class TestTypeInstantiator {
             memberCounter++;
         }
 
-        //DSLInterpreter interpreter = new DSLInterpreter();
+        // DSLInterpreter interpreter = new DSLInterpreter();
         TypeInstantiator ti = new TypeInstantiator(interpreter);
         var instance = ti.instantiate(type, ms);
 

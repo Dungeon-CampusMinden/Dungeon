@@ -1295,7 +1295,7 @@ public class TestDSLInterpreter {
     @Test
     public void singleChoiceTaskDefinition() {
         String program =
-        """
+                """
             single_choice_task my_task {
                 description: "Hello",
                 answers: ["1", "2", "3"],
@@ -1303,11 +1303,13 @@ public class TestDSLInterpreter {
             }
 
             quest_config c {
-                task: my_task
+                tasks: [my_task]
             }
         """;
 
         DSLInterpreter interpreter = new DSLInterpreter();
         var config = (QuestConfig) interpreter.getQuestConfig(program);
+
+        Assert.assertTrue(false);
     }
 }

@@ -4,9 +4,9 @@ import core.Entity;
 
 import dslToGame.graph.Graph;
 
-import dslToGame.taskdsltypes.SingleChoiceTask;
 import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;
+
 import task.Task;
 
 import java.util.List;

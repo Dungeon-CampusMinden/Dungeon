@@ -13,7 +13,6 @@ import parser.DungeonASTConverter;
 
 import runtime.GameEnvironment;
 import runtime.MemorySpace;
-import runtime.Value;
 
 import semanticanalysis.ScopedSymbol;
 import semanticanalysis.SemanticAnalyzer;
@@ -98,9 +97,10 @@ public class Helpers {
         return symbolTableParser.walk(ast);
     }
 
-    public static void bindDefaultValueInMemorySpace(Symbol symbol, MemorySpace ms, DSLInterpreter interpreter) {
+    public static void bindDefaultValueInMemorySpace(
+            Symbol symbol, MemorySpace ms, DSLInterpreter interpreter) {
         var defaultValue = interpreter.createDefaultValue(symbol.getDataType());
-        //var value = new Value(symbol.getDataType(), defaultValue);
+        // var value = new Value(symbol.getDataType(), defaultValue);
         ms.bindValue(symbol.getName(), defaultValue);
     }
 

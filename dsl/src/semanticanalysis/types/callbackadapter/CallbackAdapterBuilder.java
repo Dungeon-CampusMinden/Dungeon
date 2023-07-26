@@ -26,17 +26,17 @@ public class CallbackAdapterBuilder {
      */
     public CallbackAdapter buildAdapter(FunctionSymbol functionSymbol) {
         FunctionType functionType = (FunctionType) functionSymbol.getDataType();
-        if (functionType.getReturnType() != BuiltInType.noType &&
-            functionType.getParameterTypes().size() == 1) {
+        if (functionType.getReturnType() != BuiltInType.noType
+                && functionType.getParameterTypes().size() == 1) {
             return new FunctionCallbackAdapter(
-                interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
-        } else if (functionType.getReturnType() != BuiltInType.noType &&
-                   functionType.getParameterTypes().size() == 2) {
+                    interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
+        } else if (functionType.getReturnType() != BuiltInType.noType
+                && functionType.getParameterTypes().size() == 2) {
             return new BiFunctionCallbackAdapter(
-                interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
+                    interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
         } else {
             return new CallbackAdapter(
-                interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
+                    interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
         }
     }
 }

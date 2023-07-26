@@ -428,7 +428,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(PropertyDefNode node) {
-        var value = (Value) node.getStmtNode().accept(this);
+        Value value = (Value) node.getStmtNode().accept(this);
         var propertyName = node.getIdName();
         Value assigneeValue = getCurrentMemorySpace().resolve(propertyName);
         boolean setValue = setValue(assigneeValue, value);
@@ -486,6 +486,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     // TODO: this should probably check for type compatibility
+    // TODO: implement type conversion for content
     private boolean setValue(Value assignee, Value valueToAssign) {
         if (assignee == Value.NONE) {
             return false;

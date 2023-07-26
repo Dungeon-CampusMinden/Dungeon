@@ -13,12 +13,11 @@ public class BiFunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
 
     public static BiFunctionFunctionTypeBuilder instance = new BiFunctionFunctionTypeBuilder();
 
-    private BiFunctionFunctionTypeBuilder() {
-    }
+    private BiFunctionFunctionTypeBuilder() {}
 
     @Override
     public FunctionType buildFunctionType(
-        Field field, TypeBuilder typeBuilder, IScope globalScope) {
+            Field field, TypeBuilder typeBuilder, IScope globalScope) {
         var genericType = field.getGenericType();
 
         var parameterizedType = (ParameterizedType) genericType;
@@ -28,7 +27,7 @@ public class BiFunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
         // the type of the first parameter of the function
         Type firstParameterType = typeArray[0];
         IType firstParameterDSLType =
-            typeBuilder.createDSLTypeForJavaTypeInScope(globalScope, firstParameterType);
+                typeBuilder.createDSLTypeForJavaTypeInScope(globalScope, firstParameterType);
         if (null == firstParameterDSLType) {
             throw new RuntimeException("Type of parameter of Function could not be translated");
         }
@@ -37,7 +36,7 @@ public class BiFunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
         // the type of the second parameter of the function
         Type secondParameterType = typeArray[1];
         IType secondParameterDSLType =
-            typeBuilder.createDSLTypeForJavaTypeInScope(globalScope, secondParameterType);
+                typeBuilder.createDSLTypeForJavaTypeInScope(globalScope, secondParameterType);
         if (null == secondParameterDSLType) {
             throw new RuntimeException("Type of parameter of Function could not be translated");
         }
