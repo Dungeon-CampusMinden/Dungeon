@@ -16,6 +16,7 @@ import core.Game;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.TriConsumer;
+import core.utils.components.MissingComponentException;
 
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -279,7 +280,12 @@ public class ItemData implements CraftingIngredient, CraftingResult {
 
     @Override
     public void executeCrafting(Entity entity) {
-        entity.fetch(InventoryComponent.class).ifPresent(inv -> inv.add(this));
+        entity.fetch(InventoryComponent.class)
+                .ifPresentOrElse(
+                        inv -> inv.add(this),
+                        () -> {
+                            throw MissingComponentException.build(entity, InventoryComponent.class);
+                        });
     }
 
     @Override
