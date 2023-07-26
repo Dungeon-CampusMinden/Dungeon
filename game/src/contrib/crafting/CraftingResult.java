@@ -21,7 +21,8 @@ public interface CraftingResult {
     CraftingType resultType();
 
     /**
-     * Execute the result on the provided entity.
+     * Execute the result on the provided entity. The provided entity is the entity that crafted the
+     * recipe.
      *
      * <p>This will be called when the recipe is crafted. This can be used to add items to the
      * entity's inventory, add components to the entity, etc...
