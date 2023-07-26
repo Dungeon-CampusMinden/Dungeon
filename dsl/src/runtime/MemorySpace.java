@@ -7,6 +7,7 @@ import java.util.Set;
 public class MemorySpace implements IMemorySpace {
     public static MemorySpace NONE;
     private final HashMap<String, Value> values = new HashMap<>();
+    // TODO: is this really needed?!
     private final IMemorySpace parent;
 
     /**

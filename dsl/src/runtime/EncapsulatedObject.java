@@ -30,14 +30,11 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
      * @param innerObject the object to encapsulate
      * @param type {@link AggregateType} of the Value represented by the new EncapsulatedObject
      *     (used for resolving member access)
-     * @param parent the parent {@link IMemorySpace}
      */
-    public EncapsulatedObject(
-            Object innerObject, AggregateType type, IMemorySpace parent, IEvironment environment) {
+    public EncapsulatedObject(Object innerObject, AggregateType type, IEvironment environment) {
         super(type, innerObject);
         assert innerObject.getClass().equals(type.getOriginType());
 
-        this.parent = parent;
         this.type = type;
         this.environment = environment;
         this.typeMemberToField = new HashMap<>();
