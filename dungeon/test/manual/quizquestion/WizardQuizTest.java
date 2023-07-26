@@ -87,7 +87,12 @@ public class WizardQuizTest {
         new DrawComponent(wizard, "character/wizard");
         new TaskComponent(wizard, question);
         new InteractionComponent(
-                wizard, 1, false, UIAnswerCallback.askOnInteraction(question, showAnswersOnHud()));
+                wizard,
+                1,
+                false,
+                (entity, who) ->
+                        UIAnswerCallback.askOnInteraction(question, showAnswersOnHud())
+                                .accept(entity));
     }
 
     private static Consumer<Set<TaskContent>> showAnswersOnHud() {

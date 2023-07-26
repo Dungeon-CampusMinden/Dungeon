@@ -12,7 +12,6 @@ import contrib.utils.components.stats.DamageModifier;
 
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
@@ -158,8 +157,7 @@ public class ItemData implements CraftingIngredient, CraftingResult {
      * @param position Position where to drop the item.
      */
     private static void defaultDrop(Entity who, ItemData which, Point position) {
-        Entity droppedItem = WorldItemBuilder.buildWorldItem(which);
-        droppedItem.fetch(PositionComponent.class).ifPresent(x -> x.position(position));
+        WorldItemBuilder.buildWorldItem(which, position);
     }
 
     /**

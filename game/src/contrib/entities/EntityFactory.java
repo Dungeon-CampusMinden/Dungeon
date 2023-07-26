@@ -22,7 +22,7 @@ import core.utils.components.draw.CoreAnimations;
 import java.io.IOException;
 import java.util.Random;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -125,7 +125,8 @@ public class EntityFactory {
 
         pc.registerCallback(
                 KeyboardConfig.INTERACT_WORLD.value(),
-                InteractionTool::interactWithClosestInteractable);
+                InteractionTool::interactWithClosestInteractable,
+                false);
 
         // skills
         pc.registerCallback(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);
@@ -214,15 +215,17 @@ public class EntityFactory {
 
         Entity monster = new Entity("monster");
         int itemRoll = RANDOM.nextInt(0, 10);
-        Consumer<Entity> onDeath = entity -> {};
+        BiConsumer<Entity, Entity> onDeath;
         if (itemRoll == 0) {
             ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
             ItemData item = itemDataGenerator.generateItemData();
             InventoryComponent ic = new InventoryComponent(monster, 1);
             ic.add(item);
             onDeath = new DropItemsInteraction();
+        } else {
+            onDeath = (e, who) -> {};
         }
-        new HealthComponent(monster, health, onDeath);
+        new HealthComponent(monster, health, (e) -> onDeath.accept(e, null));
         new PositionComponent(monster);
         new AIComponent(
                 monster,

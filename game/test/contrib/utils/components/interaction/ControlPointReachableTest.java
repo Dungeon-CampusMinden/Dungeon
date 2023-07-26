@@ -71,7 +71,7 @@ public class ControlPointReachableTest {
         SimpleCounter s1 = new SimpleCounter();
         Entity e1 = new Entity();
         PositionComponent e1PC = new PositionComponent(e1, e1Point);
-        InteractionComponent e1IC = new InteractionComponent(e1, 3, false, (e) -> s1.inc());
+        InteractionComponent e1IC = new InteractionComponent(e1, 3, false, (e, who) -> s1.inc());
         PreparedEntityWithCounter first = new PreparedEntityWithCounter(e1, s1, e1PC, e1IC);
         return first;
     }
