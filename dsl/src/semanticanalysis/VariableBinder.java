@@ -149,6 +149,9 @@ public class VariableBinder implements AstVisitor<Void> {
             // resolve type name
             var typeName = node.getTypeSpecifierName();
             var type = this.parentScope.resolve(typeName);
+            if (!(type instanceof IType)) {
+                boolean b = true;
+            }
             assert type != null;
             assert type instanceof IType;
 

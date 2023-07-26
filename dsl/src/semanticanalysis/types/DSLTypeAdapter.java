@@ -13,4 +13,5 @@ public @interface DSLTypeAdapter {
      * return type of the marked method will be converted by {@link TypeBuilder}
      */
     String name() default "";
+    boolean createPseudoDSLType() default true;
 }

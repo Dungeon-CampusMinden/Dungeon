@@ -110,7 +110,7 @@ public class TestTypeBuilder {
         TypeBuilder tb = new TypeBuilder();
         tb.registerTypeAdapter(RecordBuilder.class, Scope.NULL);
 
-        var adapter = tb.getRegisteredTypeAdapter(TestRecordComponent.class);
+        var adapter = tb.getRegisteredTypeAdaptersForType(TestRecordComponent.class).get(0);
         assertNotNull(adapter);
 
         try {
@@ -128,7 +128,7 @@ public class TestTypeBuilder {
         TypeBuilder tb = new TypeBuilder();
         tb.registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
 
-        var adapter = tb.getRegisteredTypeAdapter(ExternalType.class);
+        var adapter = tb.getRegisteredTypeAdaptersForType(ExternalType.class).get(0);
         assertNotNull(adapter);
 
         try {

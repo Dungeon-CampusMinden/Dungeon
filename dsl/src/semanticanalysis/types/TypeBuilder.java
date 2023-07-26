@@ -19,7 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TypeBuilder {
-    private final HashMap<Class<?>, Method> typeAdapters;
+    private final HashMap<Class<?>, List<Method>> typeAdapters;
     private final HashMap<Type, IType> javaTypeToDSLType;
     private final HashSet<Class<?>> currentLookedUpClasses;
     private final HashMap<Class<?>, IFunctionTypeBuilder> functionTypeBuilders;
@@ -168,6 +168,20 @@ public class TypeBuilder {
                 : parameterAnnotation.name();
     }
 
+    public static boolean doParameterTypesMatch(Method m1, Method m2) {
+        // check, if registered adapter matches signature of new adapter
+        if (m1.getParameterCount() != m2.getParameterCount()) {
+            return false;
+        }
+        boolean parametersMatch = true;
+        for (int i = 0; parametersMatch && i < m1.getParameterCount(); i++) {
+            Class<?> m1Parameter = m1.getParameterTypes()[i];
+            Class<?> m2Parameter = m2.getParameterTypes()[i];
+            parametersMatch = m2Parameter.equals(m1Parameter);
+        }
+        return parametersMatch;
+    }
+
     /**
      * Register a new type adapter (which will be used to instantiate a class, which is not
      * converted to a DSLType)
@@ -178,23 +192,34 @@ public class TypeBuilder {
         for (var method : adapterClass.getDeclaredMethods()) {
             if (method.isAnnotationPresent(DSLTypeAdapter.class)
                     && Modifier.isStatic(method.getModifiers())) {
+                DSLTypeAdapter annotation = method.getAnnotation(DSLTypeAdapter.class);
+
                 var forType = method.getReturnType();
-                if (this.typeAdapters.containsKey(forType)) {
-                    return false;
+                if (!this.typeAdapters.containsKey(forType)) {
+                    this.typeAdapters.put(forType, new ArrayList<>());
                 }
-                this.typeAdapters.put(forType, method);
 
-                var annotation = method.getAnnotation(DSLTypeAdapter.class);
-                String dslTypeName =
+                List<Method> typeAdaptersForType = this.typeAdapters.get(forType);
+                for (Method adapter : typeAdaptersForType) {
+                    if (doParameterTypesMatch(adapter, method)) {
+                        throw new UnsupportedOperationException("An adapter for class "+ forType.getName() + " with the same signature was already registered");
+                    }
+                }
+
+                this.typeAdapters.get(forType).add(method);
+
+                if (annotation.createPseudoDSLType()) {
+                    String dslTypeName =
                         annotation.name().equals("")
-                                ? convertToDSLName(forType.getSimpleName())
-                                : annotation.name();
+                            ? convertToDSLName(forType.getSimpleName())
+                            : annotation.name();
 
-                // create adapterType
-                var adapterType = createAdapterType(forType, dslTypeName, method, parentScope);
+                    // create adapterType
+                    var adapterType = createAdapterType(forType, dslTypeName, method, parentScope);
 
-                this.javaTypeToDSLType.put(forType, adapterType);
-
+                    this.javaTypeToDSLType.put(forType, adapterType);
+                    parentScope.bind((Symbol)adapterType);
+                }
                 return true;
             }
         }
@@ -212,8 +237,9 @@ public class TypeBuilder {
 
         if (adapterMethod.getParameterCount() == 1) {
             var paramType = adapterMethod.getParameterTypes()[0];
-            // TODO: how to handle non-builtIn types here?
-            var paramDSLType = getBuiltInDSLType(paramType);
+            currentLookedUpClasses.add(forType);
+            IType paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, paramType);
+            currentLookedUpClasses.remove(forType);
             return new AdaptedType(
                     dslTypeName, parentScope, forType, (BuiltInType) paramDSLType, adapterMethod);
         } else {
@@ -222,11 +248,24 @@ public class TypeBuilder {
             // bind symbol for each parameter in the adapterMethod
             for (var parameter : adapterMethod.getParameters()) {
                 String parameterName = getDSLParameterName(parameter);
-                // TODO: how to handle non-builtin types here?
-                IType paramDSLType = getBuiltInDSLType(parameter.getType());
-                if (null == paramDSLType) {
+                Type parametersType = parameter.getType();
+
+                currentLookedUpClasses.add(forType);
+                IType paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, parametersType);
+                currentLookedUpClasses.remove(forType);
+
+                if (paramDSLType == null) {
+                    // it does not work on Generic Classes here...
+                    var parametersAnnotatedType = parameter.getAnnotatedType();
                     currentLookedUpClasses.add(forType);
-                    paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, forType);
+
+                    // if the cast fails, the type may be a parameterized type (e.g. list or set)
+                    if (List.class.isAssignableFrom((Class<?>) parametersType)) {
+                        paramDSLType = createListType((ParameterizedType) parametersAnnotatedType.getType(), parentScope);
+                    } else if (Set.class.isAssignableFrom((Class<?>)parametersType)) {
+                        paramDSLType = createSetType((ParameterizedType) parametersAnnotatedType.getType(), parentScope);
+                    }
+
                     currentLookedUpClasses.remove(forType);
                 }
                 Symbol parameterSymbol = new Symbol(parameterName, typeAdapter, paramDSLType);
@@ -236,12 +275,12 @@ public class TypeBuilder {
         }
     }
 
-    public Set<Map.Entry<Class<?>, Method>> getRegisteredTypeAdapters() {
+    public Set<Map.Entry<Class<?>, List<Method>>> getRegisteredTypeAdapters() {
         return this.typeAdapters.entrySet();
     }
 
-    public Method getRegisteredTypeAdapter(Class<?> clazz) {
-        return this.typeAdapters.getOrDefault(clazz, null);
+    public List<Method> getRegisteredTypeAdaptersForType(Class<?> clazz) {
+        return this.typeAdapters.getOrDefault(clazz, new ArrayList<>());
     }
 
     protected IType bindOrResolveTypeInScope(IType type, IScope scope) {
@@ -383,6 +422,7 @@ public class TypeBuilder {
         try {
             clazz = (Class<?>) type;
         } catch (ClassCastException ex) {
+            // TODO: this won't work for ArrayList..
             if (type instanceof ParameterizedType parameterizedType) {
                 var rawType = parameterizedType.getRawType();
                 try {

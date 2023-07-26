@@ -197,6 +197,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
             return new ListValue((ListType) type);
         } else if (type.getTypeKind().equals(IType.Kind.SetType)) {
             return new SetValue((SetType) type);
+        } else if (type.getTypeKind().equals(IType.Kind.FunctionType)) {
+            return Value.NONE;
         }
         return Value.NONE;
     }
@@ -404,6 +406,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
             //  the Task-Type?
             TypeInstantiator ti = this.environment.getTypeInstantiator();
             return ti.instantiate((AggregateType) type, ms);
+
+            // hard code it for now
         }
         return null;
     }

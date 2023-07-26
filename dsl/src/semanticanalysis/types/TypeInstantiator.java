@@ -34,6 +34,7 @@ public class TypeInstantiator {
      * @param ms the memory space containing the values
      * @return the instantiated object
      */
+    // TODO: this should just take value..
     public Object instantiate(AggregateType type, IMemorySpace ms) {
         var originalJavaClass = type.getOriginType();
         if (null == originalJavaClass) {
@@ -110,6 +111,7 @@ public class TypeInstantiator {
         Object convertedObject = value.getInternalValue();
         try {
             var fieldsDataType = value.getDataType();
+            // TODO: how to handle plain aggregateValue here?
             if (fieldsDataType.getTypeKind().equals(IType.Kind.PODAdapted)) {
                 // call builder -> the type instantiator needs a reference to the
                 // builder or to the
@@ -213,6 +215,8 @@ public class TypeInstantiator {
                     "Could not find a suitable constructor to instantiate class "
                             + originalJavaClass.getName());
         }
+
+        // TODO: this does not take into account, that we maybe want to use a typeAdapter on this level!
 
         Object instance;
         try {

@@ -59,7 +59,7 @@ public class GameEnvironment implements IEvironment {
                     AIComponent.class,
                     CollideComponent.class,
                     Task.class,
-                    SingleChoiceTask.class,
+                    //SingleChoiceTask.class,
                     Quiz.Content.class
                 };
     }
@@ -94,6 +94,7 @@ public class GameEnvironment implements IEvironment {
         /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
          * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
         // typeBuilder.registerTypeAdapter(AnimationBuilder.class, Scope.NULL);
+        typeBuilder.registerTypeAdapter(SingleChoiceTask.class, this.globalScope);
     }
 
     protected void registerDefaultRuntimeObjectTranslators() {
