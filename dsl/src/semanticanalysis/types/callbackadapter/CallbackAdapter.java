@@ -86,12 +86,6 @@ public class CallbackAdapter implements Consumer, TriConsumer {
     }
 
     // region interface implementation
-    /*@Override
-    public Object apply(Object o) {
-        return this.call(o);
-    }
-     */
-
     @Override
     public void accept(Object o) {
         this.call(o);
@@ -101,13 +95,6 @@ public class CallbackAdapter implements Consumer, TriConsumer {
     public void accept(Object o, Object o2, Object o3) {
         this.call(o, o2, o3);
     }
-
-    /*
-    @Override
-    public Object apply(Object o, Object o2) {
-        return this.call(o, o2);
-    }
-     */
     // endregion
 }
 
