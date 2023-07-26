@@ -44,6 +44,7 @@ public class ItemData implements CraftingIngredient, CraftingResult {
      * creates a new item data object.
      *
      * @param item Enum entry describing item.
+     * @param count Number of items on stack.
      * @param onCollect Functional interface defining behaviour when item is collected.
      * @param onDrop Functional interface defining behaviour when item is dropped.
      * @param onUse Functional interface defining behaviour when item is used.
@@ -51,16 +52,17 @@ public class ItemData implements CraftingIngredient, CraftingResult {
      */
     public ItemData(
             Item item,
+            int count,
             BiConsumer<Entity, Entity> onCollect,
             TriConsumer<Entity, ItemData, Point> onDrop,
             BiConsumer<Entity, ItemData> onUse,
             DamageModifier damageModifier) {
         this.item = item;
+        this.count = count;
         this.onCollect = onCollect;
         this.onDrop = onDrop;
         this.onUse = onUse;
         this.damageModifier = damageModifier;
-        this.count = 1;
     }
 
     /**
@@ -71,10 +73,22 @@ public class ItemData implements CraftingIngredient, CraftingResult {
     public ItemData(Item item) {
         this(
                 item,
+                1,
                 ItemData::defaultCollect,
                 ItemData::defaultDrop,
                 ItemData::defaultUseCallback,
                 new DamageModifier());
+    }
+
+    /**
+     * Creates a new item data object. With a basic handling of collecting, dropping and using.
+     *
+     * @param item Enum entry describing item.
+     * @param count Number of items on stack.
+     */
+    public ItemData(Item item, int count) {
+        this(item);
+        this.count = count;
     }
 
     /** Constructing object with completely default values. Taken from {@link ItemConfig}. */
