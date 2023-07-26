@@ -98,10 +98,10 @@ public class Helpers {
         return symbolTableParser.walk(ast);
     }
 
-    public static void bindDefaultValueInMemorySpace(Symbol symbol, MemorySpace ms) {
-        var defaultValue = Value.getDefaultValue(symbol.getDataType());
-        var value = new Value(symbol.getDataType(), defaultValue);
-        ms.bindValue(symbol.getName(), value);
+    public static void bindDefaultValueInMemorySpace(Symbol symbol, MemorySpace ms, DSLInterpreter interpreter) {
+        var defaultValue = interpreter.createDefaultValue(symbol.getDataType());
+        //var value = new Value(symbol.getDataType(), defaultValue);
+        ms.bindValue(symbol.getName(), defaultValue);
     }
 
     /**

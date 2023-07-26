@@ -1,5 +1,7 @@
 package task;
 
+import semanticanalysis.types.DSLType;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -19,6 +21,7 @@ import java.util.stream.Stream;
  * <p>Each task is associated with a {@link TaskComponent} that handles the meta-control of the
  * task.
  */
+@DSLType
 public abstract class Task {
     private static final String DEFAULT_TASK_TEXT = "No task description provided";
     private static final TaskState DEFAULT_TASK_STATE = TaskState.INACTIVE;

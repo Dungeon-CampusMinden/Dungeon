@@ -2,6 +2,8 @@ package task.quizquestion;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
+import semanticanalysis.types.DSLType;
+import semanticanalysis.types.DSLTypeMember;
 import task.Task;
 import task.TaskContent;
 
@@ -115,10 +117,11 @@ public class Quiz extends Task {
      *
      * <p>Is used as answer and question for a {@link Quiz}.
      */
+    @DSLType
     public static class Content extends TaskContent {
 
         private final Image image;
-        private final String content;
+        @DSLTypeMember private final String content;
 
         private final Type type;
 

@@ -17,6 +17,7 @@ import semanticanalysis.Scope;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class TestTypeInstantiator {
     @Test
@@ -30,6 +31,7 @@ public class TestTypeInstantiator {
 
         TypeBuilder tb = new TypeBuilder();
         Scope scope = new Scope();
+        DSLInterpreter interpreter = new DSLInterpreter();
         var type = (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, QuestConfig.class);
 
         // the fieldName does not necessary match the member name in the created DSLType, so store a
@@ -40,7 +42,10 @@ public class TestTypeInstantiator {
 
         int memberCounter = 0;
         for (var member : type.getSymbols()) {
-            Helpers.bindDefaultValueInMemorySpace(member, ms);
+            if (Objects.equals(member.getName(), "tasks")) {
+                boolean b = true;
+            }
+            Helpers.bindDefaultValueInMemorySpace(member, ms, interpreter);
 
             if (member.getDataType().equals(BuiltInType.intType)) {
                 setValues.put(member.getName(), memberCounter);
@@ -57,7 +62,7 @@ public class TestTypeInstantiator {
             memberCounter++;
         }
 
-        DSLInterpreter interpreter = new DSLInterpreter();
+        //DSLInterpreter interpreter = new DSLInterpreter();
         TypeInstantiator ti = new TypeInstantiator(interpreter);
         var instance = ti.instantiate(type, ms);
 
@@ -88,6 +93,7 @@ public class TestTypeInstantiator {
         MemorySpace ms = new MemorySpace();
         HashMap<String, Object> setValues = new HashMap<>();
 
+        DSLInterpreter interpreter = new DSLInterpreter();
         TypeBuilder tb = new TypeBuilder();
         Scope scope = new Scope();
         var type = (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, TestClassOuter.class);
@@ -100,7 +106,7 @@ public class TestTypeInstantiator {
 
         int memberCounter = 0;
         for (var member : type.getSymbols()) {
-            Helpers.bindDefaultValueInMemorySpace(member, ms);
+            Helpers.bindDefaultValueInMemorySpace(member, ms, interpreter);
             if (member.getDataType().equals(BuiltInType.intType)) {
                 setValues.put(member.getName(), memberCounter);
                 ms.resolve(member.getName()).setInternalValue(memberCounter);
@@ -116,7 +122,7 @@ public class TestTypeInstantiator {
             memberCounter++;
         }
 
-        DSLInterpreter interpreter = new DSLInterpreter();
+        //DSLInterpreter interpreter = new DSLInterpreter();
         TypeInstantiator ti = new TypeInstantiator(interpreter);
         var instance = ti.instantiate(type, ms);
 
