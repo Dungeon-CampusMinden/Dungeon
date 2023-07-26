@@ -3,17 +3,14 @@ package contrib.utils.components.item;
 import static org.junit.Assert.*;
 
 import contrib.components.InventoryComponent;
-import contrib.configuration.ItemConfig;
 
 import core.Entity;
 import core.Game;
-import core.utils.components.draw.Animation;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
 import java.util.function.BiConsumer;
 
 public class ItemDataTest {
@@ -25,33 +22,13 @@ public class ItemDataTest {
     @Test
     public void testDefaultConstructor() {
         ItemData itemData = new ItemData();
-        assertEquals(ItemConfig.NAME.value(), itemData.itemName());
-        assertEquals(ItemConfig.DESCRIPTION.value(), itemData.description());
-        assertEquals(ItemConfig.TYPE.value(), itemData.itemType());
-        // assertEquals(ItemData.DEFAULT_WORLD_ANIMATION, itemData.getWorldTexture());
-        // assertEquals(ItemData.DEFAULT_INVENTORY_ANIMATION, itemData.getInventoryTexture());
+        assertEquals(Item.DEFAULT_ITEM, itemData.item());
     }
 
     @Test
     public void testParameterConstructor() {
-        ItemType type = ItemType.Basic;
-        String inventoryTexture = "InventoryTexture";
-        String worldTexture = "WorldTexture";
-        String item_name = "r Item Name";
-        String item_description = "r Item Description";
-        ItemData itemData =
-                new ItemData(
-                        type,
-                        new Animation(List.of(inventoryTexture), 1),
-                        new Animation(List.of(worldTexture), 1),
-                        item_name,
-                        item_description);
-
-        assertEquals(type, itemData.itemType());
-        assertEquals(inventoryTexture, itemData.inventoryTexture().nextAnimationTexturePath());
-        assertEquals(worldTexture, itemData.worldTexture().nextAnimationTexturePath());
-        assertEquals(item_name, itemData.itemName());
-        assertEquals(item_description, itemData.description());
+        ItemData itemData = new ItemData(Item.RESOURCE_FLOWER_RED);
+        assertEquals(Item.RESOURCE_FLOWER_RED, itemData.item());
     }
 
     // <p> Since we cant update the {@link Game#entities} from outside the gameloop, this is

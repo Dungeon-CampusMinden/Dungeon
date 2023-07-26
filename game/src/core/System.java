@@ -105,7 +105,7 @@ public abstract class System {
      *     component will be ignored.
      */
     public System(Class<? extends Component> keyComponent) {
-        this(keyComponent, null);
+        this(keyComponent, new Class[] {});
     }
 
     /** Implements the functionality of the system. */

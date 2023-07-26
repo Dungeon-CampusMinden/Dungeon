@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
 import contrib.components.InteractionComponent;
-import contrib.configuration.ItemConfig;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
 
@@ -57,8 +56,7 @@ public class WizardQuizTest {
         Game.loadConfig(
                 "dungeon_config.json",
                 contrib.configuration.KeyboardConfig.class,
-                core.configuration.KeyboardConfig.class,
-                ItemConfig.class);
+                core.configuration.KeyboardConfig.class);
         Game.frameRate(30);
         Game.userOnFrame(
                 () -> {
@@ -89,7 +87,12 @@ public class WizardQuizTest {
         new DrawComponent(wizard, "character/wizard");
         new TaskComponent(wizard, question);
         new InteractionComponent(
-                wizard, 1, false, UIAnswerCallback.askOnInteraction(question, showAnswersOnHud()));
+                wizard,
+                1,
+                false,
+                (entity, who) ->
+                        UIAnswerCallback.askOnInteraction(question, showAnswersOnHud())
+                                .accept(entity));
     }
 
     private static Consumer<Set<TaskContent>> showAnswersOnHud() {

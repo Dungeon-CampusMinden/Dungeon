@@ -18,6 +18,7 @@
 *.bak
 .DS_Store
 ._*
+desktop.ini
 
 
 # Temporary directory #

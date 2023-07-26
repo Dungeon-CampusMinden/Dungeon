@@ -1,6 +1,5 @@
 package starter;
 
-import contrib.configuration.ItemConfig;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
@@ -21,8 +20,7 @@ public class Main {
         Game.loadConfig(
                 "dungeon_config.json",
                 contrib.configuration.KeyboardConfig.class,
-                core.configuration.KeyboardConfig.class,
-                ItemConfig.class);
+                core.configuration.KeyboardConfig.class);
         Game.frameRate(30);
         Game.disableAudio(true);
         Game.userOnLevelLoad(

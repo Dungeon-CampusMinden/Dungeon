@@ -1,42 +1,36 @@
 package contrib.utils.components.item;
 
-import contrib.components.CollideComponent;
+import com.badlogic.gdx.utils.JsonValue;
+
 import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
-import contrib.configuration.ItemConfig;
+import contrib.crafting.CraftingIngredient;
+import contrib.crafting.CraftingResult;
+import contrib.crafting.CraftingType;
+import contrib.entities.WorldItemBuilder;
 import contrib.utils.components.stats.DamageModifier;
 
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
-import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Animation;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 /**
  * A Class which contains the Information of a specific Item.
- *
- * <p>It contains the {@link #itemType}, animations / textures for inside the hero inventory ({@link
- * #inventoryTexture}) or in the world ({@link #worldTexture}), as well as the {@link #itemName} and
- * a {@link #description}.
  *
  * <p>It holds the method references for collecting ({@link #onCollect}), dropping ({@link #onDrop})
  * and using ({@link #onUse}) items as functional Interfaces.
  *
  * <p>Lastly it holds a {@link #damageModifier}
  */
-public final class ItemData {
-    private final ItemType itemType;
-    private final Animation inventoryTexture;
-    private final Animation worldTexture;
-    private final String itemName;
-    private final String description;
+public class ItemData implements CraftingIngredient, CraftingResult {
 
+    private Item item;
+    private int count; // Number of items on stack
     private BiConsumer<Entity, Entity> onCollect;
     private TriConsumer<Entity, ItemData, Point> onDrop;
     // active
@@ -48,72 +42,57 @@ public final class ItemData {
     /**
      * creates a new item data object.
      *
-     * @param itemType Enum entry describing item type.
-     * @param inventoryTexture Animation that is played inside the hero inventory.
-     * @param worldTexture Animation that is played while item is dropped in the world.
-     * @param itemName String defining name of item.
-     * @param description String giving a description of the item
+     * @param item Enum entry describing item.
+     * @param count Number of items on stack.
      * @param onCollect Functional interface defining behaviour when item is collected.
      * @param onDrop Functional interface defining behaviour when item is dropped.
      * @param onUse Functional interface defining behaviour when item is used.
      * @param damageModifier Defining if dealt damage is altered.
      */
     public ItemData(
-            final ItemType itemType,
-            final Animation inventoryTexture,
-            final Animation worldTexture,
-            final String itemName,
-            final String description,
-            final BiConsumer<Entity, Entity> onCollect,
-            final TriConsumer<Entity, ItemData, Point> onDrop,
-            final BiConsumer<Entity, ItemData> onUse,
-            final DamageModifier damageModifier) {
-        this.itemType = itemType;
-        this.inventoryTexture = inventoryTexture;
-        this.worldTexture = worldTexture;
-        this.itemName = itemName;
-        this.description = description;
-        this.onCollect(onCollect);
-        this.onDrop(onDrop);
-        this.onUse(onUse);
+            Item item,
+            int count,
+            BiConsumer<Entity, Entity> onCollect,
+            TriConsumer<Entity, ItemData, Point> onDrop,
+            BiConsumer<Entity, ItemData> onUse,
+            DamageModifier damageModifier) {
+        this.item = item;
+        this.count = count;
+        this.onCollect = onCollect;
+        this.onDrop = onDrop;
+        this.onUse = onUse;
         this.damageModifier = damageModifier;
     }
 
     /**
      * creates a new item data object. With a basic handling of collecting, dropping and using.
      *
-     * @param itemType Enum entry describing item type.
-     * @param inventoryTexture Animation that is played inside the hero inventory.
-     * @param worldTexture Animation that is played while item is dropped in the world.
-     * @param itemName String defining name of item.
-     * @param description String giving a description of the item
+     * @param item Enum entry describing item.
      */
-    public ItemData(
-            final ItemType itemType,
-            final Animation inventoryTexture,
-            final Animation worldTexture,
-            final String itemName,
-            final String description) {
+    public ItemData(Item item) {
         this(
-                itemType,
-                inventoryTexture,
-                worldTexture,
-                itemName,
-                description,
+                item,
+                1,
                 ItemData::defaultCollect,
                 ItemData::defaultDrop,
                 ItemData::defaultUseCallback,
                 new DamageModifier());
     }
 
-    /** Constructing object with completely default values. Taken from {@link ItemConfig}. */
+    /**
+     * Creates a new item data object. With a basic handling of collecting, dropping and using.
+     *
+     * @param item Enum entry describing item.
+     * @param count Number of items on stack.
+     */
+    public ItemData(Item item, int count) {
+        this(item);
+        this.count = count;
+    }
+
+    /** Constructing object with completely default values. */
     public ItemData() {
-        this(
-                ItemConfig.TYPE.value(),
-                new Animation(List.of(ItemConfig.TEXTURE.value()), 1),
-                new Animation(List.of(ItemConfig.TEXTURE.value()), 1),
-                ItemConfig.NAME.value(),
-                ItemConfig.DESCRIPTION.value());
+        this(Item.DEFAULT_ITEM);
     }
 
     /**
@@ -146,38 +125,12 @@ public final class ItemData {
     }
 
     /**
-     * @return The current itemType.
+     * Get the {@link Item item} of this ItemData. This is the enum entry describing the item.
+     *
+     * @return Get the item of this ItemData.
      */
-    public ItemType itemType() {
-        return itemType;
-    }
-
-    /**
-     * @return The current inventory animation
-     */
-    public Animation inventoryTexture() {
-        return inventoryTexture;
-    }
-
-    /**
-     * @return The current world animation
-     */
-    public Animation worldTexture() {
-        return worldTexture;
-    }
-
-    /**
-     * @return The current item name.
-     */
-    public String itemName() {
-        return itemName;
-    }
-
-    /**
-     * @return The current item description.
-     */
-    public String description() {
-        return description;
+    public Item item() {
+        return this.item;
     }
 
     /**
@@ -185,11 +138,15 @@ public final class ItemData {
      * inventory.
      *
      * @param e Entity that uses the item
-     * @param item Item that is used
+     * @param itemData Item that is used
      */
-    private static void defaultUseCallback(Entity e, ItemData item) {
-        e.fetch(InventoryComponent.class).ifPresent(component -> component.remove(item));
-        System.out.printf("Item \"%s\" used by entity %d\n", item.itemName(), e.id());
+    private static void defaultUseCallback(Entity e, ItemData itemData) {
+        e.fetch(InventoryComponent.class)
+                .ifPresent(
+                        component -> {
+                            component.remove(itemData);
+                        });
+        System.out.printf("Item \"%s\" used by entity %d\n", itemData.item().displayName(), e.id());
     }
 
     /**
@@ -200,11 +157,7 @@ public final class ItemData {
      * @param position Position where to drop the item.
      */
     private static void defaultDrop(Entity who, ItemData which, Point position) {
-        Entity droppedItem = new Entity();
-        new PositionComponent(droppedItem, position);
-        new DrawComponent(droppedItem, which.worldTexture());
-        CollideComponent component = new CollideComponent(droppedItem);
-        component.collideEnter((a, b, direction) -> which.triggerCollect(a, b));
+        WorldItemBuilder.buildWorldItem(which, position);
     }
 
     /**
@@ -215,6 +168,10 @@ public final class ItemData {
      */
     private static void defaultCollect(Entity worldItem, Entity whoCollected) {
         // check if the Game has a Hero
+
+        Optional<ItemComponent> itemComp = worldItem.fetch(ItemComponent.class);
+        if (itemComp.isEmpty()) return;
+
         Game.hero()
                 .ifPresent(
                         hero -> {
@@ -223,25 +180,13 @@ public final class ItemData {
                                 // check if Hero has an Inventory Component
                                 hero.fetch(InventoryComponent.class)
                                         .ifPresent(
-                                                (x) -> {
+                                                (invComp) -> {
                                                     // check if Item can be added to hero Inventory
-                                                    if ((x)
-                                                            .add(
-                                                                    worldItem
-                                                                            .fetch(
-                                                                                    ItemComponent
-                                                                                            .class)
-                                                                            .orElseThrow(
-                                                                                    () ->
-                                                                                            MissingComponentException
-                                                                                                    .build(
-                                                                                                            worldItem,
-                                                                                                            ItemComponent
-                                                                                                                    .class))
-                                                                            .itemData()))
+                                                    if (invComp.add(itemComp.get().itemData()))
                                                         // if added to hero Inventory
                                                         // remove Item from World
                                                         Game.removeEntity(worldItem);
+                                                    System.out.println("Item collected");
                                                 });
                             }
                         });
@@ -293,5 +238,56 @@ public final class ItemData {
      */
     public void onUse(BiConsumer<Entity, ItemData> onUse) {
         this.onUse = onUse;
+    }
+
+    // ###              ###
+    // ###   CRAFTING   ###
+    // ###              ###
+
+    @Override
+    public CraftingType ingredientType() {
+        return CraftingType.ITEM;
+    }
+
+    @Override
+    public boolean match(CraftingIngredient input) {
+        if (input.ingredientType() != this.ingredientType()
+                || !(input instanceof ItemData inputItem)) {
+            return false;
+        }
+        if (inputItem.item != this.item) {
+            return false;
+        }
+        if (inputItem.count < this.count) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void parseCraftingIngredient(JsonValue value) {
+        this.item = Item.valueOf(value.getString("id").toUpperCase());
+        this.count = value.getInt("count", 1);
+    }
+
+    @Override
+    public CraftingType resultType() {
+        return CraftingType.ITEM;
+    }
+
+    @Override
+    public void executeCrafting(Entity entity) {
+        entity.fetch(InventoryComponent.class)
+                .ifPresentOrElse(
+                        inv -> inv.add(this),
+                        () -> {
+                            throw MissingComponentException.build(entity, InventoryComponent.class);
+                        });
+    }
+
+    @Override
+    public void parseCraftingResult(JsonValue value) {
+        this.item = Item.valueOf(value.getString("id").toUpperCase());
+        this.count = value.getInt("count", 1);
     }
 }

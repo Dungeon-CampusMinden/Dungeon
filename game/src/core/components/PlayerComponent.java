@@ -26,7 +26,10 @@ import java.util.function.Consumer;
  * @see core.systems.PlayerSystem
  */
 public final class PlayerComponent extends Component {
-    private final Map<Integer, Consumer<Entity>> callbacks;
+
+    public record InputData(boolean repeat, Consumer<Entity> callback) {}
+
+    private final Map<Integer, InputData> callbacks;
 
     /**
      * Create a new PlayerComponent and add it to the associated entity.
@@ -43,6 +46,9 @@ public final class PlayerComponent extends Component {
      *
      * <p>If a callback is already registered on this key, the old callback will be replaced.
      *
+     * <p>The callback will be executed repeatedly while the key is pressed. Use {@link
+     * #registerCallback(int, Consumer, boolean)} to change this behaviour.
+     *
      * @param key The integer value of the key on which the callback should be executed.
      * @param callback The {@link Consumer} that contains the callback to execute if the key is
      *     pressed.
@@ -50,9 +56,32 @@ public final class PlayerComponent extends Component {
      * @see com.badlogic.gdx.Gdx#input
      */
     public Optional<Consumer<Entity>> registerCallback(int key, final Consumer<Entity> callback) {
-        Optional<Consumer<Entity>> oldCallback = Optional.ofNullable(callbacks.get(key));
-        callbacks.put(key, callback);
-        return oldCallback;
+        Consumer<Entity> oldCallback = null;
+        if (callbacks.containsKey(key)) {
+            oldCallback = callbacks.get(key).callback();
+        }
+        callbacks.put(key, new InputData(true, callback));
+        return Optional.ofNullable(oldCallback);
+    }
+
+    /**
+     * Register a new callback for a key.
+     *
+     * <p>If a callback is already registered on this key, the old callback will be replaced.
+     *
+     * @param key The integer value of the key on which the callback should be executed.
+     * @param callback The {@link Consumer} that contains the callback to execute if the key is
+     * @param repeat If the callback should be executed repeatedly while the key is pressed.
+     * @return Optional<Consumer<Entity>> The old callback, if one was existing. Can be null.
+     */
+    public Optional<Consumer<Entity>> registerCallback(
+            int key, final Consumer<Entity> callback, boolean repeat) {
+        Consumer<Entity> oldCallback = null;
+        if (callbacks.containsKey(key)) {
+            oldCallback = callbacks.get(key).callback();
+        }
+        callbacks.put(key, new InputData(repeat, callback));
+        return Optional.ofNullable(oldCallback);
     }
 
     /**
@@ -70,7 +99,10 @@ public final class PlayerComponent extends Component {
         callbacks.forEach(this::execute);
     }
 
-    private void execute(int key, final Consumer<Entity> callback) {
-        if (Gdx.input.isKeyPressed(key)) callback.accept(entity);
+    private void execute(int key, final InputData data) {
+        if ((!data.repeat() && Gdx.input.isKeyJustPressed(key))
+                || (data.repeat() && Gdx.input.isKeyPressed(key))) {
+            data.callback().accept(entity);
+        }
     }
 }

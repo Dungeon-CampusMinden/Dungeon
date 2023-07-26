@@ -74,6 +74,15 @@ public final class Animation {
     }
 
     /**
+     * Creates an animation containing only one frame. repeats forever
+     *
+     * @param animationFrame The texture that builds the animation.
+     */
+    public Animation(String animationFrame) {
+        this(Set.of(animationFrame), 1, true);
+    }
+
+    /**
      * Create an animation from the files in the given path and the given configuration.
      *
      * <p>Will sort the the textures in lexicographic order. This is the order in which the
@@ -108,6 +117,27 @@ public final class Animation {
      */
     public static Animation of(File subDir) {
         return Animation.of(subDir, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP);
+    }
+
+    /**
+     * Create an animation from single frame and the default configuration.
+     *
+     * @param fileName path to the frame
+     * @return The created Animation instance
+     */
+    public static Animation of(String fileName) {
+        return new Animation(List.of(fileName), DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP);
+    }
+
+    /**
+     * Create an animation from single frame and the given configuration.
+     *
+     * @param fileName path to the frame
+     * @param frameTime How many frames to wait, before switching to the next texture?
+     * @return The created Animation instance
+     */
+    public static Animation of(String fileName, int frameTime) {
+        return new Animation(List.of(fileName), frameTime, DEFAULT_IS_LOOP);
     }
 
     /**
