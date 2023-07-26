@@ -5,12 +5,14 @@ import core.utils.TriConsumer;
 import dslToGame.graph.Graph;
 
 import semanticanalysis.*;
+import semanticanalysis.types.callbackadapter.BiFunctionFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.ConsumerFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.FunctionFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.IFunctionTypeBuilder;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -36,6 +38,7 @@ public class TypeBuilder {
         functionTypeBuilders.put(Consumer.class, ConsumerFunctionTypeBuilder.instance);
         functionTypeBuilders.put(TriConsumer.class, ConsumerFunctionTypeBuilder.instance);
         functionTypeBuilders.put(Function.class, FunctionFunctionTypeBuilder.instance);
+        functionTypeBuilders.put(BiFunction.class, BiFunctionFunctionTypeBuilder.instance);
     }
 
     public HashMap<Type, IType> getJavaTypeToDSLTypeMap() {
