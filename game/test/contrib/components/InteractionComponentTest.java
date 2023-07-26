@@ -8,7 +8,7 @@ import core.Entity;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class InteractionComponentTest {
 
@@ -26,7 +26,7 @@ public class InteractionComponentTest {
         Entity e = new Entity();
         float radius = 100;
         boolean repeat = true;
-        Consumer<Entity> iInteraction = Mockito.mock(Consumer.class);
+        BiConsumer<Entity, Entity> iInteraction = Mockito.mock(BiConsumer.class);
 
         InteractionComponent component = new InteractionComponent(e, radius, repeat, iInteraction);
 
@@ -36,48 +36,48 @@ public class InteractionComponentTest {
     /** Checks if the iInteraction is called on triggerInteraction */
     @Test
     public void triggerInteractionOnLinkedEntity() {
-        Consumer<Entity> iInteraction = Mockito.mock(Consumer.class);
+        BiConsumer<Entity, Entity> iInteraction = Mockito.mock(BiConsumer.class);
         Entity e = new Entity();
         InteractionComponent component = new InteractionComponent(e, 1, true, iInteraction);
-        component.triggerInteraction();
-        verify(iInteraction).accept(e);
+        component.triggerInteraction(null);
+        verify(iInteraction).accept(e, null);
         assertTrue(e.fetch(InteractionComponent.class).isPresent());
     }
 
     /** Checks if after the interaction the component gets removed */
     @Test
     public void triggerInteractionOnLinkedEntityRemovesComponent() {
-        Consumer<Entity> iInteraction = Mockito.mock(Consumer.class);
+        BiConsumer<Entity, Entity> iInteraction = Mockito.mock(BiConsumer.class);
         Entity e = new Entity();
         InteractionComponent component = new InteractionComponent(e, 1, false, iInteraction);
-        component.triggerInteraction();
-        verify(iInteraction).accept(e);
+        component.triggerInteraction(null);
+        verify(iInteraction).accept(e, null);
         assertFalse(e.fetch(InteractionComponent.class).isPresent());
     }
 
     /** Checks that the interaction only gets triggered for the linked iInteraction */
     @Test
     public void triggerInteractionNonLinkedEntity() {
-        Consumer<Entity> iInteraction = Mockito.mock(Consumer.class);
-        Consumer<Entity> iInteraction2 = Mockito.mock(Consumer.class);
+        BiConsumer<Entity, Entity> iInteraction = Mockito.mock(BiConsumer.class);
+        BiConsumer<Entity, Entity> iInteraction2 = Mockito.mock(BiConsumer.class);
         Entity e = new Entity();
         Entity e2 = new Entity();
         InteractionComponent component = new InteractionComponent(e, 1, true, iInteraction);
         InteractionComponent component2 = new InteractionComponent(e2, 1, true, iInteraction2);
-        component.triggerInteraction();
-        verify(iInteraction2, never()).accept(e);
+        component.triggerInteraction(null);
+        verify(iInteraction2, never()).accept(e, null);
     }
 
     /** Checks that the Component does not ge removed when the interaction was not triggered */
     @Test
     public void triggerInteractionNonLinkedEntityComponentNotRemoved() {
-        Consumer<Entity> iInteraction = Mockito.mock(Consumer.class);
-        Consumer<Entity> iInteraction2 = Mockito.mock(Consumer.class);
+        BiConsumer<Entity, Entity> iInteraction = Mockito.mock(BiConsumer.class);
+        BiConsumer<Entity, Entity> iInteraction2 = Mockito.mock(BiConsumer.class);
         Entity e = new Entity();
         Entity e2 = new Entity();
         InteractionComponent component = new InteractionComponent(e, 1, false, iInteraction);
         InteractionComponent component2 = new InteractionComponent(e2, 1, false, iInteraction2);
-        component.triggerInteraction();
+        component.triggerInteraction(null);
         assertTrue(e2.fetch(InteractionComponent.class).isPresent());
     }
 }

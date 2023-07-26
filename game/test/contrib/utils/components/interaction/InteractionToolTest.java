@@ -106,7 +106,7 @@ public class InteractionToolTest {
         new PositionComponent(e, new Point(10, 10));
 
         SimpleCounter sc_e = new SimpleCounter();
-        new InteractionComponent(e, 5f, false, (x) -> sc_e.inc());
+        new InteractionComponent(e, 5f, false, (x, who) -> sc_e.inc());
 
         InteractionTool.interactWithClosestInteractable(Game.hero().get());
         assertEquals("No interaction should happen", 0, sc_e.getCount());
