@@ -30,6 +30,7 @@ import core.utils.Constants;
 import core.utils.DelayedSet;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 import java.io.IOException;
@@ -502,7 +503,7 @@ public final class Game extends ScreenAdapter {
      * @param c Coordinate from where to get the tile
      * @return the tile at the given coordinate.
      */
-    public static Tile tileAT(Coordinate c) {
+    public static Tile tileAT(Point c) {
         return currentLevel().tileAt(c);
     }
 

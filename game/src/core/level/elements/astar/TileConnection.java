@@ -27,10 +27,10 @@ public class TileConnection implements Connection<Tile> {
         this.to = to;
         this.cost =
                 Vector2.dst(
-                        from.coordinate().x,
-                        from.coordinate().y,
-                        to.coordinate().x,
-                        to.coordinate().y);
+                        from.position().point().x,
+                        from.position().point().y,
+                        to.position().point().x,
+                        to.position().point().y);
     }
 
     @Override

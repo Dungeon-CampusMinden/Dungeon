@@ -173,10 +173,10 @@ public interface ILevel extends ITileable {
         Tile newTile =
                 TileFactory.createTile(
                         TileTextureFactory.findTexturePath(tile, layout(), changeInto),
-                        tile.coordinate(),
+                        tile.position().point(),
                         changeInto,
                         tile.designLabel());
-        level.layout()[tile.coordinate().y][tile.coordinate().x] = newTile;
+        level.layout()[tile.position().point().y_i()][tile.position().point().x_i()] = newTile;
         level.addTile(newTile);
     }
 

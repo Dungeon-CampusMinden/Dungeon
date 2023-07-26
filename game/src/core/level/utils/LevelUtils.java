@@ -26,7 +26,7 @@ public class LevelUtils {
      * @return Path from the start point to the end point.
      */
     public static GraphPath<Tile> calculatePath(final Position from, final Position to) {
-        return calculatePath(from.coordinate().get(), to.coordinate().get());
+        return calculatePath(from.point(), to.point());
     }
 
     /**
@@ -38,7 +38,7 @@ public class LevelUtils {
      * @param to The end coordinate.
      * @return Path from the start coordinate to the end coordinate.
      */
-    public static GraphPath<Tile> calculatePath(final Coordinate from, final Coordinate to) {
+    public static GraphPath<Tile> calculatePath(final Point from, final Point to) {
         return Game.findPath(Game.tileAT(from), Game.tileAT(to));
     }
 
@@ -57,10 +57,10 @@ public class LevelUtils {
      */
     public static GraphPath<Tile> calculatePathToRandomTileInRange(
             final Position position, final float radius) {
-        Coordinate newPosition =
+        Point newPosition =
                 randomAccessibleTileCoordinateInRange(position.point(), radius)
-                        .orElse(position.coordinate().get());
-        return calculatePath(position.coordinate().get(), newPosition);
+                        .orElse(position.point());
+        return calculatePath(position.point(), newPosition);
     }
 
     /**
@@ -191,11 +191,11 @@ public class LevelUtils {
      * @return An Optional containing a random Coordinate object representing an accessible tile
      *     within the range, or an empty Optional if no accessible tiles were found.
      */
-    public static Optional<Coordinate> randomAccessibleTileCoordinateInRange(
+    public static Optional<Point> randomAccessibleTileCoordinateInRange(
             final Point center, final float radius) {
         List<Tile> tiles = accessibleTilesInRange(center, radius);
         if (tiles.isEmpty()) return Optional.empty();
-        Coordinate newPosition = tiles.get(random.nextInt(tiles.size())).coordinate();
+        Point newPosition = tiles.get(random.nextInt(tiles.size())).position().point();
         return Optional.of(newPosition);
     }
 

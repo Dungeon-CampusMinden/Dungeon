@@ -1,6 +1,7 @@
 package contrib.utils.components.interaction;
 
 import core.Game;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 import java.util.function.Function;
@@ -17,7 +18,7 @@ public class ControlPointReachable implements Function<InteractionData, Boolean>
             Position dirvec = interactionData.unitDir();
             for (int i = 1; i < interactionData.dist(); i++) {
                 if (!Game.tileAT(
-                                new Coordinate(
+                                new Point(
                                         (int)
                                                 (dirvec.point().x * i
                                                         + interactionData

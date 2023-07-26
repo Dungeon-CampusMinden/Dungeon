@@ -12,6 +12,7 @@ import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.utils.Constants;
 import core.utils.components.MissingComponentException;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 /**
@@ -51,7 +52,7 @@ public final class CameraSystem extends System {
 
     private void focus() {
         Position focusPosition;
-        if (Game.currentLevel() == null) focusPosition = new Coordinate(0, 0);
+        if (Game.currentLevel() == null) focusPosition = new Point(0, 0);
         else focusPosition = Game.startTile().position();
         focus(focusPosition);
     }

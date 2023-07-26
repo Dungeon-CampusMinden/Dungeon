@@ -6,6 +6,7 @@ import core.level.generator.IGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+import core.utils.position.Point;
 
 import java.util.Random;
 
@@ -114,8 +115,8 @@ public class PerlinNoiseGenerator implements IGenerator {
             }
         }
         // pick random floor tile as exit
-        Coordinate c = randomFloorFrom(res, random);
-        res[c.y][c.x] = LevelElement.EXIT;
+        Point c = randomFloorFrom(res, random);
+        res[c.y_i()][c.x_i()] = LevelElement.EXIT;
         return res;
     }
 
@@ -137,10 +138,10 @@ public class PerlinNoiseGenerator implements IGenerator {
         };
     }
 
-    private static Coordinate randomFloorFrom(LevelElement[][] layout, Random random) {
-        Coordinate coordinate =
-                new Coordinate(random.nextInt(layout[0].length), random.nextInt(layout.length));
-        LevelElement randomTile = layout[coordinate.y][coordinate.x];
+    private static Point randomFloorFrom(LevelElement[][] layout, Random random) {
+        Point coordinate =
+                new Point(random.nextInt(layout[0].length), random.nextInt(layout.length));
+        LevelElement randomTile = layout[coordinate.y_i()][coordinate.x_i()];
         if (randomTile == LevelElement.FLOOR) {
             return coordinate;
         } else {

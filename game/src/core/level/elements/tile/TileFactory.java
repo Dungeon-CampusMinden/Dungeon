@@ -4,12 +4,13 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.position.Point;
 
 public class TileFactory {
 
     private static Tile createTile(
             String texturePath,
-            Coordinate coordinate,
+            Point coordinate,
             LevelElement elementType,
             DesignLabel designLabel,
             ILevel level) {
@@ -34,7 +35,7 @@ public class TileFactory {
      */
     public static Tile createTile(
             String texturePath,
-            Coordinate coordinate,
+            Point coordinate,
             LevelElement elementType,
             DesignLabel designLabel) {
         return createTile(texturePath, coordinate, elementType, designLabel, null);

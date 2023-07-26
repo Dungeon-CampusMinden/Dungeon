@@ -6,6 +6,7 @@ import core.level.room.IRoom;
 import core.level.room.RoomGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
+import core.utils.position.Point;
 
 import java.util.LinkedHashSet;
 
@@ -89,31 +90,31 @@ public class GraphLevel {
     private DoorTile[] findDoorsInRoom(IRoom room) {
         DoorTile[] doorsInOrder = new DoorTile[4];
         for (DoorTile door : room.doors()) {
-            if (isAccessible(door.coordinate(), room.layout(), DoorDirection.DOWN)) {
+            if (isAccessible(door.position().point(), room.layout(), DoorDirection.DOWN)) {
                 doorsInOrder[DoorDirection.UP.value()] = door;
-            } else if (isAccessible(door.coordinate(), room.layout(), DoorDirection.LEFT)) {
+            } else if (isAccessible(door.position().point(), room.layout(), DoorDirection.LEFT)) {
                 doorsInOrder[DoorDirection.RIGHT.value()] = door;
-            } else if (isAccessible(door.coordinate(), room.layout(), DoorDirection.RIGHT)) {
+            } else if (isAccessible(door.position().point(), room.layout(), DoorDirection.RIGHT)) {
                 doorsInOrder[DoorDirection.LEFT.value()] = door;
-            } else if (isAccessible(door.coordinate(), room.layout(), DoorDirection.UP)) {
+            } else if (isAccessible(door.position().point(), room.layout(), DoorDirection.UP)) {
                 doorsInOrder[DoorDirection.DOWN.value()] = door;
             }
         }
         return doorsInOrder;
     }
 
-    private boolean isAccessible(Coordinate c, Tile[][] layout, DoorDirection direction) {
+    private boolean isAccessible(Point c, Tile[][] layout, DoorDirection direction) {
         try {
 
             switch (direction) {
                 case UP:
-                    return layout[c.y + 1][c.x].isAccessible();
+                    return layout[c.y_i() + 1][c.x_i()].isAccessible();
                 case DOWN:
-                    return layout[c.y - 1][c.x].isAccessible();
+                    return layout[c.y_i() - 1][c.x_i()].isAccessible();
                 case LEFT:
-                    return layout[c.y][c.x - 1].isAccessible();
+                    return layout[c.y_i()][c.x_i() - 1].isAccessible();
                 case RIGHT:
-                    return layout[c.y][c.x + 1].isAccessible();
+                    return layout[c.y_i()][c.x_i() + 1].isAccessible();
                 default:
                     return false;
             }
@@ -124,20 +125,20 @@ public class GraphLevel {
 
     private void findDoorstep(DoorTile door, DoorDirection direction, IRoom room) {
         Tile doorstep = null;
-        Coordinate doorCoordinate = door.coordinate();
+        Point doorCoordinate = door.position().point();
         Tile[][] layout = room.layout();
         switch (direction) {
             case UP:
-                doorstep = layout[doorCoordinate.y - 1][doorCoordinate.x];
+                doorstep = layout[doorCoordinate.y_i() - 1][doorCoordinate.x_i()];
                 break;
             case RIGHT:
-                doorstep = layout[doorCoordinate.y][doorCoordinate.x - 1];
+                doorstep = layout[doorCoordinate.y_i()][doorCoordinate.x_i() - 1];
                 break;
             case LEFT:
-                doorstep = layout[doorCoordinate.y][doorCoordinate.x + 1];
+                doorstep = layout[doorCoordinate.y_i()][doorCoordinate.x_i() + 1];
                 break;
             case DOWN:
-                doorstep = layout[doorCoordinate.y + 1][doorCoordinate.x];
+                doorstep = layout[doorCoordinate.y_i() + 1][doorCoordinate.x_i()];
                 break;
         }
         if (doorstep == null) throw new NullPointerException("DoorStep not found");

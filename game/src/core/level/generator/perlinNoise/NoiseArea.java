@@ -1,5 +1,7 @@
 package core.level.generator.perlinNoise;
 
+import core.utils.position.Point;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -133,7 +135,7 @@ public class NoiseArea {
                                             values.min,
                                             values.max,
                                             values.noiseValues,
-                                            new Coordinate(x, y),
+                                            new Point(x, y),
                                             values.outerBound));
                     alRes.add(new NoiseArea(isContained));
                 }
@@ -146,21 +148,21 @@ public class NoiseArea {
     private static boolean[][] floodFill(final NoiseAreaValues values) {
         final boolean[][] res =
                 new boolean[values.noiseValues.length][values.noiseValues[0].length];
-        final ArrayList<Coordinate> queue = new ArrayList<>();
+        final ArrayList<Point> queue = new ArrayList<>();
         queue.add(values.startField);
 
         while (!queue.isEmpty()) {
-            final Coordinate aktFeld = queue.remove(0);
-            final int x = aktFeld.x;
-            final int y = aktFeld.y;
+            final Point aktFeld = queue.remove(0);
+            final int x = aktFeld.x_i();
+            final int y = aktFeld.y_i();
 
             if (checkBound(values.noiseValues[x][y], values) && !res[x][y]) {
                 res[x][y] = true;
 
-                if (x > 0) queue.add(new Coordinate(x - 1, y));
-                if (x < values.noiseValues.length - 1) queue.add(new Coordinate(x + 1, y));
-                if (y > 0) queue.add(new Coordinate(x, y - 1));
-                if (y < values.noiseValues[x].length - 1) queue.add(new Coordinate(x, y + 1));
+                if (x > 0) queue.add(new Point(x - 1, y));
+                if (x < values.noiseValues.length - 1) queue.add(new Point(x + 1, y));
+                if (y > 0) queue.add(new Point(x, y - 1));
+                if (y < values.noiseValues[x].length - 1) queue.add(new Point(x, y + 1));
             }
         }
         return res;

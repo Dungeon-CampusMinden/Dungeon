@@ -16,10 +16,14 @@ public class Point implements Position {
         y = oldPoint.point().y;
     }
 
-    @Override
-    public Optional<Coordinate> coordinate() {
-        return Optional.of(new Coordinate(x, y));
+    public int x_i() {
+        return (int)x;
     }
+
+    public int y_i() {
+        return (int)y;
+    }
+
 
     @Override
     public Point point() {

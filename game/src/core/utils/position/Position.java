@@ -3,8 +3,6 @@ package core.utils.position;
 import java.util.Optional;
 
 public interface Position {
-    // tile-based access
-    Optional<Coordinate> coordinate();
 
     // pixel-perfect access
     Point point();

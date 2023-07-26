@@ -1,5 +1,7 @@
 package core.level.generator.perlinNoise;
 
+import core.utils.position.Point;
+
 /**
  * This class serves as a configuration class for the {@link NoiseArea} class.
  *
@@ -10,7 +12,7 @@ public class NoiseAreaValues {
     final double max;
     final double[][] noiseValues;
     final boolean outerBound;
-    final Coordinate startField;
+    final Point startField;
 
     /**
      * @param min lowerBound
@@ -37,7 +39,7 @@ public class NoiseAreaValues {
             final double min,
             final double max,
             final double[][] noiseValues,
-            final Coordinate startField,
+            final Point startField,
             final boolean outerBound) {
         this.min = min;
         this.max = max;

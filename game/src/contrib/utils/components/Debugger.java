@@ -22,6 +22,7 @@ import core.systems.CameraSystem;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
+import core.utils.position.Point;
 import core.utils.position.Position;
 
 import java.io.IOException;
@@ -62,14 +63,14 @@ public class Debugger {
     /** Teleports the Hero to the end of the level, on a neighboring accessible tile if possible. */
     public static void TELEPORT_TO_END() {
         LOGGER.info("TELEPORT TO END");
-        Coordinate endTile = Game.endTile().coordinate();
-        Coordinate[] neighborTiles = {
-            new Coordinate(endTile.x + 1, endTile.y),
-            new Coordinate(endTile.x - 1, endTile.y),
-            new Coordinate(endTile.x, endTile.y + 1),
-            new Coordinate(endTile.x, endTile.y - 1)
+        Point endTile = Game.endTile().position().point();
+        Point[] neighborTiles = {
+            new Point(endTile.x + 1, endTile.y),
+            new Point(endTile.x - 1, endTile.y),
+            new Point(endTile.x, endTile.y + 1),
+            new Point(endTile.x, endTile.y - 1)
         };
-        for (Coordinate neighborTile : neighborTiles) {
+        for (Point neighborTile : neighborTiles) {
             Tile neighbor = Game.tileAT(neighborTile);
             if (neighbor.isAccessible()) {
                 TELEPORT(neighbor);

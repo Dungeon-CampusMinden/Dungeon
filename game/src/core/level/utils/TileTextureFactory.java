@@ -1,6 +1,7 @@
 package core.level.utils;
 
 import core.level.Tile;
+import core.utils.position.Point;
 
 public class TileTextureFactory {
     /**
@@ -15,7 +16,7 @@ public class TileTextureFactory {
             LevelElement element,
             DesignLabel design,
             LevelElement[][] layout,
-            Coordinate position) {}
+            Point position) {}
 
     /**
      * Checks which texture must be used for the passed field based on the surrounding fields.
@@ -81,10 +82,10 @@ public class TileTextureFactory {
                 elementLayout[y][x] = layout[y][x].levelElement();
             }
         }
-        elementLayout[element.coordinate().y][element.coordinate().x] = elementType;
+        elementLayout[element.position().point().y_i()][element.position().point().x_i()] = elementType;
         return findTexturePath(
                 new LevelPart(
-                        elementType, element.designLabel(), elementLayout, element.coordinate()));
+                        elementType, element.designLabel(), elementLayout, element.position().point()));
     }
 
     private static String findTexturePathFloor(LevelPart levelPart) {
@@ -169,7 +170,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if surrounded by walls
      */
-    private static boolean isInSpaceWall(Coordinate p, LevelElement[][] layout) {
+    private static boolean isInSpaceWall(Point p, LevelElement[][] layout) {
         return belowIsWall(p, layout)
                 && aboveIsWall(p, layout)
                 && leftIsWall(p, layout)
@@ -184,7 +185,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isCrossUpperLeftBottomRight(Coordinate p, LevelElement[][] layout) {
+    private static boolean isCrossUpperLeftBottomRight(Point p, LevelElement[][] layout) {
         return (isInSpaceWall(p, layout)
                 && upperLeftIsAccessible(p, layout)
                 && bottomRightIsAccessible(p, layout));
@@ -198,7 +199,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isCrossUpperRightBottomLeft(Coordinate p, LevelElement[][] layout) {
+    private static boolean isCrossUpperRightBottomLeft(Point p, LevelElement[][] layout) {
         return (isInSpaceWall(p, layout)
                 && upperRightIsAccessible(p, layout)
                 && bottomLeftIsAccessible(p, layout));
@@ -212,7 +213,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isBottomLeftOuterCorner(Coordinate p, LevelElement[][] layout) {
+    private static boolean isBottomLeftOuterCorner(Point p, LevelElement[][] layout) {
         return (aboveIsWall(p, layout)
                 && rightIsWall(p, layout)
                 && upperRightIsAccessible(p, layout));
@@ -226,7 +227,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isBottomRightOuterCorner(Coordinate p, LevelElement[][] layout) {
+    private static boolean isBottomRightOuterCorner(Point p, LevelElement[][] layout) {
         return (aboveIsWall(p, layout)
                 && leftIsWall(p, layout)
                 && upperLeftIsAccessible(p, layout));
@@ -240,7 +241,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isUpperRightOuterCorner(Coordinate p, LevelElement[][] layout) {
+    private static boolean isUpperRightOuterCorner(Point p, LevelElement[][] layout) {
         return (belowIsWall(p, layout)
                 && leftIsWall(p, layout)
                 && bottomLeftIsAccessible(p, layout));
@@ -254,7 +255,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isUpperLeftOuterCorner(Coordinate p, LevelElement[][] layout) {
+    private static boolean isUpperLeftOuterCorner(Point p, LevelElement[][] layout) {
         return (belowIsWall(p, layout)
                 && rightIsWall(p, layout)
                 && bottomRightIsAccessible(p, layout));
@@ -269,7 +270,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isBottomLeftInnerCorner(Coordinate p, LevelElement[][] layout) {
+    private static boolean isBottomLeftInnerCorner(Point p, LevelElement[][] layout) {
         return (aboveIsWall(p, layout)
                 && rightIsWall(p, layout)
                 && (leftIsInside(p, layout) && bottomRightIsInside(p, layout)
@@ -286,7 +287,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isBottomRightInnerCorner(Coordinate p, LevelElement[][] layout) {
+    private static boolean isBottomRightInnerCorner(Point p, LevelElement[][] layout) {
         return (aboveIsWall(p, layout)
                 && leftIsWall(p, layout)
                 && (rightIsInside(p, layout) && bottomLeftIsInside(p, layout)
@@ -303,7 +304,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isUpperRightInnerCorner(Coordinate p, LevelElement[][] layout) {
+    private static boolean isUpperRightInnerCorner(Point p, LevelElement[][] layout) {
         return (belowIsWall(p, layout)
                 && leftIsWall(p, layout)
                 && (rightIsInside(p, layout) && upperLeftIsInside(p, layout)
@@ -320,7 +321,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isUpperLeftInnerCorner(Coordinate p, LevelElement[][] layout) {
+    private static boolean isUpperLeftInnerCorner(Point p, LevelElement[][] layout) {
         return (belowIsWall(p, layout)
                 && rightIsWall(p, layout)
                 && (leftIsInside(p, layout) && upperRightIsInside(p, layout)
@@ -336,7 +337,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isRightWall(Coordinate p, LevelElement[][] layout) {
+    private static boolean isRightWall(Point p, LevelElement[][] layout) {
         return (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
                 && (belowIsWall(p, layout) || belowIsDoor(p, layout))
                 && leftIsInside(p, layout);
@@ -350,7 +351,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isLeftWall(Coordinate p, LevelElement[][] layout) {
+    private static boolean isLeftWall(Point p, LevelElement[][] layout) {
         return (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
                 && (belowIsWall(p, layout) || belowIsDoor(p, layout))
                 && rightIsInside(p, layout);
@@ -364,7 +365,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isTopWall(Coordinate p, LevelElement[][] layout) {
+    private static boolean isTopWall(Point p, LevelElement[][] layout) {
         return (leftIsWall(p, layout) || leftIsDoor(p, layout))
                 && (rightIsWall(p, layout) || rightIsDoor(p, layout))
                 && belowIsInside(p, layout);
@@ -378,7 +379,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isBottomWall(Coordinate p, LevelElement[][] layout) {
+    private static boolean isBottomWall(Point p, LevelElement[][] layout) {
         return (leftIsWall(p, layout) || leftIsDoor(p, layout))
                 && (rightIsWall(p, layout) || rightIsDoor(p, layout))
                 && aboveIsInside(p, layout);
@@ -391,9 +392,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if above is a wall
      */
-    private static boolean aboveIsWall(Coordinate p, LevelElement[][] layout) {
+    private static boolean aboveIsWall(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y + 1][p.x] == LevelElement.WALL;
+            return layout[p.y_i() + 1][p.x_i()] == LevelElement.WALL;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -407,9 +408,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if below is a wall
      */
-    private static boolean belowIsWall(Coordinate p, LevelElement[][] layout) {
+    private static boolean belowIsWall(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y - 1][p.x] == LevelElement.WALL;
+            return layout[p.y_i() - 1][p.x_i()] == LevelElement.WALL;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -423,9 +424,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if left is a wall
      */
-    private static boolean leftIsWall(Coordinate p, LevelElement[][] layout) {
+    private static boolean leftIsWall(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y][p.x - 1] == LevelElement.WALL;
+            return layout[p.y_i()][p.x_i() - 1] == LevelElement.WALL;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -439,9 +440,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if right is a wall
      */
-    private static boolean rightIsWall(Coordinate p, LevelElement[][] layout) {
+    private static boolean rightIsWall(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y][p.x + 1] == LevelElement.WALL;
+            return layout[p.y_i()][p.x_i() + 1] == LevelElement.WALL;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -455,9 +456,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if above is a door
      */
-    private static boolean aboveIsDoor(Coordinate p, LevelElement[][] layout) {
+    private static boolean aboveIsDoor(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y + 1][p.x] == LevelElement.DOOR;
+            return layout[p.y_i() + 1][p.x_i()] == LevelElement.DOOR;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -471,9 +472,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if below is a door
      */
-    private static boolean belowIsDoor(Coordinate p, LevelElement[][] layout) {
+    private static boolean belowIsDoor(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y - 1][p.x] == LevelElement.DOOR;
+            return layout[p.y_i() - 1][p.x_i()] == LevelElement.DOOR;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -487,9 +488,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if left is a door
      */
-    private static boolean leftIsDoor(Coordinate p, LevelElement[][] layout) {
+    private static boolean leftIsDoor(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y][p.x - 1] == LevelElement.DOOR;
+            return layout[p.y_i()][p.x_i() - 1] == LevelElement.DOOR;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -503,9 +504,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if right is a door
      */
-    private static boolean rightIsDoor(Coordinate p, LevelElement[][] layout) {
+    private static boolean rightIsDoor(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y][p.x + 1] == LevelElement.DOOR;
+            return layout[p.y_i()][p.x_i() + 1] == LevelElement.DOOR;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -519,9 +520,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if above is accessible
      */
-    private static boolean aboveIsAccessible(Coordinate p, LevelElement[][] layout) {
+    private static boolean aboveIsAccessible(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y + 1][p.x].value();
+            return layout[p.y_i() + 1][p.x_i()].value();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -535,9 +536,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if left is accessible
      */
-    private static boolean leftIsAccessible(Coordinate p, LevelElement[][] layout) {
+    private static boolean leftIsAccessible(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y][p.x - 1].value();
+            return layout[p.y_i()][p.x_i() - 1].value();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -551,9 +552,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if right is accessible
      */
-    private static boolean rightIsAccessible(Coordinate p, LevelElement[][] layout) {
+    private static boolean rightIsAccessible(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y][p.x + 1].value();
+            return layout[p.y_i()][p.x_i() + 1].value();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -567,9 +568,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if below is accessible
      */
-    private static boolean belowIsAccessible(Coordinate p, LevelElement[][] layout) {
+    private static boolean belowIsAccessible(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y - 1][p.x].value();
+            return layout[p.y_i() - 1][p.x_i()].value();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -583,9 +584,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if upper right is accessible
      */
-    private static boolean upperRightIsAccessible(Coordinate p, LevelElement[][] layout) {
+    private static boolean upperRightIsAccessible(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y + 1][p.x + 1].value();
+            return layout[p.y_i() + 1][p.x_i() + 1].value();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -599,9 +600,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if bottom right is accessible
      */
-    private static boolean bottomRightIsAccessible(Coordinate p, LevelElement[][] layout) {
+    private static boolean bottomRightIsAccessible(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y - 1][p.x + 1].value();
+            return layout[p.y_i() - 1][p.x_i() + 1].value();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -615,9 +616,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if bottom left is accessible
      */
-    private static boolean bottomLeftIsAccessible(Coordinate p, LevelElement[][] layout) {
+    private static boolean bottomLeftIsAccessible(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y - 1][p.x - 1].value();
+            return layout[p.y_i() - 1][p.x_i() - 1].value();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -631,9 +632,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if upper left is accessible
      */
-    private static boolean upperLeftIsAccessible(Coordinate p, LevelElement[][] layout) {
+    private static boolean upperLeftIsAccessible(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y + 1][p.x - 1].value();
+            return layout[p.y_i() + 1][p.x_i() - 1].value();
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -647,9 +648,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if above is a hole
      */
-    private static boolean aboveIsHole(Coordinate p, LevelElement[][] layout) {
+    private static boolean aboveIsHole(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y + 1][p.x] == LevelElement.HOLE;
+            return layout[p.y_i() + 1][p.x_i()] == LevelElement.HOLE;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -663,9 +664,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if left is a hole
      */
-    private static boolean leftIsHole(Coordinate p, LevelElement[][] layout) {
+    private static boolean leftIsHole(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y][p.x - 1] == LevelElement.HOLE;
+            return layout[p.y_i()][p.x_i() - 1] == LevelElement.HOLE;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -679,9 +680,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if right is a hole
      */
-    private static boolean rightIsHole(Coordinate p, LevelElement[][] layout) {
+    private static boolean rightIsHole(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y][p.x + 1] == LevelElement.HOLE;
+            return layout[p.y_i()][p.x_i() + 1] == LevelElement.HOLE;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -695,9 +696,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if below is a hole
      */
-    private static boolean belowIsHole(Coordinate p, LevelElement[][] layout) {
+    private static boolean belowIsHole(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y - 1][p.x] == LevelElement.HOLE;
+            return layout[p.y_i() - 1][p.x_i()] == LevelElement.HOLE;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -711,9 +712,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if upper right is a hole
      */
-    private static boolean upperRightIsHole(Coordinate p, LevelElement[][] layout) {
+    private static boolean upperRightIsHole(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y + 1][p.x + 1] == LevelElement.HOLE;
+            return layout[p.y_i() + 1][p.x_i() + 1] == LevelElement.HOLE;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -727,9 +728,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if bottom right is a hole
      */
-    private static boolean bottomRightIsHole(Coordinate p, LevelElement[][] layout) {
+    private static boolean bottomRightIsHole(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y - 1][p.x + 1] == LevelElement.HOLE;
+            return layout[p.y_i() - 1][p.x_i() + 1] == LevelElement.HOLE;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -743,9 +744,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if bottom left is a hole
      */
-    private static boolean bottomLeftIsHole(Coordinate p, LevelElement[][] layout) {
+    private static boolean bottomLeftIsHole(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y - 1][p.x - 1] == LevelElement.HOLE;
+            return layout[p.y_i() - 1][p.x_i() - 1] == LevelElement.HOLE;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -759,9 +760,9 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if upper left is a hole
      */
-    private static boolean upperLeftIsHole(Coordinate p, LevelElement[][] layout) {
+    private static boolean upperLeftIsHole(Point p, LevelElement[][] layout) {
         try {
-            return layout[p.y + 1][p.x - 1] == LevelElement.HOLE;
+            return layout[p.y_i() + 1][p.x_i() - 1] == LevelElement.HOLE;
 
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -775,7 +776,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if conditions are met
      */
-    private static boolean aboveIsInside(Coordinate p, LevelElement[][] layout) {
+    private static boolean aboveIsInside(Point p, LevelElement[][] layout) {
         try {
             return (aboveIsAccessible(p, layout) || aboveIsHole(p, layout));
 
@@ -791,7 +792,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if conditions are met
      */
-    private static boolean leftIsInside(Coordinate p, LevelElement[][] layout) {
+    private static boolean leftIsInside(Point p, LevelElement[][] layout) {
         try {
             return (leftIsAccessible(p, layout) || leftIsHole(p, layout));
 
@@ -807,7 +808,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if conditions are met
      */
-    private static boolean rightIsInside(Coordinate p, LevelElement[][] layout) {
+    private static boolean rightIsInside(Point p, LevelElement[][] layout) {
         try {
             return (rightIsAccessible(p, layout) || rightIsHole(p, layout));
 
@@ -823,7 +824,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if conditions are met
      */
-    private static boolean belowIsInside(Coordinate p, LevelElement[][] layout) {
+    private static boolean belowIsInside(Point p, LevelElement[][] layout) {
         try {
             return (belowIsAccessible(p, layout) || belowIsHole(p, layout));
 
@@ -839,7 +840,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if conditions are met
      */
-    private static boolean upperRightIsInside(Coordinate p, LevelElement[][] layout) {
+    private static boolean upperRightIsInside(Point p, LevelElement[][] layout) {
         try {
             return (upperRightIsAccessible(p, layout) || upperRightIsHole(p, layout));
 
@@ -855,7 +856,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if conditions are met
      */
-    private static boolean bottomRightIsInside(Coordinate p, LevelElement[][] layout) {
+    private static boolean bottomRightIsInside(Point p, LevelElement[][] layout) {
         try {
             return (bottomRightIsAccessible(p, layout) || bottomRightIsHole(p, layout));
 
@@ -871,7 +872,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if conditions are met
      */
-    private static boolean bottomLeftIsInside(Coordinate p, LevelElement[][] layout) {
+    private static boolean bottomLeftIsInside(Point p, LevelElement[][] layout) {
         try {
             return (bottomLeftIsAccessible(p, layout) || bottomLeftIsHole(p, layout));
 
@@ -887,7 +888,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if conditions are met
      */
-    private static boolean upperLeftIsInside(Coordinate p, LevelElement[][] layout) {
+    private static boolean upperLeftIsInside(Point p, LevelElement[][] layout) {
         try {
             return (upperLeftIsAccessible(p, layout) || upperLeftIsHole(p, layout));
 

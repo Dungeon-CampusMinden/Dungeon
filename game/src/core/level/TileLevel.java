@@ -7,6 +7,7 @@ import core.level.elements.tile.*;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
+import core.utils.position.Point;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,8 +31,8 @@ public class TileLevel implements ILevel {
     protected ArrayList<ExitTile> exitTiles = new ArrayList<>();
     protected ArrayList<SkipTile> skipTiles = new ArrayList<>();
 
-    private static final Coordinate CONNECTION_OFFSETS[] = {
-        new Coordinate(0, 1), new Coordinate(0, -1), new Coordinate(1, 0), new Coordinate(-1, 0),
+    private static final Point CONNECTION_OFFSETS[] = {
+        new Point(0, 1), new Point(0, -1), new Point(1, 0), new Point(-1, 0),
     };
     /**
      * Create a new level
@@ -75,7 +76,7 @@ public class TileLevel implements ILevel {
         Tile[][] tileLayout = new Tile[layout.length][layout[0].length];
         for (int y = 0; y < layout.length; y++) {
             for (int x = 0; x < layout[0].length; x++) {
-                Coordinate coordinate = new Coordinate(x, y);
+                Point coordinate = new Point(x, y);
                 String texturePath =
                         TileTextureFactory.findTexturePath(
                                 new TileTextureFactory.LevelPart(
@@ -103,9 +104,9 @@ public class TileLevel implements ILevel {
      * @param checkTile Tile to check for.
      */
     public void addConnectionsToNeighbours(Tile checkTile) {
-        for (Coordinate v : CONNECTION_OFFSETS) {
-            Coordinate c =
-                    new Coordinate(checkTile.coordinate().x + v.x, checkTile.coordinate().y + v.y);
+        for (Point v : CONNECTION_OFFSETS) {
+            Point c =
+                    new Point(checkTile.position().point().x + v.x, checkTile.position().point().y + v.y);
             Tile t = tileAt(c);
             if (t != null
                     && t.isAccessible()

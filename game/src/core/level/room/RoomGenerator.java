@@ -10,6 +10,7 @@ import core.level.levelgraph.LevelNode;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+import core.utils.position.Point;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -433,7 +434,7 @@ public class RoomGenerator {
         boolean rightDoor = doors[DoorDirection.RIGHT.value()] != null;
 
         if (upperDoor) {
-            ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
+            ArrayList<Point> possibleDoorCoordinates = new ArrayList<>();
             for (int y = WALL_BUFFER + maxArea.y; y > WALL_BUFFER; y--) {
                 for (int x = WALL_BUFFER; x < WALL_BUFFER + maxArea.x; x++) {
                     // only mark walls that are not next to a corner
@@ -442,7 +443,7 @@ public class RoomGenerator {
                             && layout[y - 1][x + 1] != LevelElement.WALL
                             && layout[y][x - 1] == LevelElement.WALL
                             && layout[y][x + 1] == LevelElement.WALL) {
-                        possibleDoorCoordinates.add(new Coordinate(x, y));
+                        possibleDoorCoordinates.add(new Point(x, y));
                     }
                 }
                 if (!possibleDoorCoordinates.isEmpty()) {
@@ -452,11 +453,11 @@ public class RoomGenerator {
             // TODO throw exception if possibleDoorCoordinates.size() == 0
             if (possibleDoorCoordinates.size() == 0) System.out.println("Cant place door");
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
-            Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
-            layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
+            Point doorCoordinate = possibleDoorCoordinates.get(doorIndex);
+            layout[doorCoordinate.y_i()][doorCoordinate.x_i()] = LevelElement.DOOR;
         }
         if (bottomDoor) {
-            ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
+            ArrayList<Point> possibleDoorCoordinates = new ArrayList<>();
             for (int y = WALL_BUFFER - 1; y < WALL_BUFFER + maxArea.y; y++) {
                 for (int x = WALL_BUFFER; x < WALL_BUFFER + maxArea.x; x++) {
                     // only mark walls that are not next to a corner
@@ -465,7 +466,7 @@ public class RoomGenerator {
                             && layout[y + 1][x + 1] != LevelElement.WALL
                             && layout[y][x - 1] == LevelElement.WALL
                             && layout[y][x + 1] == LevelElement.WALL) {
-                        possibleDoorCoordinates.add(new Coordinate(x, y));
+                        possibleDoorCoordinates.add(new Point(x, y));
                     }
                 }
                 if (!possibleDoorCoordinates.isEmpty()) {
@@ -475,11 +476,11 @@ public class RoomGenerator {
             // TODO throw exception if possibleDoorCoordinates.size() == 0
             if (possibleDoorCoordinates.size() == 0) System.out.println("Cant place door");
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
-            Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
-            layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
+            Point doorCoordinate = possibleDoorCoordinates.get(doorIndex);
+            layout[doorCoordinate.y_i()][doorCoordinate.x_i()] = LevelElement.DOOR;
         }
         if (leftDoor) {
-            ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
+            ArrayList<Point> possibleDoorCoordinates = new ArrayList<>();
             for (int x = WALL_BUFFER - 1; x < WALL_BUFFER + maxArea.x; x++) {
                 for (int y = WALL_BUFFER; y < WALL_BUFFER + maxArea.y; y++) {
                     // only mark walls that are not next to a corner
@@ -488,7 +489,7 @@ public class RoomGenerator {
                             && layout[y + 1][x + 1] != LevelElement.WALL
                             && layout[y - 1][x] == LevelElement.WALL
                             && layout[y + 1][x] == LevelElement.WALL) {
-                        possibleDoorCoordinates.add(new Coordinate(x, y));
+                        possibleDoorCoordinates.add(new Point(x, y));
                     }
                 }
                 if (!possibleDoorCoordinates.isEmpty()) {
@@ -498,11 +499,11 @@ public class RoomGenerator {
             // TODO throw exception if possibleDoorCoordinates.size() == 0
             if (possibleDoorCoordinates.size() == 0) System.out.println("Cant place door");
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
-            Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
-            layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
+            Point doorCoordinate = possibleDoorCoordinates.get(doorIndex);
+            layout[doorCoordinate.y_i()][doorCoordinate.x_i()] = LevelElement.DOOR;
         }
         if (rightDoor) {
-            ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
+            ArrayList<Point> possibleDoorCoordinates = new ArrayList<>();
             for (int x = WALL_BUFFER + maxArea.x; x > WALL_BUFFER; x--) {
                 for (int y = WALL_BUFFER; y < WALL_BUFFER + maxArea.y; y++) {
                     // only mark walls that are not next to a corner
@@ -511,7 +512,7 @@ public class RoomGenerator {
                             && layout[y + 1][x - 1] != LevelElement.WALL
                             && layout[y - 1][x] == LevelElement.WALL
                             && layout[y + 1][x] == LevelElement.WALL) {
-                        possibleDoorCoordinates.add(new Coordinate(x, y));
+                        possibleDoorCoordinates.add(new Point(x, y));
                     }
                 }
                 if (!possibleDoorCoordinates.isEmpty()) {
@@ -521,8 +522,8 @@ public class RoomGenerator {
             // TODO throw exception if possibleDoorCoordinates.size() == 0
             if (possibleDoorCoordinates.size() == 0) System.out.println("Cant place door");
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
-            Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
-            layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
+            Point doorCoordinate = possibleDoorCoordinates.get(doorIndex);
+            layout[doorCoordinate.y_i()][doorCoordinate.x_i()] = LevelElement.DOOR;
         }
     }
 

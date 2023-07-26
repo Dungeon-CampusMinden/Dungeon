@@ -6,6 +6,7 @@ import core.level.generator.IGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+import core.utils.position.Point;
 
 import java.util.Random;
 
@@ -63,12 +64,12 @@ public class RandomWalkGenerator implements IGenerator {
             }
         }
 
-        Coordinate position = new Coordinate(RANDOM.nextInt(0, xSize), RANDOM.nextInt(0, ySize));
+        Point position = new Point(RANDOM.nextInt(0, xSize), RANDOM.nextInt(0, ySize));
         int steps =
                 RANDOM.nextInt(
                         (xSize * ySize) / MIN_STEPS_FACTOR, (xSize * ySize) / MAX_STEPS_FACTOR);
         for (; steps > 0; steps--) {
-            layout[position.y][position.x] = LevelElement.FLOOR;
+            layout[position.y_i()][position.x_i()] = LevelElement.FLOOR;
 
             if (RANDOM.nextBoolean()) {
                 if (RANDOM.nextBoolean()) {
@@ -86,16 +87,16 @@ public class RandomWalkGenerator implements IGenerator {
         }
 
         // pick random floor tile as exit
-        Coordinate c = randomFloor(layout);
-        layout[c.y][c.x] = LevelElement.EXIT;
+        Point c = randomFloor(layout);
+        layout[c.y_i()][c.x_i()] = LevelElement.EXIT;
 
         return layout;
     }
 
-    private Coordinate randomFloor(LevelElement[][] layout) {
-        Coordinate coordinate =
-                new Coordinate(RANDOM.nextInt(layout[0].length), RANDOM.nextInt(layout.length));
-        LevelElement randomTile = layout[coordinate.y][coordinate.x];
+    private Point randomFloor(LevelElement[][] layout) {
+        Point coordinate =
+                new Point(RANDOM.nextInt(layout[0].length), RANDOM.nextInt(layout.length));
+        LevelElement randomTile = layout[coordinate.y_i()][coordinate.x_i()];
         if (randomTile == LevelElement.FLOOR) {
             return coordinate;
         } else {
