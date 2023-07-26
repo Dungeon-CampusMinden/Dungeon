@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 
 import core.level.elements.tile.*;
 import core.level.utils.DesignLabel;
-
 import core.utils.position.Point;
+
 import org.junit.Test;
 
 public class TileTest {

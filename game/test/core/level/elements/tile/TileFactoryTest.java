@@ -5,8 +5,8 @@ import static org.junit.Assert.*;
 import core.level.Tile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-
 import core.utils.position.Point;
+
 import org.junit.Test;
 
 public class TileFactoryTest {
@@ -15,8 +15,7 @@ public class TileFactoryTest {
     @Test
     public void createSKIPTile() {
         Tile t =
-                TileFactory.createTile(
-                        "", new Point(0, 0), LevelElement.SKIP, DesignLabel.DEFAULT);
+                TileFactory.createTile("", new Point(0, 0), LevelElement.SKIP, DesignLabel.DEFAULT);
         assertEquals(SkipTile.class, t.getClass());
         assertEquals(0, t.position().point().x_i());
         assertEquals(0, t.position().point().y_i());
@@ -41,8 +40,7 @@ public class TileFactoryTest {
     @Test
     public void createWALLTile() {
         Tile t =
-                TileFactory.createTile(
-                        "", new Point(0, 0), LevelElement.WALL, DesignLabel.DEFAULT);
+                TileFactory.createTile("", new Point(0, 0), LevelElement.WALL, DesignLabel.DEFAULT);
         assertEquals(WallTile.class, t.getClass());
         assertEquals(0, t.position().point().x_i());
         assertEquals(0, t.position().point().y_i());
@@ -54,8 +52,7 @@ public class TileFactoryTest {
     @Test
     public void createHOLETile() {
         Tile t =
-                TileFactory.createTile(
-                        "", new Point(0, 0), LevelElement.HOLE, DesignLabel.DEFAULT);
+                TileFactory.createTile("", new Point(0, 0), LevelElement.HOLE, DesignLabel.DEFAULT);
         assertEquals(HoleTile.class, t.getClass());
         assertEquals(0, t.position().point().x_i());
         assertEquals(0, t.position().point().y_i());
@@ -67,8 +64,7 @@ public class TileFactoryTest {
     @Test
     public void createEXITTile() {
         Tile t =
-                TileFactory.createTile(
-                        "", new Point(0, 0), LevelElement.EXIT, DesignLabel.DEFAULT);
+                TileFactory.createTile("", new Point(0, 0), LevelElement.EXIT, DesignLabel.DEFAULT);
         assertEquals(ExitTile.class, t.getClass());
         assertEquals(0, t.position().point().x_i());
         assertEquals(0, t.position().point().y_i());
@@ -80,8 +76,7 @@ public class TileFactoryTest {
     @Test
     public void createDOORTile() {
         Tile t =
-                TileFactory.createTile(
-                        "", new Point(0, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
+                TileFactory.createTile("", new Point(0, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
         assertEquals(DoorTile.class, t.getClass());
         assertEquals(0, t.position().point().x_i());
         assertEquals(0, t.position().point().y_i());

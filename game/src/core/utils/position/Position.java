@@ -1,7 +1,5 @@
 package core.utils.position;
 
-import java.util.Optional;
-
 public interface Position {
 
     // pixel-perfect access

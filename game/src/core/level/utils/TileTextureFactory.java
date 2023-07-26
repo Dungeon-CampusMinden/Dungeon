@@ -13,10 +13,7 @@ public class TileTextureFactory {
      * @param position Position of the element.
      */
     public record LevelPart(
-            LevelElement element,
-            DesignLabel design,
-            LevelElement[][] layout,
-            Point position) {}
+            LevelElement element, DesignLabel design, LevelElement[][] layout, Point position) {}
 
     /**
      * Checks which texture must be used for the passed field based on the surrounding fields.
@@ -82,10 +79,14 @@ public class TileTextureFactory {
                 elementLayout[y][x] = layout[y][x].levelElement();
             }
         }
-        elementLayout[element.position().point().y_i()][element.position().point().x_i()] = elementType;
+        elementLayout[element.position().point().y_i()][element.position().point().x_i()] =
+                elementType;
         return findTexturePath(
                 new LevelPart(
-                        elementType, element.designLabel(), elementLayout, element.position().point()));
+                        elementType,
+                        element.designLabel(),
+                        elementLayout,
+                        element.position().point()));
     }
 
     private static String findTexturePathFloor(LevelPart levelPart) {

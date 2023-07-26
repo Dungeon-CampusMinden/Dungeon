@@ -18,7 +18,7 @@ public class ExitTile extends Tile {
      * @param level The level this Tile belongs to
      */
     public ExitTile(
-        String texturePath, Point globalPosition, DesignLabel designLabel, ILevel level) {
+            String texturePath, Point globalPosition, DesignLabel designLabel, ILevel level) {
         super(texturePath, globalPosition, designLabel, level);
         levelElement = LevelElement.EXIT;
     }

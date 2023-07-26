@@ -37,8 +37,7 @@ public abstract class Tile {
      * @param designLabel Design of the Tile
      * @param level The level this Tile belongs to
      */
-    public Tile(
-        String texturePath, Point globalPosition, DesignLabel designLabel, ILevel level) {
+    public Tile(String texturePath, Point globalPosition, DesignLabel designLabel, ILevel level) {
         this.texturePath = texturePath;
         this.globalPosition = new Coordinate(globalPosition.x_i(), globalPosition.y_i());
         this.designLabel = designLabel;

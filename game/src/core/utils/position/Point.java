@@ -1,7 +1,5 @@
 package core.utils.position;
 
-import java.util.Optional;
-
 public class Point implements Position {
     public float x;
     public float y;
@@ -17,13 +15,12 @@ public class Point implements Position {
     }
 
     public int x_i() {
-        return (int)x;
+        return (int) x;
     }
 
     public int y_i() {
-        return (int)y;
+        return (int) y;
     }
-
 
     @Override
     public Point point() {

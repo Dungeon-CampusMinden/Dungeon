@@ -18,7 +18,7 @@ public class WallTile extends Tile {
      * @param level The level this Tile belongs to
      */
     public WallTile(
-        String texturePath, Point globalPosition, DesignLabel designLabel, ILevel level) {
+            String texturePath, Point globalPosition, DesignLabel designLabel, ILevel level) {
         super(texturePath, globalPosition, designLabel, level);
         levelElement = LevelElement.WALL;
     }

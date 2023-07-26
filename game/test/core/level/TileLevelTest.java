@@ -524,8 +524,7 @@ public class TileLevelTest {
                         },
                         DesignLabel.DEFAULT);
         Tile tile =
-                TileFactory.createTile(
-                        "", new Point(1, 0), LevelElement.EXIT, DesignLabel.DEFAULT);
+                TileFactory.createTile("", new Point(1, 0), LevelElement.EXIT, DesignLabel.DEFAULT);
         level.removeTile(level.layout()[0][1]);
         level.layout()[0][1] = tile;
         level.addTile(tile);
@@ -562,8 +561,7 @@ public class TileLevelTest {
                         },
                         DesignLabel.DEFAULT);
         Tile tile =
-                TileFactory.createTile(
-                        "", new Point(1, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
+                TileFactory.createTile("", new Point(1, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
         level.removeTile(level.layout()[0][1]);
         level.layout()[0][1] = tile;
         level.addTile(tile);
@@ -600,8 +598,7 @@ public class TileLevelTest {
                         },
                         DesignLabel.DEFAULT);
         Tile tile =
-                TileFactory.createTile(
-                        "", new Point(1, 0), LevelElement.SKIP, DesignLabel.DEFAULT);
+                TileFactory.createTile("", new Point(1, 0), LevelElement.SKIP, DesignLabel.DEFAULT);
         level.removeTile(level.layout()[0][1]);
         level.layout()[0][1] = tile;
         level.addTile(tile);
@@ -632,8 +629,7 @@ public class TileLevelTest {
                         },
                         DesignLabel.DEFAULT);
         Tile tile =
-                TileFactory.createTile(
-                        "", new Point(1, 0), LevelElement.WALL, DesignLabel.DEFAULT);
+                TileFactory.createTile("", new Point(1, 0), LevelElement.WALL, DesignLabel.DEFAULT);
         level.removeTile(level.layout()[0][1]);
         level.layout()[0][1] = tile;
         level.addTile(tile);
@@ -664,8 +660,7 @@ public class TileLevelTest {
                         },
                         DesignLabel.DEFAULT);
         Tile tile =
-                TileFactory.createTile(
-                        "", new Point(1, 0), LevelElement.HOLE, DesignLabel.DEFAULT);
+                TileFactory.createTile("", new Point(1, 0), LevelElement.HOLE, DesignLabel.DEFAULT);
         level.removeTile(level.layout()[0][1]);
         level.layout()[0][1] = tile;
         level.addTile(tile);
