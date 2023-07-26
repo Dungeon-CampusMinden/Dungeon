@@ -6,6 +6,7 @@ import dslToGame.graph.Graph;
 
 import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;
+import task.Task;
 
 // TODO: add more fields (entry-point for interpreter, QuestType, etc.)
 @DSLType
@@ -14,4 +15,5 @@ public record QuestConfig(
         @DSLTypeMember String questDesc,
         @DSLTypeMember int questPoints,
         @DSLTypeMember String password,
-        @DSLTypeMember Entity entity) {}
+        @DSLTypeMember Entity entity,
+        @DSLTypeMember Task task) {}
