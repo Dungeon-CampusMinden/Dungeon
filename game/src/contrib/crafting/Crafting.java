@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  */
 public class Crafting {
 
-    private static final HashSet<Recipe> recipes = new HashSet<>();
+    private static final HashSet<Recipe> RECIPES = new HashSet<>();
     private static final Logger LOGGER = Logger.getLogger(Crafting.class.getName());
 
     /**
@@ -39,7 +39,7 @@ public class Crafting {
     public static Optional<Recipe> recipeByIngredients(CraftingIngredient[] inputs) {
 
         List<Recipe> possibleRecipes = new ArrayList<>();
-        for (Recipe recipe : recipes) {
+        for (Recipe recipe : RECIPES) {
             if (recipe.canCraft(inputs)) {
                 possibleRecipes.add(recipe);
             }
@@ -65,7 +65,7 @@ public class Crafting {
         if (recipe.ingredients().length == 0) {
             throw new InvalidRecipeException("Recipes with no ingredients are not allowed!");
         }
-        recipes.add(recipe);
+        RECIPES.add(recipe);
     }
 
     /**
@@ -74,12 +74,12 @@ public class Crafting {
      * @param recipe The recipe to remove.
      */
     public static void removeRecipe(Recipe recipe) {
-        recipes.remove(recipe);
+        RECIPES.remove(recipe);
     }
 
     /** Remove all recipes. */
     public static void clearRecipes() {
-        recipes.clear();
+        RECIPES.clear();
     }
 
     /**
@@ -110,7 +110,7 @@ public class Crafting {
                 JarEntry entry = entries.nextElement();
                 if (entry.getName().startsWith("recipes") && entry.getName().endsWith(".recipe")) {
                     LOGGER.info("Load recipe: " + entry.getName());
-                    Crafting.recipes.add(
+                    Crafting.RECIPES.add(
                             parseRecipe(Main.class.getResourceAsStream("/" + entry.getName())));
                 }
             }
@@ -129,7 +129,7 @@ public class Crafting {
         for (File file : files) {
             if (file.getName().endsWith(".recipe")) {
                 LOGGER.info("Load recipe: " + file.getName());
-                Crafting.recipes.add(
+                Crafting.RECIPES.add(
                         parseRecipe(Main.class.getResourceAsStream("/recipes/" + file.getName())));
             }
         }
@@ -186,7 +186,7 @@ public class Crafting {
                 }
             }
             Recipe recipe = new Recipe(orderedRecipe, ingredientsArray, resultsArray);
-            recipes.add(recipe);
+            RECIPES.add(recipe);
 
             reader.close();
 
