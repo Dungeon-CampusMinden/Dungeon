@@ -4,7 +4,6 @@ import com.badlogic.gdx.utils.JsonValue;
 
 import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
-import contrib.configuration.ItemConfig;
 import contrib.crafting.CraftingIngredient;
 import contrib.crafting.CraftingResult;
 import contrib.crafting.CraftingType;
@@ -92,9 +91,9 @@ public class ItemData implements CraftingIngredient, CraftingResult {
         this.count = count;
     }
 
-    /** Constructing object with completely default values. Taken from {@link ItemConfig}. */
+    /** Constructing object with completely default values. */
     public ItemData() {
-        this(Item.valueOf(ItemConfig.DEFAULT_ITEM.value()));
+        this(Item.DEFAULT_ITEM);
     }
 
     /**

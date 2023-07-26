@@ -1,7 +1,5 @@
 package contrib.utils.components.item;
 
-import contrib.configuration.ItemConfig;
-
 import core.utils.components.draw.Animation;
 
 /**
@@ -324,7 +322,9 @@ public enum Item {
             "Undead Pants",
             "Pants made of undead skin.",
             ItemCategory.WEARABLE,
-            "items/armor/pants/undead_pants.png");
+            "items/armor/pants/undead_pants.png"),
+
+    DEFAULT_ITEM("Default Item", "Default Item", ItemCategory.OTHER);
     private String name, description;
     private Animation inventoryAnimation, worldAnimation;
 
@@ -335,8 +335,8 @@ public enum Item {
                 name,
                 description,
                 category,
-                new Animation(ItemConfig.TEXTURE.value()),
-                new Animation(ItemConfig.TEXTURE.value()));
+                new Animation("animation/missingTexture.png"),
+                new Animation("animation/missingTexture.png"));
     }
 
     Item(String name, String description, ItemCategory category, Animation animation) {

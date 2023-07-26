@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
 import contrib.components.InteractionComponent;
-import contrib.configuration.ItemConfig;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
 
@@ -57,8 +56,7 @@ public class WizardQuizTest {
         Game.loadConfig(
                 "dungeon_config.json",
                 contrib.configuration.KeyboardConfig.class,
-                core.configuration.KeyboardConfig.class,
-                ItemConfig.class);
+                core.configuration.KeyboardConfig.class);
         Game.frameRate(30);
         Game.userOnFrame(
                 () -> {

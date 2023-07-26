@@ -1,7 +1,5 @@
 package manual.dslFileReader;
 
-import contrib.configuration.ItemConfig;
-
 import core.Game;
 import core.hud.UITools;
 import core.utils.IVoidFunction;
@@ -23,8 +21,7 @@ public class DslFileReaderTest {
         Game.loadConfig(
                 "dungeon_config.json",
                 contrib.configuration.KeyboardConfig.class,
-                core.configuration.KeyboardConfig.class,
-                ItemConfig.class);
+                core.configuration.KeyboardConfig.class);
         Game.disableAudio(true);
         Game.userOnLevelLoad(
                 new IVoidFunction() {
