@@ -22,6 +22,8 @@ import semanticanalysis.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import semanticanalysis.types.*;
 
+import task.quizquestion.Quiz;
+
 import java.util.*;
 
 // TODO: specify EXACT semantics of value copying and setting
@@ -395,6 +397,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     private Object createObjectFromMemorySpace(IMemorySpace ms, IType type) {
         if (type.getName().equals("quest_config")) {
+            TypeInstantiator ti = this.environment.getTypeInstantiator();
+            return ti.instantiate((AggregateType) type, ms);
+        } else if (type.getName().equals("single_choice_task")) {
+            // TODO: maybe define, that the single_choice_task is a proxy type (e.g. TypeAdapter) for
+            //  the Task-Type?
             TypeInstantiator ti = this.environment.getTypeInstantiator();
             return ti.instantiate((AggregateType) type, ms);
         }
