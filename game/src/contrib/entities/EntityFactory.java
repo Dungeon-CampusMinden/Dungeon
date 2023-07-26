@@ -125,7 +125,8 @@ public class EntityFactory {
 
         pc.registerCallback(
                 KeyboardConfig.INTERACT_WORLD.value(),
-                InteractionTool::interactWithClosestInteractable);
+                InteractionTool::interactWithClosestInteractable,
+                false);
 
         // skills
         pc.registerCallback(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);
