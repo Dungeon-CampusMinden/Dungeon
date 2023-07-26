@@ -121,10 +121,10 @@ public class TileLevelAPITest {
         String textureT2 = "dummyPath2";
         String textureT3 = "dummyPath3";
         String textureT4 = "dummyPath4";
-        Coordinate coordinateT1 = new Coordinate(0, 0);
-        Coordinate coordinateT2 = new Coordinate(0, 1);
-        Coordinate coordinateT3 = new Coordinate(1, 0);
-        Coordinate coordinateT4 = new Coordinate(1, 1);
+        Point coordinateT1 = new Point(0, 0);
+        Point coordinateT2 = new Point(0, 1);
+        Point coordinateT3 = new Point(1, 0);
+        Point coordinateT4 = new Point(1, 1);
         LevelElement elementT1 = LevelElement.WALL;
         LevelElement elementT2 = LevelElement.EXIT;
         LevelElement elementT3 = LevelElement.WALL;

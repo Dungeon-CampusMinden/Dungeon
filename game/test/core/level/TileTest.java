@@ -5,13 +5,14 @@ import static org.junit.Assert.*;
 import core.level.elements.tile.*;
 import core.level.utils.DesignLabel;
 
+import core.utils.position.Point;
 import org.junit.Test;
 
 public class TileTest {
 
     @Test
     public void test_isAccessible() {
-        Coordinate dummyCoordinate = new Coordinate(0, 0);
+        Point dummyCoordinate = new Point(0, 0);
         Tile wall = new WallTile("", dummyCoordinate, DesignLabel.DEFAULT, null);
         Tile floor = new FloorTile("", dummyCoordinate, DesignLabel.DEFAULT, null);
         Tile exit = new ExitTile("", dummyCoordinate, DesignLabel.DEFAULT, null);
@@ -26,14 +27,14 @@ public class TileTest {
 
     @Test
     public void test_directionTo() {
-        Tile north = new FloorTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null);
-        Tile south = new FloorTile("", new Coordinate(0, -1), DesignLabel.DEFAULT, null);
-        Tile east = new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null);
-        Tile west = new FloorTile("", new Coordinate(-1, 0), DesignLabel.DEFAULT, null);
-        Tile northEast = new FloorTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null);
-        Tile northWest = new FloorTile("", new Coordinate(-1, 1), DesignLabel.DEFAULT, null);
-        Tile southEast = new FloorTile("", new Coordinate(1, -1), DesignLabel.DEFAULT, null);
-        Tile southWest = new FloorTile("", new Coordinate(-1, -1), DesignLabel.DEFAULT, null);
+        Tile north = new FloorTile("", new Point(0, 1), DesignLabel.DEFAULT, null);
+        Tile south = new FloorTile("", new Point(0, -1), DesignLabel.DEFAULT, null);
+        Tile east = new FloorTile("", new Point(1, 0), DesignLabel.DEFAULT, null);
+        Tile west = new FloorTile("", new Point(-1, 0), DesignLabel.DEFAULT, null);
+        Tile northEast = new FloorTile("", new Point(1, 1), DesignLabel.DEFAULT, null);
+        Tile northWest = new FloorTile("", new Point(-1, 1), DesignLabel.DEFAULT, null);
+        Tile southEast = new FloorTile("", new Point(1, -1), DesignLabel.DEFAULT, null);
+        Tile southWest = new FloorTile("", new Point(-1, -1), DesignLabel.DEFAULT, null);
 
         Tile.Direction[] northToSouth = north.directionTo(south);
         assertEquals(1, northToSouth.length);

@@ -10,18 +10,18 @@ import org.junit.Test;
 
 public class CoordinateTest {
 
-    private Coordinate coordinate;
+    private Point coordinate;
     private int x = 3, y = -3;
 
     @Before
     public void setup() {
-        coordinate = new Coordinate(x, y);
+        coordinate = new Point(x, y);
     }
 
     @Test
     public void test_equals() {
-        assertEquals(coordinate, new Coordinate(x, y));
-        assertNotEquals(coordinate, new Coordinate(y, x));
+        assertEquals(coordinate, new Point(x, y));
+        assertNotEquals(coordinate, new Point(y, x));
     }
 
     @Test

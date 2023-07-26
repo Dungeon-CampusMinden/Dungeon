@@ -6,6 +6,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
 
+import core.utils.position.Point;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -104,66 +105,66 @@ public class TileTextureFactoryTest {
     @Test
     public void test_findTexturePath_skip() {
         targetTexture += "floor/empty.png";
-        Coordinate coordinate = new Coordinate(2, 3);
+        Point coordinate = new Point(2, 3);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /** Level Element FLOOR should get "floor_1" texture. */
     @Test
     public void test_findTexturePath_floor() {
         targetTexture += "floor/floor_1.png";
-        Coordinate coordinate = new Coordinate(5, 4);
+        Point coordinate = new Point(5, 4);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /** Level Element EXIT should get "floor_ladder" texture. */
     @Test
     public void test_findTexturePath_exit() {
         targetTexture += "floor/floor_ladder.png";
-        Coordinate coordinate = new Coordinate(3, 7);
+        Point coordinate = new Point(3, 7);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /** Level Element HOLE should get "floor_hole" texture if above is not another HOLE. */
     @Test
     public void test_findTexturePath_hole() {
         targetTexture += "floor/floor_hole.png";
-        Coordinate coordinate = new Coordinate(7, 7);
+        Point coordinate = new Point(7, 7);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
-        coordinate = new Coordinate(6, 7);
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
+        coordinate = new Point(6, 7);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /** Level Element HOLE should get "floor_hole1" texture if above is another HOLE. */
     @Test
     public void test_findTexturePath_holeBelowHole() {
         targetTexture += "floor/floor_hole1.png";
-        Coordinate coordinate = new Coordinate(7, 6);
+        Point coordinate = new Point(7, 6);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /**
@@ -173,12 +174,12 @@ public class TileTextureFactoryTest {
     @Test
     public void test_findTexturePath_rightWall() {
         targetTexture += "wall/wall_right.png";
-        Coordinate coordinate = new Coordinate(9, 6);
+        Point coordinate = new Point(9, 6);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /**
@@ -188,12 +189,12 @@ public class TileTextureFactoryTest {
     @Test
     public void test_findTexturePath_leftWall() {
         targetTexture += "wall/wall_left.png";
-        Coordinate coordinate = new Coordinate(3, 3);
+        Point coordinate = new Point(3, 3);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /**
@@ -203,24 +204,24 @@ public class TileTextureFactoryTest {
     @Test
     public void test_findTexturePath_bottomWall() {
         targetTexture += "wall/wall_bottom.png";
-        Coordinate coordinate = new Coordinate(2, 4);
+        Point coordinate = new Point(2, 4);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
-        coordinate = new Coordinate(6, 1);
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
+        coordinate = new Point(6, 1);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
-        coordinate = new Coordinate(8, 2);
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
+        coordinate = new Point(8, 2);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /**
@@ -230,72 +231,72 @@ public class TileTextureFactoryTest {
     @Test
     public void test_findTexturePath_topWall() {
         targetTexture += "wall/wall_top.png";
-        Coordinate coordinate = new Coordinate(3, 8);
+        Point coordinate = new Point(3, 8);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
-        coordinate = new Coordinate(5, 8);
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
+        coordinate = new Point(5, 8);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
-        coordinate = new Coordinate(7, 8);
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
+        coordinate = new Point(7, 8);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /** Level Element DOOR should get "right" texture if left is accessible. */
     @Test
     public void test_findTexturePath_rightDoor() {
         targetTexture += "door/right.png";
-        Coordinate coordinate = new Coordinate(9, 5);
+        Point coordinate = new Point(9, 5);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /** Level Element DOOR should get "left" texture if right is accessible. */
     @Test
     public void test_findTexturePath_leftDoor() {
         targetTexture += "door/left.png";
-        Coordinate coordinate = new Coordinate(1, 6);
+        Point coordinate = new Point(1, 6);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /** Level Element DOOR should get "bottom" texture if above is accessible. */
     @Test
     public void test_findTexturePath_bottomDoor() {
         targetTexture += "door/bottom.png";
-        Coordinate coordinate = new Coordinate(5, 1);
+        Point coordinate = new Point(5, 1);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /** Level Element DOOR should get "top" texture if below is accessible. */
     @Test
     public void test_findTexturePath_topDoor() {
         targetTexture += "door/top.png";
-        Coordinate coordinate = new Coordinate(4, 8);
+        Point coordinate = new Point(4, 8);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /**
@@ -305,12 +306,12 @@ public class TileTextureFactoryTest {
     @Test
     public void test_findTexturePath_upperLeftOuterCorner() {
         targetTexture += "wall/wall_outer_corner_upper_left.png";
-        Coordinate coordinate = new Coordinate(1, 8);
+        Point coordinate = new Point(1, 8);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /**
@@ -320,12 +321,12 @@ public class TileTextureFactoryTest {
     @Test
     public void test_findTexturePath_upperRightOuterCorner() {
         targetTexture += "wall/wall_outer_corner_upper_right.png";
-        Coordinate coordinate = new Coordinate(9, 8);
+        Point coordinate = new Point(9, 8);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /**
@@ -335,18 +336,18 @@ public class TileTextureFactoryTest {
     @Test
     public void test_findTexturePath_bottomRightOuterCorner() {
         targetTexture += "wall/wall_outer_corner_bottom_right.png";
-        Coordinate coordinate = new Coordinate(9, 2);
+        Point coordinate = new Point(9, 2);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
-        coordinate = new Coordinate(7, 1);
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
+        coordinate = new Point(7, 1);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /**
@@ -356,18 +357,18 @@ public class TileTextureFactoryTest {
     @Test
     public void test_findTexturePath_bottomLeftOuterCorner() {
         targetTexture += "wall/wall_outer_corner_bottom_left.png";
-        Coordinate coordinate = new Coordinate(3, 1);
+        Point coordinate = new Point(3, 1);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
-        coordinate = new Coordinate(1, 4);
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
+        coordinate = new Point(1, 4);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /**
@@ -377,24 +378,24 @@ public class TileTextureFactoryTest {
     @Test
     public void test_findTexturePath_upperLeftInnerCorner() {
         targetTexture += "wall/wall_inner_corner_upper_left.png";
-        Coordinate coordinate = new Coordinate(3, 5);
+        Point coordinate = new Point(3, 5);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
-        coordinate = new Coordinate(6, 4);
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
+        coordinate = new Point(6, 4);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
-        coordinate = new Coordinate(7, 2);
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
+        coordinate = new Point(7, 2);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /**
@@ -404,18 +405,18 @@ public class TileTextureFactoryTest {
     @Test
     public void test_findTexturePath_upperRightInnerCorner() {
         targetTexture += "wall/wall_inner_corner_upper_right.png";
-        Coordinate coordinate = new Coordinate(4, 5);
+        Point coordinate = new Point(4, 5);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
-        coordinate = new Coordinate(7, 4);
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
+        coordinate = new Point(7, 4);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /**
@@ -425,12 +426,12 @@ public class TileTextureFactoryTest {
     @Test
     public void test_findTexturePath_bottomLeftInnerCorner() {
         targetTexture += "wall/wall_inner_corner_bottom_left.png";
-        Coordinate coordinate = new Coordinate(6, 3);
+        Point coordinate = new Point(6, 3);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /**
@@ -440,18 +441,18 @@ public class TileTextureFactoryTest {
     @Test
     public void test_findTexturePath_bottomRightInnerCorner() {
         targetTexture += "wall/wall_inner_corner_bottom_right.png";
-        Coordinate coordinate = new Coordinate(4, 4);
+        Point coordinate = new Point(4, 4);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
-        coordinate = new Coordinate(7, 3);
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
+        coordinate = new Point(7, 3);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 
     /**
@@ -461,11 +462,11 @@ public class TileTextureFactoryTest {
     @Test
     public void test_findTexturePath_upperLeftBottomRightCross() {
         targetTexture += "wall/wall_cross_upper_left_bottom_right.png";
-        Coordinate coordinate = new Coordinate(3, 4);
+        Point coordinate = new Point(3, 4);
         assertEquals(
                 targetTexture,
                 TileTextureFactory.findTexturePath(
                         new TileTextureFactory.LevelPart(
-                                layout[coordinate.y][coordinate.x], design, layout, coordinate)));
+                                layout[coordinate.y_i()][coordinate.x_i()], design, layout, coordinate)));
     }
 }

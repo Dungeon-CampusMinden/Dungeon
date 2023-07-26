@@ -29,4 +29,13 @@ public class Point implements Position {
     public Point point() {
         return this;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Point)) {
+            return false;
+        }
+        Point other = (Point) o;
+        return Float.compare(x, other.x) == 0 && Float.compare(y, other.y) == 0;
+    }
 }
