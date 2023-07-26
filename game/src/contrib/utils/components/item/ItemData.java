@@ -1,8 +1,13 @@
 package contrib.utils.components.item;
 
+import com.badlogic.gdx.utils.JsonValue;
+
 import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
 import contrib.configuration.ItemConfig;
+import contrib.crafting.CraftingIngredient;
+import contrib.crafting.CraftingResult;
+import contrib.crafting.CraftingType;
 import contrib.entities.WorldItemBuilder;
 import contrib.utils.components.stats.DamageModifier;
 
@@ -23,9 +28,10 @@ import java.util.function.BiConsumer;
  *
  * <p>Lastly it holds a {@link #damageModifier}
  */
-public class ItemData {
+public class ItemData implements CraftingIngredient, CraftingResult {
 
     private Item item;
+    private int count; // Number of items on stack
     private BiConsumer<Entity, Entity> onCollect;
     private TriConsumer<Entity, ItemData, Point> onDrop;
     // active
@@ -54,6 +60,7 @@ public class ItemData {
         this.onDrop = onDrop;
         this.onUse = onUse;
         this.damageModifier = damageModifier;
+        this.count = 1;
     }
 
     /**
@@ -219,5 +226,51 @@ public class ItemData {
      */
     public void onUse(BiConsumer<Entity, ItemData> onUse) {
         this.onUse = onUse;
+    }
+
+    // ###              ###
+    // ###   CRAFTING   ###
+    // ###              ###
+
+    @Override
+    public CraftingType ingredientType() {
+        return CraftingType.ITEM;
+    }
+
+    @Override
+    public boolean match(CraftingIngredient input) {
+        if (input.ingredientType() != this.ingredientType()
+                || !(input instanceof ItemData inputItem)) {
+            return false;
+        }
+        if (inputItem.item != this.item) {
+            return false;
+        }
+        if (inputItem.count < this.count) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void parseCraftingIngredient(JsonValue value) {
+        this.item = Item.valueOf(value.getString("id").toUpperCase());
+        this.count = value.getInt("count", 1);
+    }
+
+    @Override
+    public CraftingType resultType() {
+        return CraftingType.ITEM;
+    }
+
+    @Override
+    public void executeCrafting(Entity entity) {
+        entity.fetch(InventoryComponent.class).ifPresent(inv -> inv.add(this));
+    }
+
+    @Override
+    public void parseCraftingResult(JsonValue value) {
+        this.item = Item.valueOf(value.getString("id").toUpperCase());
+        this.count = value.getInt("count", 1);
     }
 }

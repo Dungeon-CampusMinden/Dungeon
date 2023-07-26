@@ -1,8 +1,5 @@
 package contrib.crafting;
 
-import contrib.crafting.ingredient.CraftingIngredient;
-import contrib.crafting.result.CraftingResult;
-
 import java.util.Arrays;
 
 /**

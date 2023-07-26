@@ -3,10 +3,7 @@ package contrib.crafting;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
-import contrib.crafting.ingredient.CraftingIngredient;
-import contrib.crafting.ingredient.CraftingItemIngredient;
-import contrib.crafting.result.CraftingItemResult;
-import contrib.crafting.result.CraftingResult;
+import contrib.utils.components.item.ItemData;
 
 import starter.Main;
 
@@ -164,8 +161,8 @@ public class Crafting {
                 String type = ingredient.getString("type");
                 switch (type) {
                     case "item":
-                        CraftingIngredient ci = new CraftingItemIngredient();
-                        ci.parse(ingredients.get(i).get("item"));
+                        CraftingIngredient ci = new ItemData();
+                        ci.parseCraftingIngredient(ingredients.get(i).get("item"));
                         ingredientsArray[i] = ci;
                         break;
                     default:
@@ -180,8 +177,8 @@ public class Crafting {
                 String type = result.getString("type");
                 switch (type) {
                     case "item":
-                        CraftingResult cr = new CraftingItemResult();
-                        cr.parse(results.get(i).get("item"));
+                        CraftingResult cr = new ItemData();
+                        cr.parseCraftingResult(results.get(i).get("item"));
                         resultsArray[i] = cr;
                         break;
                     default:

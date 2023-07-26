@@ -2,10 +2,7 @@ package contrib.crafting;
 
 import static org.junit.Assert.*;
 
-import contrib.crafting.ingredient.CraftingIngredient;
 import contrib.crafting.ingredient.CraftingItemIngredient;
-import contrib.crafting.result.CraftingItemResult;
-import contrib.crafting.result.CraftingResult;
 import contrib.utils.components.item.Item;
 
 import org.junit.Test;
