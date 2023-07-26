@@ -23,6 +23,12 @@ public class InteractionTool {
         interactWithClosestInteractable(entity, SIMPLE_REACHABLE);
     }
 
+    /**
+     * Interacts with the closest interactable entity.
+     *
+     * @param entity The entity that is interacting
+     * @param iReachable The function that determines if the entity is reachable
+     */
     public static void interactWithClosestInteractable(
             final Entity entity, final Function<InteractionData, Boolean> iReachable) {
         PositionComponent heroPosition =
