@@ -599,7 +599,7 @@ public class TestDSLInterpreter {
 
         // setup test type system
         var env = new TestEnvironment();
-        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, Scope.NULL);
+        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, env.getGlobalScope());
         DSLInterpreter interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomTypes(
                 program,
@@ -648,7 +648,7 @@ public class TestDSLInterpreter {
 
         // setup test type system
         var env = new TestEnvironment();
-        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
+        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilderMultiParam.class, env.getGlobalScope());
         DSLInterpreter interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomTypes(
                 program,

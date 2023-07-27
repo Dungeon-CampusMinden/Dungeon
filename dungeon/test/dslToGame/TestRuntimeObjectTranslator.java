@@ -96,7 +96,7 @@ public class TestRuntimeObjectTranslator {
             """;
 
         var env = new TestEnvironment();
-        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, Scope.NULL);
+        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, env.getGlobalScope());
         var interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomTypes(
                 program,
@@ -117,7 +117,10 @@ public class TestRuntimeObjectTranslator {
                                 .translateRuntimeObject(
                                         componentObject.getMemberExternalType(),
                                         interpreter.getGlobalMemorySpace());
-        Assert.assertTrue(true);
+        ExternalType object = (ExternalType) externalTypeValue.getInternalValue();
+        Assert.assertEquals(42, object.member1);
+        Assert.assertEquals(12, object.member2);
+        Assert.assertEquals("Hello", object.member3);
     }
 
     @Test
@@ -127,7 +130,7 @@ public class TestRuntimeObjectTranslator {
             """;
 
         var env = new TestEnvironment();
-        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
+        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilderMultiParam.class, env.getGlobalScope());
         var interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomTypes(
                 program,

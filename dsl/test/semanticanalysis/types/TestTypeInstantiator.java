@@ -10,6 +10,7 @@ import interpreter.DSLInterpreter;
 import org.junit.Assert;
 import org.junit.Test;
 
+import runtime.AggregateValue;
 import runtime.MemorySpace;
 
 import semanticanalysis.Scope;
@@ -62,9 +63,12 @@ public class TestTypeInstantiator {
             memberCounter++;
         }
 
+        AggregateValue aggregateValue = new AggregateValue(type, null);
+        aggregateValue.setMemorySpace(ms);
+
         // DSLInterpreter interpreter = new DSLInterpreter();
         TypeInstantiator ti = new TypeInstantiator(interpreter);
-        var instance = ti.instantiate(type, ms);
+        var instance = ti.instantiate(aggregateValue);
 
         // check, that all values originally only set in the memory space match the
         // set values in the java class instance
@@ -122,9 +126,12 @@ public class TestTypeInstantiator {
             memberCounter++;
         }
 
+        AggregateValue aggregateValue = new AggregateValue(type, null);
+        aggregateValue.setMemorySpace(ms);
+
         // DSLInterpreter interpreter = new DSLInterpreter();
         TypeInstantiator ti = new TypeInstantiator(interpreter);
-        var instance = ti.instantiate(type, ms);
+        var instance = ti.instantiate(aggregateValue);
 
         // check, that all values originally only set in the memory space match the
         // set values in the java class instance

@@ -108,7 +108,8 @@ public class TestTypeBuilder {
     @Test
     public void testTypeAdapterRegister() {
         TypeBuilder tb = new TypeBuilder();
-        tb.registerTypeAdapter(RecordBuilder.class, Scope.NULL);
+        Scope scope = new Scope();
+        tb.registerTypeAdapter(RecordBuilder.class, scope);
 
         var adapter = tb.getRegisteredTypeAdaptersForType(TestRecordComponent.class).get(0);
         assertNotNull(adapter);
@@ -126,7 +127,8 @@ public class TestTypeBuilder {
     @Test
     public void testAggregateTypeAdapterRegister() {
         TypeBuilder tb = new TypeBuilder();
-        tb.registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
+        Scope scope = new Scope();
+        tb.registerTypeAdapter(ExternalTypeBuilderMultiParam.class, scope);
 
         var adapter = tb.getRegisteredTypeAdaptersForType(ExternalType.class).get(0);
         assertNotNull(adapter);
@@ -144,7 +146,8 @@ public class TestTypeBuilder {
     @Test
     public void testAggregateTypeAdapterCreation() {
         TypeBuilder tb = new TypeBuilder();
-        tb.registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
+        Scope scope = new Scope();
+        tb.registerTypeAdapter(ExternalTypeBuilderMultiParam.class, scope);
         var adapterType = tb.createDSLTypeForJavaTypeInScope(Scope.NULL, ExternalType.class);
 
         assertNotNull(adapterType);
