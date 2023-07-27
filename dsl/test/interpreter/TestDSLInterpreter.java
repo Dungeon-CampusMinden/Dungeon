@@ -1296,14 +1296,20 @@ public class TestDSLInterpreter {
     public void singleChoiceTaskDefinition() {
         String program =
                 """
-            single_choice_task my_task {
+            single_choice_task my_single_choice_task {
                 description: "Hello",
                 answers: ["1", "2", "3"],
                 correct_answer_index: 1
             }
 
+            multiple_choice_task my_multiple_choice_task {
+                description: "Hello",
+                answers: ["4", "5", "6"],
+                correct_answer_index: [0,1]
+            }
+
             quest_config c {
-                tasks: [my_task]
+                tasks: [my_single_choice_task, my_multiple_choice_task]
             }
         """;
 

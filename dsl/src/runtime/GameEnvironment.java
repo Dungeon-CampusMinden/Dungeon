@@ -9,6 +9,7 @@ import core.components.VelocityComponent;
 
 import dslToGame.EntityTranslator;
 import dslToGame.QuestConfig;
+import dslToGame.taskdsltypes.MultipleChoiceTask;
 import dslToGame.taskdsltypes.SingleChoiceTask;
 
 import runtime.nativefunctions.NativeInstantiate;
@@ -95,6 +96,7 @@ public class GameEnvironment implements IEvironment {
          * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
         // typeBuilder.registerTypeAdapter(AnimationBuilder.class, Scope.NULL);
         typeBuilder.registerTypeAdapter(SingleChoiceTask.class, this.globalScope);
+        typeBuilder.registerTypeAdapter(MultipleChoiceTask.class, this.globalScope);
     }
 
     protected void registerDefaultRuntimeObjectTranslators() {
