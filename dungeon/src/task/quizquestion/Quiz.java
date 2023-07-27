@@ -7,6 +7,9 @@ import semanticanalysis.types.DSLTypeMember;
 import task.Task;
 import task.TaskContent;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -26,6 +29,7 @@ public class Quiz extends Task {
 
     private final Type type;
     private final Content question;
+    private final HashSet<Integer> correctAnswerIndices;
 
     /**
      * Create a new {@link Quiz} with the given configuration.
@@ -45,6 +49,31 @@ public class Quiz extends Task {
         taskText(questionText);
         question = new Content(questionText, image);
         question.task(this);
+        this.correctAnswerIndices = new HashSet<>();
+    }
+
+    /**
+     * Mark an answer in the stored content as correct.
+     *
+     * @param index the index of the stored content
+     * @return false, if the index is out of bounds of the
+     * stored content or the corresponding content was already marked as correct
+     */
+    public boolean addCorrectAnswerIndex(int index) {
+        if (this.content.size() < index) {
+            return false;
+        }
+        return this.correctAnswerIndices.add(index);
+    }
+
+    /**
+     * Remove an index from the correct answer indices.
+     *
+     * @param index the index to remove
+     * @return true, if removing succeeded
+     */
+    public boolean removeCorrectAnswerIndex(int index) {
+        return this.correctAnswerIndices.remove(index);
     }
 
     /**

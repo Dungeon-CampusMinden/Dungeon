@@ -1,9 +1,13 @@
 package task;
 
 import semanticanalysis.types.DSLType;
+import task.quizquestion.Quiz;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 /**
@@ -28,7 +32,8 @@ public abstract class Task {
     private TaskState state;
     private String taskText;
     private TaskComponent managementComponent;
-    private Set<TaskContent> content;
+    protected List<TaskContent> content;
+    protected BiFunction<Task, Set<TaskContent>, Float> scoringFunction;
 
     /**
      * Create a new Task with the {@link #DEFAULT_TASK_TEXT} in the {@link #DEFAULT_TASK_STATE},
@@ -37,7 +42,7 @@ public abstract class Task {
     public Task() {
         state = DEFAULT_TASK_STATE;
         taskText = DEFAULT_TASK_TEXT;
-        content = new HashSet<>();
+        content = new LinkedList<>();
     }
 
     /**
@@ -105,6 +110,24 @@ public abstract class Task {
      */
     public void addContent(final TaskContent content) {
         this.content.add(content);
+    }
+
+    /**
+     * Callback function to score the task, given a Set of TaskContent
+     *
+     * @return the callback function
+     */
+    public BiFunction<Task, Set<TaskContent>, Float> scoringFunction() {
+        return scoringFunction;
+    }
+
+    /**
+     * Set the scoring function for this Task.
+     *
+     * @param scoringFunction the scoring function to set.
+     */
+    public void scoringFunction(BiFunction<Task, Set<TaskContent>, Float> scoringFunction) {
+        this.scoringFunction = scoringFunction;
     }
 
     /**
