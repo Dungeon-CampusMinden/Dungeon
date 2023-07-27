@@ -26,16 +26,43 @@ public class TypeInstantiator {
     }
 
     /**
-     * Instantiate a new Object corresponding to an {@link AggregateType} with an {@link
-     * IMemorySpace} containing all needed values. This requires the passed {@link AggregateType} to
-     * have an origin java class
+     * Instantiate a new Object corresponding to the {@link AggregateType} of a {@link AggregateValue}
+     * containing all needed values.
      *
-     * @param type the type to instantiate
-     * @param ms the memory space containing the values
+     * @param value the aggregateValue to instantiate an object from
      * @return the instantiated object
      */
-    // TODO: this should just take value..
-    public Object instantiate(AggregateType type, IMemorySpace ms) {
+    public Object instantiate(AggregateValue value) {
+        AggregateType type = (AggregateType) value.getDataType();
+        IMemorySpace ms = value.getMemorySpace();
+
+        if (type.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
+            return convertValueToObject(value);
+        }
+
+        var originalJavaClass = type.getOriginType();
+        if (null == originalJavaClass) {
+            return null;
+        }
+
+        if (originalJavaClass.isRecord()) {
+            return instantiateRecord(originalJavaClass, ms);
+        } else {
+            return instantiateClass(originalJavaClass, ms);
+        }
+    }
+
+    /**
+     * Instantiate a new Object corresponding to the passed {@link AggregateType} with the
+     * values from an {@link AggregateValue}
+     *
+     * @param value the aggregateValue to instantiate an object from
+     * @param type the type to use for instantiation
+     * @return the instantiated object
+     */
+    public Object instantiateAsType(AggregateValue value, AggregateType type) {
+        IMemorySpace ms = value.getMemorySpace();
+
         var originalJavaClass = type.getOriginType();
         if (null == originalJavaClass) {
             return null;
@@ -111,7 +138,6 @@ public class TypeInstantiator {
         Object convertedObject = value.getInternalValue();
         try {
             var fieldsDataType = value.getDataType();
-            // TODO: how to handle plain aggregateValue here?
             if (fieldsDataType.getTypeKind().equals(IType.Kind.PODAdapted)) {
                 // call builder -> the type instantiator needs a reference to the
                 // builder or to the
@@ -121,27 +147,32 @@ public class TypeInstantiator {
 
                 convertedObject = method.invoke(null, convertedObject);
             } else if (fieldsDataType.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
-                // call builder -> store values from memory space in order of parameters
-                // of builder-method
-                var adaptedType = (AggregateTypeAdapter) fieldsDataType;
-                var method = adaptedType.getBuilderMethod();
                 var aggregateFieldValue = (AggregateValue) value;
+                if (aggregateFieldValue.getMemorySpace() instanceof EncapsulatedObject) {
+                    // if the memoryspace of the value already encapsulates an object,
+                    // return this object
+                    convertedObject =  value.getInternalValue();
+                } else {
+                    // call builder -> store values from memory space in order of parameters
+                    // of builder-method
+                    var adaptedType = (AggregateTypeAdapter) fieldsDataType;
+                    var method = adaptedType.getBuilderMethod();
+                    var parameters = new ArrayList<>(method.getParameterCount());
+                    for (var parameter : method.getParameters()) {
+                        var memberName = TypeBuilder.getDSLParameterName(parameter);
+                        var memberValue = aggregateFieldValue.getMemorySpace().resolve(memberName);
+                        var internalObject = convertValueToObject(memberValue);
+                        parameters.add(internalObject);
+                    }
 
-                var parameters = new ArrayList<>(method.getParameterCount());
-                for (var parameter : method.getParameters()) {
-                    var memberName = TypeBuilder.getDSLParameterName(parameter);
-                    var memberValue = aggregateFieldValue.getMemorySpace().resolve(memberName);
-                    var internalObject = memberValue.getInternalValue();
-                    parameters.add(internalObject);
+                    convertedObject = method.invoke(null, parameters.toArray());
                 }
-
-                convertedObject = method.invoke(null, parameters.toArray());
             } else if (value.getDataType().getTypeKind().equals(IType.Kind.ListType)) {
                 convertedObject = instantiateList((ListValue) value);
             } else if (value.getDataType().getTypeKind().equals(IType.Kind.SetType)) {
                 convertedObject = instantiateSet((SetValue) value);
             }
-        } catch (InvocationTargetException | IllegalAccessException e) {
+        } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e ) {
             throw new RuntimeException(e);
         }
         return convertedObject;

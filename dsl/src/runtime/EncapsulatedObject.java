@@ -33,7 +33,6 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
      */
     public EncapsulatedObject(Object innerObject, AggregateType type, IEvironment environment) {
         super(type, innerObject);
-        assert innerObject.getClass().equals(type.getOriginType());
 
         this.type = type;
         this.environment = environment;
@@ -48,11 +47,13 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
 
         for (var member : type.getSymbols()) {
             var fieldName = nameMap.get(member.getName());
-            try {
-                Field field = clazz.getDeclaredField(fieldName);
-                typeMemberToField.put(member.getName(), field);
-            } catch (NoSuchFieldException e) {
-                // TODO: handle
+            if (fieldName != null) {
+                try {
+                    Field field = clazz.getDeclaredField(fieldName);
+                    typeMemberToField.put(member.getName(), field);
+                } catch (NoSuchFieldException e) {
+                    // TODO: handle
+                }
             }
         }
     }

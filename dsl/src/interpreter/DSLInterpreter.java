@@ -228,8 +228,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         initializeRuntime(environment);
 
-        var questConfig = generateQuestConfig(programAST);
-        return questConfig;
+        Value questConfigValue = (Value)generateQuestConfig(programAST);
+        return questConfigValue.getInternalValue();
     }
 
     /**
@@ -252,7 +252,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 // break;
             }
         }
-        return null;
+        return Value.NONE;
     }
 
     protected Value instantiateDSLValue(AggregateType type) {
@@ -338,7 +338,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object instantiateRuntimeValue(AggregateValue dslValue, AggregateType asType) {
         // instantiate entity_type
         var typeInstantiator = this.environment.getTypeInstantiator();
-        var entityObject = typeInstantiator.instantiate(asType, dslValue.getMemorySpace());
+        var entityObject = typeInstantiator.instantiateAsType(dslValue, asType);
 
         // TODO: substitute the whole DSLContextMember-stuff with Builder-Methods, which would
         //  enable creation of components with different parameters -> requires the ability to
@@ -362,8 +362,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
 
                 // instantiate object as a new java Object
-                typeInstantiator.instantiate(
-                        membersOriginalType, ((AggregateValue) memberValue).getMemorySpace());
+                typeInstantiator.instantiateAsType((AggregateValue) memberValue, membersOriginalType);
             }
         }
 
@@ -384,32 +383,32 @@ public class DSLInterpreter implements AstVisitor<Object> {
         } else {
             throw new RuntimeException("Defined object is not an aggregate Value");
         }
-        memoryStack.push(ms);
+        if (!(ms instanceof EncapsulatedObject)) {
+            memoryStack.push(ms);
 
-        // accept every propertyDefinition
-        for (var propDefNode : node.getPropertyDefinitions()) {
-            propDefNode.accept(this);
+            // accept every propertyDefinition
+            for (var propDefNode : node.getPropertyDefinitions()) {
+                propDefNode.accept(this);
+            }
+
+            memoryStack.pop();
+            // convert from memorySpace to concrete object
+            Object createdObject = createObjectFromValue((AggregateValue)objectsValue);
+            EncapsulatedObject encapsulatedObject =
+                new EncapsulatedObject(
+                    createdObject,
+                    (AggregateType) objectsValue.getDataType(),
+                    this.environment
+                );
+            ((AggregateValue) objectsValue).setMemorySpace(encapsulatedObject);
+            objectsValue.setInternalValue(createdObject);
         }
-
-        // convert from memorySpace to concrete object
-        ms = memoryStack.pop();
-        var objectSymbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
-        return createObjectFromMemorySpace(ms, objectSymbol.getDataType());
+        return objectsValue;
     }
 
-    private Object createObjectFromMemorySpace(IMemorySpace ms, IType type) {
-        if (type.getName().equals("quest_config")) {
-            TypeInstantiator ti = this.environment.getTypeInstantiator();
-            return ti.instantiate((AggregateType) type, ms);
-        } else if (type.getName().equals("single_choice_task")) {
-            // TODO: maybe define, that the single_choice_task is a proxy type (e.g. TypeAdapter) for
-            //  the Task-Type?
-            TypeInstantiator ti = this.environment.getTypeInstantiator();
-            return ti.instantiate((AggregateType) type, ms);
-
-            // hard code it for now
-        }
-        return null;
+    private Object createObjectFromValue(AggregateValue value) {
+        TypeInstantiator ti = this.environment.getTypeInstantiator();
+        return ti.instantiate(value);
     }
 
     @Override
