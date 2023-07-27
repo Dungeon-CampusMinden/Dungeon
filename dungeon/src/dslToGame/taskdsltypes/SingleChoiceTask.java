@@ -31,9 +31,24 @@ public class SingleChoiceTask {
 
         quiz.addCorrectAnswerIndex(correctAnswerIndex);
 
-        //quiz.scoringFunction(scoreFunction);
+        quiz.scoringFunction(SingleChoiceTask::score);
 
         return quiz;
+    }
+
+    static Float score(Task t, Set<TaskContent> answers) {
+        Quiz quiz = (Quiz)t;
+        int correctAnswerIndex = quiz.correctAnswerIndices().get(0);
+        if (answers.size() != 1) {
+            return 0.0f;
+        }
+        TaskContent givenAnswer = answers.stream().toList().get(0);
+        TaskContent correctAnswer = t.contentStream().toList().get(correctAnswerIndex);
+        if (givenAnswer.equals(correctAnswer)) {
+            return 1.0f;
+        } else {
+            return 0.0f;
+        }
     }
 }
 

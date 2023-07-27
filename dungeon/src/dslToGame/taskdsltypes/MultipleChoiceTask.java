@@ -3,9 +3,11 @@ package dslToGame.taskdsltypes;
 import semanticanalysis.types.DSLTypeAdapter;
 import semanticanalysis.types.DSLTypeMember;
 import task.Task;
+import task.TaskContent;
 import task.quizquestion.Quiz;
 
 import java.util.List;
+import java.util.Set;
 
 public class MultipleChoiceTask {
     @DSLTypeAdapter(name = "multiple_choice_task")
@@ -28,6 +30,24 @@ public class MultipleChoiceTask {
             quiz.addCorrectAnswerIndex(index);
         }
 
+        quiz.scoringFunction(MultipleChoiceTask::score);
+
         return quiz;
+    }
+
+    static Float score(Task t, Set<TaskContent> answers) {
+        Quiz quiz = (Quiz)t;
+        List<Integer> correctAnswerIndices = quiz.correctAnswerIndices();
+        if (answers.size() != correctAnswerIndices.size()) {
+            return 0.0f;
+        }
+
+        for (int answerIndex : correctAnswerIndices) {
+            TaskContent correctAnswer = t.contentStream().toList().get(answerIndex);
+            if (!answers.contains(correctAnswer)) {
+                return 0.0f;
+            }
+        }
+        return 1.0f;
     }
 }

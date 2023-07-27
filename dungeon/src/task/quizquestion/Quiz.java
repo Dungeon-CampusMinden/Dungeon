@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Represents a single quiz question, including the question itself, possible answer choices, and
@@ -74,6 +75,10 @@ public class Quiz extends Task {
      */
     public boolean removeCorrectAnswerIndex(int index) {
         return this.correctAnswerIndices.remove(index);
+    }
+
+    public List<Integer> correctAnswerIndices() {
+        return new ArrayList<>(this.correctAnswerIndices);
     }
 
     /**

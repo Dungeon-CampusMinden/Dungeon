@@ -14,11 +14,13 @@ import core.Game;
 import core.hud.TextDialog;
 import core.hud.UITools;
 
+import task.Task;
 import task.TaskContent;
 
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -44,7 +46,7 @@ public final class UIAnswerCallback {
      * @return Consumer to use as a callback for the interaction component.
      */
     public static Consumer<Entity> askOnInteraction(
-            Quiz quiz, Consumer<Set<TaskContent>> dslCallback) {
+            Quiz quiz, BiConsumer<Task, Set<TaskContent>> dslCallback) {
         return questGiver ->
                 QuizUI.showQuizDialog(
                         quiz, (Entity hudEntity) -> uiCallback(quiz, hudEntity, dslCallback));
@@ -56,10 +58,10 @@ public final class UIAnswerCallback {
      * @see UITools
      */
     private static BiFunction<TextDialog, String, Boolean> uiCallback(
-            Quiz quest, Entity hudEntity, Consumer<Set<TaskContent>> dslCallback) {
+            Quiz quest, Entity hudEntity, BiConsumer<Task, Set<TaskContent>> dslCallback) {
         return (textDialog, id) -> {
             if (Objects.equals(id, UITools.DEFAULT_DIALOG_CONFIRM)) {
-                dslCallback.accept(getAnswer(quest, answerSection(textDialog)));
+                dslCallback.accept(quest, getAnswer(quest, answerSection(textDialog)));
                 Game.removeEntity(hudEntity);
                 return true;
             }

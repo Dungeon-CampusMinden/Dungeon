@@ -24,27 +24,37 @@ public class DslFileReaderTest {
                 core.configuration.KeyboardConfig.class);
         Game.disableAudio(true);
         Game.userOnLevelLoad(
-                new IVoidFunction() {
-                    @Override
-                    public void execute() {
-                        Set<File> files = DslFileLoader.dslFiles();
-                        Set<String> fileContents =
-                                files.stream()
-                                        .map(DslFileLoader::fileToString)
-                                        .collect(Collectors.toSet());
-                        Set<Map<String, String>> configs =
-                                fileContents.stream()
-                                        .map(DummyDSLFunctions::getConfigs)
-                                        .collect(Collectors.toSet());
+            new IVoidFunction() {
+                @Override
+                public void execute() {
+                    Set<File> files = DslFileLoader.dslFiles();
+                    Set<String> fileContents =
+                        files.stream()
+                            .map(DslFileLoader::fileToString)
+                            .collect(Collectors.toSet());
+                    Set<Map<String, String>> configs =
+                        fileContents.stream()
+                            .map(DummyDSLFunctions::getConfigs)
+                            .collect(Collectors.toSet());
 
-                        AtomicReference<String> f = new AtomicReference<>("");
-                        files.forEach(v -> f.set(f.get() + v + System.lineSeparator()));
-                        UITools.generateNewTextDialog(f.get(), "Ok", "Files");
+                    AtomicReference<String> f = new AtomicReference<>("");
+                    files.forEach(v -> f.set(f.get() + v + System.lineSeparator()));
+                    UITools.generateNewTextDialog(f.get(), "Ok", "Files");
 
-                        // for the start: print on console
-                        configs.forEach(map -> map.values().forEach(System.out::println));
-                    }
-                });
+                    // for the start: print on console
+                    // TODO: call to DSLInterpreter -> result: Quiz
+                    configs.forEach(map -> map.values().forEach(System.out::println));
+
+
+
+                }
+            });
+
+        // get scenario-builder
+
+        // if (1) {
+        // code from WizardQuizTest.java
+        //}
 
         Game.run();
     }

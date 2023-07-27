@@ -15,6 +15,7 @@ import core.hud.UITools;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 
+import task.Task;
 import task.TaskComponent;
 import task.TaskContent;
 import task.quizquestion.Quiz;
@@ -23,6 +24,7 @@ import task.quizquestion.UIAnswerCallback;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -65,6 +67,7 @@ public class WizardQuizTest {
         Game.userOnLevelLoad(
                 () -> {
                     try {
+                        // TODO: this implements the scenario -> use this in
                         questWizard();
                     } catch (IOException e) {
                         throw new RuntimeException();
@@ -81,6 +84,7 @@ public class WizardQuizTest {
         Game.run();
     }
 
+    //private static void questWizard(Quiz quiz) throws IOException {
     private static void questWizard() throws IOException {
         Entity wizard = new Entity("Quest Wizard");
         new PositionComponent(wizard);
@@ -95,13 +99,13 @@ public class WizardQuizTest {
                                 .accept(entity));
     }
 
-    private static Consumer<Set<TaskContent>> showAnswersOnHud() {
-        return taskContents -> {
+    private static BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
+        return (task, taskContents) -> {
             AtomicReference<String> answers = new AtomicReference<>("");
             taskContents.stream()
-                    .map(t -> (Quiz.Content) t)
-                    .forEach(
-                            t -> answers.set(answers.get() + t.content() + System.lineSeparator()));
+                .map(t -> (Quiz.Content) t)
+                .forEach(
+                    t -> answers.set(answers.get() + t.content() + System.lineSeparator()));
             UITools.generateNewTextDialog(answers.get(), "Ok", "Given answer");
         };
     }
