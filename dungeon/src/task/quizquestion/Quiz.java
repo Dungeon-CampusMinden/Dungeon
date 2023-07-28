@@ -4,6 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;
+
 import task.Task;
 import task.TaskContent;
 
@@ -11,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Represents a single quiz question, including the question itself, possible answer choices, and
@@ -57,8 +57,8 @@ public class Quiz extends Task {
      * Mark an answer in the stored content as correct.
      *
      * @param index the index of the stored content
-     * @return false, if the index is out of bounds of the
-     * stored content or the corresponding content was already marked as correct
+     * @return false, if the index is out of bounds of the stored content or the corresponding
+     *     content was already marked as correct
      */
     public boolean addCorrectAnswerIndex(int index) {
         if (this.content.size() < index) {

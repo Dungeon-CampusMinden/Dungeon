@@ -2,6 +2,7 @@ package dslToGame.taskdsltypes;
 
 import semanticanalysis.types.DSLTypeAdapter;
 import semanticanalysis.types.DSLTypeMember;
+
 import task.Task;
 import task.TaskContent;
 import task.quizquestion.Quiz;
@@ -12,14 +13,18 @@ import java.util.Set;
 public class MultipleChoiceTask {
     @DSLTypeAdapter(name = "multiple_choice_task")
     public static Task buildQuizFromMultipleChoiceTask(
-        @DSLTypeMember(name="description") String description,
-        @DSLTypeMember(name="answers") List<Quiz.Content> answers,
-        @DSLTypeMember(name="correct_answer_index") List<Integer> correctAnswerIndices//,
-        // TODO: in order to use scoring functions as intended at the current implementation status,
-        //  we need to somehow convert the specific function-type (from the DSL-definition, which expects a
-        //  SingleChoiceTask-type) to a generic function-type (which accepts the Task and Set<TaskContent>)
-        //@DSLTypeMember(name="score_function") BiFunction<Task, Set<Quiz.Content>, Float> scoreFunction
-    ) {
+            @DSLTypeMember(name = "description") String description,
+            @DSLTypeMember(name = "answers") List<Quiz.Content> answers,
+            @DSLTypeMember(name = "correct_answer_index") List<Integer> correctAnswerIndices // ,
+            // TODO: in order to use scoring functions as intended at the current implementation
+            // status,
+            //  we need to somehow convert the specific function-type (from the DSL-definition,
+            // which expects a
+            //  SingleChoiceTask-type) to a generic function-type (which accepts the Task and
+            // Set<TaskContent>)
+            // @DSLTypeMember(name="score_function") BiFunction<Task, Set<Quiz.Content>, Float>
+            // scoreFunction
+            ) {
         Quiz quiz = new Quiz(Quiz.Type.MULTIPLE_CHOICE, description);
 
         for (Quiz.Content answer : answers) {
@@ -36,7 +41,7 @@ public class MultipleChoiceTask {
     }
 
     static Float score(Task t, Set<TaskContent> answers) {
-        Quiz quiz = (Quiz)t;
+        Quiz quiz = (Quiz) t;
         List<Integer> correctAnswerIndices = quiz.correctAnswerIndices();
 
         int totalCorrectAnswers = correctAnswerIndices.size();
@@ -47,6 +52,6 @@ public class MultipleChoiceTask {
                 givenCorrectAnswers++;
             }
         }
-        return (float)givenCorrectAnswers/(float)totalCorrectAnswers;
+        return (float) givenCorrectAnswers / (float) totalCorrectAnswers;
     }
 }

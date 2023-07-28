@@ -21,8 +21,6 @@ import runtime.AggregateValue;
 import runtime.GameEnvironment;
 import runtime.Value;
 
-import semanticanalysis.Scope;
-
 public class TestRuntimeObjectTranslator {
     @Test
     public void testEntityTranslation() {
@@ -130,7 +128,8 @@ public class TestRuntimeObjectTranslator {
             """;
 
         var env = new TestEnvironment();
-        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilderMultiParam.class, env.getGlobalScope());
+        env.getTypeBuilder()
+                .registerTypeAdapter(ExternalTypeBuilderMultiParam.class, env.getGlobalScope());
         var interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomTypes(
                 program,

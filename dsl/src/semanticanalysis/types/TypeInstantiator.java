@@ -26,8 +26,8 @@ public class TypeInstantiator {
     }
 
     /**
-     * Instantiate a new Object corresponding to the {@link AggregateType} of a {@link AggregateValue}
-     * containing all needed values.
+     * Instantiate a new Object corresponding to the {@link AggregateType} of a {@link
+     * AggregateValue} containing all needed values.
      *
      * @param value the aggregateValue to instantiate an object from
      * @return the instantiated object
@@ -53,8 +53,8 @@ public class TypeInstantiator {
     }
 
     /**
-     * Instantiate a new Object corresponding to the passed {@link AggregateType} with the
-     * values from an {@link AggregateValue}
+     * Instantiate a new Object corresponding to the passed {@link AggregateType} with the values
+     * from an {@link AggregateValue}
      *
      * @param value the aggregateValue to instantiate an object from
      * @param type the type to use for instantiation
@@ -151,7 +151,7 @@ public class TypeInstantiator {
                 if (aggregateFieldValue.getMemorySpace() instanceof EncapsulatedObject) {
                     // if the memoryspace of the value already encapsulates an object,
                     // return this object
-                    convertedObject =  value.getInternalValue();
+                    convertedObject = value.getInternalValue();
                 } else {
                     // call builder -> store values from memory space in order of parameters
                     // of builder-method
@@ -172,7 +172,7 @@ public class TypeInstantiator {
             } else if (value.getDataType().getTypeKind().equals(IType.Kind.SetType)) {
                 convertedObject = instantiateSet((SetValue) value);
             }
-        } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e ) {
+        } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
         return convertedObject;
@@ -247,7 +247,8 @@ public class TypeInstantiator {
                             + originalJavaClass.getName());
         }
 
-        // TODO: this does not take into account, that we maybe want to use a typeAdapter on this level!
+        // TODO: this does not take into account, that we maybe want to use a typeAdapter on this
+        // level!
 
         Object instance;
         try {

@@ -1,10 +1,5 @@
 package dslToGame.taskdsltypes;
 
-import semanticanalysis.types.DSLTypeAdapter;
-import semanticanalysis.types.DSLTypeMember;
-import task.Task;
-import task.quizquestion.Quiz;
-
 /*public class TaskBuilder {
     @DSLTypeAdapter
     public static Task buildQuizFromSingleChoiceTask(

@@ -228,7 +228,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         initializeRuntime(environment);
 
-        Value questConfigValue = (Value)generateQuestConfig(programAST);
+        Value questConfigValue = (Value) generateQuestConfig(programAST);
         return questConfigValue.getInternalValue();
     }
 
@@ -362,7 +362,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
 
                 // instantiate object as a new java Object
-                typeInstantiator.instantiateAsType((AggregateValue) memberValue, membersOriginalType);
+                typeInstantiator.instantiateAsType(
+                        (AggregateValue) memberValue, membersOriginalType);
             }
         }
 
@@ -393,13 +394,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
             memoryStack.pop();
             // convert from memorySpace to concrete object
-            Object createdObject = createObjectFromValue((AggregateValue)objectsValue);
+            Object createdObject = createObjectFromValue((AggregateValue) objectsValue);
             EncapsulatedObject encapsulatedObject =
-                new EncapsulatedObject(
-                    createdObject,
-                    (AggregateType) objectsValue.getDataType(),
-                    this.environment
-                );
+                    new EncapsulatedObject(
+                            createdObject,
+                            (AggregateType) objectsValue.getDataType(),
+                            this.environment);
             ((AggregateValue) objectsValue).setMemorySpace(encapsulatedObject);
             objectsValue.setInternalValue(createdObject);
         }

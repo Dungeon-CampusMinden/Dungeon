@@ -13,8 +13,8 @@ import parser.DungeonASTConverter;
 
 import runtime.GameEnvironment;
 import runtime.MemorySpace;
-
 import runtime.Value;
+
 import semanticanalysis.ScopedSymbol;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.Symbol;
@@ -133,7 +133,7 @@ public class Helpers {
         symbolTableParser.walk(ast);
 
         interpreter.initializeRuntime(environment);
-        Value questConfigValue = (Value)interpreter.generateQuestConfig(ast);
+        Value questConfigValue = (Value) interpreter.generateQuestConfig(ast);
         return questConfigValue.getInternalValue();
     }
 

@@ -202,7 +202,10 @@ public class TypeBuilder {
                 List<Method> typeAdaptersForType = this.typeAdapters.get(forType);
                 for (Method adapter : typeAdaptersForType) {
                     if (doParameterTypesMatch(adapter, method)) {
-                        throw new UnsupportedOperationException("An adapter for class "+ forType.getName() + " with the same signature was already registered");
+                        throw new UnsupportedOperationException(
+                                "An adapter for class "
+                                        + forType.getName()
+                                        + " with the same signature was already registered");
                     }
                 }
 
@@ -210,15 +213,15 @@ public class TypeBuilder {
 
                 if (annotation.createPseudoDSLType()) {
                     String dslTypeName =
-                        annotation.name().equals("")
-                            ? convertToDSLName(forType.getSimpleName())
-                            : annotation.name();
+                            annotation.name().equals("")
+                                    ? convertToDSLName(forType.getSimpleName())
+                                    : annotation.name();
 
                     // create adapterType
                     var adapterType = createAdapterType(forType, dslTypeName, method, parentScope);
 
                     this.javaTypeToDSLType.put(forType, adapterType);
-                    parentScope.bind((Symbol)adapterType);
+                    parentScope.bind((Symbol) adapterType);
                 }
                 return true;
             }
@@ -261,9 +264,15 @@ public class TypeBuilder {
 
                     // if the cast fails, the type may be a parameterized type (e.g. list or set)
                     if (List.class.isAssignableFrom((Class<?>) parametersType)) {
-                        paramDSLType = createListType((ParameterizedType) parametersAnnotatedType.getType(), parentScope);
-                    } else if (Set.class.isAssignableFrom((Class<?>)parametersType)) {
-                        paramDSLType = createSetType((ParameterizedType) parametersAnnotatedType.getType(), parentScope);
+                        paramDSLType =
+                                createListType(
+                                        (ParameterizedType) parametersAnnotatedType.getType(),
+                                        parentScope);
+                    } else if (Set.class.isAssignableFrom((Class<?>) parametersType)) {
+                        paramDSLType =
+                                createSetType(
+                                        (ParameterizedType) parametersAnnotatedType.getType(),
+                                        parentScope);
                     }
 
                     currentLookedUpClasses.remove(forType);

@@ -60,7 +60,7 @@ public class GameEnvironment implements IEvironment {
                     AIComponent.class,
                     CollideComponent.class,
                     Task.class,
-                    //SingleChoiceTask.class,
+                    // SingleChoiceTask.class,
                     Quiz.Content.class
                 };
     }

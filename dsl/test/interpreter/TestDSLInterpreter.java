@@ -16,7 +16,6 @@ import parser.ast.Node;
 
 import runtime.*;
 
-import semanticanalysis.Scope;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
 
@@ -648,7 +647,8 @@ public class TestDSLInterpreter {
 
         // setup test type system
         var env = new TestEnvironment();
-        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilderMultiParam.class, env.getGlobalScope());
+        env.getTypeBuilder()
+                .registerTypeAdapter(ExternalTypeBuilderMultiParam.class, env.getGlobalScope());
         DSLInterpreter interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomTypes(
                 program,

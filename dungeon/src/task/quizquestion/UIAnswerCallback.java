@@ -22,7 +22,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 
 /**
  * Contains functions to build an easy-to-use Consumer as a callback for the {@link
@@ -31,8 +30,7 @@ import java.util.function.Consumer;
  * <p>The Consumer will show the given {@link Quiz} on the HUD and will call the (as parameter)
  * given Callback with the given answers as a {@link Quiz.Content}-Set.
  *
- * <p>Use  to get the consumer that you can use as an
- * interaction callback.
+ * <p>Use to get the consumer that you can use as an interaction callback.
  */
 public final class UIAnswerCallback {
 

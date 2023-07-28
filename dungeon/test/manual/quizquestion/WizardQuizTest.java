@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * Test scenario for the UI Callbacks.
@@ -84,7 +83,7 @@ public class WizardQuizTest {
         Game.run();
     }
 
-    //private static void questWizard(Quiz quiz) throws IOException {
+    // private static void questWizard(Quiz quiz) throws IOException {
     private static void questWizard() throws IOException {
         Entity wizard = new Entity("Quest Wizard");
         new PositionComponent(wizard);
@@ -96,16 +95,16 @@ public class WizardQuizTest {
                 false,
                 (entity, who) ->
                         UIAnswerCallback.askOnInteraction(question, showAnswersOnHud())
-                                .accept(entity,who));
+                                .accept(entity, who));
     }
 
     private static BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
         return (task, taskContents) -> {
             AtomicReference<String> answers = new AtomicReference<>("");
             taskContents.stream()
-                .map(t -> (Quiz.Content) t)
-                .forEach(
-                    t -> answers.set(answers.get() + t.content() + System.lineSeparator()));
+                    .map(t -> (Quiz.Content) t)
+                    .forEach(
+                            t -> answers.set(answers.get() + t.content() + System.lineSeparator()));
             UITools.generateNewTextDialog(answers.get(), "Ok", "Given answer");
         };
     }
