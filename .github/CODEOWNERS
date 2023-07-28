@@ -1,18 +1,5 @@
 # global owner
-* @cagix
-
-# gradle
-build.gradle @Programmiermethoden/dungeon
-settings.gradle @Programmiermethoden/dungeon
+* @Programmiermethoden/dungeon
 
 # game owner
 /game/ @AMatutat @Programmiermethoden/codrs
-
-# dsl owner
-/dsl/ @malt-r @Programmiermethoden/dungeon
-
-#dsl connector owner
-/dungeon/ @malt-r @AMatutat @Programmiermethoden/dungeon
-
-#doc folder
-/doc/ @Programmiermethoden/dungeon
