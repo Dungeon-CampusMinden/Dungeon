@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -93,9 +94,15 @@ public class TaskGenerationTest {
 
     //private static void questWizard(Quiz quiz) throws IOException {
     private static void questWizard(Quiz quiz) throws IOException {
+        Random random = new Random();
+        String texture = "character/wizard";
+        if (random.nextInt() % 2 == 0) {
+            texture = "character/blue_knight";
+        }
+
         Entity wizard = new Entity("Quest Wizard");
         new PositionComponent(wizard);
-        new DrawComponent(wizard, "character/wizard");
+        new DrawComponent(wizard, texture);
         new TaskComponent(wizard, quiz);
         new InteractionComponent(
             wizard, 1, false, UIAnswerCallback.askOnInteraction(quiz, showAnswersOnHud()));
