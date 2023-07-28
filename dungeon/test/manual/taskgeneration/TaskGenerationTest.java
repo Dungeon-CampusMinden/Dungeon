@@ -1,7 +1,6 @@
 package manual.taskgeneration;
 
 import contrib.components.InteractionComponent;
-import contrib.configuration.ItemConfig;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
 import core.Entity;
@@ -42,8 +41,7 @@ public class TaskGenerationTest {
         Game.loadConfig(
             "dungeon_config.json",
             contrib.configuration.KeyboardConfig.class,
-            core.configuration.KeyboardConfig.class,
-            ItemConfig.class);
+            core.configuration.KeyboardConfig.class);
         Game.disableAudio(true);
         Game.userOnLevelLoad(
             new IVoidFunction() {
@@ -105,7 +103,7 @@ public class TaskGenerationTest {
         new DrawComponent(wizard, texture);
         new TaskComponent(wizard, quiz);
         new InteractionComponent(
-            wizard, 1, false, UIAnswerCallback.askOnInteraction(quiz, showAnswersOnHud()));
+            wizard, 1, true, UIAnswerCallback.askOnInteraction(quiz, showAnswersOnHud()));
     }
 
     private static BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {

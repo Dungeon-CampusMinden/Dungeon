@@ -31,7 +31,7 @@ import java.util.function.Consumer;
  * <p>The Consumer will show the given {@link Quiz} on the HUD and will call the (as parameter)
  * given Callback with the given answers as a {@link Quiz.Content}-Set.
  *
- * <p>Use {@link #askOnInteraction(Quiz, Consumer)} to get the consumer that you can use as an
+ * <p>Use  to get the consumer that you can use as an
  * interaction callback.
  */
 public final class UIAnswerCallback {
@@ -45,9 +45,9 @@ public final class UIAnswerCallback {
      *     answers.
      * @return Consumer to use as a callback for the interaction component.
      */
-    public static Consumer<Entity> askOnInteraction(
+    public static BiConsumer<Entity, Entity> askOnInteraction(
             Quiz quiz, BiConsumer<Task, Set<TaskContent>> dslCallback) {
-        return questGiver ->
+        return (questGiver, player) ->
                 QuizUI.showQuizDialog(
                         quiz, (Entity hudEntity) -> uiCallback(quiz, hudEntity, dslCallback));
     }

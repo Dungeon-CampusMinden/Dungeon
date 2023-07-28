@@ -96,7 +96,7 @@ public class WizardQuizTest {
                 false,
                 (entity, who) ->
                         UIAnswerCallback.askOnInteraction(question, showAnswersOnHud())
-                                .accept(entity));
+                                .accept(entity,who));
     }
 
     private static BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
