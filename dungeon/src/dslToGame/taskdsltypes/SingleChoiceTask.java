@@ -44,8 +44,12 @@ public class SingleChoiceTask {
         if (answers.size() != 1) {
             return 0.0f;
         }
+        var contents = t.contentStream().toList();
+        if (contents.size() <= correctAnswerIndex) {
+            return 0.0f;
+        }
         TaskContent givenAnswer = answers.stream().toList().get(0);
-        TaskContent correctAnswer = t.contentStream().toList().get(correctAnswerIndex);
+        TaskContent correctAnswer = contents.get(correctAnswerIndex);
         if (givenAnswer.equals(correctAnswer)) {
             return 1.0f;
         } else {

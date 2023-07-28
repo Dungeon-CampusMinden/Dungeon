@@ -46,8 +46,12 @@ public class MultipleChoiceTask {
 
         int totalCorrectAnswers = correctAnswerIndices.size();
         int givenCorrectAnswers = 0;
+        var contents = t.contentStream().toList();
         for (int answerIndex : correctAnswerIndices) {
-            TaskContent correctAnswer = t.contentStream().toList().get(answerIndex);
+            if (contents.size() <= answerIndex) {
+                continue;
+            }
+            TaskContent correctAnswer = contents.get(answerIndex);
             if (answers.contains(correctAnswer)) {
                 givenCorrectAnswers++;
             }
