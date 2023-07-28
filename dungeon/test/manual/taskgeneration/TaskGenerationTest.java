@@ -56,7 +56,6 @@ public class TaskGenerationTest {
                             // oh well
                         }
 
-
                         Set<File> files = DslFileLoader.dslFiles();
                         List<String> fileContents =
                                 files.stream()
