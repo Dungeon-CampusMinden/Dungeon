@@ -47,20 +47,22 @@ public class TaskGenerationTest {
                 new IVoidFunction() {
                     @Override
                     public void execute() {
+                        // filler content
+
+                        try {
+                            EntityFactory.randomMonster();
+                            EntityFactory.newChest();
+                        } catch (IOException e) {
+                            // oh well
+                        }
+
+
                         Set<File> files = DslFileLoader.dslFiles();
                         List<String> fileContents =
                                 files.stream()
                                         .filter(f -> f.getName().endsWith("task_test.dng"))
                                         .map(DslFileLoader::fileToString)
                                         .toList();
-                        /*Set<Map<String, String>> configs =
-                            fileContents.stream()
-                                .map(DummyDSLFunctions::getConfigs)
-                                .collect(Collectors.toSet());
-
-                        AtomicReference<String> f = new AtomicReference<>("");
-                        files.forEach(v -> f.set(f.get() + v + System.lineSeparator()));
-                        UITools.generateNewTextDialog(f.get(), "Ok", "Files");*/
 
                         // for the start: print on console
                         // TODO: call to DSLInterpreter -> result: Quiz
@@ -74,6 +76,8 @@ public class TaskGenerationTest {
         Game.addSystem(new HealthSystem());
         Game.addSystem(new XPSystem());
         Game.addSystem(new ProjectileSystem());
+        Game.addSystem(new HealthbarSystem());
+        Game.addSystem(new HeroUISystem());
 
         Game.run();
     }
