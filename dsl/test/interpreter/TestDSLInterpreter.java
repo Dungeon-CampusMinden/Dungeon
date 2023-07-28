@@ -18,7 +18,7 @@ import runtime.*;
 
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
-import task.Task;
+
 import task.quizquestion.Quiz;
 
 import java.io.ByteArrayOutputStream;
@@ -1318,23 +1318,22 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         var config = (QuestConfig) interpreter.getQuestConfig(program);
 
-        Quiz singleChoiceTask = (Quiz)config.tasks().get(0);
+        Quiz singleChoiceTask = (Quiz) config.tasks().get(0);
         Assert.assertEquals(Quiz.Type.SINGLE_CHOICE, singleChoiceTask.type());
         Assert.assertEquals("Hello", singleChoiceTask.taskText());
         Assert.assertTrue(singleChoiceTask.correctAnswerIndices().contains(1));
         var answers = singleChoiceTask.contentStream().toList();
-        Assert.assertEquals("1", ((Quiz.Content)answers.get(0)).content());
-        Assert.assertEquals("2", ((Quiz.Content)answers.get(1)).content());
-        Assert.assertEquals("3", ((Quiz.Content)answers.get(2)).content());
+        Assert.assertEquals("1", ((Quiz.Content) answers.get(0)).content());
+        Assert.assertEquals("2", ((Quiz.Content) answers.get(1)).content());
+        Assert.assertEquals("3", ((Quiz.Content) answers.get(2)).content());
 
-
-        Quiz multipleChoiceTask = (Quiz)config.tasks().get(1);
+        Quiz multipleChoiceTask = (Quiz) config.tasks().get(1);
         Assert.assertEquals(Quiz.Type.MULTIPLE_CHOICE, multipleChoiceTask.type());
         Assert.assertEquals("Tschüss", multipleChoiceTask.taskText());
         Assert.assertTrue(multipleChoiceTask.correctAnswerIndices().contains(1));
         var multipleChoiceAnswers = multipleChoiceTask.contentStream().toList();
-        Assert.assertEquals("4", ((Quiz.Content)multipleChoiceAnswers.get(0)).content());
-        Assert.assertEquals("5", ((Quiz.Content)multipleChoiceAnswers.get(1)).content());
-        Assert.assertEquals("6", ((Quiz.Content)multipleChoiceAnswers.get(2)).content());
+        Assert.assertEquals("4", ((Quiz.Content) multipleChoiceAnswers.get(0)).content());
+        Assert.assertEquals("5", ((Quiz.Content) multipleChoiceAnswers.get(1)).content());
+        Assert.assertEquals("6", ((Quiz.Content) multipleChoiceAnswers.get(2)).content());
     }
 }
