@@ -38,16 +38,15 @@ public class MultipleChoiceTask {
     static Float score(Task t, Set<TaskContent> answers) {
         Quiz quiz = (Quiz)t;
         List<Integer> correctAnswerIndices = quiz.correctAnswerIndices();
-        if (answers.size() != correctAnswerIndices.size()) {
-            return 0.0f;
-        }
 
+        int totalCorrectAnswers = correctAnswerIndices.size();
+        int givenCorrectAnswers = 0;
         for (int answerIndex : correctAnswerIndices) {
             TaskContent correctAnswer = t.contentStream().toList().get(answerIndex);
-            if (!answers.contains(correctAnswer)) {
-                return 0.0f;
+            if (answers.contains(correctAnswer)) {
+                givenCorrectAnswers++;
             }
         }
-        return 1.0f;
+        return (float)givenCorrectAnswers/(float)totalCorrectAnswers;
     }
 }
