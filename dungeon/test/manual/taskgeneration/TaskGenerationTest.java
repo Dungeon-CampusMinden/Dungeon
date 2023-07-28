@@ -37,7 +37,7 @@ public class TaskGenerationTest {
     public static void main(String[] args) throws IOException {
         Game.initBaseLogger();
         Game.hero(EntityFactory.newHero());
-        LevelSystem.levelSize(LevelSize.SMALL);
+        LevelSystem.levelSize(LevelSize.MEDIUM);
         Game.loadConfig(
                 "dungeon_config.json",
                 contrib.configuration.KeyboardConfig.class,
