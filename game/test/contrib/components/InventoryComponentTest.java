@@ -7,12 +7,21 @@ import static org.junit.Assert.assertTrue;
 import contrib.utils.components.item.ItemData;
 
 import core.Entity;
+import core.Game;
 
+import org.junit.After;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.Set;
 
 public class InventoryComponentTest {
+
+    @After
+    public void cleanup() {
+        Game.removeAllEntities();
+    }
+
     /** constructor should create the inventory with the given parameters. */
     @Test
     public void validCreation() {
@@ -137,5 +146,47 @@ public class InventoryComponentTest {
         Set<ItemData> list = ic.items();
         assertEquals("should have no Items", 0, list.size());
         assertFalse("Item should be in returned List", list.contains(itemData));
+    }
+
+    @Test
+    public void tranfserItem() {
+        InventoryComponent ic = new InventoryComponent(new Entity(), 1);
+        InventoryComponent other = new InventoryComponent(new Entity(), 1);
+        ItemData item = Mockito.mock(ItemData.class);
+        ic.add(item);
+        assertTrue(ic.items().contains(item));
+        assertTrue(ic.transfer(item, other));
+        assertTrue(other.items().contains(item));
+        assertFalse("Item should be removed from this inventroy.", ic.items().contains(item));
+    }
+
+    @Test
+    public void tranfserItemNoSpace() {
+        InventoryComponent ic = new InventoryComponent(new Entity(), 1);
+        InventoryComponent other = new InventoryComponent(new Entity(), 0);
+        ItemData item = Mockito.mock(ItemData.class);
+        ic.add(item);
+        assertTrue(ic.items().contains(item));
+        assertFalse("Other inventory is full, no transfer possible", ic.transfer(item, other));
+        assertFalse("Item should not be transfered", other.items().contains(item));
+        assertTrue("Item should still be in tis inventroy.", ic.items().contains(item));
+    }
+
+    @Test
+    public void tranfserItemNoItem() {
+        InventoryComponent ic = new InventoryComponent(new Entity(), 1);
+        InventoryComponent other = new InventoryComponent(new Entity(), 1);
+        ItemData item = Mockito.mock(ItemData.class);
+        assertFalse("No item, no transfer", ic.transfer(item, other));
+    }
+
+    @Test
+    public void transferToItself() {
+        InventoryComponent ic = new InventoryComponent(new Entity(), 1);
+        ItemData item = Mockito.mock(ItemData.class);
+        ic.add(item);
+        assertTrue(ic.items().contains(item));
+        assertFalse("Can not transfer item to itself.", ic.transfer(item, ic));
+        assertTrue("Item should still be in tis inventroy.", ic.items().contains(item));
     }
 }
