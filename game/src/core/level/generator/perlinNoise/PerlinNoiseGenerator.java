@@ -3,7 +3,6 @@ package core.level.generator.perlinNoise;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.generator.IGenerator;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
@@ -114,9 +113,6 @@ public class PerlinNoiseGenerator implements IGenerator {
                 }
             }
         }
-        // pick random floor tile as exit
-        Coordinate c = randomFloorFrom(res, random);
-        res[c.y][c.x] = LevelElement.EXIT;
         return res;
     }
 
@@ -136,16 +132,5 @@ public class PerlinNoiseGenerator implements IGenerator {
                     + MEDIUM_MIN_Y_SIZE;
             default -> random.nextInt(SMALL_MAX_Y_SIZE - SMALL_MIN_Y_SIZE) + SMALL_MIN_Y_SIZE;
         };
-    }
-
-    private static Coordinate randomFloorFrom(LevelElement[][] layout, Random random) {
-        Coordinate coordinate =
-                new Coordinate(random.nextInt(layout[0].length), random.nextInt(layout.length));
-        LevelElement randomTile = layout[coordinate.y][coordinate.x];
-        if (randomTile == LevelElement.FLOOR) {
-            return coordinate;
-        } else {
-            return randomFloorFrom(layout, random);
-        }
     }
 }
