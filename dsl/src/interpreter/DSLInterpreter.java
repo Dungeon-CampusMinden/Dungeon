@@ -249,7 +249,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 if (objDefNode.getTypeSpecifierName().equals("quest_config")) {
                     return objDefNode.accept(this);
                 }
-                // break;
             }
         }
         return Value.NONE;

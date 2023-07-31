@@ -21,14 +21,14 @@ import java.util.regex.Pattern;
 public class TypeBuilder {
     private final HashMap<Class<?>, List<Method>> typeAdapters;
     private final HashMap<Type, IType> javaTypeToDSLType;
-    private final HashSet<Class<?>> currentLookedUpClasses;
+    private final HashSet<Type> currentLookedUpTypes;
     private final HashMap<Class<?>, IFunctionTypeBuilder> functionTypeBuilders;
 
     /** Constructor */
     public TypeBuilder() {
         this.typeAdapters = new HashMap<>();
         this.javaTypeToDSLType = new HashMap<>();
-        this.currentLookedUpClasses = new HashSet<>();
+        this.currentLookedUpTypes = new HashSet<>();
         this.functionTypeBuilders = new HashMap<>();
 
         setupFunctionTypeBuilders();
@@ -188,7 +188,7 @@ public class TypeBuilder {
      *
      * @param adapterClass the adapter to register
      */
-    public boolean registerTypeAdapter(Class<?> adapterClass, IScope parentScope) {
+    public void registerTypeAdapter(Class<?> adapterClass, IScope parentScope) {
         for (var method : adapterClass.getDeclaredMethods()) {
             if (method.isAnnotationPresent(DSLTypeAdapter.class)
                     && Modifier.isStatic(method.getModifiers())) {
@@ -211,22 +211,19 @@ public class TypeBuilder {
 
                 this.typeAdapters.get(forType).add(method);
 
-                if (annotation.createPseudoDSLType()) {
-                    String dslTypeName =
-                            annotation.name().equals("")
-                                    ? convertToDSLName(forType.getSimpleName())
-                                    : annotation.name();
+                String dslTypeName =
+                        annotation.name().equals("")
+                                ? convertToDSLName(forType.getSimpleName())
+                                : annotation.name();
 
-                    // create adapterType
-                    var adapterType = createAdapterType(forType, dslTypeName, method, parentScope);
+                // create adapterType
+                var adapterType = createAdapterType(forType, dslTypeName, method, parentScope);
 
-                    this.javaTypeToDSLType.put(forType, adapterType);
-                    parentScope.bind((Symbol) adapterType);
-                }
-                return true;
+                this.javaTypeToDSLType.put(forType, adapterType);
+                parentScope.bind((Symbol) adapterType);
+                return;
             }
         }
-        return true;
     }
 
     public IType createAdapterType(
@@ -240,9 +237,9 @@ public class TypeBuilder {
 
         if (adapterMethod.getParameterCount() == 1) {
             var paramType = adapterMethod.getParameterTypes()[0];
-            currentLookedUpClasses.add(forType);
+            currentLookedUpTypes.add(forType);
             IType paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, paramType);
-            currentLookedUpClasses.remove(forType);
+            currentLookedUpTypes.remove(forType);
             return new AdaptedType(
                     dslTypeName, parentScope, forType, (BuiltInType) paramDSLType, adapterMethod);
         } else {
@@ -253,15 +250,12 @@ public class TypeBuilder {
                 String parameterName = getDSLParameterName(parameter);
                 Type parametersType = parameter.getType();
 
-                currentLookedUpClasses.add(forType);
+                currentLookedUpTypes.add(forType);
                 IType paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, parametersType);
-                currentLookedUpClasses.remove(forType);
-
                 if (paramDSLType == null) {
-                    // it does not work on Generic Classes here...
-                    var parametersAnnotatedType = parameter.getAnnotatedType();
-                    currentLookedUpClasses.add(forType);
+                    // TODO: comment
 
+                    var parametersAnnotatedType = parameter.getAnnotatedType();
                     // if the cast fails, the type may be a parameterized type (e.g. list or set)
                     if (List.class.isAssignableFrom((Class<?>) parametersType)) {
                         paramDSLType =
@@ -274,9 +268,9 @@ public class TypeBuilder {
                                         (ParameterizedType) parametersAnnotatedType.getType(),
                                         parentScope);
                     }
-
-                    currentLookedUpClasses.remove(forType);
                 }
+                currentLookedUpTypes.remove(forType);
+
                 Symbol parameterSymbol = new Symbol(parameterName, typeAdapter, paramDSLType);
                 typeAdapter.bind(parameterSymbol);
             }
@@ -390,9 +384,9 @@ public class TypeBuilder {
             // if it is not already in the converted types, try to convert it -> check for
             // DSLType
             // annotation
-            this.currentLookedUpClasses.add(parentClass);
+            this.currentLookedUpTypes.add(parentClass);
             memberDSLType = createDSLTypeForJavaTypeInScope(globalScope, field.getType());
-            this.currentLookedUpClasses.remove(parentClass);
+            this.currentLookedUpTypes.remove(parentClass);
         }
 
         return new Symbol(fieldName, parentType, memberDSLType);
@@ -415,6 +409,11 @@ public class TypeBuilder {
      * @param type the java {@link Type} to create a DSL {@link IType} from
      */
     public IType createDSLTypeForJavaTypeInScope(IScope globalScope, Type type) {
+        // catch recursion
+        if (this.currentLookedUpTypes.contains(type)) {
+            throw new RuntimeException("RECURSIVE TYPE DEF");
+        }
+
         if (this.javaTypeToDSLType.containsKey(type)) {
             return this.javaTypeToDSLType.get(type);
         }
@@ -431,7 +430,6 @@ public class TypeBuilder {
         try {
             clazz = (Class<?>) type;
         } catch (ClassCastException ex) {
-            // TODO: this won't work for ArrayList..
             if (type instanceof ParameterizedType parameterizedType) {
                 var rawType = parameterizedType.getRawType();
                 try {
@@ -450,6 +448,7 @@ public class TypeBuilder {
             }
         }
 
+        // trye to resolve the typename in global scope
         String typeName = getDSLTypeName(clazz);
         Symbol resolved = globalScope.resolve(typeName);
         if (resolved != Symbol.NULL) {
@@ -470,11 +469,7 @@ public class TypeBuilder {
             return null;
         }
 
-        // catch recursion
-        if (this.currentLookedUpClasses.contains(type)) {
-            throw new RuntimeException("RECURSIVE TYPE DEF");
-        }
-
+        // create new AggregateType for clazz
         var aggregateType = new AggregateType(typeName, globalScope, clazz);
         for (Field field : clazz.getDeclaredFields()) {
             // bind new Symbol
