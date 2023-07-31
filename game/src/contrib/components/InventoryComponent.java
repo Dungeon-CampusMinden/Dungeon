@@ -87,6 +87,28 @@ public final class InventoryComponent extends Component {
     }
 
     /**
+     * Transfer the given item from this inventory to the given inventory.
+     *
+     * <p>If the given item is not present in this inventory or the other inventory is full, the
+     * transfer will not be successful.
+     *
+     * <p>If the transfer was successful, the given item will be removed from this inventory.
+     *
+     * <p>Will not trigger {@link ItemData#onCollect()} or {@link ItemData#onDrop()}.
+     *
+     * <p>Cannot transfer the item to itself.
+     *
+     * @param itemData Item to transfer.
+     * @param other {@link InventoryComponent} to transfer the item to.
+     * @return true if the transfer was successful, false if not.
+     */
+    public boolean transfer(final ItemData itemData, final InventoryComponent other) {
+        if (!other.equals(this) && inventory.contains(itemData) && other.add(itemData))
+            return remove(itemData);
+        return false;
+    }
+
+    /**
      * Get the number of items stored.
      *
      * @return The number of items that are stored in this component.
