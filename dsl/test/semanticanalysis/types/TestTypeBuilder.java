@@ -327,7 +327,5 @@ public class TestTypeBuilder {
         assertEquals("float<>", floatSetSymbol.getDataType().getName());
         setType = (SetType) floatSetSymbol.getDataType();
         assertEquals(BuiltInType.floatType, setType.getElementType());
-
-        boolean b = true;
     }
 }

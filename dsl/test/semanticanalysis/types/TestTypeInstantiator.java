@@ -43,9 +43,6 @@ public class TestTypeInstantiator {
 
         int memberCounter = 0;
         for (var member : type.getSymbols()) {
-            if (Objects.equals(member.getName(), "tasks")) {
-                boolean b = true;
-            }
             Helpers.bindDefaultValueInMemorySpace(member, ms, interpreter);
 
             if (member.getDataType().equals(BuiltInType.intType)) {

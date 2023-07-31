@@ -101,7 +101,6 @@ public class Helpers {
     public static void bindDefaultValueInMemorySpace(
             Symbol symbol, MemorySpace ms, DSLInterpreter interpreter) {
         var defaultValue = interpreter.createDefaultValue(symbol.getDataType());
-        // var value = new Value(symbol.getDataType(), defaultValue);
         ms.bindValue(symbol.getName(), defaultValue);
     }
 
