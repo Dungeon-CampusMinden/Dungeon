@@ -26,10 +26,16 @@ desktop.ini
 tmp/
 temp/
 
+
 # Logging #
 ###########
 *.log
 logs/
+
+
+# Game Generated Files #
+########################
+dungeon_config.json
 
 
 # JAVA, Scala #
@@ -57,7 +63,3 @@ replay_pid*
 *.zip
 *.tgz
 *.tar.gz
-
-# Game Generated Files #
-########################
-dungeon_config.json
