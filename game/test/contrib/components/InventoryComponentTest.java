@@ -154,9 +154,9 @@ public class InventoryComponentTest {
         InventoryComponent other = new InventoryComponent(new Entity(), 1);
         ItemData item = Mockito.mock(ItemData.class);
         ic.add(item);
-        assertTrue(ic.items().contains(item));
-        assertTrue(ic.transfer(item, other));
-        assertTrue(other.items().contains(item));
+        assertTrue("Item should be in the inventory.", ic.items().contains(item));
+        assertTrue("Transfer should be successfully.", ic.transfer(item, other));
+        assertTrue("Item should now be in the other inventory.", other.items().contains(item));
         assertFalse("Item should be removed from this inventroy.", ic.items().contains(item));
     }
 
@@ -166,7 +166,7 @@ public class InventoryComponentTest {
         InventoryComponent other = new InventoryComponent(new Entity(), 0);
         ItemData item = Mockito.mock(ItemData.class);
         ic.add(item);
-        assertTrue(ic.items().contains(item));
+        assertTrue("Item should be in the inventory.", ic.items().contains(item));
         assertFalse("Other inventory is full, no transfer possible", ic.transfer(item, other));
         assertFalse("Item should not be transfered", other.items().contains(item));
         assertTrue("Item should still be in tis inventroy.", ic.items().contains(item));
@@ -181,11 +181,11 @@ public class InventoryComponentTest {
     }
 
     @Test
-    public void transferToItself() {
+    public void transferItemToItself() {
         InventoryComponent ic = new InventoryComponent(new Entity(), 1);
         ItemData item = Mockito.mock(ItemData.class);
         ic.add(item);
-        assertTrue(ic.items().contains(item));
+        assertTrue("Item should be in the inventory.", ic.items().contains(item));
         assertFalse("Can not transfer item to itself.", ic.transfer(item, ic));
         assertTrue("Item should still be in tis inventroy.", ic.items().contains(item));
     }
