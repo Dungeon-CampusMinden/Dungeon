@@ -66,7 +66,6 @@ public class WizardQuizTest {
         Game.userOnLevelLoad(
                 () -> {
                     try {
-                        // TODO: this implements the scenario -> use this in
                         questWizard();
                     } catch (IOException e) {
                         throw new RuntimeException();
@@ -83,7 +82,6 @@ public class WizardQuizTest {
         Game.run();
     }
 
-    // private static void questWizard(Quiz quiz) throws IOException {
     private static void questWizard() throws IOException {
         Entity wizard = new Entity("Quest Wizard");
         new PositionComponent(wizard);

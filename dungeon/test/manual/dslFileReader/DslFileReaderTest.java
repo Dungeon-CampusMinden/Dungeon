@@ -42,16 +42,9 @@ public class DslFileReaderTest {
                         UITools.generateNewTextDialog(f.get(), "Ok", "Files");
 
                         // for the start: print on console
-                        // TODO: call to DSLInterpreter -> result: Quiz
                         configs.forEach(map -> map.values().forEach(System.out::println));
                     }
                 });
-
-        // get scenario-builder
-
-        // if (1) {
-        // code from WizardQuizTest.java
-        // }
 
         Game.run();
     }

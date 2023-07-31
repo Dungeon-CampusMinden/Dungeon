@@ -63,7 +63,6 @@ public class TestTypeInstantiator {
         AggregateValue aggregateValue = new AggregateValue(type, null);
         aggregateValue.setMemorySpace(ms);
 
-        // DSLInterpreter interpreter = new DSLInterpreter();
         TypeInstantiator ti = new TypeInstantiator(interpreter);
         var instance = ti.instantiate(aggregateValue);
 
@@ -126,7 +125,6 @@ public class TestTypeInstantiator {
         AggregateValue aggregateValue = new AggregateValue(type, null);
         aggregateValue.setMemorySpace(ms);
 
-        // DSLInterpreter interpreter = new DSLInterpreter();
         TypeInstantiator ti = new TypeInstantiator(interpreter);
         var instance = ti.instantiate(aggregateValue);
 
