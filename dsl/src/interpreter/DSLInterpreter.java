@@ -488,87 +488,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return new Value(BuiltInType.graphType, graph);
     }
 
-    // TODO: this should probably check for type compatibility
-    // TODO: implement type conversion for content
-    private boolean setValue(Value assignee, Value valueToAssign) {
-        if (assignee == Value.NONE) {
-            return false;
-        }
-        // if the lhs is a pod, set the internal value, otherwise, set the MemorySpace of the
-        // returned value
-        if (assignee instanceof AggregateValue aggregateAssignee) {
-            if (!(valueToAssign instanceof AggregateValue aggregateValueToAssign)) {
-                // if the value to assign is not an aggregate value, we might have
-                // the case, where we wan't to assign a basic Value to a Content object
-
-                IType assigneesType = assignee.getDataType();
-                if (assigneesType.getName().equals("content")) {
-                    // TODO: just making it work for now...
-                    String stringValue = valueToAssign.getInternalValue().toString();
-                    Quiz.Content content = new Quiz.Content(stringValue);
-                    EncapsulatedObject encapsulatedObject =
-                            new EncapsulatedObject(
-                                    content, (AggregateType) assigneesType, this.environment);
-
-                    aggregateAssignee.setMemorySpace(encapsulatedObject);
-                    aggregateAssignee.setInternalValue(content);
-                } else {
-                    throw new RuntimeException(
-                            "Can't assign Value of type "
-                                    + valueToAssign.getDataType()
-                                    + " to Value of "
-                                    + assigneesType);
-                }
-            } else {
-                aggregateAssignee.setMemorySpace(aggregateValueToAssign.getMemorySpace());
-                aggregateAssignee.setInternalValue(aggregateValueToAssign.getInternalValue());
-            }
-        } else if (assignee instanceof ListValue assigneeListValue) {
-            if (!(valueToAssign instanceof ListValue listValueToAssign)) {
-                throw new RuntimeException(
-                        "Can't assign value "
-                                + valueToAssign
-                                + " to ListValue, it is not a ListValue itself!");
-            }
-
-            assigneeListValue.clearList();
-
-            IType entryType = assigneeListValue.getDataType().getElementType();
-            for (var valueToAdd : listValueToAssign.getValues()) {
-                Value entryAssigneeValue = createDefaultValue(entryType);
-
-                // we cannot directly set the entryValueToAssign, because we potentially
-                // have to do type conversions (convert a String into a Content-Object)
-                setValue(entryAssigneeValue, valueToAdd);
-
-                assigneeListValue.addValue(entryAssigneeValue);
-            }
-        } else if (assignee instanceof SetValue assigneeSetValue) {
-            if (!(valueToAssign instanceof SetValue setValueToAssign)) {
-                throw new RuntimeException(
-                        "Can't assign value "
-                                + valueToAssign
-                                + " to SetValue, it is not a SetValue itself!");
-            }
-
-            assigneeSetValue.clearSet();
-
-            IType entryType = assigneeSetValue.getDataType().getElementType();
-            Set<Value> valuesToAdd = setValueToAssign.getValues();
-            for (Value valueToAdd : valuesToAdd) {
-                Value entryAssigneeValue = createDefaultValue(entryType);
-
-                // we cannot directly set the entryValueToAssign, because we potentially
-                // have to do type conversions (convert a String into a Content-Object)
-                setValue(entryAssigneeValue, valueToAdd);
-
-                assigneeSetValue.addValue(entryAssigneeValue);
-            }
-        } else {
-            assignee.setInternalValue(valueToAssign.getInternalValue());
-        }
-        return true;
-    }
 
     @Override
     public Object visit(StmtBlockNode node) {
@@ -786,6 +705,104 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
         return setValue;
     }
+
+    // region value-setting
+    private void setAggregateValue(AggregateValue aggregateAssignee, Value valueToAssign) {
+        if (!(valueToAssign instanceof AggregateValue aggregateValueToAssign)) {
+            // if the value to assign is not an aggregate value, we might have
+            // the case, where we want to assign a basic Value to a Content object
+
+            IType assigneesType = aggregateAssignee.getDataType();
+            if (assigneesType.getName().equals("content")) {
+                // TODO: this is a temporary solution for "casting" the value to a content
+                //  once typechecking is implemented, this will be refactored
+
+                String stringValue = valueToAssign.getInternalValue().toString();
+                Quiz.Content content = new Quiz.Content(stringValue);
+                EncapsulatedObject encapsulatedObject =
+                    new EncapsulatedObject(
+                        content, (AggregateType) assigneesType, this.environment);
+
+                aggregateAssignee.setMemorySpace(encapsulatedObject);
+                aggregateAssignee.setInternalValue(content);
+            } else {
+                throw new RuntimeException(
+                    "Can't assign Value of type "
+                        + valueToAssign.getDataType()
+                        + " to Value of "
+                        + assigneesType);
+            }
+        } else {
+            aggregateAssignee.setMemorySpace(aggregateValueToAssign.getMemorySpace());
+            aggregateAssignee.setInternalValue(aggregateValueToAssign.getInternalValue());
+        }
+    }
+
+    private boolean setSetValue(SetValue assignee, Value valueToAssign) {
+        if (!(valueToAssign instanceof SetValue setValueToAssign)) {
+            throw new RuntimeException(
+                "Can't assign value "
+                    + valueToAssign
+                    + " to SetValue, it is not a SetValue itself!");
+        }
+
+        assignee.clearSet();
+
+        IType entryType = assignee.getDataType().getElementType();
+        Set<Value> valuesToAdd = setValueToAssign.getValues();
+        for (Value valueToAdd : valuesToAdd) {
+            Value entryAssigneeValue = createDefaultValue(entryType);
+
+            // we cannot directly set the entryValueToAssign, because we potentially
+            // have to do type conversions (convert a String into a Content-Object)
+            setValue(entryAssigneeValue, valueToAdd);
+
+            assignee.addValue(entryAssigneeValue);
+        }
+        return true;
+    }
+
+    private boolean setListValue(ListValue assignee, Value valueToAssign) {
+        if (!(valueToAssign instanceof ListValue listValueToAssign)) {
+            throw new RuntimeException(
+                "Can't assign value "
+                    + valueToAssign
+                    + " to ListValue, it is not a ListValue itself!");
+        }
+
+        assignee.clearList();
+
+        IType entryType = assignee.getDataType().getElementType();
+        for (var valueToAdd : listValueToAssign.getValues()) {
+            Value entryAssigneeValue = createDefaultValue(entryType);
+
+            // we cannot directly set the entryValueToAssign, because we potentially
+            // have to do type conversions (convert a String into a Content-Object)
+            setValue(entryAssigneeValue, valueToAdd);
+
+            assignee.addValue(entryAssigneeValue);
+        }
+        return true;
+    }
+
+    private boolean setValue(Value assignee, Value valueToAssign) {
+        if (assignee == Value.NONE) {
+            return false;
+        }
+        // if the lhs is a pod, set the internal value, otherwise, set the MemorySpace of the
+        // returned value
+        if (assignee instanceof AggregateValue aggregateAssignee) {
+            setAggregateValue(aggregateAssignee, valueToAssign);
+        } else if (assignee instanceof ListValue assigneeListValue) {
+            setListValue(assigneeListValue, valueToAssign);
+        } else if (assignee instanceof SetValue assigneeSetValue) {
+            setSetValue(assigneeSetValue, valueToAssign);
+        } else {
+            assignee.setInternalValue(valueToAssign.getInternalValue());
+        }
+        return true;
+    }
+    // endregion
 
     // region user defined function execution
 
