@@ -487,7 +487,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return new Value(BuiltInType.graphType, graph);
     }
 
-
     @Override
     public Object visit(StmtBlockNode node) {
         ArrayList<Node> statements = node.getStmts();
@@ -719,17 +718,17 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 String stringValue = valueToAssign.getInternalValue().toString();
                 Quiz.Content content = new Quiz.Content(stringValue);
                 EncapsulatedObject encapsulatedObject =
-                    new EncapsulatedObject(
-                        content, (AggregateType) assigneesType, this.environment);
+                        new EncapsulatedObject(
+                                content, (AggregateType) assigneesType, this.environment);
 
                 aggregateAssignee.setMemorySpace(encapsulatedObject);
                 aggregateAssignee.setInternalValue(content);
             } else {
                 throw new RuntimeException(
-                    "Can't assign Value of type "
-                        + valueToAssign.getDataType()
-                        + " to Value of "
-                        + assigneesType);
+                        "Can't assign Value of type "
+                                + valueToAssign.getDataType()
+                                + " to Value of "
+                                + assigneesType);
             }
         } else {
             aggregateAssignee.setMemorySpace(aggregateValueToAssign.getMemorySpace());
@@ -740,9 +739,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
     private boolean setSetValue(SetValue assignee, Value valueToAssign) {
         if (!(valueToAssign instanceof SetValue setValueToAssign)) {
             throw new RuntimeException(
-                "Can't assign value "
-                    + valueToAssign
-                    + " to SetValue, it is not a SetValue itself!");
+                    "Can't assign value "
+                            + valueToAssign
+                            + " to SetValue, it is not a SetValue itself!");
         }
 
         assignee.clearSet();
@@ -764,9 +763,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
     private boolean setListValue(ListValue assignee, Value valueToAssign) {
         if (!(valueToAssign instanceof ListValue listValueToAssign)) {
             throw new RuntimeException(
-                "Can't assign value "
-                    + valueToAssign
-                    + " to ListValue, it is not a ListValue itself!");
+                    "Can't assign value "
+                            + valueToAssign
+                            + " to ListValue, it is not a ListValue itself!");
         }
 
         assignee.clearList();

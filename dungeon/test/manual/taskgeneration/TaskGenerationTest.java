@@ -32,7 +32,8 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 /**
- * <a href="file:../../../../doc/tasks/anleitung_task_test.md">../../../../doc/tasks/anleitung_task_test.md</a>
+ * <a
+ * href="file:../../../../doc/tasks/anleitung_task_test.md">../../../../doc/tasks/anleitung_task_test.md</a>
  */
 public class TaskGenerationTest {
     static DSLInterpreter interpreter = new DSLInterpreter();

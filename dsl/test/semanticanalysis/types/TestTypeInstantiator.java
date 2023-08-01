@@ -18,7 +18,6 @@ import semanticanalysis.Scope;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class TestTypeInstantiator {
     @Test
