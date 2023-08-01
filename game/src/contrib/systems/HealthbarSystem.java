@@ -2,6 +2,7 @@ package contrib.systems;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 
@@ -9,6 +10,7 @@ import contrib.components.HealthComponent;
 import contrib.hud.heroUI.HeroUITools;
 
 import core.Entity;
+import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.components.UIComponent;
@@ -103,8 +105,16 @@ public final class HealthbarSystem extends System {
     /** moves the Progressbar to follow the Entity */
     private void updatePosition(ProgressBar pb, PositionComponent pc) {
         Point position = pc.position();
-        Vector3 screenPosition =
-                CameraSystem.camera().project(new Vector3(position.x, position.y, 0));
+        Vector3 conveered = new Vector3(position.x, position.y, 0);
+        // map Entity coordinates to window coords
+        Vector3 screenPosition = CameraSystem.camera().project(conveered);
+        // get the stage of the Game
+        Stage stage = Game.stage().orElseThrow(() -> new RuntimeException("No Stage available"));
+        // remap window coords again stage coords
+        screenPosition.x =
+                screenPosition.x / stage.getViewport().getScreenWidth() * stage.getWidth();
+        screenPosition.y =
+                screenPosition.y / stage.getViewport().getScreenHeight() * stage.getHeight();
         pb.setPosition(screenPosition.x, screenPosition.y);
     }
 
