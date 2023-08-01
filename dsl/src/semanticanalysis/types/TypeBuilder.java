@@ -253,7 +253,8 @@ public class TypeBuilder {
                 currentLookedUpTypes.add(forType);
                 IType paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, parametersType);
                 if (paramDSLType == null) {
-                    // TODO: comment
+                    // TODO: refactor this to be included in createDSLTypeForJavaTypeInScope, see:
+                    //  https://github.com/Programmiermethoden/Dungeon/issues/917
 
                     var parametersAnnotatedType = parameter.getAnnotatedType();
                     // if the cast fails, the type may be a parameterized type (e.g. list or set)
