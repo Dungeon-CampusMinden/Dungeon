@@ -228,11 +228,11 @@ public enum Item {
             "A magic roll. It's said that it was forged by the gods.",
             ItemCategory.TOOL,
             "items/book/magic_roll.png"),
-    WISDOM_ROLL(
+    WISDOM_SCROLL(
             "Wisdom Roll",
             "A wisdom roll. Some of it could be very informative.",
             ItemCategory.TOOL,
-            "items/book/wisdom_roll.png"),
+            "items/book/wisdom_scroll.png"),
 
     ARMOR_BODY_BEAR(
             "Bear Body Armor",
