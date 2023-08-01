@@ -3,6 +3,8 @@ package semanticanalysis.types.callbackadapter;
 import interpreter.DSLInterpreter;
 
 import semanticanalysis.FunctionSymbol;
+import semanticanalysis.types.BuiltInType;
+import semanticanalysis.types.FunctionType;
 
 /**
  * Builder class for {@link CallbackAdapter}. Stores a reference to the {@link DSLInterpreter},
@@ -23,7 +25,18 @@ public class CallbackAdapterBuilder {
      * @return The created {@link CallbackAdapter}
      */
     public CallbackAdapter buildAdapter(FunctionSymbol functionSymbol) {
-        return new CallbackAdapter(
-                interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
+        FunctionType functionType = (FunctionType) functionSymbol.getDataType();
+        if (functionType.getReturnType() != BuiltInType.noType
+                && functionType.getParameterTypes().size() == 1) {
+            return new FunctionCallbackAdapter(
+                    interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
+        } else if (functionType.getReturnType() != BuiltInType.noType
+                && functionType.getParameterTypes().size() == 2) {
+            return new BiFunctionCallbackAdapter(
+                    interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
+        } else {
+            return new CallbackAdapter(
+                    interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
+        }
     }
 }

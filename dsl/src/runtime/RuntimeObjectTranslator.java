@@ -72,8 +72,7 @@ public class RuntimeObjectTranslator {
 
                     returnValue = new AggregateValue(aggregateType, parentMemorySpace, object);
                     var encapsulatedObject =
-                            new EncapsulatedObject(
-                                    object, aggregateType, parentMemorySpace, environment);
+                            new EncapsulatedObject(object, aggregateType, environment);
                     ((AggregateValue) returnValue).setMemorySpace(encapsulatedObject);
                     break;
                 case FunctionType:

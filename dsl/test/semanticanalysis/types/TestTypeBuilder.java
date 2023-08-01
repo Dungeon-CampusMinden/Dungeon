@@ -108,9 +108,10 @@ public class TestTypeBuilder {
     @Test
     public void testTypeAdapterRegister() {
         TypeBuilder tb = new TypeBuilder();
-        tb.registerTypeAdapter(RecordBuilder.class, Scope.NULL);
+        Scope scope = new Scope();
+        tb.registerTypeAdapter(RecordBuilder.class, scope);
 
-        var adapter = tb.getRegisteredTypeAdapter(TestRecordComponent.class);
+        var adapter = tb.getRegisteredTypeAdaptersForType(TestRecordComponent.class).get(0);
         assertNotNull(adapter);
 
         try {
@@ -126,9 +127,10 @@ public class TestTypeBuilder {
     @Test
     public void testAggregateTypeAdapterRegister() {
         TypeBuilder tb = new TypeBuilder();
-        tb.registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
+        Scope scope = new Scope();
+        tb.registerTypeAdapter(ExternalTypeBuilderMultiParam.class, scope);
 
-        var adapter = tb.getRegisteredTypeAdapter(ExternalType.class);
+        var adapter = tb.getRegisteredTypeAdaptersForType(ExternalType.class).get(0);
         assertNotNull(adapter);
 
         try {
@@ -144,7 +146,8 @@ public class TestTypeBuilder {
     @Test
     public void testAggregateTypeAdapterCreation() {
         TypeBuilder tb = new TypeBuilder();
-        tb.registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
+        Scope scope = new Scope();
+        tb.registerTypeAdapter(ExternalTypeBuilderMultiParam.class, scope);
         var adapterType = tb.createDSLTypeForJavaTypeInScope(Scope.NULL, ExternalType.class);
 
         assertNotNull(adapterType);
@@ -324,7 +327,5 @@ public class TestTypeBuilder {
         assertEquals("float<>", floatSetSymbol.getDataType().getName());
         setType = (SetType) floatSetSymbol.getDataType();
         assertEquals(BuiltInType.floatType, setType.getElementType());
-
-        boolean b = true;
     }
 }

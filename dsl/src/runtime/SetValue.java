@@ -21,6 +21,10 @@ public class SetValue extends Value {
         super(dataType, new HashSet<Value>());
     }
 
+    public SetType getDataType() {
+        return (SetType) this.dataType;
+    }
+
     /**
      * Add a Value to the set. The Value will only be added to the set, if no other Value with the
      * same internal value of the passed Value is already stored in this set.
@@ -43,5 +47,9 @@ public class SetValue extends Value {
      */
     public Set<Value> getValues() {
         return (Set<Value>) this.object;
+    }
+
+    public void clearSet() {
+        ((Set<Value>) this.object).clear();
     }
 }

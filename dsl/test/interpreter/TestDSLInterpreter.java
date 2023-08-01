@@ -16,9 +16,10 @@ import parser.ast.Node;
 
 import runtime.*;
 
-import semanticanalysis.Scope;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
+
+import task.quizquestion.Quiz;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -599,7 +600,7 @@ public class TestDSLInterpreter {
 
         // setup test type system
         var env = new TestEnvironment();
-        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, Scope.NULL);
+        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, env.getGlobalScope());
         DSLInterpreter interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomTypes(
                 program,
@@ -648,7 +649,8 @@ public class TestDSLInterpreter {
 
         // setup test type system
         var env = new TestEnvironment();
-        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
+        env.getTypeBuilder()
+                .registerTypeAdapter(ExternalTypeBuilderMultiParam.class, env.getGlobalScope());
         DSLInterpreter interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomTypes(
                 program,
@@ -1290,5 +1292,48 @@ public class TestDSLInterpreter {
         for (var entity : entities) {
             Assert.assertTrue(returnedEntities.contains(entity));
         }
+    }
+
+    @Test
+    public void taskDefinition() {
+        String program =
+                """
+            single_choice_task my_single_choice_task {
+                description: "Hello",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 1
+            }
+
+            multiple_choice_task my_multiple_choice_task {
+                description: "Tschüss",
+                answers: ["4", "5", "6"],
+                correct_answer_index: [0,1]
+            }
+
+            quest_config c {
+                tasks: [my_single_choice_task, my_multiple_choice_task]
+            }
+        """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config = (QuestConfig) interpreter.getQuestConfig(program);
+
+        Quiz singleChoiceTask = (Quiz) config.tasks().get(0);
+        Assert.assertEquals(Quiz.Type.SINGLE_CHOICE, singleChoiceTask.type());
+        Assert.assertEquals("Hello", singleChoiceTask.taskText());
+        Assert.assertTrue(singleChoiceTask.correctAnswerIndices().contains(1));
+        var answers = singleChoiceTask.contentStream().toList();
+        Assert.assertEquals("1", ((Quiz.Content) answers.get(0)).content());
+        Assert.assertEquals("2", ((Quiz.Content) answers.get(1)).content());
+        Assert.assertEquals("3", ((Quiz.Content) answers.get(2)).content());
+
+        Quiz multipleChoiceTask = (Quiz) config.tasks().get(1);
+        Assert.assertEquals(Quiz.Type.MULTIPLE_CHOICE, multipleChoiceTask.type());
+        Assert.assertEquals("Tschüss", multipleChoiceTask.taskText());
+        Assert.assertTrue(multipleChoiceTask.correctAnswerIndices().contains(1));
+        var multipleChoiceAnswers = multipleChoiceTask.contentStream().toList();
+        Assert.assertEquals("4", ((Quiz.Content) multipleChoiceAnswers.get(0)).content());
+        Assert.assertEquals("5", ((Quiz.Content) multipleChoiceAnswers.get(1)).content());
+        Assert.assertEquals("6", ((Quiz.Content) multipleChoiceAnswers.get(2)).content());
     }
 }

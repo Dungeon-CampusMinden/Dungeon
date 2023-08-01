@@ -22,6 +22,8 @@ import semanticanalysis.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import semanticanalysis.types.*;
 
+import task.quizquestion.Quiz;
+
 import java.util.*;
 
 // TODO: specify EXACT semantics of value copying and setting
@@ -171,7 +173,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param type
      * @return
      */
-    private Value createDefaultValue(IType type) {
+    public Value createDefaultValue(IType type) {
         if (type == null) {
             System.out.println("Tried to create default value for null type");
             return Value.NONE;
@@ -195,6 +197,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
             return new ListValue((ListType) type);
         } else if (type.getTypeKind().equals(IType.Kind.SetType)) {
             return new SetValue((SetType) type);
+        } else if (type.getTypeKind().equals(IType.Kind.FunctionType)) {
+            return Value.NONE;
         }
         return Value.NONE;
     }
@@ -224,8 +228,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         initializeRuntime(environment);
 
-        var questConfig = generateQuestConfig(programAST);
-        return questConfig;
+        Value questConfigValue = (Value) generateQuestConfig(programAST);
+        return questConfigValue.getInternalValue();
     }
 
     /**
@@ -245,10 +249,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 if (objDefNode.getTypeSpecifierName().equals("quest_config")) {
                     return objDefNode.accept(this);
                 }
-                break;
             }
         }
-        return null;
+        return Value.NONE;
     }
 
     protected Value instantiateDSLValue(AggregateType type) {
@@ -334,7 +337,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object instantiateRuntimeValue(AggregateValue dslValue, AggregateType asType) {
         // instantiate entity_type
         var typeInstantiator = this.environment.getTypeInstantiator();
-        var entityObject = typeInstantiator.instantiate(asType, dslValue.getMemorySpace());
+        var entityObject = typeInstantiator.instantiateAsType(dslValue, asType);
 
         // TODO: substitute the whole DSLContextMember-stuff with Builder-Methods, which would
         //  enable creation of components with different parameters -> requires the ability to
@@ -358,8 +361,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
 
                 // instantiate object as a new java Object
-                typeInstantiator.instantiate(
-                        membersOriginalType, ((AggregateValue) memberValue).getMemorySpace());
+                typeInstantiator.instantiateAsType(
+                        (AggregateValue) memberValue, membersOriginalType);
             }
         }
 
@@ -380,25 +383,31 @@ public class DSLInterpreter implements AstVisitor<Object> {
         } else {
             throw new RuntimeException("Defined object is not an aggregate Value");
         }
-        memoryStack.push(ms);
+        if (!(ms instanceof EncapsulatedObject)) {
+            memoryStack.push(ms);
 
-        // accept every propertyDefinition
-        for (var propDefNode : node.getPropertyDefinitions()) {
-            propDefNode.accept(this);
+            // accept every propertyDefinition
+            for (var propDefNode : node.getPropertyDefinitions()) {
+                propDefNode.accept(this);
+            }
+
+            memoryStack.pop();
+            // convert from memorySpace to concrete object
+            Object createdObject = createObjectFromValue((AggregateValue) objectsValue);
+            EncapsulatedObject encapsulatedObject =
+                    new EncapsulatedObject(
+                            createdObject,
+                            (AggregateType) objectsValue.getDataType(),
+                            this.environment);
+            ((AggregateValue) objectsValue).setMemorySpace(encapsulatedObject);
+            objectsValue.setInternalValue(createdObject);
         }
-
-        // convert from memorySpace to concrete object
-        ms = memoryStack.pop();
-        var objectSymbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
-        return createObjectFromMemorySpace(ms, objectSymbol.getDataType());
+        return objectsValue;
     }
 
-    private Object createObjectFromMemorySpace(IMemorySpace ms, IType type) {
-        if (type.getName().equals("quest_config")) {
-            TypeInstantiator ti = this.environment.getTypeInstantiator();
-            return ti.instantiate((AggregateType) type, ms);
-        }
-        return null;
+    private Object createObjectFromValue(AggregateValue value) {
+        TypeInstantiator ti = this.environment.getTypeInstantiator();
+        return ti.instantiate(value);
     }
 
     @Override
@@ -421,9 +430,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(PropertyDefNode node) {
-        var value = (Value) node.getStmtNode().accept(this);
+        Value value = (Value) node.getStmtNode().accept(this);
         var propertyName = node.getIdName();
-        boolean setValue = setValue(propertyName, value);
+        Value assigneeValue = getCurrentMemorySpace().resolve(propertyName);
+        boolean setValue = setValue(assigneeValue, value);
         if (!setValue) {
             // TODO: handle, errormsg
         }
@@ -475,26 +485,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
         Interpreter dotInterpreter = new Interpreter();
         var graph = dotInterpreter.getGraph(node);
         return new Value(BuiltInType.graphType, graph);
-    }
-
-    // TODO: this should probably check for type compatibility
-    private boolean setValue(String name, Object value) {
-        var ms = memoryStack.peek();
-        var valueInMemorySpace = ms.resolve(name);
-        if (valueInMemorySpace == Value.NONE) {
-            return false;
-        }
-        // if the lhs is a pod, set the internal value, otherwise, set the MemorySpace of the
-        // returned value
-        if (valueInMemorySpace instanceof AggregateValue) {
-            AggregateValue valueToSet = (AggregateValue) value;
-            ((AggregateValue) valueInMemorySpace).setMemorySpace(valueToSet.getMemorySpace());
-            valueInMemorySpace.setInternalValue(valueToSet.getInternalValue());
-        } else {
-            // TODO: handle Lists and sets
-            valueInMemorySpace.setInternalValue(((Value) value).getInternalValue());
-        }
-        return true;
     }
 
     @Override
@@ -714,6 +704,104 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return setValue;
     }
 
+    // region value-setting
+    private void setAggregateValue(AggregateValue aggregateAssignee, Value valueToAssign) {
+        if (!(valueToAssign instanceof AggregateValue aggregateValueToAssign)) {
+            // if the value to assign is not an aggregate value, we might have
+            // the case, where we want to assign a basic Value to a Content object
+
+            IType assigneesType = aggregateAssignee.getDataType();
+            if (assigneesType.getName().equals("content")) {
+                // TODO: this is a temporary solution for "casting" the value to a content
+                //  once typechecking is implemented, this will be refactored
+
+                String stringValue = valueToAssign.getInternalValue().toString();
+                Quiz.Content content = new Quiz.Content(stringValue);
+                EncapsulatedObject encapsulatedObject =
+                        new EncapsulatedObject(
+                                content, (AggregateType) assigneesType, this.environment);
+
+                aggregateAssignee.setMemorySpace(encapsulatedObject);
+                aggregateAssignee.setInternalValue(content);
+            } else {
+                throw new RuntimeException(
+                        "Can't assign Value of type "
+                                + valueToAssign.getDataType()
+                                + " to Value of "
+                                + assigneesType);
+            }
+        } else {
+            aggregateAssignee.setMemorySpace(aggregateValueToAssign.getMemorySpace());
+            aggregateAssignee.setInternalValue(aggregateValueToAssign.getInternalValue());
+        }
+    }
+
+    private boolean setSetValue(SetValue assignee, Value valueToAssign) {
+        if (!(valueToAssign instanceof SetValue setValueToAssign)) {
+            throw new RuntimeException(
+                    "Can't assign value "
+                            + valueToAssign
+                            + " to SetValue, it is not a SetValue itself!");
+        }
+
+        assignee.clearSet();
+
+        IType entryType = assignee.getDataType().getElementType();
+        Set<Value> valuesToAdd = setValueToAssign.getValues();
+        for (Value valueToAdd : valuesToAdd) {
+            Value entryAssigneeValue = createDefaultValue(entryType);
+
+            // we cannot directly set the entryValueToAssign, because we potentially
+            // have to do type conversions (convert a String into a Content-Object)
+            setValue(entryAssigneeValue, valueToAdd);
+
+            assignee.addValue(entryAssigneeValue);
+        }
+        return true;
+    }
+
+    private boolean setListValue(ListValue assignee, Value valueToAssign) {
+        if (!(valueToAssign instanceof ListValue listValueToAssign)) {
+            throw new RuntimeException(
+                    "Can't assign value "
+                            + valueToAssign
+                            + " to ListValue, it is not a ListValue itself!");
+        }
+
+        assignee.clearList();
+
+        IType entryType = assignee.getDataType().getElementType();
+        for (var valueToAdd : listValueToAssign.getValues()) {
+            Value entryAssigneeValue = createDefaultValue(entryType);
+
+            // we cannot directly set the entryValueToAssign, because we potentially
+            // have to do type conversions (convert a String into a Content-Object)
+            setValue(entryAssigneeValue, valueToAdd);
+
+            assignee.addValue(entryAssigneeValue);
+        }
+        return true;
+    }
+
+    private boolean setValue(Value assignee, Value valueToAssign) {
+        if (assignee == Value.NONE) {
+            return false;
+        }
+        // if the lhs is a pod, set the internal value, otherwise, set the MemorySpace of the
+        // returned value
+        if (assignee instanceof AggregateValue aggregateAssignee) {
+            setAggregateValue(aggregateAssignee, valueToAssign);
+        } else if (assignee instanceof ListValue assigneeListValue) {
+            setListValue(assigneeListValue, valueToAssign);
+        } else if (assignee instanceof SetValue assigneeSetValue) {
+            setSetValue(assigneeSetValue, valueToAssign);
+        } else {
+            assignee.setInternalValue(valueToAssign.getInternalValue());
+        }
+        return true;
+    }
+    // endregion
+
     // region user defined function execution
 
     /**
@@ -776,7 +864,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
                                     parameterObject,
                                     currentMemorySpace,
                                     parameterSymbol.getDataType());
-            setValue(parameterSymbol.getName(), paramValue);
+            Value assigneeValue = currentMemorySpace.resolve(parameterSymbol.getName());
+            setValue(assigneeValue, paramValue);
         }
     }
 
@@ -795,9 +884,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
             bindFromSymbol(parameterSymbol, memoryStack.peek());
 
             var paramValueNode = parameterNodes.get(i);
-            var paramValue = paramValueNode.accept(this);
+            Value paramValue = (Value) paramValueNode.accept(this);
 
-            setValue(parameterSymbol.getName(), paramValue);
+            Value assigneeValue = getCurrentMemorySpace().resolve(parameterSymbol.getName());
+            setValue(assigneeValue, paramValue);
         }
     }
 

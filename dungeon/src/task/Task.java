@@ -1,7 +1,11 @@
 package task;
 
-import java.util.HashSet;
+import semanticanalysis.types.DSLType;
+
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 /**
@@ -19,13 +23,15 @@ import java.util.stream.Stream;
  * <p>Each task is associated with a {@link TaskComponent} that handles the meta-control of the
  * task.
  */
+@DSLType
 public abstract class Task {
     private static final String DEFAULT_TASK_TEXT = "No task description provided";
     private static final TaskState DEFAULT_TASK_STATE = TaskState.INACTIVE;
     private TaskState state;
     private String taskText;
     private TaskComponent managementComponent;
-    private Set<TaskContent> content;
+    protected List<TaskContent> content;
+    protected BiFunction<Task, Set<TaskContent>, Float> scoringFunction;
 
     /**
      * Create a new Task with the {@link #DEFAULT_TASK_TEXT} in the {@link #DEFAULT_TASK_STATE},
@@ -34,7 +40,7 @@ public abstract class Task {
     public Task() {
         state = DEFAULT_TASK_STATE;
         taskText = DEFAULT_TASK_TEXT;
-        content = new HashSet<>();
+        content = new LinkedList<>();
     }
 
     /**
@@ -102,6 +108,24 @@ public abstract class Task {
      */
     public void addContent(final TaskContent content) {
         this.content.add(content);
+    }
+
+    /**
+     * Callback function to score the task, given a Set of TaskContent
+     *
+     * @return the callback function
+     */
+    public BiFunction<Task, Set<TaskContent>, Float> scoringFunction() {
+        return scoringFunction;
+    }
+
+    /**
+     * Set the scoring function for this Task.
+     *
+     * @param scoringFunction the scoring function to set.
+     */
+    public void scoringFunction(BiFunction<Task, Set<TaskContent>, Float> scoringFunction) {
+        this.scoringFunction = scoringFunction;
     }
 
     /**

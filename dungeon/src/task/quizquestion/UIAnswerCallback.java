@@ -14,13 +14,14 @@ import core.Game;
 import core.hud.TextDialog;
 import core.hud.UITools;
 
+import task.Task;
 import task.TaskContent;
 
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 
 /**
  * Contains functions to build an easy-to-use Consumer as a callback for the {@link
@@ -29,8 +30,7 @@ import java.util.function.Consumer;
  * <p>The Consumer will show the given {@link Quiz} on the HUD and will call the (as parameter)
  * given Callback with the given answers as a {@link Quiz.Content}-Set.
  *
- * <p>Use {@link #askOnInteraction(Quiz, Consumer)} to get the consumer that you can use as an
- * interaction callback.
+ * <p>Use to get the consumer that you can use as an interaction callback.
  */
 public final class UIAnswerCallback {
 
@@ -43,9 +43,9 @@ public final class UIAnswerCallback {
      *     answers.
      * @return Consumer to use as a callback for the interaction component.
      */
-    public static Consumer<Entity> askOnInteraction(
-            Quiz quiz, Consumer<Set<TaskContent>> dslCallback) {
-        return questGiver ->
+    public static BiConsumer<Entity, Entity> askOnInteraction(
+            Quiz quiz, BiConsumer<Task, Set<TaskContent>> dslCallback) {
+        return (questGiver, player) ->
                 QuizUI.showQuizDialog(
                         quiz, (Entity hudEntity) -> uiCallback(quiz, hudEntity, dslCallback));
     }
@@ -56,10 +56,10 @@ public final class UIAnswerCallback {
      * @see UITools
      */
     private static BiFunction<TextDialog, String, Boolean> uiCallback(
-            Quiz quest, Entity hudEntity, Consumer<Set<TaskContent>> dslCallback) {
+            Quiz quest, Entity hudEntity, BiConsumer<Task, Set<TaskContent>> dslCallback) {
         return (textDialog, id) -> {
             if (Objects.equals(id, UITools.DEFAULT_DIALOG_CONFIRM)) {
-                dslCallback.accept(getAnswer(quest, answerSection(textDialog)));
+                dslCallback.accept(quest, getAnswer(quest, answerSection(textDialog)));
                 Game.removeEntity(hudEntity);
                 return true;
             }

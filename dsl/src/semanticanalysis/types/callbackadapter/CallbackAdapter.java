@@ -15,14 +15,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Encapsulates the {@link RuntimeEnvironment} and {@link DSLInterpreter} needed to execute a
  * callback-function defined in the DSL. Implements the functional interfaces needed for assigning
  * an instance of this class to the callback-fields in the components of the Dungeons ECS.
  */
-public class CallbackAdapter implements Function, Consumer, TriConsumer {
+public class CallbackAdapter implements Consumer, TriConsumer {
 
     private final RuntimeEnvironment rtEnv;
     private final FunctionType functionType;
@@ -85,11 +84,6 @@ public class CallbackAdapter implements Function, Consumer, TriConsumer {
     }
 
     // region interface implementation
-    @Override
-    public Object apply(Object o) {
-        return this.call(o);
-    }
-
     @Override
     public void accept(Object o) {
         this.call(o);

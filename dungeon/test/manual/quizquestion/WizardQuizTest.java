@@ -15,6 +15,7 @@ import core.hud.UITools;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 
+import task.Task;
 import task.TaskComponent;
 import task.TaskContent;
 import task.quizquestion.Quiz;
@@ -23,7 +24,7 @@ import task.quizquestion.UIAnswerCallback;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 /**
  * Test scenario for the UI Callbacks.
@@ -92,11 +93,11 @@ public class WizardQuizTest {
                 false,
                 (entity, who) ->
                         UIAnswerCallback.askOnInteraction(question, showAnswersOnHud())
-                                .accept(entity));
+                                .accept(entity, who));
     }
 
-    private static Consumer<Set<TaskContent>> showAnswersOnHud() {
-        return taskContents -> {
+    private static BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
+        return (task, taskContents) -> {
             AtomicReference<String> answers = new AtomicReference<>("");
             taskContents.stream()
                     .map(t -> (Quiz.Content) t)

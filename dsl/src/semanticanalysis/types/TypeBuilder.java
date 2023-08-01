@@ -5,28 +5,30 @@ import core.utils.TriConsumer;
 import dslToGame.graph.Graph;
 
 import semanticanalysis.*;
+import semanticanalysis.types.callbackadapter.BiFunctionFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.ConsumerFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.FunctionFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.IFunctionTypeBuilder;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TypeBuilder {
-    private final HashMap<Class<?>, Method> typeAdapters;
+    private final HashMap<Class<?>, List<Method>> typeAdapters;
     private final HashMap<Type, IType> javaTypeToDSLType;
-    private final HashSet<Class<?>> currentLookedUpClasses;
+    private final HashSet<Type> currentLookedUpTypes;
     private final HashMap<Class<?>, IFunctionTypeBuilder> functionTypeBuilders;
 
     /** Constructor */
     public TypeBuilder() {
         this.typeAdapters = new HashMap<>();
         this.javaTypeToDSLType = new HashMap<>();
-        this.currentLookedUpClasses = new HashSet<>();
+        this.currentLookedUpTypes = new HashSet<>();
         this.functionTypeBuilders = new HashMap<>();
 
         setupFunctionTypeBuilders();
@@ -36,6 +38,7 @@ public class TypeBuilder {
         functionTypeBuilders.put(Consumer.class, ConsumerFunctionTypeBuilder.instance);
         functionTypeBuilders.put(TriConsumer.class, ConsumerFunctionTypeBuilder.instance);
         functionTypeBuilders.put(Function.class, FunctionFunctionTypeBuilder.instance);
+        functionTypeBuilders.put(BiFunction.class, BiFunctionFunctionTypeBuilder.instance);
     }
 
     public HashMap<Type, IType> getJavaTypeToDSLTypeMap() {
@@ -165,23 +168,49 @@ public class TypeBuilder {
                 : parameterAnnotation.name();
     }
 
+    public static boolean doParameterTypesMatch(Method m1, Method m2) {
+        // check, if registered adapter matches signature of new adapter
+        if (m1.getParameterCount() != m2.getParameterCount()) {
+            return false;
+        }
+        boolean parametersMatch = true;
+        for (int i = 0; parametersMatch && i < m1.getParameterCount(); i++) {
+            Class<?> m1Parameter = m1.getParameterTypes()[i];
+            Class<?> m2Parameter = m2.getParameterTypes()[i];
+            parametersMatch = m2Parameter.equals(m1Parameter);
+        }
+        return parametersMatch;
+    }
+
     /**
      * Register a new type adapter (which will be used to instantiate a class, which is not
      * converted to a DSLType)
      *
      * @param adapterClass the adapter to register
      */
-    public boolean registerTypeAdapter(Class<?> adapterClass, IScope parentScope) {
+    public void registerTypeAdapter(Class<?> adapterClass, IScope parentScope) {
         for (var method : adapterClass.getDeclaredMethods()) {
             if (method.isAnnotationPresent(DSLTypeAdapter.class)
                     && Modifier.isStatic(method.getModifiers())) {
-                var forType = method.getReturnType();
-                if (this.typeAdapters.containsKey(forType)) {
-                    return false;
-                }
-                this.typeAdapters.put(forType, method);
+                DSLTypeAdapter annotation = method.getAnnotation(DSLTypeAdapter.class);
 
-                var annotation = method.getAnnotation(DSLTypeAdapter.class);
+                var forType = method.getReturnType();
+                if (!this.typeAdapters.containsKey(forType)) {
+                    this.typeAdapters.put(forType, new ArrayList<>());
+                }
+
+                List<Method> typeAdaptersForType = this.typeAdapters.get(forType);
+                for (Method adapter : typeAdaptersForType) {
+                    if (doParameterTypesMatch(adapter, method)) {
+                        throw new UnsupportedOperationException(
+                                "An adapter for class "
+                                        + forType.getName()
+                                        + " with the same signature was already registered");
+                    }
+                }
+
+                this.typeAdapters.get(forType).add(method);
+
                 String dslTypeName =
                         annotation.name().equals("")
                                 ? convertToDSLName(forType.getSimpleName())
@@ -191,11 +220,10 @@ public class TypeBuilder {
                 var adapterType = createAdapterType(forType, dslTypeName, method, parentScope);
 
                 this.javaTypeToDSLType.put(forType, adapterType);
-
-                return true;
+                parentScope.bind((Symbol) adapterType);
+                return;
             }
         }
-        return true;
     }
 
     public IType createAdapterType(
@@ -209,8 +237,9 @@ public class TypeBuilder {
 
         if (adapterMethod.getParameterCount() == 1) {
             var paramType = adapterMethod.getParameterTypes()[0];
-            // TODO: how to handle non-builtIn types here?
-            var paramDSLType = getBuiltInDSLType(paramType);
+            currentLookedUpTypes.add(forType);
+            IType paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, paramType);
+            currentLookedUpTypes.remove(forType);
             return new AdaptedType(
                     dslTypeName, parentScope, forType, (BuiltInType) paramDSLType, adapterMethod);
         } else {
@@ -219,13 +248,30 @@ public class TypeBuilder {
             // bind symbol for each parameter in the adapterMethod
             for (var parameter : adapterMethod.getParameters()) {
                 String parameterName = getDSLParameterName(parameter);
-                // TODO: how to handle non-builtin types here?
-                IType paramDSLType = getBuiltInDSLType(parameter.getType());
-                if (null == paramDSLType) {
-                    currentLookedUpClasses.add(forType);
-                    paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, forType);
-                    currentLookedUpClasses.remove(forType);
+                Type parametersType = parameter.getType();
+
+                currentLookedUpTypes.add(forType);
+                IType paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, parametersType);
+                if (paramDSLType == null) {
+                    // TODO: refactor this to be included in createDSLTypeForJavaTypeInScope, see:
+                    //  https://github.com/Programmiermethoden/Dungeon/issues/917
+
+                    var parametersAnnotatedType = parameter.getAnnotatedType();
+                    // if the cast fails, the type may be a parameterized type (e.g. list or set)
+                    if (List.class.isAssignableFrom((Class<?>) parametersType)) {
+                        paramDSLType =
+                                createListType(
+                                        (ParameterizedType) parametersAnnotatedType.getType(),
+                                        parentScope);
+                    } else if (Set.class.isAssignableFrom((Class<?>) parametersType)) {
+                        paramDSLType =
+                                createSetType(
+                                        (ParameterizedType) parametersAnnotatedType.getType(),
+                                        parentScope);
+                    }
                 }
+                currentLookedUpTypes.remove(forType);
+
                 Symbol parameterSymbol = new Symbol(parameterName, typeAdapter, paramDSLType);
                 typeAdapter.bind(parameterSymbol);
             }
@@ -233,12 +279,12 @@ public class TypeBuilder {
         }
     }
 
-    public Set<Map.Entry<Class<?>, Method>> getRegisteredTypeAdapters() {
+    public Set<Map.Entry<Class<?>, List<Method>>> getRegisteredTypeAdapters() {
         return this.typeAdapters.entrySet();
     }
 
-    public Method getRegisteredTypeAdapter(Class<?> clazz) {
-        return this.typeAdapters.getOrDefault(clazz, null);
+    public List<Method> getRegisteredTypeAdaptersForType(Class<?> clazz) {
+        return this.typeAdapters.getOrDefault(clazz, new ArrayList<>());
     }
 
     protected IType bindOrResolveTypeInScope(IType type, IScope scope) {
@@ -339,9 +385,9 @@ public class TypeBuilder {
             // if it is not already in the converted types, try to convert it -> check for
             // DSLType
             // annotation
-            this.currentLookedUpClasses.add(parentClass);
+            this.currentLookedUpTypes.add(parentClass);
             memberDSLType = createDSLTypeForJavaTypeInScope(globalScope, field.getType());
-            this.currentLookedUpClasses.remove(parentClass);
+            this.currentLookedUpTypes.remove(parentClass);
         }
 
         return new Symbol(fieldName, parentType, memberDSLType);
@@ -364,6 +410,11 @@ public class TypeBuilder {
      * @param type the java {@link Type} to create a DSL {@link IType} from
      */
     public IType createDSLTypeForJavaTypeInScope(IScope globalScope, Type type) {
+        // catch recursion
+        if (this.currentLookedUpTypes.contains(type)) {
+            throw new RuntimeException("RECURSIVE TYPE DEF");
+        }
+
         if (this.javaTypeToDSLType.containsKey(type)) {
             return this.javaTypeToDSLType.get(type);
         }
@@ -398,6 +449,7 @@ public class TypeBuilder {
             }
         }
 
+        // trye to resolve the typename in global scope
         String typeName = getDSLTypeName(clazz);
         Symbol resolved = globalScope.resolve(typeName);
         if (resolved != Symbol.NULL) {
@@ -418,11 +470,7 @@ public class TypeBuilder {
             return null;
         }
 
-        // catch recursion
-        if (this.currentLookedUpClasses.contains(type)) {
-            throw new RuntimeException("RECURSIVE TYPE DEF");
-        }
-
+        // create new AggregateType for clazz
         var aggregateType = new AggregateType(typeName, globalScope, clazz);
         for (Field field : clazz.getDeclaredFields()) {
             // bind new Symbol

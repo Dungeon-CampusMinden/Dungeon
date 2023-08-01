@@ -118,7 +118,7 @@ public class TestTypeBinder {
 
         var env = new GameEnvironment();
 
-        env.getTypeBuilder().registerTypeAdapter(RecordBuilder.class, Scope.NULL);
+        env.getTypeBuilder().registerTypeAdapter(RecordBuilder.class, env.getGlobalScope());
         var type =
                 env.getTypeBuilder()
                         .createDSLTypeForJavaTypeInScope(new Scope(), TestRecordUser.class);

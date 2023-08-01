@@ -16,6 +16,10 @@ public class ListValue extends Value {
         super(dataType, new ArrayList<Value>());
     }
 
+    public ListType getDataType() {
+        return (ListType) this.dataType;
+    }
+
     /**
      * Add a Value to the list
      *
@@ -42,5 +46,10 @@ public class ListValue extends Value {
      */
     public List<Value> getValues() {
         return (List<Value>) this.object;
+    }
+
+    public void clearList() {
+        ((List<Value>) this.object).clear();
+        ;
     }
 }
