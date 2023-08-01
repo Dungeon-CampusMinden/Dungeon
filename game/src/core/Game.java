@@ -835,6 +835,10 @@ public final class Game extends ScreenAdapter {
     @Override
     public void resize(int width, int height) {
         super.resize(width, height);
-        stage().ifPresent(x -> x.getViewport().update(width, height, true));
+        stage().ifPresent(
+                        x -> {
+                            x.getViewport().setWorldSize(width, height);
+                            x.getViewport().update(width, height, true);
+                        });
     }
 }
