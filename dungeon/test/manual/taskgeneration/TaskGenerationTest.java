@@ -50,8 +50,6 @@ public class TaskGenerationTest {
                 new IVoidFunction() {
                     @Override
                     public void execute() {
-                        // filler content
-
                         try {
                             EntityFactory.randomMonster();
                             EntityFactory.newChest();
@@ -67,7 +65,6 @@ public class TaskGenerationTest {
                                         .toList();
 
                         // for the start: print on console
-                        // TODO: call to DSLInterpreter -> result: Quiz
                         buildScenarios(fileContents.get(0));
                     }
                 });
