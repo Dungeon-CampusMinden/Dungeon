@@ -212,27 +212,27 @@ public enum Item {
             ItemCategory.TOOL,
             "items/gloves/steel_gloves.png"),
 
-    BOOK_RED("Rotes Buch", "A red book.", ItemCategory.TOOL, "items/books/red_book.png"),
+    BOOK_RED("Rotes Buch", "A red book.", ItemCategory.TOOL, "items/book/red_book.png"),
     BOOK_SPELL(
             "Spell Book",
             "A spell book. It contains many interesting sentences.",
             ItemCategory.TOOL,
-            "items/books/spell_book.png"),
+            "items/book/spell_book.png"),
     LETTER(
             "Letter",
             "A letter. I wonder what it says.",
             ItemCategory.OTHER,
-            "items/books/letter.png"),
+            "items/book/letter.png"),
     MAGIC_ROLL(
             "Magic Roll",
             "A magic roll. It's said that it was forged by the gods.",
             ItemCategory.TOOL,
-            "items/books/magic_roll.png"),
+            "items/book/magic_roll.png"),
     WISDOM_ROLL(
             "Wisdom Roll",
             "A wisdom roll. Some of it could be very informative.",
             ItemCategory.TOOL,
-            "items/books/wisdom_roll.png"),
+            "items/book/wisdom_roll.png"),
 
     ARMOR_BODY_BEAR(
             "Bear Body Armor",
