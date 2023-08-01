@@ -10,6 +10,7 @@ import contrib.components.HealthComponent;
 import contrib.hud.heroUI.HeroUITools;
 
 import core.Entity;
+import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.components.UIComponent;
@@ -107,8 +108,8 @@ public final class HealthbarSystem extends System {
         Vector3 conveered = new Vector3(position.x, position.y, 0);
         // map Entity coordinates to window coords
         Vector3 screenPosition = CameraSystem.camera().project(conveered);
-        // get the stage of the progressbar
-        Stage stage = pb.getStage();
+        // get the stage of the Game
+        Stage stage = Game.stage().orElseThrow(() -> new RuntimeException("No Stage available"));
         // remap window coords again stage coords
         screenPosition.x =
                 screenPosition.x / stage.getViewport().getScreenWidth() * stage.getWidth();
