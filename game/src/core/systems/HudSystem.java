@@ -78,7 +78,6 @@ public final class HudSystem extends System {
 
     @Override
     public void execute() {
-
         if (entityStream().anyMatch(x -> pausesGame(x))) pauseGame();
         else unpauseGame();
     }
