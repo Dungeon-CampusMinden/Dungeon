@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 public class HealthSystemTest {
-    private static final String ANIMATION_PATH = "../test/textures/test_hero";
+    private static final String ANIMATION_PATH = "textures/test_hero";
 
     @After
     public void cleanup() {
