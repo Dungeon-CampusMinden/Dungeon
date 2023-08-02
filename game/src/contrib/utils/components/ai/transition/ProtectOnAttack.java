@@ -45,14 +45,14 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
      */
     public ProtectOnAttack(final Collection<Entity> entities) {
         entities.stream()
-                .peek(
-                        entity ->
-                                entity.fetch(HealthComponent.class)
-                                        .orElseThrow(
-                                                () ->
-                                                        MissingComponentException.build(
-                                                                entity, HealthComponent.class)))
-                .forEach(this.toProtect::add);
+                .filter(e -> e.fetch(HealthComponent.class).isEmpty())
+                .map(e -> MissingComponentException.build(e, HealthComponent.class))
+                .forEach(
+                        mce -> {
+                            throw mce;
+                        });
+
+        toProtect.addAll(entities);
     }
 
     /**
