@@ -8,8 +8,10 @@ import core.utils.components.MissingComponentException;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Implements an AI that protects a specific entity with a HealthComponent, if the hero dealt damage
@@ -44,6 +46,7 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
      * @param entities - Entities that are protected
      */
     public ProtectOnAttack(final Collection<Entity> entities) {
+        // throw an exception for every entity that does not have a HealthComponent
         entities.stream()
                 .filter(e -> e.fetch(HealthComponent.class).isEmpty())
                 .map(e -> MissingComponentException.build(e, HealthComponent.class))
@@ -52,7 +55,12 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
                             throw mce;
                         });
 
-        toProtect.addAll(entities);
+        // collect every entity with a HealthComponent to add to the protection list
+        List<Entity> toAdd = entities.stream()
+                .filter(e -> e.fetch(HealthComponent.class).isPresent())
+                    .toList();
+
+        toProtect.addAll(toAdd);
     }
 
     /**
