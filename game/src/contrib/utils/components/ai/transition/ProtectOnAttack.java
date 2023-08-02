@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Implements an AI that protects a specific entity with a HealthComponent, if the hero dealt damage
@@ -56,9 +55,8 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
                         });
 
         // collect every entity with a HealthComponent to add to the protection list
-        List<Entity> toAdd = entities.stream()
-                .filter(e -> e.fetch(HealthComponent.class).isPresent())
-                    .toList();
+        List<Entity> toAdd =
+                entities.stream().filter(e -> e.fetch(HealthComponent.class).isPresent()).toList();
 
         toProtect.addAll(toAdd);
     }
