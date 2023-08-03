@@ -589,8 +589,16 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(MemberAccessNode node) {
-        // TODO: implement
-        throw new UnsupportedOperationException();
+        Value lhs = (Value) node.getLhs().accept(this);
+
+        assert lhs instanceof AggregateValue;
+
+        AggregateValue lhsAggregateValue = (AggregateValue) lhs;
+        this.memoryStack.push(lhsAggregateValue.getMemorySpace());
+        Value rhsValue = (Value) node.getRhs().accept(this);
+        this.memoryStack.pop();
+
+        return rhsValue;
     }
 
     @Override
