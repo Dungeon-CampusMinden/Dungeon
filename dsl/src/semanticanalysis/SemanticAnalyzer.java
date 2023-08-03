@@ -498,8 +498,36 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(MemberAccessNode node) {
-        // TODO: implement
-        throw new UnsupportedOperationException();
+        Node lhs = node.getLhs();
+
+        // resolve name of lhs in scope
+        IType lhsDataType = BuiltInType.noType;
+        if (lhs.type.equals(Node.Type.Identifier)) {
+            String nameToResolve = ((IdNode) lhs).getName();
+            Symbol symbol = this.currentScope().resolve(nameToResolve);
+            lhsDataType = symbol.getDataType();
+
+            symbolTable.addSymbolNodeRelation(symbol, lhs);
+        } else if (lhs.type.equals(Node.Type.FuncCall)) {
+            // we cannot be sure, that the function definition was created at this point,
+            // maybe we need to do that in the function call resolver..
+        }
+
+        if (!(lhsDataType instanceof ScopedSymbol lhsTypeScopedSymbol)) {
+            throw new RuntimeException(
+                    "Datatype "
+                            + lhsDataType.getName()
+                            + " of lhs in member access is no scoped symbol!");
+        }
+
+        Node rhs = node.getRhs();
+        // resolve rhs-name in scope of the type of the lhs-symbol
+        // -> put datatype of lhs on scope-stack
+        scopeStack.push(lhsTypeScopedSymbol);
+        rhs.accept(this);
+        scopeStack.pop();
+
+        return null;
     }
 
     @Override
