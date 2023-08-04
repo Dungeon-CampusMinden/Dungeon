@@ -228,21 +228,6 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
                             + node.getSourceFileReference()
                             + "\n");
         } else {
-            var astNodeForSymbol = symbolTable.getCreationAstNode(symbol);
-            var symDefLineNumber = astNodeForSymbol.getSourceFileReference().getLine();
-
-            if (symDefLineNumber > node.getSourceFileReference().getLine()) {
-                // TODO: is this needed?
-                errorStringBuilder.append(
-                        "Reference to variable '"
-                                + idName
-                                + "' in "
-                                + node.getSourceFileReference()
-                                + " before assignment in "
-                                + astNodeForSymbol.getSourceFileReference()
-                                + "\n");
-                return null;
-            }
             symbolTable.addSymbolNodeRelation(symbol, node);
         }
         return null;
