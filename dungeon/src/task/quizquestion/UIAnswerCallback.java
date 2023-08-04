@@ -78,7 +78,7 @@ public final class UIAnswerCallback {
     }
 
     private static Set<TaskContent> getAnswer(Quiz quiz, VerticalGroup answerSection) {
-        if (quiz.type() == Quiz.Type.FREETEXT) {
+        if (quiz instanceof FreeText) {
             Quiz.Content content = new Quiz.Content(freeTextAnswer(answerSection));
             quiz.addAnswer(content);
             return Set.of(content);

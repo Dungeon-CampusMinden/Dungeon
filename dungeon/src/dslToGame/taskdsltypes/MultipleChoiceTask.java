@@ -5,6 +5,7 @@ import semanticanalysis.types.DSLTypeMember;
 
 import task.Task;
 import task.TaskContent;
+import task.quizquestion.MultipleChoice;
 import task.quizquestion.Quiz;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class MultipleChoiceTask {
             //  @DSLTypeMember(name="score_function") BiFunction<Task, Set<Quiz.Content>, Float>
             //  scoreFunction
             ) {
-        Quiz quiz = new Quiz(Quiz.Type.MULTIPLE_CHOICE, description);
+        Quiz quiz = new MultipleChoice(description);
 
         for (Quiz.Content answer : answers) {
             quiz.addAnswer(answer);

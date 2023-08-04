@@ -19,7 +19,9 @@ import runtime.*;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
 
+import task.quizquestion.MultipleChoice;
 import task.quizquestion.Quiz;
+import task.quizquestion.SingleChoice;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -1319,7 +1321,7 @@ public class TestDSLInterpreter {
         var config = (QuestConfig) interpreter.getQuestConfig(program);
 
         Quiz singleChoiceTask = (Quiz) config.tasks().get(0);
-        Assert.assertEquals(Quiz.Type.SINGLE_CHOICE, singleChoiceTask.type());
+        Assert.assertTrue(singleChoiceTask instanceof SingleChoice);
         Assert.assertEquals("Hello", singleChoiceTask.taskText());
         Assert.assertTrue(singleChoiceTask.correctAnswerIndices().contains(1));
         var answers = singleChoiceTask.contentStream().toList();
@@ -1328,7 +1330,7 @@ public class TestDSLInterpreter {
         Assert.assertEquals("3", ((Quiz.Content) answers.get(2)).content());
 
         Quiz multipleChoiceTask = (Quiz) config.tasks().get(1);
-        Assert.assertEquals(Quiz.Type.MULTIPLE_CHOICE, multipleChoiceTask.type());
+        Assert.assertTrue(multipleChoiceTask instanceof MultipleChoice);
         Assert.assertEquals("Tschüss", multipleChoiceTask.taskText());
         Assert.assertTrue(multipleChoiceTask.correctAnswerIndices().contains(1));
         var multipleChoiceAnswers = multipleChoiceTask.contentStream().toList();

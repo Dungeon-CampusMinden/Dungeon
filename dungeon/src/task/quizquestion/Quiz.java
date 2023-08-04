@@ -18,17 +18,16 @@ import java.util.Optional;
  * the type of question.
  *
  * <p>A {@link Quiz} can be a Single-Choice, a Multiple-Choice, or a Free-text question. The type is
- * stored as a {@link Type}. If the question is asked via the UI, the {@link QuizUI} will configure
- * the UI for the question based on that type. The type can be accessed via {@link #type()}.
+ * defined by the concret class {@link SingleChoice}, {@link MultipleChoice} or {@link FreeText}. If
+ * the question is asked via the UI, the {@link QuizUI} will configure the UI for the question based
+ * on that type.
  *
  * <p>Add a {@link Content} answer by using the {@link #addAnswer(Quiz.Content)} method. Use the
  * {@link #contentStream()} method to get the answers as a stream.
  *
  * <p>The question will be stored as {@link Content} and can be accessed via {@link #question()}.
  */
-public class Quiz extends Task {
-
-    private final Type type;
+public abstract class Quiz extends Task {
     private final Content question;
     private final HashSet<Integer> correctAnswerIndices;
 
@@ -40,13 +39,11 @@ public class Quiz extends Task {
      * <p>The {@link Quiz} will not have any answers, use {@link #addAnswer(Quiz.Content)} to add
      * possible answers to the question.
      *
-     * @param type Type of the question (e.g., single-choice)
      * @param questionText The question itself (can contain a path to images).
      * @param image The image if this question contains one.
      */
-    public Quiz(final Type type, String questionText, Image image) {
+    public Quiz(String questionText, Image image) {
         super();
-        this.type = type;
         taskText(questionText);
         question = new Content(questionText, image);
         question.task(this);
@@ -89,20 +86,10 @@ public class Quiz extends Task {
      * <p>The {@link Quiz} will not have any answers, use {@link #addAnswer(Quiz.Content)} to add
      * possible answers to the question.
      *
-     * @param type Type of the question (e.g., single-choice)
      * @param questionText The question itself (can contain a path to images).
      */
-    public Quiz(final Type type, String questionText) {
-        this(type, questionText, null);
-    }
-
-    /**
-     * Get the type of the question.
-     *
-     * @return The type of the question.
-     */
-    public Type type() {
-        return type;
+    public Quiz(String questionText) {
+        this(questionText, null);
     }
 
     /**
@@ -130,20 +117,6 @@ public class Quiz extends Task {
      */
     public Content question() {
         return question;
-    }
-
-    /**
-     * The QuizQuestionType enum represents the different types of quiz questions that can be
-     * created. The available types are SINGLE_CHOICE, MULTIPLE_CHOICE, and FREETEXT. SINGLE_CHOICE
-     * represents a question with multiple answer choices, where the user is required to select one
-     * answer. MULTIPLE_CHOICE represents a question with multiple answer choices, where the user is
-     * allowed to select multiple answers. FREETEXT represents a question where the user is required
-     * to input their answer as text.
-     */
-    public enum Type {
-        SINGLE_CHOICE,
-        MULTIPLE_CHOICE,
-        FREETEXT
     }
 
     /**
