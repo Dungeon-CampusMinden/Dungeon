@@ -363,8 +363,16 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(FuncCallNode node) {
-        // we do not resolve the call itself here, only the parameters
-        // TODO: actually, we should resolve it here
+        // resolve function definition in global scope
+        String funcName = node.getIdName();
+        var funcSymbol = this.symbolTable.globalScope.resolve(funcName);
+        if (funcSymbol.equals(Symbol.NULL)) {
+            throw new RuntimeException("Function with name " + funcName + " could not be resolved in global scope" );
+        }
+
+        assert funcSymbol.getSymbolType() == Symbol.Type.Scoped;
+        this.symbolTable.addSymbolNodeRelation(funcSymbol, node);
+
         for (var parameter : node.getParameters()) {
             parameter.accept(this);
         }
