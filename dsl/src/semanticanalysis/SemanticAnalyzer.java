@@ -31,6 +31,7 @@ import semanticanalysis.types.*;
 
 import java.util.ArrayList;
 import java.util.Stack;
+import java.util.function.Function;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 
@@ -193,6 +194,9 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
                 VariableBinder vb = new VariableBinder();
                 vb.bindVariables(symbolTable, globalScope(), node, errorStringBuilder);
 
+                FunctionDefinitionBinder fdb = new FunctionDefinitionBinder();
+                fdb.bindFunctionDefinitions(symbolTable, node);
+
                 visitChildren(node);
 
                 FunctionCallResolver fcr = new FunctionCallResolver();
@@ -353,38 +357,29 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         return null;
     }
 
-    private IType resolveType(String name) {
-        var resolvedType = globalScope().resolve(name);
-        if (resolvedType == Symbol.NULL) {
-            errorStringBuilder.append("Type '" + name + "' could not be resolved");
-        } else if (!(resolvedType instanceof IType)) {
-            errorStringBuilder.append("Symbol of name '" + name + "' is no type");
-        } else {
-            return (IType) resolvedType;
-        }
-        return null;
-    }
-
     @Override
     public Void visit(ParamDefNode node) {
         // current scope should be a function definition
-        var resolvedParameter = currentScope().resolve(node.getIdName());
+        /*var resolvedParameter = currentScope().resolve(node.getIdName());
         if (resolvedParameter != Symbol.NULL) {
             errorStringBuilder.append(
                     "Parameter with name " + node.getIdName() + " was already defined");
         } else {
             // resolve parameters datatype
-            IType parameterType = resolveType(node.getTypeName());
+            IType parameterType = globalScope().resolveType(node.getTypeName());
 
             Symbol parameterSymbol = new Symbol(node.getIdName(), currentScope(), parameterType);
             currentScope().bind(parameterSymbol);
         }
+
+         */
         return null;
     }
 
     @Override
     public Void visit(FuncCallNode node) {
         // we do not resolve the call itself here, only the parameters
+        // TODO: actually, we should resolve it here
         for (var parameter : node.getParameters()) {
             parameter.accept(this);
         }
@@ -394,7 +389,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     @Override
     public Void visit(FuncDefNode node) {
         // check, if symbol with the name was already bound
-        var funcName = node.getIdName();
+        /*var funcName = node.getIdName();
         var resolved = globalScope().resolve(funcName);
         if (resolved != Symbol.NULL) {
             errorStringBuilder.append(
@@ -411,7 +406,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
                 }
 
                 String returnTypeName = node.getRetTypeName();
-                returnType = resolveType(returnTypeName);
+                returnType = globalScope().resolveType(returnTypeName);
                 if (returnType == null) {
                     throw new RuntimeException(
                             "Could not resolve return type "
@@ -428,7 +423,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
                 ((ParamDefNode) paramDefNode).getTypeIdNode().accept(this);
 
                 var paramTypeName = ((ParamDefNode) paramDefNode).getTypeName();
-                IType paramType = resolveType(paramTypeName);
+                IType paramType = globalScope().resolveType(paramTypeName);
                 parameterTypes.add(paramType);
             }
 
@@ -452,7 +447,15 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
             // bind parameters
             for (var paramDefNode : node.getParameters()) {
                 paramDefNode.accept(this);
-            }
+            }*/
+        var funcName = node.getIdName();
+        Symbol resolved = globalScope().resolve(funcName);
+        if (resolved == Symbol.NULL) {
+            errorStringBuilder.append(
+                "Could not resolve Identifier with name " + funcName + " in global scope!");
+        } else {
+            FunctionSymbol funcSymbol = (FunctionSymbol) resolved;
+            scopeStack.push(funcSymbol);
 
             // visit all stmts
             for (var stmt : node.getStmts()) {
@@ -464,6 +467,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
             scopeStack.pop();
         }
+        //}
         return null;
     }
 
