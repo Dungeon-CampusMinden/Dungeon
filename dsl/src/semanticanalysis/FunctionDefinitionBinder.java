@@ -114,11 +114,6 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
                 paramDefNode.accept(this);
             }
 
-            // visit all stmts
-            /*for (var stmt : node.getStmts()) {
-                stmt.accept(this);
-            }*/
-
             // create symbol table entry
             symbolTable.addSymbolNodeRelation(funcSymbol, node);
 
@@ -145,7 +140,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
         return null;
     }
 
-
+    // TODO: this should probably be done in TypeBinder
     @Override
     public Void visit(ListTypeIdentifierNode node) {
         IScope globalScope = this.symbolTable.globalScope;
@@ -166,6 +161,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
         return null;
     }
 
+    // TODO: this should probably be done in TypeBinder
     @Override
     public Void visit(SetTypeIdentifierNode node) {
         IScope globalScope = this.symbolTable.globalScope;

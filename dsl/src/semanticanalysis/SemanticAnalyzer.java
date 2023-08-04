@@ -199,8 +199,6 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
                 visitChildren(node);
 
-                FunctionCallResolver fcr = new FunctionCallResolver();
-                fcr.resolveFunctionCalls(symbolTable, node, errorStringBuilder);
                 break;
             case PropertyDefinitionList:
                 visitChildren(node);
@@ -344,20 +342,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(ParamDefNode node) {
-        // current scope should be a function definition
-        /*var resolvedParameter = currentScope().resolve(node.getIdName());
-        if (resolvedParameter != Symbol.NULL) {
-            errorStringBuilder.append(
-                    "Parameter with name " + node.getIdName() + " was already defined");
-        } else {
-            // resolve parameters datatype
-            IType parameterType = globalScope().resolveType(node.getTypeName());
-
-            Symbol parameterSymbol = new Symbol(node.getIdName(), currentScope(), parameterType);
-            currentScope().bind(parameterSymbol);
-        }
-
-         */
+        // is handled in FunctionDefinitionBinder
         return null;
     }
 
@@ -381,66 +366,6 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(FuncDefNode node) {
-        // check, if symbol with the name was already bound
-        /*var funcName = node.getIdName();
-        var resolved = globalScope().resolve(funcName);
-        if (resolved != Symbol.NULL) {
-            errorStringBuilder.append(
-                    "Identifier with name " + funcName + " is already bound in global scope!");
-        } else {
-            // resolve return value (if one was defined)
-            IType returnType = BuiltInType.noType;
-            Node returnTypeIdNode = node.getRetTypeId();
-            if (returnTypeIdNode != Node.NONE) {
-                if (returnTypeIdNode.type != Node.Type.Identifier) {
-                    // the type is either a list type or set type, which may
-                    // require type creation
-                    returnTypeIdNode.accept(this);
-                }
-
-                String returnTypeName = node.getRetTypeName();
-                returnType = globalScope().resolveType(returnTypeName);
-                if (returnType == null) {
-                    throw new RuntimeException(
-                            "Could not resolve return type "
-                                    + returnTypeName
-                                    + " of function "
-                                    + funcName);
-                }
-            }
-
-            // get types of parameters
-            ArrayList<IType> parameterTypes = new ArrayList<>(node.getParameters().size());
-            for (Node paramDefNode : node.getParameters()) {
-                // if the parameters type is a list or set type, the datatype must be created
-                ((ParamDefNode) paramDefNode).getTypeIdNode().accept(this);
-
-                var paramTypeName = ((ParamDefNode) paramDefNode).getTypeName();
-                IType paramType = globalScope().resolveType(paramTypeName);
-                parameterTypes.add(paramType);
-            }
-
-            // create function signature type (as needed)
-            String functionTypeName = FunctionType.calculateTypeName(returnType, parameterTypes);
-            Symbol functionTypeSymbol = globalScope().resolve(functionTypeName);
-            FunctionType functionType;
-
-            if (functionTypeSymbol != Symbol.NULL) {
-                functionType = (FunctionType) functionTypeSymbol;
-            } else {
-                functionType = new FunctionType(returnType, parameterTypes);
-                globalScope().bind(functionType);
-            }
-
-            // create new function symbol
-            var funcSymbol = new FunctionSymbol(funcName, globalScope(), node, functionType);
-            globalScope().bind(funcSymbol);
-            scopeStack.push(funcSymbol);
-
-            // bind parameters
-            for (var paramDefNode : node.getParameters()) {
-                paramDefNode.accept(this);
-            }*/
         var funcName = node.getIdName();
         Symbol resolved = globalScope().resolve(funcName);
         if (resolved == Symbol.NULL) {
