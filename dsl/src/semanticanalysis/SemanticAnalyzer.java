@@ -431,8 +431,14 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
             symbolTable.addSymbolNodeRelation(symbol, lhs);
         } else if (lhs.type.equals(Node.Type.FuncCall)) {
-            // we cannot be sure, that the function definition was created at this point,
-            // maybe we need to do that in the function call resolver..
+            // visit function call itself (resolve parameters etc.)
+            lhs.accept(this);
+
+            // resolve function definition
+            String functionName = ((FuncCallNode) lhs).getIdName();
+            FunctionSymbol functionSymbol = (FunctionSymbol) this.currentScope().resolve(functionName);
+            FunctionType functionType = (FunctionType)functionSymbol.getDataType();
+            lhsDataType = functionType.getReturnType();
         }
 
         if (!(lhsDataType instanceof ScopedSymbol lhsTypeScopedSymbol)) {
