@@ -131,7 +131,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
                                                     new Damage(damageAmount, damageType, entity));
 
                                             // Remove the projectile entity from the game
-                                            Game.removeEntity(projectile);
+                                            Game.remove(projectile);
                                         });
                     }
                 };

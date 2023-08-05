@@ -87,7 +87,7 @@ public class InteractionToolTest {
         cleanup();
         Game.hero(testHero(true));
         Game.currentLevel(prepareLevel());
-        Game.addEntity(Game.hero().get());
+        Game.add(Game.hero().get());
         InteractionTool.interactWithClosestInteractable(Game.hero().get());
         cleanup();
     }

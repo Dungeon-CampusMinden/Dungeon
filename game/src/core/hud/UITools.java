@@ -76,7 +76,7 @@ public class UITools {
             final Entity entity, final String closeButtonID) {
         return (d, id) -> {
             if (Objects.equals(id, closeButtonID)) {
-                Game.removeEntity(entity);
+                Game.remove(entity);
                 return true;
             }
             return false;

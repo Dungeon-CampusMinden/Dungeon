@@ -38,13 +38,13 @@ public class Main {
                 });
         Game.userOnFrame(debugger::execute);
         Game.windowTitle("My Dungeon");
-        Game.addSystem(new AISystem());
-        Game.addSystem(new CollisionSystem());
-        Game.addSystem(new HealthSystem());
-        Game.addSystem(new XPSystem());
-        Game.addSystem(new ProjectileSystem());
-        Game.addSystem(new HealthbarSystem());
-        Game.addSystem(new HeroUISystem());
+        Game.add(new AISystem());
+        Game.add(new CollisionSystem());
+        Game.add(new HealthSystem());
+        Game.add(new XPSystem());
+        Game.add(new ProjectileSystem());
+        Game.add(new HealthbarSystem());
+        Game.add(new HeroUISystem());
         // build and start game
         Game.run();
     }

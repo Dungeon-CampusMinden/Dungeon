@@ -31,7 +31,7 @@ public final class HeroUISystem extends System {
         super(XPComponent.class, PlayerComponent.class);
         map = new HashMap<>();
         onEntityAdd = (x) -> map.put(x, createNewHeroUI(x));
-        onEntityRemove = (x) -> Game.removeEntity(map.remove(x).ui());
+        onEntityRemove = (x) -> Game.remove(map.remove(x).ui());
     }
 
     @Override

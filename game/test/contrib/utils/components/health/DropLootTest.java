@@ -47,7 +47,7 @@ public class DropLootTest {
         new PositionComponent(entity, new Point(1, 2));
         new InventoryComponent(entity, 10);
         dropLoot.accept(entity);
-        Game.removeEntity(entity);
+        Game.remove(entity);
         assertEquals(0, Game.entityStream().count());
     }
 
