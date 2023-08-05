@@ -1,4 +1,8 @@
-package core;
+package core.utils;
+
+import core.Component;
+import core.Entity;
+import core.System;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,6 +16,12 @@ public class Filter {
 
     public Filter(Set<Class<? extends Component>> filterRules) {
         this.filterRules = filterRules;
+        entities = new HashSet<>();
+        systems = new HashSet<>();
+    }
+
+    public Filter(){
+        filterRules = new HashSet<>();
         entities = new HashSet<>();
         systems = new HashSet<>();
     }
@@ -59,10 +69,15 @@ public class Filter {
         return new HashSet<>(entities).stream();
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o == this) return true;
         else if (o instanceof Filter) return filterRules.equals(((Filter) o).filterRules);
-        else return false;
+        return false;
+    }
+
+    public boolean equals(Set<Class<? extends Component>> o) {
+        return o.equals(filterRules);
     }
 
     /**
@@ -80,5 +95,9 @@ public class Filter {
                 return false;
             }
         return true;
+    }
+
+    public boolean has(System system){
+        return systems.contains(system);
     }
 }

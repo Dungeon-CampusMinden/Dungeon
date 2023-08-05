@@ -78,7 +78,7 @@ public class ControlPointReachableTest {
 
     @Before
     public void setup() {
-        Game.addSystem(new LevelSystem(null, null, () -> {}));
+        Game.add(new LevelSystem(null, null, () -> {}));
         Game.currentLevel(new TileLevel(testLayout, DesignLabel.DEFAULT));
     }
 

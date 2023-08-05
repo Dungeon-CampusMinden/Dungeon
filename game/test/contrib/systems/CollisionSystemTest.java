@@ -71,7 +71,7 @@ public class CollisionSystemTest {
     public void checkForCollisionRight() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
@@ -102,7 +102,7 @@ public class CollisionSystemTest {
     public void checkForCollisionRightNoIntersection() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
@@ -133,7 +133,7 @@ public class CollisionSystemTest {
     public void checkForCollisionLeft() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
@@ -163,7 +163,7 @@ public class CollisionSystemTest {
     public void checkForCollisionLeftNoIntersection() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
 
         Point offset = new Point(0, 0);
@@ -193,7 +193,7 @@ public class CollisionSystemTest {
     public void checkForCollisionBottomWithIntersection() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
@@ -222,7 +222,7 @@ public class CollisionSystemTest {
     public void checkForCollisionBottomWithNoIntersection() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
@@ -250,7 +250,7 @@ public class CollisionSystemTest {
     public void checkForCollisionTopWithIntersection() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
@@ -279,7 +279,7 @@ public class CollisionSystemTest {
     public void checkForCollisionTopNoIntersection() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
@@ -306,7 +306,7 @@ public class CollisionSystemTest {
     public void checkForCollisionBoxAAroundB() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Entity e1 = prepareEntityWithPosition(new Point(-.1f, -.1f));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
@@ -340,7 +340,7 @@ public class CollisionSystemTest {
     public void checkForCollisionBoxBAroundA() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
@@ -371,7 +371,7 @@ public class CollisionSystemTest {
     public void checkInverseN() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         assertEquals(Tile.Direction.S, cs.inverse(Tile.Direction.N));
         cleanUpEnvironment();
     }
@@ -381,7 +381,7 @@ public class CollisionSystemTest {
     public void checkInverseE() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         assertEquals(Tile.Direction.W, cs.inverse(Tile.Direction.E));
         cleanUpEnvironment();
     }
@@ -391,7 +391,7 @@ public class CollisionSystemTest {
     public void checkInverseS() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         assertEquals(Tile.Direction.N, cs.inverse(Tile.Direction.S));
         cleanUpEnvironment();
     }
@@ -401,7 +401,7 @@ public class CollisionSystemTest {
     public void checkInverseW() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         assertEquals(Tile.Direction.E, cs.inverse(Tile.Direction.W));
         cleanUpEnvironment();
     }
@@ -411,7 +411,7 @@ public class CollisionSystemTest {
     public void checkUpdateNoEntities() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         cs.execute();
         cleanUpEnvironment();
     }
@@ -421,7 +421,7 @@ public class CollisionSystemTest {
     public void checkUpdateNoEntitiesWithHitboxComponent() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         prepareEntityWithPosition(new Point(0, 0));
         cs.execute();
         cleanUpEnvironment();
@@ -434,7 +434,7 @@ public class CollisionSystemTest {
     public void checkUpdateOneEntityWithHitboxComponent() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
@@ -455,7 +455,7 @@ public class CollisionSystemTest {
     public void checkUpdateTwoEntitiesWithHitboxComponentNonColliding() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();

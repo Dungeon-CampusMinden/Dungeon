@@ -185,7 +185,7 @@ public class ItemData implements CraftingIngredient, CraftingResult {
                                                     if (invComp.add(itemComp.get().itemData()))
                                                         // if added to hero Inventory
                                                         // remove Item from World
-                                                        Game.removeEntity(worldItem);
+                                                        Game.remove(worldItem);
                                                     System.out.println("Item collected");
                                                 });
                             }

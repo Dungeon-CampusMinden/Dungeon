@@ -37,7 +37,7 @@ public class HealthSystemTest {
         DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
         HealthComponent component = new HealthComponent(entity, 1, onDeath);
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
+        Game.add(system);
         component.currentHealthpoints(0);
         system.showEntity(entity);
 
@@ -56,7 +56,7 @@ public class HealthSystemTest {
         component.receiveHit(new Damage(5, DamageType.FIRE, null));
         component.receiveHit(new Damage(2, DamageType.FIRE, null));
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
+        Game.add(system);
         system.showEntity(entity);
 
         system.execute();
@@ -74,7 +74,7 @@ public class HealthSystemTest {
         component.currentHealthpoints(3);
         component.receiveHit(new Damage(-3, DamageType.FIRE, null));
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
+        Game.add(system);
         system.showEntity(entity);
         system.execute();
         assertEquals(6, component.currentHealthpoints());
@@ -90,7 +90,7 @@ public class HealthSystemTest {
         HealthComponent component = new HealthComponent(entity, 10, onDeath);
         component.receiveHit(new Damage(0, DamageType.FIRE, null));
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
+        Game.add(system);
         system.showEntity(entity);
         system.execute();
         assertEquals(10, component.currentHealthpoints());
@@ -101,7 +101,7 @@ public class HealthSystemTest {
     public void updateWithoutHealthComponent() {
         Game.removeAllEntities();
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
+        Game.add(system);
         system.execute();
     }
 
@@ -119,7 +119,7 @@ public class HealthSystemTest {
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
+        Game.add(system);
         system.showEntity(entity);
 
         system.execute();
@@ -141,7 +141,7 @@ public class HealthSystemTest {
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
+        Game.add(system);
         system.showEntity(entity);
 
         system.execute();
@@ -163,7 +163,7 @@ public class HealthSystemTest {
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
+        Game.add(system);
         system.showEntity(entity);
 
         system.execute();
@@ -185,7 +185,7 @@ public class HealthSystemTest {
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
+        Game.add(system);
         system.showEntity(entity);
 
         system.execute();

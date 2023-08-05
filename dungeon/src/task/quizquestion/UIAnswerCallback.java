@@ -60,7 +60,7 @@ public final class UIAnswerCallback {
         return (textDialog, id) -> {
             if (Objects.equals(id, UITools.DEFAULT_DIALOG_CONFIRM)) {
                 dslCallback.accept(quest, getAnswer(quest, answerSection(textDialog)));
-                Game.removeEntity(hudEntity);
+                Game.remove(hudEntity);
                 return true;
             }
             return false;

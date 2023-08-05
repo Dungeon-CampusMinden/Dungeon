@@ -26,19 +26,14 @@ import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 import core.systems.*;
 import core.utils.Constants;
-import core.utils.DelayedSet;
+import core.utils.Filter;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.LoggerConfig;
 
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -52,7 +47,7 @@ public final class Game extends ScreenAdapter {
      */
     private static final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
     /** All entities that are currently active in the dungeon */
-    private static final DelayedSet<Entity> entities = new DelayedSet<>();
+    private static final Set<Filter> entities = new HashSet<>();
 
     private static final Logger LOGGER = Logger.getLogger("Game");
     /**
@@ -134,7 +129,7 @@ public final class Game extends ScreenAdapter {
                 } catch (MissingComponentException e) {
                     LOGGER.warning(e.getMessage());
                 }
-                hero().ifPresent(Game::addEntity);
+                hero().ifPresent(Game::add);
                 userOnLevelLoad.execute();
             };
 
@@ -160,7 +155,7 @@ public final class Game extends ScreenAdapter {
 
     /** Remove all registered systems from the game. */
     public static void removeAllSystems() {
-        systems.clear();
+        new HashSet<>(systems.keySet()).forEach(Game::remove);
     }
 
     /**
@@ -346,7 +341,7 @@ public final class Game extends ScreenAdapter {
      * @param entity the entity that has changes in its Component Collection
      */
     public static void informAboutChanges(Entity entity) {
-        entities.add(entity);
+        entities.forEach(f -> f.update(entity));
         LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
     }
 
@@ -356,8 +351,8 @@ public final class Game extends ScreenAdapter {
      * @param entity the entity to add
      * @see DelayedSet
      */
-    public static void addEntity(Entity entity) {
-        entities.add(entity);
+    public static void add(Entity entity) {
+        entities.forEach(f -> f.add(entity));
         LOGGER.info("Entity: " + entity + " will be added to the Game.");
     }
 
@@ -367,8 +362,8 @@ public final class Game extends ScreenAdapter {
      * @param entity the entity to remove
      * @see DelayedSet
      */
-    public static void removeEntity(Entity entity) {
-        entities.remove(entity);
+    public static void remove(Entity entity) {
+        entities.forEach(f -> f.remove(entity));
         LOGGER.info("Entity: " + entity + " will be removed from the Game.");
     }
 
@@ -378,7 +373,16 @@ public final class Game extends ScreenAdapter {
      * @return a stream of all entities currently in the game
      */
     public static Stream<Entity> entityStream() {
-        return entities.stream();
+        return entityStream(new HashSet<>());
+    }
+
+    public static Stream<Entity> entityStream(System system) {
+        return entityStream(system.filterRules());
+    }
+
+    public static Stream<Entity> entityStream(Set<Class<? extends Component>> filter){
+        Filter rf= entities.stream().filter(f->f.equals(filter)).findFirst().orElseThrow(()-> new NullPointerException());
+        return rf.stream();
     }
 
     /**
@@ -460,9 +464,16 @@ public final class Game extends ScreenAdapter {
      * @see System
      * @see Optional
      */
-    public static Optional<System> addSystem(System system) {
+    public static Optional<System> add(System system) {
         System currentSystem = systems.get(system.getClass());
         systems.put(system.getClass(), system);
+        //add to existing filter or create new filter if no matching exists
+       Optional<Filter> filter = entities.stream().filter(f-> f.equals(system.filterRules())).findFirst();
+       filter.ifPresentOrElse(f->f.add(system), ()->{
+           Filter f = new Filter(system.filterRules());
+           entities.add(f);
+           f.add(system);
+       });
         LOGGER.info("A new " + system.getClass().getName() + " was added to the game");
         return Optional.ofNullable(currentSystem);
     }
@@ -472,8 +483,10 @@ public final class Game extends ScreenAdapter {
      *
      * @param system the class of the system to remove
      */
-    public static void removeSystem(Class<? extends System> system) {
-        systems.remove(system);
+    public static void remove(Class<? extends System> system) {
+        System systemInstance = systems.remove(system);
+        if(systemInstance != null)
+            entities.forEach(f->f.remove(systemInstance));
     }
 
     /**
@@ -482,8 +495,9 @@ public final class Game extends ScreenAdapter {
      * <p>This will also remove all entities from each system.
      */
     public static void removeAllEntities() {
-        systems.values().forEach(System::clearEntities);
-        entities.clear();
+        Game.entityStream().forEach(e-> {
+            Game.remove(e);
+        });
         LOGGER.info("All entities will be removed from the game.");
     }
 
@@ -640,7 +654,6 @@ public final class Game extends ScreenAdapter {
         DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined);
         onFrame();
         clearScreen();
-        updateSystems();
         systems.values().stream().filter(System::isRunning).forEach(System::execute);
         CameraSystem.camera().update();
         // stage logic
@@ -655,6 +668,7 @@ public final class Game extends ScreenAdapter {
     private void onSetup() {
         doSetup = false;
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
+        entities.add(new Filter());
         createSystems();
         setupStage();
     }
@@ -701,26 +715,6 @@ public final class Game extends ScreenAdapter {
         return entity;
     }
 
-    /** Will update the entity sets of each system and {@link Game#entities}. */
-    private void updateSystems() {
-        Collection<System> systemsColl = systems.values();
-        Queue<Entity> q = new ArrayDeque<>(entities.toAdd());
-        entities.toAdd().clear();
-        while (q.size() > 0) {
-            Entity curr = q.remove();
-            systemsColl.forEach(x -> x.showEntity(curr));
-            // update add logic
-            entities.current().add(curr);
-        }
-        q = new ArrayDeque<>(entities.toRemove());
-        entities.toRemove().clear();
-        while (q.size() > 0) {
-            Entity curr = q.remove();
-            systemsColl.forEach(x -> x.removeEntity(curr));
-            // update remove logic
-            entities.current().remove(curr);
-        }
-    }
 
     /**
      * Set the position of the given entity to the position of the level-start.
@@ -730,7 +724,7 @@ public final class Game extends ScreenAdapter {
      * @param entity entity to set on the start of the level, normally this is the hero.
      */
     private void placeOnLevelStart(Entity entity) {
-        entities.add(entity);
+        add(entity);
         PositionComponent pc =
                 entity.fetch(PositionComponent.class)
                         .orElseThrow(
@@ -752,16 +746,16 @@ public final class Game extends ScreenAdapter {
 
     /** Create the systems. */
     private void createSystems() {
-        addSystem(new CameraSystem());
-        addSystem(
+        add(new CameraSystem());
+        add(
                 new LevelSystem(
                         DrawSystem.painter(),
                         new WallGenerator(new RandomWalkGenerator()),
                         onLevelLoad));
-        addSystem(new DrawSystem());
-        addSystem(new VelocitySystem());
-        addSystem(new PlayerSystem());
-        addSystem(new HudSystem());
+        add(new DrawSystem());
+        add(new VelocitySystem());
+        add(new PlayerSystem());
+        add(new HudSystem());
     }
 
     @Override

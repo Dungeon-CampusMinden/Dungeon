@@ -72,11 +72,11 @@ public class WizardQuizTest {
                     }
                 });
         Game.windowTitle("Quest Wizard");
-        Game.addSystem(new AISystem());
-        Game.addSystem(new CollisionSystem());
-        Game.addSystem(new HealthSystem());
-        Game.addSystem(new XPSystem());
-        Game.addSystem(new ProjectileSystem());
+        Game.add(new AISystem());
+        Game.add(new CollisionSystem());
+        Game.add(new HealthSystem());
+        Game.add(new XPSystem());
+        Game.add(new ProjectileSystem());
 
         // build and start game
         Game.run();

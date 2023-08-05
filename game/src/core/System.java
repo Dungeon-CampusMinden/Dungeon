@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 /**
  * A System implements a specific game logic (a gameplay mechanic).
  *
- * <p>A System needs to be registered with the Game via {@link Game#addSystem(System)}.
+ * <p>A System needs to be registered with the Game via {@link Game#add(System)}.
  *
  * <p>This class is the abstract base class for each system. It implements the basic functionality
  * each system has. For example, it allows the system to be paused and unpause.
@@ -57,7 +57,7 @@ public abstract class System {
     /**
      * Create a new system.
      *
-     * <p>A System needs to be registered with the Game via {@link Game#addSystem(System)}.
+     * <p>A System needs to be registered with the Game via {@link Game#add(System)}.
      *
      * <p>For each already existing entity in the game, check if the entity is accepted by {@link
      * #accept} and add it to the local set if so.

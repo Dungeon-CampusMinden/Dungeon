@@ -71,13 +71,13 @@ public class TaskGenerationTest {
                 });
 
         Game.windowTitle("Task Test");
-        Game.addSystem(new AISystem());
-        Game.addSystem(new CollisionSystem());
-        Game.addSystem(new HealthSystem());
-        Game.addSystem(new XPSystem());
-        Game.addSystem(new ProjectileSystem());
-        Game.addSystem(new HealthbarSystem());
-        Game.addSystem(new HeroUISystem());
+        Game.add(new AISystem());
+        Game.add(new CollisionSystem());
+        Game.add(new HealthSystem());
+        Game.add(new XPSystem());
+        Game.add(new ProjectileSystem());
+        Game.add(new HealthbarSystem());
+        Game.add(new HeroUISystem());
 
         Game.run();
     }

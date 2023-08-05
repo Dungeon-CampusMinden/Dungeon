@@ -22,7 +22,7 @@ public class AISystemTest {
         Game.removeAllEntities();
         Game.removeAllSystems();
         system = new AISystem();
-        Game.addSystem(system);
+        Game.add(system);
         entity = new Entity();
         new AIComponent(
                 entity,
