@@ -46,8 +46,10 @@ public final class UIAnswerCallback {
     public static BiConsumer<Entity, Entity> askOnInteraction(
             Quiz quiz, BiConsumer<Task, Set<TaskContent>> dslCallback) {
         return (questGiver, player) ->
-                QuizUI.showQuizDialog(
-                        quiz, (Entity hudEntity) -> uiCallback(quiz, hudEntity, dslCallback));
+                Game.add(
+                        QuizUI.showQuizDialog(
+                                quiz,
+                                (Entity hudEntity) -> uiCallback(quiz, hudEntity, dslCallback)));
     }
 
     /**

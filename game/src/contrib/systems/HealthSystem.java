@@ -133,8 +133,8 @@ public final class HealthSystem extends System {
 
     private void removeDeadEntities(HSData hsd) {
         // Entity appears to be dead, so let's clean up the mess
-        hsd.hc.triggerOnDeath();
-        Game.remove(hsd.hc.entity());
+        hsd.hc.triggerOnDeath(hsd.e);
+        Game.remove(hsd.e);
 
         // Add XP
         hsd.e

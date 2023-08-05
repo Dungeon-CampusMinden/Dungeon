@@ -1,7 +1,5 @@
 package core;
 
-import java.util.logging.Logger;
-
 /**
  * Components store the data (or attributes) for an associated {@link Entity}.
  *
@@ -19,30 +17,4 @@ import java.util.logging.Logger;
  *
  * <p>Remember that an entity can only store one component of each component class.
  */
-public abstract class Component {
-    protected Entity entity;
-
-    /**
-     * Create a new component and add it to the associated entity
-     *
-     * @param entity associated entity
-     */
-    public Component(Entity entity) {
-        this.entity = entity;
-        entity.addComponent(this);
-        Logger componentLogger = Logger.getLogger(this.getClass().getName());
-        componentLogger.info(
-                "The component '"
-                        + this.getClass().getName()
-                        + "' was added to entity '"
-                        + entity
-                        + "'.");
-    }
-
-    /**
-     * @return the associated entity
-     */
-    public Entity entity() {
-        return entity;
-    }
-}
+public interface Component {}

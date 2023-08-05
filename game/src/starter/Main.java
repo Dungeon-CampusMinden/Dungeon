@@ -4,6 +4,7 @@ import contrib.entities.EntityFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 
+import core.Entity;
 import core.Game;
 import core.level.utils.LevelSize;
 
@@ -16,19 +17,31 @@ public class Main {
         Logger LOGGER = Logger.getLogger("Main");
         Debugger debugger = new Debugger();
         // start the game
-        Game.hero(EntityFactory.newHero());
+
         Game.loadConfig(
                 "dungeon_config.json",
                 contrib.configuration.KeyboardConfig.class,
                 core.configuration.KeyboardConfig.class);
         Game.frameRate(30);
         Game.disableAudio(true);
+        Game.userOnSetup(
+                () -> {
+                    try {
+
+                        Entity hero = (EntityFactory.newHero());
+                        Game.add(hero);
+                        Game.hero(hero);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
         Game.userOnLevelLoad(
                 () -> {
                     try {
-                        EntityFactory.newChest();
+
+                        Game.add(EntityFactory.newChest());
                         for (int i = 0; i < 5; i++) {
-                            EntityFactory.randomMonster();
+                            Game.add(EntityFactory.randomMonster());
                         }
                     } catch (IOException e) {
                         LOGGER.warning("Could not create new Chest: " + e.getMessage());

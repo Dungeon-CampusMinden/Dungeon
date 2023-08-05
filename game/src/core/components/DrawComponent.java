@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
  * @see Animation
  * @see IPath
  */
-public final class DrawComponent extends Component {
+public final class DrawComponent implements Component {
     private final Map<String, Animation> animationMap;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private Animation currentAnimation;
@@ -64,14 +64,12 @@ public final class DrawComponent extends Component {
      * <p>If no animations for any idle-state exist, {@link Animation#defaultAnimation()} for "IDLE"
      * is set.
      *
-     * @param entity associated entity
      * @param path Path (as a string) to the directory in the assets folder where the subdirectories
      *     containing the animation files are stored. Example: "character/knight".
      * @throws IOException if the given path does not exist
      * @see Animation
      */
-    public DrawComponent(final Entity entity, final String path) throws IOException {
-        super(entity);
+    public DrawComponent(final String path) throws IOException {
         // fetch available animations
         try {
             ClassLoader classLoader = getClass().getClassLoader();
@@ -94,18 +92,9 @@ public final class DrawComponent extends Component {
                 currentAnimation(CoreAnimations.IDLE);
             }
         } catch (NullPointerException np) {
-            // The component gets registered at the entity in super().
-            // This means that if the files can't be loaded, the component is considered "defective"
-            // and will likely throw exceptions.
-            // For that reason, we remove the defective component from the entity.
-            entity.removeComponent(DrawComponent.class);
             // We convert the "NullPointerException" to a "FileNotFoundException" because the only
             // reason for a NullPointerException is if the directory does not exist.
-            throw new FileNotFoundException(
-                    "Path "
-                            + path
-                            + " not found. DrawComponent was removed from Entity: "
-                            + entity);
+            throw new FileNotFoundException("Path " + path + " not found.");
         }
     }
 
@@ -117,11 +106,9 @@ public final class DrawComponent extends Component {
      * <p>This constructor is for special case only. Use {@link DrawComponent(Entity, String)} if
      * possible.
      *
-     * @param entity associated entity
      * @param idle Animation to use as idle-left and idle-right animation.
      */
-    public DrawComponent(final Entity entity, final Animation idle) {
-        super(entity);
+    public DrawComponent(final Animation idle) {
         animationMap = new HashMap<>();
         animationMap.put(CoreAnimations.IDLE_LEFT.pathString(), idle);
         animationMap.put(CoreAnimations.IDLE_RIGHT.pathString(), idle);
@@ -160,8 +147,7 @@ public final class DrawComponent extends Component {
                 LOGGER.warning(
                         "Animation "
                                 + animationPath
-                                + " can not be set, because the given Animation could not be found for "
-                                + entity.toString());
+                                + " can not be set, because the given Animation could not be found.");
         }
     }
 
@@ -199,7 +185,7 @@ public final class DrawComponent extends Component {
     public boolean isCurrentAnimation(final IPath path) {
         Optional<Animation> animation = getAnimation(path);
         if (animation.isPresent()) return animation.get() == currentAnimation;
-        LOGGER.warning("Animation " + path + " is not stored inside " + entity.toString());
+        LOGGER.warning("Animation " + path + " is not stored.");
         return false;
     }
 

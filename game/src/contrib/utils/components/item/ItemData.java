@@ -157,7 +157,7 @@ public class ItemData implements CraftingIngredient, CraftingResult {
      * @param position Position where to drop the item.
      */
     private static void defaultDrop(Entity who, ItemData which, Point position) {
-        WorldItemBuilder.buildWorldItem(which, position);
+        Game.add(WorldItemBuilder.buildWorldItem(which, position));
     }
 
     /**

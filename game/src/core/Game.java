@@ -47,7 +47,7 @@ public final class Game extends ScreenAdapter {
      */
     private static final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
     /** All entities that are currently active in the dungeon */
-    private static final Set<Filter> entities = new HashSet<>();
+    private static final Set<Filter> entitieFilterStorage = new HashSet<>();
 
     private static final Logger LOGGER = Logger.getLogger("Game");
     /**
@@ -96,6 +96,8 @@ public final class Game extends ScreenAdapter {
      * <p> Will not replace {@link #onFrame )</p>
      */
     private static IVoidFunction userOnFrame = () -> {};
+
+    private static IVoidFunction userOnSetup = () -> {};
     /**
      * Part of the pre-run configuration. This function will be called after a level was loaded.
      *
@@ -299,6 +301,10 @@ public final class Game extends ScreenAdapter {
         Game.userOnFrame = userFrame;
     }
 
+    public static void userOnSetup(IVoidFunction userOnSetup) {
+        Game.userOnSetup = userOnSetup;
+    }
+
     /**
      * Set the function that will be executed after a new level was loaded.
      *
@@ -341,8 +347,11 @@ public final class Game extends ScreenAdapter {
      * @param entity the entity that has changes in its Component Collection
      */
     public static void informAboutChanges(Entity entity) {
-        entities.forEach(f -> f.update(entity));
-        LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
+        java.lang.System.out.println(entityStream());
+        if (entityStream().anyMatch(entity1 -> entity1.equals(entity))) {
+            entitieFilterStorage.forEach(f -> f.update(entity));
+            LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
+        }
     }
 
     /**
@@ -352,7 +361,7 @@ public final class Game extends ScreenAdapter {
      * @see DelayedSet
      */
     public static void add(Entity entity) {
-        entities.forEach(f -> f.add(entity));
+        entitieFilterStorage.forEach(f -> f.add(entity));
         LOGGER.info("Entity: " + entity + " will be added to the Game.");
     }
 
@@ -363,7 +372,7 @@ public final class Game extends ScreenAdapter {
      * @see DelayedSet
      */
     public static void remove(Entity entity) {
-        entities.forEach(f -> f.remove(entity));
+        entitieFilterStorage.forEach(f -> f.remove(entity));
         LOGGER.info("Entity: " + entity + " will be removed from the Game.");
     }
 
@@ -380,8 +389,12 @@ public final class Game extends ScreenAdapter {
         return entityStream(system.filterRules());
     }
 
-    public static Stream<Entity> entityStream(Set<Class<? extends Component>> filter){
-        Filter rf= entities.stream().filter(f->f.equals(filter)).findFirst().orElseThrow(()-> new NullPointerException());
+    public static Stream<Entity> entityStream(Set<Class<? extends Component>> filter) {
+        Filter rf =
+                entitieFilterStorage.stream()
+                        .filter(f -> f.equals(filter))
+                        .findFirst()
+                        .orElseThrow(() -> new NullPointerException());
         return rf.stream();
     }
 
@@ -467,13 +480,18 @@ public final class Game extends ScreenAdapter {
     public static Optional<System> add(System system) {
         System currentSystem = systems.get(system.getClass());
         systems.put(system.getClass(), system);
-        //add to existing filter or create new filter if no matching exists
-       Optional<Filter> filter = entities.stream().filter(f-> f.equals(system.filterRules())).findFirst();
-       filter.ifPresentOrElse(f->f.add(system), ()->{
-           Filter f = new Filter(system.filterRules());
-           entities.add(f);
-           f.add(system);
-       });
+        // add to existing filter or create new filter if no matching exists
+        Optional<Filter> filter =
+                entitieFilterStorage.stream()
+                        .filter(f -> f.equals(system.filterRules()))
+                        .findFirst();
+        filter.ifPresentOrElse(
+                f -> f.add(system),
+                () -> {
+                    Filter f = new Filter(system.filterRules());
+                    entitieFilterStorage.add(f);
+                    f.add(system);
+                });
         LOGGER.info("A new " + system.getClass().getName() + " was added to the game");
         return Optional.ofNullable(currentSystem);
     }
@@ -485,8 +503,7 @@ public final class Game extends ScreenAdapter {
      */
     public static void remove(Class<? extends System> system) {
         System systemInstance = systems.remove(system);
-        if(systemInstance != null)
-            entities.forEach(f->f.remove(systemInstance));
+        if (systemInstance != null) entitieFilterStorage.forEach(f -> f.remove(systemInstance));
     }
 
     /**
@@ -495,9 +512,11 @@ public final class Game extends ScreenAdapter {
      * <p>This will also remove all entities from each system.
      */
     public static void removeAllEntities() {
-        Game.entityStream().forEach(e-> {
-            Game.remove(e);
-        });
+        Game.entityStream()
+                .forEach(
+                        e -> {
+                            Game.remove(e);
+                        });
         LOGGER.info("All entities will be removed from the game.");
     }
 
@@ -668,9 +687,10 @@ public final class Game extends ScreenAdapter {
     private void onSetup() {
         doSetup = false;
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
-        entities.add(new Filter());
+        entitieFilterStorage.add(new Filter());
         createSystems();
         setupStage();
+        userOnSetup.execute();
     }
 
     /**
@@ -690,7 +710,7 @@ public final class Game extends ScreenAdapter {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             // Text Dialogue (output of information texts)
 
-            newPauseMenu();
+            Game.add(newPauseMenu());
 
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
             // toggle UI "debug rendering"
@@ -714,7 +734,6 @@ public final class Game extends ScreenAdapter {
         entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
         return entity;
     }
-
 
     /**
      * Set the position of the given entity to the position of the level-start.

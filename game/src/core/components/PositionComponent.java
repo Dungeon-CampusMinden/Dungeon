@@ -1,14 +1,11 @@
 package core.components;
 
 import core.Component;
-import core.Entity;
 import core.Game;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import core.utils.logging.CustomLogLevel;
 
-import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
 
 import java.util.logging.Logger;
@@ -25,7 +22,7 @@ import java.util.logging.Logger;
  * @see Point
  */
 @DSLType(name = "position_component")
-public final class PositionComponent extends Component {
+public final class PositionComponent implements Component {
 
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private Point position;
@@ -35,11 +32,9 @@ public final class PositionComponent extends Component {
      *
      * <p>Sets the position of this entity to the given point.
      *
-     * @param entity The associated entity.
      * @param position The position of the entity in the level.
      */
-    public PositionComponent(final Entity entity, final Point position) {
-        super(entity);
+    public PositionComponent(final Point position) {
         this.position = position;
     }
 
@@ -48,12 +43,11 @@ public final class PositionComponent extends Component {
      *
      * <p>Sets the position of this entity to a point with the given x and y positions.
      *
-     * @param entity associated entity
      * @param x x-position of the entity
      * @param y y-position of the entity
      */
-    public PositionComponent(final Entity entity, float x, float y) {
-        this(entity, new Point(x, y));
+    public PositionComponent(float x, float y) {
+        this(new Point(x, y));
     }
 
     /**
@@ -62,11 +56,8 @@ public final class PositionComponent extends Component {
      * <p>Sets the position of this entity on a random floor tile in the level. If no level is
      * loaded, set the position to (0,0). Beware that (0,0) may not necessarily be a playable area
      * within the level, it could be a wall or an "out of level" area.
-     *
-     * @param entity associated entity
      */
-    public PositionComponent(@DSLContextMember(name = "entity") final Entity entity) {
-        super(entity);
+    public PositionComponent() {
 
         if (Game.currentLevel() != null) {
             position = Game.randomTilePoint(LevelElement.FLOOR);
@@ -81,14 +72,6 @@ public final class PositionComponent extends Component {
      * @return The position of the associated entity.
      */
     public Point position() {
-        LOGGER.log(
-                CustomLogLevel.DEBUG,
-                "Fetching position for entity '"
-                        + entity
-                        + "': x = "
-                        + position.x
-                        + " --- y = "
-                        + position.y);
         return position;
     }
 

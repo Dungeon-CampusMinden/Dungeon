@@ -4,7 +4,6 @@ import contrib.utils.components.health.DamageType;
 import contrib.utils.components.stats.DamageModifier;
 
 import core.Component;
-import core.Entity;
 
 /**
  * Add resistances and vulnerabilities for {@link contrib.utils.components.health.DamageType}s to
@@ -25,18 +24,9 @@ import core.Entity;
  *
  * @see contrib.utils.components.stats.DamageModifier
  */
-public final class StatsComponent extends Component {
+public final class StatsComponent implements Component {
 
     private final DamageModifier damageModifier = new DamageModifier();
-
-    /**
-     * Create a new component and add it to the associated entity.
-     *
-     * @param entity associated entity
-     */
-    public StatsComponent(final Entity entity) {
-        super(entity);
-    }
 
     /**
      * Get multiplier for a given damage type

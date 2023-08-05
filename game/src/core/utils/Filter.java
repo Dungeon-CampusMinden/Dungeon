@@ -20,7 +20,7 @@ public class Filter {
         systems = new HashSet<>();
     }
 
-    public Filter(){
+    public Filter() {
         filterRules = new HashSet<>();
         entities = new HashSet<>();
         systems = new HashSet<>();
@@ -97,7 +97,7 @@ public class Filter {
         return true;
     }
 
-    public boolean has(System system){
+    public boolean has(System system) {
         return systems.contains(system);
     }
 }

@@ -1,7 +1,5 @@
 package contrib.components;
 
-import com.badlogic.gdx.utils.Null;
-
 import core.Component;
 import core.Entity;
 
@@ -23,7 +21,7 @@ import java.util.function.BiConsumer;
  *
  * <p>The interaction radius can be queried with {@link #radius()}.
  */
-public final class InteractionComponent extends Component {
+public final class InteractionComponent implements Component {
     public static final int DEFAULT_INTERACTION_RADIUS = 5;
     public static final boolean DEFAULT_REPEATABLE = true;
 
@@ -35,17 +33,12 @@ public final class InteractionComponent extends Component {
     /**
      * Create a new {@link InteractionComponent} and adds it to the associated entity.
      *
-     * @param entity The associated entity.
      * @param radius The radius in which an interaction can happen.
      * @param repeatable True if the interaction is repeatable, otherwise false.
      * @param onInteraction The behavior that should happen on an interaction.
      */
     public InteractionComponent(
-            final Entity entity,
-            float radius,
-            boolean repeatable,
-            final BiConsumer<Entity, Entity> onInteraction) {
-        super(entity);
+            float radius, boolean repeatable, final BiConsumer<Entity, Entity> onInteraction) {
         this.radius = radius;
         this.repeatable = repeatable;
         this.onInteraction = onInteraction;
@@ -58,11 +51,9 @@ public final class InteractionComponent extends Component {
      * <p>The interaction radius is {@link #DEFAULT_INTERACTION_RADIUS}.
      *
      * <p>The interaction callback is empty.
-     *
-     * @param entity The entity to link to.
      */
-    public InteractionComponent(final Entity entity) {
-        this(entity, DEFAULT_INTERACTION_RADIUS, DEFAULT_REPEATABLE, DEFAULT_INTERACTION);
+    public InteractionComponent() {
+        this(DEFAULT_INTERACTION_RADIUS, DEFAULT_REPEATABLE, DEFAULT_INTERACTION);
     }
 
     /**
@@ -73,7 +64,7 @@ public final class InteractionComponent extends Component {
      *
      * @param who The entity that triggered the interaction.
      */
-    public void triggerInteraction(@Null Entity who) {
+    public void triggerInteraction(Entity entity, Entity who) {
         onInteraction.accept(entity, who);
         if (!repeatable) entity.removeComponent(InteractionComponent.class);
     }

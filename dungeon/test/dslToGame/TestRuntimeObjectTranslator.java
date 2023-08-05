@@ -3,6 +3,7 @@ package dslToGame;
 import contrib.components.HealthComponent;
 
 import core.Entity;
+import core.Game;
 import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
@@ -24,11 +25,12 @@ import runtime.Value;
 public class TestRuntimeObjectTranslator {
     @Test
     public void testEntityTranslation() {
-        var entity = new Entity();
-        entity.addComponent(new CameraComponent(entity));
-        entity.addComponent(new PositionComponent(entity, new Point(0, 0)));
-        entity.addComponent(new VelocityComponent(entity));
-        entity.addComponent(new HealthComponent(entity));
+        Entity entity = new Entity();
+        entity.addComponent(new CameraComponent());
+        entity.addComponent(new PositionComponent(new Point(0, 0)));
+        entity.addComponent(new VelocityComponent());
+        entity.addComponent(new HealthComponent());
+        Game.add(entity);
 
         String program = """
             quest_config my_quest_config {}
@@ -55,11 +57,12 @@ public class TestRuntimeObjectTranslator {
 
     @Test
     public void testIsolatedComponentTranslation() {
-        var entity = new Entity();
-        entity.addComponent(new CameraComponent(entity));
-        entity.addComponent(new PositionComponent(entity, new Point(0, 0)));
-        entity.addComponent(new VelocityComponent(entity));
-        entity.addComponent(new HealthComponent(entity));
+        Entity entity = new Entity();
+        entity.addComponent(new CameraComponent());
+        entity.addComponent(new PositionComponent(new Point(0, 0)));
+        entity.addComponent(new VelocityComponent());
+        entity.addComponent(new HealthComponent());
+        Game.add(entity);
 
         String program = """
             quest_config my_quest_config {}

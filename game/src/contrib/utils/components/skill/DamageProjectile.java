@@ -92,10 +92,10 @@ public abstract class DamageProjectile implements Consumer<Entity> {
                                 () ->
                                         MissingComponentException.build(
                                                 entity, PositionComponent.class));
-        new PositionComponent(projectile, epc.position());
+        projectile.addComponent(new PositionComponent(epc.position()));
 
         try {
-            new DrawComponent(projectile, pathToTexturesOfProjectile);
+            projectile.addComponent(new DrawComponent(pathToTexturesOfProjectile));
         } catch (IOException e) {
             LOGGER.warning(
                     "The DrawComponent for the projectile "
@@ -114,10 +114,11 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         Point velocity = SkillTools.calculateVelocity(epc.position(), targetPoint, projectileSpeed);
 
         // Add the VelocityComponent to the projectile
-        VelocityComponent vc = new VelocityComponent(projectile, velocity.x, velocity.y);
+        VelocityComponent vc = new VelocityComponent(velocity.x, velocity.y);
+        projectile.addComponent(vc);
 
         // Add the ProjectileComponent with the initial and target positions to the projectile
-        new ProjectileComponent(projectile, epc.position(), targetPoint);
+        projectile.addComponent(new ProjectileComponent(epc.position(), targetPoint));
 
         // Create a collision handler for the projectile
         TriConsumer<Entity, Entity, Tile.Direction> collide =
@@ -138,7 +139,8 @@ public abstract class DamageProjectile implements Consumer<Entity> {
 
         // Add the CollideComponent with the appropriate hitbox size and collision handler to the
         // projectile
-        new CollideComponent(
-                projectile, new Point(0.25f, 0.25f), projectileHitboxSize, collide, null);
+        projectile.addComponent(
+                new CollideComponent(new Point(0.25f, 0.25f), projectileHitboxSize, collide, null));
+        Game.add(projectile);
     }
 }
