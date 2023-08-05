@@ -52,13 +52,23 @@ public class WizardQuizTest {
 
     public static void main(String[] args) throws IOException {
         // start the game
-        Game.hero(EntityFactory.newHero());
+
         LevelSystem.levelSize(LevelSize.SMALL);
         Game.loadConfig(
                 "dungeon_config.json",
                 contrib.configuration.KeyboardConfig.class,
                 core.configuration.KeyboardConfig.class);
         Game.frameRate(30);
+        Game.userOnSetup(
+                () -> {
+                    try {
+                        Entity hero = EntityFactory.newHero();
+                        Game.hero(hero);
+                        Game.add(hero);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
         Game.userOnFrame(
                 () -> {
                     if (Gdx.input.isKeyJustPressed(Input.Keys.V)) toggleQuiz();
@@ -84,16 +94,16 @@ public class WizardQuizTest {
 
     private static void questWizard() throws IOException {
         Entity wizard = new Entity("Quest Wizard");
-        new PositionComponent(wizard);
-        new DrawComponent(wizard, "character/wizard");
-        new TaskComponent(wizard, question);
-        new InteractionComponent(
-                wizard,
-                1,
-                false,
-                (entity, who) ->
-                        UIAnswerCallback.askOnInteraction(question, showAnswersOnHud())
-                                .accept(entity, who));
+        wizard.addComponent(new PositionComponent());
+        wizard.addComponent(new DrawComponent("character/wizard"));
+        wizard.addComponent(new TaskComponent(question));
+        wizard.addComponent(
+                new InteractionComponent(
+                        1,
+                        false,
+                        (entity, who) ->
+                                UIAnswerCallback.askOnInteraction(question, showAnswersOnHud())
+                                        .accept(entity, who)));
     }
 
     private static BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
@@ -103,7 +113,7 @@ public class WizardQuizTest {
                     .map(t -> (Quiz.Content) t)
                     .forEach(
                             t -> answers.set(answers.get() + t.content() + System.lineSeparator()));
-            UITools.generateNewTextDialog(answers.get(), "Ok", "Given answer");
+            Game.add(UITools.generateNewTextDialog(answers.get(), "Ok", "Given answer"));
         };
     }
 

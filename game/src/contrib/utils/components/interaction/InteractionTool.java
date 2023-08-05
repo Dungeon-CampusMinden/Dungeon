@@ -26,30 +26,34 @@ public class InteractionTool {
     /**
      * Interacts with the closest interactable entity.
      *
-     * @param entity The entity that is interacting
+     * @param who The entity that is interacting
      * @param iReachable The function that determines if the entity is reachable
      */
     public static void interactWithClosestInteractable(
-            final Entity entity, final Function<InteractionData, Boolean> iReachable) {
+            final Entity who, final Function<InteractionData, Boolean> iReachable) {
         PositionComponent heroPosition =
-                entity.fetch(PositionComponent.class)
+                who.fetch(PositionComponent.class)
                         .orElseThrow(
                                 () ->
                                         MissingComponentException.build(
-                                                entity, PositionComponent.class));
+                                                who, PositionComponent.class));
         Optional<InteractionData> data =
                 Game.entityStream()
-                        .flatMap(x -> x.fetch(InteractionComponent.class).stream())
-                        .map(ic1 -> convertToData(ic1, heroPosition))
+                        .filter(x -> x.isPresent(InteractionComponent.class))
+                        .map(x -> convertToData(x, heroPosition))
                         .filter(iReachable::apply)
                         .min((x, y) -> Float.compare(x.dist(), y.dist()));
-        data.ifPresent(x -> x.ic().triggerInteraction(entity));
+        data.ifPresent(x -> x.ic().triggerInteraction(x.e(), who));
     }
 
-    private static InteractionData convertToData(
-            InteractionComponent ic, PositionComponent heroPosition) {
-        Entity entity = ic.entity();
+    private static InteractionData convertToData(Entity entity, PositionComponent heroPosition) {
 
+        InteractionComponent ic =
+                entity.fetch(InteractionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, InteractionComponent.class));
         PositionComponent pc =
                 entity.fetch(PositionComponent.class)
                         .orElseThrow(

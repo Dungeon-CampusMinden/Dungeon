@@ -39,7 +39,7 @@ public class DslFileReaderTest {
 
                         AtomicReference<String> f = new AtomicReference<>("");
                         files.forEach(v -> f.set(f.get() + v + System.lineSeparator()));
-                        UITools.generateNewTextDialog(f.get(), "Ok", "Files");
+                        Game.add(UITools.generateNewTextDialog(f.get(), "Ok", "Files"));
 
                         // for the start: print on console
                         configs.forEach(map -> map.values().forEach(System.out::println));

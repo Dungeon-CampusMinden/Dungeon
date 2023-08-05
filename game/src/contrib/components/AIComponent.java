@@ -8,7 +8,6 @@ import contrib.utils.components.ai.transition.RangeTransition;
 import core.Component;
 import core.Entity;
 
-import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
 
 import java.util.function.Consumer;
@@ -35,7 +34,7 @@ import java.util.function.Function;
  * @see AISystem
  */
 @DSLType(name = "ai_component")
-public final class AIComponent extends Component {
+public final class AIComponent implements Component {
     private final Consumer<Entity> fightBehavior;
     private final Consumer<Entity> idleBehavior;
     private final Function<Entity, Boolean> shouldFight;
@@ -43,17 +42,14 @@ public final class AIComponent extends Component {
     /**
      * Create an AIComponent with the given behavior and add it to the associated entity.
      *
-     * @param entity The associated entity.
      * @param fightBehavior The combat behavior.
      * @param idleBehavior The idle behavior.
      * @param shouldFight Determines when to fight.
      */
     public AIComponent(
-            final Entity entity,
             final Consumer<Entity> fightBehavior,
             final Consumer<Entity> idleBehavior,
             final Function<Entity, Boolean> shouldFight) {
-        super(entity);
         this.fightBehavior = fightBehavior;
         this.idleBehavior = idleBehavior;
         this.shouldFight = shouldFight;
@@ -64,11 +60,9 @@ public final class AIComponent extends Component {
      *
      * <p>The default behavior uses {@link RadiusWalk} as the idle behavior, {@link RangeTransition}
      * as the transition function, and {@link CollideAI} as the fight behavior.
-     *
-     * @param entity The associated entity.
      */
-    public AIComponent(@DSLContextMember(name = "entity") final Entity entity) {
-        this(entity, new CollideAI(2f), new RadiusWalk(5, 2), new RangeTransition(5f));
+    public AIComponent() {
+        this(new CollideAI(2f), new RadiusWalk(5, 2), new RangeTransition(5f));
     }
 
     /**
@@ -77,7 +71,7 @@ public final class AIComponent extends Component {
      * <p>Uses {@link #shouldFight} to check if the entity is in idle mode or in fight mode and
      * execute the corresponding behavior
      */
-    public void execute() {
+    public void execute(Entity entity) {
         if (shouldFight.apply(entity)) fightBehavior.accept(entity);
         else idleBehavior.accept(entity);
     }

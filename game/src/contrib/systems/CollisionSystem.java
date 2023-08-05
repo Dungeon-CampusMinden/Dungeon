@@ -88,7 +88,7 @@ public final class CollisionSystem extends System {
                         .orElseThrow(
                                 () -> MissingComponentException.build(b, CollideComponent.class));
 
-        return new CollisionData(cca, ccb);
+        return new CollisionData(a, cca, b, ccb);
     }
 
     /**
@@ -101,23 +101,23 @@ public final class CollisionSystem extends System {
      * @param cdata the CollisionData where a collision change may happen
      */
     private void onEnterLeaveCheck(CollisionData cdata) {
-        CollisionKey key = new CollisionKey(cdata.a.entity().id(), cdata.b.entity().id());
+        CollisionKey key = new CollisionKey(cdata.ea.id(), cdata.eb.id());
 
-        if (checkForCollision(cdata.a, cdata.b)) {
+        if (checkForCollision(cdata.ea, cdata.a, cdata.eb, cdata.b)) {
             // a collision is currently happening
             if (!collisions.containsKey(key)) {
                 // a new collision should call the onEnter on both entities
                 collisions.put(key, cdata);
-                Tile.Direction d = checkDirectionOfCollision(cdata.a, cdata.b);
-                cdata.a.onEnter(cdata.b, d);
-                cdata.b.onEnter(cdata.a, inverse(d));
+                Tile.Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
+                cdata.a.onEnter(cdata.ea, cdata.eb, d);
+                cdata.b.onEnter(cdata.eb, cdata.ea, inverse(d));
             }
         } else if (collisions.remove(key) != null) {
             // a collision was happening and the two entities are no longer colliding on Leave
             // called once
-            Tile.Direction d = checkDirectionOfCollision(cdata.a, cdata.b);
-            cdata.a.onLeave(cdata.b, d);
-            cdata.b.onLeave(cdata.b, inverse(d));
+            Tile.Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
+            cdata.a.onLeave(cdata.ea, cdata.eb, d);
+            cdata.b.onLeave(cdata.eb, cdata.ea, inverse(d));
         }
     }
 
@@ -143,11 +143,12 @@ public final class CollisionSystem extends System {
      * @param hitbox2
      * @return true if intersection exists otherwise false
      */
-    protected boolean checkForCollision(CollideComponent hitbox1, CollideComponent hitbox2) {
-        return hitbox1.bottomLeft().x < hitbox2.topRight().x
-                && hitbox1.topRight().x > hitbox2.bottomLeft().x
-                && hitbox1.bottomLeft().y < hitbox2.topRight().y
-                && hitbox1.topRight().y > hitbox2.bottomLeft().y;
+    protected boolean checkForCollision(
+            Entity h1, CollideComponent hitbox1, Entity h2, CollideComponent hitbox2) {
+        return hitbox1.bottomLeft(h1).x < hitbox2.topRight(h2).x
+                && hitbox1.topRight(h1).x > hitbox2.bottomLeft(h2).x
+                && hitbox1.bottomLeft(h1).y < hitbox2.topRight(h2).y
+                && hitbox1.topRight(h1).y > hitbox2.bottomLeft(h2).y;
     }
 
     /**
@@ -158,9 +159,9 @@ public final class CollisionSystem extends System {
      * @return Tile direction for where hitbox 2 is compared to hitbox 1
      */
     protected Tile.Direction checkDirectionOfCollision(
-            CollideComponent hitbox1, CollideComponent hitbox2) {
-        float y = hitbox2.center().y - hitbox1.center().y;
-        float x = hitbox2.center().x - hitbox1.center().x;
+            Entity h1, CollideComponent hitbox1, Entity h2, CollideComponent hitbox2) {
+        float y = hitbox2.center(h2).y - hitbox1.center(h1).y;
+        float x = hitbox2.center(h2).x - hitbox1.center(h1).x;
         float rads = (float) Math.atan2(y, x);
         double piQuarter = Math.PI / 4;
         if (rads < 3 * -piQuarter) {
@@ -178,5 +179,5 @@ public final class CollisionSystem extends System {
 
     private record CollisionKey(int a, int b) {}
 
-    protected record CollisionData(CollideComponent a, CollideComponent b) {}
+    protected record CollisionData(Entity ea, CollideComponent a, Entity eb, CollideComponent b) {}
 }

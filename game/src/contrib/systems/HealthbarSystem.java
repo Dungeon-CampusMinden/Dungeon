@@ -56,7 +56,8 @@ public final class HealthbarSystem extends System {
                     Container<ProgressBar> group = new Container<>(newHealthbar);
                     // disabling layout enforcing from parent
                     group.setLayoutEnabled(false);
-                    new UIComponent(e, group, false);
+                    e.addComponent(new UIComponent(group, false));
+                    Game.add(e);
                     LOGGER.log(CustomLogLevel.TRACE, "created a new UIComponent for the Healthbar");
                     healthbarMapping.put(x.id(), newHealthbar);
                     LOGGER.log(CustomLogLevel.TRACE, "HealthbarSystem added to temporary mapping");

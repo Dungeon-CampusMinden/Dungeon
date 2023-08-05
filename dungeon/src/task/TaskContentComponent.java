@@ -1,7 +1,6 @@
 package task;
 
 import core.Component;
-import core.Entity;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,29 +16,25 @@ import java.util.stream.Stream;
  *
  * <p>The collection can be queried as a stream using {@link #stream()}
  */
-public final class TaskContentComponent extends Component {
+public final class TaskContentComponent implements Component {
 
     private final Set<TaskContent> content;
 
     /**
      * Create a new TaskContentComponent and add it to the associated entity.
      *
-     * @param entity associated entity
      * @param content Collection of {@link TaskContent} that this Component represent
      */
-    public TaskContentComponent(final Entity entity, final Set<TaskContent> content) {
-        super(entity);
+    public TaskContentComponent(final Set<TaskContent> content) {
         this.content = new HashSet<>(content);
     }
 
     /**
      * Create a new TaskContentComponent and add it to the associated entity.
      *
-     * @param entity associated entity
      * @param content Single {@link TaskContent} that this Component represent
      */
-    public TaskContentComponent(final Entity entity, final TaskContent content) {
-        super(entity);
+    public TaskContentComponent(final TaskContent content) {
         this.content = new HashSet<>();
         this.content.add(content);
     }

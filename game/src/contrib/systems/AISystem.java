@@ -18,7 +18,7 @@ public final class AISystem extends System {
                                     () ->
                                             MissingComponentException.build(
                                                     entity, AIComponent.class))
-                            .execute();
+                            .execute(entity);
 
     public AISystem() {
         super(AIComponent.class);

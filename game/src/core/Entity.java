@@ -11,8 +11,8 @@ import java.util.stream.Stream;
 /**
  * An Entity is a container for {@link Component}s.
  *
- * <p>A new entity will automatically register itself with the {@link Game} via {@link
- * Game#add} and will be added to the game on the next frame.
+ * <p>A new entity will automatically register itself with the {@link Game} via {@link Game#add} and
+ * will be added to the game on the next frame.
  *
  * <p>Add different components to an entity to define it. Based on the components inside an entity,
  * the {@link System}s will decide whether to process the entity.
@@ -49,7 +49,6 @@ public final class Entity implements Comparable<Entity> {
         id = nextId++;
         components = new HashMap<>();
         this.name = name;
-        Game.add(this);
         LOGGER.info("The entity '" + name + "' was created.");
     }
 

@@ -10,7 +10,6 @@ import core.Component;
 import core.Entity;
 import core.utils.logging.CustomLogLevel;
 
-import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;
 
@@ -37,7 +36,7 @@ import java.util.logging.Logger;
  * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
  */
 @DSLType(name = "health_component")
-public final class HealthComponent extends Component {
+public final class HealthComponent implements Component {
     private final List<Damage> damageToGet;
     private @DSLTypeMember(name = "on_death_function") final Consumer<Entity> onDeath;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
@@ -48,14 +47,11 @@ public final class HealthComponent extends Component {
     /**
      * Create a new HealthComponent and add it to the associated entity.
      *
-     * @param entity associated entity
      * @param maximalHitPoints Maximum amount of health points; currentHitPoints cannot be greater
      *     than that
      * @param onDeath Function that gets called when this entity dies
      */
-    public HealthComponent(
-            final Entity entity, int maximalHitPoints, final Consumer<Entity> onDeath) {
-        super(entity);
+    public HealthComponent(int maximalHitPoints, final Consumer<Entity> onDeath) {
         this.maximalHealthpoints = maximalHitPoints;
         this.currentHealthpoints = maximalHitPoints;
         this.onDeath = onDeath;
@@ -66,11 +62,9 @@ public final class HealthComponent extends Component {
      * Create a HealthComponent with default values and add it to the associated entity.
      *
      * <p>The maximum health points are set to 1, and the onDeath function is empty.
-     *
-     * @param entity associated entity
      */
-    public HealthComponent(@DSLContextMember(name = "entity") final Entity entity) {
-        this(entity, 1, onDeath -> {});
+    public HealthComponent() {
+        this(1, onDeath -> {});
     }
 
     /**
@@ -87,7 +81,7 @@ public final class HealthComponent extends Component {
     }
 
     /** Trigger the onDeath function */
-    public void triggerOnDeath() {
+    public void triggerOnDeath(Entity entity) {
         onDeath.accept(entity);
     }
 
@@ -106,11 +100,7 @@ public final class HealthComponent extends Component {
 
         LOGGER.log(
                 CustomLogLevel.DEBUG,
-                this.getClass().getSimpleName()
-                        + " processed damage for entity: '"
-                        + entity
-                        + "': "
-                        + damageSum);
+                this.getClass().getSimpleName() + " processed damage: '" + damageSum);
 
         return damageSum;
     }
