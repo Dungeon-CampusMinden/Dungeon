@@ -126,7 +126,8 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
     public Void visit(ParamDefNode node) {
         // current scope should be a function definition
         IScope currentScope = scopeStack.peek();
-        var resolvedParameter = currentScope.resolve(node.getIdName());
+        String parameterName = node.getIdName();
+        var resolvedParameter = currentScope.resolve(parameterName);
         if (resolvedParameter != Symbol.NULL) {
             throw new RuntimeException(
                 "Parameter with name " + node.getIdName() + " was already defined");
@@ -134,7 +135,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
             // resolve parameters datatype
             IType parameterType = this.symbolTable.globalScope.resolveType(node.getTypeName());
 
-            Symbol parameterSymbol = new Symbol(node.getIdName(), currentScope, parameterType);
+            Symbol parameterSymbol = new Symbol(parameterName, currentScope, parameterType);
             currentScope.bind(parameterSymbol);
         }
         return null;
