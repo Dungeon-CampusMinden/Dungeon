@@ -64,11 +64,10 @@ public abstract class System {
      *
      * @param keyComponent The Class of the key-component for the system. Each entity without this
      *     component will be ignored.
-     * @param filterRules Additional needed Component-Classes. Entities with the key
-     *     component but without all additional components will not be processed by this system.
+     * @param filterRules Additional needed Component-Classes. Entities with the key component but
+     *     without all additional components will not be processed by this system.
      */
-    public System(
-            Class<? extends Component>... filterRules) {
+    public System(Class<? extends Component>... filterRules) {
         if (filterRules != null) this.filterRules = Set.of(filterRules);
         else this.filterRules = new HashSet<>();
         run = true;
@@ -78,15 +77,15 @@ public abstract class System {
     /** Implements the functionality of the system. */
     public abstract void execute();
 
-    public void triggerOnAdd(Entity entity){
+    public void triggerOnAdd(Entity entity) {
         onEntityAdd.accept(entity);
     }
 
-    public void triggerOnRemove(Entity entity){
+    public void triggerOnRemove(Entity entity) {
         onEntityRemove.accept(entity);
     }
 
-    public Set<Class<? extends Component>> filterRules(){
+    public Set<Class<? extends Component>> filterRules() {
         return new HashSet<>(filterRules);
     }
 
