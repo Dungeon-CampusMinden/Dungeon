@@ -31,7 +31,7 @@ public final class ProjectileComponent implements Component {
     private final Point startPosition;
 
     /**
-     * Create a new ProjectileComponent and add it to the associated entity.
+     * Create a new ProjectileComponent.
      *
      * @param startPosition The point from which to start the calculation to the goal location.
      * @param goalLocation The point where the projectile should fly to.

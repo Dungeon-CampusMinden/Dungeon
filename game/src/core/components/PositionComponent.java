@@ -28,7 +28,7 @@ public final class PositionComponent implements Component {
     private Point position;
 
     /**
-     * Create a new PositionComponent with given position and add it to the associated entity.
+     * Create a new PositionComponent with given position.
      *
      * <p>Sets the position of this entity to the given point.
      *
@@ -39,7 +39,7 @@ public final class PositionComponent implements Component {
     }
 
     /**
-     * Create a new PositionComponent and add it to the associated entity.
+     * Create a new PositionComponent.
      *
      * <p>Sets the position of this entity to a point with the given x and y positions.
      *
@@ -51,7 +51,7 @@ public final class PositionComponent implements Component {
     }
 
     /**
-     * Create a new PositionComponent with random position and add it to the associated entity.
+     * Create a new PositionComponent with random position.
      *
      * <p>Sets the position of this entity on a random floor tile in the level. If no level is
      * loaded, set the position to (0,0). Beware that (0,0) may not necessarily be a playable area

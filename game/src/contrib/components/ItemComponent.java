@@ -39,11 +39,11 @@ public final class ItemComponent implements Component {
     private final ItemData itemData;
 
     /**
-     * Creates a new {@link ItemComponent} and adds it to the associated entity.
+     * Creates a new {@link ItemComponent}.
      *
      * @param itemData The data of the item to store in this component.
      */
-    public ItemComponent(ItemData itemData) {
+    public ItemComponent(final ItemData itemData) {
         this.itemData = itemData;
     }
 
