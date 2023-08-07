@@ -523,4 +523,57 @@ public class TestSemanticAnalyzer {
         var symbolForMember1Identifier = symbolsForMember1Identifier.get(0);
         Assert.assertEquals(member1Symbol, symbolForMember1Identifier);
     }
+
+    @Test
+    public void memberAccessFuncCall() {
+        String program =
+            """
+            fn other_func(test_component2 comp) -> test_component2 {
+                return comp;
+            }
+
+            fn test_func(test_component2 comp)
+            {
+                print(other_func(comp).member1);
+            }
+            """;
+
+        TestEnvironment env = new TestEnvironment();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+
+        var ast = Helpers.getASTFromString(program);
+        var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+        var symbolTable = result.symbolTable;
+
+        FuncDefNode otherFuncDefNode = (FuncDefNode) ast.getChild(0);
+        FunctionSymbol otherFuncSymbol = (FunctionSymbol) symbolTable.getSymbolsForAstNode(otherFuncDefNode).get(0);
+        FuncDefNode testFuncDefNode = (FuncDefNode) ast.getChild(1);
+
+        var stmtList = testFuncDefNode.getStmts();
+        var printStmt = stmtList.get(0);
+        var printStmtFuncCall = (FuncCallNode) printStmt;
+        MemberAccessNode printParameterNode = (MemberAccessNode)(printStmtFuncCall.getParameters().get(0));
+
+        Assert.assertEquals(Node.Type.MemberAccess, printParameterNode.type);
+
+        // check, whether the other_test-call in print-call is linked to the corresponding function symbol
+        Node memberAccessLhs = printParameterNode.getLhs();
+        var symbolsForCompIdentifier = symbolTable.getSymbolsForAstNode(memberAccessLhs);
+        Assert.assertEquals(1, symbolsForCompIdentifier.size());
+
+        var symbolForCompIdentifier = symbolsForCompIdentifier.get(0);
+        Assert.assertEquals(otherFuncSymbol, symbolForCompIdentifier);
+
+        // check, whether the 'member1' identifier in print-call is linked to the
+        // member symbol inside the test_component2 datatype
+        AggregateType testComponent2Type = (AggregateType) symbolTable.globalScope.resolveType("test_component2");
+        Symbol member1Symbol = testComponent2Type.resolve("member1");
+
+        IdNode memberAccessRhs = (IdNode)printParameterNode.getRhs();
+        var symbolsForMember1Identifier = symbolTable.getSymbolsForAstNode(memberAccessRhs);
+        Assert.assertEquals(1, symbolsForMember1Identifier.size());
+
+        var symbolForMember1Identifier = symbolsForMember1Identifier.get(0);
+        Assert.assertEquals(member1Symbol, symbolForMember1Identifier);
+    }
 }
