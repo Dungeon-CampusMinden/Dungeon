@@ -1,4 +1,4 @@
-package dslToGame;
+package dslToGame.loadFiles;
 
 import java.io.IOException;
 import java.nio.file.*;

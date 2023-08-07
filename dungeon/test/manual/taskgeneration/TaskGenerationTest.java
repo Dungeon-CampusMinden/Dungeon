@@ -12,8 +12,8 @@ import core.hud.UITools;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 
-import dslToGame.DslFileLoader;
 import dslToGame.QuestConfig;
+import dslToGame.loadFiles.DslFileLoader;
 
 import interpreter.DSLInterpreter;
 

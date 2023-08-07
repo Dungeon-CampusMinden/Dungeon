@@ -5,18 +5,26 @@ import contrib.utils.components.Debugger;
 import core.Game;
 import core.level.utils.LevelSize;
 
-import dslToGame.DslFileLoader;
+import dslToGame.loadFiles.DslFileLoader;
+import dslToGame.loadFiles.DummyDSLFunctions;
+import dslToGame.loadFiles.EntryPoint;
 
 import java.io.IOException;
-import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
 public class Starter {
     public static void main(String[] args) throws IOException {
         setupBasicGame();
-        Set<Path> path = DslFileLoader.processArguments(args);
-        path.forEach(p -> System.out.println(p));
+        Set<EntryPoint> entryPoints = new HashSet<>();
+        DslFileLoader.processArguments(args)
+                .forEach(
+                        path -> {
+                            DummyDSLFunctions.entryPointsFor(path).ifPresent(entryPoints::addAll);
+                        });
+
+        // Todo Game.menue.show(entryPoints)
         Game.run();
     }
 
