@@ -6,8 +6,8 @@ import helpers.Helpers;
 
 import interpreter.DummyNativeFunction;
 import interpreter.TestEnvironment;
-
 import interpreter.mockecs.TestComponent2;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -473,7 +473,7 @@ public class TestSemanticAnalyzer {
     @Test
     public void memberAccessSimple() {
         String program =
-            """
+                """
             fn test_func(test_component2 comp)
             {
                 print(comp.member1);
@@ -481,29 +481,32 @@ public class TestSemanticAnalyzer {
             """;
 
         TestEnvironment env = new TestEnvironment();
-        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
 
         var ast = Helpers.getASTFromString(program);
         var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
         var symbolTable = result.symbolTable;
 
         FuncDefNode funcDefNode = (FuncDefNode) ast.getChild(0);
-        FunctionSymbol functionSymbol = (FunctionSymbol) symbolTable.getSymbolsForAstNode(funcDefNode).get(0);
+        FunctionSymbol functionSymbol =
+                (FunctionSymbol) symbolTable.getSymbolsForAstNode(funcDefNode).get(0);
 
         ParamDefNode paramDefNode = (ParamDefNode) funcDefNode.getParameters().get(0);
-        IdNode paramDefIdNode = (IdNode)paramDefNode.getIdNode();
+        IdNode paramDefIdNode = (IdNode) paramDefNode.getIdNode();
         Symbol parameterSymbol = symbolTable.getSymbolsForAstNode(paramDefIdNode).get(0);
 
         var stmtList = funcDefNode.getStmts();
         var printStmt = stmtList.get(0);
         var printStmtFuncCall = (FuncCallNode) printStmt;
-        MemberAccessNode printParameterNode = (MemberAccessNode)(printStmtFuncCall.getParameters().get(0));
+        MemberAccessNode printParameterNode =
+                (MemberAccessNode) (printStmtFuncCall.getParameters().get(0));
 
         Assert.assertEquals(Node.Type.MemberAccess, printParameterNode.type);
 
         // check, whether the 'comp' identifier in print-call is linked to the symbol
         // of the function parameter
-        IdNode memberAccessLhs = (IdNode)printParameterNode.getLhs();
+        IdNode memberAccessLhs = (IdNode) printParameterNode.getLhs();
         var symbolsForCompIdentifier = symbolTable.getSymbolsForAstNode(memberAccessLhs);
         Assert.assertEquals(1, symbolsForCompIdentifier.size());
 
@@ -513,10 +516,11 @@ public class TestSemanticAnalyzer {
 
         // check, whether the 'member1' identifier in print-call is linked to the
         // member symbol inside the test_component2 datatype
-        AggregateType testComponent2Type = (AggregateType) symbolTable.globalScope.resolveType("test_component2");
+        AggregateType testComponent2Type =
+                (AggregateType) symbolTable.globalScope.resolveType("test_component2");
         Symbol member1Symbol = testComponent2Type.resolve("member1");
 
-        IdNode memberAccessRhs = (IdNode)printParameterNode.getRhs();
+        IdNode memberAccessRhs = (IdNode) printParameterNode.getRhs();
         var symbolsForMember1Identifier = symbolTable.getSymbolsForAstNode(memberAccessRhs);
         Assert.assertEquals(1, symbolsForMember1Identifier.size());
 
@@ -527,7 +531,7 @@ public class TestSemanticAnalyzer {
     @Test
     public void memberAccessFuncCall() {
         String program =
-            """
+                """
             fn other_func(test_component2 comp) -> test_component2 {
                 return comp;
             }
@@ -539,24 +543,28 @@ public class TestSemanticAnalyzer {
             """;
 
         TestEnvironment env = new TestEnvironment();
-        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
 
         var ast = Helpers.getASTFromString(program);
         var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
         var symbolTable = result.symbolTable;
 
         FuncDefNode otherFuncDefNode = (FuncDefNode) ast.getChild(0);
-        FunctionSymbol otherFuncSymbol = (FunctionSymbol) symbolTable.getSymbolsForAstNode(otherFuncDefNode).get(0);
+        FunctionSymbol otherFuncSymbol =
+                (FunctionSymbol) symbolTable.getSymbolsForAstNode(otherFuncDefNode).get(0);
         FuncDefNode testFuncDefNode = (FuncDefNode) ast.getChild(1);
 
         var stmtList = testFuncDefNode.getStmts();
         var printStmt = stmtList.get(0);
         var printStmtFuncCall = (FuncCallNode) printStmt;
-        MemberAccessNode printParameterNode = (MemberAccessNode)(printStmtFuncCall.getParameters().get(0));
+        MemberAccessNode printParameterNode =
+                (MemberAccessNode) (printStmtFuncCall.getParameters().get(0));
 
         Assert.assertEquals(Node.Type.MemberAccess, printParameterNode.type);
 
-        // check, whether the other_test-call in print-call is linked to the corresponding function symbol
+        // check, whether the other_test-call in print-call is linked to the corresponding function
+        // symbol
         Node memberAccessLhs = printParameterNode.getLhs();
         var symbolsForCompIdentifier = symbolTable.getSymbolsForAstNode(memberAccessLhs);
         Assert.assertEquals(1, symbolsForCompIdentifier.size());
@@ -566,10 +574,11 @@ public class TestSemanticAnalyzer {
 
         // check, whether the 'member1' identifier in print-call is linked to the
         // member symbol inside the test_component2 datatype
-        AggregateType testComponent2Type = (AggregateType) symbolTable.globalScope.resolveType("test_component2");
+        AggregateType testComponent2Type =
+                (AggregateType) symbolTable.globalScope.resolveType("test_component2");
         Symbol member1Symbol = testComponent2Type.resolve("member1");
 
-        IdNode memberAccessRhs = (IdNode)printParameterNode.getRhs();
+        IdNode memberAccessRhs = (IdNode) printParameterNode.getRhs();
         var symbolsForMember1Identifier = symbolTable.getSymbolsForAstNode(memberAccessRhs);
         Assert.assertEquals(1, symbolsForMember1Identifier.size());
 
