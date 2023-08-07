@@ -201,7 +201,7 @@ public class TileLevelAPITest {
         when(generator.level(any(), Mockito.any())).thenReturn(level);
         api.loadLevel();
         Entity hero = EntityFactory.newHero();
-        api.showEntity(hero);
+        Game.add(hero);
 
         Tile end = Mockito.mock(Tile.class);
         Point p = new Point(3, 3);

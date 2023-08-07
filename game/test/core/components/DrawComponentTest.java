@@ -2,7 +2,6 @@ package core.components;
 
 import static org.junit.Assert.*;
 
-import core.Entity;
 import core.utils.components.draw.CoreAnimations;
 
 import org.junit.Before;
@@ -17,7 +16,7 @@ public class DrawComponentTest {
 
     @Before
     public void setup() throws IOException {
-        animationComponent = new DrawComponent(new Entity(), animationPath);
+        animationComponent = new DrawComponent(animationPath);
     }
 
     @Test

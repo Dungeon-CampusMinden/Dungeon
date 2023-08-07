@@ -27,7 +27,8 @@ public class InventoryComponentTest {
     public void validCreation() {
 
         Entity e = new Entity();
-        InventoryComponent ic = new InventoryComponent(e, 1);
+        InventoryComponent ic = new InventoryComponent(1);
+        e.addComponent(ic);
         assertEquals(0, ic.count());
     }
 
@@ -35,7 +36,8 @@ public class InventoryComponentTest {
     @Test
     public void addItemValid() {
         Entity e = new Entity();
-        InventoryComponent ic = new InventoryComponent(e, 1);
+        InventoryComponent ic = new InventoryComponent(1);
+        e.addComponent(ic);
         ItemData itemData = new ItemData();
         assertTrue(ic.add(itemData));
         assertEquals(1, ic.count());
@@ -47,7 +49,8 @@ public class InventoryComponentTest {
     @Test
     public void addItemValidMultiple() {
         Entity e = new Entity();
-        InventoryComponent ic = new InventoryComponent(e, 3);
+        InventoryComponent ic = new InventoryComponent(3);
+        e.addComponent(ic);
         ic.add(new ItemData());
         assertTrue(ic.add(new ItemData()));
 
@@ -58,7 +61,8 @@ public class InventoryComponentTest {
     @Test
     public void addItemOverSize() {
         Entity e = new Entity();
-        InventoryComponent ic = new InventoryComponent(e, 1);
+        InventoryComponent ic = new InventoryComponent(1);
+        e.addComponent(ic);
         ic.add(new ItemData());
         assertFalse(ic.add(new ItemData()));
         assertEquals(1, ic.count());
@@ -68,7 +72,8 @@ public class InventoryComponentTest {
     @Test
     public void removeItemExisting() {
         Entity e = new Entity();
-        InventoryComponent ic = new InventoryComponent(e, 1);
+        InventoryComponent ic = new InventoryComponent(1);
+        e.addComponent(ic);
         ItemData itemData = new ItemData();
         ic.add(itemData);
         assertTrue(ic.remove(itemData));
@@ -80,7 +85,8 @@ public class InventoryComponentTest {
     @Test
     public void removeItemTwice() {
         Entity e = new Entity();
-        InventoryComponent ic = new InventoryComponent(e, 1);
+        InventoryComponent ic = new InventoryComponent(1);
+        e.addComponent(ic);
         ItemData itemData = new ItemData();
         ic.add(itemData);
         ic.remove(itemData);
@@ -93,7 +99,8 @@ public class InventoryComponentTest {
     @Test
     public void removeItemNull() {
         Entity e = new Entity();
-        InventoryComponent ic = new InventoryComponent(e, 1);
+        InventoryComponent ic = new InventoryComponent(1);
+        e.addComponent(ic);
         ItemData itemData = new ItemData();
         ic.add(itemData);
         assertFalse(ic.remove(null));
@@ -105,7 +112,8 @@ public class InventoryComponentTest {
     @Test
     public void getAllItemsEmptyInventory() {
         Entity e = new Entity();
-        InventoryComponent ic = new InventoryComponent(e, 0);
+        InventoryComponent ic = new InventoryComponent(0);
+        e.addComponent(ic);
         Set<ItemData> list = ic.items();
         assertEquals("should have no Items", 0, list.size());
     }
@@ -114,7 +122,8 @@ public class InventoryComponentTest {
     @Test
     public void getAllItemsInventoryWithOnlyOneItem() {
         Entity e = new Entity();
-        InventoryComponent ic = new InventoryComponent(e, 1);
+        InventoryComponent ic = new InventoryComponent(1);
+        e.addComponent(ic);
         ItemData itemData = new ItemData();
         ic.add(itemData);
         Set<ItemData> list = ic.items();
@@ -126,7 +135,8 @@ public class InventoryComponentTest {
     @Test
     public void getAllItemsInventoryWithTwoItems() {
         Entity e = new Entity();
-        InventoryComponent ic = new InventoryComponent(e, 2);
+        InventoryComponent ic = new InventoryComponent(2);
+        e.addComponent(ic);
         ItemData itemData1 = new ItemData();
         ic.add(itemData1);
         ItemData itemData2 = new ItemData();
@@ -141,7 +151,8 @@ public class InventoryComponentTest {
     @Test
     public void getAllItemsInventoryNoAddedItemButCreated() {
         Entity e = new Entity();
-        InventoryComponent ic = new InventoryComponent(e, 1);
+        InventoryComponent ic = new InventoryComponent(1);
+        e.addComponent(ic);
         ItemData itemData = new ItemData();
         Set<ItemData> list = ic.items();
         assertEquals("should have no Items", 0, list.size());
@@ -150,8 +161,8 @@ public class InventoryComponentTest {
 
     @Test
     public void tranfserItem() {
-        InventoryComponent ic = new InventoryComponent(new Entity(), 1);
-        InventoryComponent other = new InventoryComponent(new Entity(), 1);
+        InventoryComponent ic = new InventoryComponent(1);
+        InventoryComponent other = new InventoryComponent(1);
         ItemData item = Mockito.mock(ItemData.class);
         ic.add(item);
         assertTrue("Item should be in the inventory.", ic.items().contains(item));
@@ -162,8 +173,8 @@ public class InventoryComponentTest {
 
     @Test
     public void tranfserItemNoSpace() {
-        InventoryComponent ic = new InventoryComponent(new Entity(), 1);
-        InventoryComponent other = new InventoryComponent(new Entity(), 0);
+        InventoryComponent ic = new InventoryComponent(1);
+        InventoryComponent other = new InventoryComponent(0);
         ItemData item = Mockito.mock(ItemData.class);
         ic.add(item);
         assertTrue("Item should be in the inventory.", ic.items().contains(item));
@@ -174,15 +185,15 @@ public class InventoryComponentTest {
 
     @Test
     public void tranfserItemNoItem() {
-        InventoryComponent ic = new InventoryComponent(new Entity(), 1);
-        InventoryComponent other = new InventoryComponent(new Entity(), 1);
+        InventoryComponent ic = new InventoryComponent(1);
+        InventoryComponent other = new InventoryComponent(1);
         ItemData item = Mockito.mock(ItemData.class);
         assertFalse("No item, no transfer", ic.transfer(item, other));
     }
 
     @Test
     public void transferItemToItself() {
-        InventoryComponent ic = new InventoryComponent(new Entity(), 1);
+        InventoryComponent ic = new InventoryComponent(1);
         ItemData item = Mockito.mock(ItemData.class);
         ic.add(item);
         assertTrue("Item should be in the inventory.", ic.items().contains(item));

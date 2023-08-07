@@ -16,7 +16,7 @@ public class PlayerComponentTest {
 
     @Before
     public void setup() {
-        playableComponent = new PlayerComponent(new Entity());
+        playableComponent = new PlayerComponent();
     }
 
     @Test

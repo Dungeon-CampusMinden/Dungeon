@@ -10,6 +10,7 @@ import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 
 import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
 
 import testingUtils.SimpleCounter;
 
@@ -21,10 +22,12 @@ public class CollisionComponentTest {
     @Test
     public void onEnterNoMethod() {
         Entity e1 = new Entity();
-        CollideComponent hb1 = new CollideComponent(e1, null, null);
+        CollideComponent hb1 = new CollideComponent(null, null);
+        e1.addComponent(hb1);
         Entity e2 = new Entity();
-        CollideComponent hb2 = new CollideComponent(e2, null, null);
-        hb1.onEnter(hb2, Tile.Direction.N);
+        CollideComponent hb2 = new CollideComponent(null, null);
+        e2.addComponent(hb2);
+        hb1.onEnter(e1, e2, Tile.Direction.N);
     }
 
     /** on enter method given */
@@ -37,12 +40,16 @@ public class CollisionComponentTest {
         SimpleCounter counterE2Leave = new SimpleCounter();
         CollideComponent hb1 =
                 new CollideComponent(
-                        e1, (a, b, c) -> counterE1Enter.inc(), (a, b, c) -> counterE1Leave.inc());
+                        (a, b, c) -> counterE1Enter.inc(), (a, b, c) -> counterE1Leave.inc());
         Entity e2 = new Entity();
         CollideComponent hb2 =
                 new CollideComponent(
-                        e2, (a, b, c) -> counterE2Enter.inc(), (a, b, c) -> counterE2Leave.inc());
-        hb1.onEnter(hb2, Tile.Direction.N);
+                        (a, b, c) -> counterE2Enter.inc(), (a, b, c) -> counterE2Leave.inc());
+
+        e1.addComponent(hb1);
+        e2.addComponent(hb2);
+        hb1.onEnter(e1, e2, Tile.Direction.N);
+
         assertEquals("Der Counter von Entität 1 Enter soll ", 1, counterE1Enter.getCount());
         assertEquals("Der Counter von Entität 1 Leave soll ", 0, counterE1Leave.getCount());
         assertEquals("Der Counter von Entität 2 Enter soll ", 0, counterE2Enter.getCount());
@@ -53,10 +60,13 @@ public class CollisionComponentTest {
     @Test
     public void onLeaveNoMethod() {
         Entity e1 = new Entity();
-        CollideComponent hb1 = new CollideComponent(e1, null, null);
+        CollideComponent hb1 = new CollideComponent(null, null);
         Entity e2 = new Entity();
-        CollideComponent hb2 = new CollideComponent(e2, null, null);
-        hb1.onLeave(hb2, Tile.Direction.N);
+        CollideComponent hb2 = new CollideComponent(null, null);
+
+        e1.addComponent(hb1);
+        e2.addComponent(hb2);
+        hb1.onLeave(e1, e2, Tile.Direction.N);
     }
 
     /** on leave method given */
@@ -69,12 +79,15 @@ public class CollisionComponentTest {
         SimpleCounter counterE2Leave = new SimpleCounter();
         CollideComponent hb1 =
                 new CollideComponent(
-                        e1, (a, b, c) -> counterE1Enter.inc(), (a, b, c) -> counterE1Leave.inc());
+                        (a, b, c) -> counterE1Enter.inc(), (a, b, c) -> counterE1Leave.inc());
         Entity e2 = new Entity();
         CollideComponent hb2 =
                 new CollideComponent(
-                        e2, (a, b, c) -> counterE2Enter.inc(), (a, b, c) -> counterE2Leave.inc());
-        hb1.onLeave(hb2, Tile.Direction.N);
+                        (a, b, c) -> counterE2Enter.inc(), (a, b, c) -> counterE2Leave.inc());
+
+        e1.addComponent(hb1);
+        e2.addComponent(hb2);
+        hb1.onLeave(e1, e2, Tile.Direction.N);
         assertEquals("Der Counter von Entität 1 Enter soll ", 0, counterE1Enter.getCount());
         assertEquals("Der Counter von Entität 1 Leave soll ", 1, counterE1Leave.getCount());
         assertEquals("Der Counter von Entität 2 Enter soll ", 0, counterE2Enter.getCount());
@@ -85,11 +98,13 @@ public class CollisionComponentTest {
     public void setiCollideEnterNull() {
         Entity e1 = new Entity();
         SimpleCounter counterE1Enter = new SimpleCounter();
-        CollideComponent hb1 = new CollideComponent(e1, (a, b, c) -> counterE1Enter.inc(), null);
+        CollideComponent hb1 = new CollideComponent((a, b, c) -> counterE1Enter.inc(), null);
         Entity e2 = new Entity();
-        CollideComponent hb2 = new CollideComponent(e2, null, null);
+        CollideComponent hb2 = new CollideComponent(null, null);
+        e1.addComponent(hb1);
+        e2.addComponent(hb2);
         hb1.collideEnter(null);
-        hb1.onEnter(hb2, Tile.Direction.N);
+        hb1.onEnter(e1, e2, Tile.Direction.N);
         assertEquals(
                 "Die alte Collide darf nicht mehr aufgerufen werden ",
                 0,
@@ -101,11 +116,13 @@ public class CollisionComponentTest {
         Entity e1 = new Entity();
         SimpleCounter counterE1Enter = new SimpleCounter();
         SimpleCounter newCounterE1Enter = new SimpleCounter();
-        CollideComponent hb1 = new CollideComponent(e1, (a, b, c) -> counterE1Enter.inc(), null);
+        CollideComponent hb1 = new CollideComponent((a, b, c) -> counterE1Enter.inc(), null);
         Entity e2 = new Entity();
-        CollideComponent hb2 = new CollideComponent(e2, null, null);
+        CollideComponent hb2 = new CollideComponent(null, null);
+        e1.addComponent(hb1);
+        e2.addComponent(hb2);
         hb1.collideEnter((a, b, c) -> newCounterE1Enter.inc());
-        hb1.onEnter(hb2, Tile.Direction.N);
+        hb1.onEnter(e1, e2, Tile.Direction.N);
         assertEquals(
                 "Die alte Collide darf nicht mehr aufgerufen werden ",
                 0,
@@ -117,11 +134,13 @@ public class CollisionComponentTest {
     public void setiCollideLeaveNull() {
         Entity e1 = new Entity();
         SimpleCounter counterE1Enter = new SimpleCounter();
-        CollideComponent hb1 = new CollideComponent(e1, null, (a, b, c) -> counterE1Enter.inc());
+        CollideComponent hb1 = new CollideComponent(null, (a, b, c) -> counterE1Enter.inc());
         Entity e2 = new Entity();
-        CollideComponent hb2 = new CollideComponent(e2, null, null);
+        CollideComponent hb2 = new CollideComponent(null, null);
+        e1.addComponent(hb1);
+        e2.addComponent(hb2);
         hb1.collideLeave(null);
-        hb1.onLeave(hb2, Tile.Direction.N);
+        hb1.onLeave(e1, e2, Tile.Direction.N);
         assertEquals(
                 "Die alte Collide darf nicht mehr aufgerufen werden ",
                 0,
@@ -133,11 +152,13 @@ public class CollisionComponentTest {
         Entity e1 = new Entity();
         SimpleCounter counterE1Leave = new SimpleCounter();
         SimpleCounter newCounterE1Leave = new SimpleCounter();
-        CollideComponent hb1 = new CollideComponent(e1, null, (a, b, c) -> counterE1Leave.inc());
+        CollideComponent hb1 = new CollideComponent(null, (a, b, c) -> counterE1Leave.inc());
         Entity e2 = new Entity();
-        CollideComponent hb2 = new CollideComponent(e2, null, null);
+        CollideComponent hb2 = new CollideComponent(null, null);
+        e1.addComponent(hb1);
+        e2.addComponent(hb2);
         hb1.collideLeave((a, b, c) -> newCounterE1Leave.inc());
-        hb1.onLeave(hb2, Tile.Direction.N);
+        hb1.onLeave(e1, e2, Tile.Direction.N);
         assertEquals(
                 "Die alte Collide darf nicht mehr aufgerufen werden ",
                 0,
@@ -151,9 +172,10 @@ public class CollisionComponentTest {
         Entity e = new Entity();
         CollideComponent hb =
                 new CollideComponent(
-                        e, new Point(0, 0), new Point(0, 0), (a, b, c) -> {}, (a, b, c) -> {});
+                        new Point(0, 0), new Point(0, 0), (a, b, c) -> {}, (a, b, c) -> {});
+        e.addComponent(hb);
         MissingComponentException missingComponentException =
-                assertThrows(MissingComponentException.class, hb::center);
+                assertThrows(MissingComponentException.class, (ThrowingRunnable) hb.center(e));
         assertTrue(
                 missingComponentException.getMessage().contains(PositionComponent.class.getName()));
     }
@@ -175,10 +197,11 @@ public class CollisionComponentTest {
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
-        new PositionComponent(e, position);
-        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
+        e.addComponent(new PositionComponent(position));
+        CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
+        e.addComponent(hb);
 
-        Point center = hb.center();
+        Point center = hb.center(e);
         assertEquals(0.5f, center.x, DELTA);
         assertEquals(0.5f, center.y, DELTA);
     }
@@ -191,10 +214,11 @@ public class CollisionComponentTest {
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
-        new PositionComponent(e, position);
-        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
+        e.addComponent(new PositionComponent(position));
+        CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
+        e.addComponent(hb);
 
-        Point center = hb.center();
+        Point center = hb.center(e);
         assertEquals(1.5f, center.x, DELTA);
         assertEquals(1.5f, center.y, DELTA);
     }
@@ -207,9 +231,10 @@ public class CollisionComponentTest {
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
-        new PositionComponent(e, position);
-        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
-        Point center = hb.center();
+        e.addComponent(new PositionComponent(position));
+        CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
+        e.addComponent(hb);
+        Point center = hb.center(e);
 
         assertEquals(-.5f, center.x, DELTA);
         assertEquals(-.5f, center.y, DELTA);
@@ -223,9 +248,10 @@ public class CollisionComponentTest {
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
-        new PositionComponent(e, position);
-        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
-        Point center = hb.center();
+        e.addComponent(new PositionComponent(position));
+        CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
+        e.addComponent(hb);
+        Point center = hb.center(e);
 
         assertEquals(1, center.x, DELTA);
         assertEquals(1, center.y, DELTA);
@@ -239,9 +265,10 @@ public class CollisionComponentTest {
         Point offset = new Point(-1, -1);
         Point size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
-        new PositionComponent(e, position);
-        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
-        Point center = hb.center();
+        e.addComponent(new PositionComponent(position));
+        CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
+        e.addComponent(hb);
+        Point center = hb.center(e);
 
         assertEquals(0, center.x, DELTA);
         assertEquals(0, center.y, DELTA);
@@ -255,9 +282,10 @@ public class CollisionComponentTest {
         Point offset = new Point(0, 0);
         Point size = new Point(2, 2);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
-        new PositionComponent(e, position);
-        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
-        Point center = hb.center();
+        e.addComponent(new PositionComponent(position));
+        CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
+        e.addComponent(hb);
+        Point center = hb.center(e);
 
         assertEquals(.5, center.x, DELTA);
         assertEquals(1.5, center.y, DELTA);
@@ -267,9 +295,10 @@ public class CollisionComponentTest {
     @Test
     public void getTopRightMissingPosition() {
         Entity e = new Entity();
-        CollideComponent hb = new CollideComponent(e);
+        CollideComponent hb = new CollideComponent();
+        e.addComponent(hb);
         MissingComponentException missingComponentException =
-                assertThrows(MissingComponentException.class, hb::topRight);
+                assertThrows(MissingComponentException.class, (ThrowingRunnable) hb.topRight(e));
         assertTrue(
                 missingComponentException.getMessage().contains(PositionComponent.class.getName()));
     }
@@ -282,9 +311,10 @@ public class CollisionComponentTest {
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
-        new PositionComponent(e, position);
-        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
-        Point center = hb.topRight();
+        e.addComponent(new PositionComponent(position));
+        CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
+        e.addComponent(hb);
+        Point center = hb.topRight(e);
 
         assertEquals(1, center.x, DELTA);
         assertEquals(1, center.y, DELTA);
@@ -298,9 +328,10 @@ public class CollisionComponentTest {
         Point offset = new Point(0, 0);
         Point size = new Point(2, 2);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
-        new PositionComponent(e, position);
-        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
-        Point center = hb.topRight();
+        e.addComponent(new PositionComponent(position));
+        CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
+        e.addComponent(hb);
+        Point center = hb.topRight(e);
 
         assertEquals(2, center.x, DELTA);
         assertEquals(2, center.y, DELTA);
@@ -314,9 +345,10 @@ public class CollisionComponentTest {
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
-        new PositionComponent(e, position);
-        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
-        Point center = hb.topRight();
+        e.addComponent(new PositionComponent(position));
+        CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
+        e.addComponent(hb);
+        Point center = hb.topRight(e);
 
         assertEquals(3, center.x, DELTA);
         assertEquals(2, center.y, DELTA);
@@ -330,9 +362,10 @@ public class CollisionComponentTest {
         Point offset = new Point(1, 2);
         Point size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
-        new PositionComponent(e, position);
-        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
-        Point center = hb.topRight();
+        e.addComponent(new PositionComponent(position));
+        CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
+        e.addComponent(hb);
+        Point center = hb.topRight(e);
 
         assertEquals(2, center.x, DELTA);
         assertEquals(3, center.y, DELTA);
@@ -346,9 +379,10 @@ public class CollisionComponentTest {
         Point offset = new Point(2, 4);
         Point size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
-        new PositionComponent(e, position);
-        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
-        Point center = hb.topRight();
+        e.addComponent(new PositionComponent(position));
+        CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
+        e.addComponent(hb);
+        Point center = hb.topRight(e);
 
         assertEquals(6, center.x, DELTA);
         assertEquals(6, center.y, DELTA);
@@ -362,9 +396,10 @@ public class CollisionComponentTest {
         Point offset = new Point(2, 4);
         Point size = new Point(3, 3);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
-        new PositionComponent(e, position);
-        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
-        Point center = hb.topRight();
+        e.addComponent(new PositionComponent(position));
+        CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
+        e.addComponent(hb);
+        Point center = hb.topRight(e);
 
         assertEquals(8, center.x, DELTA);
         assertEquals(8, center.y, DELTA);
@@ -374,9 +409,10 @@ public class CollisionComponentTest {
     @Test
     public void getBottomLeftMissingPosition() {
         Entity e = new Entity();
-        CollideComponent hb = new CollideComponent(e);
+        CollideComponent hb = new CollideComponent();
+        e.addComponent(hb);
         MissingComponentException missingComponentException =
-                assertThrows(MissingComponentException.class, hb::center);
+                assertThrows(MissingComponentException.class, (ThrowingRunnable) hb.center(e));
         assertTrue(
                 missingComponentException.getMessage().contains(PositionComponent.class.getName()));
     }
@@ -389,9 +425,10 @@ public class CollisionComponentTest {
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
-        new PositionComponent(e, position);
-        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
-        Point center = hb.bottomLeft();
+        e.addComponent(new PositionComponent(position));
+        CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
+        e.addComponent(hb);
+        Point center = hb.bottomLeft(e);
 
         assertEquals(0, center.x, DELTA);
         assertEquals(0, center.y, DELTA);
@@ -405,9 +442,10 @@ public class CollisionComponentTest {
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
-        new PositionComponent(e, position);
-        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
-        Point center = hb.bottomLeft();
+        e.addComponent(new PositionComponent(position));
+        CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
+        e.addComponent(hb);
+        Point center = hb.bottomLeft(e);
 
         assertEquals(2, center.x, DELTA);
         assertEquals(1, center.y, DELTA);
@@ -421,9 +459,10 @@ public class CollisionComponentTest {
         Point offset = new Point(1, 2);
         Point size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
-        new PositionComponent(e, position);
-        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
-        Point center = hb.bottomLeft();
+        e.addComponent(new PositionComponent(position));
+        CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
+        e.addComponent(hb);
+        Point center = hb.bottomLeft(e);
 
         assertEquals(1, center.x, DELTA);
         assertEquals(2, center.y, DELTA);
@@ -437,9 +476,10 @@ public class CollisionComponentTest {
         Point offset = new Point(2, 4);
         Point size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
-        new PositionComponent(e, position);
-        CollideComponent hb = new CollideComponent(e, offset, size, iCollide, iCollide);
-        Point center = hb.bottomLeft();
+        e.addComponent(new PositionComponent(position));
+        CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
+        e.addComponent(hb);
+        Point center = hb.bottomLeft(e);
 
         assertEquals(5, center.x, DELTA);
         assertEquals(5, center.y, DELTA);
