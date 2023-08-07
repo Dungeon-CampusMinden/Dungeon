@@ -7,10 +7,21 @@ import semanticanalysis.types.*;
 import java.util.ArrayList;
 import java.util.Stack;
 
+/**
+ * Implements a semantic analysis pass, in which all function definitions
+ * are bound as {@link FunctionSymbol} in the global scope of a {@link SymbolTable}
+ */
 public class FunctionDefinitionBinder implements AstVisitor<Void> {
     private SymbolTable symbolTable;
     Stack<IScope> scopeStack = new Stack<>();
 
+    /**
+     * Visit all function definitions in the passed programRootNode and bind them as
+     * {@link FunctionSymbol} in the global {@link IScope} of the passed {@link SymbolTable}
+     *
+     * @param symbolTable the symboltable to bind the function definitions in
+     * @param programRootNode the root {@link Node} of the program containing function definitions
+     */
     public void bindFunctionDefinitions(SymbolTable symbolTable, Node programRootNode) {
         this.symbolTable = symbolTable;
         this.scopeStack = new Stack<>();
@@ -145,6 +156,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
     }
 
     // TODO: this should probably be done in TypeBinder
+    //  (see: https://github.com/Programmiermethoden/Dungeon/issues/931)
     @Override
     public Void visit(ListTypeIdentifierNode node) {
         IScope globalScope = this.symbolTable.globalScope;
@@ -166,6 +178,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
     }
 
     // TODO: this should probably be done in TypeBinder
+    //  (see: https://github.com/Programmiermethoden/Dungeon/issues/931)
     @Override
     public Void visit(SetTypeIdentifierNode node) {
         IScope globalScope = this.symbolTable.globalScope;
