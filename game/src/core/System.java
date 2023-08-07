@@ -1,5 +1,7 @@
 package core;
 
+import core.utils.EntitySystemMapper;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -19,12 +21,12 @@ import java.util.stream.Stream;
  *
  * <p>The needed Components will be defined as constructor parameters.
  *
- * <p>The {@link Game} will add the System to a corresponding {@link core.utils.Filter} or will
- * create a {@link core.utils.Filter}.
+ * <p>The {@link Game} will add the System to a corresponding {@link EntitySystemMapper} or will
+ * create a {@link EntitySystemMapper}.
  *
- * <p>If an Entity gets added or removed from a {@link core.utils.Filter}, the {@link
+ * <p>If an Entity gets added or removed from a {@link EntitySystemMapper}, the {@link
  * #triggerOnAdd(Entity)} or {@link #triggerOnRemove(Entity)} will be called by the {@link
- * core.utils.Filter}. Set the {@link #onEntityAdd} or {@link #onEntityRemove} attributes in the
+ * EntitySystemMapper}. Set the {@link #onEntityAdd} or {@link #onEntityRemove} attributes in the
  * inheriting System to implement the corresponding logic for these events.
  */
 public abstract class System {
@@ -33,7 +35,7 @@ public abstract class System {
     protected boolean run;
 
     /**
-     * Will be called after an entity was added to the corresponding {@link core.utils.Filter}.
+     * Will be called after an entity was added to the corresponding {@link EntitySystemMapper}.
      *
      * <p>Use this in your own system to implement logic that should be executed after an entity was
      * added.
@@ -42,7 +44,7 @@ public abstract class System {
      */
     protected Consumer<Entity> onEntityAdd = (e) -> {};
     /**
-     * Will be called after an entity was removed from the corresponding {@link core.utils.Filter}.
+     * Will be called after an entity was removed from the corresponding {@link EntitySystemMapper}.
      *
      * <p>Use this in your own system to implement logic that should be executed after an entity was
      * removed.
@@ -71,7 +73,7 @@ public abstract class System {
 
     /**
      * Triggers the action associated with adding an Entity to this System's corresponding {@link
-     * core.utils.Filter}. This method calls the {@code onEntityAdd} Consumer, executing the logic
+     * EntitySystemMapper}. This method calls the {@code onEntityAdd} Consumer, executing the logic
      * defined for when an Entity is added.
      *
      * @param entity The Entity that was added to the Filter and is being processed by this System.
@@ -82,7 +84,7 @@ public abstract class System {
 
     /**
      * Triggers the action associated with removing an Entity from this System's corresponding
-     * {@link core.utils.Filter}. This method calls the {@code onEntityRemove} Consumer, executing
+     * {@link EntitySystemMapper}. This method calls the {@code onEntityRemove} Consumer, executing
      * the logic defined for when an Entity is removed.
      *
      * @param entity The Entity that was removed from the Filter and is no longer processed by this
