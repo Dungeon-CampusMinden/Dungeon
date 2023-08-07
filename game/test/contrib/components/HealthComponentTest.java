@@ -70,7 +70,7 @@ public class HealthComponentTest {
     public void setMaximalHealthPointsHigherThanCurrent() {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        HealthComponent hc = new HealthComponent(0, null);
+        HealthComponent hc = new HealthComponent(10, null);
         entity.addComponent(hc);
         assertEquals(10, hc.maximalHealthpoints());
         assertEquals(10, hc.currentHealthpoints());

@@ -458,6 +458,7 @@ public final class Game extends ScreenAdapter {
     private static EntitySystemMapper createNewEntitySystemMapper(
             Set<Class<? extends Component>> filter) {
         EntitySystemMapper mapper = new EntitySystemMapper(filter);
+        entityStorage.add(mapper);
         entityStream().forEach(mapper::add);
         return mapper;
     }

@@ -10,7 +10,6 @@ import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 
 import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
 
 import testingUtils.SimpleCounter;
 
@@ -175,7 +174,7 @@ public class CollisionComponentTest {
                         new Point(0, 0), new Point(0, 0), (a, b, c) -> {}, (a, b, c) -> {});
         e.addComponent(hb);
         MissingComponentException missingComponentException =
-                assertThrows(MissingComponentException.class, (ThrowingRunnable) hb.center(e));
+                assertThrows(MissingComponentException.class, () -> hb.center(e));
         assertTrue(
                 missingComponentException.getMessage().contains(PositionComponent.class.getName()));
     }
@@ -298,7 +297,7 @@ public class CollisionComponentTest {
         CollideComponent hb = new CollideComponent();
         e.addComponent(hb);
         MissingComponentException missingComponentException =
-                assertThrows(MissingComponentException.class, (ThrowingRunnable) hb.topRight(e));
+                assertThrows(MissingComponentException.class, () -> hb.topRight(e));
         assertTrue(
                 missingComponentException.getMessage().contains(PositionComponent.class.getName()));
     }
@@ -412,7 +411,7 @@ public class CollisionComponentTest {
         CollideComponent hb = new CollideComponent();
         e.addComponent(hb);
         MissingComponentException missingComponentException =
-                assertThrows(MissingComponentException.class, (ThrowingRunnable) hb.center(e));
+                assertThrows(MissingComponentException.class, () -> hb.center(e));
         assertTrue(
                 missingComponentException.getMessage().contains(PositionComponent.class.getName()));
     }
