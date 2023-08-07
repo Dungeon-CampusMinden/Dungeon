@@ -34,9 +34,10 @@ public class DslFileLoader {
      * @throws IOException if an I/O error occurs while reading the files.
      */
     public static Set<Path> processArguments(String[] args) throws IOException {
+        ClassLoader classLoader = DslFileLoader.class.getClassLoader();
         Set<Path> paths = new HashSet<>();
         for (String arg : args) {
-            Path path = Paths.get(arg);
+            Path path = Paths.get(classLoader.getResource(arg).getFile());
             if (DslFileLoader.is(path, JAR_FILE_ENDING)) {
                 paths.addAll(findDSLFilesInJar(path));
             } else if (DslFileLoader.is(path, DSL_FILE_ENDING)) paths.add(path);
