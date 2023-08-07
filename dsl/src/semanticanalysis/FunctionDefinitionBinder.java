@@ -127,6 +127,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
         // current scope should be a function definition
         IScope currentScope = scopeStack.peek();
         String parameterName = node.getIdName();
+        Node parameterIdNode = node.getIdNode();
         var resolvedParameter = currentScope.resolve(parameterName);
         if (resolvedParameter != Symbol.NULL) {
             throw new RuntimeException(
@@ -137,6 +138,8 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
 
             Symbol parameterSymbol = new Symbol(parameterName, currentScope, parameterType);
             currentScope.bind(parameterSymbol);
+
+            symbolTable.addSymbolNodeRelation(parameterSymbol, parameterIdNode);
         }
         return null;
     }

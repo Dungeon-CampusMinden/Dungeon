@@ -12,6 +12,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import parser.DungeonASTConverter;
 
 import runtime.GameEnvironment;
+import runtime.IEvironment;
 import runtime.MemorySpace;
 import runtime.Value;
 
@@ -95,6 +96,20 @@ public class Helpers {
     public static SemanticAnalyzer.Result getSymtableForAST(parser.ast.Node ast) {
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(new GameEnvironment());
+        return symbolTableParser.walk(ast);
+    }
+
+    /**
+     * Performs semantic analysis with custom environment for given AST and returns the {@link SemanticAnalyzer.Result}
+     * output from the SymbolTableParser
+     *
+     * @param ast the AST to create the symbol table for
+     * @param environment the environment to use during semantic analysis
+     * @return the {@link SemanticAnalyzer.Result} of the semantic analysis
+     */
+    public static SemanticAnalyzer.Result getSymtableForASTWithCustomEnvironment(parser.ast.Node ast, IEvironment environment) {
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+        symbolTableParser.setup(environment);
         return symbolTableParser.walk(ast);
     }
 
