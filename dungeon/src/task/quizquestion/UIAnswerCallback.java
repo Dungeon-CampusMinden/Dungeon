@@ -46,10 +46,8 @@ public final class UIAnswerCallback {
     public static BiConsumer<Entity, Entity> askOnInteraction(
             Quiz quiz, BiConsumer<Task, Set<TaskContent>> dslCallback) {
         return (questGiver, player) ->
-                Game.add(
-                        QuizUI.showQuizDialog(
-                                quiz,
-                                (Entity hudEntity) -> uiCallback(quiz, hudEntity, dslCallback)));
+                QuizUI.showQuizDialog(
+                        quiz, (Entity hudEntity) -> uiCallback(quiz, hudEntity, dslCallback));
     }
 
     /**
@@ -81,8 +79,6 @@ public final class UIAnswerCallback {
 
     private static Set<TaskContent> getAnswer(Quiz quiz, VerticalGroup answerSection) {
         if (quiz.type() == Quiz.Type.FREETEXT) {
-            // make the answer to a task content object
-            // todo is this the way? malte-r?
             Quiz.Content content = new Quiz.Content(freeTextAnswer(answerSection));
             quiz.addAnswer(content);
             return Set.of(content);

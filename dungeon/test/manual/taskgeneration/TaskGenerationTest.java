@@ -119,7 +119,7 @@ public class TaskGenerationTest {
     private static BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
         return (task, taskContents) -> {
             float score = task.scoringFunction().apply(task, taskContents);
-            Game.add(UITools.generateNewTextDialog("Your score: " + score, "Ok", "Given answer"));
+            UITools.generateNewTextDialog("Your score: " + score, "Ok", "Given answer");
         };
     }
 }

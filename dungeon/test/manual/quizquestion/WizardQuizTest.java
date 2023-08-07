@@ -113,7 +113,7 @@ public class WizardQuizTest {
                     .map(t -> (Quiz.Content) t)
                     .forEach(
                             t -> answers.set(answers.get() + t.content() + System.lineSeparator()));
-            Game.add(UITools.generateNewTextDialog(answers.get(), "Ok", "Given answer"));
+            UITools.generateNewTextDialog(answers.get(), "Ok", "Given answer");
         };
     }
 

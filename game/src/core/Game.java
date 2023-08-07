@@ -710,7 +710,7 @@ public final class Game extends ScreenAdapter {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             // Text Dialogue (output of information texts)
 
-            Game.add(newPauseMenu());
+            newPauseMenu();
 
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
             // toggle UI "debug rendering"
