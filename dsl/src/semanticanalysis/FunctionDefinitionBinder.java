@@ -1,7 +1,7 @@
 package semanticanalysis;
 
 import parser.ast.*;
-import runtime.IEvironment;
+
 import semanticanalysis.types.*;
 
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
         var resolved = globalScope.resolve(funcName);
         if (resolved != Symbol.NULL) {
             throw new RuntimeException(
-                "Identifier with name " + funcName + " is already bound in global scope!");
+                    "Identifier with name " + funcName + " is already bound in global scope!");
         } else {
             // resolve return value (if one was defined)
             IType returnType = BuiltInType.noType;
@@ -74,10 +74,10 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
                 returnType = globalScope.resolveType(returnTypeName);
                 if (returnType == null) {
                     throw new RuntimeException(
-                        "Could not resolve return type "
-                            + returnTypeName
-                            + " of function "
-                            + funcName);
+                            "Could not resolve return type "
+                                    + returnTypeName
+                                    + " of function "
+                                    + funcName);
                 }
             }
 
@@ -130,7 +130,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
         var resolvedParameter = currentScope.resolve(parameterName);
         if (resolvedParameter != Symbol.NULL) {
             throw new RuntimeException(
-                "Parameter with name " + node.getIdName() + " was already defined");
+                    "Parameter with name " + node.getIdName() + " was already defined");
         } else {
             // resolve parameters datatype
             IType parameterType = this.symbolTable.globalScope.resolveType(node.getTypeName());

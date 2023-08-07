@@ -29,9 +29,7 @@ import runtime.nativefunctions.NativeFunction;
 
 import semanticanalysis.types.*;
 
-import java.util.ArrayList;
 import java.util.Stack;
-import java.util.function.Function;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 
@@ -352,7 +350,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         String funcName = node.getIdName();
         var funcSymbol = this.symbolTable.globalScope.resolve(funcName);
         if (funcSymbol.equals(Symbol.NULL)) {
-            throw new RuntimeException("Function with name " + funcName + " could not be resolved in global scope" );
+            throw new RuntimeException(
+                    "Function with name " + funcName + " could not be resolved in global scope");
         }
 
         assert funcSymbol.getSymbolType() == Symbol.Type.Scoped;
@@ -370,7 +369,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         Symbol resolved = globalScope().resolve(funcName);
         if (resolved == Symbol.NULL) {
             errorStringBuilder.append(
-                "Could not resolve Identifier with name " + funcName + " in global scope!");
+                    "Could not resolve Identifier with name " + funcName + " in global scope!");
         } else {
             FunctionSymbol funcSymbol = (FunctionSymbol) resolved;
             scopeStack.push(funcSymbol);
@@ -385,7 +384,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
             scopeStack.pop();
         }
-        //}
+        // }
         return null;
     }
 
@@ -436,8 +435,9 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
             // resolve function definition
             String functionName = ((FuncCallNode) lhs).getIdName();
-            FunctionSymbol functionSymbol = (FunctionSymbol) this.currentScope().resolve(functionName);
-            FunctionType functionType = (FunctionType)functionSymbol.getDataType();
+            FunctionSymbol functionSymbol =
+                    (FunctionSymbol) this.currentScope().resolve(functionName);
+            FunctionType functionType = (FunctionType) functionSymbol.getDataType();
             lhsDataType = functionType.getReturnType();
         }
 

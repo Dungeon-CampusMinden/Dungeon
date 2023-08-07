@@ -860,7 +860,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param parameterObjects Raw objects to use as values for the function's parameters
      */
     private void setupFunctionParametersRaw(
-            FunctionSymbol functionSymbol, IMemorySpace functionsMemorySpace, List<Object> parameterObjects) {
+            FunctionSymbol functionSymbol,
+            IMemorySpace functionsMemorySpace,
+            List<Object> parameterObjects) {
         var currentMemorySpace = getCurrentMemorySpace();
         // bind all parameter-symbols as values in the function's memory space and set their values
         var parameterSymbols = functionSymbol.getSymbols();
@@ -887,7 +889,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param functionSymbol The symbol corresponding to the function definition
      * @param parameterNodes AST-Nodes representing the passed parameters
      */
-    private void setupFunctionParameters(FunctionSymbol functionSymbol, IMemorySpace functionsMemorySpace, List<Node> parameterNodes) {
+    private void setupFunctionParameters(
+            FunctionSymbol functionSymbol,
+            IMemorySpace functionsMemorySpace,
+            List<Node> parameterNodes) {
         // bind all parameter-symbols as values in the function's memory space and set their values
         var parameterSymbols = functionSymbol.getSymbols();
         for (int i = 0; i < parameterNodes.size(); i++) {
