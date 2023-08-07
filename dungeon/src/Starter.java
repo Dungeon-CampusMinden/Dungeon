@@ -16,7 +16,7 @@ public class Starter {
     public static void main(String[] args) throws IOException {
         setupBasicGame();
         Set<Path> path = DslFileLoader.processArguments(args);
-        path.forEach(p -> System.out.println(p.getFileName()));
+        path.forEach(p -> System.out.println(p));
         Game.run();
     }
 
