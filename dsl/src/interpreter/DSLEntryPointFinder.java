@@ -16,18 +16,28 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * AstVisitor implementation to search for quest_config definition.
+ */
 public class DSLEntryPointFinder implements AstVisitor<Object> {
     private ArrayList<DSLEntryPoint> entryPoints;
-
     private ParsedFile parsedFile;
     private final GameEnvironment environment;
     private AggregateType questConfigDataType;
+    private final HashMap<Path, ParsedFile> parsedFiles;
 
+    /**
+     * Constructor.
+     * Creates a GameEnvironment to get the {@link semanticanalysis.types.IType} for
+     * {@link QuestConfig}.
+     */
     public DSLEntryPointFinder() {
         this.environment = new GameEnvironment();
+        this.parsedFiles = new HashMap<>();
         var symbols = environment.getGlobalScope().getSymbols();
         for (Symbol symbol : symbols) {
             if (symbol instanceof AggregateType aggregateType) {
@@ -38,21 +48,43 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
         }
     }
 
+    /**
+     * Creates an AST vor the file of the passed filePath, searches it
+     * for quest_config definitions and creates {@link DSLEntryPoint}
+     * instances for each one.
+     *
+     * @param filePath the path of the file to search for quest_config definitions
+     *                 in
+     * @return an empty optional, if reading the file caused an error or it does not
+     * contain any quest_config definitions, the list of found quest_config objects
+     * otherwise
+     */
     public Optional<List<DSLEntryPoint>> getEntryPoints(Path filePath) {
         try {
+            Node programAST;
+            if (this.parsedFiles.containsKey(filePath)) {
+                this.parsedFile = this.parsedFiles.get(filePath);
+                programAST = parsedFile.rootASTNode();
+            } else {
+                String content = Files.readString(filePath);
+                programAST = DungeonASTConverter.getProgramAST(content);
+
+                ParsedFile parsedFile = new ParsedFile(filePath, programAST);
+                this.parsedFiles.put(filePath, parsedFile);
+                this.parsedFile = parsedFile;
+            }
+
             // we don't want to do the whole interpretation here...
             // we only want to know, which (well formed) entry points exist
             // would be enough to do this in a light AST-Visitor..
-            String content = Files.readString(filePath);
-            Node programAST = DungeonASTConverter.getProgramAST(content);
-            this.parsedFile = new ParsedFile(filePath, programAST);
-
             List<DSLEntryPoint> list = findEntryPoints(programAST);
-            return Optional.of(list);
+            if (list.size() != 0) {
+                return Optional.of(list);
+            }
         } catch (IOException e) {
             // ok, be like that then..
-            return Optional.empty();
         }
+        return Optional.empty();
     }
 
     private List<DSLEntryPoint> findEntryPoints(Node programAST) {
@@ -115,7 +147,6 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
         String typeSpecifierName = (String) typeSpecifier.accept(this);
         if (typeSpecifierName.equals(questConfigDataType.getName())) {
             // found one
-            String configName = node.getIdName();
             String displayName = getDisplayName(node);
             this.entryPoints.add(new DSLEntryPoint(this.parsedFile, displayName, node));
         }
