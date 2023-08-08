@@ -15,10 +15,17 @@ public class TestDslFileLoader {
 
     @Test
     public void processArguments_oneJar() throws IOException {
-        String pathToJar = "dslFileLoader/testjar.jar";
-        String pathOfFirstFile = "scripts/first.dng";
-        String pathOfSecondFile = "scripts/sub/sub/second.dng";
-        String pathOfThirdFile = "scripts/test.txt";
+        String pathToJar = "dslFileLoader" + File.separator + "testjar.jar";
+        String pathOfFirstFile = "scripts" + File.separator + "first.dng";
+        String pathOfSecondFile =
+                "scripts"
+                        + File.separator
+                        + "sub"
+                        + File.separator
+                        + "sub"
+                        + File.separator
+                        + "second.dng";
+        String pathOfThirdFile = "scripts" + File.separator + "test.txt";
         String[] args = {pathToJar};
         Set<Path> paths = DslFileLoader.processArguments(args);
         assertEquals(2, paths.size());
@@ -29,7 +36,7 @@ public class TestDslFileLoader {
 
     @Test
     public void processArguments_oneDSLFIle() throws IOException {
-        String pathToDng = "dslFileLoader/simple.dng";
+        String pathToDng = "dslFileLoader" + File.separator + "simple.dng";
         String[] args = {pathToDng};
         Set<Path> paths = DslFileLoader.processArguments(args);
         assertEquals(1, paths.size());
@@ -39,11 +46,18 @@ public class TestDslFileLoader {
 
     @Test
     public void processArguments_oneJarOneDSL() throws IOException {
-        String pathToJar = "dslFileLoader/testjar.jar";
-        String pathToDng = "dslFileLoader/simple.dng";
-        String pathOfFirstFile = "scripts/first.dng";
-        String pathOfSecondFile = "scripts/sub/sub/second.dng";
-        String pathOfThirdFile = "scripts/test.txt";
+        String pathToJar = "dslFileLoader" + File.separator + "testjar.jar";
+        String pathToDng = "dslFileLoader" + File.separator + "simple.dng";
+        String pathOfFirstFile = "scripts" + File.separator + "first.dng";
+        String pathOfSecondFile =
+                "scripts"
+                        + File.separator
+                        + "sub"
+                        + File.separator
+                        + "sub"
+                        + File.separator
+                        + "second.dng";
+        String pathOfThirdFile = "scripts" + File.separator + "test.txt";
         String[] args = {pathToJar, pathToDng};
         Set<Path> paths = DslFileLoader.processArguments(args);
         assertEquals(3, paths.size());
@@ -55,12 +69,19 @@ public class TestDslFileLoader {
 
     @Test
     public void processArguments_mixed() throws IOException {
-        String pathToJar = "dslFileLoader/testjar.jar";
-        String pathToDng = "dslFileLoader/simple.dng";
-        String pathToEmptyDng = "dslFileLoader/empty.dng";
-        String pathOfFirstFile = "scripts/first.dng";
-        String pathOfSecondFile = "scripts/sub/sub/second.dng";
-        String pathOfThirdFile = "scripts/test.txt";
+        String pathToJar = "dslFileLoader" + File.separator + "testjar.jar";
+        String pathToDng = "dslFileLoader" + File.separator + "simple.dng";
+        String pathToEmptyDng = "dslFileLoader" + File.separator + "empty.dng";
+        String pathOfFirstFile = "scripts" + File.separator + "first.dng";
+        String pathOfSecondFile =
+                "scripts"
+                        + File.separator
+                        + "sub"
+                        + File.separator
+                        + "sub"
+                        + File.separator
+                        + "second.dng";
+        String pathOfThirdFile = "scripts" + File.separator + "test.txt";
         String[] args = {pathToEmptyDng, pathToJar, pathToDng};
         Set<Path> paths = DslFileLoader.processArguments(args);
         assertEquals(4, paths.size());
@@ -73,7 +94,7 @@ public class TestDslFileLoader {
 
     @Test
     public void processArguments_nonDSLFile() throws IOException {
-        String pathToTxt = "dslFileLoader/test.txt";
+        String pathToTxt = "dslFileLoader" + File.separator + "test.txt";
         String[] args = {pathToTxt};
         Set<Path> paths = DslFileLoader.processArguments(args);
         assertEquals(0, paths.size());
@@ -81,7 +102,7 @@ public class TestDslFileLoader {
 
     @Test
     public void fileToString() {
-        String simpleFile = "dslFileLoader/simple.dng";
+        String simpleFile = "dslFileLoader" + File.separator + "simple.dng";
         ClassLoader classLoader = getClass().getClassLoader();
         File f = new File(classLoader.getResource(simpleFile).getFile());
         String expectedContent =
@@ -101,7 +122,7 @@ public class TestDslFileLoader {
 
     @Test
     public void emptyFileToString() {
-        String empty = "dslFileLoader/empty.dng";
+        String empty = "dslFileLoader" + File.separator + "empty.dng";
         ClassLoader classLoader = getClass().getClassLoader();
         File f = new File(classLoader.getResource(empty).getFile());
         String expectedContent = "";
