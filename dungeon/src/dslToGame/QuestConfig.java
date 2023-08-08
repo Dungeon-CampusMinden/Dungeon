@@ -19,4 +19,5 @@ public record QuestConfig(
         @DSLTypeMember int questPoints,
         @DSLTypeMember String password,
         @DSLTypeMember Entity entity,
+        @DSLTypeMember(name="name") String displayName,
         @DSLTypeMember List<Task> tasks) {}
