@@ -12,7 +12,7 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
 
-import java.util.Set;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -64,16 +64,18 @@ public class DropItemsInteraction implements BiConsumer<Entity, Entity> {
                                 () ->
                                         MissingComponentException.build(
                                                 entity, PositionComponent.class));
-        Set<ItemData> itemData = inventoryComponent.items();
-        double count = itemData.size();
+        ItemData[] itemData = inventoryComponent.items();
+        double count = itemData.length;
         // used for calculation of drop position
         AtomicInteger index = new AtomicInteger();
-        itemData.forEach(
-                item ->
-                        item.triggerDrop(
-                                entity,
-                                calculateDropPosition(
-                                        positionComponent, index.getAndIncrement() / count)));
+        Arrays.stream(itemData)
+                .forEach(
+                        item ->
+                                item.triggerDrop(
+                                        entity,
+                                        calculateDropPosition(
+                                                positionComponent,
+                                                index.getAndIncrement() / count)));
 
         entity.fetch(DrawComponent.class)
                 .ifPresent(x -> x.currentAnimation(CoreAnimations.IDLE_RIGHT));

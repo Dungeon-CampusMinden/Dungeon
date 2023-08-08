@@ -8,6 +8,7 @@ import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 /** a simple implementation of dropping all items of an Entity when it is dying. */
@@ -24,7 +25,7 @@ public final class DropLoot implements Consumer<Entity> {
     @Override
     public void accept(final Entity entity) {
         Components dlc = prepareComponent(entity);
-        dlc.ic.items().stream().map(x -> new DLData(entity, dlc, x)).forEach(this::dropItem);
+        Arrays.stream(dlc.ic.items()).map(x -> new DLData(entity, dlc, x)).forEach(this::dropItem);
     }
 
     /**

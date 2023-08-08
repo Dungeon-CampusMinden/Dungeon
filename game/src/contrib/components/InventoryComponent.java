@@ -1,12 +1,14 @@
 package contrib.components;
 
+import com.badlogic.gdx.utils.Null;
+
 import contrib.utils.components.item.ItemData;
 
 import core.Component;
 import core.utils.logging.CustomLogLevel;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 /**
@@ -26,8 +28,7 @@ import java.util.logging.Logger;
  */
 public final class InventoryComponent implements Component {
 
-    private final Set<ItemData> inventory;
-    private final int maxSize;
+    private final ItemData[] inventory;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
 
     /**
@@ -54,14 +55,22 @@ public final class InventoryComponent implements Component {
      * @return True if the item was added, false if not.
      */
     public boolean add(final ItemData itemData) {
-        if (inventory.size() >= maxSize) return false;
+        int firstEmpty = -1;
+        for (int i = 0; i < this.inventory.length; i++) {
+            if (this.inventory[i] == null) {
+                firstEmpty = i;
+                break;
+            }
+        }
+        if (firstEmpty == -1) return false;
         LOGGER.log(
                 CustomLogLevel.DEBUG,
                 "Item '"
                         + this.getClass().getSimpleName()
                         + "' was added to the inventory of entity '"
                         + "'.");
-        return inventory.add(itemData);
+        inventory[firstEmpty] = itemData;
+        return true;
     }
 
     /**
@@ -75,6 +84,30 @@ public final class InventoryComponent implements Component {
                 CustomLogLevel.DEBUG,
                 "Removing item '" + this.getClass().getSimpleName() + "' from inventory.");
         return inventory.remove(itemData);
+    }
+
+    /**
+     * Remove item from specific index in inventory.
+     *
+     * @param index Index of item to remove.
+     * @return Item removed. May be null.
+     */
+    @Null
+    public ItemData remove(int index) {
+        ItemData itemData = inventory[index];
+        inventory[index] = null;
+        return itemData;
+    }
+
+    /**
+     * Check if the inventory contains the given item.
+     *
+     * @param itemData Item to check for.
+     * @return True if the inventory contains the item, false otherwise.
+     */
+    public boolean hasItem(ItemData itemData) {
+        return Arrays.stream(this.inventory)
+                .anyMatch(item -> item != null && item.equals(itemData));
     }
 
     /**
@@ -94,8 +127,8 @@ public final class InventoryComponent implements Component {
      * @return true if the transfer was successful, false if not.
      */
     public boolean transfer(final ItemData itemData, final InventoryComponent other) {
-        if (!other.equals(this) && inventory.contains(itemData) && other.add(itemData))
-            return remove(itemData);
+        if (!other.equals(this) && this.hasItem(itemData) && other.add(itemData))
+            return this.remove(itemData);
         return false;
     }
 
@@ -105,7 +138,7 @@ public final class InventoryComponent implements Component {
      * @return The number of items that are stored in this component.
      */
     public int count() {
-        return inventory.size();
+        return (int) Arrays.stream(this.inventory).filter(Objects::nonNull).count();
     }
 
     /**
@@ -113,7 +146,7 @@ public final class InventoryComponent implements Component {
      *
      * @return A copy of the inventory.
      */
-    public Set<ItemData> items() {
-        return new HashSet<>(inventory);
+    public ItemData[] items() {
+        return this.inventory.clone();
     }
 }
