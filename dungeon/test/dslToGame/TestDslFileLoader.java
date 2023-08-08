@@ -9,102 +9,77 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Set;
 
 public class TestDslFileLoader {
+    private static final Path PATH_TO_DNG = Paths.get(".", "dslFileLoader", "simple.dng");
+    private static final Path PATH_TO_JAR = Paths.get(".", "dslFileLoader", "testjar.jar");
+    private static final Path PATH_OF_FIRST_FILE =
+            Paths.get(".", "dslFileLoader", "testjar.jar", "scripts", "first.dng");
+    private static final Path PATH_OF_SECOND_FILE =
+            Paths.get(".", "dslFileLoader", "testjar.jar", "scripts", "sub", "sub", "second.dng");
+    private static final Path PATH_OF_THIRD_FILE =
+            Paths.get(".", "dslFileLoader", "testjar.jar", "scripts", "test.txt");
+
+    private static final Path PATH_TO_EMPTY_DNG = Paths.get(".", "dslFileLoader", "empty.dng");
+    private static final Path PATH_TO_TXT = Paths.get(".", "dslFileLoader", "test.txt");
 
     @Test
     public void processArguments_oneJar() throws IOException {
-        String pathToJar = "dslFileLoader" + File.separator + "testjar.jar";
-        String pathOfFirstFile = "scripts" + File.separator + "first.dng";
-        String pathOfSecondFile =
-                "scripts"
-                        + File.separator
-                        + "sub"
-                        + File.separator
-                        + "sub"
-                        + File.separator
-                        + "second.dng";
-        String pathOfThirdFile = "scripts" + File.separator + "test.txt";
-        String[] args = {pathToJar};
+        String[] args = {PATH_TO_JAR.toString()};
         Set<Path> paths = DslFileLoader.processArguments(args);
         assertEquals(2, paths.size());
-        assertTrue(paths.stream().anyMatch(p -> p.endsWith(pathOfFirstFile)));
-        assertTrue(paths.stream().anyMatch(p -> p.endsWith(pathOfSecondFile)));
-        assertFalse(paths.stream().anyMatch(p -> p.endsWith(pathOfThirdFile)));
+        assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_FIRST_FILE.normalize())));
+        assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_SECOND_FILE.normalize())));
+        assertFalse(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_THIRD_FILE.normalize())));
     }
 
     @Test
     public void processArguments_oneDSLFIle() throws IOException {
-        String pathToDng = "dslFileLoader" + File.separator + "simple.dng";
-        String[] args = {pathToDng};
+        String[] args = {PATH_TO_DNG.toString()};
         Set<Path> paths = DslFileLoader.processArguments(args);
         assertEquals(1, paths.size());
         Path p = (Path) paths.toArray()[0];
-        assertTrue(p.endsWith(pathToDng));
+        assertTrue(p.endsWith(PATH_TO_DNG.normalize()));
     }
 
     @Test
     public void processArguments_oneJarOneDSL() throws IOException {
-        String pathToJar = "dslFileLoader" + File.separator + "testjar.jar";
-        String pathToDng = "dslFileLoader" + File.separator + "simple.dng";
-        String pathOfFirstFile = "scripts" + File.separator + "first.dng";
-        String pathOfSecondFile =
-                "scripts"
-                        + File.separator
-                        + "sub"
-                        + File.separator
-                        + "sub"
-                        + File.separator
-                        + "second.dng";
-        String pathOfThirdFile = "scripts" + File.separator + "test.txt";
-        String[] args = {pathToJar, pathToDng};
+        String[] args = {PATH_TO_JAR.toString(), PATH_TO_DNG.toString()};
         Set<Path> paths = DslFileLoader.processArguments(args);
         assertEquals(3, paths.size());
-        assertTrue(paths.stream().anyMatch(p -> p.endsWith(pathOfFirstFile)));
-        assertTrue(paths.stream().anyMatch(p -> p.endsWith(pathOfSecondFile)));
-        assertTrue(paths.stream().anyMatch(p -> p.endsWith(pathToDng)));
-        assertFalse(paths.stream().anyMatch(p -> p.endsWith(pathOfThirdFile)));
+        assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_FIRST_FILE.normalize())));
+        assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_SECOND_FILE.normalize())));
+        assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_TO_DNG.normalize())));
+        assertFalse(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_THIRD_FILE.normalize())));
     }
 
     @Test
     public void processArguments_mixed() throws IOException {
-        String pathToJar = "dslFileLoader" + File.separator + "testjar.jar";
-        String pathToDng = "dslFileLoader" + File.separator + "simple.dng";
-        String pathToEmptyDng = "dslFileLoader" + File.separator + "empty.dng";
-        String pathOfFirstFile = "scripts" + File.separator + "first.dng";
-        String pathOfSecondFile =
-                "scripts"
-                        + File.separator
-                        + "sub"
-                        + File.separator
-                        + "sub"
-                        + File.separator
-                        + "second.dng";
-        String pathOfThirdFile = "scripts" + File.separator + "test.txt";
-        String[] args = {pathToEmptyDng, pathToJar, pathToDng};
+        String[] args = {
+            PATH_TO_EMPTY_DNG.toString(), PATH_TO_JAR.toString(), PATH_TO_DNG.toString()
+        };
         Set<Path> paths = DslFileLoader.processArguments(args);
         assertEquals(4, paths.size());
-        assertTrue(paths.stream().anyMatch(p -> p.endsWith(pathOfFirstFile)));
-        assertTrue(paths.stream().anyMatch(p -> p.endsWith(pathOfSecondFile)));
-        assertTrue(paths.stream().anyMatch(p -> p.endsWith(pathToDng)));
-        assertTrue(paths.stream().anyMatch(p -> p.endsWith(pathToEmptyDng)));
-        assertFalse(paths.stream().anyMatch(p -> p.endsWith(pathOfThirdFile)));
+        assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_FIRST_FILE.normalize())));
+        assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_SECOND_FILE.normalize())));
+        assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_TO_DNG.normalize())));
+        assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_TO_EMPTY_DNG.normalize())));
+        assertFalse(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_THIRD_FILE.normalize())));
     }
 
     @Test
     public void processArguments_nonDSLFile() throws IOException {
-        String pathToTxt = "dslFileLoader" + File.separator + "test.txt";
-        String[] args = {pathToTxt};
+        String[] args = {PATH_TO_TXT.toString()};
         Set<Path> paths = DslFileLoader.processArguments(args);
         assertEquals(0, paths.size());
     }
 
     @Test
     public void fileToString() {
-        String simpleFile = "dslFileLoader" + File.separator + "simple.dng";
         ClassLoader classLoader = getClass().getClassLoader();
-        File f = new File(classLoader.getResource(simpleFile).getFile());
+        File f = new File(classLoader.getResource(PATH_TO_DNG.toString()).getFile());
         String expectedContent =
                 "some test text."
                         + System.lineSeparator()
@@ -115,16 +90,13 @@ public class TestDslFileLoader {
                         + System.lineSeparator();
 
         String read = DslFileLoader.fileToString(f);
-        System.out.println(expectedContent);
-        System.out.println(read);
         assertEquals(expectedContent, read);
     }
 
     @Test
     public void emptyFileToString() {
-        String empty = "dslFileLoader" + File.separator + "empty.dng";
         ClassLoader classLoader = getClass().getClassLoader();
-        File f = new File(classLoader.getResource(empty).getFile());
+        File f = new File(classLoader.getResource(PATH_TO_EMPTY_DNG.toString()).getFile());
         String expectedContent = "";
         String read = DslFileLoader.fileToString(f);
         assertEquals(expectedContent, read);

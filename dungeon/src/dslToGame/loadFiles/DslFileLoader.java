@@ -58,7 +58,7 @@ public class DslFileLoader {
                             @Override
                             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                                 if (file.toString().toLowerCase().endsWith(DSL_FILE_ENDING)) {
-                                    dngFiles.add(file);
+                                    dngFiles.add(Path.of(jarPath.toString(), file.toString()));
                                 }
                                 return FileVisitResult.CONTINUE;
                             }
