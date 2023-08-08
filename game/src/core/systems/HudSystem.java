@@ -11,6 +11,7 @@ import core.utils.components.MissingComponentException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * The basic handling of any UIComponent. Adds them to the Stage, updates the Stage each Frame to
@@ -83,10 +84,10 @@ public final class HudSystem extends System {
     }
 
     private boolean pausesGame(Entity x) {
-        UIComponent uiComponent =
-                x.fetch(UIComponent.class)
-                        .orElseThrow(() -> MissingComponentException.build(x, UIComponent.class));
-        return uiComponent.isVisible() && uiComponent.willPauseGame();
+        Optional<UIComponent> uiComponent = x.fetch(UIComponent.class);
+        return uiComponent
+                .filter(component -> component.isVisible() && component.willPauseGame())
+                .isPresent();
     }
 
     private void pauseGame() {
