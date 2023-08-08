@@ -1,3 +1,5 @@
 package dslToGame;
 
-public record DSLEntryPoint(ParsedFile file, String displayName, String configName) {}
+import parser.ast.ObjectDefNode;
+
+public record DSLEntryPoint(ParsedFile file, String displayName, String configName, ObjectDefNode configDefinitionNode) {}
