@@ -1,8 +1,8 @@
-package contrib.hud.inventory;
+package contrib.hud;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
-import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 import com.badlogic.gdx.utils.Align;
 
 import core.Game;
@@ -11,12 +11,11 @@ import java.util.Arrays;
 
 public class GUICombination extends HorizontalGroup {
 
-    public GUICombination(Widget... guis) {
+    public GUICombination(Actor... guis) {
         Arrays.stream(guis).forEach(this::addActor);
         this.space(10.0f);
         this.validate();
         this.center();
-        this.debug();
         this.pack();
         this.setPosition(
                 Game.stage().orElseThrow().getWidth() / 2.0f,
