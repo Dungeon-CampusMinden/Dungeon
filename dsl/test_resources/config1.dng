@@ -1,0 +1,14 @@
+single_choice_task my_task {
+    description: "Hello",
+    answers: ["1", "2", "3"],
+    correct_answer_index: 2
+}
+
+quest_config my_config {
+    name: "This is my config 1",
+    tasks: [my_task]
+}
+
+quest_config my_other_config {
+    tasks: [my_task]
+}

@@ -3,6 +3,8 @@ package parser;
 import antlr.main.DungeonDSLLexer;
 import antlr.main.DungeonDSLParser;
 
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -37,6 +39,18 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     /** Constructor */
     public DungeonASTConverter() {
         astStack = new Stack<>();
+    }
+
+    public static Node getProgramAST(String program) {
+        var stream = CharStreams.fromString(program);
+        var lexer = new DungeonDSLLexer(stream);
+
+        var tokenStream = new CommonTokenStream(lexer);
+        var parser = new DungeonDSLParser(tokenStream);
+        var programParseTree = parser.program();
+
+        DungeonASTConverter astConverter = new DungeonASTConverter();
+        return astConverter.walk(programParseTree);
     }
 
     /**
