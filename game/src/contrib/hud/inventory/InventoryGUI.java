@@ -4,90 +4,64 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 
 import contrib.components.InventoryComponent;
+import contrib.hud.GUI;
+import contrib.utils.components.item.ItemData;
 
 import core.Game;
 
-public class InventoryGUI extends WidgetGroup {
+public class InventoryGUI extends GUI {
 
     private static final Texture texture;
     private static final TextureRegion background;
     private static final int MAX_ITEMS_PER_ROW = 8;
-    private static final int BORDER_WIDTH = 2;
     private static final int BORDER_COLOR = 0x9dc1ebff;
     private static final int BORDER_PADDING = 5;
 
     static {
+        // Prepare background texture
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.drawPixel(0, 0, 0x3e3e63e1); // Background
         texture = new Texture(pixmap);
         background = new TextureRegion(texture, 0, 0, 1, 1);
     }
 
-    private InventoryComponent inventoryComponent;
-    private DragAndDrop dragAndDrop;
-    private Texture textureFields;
+    private final InventoryComponent inventoryComponent;
+    private Texture textureSlots;
     private String title;
 
-    public InventoryGUI(InventoryComponent inventoryComponent, DragAndDrop dragAndDrop) {
+    /**
+     * Create a new inventory GUI
+     *
+     * @param title the title of the inventory
+     * @param inventoryComponent the inventory component on which the GUI is based.
+     */
+    public InventoryGUI(String title, InventoryComponent inventoryComponent) {
         super();
         this.inventoryComponent = inventoryComponent;
-        this.dragAndDrop = dragAndDrop;
-        this.title = "Inventory";
-        this.update();
-    }
-
-    public InventoryGUI(
-            String title, InventoryComponent inventoryComponent, DragAndDrop dragAndDrop) {
-        super();
-        this.inventoryComponent = inventoryComponent;
-        this.dragAndDrop = dragAndDrop;
         this.title = title;
-        this.update();
     }
 
-    public void update() {
-        this.clearChildren();
-        float itemSize = getWidth() / (float) MAX_ITEMS_PER_ROW;
-        for (int i = 0; i < inventoryComponent.items().length; i++) {
-            if (inventoryComponent.items()[i] == null) continue;
-            ItemActor itemActor = new ItemActor(inventoryComponent.items()[i]);
-            int column = i % MAX_ITEMS_PER_ROW;
-            int row = i / MAX_ITEMS_PER_ROW;
-            itemActor.setPosition(
-                    column * itemSize + 2 * BORDER_PADDING, row * itemSize + 2 * BORDER_PADDING);
-            this.addActor(itemActor);
-        }
-    }
-
-    @Override
-    public void layout() {
-        this.update();
-        super.layout();
-        float itemSize = getWidth() / (float) MAX_ITEMS_PER_ROW - 4 * BORDER_PADDING;
-        this.getChildren()
-                .forEach(
-                        actor -> {
-                            if (actor instanceof ItemActor itemActor) {
-                                itemActor.setSize(itemSize, itemSize);
-                                // itemActor.setPosition(actor.getX() + (itemSize / 2.0f),
-                                // actor.getY() + (itemSize / 2.0f), Align.center);
-                            }
-                        });
+    /**
+     * Create a new inventory GUI
+     *
+     * @param inventoryComponent the inventory component on which the GUI is based.
+     */
+    public InventoryGUI(InventoryComponent inventoryComponent) {
+        this("Inventory", inventoryComponent);
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        // super.draw(batch, parentAlpha);
-
-        // Cache the texture fields
-        if (this.textureFields == null
-                || this.textureFields.getWidth() != this.getWidth()
-                || this.textureFields.getHeight() != this.getHeight()) {
-            if (this.textureFields != null) this.textureFields.dispose();
+        // Draw & cache slot squares
+        if (this.textureSlots == null
+                || this.textureSlots.getWidth() != this.getWidth()
+                || this.textureSlots.getHeight() != this.getHeight()) {
+            if (this.textureSlots != null) this.textureSlots.dispose();
 
             Pixmap pixmap =
                     new Pixmap(
@@ -109,20 +83,117 @@ public class InventoryGUI extends WidgetGroup {
                             -itemSize + 2 * BORDER_PADDING);
                 }
             }
-            this.textureFields = new Texture(pixmap);
+            this.textureSlots = new Texture(pixmap);
         }
 
+        // Draw Background & Slots
         batch.draw(background, getX(), getY(), getWidth(), getHeight());
-        batch.draw(this.textureFields, getX(), getY(), getWidth(), getHeight());
+        batch.draw(this.textureSlots, getX(), getY(), getWidth(), getHeight());
 
         // Draw Items
-        /*for (int i = 0; i < inventoryComponent.items().length; i++) {
-            if(inventoryComponent.items()[i] == null) continue;
-            float x = getX() + BORDER_WIDTH + itemWidth * (i % ITEMS_PER_ROW);
-            float y = getY() + BORDER_WIDTH + itemHeight * (i / ITEMS_PER_ROW);
-            batch.draw(new Texture(inventoryComponent.items()[i].item().inventoryAnimation().nextAnimationTexturePath()), x, y, itemWidth, itemHeight);
-        }*/
+        float slotSize = this.getWidth() / MAX_ITEMS_PER_ROW;
+        for (int i = 0; i < this.inventoryComponent.items().length; i++) {
+            if (this.inventoryComponent.items()[i] == null) continue;
+            float x = getX() + slotSize * (i % MAX_ITEMS_PER_ROW) + 2 * BORDER_PADDING;
+            float y = getY() + slotSize * (i / (float) MAX_ITEMS_PER_ROW) + 2 * BORDER_PADDING;
+            batch.draw(
+                    new Texture(
+                            this.inventoryComponent
+                                    .items()[i]
+                                    .item()
+                                    .inventoryAnimation()
+                                    .nextAnimationTexturePath()),
+                    x,
+                    y,
+                    slotSize - 4 * BORDER_PADDING,
+                    slotSize - 4 * BORDER_PADDING);
+        }
         super.draw(batch, parentAlpha);
+    }
+
+    @Override
+    protected void initDragAndDrop(DragAndDrop dragAndDrop) {
+        dragAndDrop.addSource(
+                new DragAndDrop.Source(InventoryGUI.this) {
+                    @Override
+                    public DragAndDrop.Payload dragStart(
+                            InputEvent event, float x, float y, int pointer) {
+                        float slotSize = InventoryGUI.this.getWidth() / MAX_ITEMS_PER_ROW;
+                        int slot = (int) (x / slotSize) + (int) (y / slotSize) * MAX_ITEMS_PER_ROW;
+                        ItemData item = InventoryGUI.this.inventoryComponent.items()[slot];
+                        if (item == null) return null;
+
+                        DragAndDrop.Payload payload = new DragAndDrop.Payload();
+                        payload.setObject(
+                                new ItemDragPayload(
+                                        InventoryGUI.this.inventoryComponent, slot, item));
+                        payload.setDragActor(
+                                new Image(
+                                        new Texture(
+                                                item.item()
+                                                        .inventoryAnimation()
+                                                        .nextAnimationTexturePath())));
+
+                        InventoryGUI.this.inventoryComponent.set(slot, null);
+
+                        return payload;
+                    }
+
+                    @Override
+                    public void dragStop(
+                            InputEvent event,
+                            float x,
+                            float y,
+                            int pointer,
+                            DragAndDrop.Payload payload,
+                            DragAndDrop.Target target) {
+                        if (target == null
+                                && payload != null
+                                && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
+                            InventoryGUI.this.inventoryComponent.set(
+                                    itemDragPayload.slot(),
+                                    (itemDragPayload
+                                            .itemData())); // reset item to original slot if not
+                            // dropped on target
+                        }
+                    }
+                });
+
+        dragAndDrop.addTarget(
+                new DragAndDrop.Target(InventoryGUI.this) {
+                    @Override
+                    public boolean drag(
+                            DragAndDrop.Source source,
+                            DragAndDrop.Payload payload,
+                            float x,
+                            float y,
+                            int pointer) {
+                        if (payload.getObject() != null
+                                && payload.getObject() instanceof ItemDragPayload) {
+                            float slotSize = InventoryGUI.this.getWidth() / MAX_ITEMS_PER_ROW;
+                            int slot =
+                                    (int) (x / slotSize) + (int) (y / slotSize) * MAX_ITEMS_PER_ROW;
+                            return InventoryGUI.this.inventoryComponent.get(slot) == null;
+                        }
+                        return false;
+                    }
+
+                    @Override
+                    public void drop(
+                            DragAndDrop.Source source,
+                            DragAndDrop.Payload payload,
+                            float x,
+                            float y,
+                            int pointer) {
+                        float slotSize = InventoryGUI.this.getWidth() / MAX_ITEMS_PER_ROW;
+                        int slot = (int) (x / slotSize) + (int) (y / slotSize) * MAX_ITEMS_PER_ROW;
+                        if (payload.getObject() != null
+                                && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
+                            InventoryGUI.this.inventoryComponent.set(
+                                    slot, itemDragPayload.itemData());
+                        }
+                    }
+                });
     }
 
     @Override
@@ -158,5 +229,23 @@ public class InventoryGUI extends WidgetGroup {
     @Override
     public float getMaxHeight() {
         return this.getMaxWidth();
+    }
+
+    /**
+     * Get the displayed title of this InventoryGUI
+     *
+     * @return title of the inventory
+     */
+    public String title() {
+        return this.title;
+    }
+
+    /**
+     * Set the displayed title of this InventoryGUI
+     *
+     * @param title title of the inventory
+     */
+    public void title(String title) {
+        this.title = title;
     }
 }
