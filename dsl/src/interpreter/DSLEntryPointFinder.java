@@ -117,7 +117,7 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
             // found one
             String configName = node.getIdName();
             String displayName = getDisplayName(node);
-            this.entryPoints.add(new DSLEntryPoint(this.parsedFile, displayName, configName, node));
+            this.entryPoints.add(new DSLEntryPoint(this.parsedFile, displayName, node));
         }
         return null;
     }

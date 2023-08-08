@@ -41,24 +41,22 @@ public class TetsDSLEntryPointFinder {
 
         Assert.assertEquals(4, entryPoints.size());
 
+        // TODO: test stored AST-Nodes
+
         DSLEntryPoint firstEntryPoint = entryPoints.get(0);
         Assert.assertEquals("This is my config 1", firstEntryPoint.displayName());
-        Assert.assertEquals("my_config", firstEntryPoint.configName());
         Assert.assertEquals(firstPath, firstEntryPoint.file().filePath());
 
         DSLEntryPoint secondEntryPoint = entryPoints.get(1);
         Assert.assertEquals("my_other_config", secondEntryPoint.displayName());
-        Assert.assertEquals("my_other_config", secondEntryPoint.configName());
         Assert.assertEquals(firstPath, secondEntryPoint.file().filePath());
 
         DSLEntryPoint thirdEntryPoint = entryPoints.get(2);
         Assert.assertEquals("This is my config 2", thirdEntryPoint.displayName());
-        Assert.assertEquals("my_other_config", thirdEntryPoint.configName());
         Assert.assertEquals(secondPath, thirdEntryPoint.file().filePath());
 
         DSLEntryPoint forthEntryPoint = entryPoints.get(3);
         Assert.assertEquals("my_completely_other_config", forthEntryPoint.displayName());
-        Assert.assertEquals("my_completely_other_config", forthEntryPoint.configName());
         Assert.assertEquals(secondPath, forthEntryPoint.file().filePath());
     }
 }
