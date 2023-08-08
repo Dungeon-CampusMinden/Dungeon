@@ -1,15 +1,17 @@
 package interpreter;
 
 import dslToGame.DSLEntryPoint;
+import dslToGame.ParsedFile;
 import dslToGame.QuestConfig;
+
 import parser.DungeonASTConverter;
 import parser.ast.*;
+
 import runtime.GameEnvironment;
+
 import semanticanalysis.Symbol;
 import semanticanalysis.types.AggregateType;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,7 +21,8 @@ import java.util.Optional;
 
 public class DSLEntryPointFinder implements AstVisitor<Object> {
     private ArrayList<DSLEntryPoint> entryPoints;
-    private Path filePath;
+
+    private ParsedFile parsedFile;
     private final GameEnvironment environment;
     private AggregateType questConfigDataType;
 
@@ -42,8 +45,9 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
             // would be enough to do this in a light AST-Visitor..
             String content = Files.readString(filePath);
             Node programAST = DungeonASTConverter.getProgramAST(content);
+            this.parsedFile = new ParsedFile(filePath, programAST);
 
-            List<DSLEntryPoint> list = findEntryPoints(filePath, programAST);
+            List<DSLEntryPoint> list = findEntryPoints(programAST);
             return Optional.of(list);
         } catch (IOException e) {
             // ok, be like that then..
@@ -51,10 +55,8 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
         }
     }
 
-
-    private List<DSLEntryPoint> findEntryPoints(Path filePath, Node programAST) {
+    private List<DSLEntryPoint> findEntryPoints(Node programAST) {
         this.entryPoints = new ArrayList<>();
-        this.filePath = filePath;
         programAST.accept(this);
         return entryPoints;
     }
@@ -110,12 +112,12 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
     @Override
     public Object visit(ObjectDefNode node) {
         Node typeSpecifier = node.getTypeSpecifier();
-        String typeSpecifierName = (String)typeSpecifier.accept(this);
+        String typeSpecifierName = (String) typeSpecifier.accept(this);
         if (typeSpecifierName.equals(questConfigDataType.getName())) {
             // found one
             String configName = node.getIdName();
             String displayName = getDisplayName(node);
-            this.entryPoints.add(new DSLEntryPoint(this.filePath, displayName, configName));
+            this.entryPoints.add(new DSLEntryPoint(this.parsedFile, displayName, configName));
         }
         return null;
     }

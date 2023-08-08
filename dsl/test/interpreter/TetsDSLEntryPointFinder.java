@@ -1,13 +1,10 @@
 package interpreter;
 
 import dslToGame.DSLEntryPoint;
-import helpers.Helpers;
-import org.antlr.v4.runtime.CharStreams;
+
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -47,21 +44,21 @@ public class TetsDSLEntryPointFinder {
         DSLEntryPoint firstEntryPoint = entryPoints.get(0);
         Assert.assertEquals("This is my config 1", firstEntryPoint.displayName());
         Assert.assertEquals("my_config", firstEntryPoint.configName());
-        Assert.assertEquals(firstPath, firstEntryPoint.filePath());
+        Assert.assertEquals(firstPath, firstEntryPoint.file().filePath());
 
         DSLEntryPoint secondEntryPoint = entryPoints.get(1);
         Assert.assertEquals("my_other_config", secondEntryPoint.displayName());
         Assert.assertEquals("my_other_config", secondEntryPoint.configName());
-        Assert.assertEquals(firstPath, secondEntryPoint.filePath());
+        Assert.assertEquals(firstPath, secondEntryPoint.file().filePath());
 
         DSLEntryPoint thirdEntryPoint = entryPoints.get(2);
         Assert.assertEquals("This is my config 2", thirdEntryPoint.displayName());
         Assert.assertEquals("my_other_config", thirdEntryPoint.configName());
-        Assert.assertEquals(secondPath, thirdEntryPoint.filePath());
+        Assert.assertEquals(secondPath, thirdEntryPoint.file().filePath());
 
         DSLEntryPoint forthEntryPoint = entryPoints.get(3);
         Assert.assertEquals("my_completely_other_config", forthEntryPoint.displayName());
         Assert.assertEquals("my_completely_other_config", forthEntryPoint.configName());
-        Assert.assertEquals(secondPath, forthEntryPoint.filePath());
+        Assert.assertEquals(secondPath, forthEntryPoint.file().filePath());
     }
 }
