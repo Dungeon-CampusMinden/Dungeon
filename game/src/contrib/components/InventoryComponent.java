@@ -149,4 +149,27 @@ public final class InventoryComponent implements Component {
     public ItemData[] items() {
         return this.inventory.clone();
     }
+
+    /**
+     * Set the item at the given index.
+     *
+     * @param index Index of item to get.
+     * @param itemData Item to set at index.
+     */
+    public void set(int index, @Null ItemData itemData) {
+        if (index >= this.inventory.length || index < 0) return;
+        this.inventory[index % this.inventory.length] = itemData;
+    }
+
+    /**
+     * Get the item at the given index.
+     *
+     * @param index Index of item to get.
+     * @return Item at index. May be null.
+     */
+    @Null
+    public ItemData get(int index) {
+        if (index >= this.inventory.length || index < 0) return null;
+        return this.inventory[index];
+    }
 }
