@@ -72,7 +72,7 @@ public class InventoryGUI extends GUI {
                             Math.ceil(
                                     this.inventoryComponent.items().length
                                             / (float) MAX_ITEMS_PER_ROW);
-            int itemSize = (int) getWidth() / MAX_ITEMS_PER_ROW;
+            int itemSize = (int) this.getWidth() / MAX_ITEMS_PER_ROW;
             for (int y = 0; y < rows; y++) {
                 for (int x = 0; x < MAX_ITEMS_PER_ROW; x++) {
                     if (x + y * MAX_ITEMS_PER_ROW >= this.inventoryComponent.items().length) break;
@@ -87,16 +87,16 @@ public class InventoryGUI extends GUI {
         }
 
         // Draw Background & Slots
-        batch.draw(background, getX(), getY(), getWidth(), getHeight());
-        batch.draw(this.textureSlots, getX(), getY(), getWidth(), getHeight());
+        batch.draw(background, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        batch.draw(this.textureSlots, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 
         // Draw Items
         float slotSize = this.getWidth() / MAX_ITEMS_PER_ROW;
         for (int i = 0; i < this.inventoryComponent.items().length; i++) {
             if (this.inventoryComponent.items()[i] == null) continue;
-            float x = getX() + slotSize * (i % MAX_ITEMS_PER_ROW) + 2 * BORDER_PADDING;
+            float x = this.getX() + slotSize * (i % MAX_ITEMS_PER_ROW) + 2 * BORDER_PADDING;
             float y =
-                    getY()
+                    this.getY()
                             + slotSize * (float) Math.floor((i / (float) MAX_ITEMS_PER_ROW))
                             + 2 * BORDER_PADDING;
             batch.draw(
@@ -130,12 +130,17 @@ public class InventoryGUI extends GUI {
                         payload.setObject(
                                 new ItemDragPayload(
                                         InventoryGUI.this.inventoryComponent, slot, item));
-                        payload.setDragActor(
+
+                        Image image =
                                 new Image(
                                         new Texture(
                                                 item.item()
                                                         .inventoryAnimation()
-                                                        .nextAnimationTexturePath())));
+                                                        .nextAnimationTexturePath()));
+                        image.setSize(slotSize, slotSize);
+                        payload.setDragActor(image);
+                        dragAndDrop.setDragActorPosition(
+                                image.getWidth() / 2, -image.getHeight() / 2);
 
                         InventoryGUI.this.inventoryComponent.set(slot, null);
 
