@@ -20,9 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * AstVisitor implementation to search for quest_config definition.
- */
+/** AstVisitor implementation to search for quest_config definition. */
 public class DSLEntryPointFinder implements AstVisitor<Object> {
     private ArrayList<DSLEntryPoint> entryPoints;
     private ParsedFile parsedFile;
@@ -31,8 +29,7 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
     private final HashMap<Path, ParsedFile> parsedFiles;
 
     /**
-     * Constructor.
-     * Creates a GameEnvironment to get the {@link semanticanalysis.types.IType} for
+     * Constructor. Creates a GameEnvironment to get the {@link semanticanalysis.types.IType} for
      * {@link QuestConfig}.
      */
     public DSLEntryPointFinder() {
@@ -49,15 +46,12 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
     }
 
     /**
-     * Creates an AST vor the file of the passed filePath, searches it
-     * for quest_config definitions and creates {@link DSLEntryPoint}
-     * instances for each one.
+     * Creates an AST vor the file of the passed filePath, searches it for quest_config definitions
+     * and creates {@link DSLEntryPoint} instances for each one.
      *
-     * @param filePath the path of the file to search for quest_config definitions
-     *                 in
-     * @return an empty optional, if reading the file caused an error or it does not
-     * contain any quest_config definitions, the list of found quest_config objects
-     * otherwise
+     * @param filePath the path of the file to search for quest_config definitions in
+     * @return an empty optional, if reading the file caused an error or it does not contain any
+     *     quest_config definitions, the list of found quest_config objects otherwise
      */
     public Optional<List<DSLEntryPoint>> getEntryPoints(Path filePath) {
         try {
