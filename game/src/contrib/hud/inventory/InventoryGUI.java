@@ -95,7 +95,10 @@ public class InventoryGUI extends GUI {
         for (int i = 0; i < this.inventoryComponent.items().length; i++) {
             if (this.inventoryComponent.items()[i] == null) continue;
             float x = getX() + slotSize * (i % MAX_ITEMS_PER_ROW) + 2 * BORDER_PADDING;
-            float y = getY() + slotSize * (i / (float) MAX_ITEMS_PER_ROW) + 2 * BORDER_PADDING;
+            float y =
+                    getY()
+                            + slotSize * (float) Math.floor((i / (float) MAX_ITEMS_PER_ROW))
+                            + 2 * BORDER_PADDING;
             batch.draw(
                     new Texture(
                             this.inventoryComponent
@@ -120,7 +123,7 @@ public class InventoryGUI extends GUI {
                             InputEvent event, float x, float y, int pointer) {
                         float slotSize = InventoryGUI.this.getWidth() / MAX_ITEMS_PER_ROW;
                         int slot = (int) (x / slotSize) + (int) (y / slotSize) * MAX_ITEMS_PER_ROW;
-                        ItemData item = InventoryGUI.this.inventoryComponent.items()[slot];
+                        ItemData item = InventoryGUI.this.inventoryComponent.get(slot);
                         if (item == null) return null;
 
                         DragAndDrop.Payload payload = new DragAndDrop.Payload();
@@ -173,7 +176,9 @@ public class InventoryGUI extends GUI {
                             float slotSize = InventoryGUI.this.getWidth() / MAX_ITEMS_PER_ROW;
                             int slot =
                                     (int) (x / slotSize) + (int) (y / slotSize) * MAX_ITEMS_PER_ROW;
-                            return InventoryGUI.this.inventoryComponent.get(slot) == null;
+                            return InventoryGUI.this.inventoryComponent.get(slot) == null
+                                    && slot < InventoryGUI.this.inventoryComponent.items().length
+                                    && slot >= 0;
                         }
                         return false;
                     }
