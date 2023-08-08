@@ -237,9 +237,7 @@ public class TypeBuilder {
 
         if (adapterMethod.getParameterCount() == 1) {
             var paramType = adapterMethod.getParameterTypes()[0];
-            currentLookedUpTypes.add(forType);
             IType paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, paramType);
-            currentLookedUpTypes.remove(forType);
             return new AdaptedType(
                     dslTypeName, parentScope, forType, (BuiltInType) paramDSLType, adapterMethod);
         } else {
@@ -250,7 +248,6 @@ public class TypeBuilder {
                 String parameterName = getDSLParameterName(parameter);
                 Type parametersType = parameter.getType();
 
-                currentLookedUpTypes.add(forType);
                 IType paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, parametersType);
                 if (paramDSLType == null) {
                     // TODO: refactor this to be included in createDSLTypeForJavaTypeInScope, see:
@@ -270,7 +267,6 @@ public class TypeBuilder {
                                         parentScope);
                     }
                 }
-                currentLookedUpTypes.remove(forType);
 
                 Symbol parameterSymbol = new Symbol(parameterName, typeAdapter, paramDSLType);
                 typeAdapter.bind(parameterSymbol);
@@ -385,9 +381,7 @@ public class TypeBuilder {
             // if it is not already in the converted types, try to convert it -> check for
             // DSLType
             // annotation
-            this.currentLookedUpTypes.add(parentClass);
             memberDSLType = createDSLTypeForJavaTypeInScope(globalScope, field.getType());
-            this.currentLookedUpTypes.remove(parentClass);
         }
 
         return new Symbol(fieldName, parentType, memberDSLType);
@@ -472,6 +466,8 @@ public class TypeBuilder {
 
         // create new AggregateType for clazz
         var aggregateType = new AggregateType(typeName, globalScope, clazz);
+
+        this.currentLookedUpTypes.add(clazz);
         for (Field field : clazz.getDeclaredFields()) {
             // bind new Symbol
             if (field.isAnnotationPresent(DSLTypeMember.class)) {
@@ -483,6 +479,7 @@ public class TypeBuilder {
                 aggregateType.bind(callbackSymbol);
             }
         }
+        this.currentLookedUpTypes.remove(clazz);
 
         this.javaTypeToDSLType.put(clazz, aggregateType);
         globalScope.bind(aggregateType);

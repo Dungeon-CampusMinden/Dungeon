@@ -21,6 +21,8 @@
 
 package semanticanalysis;
 
+import semanticanalysis.types.IType;
+
 import java.util.List;
 
 /** Represents the capabilities of a scope. */
@@ -63,4 +65,15 @@ public interface IScope {
      * @return The parent scope.
      */
     IScope getParent();
+
+    default IType resolveType(String name) {
+        var resolvedType = resolve(name, true);
+        if (resolvedType == Symbol.NULL) {
+            throw new RuntimeException("Type '" + name + "' could not be resolved");
+        } else if (!(resolvedType instanceof IType)) {
+            throw new RuntimeException("Symbol of name '" + name + "' is no type");
+        } else {
+            return (IType) resolvedType;
+        }
+    }
 }

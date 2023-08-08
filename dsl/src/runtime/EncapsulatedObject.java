@@ -117,7 +117,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
 
     @Override
     public Value resolve(String name, boolean resolveInParent) {
-        return null;
+        return resolve(name);
     }
 
     // TODO: define the semantics for this based on, if the value is a POD type or

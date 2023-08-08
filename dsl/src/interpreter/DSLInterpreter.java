@@ -545,7 +545,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             for (var ms : this.memoryStack) {
                 Value returnValue = ms.resolve(RETURN_VALUE_NAME);
                 if (returnValue != Value.NONE) {
-                    returnValue.setInternalValue(value.getInternalValue());
+                    setValue(returnValue, value);
                     break;
                 }
             }
@@ -589,8 +589,16 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(MemberAccessNode node) {
-        // TODO: implement
-        throw new UnsupportedOperationException();
+        Value lhs = (Value) node.getLhs().accept(this);
+
+        assert lhs instanceof AggregateValue;
+
+        AggregateValue lhsAggregateValue = (AggregateValue) lhs;
+        this.memoryStack.push(lhsAggregateValue.getMemorySpace());
+        Value rhsValue = (Value) node.getRhs().accept(this);
+        this.memoryStack.pop();
+
+        return rhsValue;
     }
 
     @Override
@@ -814,12 +822,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object executeUserDefinedFunctionRawParameters(
             FunctionSymbol symbol, List<Object> parameterObjects) {
         IMemorySpace functionMemorySpace = createFunctionMemorySpace(symbol);
+        setupFunctionParametersRaw(symbol, functionMemorySpace, parameterObjects);
+
         this.memoryStack.push(functionMemorySpace);
-
-        setupFunctionParametersRaw(symbol, parameterObjects);
         executeUserDefinedFunctionBody(symbol);
-
         functionMemorySpace = memoryStack.pop();
+
         return getReturnValueFromMemorySpace(functionMemorySpace);
     }
 
@@ -832,12 +840,15 @@ public class DSLInterpreter implements AstVisitor<Object> {
      */
     public Object executeUserDefinedFunction(FunctionSymbol symbol, List<Node> parameterNodes) {
         IMemorySpace functionMemorySpace = createFunctionMemorySpace(symbol);
+        // can't push memory space yet! If a passed argument has the same identifier
+        // as a parameter, the name will be resolved in the new memory space and not
+        // the enclosing memory space, containing the argument
+        setupFunctionParameters(symbol, functionMemorySpace, parameterNodes);
+
         this.memoryStack.push(functionMemorySpace);
-
-        setupFunctionParameters(symbol, parameterNodes);
         executeUserDefinedFunctionBody(symbol);
-
         functionMemorySpace = memoryStack.pop();
+
         return getReturnValueFromMemorySpace(functionMemorySpace);
     }
 
@@ -849,13 +860,15 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param parameterObjects Raw objects to use as values for the function's parameters
      */
     private void setupFunctionParametersRaw(
-            FunctionSymbol functionSymbol, List<Object> parameterObjects) {
+            FunctionSymbol functionSymbol,
+            IMemorySpace functionsMemorySpace,
+            List<Object> parameterObjects) {
         var currentMemorySpace = getCurrentMemorySpace();
         // bind all parameter-symbols as values in the function's memory space and set their values
         var parameterSymbols = functionSymbol.getSymbols();
         for (int i = 0; i < parameterObjects.size(); i++) {
             var parameterSymbol = parameterSymbols.get(i);
-            bindFromSymbol(parameterSymbol, memoryStack.peek());
+            bindFromSymbol(parameterSymbol, functionsMemorySpace);
 
             Object parameterObject = parameterObjects.get(i);
             Value paramValue =
@@ -864,7 +877,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                                     parameterObject,
                                     currentMemorySpace,
                                     parameterSymbol.getDataType());
-            Value assigneeValue = currentMemorySpace.resolve(parameterSymbol.getName());
+            Value assigneeValue = functionsMemorySpace.resolve(parameterSymbol.getName());
             setValue(assigneeValue, paramValue);
         }
     }
@@ -876,17 +889,20 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param functionSymbol The symbol corresponding to the function definition
      * @param parameterNodes AST-Nodes representing the passed parameters
      */
-    private void setupFunctionParameters(FunctionSymbol functionSymbol, List<Node> parameterNodes) {
+    private void setupFunctionParameters(
+            FunctionSymbol functionSymbol,
+            IMemorySpace functionsMemorySpace,
+            List<Node> parameterNodes) {
         // bind all parameter-symbols as values in the function's memory space and set their values
         var parameterSymbols = functionSymbol.getSymbols();
         for (int i = 0; i < parameterNodes.size(); i++) {
             var parameterSymbol = parameterSymbols.get(i);
-            bindFromSymbol(parameterSymbol, memoryStack.peek());
+            bindFromSymbol(parameterSymbol, functionsMemorySpace);
 
             var paramValueNode = parameterNodes.get(i);
             Value paramValue = (Value) paramValueNode.accept(this);
 
-            Value assigneeValue = getCurrentMemorySpace().resolve(parameterSymbol.getName());
+            Value assigneeValue = functionsMemorySpace.resolve(parameterSymbol.getName());
             setValue(assigneeValue, paramValue);
         }
     }

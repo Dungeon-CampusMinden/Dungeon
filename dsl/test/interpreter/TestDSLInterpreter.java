@@ -1336,4 +1336,106 @@ public class TestDSLInterpreter {
         Assert.assertEquals("5", ((Quiz.Content) multipleChoiceAnswers.get(1)).content());
         Assert.assertEquals("6", ((Quiz.Content) multipleChoiceAnswers.get(2)).content());
     }
+
+    @Test
+    public void testMemberAccess() {
+        String program =
+                """
+            fn test_func(test_component2 component) {
+                print(component.member1);
+            }
+
+            entity_type my_type{
+                test_component_string_member_and_callback{
+                    consumer: test_func
+                },
+                test_component2 {
+                    member1: "Hello, World!"
+                }
+            }
+
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config =
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(
+                                program,
+                                env,
+                                interpreter,
+                                Entity.class,
+                                TestComponent2.class,
+                                TestComponentStringMemberAndCallback.class);
+
+        Entity entity = config.entity();
+        var testComponentWithCallback =
+                (TestComponentStringMemberAndCallback) entity.components.get(1);
+        var testComponent2 = (TestComponent2) config.entity().components.get(0);
+        testComponentWithCallback.getConsumer().accept(testComponent2);
+
+        String outputStreamString = outputStream.toString();
+        Assert.assertTrue(outputStreamString.contains("Hello, World!"));
+    }
+
+    @Test
+    public void testMemberAccessFuncCall() {
+        String program =
+                """
+            fn return_component(test_component2 component) -> test_component2 {
+                return component;
+            }
+
+            fn use_function(test_component2 component) {
+                // setting of the component parameter does not work!
+                print(return_component(component).member1);
+            }
+
+            entity_type my_type{
+                test_component_string_member_and_callback{
+                    consumer: use_function
+                },
+                test_component2 {
+                    member1: "Hello, World!"
+                }
+            }
+
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config =
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(
+                                program,
+                                env,
+                                interpreter,
+                                Entity.class,
+                                TestComponent2.class,
+                                TestComponentStringMemberAndCallback.class);
+
+        var testComponent2 = (TestComponent2) config.entity().components.get(0);
+        var testComponentWithCallback =
+                (TestComponentStringMemberAndCallback) config.entity().components.get(1);
+        testComponentWithCallback.getConsumer().accept(testComponent2);
+
+        String outputStreamString = outputStream.toString();
+        Assert.assertTrue(outputStreamString.contains("Hello, World!"));
+    }
 }
