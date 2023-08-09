@@ -5,7 +5,7 @@ package core;
  *
  * <p>This interface needs to be implemented by each component.
  *
- * <p>Each component can be linked to exactly zero, one or multiple entities. Use {@link
+ * <p>Each component can be linked to zero to n entities. Use {@link
  * Entity#addComponent(Component)} to register a component at an entity.
  *
  * <p>Components are used to describe an entity. {@link System}s will check the components of an

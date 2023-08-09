@@ -60,7 +60,6 @@ public final class InventoryComponent implements Component {
                 "Item '"
                         + this.getClass().getSimpleName()
                         + "' was added to the inventory of entity '"
-                        // + entity.getClass().getSimpleName()
                         + "'.");
         return inventory.add(itemData);
     }

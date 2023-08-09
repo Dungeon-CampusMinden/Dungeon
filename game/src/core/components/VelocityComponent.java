@@ -124,7 +124,6 @@ public final class VelocityComponent implements Component {
         LOGGER.log(
                 CustomLogLevel.DEBUG,
                 "Fetching x-velocity for entity '"
-                        // + entity.getClass().getSimpleName()
                         + "': "
                         + xVelocity);
         return xVelocity;
@@ -152,7 +151,6 @@ public final class VelocityComponent implements Component {
         LOGGER.log(
                 CustomLogLevel.DEBUG,
                 "Fetching y-velocity for entity '"
-                        // + entity.getClass().getSimpleName()
                         + "': "
                         + yVelocity);
         return yVelocity;
