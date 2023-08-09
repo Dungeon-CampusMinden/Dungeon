@@ -37,8 +37,7 @@ public final class InventoryComponent implements Component {
      * @param maxSize The number of items that can be stored in the inventory.
      */
     public InventoryComponent(int maxSize) {
-        inventory = new HashSet<>(maxSize);
-        this.maxSize = maxSize;
+        inventory = new ItemData[maxSize];
     }
 
     /**
@@ -83,7 +82,13 @@ public final class InventoryComponent implements Component {
         LOGGER.log(
                 CustomLogLevel.DEBUG,
                 "Removing item '" + this.getClass().getSimpleName() + "' from inventory.");
-        return inventory.remove(itemData);
+        for (int i = 0; i < inventory.length; i++) {
+            if (inventory[i] != null && inventory[i].equals(itemData)) {
+                inventory[i] = null;
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
