@@ -370,7 +370,6 @@ public final class Game extends ScreenAdapter {
      * @param entity the entity that has changes in its Component Collection.
      */
     public static void informAboutChanges(Entity entity) {
-        LOGGER.log(CustomLogLevel.DEBUG, entityStream());
         if (entityStream().anyMatch(entity1 -> entity1.equals(entity))) {
             entityStorage.forEach(f -> f.update(entity));
             LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
