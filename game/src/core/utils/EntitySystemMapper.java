@@ -221,4 +221,12 @@ public final class EntitySystemMapper {
     public boolean has(final System system) {
         return systems.contains(system);
     }
+
+    public void triggerAllOnAdd() {
+        systems.forEach(s -> entities.forEach(s::triggerOnAdd));
+    }
+
+    public void triggerAllOnRemove() {
+        systems.forEach(s -> entities.forEach(s::triggerOnRemove));
+    }
 }

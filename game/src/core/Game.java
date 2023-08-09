@@ -51,7 +51,9 @@ public final class Game extends ScreenAdapter {
      * Collection of {@link EntitySystemMapper} that maps the exisiting entities to the systems. The
      * {@link EntitySystemMapper} with no filter-rules will contain each entity in the game
      */
-    private static final Set<EntitySystemMapper> entityStorage = new HashSet<>();
+    private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
+    /** Maps the level with the different {@link EntitySystemMapper} for that level. */
+    private static final Map<ILevel, Set<EntitySystemMapper>> levelStorageMap = new HashMap<>();
 
     private static final Logger LOGGER = Logger.getLogger("Game");
     /**
@@ -134,7 +136,7 @@ public final class Game extends ScreenAdapter {
      */
     private final IVoidFunction onLevelLoad =
             () -> {
-                removeAllEntities();
+                changeActiveMapper();
                 try {
                     hero().ifPresent(this::placeOnLevelStart);
                 } catch (MissingComponentException e) {
@@ -143,6 +145,18 @@ public final class Game extends ScreenAdapter {
                 hero().ifPresent(Game::add);
                 userOnLevelLoad.execute();
             };
+
+    private static void changeActiveMapper() {
+        // trigger all on remove
+        activeEntityStorage.forEach(EntitySystemMapper::triggerAllOnRemove);
+        Set<EntitySystemMapper> newActiveMapper = levelStorageMap.get(currentLevel());
+
+        if (newActiveMapper == null) newActiveMapper = new HashSet<>();
+        activeEntityStorage = newActiveMapper;
+
+        // trigger all on adds
+        activeEntityStorage.forEach(EntitySystemMapper::triggerAllOnAdd);
+    }
 
     private boolean doSetup = true;
     private boolean uiDebugFlag = false;
@@ -371,7 +385,7 @@ public final class Game extends ScreenAdapter {
      */
     public static void informAboutChanges(Entity entity) {
         if (entityStream().anyMatch(entity1 -> entity1.equals(entity))) {
-            entityStorage.forEach(f -> f.update(entity));
+            activeEntityStorage.forEach(f -> f.update(entity));
             LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
         }
     }
@@ -386,7 +400,7 @@ public final class Game extends ScreenAdapter {
      * @param entity the entity to add.
      */
     public static void add(Entity entity) {
-        entityStorage.forEach(f -> f.add(entity));
+        activeEntityStorage.forEach(f -> f.add(entity));
         LOGGER.info("Entity: " + entity + " will be added to the Game.");
     }
 
@@ -398,7 +412,7 @@ public final class Game extends ScreenAdapter {
      * @param entity the entity to remove
      */
     public static void remove(Entity entity) {
-        entityStorage.forEach(f -> f.remove(entity));
+        activeEntityStorage.forEach(f -> f.remove(entity));
         LOGGER.info("Entity: " + entity + " will be removed from the Game.");
     }
 
@@ -430,7 +444,7 @@ public final class Game extends ScreenAdapter {
     public static Stream<Entity> entityStream(Set<Class<? extends Component>> filter) {
         Stream<Entity> returnStream;
         Optional<EntitySystemMapper> rf =
-                entityStorage.stream().filter(f -> f.equals(filter)).findFirst();
+                activeEntityStorage.stream().filter(f -> f.equals(filter)).findFirst();
 
         if (rf.isEmpty()) {
             EntitySystemMapper newMapper = createNewEntitySystemMapper(filter);
@@ -442,7 +456,7 @@ public final class Game extends ScreenAdapter {
     /**
      * Create a new {@link EntitySystemMapper} with the given filter rules.
      *
-     * <p>The {@link EntitySystemMapper} will be added to {@link #entityStorage}.
+     * <p>The {@link EntitySystemMapper} will be added to {@link #activeEntityStorage}.
      *
      * <p>All entities in the empty filter (basically every entity in the game) will be tried to add
      * with {@link EntitySystemMapper#add(Entity)}.
@@ -457,7 +471,7 @@ public final class Game extends ScreenAdapter {
     private static EntitySystemMapper createNewEntitySystemMapper(
             Set<Class<? extends Component>> filter) {
         EntitySystemMapper mapper = new EntitySystemMapper(filter);
-        entityStorage.add(mapper);
+        activeEntityStorage.add(mapper);
         entityStream().forEach(mapper::add);
         return mapper;
     }
@@ -545,7 +559,9 @@ public final class Game extends ScreenAdapter {
         systems.put(system.getClass(), system);
         // add to existing filter or create new filter if no matching exists
         Optional<EntitySystemMapper> filter =
-                entityStorage.stream().filter(f -> f.equals(system.filterRules())).findFirst();
+                activeEntityStorage.stream()
+                        .filter(f -> f.equals(system.filterRules()))
+                        .findFirst();
         filter.ifPresentOrElse(
                 f -> f.add(system),
                 () -> createNewEntitySystemMapper(system.filterRules()).add(system));
@@ -562,7 +578,7 @@ public final class Game extends ScreenAdapter {
      */
     public static void remove(Class<? extends System> system) {
         System systemInstance = systems.remove(system);
-        if (systemInstance != null) entityStorage.forEach(f -> f.remove(systemInstance));
+        if (systemInstance != null) activeEntityStorage.forEach(f -> f.remove(systemInstance));
     }
 
     /**
@@ -742,7 +758,7 @@ public final class Game extends ScreenAdapter {
     private void onSetup() {
         doSetup = false;
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
-        entityStorage.add(new EntitySystemMapper());
+        activeEntityStorage.add(new EntitySystemMapper());
         createSystems();
         setupStage();
         userOnSetup.execute();
