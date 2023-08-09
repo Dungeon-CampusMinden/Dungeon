@@ -185,15 +185,12 @@ public final class DrawComponent extends Component {
             if (animation != null) {
                 currentAnimation = animation;
                 return;
-            } else {
-                // Disabled log because currently it overfills console
-                //                LOGGER.warning(
-                //                        "Animation "
-                //                                + animationName
-                //                                + " can not be set, because the given Animation
-                // could not be found for "
-                //                                + entity.toString());
-            }
+            } else
+                LOGGER.warning(
+                        "Animation "
+                                + animationPath
+                                + " can not be set, because the given Animation could not be found for "
+                                + entity.toString());
         }
     }
 

@@ -47,8 +47,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     private static final String RETURN_VALUE_NAME = "$return_value$";
 
-    // TODO: add entry-point for game-object traversal
-
     /** Constructor. */
     public DSLInterpreter() {
         memoryStack = new ArrayDeque<>();
@@ -143,7 +141,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param environment The environment to bind the functions, objects and data types from.
      */
     public void initializeRuntime(IEvironment environment) {
-        this.environment = new RuntimeEnvironment(environment);
+        this.environment = new RuntimeEnvironment(environment, this);
 
         // bind all function definition and object definition symbols to objects
         // in global memorySpace
@@ -321,9 +319,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     // this is the evaluation side of things
     //
-    // TODO: implicitly creating an entity from an entity_type does not
-    //  seem such a good idea, because it entails so much hidden logic
-    //  ...rather do it explicitly somehow
     @Override
     public Object visit(PrototypeDefinitionNode node) {
         return this.environment.lookupPrototype(node.getIdName());
@@ -331,18 +326,17 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     public Object instantiateRuntimeValue(AggregateValue dslValue, AggregateType asType) {
         // instantiate entity_type
-        TypeInstantiator typeInstantiator = new TypeInstantiator();
+        var typeInstantiator = this.environment.getTypeInstantiator();
         var entityObject = typeInstantiator.instantiate(asType, dslValue.getMemorySpace());
 
         // TODO: substitute the whole DSLContextMember-stuff with Builder-Methods, which would
-        // enable
-        //  creation of components with different parameters -> requires the ability to
+        //  enable creation of components with different parameters -> requires the ability to
         //  store multiple builder-methods for one type, distinguished by their
         //  signature
         var annot = asType.getOriginType().getAnnotation(DSLContextPush.class);
+        String contextName = "";
         if (annot != null) {
-            String contextName =
-                    annot.name().equals("") ? asType.getOriginType().getName() : annot.name();
+            contextName = annot.name().equals("") ? asType.getOriginType().getName() : annot.name();
             typeInstantiator.pushContextMember(contextName, entityObject);
         }
 
@@ -361,6 +355,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         membersOriginalType, ((AggregateValue) memberValue).getMemorySpace());
             }
         }
+
+        if (annot != null) {
+            typeInstantiator.removeContextMember(contextName);
+        }
+
         return entityObject;
     }
 
@@ -389,7 +388,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     private Object createObjectFromMemorySpace(IMemorySpace ms, IType type) {
         if (type.getName().equals("quest_config")) {
-            TypeInstantiator ti = new TypeInstantiator();
+            TypeInstantiator ti = this.environment.getTypeInstantiator();
             return ti.instantiate((AggregateType) type, ms);
         }
         return null;
@@ -445,7 +444,23 @@ public class DSLInterpreter implements AstVisitor<Object> {
         var symbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
         var creationASTNode = this.symbolTable().getCreationAstNode(symbol);
 
-        return creationASTNode.accept(this);
+        // if the creationASTNode does not equal the node we are currently interpreting,
+        // then the IdNode is just a reference node to some other structure
+        if (creationASTNode != node) {
+            return creationASTNode.accept(this);
+        } else {
+            // if the creationASTNode of the resolved symbol is the currently interpreted
+            // IdNode, then we have to resolve the IdNode in the current memory space,
+            // because it is used in an expression
+            return this.getCurrentMemorySpace().resolve(node.getName(), true);
+        }
+    }
+
+    @Override
+    public Object visit(FuncDefNode node) {
+        // return function reference as value
+        var symbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
+        return new Value(symbol.getDataType(), symbol);
     }
 
     @Override
@@ -472,65 +487,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
             valueInMemorySpace.setInternalValue(((Value) value).getInternalValue());
         }
         return true;
-    }
-
-    /**
-     * This handles parameter evaluation and binding and setting up the statement stack for
-     * execution of the function's statements
-     *
-     * @param symbol The symbol corresponding to the function to call
-     * @param parameterNodes The ASTNodes of the parameters of the function call
-     * @return The return value of the function call
-     */
-    public Object executeUserDefinedFunction(FunctionSymbol symbol, List<Node> parameterNodes) {
-        // push new memorySpace and parameters on spaceStack
-        var functionMemSpace = new MemorySpace(memoryStack.peek());
-        this.memoryStack.push(functionMemSpace);
-
-        // bind all parameter-symbols as values in the function's memory space and set their values
-        var parameterSymbols = symbol.getSymbols();
-        for (int i = 0; i < parameterNodes.size(); i++) {
-            var parameterSymbol = parameterSymbols.get(i);
-            bindFromSymbol(parameterSymbol, memoryStack.peek());
-
-            var paramValueNode = parameterNodes.get(i);
-            var paramValue = paramValueNode.accept(this);
-
-            setValue(parameterSymbol.getName(), paramValue);
-        }
-
-        // create and bind the return value
-        var functionType = (FunctionType) symbol.getDataType();
-        if (functionType.getReturnType() != BuiltInType.noType) {
-            var returnValue = createDefaultValue(functionType.getReturnType());
-            memoryStack.peek().bindValue(RETURN_VALUE_NAME, returnValue);
-        }
-
-        // add return mark
-        statementStack.addFirst(new Node(Node.Type.ReturnMark));
-
-        // put statement block on statement stack
-        var funcRootNode = symbol.getAstRootNode();
-        var stmtBlock = (StmtBlockNode) funcRootNode.getStmtBlock();
-        if (stmtBlock != Node.NONE) {
-            statementStack.addFirst(stmtBlock);
-        }
-
-        while (statementStack.peek() != null
-                && statementStack.peek().type != Node.Type.ReturnMark) {
-            var stmt = statementStack.pop();
-            stmt.accept(this);
-        }
-
-        // pop the return mark
-        assert Objects.requireNonNull(statementStack.peek()).type == Node.Type.ReturnMark;
-        statementStack.pop();
-
-        memoryStack.pop();
-        if (functionType.getReturnType() != BuiltInType.noType) {
-            return functionMemSpace.resolve(RETURN_VALUE_NAME);
-        }
-        return Value.NONE;
     }
 
     @Override
@@ -632,4 +588,237 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(BoolNode node) {
         return new Value(BuiltInType.boolType, node.getValue());
     }
+
+    @Override
+    public Object visit(MemberAccessNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(LogicOrNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(LogicAndNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(EqualityNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(ComparisonNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(TermNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(FactorNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(UnaryNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(AssignmentNode node) {
+        // TODO: implement
+        throw new UnsupportedOperationException();
+    }
+
+    // region user defined function execution
+
+    /**
+     * This implements a call to a user defined dsl-function
+     *
+     * @param symbol The symbol corresponding to the function to call
+     * @param parameterObjects The concrete raw objects to use as parameters of the function call
+     * @return The return value of the function call
+     */
+    public Object executeUserDefinedFunctionRawParameters(
+            FunctionSymbol symbol, List<Object> parameterObjects) {
+        IMemorySpace functionMemorySpace = createFunctionMemorySpace(symbol);
+        this.memoryStack.push(functionMemorySpace);
+
+        setupFunctionParametersRaw(symbol, parameterObjects);
+        executeUserDefinedFunctionBody(symbol);
+
+        functionMemorySpace = memoryStack.pop();
+        return getReturnValueFromMemorySpace(functionMemorySpace);
+    }
+
+    /**
+     * This implements a call to a user defined dsl-function
+     *
+     * @param symbol The symbol corresponding to the function to call
+     * @param parameterNodes The ASTNodes of the parameters of the function call
+     * @return The return value of the function call
+     */
+    public Object executeUserDefinedFunction(FunctionSymbol symbol, List<Node> parameterNodes) {
+        IMemorySpace functionMemorySpace = createFunctionMemorySpace(symbol);
+        this.memoryStack.push(functionMemorySpace);
+
+        setupFunctionParameters(symbol, parameterNodes);
+        executeUserDefinedFunctionBody(symbol);
+
+        functionMemorySpace = memoryStack.pop();
+        return getReturnValueFromMemorySpace(functionMemorySpace);
+    }
+
+    /**
+     * This function translates all passed parameters into DSL-Values and binds them as parameters
+     * in the current memory space
+     *
+     * @param functionSymbol The symbol corresponding to the function definition
+     * @param parameterObjects Raw objects to use as values for the function's parameters
+     */
+    private void setupFunctionParametersRaw(
+            FunctionSymbol functionSymbol, List<Object> parameterObjects) {
+        var currentMemorySpace = getCurrentMemorySpace();
+        // bind all parameter-symbols as values in the function's memory space and set their values
+        var parameterSymbols = functionSymbol.getSymbols();
+        for (int i = 0; i < parameterObjects.size(); i++) {
+            var parameterSymbol = parameterSymbols.get(i);
+            bindFromSymbol(parameterSymbol, memoryStack.peek());
+
+            Object parameterObject = parameterObjects.get(i);
+            Value paramValue =
+                    (Value)
+                            this.environment.translateRuntimeObject(
+                                    parameterObject, currentMemorySpace);
+            setValue(parameterSymbol.getName(), paramValue);
+        }
+    }
+
+    /**
+     * This function evaluates all passed nodes as values and binds them as parameters in the
+     * current memory space
+     *
+     * @param functionSymbol The symbol corresponding to the function definition
+     * @param parameterNodes AST-Nodes representing the passed parameters
+     */
+    private void setupFunctionParameters(FunctionSymbol functionSymbol, List<Node> parameterNodes) {
+        // bind all parameter-symbols as values in the function's memory space and set their values
+        var parameterSymbols = functionSymbol.getSymbols();
+        for (int i = 0; i < parameterNodes.size(); i++) {
+            var parameterSymbol = parameterSymbols.get(i);
+            bindFromSymbol(parameterSymbol, memoryStack.peek());
+
+            var paramValueNode = parameterNodes.get(i);
+            var paramValue = paramValueNode.accept(this);
+
+            setValue(parameterSymbol.getName(), paramValue);
+        }
+    }
+
+    /**
+     * Create a new IMemorySpace for a function call and bind the return Value, if the function has
+     * a return type
+     *
+     * @param functionSymbol The Symbol representing the function definition
+     * @return The created IMemorySpace
+     */
+    private IMemorySpace createFunctionMemorySpace(FunctionSymbol functionSymbol) {
+        // push new memorySpace and parameters on spaceStack
+        var functionMemSpace = new MemorySpace(memoryStack.peek());
+
+        // create and bind the return value
+        var functionType = (FunctionType) functionSymbol.getDataType();
+        if (functionType.getReturnType() != BuiltInType.noType) {
+            var returnValue = createDefaultValue(functionType.getReturnType());
+            functionMemSpace.bindValue(RETURN_VALUE_NAME, returnValue);
+        }
+        return functionMemSpace;
+    }
+
+    /**
+     * Extract a return value from a IMemorySpace
+     *
+     * @param ms The given memorySpace to resolve the return value in
+     * @return The resolved return value
+     */
+    private Value getReturnValueFromMemorySpace(IMemorySpace ms) {
+        // only lookup the return value in the current memory space,
+        // if a function does not define a return value, we don't want to
+        // walk up into other memory spaces and falsely return a return value
+        // defined by another function further up in the callstack
+        return ms.resolve(RETURN_VALUE_NAME, false);
+    }
+
+    /**
+     * Execute Statements in a functions body
+     *
+     * @param symbol The symbol representing the function definition
+     */
+    private void executeUserDefinedFunctionBody(FunctionSymbol symbol) {
+        // add return mark
+        statementStack.addFirst(new Node(Node.Type.ReturnMark));
+
+        // put statement block on statement stack
+        var funcRootNode = symbol.getAstRootNode();
+        var stmtBlock = (StmtBlockNode) funcRootNode.getStmtBlock();
+        if (stmtBlock != Node.NONE) {
+            statementStack.addFirst(stmtBlock);
+        }
+
+        while (statementStack.peek() != null
+                && statementStack.peek().type != Node.Type.ReturnMark) {
+            var stmt = statementStack.pop();
+            stmt.accept(this);
+        }
+
+        // pop the return mark
+        assert Objects.requireNonNull(statementStack.peek()).type == Node.Type.ReturnMark;
+        statementStack.pop();
+    }
+    // endregion
+
+    // region ASTVisitor implementation for nodes which do not need to be interpreted
+    @Override
+    public Object visit(Node node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(BinaryNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(EdgeRhsNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(EdgeStmtNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(EdgeOpNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(ParamDefNode node) {
+        return null;
+    }
+    // endregion
 }

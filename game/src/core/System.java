@@ -191,9 +191,8 @@ public abstract class System {
      * <p>A running system will be executed.
      */
     public void run() {
+        if (!run) LOGGER.info(this.getClass().getName() + " is running");
         run = true;
-        // Disabled log because currently it overfills console
-        //        LOGGER.info(this.getClass().getName() + " is running");
     }
 
     /**
@@ -205,8 +204,8 @@ public abstract class System {
      * processed when the system is running.
      */
     public void stop() {
+        if (run) LOGGER.info(this.getClass().getName() + " is paused");
         run = false;
-        LOGGER.info(this.getClass().getName() + " is paused");
     }
 
     /**

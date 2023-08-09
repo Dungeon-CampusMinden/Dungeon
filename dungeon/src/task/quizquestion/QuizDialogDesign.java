@@ -1,4 +1,4 @@
-package quizquestion;
+package task.quizquestion;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -9,9 +9,10 @@ import com.badlogic.gdx.utils.Align;
 import core.hud.DialogDesign;
 import core.utils.Constants;
 
-import java.util.Arrays;
-
 public class QuizDialogDesign {
+
+    public static final String ANSWERS_GROUP_NAME = "Answers";
+
     /**
      * Creates a vertical Button Group based on the answers provided by the QuizQuestion
      *
@@ -20,7 +21,7 @@ public class QuizDialogDesign {
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
      * @param quizQuestion Various question configurations
      */
-    public static VerticalGroup createAnswerButtons(Skin skin, QuizQuestion quizQuestion) {
+    public static VerticalGroup createAnswerButtons(Skin skin, Quiz quizQuestion) {
         VerticalGroup answerButtons = new VerticalGroup();
 
         ButtonGroup<CheckBox> btnGroup = new ButtonGroup<>();
@@ -32,15 +33,14 @@ public class QuizDialogDesign {
                     case SINGLE_CHOICE -> skin.get("radio", CheckBox.CheckBoxStyle.class);
                     default -> skin.get("default", CheckBox.CheckBoxStyle.class);
                 };
-        Arrays.stream(quizQuestion.answers())
-                .filter(
-                        answer ->
-                                answer.type() != QuizQuestionContent.QuizQuestionContentType.IMAGE)
+        quizQuestion
+                .contentStream()
+                .map(answer -> (Quiz.Content) answer)
+                .filter(answer -> answer.type() != Quiz.Content.Type.IMAGE)
                 .map(
                         answer ->
                                 new CheckBox(
-                                        QuizQuestionUI.formatStringForDialogWindow(
-                                                answer.content()),
+                                        QuizUI.formatStringForDialogWindow(answer.content()),
                                         style))
                 .forEach(
                         checkBox -> {
@@ -50,7 +50,8 @@ public class QuizDialogDesign {
                         });
 
         switch (quizQuestion.type()) {
-            case MULTIPLE_CHOICE -> btnGroup.setMaxCheckCount(quizQuestion.answers().length);
+            case MULTIPLE_CHOICE -> btnGroup.setMaxCheckCount(
+                    (int) quizQuestion.contentStream().count());
             case SINGLE_CHOICE -> btnGroup.setMaxCheckCount(1);
         }
 
@@ -68,7 +69,7 @@ public class QuizDialogDesign {
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
      * @param outputMsg Content displayed in the scrollable label
      */
-    public static Group createQuizQuestion(QuizQuestion quizQuestion, Skin skin, String outputMsg) {
+    public static Group createQuizQuestion(Quiz quizQuestion, Skin skin, String outputMsg) {
         Label labelExercise = new Label(Constants.QUIZ_MESSAGE_TASK, skin);
         labelExercise.setColor(Color.YELLOW);
         Label labelSolution = new Label(Constants.QUIZ_MESSAGE_SOLUTION, skin);
@@ -96,9 +97,7 @@ public class QuizDialogDesign {
      * @param outputMsg Content displayed in the scrollable label
      */
     private static Group visualizeQuestionSection(
-            QuizQuestionContent.QuizQuestionContentType questionContentType,
-            Skin skin,
-            String outputMsg) {
+            Quiz.Content.Type questionContentType, Skin skin, String outputMsg) {
 
         VerticalGroup vg = new VerticalGroup();
 
@@ -135,7 +134,7 @@ public class QuizDialogDesign {
      * @param quizQuestion Various question configurations
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
      */
-    private static Group visualizeAnswerSection(QuizQuestion quizQuestion, Skin skin) {
+    private static Group visualizeAnswerSection(Quiz quizQuestion, Skin skin) {
 
         VerticalGroup vg = new VerticalGroup();
 
@@ -155,6 +154,7 @@ public class QuizDialogDesign {
             default -> {}
         }
         vg.grow();
+        vg.setName(ANSWERS_GROUP_NAME);
         return vg;
     }
 }

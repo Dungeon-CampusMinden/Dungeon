@@ -34,4 +34,9 @@ public enum AdditionalAnimations implements IPath {
     public String pathString() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return "AdditionalAnimation[" + this.value + "]";
+    }
 }

@@ -4,9 +4,17 @@ size: 1024, 1024
 format: RGBA8888
 filter: Linear, Linear
 repeat: none
+Paper
+  rotate: false
+  xy: 264, 439
+  size: 130, 70
+  split: 10, 10, 16, 11
+  orig: 130, 70
+  offset: 0, 0
+  index: -1
 TB_down
   rotate: false
-  xy: 784, 978
+  xy: 882, 979
   size: 44, 44
   split: 3, 4, 3, 3
   pad: 9, 11, 13, 13
@@ -15,7 +23,7 @@ TB_down
   index: -1
 TB_op
   rotate: false
-  xy: 718, 912
+  xy: 264, 269
   size: 44, 44
   split: 4, 3, 0, 3
   pad: 9, 9, 9, 13
@@ -24,7 +32,7 @@ TB_op
   index: -1
 TB_over
   rotate: false
-  xy: 1, 10
+  xy: 211, 184
   size: 44, 44
   split: 3, 3, 0, 3
   pad: 9, 9, 8, 13
@@ -33,21 +41,21 @@ TB_over
   index: -1
 checkbox
   rotate: false
-  xy: 567, 708
+  xy: 264, 249
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 checkbox-on
   rotate: false
-  xy: 588, 753
+  xy: 326, 333
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 cursor
   rotate: false
-  xy: 1, 1
+  xy: 637, 751
   size: 4, 7
   split: 1, 1, 2, 2
   pad: 0, 0, 0, 0
@@ -56,7 +64,7 @@ cursor
   index: -1
 down_button_blue
   rotate: false
-  xy: 366, 458
+  xy: 458, 459
   size: 50, 50
   split: 0, 0, 5, 5
   pad: 7, 7, 13, 12
@@ -65,29 +73,92 @@ down_button_blue
   index: -1
 font-export
   rotate: false
-  xy: 1, 98
+  xy: 1, 99
   size: 142, 143
   orig: 142, 143
   offset: 0, 0
   index: -1
 font-title-export
   rotate: false
-  xy: 1, 243
+  xy: 1, 244
   size: 261, 265
   orig: 261, 265
   offset: 0, 0
   index: -1
 horizontal-split-pane
   rotate: false
-  xy: 189, 216
+  xy: 136, 86
   size: 5, 11
   split: 2, 2, 2, 2
   orig: 5, 11
   offset: 0, 0
   index: -1
+inventorySlotArmour
+  rotate: false
+  xy: 264, 377
+  size: 60, 60
+  orig: 60, 60
+  offset: 0, 0
+  index: -1
+inventorySlotBook
+  rotate: false
+  xy: 396, 449
+  size: 60, 60
+  orig: 60, 60
+  offset: 0, 0
+  index: -1
+inventorySlotGloves
+  rotate: false
+  xy: 515, 688
+  size: 60, 60
+  orig: 60, 60
+  offset: 0, 0
+  index: -1
+inventorySlotHelmet
+  rotate: false
+  xy: 637, 760
+  size: 60, 60
+  orig: 60, 60
+  offset: 0, 0
+  index: -1
+inventorySlotNecklace
+  rotate: false
+  xy: 718, 850
+  size: 60, 60
+  orig: 60, 60
+  offset: 0, 0
+  index: -1
+inventorySlotPants
+  rotate: false
+  xy: 820, 963
+  size: 60, 60
+  orig: 60, 60
+  offset: 0, 0
+  index: -1
+inventorySlotRing
+  rotate: false
+  xy: 74, 37
+  size: 60, 60
+  orig: 60, 60
+  offset: 0, 0
+  index: -1
+inventorySlotSchield
+  rotate: false
+  xy: 145, 116
+  size: 60, 60
+  orig: 60, 60
+  offset: 0, 0
+  index: -1
+inventorySlotSword
+  rotate: false
+  xy: 264, 315
+  size: 60, 60
+  orig: 60, 60
+  offset: 0, 0
+  index: -1
 list
   rotate: false
-  xy: 145, 229
+  xy: 211, 230
   size: 51, 12
   split: 2, 2, 2, 2
   pad: 5, 5, 5, 5
@@ -96,21 +167,21 @@ list
   index: -1
 minus
   rotate: false
-  xy: 764, 943
+  xy: 145, 101
   size: 12, 13
   orig: 12, 13
   offset: 0, 0
   index: -1
 myFont
   rotate: false
-  xy: 1, 510
+  xy: 1, 511
   size: 512, 512
   orig: 512, 512
   offset: 0, 0
   index: -1
 mySelection
   rotate: false
-  xy: 54, 56
+  xy: 515, 550
   size: 40, 40
   split: 7, 7, 1, 0
   pad: 6, 6, 8, 7
@@ -119,7 +190,7 @@ mySelection
   index: -1
 over_button_blue
   rotate: false
-  xy: 515, 676
+  xy: 515, 636
   size: 50, 50
   split: 0, 0, 5, 6
   pad: 6, 6, 11, 11
@@ -128,14 +199,14 @@ over_button_blue
   index: -1
 plus
   rotate: false
-  xy: 784, 963
+  xy: 379, 424
   size: 12, 13
   orig: 12, 13
   offset: 0, 0
   index: -1
 progress-bar
   rotate: false
-  xy: 588, 773
+  xy: 820, 915
   size: 46, 46
   split: 10, 10, 10, 10
   pad: 6, 6, 6, 6
@@ -144,35 +215,43 @@ progress-bar
   index: -1
 progress-bar-fill
   rotate: false
-  xy: 264, 265
+  xy: 207, 142
   size: 1, 34
   orig: 1, 34
   offset: 0, 0
   index: -1
 progress-bar-fill-vert
   rotate: false
-  xy: 198, 240
+  xy: 1, 3
   size: 34, 1
   orig: 34, 1
   offset: 0, 0
   index: -1
+progress-bar-small
+  rotate: false
+  xy: 74, 13
+  size: 22, 22
+  split: 5, 5, 5, 5
+  orig: 22, 22
+  offset: 0, 0
+  index: -1
 radio
   rotate: false
-  xy: 636, 803
+  xy: 699, 804
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 radio-on
   rotate: false
-  xy: 718, 894
+  xy: 972, 1007
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 round-gray
   rotate: false
-  xy: 145, 185
+  xy: 326, 353
   size: 42, 42
   split: 13, 13, 13, 13
   pad: 9, 9, 5, 5
@@ -181,7 +260,7 @@ round-gray
   index: -1
 round-white
   rotate: false
-  xy: 264, 301
+  xy: 515, 592
   size: 42, 42
   split: 13, 13, 13, 13
   pad: 9, 9, 5, 5
@@ -190,7 +269,7 @@ round-white
   index: -1
 round-white-small
   rotate: false
-  xy: 418, 484
+  xy: 718, 824
   size: 24, 24
   split: 10, 10, 10, 10
   pad: 10, 10, 2, 2
@@ -199,7 +278,7 @@ round-white-small
   index: -1
 selectbox
   rotate: false
-  xy: 1, 56
+  xy: 326, 397
   size: 51, 40
   split: 2, 31, 2, 27
   pad: 2, 35, 2, 2
@@ -208,7 +287,7 @@ selectbox
   index: -1
 selection
   rotate: false
-  xy: 145, 174
+  xy: 868, 952
   size: 9, 9
   split: 2, 1, 2, 1
   pad: 4, 3, 4, 3
@@ -217,7 +296,7 @@ selection
   index: -1
 slider-horizontal
   rotate: false
-  xy: 515, 664
+  xy: 74, 1
   size: 20, 10
   split: 4, 4, 4, 4
   pad: 1, 2, 2, 2
@@ -226,23 +305,31 @@ slider-horizontal
   index: -1
 slider-knob
   rotate: false
-  xy: 366, 432
+  xy: 780, 886
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 slider-vertical
   rotate: false
-  xy: 47, 34
+  xy: 310, 293
   size: 9, 20
   split: 4, 3, 3, 3
   pad: 3, 3, 2, 2
   orig: 9, 20
   offset: 0, 0
   index: -1
+stone
+  rotate: false
+  xy: 515, 750
+  size: 120, 70
+  split: 2, 2, 2, 2
+  orig: 120, 70
+  offset: 0, 0
+  index: -1
 textfield
   rotate: false
-  xy: 316, 353
+  xy: 928, 981
   size: 42, 42
   split: 8, 8, 8, 8
   orig: 42, 42
@@ -250,21 +337,21 @@ textfield
   index: -1
 touchpad
   rotate: false
-  xy: 515, 821
+  xy: 515, 822
   size: 201, 201
   orig: 201, 201
   offset: 0, 0
   index: -1
 touchpad-knob
   rotate: false
-  xy: 718, 958
+  xy: 145, 178
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 up_button_blue
   rotate: false
-  xy: 264, 345
+  xy: 577, 698
   size: 50, 50
   split: 0, 0, 5, 5
   pad: 7, 7, 12, 13
@@ -273,7 +360,7 @@ up_button_blue
   index: -1
 vertical-split-pane
   rotate: false
-  xy: 830, 1017
+  xy: 396, 442
   size: 11, 5
   split: 2, 2, 1, 1
   pad: 1, 1, 1, 1
@@ -282,14 +369,14 @@ vertical-split-pane
   index: -1
 white
   rotate: false
-  xy: 308, 342
+  xy: 458, 456
   size: 1, 1
   orig: 1, 1
   offset: 0, 0
   index: -1
 window
   rotate: false
-  xy: 515, 728
+  xy: 1, 6
   size: 71, 91
   split: 15, 15, 35, 15
   pad: 9, 10, 37, 5
@@ -298,7 +385,7 @@ window
   index: -1
 window_fire1
   rotate: false
-  xy: 264, 397
+  xy: 718, 912
   size: 100, 111
   split: 22, 22, 26, 1
   pad: 23, 22, 27, 7

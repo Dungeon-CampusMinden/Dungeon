@@ -1,4 +1,7 @@
-package semanticanalysis.types;
+package semanticanalysis.types.callbackadapter;
+
+import semanticanalysis.types.FunctionType;
+import semanticanalysis.types.TypeBuilder;
 
 import java.lang.reflect.Field;
 

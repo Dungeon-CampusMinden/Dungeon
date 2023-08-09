@@ -1,10 +1,14 @@
 package semanticanalysis.types;
 
-import static semanticanalysis.types.TypeBuilder.convertToDSLName;
+import interpreter.DSLInterpreter;
 
 import runtime.AggregateValue;
 import runtime.IMemorySpace;
 import runtime.Value;
+
+import semanticanalysis.FunctionSymbol;
+import semanticanalysis.types.callbackadapter.CallbackAdapter;
+import semanticanalysis.types.callbackadapter.CallbackAdapterBuilder;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -12,10 +16,35 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-// TODO: handle complex adapted types
-
 public class TypeInstantiator {
-    private HashMap<String, Object> context = new HashMap<>();
+    private final HashMap<String, Object> context = new HashMap<>();
+    private final CallbackAdapterBuilder callbackAdapterBuilder;
+
+    public TypeInstantiator(DSLInterpreter interpreter) {
+        callbackAdapterBuilder = new CallbackAdapterBuilder(interpreter);
+    }
+
+    /**
+     * Instantiate a new Object corresponding to an {@link AggregateType} with an {@link
+     * IMemorySpace} containing all needed values. This requires the passed {@link AggregateType} to
+     * have an origin java class
+     *
+     * @param type the type to instantiate
+     * @param ms the memory space containing the values
+     * @return the instantiated object
+     */
+    public Object instantiate(AggregateType type, IMemorySpace ms) {
+        var originalJavaClass = type.getOriginType();
+        if (null == originalJavaClass) {
+            return null;
+        }
+
+        if (originalJavaClass.isRecord()) {
+            return instantiateRecord(originalJavaClass, ms);
+        } else {
+            return instantiateClass(originalJavaClass, ms);
+        }
+    }
 
     /**
      * Push an object as part of the context (so it can be looked up, if it is referenced by {@link
@@ -52,16 +81,8 @@ public class TypeInstantiator {
             ArrayList<Object> parameters = new ArrayList<>(ctor.getParameters().length);
             for (var param : ctor.getParameters()) {
                 var field = originalJavaClass.getDeclaredField(param.getName());
-                if (!field.isAnnotationPresent(DSLTypeMember.class)) {
-                    throw new RuntimeException(
-                            "Instantiating a record using the TypeInstantiator requires that all "
-                                    + "record members must be marked with @DSLTypeMember. Otherwise, no constructor invocation is possible");
-                } else {
-                    var fieldAnnotation = field.getAnnotation(DSLTypeMember.class);
-                    String fieldName =
-                            fieldAnnotation.name().equals("")
-                                    ? convertToDSLName(field.getName())
-                                    : fieldAnnotation.name();
+                if (field.isAnnotationPresent(DSLTypeMember.class)) {
+                    String fieldName = TypeBuilder.getDSLFieldName(field);
 
                     var fieldValue = ms.resolve(fieldName);
 
@@ -86,6 +107,21 @@ public class TypeInstantiator {
                         }
                         parameters.add(internalValue);
                     }
+                } else if (field.isAnnotationPresent(DSLCallback.class)) {
+                    String fieldName = TypeBuilder.getDSLFieldName(field);
+                    var fieldValue = ms.resolve(fieldName);
+
+                    assert fieldValue.getDataType().getTypeKind() == IType.Kind.FunctionType;
+                    assert fieldValue.getInternalValue() instanceof FunctionSymbol;
+
+                    CallbackAdapter adapter =
+                            callbackAdapterBuilder.buildAdapter(
+                                    (FunctionSymbol) fieldValue.getInternalValue());
+                    parameters.add(adapter);
+                } else {
+                    throw new RuntimeException(
+                            "Instantiating a record using the TypeInstantiator requires that all "
+                                    + "record members must be marked with @DSLTypeMember. Otherwise, no constructor invocation is possible");
                 }
             }
             ctor.setAccessible(true);
@@ -135,14 +171,9 @@ public class TypeInstantiator {
             // set values of the fields marked as DSLTypeMembers to corresponding values from
             // the memory space
             for (Field field : originalJavaClass.getDeclaredFields()) {
+                String fieldName = TypeBuilder.getDSLFieldName(field);
+                var fieldValue = ms.resolve(fieldName);
                 if (field.isAnnotationPresent(DSLTypeMember.class)) {
-                    var fieldAnnotation = field.getAnnotation(DSLTypeMember.class);
-                    String fieldName =
-                            fieldAnnotation.name().equals("")
-                                    ? convertToDSLName(field.getName())
-                                    : fieldAnnotation.name();
-
-                    var fieldValue = ms.resolve(fieldName);
                     // we only should set the field value explicitly,
                     // if it was set in the program (indicated by the dirty-flag)
                     if (fieldValue != Value.NONE && fieldValue.isDirty()) {
@@ -182,6 +213,16 @@ public class TypeInstantiator {
                         field.set(instance, internalValue);
                     }
                 }
+                if (field.isAnnotationPresent(DSLCallback.class)) {
+                    assert fieldValue.getDataType().getTypeKind() == IType.Kind.FunctionType;
+                    assert fieldValue.getInternalValue() instanceof FunctionSymbol;
+
+                    CallbackAdapter adapter =
+                            callbackAdapterBuilder.buildAdapter(
+                                    (FunctionSymbol) fieldValue.getInternalValue());
+                    field.setAccessible(true);
+                    field.set(instance, adapter);
+                }
             }
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -207,27 +248,5 @@ public class TypeInstantiator {
         }
 
         return ctor;
-    }
-
-    /**
-     * Instantiate a new Object corresponding to an {@link AggregateType} with an {@link
-     * IMemorySpace} containing all needed values. This requires the passed {@link AggregateType} to
-     * have an origin java class
-     *
-     * @param type the type to instantiate
-     * @param ms the memory space containing the values
-     * @return the instantiated object
-     */
-    public Object instantiate(AggregateType type, IMemorySpace ms) {
-        var originalJavaClass = type.getOriginType();
-        if (null == originalJavaClass) {
-            return null;
-        }
-
-        if (originalJavaClass.isRecord()) {
-            return instantiateRecord(originalJavaClass, ms);
-        } else {
-            return instantiateClass(originalJavaClass, ms);
-        }
     }
 }

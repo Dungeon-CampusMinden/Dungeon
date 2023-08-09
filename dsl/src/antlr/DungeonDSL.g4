@@ -48,7 +48,7 @@ fragment STRING_ESCAPE_SEQ
 
 // TODO:
 // - expression grammar
-// - proper stmt definition
+// - proper stmt =efinition
 
 program : definition* EOF
         //| stmt
@@ -66,11 +66,68 @@ fn_def
     ;
 
 stmt
-    : primary ';'
+    : expression ';'
     | stmt_block
     | conditional_stmt
     | return_stmt
     ;
+
+expression
+    : assignment                #assignment_expression
+    | expression '.' func_call  #method_call_expression
+    | expression '.' ID         #member_access_expression
+    ;
+
+assignment
+    : assignee '=' expression
+    | logic_or
+    ;
+
+assignee
+    : func_call '.' assignee    #assignee_func_call
+    | ID '.' assignee           #assignee_qualified_name
+    | ID                        #assignee_identifier
+    ;
+
+logic_or
+
+    : logic_or ( or='or' logic_and )
+    | logic_and
+    ;
+
+logic_and
+    : logic_and ( and='and' equality )
+    | equality
+    ;
+
+equality
+    : equality ( ( neq='!=' | eq='==' ) comparison )
+    | comparison
+    ;
+
+comparison
+    : comparison ( ( gt='>' | geq='>=' | lt='<' | leq='<=' ) term )
+    | term
+    ;
+
+term
+    : term ( ( minus='-' | plus='+' ) factor )
+    | factor
+    ;
+
+factor
+    : factor ( ( div='/' | mult='*' ) unary )
+    | unary
+    ;
+
+unary
+    : ( bang='!' | minus='-' ) unary
+    | primary
+    ;
+
+func_call
+        : ID '(' param_list? ')'
+        ;
 
 stmt_block
     : '{' stmt_list? '}'
@@ -82,11 +139,11 @@ stmt_list
     ;
 
 return_stmt
-    : 'return' primary? ';'
+    : 'return' expression? ';'
     ;
 
 conditional_stmt
-    : 'if' primary stmt else_stmt?
+    : 'if' expression stmt else_stmt?
     ;
 
 else_stmt
@@ -129,16 +186,16 @@ property_def_list
         ;
 
 property_def
-        : ID ':' primary;
-
-func_call
-        : ID '(' param_list? ')'
-        ;
+        : ID ':' expression;
 
 param_list
-        : primary ',' param_list
-        | primary
+        : expression ',' param_list
+        | expression
         ;
+
+grouped_expression
+    : '(' expression ')'
+    ;
 
 primary : ID
         | STRING_LITERAL
@@ -146,8 +203,9 @@ primary : ID
         | FALSE
         | NUM
         | NUM_DEC
-        | func_call
         | aggregate_value_def
+        | grouped_expression
+        | func_call
         ;
 
 /*

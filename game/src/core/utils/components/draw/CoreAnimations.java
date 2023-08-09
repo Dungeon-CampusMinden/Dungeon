@@ -25,4 +25,9 @@ public enum CoreAnimations implements IPath {
     public String pathString() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return "CoreAnimation[" + this.value + "]";
+    }
 }
