@@ -74,9 +74,9 @@ public class CallbackTest {
                     if (Gdx.input.isKeyJustPressed(Input.Keys.V)) toggleQuiz();
                 });
         Game.userOnLevelLoad(
-                () -> {
+                (b) -> {
                     try {
-                        Game.add(questWizard());
+                        if (b) Game.add(questWizard());
                     } catch (IOException e) {
                         throw new RuntimeException();
                     }

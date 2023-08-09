@@ -34,6 +34,7 @@ import core.utils.logging.LoggerConfig;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -115,9 +116,13 @@ public final class Game extends ScreenAdapter {
      * <p>Use this, if you want to execute some logic after a level was loaded. For example spawning
      * some Monsters.
      *
+     * <p>The Consumer takes a boolean that is true if the level was never loaded before, and false
+     * if it was loaded before. * This can be useful, for example, if you only want to spawn
+     * monsters the first time.
+     *
      * <p>Will not replace {@link #onLevelLoad}
      */
-    private static IVoidFunction userOnLevelLoad = () -> {};
+    private static Consumer<Boolean> userOnLevelLoad = (b) -> {};
     /**
      * Part of the pre-run configuration. If this value is true, the audio for the game will be
      * disabled.
@@ -129,31 +134,37 @@ public final class Game extends ScreenAdapter {
     private static Entity hero;
 
     private static Stage stage;
+
     /**
-     * Sets {@link #currentLevel} to the new level and change the currently active entity storage.
+     * Sets {@link #currentLevel} to the new level and changes the currently active entity storage.
      *
-     * <p>This will trigger all {@link System#onEntityRemove} for the old level.
+     * <p>Will remove all Systems using {@link Game#removeAllSystems()} from the Game. This will
+     * trigger {@link System#onEntityRemove} for the old level. Then, it will readd all Systems
+     * using {@link Game#add(System)}, triggering {@link System#onEntityAdd} for the new level.
      *
-     * <p>This will trigger all {@link System#onEntityAdd} for the new level.
-     *
-     * <p>Will re-add the hero if he exists.
+     * <p>Will re-add the hero if they exist.
      */
     private final IVoidFunction onLevelLoad =
             () -> {
+                boolean firstTimeLevelLoad = !levelStorageMap.containsKey(currentLevel());
                 hero().ifPresent(Game::remove);
-                activeEntityStorage.forEach(EntitySystemMapper::triggerAllOnRemove);
+                // Remove the systems so that each triggerOnRemove(entity) will be called (basically
+                // cleanup).
+                Map<Class<? extends System>, System> s = Game.systems();
+                removeAllSystems();
                 activeEntityStorage =
                         levelStorageMap.computeIfAbsent(currentLevel(), k -> new HashSet<>());
-                // readd systems
-                systems().values().forEach(Game::add);
-                activeEntityStorage.forEach(EntitySystemMapper::triggerAllOnAdd);
+                // Readd the systems so that each triggerOnAdd(entity) will be called (basically
+                // setup). This will also create new EntitySystemMapper if needed.
+                s.values().forEach(Game::add);
+
                 try {
                     hero().ifPresent(this::placeOnLevelStart);
                 } catch (MissingComponentException e) {
                     LOGGER.warning(e.getMessage());
                 }
                 hero().ifPresent(Game::add);
-                userOnLevelLoad.execute();
+                userOnLevelLoad.accept(firstTimeLevelLoad);
             };
 
     private boolean doSetup = true;
@@ -341,14 +352,17 @@ public final class Game extends ScreenAdapter {
     /**
      * Set the function that will be executed after a new level was loaded.
      *
+     * <p>The Consumer takes a boolean that is true if the level was never loaded before, and false
+     * if it was loaded before. This can be useful, for example, if you only want to spawn monsters
+     * the first time.
+     *
      * <p>Use this, if you want to execute some logic after a level was loaded. For example spawning
      * some Monsters.
      *
      * @param userOnLevelLoad the function that will be executed after a new level was loaded
-     * @see IVoidFunction
      *     <p>Will not replace {@link #onLevelLoad}
      */
-    public static void userOnLevelLoad(IVoidFunction userOnLevelLoad) {
+    public static void userOnLevelLoad(Consumer<Boolean> userOnLevelLoad) {
         Game.userOnLevelLoad = userOnLevelLoad;
     }
 
@@ -742,7 +756,7 @@ public final class Game extends ScreenAdapter {
         DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined);
         onFrame();
         clearScreen();
-        systems.values().stream().filter(System::isRunning).forEach(System::execute);
+        systems().values().stream().filter(System::isRunning).forEach(System::execute);
         CameraSystem.camera().update();
         // stage logic
         Game.stage().ifPresent(Game::updateStage);

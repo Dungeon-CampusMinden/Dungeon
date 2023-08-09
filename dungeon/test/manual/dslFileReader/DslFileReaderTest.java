@@ -2,7 +2,6 @@ package manual.dslFileReader;
 
 import core.Game;
 import core.hud.UITools;
-import core.utils.IVoidFunction;
 
 import dslToGame.DslFileLoader;
 import dslToGame.DummyDSLFunctions;
@@ -24,26 +23,23 @@ public class DslFileReaderTest {
                 core.configuration.KeyboardConfig.class);
         Game.disableAudio(true);
         Game.userOnLevelLoad(
-                new IVoidFunction() {
-                    @Override
-                    public void execute() {
-                        Set<File> files = DslFileLoader.dslFiles();
-                        Set<String> fileContents =
-                                files.stream()
-                                        .map(DslFileLoader::fileToString)
-                                        .collect(Collectors.toSet());
-                        Set<Map<String, String>> configs =
-                                fileContents.stream()
-                                        .map(DummyDSLFunctions::getConfigs)
-                                        .collect(Collectors.toSet());
+                b -> {
+                    Set<File> files = DslFileLoader.dslFiles();
+                    Set<String> fileContents =
+                            files.stream()
+                                    .map(DslFileLoader::fileToString)
+                                    .collect(Collectors.toSet());
+                    Set<Map<String, String>> configs =
+                            fileContents.stream()
+                                    .map(DummyDSLFunctions::getConfigs)
+                                    .collect(Collectors.toSet());
 
-                        AtomicReference<String> f = new AtomicReference<>("");
-                        files.forEach(v -> f.set(f.get() + v + System.lineSeparator()));
-                        UITools.generateNewTextDialog(f.get(), "Ok", "Files");
+                    AtomicReference<String> f = new AtomicReference<>("");
+                    files.forEach(v -> f.set(f.get() + v + System.lineSeparator()));
+                    UITools.generateNewTextDialog(f.get(), "Ok", "Files");
 
-                        // for the start: print on console
-                        configs.forEach(map -> map.values().forEach(System.out::println));
-                    }
+                    // for the start: print on console
+                    configs.forEach(map -> map.values().forEach(System.out::println));
                 });
 
         Game.run();
