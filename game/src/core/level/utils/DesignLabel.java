@@ -9,11 +9,11 @@ import java.util.Random;
 public enum DesignLabel {
     DEFAULT(50), // 50% chance
     FIRE(10), // 10% chance
-    FOREST(10), // 10% chance
+    FOREST(9), // 9% chance
     ICE(10), // 10% chance
     TEMPLE(10), // 10% chance
     DARK(10), // 10% chance
-    RAINBOW(0); // 0% chance, will not be returned
+    RAINBOW(1); // 1% chance
 
     private final int chance;
     private static final Random RANDOM = new Random();
