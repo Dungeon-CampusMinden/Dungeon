@@ -42,14 +42,11 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
      * @param entities - Entities that are protected
      */
     public ProtectOnAttack(final Collection<Entity> entities) {
-        // throw an exception for every entity that does not have a HealthComponent
         // add every entity with a HealthComponent to the protection list
+        // throw an exception for every entity that does not have a HealthComponent
         for (Entity entity : entities) {
-            if (entity.fetch(HealthComponent.class).isEmpty()) {
-                throw MissingComponentException.build(entity, HealthComponent.class);
-            } else {
-                toProtect.add(entity);
-            }
+            if (entity.isPresent(HealthComponent.class)) toProtect.add(entity);
+            else throw MissingComponentException.build(entity, HealthComponent.class);
         }
     }
 
