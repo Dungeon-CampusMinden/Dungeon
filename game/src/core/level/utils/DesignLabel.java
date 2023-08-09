@@ -1,29 +1,41 @@
 package core.level.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Specifies which textures and layouts should be used for the room.
- *
- * @author Andre Matutat
- */
+/** Specifies which textures and layouts should be used for the room. */
 public enum DesignLabel {
-    DEFAULT,
-    FIRE,
-    FOREST,
-    ICE,
-    RAINBOW,
-    TEMPLE,
-    DARK;
-    private static final List<DesignLabel> VALUES = List.of(values());
-    private static final int SIZE = VALUES.size();
+    DEFAULT(50), // 50% chance
+    FIRE(10), // 10% chance
+    FOREST(9), // 9% chance
+    ICE(10), // 10% chance
+    TEMPLE(10), // 10% chance
+    DARK(10), // 10% chance
+    RAINBOW(1); // 1% chance
+
+    private final int chance;
     private static final Random RANDOM = new Random();
+    private static final List<DesignLabel> VALUES = new ArrayList<>();
+
+    static {
+        for (DesignLabel l : values()) for (int i = 0; i < l.chance; i++) VALUES.add(l);
+    }
 
     /**
-     * @return A random enum-value
+     * Create a new label.
+     *
+     * @param chance chance in % that this label will be returned by the {@link #randomDesign()}
+     *     function.
+     */
+    DesignLabel(int chance) {
+        this.chance = chance;
+    }
+
+    /**
+     * @return A random enum-value based on chances
      */
     public static DesignLabel randomDesign() {
-        return VALUES.get(RANDOM.nextInt(SIZE));
+        return VALUES.get(RANDOM.nextInt(0, VALUES.size()));
     }
 }
