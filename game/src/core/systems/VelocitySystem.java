@@ -12,7 +12,6 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.utils.Constants;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
@@ -61,7 +60,10 @@ public final class VelocitySystem extends System {
         Vector2 velocity = new Vector2(vsd.vc.currentXVelocity(), vsd.vc.currentYVelocity());
         float len = velocity.len();
         velocity.nor();
-        velocity.scl(len * Constants.DEFAULT_FRICTION * Gdx.graphics.getDeltaTime());
+        velocity.scl(len);
+        if (Gdx.graphics != null) {
+            velocity.scl(Gdx.graphics.getDeltaTime());
+        }
 
         float newX = vsd.pc.position().x + velocity.x;
         float newY = vsd.pc.position().y + velocity.y;
