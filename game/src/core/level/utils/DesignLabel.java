@@ -8,7 +8,6 @@ import java.util.Random;
 /**
  * Specifies which textures and layouts should be used for the room.
  *
- * <p>Modified by [Your Name]
  */
 public enum DesignLabel {
     DEFAULT(50), // 50% chance
