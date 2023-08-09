@@ -130,13 +130,23 @@ public final class Game extends ScreenAdapter {
 
     private static Stage stage;
     /**
-     * Sets {@link #currentLevel} to the new level and removes all entities.
+     * Sets {@link #currentLevel} to the new level and change the currently active entity storage.
+     *
+     * <p>This will trigger all {@link System#onEntityRemove} for the old level.
+     *
+     * <p>This will trigger all {@link System#onEntityAdd} for the new level.
      *
      * <p>Will re-add the hero if he exists.
      */
     private final IVoidFunction onLevelLoad =
             () -> {
-                changeActiveMapper();
+                hero().ifPresent(Game::remove);
+                activeEntityStorage.forEach(EntitySystemMapper::triggerAllOnRemove);
+                activeEntityStorage =
+                        levelStorageMap.computeIfAbsent(currentLevel(), k -> new HashSet<>());
+                // readd systems
+                systems().values().forEach(Game::add);
+                activeEntityStorage.forEach(EntitySystemMapper::triggerAllOnAdd);
                 try {
                     hero().ifPresent(this::placeOnLevelStart);
                 } catch (MissingComponentException e) {
@@ -145,18 +155,6 @@ public final class Game extends ScreenAdapter {
                 hero().ifPresent(Game::add);
                 userOnLevelLoad.execute();
             };
-
-    private static void changeActiveMapper() {
-        // trigger all on remove
-        activeEntityStorage.forEach(EntitySystemMapper::triggerAllOnRemove);
-        Set<EntitySystemMapper> newActiveMapper = levelStorageMap.get(currentLevel());
-
-        if (newActiveMapper == null) newActiveMapper = new HashSet<>();
-        activeEntityStorage = newActiveMapper;
-
-        // trigger all on adds
-        activeEntityStorage.forEach(EntitySystemMapper::triggerAllOnAdd);
-    }
 
     private boolean doSetup = true;
     private boolean uiDebugFlag = false;
@@ -758,7 +756,6 @@ public final class Game extends ScreenAdapter {
     private void onSetup() {
         doSetup = false;
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
-        activeEntityStorage.add(new EntitySystemMapper());
         createSystems();
         setupStage();
         userOnSetup.execute();
