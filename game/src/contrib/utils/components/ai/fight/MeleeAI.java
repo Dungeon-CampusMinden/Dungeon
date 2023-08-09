@@ -5,8 +5,8 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.components.ai.AIUtils;
 import contrib.utils.components.skill.Skill;
 
+import core.Dungeon;
 import core.Entity;
-import core.Game;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
 
@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 public class MeleeAI implements Consumer<Entity> {
     private final float attackRange;
-    private final int delay = Game.frameRate();
+    private final int delay = Dungeon.frameRate();
     private int timeSinceLastUpdate = 0;
     private final Skill fightSkill;
     private GraphPath<Tile> path;
@@ -43,5 +43,19 @@ public class MeleeAI implements Consumer<Entity> {
             timeSinceLastUpdate++;
             AIUtils.move(entity, path);
         }
+    }
+
+    /**
+     * @return attack range.
+     */
+    public float attackRange() {
+        return attackRange;
+    }
+
+    /**
+     * @return fight skill.
+     */
+    public Skill fightSkill() {
+        return fightSkill;
     }
 }

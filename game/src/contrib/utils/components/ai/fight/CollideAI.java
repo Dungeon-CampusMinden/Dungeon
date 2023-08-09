@@ -4,8 +4,8 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 
 import contrib.utils.components.ai.AIUtils;
 
+import core.Dungeon;
 import core.Entity;
-import core.Game;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
 
@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 
 public class CollideAI implements Consumer<Entity> {
     private final float rushRange;
-    private final int delay = Game.frameRate();
+    private final int delay = Dungeon.frameRate();
     private int timeSinceLastUpdate = delay;
     private GraphPath<Tile> path;
 
@@ -43,5 +43,12 @@ public class CollideAI implements Consumer<Entity> {
             timeSinceLastUpdate++;
             AIUtils.move(entity, path);
         }
+    }
+
+    /**
+     * @return rush range.
+     */
+    public float rushRange() {
+        return rushRange;
     }
 }

@@ -3,6 +3,7 @@ package manual.quizquestion;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
+import core.Dungeon;
 import core.Game;
 
 import task.quizquestion.Quiz;
@@ -31,7 +32,7 @@ public class QuizQuestionUITest {
                 });
 
         // build and start game
-        Game.run();
+        Dungeon.run();
     }
 
     /**

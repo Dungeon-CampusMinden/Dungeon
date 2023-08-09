@@ -4,8 +4,8 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 
 import contrib.utils.components.ai.AIUtils;
 
+import core.Dungeon;
 import core.Entity;
-import core.Game;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
 
@@ -26,7 +26,7 @@ public class RadiusWalk implements Consumer<Entity> {
      */
     public RadiusWalk(final float radius, final int breakTimeInSeconds) {
         this.radius = radius;
-        this.breakTime = breakTimeInSeconds * Game.frameRate();
+        this.breakTime = breakTimeInSeconds * Dungeon.frameRate();
     }
 
     @Override
@@ -41,5 +41,19 @@ public class RadiusWalk implements Consumer<Entity> {
             currentBreak++;
 
         } else AIUtils.move(entity, path);
+    }
+
+    /**
+     * @return radius.
+     */
+    public float radius() {
+        return radius;
+    }
+
+    /**
+     * @return break time.
+     */
+    public int breakTime() {
+        return breakTime;
     }
 }

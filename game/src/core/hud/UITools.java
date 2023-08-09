@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
+import core.Dungeon;
 import core.Entity;
 import core.Game;
 import core.components.UIComponent;
@@ -90,6 +91,7 @@ public class UITools {
      */
     public static void centerActor(Actor a) {
         a.setPosition(
-                (Game.windowWidth() - a.getWidth()) / 2, (Game.windowHeight() - a.getHeight()) / 2);
+                (Dungeon.windowWidth() - a.getWidth()) / 2,
+                (Dungeon.windowHeight() - a.getHeight()) / 2);
     }
 }
