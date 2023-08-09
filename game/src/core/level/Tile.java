@@ -9,6 +9,7 @@ import core.level.elements.astar.TileConnection;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Constants;
 import core.utils.Point;
 
 import java.util.ArrayList;
@@ -28,7 +29,29 @@ public abstract class Tile {
     protected LevelElement levelElement;
     protected transient Array<Connection<Tile>> connections = new Array<>();
     protected int index;
+    private final float friction;
 
+    /**
+     * Creates a new Tile.
+     *
+     * @param texturePath Path to the texture of the tile.
+     * @param globalPosition Position of the tile in the global system.
+     * @param designLabel Design of the Tile
+     * @param level The level this Tile belongs to
+     * @param friction The friction of this Tile
+     */
+    public Tile(
+            String texturePath,
+            Coordinate globalPosition,
+            DesignLabel designLabel,
+            ILevel level,
+            float friction) {
+        this.texturePath = texturePath;
+        this.globalPosition = globalPosition;
+        this.designLabel = designLabel;
+        this.level = level;
+        this.friction = friction;
+    }
     /**
      * Creates a new Tile.
      *
@@ -39,10 +62,7 @@ public abstract class Tile {
      */
     public Tile(
             String texturePath, Coordinate globalPosition, DesignLabel designLabel, ILevel level) {
-        this.texturePath = texturePath;
-        this.globalPosition = globalPosition;
-        this.designLabel = designLabel;
-        this.level = level;
+        this(texturePath, globalPosition, designLabel, level, Constants.DEFAULT_FRICTION);
     }
 
     /**
@@ -137,6 +157,15 @@ public abstract class Tile {
      */
     public void index(int index) {
         this.index = index;
+    }
+
+    /**
+     * Get friction of this tile.
+     *
+     * @return the friction of this tile
+     */
+    public float friction() {
+        return this.friction;
     }
 
     /**

@@ -83,9 +83,10 @@ public final class VelocitySystem extends System {
         // tiles
         else if (vsd.e.fetch(ProjectileComponent.class).isPresent()) Game.remove(vsd.e);
 
-        float newVX = vsd.vc.currentXVelocity() * (1.0f - Constants.DEFAULT_FRICTION);
+        float friction = Game.tileAT(vsd.pc.position()).friction();
+        float newVX = vsd.vc.currentXVelocity() * (Math.min(1.0f, 1.0f - friction));
         if (Math.abs(newVX) < 0.01f) newVX = 0.0f;
-        float newVY = vsd.vc.currentYVelocity() * (1.0f - Constants.DEFAULT_FRICTION);
+        float newVY = vsd.vc.currentYVelocity() * (Math.min(1.0f, 1.0f - friction));
         if (Math.abs(newVY) < 0.01f) newVY = 0.0f;
 
         vsd.vc.currentYVelocity(newVY);
