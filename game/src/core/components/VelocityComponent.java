@@ -121,11 +121,7 @@ public final class VelocityComponent implements Component {
      * @return velocity with which the entity should move on the x-axis
      */
     public float xVelocity() {
-        LOGGER.log(
-                CustomLogLevel.DEBUG,
-                "Fetching x-velocity for entity '"
-                        + "': "
-                        + xVelocity);
+        LOGGER.log(CustomLogLevel.DEBUG, "Fetching x-velocity for entity '" + "': " + xVelocity);
         return xVelocity;
     }
 
@@ -148,11 +144,7 @@ public final class VelocityComponent implements Component {
      * @return velocity with which the entity should move on the y-axis
      */
     public float yVelocity() {
-        LOGGER.log(
-                CustomLogLevel.DEBUG,
-                "Fetching y-velocity for entity '"
-                        + "': "
-                        + yVelocity);
+        LOGGER.log(CustomLogLevel.DEBUG, "Fetching y-velocity for entity '" + "': " + yVelocity);
         return yVelocity;
     }
 
