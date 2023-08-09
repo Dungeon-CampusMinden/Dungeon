@@ -6,9 +6,7 @@ import core.Entity;
 import core.components.PlayerComponent;
 import core.utils.components.MissingComponentException;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -44,15 +42,12 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
      * @param entities - Entities that are protected
      */
     public ProtectOnAttack(final Collection<Entity> entities) {
-        entities.stream()
-                .peek(
-                        entity ->
-                                entity.fetch(HealthComponent.class)
-                                        .orElseThrow(
-                                                () ->
-                                                        MissingComponentException.build(
-                                                                entity, HealthComponent.class)))
-                .forEach(this.toProtect::add);
+        // add every entity with a HealthComponent to the protection list
+        // throw an exception for every entity that does not have a HealthComponent
+        for (Entity entity : entities) {
+            if (entity.isPresent(HealthComponent.class)) toProtect.add(entity);
+            else throw MissingComponentException.build(entity, HealthComponent.class);
+        }
     }
 
     /**
