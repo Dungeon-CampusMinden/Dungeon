@@ -58,9 +58,11 @@ public final class VelocitySystem extends System {
 
     private void updatePosition(VSData vsd) {
         Vector2 velocity = new Vector2(vsd.vc.currentXVelocity(), vsd.vc.currentYVelocity());
-        float len = velocity.len();
-        velocity.nor();
-        velocity.scl(len);
+        float maxSpeed = Math.max(Math.abs(vsd.vc.xVelocity()), Math.abs(vsd.vc.yVelocity()));
+        if (velocity.len() > maxSpeed) {
+            velocity.nor();
+            velocity.scl(maxSpeed);
+        }
         if (Gdx.graphics != null) {
             velocity.scl(Gdx.graphics.getDeltaTime());
         }

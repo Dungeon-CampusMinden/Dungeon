@@ -4,6 +4,8 @@ import static junit.framework.TestCase.assertTrue;
 
 import static org.junit.Assert.assertEquals;
 
+import com.badlogic.gdx.math.Vector2;
+
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -66,10 +68,25 @@ public class VelocitySystemTest {
         Mockito.when(tile.isAccessible()).thenReturn(true);
         velocityComponent.currentXVelocity(xVelocity);
         velocityComponent.currentYVelocity(yVelocity);
+
+        Vector2 velocity =
+                new Vector2(
+                        velocityComponent.currentXVelocity(), velocityComponent.currentYVelocity());
+        if (velocity.len()
+                > Math.max(
+                        Math.abs(velocityComponent.xVelocity()),
+                        Math.abs(velocityComponent.yVelocity()))) {
+            velocity.setLength(
+                    Math.max(
+                            Math.abs(velocityComponent.xVelocity()),
+                            Math.abs(velocityComponent.yVelocity())));
+        }
+
         velocitySystem.execute();
         Point position = positionComponent.position();
-        assertEquals(startXPosition + xVelocity, position.x, 0.001);
-        assertEquals(startYPosition + yVelocity, position.y, 0.001);
+
+        assertEquals(startXPosition + velocity.x, position.x, 0.001);
+        assertEquals(startYPosition + velocity.y, position.y, 0.001);
         assertEquals(
                 xVelocity * (1.0f - tile.friction()), velocityComponent.currentXVelocity(), 0.001);
         assertEquals(
@@ -79,13 +96,30 @@ public class VelocitySystemTest {
     @Test
     public void updateValidMoveWithNegativeVelocity() {
         Mockito.when(tile.isAccessible()).thenReturn(true);
+        velocityComponent.xVelocity(4);
+        velocityComponent.yVelocity(8);
         velocityComponent.currentXVelocity(-4);
         velocityComponent.currentYVelocity(-8);
+
+        Vector2 velocity =
+                new Vector2(
+                        velocityComponent.currentXVelocity(), velocityComponent.currentYVelocity());
+        if (velocity.len()
+                > Math.max(
+                        Math.abs(velocityComponent.xVelocity()),
+                        Math.abs(velocityComponent.yVelocity()))) {
+            velocity.setLength(
+                    Math.max(
+                            Math.abs(velocityComponent.xVelocity()),
+                            Math.abs(velocityComponent.yVelocity())));
+        }
+
         velocitySystem.execute();
         System.out.println(tile.friction());
         Point position = positionComponent.position();
-        assertEquals(startXPosition - 4, position.x, 0.001);
-        assertEquals(startYPosition - 8, position.y, 0.001);
+
+        assertEquals(startXPosition + velocity.x, position.x, 0.001);
+        assertEquals(startYPosition + velocity.y, position.y, 0.001);
         assertEquals(-4 * (1.0f - tile.friction()), velocityComponent.currentXVelocity(), 0.001);
         assertEquals(-8 * (1.0f - tile.friction()), velocityComponent.currentYVelocity(), 0.001);
     }
