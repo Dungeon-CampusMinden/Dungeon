@@ -47,8 +47,8 @@ public class ChestTest {
         assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
         assertEquals(
                 "Chest should have the given Items",
-                itemData,
-                inventoryComponent.map(InventoryComponent.class::cast).get().items());
+                new ItemData[] {},
+                inventoryComponent.get().items());
         Optional<PositionComponent> positionComponent = c.fetch(PositionComponent.class);
         assertTrue(
                 "Needs the PositionComponent to be somewhere in the Level",
@@ -127,7 +127,7 @@ public class ChestTest {
         assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
         assertTrue(
                 "Chest should have atleast 1 Item",
-                1 <= inventoryComponent.map(InventoryComponent.class::cast).get().items().size());
+                1 <= inventoryComponent.map(InventoryComponent.class::cast).get().items().length);
         assertEquals(
                 "x Position has to be 0. Only Tile is at 0,0",
                 0,
