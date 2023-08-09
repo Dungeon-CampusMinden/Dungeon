@@ -56,7 +56,7 @@ public final class XPComponent implements Component {
     private long currentXP;
 
     /**
-     * Create a new XPComponent and add it to the associated entity.
+     * Create a new XPComponent.
      *
      * <p>Useful for entities that should collect XP to level up, such as the player character.
      *
@@ -72,7 +72,7 @@ public final class XPComponent implements Component {
     }
 
     /**
-     * Create a new XPComponent with an empty level-up callback and add it to the associated entity.
+     * Create a new XPComponent with an empty level-up callback.
      *
      * <p>Useful for entities that should only give XP and not gain XP themselves, such as monsters.
      *

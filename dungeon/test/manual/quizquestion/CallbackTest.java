@@ -38,7 +38,7 @@ import java.util.function.BiConsumer;
  *
  * <p>Start the test with gradle runCallbackTest.
  */
-public class WizardQuizTest {
+public class CallbackTest {
     private static Quiz question = multipleChoiceDummy();
 
     private static void toggleQuiz() {
@@ -76,7 +76,7 @@ public class WizardQuizTest {
         Game.userOnLevelLoad(
                 () -> {
                     try {
-                        questWizard();
+                        Game.add(questWizard());
                     } catch (IOException e) {
                         throw new RuntimeException();
                     }
@@ -92,7 +92,7 @@ public class WizardQuizTest {
         Game.run();
     }
 
-    private static void questWizard() throws IOException {
+    private static Entity questWizard() throws IOException {
         Entity wizard = new Entity("Quest Wizard");
         wizard.addComponent(new PositionComponent());
         wizard.addComponent(new DrawComponent("character/wizard"));
@@ -104,6 +104,7 @@ public class WizardQuizTest {
                         (entity, who) ->
                                 UIAnswerCallback.askOnInteraction(question, showAnswersOnHud())
                                         .accept(entity, who)));
+        return wizard;
     }
 
     private static BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
@@ -113,7 +114,7 @@ public class WizardQuizTest {
                     .map(t -> (Quiz.Content) t)
                     .forEach(
                             t -> answers.set(answers.get() + t.content() + System.lineSeparator()));
-            Game.add(UITools.generateNewTextDialog(answers.get(), "Ok", "Given answer"));
+            UITools.generateNewTextDialog(answers.get(), "Ok", "Given answer");
         };
     }
 

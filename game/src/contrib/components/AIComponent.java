@@ -19,8 +19,8 @@ import java.util.function.Function;
  * <p>An AI-controlled entity can have two different states which define the behaviour of the
  * entity. The "idle state" describes the default behaviour of the entity, like walking around in
  * the level. The "combat state" describes the fighting behaviour, like throwing fireballs at the
- * hero. The {@link AISystem} will trigger {@link #execute()} which uses {@link #shouldFight} to
- * check if the idle or combat behaviour should be executed.
+ * hero. The {@link AISystem} will trigger {@link #execute(Entity)} which uses {@link #shouldFight}
+ * to check if the idle or combat behaviour should be executed.
  *
  * <p>The {@link #idleBehavior} defines the behaviour in idle state, e.g. walking on a specific path
  * {@link contrib.utils.components.ai.idle.PatrouilleWalk}.
@@ -40,7 +40,7 @@ public final class AIComponent implements Component {
     private final Function<Entity, Boolean> shouldFight;
 
     /**
-     * Create an AIComponent with the given behavior and add it to the associated entity.
+     * Create an AIComponent with the given behavior.
      *
      * @param fightBehavior The combat behavior.
      * @param idleBehavior The idle behavior.
@@ -56,7 +56,7 @@ public final class AIComponent implements Component {
     }
 
     /**
-     * Create an AIComponent with default behavior and add it to the associated entity.
+     * Create an AIComponent with default behavior.
      *
      * <p>The default behavior uses {@link RadiusWalk} as the idle behavior, {@link RangeTransition}
      * as the transition function, and {@link CollideAI} as the fight behavior.
@@ -70,8 +70,10 @@ public final class AIComponent implements Component {
      *
      * <p>Uses {@link #shouldFight} to check if the entity is in idle mode or in fight mode and
      * execute the corresponding behavior
+     *
+     * @param entity associated entity of this component.
      */
-    public void execute(Entity entity) {
+    public void execute(final Entity entity) {
         if (shouldFight.apply(entity)) fightBehavior.accept(entity);
         else idleBehavior.accept(entity);
     }

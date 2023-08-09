@@ -8,11 +8,11 @@ import java.util.function.BiConsumer;
 /**
  * Allows interaction with the associated entity.
  *
- * <p>An interaction can be triggered using {@link #triggerInteraction(Entity)}. This happens in the
- * {@link core.systems.PlayerSystem} if the player presses the corresponding button on the keyboard
- * and is in the interaction range of this component.
+ * <p>An interaction can be triggered using {@link #triggerInteraction(Entity,Entity)}. This happens
+ * in the {@link core.systems.PlayerSystem} if the player presses the corresponding button on the
+ * keyboard and is in the interaction range of this component.
  *
- * <p>What happens during an interaction is defined by the {@link BiConsumer<Entity, Entity>} {@link
+ * <p>What happens during an interaction is defined by the {@link BiConsumer} {@link
  * #onInteraction}.
  *
  * <p>An interaction can be repeatable, in which case it can be triggered multiple times. If an
@@ -31,7 +31,7 @@ public final class InteractionComponent implements Component {
     private final BiConsumer<Entity, Entity> onInteraction;
 
     /**
-     * Create a new {@link InteractionComponent} and adds it to the associated entity.
+     * Create a new {@link InteractionComponent}.
      *
      * @param radius The radius in which an interaction can happen.
      * @param repeatable True if the interaction is repeatable, otherwise false.
@@ -45,8 +45,7 @@ public final class InteractionComponent implements Component {
     }
 
     /**
-     * Create a new {@link InteractionComponent} with default configuration and adds it to the
-     * associated entity.
+     * Create a new {@link InteractionComponent} with default configuration.
      *
      * <p>The interaction radius is {@link #DEFAULT_INTERACTION_RADIUS}.
      *
@@ -62,9 +61,10 @@ public final class InteractionComponent implements Component {
      * <p>If the interaction is not repeatable, this component will be removed from the entity
      * afterwards.
      *
+     * @param entity associated entity of this component.
      * @param who The entity that triggered the interaction.
      */
-    public void triggerInteraction(Entity entity, Entity who) {
+    public void triggerInteraction(final Entity entity, final Entity who) {
         onInteraction.accept(entity, who);
         if (!repeatable) entity.removeComponent(InteractionComponent.class);
     }

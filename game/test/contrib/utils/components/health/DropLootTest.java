@@ -33,7 +33,7 @@ public class DropLootTest {
     public void entityMissingPositionComponent() {
         DropLoot dropLoot = new DropLoot();
         Entity entity = new Entity();
-        new InventoryComponent(entity, 10);
+        entity.addComponent(new InventoryComponent(10));
         MissingComponentException mce =
                 assertThrows(MissingComponentException.class, () -> dropLoot.accept(entity));
         assertTrue(mce.getMessage().contains(PositionComponent.class.getName()));
@@ -44,8 +44,8 @@ public class DropLootTest {
     public void entityInventoryComponentEmpty() {
         DropLoot dropLoot = new DropLoot();
         Entity entity = new Entity();
-        new PositionComponent(entity, new Point(1, 2));
-        new InventoryComponent(entity, 10);
+        entity.addComponent(new PositionComponent(new Point(1, 2)));
+        entity.addComponent(new InventoryComponent(10));
         dropLoot.accept(entity);
         Game.remove(entity);
         assertEquals(0, Game.entityStream().count());

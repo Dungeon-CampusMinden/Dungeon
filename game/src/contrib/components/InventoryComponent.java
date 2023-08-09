@@ -31,8 +31,7 @@ public final class InventoryComponent implements Component {
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
 
     /**
-     * Create a new {@link InventoryComponent} with the given size and add it to the associated
-     * entity.
+     * Create a new {@link InventoryComponent} with the given size.
      *
      * @param maxSize The number of items that can be stored in the inventory.
      */

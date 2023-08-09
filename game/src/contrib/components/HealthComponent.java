@@ -31,7 +31,7 @@ import java.util.logging.Logger;
  * #calculateDamageOf(DamageType)} method for each {@link DamageType} and calculates the sum of the
  * damage. Next, the {@link HealthSystem} reduces the {@link #currentHealthpoints} by this value and
  * calls {@link #clearDamage()} to clear the internal list afterwards. When the health points drop
- * to 0 or less, the system calls {@link #triggerOnDeath()}.
+ * to 0 or less, the system calls {@link #triggerOnDeath(Entity)}.
  *
  * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
  */
@@ -45,7 +45,7 @@ public final class HealthComponent implements Component {
     private @Null Entity lastCause = null;
 
     /**
-     * Create a new HealthComponent and add it to the associated entity.
+     * Create a new HealthComponent.
      *
      * @param maximalHitPoints Maximum amount of health points; currentHitPoints cannot be greater
      *     than that
@@ -59,7 +59,7 @@ public final class HealthComponent implements Component {
     }
 
     /**
-     * Create a HealthComponent with default values and add it to the associated entity.
+     * Create a HealthComponent with default values.
      *
      * <p>The maximum health points are set to 1, and the onDeath function is empty.
      */
@@ -80,8 +80,12 @@ public final class HealthComponent implements Component {
         this.lastCause = damage.cause() != null ? damage.cause() : this.lastCause;
     }
 
-    /** Trigger the onDeath function */
-    public void triggerOnDeath(Entity entity) {
+    /**
+     * Trigger the onDeath function
+     *
+     * @param entity associated entity of this component.
+     */
+    public void triggerOnDeath(final Entity entity) {
         onDeath.accept(entity);
     }
 

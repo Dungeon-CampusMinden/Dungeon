@@ -15,7 +15,8 @@ public class XPComponentTest {
         /* Prepare */
         Game.removeAllEntities();
         Entity entity = new Entity();
-        XPComponent xpComponent = new XPComponent(entity, null);
+        XPComponent xpComponent = new XPComponent(null);
+        entity.addComponent(xpComponent);
 
         /* Test */
         assertEquals(0, xpComponent.currentXP());
@@ -28,7 +29,8 @@ public class XPComponentTest {
         /* Prepare */
         Game.removeAllEntities();
         Entity entity = new Entity();
-        XPComponent xpComponent = new XPComponent(entity, null);
+        XPComponent xpComponent = new XPComponent(null);
+        entity.addComponent(xpComponent);
 
         /* Test */
         xpComponent.addXP(10);
@@ -41,7 +43,8 @@ public class XPComponentTest {
         /* Prepare */
         Game.removeAllEntities();
         Entity entity = new Entity();
-        XPComponent xpComponent = new XPComponent(entity, null);
+        XPComponent xpComponent = new XPComponent(null);
+        entity.addComponent(xpComponent);
 
         /* Test */
         xpComponent.addXP(10);
@@ -55,7 +58,8 @@ public class XPComponentTest {
         /* Prepare */
         Game.removeAllEntities();
         Entity entity = new Entity();
-        XPComponent xpComponent = new XPComponent(entity, null);
+        XPComponent xpComponent = new XPComponent(null);
+        entity.addComponent(xpComponent);
 
         /* Test */
         xpComponent.addXP(10);
@@ -68,7 +72,8 @@ public class XPComponentTest {
         /* Prepare */
         Game.removeAllEntities();
         Entity entity = new Entity();
-        XPComponent xpComponent = new XPComponent(entity, null);
+        XPComponent xpComponent = new XPComponent(null);
+        entity.addComponent(xpComponent);
 
         /* Test */
         xpComponent.addXP(100);
@@ -81,7 +86,8 @@ public class XPComponentTest {
         /* Prepare */
         Game.removeAllEntities();
         Entity entity = new Entity();
-        XPComponent xpComponent = new XPComponent(entity, null);
+        XPComponent xpComponent = new XPComponent(null);
+        entity.addComponent(xpComponent);
 
         /* Test */
         xpComponent.addXP(120);

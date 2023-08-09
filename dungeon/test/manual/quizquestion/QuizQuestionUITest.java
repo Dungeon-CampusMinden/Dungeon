@@ -29,7 +29,7 @@ public class QuizQuestionUITest {
                         // Dialogue for quiz questions (display of quiz questions and the answer
                         // area in test
                         // mode)
-                        Game.add(QuizUI.showQuizDialog(DummyQuizQuestionList.getRandomQuestion()));
+                        QuizUI.showQuizDialog(DummyQuizQuestionList.getRandomQuestion());
                     }
                 });
 

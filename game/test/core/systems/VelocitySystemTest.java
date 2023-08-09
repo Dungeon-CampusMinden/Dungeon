@@ -44,11 +44,13 @@ public class VelocitySystemTest {
         entity = new Entity();
         velocitySystem = new VelocitySystem();
         Game.add(velocitySystem);
-        velocityComponent = new VelocityComponent(entity, xVelocity, yVelocity);
-        positionComponent =
-                new PositionComponent(entity, new Point(startXPosition, startYPosition));
-        animationComponent = new DrawComponent(entity, "character/blue_knight");
-        velocitySystem.showEntity(entity);
+        velocityComponent = new VelocityComponent(xVelocity, yVelocity);
+        positionComponent = new PositionComponent(new Point(startXPosition, startYPosition));
+        animationComponent = new DrawComponent("character/blue_knight");
+        entity.addComponent(velocityComponent);
+        entity.addComponent(positionComponent);
+        entity.addComponent(animationComponent);
+        Game.add(entity);
     }
 
     @After

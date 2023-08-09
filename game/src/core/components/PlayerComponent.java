@@ -89,8 +89,12 @@ public final class PlayerComponent implements Component {
         callbacks.remove(key);
     }
 
-    /** Execute the callback function registered to a key when it is pressed. */
-    public void execute(Entity entity) {
+    /**
+     * Execute the callback function registered to a key when it is pressed.
+     *
+     * @param entity associated entity of this component.
+     */
+    public void execute(final Entity entity) {
         callbacks.forEach((k, v) -> execute(entity, k, v));
     }
 

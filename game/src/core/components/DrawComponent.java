@@ -53,7 +53,7 @@ public final class DrawComponent implements Component {
     private Animation currentAnimation;
 
     /**
-     * Create a new DrawComponent and add it to the associated entity.
+     * Create a new DrawComponent.
      *
      * <p>Will read in all subdirectories of the given path and use each file in the subdirectory to
      * create an animation. So each subdirectory should contain only the files for one animation.

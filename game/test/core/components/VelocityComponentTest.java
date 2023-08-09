@@ -2,8 +2,6 @@ package core.components;
 
 import static org.junit.Assert.assertEquals;
 
-import core.Entity;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,7 +13,7 @@ public class VelocityComponentTest {
 
     @Before
     public void setup() {
-        velocityComponent = new VelocityComponent(new Entity(), xVelocityAtStart, yVelocityAtStart);
+        velocityComponent = new VelocityComponent(xVelocityAtStart, yVelocityAtStart);
     }
 
     @Test
