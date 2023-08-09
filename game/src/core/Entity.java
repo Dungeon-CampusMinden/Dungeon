@@ -41,7 +41,7 @@ public final class Entity implements Comparable<Entity> {
     private final HashMap<Class<? extends Component>, Component> components;
 
     /**
-     * Create a new Entity and register it in {@link Game} using {@link Game#add}.
+     * Create a new Entity you have to register it in {@link Game} using {@link Game#add}.
      *
      * @param name the name of the entity, used for better logging and debugging
      */
